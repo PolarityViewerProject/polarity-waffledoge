@@ -86,10 +86,9 @@ LLToolMgr::LLToolMgr()
 	// Not a panel, register these callbacks globally.
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
 //	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&LLToolMgr::canEdit, this));
-//	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this, _2));
-// [RLVa:KB] - Checked: 2010-09-11 (RLVa-1.2.1d) | Added: RLVa-1.2.1d
+// [RLVa:KB] - Checked: 2010-09-11 (RLVa-1.2.1d) | Added: RLVa-1.2.1d | Ansa: Changed because of FIRE-5552
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Enabled", boost::bind(&RlvUIEnabler::isBuildEnabled));
-	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this));
+        LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Build.Toggle", boost::bind(&LLToolMgr::toggleBuildMode, this, _2));
 // [/RLVa:KB]
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Marketplace.Enabled", boost::bind(&LLToolMgr::canAccessMarketplace, this));
 	LLUICtrl::CommitCallbackRegistry::currentRegistrar().add("Marketplace.Toggle", boost::bind(&LLToolMgr::toggleMarketplace, this, _2));
@@ -271,17 +270,17 @@ bool LLToolMgr::canEdit()
 	return LLViewerParcelMgr::getInstance()->allowAgentBuild();
 }
 
-//void LLToolMgr::toggleBuildMode(const LLSD& sdname)
-// [RLVa:KB] - Checked: 2012-04-26 (RLVa-1.4.6) | Added: RLVa-1.4.6
-void LLToolMgr::toggleBuildMode()
-// [/RLVa:KB]
+void LLToolMgr::toggleBuildMode(const LLSD& sdname)
 {
-//	const std::string& param = sdname.asString();
-//
-//	if (param == "build" && !canEdit())
-//	{
-//		return;
-//	}
+	const std::string& param = sdname.asString();
+
+// [RLVa:KB] - Checked: 2012-04-26 (RLVa-1.4.6) | Added: RLVa-1.4.6 | Ansa: Changed because of FIRE-5552
+	//if (param == "build" && !canEdit())
+	if (param == "build" && !RlvUIEnabler::isBuildEnabled())
+// [/RLVa:KB]
+	{
+		return;
+	}
 
 	LLFloaterReg::toggleInstanceOrBringToFront("build");
 
