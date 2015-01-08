@@ -2209,21 +2209,22 @@ bool LLAppViewer::initThreads()
 
 void errorCallback(const std::string &error_string)
 {
+	static std::string last_message;
+	if (last_message != error_string)
+	{
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-	OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_OK);
+		U32 response = OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_YESNO);
+		if (response == OSBTN_NO)
+		{
+			last_message = error_string;
+			return;
+		}
 #endif
+		//Set the ErrorActivated global so we know to create a marker file
+		gLLErrorActivated = true;
 
-	//Set the ErrorActivated global so we know to create a marker file
-	gLLErrorActivated = true;
-	
-//	LLError::crashAndLoop(error_string);
-// [SL:KB] - Patch: Viewer-Build | Checked: 2010-12-04 (Catznip-2.4)
-#if !LL_RELEASE_FOR_DOWNLOAD && LL_WINDOWS
-	DebugBreak();
-#else
-	LLError::crashAndLoop(error_string);
-#endif // LL_RELEASE_WITH_DEBUG_INFO && LL_WINDOWS
-// [/SL:KB]
+		LLError::crashAndLoop(error_string);
+	}
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
