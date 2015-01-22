@@ -59,7 +59,6 @@ public:
 	BOOL loadShadersInterface();
 	BOOL loadShadersWindLight();
 	// <Black Dragon:NiranV> Exodus post processing shaders
-	BOOL loadTransformShaders();
 	void unloadExodusPostShaders();
 	BOOL loadExodusPostShaders();
 	// </Black Dragon:NiranV>
@@ -78,7 +77,6 @@ public:
 		SHADER_WINDLIGHT,
 		SHADER_WATER,
 		SHADER_DEFERRED,
-		SHADER_TRANSFORM,
 		SHADER_COUNT
 	};
 
@@ -167,15 +165,6 @@ inline bool operator != (LLViewerShaderMgr::shader_iter const & a, LLViewerShade
 }
 
 extern LLVector4			gShinyOrigin;
-
-//transform shaders
-extern LLGLSLShader			gTransformPositionProgram;
-extern LLGLSLShader			gTransformTexCoordProgram;
-extern LLGLSLShader			gTransformNormalProgram;
-extern LLGLSLShader			gTransformColorProgram;
-extern LLGLSLShader			gTransformTangentProgram;
-
-
 
 //utility shaders
 extern LLGLSLShader			gOcclusionProgram;

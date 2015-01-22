@@ -3977,32 +3977,12 @@ void LLPipeline::postSort(LLCamera& camera)
 	//flush particle VB
 	LLVOPartGroup::sVB->flush();
 
-	/*bool use_transform_feedback = gTransformPositionProgram.mProgramObject && !mMeshDirtyGroup.empty();
-
-	if (use_transform_feedback)
-	{ //place a query around potential transform feedback code for synchronization
-		mTransformFeedbackPrimitives = 0;
-
-		if (!mMeshDirtyQueryObject)
-		{
-			glGenQueriesARB(1, &mMeshDirtyQueryObject);
-		}
-
-		
-		glBeginQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN, mMeshDirtyQueryObject);
-	}*/
-
 	//pack vertex buffers for groups that chose to delay their updates
 	for (LLSpatialGroup::sg_vector_t::iterator iter = mMeshDirtyGroup.begin(); iter != mMeshDirtyGroup.end(); ++iter)
 	{
 		(*iter)->rebuildMesh();
 	}
 
-	/*if (use_transform_feedback)
-	{
-		glEndQueryARB(GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN);
-	}*/
-	
 	mMeshDirtyGroup.clear();
 
 	if (!sShadowRender)
