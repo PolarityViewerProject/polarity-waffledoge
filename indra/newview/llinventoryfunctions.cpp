@@ -92,8 +92,6 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
-#include <boost/foreach.hpp>
-
 BOOL LLInventoryState::sWearNewClothing = FALSE;
 LLUUID LLInventoryState::sWearNewClothingTransactionID;
 std::list<LLUUID> LLInventoryAction::sMarketplaceFolders;

@@ -62,7 +62,6 @@
 #include "v2math.h"
 #include <set>
 #include <boost/tokenizer.hpp>
-#include <boost/foreach.hpp>
 
 // static
 LLMenuHolderGL *LLMenuGL::sMenuContainer = NULL;
@@ -2106,7 +2105,7 @@ void LLMenuGL::arrange( void )
 		}
 		else
 		{
-			BOOST_FOREACH(LLMenuItemGL* itemp, mItems)
+			for(LLMenuItemGL* itemp : mItems)
 			{
 				// do first so LLMenuGLItemCall can call on_visible to determine if visible
 				itemp->buildDrawLabel();
