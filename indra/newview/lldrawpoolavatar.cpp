@@ -457,6 +457,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
+	static LLCachedControl<bool> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 1);
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 
 	if (mDrawFace.empty())
@@ -488,10 +489,11 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	else
 	{
-		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
-		{
-			renderRigged(avatarp, i);
-		}
+		if (!_NACL_SimpleAvatarShadows)
+			for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+			{
+				renderRigged(avatarp, i);
+			}
 	}
 }
 
