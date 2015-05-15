@@ -142,6 +142,8 @@ public:
 	void updateRiggedVertexBuffers(LLVOAvatar* avatar);
 
 	void renderRigged(LLVOAvatar* avatar, U32 type, bool glow = false);
+	// NaCl - Faster Avatar Shadows
+	void renderRiggedShadows(LLVOAvatar* avatar);
 	void renderRiggedSimple(LLVOAvatar* avatar);
 	void renderRiggedAlpha(LLVOAvatar* avatar);
 	void renderRiggedFullbrightAlpha(LLVOAvatar* avatar);

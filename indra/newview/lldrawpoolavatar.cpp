@@ -457,6 +457,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
+	// NaCl - Faster Avatar Shadows
 	static LLCachedControl<bool> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 1);
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 
@@ -489,11 +490,9 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	else
 	{
+		// NaCl - Faster Avatar Shadows
 		if (!_NACL_SimpleAvatarShadows)
-			for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
-			{
-				renderRigged(avatarp, i);
-			}
+			renderRiggedShadows(avatarp);
 	}
 }
 
@@ -1869,6 +1868,133 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				buff->setBuffer(data_mask);
 				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);		
 			}
+
+			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
+		}
+	}
+}
+
+// NaCl - Faster Avatar Shadows
+void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
+{
+	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
+	{
+		return;
+	}
+
+	stop_glerror();
+
+	for (U32 i = 0; i < mRiggedFace[24].size(); ++i)
+	{
+		LLFace* face = mRiggedFace[24][i];
+		LLDrawable* drawable = face->getDrawable();
+		if (!drawable)
+		{
+			continue;
+		}
+
+		LLVOVolume* vobj = drawable->getVOVolume();
+
+		if (!vobj)
+		{
+			continue;
+		}
+
+		LLVolume* volume = vobj->getVolume();
+		S32 te = face->getTEOffset();
+
+		if (!volume || volume->getNumVolumeFaces() <= te || !volume->isMeshAssetLoaded())
+		{
+			continue;
+		}
+
+		LLUUID mesh_id = volume->getParams().getSculptID();
+		if (mesh_id.isNull())
+		{
+			continue;
+		}
+
+		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
+		if (!skin)
+		{
+			continue;
+		}
+
+		U32 data_mask = LLFace::getRiggedDataMask(24);
+
+		LLVertexBuffer* buff = face->getVertexBuffer();
+
+		if (buff)
+		{
+			if (sShaderLevel > 0)
+			{ //upload matrix palette to shader
+				LLMatrix4 mat[JOINT_COUNT];
+
+				U32 count = llmin((U32)skin->mJointNames.size(), (U32)JOINT_COUNT);
+
+				for (U32 i = 0; i < count; ++i)
+				{
+					LLJoint* joint = avatar->getJoint(skin->mJointNames[i]);
+					if (joint)
+					{
+						mat[i] = skin->mInvBindMatrix[i];
+						mat[i] *= joint->getWorldMatrix();
+					}
+				}
+
+				stop_glerror();
+
+				F32 mp[JOINT_COUNT * 9];
+
+				F32 transp[JOINT_COUNT * 3];
+
+				for (U32 i = 0; i < count; ++i)
+				{
+					F32* m = (F32*)mat[i].mMatrix;
+
+					U32 idx = i * 9;
+
+					mp[idx + 0] = m[0];
+					mp[idx + 1] = m[1];
+					mp[idx + 2] = m[2];
+
+					mp[idx + 3] = m[4];
+					mp[idx + 4] = m[5];
+					mp[idx + 5] = m[6];
+
+					mp[idx + 6] = m[8];
+					mp[idx + 7] = m[9];
+					mp[idx + 8] = m[10];
+
+					idx = i * 3;
+
+					transp[idx + 0] = m[12];
+					transp[idx + 1] = m[13];
+					transp[idx + 2] = m[14];
+				}
+
+				LLDrawPoolAvatar::sVertexProgram->uniformMatrix3fv(LLViewerShaderMgr::AVATAR_MATRIX,
+					count,
+					FALSE,
+					(GLfloat*)mp);
+
+				LLDrawPoolAvatar::sVertexProgram->uniform3fv(LLShaderMgr::AVATAR_TRANSLATION, count, transp);
+
+
+				stop_glerror();
+			}
+			else
+			{
+				data_mask &= ~LLVertexBuffer::MAP_WEIGHT4;
+			}
+
+			U16 start = face->getGeomStart();
+			U16 end = start + face->getGeomCount() - 1;
+			S32 offset = face->getIndicesStart();
+			U32 count = face->getIndicesCount();
+
+			buff->setBuffer(data_mask);
+			buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
 
 			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
