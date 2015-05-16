@@ -1884,7 +1884,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 
 	stop_glerror();
 
-	U32 rigTypes[3] = { 0,2,16 };
+	U32 rigTypes[2] = { 2,16 };
 	for (U32 j = 0; j < 2; ++j)
 	for (U32 i = 0; i < mRiggedFace[rigTypes[j]].size(); ++i)
 	{
@@ -1995,8 +1995,33 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 			S32 offset = face->getIndicesStart();
 			U32 count = face->getIndicesCount();
 
-			buff->setBuffer(data_mask);
-			buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+			sVertexProgram->setMinimumAlpha(0.f);
+			gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
+
+			if (rigTypes[j] == 2)
+			{
+				const LLTextureEntry* te = face->getTextureEntry();
+				LLMaterial* mat = te->getMaterialParams().get();
+
+				if (mat)
+					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+						sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff() / 255.f);
+			}
+
+			if (face->mTextureMatrix && vobj->mTexAnimMode)
+			{
+				gGL.matrixMode(LLRender::MM_TEXTURE);
+				gGL.loadMatrix((F32*)face->mTextureMatrix->mMatrix);
+				buff->setBuffer(data_mask);
+				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+				gGL.loadIdentity();
+				gGL.matrixMode(LLRender::MM_MODELVIEW);
+			}
+			else
+			{
+				buff->setBuffer(data_mask);
+				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
+			}
 
 			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
 		}
