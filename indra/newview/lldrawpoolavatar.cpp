@@ -458,7 +458,9 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<bool> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 1);
+	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 2);
+	if (!_NACL_SimpleAvatarShadows)
+		return;
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 
 	if (mDrawFace.empty())
@@ -488,10 +490,8 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		avatarp->renderSkinned();
 	}
-	else
+	else if (_NACL_SimpleAvatarShadows == 2)
 	{
-		// NaCl - Faster Avatar Shadows
-		if (!_NACL_SimpleAvatarShadows)
 			renderRiggedShadows(avatarp);
 	}
 }
