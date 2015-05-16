@@ -1884,9 +1884,11 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 
 	stop_glerror();
 
-	for (U32 i = 0; i < mRiggedFace[24].size(); ++i)
+	U32 rigTypes[3] = { 0,2,16 };
+	for (U32 j = 0; j < 2; ++j)
+	for (U32 i = 0; i < mRiggedFace[rigTypes[j]].size(); ++i)
 	{
-		LLFace* face = mRiggedFace[24][i];
+		LLFace* face = mRiggedFace[rigTypes[j]][i];
 		LLDrawable* drawable = face->getDrawable();
 		if (!drawable)
 		{
