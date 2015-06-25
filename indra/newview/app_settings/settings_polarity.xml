@@ -26,7 +26,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>4</integer>
     </map>
     <!-- Catznip -->
     <key>FullScreenWindow</key>

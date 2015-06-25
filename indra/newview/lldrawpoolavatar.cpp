@@ -490,7 +490,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		avatarp->renderSkinned();
 	}
-	else if (_NACL_SimpleAvatarShadows == 2)
+	else if (_NACL_SimpleAvatarShadows == 4)
 	{
 			renderRiggedShadows(avatarp);
 	}
