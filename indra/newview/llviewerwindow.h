@@ -406,6 +406,12 @@ public:
 	// Prints window implementation details
 	void			dumpState();
 
+// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-07-09 (Catznip-2.1.2a) | Added: Catznip-2.1.1a
+	bool			canFullscreenWindow();
+	bool			getFullscreenWindow();
+	void			setFullscreenWindow(BOOL fFullscreen);
+// [/SL:KB]
+
 	// handle shutting down GL and bringing it back up
 	void			requestResolutionUpdate();
 	void			checkSettings();
@@ -418,6 +424,8 @@ public:
 	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
 
 	void			setTitle(const std::string win_title);	// <polarity/> Dynamic window title
+
+	LLWindow*		mWindow;						// graphical window object
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);
@@ -433,7 +441,7 @@ private:
 	LLRect			getChatConsoleRect(); // Get optimal cosole rect.
 
 private:
-	LLWindow*		mWindow;						// graphical window object
+
 	bool			mActive;
 	bool			mUIVisible;
 
