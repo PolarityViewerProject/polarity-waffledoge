@@ -39,7 +39,9 @@
 #include "httprequest.h"
 #include "llcorehttputil.h"
 
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/signals2.hpp>
 
 extern const BOOL 	ANIMATE;
 extern const U8 	AGENT_STATE_TYPING;  // Typing indication
