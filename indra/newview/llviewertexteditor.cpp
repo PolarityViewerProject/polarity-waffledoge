@@ -30,6 +30,7 @@
 
 #include "llviewertexteditor.h"
 
+#include <stack>
 #include "llagent.h"
 #include "llaudioengine.h"
 #include "llavataractions.h"

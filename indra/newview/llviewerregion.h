@@ -29,7 +29,6 @@
 
 // A ViewerRegion is a class that contains a bunch of objects and surfaces
 // that are in to a particular region.
-#include <boost/signals2.hpp>
 
 #include "llwind.h"
 #include "v3dmath.h"

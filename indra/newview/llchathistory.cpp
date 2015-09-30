@@ -31,8 +31,6 @@
 #if LL_CHAT_HISTORY
 #include "llchathistory.h"
 
-#include <boost/signals2.hpp>
-
 #include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
