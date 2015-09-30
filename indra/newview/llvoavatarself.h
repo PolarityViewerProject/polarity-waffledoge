@@ -30,7 +30,6 @@
 
 #include "llviewertexture.h"
 #include "llvoavatar.h"
-#include <map>
 #include "lleventcoro.h"
 #include "llcoros.h"
 

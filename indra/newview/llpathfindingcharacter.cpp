@@ -32,8 +32,6 @@
 
 #include "llpathfindingcharacter.h"
 
-#include <string>
-
 #include "llpathfindingobject.h"
 #include "llsd.h"
 

@@ -32,8 +32,6 @@
 
 #include "llfloaterpathfindinglinksets.h"
 
-#include <string>
-
 #include <boost/bind.hpp>
 
 #include "llagent.h"

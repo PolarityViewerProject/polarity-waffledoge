@@ -48,9 +48,6 @@
 #include "llexception.h"
 #include "stringize.h"
 
-#include <map>
-#include <set>
-
 namespace LLAvatarNameCache
 {
 	use_display_name_signal_t mUseDisplayNamesSignal;

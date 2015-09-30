@@ -27,9 +27,6 @@
 #ifndef LL_LLVIEWEROBJECTLIST_H
 #define LL_LLVIEWEROBJECTLIST_H
 
-#include <map>
-#include <set>
-
 // common includes
 #include "llstring.h"
 #include "lltrace.h"

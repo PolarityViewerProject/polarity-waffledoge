@@ -28,12 +28,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <iostream>
-#include <map>
-#include <algorithm>
-
-#include "llstl.h"
-
 #include "lltexturefetch.h"
 
 #include "lldir.h"

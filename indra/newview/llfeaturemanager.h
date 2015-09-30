@@ -31,7 +31,6 @@
 
 #include "llsingleton.h"
 #include "llstring.h"
-#include <map>
 #include "llcoros.h"
 #include "lleventcoro.h"
 

@@ -27,7 +27,6 @@
 #ifndef LL_MESSAGECONFIG_H
 #define LL_MESSAGECONFIG_H
 
-#include <string>
 #include "llsd.h"
 
 class LLSD;

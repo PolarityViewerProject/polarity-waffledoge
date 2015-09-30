@@ -32,9 +32,6 @@
 
 #include "llpathfindingmanager.h"
 
-#include <string>
-#include <map>
-
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>

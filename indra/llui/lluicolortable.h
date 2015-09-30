@@ -27,8 +27,6 @@
 #ifndef LL_LLUICOLORTABLE_H_
 #define LL_LLUICOLORTABLE_H_
 
-#include <map>
-
 #include "llinitparam.h"
 #include "llsingleton.h"
 

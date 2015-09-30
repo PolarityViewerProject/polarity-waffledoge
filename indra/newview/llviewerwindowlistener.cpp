@@ -32,9 +32,6 @@
 #include "llviewerprecompiledheaders.h"
 // associated header
 #include "llviewerwindowlistener.h"
-// STL headers
-#include <map>
-// std headers
 // external library headers
 // other Linden headers
 #include "llviewerwindow.h"

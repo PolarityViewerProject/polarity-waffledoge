@@ -31,8 +31,6 @@
 #include "llvfs.h"
 
 #include <sys/stat.h>
-#include <set>
-#include <map>
 #if LL_WINDOWS
 #include <share.h>
 #elif LL_SOLARIS
