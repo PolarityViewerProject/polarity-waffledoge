@@ -35,7 +35,6 @@
 // STL headers
 // std headers
 // external library headers
-#include <boost/type_traits/is_same.hpp>
 #include <boost/static_assert.hpp>
 // other Linden headers
 #include "llmemory.h"
