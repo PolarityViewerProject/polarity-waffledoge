@@ -46,8 +46,6 @@
 #include "stringize.h"
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
-#include <boost/range/begin.hpp>
-#include <boost/range/end.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/bind.hpp>
 #include <boost/ref.hpp>
