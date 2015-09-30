@@ -36,8 +36,7 @@
 #include "llupdateinstaller.h"
 #include "llexception.h"
 
-//#include <boost/scoped_ptr.hpp>
-//#include <boost/weak_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
@@ -56,7 +55,7 @@
 
 namespace 
 {
-	boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
+	std::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 	const std::string UPDATE_MARKER_FILENAME("PolarityUpdateReady.xml");
 	std::string update_marker_path()

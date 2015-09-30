@@ -32,8 +32,6 @@
 
 #include "llpathfindingmanager.h"
 
-#include <boost/shared_ptr.hpp>
-
 #include "llagent.h"
 #include "llhttpnode.h"
 #include "llnotificationsutil.h"
@@ -134,7 +132,7 @@ private:
 	LLPathfindingObjectPtr                          mTerrainLinksetPtr;
 };
 
-typedef boost::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
+typedef std::shared_ptr<LinksetsResponder> LinksetsResponderPtr;
 
 //---------------------------------------------------------------------------
 // LLPathfindingManager

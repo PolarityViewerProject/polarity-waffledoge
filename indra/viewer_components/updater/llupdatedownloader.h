@@ -27,8 +27,7 @@
 #define LL_UPDATE_DOWNLOADER_H
 
 
-//#include <string>
-#include <boost/shared_ptr.hpp>
+#include <string>
 #include "lluri.h"
 
 
@@ -69,7 +68,7 @@ public:
 	void setBandwidthLimit(U64 bytesPerSecond) const;
 	
 private:
-	boost::shared_ptr<Implementation> mImplementation;
+	std::shared_ptr<Implementation> mImplementation;
 };
 
 

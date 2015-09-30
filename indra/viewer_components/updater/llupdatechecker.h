@@ -26,13 +26,9 @@
 #ifndef LL_UPDATERCHECKER_H
 #define LL_UPDATERCHECKER_H
 
-
-//#include <boost/shared_ptr.hpp>
-
-//#include "llmd5.h"
+#include "llmd5.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
-#include "llmd5.h"
 
 //
 // Implements asynchronous checking for updates.

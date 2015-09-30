@@ -26,7 +26,6 @@
 #ifndef LL_UPDATERSERVICE_H
 #define LL_UPDATERSERVICE_H
 
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include "llmd5.h"
 #include "llhasheduniqueid.h"
