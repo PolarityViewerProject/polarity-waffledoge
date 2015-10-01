@@ -47,7 +47,6 @@
 
 #include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include <boost/iterator/filter_iterator.hpp>
-#include <boost/make_shared.hpp>	// boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;
