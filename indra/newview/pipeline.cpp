@@ -10263,7 +10263,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	{
 		renderGeomShadow(shadow_cam);
 	}
-
+	static LLCachedControl<bool> _NACL_AlphaShadows(gSavedSettings, "_NACL_AlphaShadows", 1);
+	if (_NACL_AlphaShadows)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();

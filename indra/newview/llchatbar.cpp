@@ -307,7 +307,7 @@ void LLChatBar::setGestureCombo(LLComboBox* combo)
 
 // If input of the form "/20foo" or "/20 foo", returns "foo" and channel 20.
 // Otherwise returns input and channel 0.
-LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel)
+LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel) // NaCl - Allow negative channels
 {
 	if (mesg[0] == '/'
 		&& mesg[1] == '/')
@@ -318,7 +318,7 @@ LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel)
 	}
 	else if (mesg[0] == '/'
 			 && mesg[1]
-			 && LLStringOps::isDigit(mesg[1]))
+			 && ((LLStringOps::isDigit(mesg[1])) || ((mesg[1] == '-') && mesg[2] && (LLStringOps::isDigit(mesg[2])))))
 	{
 		// This a special "/20" speak on a channel
 		S32 pos = 0;
@@ -326,6 +326,12 @@ LLWString LLChatBar::stripChannelNumber(const LLWString &mesg, S32* channel)
 		// Copy the channel number into a string
 		LLWString channel_string;
 		llwchar c;
+		if (mesg[1] == '-')
+		{
+			pos = 1;
+			c = '-';
+			channel_string.push_back(c);
+		}
 		do
 		{
 			c = mesg[pos+1];
