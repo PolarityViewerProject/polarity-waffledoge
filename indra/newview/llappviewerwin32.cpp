@@ -143,6 +143,8 @@ bool create_app_mutex()
 	return result;
 }
 
+#define NVAPI_APPNAME L"Second Life"
+
 void ll_nvapi_init(NvDRSSessionHandle hSession)
 {
 	// (2) load all the system settings into the session
@@ -153,11 +155,9 @@ void ll_nvapi_init(NvDRSSessionHandle hSession)
 		return;
 	}
 
-	NvAPI_UnicodeString profile_name;
-	std::string app_name = LLTrans::getString("APP_NAME");
-	llutf16string w_app_name = utf8str_to_utf16str(app_name);
-	wsprintf(profile_name, L"%s", w_app_name.c_str());
-	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, profile_name);
+	NvAPI_UnicodeString wsz = { 0 };
+	memcpy_s(wsz, sizeof(wsz), NVAPI_APPNAME, sizeof(NVAPI_APPNAME));
+	status = NvAPI_DRS_SetCurrentGlobalProfile(hSession, wsz);
 	if (status != NVAPI_OK)
 	{
 		nvapi_error(status);

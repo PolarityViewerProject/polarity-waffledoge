@@ -62,8 +62,9 @@ elseif (DARWIN)
         ${ARCH_PREBUILT_DIRS_RELEASE}/libQtCore.4.dylib
        )
 elseif (LINUX)
-    # *HUH:  What does this do?
+if (USESYSTEMLIBS)
     set(WEBKIT_PLUGIN_LIBRARIES ${LLQTWEBKIT_LIBRARY} ${QT_LIBRARIES} ${QT_PLUGIN_LIBRARIES})
+else (USESYSTEMLIBS)
     set(WEBKIT_PLUGIN_LIBRARIES
         llqtwebkit
 #        qico
@@ -90,4 +91,5 @@ elseif (LINUX)
 #        Xi
 #        SM
         )
+endif (USESYSTEMLIBS)
 endif (WINDOWS)

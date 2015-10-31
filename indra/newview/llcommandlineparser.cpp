@@ -196,6 +196,11 @@ public:
         }
     }
 
+    virtual bool adjacent_tokens_only() const
+    {
+        return false;
+    }
+
 protected:
     void xparse(boost::any& value_store,
          const std::vector<std::string>& new_tokens) const

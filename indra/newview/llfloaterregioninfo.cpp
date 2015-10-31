@@ -499,7 +499,7 @@ void LLFloaterRegionInfo::refreshFromRegion(LLViewerRegion* region)
 		mInfoPanels.end(),
 		llbind2nd(
 #if LL_WINDOWS
-			std::mem_fun1(&LLPanelRegionInfo::refreshFromRegion),
+			std::mem_fn(&LLPanelRegionInfo::refreshFromRegion),
 #else
 			std::mem_fun(&LLPanelRegionInfo::refreshFromRegion),
 #endif
