@@ -66,9 +66,8 @@ if (WINDOWS)
   add_definitions(
       /DLL_WINDOWS=1
       /DNOMINMAX
-#      /DDOM_DYNAMIC            # For shared library colladadom
       /DUNICODE
-      /D_UNICODE 
+      /D_UNICODE
       /GS
       /TP
       /W3
@@ -80,7 +79,7 @@ if (WINDOWS)
       /arch:SSE2
       /fp:fast
       )
-     
+
   # Are we using the crummy Visual Studio KDU build workaround?
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_definitions(/WX)
