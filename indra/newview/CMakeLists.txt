@@ -1734,18 +1734,9 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/Release/glod.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/glod.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/glod.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/libcollada14dom22.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libcollada14dom22.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/libcollada14dom22-d.dll
       ${SHARED_LIB_STAGING_DIR}/Release/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/openjpeg.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/openjpegd.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcr100.dll
-      ${SHARED_LIB_STAGING_DIR}/Release/msvcp100.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcr100.dll
-      ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/msvcp100.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcr100d.dll
-      ${SHARED_LIB_STAGING_DIR}/Debug/msvcp100d.dll
       ${SHARED_LIB_STAGING_DIR}/Release/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libhunspell.dll
       ${SHARED_LIB_STAGING_DIR}/Debug/libhunspell.dll
