@@ -405,34 +405,27 @@ int APIENTRY WinMain(HINSTANCE hInstance,
 
 void LLAppViewerWin32::disableWinErrorReporting()
 {
-	const char win_xp_string[] = "Microsoft Windows XP";
-	BOOL is_win_xp = ( getOSInfo().getOSString().substr(0, strlen(win_xp_string) ) == win_xp_string );		/* Flawfinder: ignore*/
-	if( is_win_xp )
+	// Note: we need to use run-time dynamic linking, because load-time dynamic linking will fail
+	// on systems that don't have the library installed (all non-Windows XP systems)
+	HRESULT(WINAPI* pWerAddExcludedApplication)(PCWSTR pwzExeName, BOOL bAllUsers) = NULL;
+	HMODULE wer = LoadLibrary(TEXT("wer.dll"));
+	if (wer)
 	{
-		// Note: we need to use run-time dynamic linking, because load-time dynamic linking will fail
-		// on systems that don't have the library installed (all non-Windows XP systems)
-		HINSTANCE fault_rep_dll_handle = LoadLibrary(L"faultrep.dll");		/* Flawfinder: ignore */
-		if( fault_rep_dll_handle )
+		pWerAddExcludedApplication = (HRESULT(WINAPI *)(PCWSTR, BOOL))GetProcAddress(wer, "WerAddExcludedApplication");
+		if (pWerAddExcludedApplication)
 		{
-			pfn_ADDEREXCLUDEDAPPLICATIONA pAddERExcludedApplicationA  = (pfn_ADDEREXCLUDEDAPPLICATIONA) GetProcAddress(fault_rep_dll_handle, "AddERExcludedApplicationA");
-			if( pAddERExcludedApplicationA )
+			// Strip the path off the name
+			llutf16string executable_name = utf8str_to_utf16str(gDirUtilp->getExecutableFilename());
+			if (pWerAddExcludedApplication(executable_name.c_str(), FALSE) != S_OK)
 			{
-
-				// Strip the path off the name
-				const char* executable_name = gDirUtilp->getExecutableFilename().c_str();
-
-				if( 0 == pAddERExcludedApplicationA( executable_name ) )
-				{
-					U32 error_code = GetLastError();
-					LL_INFOS() << "AddERExcludedApplication() failed with error code " << error_code << LL_ENDL;
-				}
-				else
-				{
-					LL_INFOS() << "AddERExcludedApplication() success for " << executable_name << LL_ENDL;
-				}
+				LL_INFOS() << "WerAddExcludedApplication() failed" << LL_ENDL;
 			}
-			FreeLibrary( fault_rep_dll_handle );
+			else
+			{
+				LL_INFOS() << "WerAddExcludedApplication() success for " << utf16str_to_utf8str(executable_name).c_str() << LL_ENDL;
+			}
 		}
+		FreeLibrary(wer);
 	}
 }
 
