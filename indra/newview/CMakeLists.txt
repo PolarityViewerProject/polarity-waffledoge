@@ -1688,7 +1688,6 @@ if (WINDOWS)
         # *TODO -reenable this once we get server usage sorted out
         LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
-        LINK_FLAGS_RELEASE " /MAP\"secondlife-bin.MAP\""
         )
 
     add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
