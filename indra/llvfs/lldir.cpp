@@ -619,7 +619,7 @@ std::string LLDir::getBaseFileName(const std::string& filepath, bool strip_exten
 std::string LLDir::getDirName(const std::string& filepath) const
 {
 	std::size_t offset = filepath.find_last_of(getDirDelimiter());
-	S32 len = (offset == std::string::npos) ? 0 : offset;
+	size_t len = (offset == std::string::npos) ? 0 : offset;
 	std::string dirname = filepath.substr(0, len);
 	return dirname;
 }
@@ -857,8 +857,8 @@ std::string LLDir::getScrubbedFileName(const std::string uncleanFileName)
 	// replace any illegal file chars with and underscore '_'
 	for( unsigned int i = 0; i < illegalChars.length(); i++ )
 	{
-		int j = -1;
-		while((j = name.find(illegalChars[i])) > -1)
+		size_t j = std::string::npos;
+		while ((j = name.find(illegalChars[i])) != std::string::npos)
 		{
 			name[j] = '_';
 		}

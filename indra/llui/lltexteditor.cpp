@@ -358,16 +358,16 @@ void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insen
 		}
 	}
 	
-	S32 loc = text.find(search_text,mCursorPos);
+	LLWString::size_type loc = text.find(search_text,mCursorPos);
 	
 	// If Maybe we wrapped, search again
-	if (wrap && (-1 == loc))
+	if (wrap && (LLWString::npos == loc))
 	{	
 		loc = text.find(search_text);
 	}
 	
 	// If still -1, then search_text just isn't found.
-    if (-1 == loc)
+    if (LLWString::npos == loc)
 	{
 		mIsSelecting = FALSE;
 		mSelectionEnd = 0;
@@ -1485,7 +1485,7 @@ void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
 	std::basic_string<llwchar>::size_type start = 0;
 	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 	
-	while((pos != -1) && (pos != clean_string.length() -1))
+	while((pos != std::basic_string<llwchar>::npos) && (pos != clean_string.length() - 1))
 	{
 		if(pos!=start)
 		{
@@ -1758,7 +1758,7 @@ BOOL LLTextEditor::handleKeyHere(KEY key, MASK mask )
 				}
 
 				std::basic_string<llwchar>::size_type pos = tool_tip_text.find('\n',0);
-				if (pos != -1)
+				if (pos != std::basic_string<llwchar>::npos)
 				{	// Extract the first line of the tooltip
 					tool_tip_text = std::basic_string<llwchar>(tool_tip_text, 0, pos);
 				}

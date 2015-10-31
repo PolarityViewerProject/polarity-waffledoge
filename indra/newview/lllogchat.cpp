@@ -924,7 +924,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//possibly a case of complex object names consisting of 3+ words
 	if (!has_name)
 	{
-		U32 divider_pos = stuff.find(NAME_TEXT_DIVIDER);
+		size_t divider_pos = stuff.find(NAME_TEXT_DIVIDER);
 		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
 		{
 			im[LL_IM_FROM] = stuff.substr(0, divider_pos);
@@ -1068,7 +1068,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 
 	char *bptr;
-	S32 len;
+	size_t len;
 	bool firstline = TRUE;
 
 	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))

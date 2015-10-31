@@ -355,7 +355,7 @@ bool idle_startup()
 
 	const std::string delims (" ");
 	std::string system;
-	int begIdx, endIdx;
+	size_t begIdx, endIdx;
 	std::string osString = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
 
 	begIdx = osString.find_first_not_of (delims);

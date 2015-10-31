@@ -2222,7 +2222,7 @@ std::string LLDAELoader::getElementLabel(daeElement *element)
 // static
 size_t LLDAELoader::getSuffixPosition(std::string label)
 {
-	if ((label.find("_LOD") != -1) || (label.find("_PHYS") != -1))
+	if ((label.find("_LOD") != std::string::npos) || (label.find("_PHYS") != std::string::npos))
 	{
 		return label.rfind('_');
 	}
