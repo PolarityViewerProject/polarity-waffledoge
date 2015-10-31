@@ -48,22 +48,29 @@ LLDir_Win32::LLDir_Win32()
 
 	WCHAR w_str[MAX_PATH];
 
-	// Application Data is where user settings go
-	SHGetSpecialFolderPath(NULL, w_str, CSIDL_APPDATA, TRUE);
+	WCHAR* pPath = NULL;
+	if(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &pPath) == S_OK)
+		wcscpy_s(w_str, pPath);
+
+	CoTaskMemFree(pPath);
+	pPath = NULL;
 
 	mOSUserDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	// We want cache files to go on the local disk, even if the
 	// user is on a network with a "roaming profile".
 	//
-	// On XP this is:
-	//   C:\Docments and Settings\James\Local Settings\Application Data
-	// On Vista this is:
-	//   C:\Users\James\AppData\Local
+	// On Vista and above this is:
+	//   C:\Users\<USERNAME>\AppData\Local
 	//
 	// We used to store the cache in AppData\Roaming, and the installer
 	// cleans up that version on upgrade.  JC
-	SHGetSpecialFolderPath(NULL, w_str, CSIDL_LOCAL_APPDATA, TRUE);
+	if(SHGetKnownFolderPath(FOLDERID_LocalAppData, 0, NULL, &pPath) == S_OK)
+		wcscpy_s(w_str, pPath);
+
+	CoTaskMemFree(pPath);
+	pPath = NULL;
+
 	mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
 
 	if (GetTempPath(MAX_PATH, w_str))
