@@ -158,6 +158,10 @@
 #pragma warning (disable : 4275) // non dll-interface class used as base for dll-interface class
 #pragma warning (disable : 4018) // '<' : signed/unsigned mismatch	
 
+#if _WIN64
+#pragma warning (disable : 4267) // 'var' : conversion from 'size_t' to 'type', possible loss of data
+#endif
+
 #endif	//	LL_MSVC
 
 #if LL_WINDOWS
