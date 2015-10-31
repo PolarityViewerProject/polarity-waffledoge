@@ -73,9 +73,10 @@ if (WINDOWS)
       /W3
       /c
       /Zc:forScope
+      /Zc:rvalueCast
+      /Zc:wchar_t
       /nologo
       /Oy-
-      /Zc:wchar_t
       /arch:SSE2
       /fp:fast
       )
