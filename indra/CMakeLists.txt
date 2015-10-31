@@ -53,19 +53,17 @@ add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
 # Legacy C++ tests. Build always, run if LL_TESTS is true.
 if (LL_TESTS)
-add_subdirectory(${VIEWER_PREFIX}test)
+  add_subdirectory(${VIEWER_PREFIX}test)
 endif (LL_TESTS)
 
-if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
 
-  # llplugin testbed code (is this the right way to include it?)
-  if (LL_TESTS AND NOT LINUX)
-    add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
-    add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
-  endif (LL_TESTS AND NOT LINUX)
-endif (ENABLE_MEDIA_PLUGINS)
+# llplugin testbed code (is this the right way to include it?)
+if (LL_TESTS AND NOT LINUX)
+  add_subdirectory(${VIEWER_PREFIX}test_apps/llplugintest)
+  add_subdirectory(${VIEWER_PREFIX}test_apps/llfbconnecttest)
+endif (LL_TESTS AND NOT LINUX)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)

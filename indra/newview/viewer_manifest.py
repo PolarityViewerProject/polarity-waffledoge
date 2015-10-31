@@ -52,7 +52,7 @@ class ViewerManifest(LLManifest):
         # files during the build (see copy_w_viewer_manifest
         # and copy_l_viewer_manifest targets)
         return 'package' in self.args['actions']
-    
+
     def construct(self):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
@@ -79,7 +79,7 @@ class ViewerManifest(LLManifest):
 
                 # ... and the entire image filters directory
                 self.path("filters")
-            
+
                 # ... and the included spell checking dictionaries
                 pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
                 if self.prefix(src=pkgdir,dst=""):
@@ -143,36 +143,36 @@ class ViewerManifest(LLManifest):
 
             # skins
             if self.prefix(src="skins"):
-                    # include the entire textures directory recursively
-                    if self.prefix(src="*/textures"):
-                            self.path("*/*.tga")
-                            self.path("*/*.j2c")
-                            self.path("*/*.jpg")
-                            self.path("*/*.png")
-                            self.path("*.tga")
-                            self.path("*.j2c")
-                            self.path("*.jpg")
-                            self.path("*.png")
-                            self.path("textures.xml")
-                            self.end_prefix("*/textures")
-                    self.path("*/xui/*/*.xml")
-                    self.path("*/xui/*/widgets/*.xml")
-                    self.path("*/*.xml")
+                # include the entire textures directory recursively
+                if self.prefix(src="*/textures"):
+                    self.path("*/*.tga")
+                    self.path("*/*.j2c")
+                    self.path("*/*.jpg")
+                    self.path("*/*.png")
+                    self.path("*.tga")
+                    self.path("*.j2c")
+                    self.path("*.jpg")
+                    self.path("*.png")
+                    self.path("textures.xml")
+                    self.end_prefix("*/textures")
+                self.path("*/xui/*/*.xml")
+                self.path("*/xui/*/widgets/*.xml")
+                self.path("*/*.xml")
 
-                    # Local HTML files (e.g. loading screen)
-                    # The claim is that we never use local html files any
-                    # longer. But rather than commenting out this block, let's
-                    # rename every html subdirectory as html.old. That way, if
-                    # we're wrong, a user actually does have the relevant
-                    # files; s/he just needs to rename every html.old
-                    # directory back to html to recover them.
-                    if self.prefix(src="*/html", dst="*/html.old"):
-                            self.path("*.png")
-                            self.path("*/*/*.html")
-                            self.path("*/*/*.gif")
-                            self.end_prefix("*/html")
+                # Local HTML files (e.g. loading screen)
+                # The claim is that we never use local html files any
+                # longer. But rather than commenting out this block, let's
+                # rename every html subdirectory as html.old. That way, if
+                # we're wrong, a user actually does have the relevant
+                # files; s/he just needs to rename every html.old
+                # directory back to html to recover them.
+                if self.prefix(src="*/html", dst="*/html.old"):
+                    self.path("*.png")
+                    self.path("*/*/*.html")
+                    self.path("*/*/*.gif")
+                    self.end_prefix("*/html")
 
-                    self.end_prefix("skins")
+                self.end_prefix("skins")
 
             # local_assets dir (for pre-cached textures)
             if self.prefix(src="local_assets"):
@@ -251,7 +251,7 @@ class ViewerManifest(LLManifest):
 
     def app_name_oneword(self):
         return ''.join(self.app_name().split())
-    
+
     def icon_path(self):
         return "icons/" + self.channel_type()
 
@@ -321,13 +321,13 @@ class Windows_i686_Manifest(ViewerManifest):
                     pass
                 except NoMatchingAssemblyException, err:
                     pass
-                    
+
                 self.ccopy(src,dst)
             else:
                 raise Exception("Directories are not supported by test_CRT_and_copy_action()")
         else:
             print "Doesn't exist:", src
-        
+
     def construct(self):
         super(Windows_i686_Manifest, self).construct()
 
@@ -340,10 +340,10 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
 
         # Plugin host application
-        # The current slplugin package places slplugin.exe right into the
-        # packages base directory.
-        self.path2basename(pkgdir, "slplugin.exe")
-        
+        self.path2basename(os.path.join(os.pardir,
+                                        'llplugin', 'slplugin', self.args['configuration']),
+                           "slplugin.exe")
+
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
@@ -355,7 +355,7 @@ class Windows_i686_Manifest(ViewerManifest):
                 self.path('libapr-1.dll')
                 self.path('libaprutil-1.dll')
                 self.path('libapriconv-1.dll')
-                
+
             except RuntimeError, err:
                 print err.message
                 print "Skipping llcommon.dll (assuming llcommon was linked statically)"
@@ -391,7 +391,7 @@ class Windows_i686_Manifest(ViewerManifest):
             self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
             self.path("ca-bundle.crt")
-            
+
             # Security
             self.path("ssleay32.dll")
             self.path("libeay32.dll")
@@ -415,52 +415,74 @@ class Windows_i686_Manifest(ViewerManifest):
         self.path("featuretable_xp.txt")
 
         # Media plugins - QuickTime
-        # Media plugins - WebKit/Qt
-        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
+        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_quicktime.dll")
+            self.end_prefix()
+
+        # Media plugins - WebKit/Qt
+        if self.prefix(src='../media_plugins/webkit/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_webkit.dll")
-            self.path("qtcore4.dll")
-            self.path("qtgui4.dll")
-            self.path("qtnetwork4.dll")
-            self.path("qtopengl4.dll")
-            self.path("qtwebkit4.dll")
-            self.path("qtxmlpatterns4.dll")
-
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src="imageformats", dst="imageformats"):
-                self.path("qgif4.dll")
-                self.path("qico4.dll")
-                self.path("qjpeg4.dll")
-                self.path("qmng4.dll")
-                self.path("qsvg4.dll")
-                self.path("qtiff4.dll")
-                self.end_prefix()
-
-            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-            if self.prefix(src="codecs", dst="codecs"):
-                self.path("qcncodecs4.dll")
-                self.path("qjpcodecs4.dll")
-                self.path("qkrcodecs4.dll")
-                self.path("qtwcodecs4.dll")
-                self.end_prefix()
-
-        self.end_prefix()
-
-        # winmm.dll shim
-        if self.prefix(src='../media_plugins/winmmshim/%s' % self.args['configuration'], dst=""):
-            self.path("winmm.dll")
             self.end_prefix()
 
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=debpkgdir, dst="llplugin"):
                 self.path("libeay32.dll")
+                self.path("qtcored4.dll")
+                self.path("qtguid4.dll")
+                self.path("qtnetworkd4.dll")
+                self.path("qtopengld4.dll")
+                self.path("qtwebkitd4.dll")
+                self.path("qtxmlpatternsd4.dll")
                 self.path("ssleay32.dll")
-                self.end_prefix()
 
+                # For WebKit/Qt plugin runtimes (image format plugins)
+                if self.prefix(src="imageformats", dst="imageformats"):
+                    self.path("qgifd4.dll")
+                    self.path("qicod4.dll")
+                    self.path("qjpegd4.dll")
+                    self.path("qmngd4.dll")
+                    self.path("qsvgd4.dll")
+                    self.path("qtiffd4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecsd4.dll")
+                    self.path("qjpcodecsd4.dll")
+                    self.path("qkrcodecsd4.dll")
+                    self.path("qtwcodecsd4.dll")
+                    self.end_prefix()
+
+                self.end_prefix()
         else:
             if self.prefix(src=relpkgdir, dst="llplugin"):
                 self.path("libeay32.dll")
+                self.path("qtcore4.dll")
+                self.path("qtgui4.dll")
+                self.path("qtnetwork4.dll")
+                self.path("qtopengl4.dll")
+                self.path("qtwebkit4.dll")
+                self.path("qtxmlpatterns4.dll")
                 self.path("ssleay32.dll")
+
+                # For WebKit/Qt plugin runtimes (image format plugins)
+                if self.prefix(src="imageformats", dst="imageformats"):
+                    self.path("qgif4.dll")
+                    self.path("qico4.dll")
+                    self.path("qjpeg4.dll")
+                    self.path("qmng4.dll")
+                    self.path("qsvg4.dll")
+                    self.path("qtiff4.dll")
+                    self.end_prefix()
+
+                # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+                if self.prefix(src="codecs", dst="codecs"):
+                    self.path("qcncodecs4.dll")
+                    self.path("qjpcodecs4.dll")
+                    self.path("qkrcodecs4.dll")
+                    self.path("qtwcodecs4.dll")
+                    self.end_prefix()
+
                 self.end_prefix()
 
         # pull in the crash logger and updater from other projects
@@ -469,7 +491,7 @@ class Windows_i686_Manifest(ViewerManifest):
                   dst="win_crash_logger.exe")
 
         if not self.is_packaging_viewer():
-            self.package_file = "copied_deps"    
+            self.package_file = "copied_deps"
 
     def nsi_file_commands(self, install=True):
         def wpath(path):
@@ -529,14 +551,14 @@ class Windows_i686_Manifest(ViewerManifest):
 
         installer_file = self.installer_base_name() + '_Setup.exe'
         substitution_strings['installer_file'] = installer_file
-        
+
         version_vars = """
         !define INSTEXE  "%(final_exe)s"
         !define VERSION "%(version_short)s"
         !define VERSION_LONG "%(version)s"
         !define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
-        
+
         if self.channel_type() == 'release':
             substitution_strings['caption'] = CHANNEL_VENDOR_BASE
         else:
@@ -643,7 +665,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                     self.end_prefix(icon_path)
 
                 self.path("SecondLife.nib")
-                
+
                 # Translations
                 self.path("English.lproj/language.txt")
                 self.replace_in(src="English.lproj/InfoPlist.strings",
@@ -711,7 +733,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 'ca-bundle.crt',
                                 'SLVoice',
                                 ):
-                     self.path2basename(relpkgdir, libfile)
+                    self.path2basename(relpkgdir, libfile)
 
                 # dylibs that vary based on configuration
                 if self.args['configuration'].lower() == 'debug':
@@ -724,16 +746,15 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 "libfmodex.dylib",
                                 ):
                         dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
-                
+
                 # our apps
-                for app_bld_dir, app in ((os.path.join(os.pardir,
-                                                       "mac_crash_logger",
-                                                       self.args['configuration']),
-                                          "mac-crash-logger.app"),
+                for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
                                          # plugin launcher
-                                         (pkgdir, "SLPlugin.app"),
+                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
                                          ):
-                    self.path2basename(app_bld_dir, app)
+                    self.path2basename(os.path.join(os.pardir,
+                                                    app_bld_dir, self.args['configuration']),
+                                       app)
 
                     # our apps dependencies on shared libs
                     # for each app, for each dylib we collected in dylibs,
@@ -749,37 +770,39 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # SLPlugin.app/Contents/Resources gets those Qt4 libraries it needs.
                 if self.prefix(src="", dst="SLPlugin.app/Contents/Resources"):
                     for libfile in ('libQtCore.4.dylib',
-                                    'libQtCore.4.7.1.dylib',
+                                    'libQtCore.4.8.7.dylib',
                                     'libQtGui.4.dylib',
-                                    'libQtGui.4.7.1.dylib',
+                                    'libQtGui.4.8.7.dylib',
                                     'libQtNetwork.4.dylib',
-                                    'libQtNetwork.4.7.1.dylib',
+                                    'libQtNetwork.4.8.7.dylib',
                                     'libQtOpenGL.4.dylib',
-                                    'libQtOpenGL.4.7.1.dylib',
+                                    'libQtOpenGL.4.8.7.dylib',
                                     'libQtSvg.4.dylib',
-                                    'libQtSvg.4.7.1.dylib',
+                                    'libQtSvg.4.8.7.dylib',
                                     'libQtWebKit.4.dylib',
-                                    'libQtWebKit.4.7.1.dylib',
+                                    'libQtWebKit.4.9.4.dylib',
                                     'libQtXml.4.dylib',
-                                    'libQtXml.4.7.1.dylib'):
+                                    'libQtXml.4.8.7.dylib'):
                         self.path2basename(relpkgdir, libfile)
                     self.end_prefix("SLPlugin.app/Contents/Resources")
 
                 # Qt4 codecs go to llplugin.  Not certain why but this is the first
                 # location probed according to dtruss so we'll go with that.
-                if self.prefix(src=os.path.join(pkgdir, "llplugin/codecs/"), dst="llplugin/codecs"):
+                if self.prefix(src="../packages/plugins/codecs/", dst="llplugin/codecs"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/codecs")
 
                 # Similarly for imageformats.
-                if self.prefix(src=os.path.join(pkgdir, "llplugin/imageformats/"), dst="llplugin/imageformats"):
+                if self.prefix(src="../packages/plugins/imageformats/", dst="llplugin/imageformats"):
                     self.path("libq*.dylib")
                     self.end_prefix("llplugin/imageformats")
 
                 # SLPlugin plugins proper
-                if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="llplugin"):
-                    self.path("media_plugin_quicktime.dylib")
-                    self.path("media_plugin_webkit.dylib")
+                if self.prefix(src="", dst="llplugin"):
+                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
+                                       "media_plugin_quicktime.dylib")
+                    self.path2basename("../media_plugins/webkit/" + self.args['configuration'],
+                                       "media_plugin_webkit.dylib")
                     self.end_prefix("llplugin")
 
                 self.end_prefix("Resources")
@@ -790,7 +813,7 @@ class Darwin_i386_Manifest(ViewerManifest):
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
         # arguments yields a slightly smaller binary but makes crash logs mostly useless.
         # This may be desirable for the final release.  Or not.
-        if ("package" in self.args['actions'] or 
+        if ("package" in self.args['actions'] or
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
                              { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
@@ -936,7 +959,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
 
         finally:
-            # Unmount the image even if exceptions from any of the above 
+            # Unmount the image even if exceptions from any of the above
             self.run_command('hdiutil detach -force %r' % devfile)
 
         print "Converting temp disk image to final disk image"
@@ -972,7 +995,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename(pkgdir, "SLPlugin")
+            self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
             self.end_prefix("bin")
 
@@ -992,9 +1015,9 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix(icon_path)
 
         # plugins
-        if self.prefix(src=os.path.join(pkgdir, "llplugin"), dst="bin/llplugin"):
-            self.path("libmedia_plugin_webkit.so")
-            self.path("libmedia_plugin_gstreamer.so")
+        if self.prefix(src="", dst="bin/llplugin"):
+            self.path2basename("../media_plugins/webkit", "libmedia_plugin_webkit.so")
+            self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.end_prefix("bin/llplugin")
 
         # llcommon
@@ -1122,50 +1145,48 @@ class Linux_i686_Manifest(LinuxManifest):
 
             self.end_prefix("lib")
 
-            # Vivox runtimes
-            if self.prefix(src=relpkgdir, dst="bin"):
-                self.path("SLVoice")
-                self.end_prefix()
-            if self.prefix(src=relpkgdir, dst="lib"):
-                self.path("libortp.so")
-                self.path("libsndfile.so.1")
-                #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
-                self.path("libvivoxsdk.so")
-                self.path("libvivoxplatform.so")
-                self.end_prefix("lib")
+        # Vivox runtimes
+        if self.prefix(src=relpkgdir, dst="bin"):
+            self.path("SLVoice")
+            self.end_prefix("bin")
+        if self.prefix(src=relpkgdir, dst="lib"):
+            self.path("libortp.so")
+            self.path("libsndfile.so.1")
+            #self.path("libvivoxoal.so.1") # no - we'll re-use the viewer's own OpenAL lib
+            self.path("libvivoxsdk.so")
+            self.path("libvivoxplatform.so")
+            self.end_prefix("lib")
 
-            # plugin runtime
-            if self.prefix(src=os.path.join(pkgdir, "lib"), dst="lib"):
-                self.path("libQtCore.so*")
-                self.path("libQtGui.so*")
-                self.path("libQtNetwork.so*")
-                self.path("libQtOpenGL.so*")
-                self.path("libQtSvg.so*")
-                self.path("libQtWebKit.so*")
-                self.path("libQtXml.so*")
-                self.end_prefix("lib")
+        # plugin runtime
+        if self.prefix(src=relpkgdir, dst="lib"):
+            self.path("libQtCore.so*")
+            self.path("libQtGui.so*")
+            self.path("libQtNetwork.so*")
+            self.path("libQtOpenGL.so*")
+            self.path("libQtSvg.so*")
+            self.path("libQtWebKit.so*")
+            self.path("libQtXml.so*")
+            self.end_prefix("lib")
 
-            # For WebKit/Qt plugin runtimes (image format plugins)
-            if self.prefix(src=os.path.join(pkgdir, "llplugin", "imageformats"),
-                           dst="bin/llplugin/imageformats"):
-                self.path("libqgif.so")
-                self.path("libqico.so")
-                self.path("libqjpeg.so")
-                self.path("libqmng.so")
-                self.path("libqsvg.so")
-                self.path("libqtiff.so")
-                self.end_prefix("bin/llplugin/imageformats")
+        # For WebKit/Qt plugin runtimes (image format plugins)
+        if self.prefix(src="../packages/plugins/imageformats", dst="bin/llplugin/imageformats"):
+            self.path("libqgif.so")
+            self.path("libqico.so")
+            self.path("libqjpeg.so")
+            self.path("libqmng.so")
+            self.path("libqsvg.so")
+            self.path("libqtiff.so")
+            self.end_prefix("bin/llplugin/imageformats")
 
-            # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
-            if self.prefix(src=os.path.join(pkgdir, "llplugin", "codecs"),
-                           dst="bin/llplugin/codecs"):
-                self.path("libqcncodecs.so")
-                self.path("libqjpcodecs.so")
-                self.path("libqkrcodecs.so")
-                self.path("libqtwcodecs.so")
-                self.end_prefix("bin/llplugin/codecs")
+        # For WebKit/Qt plugin runtimes (codec/character encoding plugins)
+        if self.prefix(src="../packages/plugins/codecs", dst="bin/llplugin/codecs"):
+            self.path("libqcncodecs.so")
+            self.path("libqjpcodecs.so")
+            self.path("libqkrcodecs.so")
+            self.path("libqtwcodecs.so")
+            self.end_prefix("bin/llplugin/codecs")
 
-            self.strip_binaries()
+        self.strip_binaries()
 
 
 class Linux_x86_64_Manifest(LinuxManifest):
