@@ -45,8 +45,15 @@
 #include "llsdutil.h"
 #include "stringize.h"
 
+#if LL_WINDOWS
+#pragma warning (push)
+#pragma warning (disable : 4091) // 'typedef ': ignored on left of '' when no variable is declared
+#endif
 #include <client/windows/crash_generation/crash_generation_server.h>
 #include <client/windows/crash_generation/client_info.h>
+#if LL_WINDOWS
+#pragma warning (pop)
+#endif
 
 #define MAX_LOADSTRING 100
 #define MAX_STRING 2048

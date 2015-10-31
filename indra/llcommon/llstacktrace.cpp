@@ -33,7 +33,10 @@
 #include <sstream>
 
 #include "llwin32headerslean.h"
+#pragma warning (push)
+#pragma warning (disable : 4091) // 'typedef ': ignored on left of '' when no variable is declared
 #include "Dbghelp.h"
+#pragma warning (pop)
 
 typedef USHORT NTAPI RtlCaptureStackBackTrace_Function(
     IN ULONG frames_to_skip,
