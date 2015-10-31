@@ -500,7 +500,7 @@ private:
 			}
 			else
 			{
-				return (U32)lhs < (U32)rhs;
+				return (intptr_t)lhs < (intptr_t)rhs;
 			}
 		}
 	};

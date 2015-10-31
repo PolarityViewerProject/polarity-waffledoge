@@ -823,7 +823,7 @@ class LLAdvancedToggleRenderType : public view_listener_t
 		U32 render_type = render_type_from_string( userdata.asString() );
 		if ( render_type != 0 )
 		{
-			LLPipeline::toggleRenderTypeControl( (void*)render_type );
+			LLPipeline::toggleRenderTypeControl( (void*) (intptr_t) render_type );
 		}
 		return true;
 	}
@@ -839,7 +839,7 @@ class LLAdvancedCheckRenderType : public view_listener_t
 
 		if ( render_type != 0 )
 		{
-			new_value = LLPipeline::hasRenderTypeControl( (void*)render_type );
+			new_value = LLPipeline::hasRenderTypeControl( (void*) (intptr_t) render_type );
 		}
 
 		return new_value;
@@ -898,7 +898,7 @@ class LLAdvancedToggleFeature : public view_listener_t
 		U32 feature = feature_from_string( userdata.asString() );
 		if ( feature != 0 )
 		{
-			LLPipeline::toggleRenderDebugFeature( (void*)feature );
+			LLPipeline::toggleRenderDebugFeature( (void*) (intptr_t) feature );
 		}
 		return true;
 	}
@@ -913,7 +913,7 @@ class LLAdvancedCheckFeature : public view_listener_t
 
 	if ( feature != 0 )
 	{
-		new_value = LLPipeline::toggleRenderDebugFeatureControl( (void*)feature );
+		new_value = LLPipeline::toggleRenderDebugFeatureControl( (void*) (intptr_t) feature );
 	}
 
 	return new_value;
@@ -1125,7 +1125,7 @@ class LLAdvancedToggleInfoDisplay : public view_listener_t
 		
 		if ( info_display != 0 )
 		{
-			LLPipeline::toggleRenderDebug( (void*)info_display );
+			LLPipeline::toggleRenderDebug( (void*) (intptr_t) info_display );
 		}
 
 		return true;
@@ -1142,7 +1142,7 @@ class LLAdvancedCheckInfoDisplay : public view_listener_t
 
 		if ( info_display != 0 )
 		{
-			new_value = LLPipeline::toggleRenderDebugControl( (void*)info_display );
+			new_value = LLPipeline::toggleRenderDebugControl( (void*) (intptr_t) info_display );
 		}
 
 		return new_value;
