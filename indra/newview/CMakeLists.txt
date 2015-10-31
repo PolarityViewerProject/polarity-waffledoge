@@ -1780,25 +1780,32 @@ if (WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qmngd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qsvgd4.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/imageformats/qtiffd4.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qcncodecsd4.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qjpcodecsd4.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qkrcodecsd4.dll
-      ${ARCH_PREBUILT_DIRS_RELEASE}/codecs/qtwcodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/codecs/qcncodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/codecs/qjpcodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/codecs/qkrcodecsd4.dll
+      ${ARCH_PREBUILT_DIRS_DEBUG}/codecs/qtwcodecsd4.dll
       SLPlugin
       media_plugin_quicktime
       media_plugin_webkit
-      winmm_shim
       windows-crash-logger
       )
 
     if (FMODEX)
-      list(APPEND COPY_INPUT_DEPENDENCIES
-           ${SHARED_LIB_STAGING_DIR}/Release/fmodex.dll
-           ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex.dll
-           ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
-          )
+      if (WORD_SIZE EQUAL 64)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+             ${SHARED_LIB_STAGING_DIR}/Release/fmodex64.dll
+             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex64.dll
+             ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL64.dll
+            )
+      else (WORD_SIZE EQUAL 64)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+             ${SHARED_LIB_STAGING_DIR}/Release/fmodex.dll
+             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex.dll
+             ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
+            )
+      endif (WORD_SIZE EQUAL 64)
     endif (FMODEX)
-    
+
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
       COMMAND ${PYTHON_EXECUTABLE}

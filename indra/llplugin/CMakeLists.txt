@@ -57,11 +57,9 @@ set_source_files_properties(${llplugin_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
 if(NOT WORD_SIZE EQUAL 32)
-  if(WINDOWS)
-    add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+  if(NOT WINDOWS)
     add_definitions(-fPIC)
-  endif(WINDOWS)
+  endif(NOT WINDOWS)
 endif(NOT WORD_SIZE EQUAL 32)
 
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})

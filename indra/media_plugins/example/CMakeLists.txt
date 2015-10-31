@@ -33,11 +33,9 @@ include_directories(SYSTEM
 ### media_plugin_example
 
 if(NOT WORD_SIZE EQUAL 32)
-  if(WINDOWS)
-    add_definitions(/FIXED:NO)
-  else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+  if(NOT WINDOWS)
     add_definitions(-fPIC)
-  endif(WINDOWS)
+  endif(NOT WINDOWS)
 endif(NOT WORD_SIZE EQUAL 32)
 
 set(media_plugin_example_SOURCE_FILES

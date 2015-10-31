@@ -241,11 +241,9 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 if(LLCOMMON_LINK_SHARED)
   add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
   if(NOT WORD_SIZE EQUAL 32)
-    if(WINDOWS)
-      add_definitions(/FIXED:NO)
-    else(WINDOWS) # not windows therefore gcc LINUX and DARWIN
+    if(NOT WINDOWS)
       add_definitions(-fPIC)
-    endif(WINDOWS)
+    endif(NOT WINDOWS)
   endif(NOT WORD_SIZE EQUAL 32)
   if(WINDOWS)
     # always generate llcommon.pdb, even for "Release" builds

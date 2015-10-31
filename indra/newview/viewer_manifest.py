@@ -278,7 +278,10 @@ class ViewerManifest(LLManifest):
         random.shuffle(names)
         return ', '.join(names)
 
-class Windows_i686_Manifest(ViewerManifest):
+class WindowsManifest(ViewerManifest):
+    def is_win64(self):
+        return self.args.get('arch') == "x86_64"
+
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
@@ -329,7 +332,7 @@ class Windows_i686_Manifest(ViewerManifest):
             print "Doesn't exist:", src
 
     def construct(self):
-        super(Windows_i686_Manifest, self).construct()
+        super(WindowsManifest, self).construct()
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -366,15 +369,6 @@ class Windows_i686_Manifest(ViewerManifest):
             except RuntimeError, err:
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
-
-            # Get fmodex dll, continue if missing
-            try:
-                if self.args['configuration'].lower() == 'debug':
-                    self.path("fmodexL.dll")
-                else:
-                    self.path("fmodex.dll")
-            except:
-                print "Skipping fmodex audio library(assuming other audio engine)"
 
             # For textures
             if self.args['configuration'].lower() == 'debug':
@@ -622,6 +616,43 @@ class Windows_i686_Manifest(ViewerManifest):
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
 
+
+class Windows_i686_Manifest(WindowsManifest):
+    def construct(self):
+        super(Windows_i686_Manifest, self).construct()
+
+        # Get shared libs from the shared libs staging directory
+        if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
+                       dst=""):
+
+            # Get fmodex dll, continue if missing
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("fmodexL.dll")
+                else:
+                    self.path("fmodex.dll")
+            except:
+                print "Skipping fmodex audio library(assuming other audio engine)"
+            self.end_prefix()
+
+
+class Windows_x86_64_Manifest(WindowsManifest):
+    def construct(self):
+        super(Windows_x86_64_Manifest, self).construct()
+
+        # Get shared libs from the shared libs staging directory
+        if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
+                       dst=""):
+
+            # Get fmodex dll, continue if missing
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path("fmodexL64.dll")
+                else:
+                    self.path("fmodex64.dll")
+            except:
+                print "Skipping fmodex audio library(assuming other audio engine)"
+            self.end_prefix()
 
 class Darwin_i386_Manifest(ViewerManifest):
     def is_packaging_viewer(self):
