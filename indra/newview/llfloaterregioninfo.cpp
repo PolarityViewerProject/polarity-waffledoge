@@ -2303,36 +2303,6 @@ void LLPanelEstateInfo::getEstateOwner()
 }
 */
 
-class LLEstateChangeInfoResponder : public LLHTTPClient::Responder
-{
-	LOG_CLASS(LLEstateChangeInfoResponder);
-public:
-	LLEstateChangeInfoResponder(LLPanelEstateInfo* panel)
-	{
-		mpPanel = panel->getHandle();
-	}
-	
-protected:
-	// if we get a normal response, handle it here
-	virtual void httpSuccess()
-	{
-		LL_INFOS("Windlight") << "Successfully committed estate info" << LL_ENDL;
-
-	    // refresh the panel from the database
-		LLPanelEstateInfo* panel = dynamic_cast<LLPanelEstateInfo*>(mpPanel.get());
-		if (panel)
-			panel->refresh();
-	}
-	
-	// if we get an error response
-	virtual void httpFailure()
-	{
-		LL_WARNS("Windlight") << dumpResponse() << LL_ENDL;
-	}
-private:
-	LLHandle<LLPanel> mpPanel;
-};
-
 const std::string LLPanelEstateInfo::getOwnerName() const
 {
 	return getChild<LLUICtrl>("estate_owner")->getValue().asString();
