@@ -2436,9 +2436,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f32faa00e600911f838a7d82da5a8db</string>
+              <string>56601f1217ccd206829e8834e5a1253b</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/tut_3p-update-tut/rev/297257/arch/Linux/installer/tut-2008.11.30-common-297257.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/common/lib/tut-2008.11.30-common-201504282317.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
