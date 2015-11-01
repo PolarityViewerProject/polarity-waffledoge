@@ -34,6 +34,7 @@ import sys
 import time
 import select
 import getopt
+import httplib
 from threading import Thread
 try:
     from cStringIO import StringIO
@@ -272,6 +273,8 @@ class TestHTTPRequestHandler(BaseHTTPRequestHandler):
             pass
 
 class Server(ThreadingMixIn, HTTPServer):
+    # This allows the thread to be killed cleanly
+    daemon_threads = True
     # This pernicious flag is on by default in HTTPServer. But proper
     # operation of freeport() absolutely depends on it being off.
     allow_reuse_address = False
@@ -312,5 +315,8 @@ if __name__ == "__main__":
     if do_valgrind:
         args = ["valgrind", "--log-file=./valgrind.log"] + args
         path_search = True
-    sys.exit(run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args))
-
+    rc = run(server=Thread(name="httpd", target=httpd.serve_forever), use_path=path_search, *args)
+    # HACK: fix Windows giving 1 when RC is actually 0
+    if rc > 0:
+        sys.exit(1)
+    sys.exit(0)
