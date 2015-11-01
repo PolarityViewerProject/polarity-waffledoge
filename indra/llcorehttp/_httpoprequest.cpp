@@ -136,6 +136,7 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyLength(0),
 	  mReplyFullLength(0),
 	  mReplyHeaders(NULL),
+	  mReplyRetryAfter(0),
 	  mPolicyRetries(0),
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
