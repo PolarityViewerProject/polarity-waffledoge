@@ -1061,48 +1061,6 @@
         <key>version</key>
         <string>1474</string>
       </map>
-      <key>googlemock</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright 2008, Google Inc.</string>
-        <key>description</key>
-        <string>a library for writing and using C++ mock classes</string>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/gmock.txt</string>
-        <key>name</key>
-        <string>googlemock</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>022649e284163b8ee23e3c9a81302fa7</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297460/arch/Darwin/installer/googlemock-1.7.0.297460-darwin-297460.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e08b0e9e269b80b549f6044c4e608fb5</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/googlemock_3p-update-googlemock/rev/297460/arch/Linux/installer/googlemock-1.7.0.297460-linux-297460.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.7.0.297460</string>
-      </map>
       <key>gperftools</key>
       <map>
         <key>copyright</key>

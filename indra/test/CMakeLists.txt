@@ -14,8 +14,6 @@ include(Linking)
 include(Tut)
 include(LLAddBuildTest)
 
-include(GoogleMock)
-
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
     ${LLDATABASE_INCLUDE_DIRS}
@@ -25,7 +23,6 @@ include_directories(
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
     ${LSCRIPT_INCLUDE_DIRS}
-    ${GOOGLEMOCK_INCLUDE_DIRS}
     ${TUT_INCLUDE_DIR}
     )
 include_directories(SYSTEM
@@ -92,7 +89,6 @@ target_link_libraries(lltest
     ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
-    ${GOOGLEMOCK_LIBRARIES}
     ${PTHREAD_LIBRARY}
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
