@@ -146,6 +146,8 @@ public:
     }
 
 private:
+    friend std::ostream& operator<<(std::ostream& out, const CaptureLogRecorder& log);
+
     typedef std::list<std::string> MessageList;
     MessageList mMessages;
 };
