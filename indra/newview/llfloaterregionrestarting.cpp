@@ -41,8 +41,8 @@ LLFloaterRegionRestarting::LLFloaterRegionRestarting(const LLSD& key) :
 	LLFloater(key),
 	LLEventTimer(1)
 {
-	mName = (std::string)key["NAME"];
-	sSeconds = (LLSD::Integer)key["SECONDS"];
+	mName = key["NAME"].asString();
+	sSeconds = key["SECONDS"].asInteger();
 }
 
 LLFloaterRegionRestarting::~LLFloaterRegionRestarting()
