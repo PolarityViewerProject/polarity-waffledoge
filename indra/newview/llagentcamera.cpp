@@ -2622,7 +2622,14 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 
 BOOL LLAgentCamera::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-	if(object && object->isAttachment())
+	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "ObsidianLookAtDisabled", false);
+	if (lookat_local_disabled)
+	{
+		target_type = LOOKAT_TARGET_NONE;
+		object = gAgentAvatarp;
+		position.clearVec();
+	}
+	else if(object && object->isAttachment())
 	{
 		LLViewerObject* parent = object;
 		while(parent)

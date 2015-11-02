@@ -28,6 +28,7 @@
 #define LL_LLHUDEFFECTLOOKAT_H
 
 #include "llhudeffect.h"
+#include "llcontrol.h"
 
 class LLViewerObject;
 class LLVOAvatar;
@@ -78,9 +79,6 @@ protected:
 	void setTargetObjectAndOffset(LLViewerObject *objp, LLVector3d offset);
 	void setTargetPosGlobal(const LLVector3d &target_pos_global);
 
-public:
-	static BOOL sDebugLookAt;
-
 private:
 	ELookAtType					mTargetType;
 	LLVector3d					mTargetOffsetGlobal;
@@ -90,6 +88,7 @@ private:
 	LLVector3					mTargetPos;
 	F32							mLastSendTime;
 	LLAttentionSet*				mAttentions;
+	LLCachedControl<bool> mDebugLookAt;
 };
 
 #endif // LL_LLHUDEFFECTLOOKAT_H
