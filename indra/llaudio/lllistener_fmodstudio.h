@@ -1,7 +1,7 @@
 /** 
- * @file listener_fmodex.h
+ * @file listener_fmodstudio.h
  * @brief Description of LISTENER class abstracting the audio support
- * as an FMOD 3D implementation (windows and Linux)
+ * as an FMOD Studio implementation (windows and Linux)
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -25,8 +25,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_LISTENER_FMODEX_H
-#define LL_LISTENER_FMODEX_H
+#ifndef LL_LISTENER_FMODSTUDIO_H
+#define LL_LISTENER_FMODSTUDIO_H
 
 #include "lllistener.h"
 
@@ -37,12 +37,11 @@ namespace FMOD
 }
 
 //Interfaces
-class LLListener_FMODEX : public LLListener
+class LLListener_FMODSTUDIO : public LLListener
 {
  public:  
-	LLListener_FMODEX(FMOD::System *system);
-	virtual ~LLListener_FMODEX();
-	virtual void init();  
+	LLListener_FMODSTUDIO(FMOD::System *system);
+	virtual ~LLListener_FMODSTUDIO();
 
 	virtual void translate(LLVector3 offset);
 	virtual void setPosition(LLVector3 pos);

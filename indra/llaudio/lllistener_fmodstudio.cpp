@@ -1,7 +1,7 @@
 /** 
- * @file listener_fmodex.cpp
+ * @file listener_fmodstudio.cpp
  * @brief Implementation of LISTENER class abstracting the audio
- * support as a FMODEX implementation
+ * support as a FMOD Studio implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -27,34 +27,27 @@
 
 #include "linden_common.h"
 #include "llaudioengine.h"
-#include "lllistener_fmodex.h"
+#include "lllistener_fmodstudio.h"
 #include "fmod.hpp"
 
 //-----------------------------------------------------------------------
 // constructor
 //-----------------------------------------------------------------------
-LLListener_FMODEX::LLListener_FMODEX(FMOD::System *system)
+LLListener_FMODSTUDIO::LLListener_FMODSTUDIO(FMOD::System *system) 
+	: LLListener(),
+	mDopplerFactor(1.0f),
+	mRolloffFactor(1.0f)
 {
 	mSystem = system;
-	init();
 }
 
 //-----------------------------------------------------------------------
-LLListener_FMODEX::~LLListener_FMODEX()
+LLListener_FMODSTUDIO::~LLListener_FMODSTUDIO()
 {
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODEX::init(void)
-{
-	// do inherited
-	LLListener::init();
-	mDopplerFactor = 1.0f;
-	mRolloffFactor = 1.0f;
-}
-
-//-----------------------------------------------------------------------
-void LLListener_FMODEX::translate(LLVector3 offset)
+void LLListener_FMODSTUDIO::translate(LLVector3 offset)
 {
 	LLListener::translate(offset);
 
@@ -62,7 +55,7 @@ void LLListener_FMODEX::translate(LLVector3 offset)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODEX::setPosition(LLVector3 pos)
+void LLListener_FMODSTUDIO::setPosition(LLVector3 pos)
 {
 	LLListener::setPosition(pos);
 
@@ -70,7 +63,7 @@ void LLListener_FMODEX::setPosition(LLVector3 pos)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODEX::setVelocity(LLVector3 vel)
+void LLListener_FMODSTUDIO::setVelocity(LLVector3 vel)
 {
 	LLListener::setVelocity(vel);
 
@@ -78,21 +71,15 @@ void LLListener_FMODEX::setVelocity(LLVector3 vel)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODEX::orient(LLVector3 up, LLVector3 at)
+void LLListener_FMODSTUDIO::orient(LLVector3 up, LLVector3 at)
 {
 	LLListener::orient(up, at);
-
-	// Welcome to the transition between right and left
-	// (coordinate systems, that is)
-	// Leaving the at vector alone results in a L/R reversal
-	// since DX is left-handed and we (LL, OpenGL, OpenAL) are right-handed
-	at = -at;
 
 	mSystem->set3DListenerAttributes(0, NULL, NULL, (FMOD_VECTOR*)at.mV, (FMOD_VECTOR*)up.mV);
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODEX::commitDeferredChanges()
+void LLListener_FMODSTUDIO::commitDeferredChanges()
 {
 	if(!mSystem)
 	{
@@ -103,11 +90,11 @@ void LLListener_FMODEX::commitDeferredChanges()
 }
 
 
-void LLListener_FMODEX::setRolloffFactor(F32 factor)
+void LLListener_FMODSTUDIO::setRolloffFactor(F32 factor)
 {
-	//An internal FMODEx optimization skips 3D updates if there have not been changes to the 3D sound environment.
+	//An internal FMOD Studio optimization skips 3D updates if there have not been changes to the 3D sound environment.
 	//Sadly, a change in rolloff is not accounted for, thus we must touch the listener properties as well.
-	//In short: Changing the position ticks a dirtyflag inside fmodex, which makes it not skip 3D processing next update call.
+	//In short: Changing the position ticks a dirtyflag inside fmod studio, which makes it not skip 3D processing next update call.
 	if(mRolloffFactor != factor)
 	{
 		LLVector3 pos = mVelocity - LLVector3(0.f,0.f,.1f);
@@ -119,20 +106,20 @@ void LLListener_FMODEX::setRolloffFactor(F32 factor)
 }
 
 
-F32 LLListener_FMODEX::getRolloffFactor()
+F32 LLListener_FMODSTUDIO::getRolloffFactor()
 {
 	return mRolloffFactor;
 }
 
 
-void LLListener_FMODEX::setDopplerFactor(F32 factor)
+void LLListener_FMODSTUDIO::setDopplerFactor(F32 factor)
 {
 	mDopplerFactor = factor;
 	mSystem->set3DSettings(mDopplerFactor, 1.f, mRolloffFactor);
 }
 
 
-F32 LLListener_FMODEX::getDopplerFactor()
+F32 LLListener_FMODSTUDIO::getDopplerFactor()
 {
 	return mDopplerFactor;
 }

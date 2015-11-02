@@ -10,7 +10,7 @@ include(CMakeCopyIfDifferent)
 include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
-include(FMODEX)
+include(FMODSTUDIO)
 include(GLOD)
 include(GooglePerfTools)
 include(Hunspell)
@@ -57,9 +57,9 @@ if (NOT HAVOK_TPV)
    add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
 endif (NOT HAVOK_TPV)
 
-if(FMODEX)
-  include_directories(${FMODEX_INCLUDE_DIR})
-endif(FMODEX)
+if(FMODSTUDIO)
+  include_directories(${FMODSTUDIO_INCLUDE_DIR})
+endif(FMODSTUDIO)
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -1650,10 +1650,10 @@ if (OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
 endif (OPENAL)
 
-if (FMODEX)
-  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODEX")
-  set(FMODWRAPPER_LIBRARY ${FMODEX_LIBRARY})
-endif (FMODEX)
+if (FMODSTUDIO)
+  set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
+  set(FMOD_LIBRARY ${FMODSTUDIO_LIBRARY})
+endif (FMODSTUDIO)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
 
@@ -1790,21 +1790,21 @@ if (WINDOWS)
       windows-crash-logger
       )
 
-    if (FMODEX)
+    if (FMODSTUDIO)
       if (WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
-             ${SHARED_LIB_STAGING_DIR}/Release/fmodex64.dll
-             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex64.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL64.dll
+             ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
+             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod64.dll
+             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL64.dll
             )
       else (WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
-             ${SHARED_LIB_STAGING_DIR}/Release/fmodex.dll
-             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmodex.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodexL.dll
+             ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
             )
       endif (WORD_SIZE EQUAL 64)
-    endif (FMODEX)
+    endif (FMODSTUDIO)
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
@@ -1975,11 +1975,11 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
-    ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
-    ${FMODWRAPPER_LIBRARY} # must come after LLAudio
+    ${FMOD_LIBRARY} # must come after LLAudio
     ${GLOD_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${JSONCPP_LIBRARIES}

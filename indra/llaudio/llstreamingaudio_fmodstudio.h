@@ -1,6 +1,6 @@
 /** 
- * @file streamingaudio_fmodex.h
- * @brief Definition of LLStreamingAudio_FMODEX implementation
+ * @file streamingaudio_fmodstudio.h
+ * @brief Definition of LLStreamingAudio_FMODSTUDIO implementation
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
@@ -24,8 +24,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_STREAMINGAUDIO_FMODEX_H
-#define LL_STREAMINGAUDIO_FMODEX_H
+#ifndef LL_STREAMINGAUDIO_FMODSTUDIO_H
+#define LL_STREAMINGAUDIO_FMODSTUDIO_H
 
 #include "stdtypes.h" // from llcommon
 
@@ -33,19 +33,21 @@
 #include "lltimer.h"
 
 //Stubs
-class LLAudioStreamManagerFMODEX;
+class LLAudioStreamManagerFMODSTUDIO;
 namespace FMOD
 {
 	class System;
 	class Channel;
+	class ChannelGroup;
+	class DSP;
 }
 
 //Interfaces
-class LLStreamingAudio_FMODEX : public LLStreamingAudioInterface
+class LLStreamingAudio_FMODSTUDIO : public LLStreamingAudioInterface
 {
  public:
-	LLStreamingAudio_FMODEX(FMOD::System *system);
-	/*virtual*/ ~LLStreamingAudio_FMODEX();
+	LLStreamingAudio_FMODSTUDIO(FMOD::System *system);
+	/*virtual*/ ~LLStreamingAudio_FMODSTUDIO();
 
 	/*virtual*/ void start(const std::string& url);
 	/*virtual*/ void stop();
@@ -59,15 +61,21 @@ class LLStreamingAudio_FMODEX : public LLStreamingAudioInterface
 	/*virtual*/ bool supportsAdjustableBufferSizes(){return true;}
 	/*virtual*/ void setBufferSizes(U32 streambuffertime, U32 decodebuffertime);
 private:
+	bool releaseDeadStreams();
+	void cleanupWaveData();
+
 	FMOD::System *mSystem;
 
-	LLAudioStreamManagerFMODEX *mCurrentInternetStreamp;
+	LLAudioStreamManagerFMODSTUDIO *mCurrentInternetStreamp;
+	FMOD::DSP* mStreamDSP;
+	FMOD::ChannelGroup* mStreamGroup;
 	FMOD::Channel *mFMODInternetStreamChannelp;
-	std::list<LLAudioStreamManagerFMODEX *> mDeadStreams;
+	std::list<LLAudioStreamManagerFMODSTUDIO *> mDeadStreams;
 
 	std::string mURL;
+	std::string mPendingURL;
 	F32 mGain;
 };
 
 
-#endif // LL_STREAMINGAUDIO_FMODEX_H
+#endif // LL_STREAMINGAUDIO_FMODSTUDIO_H
