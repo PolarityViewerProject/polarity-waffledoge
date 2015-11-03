@@ -1834,13 +1834,14 @@ void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_LIGHT_SET);
 	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
-		 iter != gPipeline.mNearbyLights.end(); iter++)
+		 iter != gPipeline.mNearbyLights.end();)
 	{
 		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
 		{
 			gPipeline.mLights.erase(iter->drawable);
-			gPipeline.mNearbyLights.erase(iter);
+			gPipeline.mNearbyLights.erase(iter++);
 		}
+		else ++iter;
 	}
 }
 
