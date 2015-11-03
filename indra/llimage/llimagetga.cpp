@@ -1174,6 +1174,7 @@ bool LLImageTGA::loadFile( const std::string& path )
 	{
 		deleteData();
 		LL_WARNS() << "Couldn't read file " << path << LL_ENDL;
+		fclose(file);
 		return false;
 	}
 
