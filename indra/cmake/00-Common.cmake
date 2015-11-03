@@ -78,6 +78,7 @@ if (WINDOWS)
       /nologo
       /Oy-
       /fp:fast
+      /Zm140
       )
 
   if (WORD_SIZE EQUAL 32)
