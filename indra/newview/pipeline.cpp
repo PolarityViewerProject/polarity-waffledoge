@@ -11676,6 +11676,7 @@ BOOL LLPipeline::hasAnyRenderType(U32 type, ...) const
 	{
 		if (mRenderTypeEnabled[type])
 		{
+			va_end(args);
 			return TRUE;
 		}
 		type = va_arg(args, U32);
