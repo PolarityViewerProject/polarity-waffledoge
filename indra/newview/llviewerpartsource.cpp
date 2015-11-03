@@ -606,7 +606,7 @@ void LLViewerPartSourceSpiral::update(const F32 dt)
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, updatePart);
+		part->init(this, mImagep, boost::bind(&LLViewerPartSourceSpiral::updatePart, _1, _2));
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;
 		part->mEndColor.mV[3] = 0.f;
@@ -665,8 +665,6 @@ void LLViewerPartSourceBeam::setColor(const LLColor4 &color)
 
 void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 {
-	F32 frac = part.mLastUpdateTime/part.mMaxAge;
-
 	LLViewerPartSource *ps = (LLViewerPartSource*)part.mPartSourcep;
 	LLViewerPartSourceBeam *psb = (LLViewerPartSourceBeam *)ps;
 	if (psb->mSourceObjectp.isNull())
@@ -695,6 +693,7 @@ void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 		target_pos_agent = psb->mTargetObjectp->getRenderPosition();
 	}
 
+	F32 frac = part.mLastUpdateTime / part.mMaxAge;
 	part.mPosAgent = (1.f - frac) * source_pos_agent;
 	if (psb->mTargetObjectp.isNull())
 	{
@@ -755,7 +754,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 		}
 
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, NULL);
+		part->init(this, mImagep, boost::bind(&LLViewerPartSourceBeam::updatePart, _1, _2));
 
 		part->mFlags = LLPartData::LL_PART_INTERP_COLOR_MASK |
 						LLPartData::LL_PART_INTERP_SCALE_MASK |
@@ -873,7 +872,7 @@ void LLViewerPartSourceChat::update(const F32 dt)
 			mPosAgent = mSourceObjectp->getRenderPosition();
 		}
 		LLViewerPart* part = new LLViewerPart();
-		part->init(this, mImagep, updatePart);
+		part->init(this, mImagep, boost::bind(&LLViewerPartSourceChat::updatePart, _1, _2));
 		part->mStartColor = mColor;
 		part->mEndColor = mColor;
 		part->mEndColor.mV[3] = 0.f;
