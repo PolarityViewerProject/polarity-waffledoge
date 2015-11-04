@@ -299,7 +299,11 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		}
 	}
 
-	if (mRoot) mRoot->removeAllChildren();
+	if (mRoot)
+	{
+		mRoot->removeAllChildren();
+		delete mRoot;
+	}
 	mJointMap.clear();
 
 	clearSkeleton();
@@ -430,7 +434,7 @@ void LLAvatarAppearance::initClass()
 void LLAvatarAppearance::cleanupClass()
 {
 	delete_and_clear(sAvatarXmlInfo);
-	// *TODO: What about sAvatarSkeletonInfo ???
+	delete_and_clear(sAvatarSkeletonInfo);
 	sSkeletonXMLTree.cleanup();
 	sXMLTree.cleanup();
 }
