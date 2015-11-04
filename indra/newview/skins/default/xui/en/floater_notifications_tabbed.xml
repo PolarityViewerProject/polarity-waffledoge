@@ -114,7 +114,7 @@
             width="328"/>
         </panel>
         <panel
-         border="true"
+         border="false"
          bevel_style="none"
          follows="all"
          label="Group (0)"
@@ -133,10 +133,10 @@
       </tab_container>
 
       <layout_stack top_pad="0" width="329" height="26" enabled="true" orientation="horizontal"  follows="left|right" name="ButtonsStack">
-        <layout_panel width="93" height="30" enabled="true" orientation="horizontal" name="CondenseAllButtonPanel">
+        <layout_panel width="93" height="30" enabled="true" name="CondenseAllButtonPanel">
           <button follows="left" width="93" height="21" left="2" label="Collapse all" name="collapse_all_button" />
         </layout_panel>
-        <layout_panel width="93" height="30" enabled="true" orientation="horizontal" name="DeleteAllButtonPanel">
+        <layout_panel width="93" height="30" enabled="true" name="DeleteAllButtonPanel">
           <button follows="right" width="93" height="21" label="Delete all" name="delete_all_button" />
         </layout_panel>
       </layout_stack>
