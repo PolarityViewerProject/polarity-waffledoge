@@ -448,6 +448,7 @@ LLGLManager::LLGLManager() :
 	mHasCubeMap(FALSE),
 	mHasDebugOutput(FALSE),
 
+	mHasGpuShader5(FALSE),
 	mIsATI(FALSE),
 	mIsNVIDIA(FALSE),
 	mIsIntel(FALSE),
@@ -959,6 +960,9 @@ void LLGLManager::initExtensions()
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
 	mHasTextureRectangle = FALSE;
+#ifdef GL_ARB_gpu_shader5
+	mHasGpuShader5 = FALSE;
+#endif
 #else // LL_MESA_HEADLESS //important, gGLHExts.mSysExts is uninitialized until after glh_init_extensions is called
 	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
 	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
@@ -1013,6 +1017,10 @@ void LLGLManager::initExtensions()
 	mHasVertexShader = ExtensionExists("GL_ARB_vertex_program", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_vertex_shader", gGLHExts.mSysExts)
 		&& (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
 	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
+
+#ifdef GL_ARB_gpu_shader5
+	mHasGpuShader5 = ExtensionExists("GL_ARB_gpu_shader5", gGLHExts.mSysExts);
+#endif
 #endif
 
 #if LL_LINUX || LL_SOLARIS
@@ -1038,6 +1046,7 @@ void LLGLManager::initExtensions()
 		mHasShaderObjects = FALSE;
 		mHasVertexShader = FALSE;
 		mHasFragmentShader = FALSE;
+		mHasGpuShader5 = FALSE;
 		LL_WARNS("RenderInit") << "GL extension support DISABLED via LL_GL_NOEXT" << LL_ENDL;
 	}
 	else if (getenv("LL_GL_BASICEXT"))	/* Flawfinder: ignore */
@@ -1083,6 +1092,7 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'s')) mHasTextureRectangle = FALSE;
 		if (strchr(blacklist,'t')) mHasBlendFuncSeparate = FALSE;//S
 		if (strchr(blacklist,'u')) mHasDepthClamp = FALSE;
+		if (strchr(blacklist,'v')) mHasGpuShader5 = FALSE;
 		
 	}
 #endif // LL_LINUX || LL_SOLARIS
@@ -1134,6 +1144,10 @@ void LLGLManager::initExtensions()
 	if (!mHasFragmentShader)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_fragment_shader" << LL_ENDL;
+	}
+	if (!mHasGpuShader5)
+	{
+		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_gpu_shader5" << LL_ENDL;
 	}
 	if (!mHasBlendFuncSeparate)
 	{
