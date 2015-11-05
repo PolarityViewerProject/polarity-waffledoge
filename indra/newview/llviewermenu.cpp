@@ -3173,6 +3173,15 @@ class LLObjectMute : public view_listener_t
 	}
 };
 
+class OSMarkViewerEffectsDead : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLHUDObject::markViewerEffectsDead();
+		return true;
+	}
+};
+
 bool handle_go_to()
 {
 	// try simulator autopilot
@@ -8493,6 +8502,30 @@ class LLWorldPostProcess : public view_listener_t
 	}
 };
 
+class OSWorldSyncAnimations : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		for (S32 i = 0; i < gObjectList.getNumObjects(); ++i)
+		{
+			LLViewerObject* objectp = gObjectList.getObject(i);
+			if (objectp && objectp->isAvatar())
+			{
+				LLVOAvatar* avatarp = static_cast<LLVOAvatar*>(objectp);
+				if (avatarp)
+				{
+					for (const auto& playpair : avatarp->mPlayingAnimations)
+					{
+						avatarp->stopMotion(playpair.first, TRUE);
+						avatarp->startMotion(playpair.first);
+					}
+				}
+			}
+		}
+		return true;
+	}
+};
+
 void handle_flush_name_caches()
 {
 	LLAvatarNameCache::cleanupClass();
@@ -8745,6 +8778,7 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLWorldEnvPreset(), "World.EnvPreset");
 	view_listener_t::addMenu(new LLWorldEnableEnvPreset(), "World.EnableEnvPreset");
 	view_listener_t::addMenu(new LLWorldPostProcess(), "World.PostProcess");
+	view_listener_t::addMenu(new OSWorldSyncAnimations(), "World.ResyncAnimations");
 
 	// Tools menu
 	view_listener_t::addMenu(new LLToolsSelectTool(), "Tools.SelectTool");
@@ -9102,4 +9136,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+
+	view_listener_t::addMenu(new OSMarkViewerEffectsDead(), "Tools.KillAllVE");
 }
