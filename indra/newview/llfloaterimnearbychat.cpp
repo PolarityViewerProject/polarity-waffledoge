@@ -67,7 +67,7 @@
 #include "llviewerchat.h"
 #include "lltranslate.h"
 #include "llautoreplace.h"
-
+#include "oschatcommand.h"
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
 const S32 EXPANDED_HEIGHT = 266;
@@ -487,7 +487,8 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 		std::string utf8_trigger = wstring_to_utf8str(raw_text);
 		std::string utf8_out_str(utf8_trigger);
 
-		if (LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
+		if (OSChatCommand::instance().matchPrefix(utf8_trigger, &utf8_out_str)
+			|| LLGestureMgr::instance().matchPrefix(utf8_trigger, &utf8_out_str))
 		{
 			std::string rest_of_match = utf8_out_str.substr(utf8_trigger.size());
 			if (!rest_of_match.empty())
@@ -592,8 +593,11 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 
 			if (!utf8_revised_text.empty())
 			{
-				// Chat with animation
-				sendChatFromViewer(utf8_revised_text, type, gSavedSettings.getBOOL("PlayChatAnim"));
+				if(!OSChatCommand::instance().parseCommand(utf8_revised_text))
+				{
+					// Chat with animation
+					sendChatFromViewer(utf8_revised_text, type, gSavedSettings.getBOOL("PlayChatAnim"));
+				}
 			}
 		}
 

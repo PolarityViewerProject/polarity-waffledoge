@@ -48,6 +48,13 @@ public:
 
 	void setUseFixedSun(bool fixed);
 
+	// *FIXME: Duplicated code from LLPanelRegionInfo
+	static void sendEstateOwnerMessage(
+		LLMessageSystem* msg,
+		const std::string& request,
+		const LLUUID& invoice,
+		const std::vector<std::string>& strings);
+
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
 	U8			mAgentLimit;
@@ -85,13 +92,6 @@ protected:
 
 private:
 	void reset();
-
-	// *FIXME: Duplicated code from LLPanelRegionInfo
-	static void sendEstateOwnerMessage(
-		LLMessageSystem* msg,
-		const std::string& request,
-		const LLUUID& invoice,
-		const std::vector<std::string>& strings);
 
 	update_signal_t mUpdateSignal;
 };

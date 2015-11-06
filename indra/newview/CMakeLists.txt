@@ -709,6 +709,7 @@ set(viewer_SOURCE_FILES
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
+    oschatcommand.cpp
     pipeline.cpp
     )
 
@@ -1320,6 +1321,7 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     macmain.h
     noise.h
+    oschatcommand.h
     pipeline.h
     roles_constants.h
     VertexCache.h

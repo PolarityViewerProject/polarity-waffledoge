@@ -2,6 +2,182 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
+    <key>ObsidianChatCommandCalc</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to calculate expressions</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/calc</string>
+    </map>
+    <key>ObsidianChatCommandClearNearby</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set clear nearby chat history for this session.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/clr</string>
+    </map>
+    <key>ObsidianChatCommandDrawDistance</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set draw distance</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/dd</string>
+    </map>
+    <key>ObsidianChatCommandEnable</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable chat bar command line</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>ObsidianChatCommandGround</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to teleport to ground</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/flr</string>
+    </map>
+    <key>ObsidianChatCommandHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to teleport to specified height</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/gth</string>
+    </map>
+    <key>ObsidianChatCommandHoverHeight</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to hover your height or something</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/hover</string>
+    </map>
+    <key>ObsidianChatCommandHome</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to send avatar home</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/home</string>
+    </map>
+    <key>ObsidianChatCommandMapto</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to teleport to another region</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/mapto</string>
+    </map>
+    <key>ObsidianChatCommandPos</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to teleport to position</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/pos</string>
+    </map>
+    <key>ObsidianChatCommandRegionMessage</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to send a region message</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/regionmsg</string>
+    </map>
+    <key>ObsidianChatCommandResyncAnim</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to stop/start in order to resync animations</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/resync</string>
+    </map>
+    <key>ObsidianChatCommandRezPlat</key>
+    <map>
+      <key>Comment</key>
+      <string>Rez a platform</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/plat</string>
+    </map>
+    <key>ObsidianChatCommandRezPlatSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Default size of platform to rez</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <string>20</string>
+    </map>
+    <key>ObsidianChatCommandSetHome</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to set the avatar home</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/sethome</string>
+    </map>
+    <key>ObsidianChatCommandTeleportToCam</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to teleport to cam</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/tp2cam</string>
+    </map>
     <key>ObsidianLookAtDisabled</key>
     <map>
       <key>Comment</key>
