@@ -27,10 +27,18 @@
 #ifndef LL_LLOCTREE_H
 #define LL_LLOCTREE_H
 
+#define LL_OCTREE_POOLS 0
+
 #include "lltreenode.h"
 #include "v3math.h"
 #include "llvector4a.h"
 #include <vector>
+#if LL_OCTREE_POOLS
+#include "fix_macros.h"
+#define TBB_PREVIEW_MEMORY_POOL 1
+#include <tbb/memory_pool.h>
+#include <boost/align.hpp>
+#endif
 
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 
@@ -91,6 +99,21 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
+#if LL_OCTREE_POOLS
+	static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> >& getPool()
+	{
+		static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> > my_pool;
+		return my_pool;
+	}
+	void* operator new(size_t size)
+	{
+		return getPool().malloc(size);
+	}
+	void operator delete(void* ptr)
+	{
+		getPool().free(ptr);
+	}
+#else
 	void* operator new(size_t size)
 	{
 		return ll_aligned_malloc_16(size);
@@ -100,6 +123,7 @@ public:
 	{
 		ll_aligned_free_16(ptr);
 	}
+#endif
 
 	LLOctreeNode(	const LLVector4a& center, 
 					const LLVector4a& size, 
@@ -690,6 +714,26 @@ public:
 	:	BaseType(center, size, parent)
 	{
 	}
+
+#if LL_OCTREE_POOLS
+	void* operator new(size_t size)
+	{
+		return LLOctreeNode<T>::getPool().malloc(size);
+	}
+	void operator delete(void* ptr)
+	{
+		LLOctreeNode<T>::getPool().free(ptr);
+	}
+#else
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc_16(size);
+	}
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free_16(ptr);
+	}
+#endif
 	
 	bool balance()
 	{	
