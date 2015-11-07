@@ -51,9 +51,10 @@ public:
 	bool matchPrefix(const std::string& in_str, std::string* out_str);
 	bool parseCommand(std::string data);
 private:
+	void refreshCommands();
+
 	LLCachedControl<bool> mEnableChatCommands;
-	typedef std::map< EChatCommands, LLCachedControl<std::string> > chat_commands_t;
-	chat_commands_t mChatCommands;
+	std::map<std::string, EChatCommands> mChatCommands;
 };
 
 #endif // OS_CHATCOMMAND_H

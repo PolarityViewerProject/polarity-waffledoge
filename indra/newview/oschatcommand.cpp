@@ -51,35 +51,56 @@ OSChatCommand::OSChatCommand()
 	: LLSingleton<OSChatCommand>()
 	, mEnableChatCommands(gSavedSettings, "ObsidianChatCommandEnable", true)
 {
-	mChatCommands.insert(std::make_pair(CMD_DRAW_DISTANCE, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandDrawDistance", "/dd")));
-	mChatCommands.insert(std::make_pair(CMD_GO_TO_HEIGHT, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandHeight", "/gth")));
-	mChatCommands.insert(std::make_pair(CMD_GO_TO_GROUND, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandGround", "/flr")));
-	mChatCommands.insert(std::make_pair(CMD_GO_TO_POS, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandPos", "/pos")));
-	mChatCommands.insert(std::make_pair(CMD_REZ_PLAT, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandRezPlat", "/plat")));
-	mChatCommands.insert(std::make_pair(CMD_GO_HOME, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandHome", "/home")));
-	mChatCommands.insert(std::make_pair(CMD_SET_HOME, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandSetHome", "/sethome")));
-	mChatCommands.insert(std::make_pair(CMD_CALC, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandCalc", "/calc")));
-	mChatCommands.insert(std::make_pair(CMD_MAP_TO, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandMapto", "/mapto")));
-	mChatCommands.insert(std::make_pair(CMD_CLEAR_CHAT, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandClearNearby", "/clr")));
-	mChatCommands.insert(std::make_pair(CMD_ESTATE_REGION_MSG, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandRegionMessage", "/regionmsg")));
-	mChatCommands.insert(std::make_pair(CMD_RESYNC_ANIM, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandResyncAnim", "/resync")));
-	mChatCommands.insert(std::make_pair(CMD_TP_TO_CAM, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandTeleportToCam", "/tp2cam")));
-	mChatCommands.insert(std::make_pair(CMD_HOVER_HEIGHT, LLCachedControl<std::string>(gSavedSettings, "ObsidianChatCommandHoverHeight", "/hover")));
+	refreshCommands();
+	gSavedSettings.getControl("ObsidianChatCommandDrawDistance")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandHeight")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandGround")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandPos")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandRezPlat")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandHome")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandSetHome")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandCalc")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandMapto")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandClearNearby")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandRegionMessage")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandResyncAnim")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandTeleportToCam")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("ObsidianChatCommandHoverHeight")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+}
+
+void OSChatCommand::refreshCommands()
+{
+	mChatCommands.clear();
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandDrawDistance")), CMD_DRAW_DISTANCE);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHeight")), CMD_GO_TO_HEIGHT);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandGround")), CMD_GO_TO_GROUND);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandPos")), CMD_GO_TO_POS);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandRezPlat")), CMD_REZ_PLAT);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHome")), CMD_GO_HOME);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandSetHome")), CMD_SET_HOME);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandCalc")), CMD_CALC);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandMapto")), CMD_MAP_TO);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandClearNearby")), CMD_CLEAR_CHAT);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandRegionMessage")), CMD_ESTATE_REGION_MSG);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandResyncAnim")), CMD_RESYNC_ANIM);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandTeleportToCam")), CMD_TP_TO_CAM);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHoverHeight")), CMD_HOVER_HEIGHT);
 }
 
 bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
 {
-	size_t in_len = in_str.length();
+	if (!mEnableChatCommands)
+		return false;
+
+	std::string str_to_match(utf8str_tolower(in_str));
+	size_t in_len = str_to_match.length();
 
 	//return whole trigger, if received text equals to it
-	for (auto it = mChatCommands.cbegin(), it_end = mChatCommands.cend(); it != it_end; ++it)
+	auto it = mChatCommands.find(str_to_match);
+	if (it != mChatCommands.end())
 	{
-		const std::string cmd = it->second;
-		if (!LLStringUtil::compareInsensitive(in_str, cmd))
-		{
-			*out_str = cmd;
-			return true;
-		}
+		*out_str = it->first;
+		return true;
 	}
 
 	//return common chars, if more than one cmd matches the prefix
@@ -87,7 +108,7 @@ bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
 	std::string buf;
 	for (auto it = mChatCommands.cbegin(), it_end = mChatCommands.cend(); it != it_end; ++it)
 	{
-		const std::string cmd = it->second;
+		const std::string cmd = it->first;
 
 		if (in_len > cmd.length())
 		{
@@ -97,9 +118,9 @@ bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
 
 		std::string cmd_trunc = cmd;
 		LLStringUtil::truncate(cmd_trunc, in_len);
-		if (!LLStringUtil::compareInsensitive(in_str, cmd_trunc))
+		if (str_to_match == cmd_trunc)
 		{
-			std::string cur_rest_of_match = cmd.substr(in_str.size());
+			std::string cur_rest_of_match = cmd.substr(str_to_match.size());
 			if (rest_of_match.empty())
 			{
 				rest_of_match = cur_rest_of_match;
@@ -137,7 +158,7 @@ bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
 
 	if (!rest_of_match.empty())
 	{
-		*out_str = in_str + rest_of_match;
+		*out_str = str_to_match + rest_of_match;
 		return true;
 	}
 
@@ -156,14 +177,11 @@ bool OSChatCommand::parseCommand(std::string data)
 		return false;
 
 	EChatCommands command = CMD_UNKNOWN;
-	for (auto it = mChatCommands.cbegin(), it_end = mChatCommands.cend(); it != it_end; ++it)
-	{
-		if (!LLStringUtil::compareInsensitive(cmd, (std::string)it->second))
-		{
-			command = it->first;
-			break;
-		}
-	}
+	auto it = mChatCommands.find(utf8str_tolower(cmd));
+	if (it != mChatCommands.end())
+		command = it->second;
+	else
+		return false;
 
 	switch (command)
 	{
