@@ -1603,6 +1603,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings.xml
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
+    app_settings/settings_obsidian.xml
     app_settings/settings_per_account.xml
     app_settings/std_bump.ini
     app_settings/toolbars.xml
