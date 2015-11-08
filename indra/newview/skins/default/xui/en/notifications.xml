@@ -11000,5 +11000,18 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      name="okbutton"
      yestext="OK"/>
   </notification>
-  
+
+  <notification
+   icon="notifytip.tga"
+   name="ChatCommandCalc"
+   type="notifytip">
+   Calculation: [EXPRESSION] = [RESULT]
+  </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ChatCommandCalcFailed"
+   type="notifytip">
+   Calculation failed.
+  </notification>
 </notifications>
