@@ -167,7 +167,7 @@ bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
 
 bool OSChatCommand::parseCommand(std::string data)
 {
-	if (!mEnableChatCommands || data.empty() || data[0] != '/')
+	if (!mEnableChatCommands || data.empty())
 		return false;
 
 	std::istringstream input(data);
