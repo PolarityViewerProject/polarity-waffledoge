@@ -2398,7 +2398,7 @@ static LLTrace::BlockTimerStatHandle FTM_CULL("Object Culling");
 
 void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip, LLPlane* planep)
 {
-	static LLCachedControl<bool> use_occlusion(gSavedSettings,"UseOcclusion");
+	static LLCachedControl<bool> use_occlusion(gSavedSettings, "UseOcclusion");
 	static bool can_use_occlusion = LLGLSLShader::sNoFixedFunction
 									&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 									&& gGLManager.mHasOcclusionQuery;
@@ -8908,10 +8908,6 @@ void LLPipeline::renderDeferredLighting()
 		
 		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
 		
-		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
-		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
@@ -9456,10 +9452,6 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		}
 		
 		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, target->getWidth(), target->getHeight());
-		
-		F32 gamma = gSavedSettings.getF32("RenderDeferredDisplayGamma");
-
-		gDeferredPostGammaCorrectProgram.uniform1f(LLShaderMgr::DISPLAY_GAMMA, (gamma > 0.1f) ? 1.0f / gamma : (1.0f/2.2f));
 		
 		gGL.begin(LLRender::TRIANGLE_STRIP);
 		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
