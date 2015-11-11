@@ -6726,84 +6726,84 @@
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Conference IM Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>  
     <key>NotificationFriendIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Friend IM Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>
     <key>NotificationGroupChatOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Group Chat Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>
     <key>NotificationNearbyChatOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Nearby Chat Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>
     <key>NotificationNonFriendIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Non Friend IM Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>  
     <key>NotificationObjectIMOptions</key>
     <map>
       <key>Comment</key>
       <string>
         Specifies how the UI responds to Object IM Notifications.
-        Allowed values: [openconversations,toast,flash,noaction]
+        Allowed values: 0(noaction), 1(flash), 2(toast), 3(openconversations)
       </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string>toast</string>
+      <string>2</string>
     </map>  
     <key>NotificationToastLifeTime</key>
     <map>

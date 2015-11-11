@@ -615,7 +615,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 		}
 
         //Will show toast when chat preference is set        
-        if((gSavedSettings.getString("NotificationNearbyChatOptions") == "toast") || !nearby_chat->isMessagePaneExpanded())
+        if((gSavedSettings.getU32("NotificationNearbyChatOptions") == 2) || !nearby_chat->isMessagePaneExpanded())
         {
             // Add a nearby chat toast.
             LLUUID id;

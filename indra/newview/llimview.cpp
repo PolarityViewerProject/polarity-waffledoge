@@ -156,7 +156,13 @@ static void on_avatar_name_cache_toast(const LLUUID& agent_id,
 
 void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 {
-    std::string user_preferences;
+	enum {
+		E_PREF_NOACTION = 0,
+		E_PREF_FLASH,
+		E_PREF_TOAST,
+		E_PREF_OPENCONVERSATION
+	};
+	U32 user_preferences = E_PREF_NOACTION;
 	LLUUID participant_id = msg[is_dnd_msg ? "FROM_ID" : "from_id"].asUUID();
 	LLUUID session_id = msg[is_dnd_msg ? "SESSION_ID" : "session_id"].asUUID();
     LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(session_id);
@@ -199,7 +205,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     {
 		if (msg["source_type"].asInteger() == CHAT_SOURCE_OBJECT)
 		{
-			user_preferences = gSavedSettings.getString("NotificationObjectIMOptions");
+			user_preferences = gSavedSettings.getU32("NotificationObjectIMOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundObjectIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
@@ -207,7 +213,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 		}
 		else
 		{
-    	user_preferences = gSavedSettings.getString("NotificationNearbyChatOptions");
+    	user_preferences = gSavedSettings.getU32("NotificationNearbyChatOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNearbyChatIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
@@ -218,7 +224,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     {
         if (LLAvatarTracker::instance().isBuddy(participant_id))
         {
-        	user_preferences = gSavedSettings.getString("NotificationFriendIMOptions");
+        	user_preferences = gSavedSettings.getU32("NotificationFriendIMOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundFriendIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
@@ -226,7 +232,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
         }
         else
         {
-        	user_preferences = gSavedSettings.getString("NotificationNonFriendIMOptions");
+        	user_preferences = gSavedSettings.getU32("NotificationNonFriendIMOptions");
 			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNonFriendIM") == TRUE))
 			{
 				make_ui_sound("UISndNewIncomingIMSession");
@@ -235,7 +241,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	}
     else if(session->isAdHocSessionType())
     {
-    	user_preferences = gSavedSettings.getString("NotificationConferenceIMOptions");
+    	user_preferences = gSavedSettings.getU32("NotificationConferenceIMOptions");
 		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundConferenceIM") == TRUE))
 		{
 			make_ui_sound("UISndNewIncomingIMSession");
@@ -243,7 +249,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	}
     else if(session->isGroupSessionType())
     {
-    	user_preferences = gSavedSettings.getString("NotificationGroupChatOptions");
+    	user_preferences = gSavedSettings.getU32("NotificationGroupChatOptions");
 		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundGroupChatIM") == TRUE))
 		{
 			make_ui_sound("UISndNewIncomingIMSession");
@@ -253,7 +259,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     // actions:
 
     // 0. nothing - exit
-    if (("noaction" == user_preferences ||
+    if ((E_PREF_NOACTION == user_preferences ||
     		ON_TOP_AND_ITEM_IS_SELECTED == conversations_floater_status)
     	    && session_floater->isMessagePaneExpanded())
     {
@@ -261,7 +267,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     }
 
     // 1. open floater and [optional] surface it
-    if ("openconversations" == user_preferences &&
+    if (E_PREF_OPENCONVERSATION == user_preferences &&
     		(CLOSED == conversations_floater_status
     				|| NOT_ON_TOP == conversations_floater_status))
     {
@@ -296,10 +302,10 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
     }
 
     // 2. Flash line item
-    if ("openconversations" == user_preferences
+    if (E_PREF_OPENCONVERSATION == user_preferences
     		|| ON_TOP == conversations_floater_status
-    		|| ("toast" == user_preferences && ON_TOP != conversations_floater_status)
-		|| ("flash" == user_preferences && (CLOSED == conversations_floater_status
+    		|| (E_PREF_TOAST == user_preferences && ON_TOP != conversations_floater_status)
+		|| (E_PREF_FLASH == user_preferences && (CLOSED == conversations_floater_status
 				 	 	 	 	 	 	|| NOT_ON_TOP == conversations_floater_status))
 		|| is_dnd_msg)
     {
@@ -326,7 +332,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	}
 
     // 3. Flash FUI button
-    if (("toast" == user_preferences || "flash" == user_preferences) &&
+    if ((E_PREF_TOAST == user_preferences || E_PREF_FLASH == user_preferences) &&
     		(CLOSED == conversations_floater_status
 		|| NOT_ON_TOP == conversations_floater_status)
 		&& !is_session_focused
@@ -346,7 +352,7 @@ void notify_of_message(const LLSD& msg, bool is_dnd_msg)
 	}
 
     // 4. Toast
-    if ((("toast" == user_preferences) &&
+    if (((E_PREF_TOAST == user_preferences) &&
 		(ON_TOP_AND_ITEM_IS_SELECTED != conversations_floater_status) &&
 		(!session_floater->isTornOff() || !LLFloater::isVisible(session_floater)))
     		    || !session_floater->isMessagePaneExpanded())
