@@ -1515,7 +1515,7 @@ void LLRender::pushUIMatrix()
 {
 	if (mUIOffset.empty())
 	{
-		mUIOffset.push_back(LLVector4a(0.f));
+		mUIOffset.emplace_back(LLVector4a(0.f));
 	}
 	else
 	{
@@ -1524,7 +1524,7 @@ void LLRender::pushUIMatrix()
 	
 	if (mUIScale.empty())
 	{
-		mUIScale.push_back(LLVector4a(1.f));
+		mUIScale.emplace_back(LLVector4a(1.f));
 	}
 	else
 	{
