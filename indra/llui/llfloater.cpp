@@ -2811,6 +2811,7 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	S32 delta_left = mToolbarLeftRect.notEmpty() ? mToolbarLeftRect.mRight - floater_rect.mRight : 0;
 	S32 delta_bottom = mToolbarBottomRect.notEmpty() ? mToolbarBottomRect.mTop - floater_rect.mTop : 0;
 	S32 delta_right = mToolbarRightRect.notEmpty() ? mToolbarRightRect.mLeft - floater_rect.mLeft : 0;
+	S32 delta_top = mToolbarTopRect.notEmpty() ? mToolbarTopRect.mBottom - floater_rect.mBottom : 0;
 
 	// move window fully onscreen
 	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
@@ -2828,6 +2829,10 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	else if (delta_right < 0 && floater_rect.mTop < mToolbarRightRect.mTop	&& floater_rect.mBottom > mToolbarRightRect.mBottom)
 	{
 		floater->translate(delta_right, 0);
+	}
+	else if (delta_top < 0 && floater_rect.mLeft > mToolbarTopRect.mLeft && floater_rect.mRight < mToolbarTopRect.mRight)
+	{
+		floater->translate(0, delta_top);
 	}
 }
 
@@ -3036,6 +3041,9 @@ void LLFloaterView::setToolbarRect(LLToolBarEnums::EToolBarLocation tb, const LL
 		break;
 	case LLToolBarEnums::TOOLBAR_RIGHT:
 		mToolbarRightRect = toolbar_rect;
+		break;
+	case LLToolBarEnums::TOOLBAR_TOP:
+		mToolbarTopRect = toolbar_rect;
 		break;
 	default:
 		LL_WARNS() << "setToolbarRect() passed odd toolbar number " << (S32) tb << LL_ENDL;
