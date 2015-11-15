@@ -261,7 +261,7 @@ static LLStaticHashedString sTint("tint");
 static LLStaticHashedString sAmbiance("ambiance");
 static LLStaticHashedString sAlphaScale("alpha_scale");
 static LLStaticHashedString sNormMat("norm_mat");
-static LLStaticHashedString sOffset("offset");
+
 static LLStaticHashedString sScreenRes("screenRes");
 static LLStaticHashedString sDelta("delta");
 static LLStaticHashedString sDistFactor("dist_factor");
@@ -8319,15 +8319,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR, ssao_factor);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR_INV, 1.0/ssao_factor);
 
-	LLVector3 ssao_effect = RenderSSAOEffect;
-	F32 matrix_diag = (ssao_effect[0] + 2.0*ssao_effect[1])/3.0;
-	F32 matrix_nondiag = (ssao_effect[0] - ssao_effect[1])/3.0;
-	// This matrix scales (proj of color onto <1/rt(3),1/rt(3),1/rt(3)>) by
-	// value factor, and scales remainder by saturation factor
-	F32 ssao_effect_mat[] = {	matrix_diag, matrix_nondiag, matrix_nondiag,
-								matrix_nondiag, matrix_diag, matrix_nondiag,
-								matrix_nondiag, matrix_nondiag, matrix_diag};
-	shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_SSAO_EFFECT_MAT, 1, GL_FALSE, ssao_effect_mat);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, RenderSSAOEffect[0]);
 
 	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
@@ -8452,26 +8444,6 @@ void LLPipeline::renderDeferredLighting()
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
 
-				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
-
-				const U32 slice = 32;
-				F32 offset[slice*3];
-				for (U32 i = 0; i < 4; i++)
-				{
-					for (U32 j = 0; j < 8; j++)
-					{
-						glh::vec3f v;
-						v.set_value(sinf(6.284f/8*j), cosf(6.284f/8*j), -(F32) i);
-						v.normalize();
-						inv_trans.mult_matrix_vec(v);
-						v.normalize();
-						offset[(i*8+j)*3+0] = v.v[0];
-						offset[(i*8+j)*3+1] = v.v[2];
-						offset[(i*8+j)*3+2] = v.v[1];
-					}
-				}
-
-				gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
@@ -9057,26 +9029,6 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
 
-				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
-
-				const U32 slice = 32;
-				F32 offset[slice*3];
-				for (U32 i = 0; i < 4; i++)
-				{
-					for (U32 j = 0; j < 8; j++)
-					{
-						glh::vec3f v;
-						v.set_value(sinf(6.284f/8*j), cosf(6.284f/8*j), -(F32) i);
-						v.normalize();
-						inv_trans.mult_matrix_vec(v);
-						v.normalize();
-						offset[(i*8+j)*3+0] = v.v[0];
-						offset[(i*8+j)*3+1] = v.v[2];
-						offset[(i*8+j)*3+2] = v.v[1];
-					}
-				}
-
-				gDeferredSunProgram.uniform3fv(LLShaderMgr::DEFERRED_SHADOW_OFFSET, slice, offset);
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
