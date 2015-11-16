@@ -142,7 +142,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 		
 	float rtn = (1.0 - angle_hidden);
 
-	return (rtn * rtn) * (rtn * rtn);
+	return (rtn * rtn);
 }
 
 void main() 

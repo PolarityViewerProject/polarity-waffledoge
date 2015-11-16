@@ -159,7 +159,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	
 	float rtn = (1.0 - angle_hidden);
 
-	return (rtn * rtn) * (rtn * rtn);
+	return (rtn * rtn);
 }
 
 float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
