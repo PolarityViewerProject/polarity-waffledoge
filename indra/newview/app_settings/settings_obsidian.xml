@@ -154,7 +154,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <string>20</string>
+      <real>20</real>
     </map>
     <key>ObsidianChatCommandSetHome</key>
     <map>
