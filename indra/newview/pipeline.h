@@ -597,7 +597,6 @@ public:
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
-	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
 	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
