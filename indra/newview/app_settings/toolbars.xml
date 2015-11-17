@@ -1,30 +1,22 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <toolbars>
   <top_toolbar
-    button_display_mode="icons_with_text">
+    button_display_mode="text_only">
+    <command name="chat"/>
+    <command name="speak"/>
+    <command name="people"/>
+    <command name="snapshot"/>
+    <command name="minimap"/>
   </top_toolbar>
   <bottom_toolbar
     button_display_mode="icons_with_text">
-    <command name="chat"/>
-    <command name="speak"/>
-    <command name="destinations"/>
-    <command name="people"/>
-    <command name="profile"/>
-    <command name="move"/>
-    <command name="view"/>
-    <command name="howto"/>
   </bottom_toolbar>
   <left_toolbar
     button_display_mode="icons_only">
-    <command name="avatar"/>
     <command name="appearance"/>
+    <command name="places"/>
     <command name="inventory"/>
     <command name="search"/>
-    <command name="places"/>
-    <command name="voice"/>
-    <command name="minimap"/>
-    <command name="snapshot"/>
-    <command name="facebook"/>
   </left_toolbar>
   <right_toolbar
     button_display_mode="icons_only">
