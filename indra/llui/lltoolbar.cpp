@@ -64,6 +64,8 @@ namespace LLInitParam
 	{
 		declare("icons_with_text",	BTNTYPE_ICONS_WITH_TEXT);
 		declare("icons_only",		BTNTYPE_ICONS_ONLY);
+		declare("icons_only_small",	BTNTYPE_ICONS_ONLY_SMALL);
+		declare("text_only",		BTNTYPE_TEXT_ONLY);
 	}
 
 	void TypeValues<SideType>::declareValues()
@@ -80,7 +82,9 @@ LLToolBar::Params::Params()
 	commands("command"),
 	side("side", SIDE_TOP),
 	button_icon("button_icon"),
+	button_icon_small("button_icon_small"),
 	button_icon_and_text("button_icon_and_text"),
+	button_text("button_text"),
 	read_only("read_only", false),
 	wrap("wrap", true),
 	pad_left("pad_left"),
@@ -123,6 +127,8 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
+	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY_SMALL] = p.button_icon_small;
+	mButtonParams[LLToolBarEnums::BTNTYPE_TEXT_ONLY] = p.button_text;
 }
 
 LLToolBar::~LLToolBar()
@@ -453,6 +459,14 @@ BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
 	{
 		retval = (mButtonType == BTNTYPE_ICONS_ONLY);
 	}
+	else if (setting_name == "icons_only_small")
+	{
+		retval = (mButtonType == BTNTYPE_ICONS_ONLY_SMALL);
+	}
+	else if (setting_name == "text_only")
+	{
+		retval = (mButtonType == BTNTYPE_TEXT_ONLY);
+	}
 
 	return retval;
 }
@@ -470,6 +484,14 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 	else if (setting_name == "icons_only")
 	{
 		setButtonType(BTNTYPE_ICONS_ONLY);
+	}
+	else if (setting_name == "icons_only_small")
+	{
+		setButtonType(BTNTYPE_ICONS_ONLY_SMALL);
+	}
+	else if (setting_name == "text_only")
+	{
+		setButtonType(BTNTYPE_TEXT_ONLY);
 	}
 }
 

@@ -86,6 +86,7 @@ public:
 								image_overlay;
 
 		Optional<std::string>	image_overlay_alignment;
+		Optional<bool>			image_overlay_enable;
 		
 		// colors
 		Optional<LLUIColor>		label_color,
@@ -306,6 +307,7 @@ protected:
 	S32							mHeldDownFrameDelay;	// frames, after which held-down callbacks get called
 	S32							mLastDrawCharsCount;
 
+	bool					mImageOverlayEnable;
 	LLPointer<LLUIImage>		mImageOverlay;
 	LLFontGL::HAlign			mImageOverlayAlignment;
 	LLUIColor					mImageOverlayColor;
