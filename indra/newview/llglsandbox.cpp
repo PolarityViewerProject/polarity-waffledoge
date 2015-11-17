@@ -956,12 +956,20 @@ F32 gpu_benchmark()
 
     delete [] pixels;
 
+#ifdef GL_ARB_vertex_array_object
+	U32 vao;
+	if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+	{
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+	}
+#endif
+
 	//make a dummy triangle to draw with
 	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
 
 	LLStrider<LLVector3> v;
-	LLStrider<LLVector2> tc;
 
 	buff->getVertexStrider(v);
 	
@@ -1056,6 +1064,14 @@ F32 gpu_benchmark()
 	F64 samples_drawn = res*res*count*samples;
 	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
 	gbps = samples_sec*8;
+
+#ifdef GL_ARB_vertex_array_object
+	if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+	{
+		glBindVertexArray(0);
+		glDeleteVertexArrays(1, &vao);
+	}
+#endif
 
 	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 
