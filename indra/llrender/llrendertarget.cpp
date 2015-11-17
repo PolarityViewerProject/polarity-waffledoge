@@ -135,6 +135,8 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 
 	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
 	{
+		glGenFramebuffers(1, (GLuint *) &mFBO);
+
 		if (depth)
 		{
 			if (!allocateDepth())
@@ -143,8 +145,6 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 				return false;
 			}
 		}
-
-		glGenFramebuffers(1, (GLuint *) &mFBO);
 
 		if (mDepth)
 		{
@@ -382,6 +382,8 @@ void LLRenderTarget::release()
 			}
 			mUseDepth = false;
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		stop_glerror();
 	}
 
 	// Detach any extra color buffers (e.g. SRGB spec buffers)
@@ -389,14 +391,16 @@ void LLRenderTarget::release()
 	if (mFBO && (mTex.size() > 1))
 	{		
 		glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
-		S32 z;
-		for (z = mTex.size() - 1; z >= 1; z--)
+		for (size_t z = mTex.size() - 1; z >= 1; --z)
 		{
 			sBytesAllocated -= mResX*mResY*4;
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+z, LLTexUnit::getInternalType(mUsage), 0, 0);
 			stop_glerror();
 			LLImageGL::deleteTextures(1, &mTex[z]);
+			stop_glerror();
 		}
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		stop_glerror();
 	}
 
 	if (mFBO)
