@@ -2233,9 +2233,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				
 				U32 unsatisfied_mask = (required_mask & ~data_mask);
-				U32 i = 0;
-
-				while (i < TYPE_MAX)
+				for (U32 i = 0; i < TYPE_MAX; ++i)
 				{
                     U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
 					switch (unsatisfied_flag)
@@ -2262,7 +2260,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
                LL_INFOS() << "Missing indices" << LL_ENDL;
             }
 
-				LL_ERRS() << "Shader consumption mismatches data provision." << LL_ENDL;
+				LL_WARNS() << "Shader consumption mismatches data provision." << LL_ENDL;
 			}
 		}
 	}
