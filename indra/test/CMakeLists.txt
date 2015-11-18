@@ -9,7 +9,6 @@ include(LLMath)
 include(LLMessage)
 include(LLVFS)
 include(LLXML)
-include(LScript)
 include(Linking)
 include(Tut)
 include(LLAddBuildTest)
@@ -22,7 +21,6 @@ include_directories(
     ${LLINVENTORY_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
     ${LLXML_INCLUDE_DIRS}
-    ${LSCRIPT_INCLUDE_DIRS}
     ${TUT_INCLUDE_DIR}
     )
 include_directories(SYSTEM
@@ -44,7 +42,6 @@ set(test_SOURCE_FILES
     llpermissions_tut.cpp
     llpipeutil.cpp
     llsaleinfo_tut.cpp
-    llscriptresource_tut.cpp
     llsdmessagebuilder_tut.cpp
     llsdmessagereader_tut.cpp
     llsd_new_tut.cpp
@@ -86,7 +83,6 @@ target_link_libraries(lltest
     ${LLMATH_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLXML_LIBRARIES}
-    ${LSCRIPT_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
     ${EXPAT_LIBRARIES}
     ${PTHREAD_LIBRARY}
