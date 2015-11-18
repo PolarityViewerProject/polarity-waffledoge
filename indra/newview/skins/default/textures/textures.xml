@@ -26,6 +26,9 @@ with the same filename but different name
       and to the right from the bottom left corner and extends to 31 pixels right and 15 pixels up from the bottom left
       corner.  The end result is that the image will keep a 1 pixel border all around while stretching to fit the required
       region.
+
+Additional notes:
+ For in-world textures, use TGA. They are apparently simpler to decode.
 -->
 
 <textures version="101">
