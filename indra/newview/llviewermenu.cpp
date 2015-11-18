@@ -3182,6 +3182,24 @@ class OSMarkViewerEffectsDead : public view_listener_t
 	}
 };
 
+class OSSetNavigationBar : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		const U32 val = userdata.asInteger();
+		gSavedSettings.setU32("ObsidianNavigationBarStyle", val);
+		return true;
+	}
+};
+
+class OSCheckNavigationBar : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		return userdata.asInteger() == gSavedSettings.getU32("ObsidianNavigationBarStyle");
+	}
+};
+
 bool handle_go_to()
 {
 	// try simulator autopilot
@@ -9136,6 +9154,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelected(), "EditableSelected");
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
+	view_listener_t::addMenu(new OSSetNavigationBar(), "SetNavigationBar");
+	view_listener_t::addMenu(new OSCheckNavigationBar(), "CheckNavigationBar");
 
 	view_listener_t::addMenu(new OSMarkViewerEffectsDead(), "Tools.KillAllVE");
 }

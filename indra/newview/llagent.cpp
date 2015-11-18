@@ -1991,10 +1991,11 @@ void LLAgent::endAnimationUpdateUI()
 		gViewerWindow->showCursor();
 		// show menus
 		gMenuBarView->setVisible(TRUE);
-		LLNavigationBar::getInstance()->setVisible(TRUE && gSavedSettings.getBOOL("ShowNavbarNavigationPanel"));
+		const U32 nav_style = gSavedSettings.getU32("ObsidianNavigationBarStyle");
+		LLNavigationBar::getInstance()->setVisible(nav_style == 2);
 		gStatusBar->setVisibleForMouselook(true);
 
-		if (gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+		if (nav_style == 1)
 		{
 			LLPanelTopInfoBar::getInstance()->setVisible(TRUE);
 		}

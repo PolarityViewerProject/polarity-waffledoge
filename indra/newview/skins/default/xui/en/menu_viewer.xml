@@ -651,27 +651,6 @@
         </menu>
 
         <menu_item_separator/>
-    <!--    <menu_item_check
-         label="Show Navigation Bar"
-         name="ShowNavbarNavigationPanel">
-           <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="ShowNavbarNavigationPanel" />
-             <menu_item_check.on_check
-             function="CheckControl"
-             parameter="ShowNavbarNavigationPanel" />
-        </menu_item_check>
-       <menu_item_check
-         label="Show Favorites Bar"
-         name="ShowNavbarFavoritesPanel">
-           <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="ShowNavbarFavoritesPanel" />
-             <menu_item_check.on_check
-             function="CheckControl"
-             parameter="ShowNavbarFavoritesPanel" />
-        </menu_item_check>
-        <menu_item_separator/>-->
 
         <menu
          create_jump_keys="true"

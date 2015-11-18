@@ -1980,7 +1980,8 @@ void LLViewerWindow::initWorldUI()
 	nav_bar_container->addChild(navbar);
 	nav_bar_container->setVisible(TRUE);
 	
-	if (!gSavedSettings.getBOOL("ShowNavbarNavigationPanel"))
+	const U32 navigation_bar = gSavedSettings.getU32("ObsidianNavigationBarStyle");
+	if (navigation_bar != 2)
 	{
 		navbar->setVisible(FALSE);
 	}
@@ -1994,7 +1995,7 @@ void LLViewerWindow::initWorldUI()
 	topinfo_bar_container->addChild(topinfo_bar);
 	topinfo_bar_container->setVisible(TRUE);
 
-	if (!gSavedSettings.getBOOL("ShowMiniLocationPanel"))
+	if (navigation_bar != 1)
 	{
 		topinfo_bar->setVisible(FALSE);
 	}
@@ -2316,8 +2317,8 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	if (navbarp)
 	{
 		// when it's time to show navigation bar we need to ensure that the user wants to see it
-		// i.e. ShowNavbarNavigationPanel option is true
-		navbarp->setVisible( visible && gSavedSettings.getBOOL("ShowNavbarNavigationPanel") );
+		// i.e. NavigationBarStyle option is set to 2(Navigation Bar)
+		navbarp->setVisible(visible && (gSavedSettings.getU32("ObsidianNavigationBarStyle") == 2));
 	}
 }
 
@@ -5190,8 +5191,9 @@ void LLViewerWindow::setUIVisibility(bool visible)
 		gToolBarView->setToolBarsVisible(visible);
 	}
 
-	LLNavigationBar::getInstance()->setVisible(visible ? gSavedSettings.getBOOL("ShowNavbarNavigationPanel") : FALSE);
-	LLPanelTopInfoBar::getInstance()->setVisible(visible? gSavedSettings.getBOOL("ShowMiniLocationPanel") : FALSE);
+	const U32 navigation_bar = gSavedSettings.getU32("ObsidianNavigationBarStyle");
+	LLNavigationBar::getInstance()->setVisible(visible && (navigation_bar == 2));
+	LLPanelTopInfoBar::getInstance()->setVisible(visible && (navigation_bar == 1));
 	mRootView->getChildView("status_bar_container")->setVisible(visible);
 }
 

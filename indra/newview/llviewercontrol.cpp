@@ -566,23 +566,11 @@ bool toggle_agent_pause(const LLSD& newvalue)
 	return true;
 }
 
-bool toggle_show_navigation_panel(const LLSD& newvalue)
+bool handleNavigationBarChanged(const LLSD& newvalue)
 {
-	bool value = newvalue.asBoolean();
-
-	LLNavigationBar::getInstance()->setVisible(value);
-	gSavedSettings.setBOOL("ShowMiniLocationPanel", !value);
-
-	return true;
-}
-
-bool toggle_show_mini_location_panel(const LLSD& newvalue)
-{
-	bool value = newvalue.asBoolean();
-
-	LLPanelTopInfoBar::getInstance()->setVisible(value);
-	gSavedSettings.setBOOL("ShowNavbarNavigationPanel", !value);
-
+	const U32 style = newvalue.asInteger();
+	LLPanelTopInfoBar::getInstance()->setVisible(style == 1);
+	LLNavigationBar::getInstance()->setVisible(style == 2);
 	return true;
 }
 
@@ -752,8 +740,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("QAMode")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("UseDebugMenus")->getSignal()->connect(boost::bind(&show_debug_menus));
 	gSavedSettings.getControl("AgentPause")->getSignal()->connect(boost::bind(&toggle_agent_pause, _2));
-	gSavedSettings.getControl("ShowNavbarNavigationPanel")->getSignal()->connect(boost::bind(&toggle_show_navigation_panel, _2));
-	gSavedSettings.getControl("ShowMiniLocationPanel")->getSignal()->connect(boost::bind(&toggle_show_mini_location_panel, _2));
 	gSavedSettings.getControl("ShowObjectRenderingCost")->getSignal()->connect(boost::bind(&toggle_show_object_render_cost, _2));
 	gSavedSettings.getControl("UpdaterServiceSetting")->getSignal()->connect(boost::bind(&toggle_updater_service_active, _2));
 	gSavedSettings.getControl("ForceShowGrid")->getSignal()->connect(boost::bind(&handleForceShowGrid, _2));
@@ -761,6 +747,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheck")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
+	gSavedSettings.getControl("ObsidianNavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
