@@ -628,11 +628,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>301419a80b2e1eb6d6389dcf7bf4c06a</string>
+              <string>2f01ef7616a98235849120f241c07e71</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.07.00-windows-201510070018.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.07.03-windows-201511230558.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -642,18 +642,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>980b4d60a41b88c23b738ed477beed70</string>
+              <string>2a398abb2969528adc6e9a232b477fe5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.07.00-windows64-201510061544.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.07.03-windows64-201511230557.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.07.00</string>
+        <string>1.07.03</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -1052,11 +1052,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>93b420108befdb3e32014f8d1aeaf9cf</string>
+              <string>8213f55eb410e6801728de92d73e1223</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/google_breakpad-1474-windows-201507231913.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/google_breakpad-9e60a27-windows-201511230603.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1066,18 +1066,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b3354c9267776b73f48e0c1400df224</string>
+              <string>1ba90fc6863eff52080c79a56e321ae7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/google_breakpad-1474-windows64-201507220559.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/google_breakpad-9e60a27-windows64-201511230600.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1474</string>
+        <string>9e60a27</string>
       </map>
       <key>gperftools</key>
       <map>
@@ -1286,11 +1286,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac4332f99f93b8946f62d4d8babb0531</string>
+              <string>5110020c9b66c0b93026ea9f537c06e4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/jpeglib-1.4.1-windows-201507231857.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/jpeglib-1.4.2-windows-201511230608.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1300,18 +1300,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ad32b1b83fd5d8f025324362f099353d</string>
+              <string>889685aa921ba7d8adf36888bd3d3ac0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/jpeglib-1.4.1-windows64-201507230624.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/jpeglib-1.4.2-windows64-201511230605.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.4.1</string>
+        <string>1.4.2</string>
       </map>
       <key>jsoncpp</key>
       <map>
@@ -2510,11 +2510,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f4a90de994c95603f5a5f5bcbe6625eb</string>
+              <string>6181414eda33bd31816f2acb672a022d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/uriparser-0.8.2-windows-201507231842.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/uriparser-0.8.4-windows-201511230543.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2524,18 +2524,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>970fbd920e57c19d4b033f43b20201e9</string>
+              <string>ca9500862180bacbbdc6d881a660cdf5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/uriparser-0.8.2-windows64-201507220533.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/uriparser-0.8.4-windows64-201511230541.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.8.2</string>
+        <string>0.8.4</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
