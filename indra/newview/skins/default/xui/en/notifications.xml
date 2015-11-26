@@ -3443,6 +3443,24 @@ Would you like to trust this authority?
 
   <notification
    icon="alertmodal.tga"
+   name="GrantedMapRights"
+   persist="true"
+   log_to_im="true"   
+   type="notify">
+[NAME] has given you permission to view their map location.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RevokedMapRights"
+   persist="true"
+   log_to_im="true"   
+   type="notify">
+Your privilege to view [NAME]&apos;s map location has been revoked
+  </notification>
+ 
+ <notification
+   icon="alertmodal.tga"
    name="GrantedModifyRights"
    persist="true"
    log_to_im="true"   

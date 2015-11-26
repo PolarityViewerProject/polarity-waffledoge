@@ -643,6 +643,22 @@ void LLAvatarTracker::processChange(LLMessageSystem* msg)
 		{
 			if(mBuddyInfo.find(agent_id) != mBuddyInfo.end())
 			{
+				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MAP_LOCATION)
+				{
+					LLSD args;
+					args["NAME"] = LLSLURL("agent", agent_id, "displayname").getSLURLString();
+					
+					LLSD payload;
+					payload["from_id"] = agent_id;
+					if(LLRelationship::GRANT_MAP_LOCATION & new_rights)
+					{
+						LLNotifications::instance().add("GrantedMapRights",args, payload);
+					}
+					else
+					{
+						LLNotifications::instance().add("RevokedMapRights",args, payload);
+					}
+				}
 				if((mBuddyInfo[agent_id]->getRightsGrantedFrom() ^  new_rights) & LLRelationship::GRANT_MODIFY_OBJECTS)
 				{
 					LLSD args;
