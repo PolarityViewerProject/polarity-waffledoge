@@ -4231,9 +4231,10 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 					for (U32 k = 0; k < 4; k++)
 					{
 						F32 w = weight[j][k];
+						F32 w_floored = floorf(w);
 
-						idx[k] = (S32) floorf(w);
-						wght[k] = w - floorf(w);
+						idx[k] = (S32) w_floored;
+						wght[k] = w - w_floored;
 						scale += wght[k];
 					}
                     // This is enforced  in unpackVolumeFaces()
