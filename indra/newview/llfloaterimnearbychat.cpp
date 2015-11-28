@@ -259,7 +259,7 @@ void LLFloaterIMNearbyChat::setVisible(BOOL visible)
 {
 	LLFloaterIMSessionTab::setVisible(visible);
 
-	if(visible)
+	if(visible && isMessagePaneExpanded())
 	{
 		removeScreenChat();
 	}
