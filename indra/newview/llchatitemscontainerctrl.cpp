@@ -144,6 +144,7 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 		default:
 		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
 		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+		case 3: messageFont = LLFontGL::getFontMonospace();		break;
 	}
 
 	//append text
@@ -200,6 +201,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 		default:
 		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
 		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+		case 3: messageFont = LLFontGL::getFontMonospace();		break;
 	}
 	
 	mMsgText = getChild<LLChatMsgBox>("msg_text", false);
