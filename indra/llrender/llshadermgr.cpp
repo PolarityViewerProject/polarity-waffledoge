@@ -1210,7 +1210,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("alpha_ramp");
 
 	mReservedUniforms.push_back("origin");
-	mReservedUniforms.push_back("display_gamma");
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
 	std::set<std::string> dupe_check;
