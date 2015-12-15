@@ -2731,7 +2731,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	else
 	{
-		is_muted = LLMuteList::getInstance()->isMuted(getID());
+		is_muted = isInMuteList();
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
@@ -3162,7 +3162,7 @@ bool LLVOAvatar::isVisuallyMuted()
 		}
 	}
 
-	return muted || isInMuteList();
+	return isInMuteList() || muted;
 }
 
 void	LLVOAvatar::forceUpdateVisualMuteSettings()
@@ -8188,7 +8188,7 @@ void LLVOAvatar::updateImpostors()
 
 BOOL LLVOAvatar::isImpostor()
 {
-	return (sUseImpostors && (isVisuallyMuted() || (mUpdatePeriod >= IMPOSTOR_PERIOD))) || isInMuteList() ? TRUE : FALSE;
+	return (sUseImpostors && (mUpdatePeriod >= IMPOSTOR_PERIOD)) ? TRUE : FALSE;
 }
 
 
