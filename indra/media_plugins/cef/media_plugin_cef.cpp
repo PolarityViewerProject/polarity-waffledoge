@@ -27,6 +27,11 @@
 */
 
 #include "linden_common.h"
+
+#if LL_WINDOWS
+#pragma warning (disable : 4265)
+#endif
+
 #include "indra_constants.h" // for indra keyboard codes
 
 #include "llgl.h"
