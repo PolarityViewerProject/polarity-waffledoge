@@ -3109,7 +3109,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 14"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -3196,7 +3195,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 14"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -3297,7 +3295,6 @@
                   <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -3386,7 +3383,6 @@
                   <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
