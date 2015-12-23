@@ -113,7 +113,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mHeight = 0;
 	mDepth = 4;
 	mPixels = 0;
-	mEnableMediaPluginDebugging = true;
+	mEnableMediaPluginDebugging = false;
 	mHostLanguage = "en";
 	mCookiesEnabled = true;
 	mPluginsEnabled = false;
