@@ -47,6 +47,7 @@ include(UI)
 include(UnixInstall)
 include(ViewerMiscLibs)
 include(VisualLeakDetector)
+include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
 
@@ -1811,6 +1812,8 @@ if (WINDOWS)
       windows-crash-logger
       )
 
+    EMBED_MANIFEST(${VIEWER_BINARY_NAME} 1)
+ 
     # sets the 'working directory' for debugging from visual studio.
     add_custom_command(
         TARGET ${VIEWER_BINARY_NAME} POST_BUILD
