@@ -99,6 +99,7 @@ private:
 	bool mCanPaste;
 	std::string mCachePath;
 	std::string mCookiePath;
+	std::string mLogFile;
 	LLCEFLib* mLLCEFLib;
 
     VolumeCatcher mVolumeCatcher;
@@ -127,6 +128,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCanPaste = false;
 	mCachePath = "";
 	mCookiePath = "";
+	mLogFile = "";
 	mLLCEFLib = new LLCEFLib();
 }
 
@@ -353,6 +355,19 @@ void MediaPluginCEF::authResponse(LLPluginMessage &message)
 
 ////////////////////////////////////////////////////////////////////////////////
 //
+std::string generate_cef_locale(std::string in)
+{
+	if (in == "en")
+		in = "en-US";
+	else if (in == "pt")
+		in = "pt-BR";
+	else if (in == "zh")
+		in = "zh-CN";
+
+	return in;
+}
+
+
 void MediaPluginCEF::receiveMessage(const char* message_string)
 {
 	//  std::cerr << "MediaPluginCEF::receiveMessage: received message: \"" << message_string << "\"" << std::endl;
@@ -455,8 +470,11 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.cookie_store_path = mCookiePath;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
+				settings.locale = generate_cef_locale(mHostLanguage);
 				settings.accept_language_list = mHostLanguage;
 				settings.user_agent_substring = mLLCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
+				settings.debug_output = mEnableMediaPluginDebugging;
+				settings.log_file = mLogFile;
 
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
@@ -480,8 +498,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				std::string user_data_path_cache = message_in.getValue("cache_path");
 				std::string user_data_path_cookies = message_in.getValue("cookies_path");
+				std::string user_data_path_logs = message_in.getValue("logs_path");
 				mCachePath = user_data_path_cache + "cef_cache";
 				mCookiePath = user_data_path_cookies + "cef_cookies";
+				mLogFile = user_data_path_logs + "cef.log";
 			}
 			else if (message_name == "size_change")
 			{
