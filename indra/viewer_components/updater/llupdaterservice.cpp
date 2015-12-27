@@ -196,7 +196,11 @@ void LLUpdaterServiceImpl::initialize(const std::string&  channel,
 		
 	mChannel = channel;
 	mVersion = version;
+#if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
+	mPlatform = platform + "64";
+#else
 	mPlatform = platform;
+#endif
 	mPlatformVersion = platform_version;
 	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
 	mWillingToTest = willing_to_test;
