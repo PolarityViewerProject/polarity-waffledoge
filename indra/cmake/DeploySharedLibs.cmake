@@ -12,7 +12,7 @@ include(GetPrerequisites)
 message("Getting recursive dependencies for file: ${BIN_NAME}")
 
 set(EXCLUDE_SYSTEM 1)
-set(RECURSE 1)
+set(RECURSE 0)
 get_filename_component(EXE_PATH ${BIN_NAME} PATH)
 
 get_prerequisites( ${BIN_NAME} RESULTS ${EXCLUDE_SYSTEM} ${RECURSE} "${EXE_PATH}" "${SEARCH_DIRS}" )
