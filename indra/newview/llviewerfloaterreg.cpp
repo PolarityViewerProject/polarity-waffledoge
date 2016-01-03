@@ -93,7 +93,6 @@
 #include "llfloateropenobject.h"
 #include "llfloateroutfitsnapshot.h"
 #include "llfloaterpathfindingcharacters.h"
-#include "llfloaterpathfindingconsole.h"
 #include "llfloaterpathfindinglinksets.h"
 #include "llfloaterpay.h"
 #include "llfloaterperms.h"
@@ -285,7 +284,6 @@ void LLViewerFloaterReg::registerFloaters()
 
 	LLFloaterReg::add("pathfinding_characters", "floater_pathfinding_characters.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingCharacters>);
 	LLFloaterReg::add("pathfinding_linksets", "floater_pathfinding_linksets.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingLinksets>);
-	LLFloaterReg::add("pathfinding_console", "floater_pathfinding_console.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPathfindingConsole>);
 	LLFloaterReg::add("people", "floater_people.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
 	LLFloaterReg::add("perms_default", "floater_perms_default.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPermsDefault>);
 	LLFloaterReg::add("places", "floater_places.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterSidePanelContainer>);
