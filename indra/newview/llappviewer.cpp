@@ -3308,7 +3308,7 @@ LLSD LLAppViewer::getViewerInfo() const
 
 #if LL_MSVC
 	info["COMPILER"] = "MSVC";
-	info["COMPILER_VERSION"] = _MSC_VER;
+	info["COMPILER_VERSION"] = _MSC_FULL_VER;
 #elif LL_GNUC
 	info["COMPILER"] = "GCC";
 	info["COMPILER_VERSION"] = GCC_VERSION;
