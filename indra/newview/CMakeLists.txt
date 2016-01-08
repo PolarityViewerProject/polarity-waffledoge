@@ -7,6 +7,7 @@ include(Boost)
 include(BuildPackagesInfo)
 include(BuildVersion)
 include(CMakeCopyIfDifferent)
+include(ColladaDOM)
 include(DBusGlib)
 include(DragDrop)
 include(EXPAT)
@@ -83,10 +84,9 @@ include_directories(
     ${LLXML_INCLUDE_DIRS}
     ${LLLOGIN_INCLUDE_DIRS}
     ${UPDATER_INCLUDE_DIRS}
-    ${LIBS_PREBUILT_DIR}/include/collada
+    ${COLLADADOM_INCLUDE_DIRS}
     ${LIBS_PREBUILD_DIR}/include/hunspell
     ${OPENAL_LIB_INCLUDE_DIRS}
-    ${LIBS_PREBUILT_DIR}/include/collada/1.4
     ${LLAPPEARANCE_INCLUDE_DIRS}
     ${CMAKE_CURRENT_SOURCE_DIR}
     )
