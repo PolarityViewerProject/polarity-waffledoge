@@ -1544,18 +1544,6 @@ if (WINDOWS)
         Vfw32
         winspool
         )
-
-    find_library(INTEL_MEMOPS_LIBRARY
-                 NAMES ll_intel_memops
-                 PATHS
-                 optimized ${ARCH_PREBUILT_DIRS_RELEASE}
-                 debug ${ARCH_PREBUILT_DIRS_DEBUG}
-                 )
-    mark_as_advanced(INTEL_MEMOPS_LIBRARY)
-
-    if (INTEL_MEMOPS_LIBRARY)
-      list(APPEND viewer_LIBRARIES ${INTEL_MEMOPS_LIBRARY})
-    endif (INTEL_MEMOPS_LIBRARY)
 endif (WINDOWS)
 
 # Add the xui files. This is handy for searching for xui elements
