@@ -36,9 +36,11 @@ StringVec sv(const StringVec& listof) { return listof; }
 
 #if defined(LL_WINDOWS)
 #define sleep(secs) _sleep((secs) * 1000)
-#endif
 
+const size_t BUFFERED_LENGTH = 64*1024; // try wrangling just under a megabyte of data
+#else
 const size_t BUFFERED_LENGTH = 1023*1024; // try wrangling just under a megabyte of data
+#endif
 
 void waitfor(const std::vector<LLLeap*>& instances, int timeout=60)
 {
