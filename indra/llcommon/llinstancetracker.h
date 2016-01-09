@@ -338,7 +338,8 @@ protected:
 	virtual ~LLInstanceTracker()
 	{
 		// it's unsafe to delete instances of this type while all instances are being iterated over.
-		llassert_always(getStatic().getDepth() == 0);
+		// But exceptions in destructors are unsafe in c++11
+        //llassert_always(getStatic().getDepth() == 0);
 		getSet_().erase(static_cast<T*>(this));
 	}
 
