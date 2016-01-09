@@ -3360,7 +3360,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/m</string>
                 </array>
               </map>
               <key>configure</key>
