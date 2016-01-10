@@ -277,17 +277,8 @@ bool LLFeatureManager::loadFeatureTables()
 	std::string filename;
 	std::string http_filename; 
 #if LL_WINDOWS
-	std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-	if (os_string.find("Microsoft Windows XP") == 0)
-	{
-		filename = llformat(FEATURE_TABLE_FILENAME, "_xp");
-		http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "_xp", LLVersionInfo::getVersion().c_str());
-	}
-	else
-	{
-		filename = llformat(FEATURE_TABLE_FILENAME, "");
-		http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "", LLVersionInfo::getVersion().c_str());
-	}
+	filename = llformat(FEATURE_TABLE_FILENAME, "");
+	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "", LLVersionInfo::getVersion().c_str());
 #else
 	filename = FEATURE_TABLE_FILENAME;
 	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
@@ -550,16 +541,7 @@ void fetch_feature_table(std::string table)
 	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
 
 #if LL_WINDOWS
-	std::string os_string = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-	std::string filename;
-	if (os_string.find("Microsoft Windows XP") == 0)
-	{
-		filename = llformat(table.c_str(), "_xp", LLVersionInfo::getVersion().c_str());
-	}
-	else
-	{
-		filename = llformat(table.c_str(), "", LLVersionInfo::getVersion().c_str());
-	}
+	std::string filename = llformat(table.c_str(), "", LLVersionInfo::getVersion().c_str());
 #else
 	const std::string filename   = llformat(table.c_str(), LLVersionInfo::getVersion().c_str());
 #endif
