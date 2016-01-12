@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <toolbars>
   <top_toolbar
+    button_alignment="center"
     button_display_mode="text_only">
     <command name="chat"/>
     <command name="speak"/>
@@ -9,9 +10,11 @@
     <command name="minimap"/>
   </top_toolbar>
   <bottom_toolbar
+    button_alignment="center"
     button_display_mode="icons_with_text">
   </bottom_toolbar>
   <left_toolbar
+    button_alignment="center"
     button_display_mode="icons_only">
     <command name="appearance"/>
     <command name="places"/>
@@ -19,6 +22,7 @@
     <command name="search"/>
   </left_toolbar>
   <right_toolbar
+    button_alignment="center"
     button_display_mode="icons_only">
   </right_toolbar>
 </toolbars>

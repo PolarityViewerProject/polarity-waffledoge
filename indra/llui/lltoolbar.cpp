@@ -75,12 +75,20 @@ namespace LLInitParam
 		declare("right",	SIDE_RIGHT);
 		declare("top",		SIDE_TOP);
 	}
+
+	void TypeValues<AlignmentType>::declareValues()
+	{
+		declare("topleft", ALIGN_TOP_LEFT);
+		declare("center", ALIGN_CENTER);
+		declare("bottomright", ALIGN_BOTTOM_RIGHT);
+	}
 }
 
 LLToolBar::Params::Params()
 :	button_display_mode("button_display_mode"),
 	commands("command"),
 	side("side", SIDE_TOP),
+	button_alignment("button_alignment", ALIGN_CENTER),
 	button_icon("button_icon"),
 	button_icon_small("button_icon_small"),
 	button_icon_and_text("button_icon_and_text"),
@@ -100,12 +108,15 @@ LLToolBar::LLToolBar(const LLToolBar::Params& p)
 :	LLUICtrl(p),
 	mReadOnly(p.read_only),
 	mButtonType(p.button_display_mode),
+	mButtonAlignment(p.button_alignment),
 	mSideType(p.side),
 	mWrap(p.wrap),
 	mNeedsLayout(false),
 	mModified(false),
+	mLeftTopPanel(NULL),
 	mButtonPanel(NULL),
 	mCenteringStack(NULL),
+	mRightBottomPanel(NULL),
 	mPadLeft(p.pad_left),
 	mPadRight(p.pad_right),
 	mPadTop(p.pad_top),
@@ -155,7 +166,8 @@ void LLToolBar::createContextMenu()
 
 		// Create the context menu
 		llassert(LLMenuGL::sMenuContainer != NULL);
-		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+		std::string toolbar_menu = (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL) ? "menu_toolbars_horizontal.xml" : "menu_toolbars_vertical.xml";
+		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>(toolbar_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
 		if (menu)
 		{
@@ -194,13 +206,14 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	addChild(mCenteringStack);
 	
 	LLLayoutPanel::Params border_panel_p;
-	border_panel_p.name = "border_panel";
+	border_panel_p.name = "border_panel_top_left";
 	border_panel_p.rect = getLocalRect();
 	border_panel_p.auto_resize = true;
 	border_panel_p.user_resize = false;
 	border_panel_p.mouse_opaque = false;
 	
-	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
+	mLeftTopPanel = LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p);
+	mCenteringStack->addChild(mLeftTopPanel);
 
 	LLLayoutPanel::Params center_panel_p;
 	center_panel_p.name = "center_panel";
@@ -218,7 +231,11 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	mCenterPanel->setButtonPanel(mButtonPanel);
 	mCenterPanel->addChild(mButtonPanel);
 	
-	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
+	border_panel_p.name = "border_panel_bottom_right";
+	mRightBottomPanel = LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p);
+	mCenteringStack->addChild(mRightBottomPanel);
+
+	setButtonAlignment(p.button_alignment);
 
 	BOOST_FOREACH(LLCommandId id, p.commands)
 	{
@@ -467,6 +484,18 @@ BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
 	{
 		retval = (mButtonType == BTNTYPE_TEXT_ONLY);
 	}
+	else if (setting_name == "align_top_left")
+	{
+		retval = (mButtonAlignment == ALIGN_TOP_LEFT);
+	}
+	else if (setting_name == "align_center")
+	{
+		retval = (mButtonAlignment == ALIGN_CENTER);
+	}
+	else if (setting_name == "align_bottom_right")
+	{
+		retval = (mButtonAlignment == ALIGN_BOTTOM_RIGHT);
+	}
 
 	return retval;
 }
@@ -493,6 +522,18 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 	{
 		setButtonType(BTNTYPE_TEXT_ONLY);
 	}
+	else if (setting_name == "align_top_left")
+	{
+		setButtonAlignment(LLToolBarEnums::ALIGN_TOP_LEFT);
+	}
+	else if (setting_name == "align_center")
+	{
+		setButtonAlignment(LLToolBarEnums::ALIGN_CENTER);
+	}
+	else if (setting_name == "align_bottom_right")
+	{
+		setButtonAlignment(LLToolBarEnums::ALIGN_BOTTOM_RIGHT);
+	}
 }
 
 void LLToolBar::onRemoveSelectedCommand()
@@ -517,6 +558,16 @@ void LLToolBar::setButtonType(LLToolBarEnums::ButtonType button_type)
 	{
 		createButtons();
 	}
+}
+
+void LLToolBar::setButtonAlignment(LLToolBarEnums::AlignmentType button_align)
+{
+	mButtonAlignment = button_align;
+
+	mLeftTopPanel->setVisible(LLToolBarEnums::ALIGN_CENTER == button_align || LLToolBarEnums::ALIGN_BOTTOM_RIGHT == button_align);
+	mRightBottomPanel->setVisible(LLToolBarEnums::ALIGN_CENTER == button_align || LLToolBarEnums::ALIGN_TOP_LEFT == button_align);
+
+	mNeedsLayout = true;
 }
 
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)

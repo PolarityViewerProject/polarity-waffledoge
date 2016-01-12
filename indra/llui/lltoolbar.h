@@ -127,6 +127,13 @@ namespace LLToolBarEnums
 		SIDE_TOP,
 	};
 
+	enum AlignmentType
+	{
+		ALIGN_TOP_LEFT,
+		ALIGN_CENTER,
+		ALIGN_BOTTOM_RIGHT,
+	};
+
 	enum EToolBarLocation
 	{
 		TOOLBAR_NONE = 0,
@@ -155,6 +162,12 @@ namespace LLInitParam
 
 	template<>
 	struct TypeValues<LLToolBarEnums::SideType> : public TypeValuesHelper<LLToolBarEnums::SideType>
+	{
+		static void declareValues();
+	};
+
+	template<>
+	struct TypeValues<LLToolBarEnums::AlignmentType> : public TypeValuesHelper<LLToolBarEnums::AlignmentType>
 	{
 		static void declareValues();
 	};
@@ -193,6 +206,7 @@ public:
 	{
 		Mandatory<LLToolBarEnums::ButtonType>	button_display_mode;
 		Mandatory<LLToolBarEnums::SideType>		side;
+		Optional<LLToolBarEnums::AlignmentType>	button_alignment;
 
 		Optional<LLToolBarButton::Params>		button_icon,
 												button_icon_small,
@@ -262,6 +276,8 @@ public:
 	// Methods used in loading and saving toolbar settings
 	void setButtonType(LLToolBarEnums::ButtonType button_type);
 	LLToolBarEnums::ButtonType getButtonType() { return mButtonType; }
+	void setButtonAlignment(LLToolBarEnums::AlignmentType button_align);
+	LLToolBarEnums::AlignmentType getAlignmentType() const { return mButtonAlignment; }
 	command_id_list_t& getCommandsList() { return mButtonCommands; }
 	void clearCommandsList();
 
@@ -270,7 +286,7 @@ private:
 	LLToolBar(const Params&);
 	~LLToolBar();
 
-	void initFromParams(const Params&);
+	void initFromParams(const Params& p);
 	void createContextMenu();
 	void updateLayoutAsNeeded();
 	void createButtons();
@@ -310,10 +326,14 @@ private:
 	LLToolBarEnums::ButtonType		mButtonType;
 	LLToolBarButton::Params			mButtonParams[LLToolBarEnums::BTNTYPE_COUNT];
 
+	LLToolBarEnums::AlignmentType	mButtonAlignment;
+
 	// related widgets
 	LLLayoutStack*					mCenteringStack;
+	LLLayoutPanel*					mLeftTopPanel;
 	LLCenterLayoutPanel*			mCenterPanel;
 	LLPanel*						mButtonPanel;
+	LLLayoutPanel*					mRightBottomPanel;
 	LLHandle<class LLContextMenu>	mPopupMenuHandle;
 	LLHandle<class LLView>			mRemoveButtonHandle;
 
