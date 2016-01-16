@@ -230,11 +230,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fcf0ab42db5654736d7029ef7a72bfa1</string>
+              <string>f2ff62721cffd4556d18cbec67152de1</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/boost-1.59.0-windows64-201512122057.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/boost-1.60.0-windows64-201601160313.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -298,11 +298,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fb9685ac71b44f4c3df11d605c7dd060</string>
+              <string>46e48bcb7643c4819bf6f35f518a0db7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/colladadom-2.3-windows64-201512122146.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/colladadom-2.3-windows64-201601160353.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -642,11 +642,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2a398abb2969528adc6e9a232b477fe5</string>
+              <string>8b80c508ebb6cd923d3448ba6f48fe3c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/fmodstudio-1.07.03-windows64-201511230557.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.07.05-windows64-201601160255.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1742,11 +1742,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94b34b83754fe5663decb394779a4f29</string>
+              <string>230e4ccb442bd538eabe2167f351a20d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows64-201512231438.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows64-201601160304.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2176,11 +2176,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f74ffca804d4761d7a3b2d1dca06227d</string>
+              <string>68e21f69a90bbf55abbd86882f0a2761</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openjpeg-1.5.1-windows64-201512101859.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openjpeg-1.5.1-windows64-201601160311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
