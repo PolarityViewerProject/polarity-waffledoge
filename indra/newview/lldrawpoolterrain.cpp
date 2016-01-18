@@ -220,7 +220,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		hilightParcelOwners();
+		highlightParcelOwners();
 	}
 }
 
@@ -254,7 +254,7 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	// Special-case for land ownership feedback
 	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		hilightParcelOwners();
+		highlightParcelOwners();
 	}
 
 }
@@ -445,7 +445,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
-void LLDrawPoolTerrain::hilightParcelOwners()
+void LLDrawPoolTerrain::highlightParcelOwners()
 {
 	if (mVertexShaderLevel > 1)
 	{ //use fullbright shader for highlighting
