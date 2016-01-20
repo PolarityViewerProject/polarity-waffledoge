@@ -128,7 +128,8 @@
         </menu_item_check>
         <menu_item_call
          label="Stop Animating Me"
-         name="Stop Animating My Avatar">
+         name="Stop Animating My Avatar"
+         shortcut="alt|shift|A">
           <menu_item_call.on_click
            function="Tools.StopAllAnimations" />
         </menu_item_call>
@@ -473,7 +474,8 @@
          tear_off="true">
             <menu_item_call
              label="Resync Animations"
-             name="Resync Animations">
+             name="Resync Animations"
+             shortcut="alt|shift|S">
                 <menu_item_call.on_click
                  function="World.ResyncAnimations" />
             </menu_item_call>
