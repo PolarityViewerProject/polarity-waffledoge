@@ -31,9 +31,6 @@
 #include "lldir.h" 
 #include "llsd.h"
 
-#if defined(LL_WINDOWS)
-#pragma warning(disable: 4702)      // disable 'unreachable code' so we can use lexical_cast (really!).
-#endif
 #include <boost/lexical_cast.hpp>
 
 

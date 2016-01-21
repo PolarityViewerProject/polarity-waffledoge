@@ -55,11 +55,6 @@
 #include "llhttpretrypolicy.h"
 #include "llaisapi.h"
 
-#if LL_MSVC
-// disable boost::lexical_cast warning
-#pragma warning (disable:4702)
-#endif
-
 std::string self_av_string()
 {
 	// On logout gAgentAvatarp can already be invalid
