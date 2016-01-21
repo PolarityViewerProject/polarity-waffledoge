@@ -52,10 +52,6 @@ add_executable(SLPlugin
 )
 
 if (WINDOWS)
-set_target_properties(SLPlugin
-  PROPERTIES
-  LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMTD\""
-  )
   EMBED_MANIFEST(SLPlugin 1)
 else ()
 set_target_properties(SLPlugin

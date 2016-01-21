@@ -89,11 +89,6 @@ target_link_libraries(windows-crash-logger
     )
     
 if (WINDOWS)
-    set_target_properties(windows-crash-logger
-        PROPERTIES 
-        LINK_FLAGS "/NODEFAULTLIB:LIBCMT"
-        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\""
-        )
     EMBED_MANIFEST(windows-crash-logger 1)
 endif (WINDOWS)
 
