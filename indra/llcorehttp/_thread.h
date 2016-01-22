@@ -31,9 +31,10 @@
 
 #include "llwin32headerslean.h"
 
+#include <boost/chrono.hpp>
+
 #include <boost/thread.hpp>
 #include <boost/function.hpp>
-#include <boost/date_time/posix_time/posix_time_types.hpp>
 
 #include "_refcounted.h"
 
@@ -94,7 +95,7 @@ public:
 
 	inline bool timedJoin(S32 millis)
 		{
-			return mThread->timed_join(boost::posix_time::milliseconds(millis));
+			return mThread->try_join_for(boost::chrono::milliseconds(millis));
 		}
 
 	inline bool joinable() const

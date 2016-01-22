@@ -21,57 +21,37 @@ else (USESYSTEMLIBS)
   set(BOOST_VERSION "1.55")
 
   if (WINDOWS)
-    if(MSVC80)
-      # This should be obsolete at this point
-      set(BOOST_CONTEXT_LIBRARY 
-          optimized libboost_context-vc80-mt-${BOOST_VERSION}
-          debug libboost_context-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_FILESYSTEM_LIBRARY 
-          optimized libboost_filesystem-vc80-mt-${BOOST_VERSION}
-          debug libboost_filesystem-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_PROGRAM_OPTIONS_LIBRARY 
-          optimized libboost_program_options-vc80-mt-${BOOST_VERSION}
-          debug libboost_program_options-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_REGEX_LIBRARY
-          optimized libboost_regex-vc80-mt-${BOOST_VERSION}
-          debug libboost_regex-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_SIGNALS_LIBRARY 
-          optimized libboost_signals-vc80-mt-${BOOST_VERSION}
-          debug libboost_signals-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_SYSTEM_LIBRARY 
-          optimized libboost_system-vc80-mt-${BOOST_VERSION}
-          debug libboost_system-vc80-mt-gd-${BOOST_VERSION})
-      set(BOOST_THREAD_LIBRARY 
-          optimized libboost_thread-vc80-mt-${BOOST_VERSION}
-          debug libboost_thread-vc80-mt-gd-${BOOST_VERSION})
-    else(MSVC80)
-      # MSVC 10.0 config
-      set(BOOST_CONTEXT_LIBRARY 
-          optimized libboost_context-mt
-          debug libboost_context-mt-gd)
-      set(BOOST_COROUTINE_LIBRARY 
-          optimized libboost_coroutine-mt
-          debug libboost_coroutine-mt-gd)
-      set(BOOST_FILESYSTEM_LIBRARY 
-          optimized libboost_filesystem-mt
-          debug libboost_filesystem-mt-gd)
-      set(BOOST_PROGRAM_OPTIONS_LIBRARY 
-          optimized libboost_program_options-mt
-          debug libboost_program_options-mt-gd)
-      set(BOOST_REGEX_LIBRARY
-          optimized libboost_regex-mt
-          debug libboost_regex-mt-gd)
-      set(BOOST_SIGNALS_LIBRARY 
-          optimized libboost_signals-mt
-          debug libboost_signals-mt-gd)
-      set(BOOST_SYSTEM_LIBRARY 
-          optimized libboost_system-mt
-          debug libboost_system-mt-gd)
-      set(BOOST_THREAD_LIBRARY 
-          optimized libboost_thread-mt
-          debug libboost_thread-mt-gd)
-    endif (MSVC80)
+    set(BOOST_CHRONO_LIBRARY
+        optimized libboost_chrono-mt
+        debug libboost_chrono-mt-gd)
+    set(BOOST_CONTEXT_LIBRARY
+        optimized libboost_context-mt
+        debug libboost_context-mt-gd)
+    set(BOOST_COROUTINE_LIBRARY
+        optimized libboost_coroutine-mt
+        debug libboost_coroutine-mt-gd)
+    set(BOOST_FILESYSTEM_LIBRARY
+        optimized libboost_filesystem-mt
+        debug libboost_filesystem-mt-gd)
+    set(BOOST_PROGRAM_OPTIONS_LIBRARY
+        optimized libboost_program_options-mt
+        debug libboost_program_options-mt-gd)
+    set(BOOST_REGEX_LIBRARY
+        optimized libboost_regex-mt
+        debug libboost_regex-mt-gd)
+    set(BOOST_SIGNALS_LIBRARY
+        optimized libboost_signals-mt
+        debug libboost_signals-mt-gd)
+    set(BOOST_SYSTEM_LIBRARY
+        optimized libboost_system-mt
+        debug libboost_system-mt-gd)
+    set(BOOST_THREAD_LIBRARY
+        optimized libboost_thread-mt
+        debug libboost_thread-mt-gd)
   elseif (LINUX)
+    set(BOOST_CHRONO_LIBRARY
+        optimized boost_chrono-mt
+        debug boost_chrono-mt-d)
     set(BOOST_CONTEXT_LIBRARY
         optimized boost_context-mt
         debug boost_context-mt-d)
@@ -97,6 +77,9 @@ else (USESYSTEMLIBS)
         optimized boost_thread-mt
         debug boost_thread-mt-d)
   elseif (DARWIN)
+    set(BOOST_CHRONO_LIBRARY
+        optimized boost_chrono-mt
+        debug boost_chrono-mt-d)
     set(BOOST_CONTEXT_LIBRARY
         optimized boost_context-mt
         debug boost_context-mt-d)

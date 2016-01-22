@@ -92,6 +92,8 @@ target_link_libraries(
   ${OPENSSL_LIBRARIES}
   ${CRYPTO_LIBRARIES}
   ${BOOST_THREAD_LIBRARY}
+  ${BOOST_CHRONO_LIBRARY}
+  ${BOOST_SYSTEM_LIBRARY}
   )
 
 # tests
@@ -128,8 +130,9 @@ if (LL_TESTS)
       ${CARES_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
-      ${BOOST_SYSTEM_LIBRARY}
       ${BOOST_THREAD_LIBRARY}
+      ${BOOST_CHRONO_LIBRARY}
+      ${BOOST_SYSTEM_LIBRARY}
       )
 
   LL_ADD_INTEGRATION_TEST(llcorehttp
@@ -155,8 +158,9 @@ if (LL_TESTS)
       ${CARES_LIBRARIES}
       ${OPENSSL_LIBRARIES}
       ${CRYPTO_LIBRARIES}
-      ${BOOST_SYSTEM_LIBRARY}
       ${BOOST_THREAD_LIBRARY}
+      ${BOOST_CHRONO_LIBRARY}
+      ${BOOST_SYSTEM_LIBRARY}
       )
 
   add_executable(http_texture_load
