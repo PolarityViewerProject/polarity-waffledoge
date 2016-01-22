@@ -28,6 +28,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include "llatomic.h"
 #include "llmutex.h"
 #include "llapr.h"
 
@@ -135,7 +136,7 @@ public:
 
 	S32 getNumRefs() const
 	{
-		const S32 currentVal = mRef.CurrentValue();
+		const S32 currentVal = mRef.load();
 		return currentVal;
 	}
 

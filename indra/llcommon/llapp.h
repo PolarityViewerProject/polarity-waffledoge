@@ -31,8 +31,6 @@
 #include "llrun.h"
 #include "llsd.h"
 // Forward declarations
-template <typename Type> class LLAtomic32;
-typedef LLAtomic32<U32> LLAtomicU32;
 class LLErrorThread;
 class LLLiveFile;
 #if LL_LINUX

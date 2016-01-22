@@ -29,6 +29,8 @@
 
 #include "linden_common.h"
 
+#include "llwin32headerslean.h"
+
 #include <boost/thread.hpp>
 #include <boost/function.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>

@@ -1,9 +1,11 @@
-/**
- * @file   lllinstancetracker.cpp
- * 
- * $LicenseInfo:firstyear=2009&license=viewerlgpl$
+/** 
+ * @file llatmomic.h
+ * @brief Base classes for atomics.
+ *
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
+ * Copyright (C) 2012, Linden Research, Inc.
+ * Copyright (C) 2014, Alchemy Development Group
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -23,29 +25,20 @@
  * $/LicenseInfo$
  */
 
-// Precompiled header
-#include "linden_common.h"
-// associated header
-#include "llinstancetracker.h"
-#include "llapr.h"
+#pragma once
+ 
+#include "stdtypes.h"
+#define LL_BOOST_ATOMICS 1
 
-// STL headers
-// std headers
-// external library headers
-// other Linden headers
+#if LL_BOOST_ATOMICS
+#include <boost/atomic.hpp>
+template<typename Type>
+using LLAtomic32 = boost::atomic<Type>;
+#elif LL_STD_ATOMICS
+#include <atomic>
+template<typename Type>
+using LLAtomic32 = std::atomic<Type>;
+#endif
 
-void LLInstanceTrackerBase::StaticBase::incrementDepth()
-{
-	++sIterationNestDepth;
-}
-
-void LLInstanceTrackerBase::StaticBase::decrementDepth()
-{
-	llassert(sIterationNestDepth);
-	--sIterationNestDepth;
-}
-
-U32 LLInstanceTrackerBase::StaticBase::getDepth()
-{
-	return (U32)sIterationNestDepth.load();
-}
+typedef LLAtomic32<U32> LLAtomicU32;
+typedef LLAtomic32<S32> LLAtomicS32;
