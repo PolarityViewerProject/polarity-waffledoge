@@ -958,6 +958,9 @@ namespace
 	}
 }
 
+LLMutex gLogMutex;
+LLMutex gCallStacksLogMutex;
+
 namespace {
 	bool checkLevelMap(const LevelMap& map, const std::string& key,
 						LLError::ELevel& level)
@@ -1012,17 +1015,10 @@ namespace {
 	LogLock::LogLock()
 		: mLocked(false), mOK(false)
 	{
-		if (!gLogMutexp)
-		{
-			mOK = true;
-			return;
-		}
-		
 		const int MAX_RETRIES = 5;
 		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
 		{
-			apr_status_t s = apr_thread_mutex_trylock(gLogMutexp);
-			if (!APR_STATUS_IS_EBUSY(s))
+			if (gLogMutex.try_lock())
 			{
 				mLocked = true;
 				mOK = true;
@@ -1044,7 +1040,7 @@ namespace {
 	{
 		if (mLocked)
 		{
-			apr_thread_mutex_unlock(gLogMutexp);
+			gLogMutex.unlock();
 		}
 	}
 }
@@ -1337,17 +1333,10 @@ namespace LLError
 	CallStacksLogLock::CallStacksLogLock()
 		: mLocked(false), mOK(false)
 	{
-		if (!gCallStacksLogMutexp)
-		{
-			mOK = true;
-			return;
-		}
-		
 		const int MAX_RETRIES = 5;
 		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
 		{
-			apr_status_t s = apr_thread_mutex_trylock(gCallStacksLogMutexp);
-			if (!APR_STATUS_IS_EBUSY(s))
+			if (gCallStacksLogMutex.try_lock())
 			{
 				mLocked = true;
 				mOK = true;
@@ -1366,7 +1355,7 @@ namespace LLError
 	{
 		if (mLocked)
 		{
-			apr_thread_mutex_unlock(gCallStacksLogMutexp);
+			gCallStacksLogMutex.unlock();
 		}
 	}
 #endif

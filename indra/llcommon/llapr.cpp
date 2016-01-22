@@ -30,11 +30,10 @@
 #include "llapr.h"
 #include "apr_dso.h"
 #include "llthreadlocalstorage.h"
+#include "llmutex.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 LLVolatileAPRPool *LLAPRFile::sAPRFilePoolp = NULL ; //global volatile APR memory pool.
-apr_thread_mutex_t *gLogMutexp = NULL;
-apr_thread_mutex_t *gCallStacksLogMutexp = NULL;
 
 const S32 FULL_VOLATILE_APR_POOL = 1024 ; //number of references to LLVolatileAPRPool
 
@@ -48,10 +47,6 @@ void ll_init_apr()
 	if (!gAPRPoolp)
 	{
 		apr_pool_create(&gAPRPoolp, NULL);
-		
-		// Initialize the logging mutex
-		apr_thread_mutex_create(&gLogMutexp, APR_THREAD_MUTEX_UNNESTED, gAPRPoolp);
-		apr_thread_mutex_create(&gCallStacksLogMutexp, APR_THREAD_MUTEX_UNNESTED, gAPRPoolp);
 	}
 
 	if(!LLAPRFile::sAPRFilePoolp)
@@ -74,23 +69,6 @@ void ll_cleanup_apr()
 	gAPRInitialized = false;
 
 	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
-
-	if (gLogMutexp)
-	{
-		// Clean up the logging mutex
-
-		// All other threads NEED to be done before we clean up APR, so this is okay.
-		apr_thread_mutex_destroy(gLogMutexp);
-		gLogMutexp = NULL;
-	}
-	if (gCallStacksLogMutexp)
-	{
-		// Clean up the logging mutex
-
-		// All other threads NEED to be done before we clean up APR, so this is okay.
-		apr_thread_mutex_destroy(gCallStacksLogMutexp);
-		gCallStacksLogMutexp = NULL;
-	}
 
 	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
@@ -169,25 +147,18 @@ LLVolatileAPRPool::LLVolatileAPRPool(BOOL is_local, apr_pool_t *parent, apr_size
 				  : LLAPRPool(parent, size, releasePoolFlag),
 				  mNumActiveRef(0),
 				  mNumTotalRef(0),
-				  mMutexPool(NULL),
 				  mMutexp(NULL)
 {
 	//create mutex
 	if(!is_local) //not a local apr_pool, that is: shared by multiple threads.
 	{
-		apr_pool_create(&mMutexPool, NULL); // Create a pool for mutex
-		apr_thread_mutex_create(&mMutexp, APR_THREAD_MUTEX_UNNESTED, mMutexPool);
+		mMutexp = new LLMutex();
 	}
 }
 
 LLVolatileAPRPool::~LLVolatileAPRPool()
 {
-	//delete mutex
-	if(mMutexp)
-	{
-		apr_thread_mutex_destroy(mMutexp);
-		apr_pool_destroy(mMutexPool);
-	}
+	delete_and_clear(mMutexp);
 }
 
 //
@@ -201,7 +172,7 @@ apr_pool_t* LLVolatileAPRPool::getAPRPool()
 
 apr_pool_t* LLVolatileAPRPool::getVolatileAPRPool() 
 {	
-	LLScopedLock lock(mMutexp) ;
+	LLMutexLock lock(mMutexp);
 
 	mNumTotalRef++ ;
 	mNumActiveRef++ ;
@@ -216,7 +187,7 @@ apr_pool_t* LLVolatileAPRPool::getVolatileAPRPool()
 
 void LLVolatileAPRPool::clearVolatileAPRPool() 
 {
-	LLScopedLock lock(mMutexp) ;
+	LLMutexLock lock(mMutexp) ;
 
 	if(mNumActiveRef > 0)
 	{
@@ -249,44 +220,6 @@ void LLVolatileAPRPool::clearVolatileAPRPool()
 BOOL LLVolatileAPRPool::isFull()
 {
 	return mNumTotalRef > FULL_VOLATILE_APR_POOL ;
-}
-//---------------------------------------------------------------------
-//
-// LLScopedLock
-//
-LLScopedLock::LLScopedLock(apr_thread_mutex_t* mutex) : mMutex(mutex)
-{
-	if(mutex)
-	{
-		if(ll_apr_warn_status(apr_thread_mutex_lock(mMutex)))
-		{
-			mLocked = false;
-		}
-		else
-		{
-			mLocked = true;
-		}
-	}
-	else
-	{
-		mLocked = false;
-	}
-}
-
-LLScopedLock::~LLScopedLock()
-{
-	unlock();
-}
-
-void LLScopedLock::unlock()
-{
-	if(mLocked)
-	{
-		if(!ll_apr_warn_status(apr_thread_mutex_unlock(mMutex)))
-		{
-			mLocked = false;
-		}
-	}
 }
 
 //---------------------------------------------------------------------

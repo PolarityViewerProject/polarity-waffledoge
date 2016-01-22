@@ -178,6 +178,7 @@ set(llcommon_HEADER_FILES
     llmetrics.h
     llmetricperformancetester.h
     llmortician.h
+    llmutex.h
     llnametable.h
     llpointer.h
     llpredicate.h
@@ -264,6 +265,8 @@ target_link_libraries(
     ${WINDOWS_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
+    ${BOOST_THREAD_LIBRARY}
+    ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${URIPARSER_LIBRARIES}
     )
