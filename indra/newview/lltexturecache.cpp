@@ -771,6 +771,8 @@ LLTextureCache::~LLTextureCache()
 {
 	clearDeleteList() ;
 	writeUpdatedEntries() ;
+	delete mFastCacheFilep;
+	mFastCacheFilep = nullptr;
 	ll_aligned_free_16(mFastCachePadBuffer);
 }
 
