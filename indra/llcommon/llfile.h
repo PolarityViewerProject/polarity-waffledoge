@@ -85,8 +85,8 @@ public:
 	static  const char * tmpdir();
 
 	// file function wrappers
-	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
-	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
+	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes);
+	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes);
 };
 
 #if LL_WINDOWS

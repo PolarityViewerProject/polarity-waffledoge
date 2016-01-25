@@ -367,6 +367,112 @@ const char *LLFile::tmpdir()
 }
 
 
+S32 LLFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
+{
+	//*****************************************
+	llifstream infile(filename, std::ios::in | std::ios::binary);
+	//*****************************************	
+	if (!infile.is_open())
+	{
+		return 0;
+	}
+
+	llassert(offset >= 0);
+
+	if (offset > 0)
+	{
+		infile.seekg(offset);
+		if (!infile.good())
+		{
+			offset = -1;
+		}
+	}
+
+	S32 bytes_read;
+	if (offset < 0)
+	{
+		bytes_read = 0;
+	}
+	else
+	{
+		infile.read((char*) buf, nbytes);
+		bytes_read = infile.gcount();
+		if (!infile.good())
+		{
+			LL_WARNS() << "Error when reading, wanted: " << nbytes << " read: " << bytes_read << " at offset: " << offset << LL_ENDL;
+			bytes_read = 0;
+		}
+		else
+		{
+			llassert_always(bytes_read <= S32_MAX);
+		}
+	}
+
+	//*****************************************
+	infile.close();
+	//*****************************************
+
+	return bytes_read;
+}
+
+S32 LLFile::writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
+{
+	std::ios_base::openmode flags = std::ios::out | std::ios::binary;
+	if (offset < 0)
+	{
+		flags |= std::ios::app;
+		offset = 0;
+	}
+	else if (LLFile::isfile(filename))
+	{
+		flags |= std::ios::in;
+	}
+
+	//*****************************************
+	llofstream outfile(filename, flags);
+	//*****************************************
+	if (!outfile.is_open())
+	{
+		return 0;
+	}
+
+	if (offset > 0)
+	{
+		outfile.seekp(offset);
+		if (!outfile.good())
+		{
+			offset = -1;
+		}
+	}
+
+	S32 bytes_written;
+	if (offset < 0)
+	{
+		bytes_written = 0;
+	}
+	else
+	{
+		std::streampos old_pos = outfile.tellp();
+		outfile.write((char*) buf, nbytes);
+		bytes_written = outfile.tellp() - old_pos;
+		if (!outfile.good())
+		{
+			LL_WARNS() << "Error when writing, wanted " << nbytes << " wrote " << bytes_written << " offset " << offset << LL_ENDL;
+			bytes_written = 0;
+		}
+		else
+		{
+			llassert_always(bytes_written <= S32_MAX);
+		}
+	}
+
+	//*****************************************
+	outfile.close();
+	//*****************************************
+
+	return bytes_written;
+}
+
 /***************** Modified file stream created to overcome the incorrect behaviour of posix fopen in windows *******************/
 
 #if LL_WINDOWS
@@ -429,112 +535,6 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 
 	fclose(fp);	// can't position at end
 	return (0);
-}
-
-S32 readFileEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
-{
-	//*****************************************
-	llifstream infile(filename, std::ios::in | std::ios::binary);
-	//*****************************************	
-	if (!infile.is_open())
-	{
-		return 0;
-	}
-
-	llassert(offset >= 0);
-
-	if (offset > 0)
-	{
-		infile.seekg(offset);
-		if (!infile.good())
-		{
-			offset = -1;
-		}
-	}
-
-	S32 bytes_read;
-	if (offset < 0)
-	{
-		bytes_read = 0;
-	}
-	else
-	{
-		infile.read((char*) buf, nbytes);
-		bytes_read = infile.gcount();
-		if (!infile.good())
-		{
-			LL_WARNS() << "Error when reading, wanted: " << nbytes << " read: " << bytes_read << " at offset: " << offset << LL_ENDL;
-			bytes_read = 0;
-		}
-		else
-		{
-			llassert_always(bytes_read <= S32_MAX);
-		}
-	}
-
-	//*****************************************
-	infile.close();
-	//*****************************************
-
-	return bytes_read;
-}
-
-S32 writeFileEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
-{
-	std::ios_base::openmode flags = std::ios::out | std::ios::binary;
-	if (offset < 0)
-	{
-		flags |= std::ios::app;
-		offset = 0;
-	}
-	else if (LLFile::isfile(filename))
-	{
-		flags |= std::ios::in;
-	}
-
-	//*****************************************
-	llofstream outfile(filename, flags);
-	//*****************************************
-	if (!outfile.is_open())
-	{
-		return 0;
-	}
-
-	if (offset > 0)
-	{
-		outfile.seekp(offset);
-		if (!outfile.good())
-		{
-			offset = -1;
-		}
-	}
-
-	S32 bytes_written;
-	if (offset < 0)
-	{
-		bytes_written = 0;
-	}
-	else
-	{
-		std::streampos old_pos = outfile.tellp();
-		outfile.write((char*) buf, nbytes);
-		bytes_written = outfile.tellp() - old_pos;
-		if (!outfile.good())
-		{
-			LL_WARNS() << "Error when writing, wanted " << nbytes << " wrote " << bytes_written << " offset " << offset << LL_ENDL;
-			bytes_written = 0;
-		}
-		else
-		{
-			llassert_always(bytes_written <= S32_MAX);
-		}
-	}
-
-	//*****************************************
-	outfile.close();
-	//*****************************************
-
-	return bytes_written;
 }
 
 #endif /* LL_WINDOWS */
