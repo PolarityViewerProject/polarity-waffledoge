@@ -511,9 +511,9 @@ public:
 				buffer->readAfter(channels.in(), NULL, copy_buffer, file_size);
 
 				// write to file
-				LLAPRFile out(mFilename, LL_APR_WB);
-				out.write(copy_buffer, file_size);
-				out.close();
+				llofstream ofstream(mFilename, std::ios::out | std::ios::binary | std::ios::trunc);
+				ofstream.write((char*) copy_buffer, file_size);
+				ofstream.close();
 			}
 		}
 		else

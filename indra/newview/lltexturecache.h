@@ -153,7 +153,7 @@ private:
 	void clearCorruptedCache();
 	void purgeAllTextures(bool purge_directories);
 	void purgeTextures(bool validate);
-	LLAPRFile* openHeaderEntriesFile(bool readonly, S32 offset);
+	llfstream* openHeaderEntriesFile(bool readonly, S32 offset, bool seek_read = false);
 	void closeHeaderEntriesFile();
 	void readEntriesHeader();
 	void writeEntriesHeader();
@@ -183,8 +183,7 @@ private:
 	LLMutex mHeaderMutex;
 	LLMutex mListMutex;
 	LLMutex mFastCacheMutex;
-	LLAPRFile* mHeaderAPRFile;
-	LLVolatileAPRPool* mFastCachePoolp;
+	llfstream* mHeaderFilep;
 	
 	typedef std::map<handle_t, LLTextureCacheWorker*> handle_map_t;
 	handle_map_t mReaders;
@@ -208,7 +207,7 @@ private:
 	typedef std::map<LLUUID, S32> id_map_t;
 	id_map_t mHeaderIDMap;
 
-	LLAPRFile*   mFastCachep;
+	llfstream*	 mFastCacheFilep;
 	LLFrameTimer mFastCacheTimer;
 	U8*          mFastCachePadBuffer;
 
