@@ -227,7 +227,7 @@ private:
 	void writeSystemInfo(); // Write system info to "debug_info.log"
 
 	void processMarkerFiles(); 
-	static void recordMarkerVersion(LLAPRFile& marker_file);
+	static void recordMarkerVersion(LLFILE* marker_file);
 	bool markerIsSameVersion(const std::string& marker_name) const;
 	
     void idle(); 
@@ -247,10 +247,10 @@ private:
     bool mSecondInstance; // Is this a second instance of the app?
 
 	std::string mMarkerFileName;
-	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
+	LLFILE* mMarkerFile; // A file created to indicate the app is running.
 
 	std::string mLogoutMarkerFileName;
-	LLAPRFile mLogoutMarkerFile; // A file created to indicate the app is running.
+	LLFILE* mLogoutMarkerFile; // A file created to indicate the app is running.
 
 	
 	LLOSInfo mSysOSInfo; 

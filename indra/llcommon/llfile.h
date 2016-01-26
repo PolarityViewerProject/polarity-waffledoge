@@ -84,6 +84,8 @@ public:
 
 	static  const char * tmpdir();
 
+	static bool lockFile(LLFILE* filep, bool exclusive, bool non_blocking);
+
 	// file function wrappers
 	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes);
 	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes);

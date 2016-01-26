@@ -30,8 +30,10 @@
 #if LL_WINDOWS
 #include "llwin32headerslean.h"
 #include <stdlib.h>                 // Windows errno
+#include <io.h>
 #else
 #include <errno.h>
+#include <sys/file.h>
 #endif
 
 #include "linden_common.h"
@@ -358,7 +360,67 @@ const char *LLFile::tmpdir()
 	return utf8path.c_str();
 }
 
+//static
+bool LLFile::lockFile(LLFILE* filep, bool exclusive, bool non_blocking)
+{
+#if LL_WINDOWS
+	int fd = _fileno(filep);
+	if (fd == -1 || fd == -2)
+	{
+		LL_WARNS() << "Failed to get file descriptor: " << errno << LL_ENDL;
+		return false;
+	}
 
+	HANDLE handle = (HANDLE) _get_osfhandle(fd);
+	if (handle == INVALID_HANDLE_VALUE)
+	{
+		LL_WARNS() << "Failed to get file handle: " << errno << LL_ENDL;
+		return false;
+	}
+
+	DWORD lock_type = 0;
+	if (exclusive)
+		lock_type |= LOCKFILE_EXCLUSIVE_LOCK;
+	if (non_blocking)
+		lock_type |= LOCKFILE_FAIL_IMMEDIATELY;
+
+	OVERLAPPED overlap;
+	memset(&overlap, 0, sizeof(OVERLAPPED));
+	if (!LockFileEx(handle, lock_type, 0, UINT_MAX, UINT_MAX, &overlap))
+	{
+		LL_WARNS() << "Failed to lock file: " << GetLastError() << LL_ENDL;
+		return false;
+	}
+
+	return true;
+#else
+	int fd = fileno(filep);
+	if (fd == -1)
+	{
+		LL_WARNS() << "Failed to get file descriptor: " << errno << LL_ENDL;
+		return false;
+	}
+
+	int lock_type = LOCK_SH;
+	if (exclusive)
+		lock_type = LOCK_EX;
+	if (non_blocking)
+		lock_type |= LOCK_NB;
+
+	int rc;
+	while ((rc = flock(fd, lock_type)) < 0 && errno == EINTR)
+
+	if (rc == -1)
+	{
+		LL_WARNS() << "Failed to lock file: " << errno << LL_ENDL;
+		return false;
+	}
+
+	return true;
+#endif
+}
+
+// static
 S32 LLFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
 {
 	//*****************************************
@@ -407,6 +469,7 @@ S32 LLFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbyte
 	return bytes_read;
 }
 
+// static
 S32 LLFile::writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes)
 {
 	std::ios_base::openmode flags = std::ios::out | std::ios::binary;
