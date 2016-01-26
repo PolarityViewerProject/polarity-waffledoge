@@ -1333,9 +1333,12 @@ void LLVOCache::writeCacheHeader()
 
 	bool success = true ;
 	{
-		std::ios::openmode flags = LLFile::isfile(mHeaderFileName)
-			? std::ios::in | std::ios::out | std::ios::binary
-			: std::ios::out | std::ios::binary;
+		std::ios::openmode flags = std::ios::out | std::ios::binary;
+		if (LLFile::isfile(mHeaderFileName))
+		{
+			flags |= std::ios::in;
+		}
+
 		llofstream outfile(mHeaderFileName, flags);
 
 		//write the meta element
@@ -1522,9 +1525,11 @@ void LLVOCache::writeToCache(U64 handle, const LLUUID& id, const LLVOCacheEntry:
 	{
 		std::string filename;
 		getObjectCacheFilename(handle, filename);
-		std::ios::openmode flags = LLFile::isfile(filename)
-			? std::ios::in | std::ios::out | std::ios::binary
-			: std::ios::out | std::ios::binary;
+		std::ios::openmode flags = std::ios::out | std::ios::binary;
+		if (LLFile::isfile(mHeaderFileName))
+		{
+			flags |= std::ios::in;
+		}
 		llofstream outfile(filename, flags);
 	
 		success = check_write(outfile, (void*)id.mData, UUID_BYTES) ;

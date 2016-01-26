@@ -89,11 +89,11 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 		return(LLVORBISENC_SOURCE_OPEN_ERR);
 	}
 
-	instream.seekg(0, instream.end);
-	physical_file_size = (U32)instream.tellg();
-	instream.seekg(0, instream.beg);
-
 	instream.read((char*)wav_header, 44);
+
+	instream.seekg(0, instream.end);
+	physical_file_size = (U32) instream.tellg();
+	instream.seekg(0, instream.beg);
 
 	if (strncmp((char *)&(wav_header[0]),"RIFF",4))
 	{

@@ -763,7 +763,7 @@ LLTextureCache::LLTextureCache(bool threaded)
 	  mTexturesSizeTotal(0),
 	  mDoPurge(false),
 	  mFastCacheFilep(nullptr),
-	  mFastCachePadBuffer(NULL)
+	  mFastCachePadBuffer(nullptr)
 {
 }
 
