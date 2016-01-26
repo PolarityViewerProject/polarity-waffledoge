@@ -1337,12 +1337,7 @@ void LLBVHLoader::reset()
 //------------------------------------------------------------------------
 BOOL LLBVHLoader::getLine(llifstream& stream)
 {
-	if (stream.eof())
-	{
-		return FALSE;
-	}
-	stream.getline(mLine, BVH_PARSER_LINE_SIZE);
-	if (stream.good())
+	if (stream.getline(mLine, BVH_PARSER_LINE_SIZE))
 	{
 		mLineNumber++;
 		return TRUE;
