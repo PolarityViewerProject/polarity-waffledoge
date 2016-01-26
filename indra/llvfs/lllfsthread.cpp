@@ -67,10 +67,6 @@ LLLFSThread::LLLFSThread(bool threaded) :
 	LLQueuedThread("LFS", threaded),
 	mPriorityCounter(PRIORITY_LOWBITS)
 {
-	if(!mLocalAPRFilePoolp)
-	{
-		mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
-	}
 }
 
 LLLFSThread::~LLLFSThread()
