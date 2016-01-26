@@ -592,117 +592,11 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 	return (0);
 }
 
-#endif /* LL_WINDOWS */
-
-#if LL_WINDOWS
-/************** input/output file stream ********************************/
-
-
-llfstream::llfstream() : std::fstream()
-{
-}
-
-// explicit
-llfstream::llfstream(const std::string& _Filename, ios_base::openmode _Mode) :
-	std::fstream(utf8str_to_utf16str(_Filename),
-		_Mode)
-{
-}
-
-// explicit
-llfstream::llfstream(const char* _Filename, ios_base::openmode _Mode) :
-	std::fstream(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode)
-
-{
-}
-
-void llfstream::open(const std::string& _Filename, ios_base::openmode _Mode)
-{
-	std::fstream::open(utf8str_to_utf16str(_Filename),
-		_Mode);
-}
-
-void llfstream::open(const char* _Filename, ios_base::openmode _Mode)
-{
-	std::fstream::open(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode);
-}
-
-
-/************** input file stream ********************************/
-
-
-llifstream::llifstream() : std::ifstream()
-{
-}
-
-// explicit
-llifstream::llifstream(const std::string& _Filename, ios_base::openmode _Mode) :
-	std::ifstream(utf8str_to_utf16str(_Filename),
-		_Mode | ios_base::in)
-{
-}
-
-// explicit
-llifstream::llifstream(const char* _Filename, ios_base::openmode _Mode) :
-	std::ifstream(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode | ios_base::in)
-
-{
-}
-
-void llifstream::open(const std::string& _Filename, ios_base::openmode _Mode)
-{
-	std::ifstream::open(utf8str_to_utf16str(_Filename),
-		_Mode | ios_base::in);
-}
-
-void llifstream::open(const char* _Filename, ios_base::openmode _Mode)
-{
-	std::ifstream::open(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode | ios_base::in);
-}
-
-
-/************** output file stream ********************************/
-
-
-llofstream::llofstream() : std::ofstream()
-{
-}
-
-// explicit
-llofstream::llofstream(const std::string& _Filename, ios_base::openmode _Mode) :
-	std::ofstream(utf8str_to_utf16str(_Filename),
-		_Mode | ios_base::out)
-{
-}
-
-// explicit
-llofstream::llofstream(const char* _Filename, ios_base::openmode _Mode) :
-	std::ofstream(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode | ios_base::out)
-{
-}
-
-void llofstream::open(const std::string& _Filename, ios_base::openmode _Mode)
-{
-	std::ofstream::open(utf8str_to_utf16str(_Filename),
-		_Mode | ios_base::out);
-}
-
-void llofstream::open(const char* _Filename, ios_base::openmode _Mode)
-{
-	std::ofstream::open(utf8str_to_utf16str(_Filename).c_str(),
-		_Mode | ios_base::out);
-}
-
 /************** helper functions ********************************/
 
 std::streamsize llifstream_size(llifstream& ifstr)
 {
-	if(!ifstr.is_open()) return 0;
+	if (!ifstr.is_open()) return 0;
 	std::streampos pos_old = ifstr.tellg();
 	ifstr.seekg(0, ios_base::beg);
 	std::streampos pos_beg = ifstr.tellg();
@@ -714,7 +608,7 @@ std::streamsize llifstream_size(llifstream& ifstr)
 
 std::streamsize llofstream_size(llofstream& ofstr)
 {
-	if(!ofstr.is_open()) return 0;
+	if (!ofstr.is_open()) return 0;
 	std::streampos pos_old = ofstr.tellp();
 	ofstr.seekp(0, ios_base::beg);
 	std::streampos pos_beg = ofstr.tellp();
@@ -724,4 +618,4 @@ std::streamsize llofstream_size(llofstream& ofstr)
 	return pos_end - pos_beg;
 }
 
-#endif  // LL_WINDOWS
+#endif /* LL_WINDOWS */
