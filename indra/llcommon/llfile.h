@@ -101,7 +101,7 @@ public:
 */
 class LL_COMMON_API llfstream : public	std::fstream
 {
-	// input stream associated with a C stream
+	// file stream associated with a filebuf
 public:
 	// Constructors:
 	/**

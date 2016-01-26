@@ -7196,7 +7196,7 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
 	llofstream outstream(fullpath, std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!outstream.good())
+	if (!outstream.is_open())
 	{
 		return;
 	}

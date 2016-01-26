@@ -2070,10 +2070,9 @@ BOOL LLImageFormatted::load(const std::string &filename, int load_size)
 	U8 *data = allocateData(load_size);
 	infile.read((char*) data, load_size);
 	std::streamsize bytes_read = infile.gcount();
-	bool is_good = infile.good();
 	infile.close();
 
-	if (!is_good || bytes_read != load_size)
+	if (!infile.good() || bytes_read != load_size)
 	{
 		deleteData();
 		setLastError("Unable to read file",filename);

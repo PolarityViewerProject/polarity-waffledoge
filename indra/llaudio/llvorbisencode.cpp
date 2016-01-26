@@ -83,7 +83,7 @@ S32 check_for_invalid_wav_formats(const std::string& in_fname, std::string& erro
 	//********************************
 	llifstream instream(in_fname, std::ios::in | std::ios::binary);
 	//********************************
-	if (!instream.good())
+	if (!instream.is_open())
 	{
 		error_msg = "CannotUploadSoundFile";
 		return(LLVORBISENC_SOURCE_OPEN_ERR);
@@ -235,7 +235,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	S32 data_left = 0;
 
 	llifstream instream(in_fname, std::ios::in | std::ios::binary);
-	if (!instream.good())
+	if (!instream.is_open())
 	{
 		LL_WARNS() << "Couldn't open temporary ogg file for reading: " << in_fname
 			<< LL_ENDL;
@@ -243,7 +243,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	}
 
 	llofstream outstream(out_fname, std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!outstream.good())
+	if (!outstream.is_open())
 	{
 		LL_WARNS() << "Couldn't open upload sound file for writing: " << in_fname
 			<< LL_ENDL;
@@ -361,7 +361,7 @@ S32 encode_vorbis_file(const std::string& in_fname, const std::string& out_fname
 	 {
 		 long bytes_per_sample = bits_per_sample/8;
 
-		 instream.read((char*)readbuffer, llclamp((S32) (READ_BUFFER*num_channels*bytes_per_sample), 0, data_left));
+		 instream.read((char*)readbuffer, llclamp((S32) (READ_BUFFER*num_channels*bytes_per_sample), 0, data_left)); /* stereo hardwired here */
 		 long bytes = (long) instream.gcount();
 		 
 		 if (bytes==0)

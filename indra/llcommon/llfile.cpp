@@ -299,15 +299,7 @@ bool LLFile::copy(const std::string from, const std::string to)
 int LLFile::size(const std::string& filename)
 {
 	llstat stat_data;
-	int res = LLFile::stat(filename, &stat_data);
-	if (!res)
-	{
-		return stat_data.st_size;
-	}
-	else
-	{
-		return 0;
-	}
+	return stat(filename, &stat_data) ? 0 : stat_data.st_size;
 }
 
 int	LLFile::stat(const std::string& filename, llstat* filestatus)
@@ -397,7 +389,7 @@ S32 LLFile::readEx(const std::string& filename, void *buf, S32 offset, S32 nbyte
 	{
 		infile.read((char*) buf, nbytes);
 		bytes_read = infile.gcount();
-		if (!infile.good())
+		if (!infile.good() || bytes_read != nbytes)
 		{
 			LL_WARNS() << "Error when reading, wanted: " << nbytes << " read: " << bytes_read << " at offset: " << offset << LL_ENDL;
 			bytes_read = 0;
@@ -423,7 +415,7 @@ S32 LLFile::writeEx(const std::string& filename, void *buf, S32 offset, S32 nbyt
 		flags |= std::ios::app;
 		offset = 0;
 	}
-	else if (LLFile::isfile(filename))
+	else if (isfile(filename))
 	{
 		flags |= std::ios::in;
 	}
@@ -455,7 +447,7 @@ S32 LLFile::writeEx(const std::string& filename, void *buf, S32 offset, S32 nbyt
 		std::streampos old_pos = outfile.tellp();
 		outfile.write((char*) buf, nbytes);
 		bytes_written = outfile.tellp() - old_pos;
-		if (!outfile.good())
+		if (!outfile.good() || bytes_written != nbytes)
 		{
 			LL_WARNS() << "Error when writing, wanted " << nbytes << " wrote " << bytes_written << " offset " << offset << LL_ENDL;
 			bytes_written = 0;

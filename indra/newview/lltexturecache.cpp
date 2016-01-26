@@ -1012,11 +1012,13 @@ S64 LLTextureCache::initCache(ELLPath location, S64 max_size, BOOL texture_cache
 llfstream* LLTextureCache::openHeaderEntriesFile(bool readonly, S32 offset, bool seek_read)
 {
 	llassert_always(mHeaderFilep == nullptr || !mHeaderFilep->is_open());
-	std::ios::openmode flags = 
-		readonly ? std::ios::in | std::ios::binary :
-		LLFile::isfile(mHeaderEntriesFileName)
-		? std::ios::in | std::ios::out | std::ios::binary
-		: std::ios::in | std::ios::out | std::ios::binary | std::ios::trunc;
+	std::ios::openmode flags = std::ios::in | std::ios::binary;
+	if (!readonly)
+	{
+		flags |= std::ios::out;
+		if (!LLFile::isfile(mHeaderEntriesFileName))
+			flags |= std::ios::trunc;
+	}
 	mHeaderFilep = new llfstream(mHeaderEntriesFileName, flags);
 	if(offset > 0)
 	{

@@ -378,10 +378,9 @@ BOOL LLImageJ2C::loadAndValidate(const std::string &filename)
 		U8 *data = (U8*) ll_aligned_malloc_16(file_size);
 		infile.read((char*) data, file_size);
 		std::streamsize bytes_read = infile.gcount();
-		bool is_good = infile.good();
 		infile.close() ;
 
-		if (!is_good || bytes_read != file_size)
+		if (!infile.good() || bytes_read != file_size)
 		{
 			ll_aligned_free_16(data);
 			setLastError("Unable to read entire file");

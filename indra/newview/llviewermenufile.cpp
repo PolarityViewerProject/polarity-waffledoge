@@ -848,7 +848,7 @@ LLUUID upload_new_resource(
 		// copy this file into the vfs for upload
 		S32 file_size;
 		llifstream instream(filename, std::ios::in | std::ios::binary);
-		if (instream.good())
+		if (instream.is_open())
 		{
 			LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);
 
