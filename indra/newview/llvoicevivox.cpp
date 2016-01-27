@@ -30,6 +30,7 @@
 #include "llsdutil.h"
 
 // Linden library includes
+#include "llapr.h"
 #include "llavatarnamecache.h"
 #include "llvoavatarself.h"
 #include "llbufferstream.h"

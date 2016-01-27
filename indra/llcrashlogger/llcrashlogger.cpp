@@ -32,6 +32,7 @@
 #include "llcrashlogger.h"
 #include "llcrashlock.h"
 #include "linden_common.h"
+#include "llapr.h"
 #include "llstring.h"
 #include "indra_constants.h"	// CRASH_BEHAVIOR_...
 #include "llerror.h"
