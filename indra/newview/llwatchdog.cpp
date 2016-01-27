@@ -26,6 +26,7 @@
 
 
 #include "llviewerprecompiledheaders.h"
+#include "llwin32headerslean.h"
 #include "llwatchdog.h"
 #include "llthread.h"
 

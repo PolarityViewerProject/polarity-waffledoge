@@ -459,7 +459,7 @@ void LLModelLoader::loadModelCallback()
 
 	while (!isStopped())
 	{ //wait until this thread is stopped before deleting self
-		apr_sleep(100);
+		boost::this_thread::sleep_for(boost::chrono::microseconds(100));
 	}
 
 	//double check if "this" is valid before deleting it, in case it is aborted during running.

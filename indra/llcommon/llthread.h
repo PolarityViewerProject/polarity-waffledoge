@@ -28,11 +28,11 @@
 #define LL_LLTHREAD_H
 
 #include "llapp.h"
-#include "llapr.h"
-#include "apr_thread_cond.h"
-#include "boost/intrusive_ptr.hpp"
 #include "llmutex.h"
 #include "llrefcount.h"
+
+#include <boost/thread.hpp>
+#include <boost/intrusive_ptr.hpp>
 
 LL_COMMON_API void assert_main_thread();
 
@@ -45,7 +45,7 @@ class LL_COMMON_API LLThread
 {
 private:
 	friend class LLMutex;
-	static U32 sIDIter;
+	static uintptr_t sIDIter;
 
 public:
 	typedef enum e_thread_status
@@ -55,14 +55,14 @@ public:
 		QUITTING= 2 	// Someone wants this thread to quit
 	} EThreadStatus;
 
-	LLThread(const std::string& name, apr_pool_t *poolp = NULL);
+	LLThread(const std::string& name);
 	virtual ~LLThread(); // Warning!  You almost NEVER want to destroy a thread unless it's in the STOPPED state.
 	virtual void shutdown(); // stops the thread
 	
 	bool isQuitting() const { return (QUITTING == mStatus); }
 	bool isStopped() const { return (STOPPED == mStatus); }
 	
-	static U32 currentID(); // Return ID of current thread
+	static uintptr_t currentID(); // Return ID of current thread
 	static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
 	
 public:
@@ -84,9 +84,7 @@ public:
 	// this kicks off the apr thread
 	void start(void);
 
-	apr_pool_t *getAPRPool() { return mAPRPoolp; }
-
-	U32 getID() const { return mID; }
+	uintptr_t getID() const { return mID; }
 
 	// Called by threads *not* created via LLThread to register some
 	// internal state used by LLMutex.  You must call this once early
@@ -97,18 +95,17 @@ private:
 	BOOL				mPaused;
 	
 	// static function passed to APR thread creation routine
-	static void *APR_THREAD_FUNC staticRun(struct apr_thread_t *apr_threadp, void *datap);
+	void runWrapper();
 
 protected:
 	std::string			mName;
+	boost::thread       mThread;
 	class LLCondition*	mRunCondition;
 	LLMutex*			mDataLock;
 
-	apr_thread_t		*mAPRThreadp;
-	apr_pool_t			*mAPRPoolp;
-	BOOL				mIsLocalPool;
+
 	EThreadStatus		mStatus;
-	U32					mID;
+	uintptr_t			mID;
 	LLTrace::ThreadRecorder* mRecorder;
 
 	void setQuitting();
