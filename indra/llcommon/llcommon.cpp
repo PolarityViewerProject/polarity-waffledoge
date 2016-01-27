@@ -27,6 +27,7 @@
 
 #include "llcommon.h"
 
+#include "llapr.h"
 #include "llmemory.h"
 #include "llthread.h"
 #include "lltrace.h"

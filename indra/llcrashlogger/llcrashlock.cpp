@@ -28,6 +28,7 @@
 #include "linden_common.h"
 
 #include "llcrashlock.h"
+#include "llapp.h"
 #include "lldir.h"
 #include "llsd.h"
 #include "llsdserialize.h"
@@ -150,7 +151,7 @@ bool LLCrashLock::requestMaster( F32 timeout )
         }
     }
     
-	U32 pid = getpid();
+	S32 pid = LLApp::getPid();
     lock_sd["pid"] = (LLSD::Integer)pid;
     return putLockFile(mMaster,lock_sd);
 }
