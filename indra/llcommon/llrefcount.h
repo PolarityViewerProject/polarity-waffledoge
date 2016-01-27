@@ -30,7 +30,6 @@
 #include <boost/intrusive_ptr.hpp>
 #include "llatomic.h"
 #include "llmutex.h"
-#include "llapr.h"
 
 #define LL_REF_COUNT_DEBUG 0
 #if LL_REF_COUNT_DEBUG

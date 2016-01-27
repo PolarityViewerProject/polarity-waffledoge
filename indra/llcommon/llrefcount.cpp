@@ -38,14 +38,7 @@ LLRefCount::LLRefCount(const LLRefCount& other)
 :	mRef(0)
 {
 #if LL_REF_COUNT_DEBUG
-	if(gAPRPoolp)
-	{
-		mMutexp = new LLMutex(gAPRPoolp) ;
-	}
-	else
-	{
-		mMutexp = NULL ;
-	}
+	mMutexp = new LLMutex() ;
 	mCrashAtUnlock = FALSE ;
 #endif
 }
@@ -60,14 +53,7 @@ LLRefCount::LLRefCount() :
 	mRef(0)
 {
 #if LL_REF_COUNT_DEBUG
-	if(gAPRPoolp)
-	{
-		mMutexp = new LLMutex(gAPRPoolp) ;
-	}
-	else
-	{
-		mMutexp = NULL ;
-	}
+	mMutexp = new LLMutex() ;
 	mCrashAtUnlock = FALSE ;
 #endif
 }
