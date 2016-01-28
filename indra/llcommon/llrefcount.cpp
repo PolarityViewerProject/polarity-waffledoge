@@ -31,18 +31,15 @@
 
 #if LL_REF_COUNT_DEBUG
 #include "llthread.h"
-#include "llapr.h"
 #endif
 
 LLRefCount::LLRefCount(const LLRefCount& other) :	
 #if LL_REF_COUNT_DEBUG
 	mMutex(),
+	mCrashAtUnlock(FALSE),
 #endif
 	mRef(0)
 {
-#if LL_REF_COUNT_DEBUG
-	mCrashAtUnlock = FALSE ;
-#endif
 }
 
 LLRefCount& LLRefCount::operator=(const LLRefCount&)
@@ -54,12 +51,10 @@ LLRefCount& LLRefCount::operator=(const LLRefCount&)
 LLRefCount::LLRefCount() :
 #if LL_REF_COUNT_DEBUG
 	mMutex(),
+	mCrashAtUnlock(FALSE),
 #endif
 	mRef(0)
 {
-#if LL_REF_COUNT_DEBUG
-	mCrashAtUnlock = FALSE ;
-#endif
 }
 
 LLRefCount::~LLRefCount()
@@ -73,23 +68,23 @@ LLRefCount::~LLRefCount()
 #if LL_REF_COUNT_DEBUG
 void LLRefCount::ref() const
 { 
-		if(mMutex.isLocked()) 
-		{
-			mCrashAtUnlock = TRUE ;
-			LL_ERRS() << "the mutex is locked by the thread: " << mLockedThreadID 
-				<< " Current thread: " << LLThread::currentID() << LL_ENDL ;
-		}
+	if(mMutex.isLocked()) 
+	{
+		mCrashAtUnlock = TRUE ;
+		LL_ERRS() << "the mutex is locked by the thread: " << mLockedThreadID 
+			<< " Current thread: " << LLThread::currentID() << LL_ENDL ;
+	}
 
-		mMutex.lock() ;
-		mLockedThreadID = LLThread::currentID() ;
+	mMutex.lock() ;
+	mLockedThreadID = LLThread::currentID() ;
 
-		mRef++; 
+	mRef++; 
 
-		if(mCrashAtUnlock)
-		{
-			while(1); //crash here.
-		}
-		mMutex.unlock() ;
+	if(mCrashAtUnlock)
+	{
+		while(1); //crash here.
+	}
+	mMutex.unlock() ;
 } 
 
 S32 LLRefCount::unref() const

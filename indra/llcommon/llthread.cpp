@@ -184,7 +184,7 @@ void LLThread::shutdown()
 		delete mRecorder;
 
 		boost::thread::native_handle_type thread(mThread.native_handle());
-#if	LL_WINDOWS
+#if LL_WINDOWS
 		TerminateThread(thread, 0);
 #else
 		pthread_cancel(thread);
