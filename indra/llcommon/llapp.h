@@ -194,7 +194,7 @@ public:
 	static bool isQuitting();
 	static bool isError();
 	static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
-	static int getPid();
+	static S32  getPid();
 
 	/** @name Error handling methods */
 	//@{

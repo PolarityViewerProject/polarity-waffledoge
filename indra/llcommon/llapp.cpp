@@ -616,12 +616,12 @@ bool LLApp::isCrashloggerDisabled()
 }
 
 // static
-int LLApp::getPid()
+S32 LLApp::getPid()
 {
 #if LL_WINDOWS
-    return GetCurrentProcessId();
+    return (S32) GetCurrentProcessId();
 #else
-	return getpid();
+	return (S32) getpid();
 #endif
 }
 
