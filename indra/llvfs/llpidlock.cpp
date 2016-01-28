@@ -272,5 +272,5 @@ void LLPidLock::setSaveName(std::string savename)
 
 S32 LLPidLock::getPID()
 {
-    return (S32) LLApp::getPid();
+    return LLApp::getPid();
 }

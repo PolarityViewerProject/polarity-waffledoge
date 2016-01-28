@@ -464,40 +464,36 @@ typedef struct _ASTAT_
 // static
 S32	LLUUID::getNodeID(unsigned char	*node_id)
 {
-	ASTAT Adapter;
-	NCB Ncb;
-	UCHAR uRetCode;
-	LANA_ENUM   lenum;
-	int      i;
-	int retval = 0;
+	S32 retval = 0;
 
-	memset( &Ncb, 0, sizeof(Ncb) );
-	Ncb.ncb_command = NCBENUM;
-	Ncb.ncb_buffer = (UCHAR *)&lenum;
-	Ncb.ncb_length = sizeof(lenum);
-	uRetCode = Netbios( &Ncb );
-
-	for(i=0; i < lenum.length ;i++)
+	ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_INCLUDE_GATEWAYS;
+	DWORD dwAdaptersSize = 0;
+	if (GetAdaptersAddresses(AF_INET, flags, NULL, NULL, &dwAdaptersSize) == ERROR_BUFFER_OVERFLOW)
 	{
-		memset( &Ncb, 0, sizeof(Ncb) );
-		Ncb.ncb_command = NCBRESET;
-		Ncb.ncb_lana_num = lenum.lana[i];
-
-		uRetCode = Netbios( &Ncb );
-
-		memset( &Ncb, 0, sizeof (Ncb) );
-		Ncb.ncb_command = NCBASTAT;
-		Ncb.ncb_lana_num = lenum.lana[i];
-
-		strcpy( (char *)Ncb.ncb_callname,  "*              " );		/* Flawfinder: ignore */
-		Ncb.ncb_buffer = (unsigned char *)&Adapter;
-		Ncb.ncb_length = sizeof(Adapter);
-
-		uRetCode = Netbios( &Ncb );
-		if ( uRetCode == 0 )
+		PIP_ADAPTER_ADDRESSES adapterAddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(malloc(dwAdaptersSize));
+		if (adapterAddrs)
 		{
-			memcpy(node_id,Adapter.adapt.adapter_address,6);		/* Flawfinder: ignore */
-			retval = 1;
+			if (GetAdaptersAddresses(AF_INET, flags, NULL, adapterAddrs, &dwAdaptersSize) == ERROR_SUCCESS)
+			{
+				if (adapterAddrs->PhysicalAddressLength != 0) {
+					LL_DEBUGS() << "Physical Address: ";
+					for (S32 i = 0; i < adapterAddrs->PhysicalAddressLength; ++i)
+					{
+						if (i == (adapterAddrs->PhysicalAddressLength - 1))
+							LL_CONT << llformat("%.2X", (int) adapterAddrs->PhysicalAddress[i]).c_str();
+						else
+							LL_CONT << llformat("%.2X-", (int) adapterAddrs->PhysicalAddress[i]).c_str();
+					}
+					LL_CONT << LL_ENDL;
+					memcpy(node_id, adapterAddrs->PhysicalAddress, 6);
+					retval = 1;
+				}
+				else
+				{
+					LL_WARNS() << "Physical address empty" << LL_ENDL;
+				}
+			}
+			free(adapterAddrs);
 		}
 	}
 	return retval;
@@ -879,7 +875,7 @@ U32 LLUUID::getRandomSeed()
    // Incorporate the pid into the seed to prevent
    // processes that start on the same host at the same
    // time from generating the same seed.
-   int pid = LLApp::getPid();
+   S32 pid = LLApp::getPid();
 
    seed[6]=(unsigned char)(pid >> 8);
    seed[7]=(unsigned char)(pid);

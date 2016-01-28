@@ -83,7 +83,7 @@ private:
 	mutable S32	mRef; 
 
 #if LL_REF_COUNT_DEBUG
-	LLMutex*  mMutexp ;
+	mutable LLMutex  mMutex ;
 	mutable U32  mLockedThreadID ;
 	mutable BOOL mCrashAtUnlock ; 
 #endif
