@@ -45,7 +45,6 @@
 //
 // Globals
 //
-LLSplashScreen *gSplashScreenp = NULL;
 BOOL gDebugClicks = FALSE;
 BOOL gDebugWindowProc = FALSE;
 
@@ -62,14 +61,6 @@ const std::string gURLProtocolWhitelist[] = { "secondlife:", "http:", "https:", 
 
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 {
-	// Properly hide the splash screen when displaying the message box
-	BOOL was_visible = FALSE;
-	if (LLSplashScreen::isVisible())
-	{
-		was_visible = TRUE;
-		LLSplashScreen::hide();
-	}
-
 	S32 result = 0;
 #if LL_MESA_HEADLESS // !!! *FIX: (?)
 	LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
@@ -83,11 +74,6 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 #else
 #error("OSMessageBox not implemented for this platform!")
 #endif
-
-	if (was_visible)
-	{
-		LLSplashScreen::show();
-	}
 
 	return result;
 }
@@ -308,69 +294,6 @@ void LLWindow::handleUnicodeUTF16(U16 utf16, MASK mask)
 			mCallbacks->handleUnicodeChar(utf16, mask);
 		}
 	}
-}
-
-//
-// LLSplashScreen
-//
-
-// static
-bool LLSplashScreen::isVisible()
-{
-	return gSplashScreenp ? true: false;
-}
-
-// static
-LLSplashScreen *LLSplashScreen::create()
-{
-#if LL_MESA_HEADLESS || LL_SDL  // !!! *FIX: (?)
-	return 0;
-#elif LL_WINDOWS
-	return new LLSplashScreenWin32;
-#elif LL_DARWIN
-	return new LLSplashScreenMacOSX;
-#else
-#error("LLSplashScreen not implemented on this platform!")
-#endif
-}
-
-
-//static
-void LLSplashScreen::show()
-{
-	if (!gSplashScreenp)
-	{
-#if LL_WINDOWS && !LL_MESA_HEADLESS
-		gSplashScreenp = new LLSplashScreenWin32;
-#elif LL_DARWIN
-		gSplashScreenp = new LLSplashScreenMacOSX;
-#endif
-		if (gSplashScreenp)
-		{
-			gSplashScreenp->showImpl();
-		}
-	}
-}
-
-//static
-void LLSplashScreen::update(const std::string& str)
-{
-	LLSplashScreen::show();
-	if (gSplashScreenp)
-	{
-		gSplashScreenp->updateImpl(str);
-	}
-}
-
-//static
-void LLSplashScreen::hide()
-{
-	if (gSplashScreenp)
-	{
-		gSplashScreenp->hideImpl();
-	}
-	delete gSplashScreenp;
-	gSplashScreenp = NULL;
 }
 
 //

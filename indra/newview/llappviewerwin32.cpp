@@ -537,8 +537,6 @@ bool LLAppViewerWin32::initHardwareTest()
 		// but vram.
 		BOOL vram_only = TRUE;
 
-		LLSplashScreen::update(LLTrans::getString("StartupDetectingHardware"));
-
 		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
 		gDXHardware.setWriteDebugFunc(write_debug_dx);
 		BOOL probe_ok = gDXHardware.getInfo(vram_only);
@@ -574,8 +572,6 @@ bool LLAppViewerWin32::initHardwareTest()
 		LLStringUtil::format_map_t args;
 		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
 		splash_msg = LLTrans::getString("StartupLoading", args);
-
-		LLSplashScreen::update(splash_msg);
 	}
 
 	if (!restoreErrorTrap())

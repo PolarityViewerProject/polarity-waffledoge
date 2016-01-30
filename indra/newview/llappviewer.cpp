@@ -2755,8 +2755,6 @@ bool LLAppViewer::initConfiguration()
 	LLStringUtil::format_map_t args;
 	args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
 	splash_msg = LLTrans::getString("StartupLoading", args);
-	LLSplashScreen::show();
-	LLSplashScreen::update(splash_msg);
 
 	//LLVolumeMgr::initClass();
 	LLVolumeMgr* volume_manager = new LLVolumeMgr();
@@ -4321,12 +4319,10 @@ bool LLAppViewer::initCache()
 	
 	if (mPurgeCache && !read_only)
 	{
-		LLSplashScreen::update(LLTrans::getString("StartupClearingCache"));
 		purgeCache();
 	}
 
-	LLSplashScreen::update(LLTrans::getString("StartupInitializingTextureCache"));
-	
+
 	// Init the texture cache
 	// Allocate 80% of the cache size for textures	
 	const S32 MB = 1024 * 1024;
@@ -4353,8 +4349,6 @@ bool LLAppViewer::initCache()
 
 	LLVOCache::getInstance()->initCache(LL_PATH_CACHE, gSavedSettings.getU32("CacheNumberOfRegionsForObjects"), getObjectCacheVersion()) ;
 
-	LLSplashScreen::update(LLTrans::getString("StartupInitializingVFS"));
-	
 	// Init the VFS
 	vfs_size = llmin(vfs_size + extra, MAX_VFS_SIZE);
 	vfs_size = (vfs_size / MB) * MB; // make sure it is MB aligned

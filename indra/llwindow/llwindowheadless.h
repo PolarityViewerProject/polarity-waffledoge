@@ -103,17 +103,5 @@ public:
 private:
 };
 
-class LLSplashScreenHeadless : public LLSplashScreen
-{
-public:
-	LLSplashScreenHeadless() {};
-	virtual ~LLSplashScreenHeadless() {};
-
-	/*virtual*/ void showImpl() {};
-	/*virtual*/ void updateImpl(const std::string& mesg) {};
-	/*virtual*/ void hideImpl() {};
-
-};
-
 #endif //LL_LLWINDOWHEADLESS_H
 

@@ -825,8 +825,6 @@ bool idle_startup()
 		show_debug_menus();
 		display_startup();
 
-		// Hide the splash screen
-		LLSplashScreen::hide();
 		display_startup();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();

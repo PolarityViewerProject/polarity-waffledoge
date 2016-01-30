@@ -215,27 +215,6 @@ protected:
 	friend class LLWindowManager;
 };
 
-class LLSplashScreenWin32 : public LLSplashScreen
-{
-public:
-	LLSplashScreenWin32();
-	virtual ~LLSplashScreenWin32();
-
-	/*virtual*/ void showImpl();
-	/*virtual*/ void updateImpl(const std::string& mesg);
-	/*virtual*/ void hideImpl();
-
-#if LL_WINDOWS
-	static LRESULT CALLBACK windowProc(HWND h_wnd, UINT u_msg, 
-		WPARAM w_param, LPARAM l_param);
-#endif
-
-private:
-#if LL_WINDOWS
-	HWND mWindow;
-#endif
-};
-
 extern LLW32MsgCallback gAsyncMsgCallback;
 extern LPWSTR gIconResource;
 

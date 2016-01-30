@@ -34,7 +34,6 @@
 #include "llinstancetracker.h"
 #include "llsd.h"
 
-class LLSplashScreen;
 class LLPreeditor;
 class LLWindowCallbacks;
 
@@ -211,36 +210,6 @@ protected:
 	friend class LLWindowManager;
 };
 
-
-// LLSplashScreen
-// A simple, OS-specific splash screen that we can display
-// while initializing the application and before creating a GL
-// window
-
-
-class LLSplashScreen
-{
-public:
-	LLSplashScreen() { };
-	virtual ~LLSplashScreen() { };
-
-
-	// Call to display the window.
-	static LLSplashScreen * create();
-	static void show();
-	static void hide();
-	static void update(const std::string& string);
-
-	static bool isVisible();
-protected:
-	// These are overridden by the platform implementation
-	virtual void showImpl() = 0;
-	virtual void updateImpl(const std::string& string) = 0;
-	virtual void hideImpl() = 0;
-
-	static BOOL sVisible;
-
-};
 
 // Platform-neutral for accessing the platform specific message box
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type);

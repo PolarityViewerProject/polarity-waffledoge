@@ -1669,13 +1669,10 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 
 	if (NULL == mWindow)
 	{
-		LLSplashScreen::update(LLTrans::getString("StartupRequireDriverUpdate"));
-	
 		LL_WARNS("Window") << "Failed to create window, to be shutting Down, be sure your graphics driver is updated." << LL_ENDL ;
 
 		ms_sleep(5000) ; //wait for 5 seconds.
 
-		LLSplashScreen::update(LLTrans::getString("ShuttingDown"));
 #if LL_LINUX || LL_SOLARIS
 		LL_WARNS() << "Unable to create window, be sure screen is set at 32-bit color and your graphics driver is configured correctly.  See README-linux.txt or README-solaris.txt for further information."
 				<< LL_ENDL;
