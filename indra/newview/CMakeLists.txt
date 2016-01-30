@@ -48,7 +48,6 @@ include(UI)
 include(UnixInstall)
 include(ViewerMiscLibs)
 include(VisualLeakDetector)
-include(WinManifest)
 include(ZLIB)
 include(URIPARSER)
 
@@ -1512,9 +1511,9 @@ if (WINDOWS)
     configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
                     ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
                     )
-    set(viewer_RESOURCE_FILES
+    list(APPEND viewer_RESOURCE_FILES
+        ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
-        ${viewer_RESOURCE_FILES}
         )
 
     set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
@@ -1798,8 +1797,6 @@ if (WINDOWS)
       windows-crash-logger
       )
 
-    EMBED_MANIFEST(${VIEWER_BINARY_NAME} 1)
- 
     # sets the 'working directory' for debugging from visual studio.
     add_custom_command(
         TARGET ${VIEWER_BINARY_NAME} POST_BUILD

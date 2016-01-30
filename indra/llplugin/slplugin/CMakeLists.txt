@@ -6,7 +6,6 @@ include(LLPlugin)
 include(Linking)
 include(PluginAPI)
 include(LLMessage)
-include(WinManifest)
 
 include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}
@@ -45,20 +44,22 @@ if (SLPlugin_HEADER_FILES)
   list(APPEND SLPlugin_SOURCE_FILES ${SLPlugin_HEADER_FILES})
 endif (SLPlugin_HEADER_FILES)
 
+if (WINDOWS)
+  list(APPEND SLPlugin_SOURCE_FILES ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest)
+endif (WINDOWS)
+
 add_executable(SLPlugin
     WIN32
     MACOSX_BUNDLE
     ${SLPlugin_SOURCE_FILES}
 )
 
-if (WINDOWS)
-  EMBED_MANIFEST(SLPlugin 1)
-else ()
-set_target_properties(SLPlugin
-  PROPERTIES
-  MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
-  )
-endif ()
+if (DARWIN)
+  set_target_properties(SLPlugin
+    PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
+    )
+endif (DARWIN)
 
 target_link_libraries(SLPlugin
   ${LLPLUGIN_LIBRARIES}

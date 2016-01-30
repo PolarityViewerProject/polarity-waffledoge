@@ -13,7 +13,6 @@ include(LLXML)
 include(Linking)
 include(LLSharedLibs)
 include(GoogleBreakpad)
-include(WinManifest)
 
 include_directories(
     ${LLCOMMON_INCLUDE_DIRS}
@@ -32,6 +31,7 @@ include_directories(SYSTEM
 set(win_crash_logger_SOURCE_FILES
     win_crash_logger.cpp
     llcrashloggerwindows.cpp
+    ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest
     )
 
 set(win_crash_logger_HEADER_FILES
@@ -87,10 +87,6 @@ target_link_libraries(windows-crash-logger
     wininet
     Wldap32
     )
-    
-if (WINDOWS)
-    EMBED_MANIFEST(windows-crash-logger 1)
-endif (WINDOWS)
 
 if (LL_TESTS)
   ll_deploy_sharedlibs_command(windows-crash-logger)
