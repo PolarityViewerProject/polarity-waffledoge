@@ -205,14 +205,12 @@ void LLURLRequest::useProxy(bool use_proxy)
 
     if (use_proxy && (env_proxy == NULL))
     {
-        apr_status_t status;
-        LLAPRPool pool;
-		status = apr_env_get(&env_proxy, "ALL_PROXY", pool.getAPRPool());
-        if (status != APR_SUCCESS)
+        env_proxy = getenv("ALL_PROXY");
+        if (!env_proxy)
         {
-			status = apr_env_get(&env_proxy, "http_proxy", pool.getAPRPool());
+            env_proxy = getenv("http_proxy");
         }
-        if (status != APR_SUCCESS)
+        if (!env_proxy)
         {
            use_proxy = FALSE;
         }
