@@ -36,8 +36,6 @@
 #include "llquantize.h"
 #include "llstl.h"
 
-using namespace std;
-
 #define INCHES_TO_METERS 0.02540005f
 
 const F32 POSITION_KEYFRAME_THRESHOLD_SQUARED = 0.03f * 0.03f;

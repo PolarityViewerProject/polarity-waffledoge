@@ -42,7 +42,6 @@
 #include "llerror.h"
 #include "stringize.h"
 
-using namespace std;
 
 static std::string empty;
 
@@ -542,38 +541,38 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 	0};
 	static const int valid[] =
 	{	// valid combinations of open flags
-		ios_base::in,
-		ios_base::out,
-		ios_base::out | ios_base::trunc,
-		ios_base::out | ios_base::app,
-		ios_base::in | ios_base::binary,
-		ios_base::out | ios_base::binary,
-		ios_base::out | ios_base::trunc | ios_base::binary,
-		ios_base::out | ios_base::app | ios_base::binary,
-		ios_base::in | ios_base::out,
-		ios_base::in | ios_base::out | ios_base::trunc,
-		ios_base::in | ios_base::out | ios_base::app,
-		ios_base::in | ios_base::out | ios_base::binary,
-		ios_base::in | ios_base::out | ios_base::trunc
-			| ios_base::binary,
-		ios_base::in | ios_base::out | ios_base::app
-			| ios_base::binary,
+		std::ios_base::in,
+		std::ios_base::out,
+		std::ios_base::out | std::ios_base::trunc,
+		std::ios_base::out | std::ios_base::app,
+		std::ios_base::in  | std::ios_base::binary,
+		std::ios_base::out | std::ios_base::binary,
+		std::ios_base::out | std::ios_base::trunc | std::ios_base::binary,
+		std::ios_base::out | std::ios_base::app | std::ios_base::binary,
+		std::ios_base::in  | std::ios_base::out,
+		std::ios_base::in  | std::ios_base::out | std::ios_base::trunc,
+		std::ios_base::in  | std::ios_base::out | std::ios_base::app,
+		std::ios_base::in  | std::ios_base::out | std::ios_base::binary,
+		std::ios_base::in  | std::ios_base::out | std::ios_base::trunc
+			| std::ios_base::binary,
+		std::ios_base::in | std::ios_base::out | std::ios_base::app
+			| std::ios_base::binary,
 	0};
 
 	LLFILE *fp = 0;
 	int n;
-	ios_base::openmode atendflag = mode & ios_base::ate;
-	ios_base::openmode norepflag = mode & ios_base::_Noreplace;
+	std::ios_base::openmode atendflag = mode & std::ios_base::ate;
+	std::ios_base::openmode norepflag = mode & std::ios_base::_Noreplace;
 
-	if (mode & ios_base::_Nocreate)
-		mode |= ios_base::in;	// file must exist
-	mode &= ~(ios_base::ate | ios_base::_Nocreate | ios_base::_Noreplace);
+	if (mode & std::ios_base::_Nocreate)
+		mode |= std::ios_base::in;	// file must exist
+	mode &= ~(std::ios_base::ate | std::ios_base::_Nocreate | std::ios_base::_Noreplace);
 	for (n = 0; valid[n] != 0 && valid[n] != mode; ++n)
 		;	// look for a valid mode
 
 	if (valid[n] == 0)
 		return (0);	// no valid mode
-	else if (norepflag && mode & (ios_base::out || ios_base::app)
+	else if (norepflag && mode & (std::ios_base::out || std::ios_base::app)
 		&& (fp = LLFile::fopen(filename, "r")) != 0)	/* Flawfinder: ignore */
 		{	// file must not exist, close and fail
 		fclose(fp);
@@ -598,11 +597,11 @@ std::streamsize llifstream_size(llifstream& ifstr)
 {
 	if (!ifstr.is_open()) return 0;
 	std::streampos pos_old = ifstr.tellg();
-	ifstr.seekg(0, ios_base::beg);
+	ifstr.seekg(0, std::ios_base::beg);
 	std::streampos pos_beg = ifstr.tellg();
-	ifstr.seekg(0, ios_base::end);
+	ifstr.seekg(0, std::ios_base::end);
 	std::streampos pos_end = ifstr.tellg();
-	ifstr.seekg(pos_old, ios_base::beg);
+	ifstr.seekg(pos_old, std::ios_base::beg);
 	return pos_end - pos_beg;
 }
 
@@ -610,11 +609,11 @@ std::streamsize llofstream_size(llofstream& ofstr)
 {
 	if (!ofstr.is_open()) return 0;
 	std::streampos pos_old = ofstr.tellp();
-	ofstr.seekp(0, ios_base::beg);
+	ofstr.seekp(0, std::ios_base::beg);
 	std::streampos pos_beg = ofstr.tellp();
-	ofstr.seekp(0, ios_base::end);
+	ofstr.seekp(0, std::ios_base::end);
 	std::streampos pos_end = ofstr.tellp();
-	ofstr.seekp(pos_old, ios_base::beg);
+	ofstr.seekp(pos_old, std::ios_base::beg);
 	return pos_end - pos_beg;
 }
 

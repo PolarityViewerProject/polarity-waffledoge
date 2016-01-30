@@ -30,7 +30,6 @@
 #if	LL_WINDOWS
 #define _WIN32_DCOM
 #include <iostream>
-using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 #endif
@@ -62,7 +61,7 @@ S32 LLMachineID::init()
         hres =  CoInitializeEx(0, COINIT_MULTITHREADED); 
         if (FAILED(hres))
         {
-            LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x"   << hex << hres << LL_ENDL;
+            LL_DEBUGS("AppInit") << "Failed to initialize COM library. Error code = 0x"   << std::hex << hres << LL_ENDL;
             return 1;                  // Program has failed.
         }
 
@@ -88,7 +87,7 @@ S32 LLMachineID::init()
                           
         if (FAILED(hres))
         {
-            LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Failed to initialize security. Error code = 0x"  << std::hex << hres << LL_ENDL;
             CoUninitialize();
             return 1;                    // Program has failed.
         }
@@ -106,7 +105,7 @@ S32 LLMachineID::init()
      
         if (FAILED(hres))
         {
-            LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Failed to create IWbemLocator object." << " Err code = 0x" << std::hex << hres << LL_ENDL;
             CoUninitialize();
             return 1;                 // Program has failed.
         }
@@ -132,7 +131,7 @@ S32 LLMachineID::init()
         
         if (FAILED(hres))
         {
-            LL_WARNS("AppInit") << "Could not connect. Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Could not connect. Error code = 0x"  << std::hex << hres << LL_ENDL;
             pLoc->Release();     
             CoUninitialize();
             return 1;                // Program has failed.
@@ -157,7 +156,7 @@ S32 LLMachineID::init()
 
         if (FAILED(hres))
         {
-            LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x"   << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Could not set proxy blanket. Error code = 0x"   << std::hex << hres << LL_ENDL;
             pSvc->Release();
             pLoc->Release();     
             CoUninitialize();
@@ -178,7 +177,7 @@ S32 LLMachineID::init()
         
         if (FAILED(hres))
         {
-            LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x"  << hex << hres << LL_ENDL;
+            LL_WARNS("AppInit") << "Query for operating system name failed." << " Error code = 0x"  << std::hex << hres << LL_ENDL;
             pSvc->Release();
             pLoc->Release();
             CoUninitialize();
