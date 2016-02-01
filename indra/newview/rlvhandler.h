@@ -20,9 +20,7 @@
 #include <stack>
 
 #include "rlvcommon.h"
-#if LL_GNUC
-#include "rlvhelper.h"		// Needed to make GCC happy
-#endif // LL_GNUC
+#include "rlvhelper.h"
 
 // ============================================================================
 
