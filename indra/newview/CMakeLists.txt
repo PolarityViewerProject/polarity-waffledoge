@@ -1558,8 +1558,13 @@ if (WINDOWS)
     configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
                     ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
                     )
+    if (SANDY_FIX)
+        set(manifest_file "compatibility_sandy.manifest")
+    else (SANDY_FIX)
+        set(manifest_file "compatibility.manifest")
+    endif (SANDY_FIX)
     list(APPEND viewer_RESOURCE_FILES
-        ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest
+        ${CMAKE_SOURCE_DIR}/tools/manifests/${manifest_file}
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
         )
 
