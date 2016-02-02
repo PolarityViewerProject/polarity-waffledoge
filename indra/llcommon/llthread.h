@@ -45,7 +45,6 @@ class LL_COMMON_API LLThread
 {
 private:
 	friend class LLMutex;
-	static uintptr_t sIDIter;
 
 public:
 	typedef enum e_thread_status
@@ -62,7 +61,7 @@ public:
 	bool isQuitting() const { return (QUITTING == mStatus); }
 	bool isStopped() const { return (STOPPED == mStatus); }
 	
-	static uintptr_t currentID(); // Return ID of current thread
+	static boost::thread::id currentID(); // Return ID of current thread
 	static void yield(); // Static because it can be called by the main thread, which doesn't have an LLThread data structure.
 	
 public:
@@ -84,13 +83,6 @@ public:
 	// this kicks off the apr thread
 	void start(void);
 
-	uintptr_t getID() const { return mID; }
-
-	// Called by threads *not* created via LLThread to register some
-	// internal state used by LLMutex.  You must call this once early
-	// in the running thread to prevent collisions with the main thread.
-	static void registerThreadID();
-	
 private:
 	BOOL				mPaused;
 	
@@ -105,7 +97,6 @@ protected:
 
 
 	EThreadStatus		mStatus;
-	uintptr_t			mID;
 	LLTrace::ThreadRecorder* mRecorder;
 
 	void setQuitting();

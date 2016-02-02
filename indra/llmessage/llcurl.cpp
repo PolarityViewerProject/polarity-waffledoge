@@ -1832,7 +1832,7 @@ void LLCurl::ssl_locking_callback(int mode, int type, const char *file, int line
 //static
 unsigned long LLCurl::ssl_thread_id(void)
 {
-	return LLThread::currentID();
+	return boost::hash<boost::thread::id>()(LLThread::currentID());
 }
 #endif
 
