@@ -44,6 +44,7 @@
 #include <openssl/asn1.h>
 #include <openssl/rand.h>
 #include <openssl/err.h>
+#include <openssl/bn.h>
 #include <iostream>
 #include <iomanip>
 #include <time.h>
