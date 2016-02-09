@@ -105,6 +105,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 #endif
 
 void parse_glsl_version(S32& major, S32& minor);
+std::string parse_gl_ext_to_str(F32 glversion);
 
 void ll_init_fail_log(std::string filename)
 {
