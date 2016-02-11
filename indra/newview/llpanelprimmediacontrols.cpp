@@ -63,11 +63,15 @@
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
 
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 // Functions pulled from pipeline.cpp
 glh::matrix4f glh_get_current_modelview();
 glh::matrix4f glh_get_current_projection();
 // Functions pulled from llviewerdisplay.cpp
-bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
+bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
@@ -605,13 +609,14 @@ void LLPanelPrimMediaControls::updateShape()
 		vert_it = vect_face.begin();
 		vert_end = vect_face.end();
 		
-		glh::matrix4f mat;
+		glm::mat4 mat;
 		if (!is_hud) 
 		{
-			mat = glh_get_current_projection() * glh_get_current_modelview();
+			mat = glm::make_mat4(glh_get_current_projection().m) * glm::make_mat4(glh_get_current_modelview().m);
 		}
-		else {
-			glh::matrix4f proj, modelview;
+		else 
+		{
+			glm::mat4 proj, modelview;
 			if (get_hud_matrices(proj, modelview))
 				mat = proj * modelview;
 		}
@@ -620,11 +625,16 @@ void LLPanelPrimMediaControls::updateShape()
 		for(; vert_it != vert_end; ++vert_it)
 		{
 			// project silhouette vertices into screen space
-			glh::vec3f screen_vert = glh::vec3f(vert_it->mV); 
-			mat.mult_matrix_vec(screen_vert);
-			
+			glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
+			const F32 w = screen_vert[0] * mat[0][3] + screen_vert[1] * mat[1][3] + screen_vert[2] * mat[2][3] + mat[3][3];
+			screen_vert = {
+				(screen_vert[0] * mat[0][0] + screen_vert[1] * mat[1][0] + screen_vert[2] * mat[2][0] + mat[3][0]) / w,
+				(screen_vert[0] * mat[0][1] + screen_vert[1] * mat[1][1] + screen_vert[2] * mat[2][1] + mat[3][1]) / w,
+				(screen_vert[0] * mat[0][2] + screen_vert[1] * mat[1][2] + screen_vert[2] * mat[2][2] + mat[3][2]) / w 
+			};
+
 			// add to screenspace bounding box
-			update_min_max(min, max, LLVector3(screen_vert.v));
+			update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));
 		}
 		
 		// convert screenspace bbox to pixels (in screen coords)
