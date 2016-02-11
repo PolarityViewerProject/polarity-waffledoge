@@ -36,12 +36,12 @@
 #include "lltexture.h"
 #include "llshadermgr.h"
 
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4, glm::ivec4
-#include <glm/mat4x4.hpp> // glm::mat4
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
-#include <glm/gtc/type_ptr.hpp> // glm::value_ptr
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 LLRender gGL;
 
@@ -1015,12 +1015,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 	else
 	{ //transform direction by current modelview matrix
 		glm::vec3 dir(glm::make_vec3(direction.mV));
-		const glm::mat4& mvm = gGL.getModelviewMatrix();
-		dir = { 
-			dir[0] * mvm[0][0] + dir[1] * mvm[1][0] + dir[2] * mvm[2][0],
-			dir[0] * mvm[0][1] + dir[1] * mvm[1][1] + dir[2] * mvm[2][1],
-			dir[0] * mvm[0][2] + dir[1] * mvm[1][2] + dir[2] * mvm[2][2], 
-		};
+		dir = glm::mat3(gGL.getModelviewMatrix()) * dir;
 
 		mSpotDirection.set(glm::value_ptr(dir));
 	}
@@ -1220,16 +1215,7 @@ void LLRender::syncMatrices()
 					cached_normal_hash = mMatHash[i];
 				}
 
-				F32* normp = glm::value_ptr(cached_normal);
-
-				F32 norm_mat [] =
-				{
-					normp[0], normp[1], normp[2],
-					normp[4], normp[5], normp[6],
-					normp[8], normp[9], normp[10]
-				};
-
-				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
+				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(glm::mat3(cached_normal)));
 			}
 
 			//update MVP matrix
