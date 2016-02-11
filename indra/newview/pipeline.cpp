@@ -116,6 +116,8 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 
+#include <glm/gtc/type_ptr.hpp>
+
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -2473,7 +2475,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	
 	glh::matrix4f modelview = glh_get_last_modelview();
 	glh::matrix4f proj = glh_get_last_projection();
-	LLGLUserClipPlane clip(plane, modelview, proj, water_clip != 0 && LLPipeline::sReflectionRender);
+	LLGLUserClipPlane clip(plane, glm::make_mat4(modelview.m), glm::make_mat4(proj.m), water_clip != 0 && LLPipeline::sReflectionRender);
 
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 
@@ -9822,7 +9824,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 						}
 					}
 
-					LLGLUserClipPlane clip_plane(plane, mat, projection);
+					LLGLUserClipPlane clip_plane(plane, glm::make_mat4(mat.m), glm::make_mat4(projection.m));
 					LLGLDisable cull(GL_CULL_FACE);
 					updateCull(camera, ref_result, -water_clip, &plane);
 					stateSort(camera, ref_result);
@@ -9833,7 +9835,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					if (RenderReflectionDetail > 0)
 					{
 						gPipeline.grabReferences(ref_result);
-						LLGLUserClipPlane clip_plane(plane, mat, projection);
+						LLGLUserClipPlane clip_plane(plane, glm::make_mat4(mat.m), glm::make_mat4(projection.m));
 
 						if (LLPipeline::sRenderDeferred && materials_in_water)
 						{							
@@ -9900,7 +9902,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 				mat = glh_get_current_modelview();
 				LLPlane plane(-pnorm, -(pd+pad));
 
-				LLGLUserClipPlane clip_plane(plane, mat, projection);
+				LLGLUserClipPlane clip_plane(plane, glm::make_mat4(mat.m), glm::make_mat4(projection.m));
 				static LLCullResult result;
 				updateCull(camera, result, water_clip, &plane);
 				stateSort(camera, result);
