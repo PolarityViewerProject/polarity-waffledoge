@@ -1759,7 +1759,7 @@ void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
     glm::vec4 oplane(a, b, c, d);
     glm::vec4 cplane = invtrans_MVP * oplane;
 
-    cplane /= fabs(cplane[2]);
+    cplane /= fabs(cplane[2]);  // normalize such that depth is not scaled
     cplane[3] -= 1;
 
     if (cplane[2] < 0)
