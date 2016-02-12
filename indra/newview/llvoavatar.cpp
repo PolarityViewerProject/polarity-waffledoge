@@ -31,6 +31,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <sstream>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "llaudioengine.h"
 #include "noise.h"
@@ -1530,36 +1535,56 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		{
 			mCollisionVolumes[i].updateWorldMatrix();
 
-			glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
-			glh::matrix4f inverse = mat.inverse();
-			glh::matrix4f norm_mat = inverse.transpose();
+			glm::mat4 mat(glm::make_mat4((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix));
+			glm::mat4 inverse = glm::inverse(mat);
+			glm::mat4 norm_mat = glm::transpose(inverse);
 
-			glh::vec3f p1(start.getF32ptr());
-			glh::vec3f p2(end.getF32ptr());
+			glm::vec3 p1(glm::make_vec3(start.getF32ptr()));
+			glm::vec3 p2(glm::make_vec3(end.getF32ptr()));
 
-			inverse.mult_matrix_vec(p1);
-			inverse.mult_matrix_vec(p2);
+			F32 w = p1[0] * inverse[0][3] + p1[1] * inverse[1][3] + p1[2] * inverse[2][3] + inverse[3][3];
+			p1 = {
+				(p1[0] * inverse[0][0] + p1[1] * inverse[1][0] + p1[2] * inverse[2][0] + inverse[3][0]) / w,
+				(p1[0] * inverse[0][1] + p1[1] * inverse[1][1] + p1[2] * inverse[2][1] + inverse[3][1]) / w,
+				(p1[0] * inverse[0][2] + p1[1] * inverse[1][2] + p1[2] * inverse[2][2] + inverse[3][2]) / w
+			};
+
+			w = p2[0] * inverse[0][3] + p2[1] * inverse[1][3] + p2[2] * inverse[2][3] + inverse[3][3];
+			p2 = {
+				(p2[0] * inverse[0][0] + p2[1] * inverse[1][0] + p2[2] * inverse[2][0] + inverse[3][0]) / w,
+				(p2[0] * inverse[0][1] + p2[1] * inverse[1][1] + p2[2] * inverse[2][1] + inverse[3][1]) / w,
+				(p2[0] * inverse[0][2] + p2[1] * inverse[1][2] + p2[2] * inverse[2][2] + inverse[3][2]) / w
+			};
 
 			LLVector3 position;
 			LLVector3 norm;
-
-			if (linesegment_sphere(LLVector3(p1.v), LLVector3(p2.v), LLVector3(0,0,0), 1.f, position, norm))
+			if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0, 0, 0), 1.f, position, norm))
 			{
-				glh::vec3f res_pos(position.mV);
-				mat.mult_matrix_vec(res_pos);
-				
+				glm::vec3 res_pos(glm::make_vec3(position.mV));
+				w = res_pos[0] * mat[0][3] + res_pos[1] * mat[1][3] + res_pos[2] * mat[2][3] + mat[3][3];
+				res_pos = {
+					(res_pos[0] * mat[0][0] + res_pos[1] * mat[1][0] + res_pos[2] * mat[2][0] + mat[3][0]) / w,
+					(res_pos[0] * mat[0][1] + res_pos[1] * mat[1][1] + res_pos[2] * mat[2][1] + mat[3][1]) / w,
+					(res_pos[0] * mat[0][2] + res_pos[1] * mat[1][2] + res_pos[2] * mat[2][2] + mat[3][2]) / w
+				};
+
 				norm.normalize();
-				glh::vec3f res_norm(norm.mV);
-				norm_mat.mult_matrix_dir(res_norm);
+				glm::vec3 res_norm(glm::make_vec3(norm.mV));
+				w = res_norm[0] * norm_mat[0][3] + res_norm[1] * norm_mat[1][3] + res_norm[2] * norm_mat[2][3] + norm_mat[3][3];
+				res_norm = {
+					(res_norm[0] * norm_mat[0][0] + res_norm[1] * norm_mat[1][0] + res_norm[2] * norm_mat[2][0] + norm_mat[3][0]) / w,
+					(res_norm[0] * norm_mat[0][1] + res_norm[1] * norm_mat[1][1] + res_norm[2] * norm_mat[2][1] + norm_mat[3][1]) / w,
+					(res_norm[0] * norm_mat[0][2] + res_norm[1] * norm_mat[1][2] + res_norm[2] * norm_mat[2][2] + norm_mat[3][2]) / w
+				};
 
 				if (intersection)
 				{
-					intersection->load3(res_pos.v);
+					intersection->load3(glm::value_ptr(res_pos));
 				}
 
 				if (normal)
 				{
-					normal->load3(res_norm.v);
+					normal->load3(glm::value_ptr(res_norm));
 				}
 
 				return TRUE;
