@@ -116,6 +116,11 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #ifdef _DEBUG
@@ -11364,19 +11369,21 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		F32 distance = (pos-camera.getOrigin()).length();
 		F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
 		F32 aspect = tdim.mV[0]/tdim.mV[1];
-		glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);
-		glh_set_current_projection(persp);
-		gGL.loadMatrix(persp.m);
+		glm::mat4 persp = glm::perspective(glm::radians(fov), aspect, 1.f, 256.f);
+		glh_set_current_projection(glh::matrix4f(glm::value_ptr(persp)));
+		gGL.loadMatrix(glm::value_ptr(persp));
 
 		gGL.matrixMode(LLRender::MM_MODELVIEW);
 		gGL.pushMatrix();
-		glh::matrix4f mat;
-		camera.getOpenGLTransform(mat.m);
 
-		mat = glh::matrix4f((GLfloat*) OGL_TO_CFR_ROTATION) * mat;
+		GLfloat			ogl_matrix[16];
+		camera.getOpenGLTransform(ogl_matrix);
 
-		gGL.loadMatrix(mat.m);
-		glh_set_current_modelview(mat);
+		glm::mat4 mat(glm::make_mat4((F32*) OGL_TO_CFR_ROTATION));
+		mat = mat * glm::make_mat4(ogl_matrix);
+
+		gGL.loadMatrix(glm::value_ptr(mat));
+		glh_set_current_modelview(glh::matrix4f(glm::value_ptr(mat)));
 
 		glClearColor(0.0f,0.0f,0.0f,0.0f);
 		gGL.setColorMask(true, true);
