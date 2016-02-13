@@ -11168,11 +11168,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			mSunShadowMatrix[i+4] = trans*proj[i + 4] * view[i + 4] * inv_view;
 			
-			for (U32 j = 0; j < 16; j++)
-			{
-				gGLLastModelView[j] = glm::value_ptr(mShadowModelview[i+4])[j];
-				gGLLastProjection[j] = glm::value_ptr(mShadowProjection[i+4])[j];
-			}
+			memcpy(gGLLastModelView, glm::value_ptr(mShadowModelview[i + 4]), sizeof(F32) * 16);
+			memcpy(gGLLastProjection, glm::value_ptr(mShadowProjection[i + 4]), sizeof(F32) * 16);
 
 			mShadowModelview[i+4] = view[i+4];
 			mShadowProjection[i+4] = proj[i+4];
