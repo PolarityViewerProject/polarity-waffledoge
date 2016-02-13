@@ -424,7 +424,6 @@ void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 scree
 BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoordGL &out_point, const BOOL clamp) const
 {
 	BOOL in_front = TRUE;
-	GLdouble	x, y, z;			// object's window coords, GL-style
 
 	LLVector3 dir_to_point = pos_agent - getOrigin();
 	dir_to_point /= dir_to_point.magVec();
@@ -441,36 +440,22 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		}
 	}
 
-	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
-	S32	viewport[4];
-	viewport[0] = world_view_rect.mLeft;
-	viewport[1] = world_view_rect.mBottom;
-	viewport[2] = world_view_rect.getWidth();
-	viewport[3] = world_view_rect.getHeight();
-
-	F64 mdlv[16];
-	F64 proj[16];
-
-	for (U32 i = 0; i < 16; i++)
+	if (pos_agent.mV[VZ] != 0.f)
 	{
-		mdlv[i] = (F64) gGLModelView[i];
-		proj[i] = (F64) gGLProjection[i];
-	}
+		LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
+		glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
+		glm::vec3 window_coord = glm::project(glm::make_vec3(pos_agent.mV), glm_get_current_modelview(), glm_get_current_projection(), viewport);
 
-	if (GL_TRUE == gluProject(pos_agent.mV[VX], pos_agent.mV[VY], pos_agent.mV[VZ],
-								mdlv, proj, (GLint*)viewport,
-								&x, &y, &z))
-	{
 		// convert screen coordinates to virtual UI coordinates
-		x /= gViewerWindow->getDisplayScale().mV[VX];
-		y /= gViewerWindow->getDisplayScale().mV[VY];
+		window_coord[0] /= gViewerWindow->getDisplayScale().mV[VX];
+		window_coord[1] /= gViewerWindow->getDisplayScale().mV[VY];
 
 		// should now have the x,y coords of grab_point in screen space
 		LLRect world_rect = gViewerWindow->getWorldViewRectScaled();
 
 		// convert to pixel coordinates
-		S32 int_x = lltrunc(x);
-		S32 int_y = lltrunc(y);
+		S32 int_x = lltrunc(window_coord[0]);
+		S32 int_y = lltrunc(window_coord[1]);
 
 		BOOL valid = TRUE;
 
@@ -553,54 +538,38 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 		in_front = FALSE;
 	}
 
-	LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
-	S32	viewport[4];
-	viewport[0] = world_view_rect.mLeft;
-	viewport[1] = world_view_rect.mBottom;
-	viewport[2] = world_view_rect.getWidth();
-	viewport[3] = world_view_rect.getHeight();
-	GLdouble	x, y, z;			// object's window coords, GL-style
-
-	F64 mdlv[16];
-	F64 proj[16];
-
-	for (U32 i = 0; i < 16; i++)
+	if(pos_agent.mV[VZ] != 0.f)
 	{
-		mdlv[i] = (F64) gGLModelView[i];
-		proj[i] = (F64) gGLProjection[i];
-	}
+		LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
+		glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
+		glm::vec3 window_coord = glm::project(glm::make_vec3(pos_agent.mV), glm_get_current_modelview(), glm_get_current_projection(), viewport);
 
-	if (GL_TRUE == gluProject(pos_agent.mV[VX], pos_agent.mV[VY],
-							  pos_agent.mV[VZ], mdlv,
-							  proj, (GLint*)viewport,
-							  &x, &y, &z))
-	{
-		x /= gViewerWindow->getDisplayScale().mV[VX];
-		y /= gViewerWindow->getDisplayScale().mV[VY];
+		// convert screen coordinates to virtual UI coordinates
+		window_coord[0] /= gViewerWindow->getDisplayScale().mV[VX];
+		window_coord[1] /= gViewerWindow->getDisplayScale().mV[VY];
 		// should now have the x,y coords of grab_point in screen space
 		const LLRect& world_rect = gViewerWindow->getWorldViewRectScaled();
 
 		// ...sanity check
-		S32 int_x = lltrunc(x);
-		S32 int_y = lltrunc(y);
+		S32 int_x = lltrunc(window_coord[0]);
+		S32 int_y = lltrunc(window_coord[1]);
 
 		// find the center
-		GLdouble center_x = (GLdouble)world_rect.getCenterX();
-		GLdouble center_y = (GLdouble)world_rect.getCenterY();
+		F32 center_x = (F32)world_rect.getCenterX();
+		F32 center_y = (F32)world_rect.getCenterY();
 
-		if (x == center_x  &&  y == center_y)
+		if (window_coord[0] == center_x  &&  window_coord[1] == center_y)
 		{
 			// can't project to edge from exact center
 			return FALSE;
 		}
 
 		// find the line from center to local
-		GLdouble line_x = x - center_x;
-		GLdouble line_y = y - center_y;
+		F32 line_x = window_coord[0] - center_x;
+		F32 line_y = window_coord[1] - center_y;
 
 		int_x = lltrunc(center_x);
 		int_y = lltrunc(center_y);
-
 
 		if (0.f == line_x)
 		{
@@ -617,11 +586,11 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 		else if (0 == world_rect.getWidth())
 		{
 			// the diagonal slope of the view is undefined
-			if (y < world_rect.mBottom)
+			if (window_coord[1] < world_rect.mBottom)
 			{
 				int_y = world_rect.mBottom;
 			}
-			else if ( y > world_rect.mTop)
+			else if (window_coord[1] > world_rect.mTop)
 			{
 				int_y = world_rect.mTop;
 			}
@@ -643,7 +612,7 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 					// top
 					int_y = world_rect.mTop;
 				}
-				int_x = lltrunc(((GLdouble)int_y - center_y) / line_slope + center_x);
+				int_x = lltrunc(((F32)int_y - center_y) / line_slope + center_x);
 			}
 			else if (fabs(line_slope) < rect_slope)
 			{
@@ -657,7 +626,7 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 					// right
 					int_x = world_rect.mRight;
 				}
-				int_y = lltrunc(((GLdouble)int_x - center_x) * line_slope + center_y);
+				int_y = lltrunc(((F32)int_x - center_x) * line_slope + center_y);
 			}
 			else
 			{
