@@ -333,7 +333,7 @@ void LLInventoryModelBackgroundFetch::setAllFoldersFetched()
 	}
 	mFolderFetchActive = false;
 	mBackgroundFetchActive = false;
-	LL_INFOS(LOG_INV) << "Inventory background fetch completed" << LL_ENDL;
+	LL_INFOS_ONCE(LOG_INV) << "Inventory background fetch completed" << LL_ENDL;
 }
 
 void LLInventoryModelBackgroundFetch::backgroundFetchCB(void *)
