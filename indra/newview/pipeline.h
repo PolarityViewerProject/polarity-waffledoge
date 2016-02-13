@@ -40,6 +40,7 @@
 #include "llrendertarget.h"
 
 #include <stack>
+#include <glm/mat4x4.hpp>
 
 class LLViewerTexture;
 class LLFace;
@@ -66,9 +67,6 @@ glh::matrix4f glh_get_current_modelview();
 void glh_set_current_modelview(const glh::matrix4f& mat);
 glh::matrix4f glh_get_current_projection();
 void glh_set_current_projection(glh::matrix4f& mat);
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
-glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
-glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
 
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
@@ -292,7 +290,7 @@ public:
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
+	void renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -619,15 +617,15 @@ public:
 	LLVector3				mShadowFrustOrigin[4];
 	LLCamera				mShadowCamera[8];
 	LLVector3				mShadowExtents[4][2];
-	glh::matrix4f			mSunShadowMatrix[6];
-	glh::matrix4f			mShadowModelview[6];
-	glh::matrix4f			mShadowProjection[6];
-	glh::matrix4f			mGIMatrix;
-	glh::matrix4f			mGIMatrixProj;
-	glh::matrix4f			mGIModelview;
-	glh::matrix4f			mGIProjection;
-	glh::matrix4f			mGINormalMatrix;
-	glh::matrix4f			mGIInvProj;
+	glm::mat4				mSunShadowMatrix[6];
+	glm::mat4				mShadowModelview[6];
+	glm::mat4				mShadowProjection[6];
+	glm::mat4				mGIMatrix;
+	glm::mat4				mGIMatrixProj;
+	glm::mat4				mGIModelview;
+	glm::mat4				mGIProjection;
+	glm::mat4				mGINormalMatrix;
+	glm::mat4				mGIInvProj;
 	LLVector2				mGIRange;
 	F32						mGILightRadius;
 	

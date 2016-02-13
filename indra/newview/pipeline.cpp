@@ -350,17 +350,6 @@ void glh_set_current_projection(glh::matrix4f& mat)
 	glh_copy_matrix(mat, gGLProjection);
 }
 
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
-{
-	glh::matrix4f ret(
-		2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
-		0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
-		0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
-		0.f, 0.f, 0.f, 1.f);
-
-	return ret;
-}
-
 void display_update_camera();
 //----------------------------------------
 
@@ -8283,15 +8272,12 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	stop_glerror();
 
 	F32 mat[16*6];
-	for (U32 i = 0; i < 16; i++)
-	{
-		mat[i] = mSunShadowMatrix[0].m[i];
-		mat[i+16] = mSunShadowMatrix[1].m[i];
-		mat[i+32] = mSunShadowMatrix[2].m[i];
-		mat[i+48] = mSunShadowMatrix[3].m[i];
-		mat[i+64] = mSunShadowMatrix[4].m[i];
-		mat[i+80] = mSunShadowMatrix[5].m[i];
-	}
+	memcpy(mat, glm::value_ptr(mSunShadowMatrix[0]), sizeof(F32)*16);
+	memcpy(mat+16, glm::value_ptr(mSunShadowMatrix[1]), sizeof(F32) * 16);
+	memcpy(mat+32, glm::value_ptr(mSunShadowMatrix[2]), sizeof(F32) * 16);
+	memcpy(mat+48, glm::value_ptr(mSunShadowMatrix[3]), sizeof(F32) * 16);
+	memcpy(mat+64, glm::value_ptr(mSunShadowMatrix[4]), sizeof(F32) * 16);
+	memcpy(mat+80, glm::value_ptr(mSunShadowMatrix[5]), sizeof(F32) * 16);
 
 	shader.uniformMatrix4fv(LLShaderMgr::DEFERRED_SHADOW_MATRIX, 6, FALSE, mat);
 
@@ -10059,7 +10045,7 @@ static LLTrace::BlockTimerStatHandle FTM_SHADOW_RENDER("Render Shadows");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_ALPHA("Alpha Shadow");
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_SIMPLE("Simple Shadow");
 
-void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion, U32 target_width)
+void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCamera& shadow_cam, LLCullResult &result, BOOL use_shader, BOOL use_occlusion, U32 target_width)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_RENDER);
 
@@ -10109,7 +10095,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	//generate shadow map
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	gGL.loadMatrix(proj.m);
+	gGL.loadMatrix(glm::value_ptr(proj));
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 	gGL.loadMatrix(gGLModelView);
@@ -10572,8 +10558,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	LLVector3 lightDir = -mSunDir;
 	lightDir.normVec();
-
-	glh::vec3f light_dir(lightDir.mV);
 
 	//create light space camera matrix
 	
@@ -11045,17 +11029,13 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			glh_set_current_modelview(glh::matrix4f(glm::value_ptr(view[j])));
 			glh_set_current_projection(glh::matrix4f(glm::value_ptr(proj[j])));
 
-			for (U32 i = 0; i < 16; i++)
-			{
-				gGLLastModelView[i] = mShadowModelview[j].m[i];
-				gGLLastProjection[i] = mShadowProjection[j].m[i];
-			}
+			memcpy(gGLLastModelView, glm::value_ptr(mShadowModelview[j]), sizeof(F32) * 16);
+			memcpy(gGLLastProjection, glm::value_ptr(mShadowProjection[j]), sizeof(F32) * 16);
 
-			mShadowModelview[j] = glh::matrix4f(glm::value_ptr(view[j]));
-			mShadowProjection[j] = glh::matrix4f(glm::value_ptr(proj[j]));
+			mShadowModelview[j] = view[j];
+			mShadowProjection[j] = proj[j];
 
-			glm::mat4 temp = trans * proj[j] * view[j] * inv_view;
-			mSunShadowMatrix[j] = glh::matrix4f(glm::value_ptr(temp));
+			mSunShadowMatrix[j] = trans * proj[j] * view[j] * inv_view;
 		
 			stop_glerror();
 
@@ -11068,7 +11048,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			{
 				static LLCullResult result[4];
 
-				renderShadow(glh::matrix4f(glm::value_ptr(view[j])), glh::matrix4f(glm::value_ptr(proj[j])), shadow_cam, result[j], TRUE, TRUE, target_width);
+				renderShadow(view[j], proj[j], shadow_cam, result[j], TRUE, TRUE, target_width);
 			}
 
 			mShadow[j].flush();
@@ -11186,17 +11166,16 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			glh_set_current_modelview(glh::matrix4f(glm::value_ptr(view[i+4])));
 			glh_set_current_projection(glh::matrix4f(glm::value_ptr(proj[i+4])));
 
-			glm::mat4 tempmat = trans*proj[i + 4] * view[i + 4] * inv_view;
-			mSunShadowMatrix[i+4] = glh::matrix4f(glm::value_ptr(tempmat));
+			mSunShadowMatrix[i+4] = trans*proj[i + 4] * view[i + 4] * inv_view;
 			
 			for (U32 j = 0; j < 16; j++)
 			{
-				gGLLastModelView[j] = mShadowModelview[i+4].m[j];
-				gGLLastProjection[j] = mShadowProjection[i+4].m[j];
+				gGLLastModelView[j] = glm::value_ptr(mShadowModelview[i+4])[j];
+				gGLLastProjection[j] = glm::value_ptr(mShadowProjection[i+4])[j];
 			}
 
-			mShadowModelview[i+4] = glh::matrix4f(glm::value_ptr(view[i+4]));
-			mShadowProjection[i+4] = glh::matrix4f(glm::value_ptr(proj[i+4]));
+			mShadowModelview[i+4] = view[i+4];
+			mShadowProjection[i+4] = proj[i+4];
 
 			LLCamera shadow_cam = camera;
 			shadow_cam.setFar(far_clip);
@@ -11216,7 +11195,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			LLViewerCamera::sCurCameraID = (LLViewerCamera::eCameraID)(LLViewerCamera::CAMERA_SHADOW0 + i + 4);
 
-			renderShadow(glh::matrix4f(glm::value_ptr(view[i+4])), glh::matrix4f(glm::value_ptr(proj[i+4])), shadow_cam, result[i], FALSE, FALSE, target_width);
+			renderShadow(view[i+4], proj[i+4], shadow_cam, result[i], FALSE, FALSE, target_width);
 
 			mShadow[i+4].flush();
  		}

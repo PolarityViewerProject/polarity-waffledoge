@@ -65,32 +65,6 @@ LLTrace::CountStatHandle<> LLViewerCamera::sAngularVelocityStat("camera_angular_
 
 LLViewerCamera::eCameraID LLViewerCamera::sCurCameraID = LLViewerCamera::CAMERA_WORLD;
 
-//glu pick matrix implementation borrowed from Mesa3D
-glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
-{
-	GLfloat f = 1.f/tanf(DEG_TO_RAD*fovy/2.f);
-
-	return glh::matrix4f(f/aspect, 0, 0, 0,
-						 0, f, 0, 0,
-						 0, 0, (zFar+zNear)/(zNear-zFar), (2.f*zFar*zNear)/(zNear-zFar),
-						 0, 0, -1.f, 0);
-}
-
-glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up)
-{
-	LLVector3 f = center-eye;
-	f.normVec();
-	up.normVec();
-	LLVector3 s = f % up;
-	LLVector3 u = s % f;
-
-	return glh::matrix4f(s[0], s[1], s[2], 0,
-					  u[0], u[1], u[2], 0,
-					  -f[0], -f[1], -f[2], 0,
-					  0, 0, 0, 1);
-	
-}
-
 // Build time optimization, generate this once in .cpp file
 template class LLViewerCamera* LLSingleton<class LLViewerCamera>::getInstance();
 
