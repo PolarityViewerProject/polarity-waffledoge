@@ -1207,15 +1207,15 @@ bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4 &m
 		
 		F32 scale_x = (F32)gViewerWindow->getWorldViewWidthScaled() / (F32)screen_region.getWidth();
 		F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
-		proj = glm::scale(proj, glm::vec3(scale_x, scale_y, 1.f));
 		proj = glm::translate(proj,
 			glm::vec3(clamp_rescale((F32) (screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32) gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
 				clamp_rescale((F32) (screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32) gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
 				0.f));
+		proj = glm::scale(proj, glm::vec3(scale_x, scale_y, 1.f));
 		
 		model = glm::make_mat4(OGL_TO_CFR_ROTATION);
-		model = glm::scale(model, glm::vec3(zoom_level));
 		model = glm::translate(model, glm::vec3(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
+		model = glm::scale(model, glm::vec3(zoom_level));
 
 		return TRUE;
 	}
