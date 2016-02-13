@@ -68,8 +68,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 // Functions pulled from pipeline.cpp
-glh::matrix4f glh_get_current_modelview();
-glh::matrix4f glh_get_current_projection();
+glm::mat4 glm_get_current_modelview();
+glm::mat4 glm_get_current_projection();
 // Functions pulled from llviewerdisplay.cpp
 bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model);
 
@@ -612,7 +612,7 @@ void LLPanelPrimMediaControls::updateShape()
 		glm::mat4 mat;
 		if (!is_hud) 
 		{
-			mat = glm::make_mat4(glh_get_current_projection().m) * glm::make_mat4(glh_get_current_modelview().m);
+			mat = glm_get_current_projection() * glm_get_current_modelview();
 		}
 		else 
 		{

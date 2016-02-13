@@ -43,7 +43,6 @@
 #include "llinstancetracker.h"
 
 #include "llglheaders.h"
-#include "glh/glh_linear.h"
 #include <glm/mat4x4.hpp>
 
 extern BOOL gDebugGL;
