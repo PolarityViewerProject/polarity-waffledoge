@@ -41,6 +41,7 @@
 #include "noise.h"
 #include "sound_ids.h"
 #include "raytrace.h"
+#include "llglmhelpers.h"
 
 #include "llagent.h" //  Get state values from here
 #include "llagentcamera.h"
@@ -1542,40 +1543,19 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			glm::vec3 p1(glm::make_vec3(start.getF32ptr()));
 			glm::vec3 p2(glm::make_vec3(end.getF32ptr()));
 
-			F32 w = p1[0] * inverse[0][3] + p1[1] * inverse[1][3] + p1[2] * inverse[2][3] + inverse[3][3];
-			p1 = {
-				(p1[0] * inverse[0][0] + p1[1] * inverse[1][0] + p1[2] * inverse[2][0] + inverse[3][0]) / w,
-				(p1[0] * inverse[0][1] + p1[1] * inverse[1][1] + p1[2] * inverse[2][1] + inverse[3][1]) / w,
-				(p1[0] * inverse[0][2] + p1[1] * inverse[1][2] + p1[2] * inverse[2][2] + inverse[3][2]) / w
-			};
-
-			w = p2[0] * inverse[0][3] + p2[1] * inverse[1][3] + p2[2] * inverse[2][3] + inverse[3][3];
-			p2 = {
-				(p2[0] * inverse[0][0] + p2[1] * inverse[1][0] + p2[2] * inverse[2][0] + inverse[3][0]) / w,
-				(p2[0] * inverse[0][1] + p2[1] * inverse[1][1] + p2[2] * inverse[2][1] + inverse[3][1]) / w,
-				(p2[0] * inverse[0][2] + p2[1] * inverse[1][2] + p2[2] * inverse[2][2] + inverse[3][2]) / w
-			};
+			p1 = llglmhelpers::perspectiveTransform(inverse, p1);
+			p2 = llglmhelpers::perspectiveTransform(inverse, p2);
 
 			LLVector3 position;
 			LLVector3 norm;
 			if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0, 0, 0), 1.f, position, norm))
 			{
 				glm::vec3 res_pos(glm::make_vec3(position.mV));
-				w = res_pos[0] * mat[0][3] + res_pos[1] * mat[1][3] + res_pos[2] * mat[2][3] + mat[3][3];
-				res_pos = {
-					(res_pos[0] * mat[0][0] + res_pos[1] * mat[1][0] + res_pos[2] * mat[2][0] + mat[3][0]) / w,
-					(res_pos[0] * mat[0][1] + res_pos[1] * mat[1][1] + res_pos[2] * mat[2][1] + mat[3][1]) / w,
-					(res_pos[0] * mat[0][2] + res_pos[1] * mat[1][2] + res_pos[2] * mat[2][2] + mat[3][2]) / w
-				};
+				res_pos = llglmhelpers::perspectiveTransform(mat, res_pos);
 
 				norm.normalize();
 				glm::vec3 res_norm(glm::make_vec3(norm.mV));
-				w = res_norm[0] * norm_mat[0][3] + res_norm[1] * norm_mat[1][3] + res_norm[2] * norm_mat[2][3] + norm_mat[3][3];
-				res_norm = {
-					(res_norm[0] * norm_mat[0][0] + res_norm[1] * norm_mat[1][0] + res_norm[2] * norm_mat[2][0] + norm_mat[3][0]) / w,
-					(res_norm[0] * norm_mat[0][1] + res_norm[1] * norm_mat[1][1] + res_norm[2] * norm_mat[2][1] + norm_mat[3][1]) / w,
-					(res_norm[0] * norm_mat[0][2] + res_norm[1] * norm_mat[1][2] + res_norm[2] * norm_mat[2][2] + norm_mat[3][2]) / w
-				};
+				res_norm = llglmhelpers::perspectiveTransform(norm_mat, res_norm);
 
 				if (intersection)
 				{

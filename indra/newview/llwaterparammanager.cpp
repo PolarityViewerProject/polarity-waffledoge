@@ -54,6 +54,7 @@
 
 #include "llwlparammanager.h"
 #include "llwaterparamset.h"
+#include "llglmhelpers.h"
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -244,20 +245,10 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 		glm::mat4 mat(glm::make_mat4(modelView));
 		glm::mat4 invtrans = glm::inverseTranspose(mat);
 
-		F32 w = norm[0] * invtrans[0][3] + norm[1] * invtrans[1][3] + norm[2] * invtrans[2][3] + invtrans[3][3];
-		norm = {
-			(norm[0] * invtrans[0][0] + norm[1] * invtrans[1][0] + norm[2] * invtrans[2][0] + invtrans[3][0]) / w,
-			(norm[0] * invtrans[0][1] + norm[1] * invtrans[1][1] + norm[2] * invtrans[2][1] + invtrans[3][1]) / w,
-			(norm[0] * invtrans[0][2] + norm[1] * invtrans[1][2] + norm[2] * invtrans[2][2] + invtrans[3][2]) / w
-		};
+		norm = llglmhelpers::perspectiveTransform(invtrans, norm);
 		norm = glm::normalize(norm);
 
-		w = p[0] * mat[0][3] + p[1] * mat[1][3] + p[2] * mat[2][3] + mat[3][3];
-		p = {
-			(p[0] * mat[0][0] + p[1] * mat[1][0] + p[2] * mat[2][0] + mat[3][0]) / w,
-			(p[0] * mat[0][1] + p[1] * mat[1][1] + p[2] * mat[2][1] + mat[3][1]) / w,
-			(p[0] * mat[0][2] + p[1] * mat[1][2] + p[2] * mat[2][2] + mat[3][2]) / w
-		};
+		p = llglmhelpers::perspectiveTransform(mat, p);
 
 		mWaterPlane = LLVector4(norm[0], norm[1], norm[2], -glm::dot(p, norm));
 

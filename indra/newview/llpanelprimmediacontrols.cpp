@@ -62,6 +62,7 @@
 #include "llwindowshade.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
+#include <llglmhelpers.h>
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -626,12 +627,7 @@ void LLPanelPrimMediaControls::updateShape()
 		{
 			// project silhouette vertices into screen space
 			glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
-			const F32 w = screen_vert[0] * mat[0][3] + screen_vert[1] * mat[1][3] + screen_vert[2] * mat[2][3] + mat[3][3];
-			screen_vert = {
-				(screen_vert[0] * mat[0][0] + screen_vert[1] * mat[1][0] + screen_vert[2] * mat[2][0] + mat[3][0]) / w,
-				(screen_vert[0] * mat[0][1] + screen_vert[1] * mat[1][1] + screen_vert[2] * mat[2][1] + mat[3][1]) / w,
-				(screen_vert[0] * mat[0][2] + screen_vert[1] * mat[1][2] + screen_vert[2] * mat[2][2] + mat[3][2]) / w 
-			};
+			screen_vert = llglmhelpers::perspectiveTransform(mat, screen_vert);
 
 			// add to screenspace bounding box
 			update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));

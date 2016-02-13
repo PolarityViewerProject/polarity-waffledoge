@@ -116,6 +116,8 @@
 #include "llscenemonitor.h"
 #include "llprogressview.h"
 
+#include "llglmhelpers.h"
+
 #include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
@@ -8681,12 +8683,7 @@ void LLPipeline::renderDeferredLighting()
 
 						glm::vec3 tc(glm::make_vec3(c));
 
-						F32 w = tc[0] * mat[0][3] + tc[1] * mat[1][3] + tc[2] * mat[2][3] + mat[3][3];
-						tc = {
-							(tc[0] * mat[0][0] + tc[1] * mat[1][0] + tc[2] * mat[2][0] + mat[3][0]) / w,
-							(tc[0] * mat[0][1] + tc[1] * mat[1][1] + tc[2] * mat[2][1] + mat[3][1]) / w,
-							(tc[0] * mat[0][2] + tc[1] * mat[1][2] + tc[2] * mat[2][2] + mat[3][2]) / w
-						};
+						tc = llglmhelpers::perspectiveTransform(mat, tc);
 					
 						fullscreen_lights.push_back(LLVector4(tc[0], tc[1], tc[2], s));
 						light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
@@ -8813,12 +8810,7 @@ void LLPipeline::renderDeferredLighting()
 
 					glm::vec3 tc(glm::make_vec3(c));
 
-					F32 w = tc[0] * mat[0][3] + tc[1] * mat[1][3] + tc[2] * mat[2][3] + mat[3][3];
-					tc = {
-						(tc[0] * mat[0][0] + tc[1] * mat[1][0] + tc[2] * mat[2][0] + mat[3][0]) / w,
-						(tc[0] * mat[0][1] + tc[1] * mat[1][1] + tc[2] * mat[2][1] + mat[3][1]) / w,
-						(tc[0] * mat[0][2] + tc[1] * mat[1][2] + tc[2] * mat[2][2] + mat[3][2]) / w
-					};
+					tc = llglmhelpers::perspectiveTransform(mat, tc);
 					
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
@@ -9216,12 +9208,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 						glm::vec3 tc(glm::make_vec3(c));
 
-						F32 w = tc[0] * mat[0][3] + tc[1] * mat[1][3] + tc[2] * mat[2][3] + mat[3][3];
-						tc = {
-							(tc[0] * mat[0][0] + tc[1] * mat[1][0] + tc[2] * mat[2][0] + mat[3][0]) / w,
-							(tc[0] * mat[0][1] + tc[1] * mat[1][1] + tc[2] * mat[2][1] + mat[3][1]) / w,
-							(tc[0] * mat[0][2] + tc[1] * mat[1][2] + tc[2] * mat[2][2] + mat[3][2]) / w
-						};
+						tc = llglmhelpers::perspectiveTransform(mat, tc);
 					
 						fullscreen_lights.push_back(LLVector4(tc[0], tc[1], tc[2], s));
 						light_colors.push_back(LLVector4(col.mV[0], col.mV[1], col.mV[2], volume->getLightFalloff()*0.5f));
@@ -9349,12 +9336,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 					glm::vec3 tc(glm::make_vec3(c));
 
-					F32 w = tc[0] * mat[0][3] + tc[1] * mat[1][3] + tc[2] * mat[2][3] + mat[3][3];
-					tc = {
-						(tc[0] * mat[0][0] + tc[1] * mat[1][0] + tc[2] * mat[2][0] + mat[3][0]) / w,
-						(tc[0] * mat[0][1] + tc[1] * mat[1][1] + tc[2] * mat[2][1] + mat[3][1]) / w,
-						(tc[0] * mat[0][2] + tc[1] * mat[1][2] + tc[2] * mat[2][2] + mat[3][2]) / w
-					};
+					tc = llglmhelpers::perspectiveTransform(mat, tc);
 					
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
@@ -9522,30 +9504,11 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 
 	glm::vec3 p1(0, 0, -(near_clip+0.01f));
 	glm::vec3 p2(0, 0, -(near_clip+1.f));
-
 	glm::vec3 screen_origin(0, 0, 0);
 
-
-	F32 w = p1[0] * light_to_screen[0][3] + p1[1] * light_to_screen[1][3] + p1[2] * light_to_screen[2][3] + light_to_screen[3][3];
-	p1 = {
-		(p1[0] * light_to_screen[0][0] + p1[1] * light_to_screen[1][0] + p1[2] * light_to_screen[2][0] + light_to_screen[3][0]) / w,
-		(p1[0] * light_to_screen[0][1] + p1[1] * light_to_screen[1][1] + p1[2] * light_to_screen[2][1] + light_to_screen[3][1]) / w,
-		(p1[0] * light_to_screen[0][2] + p1[1] * light_to_screen[1][2] + p1[2] * light_to_screen[2][2] + light_to_screen[3][2]) / w
-	};
-
-	w = p2[0] * light_to_screen[0][3] + p2[1] * light_to_screen[1][3] + p2[2] * light_to_screen[2][3] + light_to_screen[3][3];
-	p2 = {
-		(p2[0] * light_to_screen[0][0] + p2[1] * light_to_screen[1][0] + p2[2] * light_to_screen[2][0] + light_to_screen[3][0]) / w,
-		(p2[0] * light_to_screen[0][1] + p2[1] * light_to_screen[1][1] + p2[2] * light_to_screen[2][1] + light_to_screen[3][1]) / w,
-		(p2[0] * light_to_screen[0][2] + p2[1] * light_to_screen[1][2] + p2[2] * light_to_screen[2][2] + light_to_screen[3][2]) / w
-	};
-
-	w = screen_origin[0] * light_to_screen[0][3] + screen_origin[1] * light_to_screen[1][3] + screen_origin[2] * light_to_screen[2][3] + light_to_screen[3][3];
-	screen_origin = {
-		(screen_origin[0] * light_to_screen[0][0] + screen_origin[1] * light_to_screen[1][0] + screen_origin[2] * light_to_screen[2][0] + light_to_screen[3][0]) / w,
-		(screen_origin[0] * light_to_screen[0][1] + screen_origin[1] * light_to_screen[1][1] + screen_origin[2] * light_to_screen[2][1] + light_to_screen[3][1]) / w,
-		(screen_origin[0] * light_to_screen[0][2] + screen_origin[1] * light_to_screen[1][2] + screen_origin[2] * light_to_screen[2][2] + light_to_screen[3][2]) / w
-	};
+	p1 = llglmhelpers::perspectiveTransform(light_to_screen, p1);
+	p2 = llglmhelpers::perspectiveTransform(light_to_screen, p2);
+	screen_origin = llglmhelpers::perspectiveTransform(light_to_screen, screen_origin);
 
 	glm::vec3 n = p2-p1;
 	n = glm::normalize(n);
@@ -9779,12 +9742,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 			glm::vec3 origin(0.f);
 
-			F32 w = origin[0] * inv_mat[0][3] + origin[1] * inv_mat[1][3] + origin[2] * inv_mat[2][3] + inv_mat[3][3];
-			origin = {
-				(origin[0] * inv_mat[0][0] + origin[1] * inv_mat[1][0] + origin[2] * inv_mat[2][0] + inv_mat[3][0]) / w,
-				(origin[0] * inv_mat[0][1] + origin[1] * inv_mat[1][1] + origin[2] * inv_mat[2][1] + inv_mat[3][1]) / w,
-				(origin[0] * inv_mat[0][2] + origin[1] * inv_mat[1][2] + origin[2] * inv_mat[2][2] + inv_mat[3][2]) / w
-			};
+			origin = llglmhelpers::perspectiveTransform(inv_mat, origin);
 
 			camera.setOrigin(glm::value_ptr(origin));
 
@@ -10609,13 +10567,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		for (U32 i = 0; i < fp.size(); ++i)
 		{
 			glm::vec3 v(glm::make_vec3(fp[i].mV));
-			const F32 w = v[0] * saved_view[0][3] + v[1] * saved_view[1][3] + v[2] * saved_view[2][3] + saved_view[3][3];
-			v = {
-				(v[0] * saved_view[0][0] + v[1] * saved_view[1][0] + v[2] * saved_view[2][0] + saved_view[3][0]) / w,
-				(v[0] * saved_view[0][1] + v[1] * saved_view[1][1] + v[2] * saved_view[2][1] + saved_view[3][1]) / w,
-				(v[0] * saved_view[0][2] + v[1] * saved_view[1][2] + v[2] * saved_view[2][2] + saved_view[3][2]) / w
-			};
-
+			v = llglmhelpers::perspectiveTransform(saved_view, v);
 			fp[i].setVec(glm::value_ptr(v));
 		}
 
@@ -10764,12 +10716,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			for (U32 i = 0; i < fp.size(); i++)
 			{
 				glm::vec3 p = glm::make_vec3(fp[i].mV);
-				const F32 w = p[0] * view[j][0][3] + p[1] * view[j][1][3] + p[2] * view[j][2][3] + view[j][3][3];
-				p = {
-					(p[0] * view[j][0][0] + p[1] * view[j][1][0] + p[2] * view[j][2][0] + view[j][3][0]) / w,
-					(p[0] * view[j][0][1] + p[1] * view[j][1][1] + p[2] * view[j][2][1] + view[j][3][1]) / w,
-					(p[0] * view[j][0][2] + p[1] * view[j][1][2] + p[2] * view[j][2][2] + view[j][3][2]) / w
-				};
+				p = llglmhelpers::perspectiveTransform(view[j], p);
 				wpf.push_back(LLVector3(glm::value_ptr(p)));
 			}
 
@@ -10973,12 +10920,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 						glm::vec3 origin_agent(glm::make_vec3(origin.mV));
 					
 						//translate view to origin
-						const F32 w = origin_agent[0] * view[j][0][3] + origin_agent[1] * view[j][1][3] + origin_agent[2] * view[j][2][3] + view[j][3][3];
-						origin_agent = {
-							(origin_agent[0] * view[j][0][0] + origin_agent[1] * view[j][1][0] + origin_agent[2] * view[j][2][0] + view[j][3][0]) / w,
-							(origin_agent[0] * view[j][0][1] + origin_agent[1] * view[j][1][1] + origin_agent[2] * view[j][2][1] + view[j][3][1]) / w,
-							(origin_agent[0] * view[j][0][2] + origin_agent[1] * view[j][1][2] + origin_agent[2] * view[j][2][2] + view[j][3][2]) / w
-						};
+						origin_agent = llglmhelpers::perspectiveTransform(view[j], origin_agent);
 
 						eye = LLVector3(glm::value_ptr(origin_agent));
 
