@@ -27,8 +27,6 @@
 // This file sets some global GL parameters, and implements some 
 // useful functions for GL operations.
 
-#define GLH_EXT_SINGLE_FILE
-
 #include "linden_common.h"
 
 #include "boost/tokenizer.hpp"
