@@ -77,6 +77,81 @@ std::ofstream gFailLog;
 #define APIENTRY
 #endif
 
+std::string decode_source(GLenum source)
+{
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API_ARB:
+		return "GL_DEBUG_SOURCE_API";
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+		return "GL_DEBUG_SOURCE_WINDOW_SYSTEM";
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+		return "GL_DEBUG_SOURCE_SHADER_COMPILER";
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+		return "GL_DEBUG_SOURCE_THIRD_PARTY";
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION_ARB:
+		return "GL_DEBUG_SOURCE_APPLICATION";
+		break;
+	case GL_DEBUG_SOURCE_OTHER_ARB:
+		return "GL_DEBUG_SOURCE_OTHER";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
+std::string decode_type(GLenum type)
+{
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR_ARB:
+		return "GL_DEBUG_TYPE_ERROR";
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+		return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR";
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+		return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR";
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY_ARB:
+		return "GL_DEBUG_TYPE_PORTABILITY";
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+		return "GL_DEBUG_TYPE_PERFORMANCE";
+		break;
+	case GL_DEBUG_TYPE_OTHER_ARB:
+		return "GL_DEBUG_TYPE_OTHER";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
+std::string decode_severity(GLenum severity)
+{
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_LOW_ARB:
+		return "GL_DEBUG_SEVERITY_LOW";
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+		return "GL_DEBUG_SEVERITY_MEDIUM";
+		break;
+	case GL_DEBUG_SEVERITY_HIGH_ARB:
+		return "GL_DEBUG_SEVERITY_HIGH";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -95,9 +170,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
 	}
-	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
-	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
-	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
+	LL_WARNS() << "Source: " << decode_source(source) << LL_ENDL;
+	LL_WARNS() << "Type: " << decode_type(type) << LL_ENDL;
+	LL_WARNS() << "ID: " << std::hex << id << std::dec << LL_ENDL;
+	LL_WARNS() << "Severity: " << decode_severity(severity) << LL_ENDL;
 	LL_WARNS() << "Message: " << message << LL_ENDL;
 	LL_WARNS() << "-----------------------" << LL_ENDL;
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
@@ -474,6 +550,12 @@ bool LLGLManager::initGL()
 	{ //setup debug output callback
 		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
+		//if (mIsNVIDIA)
+		//{
+		//	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
+		//	GLuint debug_ids[3] = { 131076, 131185, 131204 };
+		//	glDebugMessageControlARB(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 3, debug_ids, GL_FALSE);
+		//}
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
