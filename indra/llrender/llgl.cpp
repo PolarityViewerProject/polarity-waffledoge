@@ -813,10 +813,9 @@ void LLGLManager::initExtensions()
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && GLEW_ARB_point_parameters;
 #endif
-	mHasShaderObjects = GLEW_ARB_shader_objects && (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
-	mHasVertexShader = GLEW_ARB_vertex_program && GLEW_ARB_vertex_shader
-		&& (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
-	mHasFragmentShader = GLEW_ARB_fragment_shader && (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
+	mHasShaderObjects = mGLVersion >= 2.f;
+	mHasVertexShader = mGLVersion >= 2.f;
+	mHasFragmentShader = mGLVersion >= 2.f;
 
 #ifdef GL_ARB_gpu_shader5
 	mHasGpuShader5 = GLEW_ARB_gpu_shader5;
