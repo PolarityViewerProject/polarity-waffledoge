@@ -366,9 +366,9 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 }
 
 #if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-#define OS_CACHE_DIR "Obsidian64"
+#define OS_CACHE_DIR "Polarity64"
 #else
-#define OS_CACHE_DIR "Obsidian"
+#define OS_CACHE_DIR "Polarity"
 #endif
 
 // Return the default cache directory

@@ -157,6 +157,13 @@ class ViewerManifest(LLManifest):
                     self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
                 self.path("*/xui/*/widgets/*.xml")
+
+                # <Polarity> automatically copy the right SL_Logo from the icons folder
+                if self.channel_type() != "release":
+                    try:
+                    	self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
+                    except IOError:
+                    	print "There was a problem finding the channel icon. Using default instead"
                 self.path("*/*.xml")
 
                 # Local HTML files (e.g. loading screen)

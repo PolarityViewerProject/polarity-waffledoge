@@ -709,7 +709,7 @@ set(viewer_SOURCE_FILES
     pipeline.cpp
     )
 
-set(VIEWER_BINARY_NAME "secondlife-bin" CACHE STRING
+set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
     "The name of the viewer executable to create.")
 
 set(viewer_HEADER_FILES
@@ -1431,13 +1431,13 @@ if (WINDOWS)
     set(ICON_PATH "test")
     set(VIEWER_MACOSX_PHASE "d")
     string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
-    if(channel_lower MATCHES "^second life release")
+    if(channel_lower MATCHES "^polarity release")
         set(ICON_PATH "release")
         set(VIEWER_MACOSX_PHASE "f")
-    elseif(channel_lower MATCHES "^second life beta")
+    elseif(channel_lower MATCHES "^polarity beta")
         set(ICON_PATH "beta")
         set(VIEWER_MACOSX_PHASE "b")
-    elseif(channel_lower MATCHES "^second life project")
+    elseif(channel_lower MATCHES "^polarity project")
         set(ICON_PATH "project")
         set(VIEWER_MACOSX_PHASE "a")
     endif()
@@ -1953,7 +1953,7 @@ set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
 
 if (LINUX)
-  set(product SecondLife-${ARCH}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION})
+  set(product Polarity-${ARCH}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION})
 
   # These are the generated targets that are copied to package/
   set(COPY_INPUT_DEPENDENCIES
@@ -2024,8 +2024,8 @@ endif (LINUX)
 
 if (DARWIN)
   # These all get set with PROPERTIES
-  set(product "Second Life")
-  set(MACOSX_BUNDLE_INFO_STRING "Second Life Viewer")
+  set(product "Polarity")
+  set(MACOSX_BUNDLE_INFO_STRING "Polarity Viewer")
   set(MACOSX_BUNDLE_ICON_FILE "secondlife.icns")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.secondlife.indra.viewer")
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
@@ -2132,15 +2132,15 @@ if (PACKAGE)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-darwin.tar.bz2")
-    set(VIEWER_EXE_GLOBS "'Second Life' SLPlugin mac-crash-logger")
-    set(VIEWER_EXE_GLOBS "'Second Life' mac-crash-logger")
+    set(VIEWER_EXE_GLOBS "'Polarity' SLPlugin mac-crash-logger")
+    set(VIEWER_EXE_GLOBS "'Polarity' mac-crash-logger")
     set(VIEWER_LIB_GLOB "*.dylib")
   endif (DARWIN)
   if (LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-linux.tar.bz2")
-    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin SLPlugin")
-    set(VIEWER_EXE_GLOBS "do-not-directly-run-secondlife-bin")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin SLPlugin")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)

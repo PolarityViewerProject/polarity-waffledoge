@@ -355,16 +355,16 @@ BOOL gLogoutInProgress = FALSE;
 // Internal globals... that should be removed.
 static std::string gArgs;
 const int MAX_MARKER_LENGTH = 1024;
-const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
-const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
-const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
-const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
-const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
+const std::string MARKER_FILE_NAME("Polarity.exec_marker");
+const std::string START_MARKER_FILE_NAME("Polarity.start_marker");
+const std::string ERROR_MARKER_FILE_NAME("Polarity.error_marker");
+const std::string LLERROR_MARKER_FILE_NAME("Polarity.llerror_marker");
+const std::string LOGOUT_MARKER_FILE_NAME("Polarity.logout_marker");
 static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
-const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+const char* const VIEWER_WINDOW_CLASSNAME = "Polarity Viewer";
 
 //-- LLDeferredTaskList ------------------------------------------------------
 
@@ -705,7 +705,7 @@ LLAppViewer::LLAppViewer()
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
-	gDirUtilp->initAppDirs("Obsidian");
+	gDirUtilp->initAppDirs("Polarity");
 	//
 	// IMPORTANT! Do NOT put anything that will write
 	// into the log files during normal startup until AFTER
@@ -2202,12 +2202,12 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.old");
+							     "Polarity.old");
 	LLFile::remove(old_log_file);
 
 	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.log");
+							     "Polarity.log");
  	/*
 	 * Before touching any log files, compute the duration of the last run
 	 * by comparing the ctime of the previous start marker file with the ctime
@@ -2253,7 +2253,7 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	// Rename current log file to ".old"
 	LLFile::rename(log_file, old_log_file);
 
-	// Set the log file to SecondLife.log
+	// Set the log file to Polarity.log
 	LLError::logToFile(log_file);
 	if (!duration_log_msg.empty())
 	{
@@ -3516,10 +3516,10 @@ void LLAppViewer::writeSystemInfo()
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
     
 #if LL_WINDOWS
-	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
 #else
     //Not ideal but sufficient for good reporting.
-    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");  //LLError::logFileName();
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");  //LLError::logFileName();
 #endif
 
 	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
@@ -3826,10 +3826,10 @@ bool LLAppViewer::markerIsSameVersion(const std::string& marker_name) const
 void LLAppViewer::processMarkerFiles()
 {
 	//We've got 4 things to test for here
-	// - Other Process Running (SecondLife.exec_marker present, locked)
-	// - Freeze (SecondLife.exec_marker present, not locked)
-	// - LLError Crash (SecondLife.llerror_marker present)
-	// - Other Crash (SecondLife.error_marker present)
+	// - Other Process Running (Polarity.exec_marker present, locked)
+	// - Freeze (Polarity.exec_marker present, not locked)
+	// - LLError Crash (Polarity.llerror_marker present)
+	// - Other Crash (Polarity.error_marker present)
 	// These checks should also remove these files for the last 2 cases if they currently exist
 
 	bool marker_is_same_version = true;
@@ -4141,18 +4141,18 @@ void LLAppViewer::abortQuit()
 void LLAppViewer::migrateCacheDirectory()
 {
 #if LL_WINDOWS || LL_DARWIN
-	// NOTE: (Nyx) as of 1.21, cache for mac is moving to /library/caches/SecondLife from
-	// /library/application support/SecondLife/cache This should clear/delete the old dir.
+	// NOTE: (Nyx) as of 1.21, cache for mac is moving to /library/caches/Polarity from
+	// /library/application support/Polarity/cache This should clear/delete the old dir.
 
 	// As of 1.23 the Windows cache moved from
-	//   C:\Documents and Settings\James\Application Support\SecondLife\cache
+	//   C:\Documents and Settings\James\Application Support\Polarity\cache
 	// to
-	//   C:\Documents and Settings\James\Local Settings\Application Support\SecondLife
+	//   C:\Documents and Settings\James\Local Settings\Application Support\Polarity
 	//
 	// The Windows Vista equivalent is from
-	//   C:\Users\James\AppData\Roaming\SecondLife\cache
+	//   C:\Users\James\AppData\Roaming\Polarity\cache
 	// to
-	//   C:\Users\James\AppData\Local\SecondLife
+	//   C:\Users\James\AppData\Local\Polarity
 	//
 	// Note the absence of \cache on the second path.  James.
 

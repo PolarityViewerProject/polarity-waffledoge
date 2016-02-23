@@ -56,7 +56,7 @@ static LLPanelInjector<LLTwitterAccountPanel> t_panel_account("lltwitteraccountp
 
 const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=twitter&utm_medium=photo&utm_campaign=slshare";
-const std::string DEFAULT_STATUS_TEXT = " #SecondLife";
+const std::string DEFAULT_STATUS_TEXT = " #SecondLife #PolarityViewer";
 
 ///////////////////////////
 //LLTwitterPhotoPanel///////

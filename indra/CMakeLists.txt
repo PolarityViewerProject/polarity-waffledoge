@@ -10,7 +10,7 @@ else()
   cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 endif()
 
-set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
+set(ROOT_PROJECT_NAME "Polarity" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
 project(${ROOT_PROJECT_NAME})
 
@@ -85,7 +85,7 @@ elseif (SOLARIS)
 endif (LINUX)
 
 add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer secondlife-bin)
+add_dependencies(viewer polarity-bin)
 
 if (LL_TESTS)
   # Define after the custom targets are created so

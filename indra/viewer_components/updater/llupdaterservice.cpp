@@ -55,7 +55,7 @@ namespace
 {
 	boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
-	const std::string UPDATE_MARKER_FILENAME("SecondLifeUpdateReady.xml");
+	const std::string UPDATE_MARKER_FILENAME("PolarityUpdateReady.xml");
 	std::string update_marker_path()
 	{
 		return gDirUtilp->getExpandedFilename(LL_PATH_LOGS, 
