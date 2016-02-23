@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 """\
 @file viewer_manifest.py
 @author Ryan Williams
@@ -38,7 +39,7 @@ viewer_dir = os.path.dirname(__file__)
 # Put it FIRST because some of our build hosts have an ancient install of
 # indra.util.llmanifest under their system Python!
 sys.path.insert(0, os.path.join(viewer_dir, os.pardir, "lib", "python"))
-from indra.util.llmanifest import LLManifest, main, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError
+from indra.util.llmanifest import LLManifest, main, proper_windows_path, path_ancestors, CHANNEL_VENDOR_BASE, RELEASE_CHANNEL, ManifestError
 try:
     from llbase import llsd
 except ImportError:
@@ -53,6 +54,18 @@ class ViewerManifest(LLManifest):
         # and copy_l_viewer_manifest targets)
         return 'package' in self.args['actions']
 
+    def channel_type(self): # returns 'release', 'beta', 'project', or 'test'
+        global CHANNEL_VENDOR_BASE
+        channel_qualifier=self.channel().replace(CHANNEL_VENDOR_BASE, "").lower().strip()
+        if channel_qualifier.startswith('release'):
+            channel_type='release'
+        elif channel_qualifier.startswith('beta'):
+            channel_type='beta'
+        elif channel_qualifier.startswith('project'):
+            channel_type='project'
+        else:
+            channel_type='test'
+        return channel_type
     def construct(self):
         super(ViewerManifest, self).construct()
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
@@ -157,13 +170,25 @@ class ViewerManifest(LLManifest):
                     self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
                 self.path("*/xui/*/widgets/*.xml")
-
+                # <Polarity> Skin Picker
+                self.path("*/themes/*/colors.xml")
+                if self.prefix(src="*/themes/*/textures"):
+                    # self.path("*/*.tga")
+                    self.path("*/*.j2c")
+                    self.path("*/*.jpg")
+                    self.path("*/*.png")
+                    # self.path("*.tga")
+                    self.path("*.j2c")
+                    self.path("*.jpg")
+                    self.path("*.png")
+                    self.end_prefix("*/themes/*/textures")
+                self.path("*/*.ini")
                 # <Polarity> automatically copy the right SL_Logo from the icons folder
                 if self.channel_type() != "release":
                     try:
-                    	self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
+                        self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
                     except IOError:
-                    	print "There was a problem finding the channel icon. Using default instead"
+                        print "There was a problem finding the channel icon. Using default instead"
                 self.path("*/*.xml")
 
                 # Local HTML files (e.g. loading screen)
@@ -238,14 +263,27 @@ class ViewerManifest(LLManifest):
 
     def installer_base_name(self):
         global CHANNEL_VENDOR_BASE
+        # get raw epoch
+        temp_epoch_raw = time.time()
+        # convert to string (required for truncation)
+        temp_epoch_str = "{:0}".format(temp_epoch_raw)
+        # Truncate string
+        time_epoch = temp_epoch_str[:9]
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'channel_vendor_base' : '_'.join(CHANNEL_VENDOR_BASE.split()),
             'channel_variant_underscores':self.channel_variant_app_suffix(),
+            'epoch':''.join(str(time_epoch)),
             'version_underscores' : '_'.join(self.args['version']),
             'arch':self.args['arch']
             }
-        return "%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s" % substitution_strings
+        channel_type=self.channel_type()
+        installer_file_name=""
+        if channel_type == 'release':
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s"
+        else:
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(epoch)s_%(version_underscores)s_%(arch)s"
+        return installer_file_name % substitution_strings
 
     def app_name(self):
         global CHANNEL_VENDOR_BASE
@@ -345,9 +383,13 @@ class WindowsManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        if self.is_packaging_viewer():
-            # Find secondlife-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-            self.path(src='%s/secondlife-bin.exe' % self.args['configuration'], dst=self.final_exe())
+        #if self.is_packaging_viewer():
+        # Find polarity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+        self.path(src='%s/polarity-bin.exe' % self.args['configuration'], dst=self.final_exe())
+        
+        # Clean up the old binary
+        # Don't do this if you plan debugging with Visual Studio
+        #self.remove('%s/polarity-bin.exe' % self.args['configuration'])
 
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
@@ -413,6 +455,7 @@ class WindowsManifest(ViewerManifest):
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")
         self.path("featuretable.txt")
+        self.path("ReleaseNotes.txt")
 
         # Media plugins - QuickTime
         if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
@@ -585,10 +628,10 @@ class WindowsManifest(ViewerManifest):
         substitution_strings['installer_file'] = installer_file
 
         version_vars = """
-        !define INSTEXE  "%(final_exe)s"
-        !define VERSION "%(version_short)s"
-        !define VERSION_LONG "%(version)s"
-        !define VERSION_DASHES "%(version_dashes)s"
+        #!define INSTEXE  "%(final_exe)s"
+        #!define VERSION "%(version_short)s"
+        #!define VERSION_LONG "%(version)s"
+        #!define VERSION_DASHES "%(version_dashes)s"
         """ % substitution_strings
 
         if self.channel_type() == 'release':
@@ -596,23 +639,29 @@ class WindowsManifest(ViewerManifest):
         else:
             substitution_strings['caption'] = self.app_name() + ' ${VERSION}'
 
-        inst_vars_template = """
-            OutFile "%(installer_file)s"
-            !define INSTNAME   "%(app_name_oneword)s"
-            !define SHORTCUT   "%(app_name)s"
-            !define URLNAME   "secondlife"
-            Caption "%(caption)s"
-            """
+            inst_vars_template = """
+                !define INSTOUTFILE "%(installer_file)s"
+                !define INSTEXE "%(final_exe)s"
+                !define APPNAME   "%(app_name)s"
+                !define APPNAMEONEWORD   "%(app_name_oneword)s"
+                !define VERSION "%(version_short)s"
+                !define VERSION_LONG "%(version)s"
+                !define VERSION_DASHES "%(version_dashes)s"
+                !define URLNAME  "secondlife"
+                !define CAPTIONSTR "%(caption)s"
+                !define VENDORSTR "><(((°> Polarity Viewer Project"
+                """
 
-        tempfile = "secondlife_setup_tmp.nsi"
-        # the following replaces strings in the nsi template
-        # it also does python-style % substitution
-        self.replace_in("installers/windows/installer_template.nsi", tempfile, {
-                "%%VERSION%%":version_vars,
-                "%%SOURCE%%":self.get_src_prefix(),
-                "%%INST_VARS%%":inst_vars_template % substitution_strings,
-                "%%INSTALL_FILES%%":self.nsi_file_commands(True),
-                "%%DELETE_FILES%%":self.nsi_file_commands(False)})
+            tempfile = "polarity_setup_tmp.nsi"
+            # the following replaces strings in the nsi template
+            # it also does python-style % substitution
+            self.replace_in("installers/windows/installer_template.nsi", tempfile, {
+                     "%%SOURCE%%":self.get_src_prefix(),
+                     "%%INST_VARS%%":inst_vars_template % substitution_strings,
+                     "%%INSTALL_FILES%%":self.nsi_file_commands(True),
+                     "%%DELETE_FILES%%":self.nsi_file_commands(False),
+                     "%%WIN64_BIN_BUILD%%":"!define WIN64_BIN_BUILD 1" if self.is_win64() else "",
+                     })
 
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/

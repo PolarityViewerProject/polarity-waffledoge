@@ -1,6 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Second Life setup.nsi
-;; Copyright 2004-2015, Linden Research, Inc.
+;; secondlife setup.nsi
+;; Copyright 2004-2011, Linden Research, Inc.
+;; Copyright 2013-2015 Alchemy Viewer Project
+;; Copyright 2014-2016 Polarity Viewer Project
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -21,191 +23,261 @@
 ;; NSIS Unicode 2.46.5 or higher required
 ;; http://www.scratchpaper.com/
 ;;
-;; Author: James Cook, TankMaster Finesmith, Don Kjer, Callum Prentice
+;; Author: James Cook, Don Kjer, Callum Prentice, Drake Arconis, Xenhat Liamano
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;--------------------------------
+;Include Modern UI
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Compiler flags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-SetOverwrite on				# Overwrite files
-SetCompress auto			# Compress if saves space
-SetCompressor /solid lzma	# Compress whole installer as one block
-SetDatablockOptimize off	# Only saves us 0.1%, not worth it
-XPStyle on                  # Add an XP manifest to the installer
-RequestExecutionLevel admin	# For when we write to Program Files
+  !include "LogicLib.nsh"
+  !include "StdUtils.nsh"
+  !include "FileFunc.nsh"
+  !include "x64.nsh"
+  !include "WinVer.nsh"
+  !include "MUI2.nsh"
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Project flags
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-# This placeholder is replaced by viewer_manifest.py
-%%VERSION%%
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; - language files - one for each language (or flavor thereof)
-;; (these files are in the same place as the nsi template but the python script generates a new nsi file in the 
-;; application directory so we have to add a path to these include files)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-!include "%%SOURCE%%\installers\windows\lang_da.nsi"
-!include "%%SOURCE%%\installers\windows\lang_de.nsi"
-!include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
-!include "%%SOURCE%%\installers\windows\lang_es.nsi"
-!include "%%SOURCE%%\installers\windows\lang_fr.nsi"
-!include "%%SOURCE%%\installers\windows\lang_ja.nsi"
-!include "%%SOURCE%%\installers\windows\lang_it.nsi"
-!include "%%SOURCE%%\installers\windows\lang_pl.nsi"
-!include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
-!include "%%SOURCE%%\installers\windows\lang_ru.nsi"
-!include "%%SOURCE%%\installers\windows\lang_tr.nsi"
-!include "%%SOURCE%%\installers\windows\lang_zh.nsi"
-
-# *TODO: Move these into the language files themselves
-LangString LanguageCode ${LANG_DANISH}   "da"
-LangString LanguageCode ${LANG_GERMAN}   "de"
-LangString LanguageCode ${LANG_ENGLISH}  "en"
-LangString LanguageCode ${LANG_SPANISH}  "es"
-LangString LanguageCode ${LANG_FRENCH}   "fr"
-LangString LanguageCode ${LANG_JAPANESE} "ja"
-LangString LanguageCode ${LANG_ITALIAN}  "it"
-LangString LanguageCode ${LANG_POLISH}   "pl"
-LangString LanguageCode ${LANG_PORTUGUESEBR} "pt"
-LangString LanguageCode ${LANG_RUSSIAN}  "ru"
-LangString LanguageCode ${LANG_TURKISH}  "tr"
-LangString LanguageCode ${LANG_TRADCHINESE}  "zh"
-
-# This placeholder is replaced by viewer_manifest.py
+;-------------------------------
+;Global Variables
+  ; These will be replaced by manifest scripts
 %%INST_VARS%%
+  %%WIN64_BIN_BUILD%%
 
-Name ${INSTNAME}
 
-SubCaption 0 $(LicenseSubTitleSetup)	# Override "license agreement" text
 
-BrandingText " "						# Bottom of window text
-Icon          %%SOURCE%%\installers\windows\install_icon.ico
-UninstallIcon %%SOURCE%%\installers\windows\uninstall_icon.ico
-WindowIcon on							# Show our icon in left corner
-BGGradient off							# No big background window
-CRCCheck on								# Make sure CRC is OK
-InstProgressFlags smooth colored		# New colored smooth look
-SetOverwrite on							# Overwrite files by default
-AutoCloseWindow true					# After all files install, close window
 
-InstallDir "$PROGRAMFILES\${INSTNAME}"
-InstallDirRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" ""
-UninstallText $(UninstallTextMsg)
-DirText $(DirectoryChooseTitle) $(DirectoryChooseSetup)
-Page directory dirPre
-Page instfiles
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Variables
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Var INSTPROG
 Var INSTEXE
 Var INSTSHORTCUT
-Var COMMANDLINE         # Command line passed to this installer, set in .onInit
-Var SHORTCUT_LANG_PARAM # "--set InstallLanguage de", Passes language to viewer
-Var SKIP_DIALOGS        # Set from command line in  .onInit. autoinstall GUI and the defaults.
-Var SKIP_AUTORUN		# Skip automatic launch of the viewer after install
-Var DO_UNINSTALL_V2     # If non-null, path to a previous Viewer 2 installation that will be uninstalled.
+  Var AUTOSTART
+Var COMMANDLINE         ; command line passed to this installer, set in .onInit
+Var SHORTCUT_LANG_PARAM ; "--set InstallLanguage de", passes language to viewer
+Var SKIP_DIALOGS        ; set from command line in  .onInit. autoinstall 
+                        ; GUI and the defaults.
+Var SKIP_AUTORUN		; skip automatic launch of viewer after install
+  Var STARTMENUFOLDER
 
-# Function definitions should go before file includes, because calls to
-# DLLs like LangDLL trigger an implicit file include, so if that call is at
-# the end of this script NSIS has to decompress the whole installer before 
-# it can call the DLL function. JC
+;--------------------------------
+;General
 
-!include "FileFunc.nsh"     # For GetParameters, GetOptions
-!insertmacro GetParameters
-!insertmacro GetOptions
-!include WinVer.nsh			# For OS and SP detection
+  ;Name and file
+  Name "${APPNAME}"
+  OutFile "${INSTOUTFILE}"
+  Caption "${CAPTIONSTR}"
+  BrandingText "${VENDORSTR}"
+  ;Default installation folder
+!ifdef WIN64_BIN_BUILD
+  InstallDir "$PROGRAMFILES64\${APPNAME}"
+!else
+  InstallDir "$PROGRAMFILES\${APPNAME}"
+!endif
+  ;Get installation folder from registry if available and 32bit otherwise do it in init
+!ifndef WIN64_BIN_BUILD
+  InstallDirRegKey HKLM "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" ""
+!endif
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Pre-directory page callback
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function dirPre
+  ;Request application privileges for Windows Vista
+  RequestExecutionLevel admin
+  ;Compression
+  SetCompress auto			; compress to saves space
+  SetCompressor /solid /final lzma	; compress whole installer as one block
+  ;File Handling
+  SetOverwrite on
+
+;--------------------------------
+;Version Information
+
+  VIProductVersion "${VERSION_LONG}"
+  VIAddVersionKey "ProductName" "Polarity Viewer"
+  VIAddVersionKey "Comments" "A Second Life protocol-compatible client"
+  VIAddVersionKey "CompanyName" "Polarity Viewer Project"
+  VIAddVersionKey "LegalCopyright" "Copyright © 2014-2016, Polarity Viewer Project"
+  VIAddVersionKey "FileDescription" "${APPNAME} Installer"
+  VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
+
+;--------------------------------
+;Interface Settings
+
+  ;Show Details
+  ShowInstDetails hide
+  ShowUninstDetails hide
+
+  !define MUI_ICON "%%SOURCE%%\installers\windows\install_icon.ico"
+  !define MUI_UNICON "%%SOURCE%%\installers\windows\uninstall_icon.ico"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\install_welcome.bmp"
+  !define MUI_UNWELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\uninstall_welcome.bmp"
+  !define MUI_ABORTWARNING
+
+;--------------------------------
+;Language Selection Dialog Settings
+
+  ;Show all languages, despite user's codepage
+  !define MUI_LANGDLL_ALLLANGUAGES
+
+  ;Remember the installer language
+  !define MUI_LANGDLL_REGISTRY_ROOT "HKLM" 
+  !define MUI_LANGDLL_REGISTRY_KEY "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" 
+  !define MUI_LANGDLL_REGISTRY_VALUENAME "InstallerLanguage"
+  ;Always show the dialog
+  !define MUI_LANGDLL_ALWAYSSHOW
+
+;--------------------------------
+;Install Pages
+
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
+  !insertmacro MUI_PAGE_WELCOME
+  ;License Page
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
+  !insertmacro MUI_PAGE_LICENSE "%%SOURCE%%\..\..\doc\LGPL-licence.txt"
+
+  ;Directory Page
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
+  !insertmacro MUI_PAGE_DIRECTORY
+
+  ;Start Menu Folder Page
+  !define MUI_STARTMENUPAGE_REGISTRY_ROOT "HKLM" 
+  !define MUI_STARTMENUPAGE_REGISTRY_KEY "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" 
+  !define MUI_STARTMENUPAGE_REGISTRY_VALUENAME "Start Menu Folder"
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip
+  !insertmacro MUI_PAGE_STARTMENU Application $STARTMENUFOLDER
+
+  ;Install Progress Page
+  !define MUI_PAGE_CUSTOMFUNCTION_LEAVE CheckWindowsServPack
+  !insertmacro MUI_PAGE_INSTFILES
+
+  ; Finish Page
+  !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip_finish
+  !define MUI_FINISHPAGE_RUN
+  !define MUI_FINISHPAGE_RUN_FUNCTION launch_viewer
+  !define MUI_FINISHPAGE_NOREBOOTSUPPORT
+  !insertmacro MUI_PAGE_FINISH
+
+;--------------------------------
+;Uninstall Pages
+
+  !insertmacro MUI_UNPAGE_WELCOME
+  !insertmacro MUI_UNPAGE_CONFIRM
+  !insertmacro MUI_UNPAGE_INSTFILES
+  !insertmacro MUI_UNPAGE_FINISH
+
+;--------------------------------
+;Languages
+
+  !include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_de.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_es.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_pl.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_it.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_da.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_ru.nsi"
+  !include "%%SOURCE%%\installers\windows\lang_tr.nsi"
+
+;--------------------------------
+;Reserve Files
+  ;If you are using solid compression, files that are required before
+  ;the actual installation should be stored first in the data block,
+  ;because this will make your installer start faster.
+  !insertmacro MUI_RESERVEFILE_LANGDLL
+  ReserveFile "${NSISDIR}\Plugins\NSISdl.dll"
+  ReserveFile "${NSISDIR}\Plugins\nsDialogs.dll"
+  ReserveFile "${NSISDIR}\Plugins\StartMenu.dll"
+  ReserveFile "${NSISDIR}\Plugins\StdUtils.dll"
+  ReserveFile "${NSISDIR}\Plugins\System.dll"
+  ReserveFile "${NSISDIR}\Plugins\UserInfo.dll"
+
+;--------------------------------
+; Local Functions
+
+;Page pre-checks for skip conditions
+Function check_skip
     StrCmp $SKIP_DIALOGS "true" 0 +2
 	Abort
-
 FunctionEnd    
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Prep Installer Section
-;;
-;; Note: to add new languages, add a language file include to the list 
-;; at the top of this file, add an entry to the menu and then add an 
-;; entry to the language ID selector below
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function .onInit
-Call CheckCPUFlags							# Make sure we have SSE2 support
-Call CheckWindowsVersion					# Don't install On unsupported systems
-    Push $0
-    ${GetParameters} $COMMANDLINE			# Get our command line
-
-    ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
-    IfErrors +2 0	# If error jump past setting SKIP_DIALOGS
-        StrCpy $SKIP_DIALOGS "true"
-
-	${GetOptions} $COMMANDLINE "/SKIP_AUTORUN" $0
-	IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
-		StrCpy $SKIP_AUTORUN "true"
-
-    ${GetOptions} $COMMANDLINE "/LANGID=" $0	# /LANGID=1033 implies US English
-
-# If no language (error), then proceed
-    IfErrors lbl_configure_default_lang
-# No error means we got a language, so use it
-    StrCpy $LANGUAGE $0
-    Goto lbl_return
-
-lbl_configure_default_lang:
-# If we currently have a version of SL installed, default to the language of that install
-# Otherwise don't change $LANGUAGE and it will default to the OS UI language.
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
-    IfErrors +2 0	# If error skip the copy instruction 
-	StrCpy $LANGUAGE $0
-
-# For silent installs, no language prompt, use default
-    IfSilent 0 +3
-    StrCpy $SKIP_AUTORUN "true"
-    Goto lbl_return
-    StrCmp $SKIP_DIALOGS "true" lbl_return
-  
-lbl_build_menu:
-	Push ""
-# Use separate file so labels can be UTF-16 but we can still merge changes into this ASCII file. JC
-    !include "%%SOURCE%%\installers\windows\language_menu.nsi"
-    
-	Push A	# A means auto count languages for the auto count to work the first empty push (Push "") must remain
-	LangDLL::LangDialog $(InstallerLanguageTitle) $(SelectInstallerLanguage)
-	Pop $0
-	StrCmp $0 "cancel" 0 +2
-		Abort
-    StrCpy $LANGUAGE $0
-
-# Save language in registry		
-	WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage" $LANGUAGE
-lbl_return:
-    Pop $0
-    Return
-
+Function check_skip_finish
+  StrCmp $SKIP_DIALOGS "true" 0 +4
+  StrCmp $AUTOSTART "true" 0 +3
+  Call launch_viewer
+  Abort
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Prep Uninstaller Section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.onInit
-# Read language from registry and set for uninstaller. Key will be removed on successful uninstall
-	ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\${INSTNAME}" "InstallerLanguage"
-    IfErrors lbl_end
-	StrCpy $LANGUAGE $0
-lbl_end:
-    Return
-
+Function launch_viewer
+  ${StdUtils.ExecShellAsUser} $0 "$INSTDIR\$INSTEXE" "open" "$SHORTCUT_LANG_PARAM"
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Checks for CPU valid (must have SSE2 support)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Check version compatibility
+Function CheckWindowsVersion
+!ifdef WIN64_BIN_BUILD
+  ${IfNot} ${RunningX64}
+    MessageBox MB_OK|MB_ICONSTOP "This version requires a 64 bit operating system."
+    Quit
+  ${EndIf}
+!endif
+
+  ${If} ${AtMostWinXP}
+    MessageBox MB_OK $(CheckWindowsVersionMB)
+    Quit
+  ${EndIf}
+FunctionEnd
+
+;Check service pack compatibility and suggest upgrade
+Function CheckWindowsServPack
+  ${If} ${IsWinVista}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008}
+  ${AndIfNot} ${IsServicePack} 2
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin7}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+
+  ${If} ${IsWin2008R2}
+  ${AndIfNot} ${IsServicePack} 1
+    MessageBox MB_OK $(CheckWindowsServPackMB)
+    DetailPrint $(UseLatestServPackDP)
+    Return
+  ${EndIf}
+FunctionEnd
+
+; Make sure the user can install/uninstall
+Function CheckIfAdministrator
+    DetailPrint $(CheckAdministratorInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorInstMB)
+        Quit
+lbl_is_admin:
+    Return
+FunctionEnd
+
+Function un.CheckIfAdministrator
+    DetailPrint $(CheckAdministratorUnInstDP)
+    UserInfo::GetAccountType
+    Pop $R0
+    StrCmp $R0 "Admin" lbl_is_admin
+        MessageBox MB_OK $(CheckAdministratorUnInstMB)
+        Quit
+lbl_is_admin:
+    Return
+FunctionEnd
+
+	
+;Checks for CPU compatibility
 Function CheckCPUFlags
     Push $1
     System::Call 'kernel32::IsProcessorFeaturePresent(i) i(10) .r1'
@@ -216,251 +288,26 @@ Function CheckCPUFlags
   OK_SSE2:
     Pop $1
     Return
-
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Make sure this computer meets the minimum system requirements.
-;; Currently: Windows Vista SP2
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckWindowsVersion
-  ${If} ${AtMostWin2003}
-    MessageBox MB_OK $(CheckWindowsVersionMB)
-    Quit
-  ${EndIf}
-
-  ${If} ${IsWinVista}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsVersionMB)
-    Quit
-  ${EndIf}
-
-  ${If} ${IsWin2008}
-  ${AndIfNot} ${IsServicePack} 2
-    MessageBox MB_OK $(CheckWindowsVersionMB)
-    Quit
-  ${EndIf}
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Install Section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section ""
-
-SetShellVarContext all			# Install for all users (if you change this, change it in the uninstall as well)
-
-# Start with some default values.
-StrCpy $INSTPROG "${INSTNAME}"
-StrCpy $INSTEXE "${INSTEXE}"
-StrCpy $INSTSHORTCUT "${SHORTCUT}"
-
-Call CheckIfAdministrator		# Make sure the user can install/uninstall
-Call CheckIfAlreadyCurrent		# Make sure this version is not already installed
-Call CloseSecondLife			# Make sure Second Life not currently running
-Call CheckNetworkConnection		# Ping secondlife.com
-Call CheckWillUninstallV2		# Check if Second Life is already installed
-
-StrCmp $DO_UNINSTALL_V2 "" PRESERVE_DONE
-PRESERVE_DONE:
-
-Call RemoveProgFilesOnInst		# Remove existing files to prevent certain errors when running the new version of the viewer
-
-# This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
-%%INSTALL_FILES%%
-
-# Pass the installer's language to the client to use as a default
-StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
-
-# Shortcuts in start menu
-CreateDirectory	"$SMPROGRAMS\$INSTSHORTCUT"
-SetOutPath "$INSTDIR"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\$INSTSHORTCUT.lnk" \
-				"$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-
-
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Create Account.url" \
-				"InternetShortcut" "URL" \
-				"http://join.secondlife.com/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Your Account.url" \
-				"InternetShortcut" "URL" \
-				"http://www.secondlife.com/account/"
-WriteINIStr		"$SMPROGRAMS\$INSTSHORTCUT\SL Scripting Language Help.url" \
-				"InternetShortcut" "URL" \
-                "http://wiki.secondlife.com/wiki/LSL_Portal"
-CreateShortCut	"$SMPROGRAMS\$INSTSHORTCUT\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' ''
-
-# Other shortcuts
-SetOutPath "$INSTDIR"
-CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" \
-        "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
-CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" \
-				'"$INSTDIR\uninst.exe"' ''
-
-# Create *.bat file to specify lang params on first run from installer - see MAINT-5259
-FileOpen $9 "$INSTDIR\autorun.bat" w
-FileWrite $9 'start "$INSTDIR\$INSTEXE" "$INSTDIR\$INSTEXE" $SHORTCUT_LANG_PARAM$\r$\n'
-FileClose $9
-
-# Write registry
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "" "$INSTDIR"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version" "${VERSION_LONG}"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
-WriteRegStr HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Exe" "$INSTEXE"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Publisher" "Linden Research, Inc."
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLInfoAbout" "http://secondlife.com/whatis/"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLUpdateInfo" "http://secondlife.com/support/downloads/"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "HelpLink" "https://support.secondlife.com/contact-support/"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTPROG"
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" '"$INSTDIR\uninst.exe"'
-WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayVersion" "${VERSION_LONG}"
-WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "EstimatedSize" "0x0001D500"		# ~117 MB
-# BUG-2707 Disable SEHOP for installed viewer.
-WriteRegDWORD HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$INSTEXE" "DisableExceptionChainValidation" 1
-
-# Write URL registry info
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info"(default)" "URL:Second Life"
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
-WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" '"$INSTDIR\$INSTEXE"'
-
-# URL param must be last item passed to viewer, it ignores subsequent params to avoid parameter injection attacks.
-WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" '"$INSTDIR\$INSTEXE" -url "%1"'
-
-# Write out uninstaller
-WriteUninstaller "$INSTDIR\uninst.exe"
-
-# Uninstall existing "Second Life Viewer 2" install if needed.
-StrCmp $DO_UNINSTALL_V2 "" REMOVE_SLV2_DONE
-  ExecWait '"$PROGRAMFILES\SecondLifeViewer2\uninst.exe" /S _?=$PROGRAMFILES\SecondLifeViewer2'
-  Delete "$PROGRAMFILES\SecondLifeViewer2\uninst.exe"	# With _? option above, uninst.exe will be left behind.
-  RMDir "$PROGRAMFILES\SecondLifeViewer2"	# Will remove only if empty.
-
-REMOVE_SLV2_DONE:
-
-SectionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Uninstall Section
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Section Uninstall
-
-# Start with some default values.
-StrCpy $INSTPROG "${INSTNAME}"
-StrCpy $INSTEXE "${INSTEXE}"
-StrCpy $INSTSHORTCUT "${SHORTCUT}"
-
-# Make sure the user can install/uninstall
-Call un.CheckIfAdministrator
-
-# Uninstall for all users (if you change this, change it in the install as well)
-SetShellVarContext all			
-
-# Make sure we're not running
-Call un.CloseSecondLife
-
-# Clean up registry keys and subkeys (these should all be !defines somewhere)
-DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG"
-DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
-# BUG-2707 Remove entry that disabled SEHOP
-DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows NT\CurrentVersion\Image File Execution Options\$INSTEXE"
-
-# Clean up shortcuts
-Delete "$SMPROGRAMS\$INSTSHORTCUT\*.*"
-RMDir  "$SMPROGRAMS\$INSTSHORTCUT"
-
-Delete "$DESKTOP\$INSTSHORTCUT.lnk"
-Delete "$INSTDIR\$INSTSHORTCUT.lnk"
-Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
-
-# Remove the main installation directory
-Call un.ProgramFiles
-
-# Clean up cache and log files, but leave them in-place for non AGNI installs.
-Call un.UserSettingsFiles
-
-SectionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Make sure the user can install
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckIfAdministrator
-    DetailPrint $(CheckAdministratorInstDP)
-    UserInfo::GetAccountType
-    Pop $R0
-    StrCmp $R0 "Admin" lbl_is_admin
-        MessageBox MB_OK $(CheckAdministratorInstMB)
-        Quit
-lbl_is_admin:
-    Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Make sure the user can uninstall
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.CheckIfAdministrator
-    DetailPrint $(CheckAdministratorUnInstDP)
-    UserInfo::GetAccountType
-    Pop $R0
-    StrCmp $R0 "Admin" lbl_is_admin
-        MessageBox MB_OK $(CheckAdministratorUnInstMB)
-        Quit
-lbl_is_admin:
-    Return
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Checks to see if the current version has already been installed (according to the registry).
-;; If it has, allow user to bail out of install process.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Checks if installed version is same as installer and offers to cancel
 Function CheckIfAlreadyCurrent
-    Push $0
-    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Linden Research, Inc.\$INSTPROG" "Version"
-    StrCmp $0 ${VERSION_LONG} 0 continue_install
-    StrCmp $SKIP_DIALOGS "true" continue_install
-    MessageBox MB_OKCANCEL $(CheckIfCurrentMB) /SD IDOK IDOK continue_install
-    Quit
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+!endif
+  Push $0
+  ReadRegStr $0 HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Version"
+  StrCmp $0 ${VERSION_LONG} 0 continue_install
+  StrCmp $SKIP_DIALOGS "true" continue_install
+  MessageBox MB_OKCANCEL $(CheckIfCurrentMB) /SD IDOK IDOK continue_install
+  Quit
 continue_install:
-    Pop $0
-    Return
-
+  Pop $0
+  Return
 FunctionEnd
-	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Function CheckWillUninstallV2               
-;;
-;; If called through auto-update, need to uninstall any existing V2 installation.
-;; Don't want to end up with SecondLifeViewer2 and SecondLifeViewer installations
-;;  existing side by side with no indication on which to use.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckWillUninstallV2
-
-  StrCpy $DO_UNINSTALL_V2 ""
-
-  StrCmp $SKIP_DIALOGS "true" 0 CHECKV2_DONE
-  StrCmp $INSTDIR "$PROGRAMFILES\SecondLifeViewer2" CHECKV2_DONE	# Don't uninstall our own install dir.
-  IfFileExists "$PROGRAMFILES\SecondLifeViewer2\uninst.exe" CHECKV2_FOUND CHECKV2_DONE
-
-CHECKV2_FOUND:
-  StrCpy $DO_UNINSTALL_V2 "true"
-
-CHECKV2_DONE:
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Close the program, if running. Modifies no variables.
-;; Allows user to bail out of install process.
+; Close the program, if running. Modifies no variables.
+; Allows user to bail out of install process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function CloseSecondLife
   Push $0
@@ -478,7 +325,7 @@ Function CloseSecondLife
     SendMessage $0 16 0 0
 
   LOOP:
-	  FindWindow $0 "Polarity" ""
+	FindWindow $0 "Polarity" ""
 	  IntCmp $0 0 DONE
 	  Sleep 500
 	  Goto LOOP
@@ -486,274 +333,279 @@ Function CloseSecondLife
   DONE:
     Pop $0
     Return
-
 FunctionEnd
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Close the program, if running. Modifies no variables.
-;; Allows user to bail out of uninstall process.
+; Close the program, if running. Modifies no variables.
+; Allows user to bail out of uninstall process.
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 Function un.CloseSecondLife
   Push $0
   FindWindow $0 "Polarity" ""
   IntCmp $0 0 DONE
   MessageBox MB_OKCANCEL $(CloseSecondLifeUnInstMB) IDOK CLOSE IDCANCEL CANCEL_UNINSTALL
-
   CANCEL_UNINSTALL:
     Quit
-
   CLOSE:
     DetailPrint $(CloseSecondLifeUnInstDP)
     SendMessage $0 16 0 0
-
   LOOP:
-	  FindWindow $0 "Polarity" ""
-	  IntCmp $0 0 DONE
-	  Sleep 500
-	  Goto LOOP
-
+    FindWindow $0 "Polarity" ""
+    IntCmp $0 0 DONE
+    Sleep 500
+    Goto LOOP
   DONE:
     Pop $0
     Return
-
 FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Test our connection to secondlife.com
-;; Also allows us to count attempted installs by examining web logs.
-;; *TODO: Return current SL version info and have installer check
-;; if it is up to date.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Test our connection to secondlife.com
+; Also allows us to count attempted installs by examining web logs.
+; *TODO: Return current SL version info and have installer check
+; if it is up to date.
 Function CheckNetworkConnection
+  ; Uneeded - LD
+  Return 
     Push $0
     Push $1
     Push $2	# Option value for GetOptions
     DetailPrint $(CheckNetworkConnectionDP)
-# Look for a tag value from the stub installer, used for statistics to correlate installs.
-# Default to "" if not found on command line.
+    ; Look for a tag value from the stub installer, used for statistics
+    ; to correlate installs.  Default to "" if not found on command line.
     StrCpy $2 ""
     ${GetOptions} $COMMANDLINE "/STUBTAG=" $2
     GetTempFileName $0
-    !define HTTP_TIMEOUT 5000		# Milliseconds
-# Don't show secondary progress bar, this will be quick.
+    !define HTTP_TIMEOUT 5000 ; milliseconds
+    ; Don't show secondary progress bar, this will be quick.
     NSISdl::download_quiet \
         /TIMEOUT=${HTTP_TIMEOUT} \
         "http://install.secondlife.com/check/?stubtag=$2&version=${VERSION_LONG}" \
         $0
-    Pop $1		# Return value, either "success", "cancel" or an error message
+    Pop $1 ; Return value, either "success", "cancel" or an error message
     ; MessageBox MB_OK "Download result: $1"
     ; Result ignored for now
 	; StrCmp $1 "success" +2
 	;	DetailPrint "Connection failed: $1"
-    Delete $0	# Temporary file
+    Delete $0 ; temporary file
     Pop $2
     Pop $1
     Pop $0
     Return
-
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Delete files on install if previous install exists to prevent undesired behavior
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function RemoveProgFilesOnInst
+;--------------------------------
+;Installer Sections
 
-# Remove old SecondLife.exe to invalidate any old shortcuts to it that may be in non-standard locations. See MAINT-3575
-Delete "$INSTDIR\SecondLife.exe"
+Section "Viewer"
+  SectionIn RO
+  SetShellVarContext all
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+!endif
+  ;Start with some default values.
+  StrCpy $INSTPROG "${APPNAMEONEWORD}"
+  StrCpy $INSTEXE "${INSTEXE}"
+  StrCpy $INSTSHORTCUT "${APPNAME}"
 
-# Remove old shader files first so fallbacks will work. See DEV-5663
-RMDir /r "$INSTDIR\app_settings\shaders"
+  Call CheckIfAlreadyCurrent
+  Call CloseSecondLife			    ; Make sure we're not running
+  Call CheckNetworkConnection		; ping secondlife.com
 
-# Remove skins folder to clean up files removed during development
-RMDir /r "$INSTDIR\skins"
+  SetOutPath "$INSTDIR"  
+  ;Remove old shader files first so fallbacks will work.
+  RMDir /r "$INSTDIR\app_settings\shaders\*"
 
-# We are no longer including release notes with the viewer, so remove them.
-Delete "$SMPROGRAMS\$INSTSHORTCUT\SL Release Notes.lnk"
-Delete "$INSTDIR\releasenotes.txt"
+  ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
+  %%INSTALL_FILES%%
+  
+!ifdef WIN64_BIN_BUILD
+  ExecWait '"$INSTDIR\redist\vc_redist.x64.exe" /passive'
+!else
+  ExecWait '"$INSTDIR\redist\vc_redist.x86.exe" /passive'
+!endif
 
+  ;Pass the installer's language to the client to use as a default
+  StrCpy $SHORTCUT_LANG_PARAM "--set InstallLanguage $(LanguageCode)"
+
+  ;Create startmenu shortcuts
+  !insertmacro MUI_STARTMENU_WRITE_BEGIN Application
+    CreateDirectory "$SMPROGRAMS\$STARTMENUFOLDER"
+!ifdef WIN64_BIN_BUILD
+    CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\$INSTSHORTCUT x64.lnk" "$\"$INSTDIR\$INSTEXE$\"" "$SHORTCUT_LANG_PARAM"
+    CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\Uninstall $INSTSHORTCUT x64.lnk" "$\"$INSTDIR\uninst.exe$\"" ""
+!else
+    CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\$INSTSHORTCUT.lnk" "$\"$INSTDIR\$INSTEXE$\"" "$SHORTCUT_LANG_PARAM"
+    CreateShortCut	"$SMPROGRAMS\$STARTMENUFOLDER\Uninstall $INSTSHORTCUT.lnk" "$\"$INSTDIR\uninst.exe$\"" ""
+!endif
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Create Account.url" "InternetShortcut" "URL" "http://join.secondlife.com/"
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Your Account.url"	"InternetShortcut" "URL" "http://www.secondlife.com/account/"
+    WriteINIStr		"$SMPROGRAMS\$STARTMENUFOLDER\SL Scripting Language Help.url" "InternetShortcut" "URL" "http://wiki.secondlife.com/wiki/LSL_Portal"
+
+  !insertmacro MUI_STARTMENU_WRITE_END
+
+  ;Other shortcuts
+  SetOutPath "$INSTDIR"
+  ;CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+  CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+  CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" "$INSTDIR\uninst.exe" ""
+
+  ;Write registry
+  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "" "$INSTDIR"
+  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Version" "${VERSION_LONG}"
+  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Shortcut" "$INSTSHORTCUT"
+  WriteRegStr HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG" "Exe" "$INSTEXE"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Comments" "A viewer for the meta-verse!"
+!ifdef WIN64_BIN_BUILD
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTSHORTCUT x64"
+!else
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayName" "$INSTSHORTCUT"
+!endif
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayIcon" "$INSTDIR\$INSTEXE"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "DisplayVersion" "${VERSION_LONG}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "InstallSource" "$EXEDIR\"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "HelpLink" "http://polarityviewer.org"
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "NoModify" 1
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "NoRepair" 1
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "Publisher" "${VENDORSTR}"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLInfoAbout" "http://polarityviewer.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "URLUpdateInfo" "http://polarityviewer.org"
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "UninstallString" "$\"$INSTDIR\uninst.exe$\""
+  WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "QuietUninstallString" "$\"$INSTDIR\uninst.exe$\" /S"
+  ${GetSize} "$INSTDIR" "/S=0K" $0 $1 $2
+  IntFmt $0 "0x%08X" $0
+  WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG" "EstimatedSize" "$0"
+
+
+  ;Write URL registry info
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "(Default)" "URL:Second Life"
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}" "URL Protocol" ""
+  WriteRegStr HKEY_CLASSES_ROOT "${URLNAME}\DefaultIcon" "" "$INSTDIR\$INSTEXE"
+  ;; URL param must be last item passed to viewer, it ignores subsequent params
+  ;; to avoid parameter injection attacks.
+  WriteRegExpandStr HKEY_CLASSES_ROOT "${URLNAME}\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
+
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "(Default)" "URL:Second Life"
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info" "URL Protocol" ""
+  WriteRegStr HKEY_CLASSES_ROOT "x-grid-location-info\DefaultIcon" "" "$\"$INSTDIR\$INSTEXE$\""
+  ;; URL param must be last item passed to viewer, it ignores subsequent params
+  ;; to avoid parameter injection attacks.
+  WriteRegExpandStr HKEY_CLASSES_ROOT "x-grid-location-info\shell\open\command" "" "$\"$INSTDIR\$INSTEXE$\" -url $\"%1$\""
+
+  ;Create uninstaller
+  SetOutPath "$INSTDIR"  
+
+  WriteUninstaller "$INSTDIR\uninst.exe"
+
+SectionEnd
+
+;--------------------------------
+;Installer Functions
+Function .onInit
+  ;Don't install on unsupported operating systems
+  Call CheckWindowsVersion
+  ;Don't install if not administator
+  Call CheckIfAdministrator
+  ;Don't install if we lack required cpu support
+  Call CheckCPUFlags
+
+  Push $0
+
+  ;Get installation folder from registry if available for 64bit
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+  ReadRegStr $0 HKLM "SOFTWARE\${VENDORSTR}\${APPNAMEONEWORD}" ""
+  IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
+  StrCpy $INSTDIR $0
+!endif
+
+
+
+
+    ${GetParameters} $COMMANDLINE              ; get our command line
+
+    ${GetOptions} $COMMANDLINE "/SKIP_DIALOGS" $0   
+    IfErrors +2 0 ; If error jump past setting SKIP_DIALOGS
+        StrCpy $SKIP_DIALOGS "true"
+
+	${GetOptions} $COMMANDLINE "/SKIP_AUTORUN" $0
+    IfErrors +2 0 ; If error jump past setting SKIP_AUTORUN
+		StrCpy $SKIP_AUTORUN "true"
+  ${GetOptions} $COMMANDLINE "/AUTOSTART" $0
+  IfErrors +2 0 ; If error jump past setting AUTOSTART
+  StrCpy $AUTOSTART "true"
+
+    ${GetOptions} $COMMANDLINE "/LANGID=" $0   ; /LANGID=1033 implies US English
+
+    ; If no language (error), then proceed
+    IfErrors lbl_configure_default_lang
+    ; No error means we got a language, so use it
+    StrCpy $LANGUAGE $0
+    Goto lbl_return
+
+lbl_configure_default_lang:
+
+    ; For silent installs, no language prompt, use default
+    IfSilent lbl_return
+    StrCmp $SKIP_DIALOGS "true" lbl_return
+  
+    
+  !insertmacro MUI_LANGDLL_DISPLAY
+
+lbl_return:
+    Pop $0
+    Return
 FunctionEnd
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Delete files in \Users\<User>\AppData\
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.UserSettingsFiles
+;--------------------------------
+;Uninstaller Section
 
-StrCmp $DO_UNINSTALL_V2 "true" Keep			# Don't remove user's settings files on auto upgrade
+Section "Uninstall"
+  SectionIn RO
+  SetShellVarContext all
+!ifdef WIN64_BIN_BUILD
+  SetRegView 64
+!endif
+  StrCpy $INSTPROG "${APPNAMEONEWORD}"
+StrCpy $INSTEXE "${INSTEXE}"
+  StrCpy $INSTSHORTCUT "${APPNAME}"
 
-# Ask if user wants to keep data files or not
-MessageBox MB_YESNO|MB_ICONQUESTION $(RemoveDataFilesMB) IDYES Remove IDNO Keep
+  Call un.CloseSecondLife
 
-Remove:
-Push $0
-Push $1
-Push $2
+  !insertmacro MUI_STARTMENU_GETFOLDER Application $STARTMENUFOLDER
+  RMDir /r "$SMPROGRAMS\$STARTMENUFOLDER"
 
-  DetailPrint "Deleting Polarity Viewer data files"
 
-  StrCpy $0 0	# Index number used to iterate via EnumRegKey
+  ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
+  %%DELETE_FILES%%
 
-  LOOP:
-    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-    StrCmp $1 "" DONE               # No more users
+  ;Optional/obsolete files.  Delete won't fail if they don't exist.
+  Delete "$INSTDIR\message_template.msg"
+  Delete "$INSTDIR\VivoxVoiceService-*.log"
 
-    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath" 
-    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
+  ;Shortcuts in install directory
+  Delete "$INSTDIR\$INSTSHORTCUT.lnk"
+  Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
 
-# Required since ProfileImagePath is of type REG_EXPAND_SZ
-    ExpandEnvStrings $2 $2
+  Delete "$INSTDIR\uninst.exe"
+  RMDir "$INSTDIR"
 
-# Delete files in \Users\<User>\AppData\Roaming\SecondLife
-# Remove all settings files but leave any other .txt files to preserve the chat logs
-;    RMDir /r "$2\AppData\Roaming\SecondLife\logs"
-    RMDir /r "$2\AppData\Roaming\SecondLife\browser_profile"
-    RMDir /r "$2\AppData\Roaming\SecondLife\user_settings"
-    Delete  "$2\AppData\Roaming\SecondLife\*.xml"
-    Delete  "$2\AppData\Roaming\SecondLife\*.bmp"
-    Delete  "$2\AppData\Roaming\SecondLife\search_history.txt"
-    Delete  "$2\AppData\Roaming\SecondLife\plugin_cookies.txt"
-    Delete  "$2\AppData\Roaming\SecondLife\typed_locations.txt"
-# Delete files in \Users\<User>\AppData\Local\SecondLife
-    RmDir /r  "$2\AppData\Local\SecondLife"							#Delete the cache folder
-
-  CONTINUE:
-    IntOp $0 $0 + 1
-    Goto LOOP
-  DONE:
-
-Pop $2
-Pop $1
-Pop $0
-
-# Delete files in ProgramData\Secondlife
-Push $0
-  ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-  StrCmp $0 "" +2
-  RMDir /r "$0\SecondLife"
-Pop $0
-
-Keep:
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Delete the installed files
-;; This deletes the uninstall executable, but it works because it is copied to temp directory before running
-;;
-;; Note:  You must list all files here, because we only want to delete our files,
-;; not things users left in the program directory.
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function un.ProgramFiles
-
-# This placeholder is replaced by the complete list of files to uninstall by viewer_manifest.py
-%%DELETE_FILES%%
-
-# Optional/obsolete files.  Delete won't fail if they don't exist.
-Delete "$INSTDIR\dronesettings.ini"
-Delete "$INSTDIR\message_template.msg"
-Delete "$INSTDIR\newview.pdb"
-Delete "$INSTDIR\newview.map"
-Delete "$INSTDIR\SecondLife.pdb"
-Delete "$INSTDIR\SecondLife.map"
-Delete "$INSTDIR\comm.dat"
-Delete "$INSTDIR\*.glsl"
-Delete "$INSTDIR\motions\*.lla"
-Delete "$INSTDIR\trial\*.html"
-Delete "$INSTDIR\newview.exe"
-Delete "$INSTDIR\SecondLife.exe"
-
-# MAINT-3099 workaround - prevent these log files, if present, from causing a user alert
-Delete "$INSTDIR\VivoxVoiceService-*.log"
-
-# Remove entire help directory
-RMDir /r  "$INSTDIR\help"
-
-Delete "$INSTDIR\uninst.exe"
-RMDir "$INSTDIR"
-
-IfFileExists "$INSTDIR" FOLDERFOUND NOFOLDER
+  IfFileExists "$INSTDIR" FOLDERFOUND NOFOLDER
 
 FOLDERFOUND:
-# Silent uninstall always removes all files (/SD IDYES)
+  ;Silent uninstall always removes all files (/SD IDYES)
   MessageBox MB_YESNO $(DeleteProgramFilesMB) /SD IDYES IDNO NOFOLDER
   RMDir /r "$INSTDIR"
 
 NOFOLDER:
+  DeleteRegKey HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG"
+  DeleteRegKey /ifempty HKLM "SOFTWARE\${VENDORSTR}"
+  DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
+SectionEnd
 
+;--------------------------------
+;Uninstaller Functions
+
+Function un.onInit
+  Call un.CheckIfAdministrator
+  !insertmacro MUI_UNGETLANGUAGE
 FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; After install completes, launch app
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function .onInstSuccess
-Call CheckWindowsServPack		# Warn if not on the latest SP before asking to launch.
-	Push $R0					# Option value, unused
-	StrCmp $SKIP_AUTORUN "true" +2;
-# Assumes SetOutPath $INSTDIR
-	Exec '"$WINDIR\explorer.exe" "$INSTDIR\autorun.bat"'
-	Pop $R0
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Recommend Upgrading to Service Pack 1 for Windows 7, if not present
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Function CheckWindowsServPack
-  ${If} ${IsWin7}
-  ${AndIfNot} ${IsServicePack} 1
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
-  ${If} ${IsWin2008R2}
-  ${AndIfNot} ${IsServicePack} 1
-    MessageBox MB_OK $(CheckWindowsServPackMB)
-    DetailPrint $(UseLatestServPackDP)
-    Return
-  ${EndIf}
-
-FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clobber user files - TEST ONLY
-;; This is here for testing, DO NOT USE UNLESS YOU KNOW WHAT YOU ARE TESTING FOR!
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;Function ClobberUserFilesTESTONLY
-
-;Push $0
-;Push $1
-;Push $2
-;
-;    StrCpy $0 0	# Index number used to iterate via EnumRegKey
-;
-;  LOOP:
-;    EnumRegKey $1 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList" $0
-;    StrCmp $1 "" DONE               # no more users
-;
-;    ReadRegStr $2 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows NT\CurrentVersion\ProfileList\$1" "ProfileImagePath"
-;    StrCmp $2 "" CONTINUE 0         # "ProfileImagePath" value is missing
-;
-;# Required since ProfileImagePath is of type REG_EXPAND_SZ
-;    ExpandEnvStrings $2 $2
-;
-;    RMDir /r "$2\Application Data\SecondLife\"
-;
-;  CONTINUE:
-;    IntOp $0 $0 + 1
-;    Goto LOOP
-;  DONE:
-;
-;Pop $2
-;Pop $1
-;Pop $0
-;
-;# Copy files in Documents and Settings\All Users\SecondLife
-;Push $0
-;    ReadRegStr $0 HKEY_LOCAL_MACHINE "SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders" "Common AppData"
-;    StrCmp $0 "" +2
-;    RMDir /r "$2\Application Data\SecondLife\"
-;Pop $0
-;
-;FunctionEnd
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EOF  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
