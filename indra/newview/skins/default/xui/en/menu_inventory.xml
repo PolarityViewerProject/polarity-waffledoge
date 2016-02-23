@@ -524,6 +524,14 @@
          function="Inventory.DoToSelected"
          parameter="copy_uuid" />
     </menu_item_call>
+    <menu_item_call
+     label="Move to Default Folder"
+     layout="topleft"
+     name="Move To Default">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="move_to_default_folder" />
+    </menu_item_call>
     <menu_item_separator
      layout="topleft" 
      name="Copy Separator" />

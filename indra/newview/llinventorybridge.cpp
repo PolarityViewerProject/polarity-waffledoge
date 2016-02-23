@@ -765,6 +765,17 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					disabled_items.push_back(std::string("Copy Asset UUID"));
 				}
 			}
+			if (obj->getActualType() != LLAssetType::AT_CATEGORY &&
+				obj->getActualType() != LLAssetType::AT_LINK_FOLDER &&
+				obj->getActualType() != LLAssetType::AT_LINK)
+			{
+				items.push_back(std::string("Move To Default"));
+				LLUUID type_cat_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(obj->getActualType()));
+				if (type_cat_id == obj->getParentUUID() || !isItemMovable() || (flags & FIRST_SELECTED_ITEM) == 0)
+				{
+					disabled_items.push_back(std::string("Move To Default"));
+				}
+			}
 			items.push_back(std::string("Copy Separator"));
 			
 			items.push_back(std::string("Copy"));
@@ -1735,6 +1746,17 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
 	{
         std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
         LLUrlAction::openURL(url);
+	}
+	else if ("move_to_default_folder" == action)
+	{
+		if (LLViewerInventoryItem* vitemp = static_cast<LLViewerInventoryItem*>(model->getItem(mUUID)))
+		{
+			LLUUID parent_id = model->findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(vitemp->getActualType()));
+			if (parent_id.notNull())
+			{
+				changeItemParent(model, vitemp, parent_id, FALSE);
+			}
+		}
 	}
 }
 
