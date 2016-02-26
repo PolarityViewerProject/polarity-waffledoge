@@ -11048,6 +11048,19 @@ Cannot create large prims that intersect other players.  Please re-try when othe
 
  <notification
   icon="notify"
+  name="NoseyLookAt"
+  type="alertmodal">
+The Polarity Viewer Project does not endorse hiding your own lookat while displaying other users&amp;, as it is a moral privacy concern to some people.
+
+We ask that you consider this carefully before chosing that route.
+  <usetemplate
+  name="okcancelbuttons"
+  yestext="I understand"
+  notext="Keep the hidden"/>
+ </notification>
+
+ <notification
+  icon="notify"
   name="DebugSettingsWarning"
   type="notifytip">
 Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description carefully and be careful.

@@ -2622,7 +2622,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 
 BOOL LLAgentCamera::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "ObsidianLookAtDisabled", false);
+	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", false);
 	if (lookat_local_disabled)
 	{
 		target_type = LOOKAT_TARGET_NONE;
@@ -2742,7 +2742,9 @@ bool LLAgentCamera::isfollowCamLocked()
 BOOL LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
 	// disallow pointing at attachments and avatars
-	if (object && (object->isAttachment() || object->isAvatar()))
+	static LLCachedControl<bool> disable_edit_beam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
+	static LLCachedControl<bool> show_beam_on_everything(gSavedSettings, "PVPrivacy_ShowEditBeamOnEverything", false);
+	if (!(show_beam_on_everything) && (object && (object->isAttachment() || object->isAvatar() || disable_edit_beam)))
 	{
 		return FALSE;
 	}

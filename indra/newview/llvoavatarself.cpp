@@ -938,6 +938,11 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 //virtual
 void LLVOAvatarSelf::idleUpdateTractorBeam()
 {
+	static LLCachedControl<bool> pointAtDisable(gSavedSettings, "PVPrivacy_HideEditBeam");
+	if (pointAtDisable)
+	{
+		return;
+	}
 	// This is only done for yourself (maybe it should be in the agent?)
 	if (!needsRenderBeam() || !isBuilt())
 	{

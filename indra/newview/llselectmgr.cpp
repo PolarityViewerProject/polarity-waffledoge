@@ -1677,6 +1677,9 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			if (!mItem)
 			{
 				object->sendTEUpdate();
+				LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
+				if (PVPrivacy_HideEditBeam)
+				return false;
 				// 1 particle effect per object				
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
 				effectp->setSourceObject(gAgentAvatarp);
@@ -3618,7 +3621,8 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
                                                           (void*) &info,
                                                           SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
-			if (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD)
+			static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
+			if ((PVPrivacy_HideEditBeam) && (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD))
 			{
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 				effectp->setPositionGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal() );

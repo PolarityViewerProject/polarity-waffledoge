@@ -2402,3 +2402,52 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 
 }
 
+
+// <Polarity> Lookat preferences logic
+bool LLFloaterPreference::confirmNosyLookAt()
+{
+	bool lookat_local_disabled = gSavedSettings.getBOOL("PVPrivacy_LookAtBroadcastDisabled");
+	bool show_lookat = gSavedSettings.getBOOL("PVPrivacy_LookAtShow");
+	bool nosy = gSavedSettings.getBOOL("PVPrivacy_LookAtShowAnyway");
+	if (!nosy)
+	{
+		if (show_lookat && lookat_local_disabled)
+		{
+			LLNotificationsUtil::add("NoseyLookAt", LLSD(), LLSD(),
+				callbackcheckAllowedLookAt);
+		}
+	}
+	return false;
+}
+bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotification::getSelectedOption(notification, response);
+	bool confirmedNosy = false;
+	switch(option)
+	{
+		// Yes = 0, No = 1
+		// Nosey = Yes = 0
+		// Never mind = No = 1
+		// Screw logic, right? This works like an error code.
+		case 0: // Nosey
+			// Set new values
+			LL_WARNS("Preferences") << "Got \"Nosey\" response" << LL_ENDL;
+			confirmedNosy = true;
+			break;
+		case 1: // Nvm
+		/* FallThrough */
+		// TODO: Add a third button to turn on broadcasting as a "Broadcast my lookat" decision
+		case -1: // Closed the window
+		/* Fallthrough */
+		default:
+			// Revert settings to what they were/No-Op
+			LL_WARNS("Preferences") << "Got Something else" << LL_ENDL;
+			break;
+	}
+	// save settings accordingly
+	gSavedSettings.setBOOL("PVPrivacy_LookAtShowAnyway", confirmedNosy);
+	gSavedSettings.setBOOL("PVPrivacy_LookAtShow", confirmedNosy);
+	return false;
+}
+// </Polarity>
+

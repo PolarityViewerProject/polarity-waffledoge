@@ -48,6 +48,9 @@ class LLSD;
 class LLTextBox;
 
 typedef std::map<std::string, std::string> notifications_map;
+// <Polarity> LookAt Logic
+bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response);
+// </Polarity>
 
 typedef enum
 	{
@@ -128,6 +131,9 @@ protected:
 	// cancel() can restore them.	
 	void saveSettings();
 		
+	// <Polarity> LookAt Logic
+	bool confirmNosyLookAt();
+	// </Polarity>
 
 public:
 

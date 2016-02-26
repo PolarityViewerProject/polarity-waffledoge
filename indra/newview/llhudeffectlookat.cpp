@@ -241,7 +241,7 @@ LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) :
 	LLHUDEffect(type), 
 	mKillTime(0.f),
 	mLastSendTime(0.f),
-	mDebugLookAt(gSavedSettings, "ObsidianLookAtShow", false)
+	mDebugLookAt(LLCachedControl<bool> (gSavedSettings, "PVPrivacy_LookAtShow", false))
 {
 	clearLookAtTarget();
 	// parse the default sets
@@ -272,7 +272,7 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 	ELookAtType target_type = mTargetType;
 	LLViewerObject* objectp = mTargetObject;
 	LLVector3d pos = mTargetOffsetGlobal;
-	static LLCachedControl<bool> is_lookat_private(gSavedSettings, "ObsidianLookAtPrivate", false);
+	static LLCachedControl<bool> is_lookat_private(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", false);
 	if (is_lookat_private && gAgent.getID() == mSourceObject->getID())
 	{
 		target_type = LOOKAT_TARGET_NONE;
@@ -507,8 +507,8 @@ void LLHUDEffectLookAt::render()
 	if (mDebugLookAt && mSourceObject.notNull())
 	{
 		LLVOAvatar* avatarp = static_cast<LLVOAvatar*>(mSourceObject.get());
-		static LLCachedControl<bool> lookat_hide_self(gSavedSettings, "ObsidianLookAtHideSelf", false);
-		static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "ObsidianLookAtDisabled", false);
+		static LLCachedControl<bool> lookat_hide_self(gSavedSettings, "PVPrivacy_LookAtHideSelf", false);
+		static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtDontSend", false);
 		if (!avatarp || ((lookat_local_disabled || lookat_hide_self) && avatarp->isSelf()))
 			return;
 
@@ -532,7 +532,7 @@ void LLHUDEffectLookAt::render()
 			gGL.vertex3f(0.f, 0.f, -1.f);
 			gGL.vertex3f(0.f, 0.f, 1.f);
 
-			static LLCachedControl<bool> lookat_render_lines(gSavedSettings, "ObsidianLookAtLines", false);
+			static LLCachedControl<bool> lookat_render_lines(gSavedSettings, "PVPrivacy_LookAtLines", false);
 			if (lookat_render_lines)
 			{
 				const std::string target_name = (*mAttentions)[mTargetType].mName;
@@ -548,7 +548,7 @@ void LLHUDEffectLookAt::render()
 		} gGL.end();
 		gGL.popMatrix();
 
-		static LLCachedControl<U32> lookat_render_names(gSavedSettings, "ObsidianLookAtNames", 0);
+		static LLCachedControl<U32> lookat_render_names(gSavedSettings, "PVPrivacy_LookAtNames", 0);
 		if (lookat_render_names > 0)
 		{
 			std::string text;
@@ -572,17 +572,35 @@ void LLHUDEffectLookAt::render()
 
 			const LLFontGL* fontp = LLFontGL::getFontSansSerif();
 			gGL.pushMatrix();
-			hud_render_utf8text(
-				text,
-				target + LLVector3(0.f, 0.f, 0.15f),
-				*fontp,
-				LLFontGL::NORMAL,
-				LLFontGL::DROP_SHADOW,
-				-0.5f * fontp->getWidthF32(text),
-				0.0f,
-				(*mAttentions)[mTargetType].mColor,
-				FALSE
+			static LLCachedControl<bool> lookat_names_bold(gSavedSettings, "PVPrivacy_LookAtBoldNames", false);
+			if(lookat_names_bold)
+			{
+				hud_render_utf8text(
+					text,
+					target + LLVector3(0.f, 0.f, 0.15f),
+					*fontp,
+					LLFontGL::BOLD,
+					LLFontGL::DROP_SHADOW,
+					-0.5f * fontp->getWidthF32(text),
+					0.0f,
+					(*mAttentions)[mTargetType].mColor,
+					FALSE
 				);
+			}
+			else
+			{
+				hud_render_utf8text(
+					text,
+					target + LLVector3(0.f, 0.f, 0.15f),
+					*fontp,
+					LLFontGL::NORMAL,
+					LLFontGL::DROP_SHADOW,
+					-0.5f * fontp->getWidthF32(text),
+					0.0f,
+					(*mAttentions)[mTargetType].mColor,
+					FALSE
+				);
+			}
 			gGL.popMatrix();
 		}
 	}

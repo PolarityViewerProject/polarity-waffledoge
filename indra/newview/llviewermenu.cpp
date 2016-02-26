@@ -1814,7 +1814,7 @@ class LLAdvancedToggleShowLookAt : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gSavedSettings.setBOOL("ObsidianLookAtShow", !gSavedSettings.getBOOL("ObsidianLookAtShow"));
+		gSavedSettings.setBOOL("PVPrivacy_LookAtShow", !gSavedSettings.getBOOL("PVPrivacy_LookAtShow"));
 		return true;
 	}
 };
@@ -1823,7 +1823,7 @@ class LLAdvancedCheckShowLookAt : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		bool new_value = gSavedSettings.getBOOL("ObsidianLookAtShow");
+		bool new_value = gSavedSettings.getBOOL("PVPrivacy_LookAtShow");
 		return new_value;
 	}
 };
@@ -4604,6 +4604,9 @@ static void derez_objects(
 				LLViewerObject* object = objectsp->at(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
+				LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
+				if (PVPrivacy_HideEditBeam)
+				return;
 				// VEFFECT: DerezObject
 				LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 				effectp->setPositionGlobal(object->getPositionGlobal());

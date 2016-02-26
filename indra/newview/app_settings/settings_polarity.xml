@@ -42,6 +42,85 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVPrivacy_HideEditBeam</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable editing arm motion and beam if true </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVPrivacy_LookAtBroadcastDisabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Do not broadcast own LookAt data to other users. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVPrivacy_LookAtHideSelf</key>
+    <map>
+      <key>Comment</key>
+      <string>Hide own LookAt data when LookAt rendering is enabled </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVPrivacy_LookAtLines</key>
+    <map>
+      <key>Comment</key>
+      <string>Render a line from LookAt beacon to the originating avatar </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVPrivacy_LookAtNames</key>
+    <map>
+      <key>Comment</key>
+      <string>Render name of originating avatar under LookAt beacon </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>PVPrivacy_LookAtShow</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, avatar LookAt beacons will be displayed </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVPrivacy_LookAtShowAnyway</key>
+    <map>
+      <key>Comment</key>
+      <string>You nosy fish! </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>

@@ -1809,6 +1809,12 @@ BOOL LLToolPie::handleRightClickPick()
 
 void LLToolPie::showVisualContextMenuEffect()
 {
+	// <Polarity> Use faster LLCachedControls for frequently visited locations
+	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
+	if (PVPrivacy_HideEditBeam)
+	{
+		return;
+	}
 	// VEFFECT: ShowPie
 	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_SPHERE, TRUE);
 	effectp->setPositionGlobal(mPick.mPosGlobal);

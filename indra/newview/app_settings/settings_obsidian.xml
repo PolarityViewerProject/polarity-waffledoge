@@ -178,6 +178,7 @@
       <key>Value</key>
       <string>/tp2cam</string>
     </map>
+<!-- We have our own.
     <key>ObsidianLookAtDisabled</key>
     <map>
       <key>Comment</key>
@@ -244,6 +245,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+  -->
     <key>ObsidianNavigationBarStyle</key>
     <map>
       <key>Comment</key>
