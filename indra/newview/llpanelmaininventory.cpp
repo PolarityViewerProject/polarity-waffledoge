@@ -57,7 +57,7 @@
 #include "llfolderview.h"
 #include "llradiogroup.h"
 
-// <Polarity> PLVR-24 fix Major FPS drop by disabling filters.xml
+// <Polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
 
 static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
@@ -153,7 +153,7 @@ BOOL LLPanelMainInventory::postBuild()
 	{
 		// "All Items" is the previous only view, so it gets the InventorySortOrder
 		mActivePanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
-		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS); // <Polarity> PLVR-289 hide inventory links by default
+		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS); // <Polarity> hide inventory links by default
 		mActivePanel->getFilter().markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
