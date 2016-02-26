@@ -389,7 +389,10 @@ void LLViewerJoystick::agentFly(F32 inc)
 		if (! (gAgent.getFlying() ||
 		       !gAgent.canFly() ||
 		       gAgent.upGrabbed() ||
-		       !gSavedSettings.getBOOL("AutomaticFly")) )
+			    // <Polarity> Ditch AutomaticFly because it's not granular enough
+			    // !gSavedSettings.getBOOL("AutomaticFly")) )
+			    !gSavedSettings.getBOOL("PVMovement_AutomaticFly")) )
+			     // </Polarity>
 		{
 			gAgent.setFlying(true);
 		}

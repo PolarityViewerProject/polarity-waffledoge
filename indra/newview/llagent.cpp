@@ -1830,8 +1830,11 @@ void LLAgent::propagate(const F32 dt)
 
 		if (!in_air 
 			&& gAgentCamera.getUpKey() < 0 
-			&& land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED
-			&& gSavedSettings.getBOOL("AutomaticFly"))
+			&& (land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED)
+			// <Polarity> Sanity self-check, this is named dumb.
+			// && !(gSavedSettings.getBOOL("PVMovement_DisableAutomaticLand")))
+			&& gSavedSettings.getBOOL("PVMovement_AutomaticLand"))
+			// </Polarity>
 		{
 			// land automatically
 			setFlying(FALSE);
