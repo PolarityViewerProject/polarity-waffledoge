@@ -1868,7 +1868,8 @@ bool LLAppViewer::cleanup()
 
 	LLAvatarAppearance::cleanupClass();
 	
-	LLAvatarAppearance::cleanupClass();
+	// <FS:Ansariel> Comment out duplicate clean up
+	//LLAvatarAppearance::cleanupClass();
 	
 	LLPostProcess::cleanupClass();
 
