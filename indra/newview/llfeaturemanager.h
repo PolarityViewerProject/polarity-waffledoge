@@ -45,6 +45,9 @@ typedef enum EGPUClass
 } EGPUClass; 
 
 
+// I can't bother moving the function to a class.
+static bool mFeatureTableExistsForVersion;
+
 class LLFeatureInfo
 {
 public:
@@ -155,6 +158,7 @@ public:
 
 	// load the dynamic GPU/feature table from a website
 	void fetchHTTPTables();
+	void fetchFallbackHTTPTable();
 	
 protected:
 	bool loadGPUClass();

@@ -421,6 +421,12 @@ bool idle_startup()
 		gSavedSettings.setS32("LastFeatureVersion", LLFeatureManager::getInstance()->getVersion());
 		gSavedSettings.setString("LastGPUString", thisGPU);
 
+		// load dynamic GPU/feature tables from website (S3)
+		LLFeatureManager::getInstance()->fetchHTTPTables();
+		if (!mFeatureTableExistsForVersion)
+		{
+			LLFeatureManager::getInstance()->fetchFallbackHTTPTable();
+		}
 
 		std::string xml_file = LLUI::locateSkin("xui_version.xml");
 		LLXMLNodePtr root;

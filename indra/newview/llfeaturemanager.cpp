@@ -73,6 +73,7 @@ const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_solaris.%s.txt";
 const char FEATURE_TABLE_FILENAME[] = "featuretable%s.txt";
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
 #endif
+const char FEATURE_TABLE_GENERIC[]  = "featuretable.txt";
 
 #if 0                               // consuming code in #if 0 below
 #endif
@@ -499,6 +500,7 @@ public:
 	{
 		if (isGoodStatus())
 		{
+			mFeatureTableExistsForVersion = true;
 			// write to file
 
 			LL_INFOS() << "writing feature table to " << mFilename << LL_ENDL;
@@ -518,6 +520,7 @@ public:
 		}
 		else
 		{
+			mFeatureTableExistsForVersion = false;
 			char body[1025]; 
 			body[1024] = '\0';
 			LLBufferStream istr(channels, buffer.get());
@@ -560,6 +563,21 @@ void LLFeatureManager::fetchHTTPTables()
 	fetch_feature_table(FEATURE_TABLE_VER_FILENAME);
 }
 
+// file for our version doesn't exist, fall back to unversioned file.
+void fetch_fallback_feature_table(std::string table)
+{
+	const std::string base       = gSavedSettings.getString("FeatureManagerHTTPTable");
+	std::string filename         = table.c_str();
+	const std::string url        = base + "/" + filename;
+	const std::string path       = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, filename);
+	LL_INFOS() << "LLFeatureManager Versioned feature table does not exist for this version, falling back to " << url << " into " << path << LL_ENDL;
+	LLHTTPClient::get(url, new LLHTTPFeatureTableResponder(path));
+}
+
+void LLFeatureManager::fetchFallbackHTTPTable()
+{
+	fetch_fallback_feature_table(FEATURE_TABLE_GENERIC);
+}
 
 void LLFeatureManager::cleanupFeatureTables()
 {

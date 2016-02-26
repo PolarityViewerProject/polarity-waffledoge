@@ -3640,7 +3640,7 @@
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
-        <string>http://viewer-settings.secondlife.com</string>
+        <string>https://data.polarityviewer.org/live/featuretable</string>
     </map>
     <key>FPSLogFrequency</key>
         <map>
