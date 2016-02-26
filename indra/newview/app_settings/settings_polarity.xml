@@ -16,6 +16,32 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVMovement_AutomaticFly</key>
+    <map>
+      <key>Comment</key>
+      <string>Fly by holding jump key (FALSE = fly by using "Fly" command only) Replaces Linden AutomaticFly setting.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVMovement_AutomaticLand</key>
+    <map>
+      <key>Comment</key>
+      <string>Land by holding crouch key or using "Fly" command (FALSE = land by using "Fly" command only) Replaces Linden AutomaticFly setting.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>
