@@ -70,6 +70,10 @@ WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
+// HACK: Define settings overrides here. this avoids messing
+// with llcontrol and what not.
+NameTagShowFriends			1	1
+NameTagShowUsernames		1	0
 
 
 //
