@@ -186,14 +186,16 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		login_holder->addChild(this);
 	}
 
-	if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
-	{
-		buildFromFile( "panel_login_first.xml");
-	}
-	else
-	{
-		buildFromFile( "panel_login.xml");
-	}
+	// <Polarity> Do not use the first login layout.
+	//if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	//{
+	//	buildFromFile( "panel_login_first.xml");
+	//}
+	//else
+	//{
+	//	buildFromFile( "panel_login.xml");
+	//}
+	buildFromFile( "panel_login.xml");
 
 	reshape(rect.getWidth(), rect.getHeight());
 
