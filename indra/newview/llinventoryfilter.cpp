@@ -45,6 +45,8 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
+#include <boost/algorithm/string.hpp> // <Polarity/>
+
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 
 LLInventoryFilter::FilterOps::FilterOps(const Params& p)
@@ -77,6 +79,10 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFirstRequiredGeneration(0),
 	mFirstSuccessGeneration(0)
 {
+	// <FS:Zi> Begin Multi-substring inventory search
+	mSubStringMatchOffsets.clear();
+	mFilterSubStrings.clear();
+	// </FS:Zi> End Multi-substring inventory search
 	// copy mFilterOps into mDefaultFilterOps
 	markDefault();
 }
@@ -609,7 +615,32 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 	std::string filter_sub_string_new = string;
 	mFilterSubStringOrig = string;
 	LLStringUtil::trimHead(filter_sub_string_new);
-	LLStringUtil::toUpper(filter_sub_string_new);
+	boost::to_upper(filter_sub_string_new); // <Polarity>
+	// <FS:Zi> Multi-substring inventory search
+	// Cut filter string into several substrings
+	std::string separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
+	{
+		mFilterSubStrings.clear();
+		mSubStringMatchOffsets.clear();
+		std::string::size_type frm = 0;
+		std::string::size_type to;
+		
+		do
+		{
+			// <Polarity> Make inventory search behave like a keyword list instead of a litteral expression
+			// TODO: Add "whole word" option.
+			to = filter_sub_string_new.find_first_of(separator,frm);
+			std::string subSubString = (to == std::string::npos) ? filter_sub_string_new.substr(frm, to) : filter_sub_string_new.substr(frm, to-frm);
+			if (subSubString.size())
+			{
+				mFilterSubStrings.push_back(subSubString);
+				mSubStringMatchOffsets.push_back(std::string::npos);
+			}
+			frm = to+1;
+		}
+		while (to != std::string::npos);
+	}
+	// </FS:Zi> Multi-substring inventory search
 
 	if (mFilterSubString != filter_sub_string_new)
 	{

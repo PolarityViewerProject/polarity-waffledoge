@@ -16,5 +16,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_SubstringSearchSeparator</key>
+    <map>
+      <key>Comment</key>
+      <string>Character to use to separate search keywords. Defaults to space</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string> </string>
+    </map>
   </map>
 </llsd>
