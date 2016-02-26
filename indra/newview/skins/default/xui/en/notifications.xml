@@ -11045,4 +11045,16 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    type="notifytip">
    Calculation failed.
   </notification>
+
+ <notification
+  icon="notify"
+  name="DebugSettingsWarning"
+  type="notifytip">
+Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description carefully and be careful.
+  <form name="form">
+    <ignore name="ignore"
+     text="Debug Settings warning message"/>
+    </form>
+ </notification>
+
 </notifications>

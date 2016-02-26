@@ -34,6 +34,7 @@
 #include "llcolorswatch.h"
 #include "llviewercontrol.h"
 #include "lltexteditor.h"
+#include "llnotificationsutil.h"
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
@@ -78,6 +79,13 @@ BOOL LLFloaterSettingsDebug::postBuild()
 	settings_combo->sortByName();
 	settings_combo->updateSelection();
 	mComment = getChild<LLTextEditor>("comment_text");
+
+	if (!gSavedSettings.getBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a"))
+	{
+		LLNotificationsUtil::add("DebugSettingsWarning");
+		gSavedSettings.setBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a", TRUE);
+	}
+
 	return TRUE;
 }
 

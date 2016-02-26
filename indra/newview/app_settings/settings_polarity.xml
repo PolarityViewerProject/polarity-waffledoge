@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:noNamespaceSchemaLocation="llsd.xsd">
+  <map>
+    <!-- Add your settings here -->
+    <key>7bd9b379-962b-407f-9dd3-2d5ce9eba39a</key>
+    <map>
+      <key>Comment</key>
+      <string>Check if the user opened the debug settings on this install.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  </map>
+</llsd>
