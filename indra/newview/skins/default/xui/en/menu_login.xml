@@ -316,4 +316,11 @@
          parameter="notifications_console" />
       </menu_item_call>
     </menu>
+    <menu
+     enabled="false"
+     create_jump_keys="false"
+     label="                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     "
+     name="dummy_menu_item"
+     tear_off="false">
+    </menu>
 </menu_bar>
