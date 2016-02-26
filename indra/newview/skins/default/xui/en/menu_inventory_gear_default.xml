@@ -233,7 +233,6 @@
             function="Inventory.FilterLinks.Check"
             parameter="hide_links" />
     </menu_item_check>
-    <menu_item_separator />
     <!-- ## Zi: Filter Links Menu -->
     <menu_item_separator
      layout="topleft" />
