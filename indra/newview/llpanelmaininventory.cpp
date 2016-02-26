@@ -173,6 +173,30 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, recent_items_panel, _1, _2));
 	}
 
+	// <FS:ND> Bring back worn items panel.
+	LLInventoryPanel* worn_items_panel = getChild<LLInventoryPanel>("Worn Items");
+	if (worn_items_panel)
+	{
+		worn_items_panel->setWorn(TRUE);
+		worn_items_panel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
+		worn_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+		LLInventoryFilter& worn_filter = worn_items_panel->getFilter();
+		worn_filter.setFilterObjectTypes(0xffffffffffffffffULL & ~(0x1 << LLInventoryType::IT_GESTURE | 0x1 << LLInventoryType::IT_CATEGORY));
+		worn_filter.markDefault();
+
+		// <FS:ND> Do not go all crazy and recurse through the whole inventory
+		//		worn_items_panel->openAllFolders();
+		if( worn_items_panel->getRootFolder() )
+		{
+			worn_items_panel->getRootFolder()->setOpenArrangeRecursively(TRUE, LLFolderViewFolder::RECURSE_NO);
+			worn_items_panel->getRootFolder()->arrangeAll();
+		}
+		// </FS:ND>
+
+		worn_items_panel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, worn_items_panel, _1, _2));
+	}
+	// </FS:ND>
+
 	// Now load the stored settings from disk, if available.
 	// <Polarity/> Disabled for performance reasons. Seriously.
 #if 0

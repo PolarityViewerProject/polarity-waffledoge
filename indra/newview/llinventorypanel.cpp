@@ -50,6 +50,7 @@
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
+#include "llinventorypanel.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 
@@ -308,6 +309,9 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	// keep track of the clipboard state so that we avoid filtering too much
 	mClipboardState = LLClipboard::instance().getGeneration();
 	
+	// <FS:Ansariel> Optional hiding of empty system folders
+	gSavedSettings.getControl("DebugHideEmptySystemFolders")->getSignal()->connect(boost::bind(&LLInventoryPanel::updateHideEmptySystemFolders, this, _2));
+
 	// Initialize base class params.
 	LLPanel::initFromParams(mParams);
 }
@@ -499,6 +503,13 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 					view_item->refresh();
 				}
+				// <FS:Ansariel> FIRE-11103: Fix empty folders being shown in worn inventory panel
+				LLFolderViewFolder* parent = view_item->getParentFolder();
+				if(parent)
+				{
+					parent->getViewModelItem()->dirtyDescendantsFilter();
+				}
+				// </FS:Ansariel>
 			}
 		}
 
@@ -1235,6 +1246,22 @@ BOOL LLInventoryPanel::getSinceLogoff()
 	return getFilter().isSinceLogoff();
 }
 
+// <FS:Ansariel> Optional hiding of empty system folders
+void LLInventoryPanel::updateHideEmptySystemFolders(const LLSD &data)
+{
+	LLInventoryFilter& filter = getFilter();
+	if (data.asBoolean())
+	{
+		filter.setFilterEmptySystemFolders();
+	}
+	else
+	{
+		filter.removeFilterEmptySystemFolders();
+	}
+	filter.setModified(LLInventoryFilter::FILTER_RESTART);
+}
+// </FS:Ansariel> Optional hiding of empty system folders
+
 // DEBUG ONLY
 // static 
 void LLInventoryPanel::dumpSelectionInformation(void* user_data)
@@ -1547,6 +1574,38 @@ LLInventoryRecentItemsPanel::LLInventoryRecentItemsPanel( const Params& params)
 	// replace bridge builder to have necessary View bridges.
 	mInvFVBridgeBuilder = &RECENT_ITEMS_BUILDER;
 }
+
+void LLInventoryPanel::setWorn(BOOL sl)
+{
+	getFilter().setFilterWorn(sl);
+}
+
+/************************************************************************/
+/* Worn Inventory Panel related class                                 */
+/************************************************************************/
+class LLInventoryWornItemsPanel;
+static LLDefaultChildRegistry::Register<LLInventoryWornItemsPanel> t_worn_inventory_panel("worn_inventory_panel");
+
+//static const LLWornInventoryBridgeBuilder WORN_ITEMS_BUILDER;
+static LLWornInventoryBridgeBuilder WORN_ITEMS_BUILDER; // <ND/> const makes GCC >= 4.6 very angry about not user defined default ctor.
+class LLInventoryWornItemsPanel : public LLInventoryPanel
+{
+public:
+	struct Params :	public LLInitParam::Block<Params, LLInventoryPanel::Params>
+	{};
+
+protected:
+	LLInventoryWornItemsPanel (const Params&);
+	friend class LLUICtrlFactory;
+};
+
+LLInventoryWornItemsPanel::LLInventoryWornItemsPanel( const Params& params)
+: LLInventoryPanel(params)
+{
+	// replace bridge builder to have necessary View bridges.
+	mInvFVBridgeBuilder = &WORN_ITEMS_BUILDER;
+}
+
 
 namespace LLInitParam
 {

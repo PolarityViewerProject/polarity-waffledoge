@@ -7209,4 +7209,110 @@ void LLFolderViewGroupedItemBridge::groupFilterContextMenu(folder_view_item_dequ
 	disable_context_entries_if_present(menu, disabled_items);
 }
 
+/************************************************************************/
+/* Worn Inventory Panel related classes							 */
+/************************************************************************/
+void LLWornItemsFolderBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
+{
+	menuentry_vec_t disabled_items, items;
+		buildContextMenuOptions(flags, items, disabled_items);
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Body Parts")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Clothes")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Note")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Gesture")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Script")), items.end());
+	items.erase(std::remove(items.begin(), items.end(), std::string("New Folder")), items.end());
+	hide_context_entries(menu, items, disabled_items);
+}
+LLInvFVBridge* LLWornInventoryBridgeBuilder::createBridge(
+	LLAssetType::EType asset_type,
+	LLAssetType::EType actual_asset_type,
+	LLInventoryType::EType inv_type,
+	LLInventoryPanel* inventory,
+	LLFolderViewModelInventory* view_model,
+	LLFolderView* root,
+	const LLUUID& uuid,
+	U32 flags /*= 0x00*/ ) const
+{
+	LLInvFVBridge* new_listener = NULL;
+	switch(asset_type)
+	{
+	case LLAssetType::AT_CATEGORY:
+		if (actual_asset_type == LLAssetType::AT_LINK_FOLDER)
+		{
+			// *TODO: Create a link folder handler instead if it is necessary
+			new_listener = LLInventoryFolderViewModelBuilder::createBridge(
+				asset_type,
+				actual_asset_type,
+				inv_type,
+				inventory,
+																view_model,
+				root,
+				uuid,
+				flags);
+			break;
+		}
+		new_listener = new LLWornItemsFolderBridge(inv_type, inventory, root, uuid);
+		break;
+	default:
+		new_listener = LLInventoryFolderViewModelBuilder::createBridge(
+			asset_type,
+			actual_asset_type,
+			inv_type,
+			inventory,
+																view_model,
+			root,
+			uuid,
+			flags);
+	}
+	return new_listener;
+}
+// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
+std::string LLInvFVBridge::getSearchableCreator( void ) const
+{
+	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
+	std::string strCreator;
+	if(pItem)
+	{
+		if( gCacheName->getFullName( pItem->getCreatorUUID(), strCreator ) )
+			LLStringUtil::toUpper( strCreator );
+	}
+	return strCreator;
+}
+std::string LLInvFVBridge::getSearchableDescription( void ) const
+{
+	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
+	std::string strDescr;
+	if(pItem)
+	{
+		if(!pItem->getDescription().empty() )
+		{
+			strDescr = pItem->getDescription();
+			LLStringUtil::toUpper( strDescr );
+		}
+	}
+	return strDescr;
+}
+std::string LLInvFVBridge::getSearchableUUID( void ) const
+{
+	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
+	std::string strUUID;
+	if(pItem)
+	{
+		if(!pItem->getAssetUUID().isNull())
+		{
+			strUUID = pItem->getAssetUUID().asString();
+			LLStringUtil::toUpper( strUUID );
+		}
+	}
+	return strUUID;
+}
+std::string LLInvFVBridge::getSearchableAll( void ) const
+{
+	return getSearchableName() + "+" +
+		getSearchableCreator() + "+" +
+		getSearchableDescription() + "+" +
+		getSearchableUUID();
+}
+// </FS:ND>
 // EOF

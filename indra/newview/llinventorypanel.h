@@ -209,6 +209,9 @@ public:
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
 
+	// <FS:Ansariel> Optional hiding of empty system folders
+	void updateHideEmptySystemFolders(const LLSD &data);
+
 	// DEBUG ONLY:
 	static void dumpSelectionInformation(void* user_data);
 
@@ -310,6 +313,9 @@ protected:
 private:
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	bool				mViewsInitialized; // Views have been generated
+
+public:
+	void setWorn(BOOL sl);
 };
 
 #endif // LL_LLINVENTORYPANEL_H

@@ -57,7 +57,8 @@ public:
         FILTERTYPE_MARKETPLACE_INACTIVE = 0x1 << 7,		// pass if folder is a marketplace inactive folder
         FILTERTYPE_MARKETPLACE_UNASSOCIATED = 0x1 << 8,	// pass if folder is a marketplace non associated (no market ID) folder
         FILTERTYPE_MARKETPLACE_LISTING_FOLDER = 0x1 << 9,	// pass iff folder is a listing folder
-        FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10         // pass iff folder is not under the marketplace
+        FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10 ,        // pass iff folder is not under the marketplace
+		FILTERTYPE_WORN = 0x1 << 11,	// <FS> search by wearable type
 	};
 
 	enum EFilterDateDirection
@@ -191,7 +192,8 @@ public:
 	void				setFilterMarketplaceInactiveFolders();
 	void				setFilterMarketplaceUnassociatedFolders();
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
-    void                setFilterNoMarketplaceFolder();
+    void                setFilterNoMarketplaceFolder();      
+	void				removeFilterEmptySystemFolders(); // <FS:Ansariel> Optional hiding of empty system folders
 	void				updateFilterTypes(U64 types, U64& current_types);
 
 	void 				setFilterSubString(const std::string& string);
@@ -223,6 +225,9 @@ public:
 
 	// sets params for Link-only search and backs up search settings for future restoration
 	void				setFindAllLinksMode(const std::string &search_name, const LLUUID& search_id);
+
+	void				setFilterWorn(BOOL sl);
+	BOOL				getFilterWorn() const { return mFilterOps.mFilterTypes & FILTERTYPE_WORN; }
 
 	// +-------------------------------------------------------------------+
 	// + Execution And Results

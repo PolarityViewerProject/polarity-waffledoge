@@ -198,6 +198,14 @@ protected:
 	void purgeItem(LLInventoryModel *model, const LLUUID &uuid);
 	void removeObject(LLInventoryModel *model, const LLUUID &uuid);
 	virtual void buildDisplayName() const {}
+
+	// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
+public:
+	virtual std::string getSearchableCreator( void ) const;
+	virtual std::string getSearchableDescription( void ) const;
+	virtual std::string getSearchableUUID( void ) const;
+	virtual std::string getSearchableAll( void ) const;
+	// </FS:ND>
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -712,6 +720,40 @@ private:
 };
 
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Worn Inventory Panel related classes
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Overridden version of the Inventory-Folder-View-Bridge for Folders
+class LLWornItemsFolderBridge : public LLFolderBridge
+{
+public:
+	// Creates context menu for Folders related to Worn Inventory Panel.
+	// Uses base logic and than removes from visible items "New..." menu items.
+	LLWornItemsFolderBridge(LLInventoryType::EType type,
+							LLInventoryPanel* inventory,
+							LLFolderView* root,
+							const LLUUID& uuid) :
+		LLFolderBridge(inventory, root, uuid)
+	{
+		mInvType = type;
+	}
+	/*virtual*/ void buildContextMenu(LLMenuGL& menu, U32 flags);
+};
+// Bridge builder to create Inventory-Folder-View-Bridge for Worn Inventory Panel
+class LLWornInventoryBridgeBuilder : public LLInventoryFolderViewModelBuilder
+{
+public:
+	// Overrides FolderBridge for Worn Inventory Panel.
+	// It use base functionality for bridges other than FolderBridge.
+	virtual LLInvFVBridge* createBridge(LLAssetType::EType asset_type,
+		LLAssetType::EType actual_asset_type,
+		LLInventoryType::EType inv_type,
+		LLInventoryPanel* inventory,
+		LLFolderViewModelInventory* view_model,
+		LLFolderView* root,
+		const LLUUID& uuid,
+		U32 flags = 0x00) const;
+};
 void rez_attachment(LLViewerInventoryItem* item, 
 					LLViewerJointAttachment* attachment,
 					bool replace = false);
