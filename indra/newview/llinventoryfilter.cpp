@@ -217,7 +217,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
-	if (isNotDefault() || mFilterSubString.size()
+	if (isNotDefault()
 		&& !gInventory.isCategoryComplete(folder_id))
 	{
 		LLInventoryModelBackgroundFetch::instance().start(folder_id);
