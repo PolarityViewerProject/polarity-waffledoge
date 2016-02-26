@@ -87,6 +87,27 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	markDefault();
 }
 
+// <FS:Zi> Extended Inventory Search
+void LLInventoryFilter::setFilterSubStringTarget(const std::string& targetName)
+{
+	if (targetName == "name")
+		mFilterSubStringTarget = SUBST_TARGET_NAME;
+	else if (targetName == "creator")
+		mFilterSubStringTarget = SUBST_TARGET_CREATOR;
+	else if (targetName == "description")
+		mFilterSubStringTarget = SUBST_TARGET_DESCRIPTION;
+	else if (targetName == "uuid")
+		mFilterSubStringTarget = SUBST_TARGET_UUID;
+	else if (targetName == "all")
+		mFilterSubStringTarget = SUBST_TARGET_ALL;
+	else
+		LL_WARNS("LLInventoryFilter") << "Unknown sub string target: " << targetName << LL_ENDL;
+}
+LLInventoryFilter::EFilterSubstringTarget LLInventoryFilter::getFilterSubStringTarget() const
+{
+	return mFilterSubStringTarget;
+}
+// </FS:Zi> Extended Inventory Search
 bool LLInventoryFilter::check(const LLFolderViewModelItem* item) 
 {
 	const LLFolderViewModelItemInventory* listener = dynamic_cast<const LLFolderViewModelItemInventory*>(item);
@@ -100,7 +121,58 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		return passed_clipboard;
 	}
 
-	bool passed = (mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) != std::string::npos : true);
+	// <FS:Zi> Multi-substring inventory search
+	//bool passed = (mFilterSubString.size() ? listener->getSearchableName().find(mFilterSubString) != std::string::npos : true);
+	std::string::size_type string_offset = std::string::npos;
+	if (mFilterSubStrings.size())
+	{
+		std::string searchLabel;
+		switch (mFilterSubStringTarget)
+		{
+			case SUBST_TARGET_NAME:
+				searchLabel = listener->getSearchableName();
+				break;
+			case SUBST_TARGET_CREATOR:
+				searchLabel = listener->getSearchableCreator();
+				break;
+			case SUBST_TARGET_DESCRIPTION:
+				searchLabel = listener->getSearchableDescription();
+				break;
+			case SUBST_TARGET_UUID:
+				searchLabel = listener->getSearchableUUID();
+				break;
+			case SUBST_TARGET_ALL:
+				searchLabel = listener->getSearchableAll();
+				break;
+			default:
+				LL_WARNS("LLInventoryFilter") << "Unknown search substring target: " << mFilterSubStringTarget << LL_ENDL;
+				searchLabel = listener->getSearchableName();
+				break;
+		}
+		U32 index = 0;
+		for (std::vector<std::string>::iterator it = mFilterSubStrings.begin();
+			it < mFilterSubStrings.end(); it++, index++)
+		{
+			std::string::size_type sub_string_offset = searchLabel.find(*it);
+			mSubStringMatchOffsets[index] = sub_string_offset;
+			if (sub_string_offset == std::string::npos)
+			{
+				string_offset = std::string::npos;
+				for (std::vector<std::string::size_type>::iterator it = mSubStringMatchOffsets.begin();
+					it < mSubStringMatchOffsets.end(); it++)
+				{
+					*it = std::string::npos;
+				}
+				break;
+			}
+			else if (string_offset == std::string::npos)
+			{
+				string_offset = sub_string_offset;
+			}
+		}
+	}
+	bool passed = (mFilterSubString.size() == 0 || string_offset != std::string::npos);
+	// </FS:Zi> Multi-substring inventory search
 	passed = passed && checkAgainstFilterType(listener);
 	passed = passed && checkAgainstPermissions(listener);
 	passed = passed && checkAgainstFilterLinks(listener);
@@ -145,7 +217,7 @@ bool LLInventoryFilter::checkFolder(const LLUUID& folder_id) const
 	}
 
 	// when applying a filter, matching folders get their contents downloaded first
-	if (isNotDefault()
+	if (isNotDefault() || mFilterSubString.size()
 		&& !gInventory.isCategoryComplete(folder_id))
 	{
 		LLInventoryModelBackgroundFetch::instance().start(folder_id);
@@ -618,7 +690,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 	boost::to_upper(filter_sub_string_new); // <Polarity>
 	// <FS:Zi> Multi-substring inventory search
 	// Cut filter string into several substrings
-	std::string separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
+	//std::string separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
 	{
 		mFilterSubStrings.clear();
 		mSubStringMatchOffsets.clear();
@@ -629,7 +701,8 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		{
 			// <Polarity> Make inventory search behave like a keyword list instead of a litteral expression
 			// TODO: Add "whole word" option.
-			to = filter_sub_string_new.find_first_of(separator,frm);
+			// to = filter_sub_string_new.find_first_of(separator,frm);
+			to = filter_sub_string_new.find_first_of(' ',frm);
 			std::string subSubString = (to == std::string::npos) ? filter_sub_string_new.substr(frm, to) : filter_sub_string_new.substr(frm, to-frm);
 			if (subSubString.size())
 			{
@@ -1298,3 +1371,20 @@ bool LLInventoryFilter::FilterOps::DateRange::validateBlock( bool   emit_errors 
 	}
 	return valid;
 }
+// <FS:Zi> Multi-substring inventory search
+// For use by LLFolderViewItem for highlighting
+U32 LLInventoryFilter::getFilterSubStringCount() const
+{
+	return mFilterSubStrings.size();
+}
+std::string::size_type LLInventoryFilter::getFilterSubStringPos(U32 index) const
+{
+	if (index < 0 || index >= mSubStringMatchOffsets.size()) return std::string::npos;
+	return mSubStringMatchOffsets[index];
+}
+std::string::size_type LLInventoryFilter::getFilterSubStringLen(U32 index) const
+{
+	if (index < 0 || index >= mFilterSubStrings.size()) return 0;
+	return mFilterSubStrings[index].size();
+}
+// </FS:Zi> Multi-substring inventory search

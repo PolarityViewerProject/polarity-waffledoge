@@ -57,7 +57,8 @@
 #include "llfolderview.h"
 #include "llradiogroup.h"
 
-const std::string FILTERS_FILENAME("filters.xml");
+// <Polarity> PLVR-24 fix Major FPS drop by disabling filters.xml
+// const std::string FILTERS_FILENAME("filters.xml");
 
 static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
 
@@ -121,6 +122,16 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
 
+	// <FS:Zi> Filter Links Menu
+	mCommitCallbackRegistrar.add("Inventory.FilterLinks.Set", boost::bind(&LLPanelMainInventory::onFilterLinksChecked, this, _2));
+	mEnableCallbackRegistrar.add("Inventory.FilterLinks.Check", boost::bind(&LLPanelMainInventory::isFilterLinksChecked, this, _2));
+	// </FS:Zi> Filter Links Menu
+
+	// <FS:Zi> Extended Inventory Search
+	mCommitCallbackRegistrar.add("Inventory.SearchTarget.Set", boost::bind(&LLPanelMainInventory::onSearchTargetChecked, this, _2));
+	mEnableCallbackRegistrar.add("Inventory.SearchTarget.Check", boost::bind(&LLPanelMainInventory::isSearchTargetChecked, this, _2));
+	// </FS:Zi> Extended Inventory Search
+
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
 }
@@ -142,6 +153,7 @@ BOOL LLPanelMainInventory::postBuild()
 	{
 		// "All Items" is the previous only view, so it gets the InventorySortOrder
 		mActivePanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
+		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS); // <Polarity> PLVR-289 hide inventory links by default
 		mActivePanel->getFilter().markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
@@ -153,6 +165,8 @@ BOOL LLPanelMainInventory::postBuild()
 		recent_items_panel->setSinceLogoff(TRUE);
 		recent_items_panel->setSortOrder(LLInventoryFilter::SO_DATE);
 		recent_items_panel->setShowFolderState(LLInventoryFilter::SHOW_NON_EMPTY_FOLDERS);
+		// <FS:Ansariel> FIRE-2629 / FIRE-3256: Hide links by default in recent inventory panel
+		recent_items_panel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
 		LLInventoryFilter& recent_filter = recent_items_panel->getFilter();
 		recent_filter.setFilterObjectTypes(recent_filter.getFilterObjectTypes() & ~(0x1 << LLInventoryType::IT_CATEGORY));
 		recent_filter.markDefault();
@@ -160,9 +174,12 @@ BOOL LLPanelMainInventory::postBuild()
 	}
 
 	// Now load the stored settings from disk, if available.
-	std::string filterSaveName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME));
-	LL_INFOS() << "LLPanelMainInventory::init: reading from " << filterSaveName << LL_ENDL;
-	llifstream file(filterSaveName.c_str());
+	// <Polarity/> Disabled for performance reasons. Seriously.
+#if 0
+	std::ostringstream filterSaveName;
+	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
+	LL_INFOS() << "LLPanelMainInventory::init: reading from " << filterSaveName.str() << LL_ENDL;
+	llifstream file(filterSaveName.str());
 	LLSD savedFilterState;
 	if (file.is_open())
 	{
@@ -185,7 +202,7 @@ BOOL LLPanelMainInventory::postBuild()
 		}
 
 	}
-
+#endif
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
 	{
@@ -242,8 +259,11 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 		}
 	}
 
-	std::string filterSaveName(gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME));
-	llofstream filtersFile(filterSaveName.c_str());
+	// <Polarity> Disabled filters.xml logic for performance reasons
+#if 0
+	std::ostringstream filterSaveName;
+	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
+	llofstream filtersFile(filterSaveName.str());
 	if(!LLSDSerialize::toPrettyXML(filterRoot, filtersFile))
 	{
 		LL_WARNS() << "Could not write to filters save file " << filterSaveName << LL_ENDL;
@@ -252,6 +272,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
     {
 		filtersFile.close();
     }
+#endif
     
 	gInventory.removeObserver(this);
 	delete mSavedFolderState;
@@ -393,7 +414,11 @@ void LLPanelMainInventory::onClearSearch()
 		initially_active = mActivePanel->getFilter().isNotDefault();
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 		mActivePanel->setFilterTypes(0xffffffffffffffffULL);
-		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
+
+		// ## Zi: Filter Links Menu
+		// We don't do this anymore, we have a menu option for it now. -Zi
+		//mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
+		// </FS:Zi>
 	}
 
 	if (finder)
@@ -1249,6 +1274,91 @@ BOOL LLPanelMainInventory::isActionChecked(const LLSD& userdata)
 
 	return FALSE;
 }
+
+// ## Zi: Filter Links Menu
+void LLPanelMainInventory::onFilterLinksChecked(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "show_links")
+	{
+		getActivePanel()->setFilterLinks(LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
+	}
+
+	if (command_name == "only_links")
+	{
+		getActivePanel()->setFilterLinks(LLInventoryFilter::FILTERLINK_ONLY_LINKS);
+	}
+
+	if (command_name == "hide_links")
+	{
+		getActivePanel()->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
+	}
+}
+
+BOOL LLPanelMainInventory::isFilterLinksChecked(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "show_links")
+	{
+		return (getActivePanel()->getFilter().getFilterLinks() == LLInventoryFilter::FILTERLINK_INCLUDE_LINKS);
+	}
+
+	if (command_name == "only_links")
+	{
+		return (getActivePanel()->getFilter().getFilterLinks() == LLInventoryFilter::FILTERLINK_ONLY_LINKS);
+	}
+
+	if (command_name == "hide_links")
+	{
+		return (getActivePanel()->getFilter().getFilterLinks() == LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS);
+	}
+
+	return FALSE;
+}
+// ## Zi: Filter Links Menu
+
+// ## Zi: Extended Inventory Search
+void LLPanelMainInventory::onSearchTargetChecked(const LLSD& userdata)
+{
+	getActivePanel()->setFilterSubStringTarget(userdata.asString());
+	resetFilters();
+}
+
+LLInventoryFilter::EFilterSubstringTarget LLPanelMainInventory::getSearchTarget() const
+{
+	return getActivePanel()->getFilterSubStringTarget();
+}
+
+BOOL LLPanelMainInventory::isSearchTargetChecked(const LLSD& userdata)
+{
+	const std::string command_name = userdata.asString();
+	if (command_name == "name")
+	{
+		return (getSearchTarget()==LLInventoryFilter::SUBST_TARGET_NAME);
+	}
+
+	if (command_name == "creator")
+	{
+		return (getSearchTarget()==LLInventoryFilter::SUBST_TARGET_CREATOR);
+	}
+
+	if (command_name == "description")
+	{
+		return (getSearchTarget()==LLInventoryFilter::SUBST_TARGET_DESCRIPTION);
+	}
+
+	if (command_name == "uuid")
+	{
+		return (getSearchTarget()==LLInventoryFilter::SUBST_TARGET_UUID);
+	}
+
+	if (command_name == "all")
+	{
+		return (getSearchTarget()==LLInventoryFilter::SUBST_TARGET_ALL);
+	}
+	return FALSE;
+}
+// ## Zi: Extended Inventory Search
 
 bool LLPanelMainInventory::handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept)
 {

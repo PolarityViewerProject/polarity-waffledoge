@@ -136,6 +136,18 @@ public:
 class LLFolderViewModelItem : public LLRefCount, public LLTrace::MemTrackable<LLFolderViewModelItem>
 {
 public:
+// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
+// Interface to query extended object attributes,
+	virtual std::string getSearchableCreator( void ) const
+	{ return ""; }
+	virtual std::string getSearchableDescription( void ) const
+	{ return ""; }
+	virtual std::string getSearchableUUID( void ) const
+	{ return ""; }
+	virtual std::string getSearchableAll( void ) const
+	{ return ""; }
+// </FS:ND>
+
 	LLFolderViewModelItem() 
 	:	LLTrace::MemTrackable<LLFolderViewModelItem>("LLFolderViewModelItem") 
 	{}
