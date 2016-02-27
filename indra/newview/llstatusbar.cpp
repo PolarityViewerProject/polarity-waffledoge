@@ -80,22 +80,22 @@ const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
 const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
 
-static void onClickVolume(void*);
+static void onClickVolume(void* data);
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
-	mTextTime(NULL),
-	mSGBandwidth(NULL),
-	mSGPacketLoss(NULL),
-	mBtnStats(NULL),
-	mBtnVolume(NULL),
-	mBoxBalance(NULL),
+	mTextTime(nullptr),
+	mSGBandwidth(nullptr),
+	mSGPacketLoss(nullptr),
+	mBtnStats(nullptr),
+	mBtnVolume(nullptr),
+	mBoxBalance(nullptr),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
 	mSquareMetersCommitted(0)
 {
-	setRect(rect);
+	LLView::setRect(rect);
 	
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
@@ -256,7 +256,6 @@ void LLStatusBar::refresh()
 		mTextTime->setToolTip (dtStr);
 	}
 
-	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
 	// reshape menu bar to its content's width
@@ -460,7 +459,7 @@ void LLStatusBar::onMouseEnterVolume()
 	mPanelVolumePulldown->setVisible(TRUE);
 }
 
-void LLStatusBar::onMouseEnterNearbyMedia()
+void LLStatusBar::onMouseEnterNearbyMedia() const
 {
 	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect nearby_media_rect = mPanelNearByMedia->getRect();

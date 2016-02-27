@@ -90,8 +90,8 @@ private:
 	void onVolumeChanged(const LLSD& newvalue);
 
 	void onMouseEnterVolume();
-	void onMouseEnterNearbyMedia();
-	void onClickScreen(S32 x, S32 y);
+	void onMouseEnterNearbyMedia() const;
+	static void onClickScreen(S32 x, S32 y);
 
 	static void onClickMediaToggle(void* data);
 	static void onClickBalance(void* data);
