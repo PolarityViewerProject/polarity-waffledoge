@@ -30,60 +30,40 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
 #include "llfirstuse.h"
 #include "llviewercontrol.h"
-#include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
 #include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
-#include "llfloaterregioninfo.h"
-#include "llfloaterscriptdebug.h"
 #include "llhints.h"
-#include "llhudicon.h"
-#include "llnavigationbar.h"
-#include "llkeyboard.h"
-#include "lllineeditor.h"
 #include "llmenugl.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "llrootview.h"
 #include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"
-#include "llviewerparceloverlay.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llframetimer.h"
 #include "llvoavatarself.h"
 #include "llresmgr.h"
-#include "llworld.h"
 #include "llstatgraph.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// for gMenuBarView
-#include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
 #include "lluictrlfactory.h"
-
-#include "lltoolmgr.h"
-#include "llfocusmgr.h"
 #include "llappviewer.h"
-#include "lltrans.h"
+#include "llweb.h"
 
 // library includes
-#include "llfloaterreg.h"
-#include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
-#include "llnotificationsutil.h"
-#include "llparcel.h"
 #include "llstring.h"
 #include "message.h"
 
 // system includes
-#include <iomanip>
-
 
 //
 // Globals
