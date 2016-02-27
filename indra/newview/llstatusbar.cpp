@@ -160,8 +160,7 @@ BOOL LLStatusBar::postBuild()
 
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	getChild<LLUICtrl>("buyL")->setCommitCallback(
-		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, "https://secondlife.com/my/lindex/buy.php"));
 
 	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 
