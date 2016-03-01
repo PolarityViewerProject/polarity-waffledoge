@@ -6767,7 +6767,7 @@ void notify_cautioned_script_question(const LLSD& notification, const LLSD& resp
 		std::string perms;
 		for (script_perm_t script_perm : SCRIPT_PERMISSIONS)
 		{
-			if ((orig_questions & LSCRIPTRunTimePermissionBits[i]) && SCRIPT_QUESTION_IS_CAUTION[i])
+			if ((orig_questions & script_perm.permbit) && script_perm.caution)
 			{
 				count++;
 				caution = TRUE;
@@ -7094,12 +7094,12 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 					{
 						if ( (pObj->permYouOwner()) && (!pObj->isAttachment()) )
 						{
-							questions &= ~(LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TAKE_CONTROLS] | 
-								LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_ATTACH]);
+							questions &= ~(SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TAKE_CONTROLS].permbit |
+								SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_ATTACH].permbit);
 						}
 						else
 						{
-							questions &= ~(LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TAKE_CONTROLS]);
+							questions &= ~(SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TAKE_CONTROLS].permbit);
 						}
 						payload["rlv_notify"] = !pObj->permYouOwner();
 					}
