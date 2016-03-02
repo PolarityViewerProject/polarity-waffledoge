@@ -4356,6 +4356,14 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
+	// <Polarity>
+    static LLCachedControl<bool> PVMovement_NimbleAnimations(gSavedSettings, "PVMovement_NimbleAnimations", false);
+    if (PVMovement_NimbleAnimations)
+    {
+        control_flags |= AGENT_CONTROL_FINISH_ANIM;
+    }
+    // </Polarity>
+
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
 
 	if (key_mask & MASK_ALT || key_mask & MASK_CONTROL)

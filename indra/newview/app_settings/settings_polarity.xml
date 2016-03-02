@@ -42,6 +42,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVMovement_NimbleAnimations</key>
+    <map>
+      <key>Comment</key>
+      <string>Short-circuit the pre-jump and land animations to be more "nimble". May be seen as cheating in some Role-Play environments. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>
       <key>Comment</key>
