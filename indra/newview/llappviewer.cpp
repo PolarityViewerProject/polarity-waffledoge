@@ -5709,7 +5709,7 @@ void LLAppViewer::launchUpdater()
 	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("secondlife.com", 80, "update.php", query_map);
+	LLURI update_url = LLURI::buildHTTP("polarityviewer.org", 80, "update.php", query_map);
 	
 	if(LLAppViewer::sUpdaterInfo)
 	{
