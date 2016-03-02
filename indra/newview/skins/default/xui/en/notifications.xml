@@ -11070,4 +11070,13 @@ Reminder: Modifying Debug Settings can negatively impact your performance or exp
     </form>
  </notification>
 
+ <notification
+  icon="notifytip.png"
+  name="ServerVersionChanged"
+  type="notifytip">
+The simulator version or channel has changed
+Now: [NEWVERSION]
+Was: [OLDVERSION]
+ </notification>
+
 </notifications>

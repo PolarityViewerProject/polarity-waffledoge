@@ -132,6 +132,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_ShowServerVersionChangeNotice</key>
+    <map>
+      <key>Comment</key>
+      <string>Shows a notice if the simulator version is different after a region crossing or teleport.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>

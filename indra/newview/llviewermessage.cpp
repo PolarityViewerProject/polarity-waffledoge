@@ -4239,6 +4239,17 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		return;
 	}
 
+	// <FS:Ansariel> Bring back simulator version changed messages after TP
+	static LLCachedControl<bool> show_server_version_change(gSavedSettings, "PVUI_ShowServerVersionChangeNotice");
+	if (!gLastVersionChannel.empty() && show_server_version_change)
+	// </Polarity>
+	{
+		LLSD args;
+		args["OLDVERSION"] = gLastVersionChannel;
+		args["NEWVERSION"] = version_channel;
+		LLNotificationsUtil::add("ServerVersionChanged", args);
+	}
+	// </FS:Ansariel>
 	gLastVersionChannel = version_channel;
 }
 
