@@ -2519,6 +2519,12 @@ void LLViewerWindow::draw()
 //#endif
 }
 
+// <Polarity> Dynamic window title
+void LLViewerWindow::setTitle(const std::string win_title)
+{
+	mWindow->setTitle(win_title);
+}
+// </Polarity>
 // Takes a single keyup event, usually when UI is visible
 BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 {

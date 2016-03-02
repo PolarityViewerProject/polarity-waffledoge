@@ -154,5 +154,38 @@
       <key>Value</key>
       <string> </string>
     </map>
+    <key>PVWindow_TitleAnonymize</key>
+    <map>
+      <key>Comment</key>
+      <string>Blank out the viewer's window title.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVWindow_TitleShowUserName</key>
+    <map>
+      <key>Comment</key>
+      <string>Show user name in the the viewer's window title.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVWindow_TitleShowVersionNumber</key>
+    <map>
+      <key>Comment</key>
+      <string>Show version number in the viewer's window title.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
   </map>
 </llsd>

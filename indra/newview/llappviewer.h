@@ -291,6 +291,8 @@ private:
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
+	
+	LLFrameTimer mTitleBarUpdateTimer; 	// <Polarity/> Dynamic window title
 
     LLAllocator mAlloc;
 
