@@ -69,6 +69,7 @@
 #include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llnotificationsutil.h"
+#include "llparcel.h" // <FS:KC> Rez under Land Group
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
@@ -86,6 +87,7 @@
 #include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparcelmgr.h" // <FS:KC> Rez under Land Group
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
@@ -3810,6 +3812,33 @@ struct LLDuplicateData
 	U32			flags;
 };
 
+LLUUID LLSelectMgr::getGroupIDToRezUnder()
+{
+	// Rez under Land Group. Inspired by Kadah Coba's code.
+	static LLCachedControl<bool> rez_under_land_group(gSavedSettings, "PVTools_RezUnderLandGroup", false);
+	// Group to rez the item under. Defaults to current group.
+	LLUUID rez_group_id = gAgent.getGroupID();
+	if (rez_under_land_group)
+	{
+		// Get the parcel
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();       
+		LLUUID parcel_group_id = land_parcel->getGroupID();
+		LLUUID parcel_owner_id = land_parcel->getOwnerID();
+
+		// Check if agent is in the land's group
+		if (gAgent.isInGroup(parcel_group_id))
+		{
+			rez_group_id = parcel_group_id;
+		}
+		else if (gAgent.isInGroup(parcel_owner_id))
+		{
+			rez_group_id = parcel_owner_id;
+		}
+	}
+
+	return rez_group_id;
+}
+
 void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 {
 	if (mSelectedObjects->isAttachment())
@@ -3975,7 +4004,7 @@ void LLSelectMgr::packDuplicateOnRayHead(void *user_data)
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->addUUIDFast(_PREHASH_GroupID, gAgent.getGroupID() );
+	msg->addUUIDFast(_PREHASH_GroupID, getGroupIDToRezUnder());
 	msg->addVector3Fast(_PREHASH_RayStart, data->mRayStartRegion );
 	msg->addVector3Fast(_PREHASH_RayEnd, data->mRayEndRegion );
 	msg->addBOOLFast(_PREHASH_BypassRaycast, data->mBypassRaycast );
@@ -4798,7 +4827,7 @@ void LLSelectMgr::packAgentAndSessionAndGroupID(void* user_data)
 // static
 void LLSelectMgr::packDuplicateHeader(void* data)
 {
-	LLUUID group_id(gAgent.getGroupID());
+	LLUUID group_id(getGroupIDToRezUnder());
 	packAgentAndSessionAndGroupID(&group_id);
 
 	LLDuplicateData* dup_data = (LLDuplicateData*) data;
