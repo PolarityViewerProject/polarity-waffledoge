@@ -81,6 +81,8 @@
 #include "llpanellandmarks.h"
 
 #include <boost/shared_ptr.hpp>
+#include "lltoolmgr.h"
+#include "lltoolcomp.h"
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
@@ -6088,6 +6090,20 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
 	}
+	else if ("edit_object" == action)
+	{
+		if (LLInventoryItem* itemp = gInventory.getItem(mUUID))
+		{
+			if (LLViewerObject* objectp = gAgentAvatarp->getWornAttachment(itemp->getLinkedUUID()))
+			{
+				LLSelectMgr::getInstance()->deselectAll(); // Clear the current selection first.
+				LLFloaterReg::showInstance("build");
+				LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+				LLToolMgr::getInstance()->getCurrentToolset()->selectTool(LLToolCompTranslate::getInstance());
+				LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+			}
+		}
+	}
 	else LLItemBridge::performAction(model, action);
 }
 
@@ -6239,6 +6255,7 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 			{
 				items.push_back(std::string("Wearable And Object Separator"));
 				items.push_back(std::string("Detach From Yourself"));
+				items.push_back(std::string("Edit Object"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{
