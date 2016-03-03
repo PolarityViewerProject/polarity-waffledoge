@@ -911,22 +911,22 @@
   <!-- syntax highlighting (LSL Scripts) -->
   <color
     name="ScriptText"
-    reference="Black" />
+    value="0.628906 0.628906 0.628906 1" />
   <color
     name="ScriptBackground"
-    reference="White" />
+    value="0.14 0.14 0.14 1" />
   <color
     name="ScriptCursorColor"
     reference="Black" />
   <color
     name="SyntaxLslComment"
-    value="0 0.5 0 1" />
+    value="0.401688 0.29127 0.18425 1" />
   <color
     name="SyntaxLslConstant"
-    value="0 0.6 0.6 1" />
+    value="0.226563 0.722168 0.773438 1" />
   <color
     name="SyntaxLslControlFlow"
-    value="0.4 0 0.8 1" />
+    value="0.793701 0.393799 0.768707 1" />
   <color
     name="SyntaxLslControlLabel"
     value="0 0 0.8 1" />
@@ -938,14 +938,14 @@
     value="0.9 0.0 0.66, 1" />
   <color
    name="SyntaxLslEvent"
-   value="0 0.3 0.5 1" />
+   value="0.434631 0.673187 0.217438 1" />
   <color
    name="SyntaxLslFunction"
-   value="0.3 0 0.5 1" />
+   value="0.161743 0.619507 0.512218 1" />
   <color
    name="SyntaxLslGodMode"
    value="0.7 .2 .35 1" />
   <color
     name="SyntaxLslStringLiteral"
-    value="1 0.14 0 1" />
+    value="0.738281 0.697327 0.261719 1" />
 </colors>
