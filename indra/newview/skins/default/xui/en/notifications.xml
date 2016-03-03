@@ -11079,4 +11079,15 @@ Now: [NEWVERSION]
 Was: [OLDVERSION]
  </notification>
 
+ <notification
+  icon="notify"
+  name="LSLColorCopiedToClipboard"
+  type="notifytip">
+Color vector copied to clipboard. Have fun!
+  <form name="form">
+    <ignore name="ignore"
+     text="An LSL color string was copied to my clipboard"/>
+    </form>
+ </notification>
+
 </notifications>
