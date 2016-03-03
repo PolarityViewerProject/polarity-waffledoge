@@ -338,6 +338,20 @@ std::string RlvStrings::getVersionNum()
 	return llformat("%d%02d%02d%02d", RLV_VERSION_MAJOR, RLV_VERSION_MINOR, RLV_VERSION_PATCH, RLV_VERSION_BUILD);
 }
 
+std::string RlvStrings::get_vector_format_string()
+{
+	S32 precision = 6; // Default LSL script precision
+	// no spaces in this vector to work around parser bugs in some LSL scripts
+	return llformat("<%%.%df,%%.%df,%%.%df>", precision, precision, precision);
+}
+
+std::string RlvStrings::getEffectColorRLVa()
+{
+	LLColor4 vec = LLUIColorTable::instance().getColor("EffectColor");
+	// Format the vector without spaces, since some scripts will fail to parse it assign <0,0,0> instead.
+	return llformat(get_vector_format_string().c_str(), vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+}
+
 // Checked: 2011-11-08 (RLVa-1.5.0)
 bool RlvStrings::hasString(const std::string& strStringName, bool fCheckCustom)
 {

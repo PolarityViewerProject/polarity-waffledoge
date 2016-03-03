@@ -169,7 +169,7 @@ void RlvCommand::initLookupTable()
 				"detachallthis_except", "adjustheight", "tpto", "version", "versionnew", "versionnum", "getattach", "getattachnames", 
 				"getaddattachnames", "getremattachnames", "getoutfit", "getoutfitnames", "getaddoutfitnames", "getremoutfitnames", 
 				"findfolder", "findfolders", "getpath", "getpathnew", "getinv", "getinvworn", "getgroup", "getsitid", "getcommand", 
-				"getstatus", "getstatusall"
+				"getstatus", "getstatusall","geteffectcolor"
 			};
 
 		for (int idxBvhr = 0; idxBvhr < RLV_BHVR_COUNT; idxBvhr++)

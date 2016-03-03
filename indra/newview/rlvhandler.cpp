@@ -1968,6 +1968,11 @@ ERlvCmdRet RlvHandler::processReplyCommand(const RlvCommand& rlvCmd) const
 				}
 			}
 			break;
+			case RLV_BHVR_GETEFFECTCOLOR: // @geteffectcolor
+			{
+				strReply = RlvStrings::getEffectColorRLVa();
+			}
+			break;
 		case RLV_BHVR_UNKNOWN:
 			// Pass unknown commands on to registered command handlers
 			return (notifyCommandHandlers(&RlvCommandHandler::onReplyCommand, rlvCmd, eRet, false)) ? eRet : RLV_RET_FAILED_UNKNOWN;

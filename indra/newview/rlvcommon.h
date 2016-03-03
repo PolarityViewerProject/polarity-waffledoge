@@ -137,6 +137,8 @@ public:
 	static std::string        getVersion(bool fLegacy = false);				// @version
 	static std::string        getVersionAbout();							// Shown in Help / About
 	static std::string        getVersionNum();								// @versionnum
+	static std::string        get_vector_format_string();					// vector format helper
+	static std::string        getEffectColorRLVa();							// @geteffectcolor
 	static bool               hasString(const std::string& strStringName, bool fCheckCustom = false);
 	static void               setCustomString(const std::string& strStringName, const std::string& strStringValue);
 
