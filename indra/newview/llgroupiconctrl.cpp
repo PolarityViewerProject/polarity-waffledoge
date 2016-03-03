@@ -46,7 +46,7 @@ LLGroupIconCtrl::LLGroupIconCtrl(const LLGroupIconCtrl::Params& p)
 	mDrawTooltip(p.draw_tooltip),
 	mDefaultIconName(p.default_icon_name)
 {
-	mPriority = LLViewerFetchedTexture::BOOST_ICON;
+	mPriority = LLViewerFetchedTexture::BOOST_NONE; // NaCl - Do not keep icons in memory
 
 	if (p.group_id.isProvided())
 	{
