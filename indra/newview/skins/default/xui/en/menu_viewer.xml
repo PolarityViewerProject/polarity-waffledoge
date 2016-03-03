@@ -1649,6 +1649,18 @@
                 parameter="all" >
             </menu_item_call.on_click>
         </menu_item_call>
+        <menu_item_check
+         label="Show Develop Menu"
+         name="Debug Mode"
+         shortcut="control|alt|Q">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="QAMode" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="QAMode" />
+        </menu_item_check>
+
       </menu>
     <menu
      create_jump_keys="true"
@@ -2378,27 +2390,6 @@
                  function="View.ZoomOut" />
             </menu_item_call>
         </menu> <!--Shortcuts-->
-
-        <menu_item_separator/>
-
-        <menu_item_call
-         label="Show Debug Settings"
-         name="Debug Settings">
-            <menu_item_call.on_click
-             function="Advanced.ShowDebugSettings"
-             parameter="all" />
-        </menu_item_call>
-     <menu_item_check
-         label="Show Develop Menu"
-         name="Debug Mode"
-         shortcut="control|alt|Q">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="QAMode" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="QAMode" />
-        </menu_item_check>
     </menu>
     <menu
      create_jump_keys="true"
