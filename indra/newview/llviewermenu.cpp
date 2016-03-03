@@ -2195,7 +2195,7 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("settings_debug",userdata);
+		LLFloaterReg::toggleInstanceOrBringToFront("settings_debug"); // <Polarity>
 		return true;
 	}
 };
