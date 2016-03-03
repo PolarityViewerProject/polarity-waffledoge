@@ -217,6 +217,25 @@ BOOL LLStatusBar::postBuild()
 	return TRUE;
 }
 
+// <Polarity> Split clock refresh into its own function
+void LLStatusBar::RefreshClockArea(bool mShowSeconds)
+{
+	mClockUpdateTimer.reset();
+	// Get current UTC time, adjusted for the user's clock being off.
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	LLSD substitution;
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+	mTextTime->setText(timeStr);
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format (dtStr, substitution);
+	mTextTime->setToolTip (dtStr);
+}
+// </Polarity>
+
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
@@ -255,6 +274,16 @@ void LLStatusBar::refresh()
 		LLStringUtil::format (dtStr, substitution);
 		mTextTime->setToolTip (dtStr);
 	}
+	// </Polarity>
+
+	// <Polarity> When showing seconds in clock, update said clock every 250ms to ensure we're up to date.
+	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
+
+	if ( (mShowSeconds && mClockUpdateTimer.getElapsedTimeF32() > 0.25f) || mClockUpdateTimer.getElapsedTimeF32() > 10.f )
+	{
+		RefreshClockArea(mShowSeconds);
+	}
+	// </Polarity>
 
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 

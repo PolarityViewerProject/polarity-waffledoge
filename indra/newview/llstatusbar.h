@@ -69,6 +69,8 @@ public:
 	void setLandCredit(S32 credit);
 	void setLandCommitted(S32 committed);
 
+    void LLStatusBar::RefreshClockArea(bool mShowSeconds); // <Polarity> Split clock refresh into its own function
+
 	void		refresh();
 	void setVisibleForMouselook(bool visible);
 		// some elements should hide in mouselook

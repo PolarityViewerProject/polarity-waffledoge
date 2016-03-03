@@ -154,6 +154,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_StatusBarClockShowSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>Add seconds to status bar clock </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>
