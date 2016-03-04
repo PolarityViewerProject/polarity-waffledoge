@@ -101,6 +101,7 @@ private:
 private:
 	LLTextBox	*mTextTime;
 
+	LLTextBox	*mFPSCount; // <Polarity/>
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
@@ -110,6 +111,7 @@ private:
 	LLButton	*mMediaToggle;
 	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
+	LLFrameTimer	mFPSCountTimer; // <Polarity/>
 
 	S32				mBalance;
 	S32				mHealth;

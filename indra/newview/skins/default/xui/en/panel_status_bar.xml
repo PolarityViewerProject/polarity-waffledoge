@@ -40,7 +40,7 @@
   <panel
     height="18"
     left="-395"
-    width="185"
+    width="140"
     top="1"
     follows="right|top" 
     name="balance_bg">
@@ -73,7 +73,7 @@
      pad_right="0"
      tool_tip="Click to buy more L$"
      top="0"
-     width="80" />
+     width="55" />
     <button
      halign="left"
      font="SansSerifSmall"
@@ -134,4 +134,19 @@
      top="2"
      name="volume_btn"
      width="16" />
+	 <text
+	visibility_control="PVUI_StatusBarShowFPSCounter"
+	type="string"
+	font="SansSerifSmall"
+	follows="right|top"
+	halign="left"
+	height="16"
+	top="4"
+	layout="topleft"
+	left_pad="5"
+	name="FPS_count"
+	tool_tip="Frames per second"
+	width="65">
+999.0/120
+	 </text>
 </panel>

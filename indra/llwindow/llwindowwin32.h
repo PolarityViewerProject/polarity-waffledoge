@@ -116,6 +116,7 @@ public:
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
+	static U32 getRefreshRate();
 protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 
