@@ -221,6 +221,8 @@ BOOL LLStatusBar::postBuild()
 
 	mScriptOut = getChildView("scriptout");
 
+	mRefreshRate = LLWindowWin32::getRefreshRate();
+
 	return TRUE;
 }
 
@@ -259,124 +261,6 @@ void LLStatusBar::refresh()
 		//mSGBandwidth->setThreshold(1, bwtotal);
 		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
-	
-	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
-
-	// Throttle a bit to avoid making faster FPS heavier to process
-	if (mFPSCountTimer.getElapsedTimeF32() > 0.1)
-	{
-		mFPSCountTimer.reset(); // Reset the FPS timer so that we can count again
-
-		LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording();
-		// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
-		F64 current_fps_normalized = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS);
-
-		LLSD refresh_rate = LLSD::Integer(LLWindowWin32::getRefreshRate());
-		// Cap the amount of decimals we return
-		mFPSCount->setValue(llformat("%.1f", current_fps_normalized) + "/" + refresh_rate.asString());
-
-		static LLUIColor color_fps_default = LLUIColorTable::instance().getColor("TextDefaultColor");
-		LLColor4 fps_color = color_fps_default; // prevent undefined
-
-#if 0
-		static LLCachedControl<bool> color_fps(gSavedSettings, "PVUI_FPSCounterColorizer", true);
-		if (color_fps)
-		{
-			// Quick and Dirty FPS counter colors. Idea is from NiranV, which never got finished.
-			static LLUIColor color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
-			static LLUIColor color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
-			static LLUIColor color_medium = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Medium", LLColor4::yellow);
-			static LLUIColor color_high = LLUIColorTable::instance().getColor("PVUI_FPSCounter_High", LLColor4::green);
-			static LLUIColor color_outstanding = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Outstanding", LLColor4::cyan);
-
-			static LLUIColor color_vsync = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Vsync", LLColor4::blue2);
-			static LLUIColor color_limited = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Limited", LLColor4::purple);
-
-			/*static*/ LLCachedControl<U32> fps_critical(gSavedSettings, "PVUI_FPSCounter_Critical", 10);
-			/*static*/ LLCachedControl<U32> fps_low(gSavedSettings, "PVUI_FPSCounter_Low", 20);
-			/*static*/ LLCachedControl<U32> fps_medium(gSavedSettings, "PVUI_FPSCounter_Medium", 35);
-			/*static*/ LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
-			/*static*/ LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
-
-			static LLCachedControl<bool> fps_limited(gSavedSettings, "PVRender_FPSLimiterEnabled");
-			static LLCachedControl<S32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-
-			// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
-			// to show vsync'd and limited statuses.
-			// e.g.
-			//_______________________________
-			// FPS Limited Vsync          72 |
-			//-------------------------------|
-			// FPS BAR HERE .    | .        ||
-			// FPS BAR HERE  .   |     .    ||
-			// FPS BAR HERE    . |  .       ||
-			//нннннн-------------------------------|
-			// ~/~
-
-			if (fps_limited)
-			{
-				//get some wiggle room for imprecise limiting
-				if (current_fps_normalized < (fps_limit_target + 2) && current_fps_normalized >(fps_limit_target - 2))
-				{
-					fps_color = color_limited;
-				}
-			}
-			else
-			{
-				U32 vsync_mode = gSavedSettings.getU32("PVRender_Vsync");
-				U32 current_refresh_integer = refresh_rate.asInteger();
-				if ((vsync_mode == 1 || vsync_mode == 2)
-					//get some wiggle room for imprecise limiting
-					&& (current_fps_normalized < (current_refresh_integer + 2)
-					&& current_fps_normalized >(current_refresh_integer - 2)))
-				{
-					fps_color = color_vsync;
-				}
-				else
-				{
-					// Base our color on normalized, 1 second FPS sample.
-					// S32 current_fps_sampled_integer = std::round(frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 1));
-					S32 current_fps_sampled_integer = std::round(frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 10));
-					// TODO: Learn how to blend colors
-					if (current_fps_sampled_integer <= fps_critical)
-					{
-						fps_color = color_critical;
-					}
-					else if (current_fps_sampled_integer >= fps_critical && (current_fps_sampled_integer < fps_medium))
-					{
-						fps_color = color_low;
-					}
-					else if (current_fps_sampled_integer >= fps_low && (current_fps_sampled_integer < fps_high))
-					{
-						fps_color = color_medium;
-					}
-					else if (current_fps_sampled_integer >= fps_medium && (current_fps_sampled_integer < fps_outstanding))
-					{
-						fps_color = color_high;
-					}
-					else if (current_fps_sampled_integer >= fps_outstanding)
-					{
-						fps_color = color_outstanding;
-					}
-				}
-			}
-			// Communicate FPS meter color to the rest of the application by defining it in the color table
-			LLUIColorTable::instance().setColor("PVUI_FPSCounter_Current", fps_color);
-			mFPSCount->setColor(fps_color);                                               
-		}                                                                                 
-#endif
-
-	}
-	// </Polarity>
-
-	// <Polarity> When showing seconds in clock, update said clock every 250ms to ensure we're up to date.
-	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
-
-	if ( (mShowSeconds && mClockUpdateTimer.getElapsedTimeF32() > 0.25f) || mClockUpdateTimer.getElapsedTimeF32() > 10.f )
-	{
-		RefreshClockArea(mShowSeconds);
-	}
-	// </Polarity>
 
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
@@ -404,6 +288,46 @@ void LLStatusBar::refresh()
 							  LLViewerMedia::isParcelMediaPlaying() ||
 							  LLViewerMedia::isParcelAudioPlaying());
 	mMediaToggle->setValue(!any_media_playing);
+
+	if (mClockUpdateTimer.getElapsedTimeF32() < 0.25f)
+	{
+		return;
+	}
+
+	mClockUpdateTimer.reset();
+	// Get current UTC time, adjusted for the user's clock being off.
+	time_t utc_time;
+	utc_time = time_corrected();
+	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
+	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	LLSD substitution;
+	substitution["datetime"] = static_cast<S32>(utc_time);
+	LLStringUtil::format(timeStr, substitution);
+	mTextTime->setText(timeStr);
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format(dtStr, substitution);
+	mTextTime->setToolTip(dtStr);
+
+	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
+	mFPSCountTimer.reset();
+
+	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
+	auto current_fps_normalized = LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS);
+		// Cap the amount of decimals we return
+	if (current_fps_normalized > 100.f)
+	{
+		mFPSCount->setValue(llformat("%.0f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	else if (current_fps_normalized > 10.f)
+	{
+		mFPSCount->setValue(llformat("%.1f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	else
+	{
+		mFPSCount->setValue(llformat("%.2f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	// </Polarity>
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)

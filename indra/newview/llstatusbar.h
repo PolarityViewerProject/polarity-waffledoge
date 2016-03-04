@@ -102,6 +102,7 @@ private:
 	LLTextBox	*mTextTime;
 
 	LLTextBox	*mFPSCount; // <Polarity/>
+	U32			mRefreshRate;
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 

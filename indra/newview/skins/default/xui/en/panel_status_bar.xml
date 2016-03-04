@@ -145,7 +145,7 @@
 	layout="topleft"
 	left_pad="5"
 	name="FPS_count"
-	tool_tip="Frames per second"
+	tool_tip="Frames per second/Refresh rate"
 	width="65">
 999.0/120
 	 </text>
