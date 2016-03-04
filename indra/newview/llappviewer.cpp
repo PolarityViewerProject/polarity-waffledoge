@@ -3082,15 +3082,8 @@ void LLAppViewer::initUpdater()
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
 
-	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity()) 
-	{
-		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
-		willing_to_test = false;
-	}
-	else
-	{
-		willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
-	}
+	willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+
     unsigned char unique_id[MD5HEX_STR_SIZE];
 	if ( ! llHashedUniqueID(unique_id) )
 	{
