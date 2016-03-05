@@ -4134,6 +4134,15 @@ Try enclosing path to the editor with double quotes.
       The physics shape contains triangles which are too small. Try simplifying the physics model.
   </string>
 
+<!-- Double Click Teleport -->
+  <string name="DoubleClickTeleportEnabled">
+    Double-click TP enabled.
+  </string>
+  
+  <string name="DoubleClickTeleportDisabled">
+    Double-click TP disabled.
+  </string>
+
   <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
       The physics shape contains bad confirmation data. Try to correct the physics model.
   </string>

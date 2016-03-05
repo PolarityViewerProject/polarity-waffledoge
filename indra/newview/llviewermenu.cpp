@@ -133,6 +133,9 @@
 #include "llpathfindingmanager.h"
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
+ 
+#include "pvcommon.h"
+
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
@@ -7717,6 +7720,26 @@ class LLAdvancedClickRenderBenchmark: public view_listener_t
 		return true;
 	}
 };
+//[FIX FIRE-1927 - enable DoubleClickTeleport shortcut : SJ]
+class LLAdvancedToggleDoubleClickTeleport: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		BOOL checked = gSavedSettings.getBOOL("DoubleClickTeleport");
+		if (checked)
+		{
+			gSavedSettings.setBOOL("DoubleClickTeleport", FALSE);
+			reportToNearbyChat(LLTrans::getString("DoubleClickTeleportDisabled"));
+		}
+		else
+		{
+			gSavedSettings.setBOOL("DoubleClickTeleport", TRUE);
+			gSavedSettings.setBOOL("DoubleClickAutoPilot", FALSE);
+			reportToNearbyChat(LLTrans::getString("DoubleClickTeleportEnabled"));
+		}
+		return true;
+	}
+};
 
 void menu_toggle_attached_lights(void* user_data)
 {
@@ -9323,6 +9346,8 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
 
+	//[FIX FIRE-1927 - enable DoubleClickTeleport shortcut : SJ]
+	view_listener_t::addMenu(new LLAdvancedToggleDoubleClickTeleport, "Advanced.ToggleDoubleClickTeleport");
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
 	view_listener_t::addMenu(new LLAdvancedCheckToggleHackedGodmode(), "Advanced.CheckToggleHackedGodmode");
