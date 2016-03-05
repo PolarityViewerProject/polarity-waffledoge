@@ -924,28 +924,47 @@ void LLViewerObjectList::renderObjectBeacons()
 
 F32 gpu_benchmark()
 {
-	if (!gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
+	if (!gGLManager.mHasVertexBufferObject || !gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
 	{ // don't bother benchmarking the fixed function
+      // or without vbos
       // or venerable drivers which don't support accurate timing anyway
       // and are likely to be correctly identified by the GPU table already.
 		return -1.f;
 	}
 
+	bool old_fixed_func = LLGLSLShader::sNoFixedFunction;
+	
+	static bool local_init = false;
     if (gBenchmarkProgram.mProgramObject == 0)
 	{
+		local_init = true;
+		LLGLSLShader::sNoFixedFunction = true;
 		LLViewerShaderMgr::instance()->initAttribsAndUniforms();
 
 		gBenchmarkProgram.mName = "Benchmark Shader";
 		gBenchmarkProgram.mFeatures.attachNothing = true;
 		gBenchmarkProgram.mShaderFiles.clear();
-		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER_ARB));
-		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER_ARB));
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER));
+		gBenchmarkProgram.mShaderFiles.push_back(std::make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER));
 		gBenchmarkProgram.mShaderLevel = 1;
 		if (!gBenchmarkProgram.createShader(NULL, NULL))
 		{
 			return -1.f;
 		}
+		LLShaderMgr::instance()->cleanupShaders();
 	}
+
+#ifdef GL_ARB_vertex_array_object
+	GLuint vao;
+	if (local_init)
+	{
+		if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+		{
+			glGenVertexArrays(1, &vao);
+			glBindVertexArray(vao);
+		}
+	}
+#endif
 
 	LLGLDisable blend(GL_BLEND);
 	
@@ -964,10 +983,7 @@ F32 gpu_benchmark()
 	//number of samples to take
 	const S32 samples = 64;
 
-	if (gGLManager.mHasTimerQuery)
-	{
-		LLGLSLShader::initProfile();
-	}
+	LLGLSLShader::initProfile();
 
 	LLRenderTarget dest[count];
 	U32 source[count];
@@ -999,21 +1015,11 @@ F32 gpu_benchmark()
 
     delete [] pixels;
 
-#ifdef GL_ARB_vertex_array_object
-	U32 vao;
-	if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
-	{
-		glGenVertexArrays(1, &vao);
-		glBindVertexArray(vao);
-	}
-#endif
-
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
 
 	LLStrider<LLVector3> v;
-
 	buff->getVertexStrider(v);
 	
 	v[0].set(-1,1,0);
@@ -1079,10 +1085,7 @@ F32 gpu_benchmark()
 
 	gBenchmarkProgram.unbind();
 
-	if (gGLManager.mHasTimerQuery)
-	{
-		LLGLSLShader::finishProfile(false);
-	}
+	LLGLSLShader::finishProfile(false);
 
 	LLImageGL::deleteTextures(count, source);
 
@@ -1108,13 +1111,20 @@ F32 gpu_benchmark()
 	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
 	gbps = samples_sec*8;
 
-#ifdef GL_ARB_vertex_array_object
-	if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+	if (local_init)
 	{
-		glBindVertexArray(0);
-		glDeleteVertexArrays(1, &vao);
-	}
+		gBenchmarkProgram.unload();
+#ifdef GL_ARB_vertex_array_object
+		if (LLRender::sGLCoreProfile && !LLVertexBuffer::sUseVAO)
+		{
+			glBindVertexArray(0);
+			glDeleteVertexArrays(1, &vao);
+		}
 #endif
+
+		LLGLSLShader::sNoFixedFunction = old_fixed_func;
+		local_init = false;
+	}
 
 	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 

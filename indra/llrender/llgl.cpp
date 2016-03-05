@@ -27,8 +27,6 @@
 // This file sets some global GL parameters, and implements some 
 // useful functions for GL operations.
 
-#define GLH_EXT_SINGLE_FILE
-
 #include "linden_common.h"
 
 #include "boost/tokenizer.hpp"
@@ -48,6 +46,12 @@
 
 #include "llglheaders.h"
 #include "llglslshader.h"
+
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_access.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #ifdef _DEBUG
 //#define GL_STATE_VERIFY
@@ -73,6 +77,81 @@ std::ofstream gFailLog;
 #define APIENTRY
 #endif
 
+std::string decode_source(GLenum source)
+{
+	switch (source)
+	{
+	case GL_DEBUG_SOURCE_API_ARB:
+		return "GL_DEBUG_SOURCE_API";
+		break;
+	case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
+		return "GL_DEBUG_SOURCE_WINDOW_SYSTEM";
+		break;
+	case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
+		return "GL_DEBUG_SOURCE_SHADER_COMPILER";
+		break;
+	case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
+		return "GL_DEBUG_SOURCE_THIRD_PARTY";
+		break;
+	case GL_DEBUG_SOURCE_APPLICATION_ARB:
+		return "GL_DEBUG_SOURCE_APPLICATION";
+		break;
+	case GL_DEBUG_SOURCE_OTHER_ARB:
+		return "GL_DEBUG_SOURCE_OTHER";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
+std::string decode_type(GLenum type)
+{
+	switch (type)
+	{
+	case GL_DEBUG_TYPE_ERROR_ARB:
+		return "GL_DEBUG_TYPE_ERROR";
+		break;
+	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
+		return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR";
+		break;
+	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
+		return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR";
+		break;
+	case GL_DEBUG_TYPE_PORTABILITY_ARB:
+		return "GL_DEBUG_TYPE_PORTABILITY";
+		break;
+	case GL_DEBUG_TYPE_PERFORMANCE_ARB:
+		return "GL_DEBUG_TYPE_PERFORMANCE";
+		break;
+	case GL_DEBUG_TYPE_OTHER_ARB:
+		return "GL_DEBUG_TYPE_OTHER";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
+std::string decode_severity(GLenum severity)
+{
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_LOW_ARB:
+		return "GL_DEBUG_SEVERITY_LOW";
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM_ARB:
+		return "GL_DEBUG_SEVERITY_MEDIUM";
+		break;
+	case GL_DEBUG_SEVERITY_HIGH_ARB:
+		return "GL_DEBUG_SEVERITY_HIGH";
+		break;
+	default:
+		return "";
+		break;
+	}
+}
+
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
                                 GLuint id,
@@ -91,9 +170,10 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
 	}
-	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
-	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
-	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
+	LL_WARNS() << "Source: " << decode_source(source) << LL_ENDL;
+	LL_WARNS() << "Type: " << decode_type(type) << LL_ENDL;
+	LL_WARNS() << "ID: " << std::hex << id << std::dec << LL_ENDL;
+	LL_WARNS() << "Severity: " << decode_severity(severity) << LL_ENDL;
 	LL_WARNS() << "Message: " << message << LL_ENDL;
 	LL_WARNS() << "-----------------------" << LL_ENDL;
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
@@ -105,6 +185,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 #endif
 
 void parse_glsl_version(S32& major, S32& minor);
+std::string parse_gl_ext_to_str(F32 glversion);
 
 void ll_init_fail_log(std::string filename)
 {
@@ -469,6 +550,12 @@ bool LLGLManager::initGL()
 	{ //setup debug output callback
 		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
+		//if (mIsNVIDIA)
+		//{
+		//	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
+		//	GLuint debug_ids[3] = { 131076, 131185, 131204 };
+		//	glDebugMessageControlARB(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 3, debug_ids, GL_FALSE);
+		//}
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
@@ -726,10 +813,9 @@ void LLGLManager::initExtensions()
 #if !LL_DARWIN
 	mHasPointParameters = !mIsATI && GLEW_ARB_point_parameters;
 #endif
-	mHasShaderObjects = GLEW_ARB_shader_objects && (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
-	mHasVertexShader = GLEW_ARB_vertex_program && GLEW_ARB_vertex_shader
-		&& (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
-	mHasFragmentShader = GLEW_ARB_fragment_shader && (LLRender::sGLCoreProfile || GLEW_ARB_shading_language_100);
+	mHasShaderObjects = mGLVersion >= 2.f;
+	mHasVertexShader = mGLVersion >= 2.f;
+	mHasFragmentShader = mGLVersion >= 2.f;
 
 #ifdef GL_ARB_gpu_shader5
 	mHasGpuShader5 = GLEW_ARB_gpu_shader5;
@@ -1730,7 +1816,7 @@ std::string parse_gl_ext_to_str(F32 glversion)
 	return ret;
 }
 
-LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)
+LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelview, const glm::mat4& projection, bool apply)
 {
 	mApply = apply;
 
@@ -1745,27 +1831,26 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& mode
 
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
-	glh::matrix4f& P = mProjection;
-	glh::matrix4f& M = mModelview;
+	const glm::mat4& P = mProjection;
+	const glm::mat4& M = mModelview;
     
-	glh::matrix4f invtrans_MVP = (P * M).inverse().transpose();
-    glh::vec4f oplane(a,b,c,d);
-    glh::vec4f cplane;
-    invtrans_MVP.mult_matrix_vec(oplane, cplane);
+	glm::mat4 invtrans_MVP = glm::inverseTranspose(P*M);
+    glm::vec4 oplane(a, b, c, d);
+    glm::vec4 cplane = invtrans_MVP * oplane;
 
-    cplane /= fabs(cplane[2]); // normalize such that depth is not scaled
+    cplane /= fabs(cplane[2]);  // normalize such that depth is not scaled
     cplane[3] -= 1;
 
-    if(cplane[2] < 0)
+    if (cplane[2] < 0)
         cplane *= -1;
 
-    glh::matrix4f suffix;
-    suffix.set_row(2, cplane);
-    glh::matrix4f newP = suffix * P;
+    glm::mat4 suffix;
+    suffix = glm::row(suffix, 2, cplane);
+    glm::mat4 newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-    gGL.loadMatrix(newP.m);
-	gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
+    gGL.loadMatrix(glm::value_ptr(newP));
+	gGLObliqueProjectionInverse = LLMatrix4(glm::value_ptr(glm::inverseTranspose(newP)));
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
@@ -1954,19 +2039,16 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
+LLGLSquashToFarClip::LLGLSquashToFarClip(glm::mat4 P, U32 layer)
 {
 
 	F32 depth = 0.99999f - 0.0001f * layer;
-
-	for (U32 i = 0; i < 4; i++)
-	{
-		P.element(2, i) = P.element(3, i) * depth;
-	}
+	glm::vec4 P_row_3 = glm::row(P, 3) * depth;
+	P = glm::row(P, 2, P_row_3);
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	gGL.loadMatrix(P.m);
+	gGL.loadMatrix(glm::value_ptr(P));
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 

@@ -86,6 +86,7 @@ if (WINDOWS)
       /DNOMINMAX
       /DUNICODE
       /D_UNICODE
+      /DGLM_FORCE_SSE2=1
       /GS
       /TP
       /W3
