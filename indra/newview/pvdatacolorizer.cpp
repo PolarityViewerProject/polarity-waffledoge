@@ -42,8 +42,8 @@
 
 #include "pvdata.h"
 
-// #if RLV_SUPPORT
-// #include "rlvhandler.h"
+//#if RLV_SUPPORT
+#include "rlvhandler.h"
 // #endif // RLV_SUPPORT
 
 LLColor4 PVDataColorizer::addOrSubstractHue(const LLColor4 in_color4, const F32 new_hue_f32)
@@ -87,19 +87,19 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 	/*NOT static*/ LLUIColor name_color; // Initialized as black by default.
 
 	// handle friend color first since it overrides a lot.
-#if 0
+
 	static LLCachedControl<bool> show_as_friend(gSavedSettings, "NameTagShowFriends");
-	static LLCachedControl<bool> override_friend_color(gSavedSettings, "PVColorManager_OverrideFriendColor");
+	static LLCachedControl<bool> override_friend_color(gSavedSettings, "PVColorManager_OverrideFriendColor", true);
 	if (!override_friend_color && ((should_show_friend && (show_as_friend && (LLAvatarTracker::instance().isBuddy(avatar_id)) && (gAgent.getID() != avatar_id)
-#if RLV_SUPPORT
+//#if RLV_SUPPORT
 								&& !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)
-#endif // RLV_SUPPORT
+//#endif // RLV_SUPPORT
 								))))
 	{
 		name_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::green);
 	}
 	else
-#endif
+//#endif
 	{
 		static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
 		static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
