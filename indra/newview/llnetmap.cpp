@@ -155,6 +155,7 @@ void LLNetMap::draw()
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
+	static LLCachedControl<bool> use_world_map_image(gSavedSettings, "PVUI_MinimapTile", true);
 	
 	if (mObjectImagep.isNull())
 	{
@@ -168,7 +169,7 @@ void LLNetMap::draw()
 	}
 
 	// Prepare a scissor region
-	F32 rotation = 0;
+	F32 rotation = 0.f;
 
 	gGL.pushMatrix();
 	gGL.pushUIMatrix();
@@ -190,8 +191,8 @@ void LLNetMap::draw()
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 
 			// Draw background rectangle
-			LLColor4 background_color = mBackgroundColor.get();
-			gGL.color4fv( background_color.mV );
+			const LLColor4& background_color = mBackgroundColor.get();
+			gGL.color4fv(background_color.mV);
 			gl_rect_2d(0, getRect().getHeight(), getRect().getWidth(), 0);
 		}
 
@@ -201,21 +202,21 @@ void LLNetMap::draw()
 
 		gGL.pushMatrix();
 
-		gGL.translatef( (F32) center_sw_left, (F32) center_sw_bottom, 0.f);
+		gGL.translatef((F32)center_sw_left, (F32)center_sw_bottom, 0.f);
 
 		static LLUICachedControl<bool> rotate_map("MiniMapRotate", true);
-		if( rotate_map )
+		if (rotate_map)
 		{
 			// rotate subsequent draws to agent rotation
-			rotation = atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] );
-			gGL.rotatef( rotation * RAD_TO_DEG, 0.f, 0.f, 1.f);
+			rotation = atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]);
+			gGL.rotatef(rotation * RAD_TO_DEG, 0.f, 0.f, 1.f);
 		}
 
 		// figure out where agent is
 		S32 region_width = ll_round(LLWorld::getInstance()->getRegionWidthInMeters());
 
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			// Find x and y position relative to camera's center.
@@ -225,10 +226,10 @@ void LLNetMap::draw()
 			F32 relative_y = (rel_region_pos.mV[1] / region_width) * mScale;
 
 			// background region rectangle
-			F32 bottom =	relative_y;
-			F32 left =		relative_x;
-			F32 top =		bottom + mScale ;
-			F32 right =		left + mScale ;
+			F32 bottom = relative_y;
+			F32 left = relative_x;
+			F32 top = bottom + mScale;
+			F32 right = left + mScale;
 
 			if (regionp == gAgent.getRegion())
 			{
@@ -244,10 +245,31 @@ void LLNetMap::draw()
 				gGL.color4f(1.f, 0.5f, 0.5f, 1.f);
 			}
 
+			if (use_world_map_image)
+			{
+				LLViewerTexture* img = regionp->getMapImage();
+				if (img && img->hasGLTexture())
+				{
+					gGL.getTexUnit(0)->bind(img);
+					gGL.begin(LLRender::QUADS);
+					gGL.texCoord2f(0.f, 1.f);
+					gGL.vertex2f(left, top);
+					gGL.texCoord2f(0.f, 0.f);
+					gGL.vertex2f(left, bottom);
+					gGL.texCoord2f(1.f, 0.f);
+					gGL.vertex2f(right, bottom);
+					gGL.texCoord2f(1.f, 1.f);
+					gGL.vertex2f(right, top);
+					gGL.end();
 
-			// Draw using texture.
-			gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
-			gGL.begin(LLRender::QUADS);
+					img->setBoostLevel(LLGLTexture::BOOST_MAP_VISIBLE);
+				}
+			}
+			else
+			{
+				// Draw using texture.
+				gGL.getTexUnit(0)->bind(regionp->getLand().getSTexture());
+				gGL.begin(LLRender::QUADS);
 				gGL.texCoord2f(0.f, 1.f);
 				gGL.vertex2f(left, top);
 				gGL.texCoord2f(0.f, 0.f);
@@ -256,15 +278,15 @@ void LLNetMap::draw()
 				gGL.vertex2f(right, bottom);
 				gGL.texCoord2f(1.f, 1.f);
 				gGL.vertex2f(right, top);
-			gGL.end();
+				gGL.end();
 
-			// Draw water
-			gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
-			{
-				if (regionp->getLand().getWaterTexture())
+				// Draw water
+				gGL.setAlphaRejectSettings(LLRender::CF_GREATER, ABOVE_WATERLINE_ALPHA / 255.f);
 				{
-					gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
-					gGL.begin(LLRender::QUADS);
+					if (regionp->getLand().getWaterTexture())
+					{
+						gGL.getTexUnit(0)->bind(regionp->getLand().getWaterTexture());
+						gGL.begin(LLRender::QUADS);
 						gGL.texCoord2f(0.f, 1.f);
 						gGL.vertex2f(left, top);
 						gGL.texCoord2f(0.f, 0.f);
@@ -273,47 +295,47 @@ void LLNetMap::draw()
 						gGL.vertex2f(right, bottom);
 						gGL.texCoord2f(1.f, 1.f);
 						gGL.vertex2f(right, top);
-					gGL.end();
+						gGL.end();
+					}
 				}
+				gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
 			}
-			gGL.setAlphaRejectSettings(LLRender::CF_DEFAULT);
-		}
 
-		// Redraw object layer periodically
-		if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
-		{
-			mUpdateNow = false;
+			// Redraw object layer periodically
+			if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
+			{
+				mUpdateNow = false;
 
-			// Locate the centre of the object layer, accounting for panning
-			LLVector3 new_center = globalPosToView(gAgentCamera.getCameraPositionGlobal());
-			new_center.mV[VX] -= mCurPan.mV[VX];
-			new_center.mV[VY] -= mCurPan.mV[VY];
-			new_center.mV[VZ] = 0.f;
-			mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
+				// Locate the centre of the object layer, accounting for panning
+				LLVector3 new_center = globalPosToView(gAgentCamera.getCameraPositionGlobal());
+				new_center.mV[VX] -= mCurPan.mV[VX];
+				new_center.mV[VY] -= mCurPan.mV[VY];
+				new_center.mV[VZ] = 0.f;
+				mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
-			// Create the base texture.
-			U8 *default_texture = mObjectRawImagep->getData();
-			memset( default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents() );
+				// Create the base texture.
+				U8 *default_texture = mObjectRawImagep->getData();
+				memset(default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents());
 
-			// Draw objects
-			gObjectList.renderObjectsForMap(*this);
+				// Draw objects
+				gObjectList.renderObjectsForMap(*this);
 
-			mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
-			
-			map_timer.reset();
-		}
+				mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
 
-		LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
-		LLVector3 camera_position = gAgentCamera.getCameraPositionAgent();
-		map_center_agent -= camera_position;
-		map_center_agent.mV[VX] *= mScale/region_width;
-		map_center_agent.mV[VY] *= mScale/region_width;
+				map_timer.reset();
+			}
 
-		gGL.getTexUnit(0)->bind(mObjectImagep);
-		F32 image_half_width = 0.5f*mObjectMapPixels;
-		F32 image_half_height = 0.5f*mObjectMapPixels;
+			LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
+			LLVector3 camera_position = gAgentCamera.getCameraPositionAgent();
+			map_center_agent -= camera_position;
+			map_center_agent.mV[VX] *= mScale / region_width;
+			map_center_agent.mV[VY] *= mScale / region_width;
 
-		gGL.begin(LLRender::QUADS);
+			gGL.getTexUnit(0)->bind(mObjectImagep);
+			F32 image_half_width = 0.5f*mObjectMapPixels;
+			F32 image_half_height = 0.5f*mObjectMapPixels;
+
+			gGL.begin(LLRender::QUADS);
 			gGL.texCoord2f(0.f, 1.f);
 			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
 			gGL.texCoord2f(0.f, 0.f);
@@ -322,169 +344,171 @@ void LLNetMap::draw()
 			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
 			gGL.texCoord2f(1.f, 1.f);
 			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
-		gGL.end();
+			gGL.end();
 
-		gGL.popMatrix();
+			gGL.popMatrix();
 
-		// Mouse pointer in local coordinates
-		S32 local_mouse_x;
-		S32 local_mouse_y;
-		//localMouse(&local_mouse_x, &local_mouse_y);
-		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
-		mClosestAgentToCursor.setNull();
-		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
-		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
+			// Mouse pointer in local coordinates
+			S32 local_mouse_x;
+			S32 local_mouse_y;
+			//localMouse(&local_mouse_x, &local_mouse_y);
+			LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+			mClosestAgentToCursor.setNull();
+			F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
+			F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
 
-		LLVector3 pos_map;
-		uuid_vec_t avatar_ids;
-		std::vector<LLVector3d> positions;
-		bool unknown_relative_z;
+			LLVector3 pos_map;
+			uuid_vec_t avatar_ids;
+			std::vector<LLVector3d> positions;
+			bool unknown_relative_z;
 
-		LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
+			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
 
-		// Draw avatars
-		for (U32 i = 0; i < avatar_ids.size(); i++)
-		{
-			LLUUID uuid = avatar_ids[i];
-			// Skip self, we'll draw it later
-			if (uuid == gAgent.getID()) continue;
+			// Draw avatars
+			for (U32 i = 0; i < avatar_ids.size(); i++)
+			{
+				LLUUID uuid = avatar_ids[i];
+				// Skip self, we'll draw it later
+				if (uuid == gAgent.getID()) continue;
 
-			pos_map = globalPosToView(positions[i]);
+				pos_map = globalPosToView(positions[i]);
 
-// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
-			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) &&
-				(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-// [/RLVa:KB]
-//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
+				// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
+				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) &&
+					(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
+				// [/RLVa:KB]
+				//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
 
-			LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 
-			unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
+				unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
 
-			LLWorldMapView::drawAvatar(
-				pos_map.mV[VX], pos_map.mV[VY], 
-				color, 
-				pos_map.mV[VZ], mDotRadius,
-				unknown_relative_z);
+				LLWorldMapView::drawAvatar(
+					pos_map.mV[VX], pos_map.mV[VY],
+					color,
+					pos_map.mV[VZ], mDotRadius,
+					unknown_relative_z);
 
-			if(uuid.notNull())
-			{
-				bool selected = false;
-				uuid_vec_t::iterator sel_iter = gmSelected.begin();
-				for (; sel_iter != gmSelected.end(); sel_iter++)
+				if (uuid.notNull())
 				{
-					if(*sel_iter == uuid)
+					bool selected = false;
+					uuid_vec_t::iterator sel_iter = gmSelected.begin();
+					for (; sel_iter != gmSelected.end(); sel_iter++)
 					{
-						selected = true;
-						break;
+						if (*sel_iter == uuid)
+						{
+							selected = true;
+							break;
+						}
+					}
+					if (selected)
+					{
+						if ((pos_map.mV[VX] < 0) ||
+							(pos_map.mV[VY] < 0) ||
+							(pos_map.mV[VX] >= getRect().getWidth()) ||
+							(pos_map.mV[VY] >= getRect().getHeight()))
+						{
+							S32 x = ll_round(pos_map.mV[VX]);
+							S32 y = ll_round(pos_map.mV[VY]);
+							LLWorldMapView::drawTrackingCircle(getRect(), x, y, color, 1, 10);
+						}
+						else
+						{
+							LLWorldMapView::drawTrackingDot(pos_map.mV[VX], pos_map.mV[VY], color, 0.f);
+						}
 					}
 				}
-				if(selected)
+
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+					LLVector2(local_mouse_x, local_mouse_y));
+				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
 				{
-					if( (pos_map.mV[VX] < 0) ||
-						(pos_map.mV[VY] < 0) ||
-						(pos_map.mV[VX] >= getRect().getWidth()) ||
-						(pos_map.mV[VY] >= getRect().getHeight()) )
-					{
-						S32 x = ll_round( pos_map.mV[VX] );
-						S32 y = ll_round( pos_map.mV[VY] );
-						LLWorldMapView::drawTrackingCircle( getRect(), x, y, color, 1, 10);
-					} else
-					{
-						LLWorldMapView::drawTrackingDot(pos_map.mV[VX],pos_map.mV[VY],color,0.f);
-					}
+					closest_dist_squared = dist_to_cursor_squared;
+					mClosestAgentToCursor = uuid;
 				}
 			}
 
-			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-										  LLVector2(local_mouse_x,local_mouse_y));
-			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
+			// Draw dot for autopilot target
+			if (gAgent.getAutoPilot())
 			{
-				closest_dist_squared = dist_to_cursor_squared;
-				mClosestAgentToCursor = uuid;
+				drawTracking(gAgent.getAutoPilotTargetGlobal(), map_track_color);
 			}
-		}
-
-		// Draw dot for autopilot target
-		if (gAgent.getAutoPilot())
-		{
-			drawTracking( gAgent.getAutoPilotTargetGlobal(), map_track_color );
-		}
-		else
-		{
-			LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
-			if (  LLTracker::TRACKING_AVATAR == tracking_status )
+			else
 			{
-				drawTracking( LLAvatarTracker::instance().getGlobalPos(), map_track_color );
-			} 
-			else if ( LLTracker::TRACKING_LANDMARK == tracking_status 
-					|| LLTracker::TRACKING_LOCATION == tracking_status )
-			{
-				drawTracking( LLTracker::getTrackedPositionGlobal(), map_track_color );
+				LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
+				if (LLTracker::TRACKING_AVATAR == tracking_status)
+				{
+					drawTracking(LLAvatarTracker::instance().getGlobalPos(), map_track_color);
+				}
+				else if (LLTracker::TRACKING_LANDMARK == tracking_status
+					|| LLTracker::TRACKING_LOCATION == tracking_status)
+				{
+					drawTracking(LLTracker::getTrackedPositionGlobal(), map_track_color);
+				}
 			}
-		}
 
-		// Draw dot for self avatar position
-		LLVector3d pos_global = gAgent.getPositionGlobal();
-		pos_map = globalPosToView(pos_global);
-		S32 dot_width = ll_round(mDotRadius * 2.f);
-		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
-		if (you)
-		{
-			you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
-					  ll_round(pos_map.mV[VY] - mDotRadius),
-					  dot_width,
-					  dot_width);
-
-			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-										  LLVector2(local_mouse_x,local_mouse_y));
-			if(dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
+			// Draw dot for self avatar position
+			LLVector3d pos_global = gAgent.getPositionGlobal();
+			pos_map = globalPosToView(pos_global);
+			S32 dot_width = ll_round(mDotRadius * 2.f);
+			LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
+			if (you)
 			{
-				mClosestAgentToCursor = gAgent.getID();
+				you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
+					ll_round(pos_map.mV[VY] - mDotRadius),
+					dot_width,
+					dot_width);
+
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+					LLVector2(local_mouse_x, local_mouse_y));
+				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
+				{
+					mClosestAgentToCursor = gAgent.getID();
+				}
 			}
-		}
 
-		// Draw frustum
-		F32 meters_to_pixels = mScale/ LLWorld::getInstance()->getRegionWidthInMeters();
+			// Draw frustum
+			F32 meters_to_pixels = mScale / LLWorld::getInstance()->getRegionWidthInMeters();
 
-		F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
-		F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
-		F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
+			F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
+			F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
+			F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
 
-		F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2 );
-		F32 half_width_pixels = half_width_meters * meters_to_pixels;
-		
-		F32 ctr_x = (F32)center_sw_left;
-		F32 ctr_y = (F32)center_sw_bottom;
+			F32 half_width_meters = far_clip_meters * tan(horiz_fov / 2);
+			F32 half_width_pixels = half_width_meters * meters_to_pixels;
+
+			F32 ctr_x = (F32)center_sw_left;
+			F32 ctr_y = (F32)center_sw_bottom;
 
 
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
-		if( rotate_map )
-		{
-			gGL.color4fv((map_frustum_color()).mV);
+			if (rotate_map)
+			{
+				gGL.color4fv((map_frustum_color()).mV);
 
-			gGL.begin( LLRender::TRIANGLES  );
-				gGL.vertex2f( ctr_x, ctr_y );
-				gGL.vertex2f( ctr_x - half_width_pixels, ctr_y + far_clip_pixels );
-				gGL.vertex2f( ctr_x + half_width_pixels, ctr_y + far_clip_pixels );
-			gGL.end();
-		}
-		else
-		{
-			gGL.color4fv((map_frustum_rotating_color()).mV);
-			
-			// If we don't rotate the map, we have to rotate the frustum.
-			gGL.pushMatrix();
-				gGL.translatef( ctr_x, ctr_y, 0 );
-				gGL.rotatef( atan2( LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY] ) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-				gGL.begin( LLRender::TRIANGLES  );
-					gGL.vertex2f( 0, 0 );
-					gGL.vertex2f( -half_width_pixels, far_clip_pixels );
-					gGL.vertex2f(  half_width_pixels, far_clip_pixels );
+				gGL.begin(LLRender::TRIANGLES);
+				gGL.vertex2f(ctr_x, ctr_y);
+				gGL.vertex2f(ctr_x - half_width_pixels, ctr_y + far_clip_pixels);
+				gGL.vertex2f(ctr_x + half_width_pixels, ctr_y + far_clip_pixels);
 				gGL.end();
-			gGL.popMatrix();
+			}
+			else
+			{
+				gGL.color4fv((map_frustum_rotating_color()).mV);
+
+				// If we don't rotate the map, we have to rotate the frustum.
+				gGL.pushMatrix();
+				gGL.translatef(ctr_x, ctr_y, 0);
+				gGL.rotatef(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]) * RAD_TO_DEG, 0.f, 0.f, -1.f);
+				gGL.begin(LLRender::TRIANGLES);
+				gGL.vertex2f(0, 0);
+				gGL.vertex2f(-half_width_pixels, far_clip_pixels);
+				gGL.vertex2f(half_width_pixels, far_clip_pixels);
+				gGL.end();
+				gGL.popMatrix();
+			}
 		}
 	}
 	
