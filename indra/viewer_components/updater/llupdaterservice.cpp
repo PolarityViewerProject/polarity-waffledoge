@@ -132,7 +132,7 @@ public:
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
-	bool forceCheck();
+	bool forceCheck(const bool is_willing_to_test);
 	bool isChecking();
 	LLUpdaterService::eUpdaterState getState();
 	
@@ -271,8 +271,9 @@ void LLUpdaterServiceImpl::stopChecking()
 	setState(LLUpdaterService::TERMINAL);
 }
 
-bool LLUpdaterServiceImpl::forceCheck()
+bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test)
 {
+	mWillingToTest = is_willing_to_test; // <Polarity/>
 	if (!mIsDownloading && getState() != LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		if (mIsChecking)
@@ -721,9 +722,9 @@ void LLUpdaterService::stopChecking()
 	mImpl->stopChecking();
 }
 
-bool LLUpdaterService::forceCheck()
+bool LLUpdaterService::forceCheck(const bool is_willing_to_test)
 {
-	return mImpl->forceCheck();
+	return mImpl->forceCheck(is_willing_to_test);
 }
 
 bool LLUpdaterService::isChecking()

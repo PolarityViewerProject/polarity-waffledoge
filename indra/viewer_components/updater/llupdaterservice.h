@@ -84,7 +84,7 @@ public:
 	
 	void startChecking(bool install_if_ready = false);
 	void stopChecking();
-	bool forceCheck();
+	bool forceCheck(const bool is_willing_to_check);
 	bool isChecking();
 	eUpdaterState getState();
 
