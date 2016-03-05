@@ -305,7 +305,12 @@ inline bool RlvInventory::isFoldedFolder(const LLInventoryCategory* pFolder, boo
 		// .(<attachpt>) type folder
 		(0 != RlvAttachPtLookup::getAttachPointIndex(pFolder))
 		// .(nostrip) folder
-		|| ( (pFolder) && (".("RLV_FOLDER_FLAG_NOSTRIP")" == pFolder->getName()) )
+		// Fixed C3288:
+		// The concatenation of adjacent wide or raw string literals (L"Hello"L"World") will require a space to be inserted (L"Hello" L"World"),
+		// because the prefix for the second string is now treated as a user-defined literal suffix. Char concatenation requires leading space.
+		// see https://support.microsoft.com/kb/2996229 - Xenhat
+		//|| ((pFolder) && (".("RLV_FOLDER_FLAG_NOSTRIP")" == pFolder->getName()))
+		|| ( (pFolder) && (".(" RLV_FOLDER_FLAG_NOSTRIP ")" == pFolder->getName()) )
 		// Composite folder (if composite folders are enabled and we're asked to look for them)
 		#ifdef RLV_EXPERIMENTAL_COMPOSITEFOLDERS
 		|| ( (fCheckComposite) && (RlvSettings::getEnableComposites()) &&

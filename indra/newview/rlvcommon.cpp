@@ -32,7 +32,8 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 
-#include "lscript_byteformat.h"
+//#include "lscript_byteformat.h"
+#include "osscriptruntimeperms.h"
 #include <boost/algorithm/string.hpp>
 
 // ============================================================================
@@ -337,6 +338,20 @@ std::string RlvStrings::getVersionNum()
 	return llformat("%d%02d%02d%02d", RLV_VERSION_MAJOR, RLV_VERSION_MINOR, RLV_VERSION_PATCH, RLV_VERSION_BUILD);
 }
 
+std::string RlvStrings::get_vector_format_string()
+{
+	S32 precision = 6; // Default LSL script precision
+	// no spaces in this vector to work around parser bugs in some LSL scripts
+	return llformat("<%%.%df,%%.%df,%%.%df>", precision, precision, precision);
+}
+
+std::string RlvStrings::getEffectColorRLVa()
+{
+	LLColor4 vec = LLUIColorTable::instance().getColor("EffectColor");
+	// Format the vector without spaces, since some scripts will fail to parse it assign <0,0,0> instead.
+	return llformat(get_vector_format_string().c_str(), vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
+}
+
 // Checked: 2011-11-08 (RLVa-1.5.0)
 bool RlvStrings::hasString(const std::string& strStringName, bool fCheckCustom)
 {
@@ -417,19 +432,19 @@ void RlvUtil::filterNames(std::string& strUTF8Text, bool fFilterLegacy)
 void RlvUtil::filterScriptQuestions(S32& nQuestions, LLSD& sdPayload)
 {
 	// Check SCRIPT_PERMISSION_ATTACH
-	if ( (!gRlvAttachmentLocks.canAttach()) && (LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_ATTACH] & nQuestions) )
+	if ( (!gRlvAttachmentLocks.canAttach()) && (SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_ATTACH].permbit & nQuestions) )
 	{
 		// Notify the user that we blocked it since they're not allowed to wear any new attachments
 		sdPayload["rlv_blocked"] = RLV_STRING_BLOCKED_PERMATTACH;
-		nQuestions &= ~LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_ATTACH];		
+		nQuestions &= ~SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_ATTACH].permbit;
 	}
 
 	// Check SCRIPT_PERMISSION_TELEPORT
-	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_TPLOC)) && (LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TELEPORT] & nQuestions) )
+	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_TPLOC)) && (SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TELEPORT].permbit & nQuestions) )
 	{
 		// Notify the user that we blocked it since they're not allowed to teleport
 		sdPayload["rlv_blocked"] = RLV_STRING_BLOCKED_PERMTELEPORT;
-		nQuestions &= ~LSCRIPTRunTimePermissionBits[SCRIPT_PERMISSION_TELEPORT];		
+		nQuestions &= ~SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TELEPORT].permbit;
 	}
 
 	sdPayload["questions"] = nQuestions;
