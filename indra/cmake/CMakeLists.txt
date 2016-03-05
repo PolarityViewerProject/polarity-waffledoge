@@ -43,7 +43,6 @@ set(cmake_SOURCE_FILES
     FindZLIB.cmake
     FMODSTUDIO.cmake
     FreeType.cmake
-    GLEXT.cmake
     GLH.cmake
     GLOD.cmake
     GStreamer010Plugin.cmake

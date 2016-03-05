@@ -29,7 +29,6 @@
 #include "linden_common.h"
 #include "llapr.h"
 #include "apr_dso.h"
-#include "llthreadlocalstorage.h"
 
 apr_pool_t *gAPRPoolp = NULL; // Global APR memory pool
 
@@ -45,7 +44,6 @@ void ll_init_apr()
 		apr_pool_create(&gAPRPoolp, NULL);
 	}
 
-	LLThreadLocalPointerBase::initAllThreadLocalStorage();
 	gAPRInitialized = true;
 }
 
@@ -60,8 +58,6 @@ void ll_cleanup_apr()
 	gAPRInitialized = false;
 
 	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
-
-	LLThreadLocalPointerBase::destroyAllThreadLocalStorage();
 
 	if (gAPRPoolp)
 	{
