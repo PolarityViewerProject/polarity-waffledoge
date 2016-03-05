@@ -107,7 +107,33 @@ namespace
 	// Storage for the "version and channel" string.
 	// This will get reset too.
 	std::string sVersionChannel("");
+    std::string sVersionChannelForPVData("");
+	std::string sCompiledChannel("");
+	// </Polarity> PLVR-373 PVData
 }
+// <Polarity> PLVR-373 PVData
+const std::string &LLVersionInfo::getChannelAndVersionStatic()
+{
+	if (sVersionChannelForPVData.empty())
+	{
+		// cache the version string
+		std::ostringstream stream;
+		stream	<< LL_VIEWER_CHANNEL << " "
+				<< LL_VIEWER_VERSION_MAJOR << "."
+				<< LL_VIEWER_VERSION_MINOR << "."
+		 		<< LL_VIEWER_VERSION_PATCH << " ("
+		 		<< LL_VIEWER_VERSION_BUILD << ")";
+		sVersionChannelForPVData = stream.str();
+		LL_INFOS("PVData") << " Full viewer version = \"" << sVersionChannelForPVData << "\"" << LL_ENDL;
+	}
+	return sVersionChannelForPVData;
+}
+const std::string &LLVersionInfo::getCompiledChannel()
+{
+	sCompiledChannel = LL_VIEWER_CHANNEL;
+	return sCompiledChannel;
+}
+// </Polarity> PLVR-373 PVData
 
 //static
 const std::string &LLVersionInfo::getChannelAndVersion()

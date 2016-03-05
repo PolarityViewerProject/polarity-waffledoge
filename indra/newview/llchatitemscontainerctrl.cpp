@@ -368,6 +368,7 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 		if(icon)
 		{
 			icon->setDrawTooltip(mSourceType == CHAT_SOURCE_AGENT);
+			/*
 			if(mSourceType == CHAT_SOURCE_OBJECT)
 				icon->setValue(LLSD("OBJECT_Icon"));
 			else if(mSourceType == CHAT_SOURCE_SYSTEM)
@@ -376,9 +377,24 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 				icon->setValue(mFromID);
 			else if(!mFromID.isNull())
 				icon->setValue(mFromID);
+			*/
+			
+			switch (mSourceType)
+			{
+				case CHAT_SOURCE_OBJECT:
+					icon->setValue(LLSD("OBJECT_Icon"));
+					break;
+				case CHAT_SOURCE_SYSTEM:
+					icon->setValue(LLSD("SL_Logo"));
+					break;
+				case CHAT_SOURCE_AGENT:
+					icon->setValue(mFromID);
+					break;
+				case CHAT_SOURCE_MOTD:
+					icon->setValue(LLSD("SL_Logo"));
+					break;
+			}
 		}
 		mIsDirty = false;
 	}
 }
-
-

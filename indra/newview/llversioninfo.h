@@ -63,6 +63,15 @@ public:
 	/// like "Second Life Release 2.0.0.200030"
 	static const std::string &getChannelAndVersion();
 
+	// <Polarity> PLVR-373 PVData
+	// This function is functionally equivalent to GetChannelAndVersion as of 2015-07-22.
+	// We do however define this function as its own entity to ensure that any change
+	// done upstream that could affect the syntax of those functions does not break
+	// the parts of our infrastructure which depend on this specific syntax.
+	// This returns something like "Polarity Test 5.7.22 (33738)"
+	static const std::string &getChannelAndVersionStatic();
+	static const std::string &getCompiledChannel();
+	// </Polarity> PLVR-373 PVData
 	/// return the channel name, e.g. "Second Life"
 	static const std::string &getChannel();
 	

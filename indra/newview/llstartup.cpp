@@ -201,6 +201,11 @@
 #include "lldxhardware.h"
 #endif
 
+// <Polarity> Polarity Includes
+#include "pvdata.h"  // PLVR-373 PVData
+#include "pvdatacolorizer.h"
+#include "pvcommon.h"
+#include "pvrandom.h"
 //
 // exported globals
 //
@@ -628,6 +633,11 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
+		// <Polarity> PLVR-373 PVData
+		// Begin fetching the required assets used by PVData
+		PVData::instance().downloadData();
+		// PVDataColorizer::instance().initThemeColors();
+		// </Polarity> PLVR-373 PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -736,8 +746,38 @@ bool idle_startup()
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
 		// LLViewerMedia::initBrowser();
-		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+		//LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+		PVData::instance().downloadData();
+		LLGridManager::getInstance()->initialize(std::string());
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
 		return FALSE;
+	}
+	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
+		static LLFrameTimer pvdata_timer;
+		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
+		const F32 MAX_PVDATA_TIME = 15.f;
+		bool timed_out = (pvdata_time > MAX_PVDATA_TIME);
+		bool data_done = (PVData::instance().getDataDone());
+		if (timed_out || data_done)
+		{
+			if (data_done)
+			{
+				LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
+			}
+			if (timed_out)
+			{
+				LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
+			}
+			LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
 	}
 
 
@@ -1032,9 +1072,53 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
-
+		// <Polarity> PLVR-373 PVData
+		//LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
+		std::vector<std::string> string_list = {
+			"Frobulating Widgets",
+			"Reticulating Splines",
+			"Finding more Vespene Gas",
+			"Turning it up to 11",
+			"Ayyyyyyy lmao",
+			"Contacting proprietary DRM server from hell, lol",
+			"Hold on a sec, I forgot something",
+			"Searching for The Master",
+			"Ruling out Lupus",
+			"Creating a good Dalek",
+			"lo plo blo do kro no go sho po vo do blo to blo"
+		};
+		set_startup_status(0.09f, PVRandom::instance().getRandomElement(string_list), LLStringUtil::null);
+		PVData::instance().downloadAgents();
+		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
+	}
+	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on agents data" << LL_ENDL;
+		static LLFrameTimer agents_timer;
+		const F32 agents_time = agents_timer.getElapsedTimeF32();
+		const F32 MAX_AGENTS_TIME = 15.f;
+		bool timed_out = (agents_time > MAX_AGENTS_TIME);
+		bool agents_done = (PVData::instance().getAgentsDone());
+		if (timed_out || agents_done)
+		{
+			if (agents_done)
+			{
+				LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
+				set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
+			}
+			if (timed_out)
+			{
+				LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
+			}
+		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
+		}
+		else
+		{
+			ms_sleep(1);
+		return FALSE;
+		}
 	}
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
@@ -1209,13 +1293,26 @@ bool idle_startup()
 			}
 			else
 			{
+				// <Polarity> Custom error message related to PVData
+				if (!PVData::instance().PVDataErrorMessage.empty())
+				{
 				LLSD args;
+					args["ERROR_MESSAGE"] = PVData::instance().PVDataErrorMessage;
+					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
+					transition_back_to_login_panel(PVData::instance().PVDataErrorMessage);
+					show_connect_box = true;
+					return FALSE;
+				}
+				else
+				{
+					LLSD args;
 				args["ERROR_MESSAGE"] = emsg.str();
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 				return FALSE;
+				}
 			}
 		}
 		return FALSE;
@@ -2226,6 +2323,9 @@ bool idle_startup()
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
+		// <Polarity> Report web-served MOTD to chat
+		reportSpecialToNearbyChat(gAgent.mChatMOTD, CHAT_SOURCE_MOTD, LLTrans::getString("MOTDString"));
+		// </Polarity>
 
 		gAgentAvatarp->sendHoverHeight();
 
@@ -3212,7 +3312,16 @@ bool process_login_success_response()
 	text = response["agent_id"].asString();
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
-	
+	// Moved here to exit as soon as possible - Xenhat 2015.10.07
+	// <Polarity> PLVR-373 PVData
+	// Prevent particularly harmful users from using our viewer
+	// to do their deeds.
+	if (!(PVData::instance().isAllowedToLogin(gAgentID)))
+	{
+		gAgentID.setNull();
+		// exit early
+		return false;
+	}
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);
@@ -3558,6 +3667,14 @@ bool process_login_success_response()
 							  << gMaxAgentGroups << LL_ENDL;
 	}
 		
+	// <Polarity> PLVR-373 PVData
+	// Prevent particularly harmful users from using our viewer
+	// to do their deeds.
+	if (PVData::instance().is(gAgentID, PVData::FLAG_USER_BANNED))
+	{
+		LL_WARNS("PVData") << "You have been disallowed from using " << "Polarity" << " Viewer. Aborting login sequence" << LL_ENDL;
+		gAgentID.setNull();
+	}
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.

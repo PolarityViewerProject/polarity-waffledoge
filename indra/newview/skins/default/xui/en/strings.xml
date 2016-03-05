@@ -4132,5 +4132,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Mav_Details_MAV_UNKNOWN_VERSION">
       The physics shape does not have correct version. Set the correct version for the physics model.
   </string>
+  
+  <!-- MOTD -->
+  <string name="MOTDString">Message of the Day</string>
 
 </strings>
