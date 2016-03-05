@@ -17,11 +17,11 @@
       </menu_item_call>
       <menu_item_call
        label="Appearance..."
-       name="ChangeOutfit">
+	 name="ChangeOutfit"
+	 shortcut="alt|I">
         <menu_item_call.on_click
-         function="CustomizeAvatar" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
+		 function="Floater.ToggleOrBringToFront"
+		 parameter="appearance" />
       </menu_item_call>
       <menu_item_call
        label="Choose an avatar..."
@@ -97,6 +97,17 @@
           <menu_item_call.on_enable
            function="Self.EnableSitDown" />
         </menu_item_call>
+        <menu_item_call
+         label="Stand Up"
+         layout="topleft"
+         shortcut="alt|shift|S"
+         name="Sit Down Here">
+          <menu_item_call.on_click
+           function="Self.StandUp"
+           parameter="" />
+          <menu_item_call.on_enable
+           function="Self.EnableStandUp" />
+        </menu_item_call>
         <menu_item_check
          label="Fly"
          name="Fly"
@@ -140,6 +151,16 @@
            function="Floater.ToggleOrBringToFront"
            parameter="moveview" />
         </menu_item_call>
+	<menu_item_check
+	 label="DoubleClick Teleport"
+	 name="DoubleClick Teleport"
+	 shortcut="control|shift|D">
+	 <on_check
+	  function="CheckControl"
+	  parameter="DoubleClickTeleport" />
+	 <on_click
+	  function="Advanced.ToggleDoubleClickTeleport"/>
+	</menu_item_check>
       </menu>
 
       <menu
@@ -204,7 +225,7 @@
          name="Preferences"
          shortcut="control|P">
             <menu_item_call.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="preferences" />
         </menu_item_call>
          <menu_item_call
@@ -529,6 +550,14 @@
             </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
+	 label="Teleport History"
+	 name="Teleport History"
+	 shortcut="alt|H">
+		<menu_item_call.on_click
+		 function="ToggleTeleportHistory"/>
+		</menu_item_call>
+	<menu_item_separator/>
+	<menu_item_call
          label="Snapshot"
          name="Take Snapshot"
          shortcut="control|shift|S">
@@ -546,28 +575,25 @@
             <menu_item_call.on_enable
              function="World.EnablePlaceProfile" />
         </menu_item_call>
-        <menu_item_call
+        <menu_item_check
          label="About land"
          name="About Land"
          shortcut="alt|L">
-            <menu_item_call.on_click
-             function="Floater.Show"
+            <menu_item_check.on_click
+             function="Floater.ToggleOrBringToFront"
              parameter="about_land" />
-            <menu_item_call.on_enable
-             function="Floater.CanShow"
-             parameter="about_land" />
-        </menu_item_call>
-        <menu_item_call
+        </menu_item_check>
+        <menu_item_check
          label="Region / Estate"
          name="RegionEstate"
          shortcut="alt|R">
-            <menu_item_call.on_click
-             function="Floater.Show"
-             parameter="region_info" />
-            <menu_item_call.on_enable
-             function="Floater.CanShow"
-             parameter="region_info" />
-        </menu_item_call>
+	<menu_item_check.on_check
+	 function="Floater.Visible"
+	 parameter="region_info" />
+	<menu_item_check.on_click
+	 function="Floater.Toggle"
+         parameter="region_info" />
+        </menu_item_check>
         <menu_item_call
          label="My land holdings..."
          name="My Land">
@@ -649,17 +675,6 @@
                control="NavBarShowParcelProperties" />
           </menu_item_check>
           <menu_item_separator />
-          <menu_item_check
-             label="Advanced Menu"
-             name="Show Advanced Menu"
-             shortcut="control|alt|shift|D">
-            <on_check
-               function="CheckControl"
-               parameter="UseDebugMenus" />
-            <on_click
-               function="ToggleControl"
-               parameter="UseDebugMenus" />
-          </menu_item_check>
         </menu>
 
         <menu_item_separator/>
@@ -698,8 +713,7 @@
             </menu_item_check>
             <menu_item_check
              label="Sunset"
-             name="Sunset"
-             shortcut="control|shift|N">
+             name="Sunset">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunset" />
@@ -712,7 +726,8 @@
             </menu_item_check>
             <menu_item_check
              label="Midnight"
-             name="Midnight">
+             name="Midnight"
+	     shortcut="control|shift|N">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
@@ -726,7 +741,8 @@
             <menu_item_separator/>
             <menu_item_check
              label="Use Region Settings"
-             name="Use Region Settings">
+             name="Use Region Settings"
+	     shortcut="control|shift|J">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
@@ -950,7 +966,8 @@
         </menu_item_call>
         <menu_item_check
              label="Edit Linked Parts"
-             name="Edit Linked Parts">
+             name="Edit Linked Parts"
+	     shortcut="control|shift|E">
                 <menu_item_check.on_check
                  control="EditLinkedParts" />
                 <menu_item_check.on_click
@@ -1413,6 +1430,280 @@
              function="Edit.EnableRedo" />
         </menu_item_call>        
     </menu>
+    <menu
+        create_jump_keys="true"
+        label="Polarity"
+        name="Polarity"
+        tear_off="true">
+        <!-- help -->
+        <menu
+            create_jump_keys="true"
+            label="Halp!"
+            name="Character Tests"
+            tear_off="true">
+            <menu_item_call
+                label="I am crashing!"
+                name="Panic button"
+                shortcut="control|alt|P">
+                <menu_item_call.on_click
+                    function="Advanced.PanicButton">
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Rebake Textures"
+                name="Rebake Texture"
+                shortcut="control|alt|R">
+                <menu_item_call.on_click
+                    function="Advanced.RebakeTextures" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Set UI Size to Default"
+                name="Set UI Size to Default">
+                <menu_item_call.on_click
+                    function="View.DefaultUISize" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Stop Anims"
+                name="Stop Animating My Avatar"
+                shortcut="alt|shift|A">
+                <menu_item_call.on_click
+                    function="Tools.StopAllAnimations" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Reset Shape"
+                name="Force Params to Default">
+                <menu_item_call.on_click
+                    function="Advanced.ForceParamsToDefault" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                enabled="false"
+                label="Release Controls"
+                name="Release Keys"
+                shortcut="control|alt|shift|A">
+                <menu_item_call.on_click
+                    function="Tools.ReleaseKeys"
+                    parameter="" >
+                    <menu_item_call.on_enable
+                        function="Tools.EnableReleaseKeys"
+                        parameter="" >
+                    </menu_item_call.on_enable>
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_separator> </menu_item_separator>
+            <menu_item_call
+                label="Female Test Avatar"
+                name="Test Female">
+                <menu_item_call.on_click
+                    function="Advanced.TestFemale" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Male Test Avatar"
+                name="Test Male">
+                <menu_item_call.on_click
+                    function="Advanced.TestMale" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+        </menu>
+        <menu_item_call
+            label="Set Window Size..."
+            name="Set Window Size...">
+            <menu_item_call.on_click
+                function="Floater.Show"
+                parameter="window_size" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_separator>
+        </menu_item_separator>
+        <menu_item_check
+            label="Limit Select Distance"
+            name="Limit Select Distance">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="LimitSelectDistance" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="LimitSelectDistance" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_check
+            label="Disable Camera Constraints"
+            name="Disable Camera Distance">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="DisableCameraConstraints" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="DisableCameraConstraints" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_check
+            label="Disable Camera Push"
+            name="Disable Camera Push">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="PVCamera_DisableSimConstraint" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="PVCamera_DisableSimConstraint" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_separator>
+        </menu_item_separator>
+        <menu_item_check
+            label="High-res Snapshot"
+            name="HighResSnapshot">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="HighResSnapshot" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="HighResSnapshot" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_check
+            label="Quiet Snapshots to Disk"
+            name="QuietSnapshotsToDisk">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="QuietSnapshotsToDisk" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="QuietSnapshotsToDisk" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_call
+            label="Cinematic Mode"
+            name="CinematicMode"
+            shortcut="alt|shift|c">
+            <menu_item_call.on_click
+                function="Polarity.CinematicMode" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu
+            create_jump_keys="true"
+            label="Animation Speed"
+            name="Animation Speed"
+            tear_off="true">
+            <menu_item_call
+                label="All Animations 10% Faster"
+                name="All Animations 10 Faster">
+                <menu_item_call.on_click
+                    function="Advanced.AnimTenFaster" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="All Animations 10% Slower"
+                name="All Animations 10 Slower">
+                <menu_item_call.on_click
+                    function="Advanced.AnimTenSlower" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Reset All Animation Speed"
+                name="Reset All Animation Speed">
+                <menu_item_call.on_click
+                    function="Advanced.AnimResetAll" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_check
+                label="Slow Motion Animations"
+                name="Slow Motion Animations">
+                <menu_item_check.on_check
+                    function="CheckControl"
+                    parameter="SlowMotionAnimation" >
+                    <menu_item_check.on_click
+                        function="ToggleControl"
+                        parameter="SlowMotionAnimation" >
+                    </menu_item_check.on_click>
+                </menu_item_check.on_check>
+            </menu_item_check>
+        </menu>
+        <menu_item_check
+            enabled="false"
+            label="Machinima Sidebar"
+            shortcut="F1"
+            name="Machinima Sidebar">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="PVUI_MachinimaSidebar">
+            </menu_item_check.on_check>
+            <menu_item_check.on_click
+                function="ToggleControl"
+                parameter="PVUI_MachinimaSidebar">
+            </menu_item_check.on_click>
+        </menu_item_check>
+        <menu_item_separator>
+        </menu_item_separator>
+        <menu_item_call
+            enabled="false"
+            label="Area Search"
+            name="area_search"
+            shortcut="alt|F">
+            <menu_item_call.on_click
+                function="Floater.Toggle"
+                parameter="area_search" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            enabled="false"
+            label="Asset Blacklist"
+            name="asset_blacklist">
+            <menu_item_call.on_click
+                function="Floater.Toggle"
+                parameter="ws_asset_blacklist" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            enabled="false"
+            label="Region Tracker"
+            name="region_tracker">
+            <menu_item_call.on_click
+                function="Floater.Toggle"
+                parameter="region_tracker" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            label="Your script count"
+            name="script_limits"
+            shortcut="alt|Z">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="script_limits" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_separator></menu_item_separator>
+        <menu_item_call
+            label="Show Debug Settings"
+            shortcut="control|shift|;"
+            name="Debug Settings">
+            <menu_item_call.on_click
+                function="Advanced.ShowDebugSettings"
+                parameter="all" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_check
+         label="Show Develop Menu"
+         name="Debug Mode"
+         shortcut="control|alt|Q">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="QAMode" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="QAMode" />
+        </menu_item_check>
+
+      </menu>
     <menu
      create_jump_keys="true"
      label="Help"
@@ -3592,6 +3883,15 @@
                 <menu_item_call.on_click
                  function="Floater.Show"
                  parameter="font_test" />
+            </menu_item_call>
+            <menu_item_separator />
+            <menu_item_call
+             label="XUI Preview Tool"
+             name="UI Preview Tool"
+             shortcut="control|shift|T">
+                <menu_item_call.on_click
+                 function="Floater.Toggle"
+                 parameter="ui_preview" />
             </menu_item_call>
             <menu_item_check
              label="Show XUI Names"

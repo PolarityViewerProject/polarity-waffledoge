@@ -4655,6 +4655,17 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		return;
 	}
 
+	// <FS:Ansariel> Bring back simulator version changed messages after TP
+	static LLCachedControl<bool> show_server_version_change(gSavedSettings, "PVUI_ShowServerVersionChangeNotice");
+	if (!gLastVersionChannel.empty() && show_server_version_change)
+	// </Polarity>
+	{
+		LLSD args;
+		args["OLDVERSION"] = gLastVersionChannel;
+		args["NEWVERSION"] = version_channel;
+		LLNotificationsUtil::add("ServerVersionChanged", args);
+	}
+	// </FS:Ansariel>
 	gLastVersionChannel = version_channel;
 }
 
@@ -5461,6 +5472,9 @@ void process_avatar_appearance(LLMessageSystem *mesgsys, void **user_data)
 
 void process_camera_constraint(LLMessageSystem *mesgsys, void **user_data)
 {
+    static LLCachedControl<bool> disableSimConst(gSavedSettings, "PVCamera_DisableSimConstraint", false);
+    if (disableSimConst)
+        return;
 	LLVector4 cameraCollidePlane;
 	mesgsys->getVector4Fast(_PREHASH_CameraCollidePlane, _PREHASH_Plane, cameraCollidePlane);
 

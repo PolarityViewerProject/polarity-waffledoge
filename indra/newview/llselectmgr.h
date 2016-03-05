@@ -696,7 +696,12 @@ public:
 	LLPermissions* findObjectPermissions(const LLViewerObject* object);
 
 	void selectDelete();							// Delete on simulator
-	void selectForceDelete();			// just delete, no into trash
+	void selectForceDelete();
+	// This gets which group should we rez the item under, according to user preferences,
+	// group membership and parcel ownership.
+	static LLUUID getGroupIDToRezUnder();
+
+	// just delete, no into trash
 	void selectDuplicate(const LLVector3& offset, BOOL select_copy);	// Duplicate on simulator
 	void repeatDuplicate();
 	void selectDuplicateOnRay(const LLVector3 &ray_start_region,

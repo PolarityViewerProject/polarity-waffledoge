@@ -110,10 +110,13 @@ public:
 	/*virtual*/ void interruptLanguageTextInput();
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 
+	/*virtual*/ void setTitle(const std::string win_title);	// <Polarity/> Dynamic window title
+
 	LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 
+	static U32 getRefreshRate();
 protected:
 	LLWindowWin32(LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, int x, int y, int width, int height, U32 flags, 

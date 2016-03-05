@@ -86,6 +86,8 @@
 // [/RLVa:KB]
 
 #include <boost/shared_ptr.hpp>
+#include "lltoolmgr.h"
+#include "lltoolcomp.h"
 
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
@@ -6161,6 +6163,20 @@ void LLObjectBridge::performAction(LLInventoryModel* model, std::string action)
 	{
 		LLAppearanceMgr::instance().removeItemFromAvatar(mUUID);
 	}
+	else if ("edit_object" == action)
+	{
+		if (LLInventoryItem* itemp = gInventory.getItem(mUUID))
+		{
+			if (LLViewerObject* objectp = gAgentAvatarp->getWornAttachment(itemp->getLinkedUUID()))
+			{
+				LLSelectMgr::getInstance()->deselectAll(); // Clear the current selection first.
+				LLFloaterReg::showInstance("build");
+				LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+				LLToolMgr::getInstance()->getCurrentToolset()->selectTool(LLToolCompTranslate::getInstance());
+				LLSelectMgr::getInstance()->selectObjectAndFamily(objectp);
+			}
+		}
+	}
 	else LLItemBridge::performAction(model, action);
 }
 
@@ -6339,7 +6355,8 @@ void LLObjectBridge::buildContextMenu(LLMenuGL& menu, U32 flags)
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
 				if ( (rlv_handler_t::isEnabled()) && (!gRlvAttachmentLocks.canDetach(item)) )
 					disabled_items.push_back(std::string("Detach From Yourself"));
-// [/RLVa:KB]
+// [/RLVa:KB]                                                                     
+				items.push_back(std::string("Edit Object"));
 			}
 			else if (!isItemInTrash() && !isLinkedObjectInTrash() && !isLinkedObjectMissing() && !isCOFFolder())
 			{

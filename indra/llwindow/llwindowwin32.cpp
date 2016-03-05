@@ -369,7 +369,28 @@ LLWinImm::~LLWinImm()
 	}
 }
 
+U32 LLWindowWin32::getRefreshRate()
+{
+	// Gross, duplicate code. I can't seem to be able to do this otherwise, however.
+	//-----------------------------------------------------------------------
+	// Get the current refresh rate
+	//-----------------------------------------------------------------------
 
+	DEVMODE dev_mode;
+	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
+	dev_mode.dmSize = sizeof(DEVMODE);
+	// Moved to header to allow use outside this file
+	DWORD current_refresh_2;
+	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+	{
+		current_refresh_2 = dev_mode.dmDisplayFrequency;
+	}
+	else
+	{
+		current_refresh_2 = 60;
+	}
+	return current_refresh_2;
+}
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
@@ -519,7 +540,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	DEVMODE dev_mode;
 	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
 	dev_mode.dmSize = sizeof(DEVMODE);
+	// Moved to header to allow use outside this file
 	DWORD current_refresh;
+#if 0
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 	{
 		current_refresh = dev_mode.dmDisplayFrequency;
@@ -529,6 +552,9 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	{
 		current_refresh = 60;
 	}
+#else
+	current_refresh = getRefreshRate();
+#endif
 
 	//-----------------------------------------------------------------------
 	// Drop resolution and go fullscreen
@@ -1463,7 +1489,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 	if (wglCreateContextAttribsARB)
 	{ //attempt to create a specific versioned context
 		S32 attribs[] = 
-		{ //start at 4.2
+		{ //start at 4.5
 			WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
 			WGL_CONTEXT_MINOR_VERSION_ARB, 5,
 			WGL_CONTEXT_PROFILE_MASK_ARB,  LLRender::sGLCoreProfile ? WGL_CONTEXT_CORE_PROFILE_BIT_ARB : WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB,
@@ -3079,6 +3105,22 @@ void LLWindowWin32::swapBuffers()
 	SwapBuffers(mhDC);
 }
 
+// <Polarity> Dynamic window title
+void LLWindowWin32::setTitle(const std::string win_title)
+{
+	// Set the window title
+	if (win_title.empty())
+	{
+		wsprintf(mWindowTitle, L"OpenGL Window");
+	}
+	else
+	{
+		mbstowcs(mWindowTitle, win_title.c_str(), 255);
+		mWindowTitle[255] = 0;
+	}
+	SetWindowText(mWindowHandle, mWindowTitle);
+}
+// </Polarity>
 
 //
 // Helper Funcs

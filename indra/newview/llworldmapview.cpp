@@ -452,27 +452,40 @@ void LLWorldMapView::draw()
 		// Draw the region name in the lower left corner
 		if (sMapScale >= DRAW_TEXT_THRESHOLD)
 		{
+			static LLCachedControl<bool> show_agent_count(gSavedSettings, "PVUI_MapShowAgentCount"); // <alchemy/>
 			LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Small", LLFontGL::BOLD));
 			std::string mesg;
 			if (info->isDown())
 			{
-				mesg = llformat( "%s (%s)", info->getName().c_str(), sStringsMap["offline"].c_str());
+				mesg = llformat( "%s (%s) (%s)", info->getName().c_str(), sStringsMap["offline"].c_str(), info->getShortAccessString().c_str());  // <alchemy/>
 			}
-			else
+			// <alchemy> Get agent count
+			else if (show_agent_count)
 			{
-				mesg = info->getName();
+				S32 agent_count = info->getAgentCount();
+				LLViewerRegion *region = gAgent.getRegion();
+				if (region && (region->getHandle() == handle))
+				{
+					++agent_count; // Bump by 1 if we're here
+				}
+				if (agent_count > 0)
+				{
+					mesg = llformat("%s (%d) (%s)", info->getName().c_str(), agent_count, info->getShortAccessString().c_str());
+				}
+			}
+			if (mesg.empty())
+			{
+				mesg = llformat("%s (%s)", info->getName().c_str(), info->getShortAccessString().c_str());
 			}
 //			if (!mesg.empty())
 // [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-			if ( (!mesg.empty()) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) )
+			if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
 // [/RLVa:KB]
-			{
-				font->renderUTF8(
-					mesg, 0,
-					llfloor(left + 3), llfloor(bottom + 2),
-					LLColor4::white,
-					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
-			}
+			font->renderUTF8(
+				mesg, 0,
+				llfloor(left + 3), llfloor(bottom + 2),
+				LLColor4::white,
+				LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
 		}
 	}
 

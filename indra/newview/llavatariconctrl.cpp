@@ -181,7 +181,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mSymbolSize(p.symbol_size),
 	mSymbolPos(p.symbol_pos)
 {
-	mPriority = LLViewerFetchedTexture::BOOST_ICON;
+	mPriority = LLViewerFetchedTexture::BOOST_NONE; // NaCl - Do not keep icons in memory
 	
 	LLRect rect = p.rect;
 

@@ -69,6 +69,8 @@ public:
 	void setLandCredit(S32 credit);
 	void setLandCommitted(S32 committed);
 
+    void LLStatusBar::RefreshClockArea(bool mShowSeconds); // <Polarity> Split clock refresh into its own function
+
 	void		refresh();
 	void setVisibleForMouselook(bool visible);
 		// some elements should hide in mouselook
@@ -90,8 +92,8 @@ private:
 	void onVolumeChanged(const LLSD& newvalue);
 
 	void onMouseEnterVolume();
-	void onMouseEnterNearbyMedia();
-	void onClickScreen(S32 x, S32 y);
+	void onMouseEnterNearbyMedia() const;
+	static void onClickScreen(S32 x, S32 y);
 
 	static void onClickMediaToggle(void* data);
 	static void onClickBalance(void* data);
@@ -99,6 +101,8 @@ private:
 private:
 	LLTextBox	*mTextTime;
 
+	LLTextBox	*mFPSCount; // <Polarity/>
+	U32			mRefreshRate;
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
@@ -108,6 +112,7 @@ private:
 	LLButton	*mMediaToggle;
 	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
+	LLFrameTimer	mFPSCountTimer; // <Polarity/>
 
 	S32				mBalance;
 	S32				mHealth;

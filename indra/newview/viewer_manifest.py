@@ -71,33 +71,32 @@ class ViewerManifest(LLManifest):
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
-        if self.is_packaging_viewer():
-            if self.prefix(src="app_settings"):
-                self.exclude("logcontrol.xml")
-                self.exclude("logcontrol-dev.xml")
-                self.path("*.pem")
-                self.path("*.ini")
-                self.path("*.xml")
-                self.path("*.db2")
+        if self.prefix(src="app_settings"):
+            self.exclude("logcontrol.xml")
+            self.exclude("logcontrol-dev.xml")
+            self.path("*.pem")
+            self.path("*.ini")
+            self.path("*.xml")
+            self.path("*.db2")
 
-                # include the entire shaders directory recursively
-                self.path("shaders")
-                # include the extracted list of contributors
-                contributions_path = "../../doc/contributions.txt"
-                contributor_names = self.extract_names(contributions_path)
-                self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
+            # include the entire shaders directory recursively
+            self.path("shaders")
+            # include the extracted list of contributors
+            contributions_path = "../../doc/contributions.txt"
+            contributor_names = self.extract_names(contributions_path)
+            self.put_in_file(contributor_names, "contributors.txt", src=contributions_path)
 
-                # ... and the entire windlight directory
-                self.path("windlight")
+            # ... and the entire windlight directory
+            self.path("windlight")
 
-                # ... and the entire image filters directory
-                self.path("filters")
+            # ... and the entire image filters directory
+            self.path("filters")
 
-                # ... and the included spell checking dictionaries
-                pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
-                if self.prefix(src=pkgdir,dst=""):
-                    self.path("dictionaries")
-                    self.end_prefix(pkgdir)
+            # ... and the included spell checking dictionaries
+            pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+            if self.prefix(src=pkgdir,dst=""):
+                self.path("dictionaries")
+                self.end_prefix(pkgdir)
 
                 # include the extracted packages information (see BuildPackagesInfo.cmake)
                 self.path(src=os.path.join(self.args['build'],"packages-info.txt"), dst="packages-info.txt")
@@ -383,9 +382,9 @@ class WindowsManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        #if self.is_packaging_viewer():
-        # Find polarity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
-        self.path(src='%s/polarity-bin.exe' % self.args['configuration'], dst=self.final_exe())
+        if self.is_packaging_viewer():
+            # Find polarity-bin.exe in the 'configuration' dir, then rename it to the result of final_exe.
+            self.path(src='%s/polarity-bin.exe' % self.args['configuration'], dst=self.final_exe())
         
         # Clean up the old binary
         # Don't do this if you plan debugging with Visual Studio

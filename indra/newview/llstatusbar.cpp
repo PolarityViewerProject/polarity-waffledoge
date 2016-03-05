@@ -30,60 +30,41 @@
 
 // viewer includes
 #include "llagent.h"
-#include "llagentcamera.h"
 #include "llbutton.h"
 #include "llcommandhandler.h"
 #include "llfirstuse.h"
 #include "llviewercontrol.h"
-#include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
 #include "llpanelnearbymedia.h"
 #include "llpanelvolumepulldown.h"
-#include "llfloaterregioninfo.h"
-#include "llfloaterscriptdebug.h"
 #include "llhints.h"
-#include "llhudicon.h"
-#include "llnavigationbar.h"
-#include "llkeyboard.h"
-#include "lllineeditor.h"
 #include "llmenugl.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "llrootview.h"
 #include "llsd.h"
 #include "lltextbox.h"
 #include "llui.h"
-#include "llviewerparceloverlay.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llframetimer.h"
 #include "llvoavatarself.h"
 #include "llresmgr.h"
-#include "llworld.h"
 #include "llstatgraph.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"	// for gMenuBarView
-#include "llviewerparcelmgr.h"
 #include "llviewerthrottle.h"
 #include "lluictrlfactory.h"
-
-#include "lltoolmgr.h"
-#include "llfocusmgr.h"
 #include "llappviewer.h"
-#include "lltrans.h"
+#include "llweb.h"
 
 // library includes
-#include "llfloaterreg.h"
-#include "llfontgl.h"
 #include "llrect.h"
 #include "llerror.h"
-#include "llnotificationsutil.h"
-#include "llparcel.h"
 #include "llstring.h"
 #include "message.h"
 
 // system includes
-#include <iomanip>
-
+#include "llwindowwin32.h" // for refresh rate and such
 //
 // Globals
 //
@@ -99,22 +80,23 @@ const LLColor4 SIM_WARN_COLOR(1.f, 1.f, 0.f, 1.f);
 const LLColor4 SIM_FULL_COLOR(1.f, 0.f, 0.f, 1.f);
 const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons should flash after a change.
 
-static void onClickVolume(void*);
+static void onClickVolume(void* data);
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
-	mTextTime(NULL),
-	mSGBandwidth(NULL),
-	mSGPacketLoss(NULL),
-	mBtnStats(NULL),
-	mBtnVolume(NULL),
-	mBoxBalance(NULL),
+	mTextTime(nullptr),
+	mFPSCount(nullptr), // <Polarity> FPS Counter in the status bar
+	mSGBandwidth(nullptr),
+	mSGPacketLoss(nullptr),
+	mBtnStats(nullptr),
+	mBtnVolume(nullptr),
+	mBoxBalance(nullptr),
 	mBalance(0),
 	mHealth(100),
 	mSquareMetersCredit(0),
 	mSquareMetersCommitted(0)
 {
-	setRect(rect);
+	LLView::setRect(rect);
 	
 	// status bar can possible overlay menus?
 	setMouseOpaque(FALSE);
@@ -159,8 +141,12 @@ BOOL LLStatusBar::postBuild()
 
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
+	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
+	mFPSCount = getChild<LLTextBox>("FPS_count");
 	getChild<LLUICtrl>("buyL")->setCommitCallback(
 		boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+
+	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, "https://secondlife.com/my/lindex/buy.php"));
 
 	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 
@@ -234,8 +220,29 @@ BOOL LLStatusBar::postBuild()
 
 	mScriptOut = getChildView("scriptout");
 
+	mRefreshRate = LLWindowWin32::getRefreshRate();
+
 	return TRUE;
 }
+
+// <Polarity> Split clock refresh into its own function
+void LLStatusBar::RefreshClockArea(bool mShowSeconds)
+{
+	mClockUpdateTimer.reset();
+	// Get current UTC time, adjusted for the user's clock being off.
+	time_t utc_time;
+	utc_time = time_corrected();
+	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	LLSD substitution;
+	substitution["datetime"] = (S32) utc_time;
+	LLStringUtil::format (timeStr, substitution);
+	mTextTime->setText(timeStr);
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format (dtStr, substitution);
+	mTextTime->setToolTip (dtStr);
+}
+// </Polarity>
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
@@ -253,30 +260,7 @@ void LLStatusBar::refresh()
 		//mSGBandwidth->setThreshold(1, bwtotal);
 		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
-	
-	// update clock every 10 seconds
-	if(mClockUpdateTimer.getElapsedTimeF32() > 10.f)
-	{
-		mClockUpdateTimer.reset();
 
-		// Get current UTC time, adjusted for the user's clock
-		// being off.
-		time_t utc_time;
-		utc_time = time_corrected();
-
-		std::string timeStr = getString("time");
-		LLSD substitution;
-		substitution["datetime"] = (S32) utc_time;
-		LLStringUtil::format (timeStr, substitution);
-		mTextTime->setText(timeStr);
-
-		// set the tooltip to have the date
-		std::string dtStr = getString("timeTooltip");
-		LLStringUtil::format (dtStr, substitution);
-		mTextTime->setToolTip (dtStr);
-	}
-
-	LLRect r;
 	const S32 MENU_RIGHT = gMenuBarView->getRightmostMenuEdge();
 
 	// reshape menu bar to its content's width
@@ -303,6 +287,46 @@ void LLStatusBar::refresh()
 							  LLViewerMedia::isParcelMediaPlaying() ||
 							  LLViewerMedia::isParcelAudioPlaying());
 	mMediaToggle->setValue(!any_media_playing);
+
+	if (mClockUpdateTimer.getElapsedTimeF32() < 0.25f)
+	{
+		return;
+	}
+
+	mClockUpdateTimer.reset();
+	// Get current UTC time, adjusted for the user's clock being off.
+	time_t utc_time;
+	utc_time = time_corrected();
+	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
+	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	LLSD substitution;
+	substitution["datetime"] = static_cast<S32>(utc_time);
+	LLStringUtil::format(timeStr, substitution);
+	mTextTime->setText(timeStr);
+	// set the tooltip to have the date
+	std::string dtStr = getString("timeTooltip");
+	LLStringUtil::format(dtStr, substitution);
+	mTextTime->setToolTip(dtStr);
+
+	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
+	mFPSCountTimer.reset();
+
+	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
+	auto current_fps_normalized = LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS);
+		// Cap the amount of decimals we return
+	if (current_fps_normalized > 100.f)
+	{
+		mFPSCount->setValue(llformat("%.0f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	else if (current_fps_normalized > 10.f)
+	{
+		mFPSCount->setValue(llformat("%.1f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	else
+	{
+		mFPSCount->setValue(llformat("%.2f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
+	}
+	// </Polarity>
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -312,6 +336,14 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mBoxBalance->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
+
+	// <Polarity> FPS Meter in status bar.
+	static LLCachedControl<bool> show_fps_counter(gSavedSettings, "PVUI_StatusBarShowFPSCounter",true);
+	if(show_fps_counter)
+	{
+		mFPSCount->setVisible(visible);
+	}
+
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -480,7 +512,7 @@ void LLStatusBar::onMouseEnterVolume()
 	mPanelVolumePulldown->setVisible(TRUE);
 }
 
-void LLStatusBar::onMouseEnterNearbyMedia()
+void LLStatusBar::onMouseEnterNearbyMedia() const
 {
 	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
 	LLRect nearby_media_rect = mPanelNearByMedia->getRect();

@@ -38,7 +38,9 @@
 
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
-:	LLFloater(key)
+// Polarity> Ensure the debug list is populated when opening through the toolbar button
+//: LLFloater(key)
+:  LLFloater(key.asString().empty() ? LLSD("all") : key)
 {
 	mCommitCallbackRegistrar.add("SettingSelect",	boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this,_1));
 	mCommitCallbackRegistrar.add("CommitSettings",	boost::bind(&LLFloaterSettingsDebug::onCommitSettings, this));

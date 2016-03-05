@@ -2208,7 +2208,7 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::showInstance("settings_debug",userdata);
+		LLFloaterReg::toggleInstanceOrBringToFront("settings_debug"); // <Polarity>
 		return true;
 	}
 };
@@ -4710,12 +4710,13 @@ static void derez_objects(
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
 				LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
-				if (PVPrivacy_HideEditBeam)
-				return;
-				// VEFFECT: DerezObject
-				LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
-				effectp->setPositionGlobal(object->getPositionGlobal());
-				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+				if (!PVPrivacy_HideEditBeam)
+				{
+					// VEFFECT: DerezObject
+					LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
+					effectp->setPositionGlobal(object->getPositionGlobal());
+					effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+				}
 			}
 			msg->sendReliable(first_region->getHost());
 		}
