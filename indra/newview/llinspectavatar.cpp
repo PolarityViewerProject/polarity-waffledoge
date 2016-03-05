@@ -48,6 +48,10 @@
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 
+// <Polarity>
+#include "pvdata.h" // for getPreferredName()
+#include "pvdatacolorizer.h" // For agent_role color
+// </Polarity>
 class LLFetchAvatarData;
 
 
@@ -244,6 +248,9 @@ void LLInspectAvatar::requestUpdate()
 	getChild<LLUICtrl>("user_slid")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
+	// <Polarity> Show the agent's role
+	getChild<LLUICtrl>("agent_role")->setValue(""); 
+	getChild<LLUICtrl>("agent_role")->setColor(LLColor4::white);
 	
 	// Make a new request for properties
 	delete mPropertiesRequest;
@@ -389,6 +396,14 @@ void LLInspectAvatar::onAvatarNameCache(
 			getChild<LLUICtrl>("user_name_small")->setVisible( false );
 			getChild<LLUICtrl>("user_name")->setVisible( true );
 
+		}
+		// <Polarity> Show agent's role
+		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
+		std::string agent_role_text = PVData::getInstance()->getAgentFlagsAsString(mAvatarID);
+		if (!agent_role_text.empty())
+		{
+			agent_role->setValue(agent_role_text);
+			agent_role->setColor(PVDataColorizer::instance().getColor(mAvatarID, "DefaultTextColor", false));
 		}
 
 	}

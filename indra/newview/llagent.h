@@ -123,6 +123,7 @@ public:
 	BOOL 			isInitialized() const 	{ return mInitialized; }
 public:
 	std::string		mMOTD; 					// Message of the day
+	std::string		mChatMOTD;				// MOTD in Chat
 private:
 	BOOL			mInitialized;
 	BOOL			mFirstLogin;

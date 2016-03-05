@@ -242,6 +242,8 @@ void LLCurl::Responder::completedRaw(
 	LLBufferStream istr(channels, buffer.get());
 	const bool emit_parse_errors = false;
 
+	// <Techwolf Lupindo> pass parse error down code path
+	mDeserializeError = false;
 	std::string debug_body("(empty)");
 	bool parsed=true;
 	if (EOF == istr.peek())
@@ -261,6 +263,8 @@ void LLCurl::Responder::completedRaw(
 			mContent = body;
 			debug_body = body;
 		}
+		// <Techwolf Lupindo> pass parse error down code path
+		mDeserializeError = true;
 	}
 
 	// Only emit a warning if we failed to parse when 'content-type' == 'application/llsd+xml'

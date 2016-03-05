@@ -454,6 +454,9 @@ public:
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
 				break;
+			case CHAT_SOURCE_MOTD:
+				icon->setValue(LLSD("SL_Logo"));
+				break;
 			case CHAT_SOURCE_UNKNOWN: 
 				icon->setValue(LLSD("Unknown_Icon"));
 		}

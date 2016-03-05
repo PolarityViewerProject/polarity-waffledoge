@@ -95,8 +95,25 @@ include_directories(SYSTEM
     ${LLXML_SYSTEM_INCLUDE_DIRS}
     ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
     )
+    
+SET(thirdparty_SOURCE_FILES
+    pvrandom.cpp
+    pvdatacolorizer.cpp
+    pvdata.cpp
+    pvcommon.cpp
+    )
+
+SET(thirdparty_HEADER_FILES
+    pvrandom.h
+    pvdatacolorizer.h
+    pvdata.h
+    pvcommon.h
+    )
+
+SOURCE_GROUP("Third Party" FILES ${thirdparty_SOURCE_FILES} ${thirdparty_HEADER_FILES})
 
 set(viewer_SOURCE_FILES
+    ${thirdparty_SOURCE_FILES}
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -715,6 +732,7 @@ set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
+    ${thirdparty_HEADER_FILES}
     groupchatlistener.h
     llaccountingcost.h
     llaccountingcostmanager.h
