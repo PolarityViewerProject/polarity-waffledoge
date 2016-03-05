@@ -54,7 +54,6 @@ const U32 REGION_HANDSHAKE_SUPPORTS_SELF_APPEARANCE = 1U << 2;
 class LLEventPoll;
 class LLVLComposition;
 class LLViewerObject;
-class LLViewerTexture;
 class LLMessageSystem;
 class LLNetMap;
 class LLViewerParcelOverlay;
@@ -390,7 +389,6 @@ public:
 
 	static BOOL isNewObjectCreationThrottleDisabled() {return sNewObjectCreationThrottle < 0;}
 
-	LLViewerTexture* getMapImage();
 private:
 	void addToVOCacheTree(LLVOCacheEntry* entry);
 	LLViewerObject* addNewObject(LLVOCacheEntry* entry);
@@ -441,7 +439,6 @@ public:
 	static S32  sLastCameraUpdated;
 
 	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
-	LLPointer<LLViewerTexture> mMapImage; // <Polarity/> World Map texture in minimap
 
 	struct CompareRegionByLastUpdate
 	{

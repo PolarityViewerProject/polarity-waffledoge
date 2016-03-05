@@ -176,17 +176,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVUI_MinimapTile</key>
-    <map>
-      <key>Comment</key>
-      <string>Use the world map tile as the minimap background </string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>PVUI_ShowServerVersionChangeNotice</key>
     <map>
       <key>Comment</key>
