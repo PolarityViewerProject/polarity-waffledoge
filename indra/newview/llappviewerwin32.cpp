@@ -93,7 +93,9 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = "Polarity Viewer";
+// To retain SLURL association compatibility (passing a SLURL to a running viewer), this
+// MUST match VIEWER_WINDOW_CLASSNAME in llappviewer.cpp
+const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 /*
     This function is used to print to the command line a text message 

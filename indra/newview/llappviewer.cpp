@@ -372,8 +372,9 @@ static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
-// Note: Changing this breaks compatibility with SLURL handling, try to avoid it.
-const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+// To retain SLURL association compatibility (passing a SLURL to a running viewer), this
+// MUST match LLAppViewerWin32::sWindowClass
+const char* const VIEWER_WINDOW_CLASSNAME = "Polarity";
 
 //-- LLDeferredTaskList ------------------------------------------------------
 
