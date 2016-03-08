@@ -109,9 +109,9 @@ namespace
 	std::string sVersionChannel("");
     std::string sVersionChannelForPVData("");
 	std::string sCompiledChannel("");
-	// </Polarity> PLVR-373 PVData
+	// </Polarity> PVData
 }
-// <Polarity> PLVR-373 PVData
+// <Polarity> PVData
 const std::string &LLVersionInfo::getChannelAndVersionStatic()
 {
 	if (sVersionChannelForPVData.empty())
@@ -133,7 +133,7 @@ const std::string &LLVersionInfo::getCompiledChannel()
 	sCompiledChannel = LL_VIEWER_CHANNEL;
 	return sCompiledChannel;
 }
-// </Polarity> PLVR-373 PVData
+// </Polarity> PVData
 
 //static
 const std::string &LLVersionInfo::getChannelAndVersion()

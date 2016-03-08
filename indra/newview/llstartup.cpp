@@ -206,7 +206,7 @@
 #endif
 
 // <Polarity> Polarity Includes
-#include "pvdata.h"  // PLVR-373 PVData
+#include "pvdata.h"
 #include "pvdatacolorizer.h"
 #include "pvcommon.h"
 #include "pvrandom.h"
@@ -644,11 +644,11 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
-		// <Polarity> PLVR-373 PVData
+		// <Polarity> PVData
 		// Begin fetching the required assets used by PVData
 		PVData::instance().downloadData();
 		// PVDataColorizer::instance().initThemeColors();
-		// </Polarity> PLVR-373 PVData
+		// </Polarity> PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -1095,7 +1095,7 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		// <Polarity> PLVR-373 PVData
+		// <Polarity> PVData
 		//LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 		std::vector<std::string> string_list = {
 			"Frobulating Widgets",
@@ -3344,7 +3344,7 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	// Moved here to exit as soon as possible - Xenhat 2015.10.07
-	// <Polarity> PLVR-373 PVData
+	// <Polarity> PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
 	if (!(PVData::instance().isAllowedToLogin(gAgentID)))
@@ -3699,7 +3699,7 @@ bool process_login_success_response()
 							  << gMaxAgentGroups << LL_ENDL;
 	}
 		
-	// <Polarity> PLVR-373 PVData
+	// <Polarity> PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
 #if 0

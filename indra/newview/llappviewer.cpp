@@ -5773,11 +5773,11 @@ void LLAppViewer::handleLoginComplete()
 		}
 		if (!full_name.empty())
 		{
-			// <Polarity> PLVR-259 Task Bar efficiency
+			// <Polarity> Task Bar efficiency
 			full_name + std::string(" | ");
 		}
 		std::string backup_title = gWindowTitle;
-		gWindowTitle = full_name + std::string(" ") + gArgs; // <Polarity> PLVR-254 Dynamic window title
+		gWindowTitle = full_name + std::string(" ") + gArgs; // <Polarity> Dynamic window title
 		LLStringUtil::truncate(gWindowTitle, 255);
 		gViewerWindow->getWindow()->setTitle(gWindowTitle);
 	}
