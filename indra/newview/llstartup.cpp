@@ -3702,11 +3702,14 @@ bool process_login_success_response()
 	// <Polarity> PLVR-373 PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
+#if 0
 	if (PVData::instance().is(gAgentID, PVData::FLAG_USER_BANNED))
 	{
-		LL_WARNS("PVData") << "You have been disallowed from using " << "Polarity" << " Viewer. Aborting login sequence" << LL_ENDL;
+		LL_WARNS("PVData") << "You have been disallowed from using " << APP_NAME << " Viewer. Aborting login sequence" << LL_ENDL;
+		LLLoginInstance::getInstance()->disconnect(); // Cleanly disconnect
 		gAgentID.setNull();
 	}
+#endif
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.
