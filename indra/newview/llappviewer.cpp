@@ -5750,37 +5750,41 @@ void LLAppViewer::handleLoginComplete()
 
 	mOnLoginCompleted();
 
-// <Polarity>Dynamic window title
-	if (!gSavedSettings.getBOOL("PVWindow_TitleAnonymize") && gSavedSettings.getBOOL("PVWindow_TitleShowUserName"))
+	// <Polarity>Dynamic window title
+	// if (gSavedSettings.getBOOL("PVWindow_TitleAnonymize" && gSavedSettings.getBOOL("PVWindow_TitleShowUserName"))
+	if ((!gSavedSettings.getBOOL("PVWindow_TitleShowUserName")) || gSavedSettings.getBOOL("PVWindow_TitleAnonymize"))
 	{
-		std::string full_name;
-		const LLSD login_response = LLLoginInstance::getInstance()->getResponse();
-		if (login_response.has("first_name"))
+		return;
+	}
+
+	std::string full_name;
+	const LLSD login_response = LLLoginInstance::getInstance()->getResponse();
+	if (login_response.has("first_name"))
+	{
+		full_name = login_response["first_name"].asString();
+		LLStringUtil::replaceChar(full_name, '"', ' ');
+		LLStringUtil::trim(full_name);
+		if (login_response.has("last_name"))
 		{
-			full_name = login_response["first_name"].asString();
-			LLStringUtil::replaceChar(full_name, '"', ' ');
-			LLStringUtil::trim(full_name);
-			if (login_response.has("last_name"))
+			std::string temp_string = login_response["last_name"].asString();
+			LLStringUtil::replaceChar(temp_string, '"', ' ');
+			LLStringUtil::trim(temp_string);
+			if (temp_string.compare("Resident") != 0)
 			{
-				std::string temp_string = login_response["last_name"].asString();
-				LLStringUtil::replaceChar(temp_string, '"', ' ');
-				LLStringUtil::trim(temp_string);
-				if (temp_string.compare("Resident") != 0)
-				{
-					full_name.append(" ").append(temp_string);
-				}
+				full_name.append(" ").append(temp_string);
 			}
 		}
-		if (!full_name.empty())
-		{
-			// <Polarity> Task Bar efficiency
-			full_name + std::string(" | ");
-		}
-		std::string backup_title = gWindowTitle;
-		gWindowTitle = full_name + std::string(" ") + gArgs; // <Polarity> Dynamic window title
-		LLStringUtil::truncate(gWindowTitle, 255);
-		gViewerWindow->getWindow()->setTitle(gWindowTitle);
 	}
+	if (!full_name.empty())
+	{
+		// <Polarity> Task Bar efficiency
+		full_name + std::string(" | ");
+	}
+	std::string backup_title = gWindowTitle;
+	gWindowTitle = full_name + " - " + backup_title + std::string(" ") + gArgs; // <Polarity> Dynamic window title
+	LLStringUtil::truncate(gWindowTitle, 255);
+	gViewerWindow->getWindow()->setTitle(gWindowTitle);
+
 	// </Polarity>
 	writeDebugInfo();
 
