@@ -3349,6 +3349,7 @@ bool process_login_success_response()
 	// to do their deeds.
 	if (!(PVData::instance().isAllowedToLogin(gAgentID)))
 	{
+		LLLoginInstance::getInstance()->disconnect();
 		gAgentID.setNull();
 		// exit early
 		return false;
