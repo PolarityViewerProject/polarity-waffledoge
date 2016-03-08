@@ -260,6 +260,8 @@
 #include "glib.h"
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
+#include "pvconstants.h"
+
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -363,18 +365,18 @@ BOOL gLogoutInProgress = FALSE;
 // Internal globals... that should be removed.
 static std::string gArgs;
 const int MAX_MARKER_LENGTH = 1024;
-const std::string MARKER_FILE_NAME("Polarity.exec_marker");
-const std::string START_MARKER_FILE_NAME("Polarity.start_marker");
-const std::string ERROR_MARKER_FILE_NAME("Polarity.error_marker");
-const std::string LLERROR_MARKER_FILE_NAME("Polarity.llerror_marker");
-const std::string LOGOUT_MARKER_FILE_NAME("Polarity.logout_marker");
+const std::string MARKER_FILE_NAME(APP_NAME + ".exec_marker");
+const std::string START_MARKER_FILE_NAME(APP_NAME + ".start_marker");
+const std::string ERROR_MARKER_FILE_NAME(APP_NAME + ".error_marker");
+const std::string LLERROR_MARKER_FILE_NAME(APP_NAME + ".llerror_marker");
+const std::string LOGOUT_MARKER_FILE_NAME(APP_NAME + ".logout_marker");
 static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
 // To retain SLURL association compatibility (passing a SLURL to a running viewer), this
 // MUST match LLAppViewerWin32::sWindowClass
-const char* const VIEWER_WINDOW_CLASSNAME = "Polarity";
+//const char* const VIEWER_WINDOW_CLASSNAME = APP_NAME;
 
 //-- LLDeferredTaskList ------------------------------------------------------
 
@@ -723,7 +725,7 @@ LLAppViewer::LLAppViewer()
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
-	gDirUtilp->initAppDirs("Polarity");
+	gDirUtilp->initAppDirs(APP_NAME);
 	//
 	// IMPORTANT! Do NOT put anything that will write
 	// into the log files during normal startup until AFTER
@@ -2228,12 +2230,12 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "Polarity.old");
+							     APP_NAME + ".old");
 	LLFile::remove(old_log_file);
 
 	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "Polarity.log");
+							     APP_NAME + ".log");
  	/*
 	 * Before touching any log files, compute the duration of the last run
 	 * by comparing the ctime of the previous start marker file with the ctime
@@ -2779,7 +2781,7 @@ bool LLAppViewer::initConfiguration()
 	// crash as this dialog is always frontmost.
 	std::string splash_msg;
 	LLStringUtil::format_map_t args;
-	args["[APP_NAME]"] = LLTrans::getString("SECOND_LIFE");
+	args["[APP_NAME]"] = APP_NAME; // do not use getstring here. use hard-coded name.
 	splash_msg = LLTrans::getString("StartupLoading", args);
 
 	//LLVolumeMgr::initClass();
@@ -2808,7 +2810,7 @@ bool LLAppViewer::initConfiguration()
 	}
 	else
 	{
-		gWindowTitle = LLTrans::getString("APP_NAME");
+		gWindowTitle = APP_NAME;
 	}
 	gWindowTitle += " ";
 
@@ -3183,7 +3185,7 @@ bool LLAppViewer::initWindow()
 	LLViewerWindow::Params window_params;
 	window_params
 		.title(gWindowTitle)
-		.name(VIEWER_WINDOW_CLASSNAME)
+		.name(APP_NAME)
 		.x(gSavedSettings.getS32("WindowX"))
 		.y(gSavedSettings.getS32("WindowY"))
 		.width(gSavedSettings.getU32("WindowWidth"))
@@ -3570,10 +3572,10 @@ void LLAppViewer::writeSystemInfo()
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
     
 #if LL_WINDOWS
-	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
+	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,APP_NAME + ".log");
 #else
     //Not ideal but sufficient for good reporting.
-    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");  //LLError::logFileName();
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,APP_NAME + ".old");  //LLError::logFileName();
 #endif
 
 	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
@@ -3622,7 +3624,7 @@ void LLAppViewer::writeSystemInfo()
 	}
 	
 	// Dump some debugging info
-	LL_INFOS("SystemInfo") << "Application: " << LLTrans::getString("APP_NAME") << LL_ENDL;
+	LL_INFOS("SystemInfo") << "Application: " << APP_NAME << LL_ENDL;
 	LL_INFOS("SystemInfo") << "Version: " << LLVersionInfo::getChannelAndVersion() << LL_ENDL;
 
 	// Dump the local time and time zone
@@ -4578,7 +4580,7 @@ void LLAppViewer::purgeCacheImmediate()
 
 std::string LLAppViewer::getSecondLifeTitle() const
 {
-	return LLTrans::getString("APP_NAME");
+	return APP_NAME;
 }
 
 std::string LLAppViewer::getWindowTitle() const 

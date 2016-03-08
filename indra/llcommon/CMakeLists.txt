@@ -119,6 +119,7 @@ set(llcommon_HEADER_FILES
     ctype_workaround.h
     fix_macros.h
     indra_constants.h
+    pvconstants.h
     linden_common.h
     llalignedarray.h
     llallocator.h

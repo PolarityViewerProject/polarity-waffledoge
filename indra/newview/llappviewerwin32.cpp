@@ -68,6 +68,9 @@
 #include "stringize.h"
 
 #include <exception>
+
+#include "pvconstants.h"
+
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -95,7 +98,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 
 // To retain SLURL association compatibility (passing a SLURL to a running viewer), this
 // MUST match VIEWER_WINDOW_CLASSNAME in llappviewer.cpp
-const std::string LLAppViewerWin32::sWindowClass = "Polarity";
+//const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 /*
     This function is used to print to the command line a text message 
@@ -572,7 +575,8 @@ bool LLAppViewerWin32::initHardwareTest()
 		// Disable so debugger can work
 		std::string splash_msg;
 		LLStringUtil::format_map_t args;
-		args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
+		// args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
+		args["[APP_NAME]"] = APP_NAME;
 		splash_msg = LLTrans::getString("StartupLoading", args);
 	}
 
@@ -681,7 +685,7 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
 	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	mbstowcs(window_class, sWindowClass.c_str(), 255);
+	mbstowcs(window_class, APP_NAME.c_str(), 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.
 	HWND other_window = FindWindow(window_class, NULL);

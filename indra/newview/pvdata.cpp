@@ -41,6 +41,8 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 
+#include "pvconstants.h"
+
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##         ##  ##
@@ -551,7 +553,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 				PVDataErrorMessage = "Unfortunately, your have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. Please download another Viewer.";
 			}
 			// prevent non-release builds to fall in the wrong hands
-			else if (LLVersionInfo::getCompiledChannel() == "Polarity Release")
+			else if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Release")
 			{
 				// Don't filter Release builds
 			}

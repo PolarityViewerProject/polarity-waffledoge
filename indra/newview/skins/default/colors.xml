@@ -1013,7 +1013,7 @@
     value="0.14 0.14 0.14 1" />
   <color
     name="ScriptCursorColor"
-    reference="Black" />
+    reference="Orange" />
   <color
     name="SyntaxLslComment"
     value="0.401688 0.29127 0.18425 1" />
