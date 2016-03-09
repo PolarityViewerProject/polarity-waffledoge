@@ -2598,7 +2598,7 @@ void cleanup_menus()
 	gMenuAttachmentSelf = NULL;
 
 	delete gMenuAttachmentOther;
-	gMenuAttachmentSelf = NULL;
+	gMenuAttachmentOther = NULL; // <alchemy/> - LL copypaste derp
 
 	delete gMenuLand;
 	gMenuLand = NULL;
