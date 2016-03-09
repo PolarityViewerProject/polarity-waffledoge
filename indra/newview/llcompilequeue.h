@@ -33,9 +33,10 @@
 #include "lluuid.h"
 
 #include "llfloater.h"
-#include "llscrolllistctrl.h"
 
 #include "llviewerinventory.h"
+
+class LLScrollListCtrl;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLFloaterScriptQueue
@@ -215,4 +216,21 @@ protected:
 								LLInventoryObject::object_list_t* inv);
 };
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFloaterDeleteQueue
+//
+// This script queue will remove each script.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLFloaterDeleteQueue : public LLFloaterScriptQueue
+{
+	friend class LLFloaterReg;
+protected:
+	LLFloaterDeleteQueue(const LLSD& key);
+	virtual ~LLFloaterDeleteQueue();
+	
+	// This is called by inventoryChanged
+	virtual void handleInventory(LLViewerObject* viewer_obj,
+								LLInventoryObject::object_list_t* inv);
+};
 #endif // LL_LLCOMPILEQUEUE_H

@@ -51,11 +51,11 @@
 #include "llresmgr.h"
 
 #include "llbutton.h"
+#include "llscrolllistctrl.h"
 #include "lldir.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 
 #include "llselectmgr.h"
@@ -632,7 +632,8 @@ void LLFloaterCompileQueue::removeItemByItemID(const LLUUID& asset_id)
 	{
 		if(asset_id == mCurrentScripts.at(i)->getUUID())
 		{
-			vector_replace_with_last(mCurrentScripts, mCurrentScripts.begin() + i);
+			LLViewerInventoryItem::item_array_t::iterator iter = mCurrentScripts.begin() + i;
+			vector_replace_with_last(mCurrentScripts, iter);
 		}
 		else
 		{
@@ -698,6 +699,56 @@ void LLFloaterNotRunQueue::handleInventory(LLViewerObject* viewer_obj,
 	}
 
 	nextObject();	
+}
+
+///----------------------------------------------------------------------------
+/// Class LLFloaterDeleteQueue
+///----------------------------------------------------------------------------
+
+LLFloaterDeleteQueue::LLFloaterDeleteQueue(const LLSD& key)
+  : LLFloaterScriptQueue(key)
+{
+	setTitle(LLTrans::getString("DeleteQueueTitle"));
+	setStartString(LLTrans::getString("DeleteQueueStart"));
+}
+
+LLFloaterDeleteQueue::~LLFloaterDeleteQueue()
+{ 
+}
+
+void LLFloaterDeleteQueue::handleInventory(LLViewerObject* viewer_obj,
+										  LLInventoryObject::object_list_t* inv)
+{
+	if (viewer_obj && inv)
+	{
+		LLViewerObject* objectp = gObjectList.findObject(viewer_obj->getID());
+		const std::string& delstring = getString("Deleting");
+		LLScrollListCtrl* list = getChild<LLScrollListCtrl>("queue output");
+		if (objectp)
+		{
+			const LLInventoryObject::object_list_t::const_iterator it_end = inv->end();
+			for (LLInventoryObject::object_list_t::const_iterator it = inv->begin(); it != it_end; ++it)
+			{
+				const LLInventoryObject* item = static_cast<LLInventoryObject*>(*it);
+				if (item && item->getType() == LLAssetType::AT_LSL_TEXT)
+				{
+					list->addSimpleElement(delstring + item->getName(), ADD_BOTTOM);
+
+					LLMessageSystem* msg = gMessageSystem;
+					msg->newMessageFast(_PREHASH_RemoveTaskInventory);
+					msg->nextBlockFast(_PREHASH_AgentData);
+					msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+					msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+					msg->nextBlockFast(_PREHASH_InventoryData);
+					msg->addU32Fast(_PREHASH_LocalID, objectp->getLocalID());
+					msg->addUUIDFast(_PREHASH_ItemID, item->getUUID());
+					msg->sendReliable(objectp->getRegion()->getHost());
+				}
+			}
+			objectp->dirtyInventory();
+		}
+	}
+	nextObject();
 }
 
 ///----------------------------------------------------------------------------
