@@ -97,6 +97,7 @@ include_directories(SYSTEM
     )
     
 SET(thirdparty_SOURCE_FILES
+    pvaligntool.cpp
     pvrandom.cpp
     pvdatacolorizer.cpp
     pvdata.cpp
@@ -104,6 +105,7 @@ SET(thirdparty_SOURCE_FILES
     )
 
 SET(thirdparty_HEADER_FILES
+    pvaligntool.h
     pvrandom.h
     pvdatacolorizer.h
     pvdata.h

@@ -51,6 +51,7 @@
 #include "llagentcamera.h"
 #include "llfloatertools.h"
 #include "llviewercontrol.h"
+#include "pvaligntool.h"
 
 extern LLControlGroup gSavedSettings;
 
@@ -324,6 +325,10 @@ LLTool* LLToolCompTranslate::getOverrideTool(MASK mask)
 	if (mask == MASK_CONTROL)
 	{
 		return LLToolCompRotate::getInstance();
+	}
+	if (mask & MASK_SHIFT && mask & MASK_ALT && !(mask & MASK_CONTROL)) // ALT+SHIFT Only
+	{
+		return QToolAlign::getInstance();
 	}
 	else if (mask == (MASK_CONTROL | MASK_SHIFT))
 	{

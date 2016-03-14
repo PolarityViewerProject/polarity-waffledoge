@@ -238,6 +238,15 @@
 		 layout="topleft"
 		 name="radio position" />
         <radio_item
+         top_delta="0"
+         left="55"
+         label="Align"
+         layout="topleft"
+         name="radio align" />
+            <radio_group.commit_callback
+            function="BuildTool.commitRadioEdit"/>
+        <radio_item
+         left="0"
 		 top_pad="6"
          label="Rotate (Ctrl)"
          layout="topleft"
