@@ -193,12 +193,7 @@ LLTool* LLTool::getOverrideTool(MASK mask)
 	}
 	if (gSavedSettings.getBOOL("EnableAltZoom"))
 	{
-		// Return early if ALT is not pressed.
-		if (!(mask & MASK_ALT))
-			return nullptr;
-
-		// Filter out ALT + SHIFT for the align tool, but don't break panning (CTRL+ALT+SHIFT)
-		if (!(mask & MASK_ALT & MASK_SHIFT)	|| mask & MASK_SHIFT & MASK_ALT & MASK_CONTROL)
+		if (mask & MASK_ALT)
 		{
 			return LLToolCamera::getInstance();
 		}
