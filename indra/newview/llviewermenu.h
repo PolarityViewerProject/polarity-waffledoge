@@ -100,6 +100,11 @@ bool enable_object_take_copy();
 bool enable_object_return();
 bool enable_object_delete();
 
+// <FS:Techwolf Lupindo> area search
+// expose this function so other classes can call it
+void handle_object_edit();
+// <FS:Techwolf Lupindo>
+
 // Buy either contents or object itself
 void handle_buy();
 void handle_take();

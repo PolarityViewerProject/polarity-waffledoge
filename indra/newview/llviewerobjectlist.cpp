@@ -78,6 +78,8 @@
 #include "llappviewer.h"
 #include "llfloaterperms.h"
 #include "llvocache.h"
+#include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
+#include "llfloaterreg.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -870,6 +872,15 @@ private:
 				F32 link_physics_cost = content[iter->asString()]["linked_set_physics_cost"].asReal();
 
 				gObjectList.updateObjectCost(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
+
+				// <FS:Cron> area search
+				// Update area search to have current information.
+				FSAreaSearch* area_search_floater = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
+				if( area_search_floater )
+				{
+					area_search_floater->updateObjectCosts(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
+				}
+				// </FS:Cron> area search
 			}
 			else
 			{

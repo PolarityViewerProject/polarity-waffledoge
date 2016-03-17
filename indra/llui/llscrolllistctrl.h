@@ -155,6 +155,9 @@ public:
 	// Adds a single column descriptor: ["name" : string, "label" : string, "width" : integer, "relwidth" : integer ]
 	virtual void addColumn(const LLScrollListColumn::Params& column, EAddPosition pos = ADD_BOTTOM);
 	virtual void addColumn(const LLSD& column, EAddPosition pos = ADD_BOTTOM);	
+	// <FS:Techwolf Lupindo> area search, allow deleting a column
+	virtual LLScrollListColumn::Params delColumn(std::string name);
+	// </FS:Techwolf Lupindo> area search
 	virtual void clearColumns();
 	virtual void setColumnLabel(const std::string& column, const std::string& label);
 	virtual bool 	preProcessChildNode(LLXMLNodePtr child);
@@ -391,6 +394,11 @@ public:
 		return mSortCallback->connect(cb);
 	}
 
+	// <FS:Ansariel> For manually setting line height; we might need it at some time
+	void setLineHeight(S32 height) { mLineHeight = height; }
+
+	// <FS:Ansariel> Get list of the column init params so we can re-add them
+	std::vector<LLScrollListColumn::Params> getColumnInitParams() const { return mColumnInitParams; }
 
 protected:
 	// "Full" interface: use this when you're creating a list that has one or more of the following:
@@ -494,6 +502,9 @@ private:
 	S32				mNumDynamicWidthColumns;
 	S32				mTotalStaticColumnWidth;
 	S32				mTotalColumnPadding;
+
+	// <FS:Ansariel> Get list of the column init params so we can re-add them
+	std::vector<LLScrollListColumn::Params> mColumnInitParams;
 
 	mutable bool	mSorted;
 	

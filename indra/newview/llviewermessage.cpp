@@ -127,6 +127,8 @@
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
+#include "fsareasearch.h"
+
 extern void on_new_message(const LLSD& msg);
 
 //
@@ -5101,6 +5103,20 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
 	}
 }
+
+// <FS:Techwolf Lupindo> area search
+void process_object_properties(LLMessageSystem *msg, void**user_data)
+{
+	// Send the result to the corresponding requesters.
+	LLSelectMgr::processObjectProperties(msg, user_data);
+	
+	FSAreaSearch* area_search_floater = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
+	if (area_search_floater)
+	{
+		area_search_floater->processObjectProperties(msg);
+	}
+}
+// </FS:Techwolf Lupindo> area search
 
 void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 {

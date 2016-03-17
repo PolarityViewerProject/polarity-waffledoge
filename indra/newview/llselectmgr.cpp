@@ -101,6 +101,8 @@
 // [/RLVa:KB]
 #include "llglheaders.h"
 
+#include "fsareasearch.h"
+
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
 // Consts
@@ -5363,7 +5365,15 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		if (!node)
 		{
+			// <FS:Techwolf Lupindo> area search
+			FSAreaSearch* area_search_floater = LLFloaterReg::getTypedInstance<FSAreaSearch>("area_search");
+			if(!(area_search_floater && area_search_floater->isActive())) // Don't spam the log when areasearch is active.
+			{
+			// </FS:Techwolf Lupindo>
 			LL_WARNS() << "Couldn't find object " << id << " selected." << LL_ENDL;
+			// <FS:Techwolf Lupindo> area search
+			}
+			// </FS:Techwolf Lupindo>
 		}
 		else
 		{

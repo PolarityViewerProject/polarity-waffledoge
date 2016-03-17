@@ -1654,12 +1654,11 @@
         <menu_item_separator>
         </menu_item_separator>
         <menu_item_call
-            enabled="false"
             label="Area Search"
             name="area_search"
             shortcut="alt|F">
             <menu_item_call.on_click
-                function="Floater.Toggle"
+                function="Floater.ToggleOrBringToFront"
                 parameter="area_search" >
             </menu_item_call.on_click>
         </menu_item_call>

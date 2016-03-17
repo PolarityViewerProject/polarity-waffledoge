@@ -158,6 +158,8 @@
 // [RLVa:KB] - Checked: 2010-03-11
 #include "rlvfloaters.h"
 // [/RLVa:KB]
+
+#include "fsareasearch.h"
 // handle secondlife:///app/openfloater/{NAME} URLs
 class LLFloaterOpenHandler : public LLCommandHandler
 {
@@ -370,6 +372,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("world_map", "floater_world_map.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterWorldMap>);	
 
 	// *NOTE: Please keep these alphabetized for easier merges
+	LLFloaterReg::add("area_search", "floater_fs_area_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<FSAreaSearch>);
 	
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }

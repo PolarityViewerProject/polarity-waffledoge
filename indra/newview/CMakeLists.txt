@@ -97,6 +97,9 @@ include_directories(SYSTEM
     )
     
 SET(thirdparty_SOURCE_FILES
+    fsareasearch.cpp
+	fsareasearchmenu.cpp
+	fsscrolllistctrl.cpp
     pvaligntool.cpp
     pvrandom.cpp
     pvdatacolorizer.cpp
@@ -105,6 +108,9 @@ SET(thirdparty_SOURCE_FILES
     )
 
 SET(thirdparty_HEADER_FILES
+    fsareasearch.h
+	fsareasearchmenu.h
+	fsscrolllistctrl.h
     pvaligntool.h
     pvrandom.h
     pvdatacolorizer.h
