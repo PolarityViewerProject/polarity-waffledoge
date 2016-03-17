@@ -1682,7 +1682,7 @@
       <array>
         <real>-3.0</real>
         <real>0.0</real>
-        <real>0.75</real>
+        <real>0.3</real>
       </array>
     </map>
     <key>CameraOffsetFrontView</key>
@@ -4397,7 +4397,7 @@
       <array>
         <real>1.0</real>
         <real>0.0</real>
-        <real>1.0</real>
+        <real>0.7</real>
       </array>
     </map>
     <key>FocusOffsetFrontView</key>
