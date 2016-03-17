@@ -813,4 +813,6 @@ Additional notes:
   <texture name="System_Notification" file_name="icons/SL_Logo.png" preload="true"/>
   <texture name="Icon_Attachment_Small" file_name="icons/Icon_Attachment_Small.png"	preload="true"/>
   <texture name="Icon_Attachment_Large" file_name="icons/Icon_Attachment_Large.png"	preload="true"/>
+  
+  <texture name="load_animation_sprite.png" preload="true" />
 </textures>
