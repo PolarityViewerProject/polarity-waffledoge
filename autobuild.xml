@@ -2690,6 +2690,7 @@
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DHEAVY_LOG:BOOL=TRUE</string>
                 </array>
               </map>
               <key>name</key>
