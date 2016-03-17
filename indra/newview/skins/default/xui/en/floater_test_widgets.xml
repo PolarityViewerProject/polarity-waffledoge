@@ -214,7 +214,15 @@
      bar_min="20"
      name="test_stat_bar" />
   </stat_view>
-
+<!-- "loading_anim" is a re-implementation of Prismata's loading animation, developed by Lunarch Studios Inc. -->
+  <loading_anim
+     color="EmphasisColor"
+     follows="top|left"
+     height="25"
+     name="loading_anim_test"
+     number_sprites="28"
+     sprite_image="load_animation_sprite.png"
+     top_pad="15"/>
   <!-- New column -->
 
   <!-- "radio_group" is a set of mutually exclusive choices, like the buttons
