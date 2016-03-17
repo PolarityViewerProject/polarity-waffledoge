@@ -40,7 +40,7 @@
          function="Floater.Visible"
          parameter="inventory" />
         <menu_item_check.on_click
-         function="Floater.Toggle"
+         function="Floater.ToggleOrBringToFront"
          parameter="inventory" />
       </menu_item_check>
       <menu_item_call
@@ -232,7 +232,7 @@
          label="Toolbar buttons..."
          name="Toolbars">
             <menu_item_call.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="toybox" />
         </menu_item_call>
          <menu_item_call
@@ -311,7 +311,7 @@
             <menu_item_check.on_enable
              function="Conversation.IsConversationLoggingAllowed" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="conversation" />
         </menu_item_check>
         <menu_item_separator/>
@@ -319,21 +319,21 @@
         label="Facebook..."
         name="Facebook">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="facebook"/>
       </menu_item_call>
       <menu_item_call
         label="Twitter..."
         name="Twitter">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="twitter"/>
       </menu_item_call>
       <menu_item_call
         label="Flickr..."
         name="Flickr">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="flickr"/>
       </menu_item_call>
         <menu_item_separator/>
@@ -357,7 +357,7 @@
                  function="Floater.Visible"
                  parameter="voice_effect" />
                 <menu_item_check.on_click
-                 function="Floater.Toggle"
+                 function="Floater.ToggleOrBringToFront"
                  parameter="voice_effect" />
             </menu_item_check>
             <menu_item_call
@@ -375,7 +375,7 @@
              function="Floater.Visible"
              parameter="gestures" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="gestures" />
         </menu_item_check>
         <menu_item_separator/>
@@ -462,7 +462,7 @@
              function="Floater.Visible"
              parameter="world_map" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="world_map" />
         </menu_item_check>
             <menu_item_check
@@ -473,7 +473,7 @@
              function="Floater.Visible"
              parameter="mini_map" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_check
@@ -484,7 +484,7 @@
              function="Floater.Visible"
              parameter="search" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="search" />
             </menu_item_check>
         <menu_item_separator/>
@@ -591,7 +591,7 @@
 	 function="Floater.Visible"
 	 parameter="region_info" />
 	<menu_item_check.on_click
-	 function="Floater.Toggle"
+	 function="Floater.ToggleOrBringToFront"
          parameter="region_info" />
         </menu_item_check>
         <menu_item_call
@@ -634,7 +634,7 @@
                      function="Floater.Visible"
                      parameter="beacons" />
                     <menu_item_check.on_click
-                     function="Floater.Toggle"
+                     function="Floater.ToggleOrBringToFront"
                      parameter="beacons" />
                 </menu_item_check>
           <menu_item_check
@@ -896,7 +896,7 @@
             <menu_item_check.on_check
              function="Build.Active" />
             <menu_item_check.on_click
-             function="Build.Toggle" />
+             function="Build.ToggleOrBringToFront" />
             <menu_item_check.on_enable
              function="Build.Enabled" />
        </menu_item_check>
@@ -1333,7 +1333,7 @@
                  name="Grid Options"
                  shortcut="control|shift|B">
                     <menu_item_call.on_click
-                     function="Floater.Toggle"
+                     function="Floater.ToggleOrBringToFront"
                      parameter="build_options" />
                     <menu_item_call.on_enable
                      function="Tools.EnableToolNotPie" />
@@ -1667,7 +1667,7 @@
             label="Asset Blacklist"
             name="asset_blacklist">
             <menu_item_call.on_click
-                function="Floater.Toggle"
+                function="Floater.ToggleOrBringToFront"
                 parameter="ws_asset_blacklist" >
             </menu_item_call.on_click>
         </menu_item_call>
@@ -1676,7 +1676,7 @@
             label="Region Tracker"
             name="region_tracker">
             <menu_item_call.on_click
-                function="Floater.Toggle"
+                function="Floater.ToggleOrBringToFront"
                 parameter="region_tracker" >
             </menu_item_call.on_click>
         </menu_item_call>
@@ -1932,7 +1932,7 @@
            function="Floater.Visible"
            parameter="rlv_locks" />
           <menu_item_check.on_click
-           function="Floater.Toggle"
+           function="Floater.ToggleOrBringToFront"
            parameter="rlv_locks" />
       	</menu_item_check>
       </menu>
@@ -1995,7 +1995,7 @@
       	 function="Floater.Visible"
       	 parameter="rlv_behaviours" />
       	<menu_item_check.on_click
-      	 function="Floater.Toggle"
+      	 function="Floater.ToggleOrBringToFront"
       	 parameter="rlv_behaviours" />
       </menu_item_check>
       <menu_item_check
@@ -2005,7 +2005,7 @@
          function="Floater.Visible"
          parameter="rlv_strings" />
         <menu_item_check.on_click
-         function="Floater.Toggle"
+         function="Floater.ToggleOrBringToFront"
          parameter="rlv_strings" />
       </menu_item_check>
     </menu>
@@ -2110,7 +2110,7 @@
                  function="Floater.Visible"
                  parameter="stats" />
                 <menu_item_check.on_click
-                 function="Floater.Toggle"
+                 function="Floater.ToggleOrBringToFront"
                  parameter="stats" />
             </menu_item_check>
             <menu_item_call
@@ -2706,7 +2706,7 @@
              name="Notifications"
              shortcut="control|shift|5">
               <menu_item_call.on_click
-               function="Floater.Toggle"
+               function="Floater.ToggleOrBringToFront"
                parameter="notifications_console" />
             </menu_item_call>
             <menu_item_check
@@ -2718,7 +2718,7 @@
                  function="Floater.Visible"
                  parameter="region_debug_console" />
                 <menu_item_check.on_click
-                 function="Floater.Toggle"
+                 function="Floater.ToggleOrBringToFront"
                  parameter="region_debug_console" />
             </menu_item_check>
             <menu_item_check
@@ -3898,7 +3898,7 @@
              name="UI Preview Tool"
              shortcut="control|shift|T">
                 <menu_item_call.on_click
-                 function="Floater.Toggle"
+                 function="Floater.ToggleOrBringToFront"
                  parameter="ui_preview" />
             </menu_item_call>
             <menu_item_check
