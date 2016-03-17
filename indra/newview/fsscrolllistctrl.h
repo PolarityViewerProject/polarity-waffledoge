@@ -44,16 +44,17 @@ public:
 	} EContentType;
 
 	// provide names for enums
-	struct ContentTypeNames : public LLInitParam::TypeValuesHelper<FSScrollListCtrl::EContentType, ContentTypeNames>
+	// ReSharper disable once CppImplicitDefaultConstructorNotAvailable
+	struct ContentTypeNames : LLInitParam::TypeValuesHelper<EContentType, ContentTypeNames>
 	{
 		static void declareValues()
 		{
-			declare("Agents", FSScrollListCtrl::AGENTS);
-			declare("Misc", FSScrollListCtrl::MISC);
+			declare("Agents", AGENTS);
+			declare("Misc", MISC);
 		}
 	};
 
-	struct Params : public LLInitParam::Block<Params, LLScrollListCtrl::Params>
+	struct Params : LLInitParam::Block<Params, LLScrollListCtrl::Params>
 	{
 		Optional<S32>								desired_line_height;
 		Optional<EContentType, ContentTypeNames>	content_type;
@@ -66,15 +67,15 @@ public:
 	};
 	
 	virtual ~FSScrollListCtrl() {};
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL handleHover(S32 x, S32 y, MASK mask) override;
 	/*virtual*/ BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
 									  void* cargo_data,
 									  EAcceptance* accept,
-									  std::string& tooltip_msg);
+									  std::string& tooltip_msg) override;
 
 	void	setContextMenu(LLListContextMenu* menu) { mContextMenu = menu; }
 	void	refreshLineHeight();

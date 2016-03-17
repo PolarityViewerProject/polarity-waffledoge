@@ -45,7 +45,7 @@ LLContextMenu* FSAreaSearchMenu::createMenu()
 	return createFromFile("menu_fs_area_search.xml");
 }
 
-void FSAreaSearchMenu::onContextMenuItemClick(const LLSD& userdata)
+void FSAreaSearchMenu::onContextMenuItemClick(const LLSD& userdata) const
 {
 	FSAreaSearch* search = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
 	if (search && search->getPanelList())
@@ -54,7 +54,7 @@ void FSAreaSearchMenu::onContextMenuItemClick(const LLSD& userdata)
 	}
 }
 
-bool FSAreaSearchMenu::onContextMenuItemEnable(const LLSD& userdata)
+bool FSAreaSearchMenu::onContextMenuItemEnable(const LLSD& userdata) const
 {
 	FSAreaSearch* search = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
 	if (search && search->getPanelList())

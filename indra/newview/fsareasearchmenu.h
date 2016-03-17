@@ -33,10 +33,11 @@
 class FSAreaSearchMenu : public LLListContextMenu
 {
 public:
-	/*virtual*/ LLContextMenu* createMenu();
+	/*virtual*/
+	LLContextMenu* createMenu() override;
 private:
-	void onContextMenuItemClick(const LLSD& userdata);
-	bool onContextMenuItemEnable(const LLSD& userdata);
+	void onContextMenuItemClick(const LLSD& userdata) const;
+	bool onContextMenuItemEnable(const LLSD& userdata) const;
 };
 
 extern FSAreaSearchMenu gFSAreaSearchMenu;

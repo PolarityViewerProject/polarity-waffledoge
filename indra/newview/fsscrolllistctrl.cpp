@@ -34,10 +34,11 @@ static LLDefaultChildRegistry::Register<FSScrollListCtrl> r("fs_scroll_list");
 
 FSScrollListCtrl::FSScrollListCtrl(const Params& p)
 :	LLScrollListCtrl(p),
-	mContextMenu(NULL),
+	mContextMenu(nullptr),
 	mDesiredLineHeight(p.desired_line_height),
 	mContentType(p.content_type),
-	mHandleDaDCallback(NULL)
+ 	// ReSharper disable once CppZeroConstantCanBeReplacedWithNullptr
+	mHandleDaDCallback(0)
 {
 }
 
@@ -56,7 +57,7 @@ void FSScrollListCtrl::refreshLineHeight()
 
 BOOL FSScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = FALSE;
+	BOOL handled;
 
 	// If we set our own context menu handler (mContextMenu != NULL), skip the
 	// event handler in LLScrollListCtrl and perform our own context menu action.
@@ -98,7 +99,7 @@ BOOL FSScrollListCtrl::handleRightMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL FSScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
-	if (mContentType == FSScrollListCtrl::AGENTS)
+	if (mContentType == AGENTS)
 	{
 		gFocusMgr.setMouseCapture(this);
 
@@ -113,11 +114,11 @@ BOOL FSScrollListCtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 
 BOOL FSScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
-	if (mContentType == FSScrollListCtrl::AGENTS)
+	if (mContentType == AGENTS)
 	{
 		if (hasMouseCapture())
 		{
-			gFocusMgr.setMouseCapture(NULL);
+			gFocusMgr.setMouseCapture(nullptr);
 		}
 	}
 
@@ -126,7 +127,7 @@ BOOL FSScrollListCtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 
 BOOL FSScrollListCtrl::handleHover(S32 x, S32 y, MASK mask)
 {
-	if (mContentType == FSScrollListCtrl::AGENTS)
+	if (mContentType == AGENTS)
 	{
 		bool handled = hasMouseCapture();
 		if (handled)

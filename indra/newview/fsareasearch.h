@@ -66,7 +66,7 @@ struct FSObjectProperties
 	LLUUID owner_id;
 	LLUUID group_id;
 	LLUUID ownership_id;
-	BOOL group_owned;  // used in LL function that uses BOOL instead of bool
+	BOOL group_owned; // used in LL function that uses BOOL instead of bool
 	U64 creation_date;
 	U32 base_mask, owner_mask, group_mask, everyone_mask, next_owner_mask;
 	LLSaleInfo sale_info;
@@ -80,7 +80,7 @@ struct FSObjectProperties
 	bool name_requested;
 	U32 local_id;
 	U64 region_handle;
-	
+
 	typedef enum e_object_properties_request
 	{
 		NEED,
@@ -88,12 +88,22 @@ struct FSObjectProperties
 		FINISHED,
 		FAILED
 	} EObjectPropertiesRequest;
+
 	EObjectPropertiesRequest request;
-	
+
 	FSObjectProperties() :
-		request(NEED),
 		listed(false),
-		name_requested(false)
+		group_owned(0),
+		creation_date(0),
+		base_mask(0),
+		owner_mask(0),
+		group_mask(0),
+		everyone_mask(0),
+		next_owner_mask(0),
+		name_requested(false),
+		local_id(0),
+		region_handle(0),
+		request(NEED)
 	{
 	}
 };
@@ -106,17 +116,18 @@ class FSAreaSearch : public LLSingleton<FSAreaSearch>, public LLFloater
 {
 	LOG_CLASS(FSAreaSearch);
 public:
-	FSAreaSearch(const LLSD &);
+	FSAreaSearch(const LLSD&);
 	virtual ~FSAreaSearch();
 
-	/*virtual*/ BOOL postBuild();
-	virtual void draw();
-	virtual void onOpen(const LLSD& key);
+	/*virtual*/
+	BOOL postBuild() override;
+	void draw() override;
+	void onOpen(const LLSD& key) override;
 
 	void callbackLoadFullName(const LLUUID& id, const std::string& full_name);
 	void processObjectProperties(LLMessageSystem* msg);
-	void updateObjectCosts(const LLUUID& object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost);
-	static void idle(void *user_data);
+	void updateObjectCosts(const LLUUID& object_id, F32 object_cost, F32 link_cost, F32 physics_cost, F32 link_physics_cost) const;
+	static void idle(void* user_data);
 
 	void checkRegion();
 	void refreshList(bool cache_clear);
@@ -124,55 +135,157 @@ public:
 	void clearSearchText();
 	void onButtonClickedSearch();
 	void onCommitCheckboxRegex();
-	bool isSearchableObject (LLViewerObject* objectp, LLViewerRegion* our_region);
-	
+	bool isSearchableObject(LLViewerObject* objectp, LLViewerRegion* our_region) const;
+
 	std::map<LLUUID, FSObjectProperties> mObjectDetails;
 
-	FSPanelAreaSearchAdvanced* getPanelAdvanced() { return mPanelAdvanced; }
-	FSPanelAreaSearchList* getPanelList() { return mPanelList; }
+	FSPanelAreaSearchAdvanced* getPanelAdvanced() const
+	{
+		return mPanelAdvanced;
+	}
 
-	void setFilterForSale(bool b) { mFilterForSale = b; }
-	void setFilterLocked(bool b) { mFilterLocked = b; }
-	void setFilterPhysical(bool b) { mFilterPhysical = b; }
-	void setFilterTemporary(bool b) { mFilterTemporary = b; }
-	void setFilterPhantom(bool b) { mFilterPhantom = b; }
-	void setFilterAttachment(bool b) { mFilterAttachment = b; }
-	void setFilterMoaP(bool b) { mFilterMoaP = b; }
-	
-	void setRegexSearch(bool b) { mRegexSearch = b; }
-	void setBeacons(bool b) { mBeacons = b; }
-	
-	void setExcludeAttachment(bool b) { mExcludeAttachment = b; }
-	void setExcludetemporary(bool b) { mExcludeTemporary = b; }
-	void setExcludePhysics(bool b) { mExcludePhysics = b; }
-	void setExcludeChildPrims(bool b) { mExcludeChildPrims = b; }
-	void setExcludeNeighborRegions(bool b) { mExcludeNeighborRegions = b; }
-	
-	void setFilterForSaleMin(S32 s) { mFilterForSaleMin = s; }
-	void setFilterForSaleMax(S32 s) { mFilterForSaleMax = s; }
-	
-	void setFilterClickAction(bool b) { mFilterClickAction = b; }
-	void setFilterClickActionType(U8 u) { mFilterClickActionType = u; }
-	
-	void setFilterDistance(bool b) { mFilterDistance = b; }
-	void setFilterDistanceMin(S32 s) { mFilterDistanceMin = s; }
-	void setFilterDistanceMax(S32 s) { mFilterDistanceMax = s; }
-	
-	void setFilterPermCopy(bool b) { mFilterPermCopy = b; }
-	void setFilterPermModify(bool b) { mFilterPermModify = b; }
-	void setFilterPermTransfer(bool b) { mFilterPermTransfer = b; }
+	FSPanelAreaSearchList* getPanelList() const
+	{
+		return mPanelList;
+	}
 
-	void setFilterAgentParcelOnly(bool b) { mFilterAgentParcelOnly = b; }
+	void setFilterForSale(bool b)
+	{
+		mFilterForSale = b;
+	}
 
-	bool isActive() { return mActive; }
+	void setFilterLocked(bool b)
+	{
+		mFilterLocked = b;
+	}
+
+	void setFilterPhysical(bool b)
+	{
+		mFilterPhysical = b;
+	}
+
+	void setFilterTemporary(bool b)
+	{
+		mFilterTemporary = b;
+	}
+
+	void setFilterPhantom(bool b)
+	{
+		mFilterPhantom = b;
+	}
+
+	void setFilterAttachment(bool b)
+	{
+		mFilterAttachment = b;
+	}
+
+	void setFilterMoaP(bool b)
+	{
+		mFilterMoaP = b;
+	}
+
+	void setRegexSearch(bool b)
+	{
+		mRegexSearch = b;
+	}
+
+	void setBeacons(bool b)
+	{
+		mBeacons = b;
+	}
+
+	void setExcludeAttachment(bool b)
+	{
+		mExcludeAttachment = b;
+	}
+
+	void setExcludetemporary(bool b)
+	{
+		mExcludeTemporary = b;
+	}
+
+	void setExcludePhysics(bool b)
+	{
+		mExcludePhysics = b;
+	}
+
+	void setExcludeChildPrims(bool b)
+	{
+		mExcludeChildPrims = b;
+	}
+
+	void setExcludeNeighborRegions(bool b)
+	{
+		mExcludeNeighborRegions = b;
+	}
+
+	void setFilterForSaleMin(S32 s)
+	{
+		mFilterForSaleMin = s;
+	}
+
+	void setFilterForSaleMax(S32 s)
+	{
+		mFilterForSaleMax = s;
+	}
+
+	void setFilterClickAction(bool b)
+	{
+		mFilterClickAction = b;
+	}
+
+	void setFilterClickActionType(U8 u)
+	{
+		mFilterClickActionType = u;
+	}
+
+	void setFilterDistance(bool b)
+	{
+		mFilterDistance = b;
+	}
+
+	void setFilterDistanceMin(S32 s)
+	{
+		mFilterDistanceMin = s;
+	}
+
+	void setFilterDistanceMax(S32 s)
+	{
+		mFilterDistanceMax = s;
+	}
+
+	void setFilterPermCopy(bool b)
+	{
+		mFilterPermCopy = b;
+	}
+
+	void setFilterPermModify(bool b)
+	{
+		mFilterPermModify = b;
+	}
+
+	void setFilterPermTransfer(bool b)
+	{
+		mFilterPermTransfer = b;
+	}
+
+	void setFilterAgentParcelOnly(bool b)
+	{
+		mFilterAgentParcelOnly = b;
+	}
+
+	bool isActive() const
+	{
+		return mActive;
+	}
 
 private:
-	void requestObjectProperties(const std::vector< U32 >& request_list, bool select, LLViewerRegion* regionp);
+	void requestObjectProperties(const std::vector<U32>& request_list, bool select, LLViewerRegion* regionp) const;
 	void matchObject(FSObjectProperties& details, LLViewerObject* objectp);
 	void getNameFromUUID(LLUUID& id, std::string& name, BOOL group, bool& name_requested);
 
-	void updateCounterText();
-	bool regexTest(std::string text);
+	void updateCounterText() const;
+	bool regexTest(std::string text) const;
 	void findObjects();
 	void processRequestQueue();
 
@@ -182,7 +295,7 @@ private:
 	bool mActive;
 	bool mRequestQueuePause;
 	bool mRequestNeedsSent;
-	std::map<U64,S32> mRegionRequests;
+	std::map<U64, S32> mRegionRequests;
 
 	std::string mSearchName;
 	std::string mSearchDescription;
@@ -205,10 +318,10 @@ private:
 	uuid_vec_t mNamesRequested;
 
 	LLViewerRegion* mLastRegion;
-	
+
 	class FSParcelChangeObserver;
 	friend class FSParcelChangeObserver;
-	FSParcelChangeObserver*	mParcelChangedObserver;
+	FSParcelChangeObserver* mParcelChangedObserver;
 
 	// Used for checking to see if a floater has been created.
 	// Can not be trusted as a singleton pointer, don't use as a pointer.
@@ -224,7 +337,7 @@ private:
 	bool mBeacons;
 	LLColor4 mBeaconColor;
 	LLColor4 mBeaconTextColor;
-	
+
 	bool mExcludeAttachment;
 	bool mExcludeTemporary;
 	bool mExcludePhysics;
@@ -241,7 +354,7 @@ private:
 	bool mFilterForSale;
 	S32 mFilterForSaleMin;
 	S32 mFilterForSaleMax;
-	
+
 	bool mFilterDistance;
 	S32 mFilterDistanceMin;
 	S32 mFilterDistanceMax;
@@ -269,7 +382,7 @@ protected:
 // displays the found objects
 //------------------------------------------------------------
 class FSPanelAreaSearchList
-:	public LLPanel
+	: public LLPanel
 {
 	LOG_CLASS(FSPanelAreaSearchList);
 	friend class FSAreaSearchMenu;
@@ -279,28 +392,40 @@ public:
 	FSPanelAreaSearchList(FSAreaSearch* pointer);
 	virtual ~FSPanelAreaSearchList();
 
-	/*virtual*/ BOOL postBuild();
-	
-	void setCounterText();
-	void setCounterText(LLStringUtil::format_map_t args);
-	void updateScrollList();
-	void updateName(LLUUID id, std::string name);
-	void touchObject(LLViewerObject* objectp);
+	/*virtual*/
+	BOOL postBuild() override;
 
-	FSScrollListCtrl* getResultList() { return mResultList; }
+	void setCounterText() const;
+	void setCounterText(LLStringUtil::format_map_t args) const;
+	void updateScrollList();
+	void updateName(LLUUID id, std::string name) const;
+	static void touchObject(LLViewerObject* objectp);
+
+	FSScrollListCtrl* getResultList() const
+	{
+		return mResultList;
+	}
+
 	void updateResultListColumns();
 
-	void setAgentLastPosition(LLVector3d d) { mAgentLastPosition = d; }
-	LLVector3d getAgentLastPosition() { return mAgentLastPosition; }
+	void setAgentLastPosition(LLVector3d d)
+	{
+		mAgentLastPosition = d;
+	}
+
+	LLVector3d getAgentLastPosition() const
+	{
+		return mAgentLastPosition;
+	}
 
 private:
-	void onDoubleClick();
-	void onClickRefresh();
-	void buyObject(FSObjectProperties& details, LLViewerObject* objectp);
-	void onCommitCheckboxBeacons();
+	void onDoubleClick() const;
+	void onClickRefresh() const;
+	void buyObject(FSObjectProperties& details, LLViewerObject* objectp) const;
+	void onCommitCheckboxBeacons() const;
 
-	bool onContextMenuItemClick(const LLSD& userdata);
-	bool onContextMenuItemEnable(const LLSD& userdata);
+	bool onContextMenuItemClick(const LLSD& userdata) const;
+	bool onContextMenuItemEnable(const LLSD& userdata) const;
 
 	void onColumnVisibilityChecked(const LLSD& userdata);
 	bool onEnableColumnVisibilityChecked(const LLSD& userdata);
@@ -323,15 +448,17 @@ private:
 // UI for what objects to search for
 //------------------------------------------------------------
 class FSPanelAreaSearchFind
-:	public LLPanel
+	: public LLPanel
 {
 	LOG_CLASS(FSPanelAreaSearchFind);
 public:
 	FSPanelAreaSearchFind(FSAreaSearch* pointer);
 	virtual ~FSPanelAreaSearchFind();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ BOOL handleKeyHere(KEY key,MASK mask);
+	/*virtual*/
+	BOOL postBuild() override;
+	/*virtual*/
+	BOOL handleKeyHere(KEY key, MASK mask) override;
 
 	LLLineEditor* mNameLineEditor;
 	LLLineEditor* mDescriptionLineEditor;
@@ -342,7 +469,7 @@ public:
 	LLCheckBoxCtrl* mCheckboxRegex;
 
 private:
-	void onButtonClickedClear();
+	void onButtonClickedClear() const;
 
 	FSAreaSearch* mFSAreaSearch;
 
@@ -356,19 +483,20 @@ private:
 // "filter" the list to certion object types.
 //------------------------------------------------------------
 class FSPanelAreaSearchFilter
-:	public LLPanel
+	: public LLPanel
 {
 	LOG_CLASS(FSPanelAreaSearchFilter);
 public:
 	FSPanelAreaSearchFilter(FSAreaSearch* pointer);
 	virtual ~FSPanelAreaSearchFilter();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/
+	BOOL postBuild() override;
 
 private:
-	void onCommitCheckbox();
-	void onCommitSpin();
-	void onCommitCombo();
+	void onCommitCheckbox() const;
+	void onCommitSpin() const;
+	void onCommitCombo() const;
 
 	FSAreaSearch* mFSAreaSearch;
 	LLCheckBoxCtrl* mCheckboxForSale;
@@ -401,7 +529,7 @@ private:
 // Options panel
 //------------------------------------------------------------
 class FSPanelAreaSearchOptions
-:	public LLPanel
+	: public LLPanel
 {
 	LOG_CLASS(FSPanelAreaSearchOptions);
 public:
@@ -409,15 +537,15 @@ public:
 	virtual ~FSPanelAreaSearchOptions();
 
 	// not used
-//	/*virtual*/ BOOL postBuild();
+	//	/*virtual*/ BOOL postBuild();
 
 private:
-	void onCommitCheckboxDisplayColumn(const LLSD& userdata);
-	bool onEnableColumnVisibilityChecked(const LLSD& userdata);
+	void onCommitCheckboxDisplayColumn(const LLSD& userdata) const;
+	bool onEnableColumnVisibilityChecked(const LLSD& userdata) const;
 
 	FSAreaSearch* mFSAreaSearch;
-	
-	std::map<std::string, LLScrollListColumn::Params> mColumnParms; 
+
+	std::map<std::string, LLScrollListColumn::Params> mColumnParms;
 };
 
 
@@ -425,14 +553,15 @@ private:
 // Advanced panel
 //------------------------------------------------------------
 class FSPanelAreaSearchAdvanced
-:	public LLPanel
+	: public LLPanel
 {
 	LOG_CLASS(FSPanelAreaSearchAdvanced);
 public:
 	FSPanelAreaSearchAdvanced(FSAreaSearch* pointer);
 	virtual ~FSPanelAreaSearchAdvanced();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/
+	BOOL postBuild() override;
 
 	LLCheckBoxCtrl* mCheckboxClickTouch;
 	LLCheckBoxCtrl* mCheckboxClickBuy;
@@ -442,3 +571,5 @@ private:
 };
 
 #endif // FS_AREASEARCH_H
+
+
