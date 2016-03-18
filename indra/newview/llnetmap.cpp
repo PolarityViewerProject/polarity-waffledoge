@@ -312,232 +312,232 @@ void LLNetMap::draw()
 			}
 		}
 
-		// Redraw object layer periodically
-		if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
-		{
-			mUpdateNow = false;
+			// Redraw object layer periodically
+			if (mUpdateNow || (map_timer.getElapsedTimeF32() > 0.5f))
+			{
+				mUpdateNow = false;
 
-			// Locate the centre of the object layer, accounting for panning
-			LLVector3 new_center = globalPosToView(globalpos);
-			new_center.mV[VX] -= mCurPan.mV[VX];
-			new_center.mV[VY] -= mCurPan.mV[VY];
-			new_center.mV[VZ] = 0.f;
-			mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
+				// Locate the centre of the object layer, accounting for panning
+				LLVector3 new_center = globalPosToView(globalpos);
+				new_center.mV[VX] -= mCurPan.mV[VX];
+				new_center.mV[VY] -= mCurPan.mV[VY];
+				new_center.mV[VZ] = 0.f;
+				mObjectImageCenterGlobal = viewPosToGlobal(llfloor(new_center.mV[VX]), llfloor(new_center.mV[VY]));
 
-			// Create the base texture.
-			U8 *default_texture = mObjectRawImagep->getData();
-			memset(default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents());
+				// Create the base texture.
+				U8 *default_texture = mObjectRawImagep->getData();
+				memset(default_texture, 0, mObjectImagep->getWidth() * mObjectImagep->getHeight() * mObjectImagep->getComponents());
 
-			// Draw objects
+				// Draw objects
 			if (enable_object_render)
 			{
 				gObjectList.renderObjectsForMap(*this);
 			}
 
-			mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
+				mObjectImagep->setSubImage(mObjectRawImagep, 0, 0, mObjectImagep->getWidth(), mObjectImagep->getHeight());
 
-			map_timer.reset();
-		}
-
-		LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
-		LLVector3 camera_position = agentpos;
-		map_center_agent -= camera_position;
-		map_center_agent.mV[VX] *= mScale / region_width;
-		map_center_agent.mV[VY] *= mScale / region_width;
-
-		getTexUnit(0)->bind(mObjectImagep);
-		image_half_width = 0.5f*mObjectMapPixels;
-		image_half_height = 0.5f*mObjectMapPixels;
-
-		gGL.begin(LLRender::QUADS);
-		gGL.texCoord2f(0.f, 1.f);
-		gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
-		gGL.texCoord2f(0.f, 0.f);
-		gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
-		gGL.texCoord2f(1.f, 0.f);
-		gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
-		gGL.texCoord2f(1.f, 1.f);
-		gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
-		gGL.end();
-
-		gGL.popMatrix();
-
-		// Mouse pointer in local coordinates
-		S32 local_mouse_x;
-		S32 local_mouse_y;
-		//localMouse(&local_mouse_x, &local_mouse_y);
-		LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
-		mClosestAgentToCursor.setNull();
-		F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
-		F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
-
-		LLVector3 pos_map;
-		uuid_vec_t avatar_ids;
-		std::vector<LLVector3d> positions;
-		bool unknown_relative_z;
-
-		LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
-
-		// Draw avatars
-		for (U32 i = 0; i < avatar_ids.size(); i++)
-		{
-			const LLUUID& uuid = avatar_ids[i];
-			// Skip self, we'll draw it later
-			if (uuid == gAgent.getID()) continue;
-
-			pos_map = globalPosToView(positions[i]);
-
-			// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
-			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr) &&
-				(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-			// [/RLVa:KB]
-			//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
-
-			LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
-
-			unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
-				camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
-
-			LLWorldMapView::drawAvatar(
-				pos_map.mV[VX], pos_map.mV[VY],
-				color,
-				pos_map.mV[VZ], mDotRadius,
-				unknown_relative_z);
-
-			if (uuid.notNull())
-			{
-				bool selected = false;
-				for (const auto& sel_uuid : gmSelected)
-				{
-					if (sel_uuid == uuid)
-					{
-						selected = true;
-						break;
-					}
-				}
-				if (selected)
-				{
-					if ((pos_map.mV[VX] < 0) ||
-						(pos_map.mV[VY] < 0) ||
-						(pos_map.mV[VX] >= getRect().getWidth()) ||
-						(pos_map.mV[VY] >= getRect().getHeight()))
-					{
-						S32 x = ll_round(pos_map.mV[VX]);
-						S32 y = ll_round(pos_map.mV[VY]);
-						LLWorldMapView::drawTrackingCircle(getRect(), x, y, color, 1, 10);
-					}
-					else
-					{
-						LLWorldMapView::drawTrackingDot(pos_map.mV[VX], pos_map.mV[VY], color, 0.f);
-					}
-				}
+				map_timer.reset();
 			}
 
-			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-				LLVector2(local_mouse_x, local_mouse_y));
-			if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
-			{
-				closest_dist_squared = dist_to_cursor_squared;
-				mClosestAgentToCursor = uuid;
-			}
-		}
+			LLVector3 map_center_agent = gAgent.getPosAgentFromGlobal(mObjectImageCenterGlobal);
+			LLVector3 camera_position = agentpos;
+			map_center_agent -= camera_position;
+			map_center_agent.mV[VX] *= mScale / region_width;
+			map_center_agent.mV[VY] *= mScale / region_width;
 
-		// Draw dot for autopilot target
-		if (gAgent.getAutoPilot())
-		{
-			drawTracking(gAgent.getAutoPilotTargetGlobal(), map_track_color);
-		}
-		else
-		{
-			LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
-			if (LLTracker::TRACKING_AVATAR == tracking_status)
-			{
-				drawTracking(LLAvatarTracker::instance().getGlobalPos(), map_track_color);
-			}
-			else if (LLTracker::TRACKING_LANDMARK == tracking_status
-				|| LLTracker::TRACKING_LOCATION == tracking_status)
-			{
-				drawTracking(LLTracker::getTrackedPositionGlobal(), map_track_color);
-			}
-		}
+			gGL.getTexUnit(0)->bind(mObjectImagep);
+			F32 image_half_width = 0.5f*mObjectMapPixels;
+			F32 image_half_height = 0.5f*mObjectMapPixels;
 
-		// Draw dot for self avatar position
-		pos_map = globalPosToView(gAgent.getPositionGlobal());
-		S32 dot_width = ll_round(mDotRadius * 2.f);
-		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
-		if (you)
-		{
-			you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
-			ll_round(pos_map.mV[VY] - mDotRadius),
-			dot_width,
-			dot_width);
-
-			F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
-				LLVector2(local_mouse_x, local_mouse_y));
-			if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
-			{
-				mClosestAgentToCursor = gAgent.getID();
-			}
-		}
-
-		// Draw frustum
-		F32 meters_to_pixels = mScale / LLWorld::getInstance()->getRegionWidthInMeters();
-
-		horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
-		far_clip_meters = LLViewerCamera::getInstance()->getFar();
-		far_clip_pixels = far_clip_meters * meters_to_pixels;
-
-		F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2.f );
-		F32 half_width_pixels = half_width_meters * meters_to_pixels;
-
-		LLVector3 cam_pos = globalPosToView(gAgentCamera.getCameraPositionGlobal());
-		F32 ctr_x = center_to_region ? cam_pos.mV[VX] : static_cast<F32>(center_sw_left);
-		F32 ctr_y = center_to_region ? cam_pos.mV[VY] : static_cast<F32>(center_sw_bottom);
-
-
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-		const LLColor4& line_col = map_line_color.get();
-		if (rotate_map)
-		{
-			gGL.color4fv((map_frustum_color()).mV);
-
-			gGL.begin(LLRender::TRIANGLES);
-			gGL.vertex2f(ctr_x, ctr_y);
-			gGL.vertex2f(ctr_x - half_width_pixels, ctr_y + far_clip_pixels);
-			gGL.vertex2f(ctr_x + half_width_pixels, ctr_y + far_clip_pixels);
+			gGL.begin(LLRender::QUADS);
+			gGL.texCoord2f(0.f, 1.f);
+			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, image_half_height + map_center_agent.mV[VY]);
+			gGL.texCoord2f(0.f, 0.f);
+			gGL.vertex2f(map_center_agent.mV[VX] - image_half_width, map_center_agent.mV[VY] - image_half_height);
+			gGL.texCoord2f(1.f, 0.f);
+			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], map_center_agent.mV[VY] - image_half_height);
+			gGL.texCoord2f(1.f, 1.f);
+			gGL.vertex2f(image_half_width + map_center_agent.mV[VX], image_half_height + map_center_agent.mV[VY]);
 			gGL.end();
-			if (render_guide_line)
-			{
-				gGL.begin(LLRender::LINES);
-					gGL.color4fv(line_col.mV);
-					gGL.vertex2f(ctr_x, ctr_y);
-					gGL.vertex2f(ctr_x, ctr_y + far_clip_pixels);
-				gGL.end();
-			}
-		}
-		else
-		{
-			gGL.color4fv((map_frustum_rotating_color()).mV);
 
-			// If we don't rotate the map, we have to rotate the frustum.
-			gGL.pushMatrix();
-			gGL.translatef( ctr_x, ctr_y, 0.f );
-			gGL.rotatef(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]) * RAD_TO_DEG, 0.f, 0.f, -1.f);
-			gGL.begin(LLRender::TRIANGLES);
-			gGL.vertex2f( 0.f, 0.f );
-			gGL.vertex2f(-half_width_pixels, far_clip_pixels);
-			gGL.vertex2f(half_width_pixels, far_clip_pixels);
-			gGL.end();
-			if (render_guide_line)
-			{
-				gGL.begin(LLRender::LINES);
-				gGL.color4fv(line_col.mV);
-				gGL.vertex2f(0.f, 0.f);
-				gGL.vertex2f(0.f, far_clip_pixels);
-				gGL.end();
-			}
 			gGL.popMatrix();
+
+			// Mouse pointer in local coordinates
+			S32 local_mouse_x;
+			S32 local_mouse_y;
+			//localMouse(&local_mouse_x, &local_mouse_y);
+			LLUI::getMousePositionLocal(this, &local_mouse_x, &local_mouse_y);
+			mClosestAgentToCursor.setNull();
+			F32 closest_dist_squared = F32_MAX; // value will be overridden in the loop
+			F32 min_pick_dist_squared = (mDotRadius * MIN_PICK_SCALE) * (mDotRadius * MIN_PICK_SCALE);
+
+			LLVector3 pos_map;
+			uuid_vec_t avatar_ids;
+			std::vector<LLVector3d> positions;
+			bool unknown_relative_z;
+
+			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
+
+			// Draw avatars
+			for (U32 i = 0; i < avatar_ids.size(); i++)
+			{
+				const LLUUID& uuid = avatar_ids[i];
+				// Skip self, we'll draw it later
+				if (uuid == gAgent.getID()) continue;
+
+				pos_map = globalPosToView(positions[i]);
+
+				// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
+				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr) &&
+					(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
+				// [/RLVa:KB]
+				//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
+
+				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+
+				unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
+					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
+
+				LLWorldMapView::drawAvatar(
+					pos_map.mV[VX], pos_map.mV[VY],
+					color,
+					pos_map.mV[VZ], mDotRadius,
+					unknown_relative_z);
+
+				if (uuid.notNull())
+				{
+					bool selected = false;
+					for (const auto& sel_uuid : gmSelected)
+					{
+						if (sel_uuid == uuid)
+						{
+							selected = true;
+							break;
+						}
+					}
+					if (selected)
+					{
+						if ((pos_map.mV[VX] < 0) ||
+							(pos_map.mV[VY] < 0) ||
+							(pos_map.mV[VX] >= getRect().getWidth()) ||
+							(pos_map.mV[VY] >= getRect().getHeight()))
+						{
+							S32 x = ll_round(pos_map.mV[VX]);
+							S32 y = ll_round(pos_map.mV[VY]);
+							LLWorldMapView::drawTrackingCircle(getRect(), x, y, color, 1, 10);
+						}
+						else
+						{
+							LLWorldMapView::drawTrackingDot(pos_map.mV[VX], pos_map.mV[VY], color, 0.f);
+						}
+					}
+				}
+
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+					LLVector2(local_mouse_x, local_mouse_y));
+				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
+				{
+					closest_dist_squared = dist_to_cursor_squared;
+					mClosestAgentToCursor = uuid;
+				}
+			}
+
+			// Draw dot for autopilot target
+			if (gAgent.getAutoPilot())
+			{
+				drawTracking(gAgent.getAutoPilotTargetGlobal(), map_track_color);
+			}
+			else
+			{
+				LLTracker::ETrackingStatus tracking_status = LLTracker::getTrackingStatus();
+				if (LLTracker::TRACKING_AVATAR == tracking_status)
+				{
+					drawTracking(LLAvatarTracker::instance().getGlobalPos(), map_track_color);
+				}
+				else if (LLTracker::TRACKING_LANDMARK == tracking_status
+					|| LLTracker::TRACKING_LOCATION == tracking_status)
+				{
+					drawTracking(LLTracker::getTrackedPositionGlobal(), map_track_color);
+				}
+			}
+
+			// Draw dot for self avatar position
+			pos_map = globalPosToView(gAgent.getPositionGlobal());
+			S32 dot_width = ll_round(mDotRadius * 2.f);
+			LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
+			if (you)
+			{
+				you->draw(ll_round(pos_map.mV[VX] - mDotRadius),
+					ll_round(pos_map.mV[VY] - mDotRadius),
+					dot_width,
+					dot_width);
+
+				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
+					LLVector2(local_mouse_x, local_mouse_y));
+				if (dist_to_cursor_squared < min_pick_dist_squared && dist_to_cursor_squared < closest_dist_squared)
+				{
+					mClosestAgentToCursor = gAgent.getID();
+				}
+			}
+
+			// Draw frustum
+			F32 meters_to_pixels = mScale / LLWorld::getInstance()->getRegionWidthInMeters();
+
+			F32 horiz_fov = LLViewerCamera::getInstance()->getView() * LLViewerCamera::getInstance()->getAspect();
+			F32 far_clip_meters = LLViewerCamera::getInstance()->getFar();
+			F32 far_clip_pixels = far_clip_meters * meters_to_pixels;
+
+			F32 half_width_meters = far_clip_meters * tan( horiz_fov / 2.f );
+			F32 half_width_pixels = half_width_meters * meters_to_pixels;
+
+			LLVector3 cam_pos = globalPosToView(gAgentCamera.getCameraPositionGlobal());
+			F32 ctr_x = center_to_region ? cam_pos.mV[VX] : static_cast<F32>(center_sw_left);
+			F32 ctr_y = center_to_region ? cam_pos.mV[VY] : static_cast<F32>(center_sw_bottom);
+
+
+			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+			const LLColor4& line_col = map_line_color.get();
+			if (rotate_map)
+			{
+				gGL.color4fv((map_frustum_color()).mV);
+
+				gGL.begin(LLRender::TRIANGLES);
+				gGL.vertex2f(ctr_x, ctr_y);
+				gGL.vertex2f(ctr_x - half_width_pixels, ctr_y + far_clip_pixels);
+				gGL.vertex2f(ctr_x + half_width_pixels, ctr_y + far_clip_pixels);
+				gGL.end();
+				if (render_guide_line)
+				{
+					gGL.begin(LLRender::LINES);
+						gGL.color4fv(line_col.mV);
+						gGL.vertex2f(ctr_x, ctr_y);
+						gGL.vertex2f(ctr_x, ctr_y + far_clip_pixels);
+					gGL.end();
+				}
+			}
+			else
+			{
+				gGL.color4fv((map_frustum_rotating_color()).mV);
+
+				// If we don't rotate the map, we have to rotate the frustum.
+				gGL.pushMatrix();
+				gGL.translatef( ctr_x, ctr_y, 0.f );
+				gGL.rotatef(atan2(LLViewerCamera::getInstance()->getAtAxis().mV[VX], LLViewerCamera::getInstance()->getAtAxis().mV[VY]) * RAD_TO_DEG, 0.f, 0.f, -1.f);
+				gGL.begin(LLRender::TRIANGLES);
+				gGL.vertex2f( 0.f, 0.f );
+				gGL.vertex2f(-half_width_pixels, far_clip_pixels);
+				gGL.vertex2f(half_width_pixels, far_clip_pixels);
+				gGL.end();
+				if (render_guide_line)
+				{
+					gGL.begin(LLRender::LINES);
+					gGL.color4fv(line_col.mV);
+					gGL.vertex2f(0.f, 0.f);
+					gGL.vertex2f(0.f, far_clip_pixels);
+					gGL.end();
+				}
+				gGL.popMatrix();
 		}
 	}
 	
