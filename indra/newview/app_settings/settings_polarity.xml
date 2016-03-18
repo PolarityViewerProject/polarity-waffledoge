@@ -187,6 +187,50 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_MinimapCenterRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Auto center minimap to region</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
+    <key>PVUI_MinimapGuideLine</key>
+    <map>
+      <key>Comment</key>
+      <string>Render a red line in the center of the camera view frustrum</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVUI_MinimapTile</key>
+    <map>
+      <key>Comment</key>
+      <string>Use the world map tile as the minimap background</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVUI_MinimapRenderObjects</key>
+    <map>
+      <key>Comment</key>
+      <string>Render objects on the minimap</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>PVUI_ShowServerVersionChangeNotice</key>
     <map>
       <key>Comment</key>

@@ -76,7 +76,8 @@ public:
 
 	/*virtual*/ BOOL 	postBuild();
 	/*virtual*/ BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/
+	static BOOL	handleClick(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
 
 	void			setScale( F32 scale );
@@ -94,7 +95,7 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
-	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
+	BOOL			handleToolTipAgent(const LLUUID& avatar_id) const;
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
 	void			createObjectImage();
@@ -132,7 +133,7 @@ public:
 
 private:
 	void handleZoom(const LLSD& userdata);
-	void handleStopTracking (const LLSD& userdata);
+	void handleStopTracking (const LLSD& userdata) const;
 
 	LLMenuGL*		mPopupMenu;
 	uuid_vec_t		gmSelected;
