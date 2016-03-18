@@ -3462,7 +3462,12 @@ LLFolderType::EType LLFolderBridge::getPreferredType() const
 	LLViewerInventoryCategory* cat = getCategory();
 	if(cat)
 	{
-		preferred_type = cat->getPreferredType();
+		// <FS:Ansariel> Special virtual system folder icons
+		//preferred_type = cat->getPreferredType();
+		std::string catName(cat->getName());
+		if (catName == RLV_ROOT_FOLDER) preferred_type = LLFolderType::FT_RLV;
+		else preferred_type = cat->getPreferredType();
+		// </FS:Ansariel>
 	}
 
 	return preferred_type;
