@@ -147,6 +147,9 @@ LLViewerFolderDictionary::LLViewerFolderDictionary()
 
 	addEntry(LLFolderType::FT_NONE, 				new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false, "default"));
 
+	// Virtual "System" folders
+	addEntry(LLFolderType::FT_RLV,					new ViewerFolderEntry("RLV",					"Inv_RLVOpen",				"Inv_RLVClosed",		FALSE,     true));
+
 	for (U32 type = (U32)LLFolderType::FT_ENSEMBLE_START; type <= (U32)LLFolderType::FT_ENSEMBLE_END; ++type)
 	{
 		addEntry((LLFolderType::EType)type, 		new ViewerFolderEntry("New Folder",				"Inv_FolderOpen",		"Inv_FolderClosed",		FALSE,     false));
