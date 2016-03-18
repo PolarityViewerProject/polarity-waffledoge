@@ -261,6 +261,7 @@
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
 #include "pvconstants.h"
+#include "sanitycheck.h"
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -1234,6 +1235,8 @@ bool LLAppViewer::init()
 	}
 
 	LLAgentLanguage::init();
+	// initializing the settings sanity checker
+	SanityCheck::instance().init();
 
 	return true;
 }

@@ -11111,4 +11111,34 @@ Color vector copied to clipboard. Have fun!
     </form>
  </notification>
 
+ <!-- Sanity Check -->
+ <notification
+  icon="notify.png"
+  name="SanityCheck"
+  type="alertmodal">
+[APP_NAME] has detected a possible issue with your settings:
+
+[SANITY_MESSAGE]
+
+Reason: [SANITY_COMMENT]
+
+Current setting: [CURRENT_VALUE]
+  <form name="form">
+    <ignore name="ignore"
+     text="A settings control has failed the sanity check."/>
+    </form>
+ </notification>
+ <!-- Sanity Check -->
+
+ <notification
+  icon="notify"
+  name="DebugSettingsWarning"
+  type="notifytip">
+Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description carefully and be careful.
+  <form name="form">
+    <ignore name="ignore"
+     text="Debug Settings warning message"/>
+    </form>
+ </notification>
+
 </notifications>

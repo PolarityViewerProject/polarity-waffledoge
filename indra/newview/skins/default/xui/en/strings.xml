@@ -4155,4 +4155,12 @@ Try enclosing path to the editor with double quotes.
       The physics shape does not have correct version. Set the correct version for the physics model.
   </string>
 
+ <!-- Settings sanity checks -->
+ <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be at [VALUE_1].</string>
+ <string name="SanityCheckNotEquals">&quot;[CONTROL_NAME]&quot; should not be set to [VALUE_1].</string>
+ <string name="SanityCheckLessThan"> &quot;[CONTROL_NAME]&quot; should be lower than [VALUE_1].</string>
+ <string name="SanityCheckGreaterThan"> &quot;[CONTROL_NAME]&quot; should be higher than [VALUE_1].</string>
+ <string name="SanityCheckBetween"> &quot;[CONTROL_NAME]&quot; should be between [VALUE_1] and [VALUE_2].</string>
+ <string name="SanityCheckNotBetween"> &quot;[CONTROL_NAME]&quot; should not be between [VALUE_1] and [VALUE_2].</string>
+
 </strings>

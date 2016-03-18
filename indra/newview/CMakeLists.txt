@@ -105,6 +105,7 @@ SET(thirdparty_SOURCE_FILES
     pvdatacolorizer.cpp
     pvdata.cpp
     pvcommon.cpp
+    sanitycheck.cpp
     )
 
 SET(thirdparty_HEADER_FILES
@@ -116,6 +117,7 @@ SET(thirdparty_HEADER_FILES
     pvdatacolorizer.h
     pvdata.h
     pvcommon.h
+    sanitycheck.h
     )
 
 SOURCE_GROUP("Third Party" FILES ${thirdparty_SOURCE_FILES} ${thirdparty_HEADER_FILES})

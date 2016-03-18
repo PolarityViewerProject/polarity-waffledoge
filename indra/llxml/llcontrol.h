@@ -61,6 +61,19 @@ typedef enum e_control_type
 	TYPE_LLSD,
 	TYPE_COUNT
 } eControlType;
+	   
+// Settings Sanity check
+typedef enum e_sanity_type
+{
+	SANITY_TYPE_NONE = 0,
+	SANITY_TYPE_EQUALS,
+	SANITY_TYPE_NOT_EQUALS,
+	SANITY_TYPE_LESS_THAN,
+	SANITY_TYPE_GREATER_THAN,
+	SANITY_TYPE_BETWEEN,
+	SANITY_TYPE_NOT_BETWEEN,
+	SANITY_TYPE_COUNT
+} eSanityType;
 
 class LLControlVariable : public LLRefCount
 {
@@ -71,6 +84,8 @@ class LLControlVariable : public LLRefCount
 public:
 	typedef boost::signals2::signal<bool(LLControlVariable* control, const LLSD&), boost_boolean_combiner> validate_signal_t;
 	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&, const LLSD&)> commit_signal_t;
+	// Settings Sanity check
+	typedef boost::signals2::signal<void(LLControlVariable* control, const LLSD&)> sanity_signal_t;
 
 	enum ePersist
 	{
@@ -82,7 +97,12 @@ public:
 private:
 	std::string		mName;
 	std::string		mComment;
-	eControlType	mType;
+	eControlType	mType;   
+	// Settings Sanity check
+	eSanityType	 mSanityType;
+	std::string	 mSanityComment;
+	std::vector<LLSD> mSanityValues;  
+	sanity_signal_t mSanitySignal;
 	ePersist		mPersist;
 	bool			mHideFromSettingsEditor;
 	std::vector<LLSD> mValues;
@@ -93,12 +113,19 @@ private:
 public:
 	LLControlVariable(const std::string& name, eControlType type,
 					  LLSD initial, const std::string& comment,
+					  eSanityType sanityType,
+					  LLSD sanityValues,
+					  const std::string& sanityComment,
 					  ePersist persist = PERSIST_NONDFT, bool hidefromsettingseditor = false);
 
 	virtual ~LLControlVariable();
 	
 	const std::string& getName() const { return mName; }
 	const std::string& getComment() const { return mComment; }
+	// Settings Sanity check
+	eSanityType getSanityType() { return mSanityType; }
+	const std::string& getSanityComment() const { return mSanityComment; }
+	const std::vector<LLSD>& getSanityValues() { return mSanityValues; };
 
 	eControlType type()		{ return mType; }
 	bool isType(eControlType tp) { return tp == mType; }
@@ -108,8 +135,12 @@ public:
 	commit_signal_t* getSignal() { return &mCommitSignal; } // shorthand for commit signal
 	commit_signal_t* getCommitSignal() { return &mCommitSignal; }
 	validate_signal_t* getValidateSignal() { return &mValidateSignal; }
+	// Settings Sanity check
+	sanity_signal_t* getSanitySignal() { return &mSanitySignal; }
 
 	bool isDefault() { return (mValues.size() == 1); }
+	// Settings Sanity check
+	bool isSane();
 	bool shouldSave(bool nondefault_only);
 	bool isPersisted() { return mPersist != PERSIST_NO; }
 	bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
@@ -170,9 +201,13 @@ protected:
 
 	std::set<std::string> mIncludedFiles;
 
-public:
+	// Settings Sanity check
+	std::string mSanityTypeString[SANITY_TYPE_COUNT];
+public:                                              
 	eControlType typeStringToEnum(const std::string& typestr);
+	eSanityType sanityTypeStringToEnum(const std::string& sanitystr);
 	std::string typeEnumToString(eControlType typeenum);	
+	std::string sanityTypeEnumToString(eSanityType sanitytypeenum);
 
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();
@@ -189,7 +224,10 @@ public:
 	};
 	void applyToAll(ApplyFunctor* func);
 
-	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
+	// Settings Sanity check
+	//	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
+	LLControlVariable* declareControl(const std::string& name, eControlType type, const LLSD initial_val, const std::string& comment, eSanityType sanity_type, LLSD sanity_value, const std::string& sanity_comment, LLControlVariable::ePersist persist, BOOL hidefromsettingseditor = FALSE);
+
 	LLControlVariable* declareU32(const std::string& name, U32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareS32(const std::string& name, S32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
 	LLControlVariable* declareF32(const std::string& name, F32 initial_val, const std::string& comment, LLControlVariable::ePersist persist = LLControlVariable::PERSIST_NONDFT);
@@ -314,7 +352,8 @@ public:
 	{
 		if(!group.controlExists(name))
 		{
-			LL_ERRS() << "Control named " << name << " not found." << LL_ENDL;
+			// <Polarity> Make missing controls more obvious
+			LL_ERRS("Settings") << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
 		}
 
 		bindToControl(group, name);
@@ -330,6 +369,7 @@ private:
 	void bindToControl(LLControlGroup& group, const std::string& name)
 	{
 		LLControlVariablePtr controlp = group.getControl(name);
+		// <Polarity> You crash here if you are missing a setting
 		mType = controlp->type();
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 
@@ -349,7 +389,10 @@ private:
 		init_value = convert_to_llsd(default_value);
 		if(type < TYPE_COUNT)
 		{
-			group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
+			// Settings Sanity check
+			// group.declareControl(name, type, init_value, comment, LLControlVariable::PERSIST_NO);
+			group.declareControl(name, type, init_value, comment, SANITY_TYPE_NONE, LLSD(), std::string(""), LLControlVariable::PERSIST_NO);
+			// </FS_Zi>
 			return true;
 		}
 		return false;
