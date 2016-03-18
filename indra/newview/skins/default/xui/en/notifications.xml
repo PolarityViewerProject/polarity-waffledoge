@@ -11130,15 +11130,4 @@ Current setting: [CURRENT_VALUE]
  </notification>
  <!-- Sanity Check -->
 
- <notification
-  icon="notify"
-  name="DebugSettingsWarning"
-  type="notifytip">
-Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description carefully and be careful.
-  <form name="form">
-    <ignore name="ignore"
-     text="Debug Settings warning message"/>
-    </form>
- </notification>
-
 </notifications>
