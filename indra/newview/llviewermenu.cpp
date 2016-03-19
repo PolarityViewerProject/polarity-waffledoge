@@ -4176,6 +4176,19 @@ void handle_object_sit_or_stand()
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
 		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
 
+		// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+		// This section of code saves the state of the camera when we requested to sit on the object, allowing us to re-sit in the same position
+		gSavedPerAccountSettings.setVector3("PVMovement_LastSatUponObjectOffset", pick.mObjectOffset);
+		gSavedPerAccountSettings.setVector3d("PVMovement_LastSatUponObjectCamPosition", gAgentCamera.getCameraPositionGlobal());
+		gSavedPerAccountSettings.setVector3d("PVMovement_LastSatUponObjectCamFocus", gAgentCamera.getFocusTargetGlobal());
+		LLUUID focus_object_id = LLUUID::null;
+		if (gAgentCamera.getFocusObject())
+		{
+			focus_object_id = gAgentCamera.getFocusObject()->getID();
+		}
+		gSavedPerAccountSettings.setString("PVMovement_LastSatUponObjectCamFocusObject", focus_object_id.getString());
+		// </Polarity>
+
 		object->getRegion()->sendReliableMessage();
 	}
 }

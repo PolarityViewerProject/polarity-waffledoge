@@ -5230,6 +5230,15 @@ void LLAppViewer::idleShutdown()
 		return;
 	}
 
+	// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+	LLUUID seat_id = LLUUID::null;
+	if (gAgentAvatarp->isSitting())
+	{
+		LLViewerObject *seat_viewer_object = (LLViewerObject*)gAgentAvatarp->getParent();
+		seat_id = seat_viewer_object->getID();
+	}
+	gSavedPerAccountSettings.setString("PVMovement_LastSatUponObject", seat_id.getString());
+	// </Polarity>
 
 
 	

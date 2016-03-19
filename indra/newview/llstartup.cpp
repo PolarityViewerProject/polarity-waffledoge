@@ -313,6 +313,34 @@ namespace
 					<< " with null sender" << LL_ENDL;
 		}
 	};
+
+	// <Polarity> LLEventTimer subclass to send a sit message to the sim after 0.25 seconds
+	class LLRestoreSeatEventTimer : public LLEventTimer
+	{
+	public:
+		LLRestoreSeatEventTimer() : LLEventTimer(0.25) {}
+
+		BOOL tick()
+		{
+			LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
+			LLVector3 last_offset = gSavedPerAccountSettings.getVector3("PVMovement_LastSatUponObjectOffset");
+			LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
+
+			gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
+			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
+			gMessageSystem->addUUIDFast(_PREHASH_TargetID, last_seat->mID);
+			gMessageSystem->addVector3Fast(_PREHASH_Offset, last_offset);
+			last_seat->getRegion()->sendReliableMessage();
+
+			gAgentCamera.resetView();
+
+			return TRUE;
+		}
+	};
+	// </Polarity>
 }
 
 void update_texture_fetch()
@@ -2196,6 +2224,35 @@ bool idle_startup()
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if ((timeout_frac > 1.f) && isAgentAvatarValid())
 		{
+			// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+			if (LLStartUp::getStartSLURL().getType() == LLSLURL::LAST_LOCATION && gAgentStartLocation == "last")
+			{
+				LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
+				if (last_seat_uuid.notNull())
+				{
+					LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
+					if (last_seat)
+					{
+						LLVector3 seat_pos = last_seat->getPositionRegion();
+						LLVector3 agent_avatar_pos = gAgentAvatarp->getPositionRegion();
+						if (dist_vec(seat_pos, agent_avatar_pos) < 5.0) {
+							LLVector3d cam_position = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamPosition");
+							LLVector3d cam_focus = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamFocus");
+							LLUUID cam_focus_id = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObjectCamFocusObject"));
+
+							gAgentCamera.setAnimationDuration(0.0);
+							gAgentCamera.unlockView();
+							gAgentCamera.setCameraPosAndFocusGlobal(cam_position, cam_focus, cam_focus_id, false);
+							gAgentCamera.updateCamera();
+
+							// The first tick of the following timer prepares and sends the sit message, then marks itself complete
+							new LLRestoreSeatEventTimer();
+						}
+					}
+				}
+			}
+			// </Polarity>
+
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else if (timeout_frac > 10.f) 

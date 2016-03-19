@@ -2413,7 +2413,7 @@ void LLAgentCamera::setFocusGlobal(const LLPickInfo& pick)
 }
 
 
-void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
+void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id, bool animate)
 {
 	setFocusObject(gObjectList.findObject(object_id));
 	LLVector3d old_focus = mFocusTargetGlobal;
@@ -2446,7 +2446,12 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 
 			mCameraFocusOffsetTarget = gAgent.getPosGlobalFromAgent(mCameraVirtualPositionAgent) - mFocusTargetGlobal;
 
-			startCameraAnimation();
+			// <Polarity> Allow setting the camera focus without animating
+			if (animate)
+			{
+				 startCameraAnimation();
+			}
+			// </Polarity>
 
 			if (focus_obj)
 			{
@@ -2501,16 +2506,25 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 //-----------------------------------------------------------------------------
 // setCameraPosAndFocusGlobal()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id)
+void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id, bool animate)
 {
 	LLVector3d old_focus = mFocusTargetGlobal.isExactlyZero() ? focus : mFocusTargetGlobal;
 
+	// <Polarity> Add parameter to choose whether to animate or not
 	F64 focus_delta_squared = (old_focus - focus).magVecSquared();
+	if (animate)
+	{
 	const F64 ANIM_EPSILON_SQUARED = 0.0001;
 	if (focus_delta_squared > ANIM_EPSILON_SQUARED)
 	{
 		startCameraAnimation();
 	}
+	}
+	else
+	{
+		mCameraSmoothingStop = true;
+	}
+	// </Polarity>
 	
 	//LLViewerCamera::getInstance()->setOrigin( gAgent.getPosAgentFromGlobal( camera_pos ) );
 	setFocusObject(gObjectList.findObject(object_id));
@@ -2623,7 +2637,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 	else if (mFocusOnAvatar && !focus_on_avatar)
 	{
 		// keep camera focus point consistent, even though it is now unlocked
-		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID());
+		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID(), animate); // <Polarity/> Extra paramter to disable animation
 		mAllowChangeToFollow = FALSE;
 	}
 	
