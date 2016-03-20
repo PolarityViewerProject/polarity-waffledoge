@@ -86,6 +86,38 @@
    name="appearance_camera_movement"
    tool_tip="Use automatic camera positioning while in edit mode"
    width="242" />
+  <text
+  follows="left|top"
+  type="string"
+  length="1"
+  height="10"
+  left="230"
+  name="heading3"
+  width="270"
+  top="355">
+    When clicking self:
+  </text>
+  <check_box
+     control_name="PVCamera_DoNotCenterOnSelfClick"
+     follows="left|top"
+     height="20"
+     label="Keep camera position"
+     layout="topleft"
+     left_delta="30"
+     name="pvcamera_donotcenter"
+     tool_tip="Do not center the camera when clicking your avatar. Also called Mouse Steering"
+     top_pad="5"
+     width="280"
+     />
+  <check_box
+   control_name="PVMovement_DoNotRotateOnSelfClick"
+   follows="left|top"
+   height="16"
+   label="Don't rotate away from the camera"
+   layout="topleft"
+   name="pvmovement_donotrotate"
+   tool_tip="Do not rotate your avatar away from the camera when clicking yourself"
+   width="242" />
   <icon
 	 follows="left|top"
 	 height="18"
@@ -95,7 +127,7 @@
 	 mouse_opaque="false"
 	 visible="true"
 	 width="18"
-   top_pad="10"
+   top="115"
    left="30" />
   <text
    follows="left|top"

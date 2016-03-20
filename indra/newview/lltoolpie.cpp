@@ -369,15 +369,22 @@ BOOL LLToolPie::handleLeftClickPick()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
+		// <Polarity> Do not center the camera when clicking self
+		static LLCachedControl<bool> do_not_center(gSavedSettings, "PVCamera_DoNotCenterOnSelfClick", false);
+		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk") && !do_not_center)
 		{
-			// we left clicked on avatar, switch to focus mode
+			// we left clicked on our avatar, switch to focus mode
 			mMouseButtonDown = false;
 			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
 			LLToolCamera::getInstance()->pickCallback(mPick);
-			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+			// <Polarity> Do not rotate the avatar "away from the camera" when clicking self
+			static LLCachedControl<bool> do_not_rotate(gSavedSettings, "PVMovement_DoNotRotateOnSelfClick", false);
+			if (!do_not_rotate)
+			{
+				gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+			}
 
 			return TRUE;
 		}
