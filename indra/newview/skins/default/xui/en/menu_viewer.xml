@@ -896,7 +896,7 @@
             <menu_item_check.on_check
              function="Build.Active" />
             <menu_item_check.on_click
-             function="Build.ToggleOrBringToFront" />
+             function="Build.Toggle" />
             <menu_item_check.on_enable
              function="Build.Enabled" />
        </menu_item_check>
