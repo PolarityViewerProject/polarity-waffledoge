@@ -201,9 +201,9 @@ public:
 	void			updateFocusOffset();
 	void			validateFocusObject();
 	void			setFocusGlobal(const LLPickInfo& pick);
-	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null, bool animate = true); // <Polarity/> Allow setting camera focus without animation
+	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null, const bool animate = true); // <Polarity/> Allow setting camera focus without animation
 	void			setFocusOnAvatar(BOOL focus, BOOL animate);
-	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id, bool animate = true); // <Polarity/> Allow moving camera without animation
+	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id, const bool animate = true); // <Polarity/> Allow moving camera without animation
 	void			clearFocusObject();
 	void			setFocusObject(LLViewerObject* object);
 	void			setAllowChangeToFollow(BOOL focus) 	{ mAllowChangeToFollow = focus; }

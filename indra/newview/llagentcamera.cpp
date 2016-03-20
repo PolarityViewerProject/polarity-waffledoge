@@ -2413,7 +2413,7 @@ void LLAgentCamera::setFocusGlobal(const LLPickInfo& pick)
 }
 
 
-void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id, bool animate)
+void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id, const bool animate)
 {
 	setFocusObject(gObjectList.findObject(object_id));
 	LLVector3d old_focus = mFocusTargetGlobal;
@@ -2506,7 +2506,7 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 //-----------------------------------------------------------------------------
 // setCameraPosAndFocusGlobal()
 //-----------------------------------------------------------------------------
-void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id, bool animate)
+void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id, const bool animate)
 {
 	LLVector3d old_focus = mFocusTargetGlobal.isExactlyZero() ? focus : mFocusTargetGlobal;
 
