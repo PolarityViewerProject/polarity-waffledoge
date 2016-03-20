@@ -11130,4 +11130,15 @@ Current setting: [CURRENT_VALUE]
  </notification>
  <!-- Sanity Check -->
 
+ <notification
+  icon="notify"
+  name="ControlNameCopiedToClipboard"
+  type="notifytip">
+Setting name copied to clipboard. Please don't break other people's viewer.
+  <form name="form">
+    <ignore name="ignore"
+     text="A debug setting's name was copied to my clipboard"/>
+    </form>
+ </notification>
+
 </notifications>
