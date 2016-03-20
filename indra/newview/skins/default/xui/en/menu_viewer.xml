@@ -1591,6 +1591,7 @@
             </menu_item_check.on_check>
         </menu_item_check>
         <menu_item_call
+            enabled="false"
             label="Cinematic Mode"
             name="CinematicMode"
             shortcut="alt|shift|c">
