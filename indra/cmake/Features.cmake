@@ -20,6 +20,9 @@ endif(PVDATA)
 # Audio Engine
 option(FMODEX "Build with support for the FMOD Ex audio engine" ON)
 
+# Workarounds/Hacks
+option(SANDY_FIX "Manifest fix to unbreak Sandy Bridge graphics on Windows 10" OFF)
+
 # <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
@@ -29,6 +32,7 @@ add_definitions(
   /DPVDATA_PROGRESS_TIPS=${PVDATA_PROGRESS_TIPS}
   /DPVDATA_UUID_LOCKDOWN=${PVDATA_UUID_LOCKDOWN}
   /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
+  /DSANDY_FIX=${SANDY_FIX}
   /DUSE_LTO=${USE_LTO}
   )
 
@@ -39,6 +43,7 @@ MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
 MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
 MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
 MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
+MESSAGE("SANDY_FIX                          ${SANDY_FIX}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO 'secondlife:///app/agent/${PVDATA_UUID_LOCKTO}/about'")
