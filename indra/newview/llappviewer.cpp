@@ -475,7 +475,7 @@ struct SettingsFiles : public LLInitParam::Block<SettingsFiles>
 	{}
 };
 
-std::string gWindowTitle; // <Polarity/> Dynamic window title
+std::string gWindowTitle; // <polarity/> Dynamic window title
 
 LLAppViewer::LLUpdaterInfo *LLAppViewer::sUpdaterInfo = NULL ;
 
@@ -2800,7 +2800,7 @@ bool LLAppViewer::initConfiguration()
 	// Set the name of the window
 	//
 
-	// <Polarity> Dynamic window title
+	// <polarity> Dynamic window title
 	if(gSavedSettings.getBOOL("PVWindow_TitleAnonymize"))
 	{
 		// We use "Second Life" because emptying the string is harder, bugs out with Aero Glass
@@ -5230,7 +5230,7 @@ void LLAppViewer::idleShutdown()
 		return;
 	}
 
-	// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+	// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
 	LLUUID seat_id = LLUUID::null;
 	if (gAgentAvatarp->isSitting())
 	{
@@ -5238,7 +5238,7 @@ void LLAppViewer::idleShutdown()
 		seat_id = seat_viewer_object->getID();
 	}
 	gSavedPerAccountSettings.setString("PVMovement_LastSatUponObject", seat_id.getString());
-	// </Polarity>
+	// </polarity>
 
 
 	
@@ -5762,7 +5762,7 @@ void LLAppViewer::handleLoginComplete()
 
 	mOnLoginCompleted();
 
-	// <Polarity>Dynamic window title
+	// <polarity>Dynamic window title
 	// if (gSavedSettings.getBOOL("PVWindow_TitleAnonymize" && gSavedSettings.getBOOL("PVWindow_TitleShowUserName"))
 	if ((!gSavedSettings.getBOOL("PVWindow_TitleShowUserName")) || gSavedSettings.getBOOL("PVWindow_TitleAnonymize"))
 	{
@@ -5789,15 +5789,15 @@ void LLAppViewer::handleLoginComplete()
 	}
 	if (!full_name.empty())
 	{
-		// <Polarity> Task Bar efficiency
+		// <polarity> Task Bar efficiency
 		full_name + std::string(" | ");
 	}
 	std::string backup_title = gWindowTitle;
-	gWindowTitle = full_name + " - " + backup_title + std::string(" ") + gArgs; // <Polarity> Dynamic window title
+	gWindowTitle = full_name + " - " + backup_title + std::string(" ") + gArgs; // <polarity> Dynamic window title
 	LLStringUtil::truncate(gWindowTitle, 255);
 	gViewerWindow->getWindow()->setTitle(gWindowTitle);
 
-	// </Polarity>
+	// </polarity>
 	writeDebugInfo();
 
 	// we logged in successfully, so save settings on logout

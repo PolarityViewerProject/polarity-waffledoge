@@ -55,7 +55,7 @@ PVLoadingAnim::~PVLoadingAnim()
 void PVLoadingAnim::draw()
 {
 	static LLTimer timer;
-	// <Polarity> PLVR-221: Port Prismata's public domain loading animation
+	// <polarity> PLVR-221: Port Prismata's public domain loading animation
 	F32 half_height = (getRect().getHeight() - mSpriteDiameter) / 2;
 	U64 time_step = floor(timer.getElapsedTimeF64() * 60);
 	for (size_t i = 0; i < mNumSprites; i++)
@@ -63,7 +63,7 @@ void PVLoadingAnim::draw()
 		const F32 sprite_y = half_height + half_height * sin(fmod(time_step * (i / 500.0 + 0.02), F_TWO_PI));
 		mSpriteImage->draw(i * mSpriteSeparation, sprite_y, mSpriteDiameter, mSpriteDiameter, mColor.get());
 	}
-	// </Polarity> PLVR-221
+	// </polarity> PLVR-221
 
 	LLView::draw();
 }

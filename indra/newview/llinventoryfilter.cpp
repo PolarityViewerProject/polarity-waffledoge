@@ -45,7 +45,7 @@
 #include "llclipboard.h"
 #include "lltrans.h"
 
-#include <boost/algorithm/string.hpp> // <Polarity/>
+#include <boost/algorithm/string.hpp> // <polarity/>
 #include "llappearancemgr.h" // needed to query whether we are in COF
 
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
@@ -713,7 +713,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 	std::string filter_sub_string_new = string;
 	mFilterSubStringOrig = string;
 	LLStringUtil::trimHead(filter_sub_string_new);
-	boost::to_upper(filter_sub_string_new); // <Polarity>
+	boost::to_upper(filter_sub_string_new); // <polarity>
 	// <FS:Zi> Multi-substring inventory search
 	// Cut filter string into several substrings
 	//std::string separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
@@ -725,7 +725,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		
 		do
 		{
-			// <Polarity> Make inventory search behave like a keyword list instead of a litteral expression
+			// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
 			// TODO: Add "whole word" option.
 			// to = filter_sub_string_new.find_first_of(separator,frm);
 			to = filter_sub_string_new.find_first_of(' ',frm);
@@ -946,7 +946,7 @@ U32 LLInventoryFilter::getDateSearchDirection() const
 
 void LLInventoryFilter::setFilterLinks(U64 filter_links)
 {
-	// <Polarity> Filter links preferences. Inspired by Firestorm/Zi Ree's code.
+	// <polarity> Filter links preferences. Inspired by Firestorm/Zi Ree's code.
 	if (mFilterOps.mFilterLinks != filter_links)
 	{
 		LLInventoryFilter::EFilterModified modifyMode = FILTER_RESTART;

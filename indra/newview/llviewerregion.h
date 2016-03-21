@@ -441,7 +441,7 @@ public:
 	static S32  sLastCameraUpdated;
 
 	LLFrameTimer &	getRenderInfoRequestTimer()			{ return mRenderInfoRequestTimer;		};
-	LLPointer<LLViewerTexture> mMapImage; // <Polarity/> World Map texture in minimap
+	LLPointer<LLViewerTexture> mMapImage; // <polarity/> World Map texture in minimap
 
 	struct CompareRegionByLastUpdate
 	{

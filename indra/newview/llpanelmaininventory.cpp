@@ -57,7 +57,7 @@
 #include "llfolderview.h"
 #include "llradiogroup.h"
 
-// <Polarity> fix Major FPS drop by disabling filters.xml
+// <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
 
 static LLPanelInjector<LLPanelMainInventory> t_inventory("panel_main_inventory");
@@ -153,7 +153,7 @@ BOOL LLPanelMainInventory::postBuild()
 	{
 		// "All Items" is the previous only view, so it gets the InventorySortOrder
 		mActivePanel->setSortOrder(gSavedSettings.getU32(LLInventoryPanel::DEFAULT_SORT_ORDER));
-		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS); // <Polarity> hide inventory links by default
+		mActivePanel->setFilterLinks(LLInventoryFilter::FILTERLINK_EXCLUDE_LINKS); // <polarity> hide inventory links by default
 		mActivePanel->getFilter().markDefault();
 		mActivePanel->getRootFolder()->applyFunctorRecursively(*mSavedFolderState);
 		mActivePanel->setSelectCallback(boost::bind(&LLPanelMainInventory::onSelectionChange, this, mActivePanel, _1, _2));
@@ -198,7 +198,7 @@ BOOL LLPanelMainInventory::postBuild()
 	// </FS:ND>
 
 	// Now load the stored settings from disk, if available.
-	// <Polarity/> Disabled for performance reasons. Seriously.
+	// <polarity/> Disabled for performance reasons. Seriously.
 #if 0
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);
@@ -283,7 +283,7 @@ LLPanelMainInventory::~LLPanelMainInventory( void )
 		}
 	}
 
-	// <Polarity> Disabled filters.xml logic for performance reasons
+	// <polarity> Disabled filters.xml logic for performance reasons
 #if 0
 	std::ostringstream filterSaveName;
 	filterSaveName << gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, FILTERS_FILENAME);

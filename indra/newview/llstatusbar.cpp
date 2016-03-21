@@ -85,7 +85,7 @@ static void onClickVolume(void* data);
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
 	mTextTime(nullptr),
-	mFPSCount(nullptr), // <Polarity> FPS Counter in the status bar
+	mFPSCount(nullptr), // <polarity> FPS Counter in the status bar
 	mSGBandwidth(nullptr),
 	mSGPacketLoss(nullptr),
 	mBtnStats(nullptr),
@@ -141,7 +141,7 @@ BOOL LLStatusBar::postBuild()
 
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
+	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
 	mFPSCount = getChild<LLTextBox>("FPS_count");
 
 	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, "https://secondlife.com/my/lindex/buy.php"));
@@ -223,7 +223,7 @@ BOOL LLStatusBar::postBuild()
 	return TRUE;
 }
 
-// <Polarity> Split clock refresh into its own function
+// <polarity> Split clock refresh into its own function
 void LLStatusBar::RefreshClockArea(bool mShowSeconds)
 {
 	mClockUpdateTimer.reset();
@@ -240,7 +240,7 @@ void LLStatusBar::RefreshClockArea(bool mShowSeconds)
 	LLStringUtil::format (dtStr, substitution);
 	mTextTime->setToolTip (dtStr);
 }
-// </Polarity>
+// </polarity>
 
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
@@ -306,7 +306,7 @@ void LLStatusBar::refresh()
 	LLStringUtil::format(dtStr, substitution);
 	mTextTime->setToolTip(dtStr);
 
-	// <Polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
+	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
 	mFPSCountTimer.reset();
 
 	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
@@ -324,7 +324,7 @@ void LLStatusBar::refresh()
 	{
 		mFPSCount->setValue(llformat("%.2f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
 	}
-	// </Polarity>
+	// </polarity>
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -335,7 +335,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
 
-	// <Polarity> FPS Meter in status bar.
+	// <polarity> FPS Meter in status bar.
 	static LLCachedControl<bool> show_fps_counter(gSavedSettings, "PVUI_StatusBarShowFPSCounter",true);
 	if(show_fps_counter)
 	{

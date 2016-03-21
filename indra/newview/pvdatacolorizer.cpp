@@ -230,7 +230,7 @@ void PVDataColorizer::setNewSkinColorFromSelection()
 		std::string channel = LLVersionInfo::getChannel();
 		static const boost::regex is_beta_channel("\\bBeta\\b");
 		static const boost::regex is_project_channel("\\bProject\\b");
-		static const boost::regex is_release_channel("\\bRelease$"); // <Polarity/>
+		static const boost::regex is_release_channel("\\bRelease$"); // <polarity/>
 		static const boost::regex is_test_channel("\\bTest$");
 
 		//	While skinning the viewer. there are times where coloring something based on the current channel
@@ -282,7 +282,7 @@ void PVDataColorizer::setNewSkinColorFromSelection()
 void PVDataColorizer::setEmphasisColorSet()
 {
 	LL_INFOS("LLViewerWindow") << "Setting emphasis color..." << LL_ENDL;
-	// <Polarity> Replace the color in the color table.
+	// <polarity> Replace the color in the color table.
 	const LLColor4 input_new_color = newCustomThemeColor; // Temporary variable to avoid creating a ton of new ones
 	LLColor4 tmp_color = input_new_color;
 

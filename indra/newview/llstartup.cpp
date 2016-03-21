@@ -205,7 +205,7 @@
 #include "lldxhardware.h"
 #endif
 
-// <Polarity> Polarity Includes
+// <polarity> Polarity Includes
 #include "pvdata.h"
 #include "pvdatacolorizer.h"
 #include "pvcommon.h"
@@ -314,7 +314,7 @@ namespace
 		}
 	};
 
-	// <Polarity> LLEventTimer subclass to send a sit message to the sim after 0.25 seconds
+	// <polarity> LLEventTimer subclass to send a sit message to the sim after 0.25 seconds
 	class LLRestoreSeatEventTimer : public LLEventTimer
 	{
 	public:
@@ -340,7 +340,7 @@ namespace
 			return TRUE;
 		}
 	};
-	// </Polarity>
+	// </polarity>
 }
 
 void update_texture_fetch()
@@ -672,11 +672,11 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
-		// <Polarity> PVData
+		// <polarity> PVData
 		// Begin fetching the required assets used by PVData
 		PVData::instance().downloadData();
 		// PVDataColorizer::instance().initThemeColors();
-		// </Polarity> PVData
+		// </polarity> PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -1123,7 +1123,7 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		// <Polarity> PVData
+		// <polarity> PVData
 		//LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
 		std::vector<std::string> string_list = {
 			"Frobulating Widgets",
@@ -1344,7 +1344,7 @@ bool idle_startup()
 			}
 			else
 			{
-				// <Polarity> Custom error message related to PVData
+				// <polarity> Custom error message related to PVData
 				if (!PVData::instance().PVDataErrorMessage.empty())
 				{
 				LLSD args;
@@ -2224,7 +2224,7 @@ bool idle_startup()
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if ((timeout_frac > 1.f) && isAgentAvatarValid())
 		{
-			// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+			// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
 			if (LLStartUp::getStartSLURL().getType() == LLSLURL::LAST_LOCATION && gAgentStartLocation == "last")
 			{
 				LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
@@ -2251,7 +2251,7 @@ bool idle_startup()
 					}
 				}
 			}
-			// </Polarity>
+			// </polarity>
 
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
@@ -2411,9 +2411,9 @@ bool idle_startup()
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
-		// <Polarity> Report web-served MOTD to chat
+		// <polarity> Report web-served MOTD to chat
 		reportSpecialToNearbyChat(gAgent.mChatMOTD, CHAT_SOURCE_MOTD, "");
-		// </Polarity>
+		// </polarity>
 
 		gAgentAvatarp->sendHoverHeight();
 
@@ -3404,7 +3404,7 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	// Moved here to exit as soon as possible - Xenhat 2015.10.07
-	// <Polarity> PVData
+	// <polarity> PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
 	if (!(PVData::instance().isAllowedToLogin(gAgentID)))
@@ -3759,7 +3759,7 @@ bool process_login_success_response()
 							  << gMaxAgentGroups << LL_ENDL;
 	}
 		
-	// <Polarity> PVData
+	// <polarity> PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
 #if 0

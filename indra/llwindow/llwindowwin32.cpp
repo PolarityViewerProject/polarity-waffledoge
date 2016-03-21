@@ -3105,7 +3105,7 @@ void LLWindowWin32::swapBuffers()
 	SwapBuffers(mhDC);
 }
 
-// <Polarity> Dynamic window title
+// <polarity> Dynamic window title
 void LLWindowWin32::setTitle(const std::string win_title)
 {
 	// Set the window title
@@ -3120,7 +3120,7 @@ void LLWindowWin32::setTitle(const std::string win_title)
 	}
 	SetWindowText(mWindowHandle, mWindowTitle);
 }
-// </Polarity>
+// </polarity>
 
 //
 // Helper Funcs

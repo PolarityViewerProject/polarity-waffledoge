@@ -417,7 +417,7 @@ public:
 	void			calcDisplayScale();
 	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
 
-	void			setTitle(const std::string win_title);	// <Polarity/> Dynamic window title
+	void			setTitle(const std::string win_title);	// <polarity/> Dynamic window title
 
 private:
 	bool                    shouldShowToolTipFor(LLMouseHandler *mh);

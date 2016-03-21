@@ -352,7 +352,7 @@ public:
 	{
 		if(!group.controlExists(name))
 		{
-			// <Polarity> Make missing controls more obvious
+			// <polarity> Make missing controls more obvious
 			LL_ERRS("Settings") << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
 		}
 
@@ -369,7 +369,7 @@ private:
 	void bindToControl(LLControlGroup& group, const std::string& name)
 	{
 		LLControlVariablePtr controlp = group.getControl(name);
-		// <Polarity> You crash here if you are missing a setting
+		// <polarity> You crash here if you are missing a setting
 		mType = controlp->type();
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 

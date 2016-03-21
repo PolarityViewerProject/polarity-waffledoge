@@ -19,7 +19,7 @@ if(NOT DEFINED COMMON_CMAKE_DIR)
     set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 endif(NOT DEFINED COMMON_CMAKE_DIR)
 
- # <Polarity>
+ # <polarity>
 Include(Features)
 
 set(LIBS_CLOSED_PREFIX)

@@ -2446,12 +2446,12 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 
 			mCameraFocusOffsetTarget = gAgent.getPosGlobalFromAgent(mCameraVirtualPositionAgent) - mFocusTargetGlobal;
 
-			// <Polarity> Allow setting the camera focus without animating
+			// <polarity> Allow setting the camera focus without animating
 			if (animate)
 			{
 				 startCameraAnimation();
 			}
-			// </Polarity>
+			// </polarity>
 
 			if (focus_obj)
 			{
@@ -2510,7 +2510,7 @@ void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, con
 {
 	LLVector3d old_focus = mFocusTargetGlobal.isExactlyZero() ? focus : mFocusTargetGlobal;
 
-	// <Polarity> Add parameter to choose whether to animate or not
+	// <polarity> Add parameter to choose whether to animate or not
 	F64 focus_delta_squared = (old_focus - focus).magVecSquared();
 	if (animate)
 	{
@@ -2524,7 +2524,7 @@ void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, con
 	{
 		mCameraSmoothingStop = true;
 	}
-	// </Polarity>
+	// </polarity>
 	
 	//LLViewerCamera::getInstance()->setOrigin( gAgent.getPosAgentFromGlobal( camera_pos ) );
 	setFocusObject(gObjectList.findObject(object_id));
@@ -2637,7 +2637,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 	else if (mFocusOnAvatar && !focus_on_avatar)
 	{
 		// keep camera focus point consistent, even though it is now unlocked
-		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID(), animate); // <Polarity/> Extra paramter to disable animation
+		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID(), animate); // <polarity/> Extra paramter to disable animation
 		mAllowChangeToFollow = FALSE;
 	}
 	

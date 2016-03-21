@@ -26,7 +26,7 @@
 #define PV_CONSTANTS_H
 //#include "stdtypes.h" // for std::string
 
-// <Polarity> This contains the name of the viewer.
+// <polarity> This contains the name of the viewer.
 const std::string APP_NAME = "Polarity";
 
 #endif

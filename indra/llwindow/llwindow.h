@@ -165,7 +165,7 @@ public:
 	// Provide native key event data
 	virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
-// <Polarity> Dynamic window title
+// <polarity> Dynamic window title
 //this needs to be overridden for all platforms
 	virtual void setTitle(const std::string win_title) {}
 

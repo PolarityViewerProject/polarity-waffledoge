@@ -361,7 +361,7 @@ void PVData::parsePVData(const LLSD& data_input)
 #if PVDATA_PROGRESS_TIPS
 
 	// TODO: Split tips files
-	// <Polarity:Xenhat> Load the progress screen tips
+	// <polarity> Load the progress screen tips
 	LL_DEBUGS("PVDataParser") << "Attempting to find Progress Tip data" << LL_ENDL;
 	if (data_input.has("ProgressTip"))
 	{

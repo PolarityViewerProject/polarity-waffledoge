@@ -73,10 +73,10 @@ void agent_jump( EKeystate s )
 	if( time < FLY_TIME 
 		|| frame_count <= FLY_FRAMES 
 		|| gAgent.upGrabbed()
-		// <Polarity> Ditch AutomaticFly because it's not granular enough
+		// <polarity> Ditch AutomaticFly because it's not granular enough
 		// || !gSavedSettings.getBOOL("AutomaticFly"))
 		|| !gSavedSettings.getBOOL("PVMovement_AutomaticFly"))
-		// </Polarity>
+		// </polarity>
 	{
 		gAgent.moveUp(1);
 	}

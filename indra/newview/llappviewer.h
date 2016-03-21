@@ -292,7 +292,7 @@ private:
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
 	
-	LLFrameTimer mTitleBarUpdateTimer; 	// <Polarity/> Dynamic window title
+	LLFrameTimer mTitleBarUpdateTimer; 	// <polarity/> Dynamic window title
 
     LLAllocator mAlloc;
 

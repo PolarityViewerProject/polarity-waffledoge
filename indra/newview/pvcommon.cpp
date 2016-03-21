@@ -47,10 +47,10 @@
 // #include "rlvactions.h"
 // #include "rlvhandler.h"
 
-// <Polarity> Build Fixes
+// <polarity> Build Fixes
 #include "lltrans.h"
 #include "material_codes.h"
-// </Polarity>
+// </polarity>
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -88,7 +88,7 @@ void reportSpecialToNearbyChat(const std::string& message, EChatSourceType CHAT_
 	LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
 }
 
-// <Polarity> OOC Auto-close breaks ASCII art
+// <polarity> OOC Auto-close breaks ASCII art
 // Example taken from http://stackoverflow.com/a/6605305/1570096
 // Todo: Write a test for this. Use the fish.
 int PVCommon::HasSpecialCharacters(const std::string& oocstring)
@@ -120,7 +120,7 @@ std::string applyAutoCloseOoc(const std::string& message)
 
 	std::string utf8_text(message);
 
-	// <Polarity> OOC Auto-close breaks ASCII art
+	// <polarity> OOC Auto-close breaks ASCII art
 	// It might be more flexible to subtract the opening parentheses, brackets and other things
 	// from the string and run the result through HasSpecialChacters but I'm not really interested
 	// in doing more substring operations. -Xenhat

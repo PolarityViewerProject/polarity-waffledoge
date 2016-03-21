@@ -169,7 +169,7 @@ class ViewerManifest(LLManifest):
                     self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
                 self.path("*/xui/*/widgets/*.xml")
-                # <Polarity> Skin Picker
+                # <polarity> Skin Picker
                 self.path("*/themes/*/colors.xml")
                 if self.prefix(src="*/themes/*/textures"):
                     # self.path("*/*.tga")
@@ -182,7 +182,7 @@ class ViewerManifest(LLManifest):
                     self.path("*.png")
                     self.end_prefix("*/themes/*/textures")
                 self.path("*/*.ini")
-                # <Polarity> automatically copy the right SL_Logo from the icons folder
+                # <polarity> automatically copy the right SL_Logo from the icons folder
                 if self.channel_type() != "release":
                     try:
                         self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")

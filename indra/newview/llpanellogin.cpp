@@ -186,7 +186,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		login_holder->addChild(this);
 	}
 
-	// <Polarity> Do not use the first login layout.
+	// <polarity> Do not use the first login layout.
 	//if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	//{
 	//	buildFromFile( "panel_login_first.xml");

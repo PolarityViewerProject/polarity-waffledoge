@@ -35,10 +35,10 @@ class LLAvatarName;
 class LLViewerObject;
 
 void reportToNearbyChat(const std::string& message);
-// <Polarity>
+// <polarity>
 void reportSpecialToNearbyChat(const std::string& message, EChatSourceType CHAT_TYPE, std::string fromName);
 bool isPolarityDeveloper(const LLUUID& av_id);
-// </Polarity>
+// </polarity>
 
 std::string applyAutoCloseOoc(const std::string& message);
 std::string applyMuPose(const std::string& message);

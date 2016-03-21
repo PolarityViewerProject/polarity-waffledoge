@@ -2426,7 +2426,7 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 }
 
 
-// <Polarity> Lookat preferences logic
+// <polarity> Lookat preferences logic
 bool LLFloaterPreference::confirmNosyLookAt()
 {
 	bool lookat_local_disabled = gSavedSettings.getBOOL("PVPrivacy_LookAtBroadcastDisabled");
@@ -2472,5 +2472,5 @@ bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response)
 	gSavedSettings.setBOOL("PVPrivacy_LookAtShow", confirmedNosy);
 	return false;
 }
-// </Polarity>
+// </polarity>
 

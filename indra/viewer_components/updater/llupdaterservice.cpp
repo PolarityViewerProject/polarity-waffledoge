@@ -273,7 +273,7 @@ void LLUpdaterServiceImpl::stopChecking()
 
 bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test)
 {
-	mWillingToTest = is_willing_to_test; // <Polarity/>
+	mWillingToTest = is_willing_to_test; // <polarity/>
 	if (!mIsDownloading && getState() != LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		if (mIsChecking)

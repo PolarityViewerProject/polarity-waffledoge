@@ -1,4 +1,4 @@
-# <Polarity> This is how you define preprocessor definitions...
+# <polarity> This is how you define preprocessor definitions...
 # PVData Master Switch. Does not turn off PVData, but allows to easily disable all non-essential features.
 option(PVDATA "PVData master switch for all non-essential components." OFF)
 if (PVDATA)
@@ -23,7 +23,7 @@ option(FMODEX "Build with support for the FMOD Ex audio engine" ON)
 # Workarounds/Hacks
 option(SANDY_FIX "Manifest fix to unbreak Sandy Bridge graphics on Windows 10" OFF)
 
-# <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
+# <polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
   /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
@@ -49,4 +49,4 @@ if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO 'secondlife:///app/agent/${PVDATA_UUID_LOCKTO}/about'")
 endif(PVDATA_UUID_LOCKDOWN)
 MESSAGE("============================")
-# </Polarity>
+# </polarity>

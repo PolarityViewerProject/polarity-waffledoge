@@ -369,7 +369,7 @@ BOOL LLToolPie::handleLeftClickPick()
 			}
 			object = (LLViewerObject*)object->getParent();
 		}
-		// <Polarity> Do not center the camera when clicking self
+		// <polarity> Do not center the camera when clicking self
 		static LLCachedControl<bool> do_not_center(gSavedSettings, "PVCamera_DoNotCenterOnSelfClick", false);
 		if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk") && !do_not_center)
 		{
@@ -379,7 +379,7 @@ BOOL LLToolPie::handleLeftClickPick()
 			gViewerWindow->hideCursor();
 			LLToolCamera::getInstance()->setMouseCapture(TRUE);
 			LLToolCamera::getInstance()->pickCallback(mPick);
-			// <Polarity> Do not rotate the avatar "away from the camera" when clicking self
+			// <polarity> Do not rotate the avatar "away from the camera" when clicking self
 			static LLCachedControl<bool> do_not_rotate(gSavedSettings, "PVMovement_DoNotRotateOnSelfClick", false);
 			if (!do_not_rotate)
 			{
@@ -1918,7 +1918,7 @@ BOOL LLToolPie::handleRightClickPick()
 
 void LLToolPie::showVisualContextMenuEffect()
 {
-	// <Polarity> Use faster LLCachedControls for frequently visited locations
+	// <polarity> Use faster LLCachedControls for frequently visited locations
 	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
 	if (PVPrivacy_HideEditBeam)
 	{

@@ -20,7 +20,7 @@
  * $/LicenseInfo$
  */
 
-#pragma once // <Polarity> Compilation speedup
+#pragma once // <polarity> Compilation speedup
 
 #include "llsingleton.h"
 

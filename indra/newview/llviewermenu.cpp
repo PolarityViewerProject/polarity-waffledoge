@@ -2211,7 +2211,7 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::toggleInstanceOrBringToFront("settings_debug"); // <Polarity>
+		LLFloaterReg::toggleInstanceOrBringToFront("settings_debug"); // <polarity>
 		return true;
 	}
 };
@@ -4176,7 +4176,7 @@ void handle_object_sit_or_stand()
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
 		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
 
-		// <Polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
+		// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
 		// This section of code saves the state of the camera when we requested to sit on the object, allowing us to re-sit in the same position
 		gSavedPerAccountSettings.setVector3("PVMovement_LastSatUponObjectOffset", pick.mObjectOffset);
 		gSavedPerAccountSettings.setVector3d("PVMovement_LastSatUponObjectCamPosition", gAgentCamera.getCameraPositionGlobal());
@@ -4187,7 +4187,7 @@ void handle_object_sit_or_stand()
 			focus_object_id = gAgentCamera.getFocusObject()->getID();
 		}
 		gSavedPerAccountSettings.setString("PVMovement_LastSatUponObjectCamFocusObject", focus_object_id.getString());
-		// </Polarity>
+		// </polarity>
 
 		object->getRegion()->sendReliableMessage();
 	}

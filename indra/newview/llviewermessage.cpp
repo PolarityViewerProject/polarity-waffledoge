@@ -4660,7 +4660,7 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 	// <FS:Ansariel> Bring back simulator version changed messages after TP
 	static LLCachedControl<bool> show_server_version_change(gSavedSettings, "PVUI_ShowServerVersionChangeNotice");
 	if (!gLastVersionChannel.empty() && show_server_version_change)
-	// </Polarity>
+	// </polarity>
 	{
 		LLSD args;
 		args["OLDVERSION"] = gLastVersionChannel;
@@ -4785,13 +4785,13 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
-	// <Polarity>
+	// <polarity>
     static LLCachedControl<bool> PVMovement_NimbleAnimations(gSavedSettings, "PVMovement_NimbleAnimations", false);
     if (PVMovement_NimbleAnimations)
     {
         control_flags |= AGENT_CONTROL_FINISH_ANIM;
     }
-    // </Polarity>
+    // </polarity>
 
 	MASK	key_mask = gKeyboard->currentMask(TRUE);
 
