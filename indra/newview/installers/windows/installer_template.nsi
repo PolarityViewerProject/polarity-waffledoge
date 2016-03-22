@@ -444,7 +444,7 @@ Section "Viewer"
 
   ;Other shortcuts
   SetOutPath "$INSTDIR"
-  ;CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+  CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
   CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
   CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" "$INSTDIR\uninst.exe" ""
 
@@ -585,6 +585,9 @@ StrCpy $INSTEXE "${INSTEXE}"
   ;Shortcuts in install directory
   Delete "$INSTDIR\$INSTSHORTCUT.lnk"
   Delete "$INSTDIR\Uninstall $INSTSHORTCUT.lnk"
+
+  ;Desktop shortcut
+  Delete "$DESKTOP\$INSTSHORTCUT.lnk"
 
   Delete "$INSTDIR\uninst.exe"
   RMDir "$INSTDIR"
