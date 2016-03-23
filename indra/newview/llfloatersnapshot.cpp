@@ -418,8 +418,9 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		}
 		else
 		{
-			width_ctrl->setMaxValue(6016);
-			height_ctrl->setMaxValue(6016);
+			signed int limit = std::numeric_limits<signed int>::max(); // <polarity/>
+			width_ctrl->setMaxValue(limit);
+			height_ctrl->setMaxValue(limit);
 		}
 	}
 		
@@ -1128,7 +1129,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLComboBox>("profile_size_combo")->selectNthItem(0);
 	getChild<LLComboBox>("postcard_size_combo")->selectNthItem(0);
 	getChild<LLComboBox>("texture_size_combo")->selectNthItem(0);
-	getChild<LLComboBox>("local_size_combo")->selectNthItem(8);
+	getChild<LLComboBox>("local_size_combo")->selectNthItem(0); // <Polarity/>
 	getChild<LLComboBox>("local_format_combo")->selectNthItem(0);
 
 	impl.mPreviewHandle = previewp->getHandle();
