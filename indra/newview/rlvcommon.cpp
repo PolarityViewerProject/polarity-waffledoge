@@ -347,7 +347,7 @@ std::string RlvStrings::get_vector_format_string()
 
 std::string RlvStrings::getEffectColorRLVa()
 {
-	LLColor4 vec = LLUIColorTable::instance().getColor("EffectColor");
+	LLColor4 vec = gAgent.getEffectColor();
 	// Format the vector without spaces, since some scripts will fail to parse it assign <0,0,0> instead.
 	return llformat(get_vector_format_string().c_str(), vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 }
