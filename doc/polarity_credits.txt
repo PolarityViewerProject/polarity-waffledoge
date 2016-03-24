@@ -1,0 +1,15 @@
+The Polarity Viewer PRoject would like to thank the following
+Second  Life residents for their Open-Source contributions to
+various Third-Party viewers which were used in this viewer.
+
+[https://my.secondlife.com/ansariel.hiller Ansariel Hiller]
+[https://my.secondlife.com/cinder.roxley Cinder Roxley]
+[https://my.secondlife.com/cron.stardust Cron Stardust]
+[https://my.secondlife.com/kadah.coba Kadah Coba]
+[https://my.secondlife.com/kitty.barnet Kitty Barnet]
+[https://my.secondlife.com/niranv.dean NiranV Dean]
+[https://my.secondlife.com/qarl.fizz Qarl Fizz/Linden]
+[https://my.secondlife.com/sovereign.engineer Sovereign Engineer]
+[https://my.secondlife.com/techwolf.lupindo Techwolf Lupindo]
+[https://my.secondlife.com/tozh.taurog Tozh Taurog]
+[https://my.secondlife.com/zi.ree Zi Ree]

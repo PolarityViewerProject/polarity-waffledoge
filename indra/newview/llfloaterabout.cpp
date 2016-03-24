@@ -142,6 +142,9 @@ BOOL LLFloaterAbout::postBuild()
 	LLViewerTextEditor *contrib_names_widget = 
 		getChild<LLViewerTextEditor>("contrib_names", true);
 
+	LLViewerTextEditor *special_thanks_names_widget = 
+		getChild<LLViewerTextEditor>("special_thanks_names", true);
+
 	LLViewerTextEditor *licenses_widget = 
 		getChild<LLViewerTextEditor>("licenses_editor", true);
 
@@ -188,6 +191,25 @@ BOOL LLFloaterAbout::postBuild()
 	contrib_names_widget->setText(contributors);
 	contrib_names_widget->setEnabled(FALSE);
 	contrib_names_widget->startOfDoc();
+
+
+	// Get the names of special thanks, extracted from .../doc/polarity_credits.txt by viewer_manifest.py at build time
+	std::string special_thanks_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"polarity_credits.txt");
+	llifstream special_thanks_file;
+	std::string special_thanks;
+	special_thanks_file.open(special_thanks_path.c_str());		/* Flawfinder: ignore */
+	if (special_thanks_file.is_open())
+	{
+		std::getline(special_thanks_file, special_thanks); // all names are on a single line
+		special_thanks_file.close();
+	}
+	else
+	{
+		LL_WARNS("AboutInit") << "Could not read special thanks file at " << special_thanks_path << LL_ENDL;
+	}
+	special_thanks_names_widget->setText(special_thanks);
+	special_thanks_names_widget->setEnabled(FALSE);
+	special_thanks_names_widget->startOfDoc();
 
     // Get the Versions and Copyrights, created at build time
 	std::string licenses_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS,"packages-info.txt");
