@@ -326,7 +326,7 @@ class ViewerManifest(LLManifest):
             if re.match("\S", line) :
                 names.append(line.rstrip())
         # It's not fair to always put the same people at the head of the list
-        random.shuffle(names)
+        # random.shuffle(names)
         return ', '.join(names)
 
 class WindowsManifest(ViewerManifest):
