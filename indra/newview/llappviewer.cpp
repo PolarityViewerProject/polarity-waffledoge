@@ -5234,8 +5234,11 @@ void LLAppViewer::idleShutdown()
 	LLUUID seat_id = LLUUID::null;
 	if (gAgentAvatarp->isSitting())
 	{
-		LLViewerObject *seat_viewer_object = (LLViewerObject*)gAgentAvatarp->getParent();
-		seat_id = seat_viewer_object->getID();
+		LLViewerObject *seat_viewer_object = static_cast<LLViewerObject*>(gAgentAvatarp->getParent());
+		if (seat_viewer_object)
+		{
+			seat_id = seat_viewer_object->getID();
+		}
 	}
 	gSavedPerAccountSettings.setString("PVMovement_LastSatUponObject", seat_id.getString());
 	// </polarity>
