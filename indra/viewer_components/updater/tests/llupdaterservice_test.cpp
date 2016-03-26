@@ -98,7 +98,7 @@ LLGridManager::LLGridManager() :
 }
 std::string LLGridManager::getUpdateServiceURL()
 {
-	return "https://update.secondlife.com/update";
+	return "https://update.polarityviewer.org/update";
 }
 LLGridManager::~LLGridManager()
 {
