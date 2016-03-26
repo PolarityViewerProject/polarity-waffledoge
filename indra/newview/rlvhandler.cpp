@@ -20,7 +20,9 @@
 #include "llappviewer.h"
 #include "llgroupactions.h"
 #include "llhudtext.h"
+#include "llparcel.h"
 #include "llstartup.h"
+#include "llui.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -1923,6 +1925,12 @@ ERlvCmdRet RlvHandler::processReplyCommand(const RlvCommand& rlvCmd) const
 		case RLV_BHVR_GETGROUP:			// @getgroup=<channel>					- Checked: 2011-03-28 (RLVa-1.4.1a) | Added: RLVa-1.3.0f
 			strReply = (gAgent.getGroupID().notNull()) ? gAgent.getGroupName() : "none";
 			break;
+		case RLV_BHVR_GETPARCELGROUPKEY:	// @getparcelgroupkey
+		{
+			LLUUID group_id = LLViewerParcelMgr::getInstance()->getAgentParcel()->getGroupID();
+			strReply = (group_id.notNull()) ? group_id.asString() : LLUUID::null.asString();
+			break;
+		}
 		case RLV_BHVR_GETSITID:			// @getsitid=<channel>					- Checked: 2010-03-09 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
 			{
 				// NOTE: RLV-1.16.1 returns a NULL UUID if we're not sitting
