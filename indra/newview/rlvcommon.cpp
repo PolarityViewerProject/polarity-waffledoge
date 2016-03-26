@@ -145,7 +145,7 @@ bool RlvSettings::onChangedSettingBOOL(const LLSD& sdValue, bool* pfSetting)
 // Checked: 2015-05-25 (RLVa-1.5.0)
 void RlvSettings::onChangedSettingMain(const LLSD& sdValue)
 {
-	if (sdValue.asBoolean() != (bool)rlv_handler_t::isEnabled())
+	if (sdValue.asBoolean() != static_cast<bool>(rlv_handler_t::isEnabled()))
 	{
 		LLNotificationsUtil::add(
 			"GenericAlert",
