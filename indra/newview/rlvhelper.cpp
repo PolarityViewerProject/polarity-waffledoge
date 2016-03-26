@@ -675,7 +675,10 @@ void RlvForceWear::forceDetach(const LLViewerJointAttachment* pAttachPt)
 	for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator itAttachObj = pAttachPt->mAttachedObjects.begin();
 			itAttachObj != pAttachPt->mAttachedObjects.end(); ++itAttachObj)
 	{
-		forceDetach(*itAttachObj);
+		if(pAttachPt)
+		{
+			(forceDetach(*itAttachObj));
+		}
 	}
 }
 
