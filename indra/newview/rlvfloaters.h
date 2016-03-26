@@ -45,7 +45,7 @@ public:
 	 */
 protected:
 	void onAvatarNameLookup(const LLUUID& idAgent, const LLAvatarName& avName);
-	void onBtnCopyToClipboard();
+	void onBtnCopyToClipboard() const;
 	void onCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet);
 	void refreshAll();
 
@@ -79,8 +79,8 @@ public:
 	 * Member functions
 	 */
 protected:
-	void onRlvCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet);
-	void refreshAll();
+	void onRlvCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet) const;
+	void refreshAll() const;
 
 	/*
 	 * Member variables
