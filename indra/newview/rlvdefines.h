@@ -229,6 +229,7 @@ enum ERlvBehaviour {
 	RLV_BHVR_GETSTATUS,				// "getstatus"
 	RLV_BHVR_GETSTATUSALL,			// "getstatusall"
 	RLV_BHVR_GETEFFECTCOLOR,		// "geteffectcolor"
+	RLV_BHVR_GETPARCELGROUPKEY,		// "getgroupbykey"
 
 	RLV_BHVR_COUNT,
 	RLV_BHVR_UNKNOWN
