@@ -896,6 +896,10 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 	F32 current_distance = (F32)camera_offset_unit.normalize();
 	F32 new_distance = current_distance * fraction;
 
+	// <FS:KC> Freeing the camera movement some more
+	static LLCachedControl<bool> DisableCameraConstraints(gSavedSettings, "DisableCameraConstraints");
+	if (!DisableCameraConstraints)
+	{
 	// Don't move through focus point
 	if (mFocusObject)
 	{
@@ -912,10 +916,12 @@ void LLAgentCamera::cameraZoomIn(const F32 fraction)
 	}
 
 	new_distance = llmax(new_distance, min_zoom); 
+	}
 
 	// Don't zoom too far back
 	const F32 DIST_FUDGE = 16.f; // meters
-	F32 max_distance = llmin(mDrawDistance - DIST_FUDGE, 
+	// Freeing the camera movement some more... ok, a lot -KC
+	F32 max_distance = DisableCameraConstraints ? INT_MAX : llmin(mDrawDistance - DIST_FUDGE,
 							 LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE );
 
     max_distance = llmin(max_distance, current_distance * 4.f); //Scaled max relative to current distance.  MAINT-3154
@@ -965,6 +971,10 @@ void LLAgentCamera::cameraOrbitIn(const F32 meters)
 		LLVector3d	camera_offset_unit(mCameraFocusOffsetTarget);
 		F32 current_distance = (F32)camera_offset_unit.normalize();
 		F32 new_distance = current_distance - meters;
+		// Freeing the camera movement some more -KC
+		static LLCachedControl<bool> DisableCameraConstraints(gSavedSettings,"DisableCameraConstraints");
+		if (!DisableCameraConstraints)
+		{
 		F32 min_zoom = LAND_MIN_ZOOM;
 		
 		// Don't move through focus point
@@ -981,16 +991,18 @@ void LLAgentCamera::cameraOrbitIn(const F32 meters)
 		}
 
 		new_distance = llmax(new_distance, min_zoom);
+		}
 
 		// Don't zoom too far back
 		const F32 DIST_FUDGE = 16.f; // meters
-		F32 max_distance = llmin(mDrawDistance - DIST_FUDGE, 
+		// Freeing the camera movement some more... ok, a lot -KC
+		F32 max_distance = DisableCameraConstraints ? INT_MAX : llmin(mDrawDistance - DIST_FUDGE,
 								 LLWorld::getInstance()->getRegionWidthInMeters() - DIST_FUDGE );
 
 		if (new_distance > max_distance)
 		{
 			// Unless camera is unlocked
-			if (!gSavedSettings.getBOOL("DisableCameraConstraints"))
+			if (!DisableCameraConstraints)
 			{
 				return;
 			}
@@ -1656,6 +1668,9 @@ F32	LLAgentCamera::calcCameraFOVZoomFactor()
 	{
 		// don't FOV zoom on mostly transparent objects
 		F32 obj_min_dist = 0.f;
+		// Freeing the camera movement some more -KC
+		static LLCachedControl<bool> disable_min_zoom_dist(gSavedSettings,"DisableCameraConstraints");
+		if (!disable_min_zoom_dist)
 		calcCameraMinDistance(obj_min_dist);
 		F32 current_distance = llmax(0.001f, camera_offset_dir.magVec());
 
@@ -2257,6 +2272,12 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		return;
 	}
 
+	// <polarity> Allow user to ignore forced stand-up
+	static LLCachedControl<bool> ignore_force_stand(gSavedSettings, "PVMovement_DoNotStandUpOnAppearanceMode", false);
+	if (ignore_force_stand)
+	{
+		return;
+	}
 // [RLVa:KB] - Checked: 2010-03-07 (RLVa-1.2.0c) | Modified: RLVa-1.0.0g
 	if ( (rlv_handler_t::isEnabled()) && (!RlvActions::canStand()) )
 	{
