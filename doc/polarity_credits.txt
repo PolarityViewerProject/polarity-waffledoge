@@ -1,6 +1,6 @@
-The Polarity Viewer PRoject would like to thank the following
-Second  Life residents for their Open-Source contributions to
-various Third-Party viewers which were used in this viewer.
+ The Polarity Viewer PRoject would like to thank the following
+ Second  Life residents for their Open-Source contributions to
+ various Third-Party viewers which were used in this viewer.
 
 [https://my.secondlife.com/ansariel.hiller Ansariel Hiller]
 [https://my.secondlife.com/cinder.roxley Cinder Roxley]
