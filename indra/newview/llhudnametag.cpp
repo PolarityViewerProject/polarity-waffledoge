@@ -393,20 +393,9 @@ void LLHUDNameTag::renderText(BOOL for_select)
 			U8 style = segment_iter->mStyle;
 			LLFontGL::ShadowType shadow = LLFontGL::DROP_SHADOW;
 	
-			F32 x_offset;
-			if (mTextAlignment== ALIGN_TEXT_CENTER)
-			{
-				x_offset = -0.5f*segment_iter->getWidth(fontp);
-			}
-			else // ALIGN_LEFT
-			{
-				x_offset = -0.5f * mWidth + (HORIZONTAL_PADDING / 2.f);
+			F32 x_offset = -0.5f*segment_iter->getWidth(fontp) + 1.5f;
 
-				// *HACK
-				x_offset += 1;
-			}
-
-			text_color = segment_iter->mColor;
+				text_color = segment_iter->mColor;
 			text_color.mV[VALPHA] *= alpha_factor;
 
 			hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, FALSE);
