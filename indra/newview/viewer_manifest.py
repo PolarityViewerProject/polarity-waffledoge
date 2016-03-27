@@ -655,7 +655,7 @@ class WindowsManifest(ViewerManifest):
                 !define VERSION_DASHES "%(version_dashes)s"
                 !define URLNAME  "secondlife"
                 !define CAPTIONSTR "%(caption)s"
-                !define VENDORSTR "><(((°> Polarity Viewer Project"
+                !define VENDORSTR "Polarity Viewer Project ><(((°>"
                 """
 
             tempfile = "polarity_setup_tmp.nsi"
