@@ -325,8 +325,8 @@ class ViewerManifest(LLManifest):
         for line in lines :
             if re.match("\S", line) :
                 names.append(line.rstrip())
-        # It's not fair to always put the same people at the head of the list
-        # random.shuffle(names)
+        # Sort names in alphabetical order
+        names.sort()
         return ', '.join(names)
 
 class WindowsManifest(ViewerManifest):
