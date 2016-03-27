@@ -106,8 +106,8 @@ LLHUDNameTag::LLHUDNameTag(const U8 type)
 	LLPointer<LLHUDNameTag> ptr(this);
 	sTextObjects.insert(ptr);
 	// <FS:Ansariel> Performance improvement
-	mRoundedRectImg = LLUI::getUIImage("Rounded_Rect");
-	mRoundedRectTopImg = LLUI::getUIImage("Rounded_Rect_Top");
+	mRoundedRectImg = LLUI::getUIImage("Nametag_Rect");
+	mRoundedRectTopImg = LLUI::getUIImage("Nametag_Rect_Top");
 	// </FS:Ansariel>
 }
 
