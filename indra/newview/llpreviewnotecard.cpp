@@ -237,9 +237,10 @@ void LLPreviewNotecard::loadAsset()
 			else
 			{
 				LLHost source_sim = LLHost();
-				LLSD* user_data = new LLSD();
+				LLSD* user_data = nullptr;
 				if (mObjectUUID.notNull())
 				{
+					user_data = new LLSD();
 					LLViewerObject *objectp = gObjectList.findObject(mObjectUUID);
 					if (objectp && objectp->getRegion())
 					{
@@ -254,13 +255,14 @@ void LLPreviewNotecard::loadAsset()
 						editor->makePristine();
 						editor->setEnabled(FALSE);
 						mAssetStatus = PREVIEW_ASSET_LOADED;
+						delete user_data;
 						return;
 					}
 					user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
 				}
 				else
 				{
-				    user_data =  new LLSD(mItemUUID);
+				    user_data = new LLSD(mItemUUID);
 				}
 
 				gAssetStorage->getInvItemAsset(source_sim,
