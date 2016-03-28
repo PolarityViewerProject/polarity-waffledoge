@@ -243,30 +243,28 @@ void LLHUDText::renderText()
 void LLHUDText::setString(const std::string &text_utf8)
 {
 	mTextSegments.clear();
+	static LLCachedControl<bool> force_hide_hover_text(gSavedSettings, "PVRender_HideAllHoverText", false);
 //	addLine(text_utf8, mColor);
 // [RLVa:KB] - Checked: 2010-03-02 (RLVa-1.4.0a) | Modified: RLVa-1.0.0f
 	// NOTE: setString() is called for debug and map beacons as well
-	if (rlv_handler_t::isEnabled())
+	std::string text_to_add = "";
+	if (!force_hide_hover_text)
 	{
-		std::string text(text_utf8);
-		if (gRlvHandler.canShowHoverText(mSourceObject))
+		text_to_add = text_utf8;
+		if (rlv_handler_t::isEnabled())
 		{
-			if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-				RlvUtil::filterLocation(text);
-			if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-				RlvUtil::filterNames(text);
+			if (gRlvHandler.canShowHoverText(mSourceObject))
+			{
+				if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+					RlvUtil::filterLocation(text_to_add);
+				if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
+					RlvUtil::filterNames(text_to_add);
+			}
 		}
-		else
-		{
-			text = "";
-		}
-		addLine(text, mColor);
 	}
-	else
-	{
-		addLine(text_utf8, mColor);
-	}
+
 // [/RLVa:KB]
+	addLine(text_to_add, mColor);
 }
 
 void LLHUDText::clearString()
