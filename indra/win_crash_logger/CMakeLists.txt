@@ -28,16 +28,10 @@ include_directories(SYSTEM
     ${LLXML_SYSTEM_INCLUDE_DIRS}
     )
 
-if (SANDY_FIX)
-    set(manifest_file "compatibility_sandy.manifest")
-else (SANDY_FIX)
-    set(manifest_file "compatibility.manifest")
-endif (SANDY_FIX)
-
 set(win_crash_logger_SOURCE_FILES
     win_crash_logger.cpp
     llcrashloggerwindows.cpp
-    ${CMAKE_SOURCE_DIR}/tools/manifests/${manifest_file}
+    ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest
     )
 
 set(win_crash_logger_HEADER_FILES

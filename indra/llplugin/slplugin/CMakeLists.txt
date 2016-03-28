@@ -45,12 +45,7 @@ if (SLPlugin_HEADER_FILES)
 endif (SLPlugin_HEADER_FILES)
 
 if (WINDOWS)
-  if (SANDY_FIX)
-    set(manifest_file "compatibility_sandy.manifest")
-  else (SANDY_FIX)
-    set(manifest_file "compatibility.manifest")
-  endif (SANDY_FIX)
-  list(APPEND SLPlugin_SOURCE_FILES ${CMAKE_SOURCE_DIR}/tools/manifests/${manifest_file})
+  list(APPEND SLPlugin_SOURCE_FILES ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest)
 endif (WINDOWS)
 
 add_executable(SLPlugin
