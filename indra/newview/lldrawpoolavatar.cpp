@@ -990,7 +990,7 @@ void LLDrawPoolAvatar::beginRiggedShinySimple()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->bind();
-		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 	}
 }
 
@@ -999,7 +999,7 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
-		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
 		sVertexProgram = NULL;
 	}
@@ -1040,7 +1040,7 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->bind();
-		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 
 		if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
 		{
@@ -1058,7 +1058,7 @@ void LLDrawPoolAvatar::endRiggedFullbrightShiny()
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
-		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
 		sVertexProgram = NULL;
 	}
