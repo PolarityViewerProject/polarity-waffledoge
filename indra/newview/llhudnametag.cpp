@@ -395,7 +395,7 @@ void LLHUDNameTag::renderText(BOOL for_select)
 	
 			F32 x_offset = -0.5f*segment_iter->getWidth(fontp) + 1.5f;
 
-				text_color = segment_iter->mColor;
+			text_color = segment_iter->mColor;
 			text_color.mV[VALPHA] *= alpha_factor;
 
 			hud_render_text(segment_iter->getText(), render_position, *fontp, style, shadow, x_offset, y_offset, text_color, FALSE);
