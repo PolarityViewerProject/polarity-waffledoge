@@ -186,7 +186,18 @@ BOOL LLFloaterAbout::postBuild()
 	}
 	else
 	{
-		LL_WARNS("AboutInit") << "Could not read contributors file at " << contributors_path << LL_ENDL;
+		// Visual Studio debug mode workaround
+		contributors_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings", "contributors.txt");
+		contrib_file.open(contributors_path.c_str());		/* Flawfinder: ignore */
+		if (contrib_file.is_open())
+		{
+			std::getline(contrib_file, contributors); // all names are on a single line
+			contrib_file.close();
+		}
+		else
+		{
+			LL_WARNS("AboutInit") << "Could not read special thanks file at " << contributors_path << LL_ENDL;
+		}
 	}
 	contrib_names_widget->setText(contributors);
 	contrib_names_widget->setEnabled(FALSE);
@@ -205,7 +216,18 @@ BOOL LLFloaterAbout::postBuild()
 	}
 	else
 	{
-		LL_WARNS("AboutInit") << "Could not read special thanks file at " << special_thanks_path << LL_ENDL;
+		// Visual Studio debug mode workaround
+		special_thanks_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings","polarity_credits.txt");
+		special_thanks_file.open(special_thanks_path.c_str());		/* Flawfinder: ignore */
+		if (special_thanks_file.is_open())
+		{
+			std::getline(special_thanks_file, special_thanks); // all names are on a single line
+			special_thanks_file.close();
+		}
+		else
+		{
+			LL_WARNS("AboutInit") << "Could not read special thanks file at " << special_thanks_path << LL_ENDL;
+		}
 	}
 	special_thanks_names_widget->setText(special_thanks);
 	special_thanks_names_widget->setEnabled(FALSE);
