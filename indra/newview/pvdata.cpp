@@ -545,47 +545,47 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 			PVDataErrorMessage = "Something went wrong, and the authentication checks have failed.";
 		}
 		signed int av_flags = getAgentFlags(avatar_id);
-		if (av_flags != 0)
+		//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
+		auto compiled_channel = LLVersionInfo::getCompiledChannel();
+		if (av_flags & FLAG_USER_BANNED)
 		{
-			//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
-			if (av_flags & FLAG_USER_BANNED)
+			PVDataErrorMessage = "Unfortunately, your have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
+		}
+		// prevent non-release builds to fall in the wrong hands
+		else if (compiled_channel == APP_NAME + " Release"
+			// Allow beta builds as well.
+			|| compiled_channel == APP_NAME + " Beta")
+		{
+			return true;
+		}
+		else
+		{
+			LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
+			LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
+			if (av_flags & FLAG_USER_BETA_TESTER)
 			{
-				PVDataErrorMessage = "Unfortunately, your have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. Please download another Viewer.";
+				LL_WARNS() << "Access level: TESTER" << LL_ENDL;
+				return true;
 			}
-			// prevent non-release builds to fall in the wrong hands
-			else if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Release")
+			if (av_flags & FLAG_STAFF_QA)
 			{
-				// Don't filter Release builds
+				LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
+				return true;
+			}
+			if (av_flags & FLAG_STAFF_SUPPORT)
+			{
+				LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
+				return true;
+			}
+			if (av_flags & FLAG_STAFF_DEV)
+			{
+				LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
+				return true;
 			}
 			else
 			{
-				LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
-				LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
-				if (av_flags & FLAG_USER_BETA_TESTER)
-				{
-					LL_WARNS() << "Access level: TESTER" << LL_ENDL;
-					return true;
-				}
-				if (av_flags & FLAG_STAFF_QA)
-				{
-					LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
-					return true;
-				}
-				if (av_flags & FLAG_STAFF_SUPPORT)
-				{
-					LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
-					return true;
-				}
-				if (av_flags & FLAG_STAFF_DEV)
-				{
-					LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
-					return true;
-				}
-				else
-				{
-					LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
-					PVDataErrorMessage = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
-				}
+				LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
+				PVDataErrorMessage = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
 			}
 		}
 	}
