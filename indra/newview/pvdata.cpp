@@ -549,7 +549,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		auto compiled_channel = LLVersionInfo::getCompiledChannel();
 		if (av_flags & FLAG_USER_BANNED)
 		{
-			PVDataErrorMessage = "Unfortunately, your have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
+			PVDataErrorMessage = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
 		}
 		// prevent non-release builds to fall in the wrong hands
 		else if (compiled_channel == APP_NAME + " Release"
