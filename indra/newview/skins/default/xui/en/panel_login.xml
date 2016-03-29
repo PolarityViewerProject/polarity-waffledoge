@@ -35,6 +35,7 @@
       top="0"
       height="172">
   <icon
+    visible="false"
     height="73"
     width="165"
     image_name="login_sl_logo"
