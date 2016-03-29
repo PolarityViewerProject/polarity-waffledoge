@@ -117,7 +117,7 @@ void RlvInventory::fetchSharedInventory()
 }
 
 // Checked: 2010-02-28 (RLVa-1.2.0a) | Modified: RLVa-1.0.0h
-void RlvInventory::fetchSharedLinks() const
+void RlvInventory::fetchSharedLinks()
 {
 	// TOFIX-RLVa: [RLVa-1.2.1] Finish adding support for AT_LINK_FOLDER
 	const LLViewerInventoryCategory* pRlvRoot = getSharedRoot();
@@ -165,7 +165,7 @@ void RlvInventory::fetchWornItems()
 	for (int type = 0; type < LLWearableType::WT_COUNT; type++)
 	{
 		// RELEASE-RLVa: [SL-2.0.0] Needs rewriting once 'LLAgentWearables::MAX_WEARABLES_PER_TYPE > 1'
-		const LLUUID& idItem = gAgentWearables.getWearableItemID(static_cast<LLWearableType::EType>(type), 0);
+		const LLUUID& idItem = gAgentWearables.getWearableItemID((LLWearableType::EType)type, 0);
 		if (idItem.notNull())
 			idItems.push_back(idItem);
 	}
@@ -195,7 +195,7 @@ void RlvInventory::fetchWornItems()
 }
 
 // Checked: 2010-04-07 (RLVa-1.2.0a) | Modified: RLVa-1.0.0h
-bool RlvInventory::findSharedFolders(const std::string& strCriteria, LLInventoryModel::cat_array_t& folders)
+bool RlvInventory::findSharedFolders(const std::string& strCriteria, LLInventoryModel::cat_array_t& folders) const
 {
 	// Sanity check - can't do anything without a shared root
 	const LLViewerInventoryCategory* pRlvRoot = RlvInventory::instance().getSharedRoot();
@@ -211,7 +211,7 @@ bool RlvInventory::findSharedFolders(const std::string& strCriteria, LLInventory
 }
 
 // Checked: 2010-08-30 (RLVa-1.2.1c) | Modified: RLVa-1.2.1c
-bool RlvInventory::getPath(const uuid_vec_t& idItems, LLInventoryModel::cat_array_t& folders)
+bool RlvInventory::getPath(const uuid_vec_t& idItems, LLInventoryModel::cat_array_t& folders) const
 {
 	// Sanity check - can't do anything without a shared root
 	const LLViewerInventoryCategory* pRlvRoot = RlvInventory::instance().getSharedRoot();
@@ -255,15 +255,15 @@ const LLUUID& RlvInventory::getSharedRootID() const
 						break;
 				}
 			}
-			if ( (m_idRlvRoot.notNull()) && (!gInventory.containsObserver(const_cast<RlvInventory*>(this))) )
-				gInventory.addObserver(const_cast<RlvInventory*>(this));
+			if ( (m_idRlvRoot.notNull()) && (!gInventory.containsObserver((RlvInventory*)this)) )
+				gInventory.addObserver((RlvInventory*)this);
 		}
 	}
 	return m_idRlvRoot;
 }
 
 // Checked: 2010-02-28 (RLVa-1.2.0a) | Modified: RLVa-1.0.1a
-LLViewerInventoryCategory* RlvInventory::getSharedFolder(const LLUUID& idParent, const std::string& strFolderName, bool fMatchPartial)
+LLViewerInventoryCategory* RlvInventory::getSharedFolder(const LLUUID& idParent, const std::string& strFolderName, bool fMatchPartial) const
 {
 	LLInventoryModel::cat_array_t* pFolders; LLInventoryModel::item_array_t* pItems;
 	gInventory.getDirectDescendentsOf(idParent, pFolders, pItems);
@@ -689,7 +689,7 @@ RlvWearableItemCollector::RlvWearableItemCollector(const LLInventoryCategory* pF
 }
 
 // Checked: 2010-09-25 (RLVa-1.2.1c) | Added: RLVa-1.2.1c
-RlvForceWear::EWearAction RlvWearableItemCollector::getWearActionNormal(const LLInventoryCategory* pFolder) const
+RlvForceWear::EWearAction RlvWearableItemCollector::getWearActionNormal(const LLInventoryCategory* pFolder)
 {
 	RLV_ASSERT_DBG(!RlvInventory::isFoldedFolder(pFolder, false));
 	if ( (RlvForceWear::ACTION_WEAR_REPLACE == m_eWearAction) && (!m_strWearAddPrefix.empty()) &&

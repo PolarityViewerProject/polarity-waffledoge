@@ -42,10 +42,10 @@ public:
 	// TYPE_COLOR and TYPE_COLOR_R
 	F32			getColorComponent(EColorComponent eComponent, bool& fError) const;
 	LLVector4	getColorVector(bool& fError) const;
-	bool		setColorComponent(EColorComponent eComponent, F32 nValue) const;
+	bool		setColorComponent(EColorComponent eComponent, F32 nValue);
 	// TYPE_FLOAT
 	F32			getFloat(bool& fError) const;
-	bool		setFloat(F32 nValue) const;
+	bool		setFloat(F32 nValue);
 
 	static EColorComponent getComponentFromCharacter(char ch);
 protected:
@@ -97,7 +97,7 @@ LLVector4 RlvWindLightControl::getColorVector(bool& fError) const
 }
 
 // Checked: 2011-08-28 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-bool RlvWindLightControl::setColorComponent(EColorComponent eComponent, F32 nValue) const
+bool RlvWindLightControl::setColorComponent(EColorComponent eComponent, F32 nValue)
 {
 	if (isColorType())
 	{
@@ -138,11 +138,11 @@ bool RlvWindLightControl::setColorComponent(EColorComponent eComponent, F32 nVal
 // Checked: 2011-08-29 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
 F32 RlvWindLightControl::getFloat(bool& fError) const
 {
-	return (!(fError == (TYPE_FLOAT != m_eType))) ? LLWLParamManager::getInstance()->mCurParams.getVector(m_pFloatCtrl->mName, fError).mV[0] * m_pFloatCtrl->mult : 0.0;
+	return (!(fError = (TYPE_FLOAT != m_eType))) ? LLWLParamManager::getInstance()->mCurParams.getVector(m_pFloatCtrl->mName, fError).mV[0] * m_pFloatCtrl->mult : 0.0;
 }
 
 // Checked: 2011-08-28 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-bool RlvWindLightControl::setFloat(F32 nValue) const
+bool RlvWindLightControl::setFloat(F32 nValue)
 {
 	if (TYPE_FLOAT == m_eType)
 	{
@@ -414,11 +414,11 @@ bool RlvExtGetSet::onReplyCommand(const RlvCommand& rlvCmd, ERlvCmdRet& cmdRet)
 }
 
 // Checked: 2009-12-23 (RLVa-1.1.0k) | Modified: RLVa-1.1.0k
-bool RlvExtGetSet::processCommand(const RlvCommand& rlvCmd, ERlvCmdRet& eRet) const
+bool RlvExtGetSet::processCommand(const RlvCommand& rlvCmd, ERlvCmdRet& eRet)
 {
 	std::string strBehaviour = rlvCmd.getBehaviour(), strGetSet, strSetting;
 	int idxSetting = strBehaviour.find('_');
-	if ( (strBehaviour.length() >= 6) && (-1 != idxSetting) && (static_cast<int>(strBehaviour.length()) > idxSetting + 1) )
+	if ( (strBehaviour.length() >= 6) && (-1 != idxSetting) && ((int)strBehaviour.length() > idxSetting + 1) )
 	{
 		strSetting = strBehaviour.substr(idxSetting + 1);
 		strBehaviour.erase(idxSetting);	// Get rid of "_<setting>"
@@ -517,7 +517,7 @@ S16 RlvExtGetSet::getDebugSettingFlags(const std::string& strSetting)
 }
 
 // Checked: 2009-06-03 (RLVa-0.2.0h) | Modified: RLVa-0.2.0h
-std::string RlvExtGetSet::onGetDebug(std::string strSetting) const
+std::string RlvExtGetSet::onGetDebug(std::string strSetting)
 {
 	S16 dbgFlags;
 	if ( (findDebugSetting(strSetting, dbgFlags)) && ((dbgFlags & DBG_READ) == DBG_READ) )
@@ -570,7 +570,7 @@ std::string RlvExtGetSet::onGetPseudoDebug(const std::string& strSetting)
 }
 
 // Checked: 2009-10-10 (RLVa-1.0.4e) | Modified: RLVa-1.0.4e
-ERlvCmdRet RlvExtGetSet::onSetDebug(std::string strSetting, const std::string& strValue) const
+ERlvCmdRet RlvExtGetSet::onSetDebug(std::string strSetting, const std::string& strValue)
 {
 	S16 dbgFlags; ERlvCmdRet eRet = RLV_RET_FAILED_UNKNOWN;
 	if ( (findDebugSetting(strSetting, dbgFlags)) && ((dbgFlags & DBG_WRITE) == DBG_WRITE) )

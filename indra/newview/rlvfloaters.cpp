@@ -34,8 +34,6 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 
-#include <boost/variant.hpp>
-
 // ============================================================================
 // Helper functions
 //
@@ -87,7 +85,7 @@ std::string rlvGetItemNameFromObjID(const LLUUID& idObj, bool fIncludeAttachPt =
 		return strItemName;
 
 	const LLViewerJointAttachment* pAttachPt = 
-		get_if_there(gAgentAvatarp->mAttachmentPoints, RlvAttachPtLookup::getAttachPointIndex(pObjRoot), static_cast<LLViewerJointAttachment*>(NULL));
+		get_if_there(gAgentAvatarp->mAttachmentPoints, RlvAttachPtLookup::getAttachPointIndex(pObjRoot), (LLViewerJointAttachment*)NULL);
 	std::string strAttachPtName = (pAttachPt) ? pAttachPt->getName() : std::string("Unknown");
 	return llformat("%s (%s%s)", strItemName.c_str(), strAttachPtName.c_str(), (pObj == pObjRoot) ? "" : ", child");
 }
@@ -223,7 +221,7 @@ void RlvFloaterBehaviours::onAvatarNameLookup(const LLUUID& idAgent, const LLAva
 }
 
 // Checked: 2011-05-26 (RLVa-1.3.1c) | Added: RLVa-1.3.1c
-void RlvFloaterBehaviours::onBtnCopyToClipboard() const
+void RlvFloaterBehaviours::onBtnCopyToClipboard()
 {
 	std::ostringstream strRestrictions;
 
@@ -383,7 +381,7 @@ BOOL RlvFloaterLocks::postBuild()
 }
 
 // Checked: 2010-03-11 (RLVa-1.2.0a) | Added: RLVa-1.2.0a
-void RlvFloaterLocks::onRlvCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet) const
+void RlvFloaterLocks::onRlvCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet)
 {
 	// Refresh on any successful @XXX=y|n command where XXX is any of the attachment or wearable locking behaviours
 	if ( (RLV_RET_SUCCESS == eRet) && ((RLV_TYPE_ADD == rlvCmd.getParamType()) || (RLV_TYPE_REMOVE == rlvCmd.getParamType())) )
@@ -404,7 +402,7 @@ void RlvFloaterLocks::onRlvCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet) co
 }
 
 // Checked: 2010-03-18 (RLVa-1.2.0)
-void RlvFloaterLocks::refreshAll() const
+void RlvFloaterLocks::refreshAll()
 {
 	LLScrollListCtrl* pLockList = getChild<LLScrollListCtrl>("lock_list");
 	pLockList->operateOnAll(LLCtrlListInterface::OP_DELETE);
@@ -449,7 +447,7 @@ void RlvFloaterLocks::refreshAll() const
 			itAttachPt != attachPtAdd.end(); ++itAttachPt)
 	{
 		const LLViewerJointAttachment* pAttachPt = 
-			get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, static_cast<LLViewerJointAttachment*>(NULL));
+			get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, (LLViewerJointAttachment*)NULL);
 		sdColumns[2]["value"] = pAttachPt->getName();
 		sdColumns[3]["value"] = rlvGetItemNameFromObjID(itAttachPt->second);
 
@@ -462,7 +460,7 @@ void RlvFloaterLocks::refreshAll() const
 			itAttachPt != attachPtRem.end(); ++itAttachPt)
 	{
 		const LLViewerJointAttachment* pAttachPt = 
-			get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, static_cast<LLViewerJointAttachment*>(NULL));
+			get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, (LLViewerJointAttachment*)NULL);
 		sdColumns[2]["value"] = pAttachPt->getName();
 		sdColumns[3]["value"] = rlvGetItemNameFromObjID(itAttachPt->second);
 
