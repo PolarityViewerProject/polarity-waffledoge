@@ -563,7 +563,9 @@ bool rlvMenuMainToggleVisible(LLUICtrl* pMenuCtrl)
 		if (gSavedSettings.getBOOL(RLV_SETTING_MAIN) == rlv_handler_t::isEnabled())
 			pMenuItem->setLabel(strLabel);
 		else
-			pMenuItem->setLabel(strLabel + RlvStrings::getString("message_toggle_restart_pending"));
+			// This fails when RLV is not enabled. Let's use static string for now.
+			//pMenuItem->setLabel(strLabel + RlvStrings::getString("message_toggle_restart_pending"));
+			pMenuItem->setLabel(strLabel + " (pending restart)");
 	}
 	return true;
 }
