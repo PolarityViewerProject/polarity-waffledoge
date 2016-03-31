@@ -33,7 +33,7 @@
 	name="log_in_to_change">
 	log in to change
  </panel.string>
-	<text
+ <text
 	 type="string"
 	 length="1"
 	 follows="left|top"
