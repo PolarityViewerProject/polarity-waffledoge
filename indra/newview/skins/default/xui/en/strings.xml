@@ -4163,4 +4163,6 @@ Try enclosing path to the editor with double quotes.
  <string name="SanityCheckBetween"> &quot;[CONTROL_NAME]&quot; should be between [VALUE_1] and [VALUE_2].</string>
  <string name="SanityCheckNotBetween"> &quot;[CONTROL_NAME]&quot; should not be between [VALUE_1] and [VALUE_2].</string>
 
+<string name="InvFolder #RLV">#RLV</string>
+
 </strings>
