@@ -33,7 +33,7 @@
 	name="log_in_to_change">
 	log in to change
  </panel.string>
- <text
+	<text
 	 type="string"
 	 length="1"
 	 follows="left|top"
@@ -42,7 +42,31 @@
 	 left="10"
 	 mouse_opaque="false"
 	 name="stealth"
-	 top="10"
+	 top_pad="10"
+	 text_color="LtGray_50"
+	 width="60">
+	 Chat
+	</text>
+	<check_box
+	 control_name="PVChat_MarkObjectsWithNoName"
+	 height="16"
+	 label="Add name to nameless objects"
+	 layout="topleft"
+	 left="15"
+	 name="mark_objects_with_no_name"
+	 tool_tip="This will add &quot;(Unnamed)&quot; to nameless objects&apos; chat"
+	 top_pad="5"
+	 width="350" />
+	 <text
+	 type="string"
+	 length="1"
+	 follows="left|top"
+	 height="10"
+	 layout="topleft"
+	 left="10"
+	 mouse_opaque="false"
+	 name="stealth"
+	 top_pad="10"
 	 text_color="LtGray_50"
 	 width="60">
 	 Stealth

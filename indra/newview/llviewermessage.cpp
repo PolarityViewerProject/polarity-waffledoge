@@ -3786,12 +3786,32 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	else
 	{
 		// make sure that we don't have an empty or all-whitespace name
-		LLStringUtil::trim(from_name);
-		if (from_name.empty())
+		// <FS:KC> Objects with no name get renamed to NO_NAME_OBJECT so the object profile is still accessable
+		//LLStringUtil::trim(from_name);
+		//if (from_name.empty())
+		//{
+		//	from_name = LLTrans::getString("Unnamed");
+		//}
+		//chat.mFromName = from_name;
+		static const boost::regex whitespace_exp("^\\s*$");
+		if (chat.mSourceType == CHAT_SOURCE_OBJECT && boost::regex_search(from_name, whitespace_exp))
 		{
-			from_name = LLTrans::getString("Unnamed");
+			//[FIRE-2434 Mark Unamed Objects based on setting
+			static LLCachedControl<bool> mark_objects(gSavedSettings, "PVChat_MarkObjectsWithNoName");
+			if (mark_objects)
+			{
+				chat.mFromName = LLTrans::getString("Unnamed");
+			}
+			else
+			{
+				chat.mFromName = "";
+			}
 		}
+		else
+		{
 		chat.mFromName = from_name;
+		}
+		// </FS:KC>
 	}
 
 	BOOL is_do_not_disturb = gAgent.isDoNotDisturb();
