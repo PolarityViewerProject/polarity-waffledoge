@@ -20,8 +20,13 @@ endif(PVDATA)
 # Audio Engine
 option(FMODEX "Build with support for the FMOD Ex audio engine" ON)
 
+# Workarounds
+
+option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
+
 # <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
+  /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
   /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
   /DPVDATA_MOTD_CHAT=${PVDATA_MOTD_CHAT}
@@ -33,6 +38,7 @@ add_definitions(
   )
 
 MESSAGE("======== *FEATURES* ========")
+MESSAGE("ENABLE_MESH_UPLOAD                 ${ENABLE_MESH_UPLOAD}")
 MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
 MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
 MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
