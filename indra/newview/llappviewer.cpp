@@ -3346,7 +3346,6 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
 
-
 #if LL_MSVC
 	info["COMPILER"] = "MSVC";
 	info["COMPILER_VERSION"] = _MSC_FULL_VER;
