@@ -3334,13 +3334,18 @@ LLSD LLAppViewer::getViewerInfo() const
 
 	// return a URL to the release notes for this viewer, such as:
 	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0.123456
+#if 0
 	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
 	if (! LLStringUtil::endsWith(url, "/"))
 		url += "/";
 	url += LLURI::escape(LLVersionInfo::getChannel()) + "/";
 	url += LLURI::escape(LLVersionInfo::getVersion());
-
+#else
+	// Temporary static release notes url
+	std::string url = "http://www.polarityviewer.org/2016/04/01/polarity-public-beta/";
+#endif
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
+
 
 #if LL_MSVC
 	info["COMPILER"] = "MSVC";
