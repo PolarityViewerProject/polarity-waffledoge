@@ -1696,7 +1696,8 @@ void LLPreviewLSL::uploadAssetViaCaps(const std::string& url,
 	LL_INFOS() << "Update Agent Inventory via capability" << LL_ENDL;
 	LLSD body;
 	body["item_id"] = item_id;
-	body["target"] = "lsl2";
+	static LLCachedControl<bool> save_as_mono(gSavedSettings, "PVInventory_SaveScriptsAsMono", false);
+	body["target"] = (save_as_mono) ? "mono" : "lsl2";
 	LLHTTPClient::post(url, body, new LLUpdateAgentInventoryResponder(body, filename, LLAssetType::AT_LSL_TEXT));
 }
 
