@@ -76,7 +76,7 @@ public:
 	// Returns TRUE if there is at least 1 non-detachable HUD attachment
 	// <polarity> Ignore RLV HUD Locking if the user chooses to.
 	bool hasLockedHUD() const {
-		static LLCachedControl<bool> ignore_lock(gSavedSettings, "PVUI_IgnoreRLV_HUDLock", FALSE);
+		static LLCachedControl<bool> ignore_lock(gSavedSettings, "PVRLV_IgnoreHUDLock", FALSE);
 		return (m_fHasLockedHUD && !(ignore_lock));
 	}
 	// </polarity>
