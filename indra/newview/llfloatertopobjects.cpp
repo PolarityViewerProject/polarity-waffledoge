@@ -118,13 +118,13 @@ void LLFloaterTopObjects::setMode(U32 mode)
 // static 
 void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 {
-    LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
-    if(instance && instance->isInVisibleChain())
+    LLFloaterTopObjects* instance = LLFloaterReg::findTypedInstance<LLFloaterTopObjects>("top_objects");
+    if(instance)
     {
 	    instance->handleReply(msg, data);
 	    //HACK: for some reason sometimes top scripts originally comes back
 	    //with no results even though they're there
-	    if (!instance->mObjectListIDs.size() && !instance->mInitialized)
+	    if (instance->mObjectListIDs.empty() && !instance->mInitialized)
 	    {
 	        instance->onRefresh();
 	        instance->mInitialized = TRUE;
@@ -132,13 +132,12 @@ void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 	}
 	else
 	{
-	    LLFloaterRegionInfo* region_info_floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	    if(region_info_floater)
-	    {
-	        region_info_floater->enableTopButtons();
-	    }
+		LLFloaterRegionInfo* region_info_floater = LLFloaterReg::findTypedInstance<LLFloaterRegionInfo>("region_info");
+		if (region_info_floater)
+		{
+			region_info_floater->enableTopButtons();
+		}
 	}
-
 }
 
 void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
