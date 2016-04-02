@@ -233,7 +233,7 @@ void LLPreviewNotecard::loadAsset()
 			else
 			{
 				LLHost source_sim = LLHost::invalid;
-				LLSD* user_data = new LLSD();
+				LLSD* user_data = nullptr;
 				if (mObjectUUID.notNull())
 				{
 					LLViewerObject *objectp = gObjectList.findObject(mObjectUUID);
@@ -252,6 +252,7 @@ void LLPreviewNotecard::loadAsset()
 						mAssetStatus = PREVIEW_ASSET_LOADED;
 						return;
 					}
+					user_data = new LLSD();
 					user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
 				}
 				else
