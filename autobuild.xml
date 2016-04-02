@@ -76,11 +76,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a0674f9dfce2b15bc90bf86ef2b01196</string>
+              <string>76186b09770cab66dba6586cb1d2123f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/apr_suite-1.5.2-windows-201601151037.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/apr_suite-1.5.2-windows-201603261507.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -90,11 +90,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>31c5f5b399da00037edd5b094ac6b97b</string>
+              <string>586739a99e1366cd9e270dc7c9a4e519</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/apr_suite-1.5.2-windows64-201512102110.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/apr_suite-1.5.2-windows64-201603261452.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -314,7 +314,7 @@
       <key>curl</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 1996 - 2015, Daniel Stenberg, (daniel@haxx.se).</string>
+        <string>Copyright (c) 1996 - 2016, Daniel Stenberg, (daniel@haxx.se).</string>
         <key>description</key>
         <string>Library for transferring data specified with URL syntax</string>
         <key>license</key>
@@ -354,11 +354,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>edeb99f22363e6c7dde1ade2d2810246</string>
+              <string>f20491b59795d311cf8d730556cd141e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/curl-7.47.0-windows-201601291530.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/curl-7.48.0-windows-201603231720.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -368,18 +368,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c822bf688eaaa9524d821c8a9d72e1d7</string>
+              <string>86feef4905c2e46a9cbdc7a1df23d83f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/curl-7.47.0-windows64-201601291527.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/curl-7.48.0-windows64-201603231658.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>7.47.0</string>
+        <string>7.48.0</string>
       </map>
       <key>db</key>
       <map>
@@ -540,11 +540,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>97786c456086c2aeb7554c755361df81</string>
+              <string>454170939e4d1ba07060b73d6f81b9fc</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/expat-2.1.0-windows-201601150958.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/expat-2.1.1-windows-201603261409.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -554,18 +554,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7a08c54a3a869068f40a6ad4ea2716bb</string>
+              <string>0cf6f4529ade22b7ae78da5d6303ed87</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/expat-2.1.0-windows64-201512092314.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/expat-2.1.1-windows64-201603261406.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.1.0</string>
+        <string>2.1.1</string>
       </map>
       <key>fmodstudio</key>
       <map>
@@ -586,11 +586,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a51da309dd81293ae2940181d345bb77</string>
+              <string>ef91e9966ffd6303a8805146c046c659</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/fmodstudio-1.07.00-darwin-201510062322.tar.bz2</string>
+              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/fmodstudio-1.08.00-darwin-201603070723.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -614,11 +614,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>adc55fd330f41a66dc64a6c3f7084e79</string>
+              <string>47f5754929fed18fd5ffff8cda2d84e2</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib/fmodstudio-1.07.00-linux64-201510070033.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/linux64/lib-trusty/fmodstudio-1.08.00-linux64-201603232053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -628,11 +628,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b8de0e7146e671c6cf1171f86a7b46a1</string>
+              <string>6548495a886b385c238167f4d5e6182d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.07.05-windows-201601151004.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.08.00-windows-201603070824.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -642,18 +642,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8b80c508ebb6cd923d3448ba6f48fe3c</string>
+              <string>b80d49fd91e407fc8ab8afb3fcb4b138</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.07.05-windows64-201601160255.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.08.00-windows64-201603070822.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.07.05</string>
+        <string>1.08.00</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -734,7 +734,7 @@
       <key>freetype</key>
       <map>
         <key>copyright</key>
-        <string>Copyright 2006-2015 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
+        <string>Copyright 2006-2016 by David Turner, Robert Wilhelm, and Werner Lemberg.</string>
         <key>description</key>
         <string>Font rendering library</string>
         <key>license</key>
@@ -774,11 +774,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>980d01acc3f88ed345dc20fc3e0ba6c0</string>
+              <string>e5be5197f12f9ca8078ba9ce4f1bce10</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/freetype-2.6.2-windows-201601151045.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/freetype-2.6.3-windows-201603011805.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -788,18 +788,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>80d268872b1e9209b8932390caacd550</string>
+              <string>e8c0acbe631d7a4cb1a2890b90e5bc8c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/freetype-2.6.2-windows64-201512130440.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/freetype-2.6.3-windows64-201603011807.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.6.2</string>
+        <string>2.6.3</string>
       </map>
       <key>glew</key>
       <map>
@@ -1526,7 +1526,7 @@
       <key>libpng</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 2004, 2006-2014 Glenn Randers-Pehrson</string>
+        <string>Copyright (c) 2004, 2006-2016 Glenn Randers-Pehrson</string>
         <key>description</key>
         <string>PNG Reference library</string>
         <key>license</key>
@@ -1566,11 +1566,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>28c4370ae17b7881a8604ff0ed6c204b</string>
+              <string>5e7b3ea13fec60f6c9a8965a390cfbd5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/libpng-1.6.19-windows-201601151047.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/libpng-1.6.21-windows-201603011800.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1580,18 +1580,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a6646a596c1f015831c337605bb907e5</string>
+              <string>b2f166e496fc19958777c92ffd032331</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/libpng-1.6.19-windows64-201512122034.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/libpng-1.6.21-windows64-201603011809.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.6.19</string>
+        <string>1.6.21</string>
       </map>
       <key>libuuid</key>
       <map>
@@ -1985,7 +1985,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>R361</string>
+        <string>R361v2</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
@@ -2190,11 +2190,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bd4cabb5e2f5bafae36bb6d3bdc6fd77</string>
+              <string>64e75a7e4d5f42406fc36c2a663b6537</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/openjpeg-1.5.1-windows-201601261431.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/openjpeg-1.5.1-windows-201601150944.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2204,11 +2204,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>05399a1e934319ec32681f136f5aac1f</string>
+              <string>68e21f69a90bbf55abbd86882f0a2761</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openjpeg-1.5.1-windows64-201601261429.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openjpeg-1.5.1-windows64-201601160311.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2220,7 +2220,7 @@
       <key>openssl</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 1998-2011 The OpenSSL Project.  All rights reserved; Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)</string>
+        <string>Copyright (c) 1998-2016 The OpenSSL Project.  All rights reserved; Copyright (C) 1995-1998 Eric Young (eay@cryptsoft.com)</string>
         <key>description</key>
         <string>Secure Sockets Layer (SSL v2/v3) and Transport Layer Security (TLS v1) Library</string>
         <key>license</key>
@@ -2260,11 +2260,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>835a1e2a994acd82a51d99e382de1549</string>
+              <string>91b9fa570258f627a9265452d9e65231</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/openssl-1.0.2f-windows-201601291508.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/openssl-1.0.2g-windows-201603011823.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2274,18 +2274,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5aae87070da31ed959585ca641ba3ad9</string>
+              <string>ec86d96ffcbdc10e715e27b4b0bbda43</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openssl-1.0.2f-windows64-201601291450.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openssl-1.0.2g-windows64-201603011842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.2f</string>
+        <string>1.0.2g</string>
       </map>
       <key>quicktime</key>
       <map>
@@ -2536,11 +2536,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b41376a689fb4c9e9846d838283fdc5d</string>
+              <string>7a619778a2ea5c3113549529dd4f7288</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/xmlrpc_epi-0.54.2-windows-201601151034.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/xmlrpc_epi-0.54.2-windows-201603261505.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2550,11 +2550,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>727dd03de835cb4b0ab201101f3025da</string>
+              <string>1afa5a6bdbc5689e14120628dc0fc124</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/xmlrpc_epi-0.54.2-windows64-201512102119.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/xmlrpc_epi-0.54.2-windows64-201603261459.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
