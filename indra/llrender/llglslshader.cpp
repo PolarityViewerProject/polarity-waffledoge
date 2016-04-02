@@ -491,7 +491,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     }
     else
     {
-        LL_ERRS("ShaderLoading") << "Attempting to create shader program with duplicate name: " << mName << LL_ENDL;
+        LL_WARNS("ShaderLoading") << "Attempting to create shader program with duplicate name: " << mName << LL_ENDL;
     }
 
     return success;

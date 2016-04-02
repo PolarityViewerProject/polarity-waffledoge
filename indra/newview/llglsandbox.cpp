@@ -908,7 +908,7 @@ F32 gpu_benchmark()
 		{
 			return -1.f;
 		}
-		LLShaderMgr::instance()->cleanupShaders();
+		LLShaderMgr::instance()->cleanupShaderSources();
 	}
 
 #ifdef GL_ARB_vertex_array_object
