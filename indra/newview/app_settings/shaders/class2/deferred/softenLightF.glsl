@@ -263,7 +263,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
 
-	// decrease value for occluded areas
+	// decrease ambient value for occluded areas
 	tmpAmbient *= mix(ssao_effect, 1.0, ambFactor);
 
 	//brightness of surface both sunlight and ambient
