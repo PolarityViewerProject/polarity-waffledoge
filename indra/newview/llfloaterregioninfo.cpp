@@ -1077,7 +1077,7 @@ void LLPanelRegionDebugInfo::onClickTopColliders(void* data)
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
 	if(!instance) return;
-	LLFloaterReg::showInstance("top_objects");
+	instance->openFloater();
 	instance->clearList();
 	instance->disableRefreshBtn();
 
@@ -1096,7 +1096,7 @@ void LLPanelRegionDebugInfo::onClickTopScripts(void* data)
 	LLUUID invoice(LLFloaterRegionInfo::getLastInvoice());
 	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
 	if(!instance) return;
-	LLFloaterReg::showInstance("top_objects");
+	instance->openFloater();
 	instance->clearList();
 	instance->disableRefreshBtn();
 

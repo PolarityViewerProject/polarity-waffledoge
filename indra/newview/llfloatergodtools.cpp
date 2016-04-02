@@ -1021,8 +1021,8 @@ void LLPanelObjectTools::onGetTopColliders()
 	
 	if (gAgent.isGodlike())
 	{
-		LLFloaterReg::showInstance("top_objects");
-		LLFloaterTopObjects::setMode(STAT_REPORT_TOP_COLLIDERS);
+		instance->openFloater();
+		instance->setMode(STAT_REPORT_TOP_COLLIDERS);
 		instance->onRefresh();
 	}
 }
@@ -1034,8 +1034,8 @@ void LLPanelObjectTools::onGetTopScripts()
 	
 	if (gAgent.isGodlike()) 
 	{
-		LLFloaterReg::showInstance("top_objects");
-		LLFloaterTopObjects::setMode(STAT_REPORT_TOP_SCRIPTS);
+		instance->openFloater();
+		instance->setMode(STAT_REPORT_TOP_SCRIPTS);
 		instance->onRefresh();
 	}
 }
