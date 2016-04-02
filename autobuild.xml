@@ -1960,11 +1960,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>347b0204795b11a982934fec640a4fd5</string>
+              <string>4d1b976d502a26ba582e3d5ef2f17d6a</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/nvapi-R361-windows-201601151015.tar.bz2</string>
+              <string>file:///C:/devel/secondlife/libs/3p-nvapi/nvapi-R361v2-windows-201604020339.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1974,18 +1974,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c26ef36ab5a91b9b39cf74b6fb087197</string>
+              <string>9022be5e576bef8e2ee7a09f2420ef27</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/nvapi-R352-windows64-201512130127.tar.bz2</string>
+              <string>file:///C:/devel/secondlife/libs/3p-nvapi/nvapi-R361v2-windows64-201604021129.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>R361</string>
+        <string>R361v2</string>
       </map>
       <key>ogg_vorbis</key>
       <map>

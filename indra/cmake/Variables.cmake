@@ -33,6 +33,9 @@ set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable fo
 option(INCREMENTAL_LINK "Use incremental linking or incremental LTCG for LTO on win32 builds (enable for faster links on some machines)" OFF)
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
 
+# Proprietary Library Features
+option(NVAPI "Use nvapi driver interface library" OFF)
+
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
 else(LIBS_CLOSED_DIR)
