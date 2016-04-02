@@ -1246,20 +1246,13 @@ class LLAdvancedToggleWireframe : public view_listener_t
 	{
 		gUseWireframe = !(gUseWireframe);
 
-		if (gUseWireframe)
-		{
-			gInitialDeferredModeForWireframe = LLPipeline::sRenderDeferred;
-		}
-
-		gWindowResized = TRUE;
-		LLPipeline::updateRenderDeferred();
+		LLPipeline::refreshCachedSettings();
+		gPipeline.updateRenderDeferred();
+		gPipeline.releaseGLBuffers();
+		gPipeline.createGLBuffers();
 		gPipeline.resetVertexBuffers();
-
-		if (!gUseWireframe && !gInitialDeferredModeForWireframe && LLPipeline::sRenderDeferred != gInitialDeferredModeForWireframe && gPipeline.isInit())
+		if (LLPipeline::sRenderDeferred == (BOOL) LLRenderTarget::sUseFBO)
 		{
-			LLPipeline::refreshCachedSettings();
-			gPipeline.releaseGLBuffers();
-			gPipeline.createGLBuffers();
 			LLViewerShaderMgr::instance()->setShaders();
 		}
 

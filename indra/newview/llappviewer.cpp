@@ -326,9 +326,6 @@ LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
 BOOL			gUseWireframe = FALSE;
 
-//use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
-
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
 
