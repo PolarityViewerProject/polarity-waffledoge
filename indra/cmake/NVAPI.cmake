@@ -1,7 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
-
-set(NVAPI ON CACHE BOOL "Use NVAPI.")
+include(Variables)
 
 if (NVAPI)
   if (WINDOWS)
