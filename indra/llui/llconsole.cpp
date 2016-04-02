@@ -369,7 +369,7 @@ LLConsole::Paragraph::Paragraph (LLWString str, const LLColor4 &color, F32 add_t
 // static
 void LLConsole::updateClass()
 {	
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 	{
 		it->update();
 	} 

@@ -631,7 +631,7 @@ void LLLayoutStack::createResizeBar(LLLayoutPanel* panelp)
 //static 
 void LLLayoutStack::updateClass()
 {
-	for (instance_iter it = beginInstances(); it != endInstances(); ++it)
+	for (instance_iter it = beginInstances(), end_it = endInstances(); it != end_it; ++it)
 	{
 		it->updateLayout();
 		it->mAnimatedThisFrame = false;
