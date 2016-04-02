@@ -1796,6 +1796,7 @@ void parse_glsl_version(S32& major, S32& minor)
 std::string parse_gl_ext_to_str(F32 glversion)
 {
 	std::string ret;
+#if GL_VERSION_3_0
 	if (glversion >= 3.0)
 	{
 		GLint n = 0;
@@ -1809,6 +1810,7 @@ std::string parse_gl_ext_to_str(F32 glversion)
 		}
 	}
 	else
+#endif
 	{
 		const char* ext = (const char *) glGetString(GL_EXTENSIONS);
 		ret.append(ext);
