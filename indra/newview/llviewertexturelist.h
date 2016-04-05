@@ -59,26 +59,6 @@ typedef	void (*LLImageCallback)(BOOL success,
 								BOOL final,
 								void* userdata);
 
-struct LLTextureKey
-{
-    LLTextureKey();
-    LLTextureKey(LLUUID id, bool is_ui);
-    LLUUID textureId;
-    bool isUI;
-
-    friend bool operator<(const LLTextureKey& key1, const LLTextureKey& key2)
-    {
-        if (key1.textureId != key2.textureId)
-        {
-            return key1.textureId < key2.textureId;
-        }
-        else
-        {
-            return key1.isUI < key2.isUI;
-        }
-    }
-};
-
 class LLViewerTextureList
 {
 	friend class LLTextureView;
@@ -103,9 +83,7 @@ public:
 	void restoreGL();
 	BOOL isInitialized() const {return mInitialized;}
 
-	void findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output);
-	LLViewerFetchedTexture *findImage(const LLUUID &image_id, bool is_ui);
-	LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
+	LLViewerFetchedTexture *findImage(const LLUUID &image_id);
 
 	void dirtyImage(LLViewerFetchedTexture *image);
 	
@@ -142,7 +120,7 @@ private:
 	void updateImagesUpdateStats();
 	F32  updateImagesLoadingFastCache(F32 max_time);
 
-	void addImage(LLViewerFetchedTexture *image, bool add_ui);
+	void addImage(LLViewerFetchedTexture *image);
 	void deleteImage(LLViewerFetchedTexture *image);
 
 	void addImageToList(LLViewerFetchedTexture *image);
@@ -206,10 +184,10 @@ public:
 	BOOL mForceResetTextureStats;
     
 private:
-    typedef std::map< LLTextureKey, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
-    uuid_map_t mUUIDMap;
-    LLTextureKey mLastUpdateKey;
-    LLTextureKey mLastFetchKey;
+	typedef std::map< LLUUID, LLPointer<LLViewerFetchedTexture> > uuid_map_t;
+	uuid_map_t mUUIDMap;
+	LLUUID mLastUpdateUUID;
+	LLUUID mLastFetchUUID;
 	
 	typedef std::set<LLPointer<LLViewerFetchedTexture>, LLViewerFetchedTexture::Compare> image_priority_list_t;	
 	image_priority_list_t mImageList;

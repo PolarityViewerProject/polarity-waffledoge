@@ -58,12 +58,11 @@ class LLVFile;
 class LLMessageSystem;
 class LLViewerMediaImpl ;
 class LLVOVolume ;
-struct LLTextureKey;
 
 class LLLoadedCallbackEntry
 {
 public:
-    typedef std::set< LLTextureKey > source_callback_list_t;
+	typedef std::set< LLUUID > source_callback_list_t;
 
 public:
 	LLLoadedCallbackEntry(loaded_callback_func cb,
@@ -133,7 +132,6 @@ public:
 	/*virtual*/ const LLUUID& getID() const { return mID; }
 	void setBoostLevel(S32 level);
 	S32  getBoostLevel() { return mBoostLevel; }
-	bool isUITexture();
 
 	void addTextureStats(F32 virtual_size, BOOL needs_gltexture = TRUE) const;
 	void resetTextureStats();	
@@ -628,9 +626,8 @@ public:
 	//
 	//"find-texture" just check if the texture exists, if yes, return it, otherwise return null.
 	//
-	static void                       findFetchedTextures(const LLUUID& id, std::vector<LLViewerFetchedTexture*> &output);
-	static void                       findTextures(const LLUUID& id, std::vector<LLViewerTexture*> &output);
-	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id, bool is_ui);
+	static LLViewerTexture*           findTexture(const LLUUID& id) ;
+	static LLViewerFetchedTexture*    findFetchedTexture(const LLUUID& id) ;
 	static LLViewerMediaTexture*      findMediaTexture(const LLUUID& id) ;
 	
 	static LLViewerMediaTexture*      createMediaTexture(const LLUUID& id, BOOL usemipmaps = TRUE, LLImageGL* gl_image = NULL) ;

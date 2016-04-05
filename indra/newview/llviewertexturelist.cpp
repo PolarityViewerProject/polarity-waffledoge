@@ -70,25 +70,6 @@ S32 LLViewerTextureList::sNumImages = 0;
 LLViewerTextureList gTextureList;
 static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
-bool is_ui_element(S32 priority)
-{
-    // alternatively don't discard flag can be used
-    return priority == LLViewerFetchedTexture::BOOST_ICON
-           || priority == LLViewerFetchedTexture::BOOST_UI;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-
-LLTextureKey::LLTextureKey()
-: textureId(LLUUID::null),
-isUI(false)
-{
-}
-
-LLTextureKey::LLTextureKey(LLUUID id, bool is_ui)
-: textureId(id), isUI(is_ui)
-{
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -370,8 +351,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromFile(const std::string&
 	if (full_path.empty())
 	{
 		LL_WARNS() << "Failed to find local image file: " << filename << LL_ENDL;
-		LLViewerTexture::EBoostLevel priority = LLGLTexture::BOOST_UI;
-		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, priority);
+		return LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 	}
 
 	std::string url = "file://" + full_path;
@@ -404,7 +384,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 		new_id.generate(url);
 	}
 
-	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id, is_ui_element(boost_priority));
+	LLPointer<LLViewerFetchedTexture> imagep = findImage(new_id);
 
 	if (!imagep.isNull())
 	{
@@ -442,12 +422,12 @@ LLViewerFetchedTexture* LLViewerTextureList::getImageFromUrl(const std::string& 
 			imagep->setExplicitFormat(internal_format, primary_format);
 		}
 
-		bool is_ui = is_ui_element(boost_priority);
-		addImage(imagep, is_ui);
-
+		addImage(imagep);
+		
 		if (boost_priority != 0)
 		{
-			if (is_ui)
+			if (boost_priority == LLViewerFetchedTexture::BOOST_UI ||
+				boost_priority == LLViewerFetchedTexture::BOOST_ICON)
 			{
 				imagep->dontDiscard();
 			}
@@ -484,7 +464,7 @@ LLViewerFetchedTexture* LLViewerTextureList::getImage(const LLUUID &image_id,
 		return (LLViewerTextureManager::getFetchedTexture(IMG_DEFAULT, FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI));
 	}
 	
-	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id, is_ui_element(boost_priority));
+	LLPointer<LLViewerFetchedTexture> imagep = findImage(image_id);
 	if (!imagep.isNull())
 	{
 		LLViewerFetchedTexture *texture = imagep.get();
@@ -545,13 +525,13 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 	{
 		imagep->setExplicitFormat(internal_format, primary_format);
 	}
-
-	bool is_ui = is_ui_element(boost_priority);
-	addImage(imagep, is_ui);
-
+	
+	addImage(imagep);
+	
 	if (boost_priority != 0)
 	{
-		if (is_ui)
+		if (boost_priority == LLViewerFetchedTexture::BOOST_UI ||
+			boost_priority == LLViewerFetchedTexture::BOOST_ICON)
 		{
 			imagep->dontDiscard();
 		}
@@ -573,28 +553,12 @@ LLViewerFetchedTexture* LLViewerTextureList::createImage(const LLUUID &image_id,
 	return imagep ;
 }
 
-void LLViewerTextureList::findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output)
+LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id)
 {
-    LLTextureKey search_key(image_id, false);
-    uuid_map_t::iterator iter = mUUIDMap.lower_bound(search_key);
-    while (iter != mUUIDMap.end() && iter->first.textureId == image_id)
-    {
-        output.push_back(iter->second);
-        iter++;
-    }
-}
-
-LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLTextureKey &search_key)
-{
-    uuid_map_t::iterator iter = mUUIDMap.find(search_key);
-    if (iter == mUUIDMap.end())
-        return NULL;
-    return iter->second;
-}
-
-LLViewerFetchedTexture *LLViewerTextureList::findImage(const LLUUID &image_id, bool is_ui)
-{
-    return findImage(LLTextureKey(image_id, is_ui));
+	uuid_map_t::iterator iter = mUUIDMap.find(image_id);
+	if(iter == mUUIDMap.end())
+		return NULL;
+	return iter->second;
 }
 
 void LLViewerTextureList::addImageToList(LLViewerFetchedTexture *image)
@@ -639,7 +603,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 			<< " but doesn't have mInImageList set"
 			<< " ref count is " << image->getNumRefs()
 			<< LL_ENDL;
-		uuid_map_t::iterator iter = mUUIDMap.find(LLTextureKey(image->getID(), image->isUITexture()));
+		uuid_map_t::iterator iter = mUUIDMap.find(image->getID());
 		if(iter == mUUIDMap.end())
 		{
 			LL_INFOS() << "Image  " << image->getID() << " is also not in mUUIDMap!" << LL_ENDL ;
@@ -664,7 +628,7 @@ void LLViewerTextureList::removeImageFromList(LLViewerFetchedTexture *image)
 	image->setInImageList(FALSE) ;
 }
 
-void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image, bool add_ui)
+void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image)
 {
 	if (!new_image)
 	{
@@ -672,17 +636,16 @@ void LLViewerTextureList::addImage(LLViewerFetchedTexture *new_image, bool add_u
 	}
 	//llassert(new_image);
 	LLUUID image_id = new_image->getID();
-    LLTextureKey key(image_id, add_ui);
 	
-	LLViewerFetchedTexture *image = findImage(key);
+	LLViewerFetchedTexture *image = findImage(image_id);
 	if (image)
 	{
 		LL_INFOS() << "Image with ID " << image_id << " already in list" << LL_ENDL;
 	}
 	sNumImages++;
-
+	
 	addImageToList(new_image);
-	mUUIDMap[key] = new_image;
+	mUUIDMap[image_id] = new_image;
 }
 
 
@@ -694,8 +657,8 @@ void LLViewerTextureList::deleteImage(LLViewerFetchedTexture *image)
 		{
 			mCallbackList.erase(image);
 		}
-		LLTextureKey key(image->getID(), image->isUITexture());
-		llverify(mUUIDMap.erase(key) == 1);
+
+		llverify(mUUIDMap.erase(image->getID()) == 1);
 		sNumImages--;
 		removeImageFromList(image);
 	}
@@ -838,14 +801,14 @@ void LLViewerTextureList::updateImagesDecodePriorities()
         static const S32 MAX_PRIO_UPDATES = gSavedSettings.getS32("TextureFetchUpdatePriorities");         // default: 32
 		const size_t max_update_count = llmin((S32) (MAX_PRIO_UPDATES*MAX_PRIO_UPDATES*gFrameIntervalSeconds.value()) + 1, MAX_PRIO_UPDATES);
 		S32 update_counter = llmin(max_update_count, mUUIDMap.size());
-		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateKey);
+		uuid_map_t::iterator iter = mUUIDMap.upper_bound(mLastUpdateUUID);
 		while ((update_counter-- > 0) && !mUUIDMap.empty())
 		{
 			if (iter == mUUIDMap.end())
 			{
 				iter = mUUIDMap.begin();
-            }
-            mLastUpdateKey = iter->first;
+			}
+			mLastUpdateUUID = iter->first;
 			LLPointer<LLViewerFetchedTexture> imagep = iter->second;
 			++iter; // safe to increment now
 
@@ -1098,7 +1061,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 	update_counter = max_update_count;	
 	if(update_counter > 0)
 	{
-		uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchKey);
+		uuid_map_t::iterator iter2 = mUUIDMap.upper_bound(mLastFetchUUID);
 		while ((update_counter > 0) && (total_update_count > 0))
 		{
 			if (iter2 == mUUIDMap.end())
@@ -1128,7 +1091,7 @@ F32 LLViewerTextureList::updateImagesFetchTextures(F32 max_time)
 		fetch_count += (imagep->updateFetch() ? 1 : 0);
 		if (min_count <= min_update_count)
 		{
-			mLastFetchKey = LLTextureKey(imagep->getID(), imagep->isUITexture());
+			mLastFetchUUID = imagep->getID();
 		}
 		if ((min_count-- <= 0) && (image_op_timer.getElapsedTimeF32() > max_time))
 		{
@@ -1580,19 +1543,12 @@ void LLViewerTextureList::processImageNotInDatabase(LLMessageSystem *msg,void **
 	LLUUID image_id;
 	msg->getUUIDFast(_PREHASH_ImageID, _PREHASH_ID, image_id);
 	
-	LLViewerFetchedTexture* image = gTextureList.findImage( image_id, false);
+	LLViewerFetchedTexture* image = gTextureList.findImage( image_id );
 	if( image )
 	{
-		LL_WARNS() << "Image not in db" << LL_ENDL;
+		LL_WARNS() << "not in db" << LL_ENDL;
 		image->setIsMissingAsset();
 	}
-
-    image = gTextureList.findImage(image_id, true);
-    if (image)
-    {
-        LL_WARNS() << "Icon not in db" << LL_ENDL;
-        image->setIsMissingAsset();
-    }
 }
 
 
