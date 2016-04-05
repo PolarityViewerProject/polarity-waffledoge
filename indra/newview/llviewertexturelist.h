@@ -59,18 +59,12 @@ typedef	void (*LLImageCallback)(BOOL success,
 								BOOL final,
 								void* userdata);
 
-enum ETexListType
-{
-    TEX_LIST_DISCARD = 0,
-    TEX_LIST_UI
-};
-
 struct LLTextureKey
 {
     LLTextureKey();
-    LLTextureKey(LLUUID id, ETexListType tex_type);
+    LLTextureKey(LLUUID id, bool is_ui);
     LLUUID textureId;
-    ETexListType textureType;
+    bool isUI;
 
     friend bool operator<(const LLTextureKey& key1, const LLTextureKey& key2)
     {
@@ -80,7 +74,7 @@ struct LLTextureKey
         }
         else
         {
-            return key1.textureType < key2.textureType;
+            return key1.isUI < key2.isUI;
         }
     }
 };
@@ -110,7 +104,7 @@ public:
 	BOOL isInitialized() const {return mInitialized;}
 
 	void findTexturesByID(const LLUUID &image_id, std::vector<LLViewerFetchedTexture*> &output);
-	LLViewerFetchedTexture *findImage(const LLUUID &image_id, ETexListType tex_type);
+	LLViewerFetchedTexture *findImage(const LLUUID &image_id, bool is_ui);
 	LLViewerFetchedTexture *findImage(const LLTextureKey &search_key);
 
 	void dirtyImage(LLViewerFetchedTexture *image);
@@ -148,7 +142,7 @@ private:
 	void updateImagesUpdateStats();
 	F32  updateImagesLoadingFastCache(F32 max_time);
 
-	void addImage(LLViewerFetchedTexture *image, ETexListType tex_type);
+	void addImage(LLViewerFetchedTexture *image, bool add_ui);
 	void deleteImage(LLViewerFetchedTexture *image);
 
 	void addImageToList(LLViewerFetchedTexture *image);
