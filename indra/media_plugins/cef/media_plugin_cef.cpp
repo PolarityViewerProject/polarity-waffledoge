@@ -73,6 +73,7 @@ private:
 	bool onHTTPAuthCallback(const std::string host, const std::string realm, std::string& username, std::string& password);
 	void onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle);
 	void onFileDownloadCallback(std::string filename);
+	const std::string onFileDialogCallback();
 
 	void postDebugMessage(const std::string& msg);
 	void authResponse(LLPluginMessage &message);
@@ -100,6 +101,7 @@ private:
 	std::string mCachePath;
 	std::string mCookiePath;
 	std::string mLogFile;
+	std::string mPickedFile;
 	LLCEFLib* mLLCEFLib;
 
     VolumeCatcher mVolumeCatcher;
@@ -129,6 +131,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mCachePath = "";
 	mCookiePath = "";
 	mLogFile = "";
+	mPickedFile = "";
 	mLLCEFLib = new LLCEFLib();
 }
 
@@ -311,6 +314,20 @@ void MediaPluginCEF::onFileDownloadCallback(const std::string filename)
 	sendMessage(message);
 }
 
+////////////////////////////////////////////////////////////////////////////////
+//
+const std::string MediaPluginCEF::onFileDialogCallback()
+{
+	mPickedFile.clear();
+
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA, "pick_file");
+	message.setValueBoolean("blocking_request", true);
+
+	sendMessage(message);
+
+	return mPickedFile;
+}
+
 void MediaPluginCEF::onCursorChangedCallback(LLCEFLib::ECursorType type, unsigned int handle)
 {
 	std::string name = "";
@@ -458,6 +475,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				mLLCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mLLCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
 				mLLCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
+				mLLCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
 				mLLCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1, std::placeholders::_2));
 				mLLCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
@@ -671,6 +689,10 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			else if (message_name == "enable_media_plugin_debugging")
 			{
 				mEnableMediaPluginDebugging = message_in.getValueBoolean("enable");
+			}
+			if (message_name == "pick_file_response")
+			{
+				mPickedFile = message_in.getValue("file");
 			}
 			if (message_name == "auth_response")
 			{
