@@ -79,9 +79,7 @@ protected:
 
 	//the output size of the icon image if set.
 	S32 mMinWidth,
-		mMinHeight,
-		mMaxWidth,
-		mMaxHeight;
+		mMinHeight;
 
 	// If set to true (default), use the draw context transparency.
 	// If false, will use transparency returned by getCurrentTransparency(). See STORM-698.
