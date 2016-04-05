@@ -1264,8 +1264,7 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	bool sent = false;
 	LLAgentUI::buildFullname(name);
 
-	const LLRelationship* info = NULL;
-	info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
+	const LLRelationship* info = LLAvatarTracker::instance().getBuddyInfo(other_participant_id);
 	
 	U8 offline = (!info || info->isOnline()) ? IM_ONLINE : IM_OFFLINE;
 	
@@ -2696,7 +2695,7 @@ void LLIMMgr::addMessage(
 	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
-		skip_message = (LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL);	// Skip non friends...
+		skip_message = !LLAvatarTracker::instance().isBuddy(other_participant_id);	// Skip non friends...
 		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
 	}
 
@@ -3068,7 +3067,7 @@ void LLIMMgr::inviteToSession(
 	if (voice_invite)
 	{
 		bool isRejectGroupCall = (gSavedSettings.getBOOL("VoiceCallsRejectGroup") && (notify_box_type == "VoiceInviteGroup"));
-		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(caller_id) == NULL));
+		bool isRejectNonFriendCall = (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !LLAvatarTracker::instance().isBuddy(caller_id));
 		if	(isRejectGroupCall || isRejectNonFriendCall || gAgent.isDoNotDisturb())
 		{
 			if (gAgent.isDoNotDisturb() && !isRejectGroupCall && !isRejectNonFriendCall)

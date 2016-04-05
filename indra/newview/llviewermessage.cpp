@@ -3015,7 +3015,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				send_do_not_disturb_message(msg, from_id);
 			}
-			else if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL))
+			else if (accept_im_from_only_friend && !LLAvatarTracker::instance().isBuddy(from_id))
 			{
 				return;
 			}
