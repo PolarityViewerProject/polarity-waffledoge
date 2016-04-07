@@ -203,10 +203,6 @@ protected:
 
 	virtual void loadAsset();
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetViaCaps(const std::string& url,
-							const std::string& filename, 
-							const LLUUID& item_id);
-
 	static void onSearchReplace(void* userdata);
 	static void onLoad(void* userdata);
 	static void onSave(void* userdata, BOOL close_after_save);
@@ -220,7 +216,7 @@ protected:
 protected:
 	static void* createScriptEdPanel(void* userdata);
 
-
+    static void finishedLSLUpload(LLUUID itemId, LLSD response);
 protected:
 
 	// Can safely close only after both text and bytecode are uploaded
@@ -267,12 +263,6 @@ private:
 	virtual void loadAsset();
 	void loadAsset(BOOL is_new);
 	/*virtual*/ void saveIfNeeded(bool sync = true);
-	void uploadAssetViaCaps(const std::string& url,
-							const std::string& filename,
-							const LLUUID& task_id,
-							const LLUUID& item_id,
-							BOOL is_running,
-							const LLUUID& experience_public_id);
 	BOOL monoChecked() const;
 
 
@@ -295,6 +285,9 @@ private:
 	static void* createScriptEdPanel(void* userdata);
 
 	static void	onMonoCheckboxClicked(LLUICtrl*, void* userdata);
+
+    static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, bool isRunning);
+    static void receiveExperienceIds(LLSD result, LLHandle<LLLiveLSLEditor> parent);
 
 private:
 	bool				mIsNew;
