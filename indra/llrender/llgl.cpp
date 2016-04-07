@@ -650,7 +650,7 @@ std::string LLGLManager::getGLInfoString()
 		info_str += std::string("GL_VERSION     ") + ll_safe_string((const char *)glGetString(GL_VERSION)) + std::string("\n");
 	}
 
-#if !LL_MESA_HEADLESS 
+#if !LL_MESA_HEADLESS
 	std::string all_exts = parse_gl_ext_to_str(mGLVersion);
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
@@ -764,6 +764,78 @@ void LLGLManager::initExtensions()
 #ifdef GL_ARB_gpu_shader5
 	mHasGpuShader5 = FALSE;
 #endif
+#elif LL_DARWIN
+    std::set<std::string> extensions;
+    const auto extensionString = glGetString(GL_EXTENSIONS);
+    
+    if (extensionString)
+    {
+        std::istringstream stream{reinterpret_cast<const char *>(extensionString)};
+        auto extensionName = std::string{};
+        while (std::getline(stream, extensionName, ' '))
+        {
+            extensions.insert(extensionName);
+        }
+    }
+    
+    mHasMultitexture = extensions.find("GL_ARB_multitexture") != extensions.end();
+    mHasATIMemInfo = extensions.find("GL_ATI_meminfo") != extensions.end();
+    mHasNVXMemInfo = extensions.find("GL_NVX_gpu_memory_info") != extensions.end();
+    mHasSeparateSpecularColor = extensions.find("GL_EXT_separate_specular_color") != extensions.end();
+    mHasAnisotropic = extensions.find("GL_EXT_texture_filter_anisotropic") != extensions.end();
+    mHasCubeMap = extensions.find("GL_ARB_texture_cube_map") != extensions.end();
+    mHasARBEnvCombine = extensions.find("GL_ARB_texture_env_combine") != extensions.end();
+    mHasCompressedTextures = extensions.find("GL_ARB_texture_compression") != extensions.end();
+    mHasOcclusionQuery = extensions.find("GL_ARB_occlusion_query") != extensions.end();
+    mHasTimerQuery = extensions.find("GL_ARB_timer_query") != extensions.end();
+    mHasOcclusionQuery2 = extensions.find("GL_ARB_occlusion_query2") != extensions.end();
+    mHasVertexBufferObject = extensions.find("GL_ARB_vertex_buffer_object") != extensions.end();
+    mHasVertexArrayObject = extensions.find("GL_ARB_vertex_array_object") != extensions.end();
+    mHasSync = extensions.find("GL_ARB_sync") != extensions.end();
+    mHasMapBufferRange = extensions.find("GL_ARB_map_buffer_range") != extensions.end();
+    mHasFlushBufferRange = extensions.find("GL_APPLE_flush_buffer_range") != extensions.end();
+    mHasDepthClamp = extensions.find("GL_ARB_depth_clamp") != extensions.end()
+                     || extensions.find("GL_NV_depth_clamp") != extensions.end();
+    // mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
+    #ifdef GL_ARB_framebuffer_object
+    mHasFramebufferObject = extensions.find("GL_ARB_framebuffer_object") != extensions.end();
+#else
+    mHasFramebufferObject = extensions.find("GL_EXT_framebuffer_object") != extensions.end() &&
+    extensions.find("GL_EXT_framebuffer_blit") != extensions.end() &&
+    extensions.find("GL_EXT_framebuffer_multisample") != extensions.end() &&
+    extensions.find("GL_EXT_packed_depth_stencil") != extensions.end();
+#endif
+
+    mHasFramebufferMultisample = mHasFramebufferObject && extensions.find("GL_EXT_framebuffer_multisample") != extensions.end();
+
+#ifdef GL_EXT_texture_sRGB
+    mHassRGBTexture = extensions.find("GL_EXT_texture_sRGB") != extensions.end();
+#endif
+    
+#ifdef GL_ARB_framebuffer_sRGB
+    mHassRGBFramebuffer = extensions.find("GL_ARB_framebuffer_sRGB") != extensions.end();
+#else
+    mHassRGBFramebuffer = extensions.find("GL_EXT_framebuffer_sRGB") != extensions.end();
+#endif
+    
+    mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
+    
+    mHasDrawBuffers = extensions.find("GL_ARB_draw_buffers") != extensions.end();
+    mHasBlendFuncSeparate = extensions.find("GL_EXT_blend_func_separate") != extensions.end();
+    mHasTextureRectangle = extensions.find("GL_ARB_texture_rectangle") != extensions.end();
+    mHasDebugOutput = extensions.find("GL_ARB_debug_output") != extensions.end();
+    mHasTransformFeedback = mGLVersion >= 4.f || extensions.find("GL_EXT_transform_feedback") != extensions.end();
+#if !LL_DARWIN
+    mHasPointParameters = !mIsATI && extensions.find("GL_ARB_point_parameters") != extensions.end();
+#endif
+	mHasShaderObjects = mGLVersion >= 2.f;
+	mHasVertexShader = mGLVersion >= 2.f;
+	mHasFragmentShader = mGLVersion >= 2.f;
+    
+#ifdef GL_ARB_gpu_shader5
+    mHasGpuShader5 = extensions.find("GL_ARB_gpu_shader5") != extensions.end();
+#endif
+
 #else // LL_MESA_HEADLESS
 	mHasMultitexture = GLEW_ARB_multitexture;
 	mHasATIMemInfo = GLEW_ATI_meminfo;
@@ -792,6 +864,7 @@ void LLGLManager::initExtensions()
 							GLEW_EXT_framebuffer_multisample &&
 							GLEW_EXT_packed_depth_stencil;
 #endif
+
 #ifdef GL_EXT_texture_sRGB
 	mHassRGBTexture = GLEW_EXT_texture_sRGB;
 #endif
