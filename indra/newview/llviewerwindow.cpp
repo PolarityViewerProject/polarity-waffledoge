@@ -170,6 +170,7 @@
 
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
+#include "llviewermenufile.h" // For threaded filepicker
 
 // [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c)
 #include "rlvhandler.h"
@@ -178,6 +179,8 @@
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #endif
+ 
+#include "pvcommon.h"
 
 //
 // Globals
@@ -4295,13 +4298,79 @@ BOOL LLViewerWindow::mousePointOnLandGlobal(const S32 x, const S32 y, LLVector3d
 	return FALSE;
 }
 
+// <FS:Ansariel> Threaded filepickers
+void do_save_image(LLImageFormatted* image, const std::string& snapshot_dir, const std::string& base_name, const std::string& extension, boost::function<void(bool)> callback)
+{
+	// Look for an unused file name
+	std::string filepath;
+	S32 i = 1;
+	S32 err = 0;
+
+	do
+	{
+		filepath = snapshot_dir;
+		filepath += gDirUtilp->getDirDelimiter();
+		filepath += base_name;
+		filepath += llformat("_%.3d",i);
+		filepath += extension;
+
+		llstat stat_info;
+		err = LLFile::stat( filepath, &stat_info );
+		i++;
+	}
+	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
+
+	LL_INFOS() << "Saving snapshot to " << filepath << LL_ENDL;
+
+	if (gSavedSettings.getBOOL("FSLogSnapshotsToLocal"))
+	{
+		LLStringUtil::format_map_t args;
+		args["FILENAME"] = filepath;
+		reportToNearbyChat(LLTrans::getString("SnapshotSavedToDisk", args));
+	}
+
+	bool success = image->save(filepath);
+	if (callback)
+	{
+		callback(success);
+	}
+}
+
+void LLViewerWindow::saveImageCallback(const std::string& filename, LLImageFormatted* image, const std::string& extension, boost::function<void(bool)> callback)
+{
+	if (!filename.empty())
+	{
+		LLViewerWindow::sSnapshotBaseName = gDirUtilp->getBaseFileName(filename, true);
+		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filename);
+
+		do_save_image(image, LLViewerWindow::sSnapshotDir, LLViewerWindow::sSnapshotBaseName, extension, callback);
+		return;
+	}
+
+	if (callback)
+	{
+		callback(false);
+	}
+}
+// </FS:Ansariel>
+
 // Saves an image to the harddrive as "SnapshotX" where X >= 1.
-BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker)
+// <FS:Ansariel> Threaded filepickers
+//BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker)
+void LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picker, boost::function<void(bool)> callback)
+// </FS:Ansariel>
 {
 	if (!image)
 	{
 		LL_WARNS() << "No image to save" << LL_ENDL;
-		return FALSE;
+		// <FS:Ansariel> Threaded filepickers
+		//return FALSE;
+		if (callback)
+		{
+			callback(false);
+			return;
+		}
+		// </FS:Ansariel>
 	}
 
 	LLFilePicker::ESaveFilter pick_type;
@@ -4324,44 +4393,13 @@ BOOL LLViewerWindow::saveImageNumbered(LLImageFormatted *image, bool force_picke
 	{
 		std::string proposed_name( sSnapshotBaseName );
 
-		// getSaveFile will append an appropriate extension to the proposed name, based on the ESaveFilter constant passed in.
-
-		// pick a directory in which to save
-		LLFilePicker& picker = LLFilePicker::instance();
-		if (!picker.getSaveFile(pick_type, proposed_name))
-		{
-			// Clicked cancel
-			return FALSE;
-		}
-
-		// Copy the directory + file name
-		std::string filepath = picker.getFirstFile();
-
-		LLViewerWindow::sSnapshotBaseName = gDirUtilp->getBaseFileName(filepath, true);
-		LLViewerWindow::sSnapshotDir = gDirUtilp->getDirName(filepath);
+		(new LLGenericSaveFilePicker(pick_type, proposed_name, boost::bind(&LLViewerWindow::saveImageCallback, this, _1, image, extension, callback)))->getFile();
+		return;
 	}
 
-	// Look for an unused file name
-	std::string filepath;
-	S32 i = 1;
-	S32 err = 0;
-
-	do
-	{
-		filepath = sSnapshotDir;
-		filepath += gDirUtilp->getDirDelimiter();
-		filepath += sSnapshotBaseName;
-		filepath += llformat("_%.3d",i);
-		filepath += extension;
-
-		llstat stat_info;
-		err = LLFile::stat( filepath, &stat_info );
-		i++;
-	}
-	while( -1 != err );  // search until the file is not found (i.e., stat() gives an error).
-
-	LL_INFOS() << "Saving snapshot to " << filepath << LL_ENDL;
-	return image->save(filepath);
+	do_save_image(image, LLViewerWindow::sSnapshotDir, LLViewerWindow::sSnapshotBaseName, extension, callback);
+	// </FS:Ansariel>
+	//return image->save(filepath);
 }
 
 void LLViewerWindow::resetSnapshotLoc()

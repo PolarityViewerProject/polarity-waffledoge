@@ -265,7 +265,7 @@ void LLFloaterSnapshot::Impl::updateLayout(LLFloaterSnapshot* floaterp)
 	//BD - Automatically calculate the size of our snapshot window to enlarge
 	//     the snapshot preview to its maximum size, this is especially helpfull
 	//     for pretty much every aspect ratio other than 1:1.
-	F32 panel_width = 400.f * gViewerWindow->getWorldViewAspectRatio();
+	S32 panel_width = llfloor(400.f * gViewerWindow->getWorldViewAspectRatio());
 
 	//BD - Make sure we clamp at 700 here because 700 would be for 16:9 which we
 	//     consider the maximum. Everything bigger will be clamped and will have
@@ -1402,7 +1402,10 @@ void LLFloaterSnapshot::saveTexture()
 }
 
 // static
-BOOL LLFloaterSnapshot::saveLocal()
+// <FS:Ansariel> Threaded filepickers
+//BOOL LLFloaterSnapshot::saveLocal()
+void LLFloaterSnapshot::saveLocal(boost::function<void(bool)> callback)
+// </FS:Ansariel>
 {
 	LL_DEBUGS() << "saveLocal" << LL_ENDL;
 	// FIXME: duplicated code
@@ -1410,16 +1413,33 @@ BOOL LLFloaterSnapshot::saveLocal()
 	if (!instance)
 	{
 		llassert(instance != NULL);
-		return FALSE;
+		// <FS:Ansariel> Threaded filepickers
+		//return FALSE;
+		if (callback)
+		{
+			callback(false);
+		}
+		return;
+		// </FS:Ansariel>
 	}
 	LLSnapshotLivePreview* previewp = Impl::getPreviewView(instance);
 	if (!previewp)
 	{
 		llassert(previewp != NULL);
-		return FALSE;
+		// <FS:Ansariel> Threaded filepickers
+		//return FALSE;
+		if (callback)
+		{
+			callback(false);
+		}
+		return;
+		// </FS:Ansariel>
 	}
 
-	return previewp->saveLocal();
+	// <FS:Ansariel> Threaded filepickers
+	//return previewp->saveLocal();
+	previewp->saveLocal(callback);
+	// </FS:Ansariel>
 }
 
 // static

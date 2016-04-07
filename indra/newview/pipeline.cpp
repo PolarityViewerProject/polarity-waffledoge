@@ -109,6 +109,7 @@
 
 #include "llglmhelpers.h"
 
+#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
@@ -423,14 +424,8 @@ LLPipeline::LLPipeline():
 	mMatrixOpCount(0),
 	mTextureMatrixOps(0),
 	mNumVisibleNodes(0),
-	mDebugTextureUploadCost(0),
-	mDebugSculptUploadCost(0),
-	mDebugMeshUploadCost(0),
 	mNumVisibleFaces(0),
 
-	mScreenWidth(0),
-	mScreenHeight(0),
-	mGILightRadius(0),
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
@@ -439,8 +434,8 @@ LLPipeline::LLPipeline():
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
 	mMeshDirtyQueryObject(0),
-	mGroupQ2Locked(false),
 	mGroupQ1Locked(false),
+	mGroupQ2Locked(false),
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
@@ -459,7 +454,9 @@ LLPipeline::LLPipeline():
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
-	mLightingDetail(0)
+	mLightingDetail(0),
+	mScreenWidth(0),
+	mScreenHeight(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
@@ -1608,14 +1605,31 @@ public:
 
 	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
 
-	void visit(const OctreeNode* node) override;
-
-	~LLOctreeDirtyTexture() override
+	virtual void visit(const OctreeNode* node)
 	{
+		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+
+		if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
+	{
+			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
+			{
+				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
+				{
+					LLDrawInfo* params = *j;
+					LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
+					if (tex && mTextures.find(tex) != mTextures.end())
+					{ 
+						group->setState(LLSpatialGroup::GEOM_DIRTY);
 	}
+				}
+			}
+		}
 
-	void traverse(const LLOctreeNode<LLViewerOctreeEntry>* node) override
+		for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
 	{
+			LLSpatialBridge* bridge = *i;
+			traverse(bridge->mOctree);
+		}
 	}
 };
 
@@ -7481,33 +7495,6 @@ void validate_framebuffer_object()
 	}
 }
 
-void LLOctreeDirtyTexture::visit(const OctreeNode* node)
-{
-	LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
-
-	if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
-	{
-		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
-		{
-			for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j)
-			{
-				LLDrawInfo* params = *j;
-				LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
-				if (tex && mTextures.find(tex) != mTextures.end())
-				{
-					group->setState(LLSpatialGroup::GEOM_DIRTY);
-				}
-			}
-		}
-	}
-
-	for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
-	{
-		LLSpatialBridge* bridge = *i;
-		traverse(bridge->mOctree);
-	}
-}
-
 void LLPipeline::bindScreenToTexture() const
 {
 	
@@ -7655,7 +7642,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGlowExtractProgram.uniform3f(LLShaderMgr::GLOW_WARMTH_WEIGHTS, warmthWeights.mV[0], warmthWeights.mV[1], warmthWeights.mV[2]);
 		gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
 		LLGLEnable blend_on(GL_BLEND);
-		LLGLEnable alpha_test(GL_ALPHA_TEST);
+		LLGLEnable test(GL_ALPHA_TEST);
 		
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
@@ -7782,7 +7769,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (dof_enabled)
 		{
 			LLGLSLShader* shader = &gDeferredPostProgram;
-			LLGLDisable dof_blend(GL_BLEND);
+			LLGLDisable blend(GL_BLEND);
 
 			//depth of field focal plane calculations
 			static F32 current_distance = 16.f;
@@ -8190,7 +8177,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				
 		buff->flush();
 
-		LLGLDisable blend1(GL_BLEND);
+		LLGLDisable blend(GL_BLEND);
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
@@ -8301,7 +8288,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	}
 
 	shader.bind();
-	S32 channel;
+	S32 channel = 0;
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredScreen.getUsage());
 	if (channel > -1)
 	{
@@ -8442,11 +8429,11 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 			cube_map->bind();
 			F32* m = gGLModelView;
 						
-			F32 mat_cube[] = { m[0], m[1], m[2],
+			F32 mat[] = { m[0], m[1], m[2],
 						  m[4], m[5], m[6],
 						  m[8], m[9], m[10] };
 		
-			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat_cube);
+			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
 		}
 	}
 
@@ -8462,8 +8449,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR, ssao_factor);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR_INV, 1.0/ssao_factor);
 
-	F32 ssao_effect = RenderSSAOEffect;
-	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, RenderSSAOEffect);
 
 	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));
 	shader.uniform1f(LLShaderMgr::DEFERRED_CHROMA_STRENGTH, PVRender_ChromaStrength);
@@ -8479,8 +8465,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
 	// <Black Dragon:NiranV> Quadratic shadow resolution depending on screen resolution
-	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, mShadow[0].getWidth(), mShadow[0].getWidth());
-	// </Black Dragon:NiranV>
+	//shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, mShadow[0].getWidth(), mShadow[0].getWidth());
+	// </Black Dragon:NiranV>     
+
+	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, mShadow[0].getWidth(), mShadow[0].getHeight());
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
@@ -8837,7 +8825,7 @@ void LLPipeline::renderDeferredLighting()
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-							//gGL.syncMatrices(); // <alchemy/>
+							gGL.syncMatrices();
 							
 							mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 							stop_glerror();
@@ -8897,7 +8885,7 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-					//gGL.syncMatrices(); // <alchemy/>
+					gGL.syncMatrices();
 										
 					mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 				}
