@@ -449,8 +449,6 @@ LLSD LLNewFileResourceUploadInfo::exportTempFile()
     {
         LLVFile file(gVFS, getAssetId(), assetType, LLVFile::WRITE);
 
-        LLVFile file(gVFS, uuid, asset_type, LLVFile::WRITE);
-
         instream.seekg(0, instream.end);
         file_size = (U32) instream.tellg();
         instream.seekg(0, instream.beg);
