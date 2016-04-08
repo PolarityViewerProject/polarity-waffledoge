@@ -539,6 +539,9 @@ void LLFloaterPreference::saveSettings()
 		if (panel)
 			panel->saveSettings();
 	}
+	// <polarity> LookAt Logic
+	confirmNosyLookAt();
+	// </polarity>
 }	
 
 void LLFloaterPreference::apply()
