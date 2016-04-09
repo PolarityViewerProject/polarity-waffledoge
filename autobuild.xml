@@ -1642,9 +1642,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ce1261a54d877ab5530ae6a9134a77a3</string>
+              <string>faa1e5b7cf70c143caabe190fa5588ce</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/294906/arch/Linux/installer/llappearance_utility-0.0.1-linux-294906.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llappearance_viewer-update-llappearance-utility/rev/304432/arch/Linux/installer/llappearance_utility-0.0.1-linux-304432.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2268,11 +2268,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68a8fab5ad3a180487598d3a3e0d57b1</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>3dd9bf4185bf2df413d890ca9eeab76c</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Darwin/installer/slvoice-4.6.0017.21209.298329-darwin-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Darwin/installer/slvoice-4.6.0017.22050.302004-darwin-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2282,9 +2280,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48ed7ddcf93fa3c751d677f5eb5f9367</string>
+              <string>06c3a9b1005249f0c94a8b9f3775f3d3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/Linux/installer/slvoice-3.2.0002.10426.298329-linux-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Linux/installer/slvoice-3.2.0002.10426.302004-linux-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2294,28 +2292,12 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>399afab7047e6fa62e7b2fb1768059ea</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>47a3316dae47cc4e7c1ea7b74ba8dd1e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/slvoice_3p-update-slvoice/rev/298329/arch/CYGWIN/installer/slvoice-4.6.0017.21209.298329-windows-298329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/CYGWIN/installer/slvoice-4.6.0017.22050.302004-windows-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>dabbc146137c13ec2ea026aa69e1f045</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib/slvoice-4.6.0017.21209.298329-windows64-298329.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
