@@ -1330,6 +1330,16 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 
 	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
 	
+	// <Polarity> Temporary workaround for texture trashing: cap the texture memory to 1.5GB
+
+	const auto trashing_clamp = static_cast<S32Megabytes>(1300);
+	if (trashing_clamp.value())
+
+	if (max_texmem.value() >= trashing_clamp.value())
+	{
+		return trashing_clamp;
+	}
+
 	return max_texmem;
 }
 
