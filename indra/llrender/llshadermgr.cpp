@@ -663,6 +663,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 			text[count++] = strdup("#define ATTRIBUTE attribute\n");
 			text[count++] = strdup("#define VARYING varying\n");
 			text[count++] = strdup("#define VARYING_FLAT varying\n");
+			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
 		}
 		else if (minor_version <= 29)
 		{
@@ -673,6 +675,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 			text[count++] = strdup("#define ATTRIBUTE attribute\n");
 			text[count++] = strdup("#define VARYING varying\n");
 			text[count++] = strdup("#define VARYING_FLAT varying\n");
+			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
 		}
 	}
 	else
@@ -681,7 +685,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		{
 			//set version to 1.30
 			text[count++] = strdup("#version 130\n");
-
+			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
 			if (minor_version == 50 && gGLManager.mHasGpuShader5)
 			{
 				text[count++] = strdup("#extension GL_ARB_gpu_shader5 : enable\n");
@@ -694,6 +699,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		else
 		{ //set version to 400
 			text[count++] = strdup("#version 400\n");
+			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
 			text[count++] = strdup("#define FXAA_GLSL_400 1\n");
 		}
 
@@ -1211,7 +1218,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("ssao_max_radius");
 	mReservedUniforms.push_back("ssao_factor");
 	mReservedUniforms.push_back("ssao_factor_inv");
+	// <Black Dragon:NiranV> SSAO
+	// mReservedUniforms.push_back("ssao_effect_mat");
 	mReservedUniforms.push_back("ssao_effect");
+	// </Black Dragon:NiranV>
 	mReservedUniforms.push_back("screen_res");
 	mReservedUniforms.push_back("near_clip");
 	mReservedUniforms.push_back("shadow_offset");
@@ -1262,6 +1272,19 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
 
+	// <exodus>
+	mReservedUniforms.push_back("exo_gamma");
+	mReservedUniforms.push_back("exo_exposure");
+	mReservedUniforms.push_back("exo_offset");
+	mReservedUniforms.push_back("exo_vignette");
+	mReservedUniforms.push_back("textureLUT");
+	mReservedUniforms.push_back("exo_screen");
+	mReservedUniforms.push_back("invGammaFunc");
+	mReservedUniforms.push_back("exo_advToneUA");
+	mReservedUniforms.push_back("exo_advToneUB");
+	mReservedUniforms.push_back("exo_advToneUC");
+	//llassert(mReservedUniforms.size() == LLShaderMgr::EXO_RENDER_SCREEN+1);
+	// </exodus>
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
 	
@@ -1270,6 +1293,20 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	mReservedUniforms.push_back("matrixPalette");
 	mReservedUniforms.push_back("translationPalette");
+
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	mReservedUniforms.push_back("godray_res");
+	mReservedUniforms.push_back("godray_multiplier");
+	mReservedUniforms.push_back("falloff_multiplier");
+	// <Black Dragon:NiranV> Tofu's SSR
+	mReservedUniforms.push_back("ssr_res");
+	// </Black Dragon:NiranV> SSR
+	// <Black Dragon:NiranV> Post-Process Effects
+	mReservedUniforms.push_back("num_colors");
+	mReservedUniforms.push_back("greyscale_str");
+	mReservedUniforms.push_back("sepia_str");
+	mReservedUniforms.push_back("chroma_str");
+	// </Black Dragon:NiranV>
 	
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");
@@ -1307,7 +1344,11 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_3");
 	mReservedUniforms.push_back("alpha_ramp");
 
-	mReservedUniforms.push_back("origin");
+	mReservedUniforms.push_back("origin"); 
+	// <Black Dragon:NiranV> Tofu's SSR
+	mReservedUniforms.push_back("seconds60");
+	// </Black Dragon:NiranV>
+
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
 	std::set<std::string> dupe_check;

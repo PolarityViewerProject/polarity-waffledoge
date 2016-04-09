@@ -78,6 +78,7 @@
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
+#include "llenvmanager.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -90,6 +91,7 @@ LLControlGroup gSavedSettings("Global");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
+LLControlGroup gControlSettings("Controls"); // <Black Dragon:NiranV> Customizable Controls
 
 std::string gLastRunVersion;
 
@@ -118,6 +120,14 @@ static bool handleTerrainDetailChanged(const LLSD& newvalue)
 	return true;
 }
 
+// <polarity> Change terrain scale on the fly
+static bool handleTerrainScaleChanged(const LLSD& inputvalue)
+{
+	LLSD newvalue = 1.f / inputvalue.asReal();
+	LLDrawPoolTerrain::sDetailScale = newvalue.asReal();
+	return true;
+}
+// </polarity>
 
 static bool handleSetShaderChanged(const LLSD& newvalue)
 {
@@ -128,6 +138,20 @@ static bool handleSetShaderChanged(const LLSD& newvalue)
 	// else, leave terrain detail as is
 	LLViewerShaderMgr::instance()->setShaders();
 	return true;
+}
+
+// <polarity> Ensure we don't attempt to use invalid FXAA presets
+static bool validateFXAAQuality(const LLSD& val)
+{
+	U32 preset = val.asInteger();
+	return preset == 39 || (preset > 19 && preset < 30) || (preset > 9 && preset < 16);
+}
+// </polarity>
+
+static bool validateVSync(const LLSD& val)
+{
+	const U32 preset = val.asInteger();
+	return preset <= 2U;
 }
 
 static bool handleRenderPerfTestChanged(const LLSD& newvalue)
@@ -593,6 +617,43 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
+// <Black Dragon:NiranV> Expose Attached Lights and Particles
+static bool handleRenderAttachedLightsChanged(const LLSD& newvalue)
+{
+	LLPipeline::sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
+	return true;
+}
+static bool handleRenderAttachedParticlesChanged(const LLSD& newvalue)
+{
+	LLPipeline::sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
+	return true;
+}
+
+// <Black Dragon:NiranV> Give UseEnvironmentFromRegion a purpose and make it able to switch between Region/Fixed Windlight from everywhere via UI
+static bool handleUseRegioLight(const LLSD& newvalue)
+{
+	LLEnvManagerNew& envmgr = LLEnvManagerNew::instance();
+	gSavedSettings.setBOOL("UseEnvironmentFromRegion" , newvalue.asBoolean());
+	bool fixed = gSavedSettings.getBOOL("UseEnvironmentFromRegion");
+	if (fixed)
+		envmgr.setUseRegionSettings(true);
+	else
+		envmgr.setUseRegionSettings(false);
+	return true;
+}
+static bool handleWaterResolutionChanged(const LLSD& newvalue)
+{
+	gPipeline.handleReflectionChanges();
+	return true;
+}
+static bool handleTimeFactorChanged(const LLSD& newvalue)
+{
+	if (gSavedSettings.getBOOL("SlowMotionAnimation"))
+	{
+		gAgentAvatarp->setAnimTimeFactor(gSavedSettings.getF32("SlowMotionTimeFactor"));
+	}
+	return true;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -600,6 +661,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _2));
 	gSavedSettings.getControl("RenderFarClip")->getSignal()->connect(boost::bind(&handleRenderFarClipChanged, _2));
 	gSavedSettings.getControl("RenderTerrainDetail")->getSignal()->connect(boost::bind(&handleTerrainDetailChanged, _2));
+	// <polarity> Change terrain scale on the fly
+	gSavedSettings.getControl("RenderTerrainScale")->getSignal()->connect(boost::bind(&handleTerrainScaleChanged, _2));
 	gSavedSettings.getControl("OctreeStaticObjectSizeFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("OctreeDistanceFactor")->getSignal()->connect(boost::bind(&handleRepartition, _2));
 	gSavedSettings.getControl("OctreeMaxNodeCapacity")->getSignal()->connect(boost::bind(&handleRepartition, _2));
@@ -611,12 +674,17 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("VertexShaderEnable")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderUIBuffer")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	// <Black Dragon:NiranV> Film Grain
+	gSavedSettings.getControl("PVRender_EnableFilmGrain")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	// </Black Dragon:NiranV>
 	gSavedSettings.getControl("RenderFSAASamples")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResX")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	// <Black Dragon:NiranV> Raw Shadow Resolution
+	gSavedSettings.getControl("PVOverride_RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	// </Black Dragon:NiranV>
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
@@ -647,7 +715,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDebugPipeline")->getSignal()->connect(boost::bind(&handleRenderDebugPipelineChanged, _2));
 	gSavedSettings.getControl("RenderResolutionDivisor")->getSignal()->connect(boost::bind(&handleRenderResolutionDivisorChanged, _2));
 	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleRenderDeferredChanged, _2));
-	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("PVRender_DeferredFXAAQuality")->getValidateSignal()->connect(boost::bind(validateFXAAQuality, _2));
+	gSavedSettings.getControl("PVRender_DeferredFXAAQuality")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("PVOverride_RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
@@ -748,6 +818,22 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 	gSavedSettings.getControl("ObsidianNavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
+	
+
+	// </Black Dragon:NiranV> SSR
+	gSavedSettings.getControl("PVRender_EnableSSR")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	// <Black Dragon:NiranV> Expose Attached Lights and Particles
+	gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
+	gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	gSavedSettings.getControl("PVRender_EnableGodRays")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("PVRender_GodRaysDirectional")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	// <Black Dragon:NiranV> change controls at runtime
+	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
+	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
+	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
+	// </Black Dragon:NiranV>
 }
 
 #if TEST_CACHED_CONTROL

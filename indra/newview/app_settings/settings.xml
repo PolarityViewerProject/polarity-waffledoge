@@ -8774,6 +8774,8 @@
     <string>Amount to scale distance to virtual origin of shadow perspective projection.</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -8796,6 +8798,8 @@
     <string>Exponent applied to transition between ortho and perspective shadow projections based on viewing angle and light vector.</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -8806,6 +8810,8 @@
     <key>Comment</key>
     <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -8818,6 +8824,8 @@
     <string>Maximum screen radius for sampling (pixels)</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
@@ -8829,6 +8837,8 @@
     <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -8839,6 +8849,8 @@
     <key>Comment</key>
     <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
@@ -9462,6 +9474,8 @@
     <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
@@ -9478,6 +9492,8 @@
     <string>Scale of shadow softening kernel.</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -9488,6 +9504,8 @@
     <key>Comment</key>
     <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>U32</string>

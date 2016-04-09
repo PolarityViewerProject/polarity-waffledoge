@@ -38,6 +38,9 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
+// <Black Dragon:NiranV> Exodus post processing shaders
+#include "exopostprocess.h"
+// </Black Dragon:NiranV>
 
 #include <stack>
 #include <glm/mat4x4.hpp>
@@ -95,6 +98,8 @@ public:
 	LLPipeline();
 	~LLPipeline();
 
+	// <Black Dragon:NiranV> Change water reflection resolution on the way
+	void handleReflectionChanges();
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
@@ -493,8 +498,11 @@ public:
 // 		RENDER_DEBUG_FEATURE_HW_LIGHTING		= 0x0010,
 		RENDER_DEBUG_FEATURE_FLEXIBLE			= 0x0010,
 		RENDER_DEBUG_FEATURE_FOG				= 0x0020,
-		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
-		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
+		// <Black Dragon:NiranV> Remove foot shadows
+		//RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
+		//RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
+		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080
+		// </Black Dragon:NiranV>
 	};
 
 	enum LLRenderDebugMask
@@ -584,6 +592,11 @@ public:
 	static S32				sVisibleLightCount;
 	static F32				sMinRenderSize;
 	static BOOL				sRenderingHUDs;
+
+	// <Black Dragon:NiranV>
+	static BOOL			 sPVRender_ShaderGamma;
+	static BOOL			 sPVRender_ToneMapping;
+	// </Black Dragon:NiranV>
 
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
@@ -867,7 +880,11 @@ public:
 	static BOOL RenderUIBuffer;
 	static S32 RenderShadowDetail;
 	static BOOL RenderDeferredSSAO;
-	static F32 RenderShadowResolutionScale;
+	// <Black Dragon:NiranV> Raw Shadow Resolution
+	//static F32 RenderShadowResolutionScale;
+	static LLVector3 RenderShadowResolution;
+	static LLVector3 RenderProjectorShadowResolution;
+	// </Black Dragon:NiranV>
 	static BOOL RenderLocalLights;
 	static BOOL RenderDelayCreation;
 	static BOOL RenderAnimateRes;
@@ -907,7 +924,10 @@ public:
 	static F32 RenderSSAOScale;
 	static U32 RenderSSAOMaxScale;
 	static F32 RenderSSAOFactor;
-	static LLVector3 RenderSSAOEffect;
+	// <Black Dragon:NiranV> SSAO
+	//static LLVector3 RenderSSAOEffect;
+	static F32 RenderSSAOEffect;
+	// </Black Dragon:NiranV>
 	static F32 RenderShadowOffsetError;
 	static F32 RenderShadowBiasError;
 	static F32 RenderShadowOffset;
@@ -932,6 +952,18 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
+
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	static BOOL PVRender_EnableGodRays;
+	static U32 PVRender_GodRaysResolution;
+	static F32 PVRender_GodRaysMultiplier;
+	static F32 PVRender_GodRaysFalloffMultiplier;
+	// </Black Dragon:NiranV>
+
+	// <Black Dragon:NiranV> Tofu's SSR
+	static U32 PVRender_SSRResolution;
+	static F32 PVRender_ChromaStrength;
+	// </Black Dragon:NiranV>
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

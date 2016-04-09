@@ -64,7 +64,7 @@ uniform vec4 glow;
 uniform float global_gamma;
 uniform float scene_light_strength;
 uniform mat3 env_mat;
-uniform float ssao_effect;
+uniform mat3 ssao_effect_mat;
 
 uniform vec3 sun_dir;
 VARYING vec2 vary_fragcoord;
@@ -79,6 +79,7 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
+uniform float chroma_str;
 vec3 srgb_to_linear(vec3 cs)
 {
 	vec3 low_range = cs / vec3(12.92);
@@ -299,14 +300,21 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	//increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
 	
+	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
+	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
+	 * // The following line of code performs the equivalent of:
+	 * float ambAlpha = tmpAmbient.a;
+	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
+	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
+	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
+	 */
+	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
 	//haze color
 	setAdditiveColor(
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
 
-	// decrease value for occluded areas
-	tmpAmbient = vec4(mix(ssao_effect * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
 
 	//brightness of surface both sunlight and ambient
 	setSunlitColor(vec3(sunlight * .5));
@@ -391,7 +399,17 @@ void main()
           final_da = min(final_da, 1.0f);
 	      final_da = pow(final_da, 1.0/1.3);
 
-	vec4 diffuse = texture2DRect(diffuseRect, tc);
+	vec4 diffuse;
+    vec2 fromCentre = vec2(0.0);
+    if(chroma_str > 0.0)
+    {
+        fromCentre = (tc / screen_res) - vec2(0.5);
+        float radius = length(fromCentre);
+        fromCentre = (chroma_str * (radius*radius)) / vec2(1);
+    }
+    diffuse.b= texture2DRect(diffuseRect, tc-fromCentre).b;
+	diffuse.r= texture2DRect(diffuseRect, tc+fromCentre).r;
+	diffuse.ga= texture2DRect(diffuseRect, tc).ga;
 
 	//convert to gamma space
 	diffuse.rgb = linear_to_srgb(diffuse.rgb);
@@ -433,6 +451,7 @@ void main()
 		
 		col = mix(col.rgb, diffuse.rgb, diffuse.a);
 				
+		#ifdef ENV_SHINY_ALLOWED
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
@@ -443,6 +462,7 @@ void main()
 			col = mix(col.rgb, refcol, 
 				envIntensity);  
 		}
+		#endif
 				
 		if (norm.w < 0.5)
 		{

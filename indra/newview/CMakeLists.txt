@@ -97,6 +97,7 @@ include_directories(SYSTEM
     )
     
 SET(thirdparty_SOURCE_FILES
+	exopostprocess.cpp
     fsareasearch.cpp
     fsareasearchmenu.cpp
     fsscrolllistctrl.cpp
@@ -109,6 +110,7 @@ SET(thirdparty_SOURCE_FILES
     )
 
 SET(thirdparty_HEADER_FILES
+	exopostprocess.h
     fsareasearch.h
     fsareasearchmenu.h
     fsscrolllistctrl.h

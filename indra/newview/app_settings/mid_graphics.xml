@@ -39,5 +39,5 @@
 	<!--SSAO Disabled-->
 	<RenderDeferredSSAO value="FALSE"/>
 	<!--No Shadows-->
-	<RenderShadowDetail value="0"/>
+	<PVOverride_RenderShadowDetail value="0"/>
 </settings>

@@ -35,6 +35,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
+uniform float display_gamma;
 uniform vec4 gamma;
 uniform vec4 lightnorm;
 uniform vec4 sunlight_color;
@@ -537,7 +538,9 @@ void main()
 	float final_alpha = diff.a;
 #endif
 #ifdef FOR_IMPOSTOR
-	vec4 color = vec4(diff.rgb,final_alpha);
+	vec4 color;
+	color.rgb = diff.rgb;
+	color.a = 1.0;
 	
 	// Insure we don't pollute depth with invis pixels in impostor rendering
 	//

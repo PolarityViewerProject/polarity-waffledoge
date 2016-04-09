@@ -224,6 +224,9 @@ LLGLSLShader			gDeferredDoFCombineProgram;
 LLGLSLShader			gDeferredPostGammaCorrectProgram;
 LLGLSLShader			gFXAAProgram;
 LLGLSLShader			gDeferredPostNoDoFProgram;
+// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+LLGLSLShader			gVolumetricLightProgram;
+// </Black Dragon:NiranV>
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
 LLGLSLShader			gDeferredStarProgram;
@@ -231,6 +234,18 @@ LLGLSLShader			gDeferredFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 LLGLSLShader			gNormalMapGenProgram;
+
+// <Black Dragon:NiranV> Exodus post processing shaders
+LLGLSLShader			gColorGradePost;
+LLGLSLShader			gLinearToneMapping;
+LLGLSLShader			gReinhardToneMapping;
+LLGLSLShader			gFilmicToneMapping;
+LLGLSLShader			gVignettePost;
+LLGLSLShader			gColorGradePostLegacy;
+LLGLSLShader			gFilmicToneMappingAdv;
+LLGLSLShader			gSpecialPost;
+LLGLSLShader			gLensFlare;
+// </Black Dragon:NiranV>
 
 // Deferred materials shaders
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
@@ -336,6 +351,9 @@ LLViewerShaderMgr::LLViewerShaderMgr() :
 	mShaderList.push_back(&gDeferredAvatarAlphaProgram);
 	mShaderList.push_back(&gDeferredWLSkyProgram);
 	mShaderList.push_back(&gDeferredWLCloudProgram);
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	mShaderList.push_back(&gVolumetricLightProgram);
+	// </Black Dragon:NiranV>
 }
 
 LLViewerShaderMgr::~LLViewerShaderMgr()
@@ -487,7 +505,7 @@ void LLViewerShaderMgr::setShaders()
 			gSavedSettings.getBOOL("RenderAvatarVP") &&
 			gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 		{
-			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
+			if (gSavedSettings.getS32("PVOverride_RenderShadowDetail") > 0)
 			{ //shadows
 				deferred_class = 2;
 			}
@@ -800,6 +818,10 @@ void LLViewerShaderMgr::unloadShaders()
 	gDeferredSkinnedBumpProgram.unload();
 	gDeferredSkinnedAlphaProgram.unload();
 
+	// <Black Dragon:NiranV> Exodus post processing shaders
+	unloadExodusPostShaders();
+	// </Black Dragon:NiranV>
+
 	gTransformPositionProgram.unload();
 	gTransformTexCoordProgram.unload();
 	gTransformNormalProgram.unload();
@@ -1104,6 +1126,9 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 			LLPipeline::sRenderGlow = FALSE;
 		}
 	}
+	// <Black Dragon:NiranV> Exodus post processing shaders
+	success = loadExodusPostShaders();
+	// </Black Dragon:NiranV>
 	
 	return success;
 
@@ -1153,6 +1178,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredEmissiveProgram.unload();
 		gDeferredAvatarEyesProgram.unload();
 		gDeferredPostProgram.unload();		
+		// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+		gVolumetricLightProgram.unload();
+		// </Black Dragon:NiranV>
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
@@ -1172,6 +1200,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].unload();
 			gDeferredMaterialWaterProgram[i].unload();
 		}
+		// <Black Dragon:NiranV> Exodus post processing shaders
+		unloadExodusPostShaders();
+		// </Black Dragon:NiranV>
 		return TRUE;
 	}
 
@@ -1760,6 +1791,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
 		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
 
+		// <polarity> Tofu's SSR
+		gDeferredSoftenProgram.addPermutation("USE_SSR", (bool)gSavedSettings.getBOOL("PVRender_EnableSSR") ? "1" : "0");
+		// </polarity>
 		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
 		if (gSavedSettings.getBOOL("RenderDeferredSSAO"))
@@ -1901,12 +1935,26 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 	}
 
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	if (success)
+	{
+		gVolumetricLightProgram.mName = "Volumetric Light Shader";
+		gVolumetricLightProgram.mShaderFiles.clear();
+		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/volumetricLightF.glsl", GL_FRAGMENT_SHADER));
+		gVolumetricLightProgram.addPermutation("GODRAYS_FADE", (bool)gSavedSettings.getBOOL("PVRender_GodRaysDirectional") ? "1" : "0");
+		gVolumetricLightProgram.addPermutation("HAS_NO_DOF", (bool)gSavedSettings.getBOOL("RenderDepthOfField") ? "0" : "1");
+		gVolumetricLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gVolumetricLightProgram.createShader(NULL, NULL);
+	}
+	// </Black Dragon:NiranV>
 	if (success)
 	{
 		gFXAAProgram.mName = "FXAA Shader";
 		gFXAAProgram.mShaderFiles.clear();
 		gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
 		gFXAAProgram.mShaderFiles.push_back(make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
+		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("PVRender_DeferredFXAAQuality"))); // <alchemy/>
 		gFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gFXAAProgram.createShader(NULL, NULL);
 	}
@@ -1937,6 +1985,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDoFCombineProgram.mShaderFiles.clear();
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/dofCombineF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("PVRender_EnableFilmGrain") ? "1" : "0");
 		gDeferredDoFCombineProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDoFCombineProgram.createShader(NULL, NULL);
 	}
@@ -1998,6 +2047,109 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	return success;
 }
+// <Black Dragon:NiranV> Exodus post processing shaders
+void LLViewerShaderMgr::unloadExodusPostShaders()
+{
+	gColorGradePost.unload();
+	gLinearToneMapping.unload();
+	gReinhardToneMapping.unload();
+	gFilmicToneMapping.unload();
+	gVignettePost.unload();
+	gFilmicToneMappingAdv.unload();
+	gSpecialPost.unload();
+	gLensFlare.unload();
+}
+BOOL LLViewerShaderMgr::loadExodusPostShaders()
+{
+	BOOL success = TRUE;
+	//We only ever want to load these in deferred (as we'll probably never use floating point buffers in classic rendering)
+	if (LLPipeline::sRenderDeferred)
+	{
+		if (success)
+		{
+			gFilmicToneMapping.mName = "Exodus Filmic Tonemapping Post";
+			gFilmicToneMapping.mShaderFiles.clear();
+			gFilmicToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+			gFilmicToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoFilmicToneF.glsl", GL_FRAGMENT_SHADER));
+			gFilmicToneMapping.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			success = gFilmicToneMapping.createShader(NULL, NULL);
+		}
+		if (success)
+		{
+			gFilmicToneMappingAdv.mName = "Exodus Advanced Filmic Tonemapping";
+			gFilmicToneMappingAdv.mShaderFiles.clear();
+			gFilmicToneMappingAdv.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+			gFilmicToneMappingAdv.mShaderFiles.push_back(make_pair("exoshade/post/exoFilmicToneAdvancedF.glsl", GL_FRAGMENT_SHADER));
+			gFilmicToneMappingAdv.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			success = gFilmicToneMappingAdv.createShader(NULL, NULL);
+		}
+	}
+	if (success)
+	{
+		gVignettePost.mName = "Exodus Vignette Post";
+		gVignettePost.mShaderFiles.clear();
+		gVignettePost.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gVignettePost.mShaderFiles.push_back(make_pair("exoshade/post/exoVignetteF.glsl", GL_FRAGMENT_SHADER));
+		gVignettePost.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gVignettePost.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gLensFlare.mName = "Lens Flare";
+		gLensFlare.mShaderFiles.clear();
+		gLensFlare.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gLensFlare.mShaderFiles.push_back(make_pair("exoshade/post/exoLensF.glsl", GL_FRAGMENT_SHADER));
+		gLensFlare.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gLensFlare.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gSpecialPost.mName = "Special Post";
+		gSpecialPost.mShaderFiles.clear();
+		gSpecialPost.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gSpecialPost.mShaderFiles.push_back(make_pair("exoshade/post/exoSpecialF.glsl", GL_FRAGMENT_SHADER));
+		gSpecialPost.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gSpecialPost.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gColorGradePost.mName = "Exodus Color Grading Post";
+		gColorGradePost.mShaderFiles.clear();
+		gColorGradePost.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gColorGradePost.mShaderFiles.push_back(make_pair("exoshade/post/exoColorGradeF.glsl", GL_FRAGMENT_SHADER));
+		gColorGradePost.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gColorGradePost.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gLinearToneMapping.mName = "Exodus Linear Tonemapping Post";
+		gLinearToneMapping.mShaderFiles.clear();
+		gLinearToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gLinearToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoLinearToneF.glsl", GL_FRAGMENT_SHADER));
+		gLinearToneMapping.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gLinearToneMapping.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gReinhardToneMapping.mName = "Exodus Reinhard Tonemapping Post";
+		gReinhardToneMapping.mShaderFiles.clear();
+		gReinhardToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gReinhardToneMapping.mShaderFiles.push_back(make_pair("exoshade/post/exoReinhardToneF.glsl", GL_FRAGMENT_SHADER));
+		gReinhardToneMapping.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gReinhardToneMapping.createShader(NULL, NULL);
+	}
+	if (success)
+	{
+		gColorGradePostLegacy.mName = "Exodus Legacy Color Grading Post";
+		gColorGradePostLegacy.mShaderFiles.clear();
+		gColorGradePostLegacy.mShaderFiles.push_back(make_pair("exoshade/post/exoPostBaseV.glsl", GL_VERTEX_SHADER));
+		gColorGradePostLegacy.mShaderFiles.push_back(make_pair("exoshade/post/exoColorGradeLegacyF.glsl", GL_FRAGMENT_SHADER));
+		gColorGradePostLegacy.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gColorGradePostLegacy.createShader(NULL, NULL);
+	}
+	return success;
+}
+// </Black Dragon:NiranV>
 
 BOOL LLViewerShaderMgr::loadShadersObject()
 {
@@ -3407,8 +3559,6 @@ BOOL LLViewerShaderMgr::loadTransformShaders()
 	
 		success = gTransformTangentProgram.createShader(NULL, NULL, 1, varyings);
 	}
-
-	
 	return success;
 }
 

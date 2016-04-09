@@ -164,6 +164,16 @@ public:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
+	// <Black Dragon:NiranV> Arrays Debug
+	void onCommitX(LLUICtrl* ctrl, const LLSD& param);
+	void onCommitY(LLUICtrl* ctrl, const LLSD& param);
+	void onCommitZ(LLUICtrl* ctrl, const LLSD& param);
+	void onCommitXd(LLUICtrl* ctrl, const LLSD& param);
+	void onCommitYd(LLUICtrl* ctrl, const LLSD& param);
+	void onCommitZd(LLUICtrl* ctrl, const LLSD& param);
+	// <Black Dragon:NiranV> Refresh all controls
+	void refreshGraphicControls();
+	// </Black Dragon:NiranV>
 
 	void onCommitParcelMediaAutoPlayEnable();
 	void onCommitMediaEnabled();

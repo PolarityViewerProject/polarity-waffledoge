@@ -58,7 +58,11 @@ public:
 	BOOL loadShadersWater();
 	BOOL loadShadersInterface();
 	BOOL loadShadersWindLight();
+	// <Black Dragon:NiranV> Exodus post processing shaders
 	BOOL loadTransformShaders();
+	void unloadExodusPostShaders();
+	BOOL loadExodusPostShaders();
+	// </Black Dragon:NiranV>
 
 	std::vector<S32> mVertexShaderLevel;
 	S32	mMaxAvatarShaderLevel;
@@ -282,6 +286,17 @@ extern LLGLSLShader			gWLCloudProgram;
 extern LLGLSLShader			gPostColorFilterProgram;
 extern LLGLSLShader			gPostNightVisionProgram;
 
+// <Black Dragon:NiranV> Exodus post processing shaders
+extern LLGLSLShader		 gColorGradePost;
+extern LLGLSLShader		 gLinearToneMapping;
+extern LLGLSLShader		 gReinhardToneMapping;
+extern LLGLSLShader		 gFilmicToneMapping;
+extern LLGLSLShader		 gVignettePost;
+extern LLGLSLShader		 gColorGradePostLegacy;
+extern LLGLSLShader		 gFilmicToneMappingAdv;
+extern LLGLSLShader		 gLensFlare;
+extern LLGLSLShader		 gSpecialPost;
+// </Black Dragon:NiranV>
 
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
@@ -314,6 +329,9 @@ extern LLGLSLShader			gDeferredShadowAlphaMaskProgram;
 extern LLGLSLShader			gDeferredPostProgram;
 extern LLGLSLShader			gDeferredCoFProgram;
 extern LLGLSLShader			gDeferredDoFCombineProgram;
+// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+extern LLGLSLShader			gVolumetricLightProgram;
+// </Black Dragon:NiranV>
 extern LLGLSLShader			gFXAAProgram;
 extern LLGLSLShader			gDeferredPostNoDoFProgram;
 extern LLGLSLShader			gDeferredPostGammaCorrectProgram;

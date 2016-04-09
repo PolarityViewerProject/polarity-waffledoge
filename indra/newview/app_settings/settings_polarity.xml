@@ -16,6 +16,201 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <!-- Exodus Shaders -->
+    <key>PVRender_AutoExposeStep</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount to "correct" exposure by every frame until we've reached the target exposure in PVRender_ExposureTarget.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.125</real>
+    </map>
+    <key>PVRender_ExposureTarget</key>
+    <map>
+      <key>Comment</key>
+      <string>Target exposure level for auto exposure. Only applied when PVRender_EnableAutoExposure is set to TRUE.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PVRender_EnableAutoExposure</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether or not to enable auto exposure. Note: autoexposure is slightly more expensive, and may not work on all GPUs and drivers.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_ToneMappingControlA</key>
+    <map>
+      <key>Comment</key>
+      <string>Advanced tone mapping options. X = Shoulder strength, Y = Linear strength, Z = Linear angle.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>0.12</real>
+            <real>0.32</real>
+            <real>0.14</real>
+      </array>
+    </map>
+    <key>PVRender_ToneMappingControlB</key>
+    <map>
+      <key>Comment</key>
+      <string>Advanced tone mapping options (cont'd). X = Toe strength, Y = Toe numerator, Z = Toe denominator.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>0.22</real>
+            <real>0.02</real>
+            <real>0.15</real>
+      </array>
+    </map>
+    <key>PVRender_ToneMappingControlC</key>
+    <map>
+      <key>Comment</key>
+      <string>Advanced tone mapping options (cont'd). X = Linear white point, Y = Exposure bias.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>11.0</real>
+            <real>2.3</real>
+            <real>0</real>
+      </array>
+    </map>
+    <key>PVRender_ToneMappingExposure</key>
+    <map>
+      <key>Comment</key>
+      <string>Exposure for tone mapping.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.80</real>
+    </map>
+    <key>PVRender_EnableToneMapping</key>
+    <map>
+      <key>Comment</key>
+      <string>This enables and disables Tone Mapping.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_ToneMappingTech</key>
+    <map>
+      <key>Comment</key>
+      <string>Tone mapping technique to use. 0 applies Filmic, 1 applies Linear, and 2 applies Reinhard. Defaults to Reinhard.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>PVRender_ColorGradeTech</key>
+    <map>
+      <key>Comment</key>
+      <string>Color grading technique to use. 0 applies linear color correction, 1 applies a 1D color gammut LUT, 2 does nothing (yet), -1 disables color grading altogether. Defaults to linear.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_ColorGradeTexture</key>
+    <map>
+      <key>Comment</key>
+      <string>Image to use for color grading post process. Note: this should always be a gradient with alpha. (UUID texture reference)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>38c32253-287c-e607-c3d7-a702b4c21363</string>
+    </map>
+    <key>PVRender_Vignette</key>
+    <map>
+      <key>Comment</key>
+      <string>Amount of vignette to apply (X), power of vignette shading (Y), and multiplier for vignette shading (Z).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>0.0</real>
+            <real>1.0</real>
+            <real>3.0</real>
+      </array>
+    </map>
+    <key>PVRender_Exposure</key>
+    <map>
+      <key>Comment</key>
+      <string>High Dynamic Range Exposure. Each value represents a different color channel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>0.275</real>
+            <real>0.275</real>
+            <real>0.275</real>
+      </array>
+    </map>
+    <key>PVRender_Gamma</key>
+    <map>
+      <key>Comment</key>
+      <string>High Dynamic Range Gamma Correction. Each value represents a different color channel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>1.00</real>
+            <real>1.00</real>
+            <real>1.00</real>
+      </array>
+    </map>
+    <key>PVRender_HDRBrightnessOffset</key>
+    <map>
+      <key>Comment</key>
+      <string>High Dynamic Range Brightness Offset. Each value represents a different color channel. Higher values brighten the scene, lower values darken.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>-0.07</real>
+            <real>-0.07</real>
+            <real>-0.07</real>
+      </array>
+    </map>
+    <!-- End of Exodus Shaders -->
     <key>PVCamera_DisableSimConstraint</key>
     <map>
       <key>Comment</key>
@@ -231,6 +426,446 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <!-- Black Dragon Render Stack Debugs -->
+    <key>PVRender_ChromaStrength</key>
+    <map>
+      <key>Comment</key>
+      <string>Set the strength of chromatic aberration.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PVRender_EnableFilmGrain</key>
+    <map>
+      <key>Comment</key>
+      <string>Add a filmic grain to the depth of field shader</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_DeferredFXAAQuality</key>
+    <map>
+      <key>Comment</key>
+      <string>10 to 15 - default medium dither
+20 to 29 - less dither, more expensive
+39       - no dither, very expensive
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>12</integer>
+    </map>
+    <key>PVRender_EnableGodRays</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable God Rays</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_GodRaysDirectional</key>
+    <map>
+      <key>Comment</key>
+      <string>Fade out volumetric lighting if we don't face the sun.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_GodRaysFalloffMultiplier</key>
+    <map>
+      <key>Comment</key>
+      <string>Bigger number causes the God Rays to start fading sooner</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>24.0</real>
+    </map>
+    <key>PVRender_GodRaysMultiplier</key>
+    <map>
+      <key>Comment</key>
+      <string>God Rays intensity multiplier</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>2.0</real>
+    </map>
+    <key>PVRender_GodRaysResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>God Rays resolution (values above 128 are usually useless)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>32</integer>
+    </map>
+    <key>PVRender_EnableLensFlare</key>
+    <map>
+      <key>Comment</key>
+      <string>This enables and disables Lens Flare effects from the sun.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_PostGreyscaleStrength</key>
+    <map>
+      <key>Comment</key>
+      <string>Set the percentual amount of greyscale's strength, 1.0 means fully greyscale , 0.0 means fully colored</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PVRender_PostPosterizationSamples</key>
+    <map>
+      <key>Comment</key>
+      <string>Set the number of color shades used for rendering the scene.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_PostSepiaStrength</key>
+    <map>
+      <key>Comment</key>
+      <string>Set the percentual amount of sepia's strength, 1.0 means a full sepia tone, 0.0 means no sepia tone at all.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PVRender_ProjectorShadowResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw projector shadow width (X) and height (Y) by multiplicator (Z)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>2048</real>
+        <real>2048</real>
+        <real>1.0</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderShadowBias</key>
+    <map>
+      <key>Comment</key>
+      <string>Bias value for shadows (prevent shadow acne).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-0.003</real>
+    </map>
+    <key>PVOverride_RenderShadowBiasError</key>
+    <map>
+      <key>Comment</key>
+      <string>Error scale for shadow bias (based on altitude).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-0.001</real>
+    </map>
+    <key>PVOverride_RenderShadowBlurDistFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Distance scaler for shadow blur.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.01</real>
+    </map> 
+    <key>PVOverride_RenderShadowBlurSamples</key>
+    <map>
+      <key>Comment</key>
+      <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
+    <key>PVOverride_RenderShadowBlurSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of shadow softening kernel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>PVOverride_RenderShadowClipPlanes</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane split distances for shadow map frusta.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>1.0</real>
+        <real>12.0</real>
+        <real>32.0</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderShadowDetail</key>
+    <map>
+      <key>Comment</key>
+      <string>Detail of shadows.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map> 
+    <key>PVOverride_RenderShadowErrorCutoff</key>
+    <map>
+      <key>Comment</key>
+      <string>Cutoff error value to use ortho instead of perspective projection.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map>
+    <key>PVOverride_RenderShadowFOVCutoff</key>
+    <map>
+      <key>Comment</key>
+      <string>Cutoff FOV to use ortho instead of perspective projection.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map> 
+    <key>PVOverride_RenderShadowGaussian</key>
+    <map>
+      <key>Comment</key>
+      <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>1.25</real>
+        <real>2.0</real>
+        <real>0.0</real>
+      </array>
+    </map> 
+    <key>PVOverride_RenderShadowNearDist</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>256</real>
+        <real>256</real>
+        <real>256</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderShadowNoise</key>
+    <map>
+      <key>Comment</key>
+      <string>Magnitude of noise on shadow samples.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>-0.0001</real>
+    </map>
+    <key>PVOverride_RenderShadowOffset</key>
+    <map>
+      <key>Comment</key>
+      <string>Offset value for shadows (prevent shadow acne).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.01</real>
+    </map>
+    <key>PVOverride_RenderShadowOffsetError</key>
+    <map>
+      <key>Comment</key>
+      <string>Error scale for shadow offset (based on altitude).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.0</real>
+    </map> 
+    <key>PVOverride_RenderShadowOrthoClipPlanes</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane split distances for orthographic shadow map frusta.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>4.0</real>
+        <real>8.0</real>
+        <real>24.0</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderShadowResolutionScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of shadow map resolution vs. screen resolution</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
+    <key>PVOverride_RenderShadowSplitExponent</key>
+    <map>
+      <key>Comment</key>
+      <string>Near clip plane split distances for shadow map frusta (x=perspective, y=ortho, z=transition rate).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+        <real>3.34</real>
+        <real>3.0</real>
+        <real>5.0</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderShadowResolutionScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector3</string>
+      <key>Value</key>
+      <array>
+            <real>2048</real>
+            <real>2048</real>
+            <real>1.0</real>
+      </array>
+    </map>
+    <key>PVOverride_RenderSSAOEffect</key>
+    <map>
+      <key>Comment</key>
+      <string>Multiplier for value for areas which are totally occluded. Blends with original color for partly-occluded areas. (Used for NiranV's shader stack)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.1</real>
+    </map>
+    <key>PVOverride_RenderSSAOFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.3</real>
+    </map>
+    <key>PVOverride_RenderSSAOMaxScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Maximum screen radius for sampling (pixels)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>200</integer>
+    </map>
+    <key>PVOverride_RenderSSAOScale</key>
+    <map>
+      <key>Comment</key>
+      <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>100.0</real>
+    </map>
+    <key>PVRender_EnableSSR</key>
+    <map>
+      <key>Comment</key>
+      <string> false: Normal shiny | true: Screen Space Reflections</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVRender_SSRResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Resolution of the reflection while in SSR mode</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>10</integer>
+    </map>
+    <!-- End of shader settings -->
     <key>PVRLV_IgnoreHUDLock</key>
     <map>
       <key>Comment</key>

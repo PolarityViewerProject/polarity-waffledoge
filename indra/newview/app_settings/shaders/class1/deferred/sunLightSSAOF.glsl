@@ -79,7 +79,8 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
-vec2 getKern(int i)
+//calculate decreases in ambient lighting when crowded out (SSAO)
+float calcAmbientOcclusion(vec4 pos, vec3 norm)
 {
 	vec2 kern[8];
 	// exponentially (^2) distant occlusion samples spread around origin
@@ -92,13 +93,9 @@ vec2 getKern(int i)
 	kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
 	kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
 
-  return kern[i];
-}
 
-//calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm)
-{
 	vec2 pos_screen = vary_fragcoord.xy;
+	vec3 pos_world = pos.xyz;
 	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
 
 	// We treat the first sample as the origin, which definitely doesn't obscure itself thanks to being visible for sampling in the first place.
@@ -112,25 +109,19 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
-		vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
+		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
 
-		// if sample is out-of-screen then give it no weight by continuing
-		if (any(lessThan(samppos_screen.xy, vec2(0.0, 0.0))) ||
-			any(greaterThan(samppos_screen.xy, vec2(screen_res.xy)))) continue;
 
 		vec3 samppos_world = getPosition(samppos_screen).xyz; 
 			
 		vec3 diff = samppos_world - pos.xyz;
 
-		if (diff.z < ssao_factor // only use sample if it's near enough
-			&& diff.z != 0.0     // Z is very quantized at distance, this lessens noise and eliminates dist==0
-			)
+			if (diff.z < ssao_factor && diff.z != 0.0)
 		{
 			float dist = length(diff);
-			float angrel = max(0.0, dot(norm.xyz, diff/dist)); // how much the origin faces the sample
-			float distrel = 1.0/(1.0+dist*dist); // 'closeness' of origin to sample
+				float angrel = max(0.0, dot(norm.xyz, diff/dist));
+				float distrel = 1.0/(1.0+dist*dist);
 
-			// origin is obscured by this sample according to how directly the origin is facing the sample and how close the sample is.  It has to score high on both to be a good occluder.  (a*d) seems the most intuitive way to score, but min(a,d) gives a less localized effect...
 			float samplehidden = min(angrel, distrel);
 
 			angle_hidden += (samplehidden);

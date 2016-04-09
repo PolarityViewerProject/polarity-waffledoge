@@ -41,6 +41,7 @@ uniform float max_cof;
 uniform float res_scale;
 uniform float dof_width;
 uniform float dof_height;
+uniform float seconds60;
 
 VARYING vec2 vary_fragcoord;
 
@@ -52,6 +53,10 @@ vec4 dofSample(sampler2DRect tex, vec2 tc)
 	return texture2DRect(tex, tc);
 }
 
+float rand(vec2 co)
+{
+    return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
@@ -64,7 +69,7 @@ void main()
 
 	// help out the transition from low-res dof buffer to full-rez full-focus buffer
 	if (a > 0.25 && a < 0.75)
-	{
+	{ //help out the transition a bit
 		float sc = a/res_scale;
 		
 		vec4 col;
@@ -78,5 +83,20 @@ void main()
 	}
 
 	diff = mix(diff, dof, a);
+#if USE_FILM_GRAIN
+	vec3 noise_strength = 1.0 - diff.rgb;
+	noise_strength *= noise_strength;
+	noise_strength *= noise_strength;
+	noise_strength *= noise_strength;
+	//noise_strength *= noise_strength;
+	//noise_strength *= noise_strength;
+	vec2 s60 = vec2(seconds60);
+	float rndf = rand(tc.xy + s60);
+	vec3 rand3 = vec3(rndf, fract(rndf + 0.33), fract(rndf + 0.67));
+	vec3 dxrndf3 = dFdx(rand3);
+	vec3 dyrndf3 = dFdy(rand3);
+	rand3 = (dxrndf3 + dyrndf3) * 0.25 + vec3(0.5);
+	diff.rgb = diff.rgb - vec3(0.25) * (rand3 - vec3(0.40)) * noise_strength;
+#endif // USE_FILM_GRAIN
 	frag_color = diff;
 }

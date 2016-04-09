@@ -52,6 +52,8 @@ extern LLControlGroup gSavedSettings;
 extern LLControlGroup gSavedPerAccountSettings;
 extern LLControlGroup gWarningSettings;
 
+// <Black Dragon:NiranV> Customizable Controls
+extern LLControlGroup gControlSettings;
 // Saved at end of session
 extern LLControlGroup gCrashSettings;
 

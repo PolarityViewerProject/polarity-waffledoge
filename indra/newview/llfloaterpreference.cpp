@@ -365,6 +365,14 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
 
+	// <Black Dragon:NiranV> Post-Process sliders
+	mCommitCallbackRegistrar.add("Pref.ArrayX",           boost::bind(&LLFloaterPreference::onCommitX, this,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayY",           boost::bind(&LLFloaterPreference::onCommitY, this,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayZ",           boost::bind(&LLFloaterPreference::onCommitZ, this,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayXD",           boost::bind(&LLFloaterPreference::onCommitXd, this,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayYD",           boost::bind(&LLFloaterPreference::onCommitYd, this,_1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayZD",           boost::bind(&LLFloaterPreference::onCommitZd, this,_1, _2));
+	// </Black Dragon:NiranV>
 	sSkin = gSavedSettings.getString("SkinCurrent");
 
 	mCommitCallbackRegistrar.add("Pref.ClickActionChange",		boost::bind(&LLFloaterPreference::onClickActionChange, this));
@@ -483,6 +491,8 @@ BOOL LLFloaterPreference::postBuild()
 	changed();
 
 	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+	// <Black Dragon:NiranV> Refresh all controls
+	refreshGraphicControls();
 
 	return TRUE;
 }
@@ -516,6 +526,80 @@ LLFloaterPreference::~LLFloaterPreference()
 	LLConversationLog::instance().removeObserver(this);
 }
 
+// <Black Dragon:NiranV> Arrays Debug
+void LLFloaterPreference::onCommitX(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3 value = gSavedSettings.getVector3(param.asString());
+	value.mV[VX] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3( param.asString() , value);
+}
+void LLFloaterPreference::onCommitY(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3 value = gSavedSettings.getVector3(param.asString());
+	value.mV[VY] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3( param.asString() , value);
+}
+void LLFloaterPreference::onCommitZ(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3 value = gSavedSettings.getVector3(param.asString());
+	value.mV[VZ] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3( param.asString() , value);
+}
+void LLFloaterPreference::onCommitXd(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3d value = gSavedSettings.getVector3d(param.asString());
+	value.mdV[VX] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3d( param.asString() , value);
+}
+void LLFloaterPreference::onCommitYd(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3d value = gSavedSettings.getVector3d(param.asString());
+	value.mdV[VY] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3d( param.asString() , value);
+}
+void LLFloaterPreference::onCommitZd(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector3d value = gSavedSettings.getVector3d(param.asString());
+	value.mdV[VZ] = ctrl->getValue().asReal();
+	gSavedSettings.setVector3d( param.asString() , value);
+}
+// <Black Dragon:NiranV> Refresh all controls
+void LLFloaterPreference::refreshGraphicControls()
+{
+	getChild<LLUICtrl>("RenderGlowLumWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VX]);
+	getChild<LLUICtrl>("RenderGlowLumWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VY]);
+	getChild<LLUICtrl>("RenderGlowLumWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VZ]);
+	getChild<LLUICtrl>("RenderGlowWarmthWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VX]);
+	getChild<LLUICtrl>("RenderGlowWarmthWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VY]);
+	getChild<LLUICtrl>("RenderGlowWarmthWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VZ]);
+	getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VX]);
+	getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VY]);
+	getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_X")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VX]);
+	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VY]);
+	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VZ]);
+	getChild<LLUICtrl>("RenderShadowGaussian_Y")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowGaussian").mV[VY]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlB_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VX]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlB_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VY]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlB_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlC_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VX]);
+	getChild<LLUICtrl>("PVRender_ToneMappingControlC_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VY]);
+	getChild<LLUICtrl>("PVRender_Gamma_X")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VX]);
+	getChild<LLUICtrl>("PVRender_Gamma_Y")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VY]);
+	getChild<LLUICtrl>("PVRender_Gamma_Z")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_Exposure_X")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VX]);
+	getChild<LLUICtrl>("PVRender_Exposure_Y")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VY]);
+	getChild<LLUICtrl>("PVRender_Exposure_Z")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_X")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VX]);
+	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Y")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VY]);
+	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Z")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VZ]);
+	getChild<LLUICtrl>("PVRender_Vignette_X")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VX]);
+	getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
+	getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
+}
 void LLFloaterPreference::draw()
 {
 	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
@@ -751,6 +835,7 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
+	refreshGraphicControls();
 	
 	// Make sure the current state of prefs are saved away when
 	// when the floater is opened.  That will make cancel do its
@@ -1229,7 +1314,7 @@ void LLFloaterPreference::refreshEnabledState()
 	ctrl_ssao->setEnabled(enabled);
 	ctrl_dof->setEnabled(enabled);
 
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("PVOverride_RenderShadowDetail");
 
 	ctrl_shadow->setEnabled(enabled);
 	
@@ -1339,7 +1424,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	}
 	
 	// disabled deferred shadows
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("PVOverride_RenderShadowDetail"))
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
