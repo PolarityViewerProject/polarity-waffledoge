@@ -357,7 +357,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		S32 xpos = mWindow->getWorldViewWidthScaled() - 500;
 		xpos = llmax(xpos, 0);
 		S32 ypos = 64;
 		const S32 y_inc = 20;
