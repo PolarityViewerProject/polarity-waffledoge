@@ -155,7 +155,7 @@ BEGIN
             VALUE "FileDescription", "Polarity Viewer"
             VALUE "FileVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
             VALUE "InternalName", "Polarity Viewer"
-            VALUE "LegalCopyright", "Copyright © 2014, Polarity Viewer Project"
+            VALUE "LegalCopyright", "Copyright © Polarity Viewer Project 2014-2016"
             VALUE "OriginalFilename", "Polarity.exe"
             VALUE "ProductName", "Polarity Viewer"
             VALUE "ProductVersion", "${VIEWER_VERSION_MAJOR}.${VIEWER_VERSION_MINOR}.${VIEWER_VERSION_PATCH}.${VIEWER_VERSION_REVISION}"
