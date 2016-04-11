@@ -2551,15 +2551,15 @@
     <key>package_description</key>
     <map>
       <key>copyright</key>
-      <string>Copyright (c) 2014, Linden Research, Inc.</string>
+      <string>Copyright (c) 2015-2016, Obsidian Development Group</string>
       <key>description</key>
-      <string>Second Life Viewer</string>
+      <string>Obsidian Viewer</string>
       <key>license</key>
       <string>LGPL</string>
       <key>license_file</key>
       <string>docs/LICENSE-source.txt</string>
       <key>name</key>
-      <string>Second Life Viewer</string>
+      <string>Obsidian Viewer</string>
       <key>platforms</key>
       <map>
         <key>common</key>
@@ -2579,7 +2579,7 @@
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
                   <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=Obsidian</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
@@ -2600,7 +2600,7 @@
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
                   <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=Obsidian</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
               </map>
@@ -2620,7 +2620,7 @@
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=Obsidian</string>
                   <string>-DINSTALL_PROPRIETARY=TRUE</string>
                 </array>
               </map>
@@ -2641,7 +2641,7 @@
                 <array>
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
-                  <string>-DROOT_PROJECT_NAME:STRING=SecondLife</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=Obsidian</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                 </array>
               </map>
@@ -2926,7 +2926,7 @@
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -2972,7 +2972,7 @@
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3014,7 +3014,7 @@
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3058,7 +3058,7 @@
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3110,7 +3110,7 @@
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3157,7 +3157,7 @@
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3200,7 +3200,7 @@
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
@@ -3245,7 +3245,7 @@
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
-                  <string>secondlife-bin</string>
+                  <string>obsidian-bin</string>
                 </array>
                 <key>options</key>
                 <array>
