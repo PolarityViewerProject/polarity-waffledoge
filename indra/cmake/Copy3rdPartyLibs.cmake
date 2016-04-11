@@ -135,7 +135,6 @@ elseif(LINUX)
         libapr-1.so.0
         libaprutil-1.so.0
         libatk-1.0.so
-        libdb-5.1.so
         libexpat.so
         libexpat.so.1
         libfreetype.so.6.6.2
@@ -146,8 +145,6 @@ elseif(LINUX)
         libhunspell-1.3.so.0.0.0
         libopenal.so
         libopenjpeg.so
-        libuuid.so.16
-        libuuid.so.16.0.22
         libfontconfig.so.1.8.0
         libfontconfig.so.1
        )

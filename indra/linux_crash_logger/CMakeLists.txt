@@ -3,7 +3,6 @@
 project(linux_crash_logger)
 
 include(00-Common)
-include(GLH)
 include(LLCoreHttp)
 include(LLCommon)
 include(LLCrashLogger)
@@ -72,7 +71,6 @@ target_link_libraries(linux-crash-logger
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${UI_LIBRARIES}
-    ${DB_LIBRARIES}
     ${FREETYPE_LIBRARIES}
     ${LIBRT_LIBRARY}
     )

@@ -311,36 +311,6 @@
         <key>version</key>
         <string>7.48.0</string>
       </map>
-      <key>db</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 1990, 2010 Oracle and/or its affiliates.  All rights reserved.</string>
-        <key>description</key>
-        <string>Berkeley DB (libdb) is a programmatic toolkit that provides embedded database support for both traditional and client/server applications.</string>
-        <key>license</key>
-        <string>bsd</string>
-        <key>license_file</key>
-        <string>LICENSES/db.txt</string>
-        <key>name</key>
-        <string>db</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1cc7940e500858a9754e9a3cc3ba2237</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/db_3p-update-db/rev/295315/arch/Linux/installer/db-5.1.25-linux-295315.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>5.1.25</string>
-      </map>
       <key>dbus_glib</key>
       <map>
         <key>copyright</key>
@@ -1522,36 +1492,6 @@
         </map>
         <key>version</key>
         <string>1.6.21</string>
-      </map>
-      <key>libuuid</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2004-2008 The OSSP Project &lt;http://www.ossp.org/&gt;</string>
-        <key>description</key>
-        <string>OSSP uuid is a ISO-C:1999 application programming interface (API) and corresponding command line interface (CLI) for the generation of DCE 1.1, ISO/IEC 11578:1996 and RFC 4122 compliant Universally Unique Identifier (UUID). </string>
-        <key>license</key>
-        <string>UUID</string>
-        <key>license_file</key>
-        <string>LICENSES/uuid.txt</string>
-        <key>name</key>
-        <string>libuuid</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f231b6ec8bc2f050cfb1ee20bd83190d</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libuuid_3p-update-libuuid/rev/295209/arch/Linux/installer/libuuid-1.6.2-linux-295209.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.6.2</string>
       </map>
       <key>libxml2</key>
       <map>
