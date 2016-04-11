@@ -96,7 +96,7 @@ namespace {
 	};
 
 
-	const char * gSecondLifeUpdateRecord = "SecondLifeUpdateDownload.xml";
+	const char * gSecondLifeUpdateRecord = "ObsidianUpdateDownload.xml";
 };
 
 

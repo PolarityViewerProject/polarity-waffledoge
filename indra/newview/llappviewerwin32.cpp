@@ -95,7 +95,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = "Second Life";
+const std::string LLAppViewerWin32::sWindowClass = "Obsidian";
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -108,7 +108,7 @@ const std::string LLAppViewerWin32::sWindowClass = "Second Life";
 bool create_app_mutex()
 {
 	bool result = true;
-	LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
+	LPCWSTR unique_mutex_name = L"ObsidianAppMutex";
 	HANDLE hMutex;
 	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 

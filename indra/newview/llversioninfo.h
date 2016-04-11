@@ -60,10 +60,10 @@ public:
 	static const std::string &getShortVersion();
 
 	/// return the viewer version and channel as a string
-	/// like "Second Life Release 2.0.0.200030"
+	/// like "Obsidian Release 2.0.0.200030"
 	static const std::string &getChannelAndVersion();
 
-	/// return the channel name, e.g. "Second Life"
+	/// return the channel name, e.g. "Obsidian"
 	static const std::string &getChannel();
 	
 	/// reset the channel name used by the viewer.

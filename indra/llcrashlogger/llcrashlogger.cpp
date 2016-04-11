@@ -211,7 +211,7 @@ void LLCrashLogger::gatherFiles()
         mergeLogs(dynamic_sd);
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
 
-		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
+		mFileMap["ObsidianLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
 		if(mDebugLog.has("CAFilename"))
 		{
@@ -224,7 +224,7 @@ void LLCrashLogger::gatherFiles()
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS() << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
+		LL_INFOS() << "Using log file from debug log " << mFileMap["ObsidianLog"] << LL_ENDL;
 		LL_INFOS() << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
@@ -233,13 +233,13 @@ void LLCrashLogger::gatherFiles()
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
             LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
-		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+		mFileMap["ObsidianLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Obsidian.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-    if (!gDirUtilp->fileExists(mFileMap["SecondLifeLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
+    if (!gDirUtilp->fileExists(mFileMap["ObsidianLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
     {
-        mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");
+        mFileMap["ObsidianLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Obsidian.old");
     }
 
 	gatherPlatformSpecificFiles();
@@ -287,7 +287,7 @@ void LLCrashLogger::gatherFiles()
 		s << f.rdbuf();
 
 		std::string crash_info = s.str();
-		if(itr->first == "SecondLifeLog")
+		if(itr->first == "ObsidianLog")
 		{
 			if(!mCrashInfo["DebugLog"].has("StartupState"))
 			{
@@ -441,7 +441,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     gDirUtilp->setDumpDir( dump_dir );
     
     std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-                                                           "SecondLifeCrashReport");
+                                                           "ObsidianCrashReport");
     std::string report_file = dump_path + ".log";
    
 	gatherFiles();
@@ -552,8 +552,8 @@ bool LLCrashLogger::init()
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
-	// Default to the product name "Second Life" (this is overridden by the -name argument)
-	mProductName = "Second Life";
+	// Default to the product name "Obsidian" (this is overridden by the -name argument)
+	mProductName = "Obsidian";
 
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");

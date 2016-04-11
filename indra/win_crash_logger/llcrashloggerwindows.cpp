@@ -328,8 +328,8 @@ int LLCrashLoggerWindows::processingLoop() {
     LL_INFOS() << "session ending.." << LL_ENDL;
     
     std::string per_run_dir = options["dumpdir"].asString();
-	std::string per_run_file = per_run_dir + "\\SecondLife.log";
-    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.log");
+	std::string per_run_file = per_run_dir + "\\Obsidian.log";
+    std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Obsidian.log");
 
 	if (gDirUtilp->fileExists(per_run_dir))  
 	{
@@ -437,7 +437,7 @@ bool LLCrashLoggerWindows::init(void)
 	/*
 	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
 	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
-	swprintf(gProductName, L"Second Life"); 
+	swprintf(gProductName, L"Obsidian"); 
 	*/
 
 	LL_INFOS() << "Loading dialogs" << LL_ENDL;
