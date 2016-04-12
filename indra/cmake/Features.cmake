@@ -21,8 +21,10 @@ endif(PVDATA)
 option(FMODEX "Build with support for the FMOD Ex audio engine" ON)
 
 # Workarounds
-
 option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
+
+# Build process tweaks
+set(COMPILER_JOBS ${COMPILER_JOBS} CACHE STRING "Amount of simultaneous compiler jobs" FORCE)
 
 # <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
