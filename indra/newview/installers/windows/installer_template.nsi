@@ -89,7 +89,7 @@ Var SKIP_AUTORUN		; skip automatic launch of viewer after install
   VIAddVersionKey "ProductName" "Polarity Viewer"
   VIAddVersionKey "Comments" "A Second Life protocol-compatible client"
   VIAddVersionKey "CompanyName" "Polarity Viewer Project"
-  VIAddVersionKey "LegalCopyright" "Copyright © Polarity Viewer Project 2014-2016"
+  VIAddVersionKey "LegalCopyright" "Copyright © 2014-2016, Polarity Viewer Project"
   VIAddVersionKey "FileDescription" "${APPNAME} Installer"
   VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
 

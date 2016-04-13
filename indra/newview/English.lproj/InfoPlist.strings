@@ -3,5 +3,5 @@
 CFBundleName = "Polarity Viewer";
 
 CFBundleShortVersionString = "Polarity Viewer version %%VERSION%%";
-CFBundleGetInfoString = "Polarity Viewer version %%VERSION%%, Copyright 2014 Polarity Viewer Project, Inc.";
+CFBundleGetInfoString = "Polarity Viewer version %%VERSION%%, Copyright 2014-2016, Polarity Viewer Project";
 
