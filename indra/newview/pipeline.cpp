@@ -9524,7 +9524,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 	n = glm::normalize(n);
 
 	F32 proj_range = far_clip - near_clip;
-	glm::mat4 light_proj = glm::perspective(fov, aspect, near_clip, far_clip);
+	glm::mat4 light_proj = glm::perspective(glm::radians(RAD_TO_DEG * fov), aspect, near_clip, far_clip);
 	screen_to_light = trans * light_proj * screen_to_light;
 	shader.uniformMatrix4fv(LLShaderMgr::PROJECTOR_MATRIX, 1, FALSE, glm::value_ptr(screen_to_light));
 	shader.uniform1f(LLShaderMgr::PROJECTOR_NEAR, near_clip);

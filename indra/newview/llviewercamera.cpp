@@ -269,7 +269,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 									F32 z_near, F32 z_far)
 {
 	F32 fov_y, aspect;
-	fov_y = getView();
+	fov_y = RAD_TO_DEG * getView();
 	BOOL z_default_far = FALSE;
 	if (z_far <= 0)
 	{
@@ -337,7 +337,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	calcProjection(z_far); // Update the projection matrix cache
 
-	proj_mat *= glm::perspective(fov_y, aspect, z_near, z_far);
+	proj_mat *= glm::perspective(glm::radians(fov_y), aspect, z_near, z_far);
 
 	F32* proj_matp = glm::value_ptr(proj_mat);
 
