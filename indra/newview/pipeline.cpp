@@ -4281,6 +4281,7 @@ void LLPipeline::renderHighlights()
 //debug use
 U32 LLPipeline::sCurRenderPoolType = 0 ;
 
+extern void check_blend_funcs();
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
@@ -4414,6 +4415,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
 				{
 					LLVertexBuffer::unbind();
+					if(gDebugGL)check_blend_funcs();
 					poolp->beginRenderPass(i);
 					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 					{
@@ -4426,6 +4428,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
+					if(gDebugGL)check_blend_funcs();
 					LLVertexBuffer::unbind();
 					if (gDebugGL)
 					{
@@ -4587,6 +4590,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4599,6 +4603,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -4673,6 +4678,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 			for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginPostDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4685,6 +4691,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 					p->renderPostDeferred(i);
 				}
 				poolp->endPostDeferredPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -4751,6 +4758,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 			for( S32 i = 0; i < poolp->getNumShadowPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginShadowPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4763,6 +4771,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 					p->renderShadow(i);
 				}
 				poolp->endShadowPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				LLGLState::checkStates();

@@ -1113,6 +1113,7 @@ void LLView::draw()
 	drawChildren();
 }
 
+extern void check_blend_funcs();
 void LLView::drawChildren()
 {
 	if (!mChildList.empty())
@@ -1140,7 +1141,9 @@ void LLView::drawChildren()
 						LLUI::translate((F32)viewp->getRect().mLeft, (F32)viewp->getRect().mBottom);
 						// flag the fact we are in draw here, in case overridden draw() method attempts to remove this widget
 						viewp->mInDraw = true;
+						if(gDebugGL)check_blend_funcs();
 						viewp->draw();
+						if(gDebugGL)check_blend_funcs();
 						viewp->mInDraw = false;
 
 						if (sDebugRects)
@@ -1276,7 +1279,9 @@ void LLView::drawChild(LLView* childp, S32 x_offset, S32 y_offset, BOOL force_dr
 			LLUI::pushMatrix();
 			{
 				LLUI::translate((F32)childp->getRect().mLeft + x_offset, (F32)childp->getRect().mBottom + y_offset);
+				if(gDebugGL)check_blend_funcs();
 				childp->draw();
+				if(gDebugGL)check_blend_funcs();
 			}
 			LLUI::popMatrix();
 		}
