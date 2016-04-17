@@ -215,6 +215,7 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
+		CUSTOM_ALPHA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
