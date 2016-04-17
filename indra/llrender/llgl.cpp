@@ -847,8 +847,7 @@ void LLGLManager::initExtensions()
 	mHasSync = GLEW_ARB_sync;
 	mHasMapBufferRange = GLEW_ARB_map_buffer_range;
 	mHasFlushBufferRange = GLEW_APPLE_flush_buffer_range;
-	//mHasDepthClamp = GLEW_ARB_depth_clamp || GLEW_NV_depth_clamp;
-	mHasDepthClamp = FALSE;
+	mHasDepthClamp = GLEW_ARB_depth_clamp || GLEW_NV_depth_clamp;
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
 	mHasFramebufferObject = GLEW_ARB_framebuffer_object;
