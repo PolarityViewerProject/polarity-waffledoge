@@ -42,8 +42,6 @@
 #include "llface.h"
 #include "llrender.h"
 
-#include <glm/gtc/type_ptr.hpp>
-
 LLPointer<LLViewerTexture> LLDrawPoolWLSky::sCloudNoiseTexture = NULL;
 
 LLPointer<LLImageRaw> LLDrawPoolWLSky::sCloudNoiseRawImage = NULL;
@@ -320,7 +318,7 @@ void LLDrawPoolWLSky::renderDeferred(S32 pass)
 
 	gGL.setColorMask(true, false);
 
-	LLGLSquashToFarClip far_clip(glm_get_current_projection());
+	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
 	renderSkyHaze(camHeightLocal);
 
@@ -365,7 +363,7 @@ void LLDrawPoolWLSky::render(S32 pass)
 	LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 	LLGLDisable clip(GL_CLIP_PLANE0);
 
-	LLGLSquashToFarClip far_clip(glm_get_current_projection());
+	LLGLSquashToFarClip far_clip(glh_get_current_projection());
 
 	renderSkyHaze(camHeightLocal);
 

@@ -54,7 +54,6 @@ set(llmath_HEADER_FILES
     llcamera.h
     llcoord.h
     llcoordframe.h
-    llglmhelpers.h
     llinterp.h
     llline.h
     llmath.h
