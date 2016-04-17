@@ -278,9 +278,9 @@ std::string gPoolNames[] =
 	"POOL_BUMP",
 	"POOL_MATERIALS",
 	"POOL_TERRAIN,"	
+	"POOL_TREE",
 	"POOL_SKY",
 	"POOL_WL_SKY",
-	"POOL_TREE",
 	"POOL_ALPHA_MASK",
 	"POOL_FULLBRIGHT_ALPHA_MASK",
 	"POOL_GRASS",
@@ -2419,6 +2419,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
+	LLGLDisable stencil(GL_STENCIL_TEST);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 
@@ -4075,6 +4076,7 @@ void LLPipeline::renderHighlights()
 		glStencilMask(0xFFFFFFFF);
 		glClearStencil(1);
 		glClear(GL_STENCIL_BUFFER_BIT);
+		glClearStencil(0);
 
 		glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
