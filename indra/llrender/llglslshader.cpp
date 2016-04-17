@@ -352,7 +352,6 @@ void LLGLSLShader::unloadInternal()
             {
                 glDeleteShader(shaders[i]);
             }
-            LL_INFOS() << "WARK" << LL_ENDL;
         }
 
         glDeleteProgram(mProgramObject);

@@ -544,12 +544,12 @@ bool LLGLManager::initGL()
 	{ //setup debug output callback
 		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
-		//if (mIsNVIDIA)
-		//{
+		if (mIsNVIDIA)
+		{
 		//	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
-		//	GLuint debug_ids[3] = { 131076, 131185, 131204 };
-		//	glDebugMessageControlARB(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 3, debug_ids, GL_FALSE);
-		//}
+			GLuint debug_ids[3] = { 131076, 131185, 131204 };
+			glDebugMessageControlARB(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 3, debug_ids, GL_FALSE);
+		}
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
