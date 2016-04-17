@@ -1375,7 +1375,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>1024</integer>
+      <integer>4096</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
@@ -11977,7 +11977,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>500.0</real>
+      <real>3000.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>
