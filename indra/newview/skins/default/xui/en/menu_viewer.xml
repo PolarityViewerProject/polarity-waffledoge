@@ -1526,46 +1526,38 @@
                 parameter="window_size" >
             </menu_item_call.on_click>
         </menu_item_call>
-        <menu_item_separator>
-        </menu_item_separator>
+        <menu_item_separator></menu_item_separator>
         <menu_item_check
-            label="Limit Select Distance"
-            name="Limit Select Distance">
+         label="Limit Select Distance"
+         name="Limit Select Distance">
             <menu_item_check.on_check
-                function="CheckControl"
-                parameter="LimitSelectDistance" >
-                <menu_item_check.on_click
-                    function="ToggleControl"
-                    parameter="LimitSelectDistance" >
-                </menu_item_check.on_click>
-            </menu_item_check.on_check>
+             function="CheckControl"
+             parameter="LimitSelectDistance" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="LimitSelectDistance" />
         </menu_item_check>
         <menu_item_check
-            label="Disable Camera Constraints"
-            name="Disable Camera Distance">
+         label="Disable Camera Constraints"
+         name="Disable Camera Distance">
             <menu_item_check.on_check
-                function="CheckControl"
-                parameter="DisableCameraConstraints" >
-                <menu_item_check.on_click
-                    function="ToggleControl"
-                    parameter="DisableCameraConstraints" >
-                </menu_item_check.on_click>
-            </menu_item_check.on_check>
+             function="CheckControl"
+             parameter="DisableCameraConstraints" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DisableCameraConstraints" />
         </menu_item_check>
         <menu_item_check
-            label="Disable Camera Push"
-            name="Disable Camera Push">
+         label="Disable Camera Push"
+         name="isable Camera Server Push">
             <menu_item_check.on_check
-                function="CheckControl"
-                parameter="PVCamera_DisableSimConstraint" >
-                <menu_item_check.on_click
-                    function="ToggleControl"
-                    parameter="PVCamera_DisableSimConstraint" >
-                </menu_item_check.on_click>
-            </menu_item_check.on_check>
+             function="CheckControl"
+             parameter="PVCamera_DisableSimConstraint" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="PVCamera_DisableSimConstraint" />
         </menu_item_check>
-        <menu_item_separator>
-        </menu_item_separator>
+        <menu_item_separator></menu_item_separator>
         <menu_item_check
             label="High-res Snapshot"
             name="HighResSnapshot">
@@ -1690,6 +1682,19 @@
                 parameter="script_limits" >
             </menu_item_call.on_click>
         </menu_item_call>
+        <menu_item_separator></menu_item_separator>
+        <menu_item_check
+           label="RestrainedLove API"
+           name="RLV API">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="RestrainedLove" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="RestrainedLove" />
+              <menu_item_check.on_visible
+               function="RLV.MainToggleVisible" />
+        </menu_item_check>
         <menu_item_separator></menu_item_separator>
         <menu_item_call
             label="Show Debug Settings"
@@ -2042,29 +2047,6 @@
            function="Floater.Show"
            parameter="window_size" />
         </menu_item_call>
-
-        <menu_item_separator/>
-
-        <menu_item_check
-         label="Limit Select Distance"
-         name="Limit Select Distance">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="LimitSelectDistance" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="LimitSelectDistance" />
-        </menu_item_check>
-        <menu_item_check
-         label="Disable Camera Constraints"
-         name="Disable Camera Distance">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="DisableCameraConstraints" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="DisableCameraConstraints" />
-        </menu_item_check>
 
         <menu_item_separator/>
 
@@ -2636,18 +2618,7 @@
         </menu> <!--Shortcuts-->
 
         <menu_item_separator/>
-        <menu_item_check
-           label="RestrainedLove API"
-           name="RLV API">
-              <menu_item_check.on_check
-               function="CheckControl"
-               parameter="RestrainedLove" />
-              <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="RestrainedLove" />
-              <menu_item_check.on_visible
-               function="RLV.MainToggleVisible" />
-        </menu_item_check>
+
         <menu_item_call
          label="Show Debug Settings"
          name="Debug Settings">
