@@ -11141,4 +11141,21 @@ Setting name copied to clipboard. Please don't break other people's viewer.
     </form>
  </notification>
 
+ <notification
+  icon="notify"
+  name="AskForDisplayPreferencesReset"
+  type="alertmodal">
+Your Graphic card seems to have changed
+
+from &apos;[LAST_GPU]&apos;
+to &apos;[THIS_GPU]&apos;
+
+Would you like to reset the graphic preferences?
+  <usetemplate
+  name="yesnocancelbuttons"
+  yestext="Reset now"
+  notext="Leave as-is"
+  canceltext="Never reset"/>
+ </notification>
+
 </notifications>
