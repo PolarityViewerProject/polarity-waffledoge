@@ -142,6 +142,10 @@
 	     comment="Size for monospaced font (points, or 1/72 of an inch)"
 	     size="8.0"
 	     />
+  <font_size name="MonospaceSmall"
+       comment="Size for monospaced font (points, or 1/72 of an inch)"
+       size="5.0"
+       />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
 	     size="16.0"
