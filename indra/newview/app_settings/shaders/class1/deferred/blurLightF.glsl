@@ -129,7 +129,7 @@ void main()
 	}
 
 	col /= defined_weight.xyxx;
-	col.y *= col.y;
+	col.y *= col.y; // delinearize SSAO effect post-blur
 	
 	frag_color = col;
 

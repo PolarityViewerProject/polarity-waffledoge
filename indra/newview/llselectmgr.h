@@ -305,6 +305,7 @@ public:
 	LLViewerObject*	getFirstCopyableObject(BOOL get_parent = FALSE);
 	LLViewerObject* getFirstDeleteableObject();
 	LLViewerObject*	getFirstMoveableObject(BOOL get_parent = FALSE);
+	LLViewerObject*	getFirstUndoEnabledObject(BOOL get_parent = FALSE);
 
 	/// Return the object that lead to this selection, possible a child
 	LLViewerObject* getPrimaryObject() { return mPrimaryObject; }
@@ -808,8 +809,10 @@ private:
 public:
 	// Observer/callback support for when object selection changes or
 	// properties are received/updated
-	typedef boost::signals2::signal< void ()> update_signal_t;
+	typedef boost::signals2::signal< void()> update_signal_t;
 	update_signal_t mUpdateSignal;
+
+	boost::signals2::connection addSelectionUpdateCallback(const update_signal_t::slot_type& cb);
 
 private:
 	LLPointer<LLViewerTexture>				mSilhouetteImagep;

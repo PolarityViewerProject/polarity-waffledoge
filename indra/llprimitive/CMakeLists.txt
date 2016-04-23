@@ -7,6 +7,7 @@ include(ColladaDOM)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
+include(LLCoreHttp)
 include(LLXML)
 include(LLPhysicsExtensions)
 include(LLCharacter)
@@ -75,9 +76,12 @@ target_link_libraries(llprimitive
     ${LLCOMMON_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${LLXML_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${LLCHARACTER_LIBRARIES}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
     )
 
 

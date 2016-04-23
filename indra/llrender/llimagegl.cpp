@@ -193,6 +193,8 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 	  case GL_ALPHA:							return 8;
 	  case GL_COLOR_INDEX:						return 8;
 	  case GL_LUMINANCE_ALPHA:					return 16;
+	  case GL_RED:								return 8;
+	  case GL_RG:								return 16;
 	  case GL_RGB:								return 24;
 	  case GL_RGB8:								return 24;
 	  case GL_RGBA:								return 32;
@@ -229,6 +231,8 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 	  case GL_ALPHA:							return 1;
 	  case GL_COLOR_INDEX:						return 1;
 	  case GL_LUMINANCE_ALPHA:					return 2;
+	  case GL_RED:								return 1;
+	  case GL_RG:								return 2;
 	  case GL_RGB:								return 3;
 	  case GL_RGBA:								return 4;
 	  case GL_BGRA:								return 4;		// Used for QuickTime media textures on the Mac

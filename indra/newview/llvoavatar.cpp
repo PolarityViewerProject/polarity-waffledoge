@@ -7431,6 +7431,7 @@ bool resolve_appearance_version(const LLAppearanceMessageContents& contents, S32
 //-----------------------------------------------------------------------------
 void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
+    static S32 largestSelfCOFSeen(LLViewerInventoryCategory::VERSION_UNKNOWN);
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
 	
 	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
@@ -7473,6 +7474,15 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_DEBUGS("Avatar") << "this_update_cof_version " << this_update_cof_version
 				<< " last_update_request_cof_version " << last_update_request_cof_version
 				<<  " my_cof_version " << LLAppearanceMgr::instance().getCOFVersion() << LL_ENDL;
+
+        if (largestSelfCOFSeen > this_update_cof_version)
+        {
+            LL_WARNS("Avatar") << "Already processed appearance for COF version " <<
+                largestSelfCOFSeen << ", discarding appearance with COF " << this_update_cof_version << LL_ENDL;
+            return;
+        }
+        largestSelfCOFSeen = this_update_cof_version;
+
 	}
 	else
 	{
@@ -7507,6 +7517,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 	}
 
 	// No backsies zone - if we get here, the message should be valid and usable, will be processed.
+    LL_INFOS("Avatar") << "Processing appearance message version " << this_update_cof_version << LL_ENDL;
 
 	// Note:
 	// RequestAgentUpdateAppearanceResponder::onRequestRequested()
@@ -7914,7 +7925,7 @@ void dump_sequential_xml(const std::string outprefix, const LLSD& content)
 {
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	std::ofstream ofs(fullpath.c_str(), std::ios_base::out);
+	llofstream ofs(fullpath.c_str(), std::ios_base::out);
 	ofs << LLSDOStreamer<LLSDXMLFormatter>(content, LLSDFormatter::OPTIONS_PRETTY);
 	LL_DEBUGS("Avatar") << "results saved to: " << fullpath << LL_ENDL;
 }
@@ -8186,7 +8197,7 @@ LLHost LLVOAvatar::getObjectHost() const
 	}
 	else
 	{
-		return LLHost::invalid;
+		return LLHost();
 	}
 }
 

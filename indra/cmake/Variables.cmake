@@ -30,6 +30,9 @@ set(LL_TESTS OFF CACHE BOOL "Build and run unit and integration tests (disable f
 option(INCREMENTAL_LINK "Use incremental linking or incremental LTCG for LTO on win32 builds (enable for faster links on some machines)" OFF)
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
 
+# Proprietary Library Features
+option(NVAPI "Use nvapi driver interface library" OFF)
+
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
 else(LIBS_CLOSED_DIR)
@@ -171,7 +174,7 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
-set(VIEWER_CHANNEL "Second Life Test" CACHE STRING "Viewer Channel Name")
+set(VIEWER_CHANNEL "Obsidian Test" CACHE STRING "Viewer Channel Name")
 
 set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
 set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")

@@ -122,9 +122,6 @@ public:
     void loadNameCache();
     void saveNameCache();
 
-	void loadExperienceCache();
-	void saveExperienceCache();
-
 	void removeMarkerFiles();
 	
 	void removeDumpDir();
@@ -233,7 +230,6 @@ private:
     void idle(); 
     void idleShutdown();
 	// update avatar SLID and display name caches
-	void idleExperienceCache();
 	void idleNameCache();
     void idleNetwork();
 
@@ -375,7 +371,6 @@ extern BOOL		gDisconnected;
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern BOOL		gUseWireframe;
-extern BOOL		gInitialDeferredModeForWireframe;
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer

@@ -127,6 +127,8 @@
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 
+#include "llexperiencecache.h"
+
 extern void on_new_message(const LLSD& msg);
 
 //
@@ -3216,6 +3218,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			{
 				send_do_not_disturb_message(msg, from_id);
 			}
+			else if (accept_im_from_only_friend && !LLAvatarTracker::instance().isBuddy(from_id))
+			{
+				return;
+			}
 			else
 			{
 				LLVector3 pos, look_at;
@@ -3686,53 +3692,29 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
-class ChatTranslationReceiver : public LLTranslate::TranslationReceiver
+void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
 {
-public :
-	ChatTranslationReceiver(const std::string &from_lang, const std::string &to_lang, const std::string &mesg,
-							const LLChat &chat, const LLSD &toast_args)
-		: LLTranslate::TranslationReceiver(from_lang, to_lang),
-		m_chat(chat),
-		m_toastArgs(toast_args),
-		m_origMesg(mesg)
-	{
-	}
+    // filter out non-interesting responses  
+    if (!translation.empty()
+        && ((detected_language.empty()) || (expectLang != detected_language))
+        && (LLStringUtil::compareInsensitive(translation, originalMsg) != 0))
+    {
+        chat.mText += " (" + translation + ")";
+    }
 
-	static ChatTranslationReceiver* build(const std::string &from_lang, const std::string &to_lang, const std::string &mesg, const LLChat &chat, const LLSD &toast_args)
-	{
-		return new ChatTranslationReceiver(from_lang, to_lang, mesg, chat, toast_args);
-	}
+    LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
+}
 
-protected:
-	void handleResponse(const std::string &translation, const std::string &detected_language)
-	{
-		// filter out non-interesting responeses
-		if ( !translation.empty()
-			&& (mToLang != detected_language)
-			&& (LLStringUtil::compareInsensitive(translation, m_origMesg) != 0) )
-		{
-			m_chat.mText += " (" + translation + ")";
-		}
+void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string err_msg)
+{
+    std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
+    LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
+    chat.mText += " (" + msg + ")";
 
-		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
-	}
+    LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
+}
 
-	void handleFailure(int status, const std::string& err_msg)
-	{
-		LL_WARNS() << "Translation failed for mesg " << m_origMesg << " toLang " << mToLang << " fromLang " << mFromLang << LL_ENDL;
 
-		std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
-		LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
-		m_chat.mText += " (" + msg + ")";
-
-		LLNotificationsUI::LLNotificationManager::instance().onChat(m_chat, m_toastArgs);
-	}
-
-private:
-	LLChat m_chat;
-	std::string m_origMesg;
-	LLSD m_toastArgs;		
-};
 void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 {
 	LLChat	chat;
@@ -4133,8 +4115,10 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 			const std::string from_lang = ""; // leave empty to trigger autodetect
 			const std::string to_lang = LLTranslate::getTranslateLanguage();
 
-			LLTranslate::TranslationReceiverPtr result = ChatTranslationReceiver::build(from_lang, to_lang, mesg, chat, args);
-			LLTranslate::translateMessage(result, from_lang, to_lang, mesg);
+            LLTranslate::translateMessage(from_lang, to_lang, mesg,
+                boost::bind(&translateSuccess, chat, args, mesg, from_lang, _1, _2),
+                boost::bind(&translateFailure, chat, args, _1, _2));
+
 		}
 		else
 		{
@@ -4359,6 +4343,13 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 		LL_WARNS("Messaging") << "Got teleport notification for wrong agent!" << LL_ENDL;
 		return;
 	}
+
+    if (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)
+    {
+        // Server either ignored teleport cancel message or did not receive it in time.
+        // This message can't be ignored since teleport is complete at server side
+        gAgent.restoreCanceledTeleportRequest();
+    }
 	
 	// Teleport is finished; it can't be cancelled now.
 	gViewerWindow->setProgressCancelButtonVisible(FALSE);
@@ -5080,6 +5071,7 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
         // which is using the object, release the mouse capture correctly when the object dies.
         // See LLToolGrab::handleHoverActive() and LLToolGrab::handleHoverNonPhysical().
 		LLSelectMgr::getInstance()->removeObjectFromSelections(id);
+		dialog_refresh_all();
 	}
 }
 
@@ -6908,17 +6900,14 @@ bool script_question_cb(const LLSD& notification, const LLSD& response)
 			if (!region)
 			    return false;
 
-			std::string lookup_url=region->getCapability("ExperiencePreferences"); 
-			if(lookup_url.empty())
-				return false;
-			LLSD permission;
-			LLSD data;
-			permission["permission"]="Block";
+            LLExperienceCache::instance().setExperiencePermission(experience, std::string("Block"), LLExperienceCache::ExperienceGetFn_t());
 
-			data[experience.asString()]=permission;
-			LLHTTPClient::put(lookup_url, data, NULL);
-			data["experience"]=experience;
-			LLEventPumps::instance().obtain("experience_permission").post(data);
+            LLSD permission;
+            LLSD data;
+            permission["permission"] = "Block";
+            data[experience.asString()] = permission;
+            data["experience"] = experience;
+            LLEventPumps::instance().obtain("experience_permission").post(data);
 		}
 }
 	return false;
@@ -7125,7 +7114,7 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			else if(experienceid.notNull())
 			{
 				payload["experience"]=experienceid;
-				LLExperienceCache::get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
+                LLExperienceCache::instance().get(experienceid, boost::bind(process_script_experience_details, _1, args, payload));
 				return;
 			}
 

@@ -361,7 +361,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		S32 xpos = mWindow->getWorldViewWidthScaled() - 500;
 		xpos = llmax(xpos, 0);
 		S32 ypos = 64;
 		const S32 y_inc = 20;
@@ -2391,6 +2391,7 @@ void LLViewerWindow::drawDebugText()
 	}
 }
 
+extern void check_blend_funcs();
 void LLViewerWindow::draw()
 {
 	
@@ -2474,7 +2475,9 @@ void LLViewerWindow::draw()
 
 		// Draw all nested UI views.
 		// No translation needed, this view is glued to 0,0
+		if(gDebugGL)check_blend_funcs();
 		mRootView->draw();
+		if(gDebugGL)check_blend_funcs();
 
 		if (LLView::sDebugRects)
 		{
@@ -2491,7 +2494,9 @@ void LLViewerWindow::draw()
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			LLUI::translate( (F32) screen_x, (F32) screen_y);
+			if(gDebugGL)check_blend_funcs();
 			top_ctrl->draw();	
+			if(gDebugGL)check_blend_funcs();
 			LLUI::popMatrix();
 		}
 

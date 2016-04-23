@@ -34,7 +34,10 @@
 #include "llcoordframe.h"			// for mFrameAgent
 #include "llavatarappearancedefines.h"
 #include "llpermissionsflags.h"
+#include "llevents.h"
 #include "v3dmath.h"
+#include "httprequest.h"
+#include "llcorehttputil.h"
 
 #include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
@@ -60,6 +63,8 @@ class LLSLURL;
 class LLPauseRequestHandle;
 class LLUIColor;
 class LLTeleportRequest;
+
+
 
 typedef boost::shared_ptr<LLTeleportRequest> LLTeleportRequestPtr;
 
@@ -111,6 +116,8 @@ public:
 	virtual 		~LLAgent();
 	void			init();
 	void			cleanup();
+
+private:
 
 	//--------------------------------------------------------------------
 	// Login
@@ -227,6 +234,8 @@ public:
 	void			setHomePosRegion(const U64& region_handle, const LLVector3& pos_region);
 	BOOL			getHomePosGlobal(LLVector3d* pos_global);
 private:
+    void            setStartPositionSuccess(const LLSD &result);
+
 	BOOL 			mHaveHomePosition;
 	U64				mHomeRegionHandle;
 	LLVector3		mHomePosRegion;
@@ -253,6 +262,9 @@ public:
 	LLViewerRegion	*getRegion() const;
 	LLHost			getRegionHost() const;
 	BOOL			inPrelude();
+
+    // Capability 
+    std::string     getRegionCapability(const std::string &name); // short hand for if (getRegion()) { getRegion()->getCapability(name) }
 
 	/**
 	 * Register a boost callback to be called when the agent changes regions
@@ -444,7 +456,8 @@ private:
 	// Grab
 	//--------------------------------------------------------------------
 public:
-	BOOL 			leftButtonGrabbed() const;
+    BOOL 			leftButtonGrabbed() const;
+    BOOL 			leftButtonBlocked() const;
 	BOOL 			rotateGrabbed() const;
 	BOOL 			forwardGrabbed() const;
 	BOOL 			backwardGrabbed() const;
@@ -461,8 +474,9 @@ public:
 	BOOL			controlFlagsDirty() const;
 	void			enableControlFlagReset();
 	void 			resetControlFlags();
-	BOOL			anyControlGrabbed() const; 		// True iff a script has taken over a control
-	BOOL			isControlGrabbed(S32 control_index) const;
+	BOOL			anyControlGrabbed() const; 		// True if a script has taken over any control
+    BOOL			isControlGrabbed(S32 control_index) const; // True if a script has taken over a control
+    BOOL			isControlBlocked(S32 control_index) const; // Control should be ignored or won't be passed
 	// Send message to simulator to force grabbed controls to be
 	// released, in case of a poorly written script.
 	void			forceReleaseControls();
@@ -628,6 +642,7 @@ public:
 	void 			teleportViaLocation(const LLVector3d& pos_global);		// To a global location - this will probably need to be deprecated
 	void			teleportViaLocationLookAt(const LLVector3d& pos_global);// To a global location, preserving camera rotation
 	void 			teleportCancel();										// May or may not be allowed by server
+    void            restoreCanceledTeleportRequest();
 	bool			getTeleportKeepsLookAt() { return mbTeleportKeepsLookAt; } // Whether look-at reset after teleport
 protected:
 	bool 			teleportCore(bool is_local = false); 					// Stuff for all teleports; returns true if the teleport can proceed
@@ -643,6 +658,8 @@ public:
 	void            setMaturityRatingChangeDuringTeleport(U8 pMaturityRatingChange);
 
 private:
+
+
 	friend class LLTeleportRequest;
 	friend class LLTeleportRequestViaLandmark;
 	friend class LLTeleportRequestViaLure;
@@ -650,6 +667,7 @@ private:
 	friend class LLTeleportRequestViaLocationLookAt;
 
 	LLTeleportRequestPtr        mTeleportRequest;
+	LLTeleportRequestPtr        mTeleportCanceled;
 	boost::signals2::connection mTeleportFinishedSlot;
 	boost::signals2::connection mTeleportFailedSlot;
 
@@ -674,7 +692,7 @@ private:
 	// Teleport State
 	//--------------------------------------------------------------------
 public:
-	ETeleportState	getTeleportState() const 						{ return mTeleportState; }
+    ETeleportState	getTeleportState() const;
 	void			setTeleportState(ETeleportState state);
 private:
 	ETeleportState	mTeleportState;
@@ -770,11 +788,12 @@ private:
 	unsigned int                    mMaturityPreferenceNumRetries;
 	U8                              mLastKnownRequestMaturity;
 	U8                              mLastKnownResponseMaturity;
+	LLCore::HttpRequest::policy_t	mHttpPolicy;
 
 	bool            isMaturityPreferenceSyncedWithServer() const;
 	void 			sendMaturityPreferenceToServer(U8 pPreferredMaturity);
+    void            processMaturityPreferenceFromServer(const LLSD &result, U8 perferredMaturity);
 
-	friend class LLMaturityPreferencesResponder;
 	void            handlePreferredMaturityResult(U8 pServerMaturity);
 	void            handlePreferredMaturityError();
 	void            reportPreferredMaturitySuccess();
@@ -918,6 +937,24 @@ public:
 	static void		processScriptControlChange(LLMessageSystem *msg, void **);
 	
 /**                    Messaging
+ **                                                                            **
+ *******************************************************************************/
+
+/********************************************************************************
+ **                                                                            **
+ **                    UTILITY
+ **/
+public:
+    typedef LLCoreHttpUtil::HttpCoroutineAdapter::completionCallback_t httpCallback_t;
+
+	/// Utilities for allowing the the agent sub managers to post and get via
+	/// HTTP using the agent's policy settings and headers.  
+    bool requestPostCapability(const std::string &capName, LLSD &postData, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+    bool requestGetCapability(const std::string &capName, httpCallback_t cbSuccess = NULL, httpCallback_t cbFailure = NULL);
+
+    LLCore::HttpRequest::policy_t getAgentPolicy() const { return mHttpPolicy; }
+
+/**                    Utility
  **                                                                            **
  *******************************************************************************/
 

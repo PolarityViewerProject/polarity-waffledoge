@@ -215,6 +215,7 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
+		CUSTOM_ALPHA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
@@ -229,7 +230,7 @@ public:
 	BOOL linkProgram(GLuint program, BOOL suppress_errors = FALSE);
 	BOOL validateProgramObject(GLuint program);
 	GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
-	void cleanupShaders();
+	void cleanupShaderSources();
 
 	// Implemented in the application to actually point to the shader directory.
 	virtual std::string getShaderDirPrefix(void) = 0; // Pure Virtual

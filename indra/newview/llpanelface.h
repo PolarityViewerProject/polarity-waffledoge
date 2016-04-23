@@ -193,7 +193,22 @@ protected:
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
 
-	
+	LLTextureCtrl*	mTextureCtrl;
+	LLTextureCtrl*	mShinyTextureCtrl;
+	LLTextureCtrl*	mBumpyTextureCtrl;
+	LLColorSwatchCtrl*	mColorSwatch;
+	LLColorSwatchCtrl*	mShinyColorSwatch;
+
+	LLComboBox*		mComboTexGen;
+	LLComboBox*		mComboMatMedia;
+	LLComboBox*		mComboMatType;
+
+	LLCheckBoxCtrl	*mCheckFullbright;
+
+	LLTextBox*		mLabelColorTransp;
+	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
+
+	LLSpinCtrl*     mCtrlGlow;
 
 private:
 

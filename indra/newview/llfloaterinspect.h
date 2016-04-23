@@ -69,6 +69,7 @@ private:
 	virtual ~LLFloaterInspect(void);
 
 	LLSafeHandle<LLObjectSelection> mObjectSelection;
+	boost::signals2::scoped_connection mSelectionChangedConnection;
 	boost::signals2::connection mOwnerNameCacheConnection;
 	boost::signals2::connection mCreatorNameCacheConnection;
 };

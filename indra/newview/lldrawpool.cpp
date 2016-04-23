@@ -75,9 +75,6 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 	case POOL_FULLBRIGHT:
 		poolp = new LLDrawPoolFullbright();
 		break;
-	case POOL_INVISIBLE:
-		poolp = new LLDrawPoolInvisible();
-		break;
 	case POOL_GLOW:
 		poolp = new LLDrawPoolGlow();
 		break;
@@ -359,7 +356,7 @@ void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4& color)
 
 void LLFacePool::LLOverrideFaceColor::setColor(const LLColor4U& color)
 {
-	glColor4ubv(color.mV);
+	gGL.diffuseColor4ubv(color.mV);
 }
 
 void LLFacePool::LLOverrideFaceColor::setColor(F32 r, F32 g, F32 b, F32 a)

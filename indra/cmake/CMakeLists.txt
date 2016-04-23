@@ -10,10 +10,8 @@ set(cmake_SOURCE_FILES
     00-Common.cmake
     APR.cmake
     Audio.cmake
-    BerkeleyDB.cmake
     Boost.cmake
     BuildVersion.cmake
-    CARes.cmake
     CEFPlugin.cmake
     CMakeCopyIfDifferent.cmake
     ColladaDOM.cmake
@@ -27,8 +25,6 @@ set(cmake_SOURCE_FILES
     ExamplePlugin.cmake
     FindAPR.cmake
     FindAutobuild.cmake
-    FindBerkeleyDB.cmake
-    FindCARes.cmake
     FindFMODSTUDIO.cmake
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
@@ -53,7 +49,6 @@ set(cmake_SOURCE_FILES
     JsonCpp.cmake
     LLAddBuildTest.cmake
     LLAppearance.cmake
-    LLAppearanceUtility.cmake
     LLAudio.cmake
     LLCharacter.cmake
     LLCommon.cmake

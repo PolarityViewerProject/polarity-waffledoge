@@ -105,7 +105,6 @@
 #include "llspatialpartition.h"
 #include "llmutelist.h"
 #include "lltoolpie.h"
-#include "llcurl.h"
 #include "llnotifications.h"
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
@@ -292,13 +291,12 @@ std::string gPoolNames[] =
 	"POOL_BUMP",
 	"POOL_MATERIALS",
 	"POOL_TERRAIN,"	
+	"POOL_TREE",
 	"POOL_SKY",
 	"POOL_WL_SKY",
-	"POOL_TREE",
 	"POOL_ALPHA_MASK",
 	"POOL_FULLBRIGHT_ALPHA_MASK",
 	"POOL_GRASS",
-	"POOL_INVISIBLE",
 	"POOL_AVATAR",
 	"POOL_VOIDWATER",
 	"POOL_WATER",
@@ -439,7 +437,6 @@ LLPipeline::LLPipeline() :
 	mAlphaMaskPool(NULL),
 	mFullbrightAlphaMaskPool(NULL),
 	mFullbrightPool(NULL),
-	mInvisiblePool(NULL),
 	mGlowPool(NULL),
 	mBumpPool(NULL),
 	mMaterialsPool(NULL),
@@ -494,7 +491,6 @@ void LLPipeline::init()
 	getPool(LLDrawPool::POOL_FULLBRIGHT_ALPHA_MASK);
 	getPool(LLDrawPool::POOL_GRASS);
 	getPool(LLDrawPool::POOL_FULLBRIGHT);
-	getPool(LLDrawPool::POOL_INVISIBLE);
 	getPool(LLDrawPool::POOL_BUMP);
 	getPool(LLDrawPool::POOL_MATERIALS);
 	getPool(LLDrawPool::POOL_GLOW);
@@ -704,8 +700,6 @@ void LLPipeline::cleanup()
 	mSimplePool = NULL;
 	delete mFullbrightPool;
 	mFullbrightPool = NULL;
-	delete mInvisiblePool;
-	mInvisiblePool = NULL;
 	delete mGlowPool;
 	mGlowPool = NULL;
 	delete mBumpPool;
@@ -941,12 +935,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
-		const U32 occlusion_divisor = 3;
-
 		//allocate deferred rendering color buffers
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		if (!mOcclusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
 		GLuint screenFormat = GL_RGBA16;
@@ -987,7 +978,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 0; i < 4; i++)
 			{
 				if (!mShadow[i].allocate(sun_shadow_map_width,U32(resY*scale), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
-				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
 			}
 		}
 		else
@@ -995,7 +985,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 0; i < 4; i++)
 			{
 				mShadow[i].release();
-				mShadowOcclusion[i].release();
 			}
 		}
 
@@ -1008,7 +997,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 4; i < 6; i++)
 			{
 				if (!mShadow[i].allocate(spot_shadow_map_width, height, 0, TRUE, FALSE)) return false;
-				if (!mShadowOcclusion[i].allocate(mShadow[i].getWidth()/occlusion_divisor, mShadow[i].getHeight()/occlusion_divisor, 0, TRUE, FALSE)) return false;
 			}
 		}
 		else
@@ -1016,7 +1004,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 			for (U32 i = 4; i < 6; i++)
 			{
 				mShadow[i].release();
-				mShadowOcclusion[i].release();
 			}
 		}
 
@@ -1033,13 +1020,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		for (U32 i = 0; i < 6; i++)
 		{
 			mShadow[i].release();
-			mShadowOcclusion[i].release();
 		}
 		mFXAABuffer.release();
 		mScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
-		mOcclusionDepth.release();
 						
 		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
@@ -1227,12 +1212,10 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	mDeferredLight.release();
-	mOcclusionDepth.release();
 		
 	for (U32 i = 0; i < 6; i++)
 	{
 		mShadow[i].release();
-		mShadowOcclusion[i].release();
 	}
 }
 
@@ -1421,12 +1404,12 @@ void LLPipeline::restoreGL()
 
 BOOL LLPipeline::canUseVertexShaders()
 {
-	static const std::string vertex_shader_enable_feature_string = "VertexShaderEnable";
+	static const BOOL has_vertex_shader_feature = LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable");
 
 	if (sDisableShaders ||
 		!gGLManager.mHasVertexShader ||
 		!gGLManager.mHasFragmentShader ||
-		!LLFeatureManager::getInstance()->isFeatureAvailable(vertex_shader_enable_feature_string) ||
+		!has_vertex_shader_feature ||
 		(assertInitialized() && mVertexShadersLoaded != 1) )
 	{
 		return FALSE;
@@ -1600,10 +1583,6 @@ LLDrawPool *LLPipeline::findPool(const U32 type, LLViewerTexture *tex0)
 
 	case LLDrawPool::POOL_FULLBRIGHT:
 		poolp = mFullbrightPool;
-		break;
-
-	case LLDrawPool::POOL_INVISIBLE:
-		poolp = mInvisiblePool;
 		break;
 
 	case LLDrawPool::POOL_GLOW:
@@ -2423,14 +2402,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			mOcclusionDepth.bindTarget();
-		}
-		else
-		{
-			mScreen.bindTarget();
-		}
+		mScreen.bindTarget();
 	}
 
 	if (sUseOcclusion > 1)
@@ -2448,6 +2420,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	LLGLDisable blend(GL_BLEND);
 	LLGLDisable test(GL_ALPHA_TEST);
+	LLGLDisable stencil(GL_STENCIL_TEST);
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 
@@ -2574,14 +2547,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			mOcclusionDepth.flush();
-		}
-		else
-		{
-			mScreen.flush();
-		}
+		mScreen.flush();
 	}
 }
 
@@ -2648,73 +2614,6 @@ void LLPipeline::markOccluder(LLSpatialGroup* group)
 			}
 		}
 	}
-}
-
-void LLPipeline::downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
-{
-	LLGLSLShader* last_shader = LLGLSLShader::sCurBoundShaderPtr;
-
-	LLGLSLShader* shader = NULL;
-
-	if (scratch_space)
-	{
-		scratch_space->copyContents(source, 
-									0, 0, source.getWidth(), source.getHeight(), 
-									0, 0, scratch_space->getWidth(), scratch_space->getHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-	}
-
-	dest.bindTarget();
-	dest.clear(GL_DEPTH_BUFFER_BIT);
-
-	LLStrider<LLVector3> vert; 
-	mDeferredVB->getVertexStrider(vert);
-	LLStrider<LLVector2> tc0;
-		
-	vert[0].set(-1,1,0);
-	vert[1].set(-1,-3,0);
-	vert[2].set(3,1,0);
-	
-	if (source.getUsage() == LLTexUnit::TT_RECT_TEXTURE)
-	{
-		shader = &gDownsampleDepthRectProgram;
-		shader->bind();
-		shader->uniform2f(sDelta, 1.f, 1.f);
-		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, source.getWidth(), source.getHeight());
-	}
-	else
-	{
-		shader = &gDownsampleDepthProgram;
-		shader->bind();
-		shader->uniform2f(sDelta, 1.f/source.getWidth(), 1.f/source.getHeight());
-		shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, 1.f, 1.f);
-	}
-
-	gGL.getTexUnit(0)->bind(scratch_space ? scratch_space : &source, TRUE);
-
-	{
-		LLGLDepthTest depth(GL_TRUE, GL_TRUE, GL_ALWAYS);
-		mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-		mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
-	}
-	
-	dest.flush();
-	
-	if (last_shader)
-	{
-		last_shader->bind();
-	}
-	else
-	{
-		shader->unbind();
-	}
-}
-
-void LLPipeline::doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space)
-{
-	downsampleDepthBuffer(source, dest, scratch_space);
-	dest.bindTarget();
-	doOcclusion(camera);
-	dest.flush();
 }
 
 void LLPipeline::doOcclusion(LLCamera& camera)
@@ -4116,6 +4015,7 @@ void LLPipeline::renderHighlights()
 		glStencilMask(0xFFFFFFFF);
 		glClearStencil(1);
 		glClear(GL_STENCIL_BUFFER_BIT);
+		glClearStencil(0);
 
 		glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
@@ -4319,6 +4219,7 @@ void LLPipeline::renderHighlights()
 //debug use
 U32 LLPipeline::sCurRenderPoolType = 0 ;
 
+extern void check_blend_funcs();
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);
@@ -4331,11 +4232,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 	//HACK: preserve/restore matrices around HUD render
 	if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 	{
-		for (U32 i = 0; i < 16; i++)
-		{
-			saved_modelview[i] = gGLModelView[i];
-			saved_projection[i] = gGLProjection[i];
-		}
+		memcpy(saved_modelview, gGLModelView, sizeof(F32) * 16);
+		memcpy(saved_projection, gGLProjection, sizeof(F32) * 16);
 	}
 
 	///////////////////////////////////////////
@@ -4452,6 +4350,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
 				{
 					LLVertexBuffer::unbind();
+					if(gDebugGL)check_blend_funcs();
 					poolp->beginRenderPass(i);
 					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 					{
@@ -4464,6 +4363,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
+					if(gDebugGL)check_blend_funcs();
 					LLVertexBuffer::unbind();
 					if (gDebugGL)
 					{
@@ -4554,11 +4454,8 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		//HACK: preserve/restore matrices around HUD render
 		if (gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_HUD))
 		{
-			for (U32 i = 0; i < 16; i++)
-			{
-				gGLModelView[i] = saved_modelview[i];
-				gGLProjection[i] = saved_projection[i];
-			}
+			memcpy(gGLModelView, saved_modelview, sizeof(F32) * 16);
+			memcpy(gGLProjection, saved_projection, sizeof(F32) * 16);
 		}
 	}
 
@@ -4625,6 +4522,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4637,6 +4535,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -4696,7 +4595,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
-			doOcclusion(camera, mScreen, mOcclusionDepth, &mDeferredDepth);
+			doOcclusion(camera);
 			gGL.setColorMask(true, false);
 		}
 
@@ -4711,6 +4610,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 			for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginPostDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4723,6 +4623,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 					p->renderPostDeferred(i);
 				}
 				poolp->endPostDeferredPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -4789,6 +4690,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 			for( S32 i = 0; i < poolp->getNumShadowPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
+				if (gDebugGL)check_blend_funcs();
 				poolp->beginShadowPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4801,6 +4703,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 					p->renderShadow(i);
 				}
 				poolp->endShadowPass(i);
+				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				LLGLState::checkStates();
@@ -5714,18 +5617,6 @@ void LLPipeline::addToQuickLookup( LLDrawPool* new_poolp )
 		}
 		break;
 
-	case LLDrawPool::POOL_INVISIBLE:
-		if (mInvisiblePool)
-		{
-			llassert(0);
-			LL_WARNS() << "Ignoring duplicate simple pool." << LL_ENDL;
-		}
-		else
-		{
-			mInvisiblePool = (LLRenderPass*) new_poolp;
-		}
-		break;
-
 	case LLDrawPool::POOL_GLOW:
 		if (mGlowPool)
 		{
@@ -5874,11 +5765,6 @@ void LLPipeline::removeFromQuickLookup( LLDrawPool* poolp )
 	case LLDrawPool::POOL_FULLBRIGHT:
 		llassert(mFullbrightPool == poolp);
 		mFullbrightPool = NULL;
-		break;
-
-	case LLDrawPool::POOL_INVISIBLE:
-		llassert(mInvisiblePool == poolp);
-		mInvisiblePool = NULL;
 		break;
 
 	case LLDrawPool::POOL_WL_SKY:
@@ -6123,6 +6009,13 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		{
 			const Light* light = &(*iter);
 			LLDrawable* drawable = light->drawable;
+            const LLViewerObject *vobj = light->drawable->getVObj();
+            if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+            {
+                drawable->clearState(LLDrawable::NEARBY_LIGHT);
+                continue;
+            }
+
 			LLVOVolume* volight = drawable->getVOVolume();
 			if (!volight || !drawable->isState(LLDrawable::LIGHT))
 			{
@@ -7676,8 +7569,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	if (LLPipeline::sRenderDeferred)
 	{
 
-		bool dof_enabled = !LLViewerCamera::getInstance()->cameraUnderWater() &&
-			(RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
+		bool dof_enabled = (RenderDepthOfFieldInEditMode || !LLToolMgr::getInstance()->inBuildMode()) &&
 							RenderDepthOfField;
 
 
@@ -8288,6 +8180,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	stop_glerror();
 
 	F32 mat[16*6];
+
 	memcpy(mat, glm::value_ptr(mSunShadowMatrix[0]), sizeof(F32)*16);
 	memcpy(mat+16, glm::value_ptr(mSunShadowMatrix[1]), sizeof(F32) * 16);
 	memcpy(mat+32, glm::value_ptr(mSunShadowMatrix[2]), sizeof(F32) * 16);
@@ -8635,6 +8528,11 @@ void LLPipeline::renderDeferredLighting()
 						}
 					}
 
+					const LLViewerObject *vobj = drawablep->getVObj();
+					if(vobj && vobj->getAvatar() && vobj->getAvatar()->isInMuteList())
+					{
+						continue;
+					}
 
 					LLVector4a center;
 					center.load3(drawablep->getPositionAgent().mV);
@@ -8855,6 +8753,7 @@ void LLPipeline::renderDeferredLighting()
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
 				gGL.popMatrix();
 			}
+			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		}
 
 		gGL.setColorMask(true, true);
@@ -8936,8 +8835,6 @@ void LLPipeline::renderDeferredLighting()
 						 LLPipeline::RENDER_TYPE_PASS_GLOW,
 						 LLPipeline::RENDER_TYPE_PASS_GRASS,
 						 LLPipeline::RENDER_TYPE_PASS_SHINY,
-						 LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
-						 LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
 						 LLPipeline::RENDER_TYPE_AVATAR,
 						 LLPipeline::RENDER_TYPE_ALPHA_MASK,
 						 LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
@@ -9462,8 +9359,6 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 						 LLPipeline::RENDER_TYPE_PASS_GLOW,
 						 LLPipeline::RENDER_TYPE_PASS_GRASS,
 						 LLPipeline::RENDER_TYPE_PASS_SHINY,
-						 LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
-						 LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
 						 LLPipeline::RENDER_TYPE_AVATAR,
 						 LLPipeline::RENDER_TYPE_ALPHA_MASK,
 						 LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
@@ -9535,7 +9430,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 	n = glm::normalize(n);
 
 	F32 proj_range = far_clip - near_clip;
-	glm::mat4 light_proj = glm::perspective(fov, aspect, near_clip, far_clip);
+	glm::mat4 light_proj = glm::perspective(glm::radians(RAD_TO_DEG * fov), aspect, near_clip, far_clip);
 	screen_to_light = trans * light_proj * screen_to_light;
 	shader.uniformMatrix4fv(LLShaderMgr::PROJECTOR_MATRIX, 1, FALSE, glm::value_ptr(screen_to_light));
 	shader.uniform1f(LLShaderMgr::PROJECTOR_NEAR, near_clip);
@@ -10047,19 +9942,12 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
 	LLGLEnable cull(GL_CULL_FACE);
 
-	//enable depth clamping if available
-	LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
-
 	if (use_shader)
 	{
 		gDeferredShadowCubeProgram.bind();
 	}
 
-	LLRenderTarget& occlusion_target = mShadowOcclusion[LLViewerCamera::sCurCameraID-1];
-
-	occlusion_target.bindTarget();
 	updateCull(shadow_cam, result);
-	occlusion_target.flush();
 
 	stateSort(shadow_cam, result);
 	
@@ -10152,9 +10040,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLModelView);
 
-	LLRenderTarget& occlusion_source = mShadow[LLViewerCamera::sCurCameraID-1];
-
-	doOcclusion(shadow_cam, occlusion_source, occlusion_target);
+	doOcclusion(shadow_cam);
 
 	if (use_shader)
 	{
@@ -10448,11 +10334,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 	F32 last_modelview[16];
 	F32 last_projection[16];
-	for (U32 i = 0; i < 16; i++)
-	{ //store last_modelview of world camera
-		last_modelview[i] = gGLLastModelView[i];
-		last_projection[i] = gGLLastProjection[i];
-	}
+
+	memcpy(last_modelview, gGLLastModelView, sizeof(F32) * 16);
+	memcpy(last_projection, gGLLastProjection, sizeof(F32) * 16);
 
 	pushRenderTypeMask();
 	andRenderTypeMask(LLPipeline::RENDER_TYPE_SIMPLE,
@@ -11175,11 +11059,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 	gGL.setColorMask(true, false);
 
-	for (U32 i = 0; i < 16; i++)
-	{
-		gGLLastModelView[i] = last_modelview[i];
-		gGLLastProjection[i] = last_projection[i];
-	}
+	memcpy(gGLLastModelView, last_modelview, sizeof(F32) * 16);
+	memcpy(gGLLastProjection, last_projection, sizeof(F32) * 16);
 
 	popRenderTypeMask();
 
@@ -11253,12 +11134,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			LLPipeline::RENDER_TYPE_PASS_GLOW,
 			LLPipeline::RENDER_TYPE_PASS_GRASS,
 						LLPipeline::RENDER_TYPE_PASS_SHINY,
-						LLPipeline::RENDER_TYPE_PASS_INVISIBLE,
-						LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY,
 			LLPipeline::RENDER_TYPE_AVATAR,
 			LLPipeline::RENDER_TYPE_ALPHA_MASK,
 			LLPipeline::RENDER_TYPE_FULLBRIGHT_ALPHA_MASK,
-			LLPipeline::RENDER_TYPE_INVISIBLE,
 			LLPipeline::RENDER_TYPE_SIMPLE,
 						END_RENDER_TYPES);
 	}
@@ -11482,7 +11360,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		}
 
 
-		if (LLMuteList::getInstance()->isMuted(avatar->getID()))
+		if (avatar->isInMuteList())
 		{ //grey muted avatar
 			gGL.diffuseColor4ub(64,64,64,255);
 		}

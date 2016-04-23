@@ -118,21 +118,13 @@ struct LLCompileQueueData
 		mQueueID(q_id), mItemId(item_id) {}
 };
 
-class LLAssetUploadQueue;
-
 class LLFloaterCompileQueue : public LLFloaterScriptQueue
 {
 	friend class LLFloaterReg;
 public:
-	static void onSaveBytecodeComplete(const LLUUID& asset_id,
-									void* user_data,
-									S32 status);
-									
 	// remove any object in mScriptScripts with the matching uuid.
 	void removeItemByItemID(const LLUUID& item_id);
 	
-	LLAssetUploadQueue* getUploadQueue() { return mUploadQueue; }
-
 	void experienceIdsReceived( const LLSD& content );
 	BOOL hasExperience(const LLUUID& id)const;
 
@@ -147,6 +139,8 @@ protected:
 	static void requestAsset(struct LLScriptQueueData* datap, const LLSD& experience);
 
 
+    static void finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID newAssetId, LLSD response, std::string scriptName, LLUUID queueId);
+
 	// This is the callback for when each script arrives
 	static void scriptArrived(LLVFS *vfs, const LLUUID& asset_id,
 								LLAssetType::EType type,
@@ -157,7 +151,8 @@ protected:
 	LLViewerInventoryItem::item_array_t mCurrentScripts;
 
 private:
-	LLAssetUploadQueue* mUploadQueue;
+    static void processExperienceIdResults(LLSD result, LLUUID parent);
+
 	uuid_list_t mExperienceIds;
 };
 

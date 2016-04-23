@@ -52,24 +52,6 @@
 #include "llviewerwindow.h"
 #include "llfloaterregioninfo.h"
 
-//LLFloaterTopObjects* LLFloaterTopObjects::sInstance = NULL;
-
-// Globals
-// const U32 TIME_STR_LENGTH = 30;
-/*
-// static
-void LLFloaterTopObjects::show()
-{
-	if (sInstance)
-	{
-		sInstance->setVisibleAndFrontmost();
-		return;
-	}
-
-	sInstance = new LLFloaterTopObjects();
-	sInstance->center();
-}
-*/
 LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
 :	LLFloater(key),
 	mInitialized(FALSE),
@@ -96,7 +78,7 @@ BOOL LLFloaterTopObjects::postBuild()
 {
 	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
 	getChild<LLUICtrl>("objects_list")->setFocus(TRUE);
-	objects_list->setDoubleClickCallback(onDoubleClickObjectsList, this);
+	objects_list->setDoubleClickCallback(boost::bind(&LLFloaterTopObjects::onDoubleClickObjectsList, this));
 	objects_list->setCommitOnSelectionChange(TRUE);
 
 	setDefaultBtn("show_beacon_btn");
@@ -107,24 +89,21 @@ BOOL LLFloaterTopObjects::postBuild()
 
 	return TRUE;
 }
-// static
 void LLFloaterTopObjects::setMode(U32 mode)
 {
-	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
-	if(!instance) return;
-	instance->mCurrentMode = mode; 
+	mCurrentMode = mode; 
 }
 
 // static 
 void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 {
-    LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
-    if(instance && instance->isInVisibleChain())
+    LLFloaterTopObjects* instance = LLFloaterReg::findTypedInstance<LLFloaterTopObjects>("top_objects");
+    if(instance)
     {
 	    instance->handleReply(msg, data);
 	    //HACK: for some reason sometimes top scripts originally comes back
 	    //with no results even though they're there
-	    if (!instance->mObjectListIDs.size() && !instance->mInitialized)
+	    if (instance->mObjectListIDs.empty() && !instance->mInitialized)
 	    {
 	        instance->onRefresh();
 	        instance->mInitialized = TRUE;
@@ -132,13 +111,12 @@ void LLFloaterTopObjects::handle_land_reply(LLMessageSystem* msg, void** data)
 	}
 	else
 	{
-	    LLFloaterRegionInfo* region_info_floater = LLFloaterReg::getTypedInstance<LLFloaterRegionInfo>("region_info");
-	    if(region_info_floater)
-	    {
-	        region_info_floater->enableTopButtons();
-	    }
+		LLFloaterRegionInfo* region_info_floater = LLFloaterReg::findTypedInstance<LLFloaterRegionInfo>("region_info");
+		if (region_info_floater)
+		{
+			region_info_floater->enableTopButtons();
+		}
 	}
-
 }
 
 void LLFloaterTopObjects::handleReply(LLMessageSystem *msg, void** data)
@@ -314,14 +292,11 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	}
 }
 
-// static
-void LLFloaterTopObjects::onDoubleClickObjectsList(void* data)
+void LLFloaterTopObjects::onDoubleClickObjectsList()
 {
-	LLFloaterTopObjects* self = (LLFloaterTopObjects*)data;
-	self->showBeacon();
+	showBeacon();
 }
 
-// static
 void LLFloaterTopObjects::onClickShowBeacon()
 {
 	showBeacon();
@@ -402,12 +377,10 @@ void LLFloaterTopObjects::onReturnAll()
 	LLNotificationsUtil::add("ReturnAllTopObjects", LLSD(), LLSD(), &callbackReturnAll);
 }
 
-
 void LLFloaterTopObjects::onReturnSelected()
 {
 	doToObjects(ACTION_RETURN, false);
 }
-
 
 //static
 bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLSD& response)
@@ -431,7 +404,6 @@ void LLFloaterTopObjects::onDisableSelected()
 {
 	doToObjects(ACTION_DISABLE, false);
 }
-
 
 void LLFloaterTopObjects::clearList()
 {
@@ -509,7 +481,6 @@ void LLFloaterTopObjects::onGetByParcelName()
 	mFilter = getChild<LLUICtrl>("parcel_name_editor")->getValue().asString();
 	onRefresh();
 }
-
 
 void LLFloaterTopObjects::showBeacon()
 {

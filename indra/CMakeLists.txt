@@ -10,8 +10,8 @@ else()
   cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
 endif()
 
-set(ROOT_PROJECT_NAME "SecondLife" CACHE STRING
-    "The root project/makefile/solution name. Defaults to SecondLife.")
+set(ROOT_PROJECT_NAME "Obsidian" CACHE STRING
+    "The root project/makefile/solution name. Defaults to Obsidian.")
 project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -85,7 +85,7 @@ elseif (SOLARIS)
 endif (LINUX)
 
 add_subdirectory(${VIEWER_PREFIX}newview)
-add_dependencies(viewer secondlife-bin)
+add_dependencies(viewer obsidian-bin)
 
 if (LL_TESTS)
   # Define after the custom targets are created so

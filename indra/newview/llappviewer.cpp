@@ -57,8 +57,6 @@
 #include "llfocusmgr.h"
 #include "llviewerjoystick.h"
 #include "llallocator.h"
-#include "llares.h" 
-#include "llcurl.h"
 #include "llcalc.h"
 #include "llconversationlog.h"
 #include "lldxhardware.h"
@@ -238,7 +236,7 @@
 #include "llmachineid.h"
 #include "llmainlooprepeater.h"
 
-
+#include "llcoproceduremanager.h"
 #include "llviewereventrecorder.h"
 
 
@@ -334,9 +332,6 @@ LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
 BOOL			gUseWireframe = FALSE;
 
-//use for remember deferred mode in wireframe switch
-BOOL			gInitialDeferredModeForWireframe = FALSE;
-
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
 
@@ -363,16 +358,16 @@ BOOL gLogoutInProgress = FALSE;
 // Internal globals... that should be removed.
 static std::string gArgs;
 const int MAX_MARKER_LENGTH = 1024;
-const std::string MARKER_FILE_NAME("SecondLife.exec_marker");
-const std::string START_MARKER_FILE_NAME("SecondLife.start_marker");
-const std::string ERROR_MARKER_FILE_NAME("SecondLife.error_marker");
-const std::string LLERROR_MARKER_FILE_NAME("SecondLife.llerror_marker");
-const std::string LOGOUT_MARKER_FILE_NAME("SecondLife.logout_marker");
+const std::string MARKER_FILE_NAME("Obsidian.exec_marker");
+const std::string START_MARKER_FILE_NAME("Obsidian.start_marker");
+const std::string ERROR_MARKER_FILE_NAME("Obsidian.error_marker");
+const std::string LLERROR_MARKER_FILE_NAME("Obsidian.llerror_marker");
+const std::string LOGOUT_MARKER_FILE_NAME("Obsidian.logout_marker");
 static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
 // Used on Win32 for other apps to identify our window (eg, win_setup)
-const char* const VIEWER_WINDOW_CLASSNAME = "Second Life";
+const char* const VIEWER_WINDOW_CLASSNAME = "Obsidian";
 
 //-- LLDeferredTaskList ------------------------------------------------------
 
@@ -647,7 +642,7 @@ public:
 
 	void run()
 	{
-		std::ofstream os(mFile.c_str());
+		llofstream os(mFile.c_str());
 		
 		while (!LLAppViewer::instance()->isQuitting())
 		{
@@ -771,7 +766,10 @@ void fast_exit(int rc)
 {
 	_exit(rc);
 }
+
+
 }
+
 
 bool LLAppViewer::init()
 {	
@@ -840,12 +838,7 @@ bool LLAppViewer::init()
 	// before consumers (LLTextureFetch).
 	mAppCoreHttp.init();
 	
-    // *NOTE:Mani - LLCurl::initClass is not thread safe. 
-    // Called before threads are created.
-    LLCurl::initClass(gSavedSettings.getF32("CurlRequestTimeOut"), 
-						gSavedSettings.getS32("CurlMaximumNumberOfHandles"), 
-						gSavedSettings.getBOOL("CurlUseMultipleThreads"));
-	LL_INFOS("InitInfo") << "LLCurl initialized." << LL_ENDL ;
+	LL_INFOS("InitInfo") << "LLCore::Http initialized." << LL_ENDL ;
 
     LLMachineID::init();
 	
@@ -915,7 +908,7 @@ bool LLAppViewer::init()
 	// the libs involved in getting to a full login screen.
 	//
 	LL_INFOS("InitInfo") << "J2C Engine is: " << LLImageJ2C::getEngineInfo() << LL_ENDL;
-	LL_INFOS("InitInfo") << "libcurl version is: " << LLCurl::getVersionString() << LL_ENDL;
+	LL_INFOS("InitInfo") << "libcurl version is: " << LLCore::LLHttp::getCURLVersion() << LL_ENDL;
 
 	/////////////////////////////////////////////////
 	// OS-specific login dialogs
@@ -1172,8 +1165,6 @@ bool LLAppViewer::init()
 	{
 	  LLNotificationsUtil::add("CorruptedProtectedDataStore");
 	}
-	LLHTTPClient::setCertVerifyCallback(secapiSSLCertVerifyCallback);
-
 
 	gGLActive = FALSE;
 
@@ -1230,6 +1221,12 @@ bool LLAppViewer::init()
 	}
 
 	LLAgentLanguage::init();
+
+    /// Tell the Coprocedure manager how to discover and store the pool sizes
+    // what I wanted
+    LLCoprocedureManager::getInstance()->setPropertyMethods(
+        boost::bind(&LLControlGroup::getU32, boost::ref(gSavedSettings), _1),
+        boost::bind(&LLControlGroup::declareU32, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_ALWAYS));
 
 	return true;
 }
@@ -1297,7 +1294,6 @@ static LLTrace::BlockTimerStatHandle FTM_LFS("LFS Thread");
 static LLTrace::BlockTimerStatHandle FTM_PAUSE_THREADS("Pause Threads");
 static LLTrace::BlockTimerStatHandle FTM_IDLE("Idle");
 static LLTrace::BlockTimerStatHandle FTM_PUMP("Pump");
-static LLTrace::BlockTimerStatHandle FTM_PUMP_ARES("Ares");
 static LLTrace::BlockTimerStatHandle FTM_PUMP_SERVICE("Service");
 static LLTrace::BlockTimerStatHandle FTM_SERVICE_CALLBACK("Callback");
 static LLTrace::BlockTimerStatHandle FTM_AGENT_AUTOPILOT("Autopilot");
@@ -1321,8 +1317,6 @@ bool LLAppViewer::mainLoop()
 		
 		// Create IO Pump to use for HTTP Requests.
 		gServicePump = new LLPumpIO(gAPRPoolp);
-		LLHTTPClient::setPump(*gServicePump);
-		LLCurl::setCAFile(gDirUtilp->getCAFile());
 		
 		// Note: this is where gLocalSpeakerMgr and gActiveSpeakerMgr used to be instantiated.
 		
@@ -1437,26 +1431,6 @@ bool LLAppViewer::mainLoop()
 					LL_RECORD_BLOCK_TIME(FTM_IDLE);
 					idle();
 
-					if (gAres != NULL && gAres->isInitialized())
-					{
-						pingMainloopTimeout("Main:ServicePump");				
-						LL_RECORD_BLOCK_TIME(FTM_PUMP);
-						{
-							LL_RECORD_BLOCK_TIME(FTM_PUMP_ARES);
-							gAres->process();
-						}
-						{
-							LL_RECORD_BLOCK_TIME(FTM_PUMP_SERVICE);
-							// this pump is necessary to make the login screen show up
-							gServicePump->pump();
-
-							{
-								LL_RECORD_BLOCK_TIME(FTM_SERVICE_CALLBACK);
-								gServicePump->callback();
-							}
-						}
-					}
-					
 					resumeMainloopTimeout();
 				}
  
@@ -1561,11 +1535,6 @@ bool LLAppViewer::mainLoop()
 				}
 				gMeshRepo.update() ;
 				
-				if(!LLCurl::getCurlThread()->update(1))
-				{
-					LLCurl::getCurlThread()->pause() ; //nothing in the curl thread.
-				}
-
 				if(!total_work_pending) //pause texture fetching threads if nothing to process.
 				{
 					LLAppViewer::getTextureCache()->pause();
@@ -1883,8 +1852,6 @@ bool LLAppViewer::cleanup()
 
 	LLAvatarAppearance::cleanupClass();
 	
-	LLAvatarAppearance::cleanupClass();
-	
 	LLPostProcess::cleanupClass();
 
 	LLTracker::cleanupInstance();
@@ -2000,7 +1967,6 @@ bool LLAppViewer::cleanup()
 		pending += LLAppViewer::getTextureFetch()->update(1); // unpauses the texture fetch thread
 		pending += LLVFSThread::updateClass(0);
 		pending += LLLFSThread::updateClass(0);
-		pending += LLCurl::getCurlThread()->update(1) ;
 		F64 idle_time = idleTimer.getElapsedTimeF64();
 		if(!pending)
 		{
@@ -2012,7 +1978,6 @@ bool LLAppViewer::cleanup()
 			break;
 		}
 	}
-	LLCurl::getCurlThread()->pause() ;
 
 	// Delete workers first
 	// shotdown all worker threads before deleting them in case of co-dependencies
@@ -2027,16 +1992,8 @@ bool LLAppViewer::cleanup()
 	LL_INFOS() << "Shutting down message system" << LL_ENDL;
 	end_messaging_system();
 
-	// *NOTE:Mani - The following call is not thread safe. 
-	LL_CHECK_MEMORY
-	LLCurl::cleanupClass();
-	LL_CHECK_MEMORY
-
 	// Non-LLCurl libcurl library
 	mAppCoreHttp.cleanup();
-
-	// NOTE The following call is not thread safe. 
-	ll_cleanup_ares();
 
 	LLFilePickerThread::cleanupClass();
 
@@ -2123,6 +2080,7 @@ bool LLAppViewer::cleanup()
 	}
 	LL_INFOS() << "Cleaning up LLProxy." << LL_ENDL;
 	LLProxy::cleanupClass();
+    LLCore::LLHttp::cleanup();
 
 	LLWearableType::cleanupClass();
 
@@ -2225,12 +2183,12 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 
 	// Remove the last ".old" log file.
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.old");
+							     "Obsidian.old");
 	LLFile::remove(old_log_file);
 
 	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     "SecondLife.log");
+							     "Obsidian.log");
  	/*
 	 * Before touching any log files, compute the duration of the last run
 	 * by comparing the ctime of the previous start marker file with the ctime
@@ -2793,7 +2751,7 @@ bool LLAppViewer::initConfiguration()
 	//
 	gWindowTitle = LLTrans::getString("APP_NAME");
 #if LL_DEBUG
-    gWindowTitle += std::string(" [DEBUG]");
+	gWindowTitle += std::string(" [DEBUG]");
 #endif
 	if (!gArgs.empty())
 	{
@@ -3386,7 +3344,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["RLV_VERSION"] = (rlv_handler_t::isEnabled()) ? RlvStrings::getVersionAbout() : "(disabled)";
 // [/RLVa:KB]
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-	info["LIBCURL_VERSION"] = LLCurl::getVersionString();
+	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
@@ -3655,7 +3613,7 @@ void getFileList()
 		if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
 		{
 			std::string fullname = pathname + *iter;
-			std::ifstream fdat( fullname.c_str(), std::ifstream::binary);
+			llifstream fdat(fullname.c_str(), std::ios::in | std::ios::binary);
 			if (fdat)
 			{
 				char buf[5];
@@ -4552,7 +4510,13 @@ void LLAppViewer::purgeCache()
 	LL_INFOS("AppCache") << "Purging Cache and Texture Cache..." << LL_ENDL;
 	LLAppViewer::getTextureCache()->purgeCache(LL_PATH_CACHE);
 	LLVOCache::getInstance()->removeCache(LL_PATH_CACHE);
-	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*.*");
+	std::string browser_cache = gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "cef_cache");
+	if (LLFile::isdir(browser_cache))
+	{
+		// cef does not support clear_cache and clear_cookies, so clear what we can manually.
+		gDirUtilp->deleteDirAndContents(browser_cache);
+	}
+	gDirUtilp->deleteFilesInDir(gDirUtilp->getExpandedFilename(LL_PATH_CACHE, ""), "*");
 }
 
 //purge cache immediately, do not wait until the next login.
@@ -4723,31 +4687,6 @@ void LLAppViewer::saveNameCache()
         {
             gCacheName->exportFile(cache_file);
         }
-	}
-}
-
-
-void LLAppViewer::saveExperienceCache()
-{
-	std::string filename =
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
-	LL_INFOS("ExperienceCache") << "Saving " << filename << LL_ENDL;
-	llofstream cache_stream(filename.c_str());
-	if(cache_stream.is_open())
-	{
-		LLExperienceCache::exportFile(cache_stream);
-	}
-}
-
-void LLAppViewer::loadExperienceCache()
-{
-	std::string filename =
-		gDirUtilp->getExpandedFilename(LL_PATH_CACHE, "experience_cache.xml");
-	LL_INFOS("ExperienceCache") << "Loading " << filename << LL_ENDL;
-	llifstream cache_stream(filename.c_str());
-	if(cache_stream.is_open())
-	{
-		LLExperienceCache::importFile(cache_stream);
 	}
 }
 
@@ -4947,7 +4886,6 @@ void LLAppViewer::idle()
 	    // floating throughout the various object lists.
 	    //
 		idleNameCache();
-		idleExperienceCache();
 		idleNetwork();
 	    	        
 
@@ -5378,22 +5316,6 @@ void LLAppViewer::idleNameCache()
 	LLAvatarNameCache::idle();
 }
 
-void LLAppViewer::idleExperienceCache()
-{
-	LLViewerRegion* region = gAgent.getRegion();
-	if (!region) return;
-	
-	std::string lookup_url=region->getCapability("GetExperienceInfo"); 
-	if(!lookup_url.empty() && *lookup_url.rbegin() != '/')
-	{
-		lookup_url += '/';
-	}
-	
-	LLExperienceCache::setLookupURL(lookup_url);
-
-	LLExperienceCache::idle();
-}
-
 //
 // Handle messages, and all message related stuff
 //
@@ -5556,7 +5478,9 @@ void LLAppViewer::disconnectViewer()
 	}
 
 	saveNameCache();
-	saveExperienceCache();
+    LLExperienceCache *expCache = LLExperienceCache::getIfExists();
+    if (expCache)
+        expCache->cleanup();
 
 	// close inventory interface, close all windows
 	LLFloaterInventory::cleanup();
