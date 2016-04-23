@@ -12,6 +12,7 @@
     <text_editor
      bottom="197"
      follows="left|top|right|bottom"
+     font="MonospaceSmall"
      height="176"
      layout="topleft"
      max_length="2147483647"
