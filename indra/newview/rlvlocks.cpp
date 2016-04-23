@@ -120,7 +120,7 @@ S32 RlvAttachPtLookup::getAttachPointIndex(const LLInventoryItem* pItem, bool fF
 
 	// If the item is modify   : we look at the item's name first and only then at the containing folder
 	// If the item is no modify: we look at the containing folder's name first and only then at the item itself
-	S32 idxAttachPt = 0;
+	S32 idxAttachPt;
 	if (pItem->getPermissions().allowModifyBy(gAgent.getID()))
 	{
 		idxAttachPt = (!strAttachPt.empty()) ? getAttachPointIndex(strAttachPt) : 0;
@@ -457,7 +457,7 @@ void RlvAttachmentLockWatchdog::RlvWearInfo::dumpInstance() const
 		for (std::map<S32, uuid_vec_t>::const_iterator itAttachPt = attachPts.begin(); itAttachPt != attachPts.end(); ++itAttachPt)
 		{
 			const LLViewerJointAttachment* pAttachPt =
-				get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, (LLViewerJointAttachment*)NULL);
+				get_if_there(gAgentAvatarp->mAttachmentPoints, itAttachPt->first, static_cast<LLViewerJointAttachment*>(NULL));
 			if (!itAttachPt->second.empty())
 			{
 				for (uuid_vec_t::const_iterator itAttach = itAttachPt->second.begin(); itAttach != itAttachPt->second.end(); ++itAttach)
@@ -596,21 +596,21 @@ void RlvAttachmentLockWatchdog::onAttach(const LLViewerObject* pAttachObj, const
 					for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator itAttachObj = pAttachPt->mAttachedObjects.begin();
 							itAttachObj != pAttachPt->mAttachedObjects.end(); ++itAttachObj)
 					{
-						const LLViewerObject* pAttachObj = *itAttachObj;
+						const LLViewerObject* p_attach_obj = *itAttachObj;
 
-						uuid_vec_t::iterator itAttach = 
-							std::find(itAttachPrev->second.begin(), itAttachPrev->second.end(), pAttachObj->getAttachmentItemID());
-						if (itAttach == itAttachPrev->second.end())
-							detach(pAttachObj);
+						uuid_vec_t::iterator it_attach = 
+							std::find(itAttachPrev->second.begin(), itAttachPrev->second.end(), p_attach_obj->getAttachmentItemID());
+						if (it_attach == itAttachPrev->second.end())
+							detach(p_attach_obj);
 						else
-							itAttachPrev->second.erase(itAttach);
+							itAttachPrev->second.erase(it_attach);
 					}
 
 					// Whatever is left is something that needs to be reattached
-					for (uuid_vec_t::const_iterator itAttach = itAttachPrev->second.begin(); 
-							itAttach != itAttachPrev->second.end(); ++itAttach)
+					for (uuid_vec_t::const_iterator it_attach = itAttachPrev->second.begin(); 
+							it_attach != itAttachPrev->second.end(); ++it_attach)
 					{
-						m_PendingAttach.insert(std::pair<S32, RlvReattachInfo>(idxAttachPt, RlvReattachInfo(*itAttach)));
+						m_PendingAttach.insert(std::pair<S32, RlvReattachInfo>(idxAttachPt, RlvReattachInfo(*it_attach)));
 					}
 				}
 				fAttachAllowed = false;
@@ -926,7 +926,7 @@ class RlvLockedDescendentsCollector : public LLInventoryCollectFunctor
 {
 public:
 	RlvLockedDescendentsCollector(int eSourceTypeMask, RlvFolderLocks::ELockPermission ePermMask, ERlvLockMask eLockTypeMask) 
-		: m_eSourceTypeMask(eSourceTypeMask), m_ePermMask(ePermMask), m_eLockTypeMask(eLockTypeMask) {}
+		: m_ePermMask(ePermMask), m_eSourceTypeMask(eSourceTypeMask), m_eLockTypeMask(eLockTypeMask) {}
 	/*virtual*/ ~RlvLockedDescendentsCollector() {}
 	/*virtual*/ bool operator()(LLInventoryCategory* pFolder, LLInventoryItem* pItem)
 	{
@@ -940,7 +940,7 @@ protected:
 
 // Checked: 2011-03-28 (RLVa-1.3.0g) | Modified: RLVa-1.3.0g
 RlvFolderLocks::RlvFolderLocks()
-	: m_fLookupDirty(false), m_fLockedRoot(false), m_cntLockAdd(0), m_cntLockRem(0)
+	: m_cntLockAdd(0), m_cntLockRem(0), m_fLookupDirty(false), m_fLockedRoot(false)
 {
 	LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&RlvFolderLocks::onNeedsLookupRefresh, this));
 	RlvInventory::instance().addSharedRootIDChangedCallback(boost::bind(&RlvFolderLocks::onNeedsLookupRefresh, this));
@@ -1072,8 +1072,8 @@ bool RlvFolderLocks::getLockedItems(const LLUUID& idFolder, LLInventoryModel::it
 		{
 			LLInventoryModel::item_array_t itemLinks;
 			LLInventoryModel::cat_array_t cats;
-			LLLinkedItemIDMatches f(pItem->getUUID());
-			gInventory.collectDescendentsIf(RlvInventory::instance().getSharedRootID(), cats, itemLinks, LLInventoryModel::EXCLUDE_TRASH, f);
+			LLLinkedItemIDMatches item_id_matches(pItem->getUUID());
+			gInventory.collectDescendentsIf(RlvInventory::instance().getSharedRootID(), cats, itemLinks, LLInventoryModel::EXCLUDE_TRASH, item_id_matches);
 
 			for (LLInventoryModel::item_array_t::iterator itItemLink = itemLinks.begin(); 
 					(itItemLink < itemLinks.end()) && (!fItemLocked); ++itItemLink)
@@ -1163,7 +1163,7 @@ bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask,
 			//   - it's a node lock and the current folder doesn't match
 			//   - we encountered a PERM_ALLOW lock from the current lock owner before which supercedes any subsequent locks
 			//   - the lock source type doesn't match the mask passed in eSourceTypeMask
-			ERlvLockMask eCurLockType = (ERlvLockMask)(pLockDescr->eLockType & eLockTypeMask);
+			ERlvLockMask eCurLockType = static_cast<ERlvLockMask>(pLockDescr->eLockType & eLockTypeMask);
 			std::list<LLUUID>* pidRlvObjList = (RLV_LOCK_REMOVE == eCurLockType) ? &idsRlvObjRem : &idsRlvObjAdd;
 			if ( (0 == eCurLockType) || ((SCOPE_NODE == pLockDescr->eLockScope) && (idFolder != idFolderCur)) ||
 				 (pidRlvObjList->end() != std::find(pidRlvObjList->begin(), pidRlvObjList->end(), pLockDescr->idRlvObj)) ||
@@ -1193,7 +1193,7 @@ bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask,
 }
 
 // Checked: 2010-11-30 (RLVa-1.3.0b) | Added: RLVa-1.3.0b
-void RlvFolderLocks::onNeedsLookupRefresh()
+void RlvFolderLocks::onNeedsLookupRefresh() const
 {
 	// NOTE: when removeFolderLock() removes the last folder lock we still want to refresh everything so mind the conditional OR assignment
 	m_fLookupDirty |= !m_FolderLocks.empty();

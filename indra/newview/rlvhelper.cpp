@@ -97,7 +97,7 @@ bool RlvCommand::parseCommand(const std::string& strCommand, std::string& strBeh
 	strOption = strParam = "";
 
 	// If <param> is missing it's an improperly formatted command
-	if ( (-1 == idxParam) || ((int)strCommand.length() - 1 == idxParam) )
+	if ( (-1 == idxParam) || (static_cast<int>(strCommand.length()) - 1 == idxParam) )
 	{
 		// Unless "<behaviour> == "clear" AND (idxOption == 0)" 
 		// OR <behaviour> == "clear" AND (idxParam != 0) [see table above]
@@ -169,11 +169,11 @@ void RlvCommand::initLookupTable()
 				"detachallthis_except", "adjustheight", "tpto", "version", "versionnew", "versionnum", "getattach", "getattachnames", 
 				"getaddattachnames", "getremattachnames", "getoutfit", "getoutfitnames", "getaddoutfitnames", "getremoutfitnames", 
 				"findfolder", "findfolders", "getpath", "getpathnew", "getinv", "getinvworn", "getgroup", "getsitid", "getcommand", 
-				"getstatus", "getstatusall","geteffectcolor"
+				"getstatus", "getstatusall","geteffectcolor","getparcelgroupkey"
 			};
 
 		for (int idxBvhr = 0; idxBvhr < RLV_BHVR_COUNT; idxBvhr++)
-			m_BhvrMap.insert(std::pair<std::string, ERlvBehaviour>(arBehaviours[idxBvhr], (ERlvBehaviour)idxBvhr));
+			m_BhvrMap.insert(std::pair<std::string, ERlvBehaviour>(arBehaviours[idxBvhr], static_cast<ERlvBehaviour>(idxBvhr)));
 
 		fInitialized = true;
 	}
@@ -184,12 +184,12 @@ void RlvCommand::initLookupTable()
 //
 
 // Checked: 2010-09-28 (RLVa-1.2.1c) | Added: RLVa-1.2.1c
-RlvCommandOptionGeneric::RlvCommandOptionGeneric(const std::string& strOption)
+RlvCommandOptionGeneric::RlvCommandOptionGeneric(const std::string& strOption): m_fEmpty(false)
 {
 	LLWearableType::EType wtType(LLWearableType::WT_INVALID); LLUUID idOption; ERlvAttachGroupType eAttachGroup(RLV_ATTACHGROUP_INVALID);
 	LLViewerJointAttachment* pAttachPt = NULL; LLViewerInventoryCategory* pFolder = NULL;
 
-	if (!(m_fEmpty = strOption.empty()))														// <option> could be an empty string
+	if (!(m_fEmpty == strOption.empty()))														// <option> could be an empty string
 	{
 		if ( ((wtType = LLWearableType::typeNameToType(strOption)) != LLWearableType::WT_INVALID) && (wtType != LLWearableType::WT_NONE) )
 			m_varOption = wtType;																// ... or specify a (valid) clothing layer
@@ -226,7 +226,7 @@ public:
 		gIdleCallbacks.deleteFunction(&onIdle, this);
 	}
 
-	void onAttachment(LLViewerObject* pAttachObj, LLVOAvatarSelf::EAttachAction eAction)
+	void onAttachment(LLViewerObject* pAttachObj, LLVOAvatarSelf::EAttachAction eAction) const
 	{
 		if ( (LLVOAvatarSelf::ACTION_ATTACH == eAction) && (pAttachObj->getID() == mObjectId) )
 		{
@@ -356,7 +356,7 @@ RlvCommandOptionTpTo::RlvCommandOptionTpTo(const RlvCommand &rlvCmd)
 
 	m_fValid = (3 == cmdTokens.size());
 	for (int idxAxis = 0; (idxAxis < 3) && (m_fValid); idxAxis++)
-		m_fValid &= (bool)LLStringUtil::convertToF64(cmdTokens[idxAxis], m_posGlobal[idxAxis]);
+		m_fValid &= static_cast<bool>(LLStringUtil::convertToF64(cmdTokens[idxAxis], m_posGlobal[idxAxis]));
 }
 
 // =========================================================================
@@ -499,7 +499,7 @@ void RlvForceWear::forceFolder(const LLViewerInventoryCategory* pFolder, EWearAc
 	// TRUE if we've already encountered this LLWearableType::EType (used only on wear actions and only for AT_CLOTHING)
 	bool fSeenWType[LLWearableType::WT_COUNT] = { false };
 
-	EWearAction eCurAction = eAction;
+	EWearAction eCurAction;
 	for (S32 idxItem = 0, cntItem = items.size(); idxItem < cntItem; idxItem++)
 	{
 		LLViewerInventoryItem* pRlvItem = items.at(idxItem);
@@ -802,7 +802,7 @@ void RlvForceWear::addAttachment(const LLViewerInventoryItem* pItem, EWearAction
 				m_addAttachments.insert(addattachment_pair_t(idxAttachPt, LLInventoryModel::item_array_t()));
 				itAddAttachments = m_addAttachments.find(idxAttachPt);
 			}
-			itAddAttachments->second.push_back((LLViewerInventoryItem*)pItem);
+			itAddAttachments->second.push_back(const_cast<LLViewerInventoryItem*>(pItem));
 		}
 	}
 	else if (ACTION_WEAR_REPLACE == eAction)
@@ -821,7 +821,7 @@ void RlvForceWear::addAttachment(const LLViewerInventoryItem* pItem, EWearAction
 
 		if (0 != idxAttachPt)
 			itAddAttachments->second.clear();
-		itAddAttachments->second.push_back((LLViewerInventoryItem*)pItem);
+		itAddAttachments->second.push_back(const_cast<LLViewerInventoryItem*>(pItem));
 	}
 }
 
@@ -874,12 +874,12 @@ void RlvForceWear::addWearable(const LLViewerInventoryItem* pItem, EWearAction e
 	if (ACTION_WEAR_ADD == eAction)				// Add it at the back if it's not already there
 	{
 		if (!isAddWearable(pItem))
-			itAddWearables->second.push_back((LLViewerInventoryItem*)pItem);
+			itAddWearables->second.push_back(const_cast<LLViewerInventoryItem*>(pItem));
 	}
 	else if (ACTION_WEAR_REPLACE == eAction)	// Replace all pending wearables of this type with the specified item
 	{
 		itAddWearables->second.clear();
-		itAddWearables->second.push_back((LLViewerInventoryItem*)pItem);
+		itAddWearables->second.push_back(const_cast<LLViewerInventoryItem*>(pItem));
 	}
 }
 
@@ -1084,8 +1084,10 @@ RlvBehaviourNotifyHandler::RlvBehaviourNotifyHandler()
 	m_ConnCommand = gRlvHandler.setCommandCallback(boost::bind(&RlvBehaviourNotifyHandler::onCommand, this, _1, _2, _3));
 }
 
+// ReSharper disable once CppMemberFunctionMayBeStatic
+
 // Checked: 2010-03-03 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
-void RlvBehaviourNotifyHandler::onCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet, bool fInternal)
+void RlvBehaviourNotifyHandler::onCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet, bool fInternal) const
 {
 	if (fInternal)
 		return;
@@ -1204,7 +1206,7 @@ ERlvAttachGroupType rlvAttachGroupFromString(const std::string& strGroup)
 {
 	for (int idx = 0; idx < RLV_ATTACHGROUP_COUNT; idx++)
 		if (cstrAttachGroups[idx] == strGroup)
-			return (ERlvAttachGroupType)idx;
+			return static_cast<ERlvAttachGroupType>(idx);
 	return RLV_ATTACHGROUP_INVALID;
 }
 

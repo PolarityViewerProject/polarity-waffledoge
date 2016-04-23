@@ -145,7 +145,7 @@ bool RlvSettings::onChangedSettingBOOL(const LLSD& sdValue, bool* pfSetting)
 // Checked: 2015-05-25 (RLVa-1.5.0)
 void RlvSettings::onChangedSettingMain(const LLSD& sdValue)
 {
-	if (sdValue.asBoolean() != (bool)rlv_handler_t::isEnabled())
+	if (sdValue.asBoolean() != static_cast<bool>(rlv_handler_t::isEnabled()))
 	{
 		LLNotificationsUtil::add(
 			"GenericAlert",
@@ -347,7 +347,7 @@ std::string RlvStrings::get_vector_format_string()
 
 std::string RlvStrings::getEffectColorRLVa()
 {
-	LLColor4 vec = LLUIColorTable::instance().getColor("EffectColor");
+	LLColor4 vec = gAgent.getEffectColor();
 	// Format the vector without spaces, since some scripts will fail to parse it assign <0,0,0> instead.
 	return llformat(get_vector_format_string().c_str(), vec.mV[VX], vec.mV[VY], vec.mV[VZ]);
 }
