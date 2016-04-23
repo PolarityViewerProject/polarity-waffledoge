@@ -51,9 +51,14 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-S32Bytes LLImageGL::sGlobalTextureMemory(0);
-S32Bytes LLImageGL::sBoundTextureMemory(0);
-S32Bytes LLImageGL::sCurBoundTextureMemory(0);
+// <FS:Ansariel> Texture memory management
+//S32Bytes LLImageGL::sGlobalTextureMemory(0);
+//S32Bytes LLImageGL::sBoundTextureMemory(0);
+//S32Bytes LLImageGL::sCurBoundTextureMemory(0);
+S64Bytes LLImageGL::sGlobalTextureMemory(0);
+S64Bytes LLImageGL::sBoundTextureMemory(0);
+S64Bytes LLImageGL::sCurBoundTextureMemory(0);
+// </FS:Ansariel>
 S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -251,7 +256,10 @@ void LLImageGL::updateStats(F32 current_time)
 }
 
 //static
-S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
+// <FS:Ansariel> Texture memory management
+//S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
+S64 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
+// </FS:Ansariel>
 {
 	LLImageGL::sCurBoundTextureMemory += mem ;
 	return LLImageGL::sCurBoundTextureMemory.value();
@@ -494,7 +502,10 @@ void LLImageGL::setSize(S32 width, S32 height, S32 ncomponents, S32 discard_leve
 		// Check if dimensions are a power of two!
 		if (!checkSize(width,height))
 		{
-			LL_ERRS() << llformat("Texture has non power of two dimension: %dx%d",width,height) << LL_ENDL;
+			// <FS:CR> FIRE-8063: Don't error out if texture has non power of two dimensions, just warn us
+			//LL_ERRS() << llformat("Texture has non power of two dimension: %dx%d",width,height) << LL_ENDL;
+			LL_WARNS() << llformat("Texture has non power of two dimension: %dx%d",width,height) << LL_ENDL;
+			// </FS:CR>
 		}
 		
 		if (mTexName)

@@ -1332,13 +1332,13 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 	
 	// <Polarity> Temporary workaround for texture trashing: cap the texture memory to 1.5GB
 
-	const auto trashing_clamp = static_cast<S32Megabytes>(1300);
-	if (trashing_clamp.value())
+	//const auto trashing_clamp = static_cast<S32Megabytes>(1300);
+	//if (trashing_clamp.value())
 
-	if (max_texmem.value() >= trashing_clamp.value())
-	{
-		return trashing_clamp;
-	}
+	//if (max_texmem.value() >= trashing_clamp.value())
+	//{
+	//	return trashing_clamp;
+	//}
 
 	return max_texmem;
 }
@@ -1374,11 +1374,28 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
 	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
 	
+// <FS:Ansariel> Texture memory management
+	//mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
+#ifdef LL_X86_64
+// </FS:Ansariel>
 	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
-	if (mMaxResidentTexMemInMegaBytes > (S32Megabytes)640)
+	if (mMaxResidentTexMemInMegaBytes > static_cast<S32Megabytes>(640))
 	{
 		mMaxTotalTextureMemInMegaBytes -= (mMaxResidentTexMemInMegaBytes / 4);
 	}
+// <FS:Ansariel> Texture memory management
+	mMaxTotalTextureMemInMegaBytes = llclamp(mMaxTotalTextureMemInMegaBytes, static_cast<S32Megabytes>(0), static_cast<S32Megabytes>(768));
+#else
+	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam / 2)
+	{
+		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + (S32Megabytes)(mMaxResidentTexMemInMegaBytes * 0.25f);
+	}
+	else
+	{
+		mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
+	}
+#endif
+// </FS:Ansariel>
 
 	//system mem
 	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
