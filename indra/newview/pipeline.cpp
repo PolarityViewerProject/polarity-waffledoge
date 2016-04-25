@@ -461,7 +461,7 @@ LLPipeline::LLPipeline():
 	mLightFunc = 0;
 }
 
-void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name)
+void LLPipeline::connectRefreshCachedSettingsSafe(const std::string name) const
 {
 	LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(name);
 	if ( cntrl_ptr.isNull() )
@@ -1539,7 +1539,7 @@ void LLPipeline::unloadShaders()
 	mVertexShadersLoaded = 0;
 }
 
-void LLPipeline::assertInitializedDoError()
+void LLPipeline::assertInitializedDoError() const
 {
 	LL_ERRS() << "LLPipeline used when uninitialized." << LL_ENDL;
 }
@@ -1592,31 +1592,14 @@ public:
 
 	LLOctreeDirtyTexture(const std::set<LLViewerFetchedTexture*>& textures) : mTextures(textures) { }
 
-	virtual void visit(const OctreeNode* node)
+	void visit(const OctreeNode* node) override;
+
+	~LLOctreeDirtyTexture() override
 	{
-		LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+	}
 
-		if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
-		{
-			for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
-			{
-				for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j) 
-				{
-					LLDrawInfo* params = *j;
-					LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
-					if (tex && mTextures.find(tex) != mTextures.end())
-					{ 
-						group->setState(LLSpatialGroup::GEOM_DIRTY);
-					}
-				}
-			}
-		}
-
-		for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
-		{
-			LLSpatialBridge* bridge = *i;
-			traverse(bridge->mOctree);
-		}
+	void traverse(const LLOctreeNode<LLViewerOctreeEntry>* node) override
+	{
 	}
 };
 
@@ -2414,7 +2397,7 @@ void LLPipeline::checkReferences(LLSpatialGroup* group)
 }
 
 
-BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera)
+BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera) const
 {
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
@@ -7572,7 +7555,34 @@ void validate_framebuffer_object()
 	}
 }
 
-void LLPipeline::bindScreenToTexture() 
+void LLOctreeDirtyTexture::visit(const OctreeNode* node)
+{
+	LLSpatialGroup* group = (LLSpatialGroup*) node->getListener(0);
+
+	if (!group->hasState(LLSpatialGroup::GEOM_DIRTY) && !group->isEmpty())
+	{
+		for (LLSpatialGroup::draw_map_t::iterator i = group->mDrawMap.begin(); i != group->mDrawMap.end(); ++i)
+		{
+			for (LLSpatialGroup::drawmap_elem_t::iterator j = i->second.begin(); j != i->second.end(); ++j)
+			{
+				LLDrawInfo* params = *j;
+				LLViewerFetchedTexture* tex = LLViewerTextureManager::staticCastToFetchedTexture(params->mTexture);
+				if (tex && mTextures.find(tex) != mTextures.end())
+				{
+					group->setState(LLSpatialGroup::GEOM_DIRTY);
+				}
+			}
+		}
+	}
+
+	for (LLSpatialGroup::bridge_list_t::iterator i = group->mBridgeList.begin(); i != group->mBridgeList.end(); ++i)
+	{
+		LLSpatialBridge* bridge = *i;
+		traverse(bridge->mOctree);
+	}
+}
+
+void LLPipeline::bindScreenToTexture() const
 {
 	
 }
@@ -7646,7 +7656,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGlowExtractProgram.uniform3f(LLShaderMgr::GLOW_WARMTH_WEIGHTS, warmthWeights.mV[0], warmthWeights.mV[1], warmthWeights.mV[2]);
 		gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
 		LLGLEnable blend_on(GL_BLEND);
-		LLGLEnable test(GL_ALPHA_TEST);
+		LLGLEnable alpha_test(GL_ALPHA_TEST);
 		
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
@@ -7773,7 +7783,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (dof_enabled)
 		{
 			LLGLSLShader* shader = &gDeferredPostProgram;
-			LLGLDisable blend(GL_BLEND);
+			LLGLDisable dof_blend(GL_BLEND);
 
 			//depth of field focal plane calculations
 			static F32 current_distance = 16.f;
@@ -8181,7 +8191,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				
 		buff->flush();
 
-		LLGLDisable blend(GL_BLEND);
+		LLGLDisable blend1(GL_BLEND);
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
@@ -8292,7 +8302,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	}
 
 	shader.bind();
-	S32 channel = 0;
+	S32 channel;
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredScreen.getUsage());
 	if (channel > -1)
 	{
@@ -8432,11 +8442,11 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 			cube_map->bind();
 			F32* m = gGLModelView;
 						
-			F32 mat[] = { m[0], m[1], m[2],
+			F32 mat_cube[] = { m[0], m[1], m[2],
 						  m[4], m[5], m[6],
 						  m[8], m[9], m[10] };
 		
-			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat);
+			shader.uniformMatrix3fv(LLShaderMgr::DEFERRED_ENV_MAT, 1, TRUE, mat_cube);
 		}
 	}
 
@@ -9016,7 +9026,7 @@ void LLPipeline::renderDeferredLighting()
 		// Apply gamma correction to the frame here.
 		gDeferredPostGammaCorrectProgram.bind();
 		//mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-		S32 channel = 0;
+		S32 channel;
 		channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 		if (channel > -1)
 		{
@@ -9749,7 +9759,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 		
 }
 
-void LLPipeline::unbindDeferredShader(LLGLSLShader &shader)
+void LLPipeline::unbindDeferredShader(LLGLSLShader &shader) const
 {
 	stop_glerror();
 	shader.disableTexture(LLShaderMgr::DEFERRED_NORMAL, mDeferredScreen.getUsage());
@@ -9840,7 +9850,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLVector3 pnorm;
 		F32 pd;
 
-		S32 water_clip = 0;
+		S32 water_clip;
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
@@ -10480,7 +10490,7 @@ BOOL LLPipeline::getVisiblePointCloud(LLCamera& camera, LLVector3& min, LLVector
 	return TRUE;
 }
 
-void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade)
+void LLPipeline::renderHighlight(const LLViewerObject* obj, F32 fade) const
 {
 	if (obj && obj->getVolume())
 	{
@@ -11671,7 +11681,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLGLState::checkClientArrays();
 }
 
-BOOL LLPipeline::hasRenderBatches(const U32 type) const
+BOOL LLPipeline::hasRenderBatches(const U32 type)
 {
 	return sCull->getRenderMapSize(type) > 0;
 }

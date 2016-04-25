@@ -134,7 +134,7 @@ public:
 	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
-	void bindScreenToTexture();
+	void bindScreenToTexture() const;
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -156,7 +156,7 @@ public:
 	void		 addPool(LLDrawPool *poolp);	// Only to be used by LLDrawPool classes for splitting pools!
 	void		 removePool( LLDrawPool* poolp );
 
-	void		 allocDrawable(LLViewerObject *obj);
+	static void		 allocDrawable(LLViewerObject *obj);
 
 	void		 unlinkDrawable(LLDrawable*);
 
@@ -164,7 +164,7 @@ public:
 
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
-	void		markOccluder(LLSpatialGroup* group);
+	static void		markOccluder(LLSpatialGroup* group);
 
 	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
 	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
@@ -238,7 +238,7 @@ public:
 	void updateMoveNormalAsync(LLDrawable* drawablep);
 	void updateMovedList(LLDrawable::drawable_vector_t& move_list);
 	void updateMove();
-	BOOL visibleObjectsInFrustum(LLCamera& camera);
+	BOOL visibleObjectsInFrustum(LLCamera& camera) const;
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	BOOL getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
 	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
@@ -268,7 +268,7 @@ public:
 
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
-	void grabReferences(LLCullResult& result);
+	static void grabReferences(LLCullResult& result);
 	void clearReferences();
 
 	//check references will assert that there are no references in sCullResult to the provided data
@@ -285,14 +285,14 @@ public:
 	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
-	void unbindDeferredShader(LLGLSLShader& shader);
+	void unbindDeferredShader(LLGLSLShader& shader) const;
 	void renderDeferredLighting();
 	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
 	void generateHighlight(LLCamera& camera);
-	void renderHighlight(const LLViewerObject* obj, F32 fade);
+	void renderHighlight(const LLViewerObject* obj, F32 fade) const;
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
@@ -323,12 +323,12 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	void setLight(LLDrawable *drawablep, BOOL is_light);
-	
-	BOOL hasRenderBatches(const U32 type) const;
-	LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
-	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
-	LLCullResult::sg_iterator beginAlphaGroups();
-	LLCullResult::sg_iterator endAlphaGroups();
+
+	static BOOL hasRenderBatches(const U32 type);
+	static LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
+	static LLCullResult::drawinfo_iterator endRenderMap(U32 type);
+	static LLCullResult::sg_iterator beginAlphaGroups();
+	static LLCullResult::sg_iterator endAlphaGroups();
 	
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
@@ -423,9 +423,9 @@ private:
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
-	void assertInitializedDoError();
+	void assertInitializedDoError() const;
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
-	void connectRefreshCachedSettingsSafe(const std::string name);
+	void connectRefreshCachedSettingsSafe(const std::string name) const;
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 public:
