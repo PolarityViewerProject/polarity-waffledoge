@@ -86,7 +86,6 @@ if (WINDOWS)
       /DNOMINMAX
       /DUNICODE
       /D_UNICODE
-      /DGLM_FORCE_SSE2=1
       /GS
       /TP
       /W3
@@ -99,6 +98,26 @@ if (WINDOWS)
       /fp:fast
       /Zm140
       )
+
+  if(USE_AVX)
+  add_compile_options(
+  /DGLM_FORCE_SSE3=0
+  /DGLM_FORCE_SSE2=0
+  /DGLM_FORCE_AVX=1
+  )
+  else(USE_SSE3)
+  add_compile_options(
+  /DGLM_FORCE_SSE3=1
+  /DGLM_FORCE_SSE2=0
+  /DGLM_FORCE_AVX=0
+  )
+  else()
+  add_compile_options(
+  /DGLM_FORCE_SSE3=0
+  /DGLM_FORCE_SSE2=1
+  /DGLM_FORCE_AVX=0
+  )
+  endif(USE_AVX)
 
   if (USE_LTO)
     add_compile_options(

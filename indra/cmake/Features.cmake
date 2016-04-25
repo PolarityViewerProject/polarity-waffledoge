@@ -26,6 +26,14 @@ option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
 # Build process tweaks
 set(COMPILER_JOBS ${COMPILER_JOBS} CACHE STRING "Amount of simultaneous compiler jobs" FORCE)
 
+# Optimizations
+option(USE_AVX "Use the AVX Instruction Set whenever possible" OFF)
+option(USE_SSE3 "Use the SSE3 Instruction Set whenever possible" OFF)
+
+if(USE_AVX)
+  set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
+endif(USE_AVX)
+
 # <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
   /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
@@ -37,6 +45,8 @@ add_definitions(
   /DPVDATA_UUID_LOCKDOWN=${PVDATA_UUID_LOCKDOWN}
   /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
   /DUSE_LTO=${USE_LTO}
+  /DUSE_AVX=${USE_AVX}
+  /DUSE_SSE=${USE_SSE3}
   )
 
 MESSAGE("======== *FEATURES* ========")
@@ -48,6 +58,13 @@ MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
 MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
 MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
+if(USE_AVX)
+MESSAGE("Minimum Optimization:              AVX")
+else(USE_SSE3)
+MESSAGE("Minimum Optimization:              SSE3")
+else()
+MESSAGE("Minimum Optimization:              SSE2")
+endif(USE_AVX)
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO 'secondlife:///app/agent/${PVDATA_UUID_LOCKTO}/about'")
 endif(PVDATA_UUID_LOCKDOWN)
