@@ -1546,10 +1546,11 @@ void LLPipeline::assertInitializedDoError()
 
 //============================================================================
 
-void LLPipeline::enableShadows(const BOOL enable_shadows)
-{
-	//should probably do something here to wrangle shadows....	
-}
+
+//void LLPipeline::enableShadows(const BOOL enable_shadows)
+//{
+//	//should probably do something here to wrangle shadows....	
+//}
 
 S32 LLPipeline::getMaxLightingDetail() const
 {

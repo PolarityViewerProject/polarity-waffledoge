@@ -214,7 +214,7 @@ public:
 
 	U32         addObject(LLViewerObject *obj);
 
-	void		enableShadows(const BOOL enable_shadows);
+//	void		enableShadows(const BOOL enable_shadows);
 
 // 	void		setLocalLighting(const BOOL local_lighting);
 // 	BOOL		isLocalLightingEnabled() const;
