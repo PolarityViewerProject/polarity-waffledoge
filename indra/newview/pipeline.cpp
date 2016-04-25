@@ -1537,10 +1537,13 @@ BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
 }
 
+// Reduce call overhead
+#ifdef AA_CHECK_IS_FUNCTION
 BOOL LLPipeline::canUseAntiAliasing() const
 {
 	return TRUE;
 }
+#endif
 
 void LLPipeline::unloadShaders()
 {

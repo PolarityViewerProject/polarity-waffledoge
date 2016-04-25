@@ -123,14 +123,17 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 		// Enable or disable the control, the "Antialiasing:" label and the restart warning
 		// based on code support for the feature on the current hardware.
 
+#ifdef AA_CHECK_IS_FUNCTION
 		if (gPipeline.canUseAntiAliasing())
 		{
+#endif // AA_CHECK_IS_FUNCTION
 			fsaa_ctrl->setEnabled(TRUE);
 			
 			// borrow the text color from the gamma control for consistency
 			fsaa_text->setColor(gamma_ctrl->getEnabledTextColor());
 
 			fsaa_restart->setVisible(!gSavedSettings.getBOOL("RenderDeferred"));
+#ifdef AA_CHECK_IS_FUNCTION
 		}
 		else
 		{
@@ -142,6 +145,7 @@ void LLFloaterHardwareSettings::refreshEnabledState()
 			
 			fsaa_restart->setVisible(FALSE);
 		}
+#endif // AA_CHECK_IS_FUNCTION
 	}
 }
 
