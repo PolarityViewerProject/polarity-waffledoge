@@ -244,7 +244,8 @@ void LLViewerJoystick::init(bool autoenable)
 			if (gSavedSettings.getString("JoystickInitialized") != "SpaceNavigator")
 			{
 				// Only set the defaults if we haven't already (in case they were overridden)
-				setSNDefaults();
+				// <polarity> NO. This is utterly annoying.
+				//setSNDefaults();
 				gSavedSettings.setString("JoystickInitialized", "SpaceNavigator");
 			}
 		}
