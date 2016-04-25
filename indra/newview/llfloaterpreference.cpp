@@ -316,11 +316,11 @@ std::string LLFloaterPreference::sSkin = "";
 
 LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	: LLFloater(key),
+	mClickActionDirty(false),
 	mGotPersonalInfo(false),
 	mOriginalIMViaEmail(false),
 	mLanguageChanged(false),
-	mAvatarDataInitialized(false),
-	mClickActionDirty(false)
+	mAvatarDataInitialized(false)
 {
 	LLConversationLog::instance().addObserver(this);
 
