@@ -529,6 +529,12 @@ void LLLocalBitmap::updateUserSculpts(LLUUID old_id, LLUUID new_id)
 
 void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableType::EType type)
 {
+	// <FS:Ansariel> FIRE-15787: Crash fix
+	if (!isAgentAvatarValid())
+	{
+		return;
+	}
+	// </FS:Ansariel>
 	U32 count = gAgentWearables.getWearableCount(type);
 	for(U32 wearable_iter = 0; wearable_iter < count; wearable_iter++)
 	{
