@@ -567,12 +567,21 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
 		{
 			sDesiredDiscardBias += discard_bias_delta;
+			LL_INFOS() << "new bias " << sDesiredDiscardBias
+					<< " sBoundTextureMemory " << sBoundTextureMemory 
+					<< " sTotalTextureMemory " << sTotalTextureMemory
+					<< " sMaxBoundTextureMemory " << sMaxBoundTextureMemory
+					<< " sMaxTotalTextureMem " << sMaxTotalTextureMem
+					<< LL_ENDL;
 			sEvaluationTimer.reset();
 		}
 	}
 	else if(sEvaluationTimer.getElapsedTimeF32() > discard_delta_time && isMemoryForTextureLow())
 	{
 		sDesiredDiscardBias += discard_bias_delta;
+		LL_DEBUGS() << "new bias " << sDesiredDiscardBias
+				<< LL_ENDL;
+
 		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
