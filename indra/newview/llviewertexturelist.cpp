@@ -75,10 +75,10 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_IMAGES("Process Images");
 
 LLViewerTextureList::LLViewerTextureList() 
 	: mForceResetTextureStats(FALSE),
+	mInitialized(FALSE),
 	mUpdateStats(FALSE),
 	mMaxResidentTexMemInMegaBytes(0),
-	mMaxTotalTextureMemInMegaBytes(0),
-	mInitialized(FALSE)
+	mMaxTotalTextureMemInMegaBytes(0)
 {
 }
 

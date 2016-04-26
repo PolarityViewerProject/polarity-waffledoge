@@ -904,9 +904,9 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mDesiredSize(TEXTURE_CACHE_ENTRY_SIZE),
 	  mFileSize(0),
 	  mCachedSize(0),
-	  mLoaded(FALSE),
 	  mSentRequest(UNSENT),
 	  mDecodeHandle(0),
+	  mLoaded(FALSE),
 	  mDecoded(FALSE),
 	  mWritten(FALSE),
 	  mNeedsAux(FALSE),
@@ -916,6 +916,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mCanUseHTTP(true),
 	  mRetryAttempt(0),
 	  mActiveCount(0),
+	  mFetchRetryPolicy(10.0,3600.0,2.0,10),
 	  mWorkMutex(),
 	  mFirstPacket(0),
 	  mLastPacket(-1),
@@ -931,8 +932,7 @@ LLTextureFetchWorker::LLTextureFetchWorker(LLTextureFetch* fetcher,
 	  mHttpHasResource(false),
 	  mCacheReadCount(0U),
 	  mCacheWriteCount(0U),
-	  mResourceWaitCount(0U),
-	  mFetchRetryPolicy(10.0,3600.0,2.0,10)
+	  mResourceWaitCount(0U)
 {
 	mCanUseNET = mUrl.empty() ;
 	
@@ -2506,6 +2506,7 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mTextureCache(cache),
 	  mImageDecodeThread(imagedecodethread),
 	  mTextureBandwidth(0),
+	  mTextureInfoMainThread(false),
 	  mHTTPTextureBits(0),
 	  mTotalHTTPRequests(0),
 	  mQAMode(qa_mode),
@@ -2520,10 +2521,9 @@ LLTextureFetch::LLTextureFetch(LLTextureCache* cache, LLImageDecodeThread* image
 	  mTotalCacheWriteCount(0U),
 	  mTotalResourceWaitCount(0U),
 	  mFetchDebugger(NULL),
-	  mFetchSource(LLTextureFetch::FROM_ALL),
-	  mOriginFetchSource(LLTextureFetch::FROM_ALL),
 	  mFetcherLocked(FALSE),
-	  mTextureInfoMainThread(false)
+	  mFetchSource(LLTextureFetch::FROM_ALL),
+	  mOriginFetchSource(LLTextureFetch::FROM_ALL)
 {
 	mMaxBandwidth = gSavedSettings.getF32("ThrottleBandwidthKBPS");
 	mTextureInfo.setUpLogging(gSavedSettings.getBOOL("LogTextureDownloadsToViewerLog"), gSavedSettings.getBOOL("LogTextureDownloadsToSimulator"), U32Bytes(gSavedSettings.getU32("TextureLoggingThreshold")));

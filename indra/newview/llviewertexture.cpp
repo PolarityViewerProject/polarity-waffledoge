@@ -138,9 +138,9 @@ LLLoadedCallbackEntry::LLLoadedCallbackEntry(loaded_callback_func cb,
 	  mLastUsedDiscard(MAX_DISCARD_LEVEL+1),
 	  mDesiredDiscard(discard_level),
 	  mNeedsImageRaw(need_imageraw),
+	  mPaused(pause),
 	  mUserData(userdata),
-	  mSourceCallbackList(src_callback_list),
-	  mPaused(pause)
+	  mSourceCallbackList(src_callback_list)
 {
 	if(mSourceCallbackList)
 	{
