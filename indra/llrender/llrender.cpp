@@ -238,7 +238,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 
 		LLImageGL* gl_tex = NULL ;
 
-		if (texture != NULL && (gl_tex = texture->getGLTexture()))
+		if (texture != NULL && ((gl_tex = texture->getGLTexture())))
 		{
 			if (gl_tex->getTexName()) //if texture exists
 			{
