@@ -171,6 +171,8 @@ public:
 	void onCommitXd(LLUICtrl* ctrl, const LLSD& param);
 	void onCommitYd(LLUICtrl* ctrl, const LLSD& param);
 	void onCommitZd(LLUICtrl* ctrl, const LLSD& param);
+	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
+	void toggleFullscreenWindow();
 	// <Black Dragon:NiranV> Refresh all controls
 	void refreshGraphicControls();
 	// </Black Dragon:NiranV>

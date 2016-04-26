@@ -264,6 +264,21 @@
      name="CustomGraphics Panel"
      top="76"
      width="485">
+   <check_box
+   control_name="FullScreenWindow"
+   disabled_control="FullScreen"
+   height="16"
+   initial_value="false"
+   label="Borderless Window Mode"
+   tool_tip="Toggle between borderless window mode and normal window mode"
+   layout="topleft"
+   left="10"
+   name="FullscreenWindow"
+   top="0"
+   width="115" >
+   <check_box.commit_callback
+      function="Pref.FullscreenWindow"/>
+   </check_box>
 		<text
 		 type="string"
 		 length="1"
@@ -272,7 +287,7 @@
 		 layout="topleft"
 		 left_delta="5"
 		 name="ShadersText"
-		 top="3"
+		 top_pad="5"
 		 width="128">
 			Shaders:
 		</text>

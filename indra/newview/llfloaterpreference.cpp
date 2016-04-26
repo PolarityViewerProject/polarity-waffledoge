@@ -356,8 +356,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ArrayXD",           boost::bind(&LLFloaterPreference::onCommitXd, this,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.ArrayYD",           boost::bind(&LLFloaterPreference::onCommitYd, this,_1, _2));
 	mCommitCallbackRegistrar.add("Pref.ArrayZD",           boost::bind(&LLFloaterPreference::onCommitZd, this,_1, _2));
-	// </Black Dragon:NiranV>
+	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
+	mCommitCallbackRegistrar.add("Pref.FullscreenWindow",		boost::bind(&LLFloaterPreference::toggleFullscreenWindow, this));
 	sSkin = gSavedSettings.getString("SkinCurrent");
+	// </Black Dragon:NiranV>
 
 	mCommitCallbackRegistrar.add("Pref.ClickActionChange",		boost::bind(&LLFloaterPreference::onClickActionChange, this));
 
@@ -547,6 +549,12 @@ void LLFloaterPreference::onCommitZd(LLUICtrl* ctrl, const LLSD& param)
 	value.mdV[VZ] = ctrl->getValue().asReal();
 	gSavedSettings.setVector3d( param.asString() , value);
 }
+// <Black Dragon:NiranV> Catznip's Borderless Window Mode
+void LLFloaterPreference::toggleFullscreenWindow()
+{
+	if ((gViewerWindow) && (gViewerWindow->canFullscreenWindow()))
+		gViewerWindow->setFullscreenWindow(!gViewerWindow->getFullscreenWindow());
+}
 // <Black Dragon:NiranV> Refresh all controls
 void LLFloaterPreference::refreshGraphicControls()
 {
@@ -584,6 +592,7 @@ void LLFloaterPreference::refreshGraphicControls()
 	getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
 	getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
 }
+// </Black Dragon:NiranV>
 void LLFloaterPreference::draw()
 {
 	BOOL has_first_selected = (getChildRef<LLScrollListCtrl>("disabled_popups").getFirstSelected()!=NULL);
