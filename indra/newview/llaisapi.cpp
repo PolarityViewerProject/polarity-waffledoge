@@ -345,9 +345,8 @@ void AISAPI::UpdateCategory(const LLUUID &categoryId, const LLSD &updates, compl
     EnqueueAISCommand("UpdateCategory", proc);
 }
 
-SlamFolderCommand::SlamFolderCommand(const LLUUID& folder_id, const LLSD& contents, LLPointer<LLInventoryCallback> callback):
-	mContents(contents),
-	AISCommand(callback)
+/*static*/
+void AISAPI::UpdateItem(const LLUUID &itemId, const LLSD &updates, completion_t callback)
 {
 
     std::string cap;

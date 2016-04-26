@@ -8353,9 +8353,9 @@ void handle_rebake_textures(void*)
 	if (gAgent.getRegion() && gAgent.getRegion()->getCentralBakeVersion())
 	{
 // [SL:KB] - Patch: Appearance-Misc | Checked: 2015-06-27 (Catznip-3.7)
-		LLAppearanceMgr::instance().syncCofVersionAndRefresh();
+//		LLAppearanceMgr::instance().syncCofVersionAndRefresh();
 // [/SL:KB]
-//		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
+		LLAppearanceMgr::instance().requestServerAppearanceUpdate();
 	}
 }
 
