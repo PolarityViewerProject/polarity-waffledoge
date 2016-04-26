@@ -32,10 +32,6 @@
 // library includes
 #include "llcalc.h"
 #include "llerror.h"
-#include "llfocusmgr.h"
-#include "llrect.h"
-#include "llstring.h"
-#include "llfontgl.h"
 
 // project includes
 #include "llagentdata.h"
@@ -43,9 +39,7 @@
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
-#include "lldrawpoolbump.h"
 #include "llface.h"
-#include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
 #include "llnotificationsutil.h"
@@ -63,8 +57,6 @@
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llvovolume.h"
-#include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
 
@@ -102,24 +94,24 @@ LLRender::eTexIndex LLPanelFace::getTextureChannelToEdit()
 
 // Things the UI provides...
 //
-LLUUID	LLPanelFace::getCurrentNormalMap()			{ return getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();	}
-LLUUID	LLPanelFace::getCurrentSpecularMap()		{ return getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();	}
-U32		LLPanelFace::getCurrentShininess()			{ return getChild<LLComboBox>("combobox shininess")->getCurrentIndex();			}
-U32		LLPanelFace::getCurrentBumpiness()			{ return getChild<LLComboBox>("combobox bumpiness")->getCurrentIndex();			}
-U8			LLPanelFace::getCurrentDiffuseAlphaMode()	{ return (U8)getChild<LLComboBox>("combobox alphamode")->getCurrentIndex();	}
-U8			LLPanelFace::getCurrentAlphaMaskCutoff()	{ return (U8)getChild<LLUICtrl>("maskcutoff")->getValue().asInteger();			}
-U8			LLPanelFace::getCurrentEnvIntensity()		{ return (U8)getChild<LLUICtrl>("environment")->getValue().asInteger();			}
-U8			LLPanelFace::getCurrentGlossiness()			{ return (U8)getChild<LLUICtrl>("glossiness")->getValue().asInteger();			}
-F32		LLPanelFace::getCurrentBumpyRot()			{ return getChild<LLUICtrl>("bumpyRot")->getValue().asReal();						}
-F32		LLPanelFace::getCurrentBumpyScaleU()		{ return getChild<LLUICtrl>("bumpyScaleU")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentBumpyScaleV()		{ return getChild<LLUICtrl>("bumpyScaleV")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentBumpyOffsetU()		{ return getChild<LLUICtrl>("bumpyOffsetU")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentBumpyOffsetV()		{ return getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentShinyRot()			{ return getChild<LLUICtrl>("shinyRot")->getValue().asReal();						}
-F32		LLPanelFace::getCurrentShinyScaleU()		{ return getChild<LLUICtrl>("shinyScaleU")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentShinyScaleV()		{ return getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentShinyOffsetU()		{ return getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal();					}
-F32		LLPanelFace::getCurrentShinyOffsetV()		{ return getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal();					}
+LLUUID	LLPanelFace::getCurrentNormalMap()			const { return getChild<LLTextureCtrl>("bumpytexture control")->getImageAssetID();	}
+LLUUID	LLPanelFace::getCurrentSpecularMap()		const { return getChild<LLTextureCtrl>("shinytexture control")->getImageAssetID();	}
+U32		LLPanelFace::getCurrentShininess()			const { return getChild<LLComboBox>("combobox shininess")->getCurrentIndex();			}
+U32		LLPanelFace::getCurrentBumpiness()			const { return getChild<LLComboBox>("combobox bumpiness")->getCurrentIndex();			}
+U8		LLPanelFace::getCurrentDiffuseAlphaMode()	const { return (U8)getChild<LLComboBox>("combobox alphamode")->getCurrentIndex();	}
+U8		LLPanelFace::getCurrentAlphaMaskCutoff()	const { return (U8)getChild<LLUICtrl>("maskcutoff")->getValue().asInteger();			}
+U8		LLPanelFace::getCurrentEnvIntensity()		const { return (U8)getChild<LLUICtrl>("environment")->getValue().asInteger();			}
+U8		LLPanelFace::getCurrentGlossiness()			const { return (U8)getChild<LLUICtrl>("glossiness")->getValue().asInteger();			}
+F32		LLPanelFace::getCurrentBumpyRot()			const { return getChild<LLUICtrl>("bumpyRot")->getValue().asReal();						}
+F32		LLPanelFace::getCurrentBumpyScaleU()		const { return getChild<LLUICtrl>("bumpyScaleU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyScaleV()		const { return getChild<LLUICtrl>("bumpyScaleV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyOffsetU()		const { return getChild<LLUICtrl>("bumpyOffsetU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentBumpyOffsetV()		const { return getChild<LLUICtrl>("bumpyOffsetV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyRot()			const { return getChild<LLUICtrl>("shinyRot")->getValue().asReal();						}
+F32		LLPanelFace::getCurrentShinyScaleU()		const { return getChild<LLUICtrl>("shinyScaleU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyScaleV()		const { return getChild<LLUICtrl>("shinyScaleV")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyOffsetU()		const { return getChild<LLUICtrl>("shinyOffsetU")->getValue().asReal();					}
+F32		LLPanelFace::getCurrentShinyOffsetV()		const { return getChild<LLUICtrl>("shinyOffsetV")->getValue().asReal();					}
 
 //
 // Methods
