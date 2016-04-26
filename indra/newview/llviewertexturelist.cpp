@@ -1354,16 +1354,24 @@ const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
 void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 {
 	// Initialize the image pipeline VRAM settings
-	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
-	S32Megabytes default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
-	if (mem == (S32Bytes)0)
+	auto cur_mem = static_cast<S32Megabytes>(gSavedSettings.getS32("TextureMemory"));
+	auto mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	auto default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
+	auto ZERO_B = static_cast<S32Bytes>(0);
+	if (mem < ZERO_B)
 	{
-		mem = cur_mem > (S32Bytes)0 ? cur_mem : default_mem;
+		LL_ERRS() << "Woah, requested texture memory is less than zero bytes!" << LL_ENDL;
 	}
-	else if (mem < (S32Bytes)0)
+	else
 	{
-		mem = default_mem;
+		if (mem > ZERO_B && cur_mem > ZERO_B)
+		{
+			mem = cur_mem;
+		}
+		else
+		{
+			mem = default_mem;
+		}
 	}
 
 	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
@@ -1381,7 +1389,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	S32Megabytes total_mem = getMaxVideoRamSetting(true, mem_multiplier, false);
 	if ((vb_mem / 3) > VIDEO_CARD_FRAMEBUFFER_MEM)
 	{
-		vb_mem = vb_mem * 4 / 3;
+		vb_mem = vb_mem * 1.333333333f; // accurate enough for our purpose
 	}
 	else
 	{
@@ -1389,15 +1397,18 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	}
 	vb_mem = llmin (vb_mem, total_mem);
 	// </FS:Ansariel>
-	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
 	//<FS:TS> The memory reported by ATI cards is actually the texture
 	//	memory in use, already corrected for the framebuffer and
 	//	VBO pools. Don't back it out a second time.
 	//mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
-	mMaxResidentTexMemInMegaBytes = vb_mem; //in MB
 	if(!gGLManager.mIsATI)
 	{
-		mMaxResidentTexMemInMegaBytes -= fb_mem; //in MB
+		mMaxResidentTexMemInMegaBytes = llmax(VIDEO_CARD_FRAMEBUFFER_MEM,
+			static_cast<S32Megabytes>(vb_mem * 0.75f)); //in MB
+	}
+	else
+	{
+		mMaxResidentTexMemInMegaBytes = vb_mem; //in MB
 	}
 	//</FS:TS>
 	
