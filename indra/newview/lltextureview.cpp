@@ -268,7 +268,7 @@ void LLTextureBar::draw()
 
 	// Draw the progress bar.
 	S32 bar_width = 100;
-	S32 bar_left = 260;
+	S32 bar_left = 300;
 	left = bar_left;
 	right = left + bar_width;
 
