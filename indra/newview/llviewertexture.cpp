@@ -66,7 +66,7 @@
 const S32Megabytes gMinVideoRam(32);   
 // <FS:Ansariel> Texture memory management
 #ifdef LL_X86_64
-const S32Megabytes gMaxVideoRam(2048);
+const S32Megabytes gMaxVideoRam(1024);
 #else
 const S32Megabytes gMaxVideoRam(512);
 #endif
