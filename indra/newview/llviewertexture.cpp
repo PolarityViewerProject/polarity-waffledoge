@@ -553,6 +553,10 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem();
 	sMaxDesiredTextureMem = sMaxTotalTextureMem; //in Bytes, by default and when total used texture memory is small.
 
+	// <FS:Ansariel> Link threshold factor for lowering bias based on total texture memory to the same value
+	//               textures will be destroyed
+	static LLCachedControl<F32> fsDestroyGLTexturesThreshold(gSavedSettings, "FSDestroyGLTexturesThreshold");
+
 	if (sBoundTextureMemory >= sMaxBoundTextureMemory ||
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
@@ -586,7 +590,11 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
 			 sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale &&
-			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
+			 // <FS:Ansariel> Link threshold factor for lowering bias based on total texture memory to the same value
+			 //               textures will be destroyed
+			 //sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
+			 sTotalTextureMemory < sMaxTotalTextureMem * fsDestroyGLTexturesThreshold())
+			 // </FS:Ansariel>
 	{			 
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
@@ -1302,7 +1310,12 @@ void LLViewerFetchedTexture::dump()
 // ONLY called from LLViewerFetchedTextureList
 void LLViewerFetchedTexture::destroyTexture() 
 {
-	if(LLImageGL::sGlobalTextureMemory < sMaxDesiredTextureMem * 0.95f)//not ready to release unused memory.
+	// <FS:Ansariel> 
+	//if(LLImageGL::sGlobalTextureMemory < sMaxDesiredTextureMem * 0.95f)//not ready to release unused memory.
+	static LLCachedControl<bool> fsDestroyGLTexturesImmediately(gSavedSettings, "FSDestroyGLTexturesImmediately");
+	static LLCachedControl<F32> fsDestroyGLTexturesThreshold(gSavedSettings, "FSDestroyGLTexturesThreshold");
+	if (!fsDestroyGLTexturesImmediately && LLImageGL::sGlobalTextureMemory.value() < sMaxDesiredTextureMem.value() * fsDestroyGLTexturesThreshold)//not ready to release unused memory.
+	// </FS:Ansariel>
 	{
 		return ;
 	}
@@ -1421,7 +1434,9 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	mNeedsCreateTexture	= FALSE;
 	if (mRawImage.isNull())
 	{
-		LL_ERRS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
+		LL_WARNS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
+		setIsMissingAsset();
+		return FALSE;
 	}
 // 	LL_INFOS() << llformat("IMAGE Creating (%d) [%d x %d] Bytes: %d ",
 // 						mRawDiscardLevel, 
