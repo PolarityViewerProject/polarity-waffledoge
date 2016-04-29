@@ -20,13 +20,6 @@ endif(PVDATA)
 # Audio Engine
 option(FMODEX "Build with support for the FMOD Ex audio engine" ON)
 
-# Mallocs
-option(USE_TCMALLOC "Build the viewer with google tcmalloc" OFF)
-option(TBBMALLOC_ENABLE "Build the viewer with intel tbbmalloc" OFF)
-if (USE_TCMALLOC AND TBBMALLOC_ENABLE)
-  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
-endif (USE_TCMALLOC AND TBBMALLOC_ENABLE)
-
 # Workarounds
 option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
 

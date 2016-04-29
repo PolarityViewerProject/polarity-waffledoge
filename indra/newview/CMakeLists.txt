@@ -15,7 +15,6 @@ include(FMODSTUDIO)
 include(GLOD)
 include(GooglePerfTools)
 include(Hunspell)
-include(IntelTBB)
 include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
@@ -1731,7 +1730,7 @@ if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
-        LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} ${TBBMALLOC_LINK_FLAGS}"
+        LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
         )
 
     add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
@@ -1760,19 +1759,6 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
     endif(USE_TCMALLOC)
-
-    if(TBBMALLOC_ENABLE)
-      # Configure a var for tbbmalloc location, if used.
-      # Note the need to specify multiple names explicitly.
-      list(APPEND COPY_INPUT_DEPENDENCIES
-        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
-        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
-        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
-        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
-        )
-    endif(TBBMALLOC_ENABLE)
 
 
     set(COPY_INPUT_DEPENDENCIES
@@ -2018,7 +2004,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${TCMALLOC_LIBRARIES}
-    ${TBBMALLOC_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
