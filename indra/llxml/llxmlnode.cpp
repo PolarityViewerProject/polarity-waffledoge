@@ -2113,19 +2113,19 @@ U32 LLXMLNode::getUUIDValue(U32 expected_length, LLUUID *array)
 		LLUUID uuid_value;
 		value_string = skipWhitespace(value_string);
 
-		if (strlen(value_string) < (UUID_STR_LENGTH-1))		/* Flawfinder: ignore */
+		if (strlen(value_string) < UUID_STR_LENGTH)
 		{
 			break;
 		}
-		char uuid_string[UUID_STR_LENGTH];		/* Flawfinder: ignore */
-		memcpy(uuid_string, value_string, (UUID_STR_LENGTH-1));		/* Flawfinder: ignore */
-		uuid_string[(UUID_STR_LENGTH-1)] = 0;
+		char uuid_string[UUID_STR_SIZE];
+		memcpy(uuid_string, value_string, UUID_STR_LENGTH);
+		uuid_string[UUID_STR_LENGTH] = 0;
 
 		if (!LLUUID::parseUUID(std::string(uuid_string), &uuid_value))
 		{
 			break;
 		}
-		value_string = &value_string[(UUID_STR_LENGTH-1)];
+		value_string = &value_string[UUID_STR_LENGTH];
 		array[i] = uuid_value;
 	}
 #if LL_DEBUG

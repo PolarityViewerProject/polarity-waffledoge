@@ -513,7 +513,7 @@ LLUUID PVData::getLockDownUUID()
 #endif
 
 	std::string temp = TOSTRING(PVDATA_UUID_LOCKTO);
-	if (temp.length() != 36)
+	if (temp.length() != UUID_STR_LENGTH)
 	{
 		return LLUUID::null;
 	}

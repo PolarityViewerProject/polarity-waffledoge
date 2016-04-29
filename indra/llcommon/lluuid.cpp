@@ -224,11 +224,11 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 		return TRUE;
 	}
 
-	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
+	if (in_string.length() != UUID_STR_LENGTH)
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
 		// Shouldn't see any of these any more
-		if (in_string.length() == (UUID_STR_LENGTH - 2))	/* Flawfinder: ignore */
+		if (in_string.length() == UUID_WRONG_FORMAT)
 		{
 			if(emit)
 			{
@@ -320,10 +320,10 @@ BOOL LLUUID::set(const std::string& in_string, BOOL emit)
 BOOL LLUUID::validate(const std::string& in_string)
 {
 	BOOL broken_format = FALSE;
-	if (in_string.length() != (UUID_STR_LENGTH - 1))		/* Flawfinder: ignore */
+	if (in_string.length() != UUID_STR_LENGTH)
 	{
 		// I'm a moron.  First implementation didn't have the right UUID format.
-		if (in_string.length() == (UUID_STR_LENGTH - 2))		/* Flawfinder: ignore */
+		if (in_string.length() == UUID_WRONG_FORMAT)
 		{
 			broken_format = TRUE;
 		}
@@ -425,8 +425,8 @@ std::ostream& operator<<(std::ostream& s, const LLUUID &uuid)
 std::istream& operator>>(std::istream &s, LLUUID &uuid)
 {
 	U32 i;
-	char uuid_str[UUID_STR_LENGTH];		/* Flawfinder: ignore */
-	for (i = 0; i < UUID_STR_LENGTH-1; i++)
+	char uuid_str[UUID_STR_SIZE];
+	for (i = 0; i < UUID_STR_LENGTH; i++)
 	{
 		s >> uuid_str[i];
 	}

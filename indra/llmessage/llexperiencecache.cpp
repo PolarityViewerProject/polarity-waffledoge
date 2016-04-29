@@ -392,7 +392,7 @@ namespace LLExperienceCache
 		F64 now = LLFrameTimer::getTotalSeconds();
 
 		const U32 EXP_URL_SEND_THRESHOLD = 3000;
-		const U32 PAGE_SIZE = EXP_URL_SEND_THRESHOLD/UUID_STR_LENGTH;
+		const U32 PAGE_SIZE = EXP_URL_SEND_THRESHOLD/UUID_STR_SIZE;
 
 		std::ostringstream ostr;
 

@@ -82,7 +82,7 @@ void LLAvatarIconIDCache::load	()
 		return;
 	
 	// add each line in the file to the list
-	int uuid_len = UUID_STR_LENGTH-1;
+	int uuid_len = UUID_STR_LENGTH;
 	std::string line;
 	while (std::getline(file, line)) 
 	{
