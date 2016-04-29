@@ -6,6 +6,7 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+include(Variables)
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
@@ -60,6 +61,11 @@ if(WINDOWS)
       set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
+    
+    if(TBBMALLOC_ENABLE)
+      list(APPEND debug_files tbbmalloc_debug.dll tbbmalloc_proxy_debug.dll)
+      list(APPEND release_files tbbmalloc.dll tbbmalloc_proxy.dll)
+    endif(TBBMALLOC_ENABLE)
 
     if (FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)

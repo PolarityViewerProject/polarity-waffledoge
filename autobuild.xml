@@ -1201,6 +1201,52 @@
         <key>version</key>
         <string>2012.1</string>
       </map>
+      <key>inteltbb</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright © 2005-2015 Intel Corporation. All Rights Reserved.</string>
+        <key>description</key>
+        <string>Intel Threaded Building Blocks Library</string>
+        <key>license</key>
+        <string>GPLv2 with Runtime Exception</string>
+        <key>license_file</key>
+        <string>LICENSES/inteltbb.txt</string>
+        <key>name</key>
+        <string>inteltbb</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>8a2c78fe9f76dd3555b637261bc8f821</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://lib.polarityviewer.org/14/win32/inteltbb-4.3u5-windows-201505010050.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>75a91e5e64ad9b2ca6752c8b826ad794</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://lib.polarityviewer.org/14/win64/inteltbb-4.3u5-windows64-201505010047.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>4.3u5</string>
+      </map>
       <key>jpeglib</key>
       <map>
         <key>copyright</key>
@@ -1978,7 +2024,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///C:/devel/secondlife/libs/3p-nvapi/nvapi-R361v2-windows64-201604021129.tar.bz2</string>
+              <string>file://E:\devel\secondlife\libs\3p-nvapi\nvapi-R361v2-windows64-201604021129.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
