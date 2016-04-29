@@ -36,10 +36,8 @@
 #include "llgl.h"
 #include "llimagegl.h"
 #include "llrender.h"
-#include "llstl.h"
 #include "v4color.h"
 #include "lltexture.h"
-#include "lldir.h"
 
 // Third party library includes
 #include <boost/tokenizer.hpp>

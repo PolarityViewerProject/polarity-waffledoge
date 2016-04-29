@@ -27,7 +27,9 @@
 #ifndef LL_UNITTYPE_H
 #define LL_UNITTYPE_H
 
+#if !LL_WINDOWS
 #include "stdtypes.h"
+#endif
 #include "llpreprocessor.h"
 #include "llerror.h"
 

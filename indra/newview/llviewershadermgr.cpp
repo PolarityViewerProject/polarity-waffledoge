@@ -30,7 +30,6 @@
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
 
-#include "llfile.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"

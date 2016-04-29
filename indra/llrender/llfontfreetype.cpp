@@ -24,8 +24,6 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-
 #include "llfontfreetype.h"
 #include "llfontgl.h"
 
