@@ -178,9 +178,9 @@ protected:
 private:
 	void setFlags(U32 flags) { mWorkFlags = mWorkFlags | flags; }
 	void clearFlags(U32 flags) { mWorkFlags = mWorkFlags & ~flags; }
-	U32  getFlags() { return mWorkFlags; }
+	U32  getFlags() const	{ return mWorkFlags; }
 public:
-	bool getFlags(U32 flags) { return mWorkFlags & flags ? true : false; }
+	bool getFlags(U32 flags) const	{ return mWorkFlags & flags ? true : false; }
 	
 private:
 	// pure virtuals

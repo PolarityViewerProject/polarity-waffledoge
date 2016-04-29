@@ -486,7 +486,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
 
 	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(5); //MB
-	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
+	//const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
 
 	bool low_mem = false;
 	if (gGLManager.mHasATIMemInfo)
@@ -1028,12 +1028,12 @@ const std::string& fttype_to_string(const FTType& fttype)
 	static const std::string ftt_error("FTT_ERROR");
 	switch(fttype)
 	{
-		case FTT_UNKNOWN: return ftt_unknown; break;
-		case FTT_DEFAULT: return ftt_default; break;
-		case FTT_SERVER_BAKE: return ftt_server_bake; break;
-		case FTT_HOST_BAKE: return ftt_host_bake; break;
-		case FTT_MAP_TILE: return ftt_map_tile; break;
-		case FTT_LOCAL_FILE: return ftt_local_file; break;
+		case FTT_UNKNOWN: return ftt_unknown;
+		case FTT_DEFAULT: return ftt_default;
+		case FTT_SERVER_BAKE: return ftt_server_bake;
+		case FTT_HOST_BAKE: return ftt_host_bake;
+		case FTT_MAP_TILE: return ftt_map_tile;
+		case FTT_LOCAL_FILE: return ftt_local_file;
 	}
 	return ftt_error;
 }
@@ -1145,7 +1145,7 @@ LLViewerFetchedTexture::~LLViewerFetchedTexture()
 	// LLAppViewer::cleanup() was called. (see ticket EXT-177)
 	if (mHasFetcher && LLAppViewer::getTextureFetch())
 	{
-		LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
+		LLAppViewer::getTextureFetch()->deleteRequest(LLViewerTexture::getID(), true);
 	}
 	cleanup();	
 }
@@ -3500,17 +3500,17 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 
 			std::vector<const LLTextureEntry*> te_list;
 			
-			for (U32 ch = 0; ch < 3; ++ch)
+			for (U32 i = 0; i < 3; ++i)
 			{
 			//
 			//we have some trouble here: the texture of the face is changed.
 			//we need to find the former texture, and remove it from the list to avoid memory leaking.
 				
-				llassert(mNumFaces[ch] <= mFaceList[ch].size());
+				llassert(mNumFaces[&ch] <= mFaceList[&ch].size());
 
-				for(U32 j = 0; j < mNumFaces[ch]; j++)
+				for(U32 j = 0; j < mNumFaces[i]; j++)
 				{
-					te_list.push_back(mFaceList[ch][j]->getTextureEntry());//all textures are in use.
+					te_list.push_back(mFaceList[i][j]->getTextureEntry());//all textures are in use.
 				}
 			}
 
@@ -3526,8 +3526,7 @@ void LLViewerMediaTexture::removeFace(U32 ch, LLFace* facep)
 				iter != mTextureList.end(); ++iter)
 			{
 				S32 i = 0;
-
-				for(i = 0; i < end; i++)
+				for(; i < end; i++)
 				{
 					if(te_list[i] && te_list[i]->getID() == (*iter)->getID())//the texture is in use.
 					{

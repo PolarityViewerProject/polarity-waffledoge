@@ -700,6 +700,7 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	return (agent_color);
 }
 
+// ReSharper disable CppAssignedValueIsNeverUsed
 bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
 {
 	if (!this->hasColor(avatar_id))
@@ -710,11 +711,13 @@ bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
 	if (agent_color != LLColor4::black)
 	{
 		LL_INFOS("") << "agent_color == " << agent_color << LL_ENDL;
+		// calling function uses this
 		out_color4 = agent_color;
 		return true;
 	}
 	return false;
 }
+// ReSharper restore CppAssignedValueIsNeverUsed
 
 std::string PVData::getAgentTitle(const LLUUID& avatar_id)
 {

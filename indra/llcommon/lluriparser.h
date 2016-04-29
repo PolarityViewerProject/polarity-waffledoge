@@ -67,7 +67,7 @@ public:
 
 private:
 	S32 parse();
-	void textRangeToString(UriTextRangeA& textRange, std::string& str);
+	static void textRangeToString(UriTextRangeA& textRange, std::string& str);
 	std::string mScheme;
 	std::string mHost;
 	std::string mPort;
