@@ -212,18 +212,17 @@ public:
 	static LLFrameTimer sEvaluationTimer;
 	static F32 sDesiredDiscardBias;
 	static F32 sDesiredDiscardScale;
-	// <FS:Ansariel> Texture memory management
-	//static S32Bytes sBoundTextureMemory;
-	//static S32Bytes sTotalTextureMemory;
-	static S64Bytes sBoundTextureMemory;
-	static S64Bytes sTotalTextureMemory;
-	// </FS:Ansariel>
 	static S32Megabytes sMaxBoundTextureMemory;
 	static S32Megabytes sMaxTotalTextureMem;
-	// <FS:Ansariel> Texture memory management
-	//static S32Bytes sMaxDesiredTextureMem ;
+#ifdef LL_X86_64
+	static S64Bytes sBoundTextureMemory;
+	static S64Bytes sTotalTextureMemory;
 	static S64Bytes sMaxDesiredTextureMem ;
-	// </FS:Ansariel>
+#else
+	static S32Bytes sBoundTextureMemory;
+	static S32Bytes sTotalTextureMemory;
+	static S32Bytes sMaxDesiredTextureMem;
+#endif
 	static S8  sCameraMovingDiscardBias;
 	static F32 sCameraMovingBias;
 	static S32 sMaxSculptRez ;
