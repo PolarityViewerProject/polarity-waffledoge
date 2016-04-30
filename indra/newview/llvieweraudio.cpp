@@ -46,6 +46,7 @@
 #include "llviewermessage.h"
 
 #include "llstreamingaudio.h"
+#include "llvoavatarself.h"
 
 /////////////////////////////////////////////////////////
 
@@ -549,7 +550,10 @@ void audio_update_wind(bool force_update)
 		}
 
 		// mute wind when not flying
-		if (gAgent.getFlying())
+		// <FS:Ansarriel> FIRE-12819: Disable wind sounds while under water
+		//if (gAgent.getFlying())
+		if (gAgent.getFlying() && isAgentAvatarValid() && !gAgentAvatarp->mBelowWater)
+		// </FS:>
 		{
 			// volume increases by volume_delta, up to no more than max_wind_volume
 			gAudiop->mMaxWindGain = llmin(gAudiop->mMaxWindGain + volume_delta, max_wind_volume);
