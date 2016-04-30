@@ -2754,8 +2754,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	static LLCachedControl<bool> wasd_moves_avatar(gSavedSettings, "PVChat_WASDMovesAvatar", false);
-	if ( !wasd_moves_avatar &&
+	static LLCachedControl<bool> letter_keys_focus_chat_bar(gSavedSettings, "LetterKeysFocusChatBar", false);
+	if (letter_keys_focus_chat_bar && !gAgentCamera.cameraMouselook() &&
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
 		// Initialize nearby chat if it's missing
