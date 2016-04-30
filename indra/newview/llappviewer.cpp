@@ -1313,8 +1313,21 @@ static LLTrace::BlockTimerStatHandle FTM_AGENT_UPDATE("Update");
 // externally visible timers
 LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
+
 bool LLAppViewer::mainLoop()
 {
+#if LL_WINDOWS // Untested on non-MSVC compilers
+// Make sure we don't accidentally run into performance problems due to denormals.
+// See https://en.wikipedia.org/wiki/Denormal_number
+// TODO: Find a more elegant way to do this.
+// Undefine previous denormal handling mode
+#undef _MM_SET_FLUSH_ZERO_MODE
+#undef _MM_SET_DENORMALS_ZERO_MODE
+// Re-define for performance at some correctness cost.
+#define _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON)
+#define _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON)
+#endif // LL_WINDOWS
+
 #ifdef LL_DARWIN
 	if (!mMainLoopInitialized)
 #endif
