@@ -495,9 +495,10 @@ void idle_afk_check()
 // [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
 #ifdef RLV_EXTENSION_CMD_ALLOWIDLE
 	// Enforce an idle time of 30 minutes if @allowidle=n restricted
-	F32 afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? gSavedSettings.getS32("AFKTimeout") : 60 * 30;
+	static LLCachedControl<S32> sAFKTimeout(gSavedSettings, "AFKTimeout");
+	S32 afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? sAFKTimeout : 60 * 30;
 #else
-	F32 afk_timeout = gSavedSettings.getS32("AFKTimeout");
+	static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout");
 #endif // RLV_EXTENSION_CMD_ALLOWIDLE
 // [/RLVa:KB]
 	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
@@ -2814,13 +2815,15 @@ bool LLAppViewer::initConfiguration()
 	//
 
 	// <polarity> Dynamic window title
-	if(gSavedSettings.getBOOL("PVWindow_TitleAnonymize"))
+	static LLCachedControl<bool> title_anonymize(gSavedSettings, "PVWindow_TitleAnonymize", FALSE);
+	static LLCachedControl<bool> title_showversion(gSavedSettings, "PVWindow_TitleShowVersionNumber", FALSE);
+	if(title_anonymize)
 	{
 		// We use "Second Life" because emptying the string is harder, bugs out with Aero Glass
 		// and the consequences of removing the initial "OpenGL Window" title are unknown.
 		gWindowTitle = std::string("Second Life");
 	}
-	if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
+	if (title_showversion)
 	{
 		gWindowTitle = LLVersionInfo::getChannelAndVersion();
 	}
@@ -4875,7 +4878,8 @@ void LLAppViewer::idle()
 	// Smoothly weight toward current frame
 	gFPSClamped = (frame_rate_clamped + (4.f * gFPSClamped)) / 5.f;
 
-	F32 qas = gSavedSettings.getF32("QuitAfterSeconds");
+	static LLCachedControl<F32> quitAfterSeconds(gSavedSettings, "QuitAfterSeconds");
+	F32 qas = (F32)quitAfterSeconds;
 	if (qas > 0.f)
 	{
 		if (gRenderStartTime.getElapsedTimeF32() > qas)
@@ -4920,7 +4924,8 @@ void LLAppViewer::idle()
 	    // Update simulator agent state
 	    //
 
-		if (gSavedSettings.getBOOL("RotateRight"))
+		static LLCachedControl<bool> rotateRight(gSavedSettings, "RotateRight");
+		if (rotateRight)
 		{
 			gAgent.moveYaw(-1.f);
 		}
@@ -5486,7 +5491,8 @@ void LLAppViewer::idleNetwork()
 	gObjectList.mNumNewObjects = 0;
 	S32 total_decoded = 0;
 
-	if (!gSavedSettings.getBOOL("SpeedTest"))
+	static LLCachedControl<bool> speedTest(gSavedSettings, "SpeedTest");
+	if (!speedTest)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IDLE_NETWORK); // decode
 		
@@ -5726,7 +5732,8 @@ void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
 	{
 		if(secs < 0.0f)
 		{
-			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+			static LLCachedControl< F32 > MainloopTimeoutDefault( gSavedSettings, "MainloopTimeoutDefault", false);
+			secs = MainloopTimeoutDefault;
 		}
 		
 		mMainloopTimeout->setTimeout(secs);
@@ -5753,7 +5760,8 @@ void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
 	{
 		if(secs < 0.0f)
 		{
-			secs = gSavedSettings.getF32("MainloopTimeoutDefault");
+			static LLCachedControl< F32 > MainloopTimeoutDefault( gSavedSettings, "MainloopTimeoutDefault", false );
+			secs = MainloopTimeoutDefault;
 		}
 
 		mMainloopTimeout->setTimeout(secs);
@@ -5991,7 +5999,8 @@ void LLAppViewer::setMasterSystemAudioMute(bool mute)
 //virtual
 bool LLAppViewer::getMasterSystemAudioMute()
 {
-	return gSavedSettings.getBOOL("MuteAudio");
+	static LLCachedControl<bool> sMuteAudio(gSavedSettings, "MuteAudio", false);
+	return sMuteAudio;
 }
 
 //----------------------------------------------------------------------------
