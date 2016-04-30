@@ -283,16 +283,16 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVCamera_DoNotCenterOnSelfClick</key>
+    <key>PVCamera_ResetOnSelfClick</key>
     <map>
       <key>Comment</key>
-      <string>Do not center the camera when clicking your avatar. Also called Mouse Steering.</string>
+      <string>Reset the camera when clicking your avatar. Also called Mouse Steering.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PVChat_MarkObjectsWithNoName</key>
     <map>
@@ -353,18 +353,18 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVMovement_DoNotRotateOnSelfClick</key>
+    <key>PVMovement_RotateOnSelfClick</key>
     <map>
       <key>Comment</key>
-      <string>Do not rotate your avatar away from the camera when clicking yourself.</string>
+      <string>Rotate your avatar away from the camera when clicking yourself.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
-    <key>PVMovement_DoNotRotateToSelection</key>
+    <key>PVMovement_RotateTowardSelection</key>
     <map>
       <key>Comment</key>
       <string>Do not rotate your avatar away from the camera when clicking yourself.</string>
@@ -373,7 +373,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PVMovement_DoNotStandUpOnAnimReset</key>
     <map>

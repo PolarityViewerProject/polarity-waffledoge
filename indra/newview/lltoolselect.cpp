@@ -212,11 +212,11 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			LLSelectMgr::getInstance()->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
-		static LLCachedControl<bool> do_not_turn_to_selection(gSavedSettings, "PVMovement_DoNotRotateToSelection", FALSE);
+		static LLCachedControl<bool> rotate_toward_selection(gSavedSettings, "PVMovement_RotateTowardSelection", FALSE);
 		if (!gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
 			LLVOAvatar::findAvatarFromAttachment(object) != gAgentAvatarp &&	// and it's not one of your attachments
 			object != gAgentAvatarp &&								// and it's not you
-			(!do_not_turn_to_selection))
+			(rotate_toward_selection))
 		{
 			// have avatar turn to face the selected object(s)
 			LLVector3d selection_center = LLSelectMgr::getInstance()->getSelectionCenterGlobal();
