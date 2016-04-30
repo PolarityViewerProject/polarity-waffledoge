@@ -18,7 +18,7 @@
      mouse_opaque="false"
      visible="true"
      width="18"
-     left="30"
+     left="10"
      top="10"/>
   <slider
    can_edit_text="true"
@@ -60,85 +60,89 @@
   type="string"
   length="1"
   height="10"
-  left="80"
+  left="15"
   name="heading2"
   width="270"
   top_pad="5">
-    Automatic position for:
+    Move camera when
   </text>
   <check_box
      control_name="EditCameraMovement"
      height="20"
      follows="left|top"
-     label="Build/Edit"
+     label="Building/Editing"
      layout="topleft"
-     left_delta="30"
+     left_delta="25"
      name="edit_camera_movement"
      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
-     width="280"
+     width="125"
      top_pad="5" />
   <check_box
-   control_name="AppearanceCameraMovement"
+   control_name="PVCamera_ResetOnSelfClick"
    follows="left|top"
-   height="16"
-   label="Appearance"
+   height="20"
+   label="Clicking my avatar"
    layout="topleft"
-   name="appearance_camera_movement"
-   tool_tip="Use automatic camera positioning while in edit mode"
-   width="242" />
+   left_pad="10"
+   name="pvcamera_donotcenter"
+   tool_tip="Do not center the camera when clicking your avatar.  Also called Mouse Steering."
+   top_delta="0"
+   width="280"/>
   <text
   follows="left|top"
   type="string"
   length="1"
   height="10"
-  left="230"
-  name="heading3"
-  width="270"
-  top="355">
-    When clicking self:
+  left="15"
+  name="heading2"
+  width="125"
+  top_pad="0">
+    Move avatar when
   </text>
   <check_box
-     control_name="PVCamera_DoNotCenterOnSelfClick"
-     follows="left|top"
-     height="20"
-     label="Keep camera position"
-     layout="topleft"
-     left_delta="30"
-     name="pvcamera_donotcenter"
-     tool_tip="Do not center the camera when clicking your avatar. Also called Mouse Steering"
-     top_pad="5"
-     width="280"
-     />
-  <check_box
-   control_name="PVMovement_DoNotRotateOnSelfClick"
+   control_name="PVMovement_RotateTowardSelection"
    follows="left|top"
    height="16"
-   label="Don't rotate away from the camera"
+   label="Building/Editing"
    layout="topleft"
+   left_delta="25"
+   name="pvmovement_rotate_toward_selection"
+   tool_tip="Rotate your avatar toward what you are editing"
+   top_pad="7"
+   width="130" />
+  <check_box
+   control_name="PVMovement_RotateOnSelfClick"
+   enabled_control="PVCamera_ResetOnSelfClick"
+   follows="left|top"
+   height="16"
+   label="Clicking my avatar"
+   layout="topleft"
+   left_pad="5"
    name="pvmovement_donotrotate"
-   tool_tip="Do not rotate your avatar away from the camera when clicking yourself"
-   width="242" />
-  <icon
-	 follows="left|top"
-	 height="18"
-	 image_name="Move_Walk_Off"
+   tool_tip="Rotate your avatar away from the camera when clicking it."
+   top_delta="0"
+   width="130" />
+  <check_box
+   control_name="AppearanceCameraMovement"
+   follows="left|top"
+   height="16"
+   label="Editing Appearance"
    layout="topleft"
-	 name="avatar_icon"
-	 mouse_opaque="false"
-	 visible="true"
-	 width="18"
-   top="115"
-   left="30" />
+   left_pad="5"
+   name="appearance_camera_movement"
+   tool_tip="Use automatic camera positioning while in edit mode"
+   top_delta="0"
+   width="242" />
   <text
    follows="left|top"
    type="string"
    length="1"
    height="10"
    layout="topleft"
-   left="78"
+   left="35"
    name="keyboard_lbl"
    width="270"
-   top_delta="2">
+   top_pad="5">
     Keyboard:
   </text>
   <check_box
