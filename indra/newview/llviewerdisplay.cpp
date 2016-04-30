@@ -491,7 +491,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Short delay when teleporting in the same sim (progress screen active but not shown - did not
 			// fall-through from TELEPORT_START)
 			{
-				if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
+				// <FS:CR> FIRE-8721 - Remove local teleport delay
+				//if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
+				// </FS:CR>
 				{
 					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
