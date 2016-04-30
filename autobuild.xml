@@ -1087,6 +1087,18 @@
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>edad6dcc354b2d19938ae86f025b9291</string>
+              <key>url</key>
+              <string>http://lib.polarityviewer.org/14/win64/gperftools-2.4.6627f92-windows64-201604300223.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>version</key>
         <string>2.0.297263</string>
