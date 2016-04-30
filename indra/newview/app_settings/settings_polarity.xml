@@ -31,13 +31,17 @@
     <key>_NACL_SimpleAvatarShadows</key>
     <map>
       <key>Comment</key>
-      <string>Simplyfy the deferred avatar shadows a lot. They are a FPS hog.</string>
+      <string>Controls how to render deferred avatar shadows.
+0 = no shadows from avatars
+1 = no rigged attachments shadows
+2 = faster than SL Viewer w/ several avatars around
+3 = SL viewer, slow but accurate</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4</integer>
+      <integer>2</integer>
     </map>
     <!-- Catznip -->
     <key>FullScreenWindow</key>

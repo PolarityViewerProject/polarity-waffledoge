@@ -1496,7 +1496,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataAvailable(const LLViewerTexLayerSet* laye
 //-----------------------------------------------------------------------------
 BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset) const
 {
-	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	static LLCachedControl<U32> sTextureDiscardLevel(gSavedSettings, "TextureDiscardLevel");
+	const U32 desired_tex_discard_level = sTextureDiscardLevel();
 	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels.
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1531,7 +1532,8 @@ BOOL LLVOAvatarSelf::isLocalTextureDataFinal(const LLViewerTexLayerSet* layerset
 
 BOOL LLVOAvatarSelf::isAllLocalTextureDataFinal() const
 {
-	const U32 desired_tex_discard_level = gSavedSettings.getU32("TextureDiscardLevel"); 
+	static LLCachedControl<U32> sTextureDiscardLevel(gSavedSettings, "TextureDiscardLevel");
+	const U32 desired_tex_discard_level = sTextureDiscardLevel();
 	// const U32 desired_tex_discard_level = 0; // hack to not bake textures on lower discard levels
 
 	for (U32 i = 0; i < mBakedTextureDatas.size(); i++)
@@ -1593,15 +1595,22 @@ BOOL LLVOAvatarSelf::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex t
 //virtual
 BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
 {
-	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 4);
 	if (isIndexBakedTexture(type))
 	{
 		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);
-	return (((tex_id != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (_NACL_SimpleAvatarShadows == 2))))
+	if (LLPipeline::sShadowRender)
+	{
+		// NaCl - Faster Avatar Shadows
+		static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 3);
+		if (_NACL_SimpleAvatarShadows == 1)
+		{
+			return TRUE;
+		}
+	}
+	return (tex_id != IMG_INVISIBLE) 
 			|| (LLDrawPoolAlpha::sShowDebugAlpha);
 }
 
