@@ -447,11 +447,14 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 		tmp_chat.mFromName = chat.mFromName;
 		LLSD chat_args;
 		if (args) chat_args = args;
+		static LLCachedControl<bool> is_plain_text_mode(gSavedSettings, "PlainTextChatHistory");
+		static LLCachedControl<bool> im_show_time(gSavedSettings, "IMShowTime");
+		static LLCachedControl<bool> im_show_names(gSavedSettings, "IMShowNamesForP2PConv");
 		chat_args["use_plain_text_chat_history"] =
-				gSavedSettings.getBOOL("PlainTextChatHistory");
-		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
+				is_plain_text_mode;
+		chat_args["show_time"] = im_show_time;
 		chat_args["show_names_for_p2p_conv"] =
-				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
+				!mIsP2PChat || im_show_names;
 
 		if (mChatHistory)
 		{
@@ -648,7 +651,7 @@ void LLFloaterIMSessionTab::onIMSessionMenuItemClicked(const LLSD& userdata)
 bool LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	bool is_plain_text_mode = gSavedSettings.getBOOL("PlainTextChatHistory");
+	static LLCachedControl<bool> is_plain_text_mode(gSavedSettings, "PlainTextChatHistory");
 
 	return is_plain_text_mode? item == "compact_view" : item == "expanded_view";
 }
@@ -663,9 +666,31 @@ bool LLFloaterIMSessionTab::onIMShowModesMenuItemCheck(const LLSD& userdata)
 bool LLFloaterIMSessionTab::onIMShowModesMenuItemEnable(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
-	bool is_not_names = (item != "IMShowNamesForP2PConv");
-	return (plain_text && (is_not_names || mIsP2PChat));
+	// I like my logic to be sane and readable. - Xenhat
+	bool enabled = true;
+	static LLCachedControl<bool> PlainTextChatHistory(gSavedSettings, "PlainTextChatHistory");
+	static LLCachedControl<bool> im_show_time(gSavedSettings, "IMShowTime");
+	
+	if (!PlainTextChatHistory)
+	{
+		if (item == "IMShowTime")
+		{
+			enabled = false;
+		}
+		if (item == "IMShowNamesForP2PConv")
+		{
+			enabled = true;
+		}
+	}
+	else // if (PlainTextChatHistory)
+	{
+		if (item == "IMShowNamesForP2PConv" && !mIsP2PChat)
+		{
+			enabled = false;
+		}
+	}
+
+	return enabled; //(is_plain_text_mode && (is_not_names || mIsP2PChat));
 }
 
 void LLFloaterIMSessionTab::hideOrShowTitle()

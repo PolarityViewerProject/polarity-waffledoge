@@ -393,8 +393,11 @@ void init_audio()
 
 void audio_update_volume(bool force_update)
 {
-	F32 master_volume = gSavedSettings.getF32("AudioLevelMaster");
-	BOOL mute_audio = gSavedSettings.getBOOL("MuteAudio");
+	static LLCachedControl<F32> sAudioLevelMaster(gSavedSettings, "AudioLevelMaster");
+	static LLCachedControl<bool> sMuteAudio(gSavedSettings, "MuteAudio");
+	F32 master_volume = sAudioLevelMaster();
+	BOOL mute_audio = (BOOL)sMuteAudio;
+
 
 	LLProgressView* progress = gViewerWindow->getProgressView();
 	BOOL progress_view_visible = FALSE;
@@ -416,12 +419,15 @@ void audio_update_volume(bool force_update)
 
 		gAudiop->setMasterGain ( master_volume );
 
-		gAudiop->setDopplerFactor(gSavedSettings.getF32("AudioLevelDoppler"));
+		static LLCachedControl<F32> sAudioLevelDoppler(gSavedSettings, "AudioLevelDoppler");
+		static LLCachedControl<F32> sAudioLevelRolloff(gSavedSettings, "AudioLevelRolloff");
+		static LLCachedControl<F32> sAudioLevelUnderwaterRolloff(gSavedSettings, "AudioLevelUnderwaterRolloff");
+		gAudiop->setDopplerFactor(sAudioLevelDoppler);
 
 		if(!LLViewerCamera::getInstance()->cameraUnderWater())
-		gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelRolloff"));
+		gAudiop->setRolloffFactor(sAudioLevelRolloff);
 		else
-			gAudiop->setRolloffFactor(gSavedSettings.getF32("AudioLevelUnderwaterRolloff"));
+			gAudiop->setRolloffFactor(sAudioLevelUnderwaterRolloff);
 
 		gAudiop->setMuted(mute_audio || progress_view_visible);
 		
@@ -437,12 +443,19 @@ void audio_update_volume(bool force_update)
 		}
 
 		// handle secondary gains
+		static LLCachedControl<bool> muteSounds(gSavedSettings, "MuteSounds");
+		static LLCachedControl<bool> muteUI(gSavedSettings, "MuteUI");
+		static LLCachedControl<bool> muteAmbient(gSavedSettings, "MuteAmbient");
+		static LLCachedControl<F32> audioLevelSFX(gSavedSettings, "AudioLevelSFX");
+		static LLCachedControl<F32> audioLevelUI(gSavedSettings, "AudioLevelUI");
+		static LLCachedControl<F32> audioLevelAmbient(gSavedSettings, "AudioLevelAmbient");
+
 		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_SFX,
-								  gSavedSettings.getBOOL("MuteSounds") ? 0.f : gSavedSettings.getF32("AudioLevelSFX"));
+								muteSounds ? 0.f : (F32)audioLevelSFX);
 		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_UI,
-								  gSavedSettings.getBOOL("MuteUI") ? 0.f : gSavedSettings.getF32("AudioLevelUI"));
+								muteUI ? 0.f : (F32)audioLevelUI);
 		gAudiop->setSecondaryGain(LLAudioEngine::AUDIO_TYPE_AMBIENT,
-								  gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient"));
+								muteAmbient ? 0.f : (F32)audioLevelAmbient);
 
 		// Streaming Music
 
@@ -452,8 +465,11 @@ void audio_update_volume(bool force_update)
 			LLViewerAudio::getInstance()->setForcedTeleportFade(false);
 		}
 
-		F32 music_volume = gSavedSettings.getF32("AudioLevelMusic");
-		BOOL music_muted = gSavedSettings.getBOOL("MuteMusic");
+		static LLCachedControl<F32> audioLevelMusic(gSavedSettings, "AudioLevelMusic");
+		static LLCachedControl<bool> muteMusic(gSavedSettings, "MuteMusic");
+		F32 music_volume = (F32)audioLevelMusic;
+		BOOL music_muted = (BOOL)muteMusic;
+
 		F32 fade_volume = LLViewerAudio::getInstance()->getFadeVolume();
 
 		music_volume = mute_volume * master_volume * music_volume * fade_volume;
@@ -461,21 +477,28 @@ void audio_update_volume(bool force_update)
 	}
 
 	// Streaming Media
-	F32 media_volume = gSavedSettings.getF32("AudioLevelMedia");
-	BOOL media_muted = gSavedSettings.getBOOL("MuteMedia");
+	static LLCachedControl<F32> audioLevelMedia(gSavedSettings, "AudioLevelMedia");
+	static LLCachedControl<bool> muteMedia(gSavedSettings, "MuteMedia");
+	F32 media_volume = (F32)audioLevelMedia;
+	BOOL media_muted = (BOOL)muteMedia;
+
 	media_volume = mute_volume * master_volume * media_volume;
 	LLViewerMedia::setVolume( media_muted ? 0.0f : media_volume );
 
 	// Voice
 	if (LLVoiceClient::getInstance())
 	{
-		F32 voice_volume = gSavedSettings.getF32("AudioLevelVoice");
+		static LLCachedControl<F32> audioLevelVoice(gSavedSettings, "AudioLevelVoice");
+		F32 voice_volume = (F32)audioLevelVoice;
 		voice_volume = mute_volume * master_volume * voice_volume;
-		BOOL voice_mute = gSavedSettings.getBOOL("MuteVoice");
+		static LLCachedControl<bool> muteVoice(gSavedSettings, "MuteVoice");
+		BOOL voice_mute = (BOOL)muteVoice;
 		LLVoiceClient::getInstance()->setVoiceVolume(voice_mute ? 0.f : voice_volume);
-		LLVoiceClient::getInstance()->setMicGain(voice_mute ? 0.f : gSavedSettings.getF32("AudioLevelMic"));
+		static LLCachedControl<F32> audioLevelMic(gSavedSettings, "AudioLevelMic");
+		LLVoiceClient::getInstance()->setMicGain(voice_mute ? 0.f : (F32)audioLevelMic);
 
-		if (!gViewerWindow->getActive() && (gSavedSettings.getBOOL("MuteWhenMinimized")))
+		static LLCachedControl<bool> muteWhenMinimized(gSavedSettings, "MuteWhenMinimized");
+		if (!gViewerWindow->getActive() && muteWhenMinimized)
 		{
 			LLVoiceClient::getInstance()->setMuteMic(true);
 		}
@@ -529,8 +552,12 @@ void audio_update_wind(bool force_update)
 		// don't use the setter setMaxWindGain() because we don't
 		// want to screw up the fade-in on startup by setting actual source gain
 		// outside the fade-in.
-		F32 master_volume  = gSavedSettings.getBOOL("MuteAudio") ? 0.f : gSavedSettings.getF32("AudioLevelMaster");
-		F32 ambient_volume = gSavedSettings.getBOOL("MuteAmbient") ? 0.f : gSavedSettings.getF32("AudioLevelAmbient");
+		static LLCachedControl<bool> muteAudio(gSavedSettings, "MuteAudio");
+		static LLCachedControl<bool> muteAmbient(gSavedSettings, "MuteAmbient");
+		static LLCachedControl<F32> audioLevelMaster(gSavedSettings, "AudioLevelMaster");
+		static LLCachedControl<F32> audioLevelAmbient(gSavedSettings, "AudioLevelAmbient");
+		F32 master_volume = muteAudio ? 0.f : (F32)audioLevelMaster;
+		F32 ambient_volume = muteAmbient ? 0.f : (F32)audioLevelAmbient;
 		F32 max_wind_volume = master_volume * ambient_volume;
 
 		const F32 WIND_SOUND_TRANSITION_TIME = 2.f;

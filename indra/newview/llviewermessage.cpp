@@ -1150,7 +1150,8 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	LLChat chat;
 	std::string log_message;
 
-	if (!gSavedSettings.getBOOL("ShowNewInventory"))
+    static LLCachedControl<bool> showNewInventory(gSavedSettings, "ShowNewInventory");
+    if (!showNewInventory)
 		return false;
 
 	if (check_only)
@@ -1330,8 +1331,9 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Highlight item
+        static LLCachedControl<bool> show_in_inventory(gSavedSettings, "ShowInInventory");
 		const BOOL auto_open = 
-			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
+            show_in_inventory && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
 	}
@@ -1594,6 +1596,8 @@ bool LLOfferInfo::inventory_offer_callback(const LLSD& notification, const LLSD&
 				}
 // [/RLVa:KB]
 
+                static LLCachedControl<bool> show_offered_inventory(gSavedSettings, "ShowOfferedInventory");
+                if (show_offered_inventory)
 				if (gSavedSettings.getBOOL("ShowOfferedInventory"))
 				{
 					LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(mObjectID, from_string);
@@ -1916,7 +1920,8 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			}
 // [/RLVa:KB]
 
-			if (gSavedSettings.getBOOL("LogInventoryDecline"))
+            static LLCachedControl<bool> login_inventory_decline(gSavedSettings, "LogInventoryDecline");
+            if (login_inventory_decline)
 			{
 				LLStringUtil::format_map_t log_message_args;
 				log_message_args["DESC"] = mDesc;
@@ -1984,7 +1989,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 
 	bool bAutoAccept(false);
 	// Avoid the Accept/Discard dialog if the user so desires. JC
-	if (gSavedSettings.getBOOL("AutoAcceptNewInventory")
+	static LLCachedControl<bool> auto_accept_new_inventory(gSavedSettings, "AutoAcceptNewInventory", false); // <polarity> Re-work auto-accept once more.
+	if (auto_accept_new_inventory
 		&& (info->mType == LLAssetType::AT_NOTECARD
 			|| info->mType == LLAssetType::AT_LANDMARK
 			|| info->mType == LLAssetType::AT_TEXTURE))
@@ -3836,14 +3842,14 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 	if (chatter)
 	{
 		chat.mPosAgent = chatter->getPositionAgent();
-
+		static LLCachedControl<bool> effect_script_chat_particles(gSavedSettings, "EffectScriptChatParticles");
 		// Make swirly things only for talking objects. (not script debug messages, though)
 //		if (chat.mSourceType == CHAT_SOURCE_OBJECT 
 //			&& chat.mChatType != CHAT_TYPE_DEBUG_MSG
 //			&& gSavedSettings.getBOOL("EffectScriptChatParticles") )
 // [RLVa:KB] - Checked: 2010-03-09 (RLVa-1.2.0b) | Modified: RLVa-1.0.0g
 		if ( ((chat.mSourceType == CHAT_SOURCE_OBJECT) && (chat.mChatType != CHAT_TYPE_DEBUG_MSG)) && 
-			 (gSavedSettings.getBOOL("EffectScriptChatParticles")) &&
+			 (effect_script_chat_particles) &&
 			 ((!rlv_handler_t::isEnabled()) || (CHAT_TYPE_OWNER != chat.mChatType)) )
 // [/RLVa:KB]
 		{
@@ -3890,18 +3896,19 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 				   (CHAT_TYPE_OWNER != chat.mChatType) && (CHAT_TYPE_DIRECT != chat.mChatType) ) )
 			{
 				bool fIsEmote = RlvUtil::isEmote(mesg);
+				static LLCachedControl<bool> RestrainedLoveShowEllipsis(gSavedSettings, "RestrainedLoveShowEllipsis");
 				if ((!fIsEmote) &&
 					(((gRlvHandler.hasBehaviour(RLV_BHVR_RECVCHAT)) && (!gRlvHandler.isException(RLV_BHVR_RECVCHAT, from_id))) ||
 					 ((gRlvHandler.hasBehaviour(RLV_BHVR_RECVCHATFROM)) && (gRlvHandler.isException(RLV_BHVR_RECVCHATFROM, from_id))) ))
 				{
-					if ( (gRlvHandler.filterChat(mesg, false)) && (!gSavedSettings.getBOOL("RestrainedLoveShowEllipsis")) )
+					if ( (gRlvHandler.filterChat(mesg, false)) && (!RestrainedLoveShowEllipsis) )
 						return;
 				}
 				else if ((fIsEmote) &&
 					     (((gRlvHandler.hasBehaviour(RLV_BHVR_RECVEMOTE)) && (!gRlvHandler.isException(RLV_BHVR_RECVEMOTE, from_id))) ||
 					      ((gRlvHandler.hasBehaviour(RLV_BHVR_RECVEMOTEFROM)) && (gRlvHandler.isException(RLV_BHVR_RECVEMOTEFROM, from_id))) ))
  				{
-					if (!gSavedSettings.getBOOL("RestrainedLoveShowEllipsis"))
+					if (!RestrainedLoveShowEllipsis)
 						return;
 					mesg = "/me ...";
 				}
@@ -3988,6 +3995,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		}
 		else
 		{
+			static LLCachedControl<bool> effect_script_chat_particles(gSavedSettings, "EffectScriptChatParticles");
 			chat.mText = "";
 			switch(chat.mChatType)
 			{
@@ -4075,7 +4083,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 // [RLVa:KB] - Checked: 2010-03-09 (RLVa-1.2.0b) | Modified: RLVa-1.0.0g
 				// Copy/paste from above
 				if  ( (rlv_handler_t::isEnabled()) && (chatter) && (chat.mSourceType == CHAT_SOURCE_OBJECT) &&
-					  (gSavedSettings.getBOOL("EffectScriptChatParticles")) )
+					  (effect_script_chat_particles) )
 				{
 					LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());
 					psc->setSourceObject(chatter);
@@ -4146,7 +4154,8 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		LLSD args;
 		chat.mOwnerID = owner_id;
 
-		if (gSavedSettings.getBOOL("TranslateChat") && chat.mSourceType != CHAT_SOURCE_SYSTEM)
+		static LLCachedControl<bool> translate_chat(gSavedSettings, "TranslateChat");
+		if (translate_chat && chat.mSourceType != CHAT_SOURCE_SYSTEM)
 		{
 			if (chat.mChatStyle == CHAT_STYLE_IRC)
 			{
@@ -5224,7 +5233,8 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	}
 		
 	// Don't play sounds from gestures if they are not enabled.
-	if (object_id == owner_id && !gSavedSettings.getBOOL("EnableGestureSounds"))
+	static LLCachedControl<bool> enable_gesture_sounds(gSavedSettings, "EnableGestureSounds");
+	if (object_id == owner_id && !enable_gesture_sounds)
 	{
 		return;
 	}

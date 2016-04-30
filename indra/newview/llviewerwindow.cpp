@@ -368,7 +368,8 @@ public:
 
 		clearText();
 		
-		if (gSavedSettings.getBOOL("DebugShowTime"))
+		static LLCachedControl<bool> debugShowTime(gSavedSettings, "DebugShowTime");
+		if (debugShowTime)
 		{
 			{
 			const U32 y_inc2 = 15;
@@ -390,7 +391,8 @@ public:
 		}
 		
 #if LL_WINDOWS
-		if (gSavedSettings.getBOOL("DebugShowMemory"))
+		static LLCachedControl<bool> debugShowMemory(gSavedSettings, "DebugShowMemory");
+		if (debugShowMemory)
 		{
 			addText(xpos, ypos, llformat("Memory: %d (KB)", LLMemory::getWorkingSetSize() / 1024)); 
 			ypos += y_inc;
@@ -483,7 +485,8 @@ public:
 			ypos += y_inc;
 		}*/
 		
-		if (gSavedSettings.getBOOL("DebugShowRenderInfo"))
+		static LLCachedControl<bool> debugShowRenderInfo(gSavedSettings, "DebugShowRenderInfo");
+		if (debugShowRenderInfo)
 		{
 			LLTrace::Recording& last_frame_recording = LLTrace::get_frame_recording().getLastRecording();
 
@@ -658,7 +661,8 @@ public:
 				LLVertexBuffer::sSetCount = LLImageGL::sUniqueCount = 
 				gPipeline.mNumVisibleNodes = LLPipeline::sVisibleLightCount = 0;
 		}
-		if (gSavedSettings.getBOOL("DebugShowAvatarRenderInfo"))
+		static LLCachedControl<bool> sDebugShowAvatarRenderInfo(gSavedSettings, "DebugShowAvatarRenderInfo", false);
+		if (sDebugShowAvatarRenderInfo)
 		{
 			std::map<std::string, LLVOAvatar*> sorted_avs;
 			
@@ -694,7 +698,8 @@ public:
 				av_iter++;
 			}
 		}
-		if (gSavedSettings.getBOOL("DebugShowRenderMatrices"))
+		static LLCachedControl<bool> debugShowRenderMatrices(gSavedSettings, "DebugShowRenderMatrices");
+		if (debugShowRenderMatrices)
 		{
 			addText(xpos, ypos, llformat("%.4f    .%4f    %.4f    %.4f", gGLProjection[12], gGLProjection[13], gGLProjection[14], gGLProjection[15]));
 			ypos += y_inc;
@@ -727,7 +732,8 @@ public:
 			addText(xpos, ypos, "View Matrix");
 			ypos += y_inc;
 		}
-		if (gSavedSettings.getBOOL("DebugShowColor"))
+		static LLCachedControl<bool> debugShowColor(gSavedSettings, "DebugShowColor");
+		if (debugShowColor)
 		{
 			U8 color[4];
 			LLCoordGL coord = gViewerWindow->getCurrentMouse();
@@ -800,7 +806,8 @@ public:
 			}
 		}				
 
-		if (gSavedSettings.getBOOL("DebugShowTextureInfo"))
+		static LLCachedControl<bool> debugShowTextureInfo(gSavedSettings, "DebugShowTextureInfo");
+		if (debugShowTextureInfo)
 		{
 			LLViewerObject* objectp = NULL ;
 			
@@ -2426,13 +2433,15 @@ void LLViewerWindow::draw()
 
 	//S32 screen_x, screen_y;
 
-	if (!gSavedSettings.getBOOL("RenderUIBuffer"))
+	static LLCachedControl<bool> renderUIBuffer(gSavedSettings, "RenderUIBuffer");
+	if (!renderUIBuffer)
 	{
 		LLUI::sDirtyRect = getWindowRectScaled();
 	}
 
 	// HACK for timecode debugging
-	if (gSavedSettings.getBOOL("DisplayTimecode"))
+	static LLCachedControl<bool> displayTimecode(gSavedSettings, "DisplayTimecode");
+	if (displayTimecode)
 	{
 		// draw timecode block
 		std::string text;
@@ -2679,7 +2688,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	{
 		if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
 		{
-			if (gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
+			static LLCachedControl<bool> arrow_keys_always_move(gSavedSettings, "ArrowKeysAlwaysMove");
+			if (arrow_keys_always_move)
 			{
 				// let Control-Up and Control-Down through for chat line history,
 				if (!(key == KEY_UP && mask == MASK_CONTROL)
@@ -2744,7 +2754,8 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
+	static LLCachedControl<bool> wasd_moves_avatar(gSavedSettings, "PVChat_WASDMovesAvatar", false);
+	if ( !wasd_moves_avatar &&
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
 		// Initialize nearby chat if it's missing
@@ -2954,11 +2965,13 @@ void LLViewerWindow::updateUI()
 
 	if (gLoggedInTime.getStarted())
 	{
-		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("DestinationGuideHintTimeout"))
+		static LLCachedControl<F32> dest_hint_timeout(gSavedSettings, "DestinationGuideHintTimeout");
+		if (gLoggedInTime.getElapsedTimeF32() > dest_hint_timeout)
 		{
 			LLFirstUse::notUsingDestinationGuide();
 		}
-		if (gLoggedInTime.getElapsedTimeF32() > gSavedSettings.getF32("SidePanelHintTimeout"))
+		static LLCachedControl<F32> sidepanel_hint_timeout(gSavedSettings, "SidePanelHintTimeout");
+		if (gLoggedInTime.getElapsedTimeF32() > sidepanel_hint_timeout)
 		{
 			LLFirstUse::notUsingSidePanel();
 		}
@@ -3229,7 +3242,8 @@ void LLViewerWindow::updateUI()
 			LLRect screen_sticky_rect = mRootView->getLocalRect();
 			S32 local_x, local_y;
 
-			if (gSavedSettings.getBOOL("DebugShowXUINames"))
+			static LLCachedControl<bool> debugShowXUINames(gSavedSettings, "DebugShowXUINames");
+			if (debugShowXUINames)
 			{
 				LLToolTip::Params params;
 
@@ -3413,7 +3427,8 @@ void LLViewerWindow::updateMouseDelta()
 
 	LLVector2 mouse_vel; 
 
-	if (gSavedSettings.getBOOL("MouseSmooth"))
+	static LLCachedControl<bool> mouseSmooth(gSavedSettings, "MouseSmooth");
+	if (mouseSmooth)
 	{
 		static F32 fdx = 0.f;
 		static F32 fdy = 0.f;
@@ -3710,7 +3725,8 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 					BOOL moveable_object_selected = FALSE;
 					BOOL all_selected_objects_move = TRUE;
 					BOOL all_selected_objects_modify = TRUE;
-					BOOL selecting_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
+					static LLCachedControl<bool> editLinkedParts(gSavedSettings, "EditLinkedParts", false);
+					BOOL selecting_linked_set = !(BOOL)editLinkedParts;
 
 					for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
 						 iter != LLSelectMgr::getInstance()->getSelection()->end(); iter++)
@@ -3719,7 +3735,7 @@ void LLViewerWindow::renderSelections( BOOL for_gl_pick, BOOL pick_parcel_walls,
 						LLViewerObject* object = nodep->getObject();
 						LLViewerObject *root_object = (object == NULL) ? NULL : object->getRootEdit();
 						BOOL this_object_movable = FALSE;
-						if (object->permMove() && !object->isPermanentEnforced() &&
+						if (object && object->permMove() && !object->isPermanentEnforced() &&
 							((root_object == NULL) || !root_object->isPermanentEnforced()) &&
 							(object->permModify() || selecting_linked_set))
 						{
@@ -5327,7 +5343,7 @@ void LLViewerWindow::setUIVisibility(bool visible)
 		gToolBarView->setToolBarsVisible(visible);
 	}
 
-	const U32 navigation_bar = gSavedSettings.getU32("ObsidianNavigationBarStyle");
+	static LLCachedControl<U32> navigation_bar(gSavedSettings, "ObsidianNavigationBarStyle");
 	LLNavigationBar::getInstance()->setVisible(visible && (navigation_bar == 2));
 	LLPanelTopInfoBar::getInstance()->setVisible(visible && (navigation_bar == 1));
 	mRootView->getChildView("status_bar_container")->setVisible(visible);

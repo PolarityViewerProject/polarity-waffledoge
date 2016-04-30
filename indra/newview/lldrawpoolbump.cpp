@@ -202,7 +202,8 @@ void LLDrawPoolBump::prerender()
 // static
 S32 LLDrawPoolBump::numBumpPasses()
 {
-	if (gSavedSettings.getBOOL("RenderObjectBump"))
+	static LLCachedControl<bool> renderObjectBump(gSavedSettings, "RenderObjectBump");
+	if (renderObjectBump)
 	{
 		if (mVertexShaderLevel > 1)
 		{
@@ -810,7 +811,8 @@ void LLDrawPoolBump::endBump(U32 pass)
 
 S32 LLDrawPoolBump::getNumDeferredPasses()
 { 
-	if (gSavedSettings.getBOOL("RenderObjectBump"))
+	static LLCachedControl<bool> RenderObjectBump(gSavedSettings, "RenderObjectBump");
+	if (RenderObjectBump)
 	{
 		return 1;
 	}
@@ -1154,7 +1156,8 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 
 	S32 src_cmp = src->getComponents();
 
-	F32 norm_scale = gSavedSettings.getF32("RenderNormalMapScale");
+	static LLCachedControl<F32> RenderNormalMapScale(gSavedSettings, "RenderNormalMapScale");
+	F32 norm_scale = RenderNormalMapScale;
 
 	U32 idx = 0;
 	//generate normal map from pseudo-heightfield
@@ -1388,7 +1391,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 					static LLStaticHashedString sStepX("stepX");
 					static LLStaticHashedString sStepY("stepY");
 
-					gNormalMapGenProgram.uniform1f(sNormScale, gSavedSettings.getF32("RenderNormalMapScale"));
+					static LLCachedControl<F32> RenderNormalMapScale(gSavedSettings, "RenderNormalMapScale");
+					gNormalMapGenProgram.uniform1f(sNormScale, RenderNormalMapScale);
 					gNormalMapGenProgram.uniform1f(sStepX, 1.f/bump->getWidth());
 					gNormalMapGenProgram.uniform1f(sStepY, 1.f/bump->getHeight());
 

@@ -881,8 +881,8 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 	// 
 	//  Do not show hover for land unless prefs are set to allow it.
 	// 
-	
-	if (!gSavedSettings.getBOOL("ShowLandHoverTip")) return TRUE; 
+	static LLCachedControl<bool> show_land_hovertips(gSavedSettings, "ShowLandHoverTip");	
+	if (!show_land_hovertips) return TRUE;
 	
 	// Didn't hit an object, but since we have a land point we
 	// must be hovering over land.
@@ -1118,8 +1118,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 		//
 		//  Default prefs will suppress display unless the object is interactive
 		//
-		bool show_all_object_tips =
-		(bool)gSavedSettings.getBOOL("ShowAllObjectHoverTip");			
+		static LLCachedControl<bool> show_all_object_tips(gSavedSettings, "ShowAllObjectHoverTip");
 		LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
 		
 		// only show tooltip if same inspector not already open
@@ -1246,7 +1245,8 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 
 BOOL LLToolPie::handleToolTip(S32 local_x, S32 local_y, MASK mask)
 {
-	if (!LLUI::sSettingGroups["config"]->getBOOL("ShowHoverTips")) return TRUE;
+	static LLCachedControl<bool> show_hover_tips(gSavedSettings, "ShowHoverTips");
+	if(!show_hover_tips) return TRUE;
 	if (!mHoverPick.isValid()) return TRUE;
 // [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
 #ifdef RLV_EXTENSION_CMD_INTERACT
@@ -1449,7 +1449,8 @@ void LLToolPie::handleDeselect()
 
 LLTool* LLToolPie::getOverrideTool(MASK mask)
 {
-	if (gSavedSettings.getBOOL("EnableGrab"))
+	static LLCachedControl<bool> enableGrab(gSavedSettings, "EnableGrab");
+	if (enableGrab)
 	{
 		if (mask == MASK_CONTROL)
 		{
@@ -1918,7 +1919,6 @@ BOOL LLToolPie::handleRightClickPick()
 
 void LLToolPie::showVisualContextMenuEffect()
 {
-	// <polarity> Use faster LLCachedControls for frequently visited locations
 	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
 	if (PVPrivacy_HideEditBeam)
 	{
