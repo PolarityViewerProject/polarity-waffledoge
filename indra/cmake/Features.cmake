@@ -28,7 +28,7 @@ set(COMPILER_JOBS ${COMPILER_JOBS} CACHE STRING "Amount of simultaneous compiler
 
 # Optimizations
 option(USE_AVX "Use the AVX Instruction Set whenever possible" OFF)
-option(USE_SSE3 "Use the SSE3 Instruction Set whenever possible" OFF)
+option(USE_SSE3 "Use the SSE3 Instruction Set whenever possible" ON)
 
 if(USE_AVX)
   set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
