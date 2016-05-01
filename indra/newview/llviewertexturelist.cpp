@@ -1345,6 +1345,11 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 
 	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
 	
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
+	if (get_recommended)
+		max_texmem = llmin(max_texmem, S32Megabytes(512));
+#endif
+
 	return max_texmem;
 }
 
@@ -1356,11 +1361,11 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	S32Megabytes default_mem = getMaxVideoRamSetting(true, mem_multiplier); // recommended default
-	if (mem == (S32Bytes)0)
+	if (mem == (S32Megabytes)0)
 	{
-		mem = cur_mem > (S32Bytes)0 ? cur_mem : default_mem;
+		mem = cur_mem > (S32Megabytes)0 ? cur_mem : default_mem;
 	}
-	else if (mem < (S32Bytes)0)
+	else if (mem < (S32Megabytes)0)
 	{
 		mem = default_mem;
 	}
@@ -1379,11 +1384,22 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
 	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
 	
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
+	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam / 2)
+	{
+		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + (S32Megabytes) (mMaxResidentTexMemInMegaBytes * 0.25f);
+	}
+	else
+	{
+		mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
+	}
+#else
 	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
 	if (mMaxResidentTexMemInMegaBytes > (S32Megabytes)640)
 	{
 		mMaxTotalTextureMemInMegaBytes -= (mMaxResidentTexMemInMegaBytes / 4);
 	}
+#endif
 
 	//system mem
 	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
@@ -1400,6 +1416,8 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	
 	LL_INFOS() << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
 	LL_INFOS() << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
+	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << " MB" << LL_ENDL;
+	LL_INFOS() << "Maxiumum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << " MB" << LL_ENDL;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
