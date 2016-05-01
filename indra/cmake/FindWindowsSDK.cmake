@@ -1,4 +1,4 @@
-﻿# - Find the Windows SDK aka Platform SDK
+# - Find the Windows SDK aka Platform SDK
 #
 # Relevant Wikipedia article: http://en.wikipedia.org/wiki/Microsoft_Windows_SDK
 #
