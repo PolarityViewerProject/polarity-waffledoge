@@ -1636,44 +1636,6 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
 	}
 }
 
-
-
-//
-// LLSplashScreenMacOSX
-//
-LLSplashScreenMacOSX::LLSplashScreenMacOSX()
-{
-	mWindow = NULL;
-}
-
-LLSplashScreenMacOSX::~LLSplashScreenMacOSX()
-{
-}
-
-void LLSplashScreenMacOSX::showImpl()
-{
-	// This code _could_ be used to display a spash screen...
-}
-
-void LLSplashScreenMacOSX::updateImpl(const std::string& mesg)
-{
-	if(mWindow != NULL)
-	{
-		CFStringRef string = NULL;
-
-		string = CFStringCreateWithCString(NULL, mesg.c_str(), kCFStringEncodingUTF8);
-	}
-}
-
-
-void LLSplashScreenMacOSX::hideImpl()
-{
-	if(mWindow != NULL)
-	{
-		mWindow = NULL;
-	}
-}
-
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type)
 {
 	return showAlert(text, caption, type);

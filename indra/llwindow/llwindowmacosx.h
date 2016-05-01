@@ -221,21 +221,6 @@ protected:
 	
 };
 
-
-class LLSplashScreenMacOSX : public LLSplashScreen
-{
-public:
-	LLSplashScreenMacOSX();
-	virtual ~LLSplashScreenMacOSX();
-
-	/*virtual*/ void showImpl();
-	/*virtual*/ void updateImpl(const std::string& mesg);
-	/*virtual*/ void hideImpl();
-
-private:
-	WindowRef   mWindow;
-};
-
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type);
 
 void load_url_external(const char* url);
