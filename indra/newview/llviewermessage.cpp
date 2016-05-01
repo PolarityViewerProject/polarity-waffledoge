@@ -1150,8 +1150,8 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	LLChat chat;
 	std::string log_message;
 
-    static LLCachedControl<bool> showNewInventory(gSavedSettings, "ShowNewInventory");
-    if (!showNewInventory)
+	static LLCachedControl<bool> showNewInventory(gSavedSettings, "ShowNewInventory");
+	if (!showNewInventory)
 		return false;
 
 	if (check_only)
@@ -1331,9 +1331,9 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Highlight item
-        static LLCachedControl<bool> show_in_inventory(gSavedSettings, "ShowInInventory");
+		static LLCachedControl<bool> show_in_inventory(gSavedSettings, "ShowInInventory");
 		const BOOL auto_open = 
-            show_in_inventory && // don't open if showininventory is false
+			show_in_inventory && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
 	}
@@ -1920,8 +1920,8 @@ bool LLOfferInfo::inventory_task_offer_callback(const LLSD& notification, const 
 			}
 // [/RLVa:KB]
 
-            static LLCachedControl<bool> login_inventory_decline(gSavedSettings, "LogInventoryDecline");
-            if (login_inventory_decline)
+			static LLCachedControl<bool> login_inventory_decline(gSavedSettings, "LogInventoryDecline");
+			if (login_inventory_decline)
 			{
 				LLStringUtil::format_map_t log_message_args;
 				log_message_args["DESC"] = mDesc;

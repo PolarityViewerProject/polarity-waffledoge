@@ -3558,6 +3558,8 @@ BOOL LLViewerShaderMgr::loadTransformShaders()
 	
 		success = gTransformTangentProgram.createShader(NULL, NULL, 1, varyings);
 	}
+
+	
 	return success;
 }
 

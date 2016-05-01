@@ -1558,11 +1558,6 @@ void LLPipeline::assertInitializedDoError() const
 //============================================================================
 
 
-//void LLPipeline::enableShadows(const BOOL enable_shadows)
-//{
-//	//should probably do something here to wrangle shadows....	
-//}
-
 S32 LLPipeline::getMaxLightingDetail() const
 {
 	/*if (mVertexShaderLevel[SHADER_OBJECT] >= LLDrawPoolSimple::SHADER_LEVEL_LOCAL_LIGHTS)
@@ -8960,7 +8955,7 @@ void LLPipeline::renderDeferredLighting()
 						gDeferredMultiLightProgram[idx].uniform1f(LLShaderMgr::MULTI_LIGHT_FAR_Z, far_z);
 						far_z = 0.f;
 						count = 0; 
-      mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+						mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
 						mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 						unbindDeferredShader(gDeferredMultiLightProgram[idx]);
 					}
@@ -9467,7 +9462,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					fullscreen_lights.pop_front();
 					col[count] = light_colors.front();
 					light_colors.pop_front();
-					
+
 					/*col[count].mV[0] = powf(col[count].mV[0], 2.2f);
 					col[count].mV[1] = powf(col[count].mV[1], 2.2f);
 					col[count].mV[2] = powf(col[count].mV[2], 2.2f);*/
