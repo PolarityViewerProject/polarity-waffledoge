@@ -222,11 +222,12 @@ private:
 	// Kept in memory to avoid Filesystem I/O delays and dependencies
 	LLSD mPVDataMemoryData;
 
+	typedef std::map<std::string, LLSD> str_llsd_pairs;
 	// This contains the viewer versions that aren't allowed to be used anymore
-	std::map<std::string, LLSD> mBlockedVersions;
+	str_llsd_pairs mBlockedVersions;
 
 	// Minimum viewer version allowed to be used
-	std::map<std::string, LLSD> mMinimumVersion;
+	str_llsd_pairs mMinimumVersion;
 
 	// agents <-> role associations
 	typedef std::map<LLUUID, S32> flag_db_t;

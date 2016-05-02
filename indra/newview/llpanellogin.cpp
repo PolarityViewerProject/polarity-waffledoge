@@ -74,6 +74,7 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
+#include "pvdata.h"
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
@@ -858,6 +859,18 @@ void LLPanelLogin::onClickConnect(void *)
 		}
 
 		// The start location SLURL has already been sent to LLStartUp::setStartSLURL
+
+		if (PVData::instance().isBlockedRelease())
+		{
+			LLSD args;
+			args["REASON"] = PVData::instance().PVDataErrorMessage;
+			LLNotificationsUtil::add("BlockedReleaseReason", args);
+			return;
+		}
+		else
+		{
+			LL_INFOS("PVData") << "Viewer version is allowed to be used, moving on..." << LL_ENDL;
+		}
 
 		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 		

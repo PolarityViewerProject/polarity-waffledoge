@@ -302,7 +302,14 @@ void PVData::parsePVData(const LLSD& data_input)
 			const LLSD& reason = iter->second;
 			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
 			mBlockedVersions[version] = reason;
-			LL_DEBUGS("PVDataParser") << "Added " << version << " to mBlockedVersions" << LL_ENDL;
+			LL_DEBUGS("PVDataParser") << "Added " << version << " to mBlockedVersions with reason '" << reason << "'" << LL_ENDL;
+
+			LL_DEBUGS("PVDataParser") << "Dumping map contents" << LL_ENDL;
+			LL_DEBUGS("PVDataParser") << "~~~~~~~~ mBlockedVersions ~~~~~~~~" << LL_ENDL;
+			for (const auto &p : mBlockedVersions) {
+				LL_DEBUGS("PVDataParser") << "mBlockedVersions[" << p.first << "] = " << p.second << LL_ENDL;
+			}
+			LL_DEBUGS("PVDataParser") << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
 		}
 	}
 	if (data_input.has("MinimumVersion"))
@@ -600,21 +607,27 @@ bool PVData::isBlockedRelease()
 	// If the version is found, it assigns the version's index to the iterator 'iter', otherwise assigns map::find's retun value which is 'map::end'
 	const std::string& sCurrentVersion = LLVersionInfo::getChannelAndVersionStatic();
 	const std::string& sCurrentVersionShort = LLVersionInfo::getShortVersion();
-	std::map<std::string, LLSD>::iterator b_iter = mBlockedVersions.find(sCurrentVersion);
+	// Blocked Versions
+	str_llsd_pairs::iterator blockedver_iterator = mBlockedVersions.find(sCurrentVersion);
 	// Minimum Version
-	std::map<std::string, LLSD>::iterator v_iter = mMinimumVersion.begin();
-	PVDataErrorMessage = "";
-	if (sCurrentVersionShort < v_iter->first)
+	str_llsd_pairs::iterator minver_iterator = mMinimumVersion.begin();
+	PVDataErrorMessage = "Quit living in the past!";
+
+	// Check if version is lower than the minimum version
+	if (sCurrentVersionShort < minver_iterator->first)
 	{
-		PVDataErrorMessage = v_iter->second.asString();
+		const LLSD& reason_llsd = minver_iterator->second;
+		PVDataErrorMessage.assign(reason_llsd["REASON"]);
 		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVDataErrorMessage << ")" << LL_ENDL;
 		//TODO: fire up updater
 		return true;
 	}
-	else if (b_iter != mBlockedVersions.end()) // if the iterator's value is map::end, it is not in the array.
+	// Check if version is explicitely blocked
+	if (blockedver_iterator != mBlockedVersions.end()) // if the iterator's value is map::end, it is not in the array.
 	{
 		// assign the iterator's associaded value (the reason message) to the LLSD that will be returned to the calling function
-		PVDataErrorMessage = b_iter->second.asString();
+		const LLSD& reason_llsd = blockedver_iterator->second;
+		PVDataErrorMessage.assign(reason_llsd["REASON"]);
 		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVDataErrorMessage << ")" << LL_ENDL;
 		//TODO: fire up updater
 		return true;

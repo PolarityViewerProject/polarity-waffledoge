@@ -11158,4 +11158,14 @@ Would you like to reset the graphic preferences?
   canceltext="Never reset"/>
  </notification>
 
+ <notification
+  icon="alertmodal.png"
+  name="BlockedReleaseReason"
+  type="alertmodal">
+  [REASON]
+  <usetemplate
+   name="okbutton"
+   yestext="OK"/>
+ </notification>
+
 </notifications>
