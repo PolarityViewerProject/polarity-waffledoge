@@ -612,9 +612,11 @@ bool PVData::isBlockedRelease()
 	// Minimum Version
 	str_llsd_pairs::iterator minver_iterator = mMinimumVersion.begin();
 	PVDataErrorMessage = "Quit living in the past!";
+	
 
 	// Check if version is lower than the minimum version
-	if (sCurrentVersionShort < minver_iterator->first)
+	if (minver_iterator != mMinimumVersion.end() // Otherwise crashes if data is missing due to network failures
+		&& sCurrentVersionShort < minver_iterator->first)
 	{
 		const LLSD& reason_llsd = minver_iterator->second;
 		PVDataErrorMessage.assign(reason_llsd["REASON"]);
