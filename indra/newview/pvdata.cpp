@@ -40,6 +40,7 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "llfloaterabout.h"
 
 #include "pvconstants.h"
 
@@ -612,7 +613,6 @@ bool PVData::isBlockedRelease()
 	// Minimum Version
 	str_llsd_pairs::iterator minver_iterator = mMinimumVersion.begin();
 	PVDataErrorMessage = "Quit living in the past!";
-	
 
 	// Check if version is lower than the minimum version
 	if (minver_iterator != mMinimumVersion.end() // Otherwise crashes if data is missing due to network failures
@@ -621,7 +621,7 @@ bool PVData::isBlockedRelease()
 		const LLSD& reason_llsd = minver_iterator->second;
 		PVDataErrorMessage.assign(reason_llsd["REASON"]);
 		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVDataErrorMessage << ")" << LL_ENDL;
-		//TODO: fire up updater
+		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
 	// Check if version is explicitely blocked
@@ -631,7 +631,7 @@ bool PVData::isBlockedRelease()
 		const LLSD& reason_llsd = blockedver_iterator->second;
 		PVDataErrorMessage.assign(reason_llsd["REASON"]);
 		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVDataErrorMessage << ")" << LL_ENDL;
-		//TODO: fire up updater
+		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
 	else
