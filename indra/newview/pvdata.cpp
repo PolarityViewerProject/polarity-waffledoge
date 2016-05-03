@@ -559,6 +559,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		{
 			PVDataErrorMessage = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
 		}
+#if RELEASE_BUILD
 		// prevent non-release builds to fall in the wrong hands
 		else if (compiled_channel == APP_NAME + " Release"
 			// Allow beta builds as well.
@@ -566,6 +567,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		{
 			return true;
 		}
+#endif // RELEASE_BUILD
 		else
 		{
 			LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
