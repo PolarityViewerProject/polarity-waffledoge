@@ -11060,13 +11060,6 @@ Changes won't take effect until after you restart [APP_NAME].
    Calculation: [EXPRESSION] = [RESULT]
   </notification>
 
-  <notification
-   icon="notifytip.tga"
-   name="ChatCommandCalcFailed"
-   type="notifytip">
-   Calculation failed.
-  </notification>
-
  <notification
   icon="notify"
   name="NoseyLookAt"
@@ -11078,17 +11071,6 @@ We ask that you consider this carefully before chosing that route.
   name="okcancelbuttons"
   yestext="I understand"
   notext="Keep the hidden"/>
- </notification>
-
- <notification
-  icon="notify"
-  name="DebugSettingsWarning"
-  type="notifytip">
-Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description carefully and be careful.
-  <form name="form">
-    <ignore name="ignore"
-     text="Debug Settings warning message"/>
-    </form>
  </notification>
 
  <notification

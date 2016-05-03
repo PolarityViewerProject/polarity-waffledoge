@@ -40,6 +40,7 @@
 #include "llwindow.h"
 #include "sanitycheck.h"
 #include "llsearcheditor.h" // for search box
+#include <lltrans.h>
 
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
 // Polarity> Ensure the debug list is populated when opening through the toolbar button
@@ -169,7 +170,9 @@ BOOL LLFloaterSettingsDebug::postBuild()
 
 	if (!gSavedSettings.getBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a"))
 	{
-		LLNotificationsUtil::add("DebugSettingsWarning");
+		LLSD args;
+		args["MESSAGE"] = LLTrans::getString("DebugSettingsWarning");
+		LLNotificationsUtil::add("SystemMessageTip", args);
 		gSavedSettings.setBOOL("7bd9b379-962b-407f-9dd3-2d5ce9eba39a", TRUE);
 	}
 

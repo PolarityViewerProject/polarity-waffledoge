@@ -301,7 +301,9 @@ bool OSChatCommand::parseCommand(std::string data)
 				LLNotificationsUtil::add("ChatCommandCalc", args);
 				return true;
 			}
-			LLNotificationsUtil::add("ChatCommandCalcFailed");
+			LLSD args;
+			args["MESSAGE"] = LLTrans::getString("ChatCommandCalcFailed");
+			LLNotificationsUtil::add("SystemMessageTip", args);
 			return true;
 		}
 		break;
