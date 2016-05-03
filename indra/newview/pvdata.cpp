@@ -544,6 +544,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		else
 		{
 			PVDataErrorMessage = "This build is locked down to another account.";
+			return false;
 		}
 	}
 	else
@@ -551,6 +552,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		if (lockdown_uuid != LLUUID::null)
 		{
 			PVDataErrorMessage = "Something went wrong, and the authentication checks have failed.";
+			return false
 		}
 		signed int av_flags = getAgentFlags(avatar_id);
 		//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
@@ -558,6 +560,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		if (av_flags & FLAG_USER_BANNED)
 		{
 			PVDataErrorMessage = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
+			return false;
 		}
 #if RELEASE_BUILD
 		// prevent non-release builds to fall in the wrong hands
@@ -596,6 +599,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 			{
 				LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
 				PVDataErrorMessage = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
+				return false;
 			}
 		}
 	}
