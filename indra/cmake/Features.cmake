@@ -34,6 +34,8 @@ if(USE_AVX)
   set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
 endif(USE_AVX)
 
+option(RELEASE_BUILD "Used to help configure release binaries" OFF)
+
 # <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
 add_definitions(
   /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
@@ -47,6 +49,7 @@ add_definitions(
   /DUSE_LTO=${USE_LTO}
   /DUSE_AVX=${USE_AVX}
   /DUSE_SSE=${USE_SSE3}
+  /DRELEASE_BUILD=${RELEASE_BUILD}
   )
 
 MESSAGE("======== *FEATURES* ========")
@@ -58,6 +61,7 @@ MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
 MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
 MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
+MESSAGE("RELEASE_BUILD                      ${RELEASE_BUILD}")
 if(USE_AVX)
 MESSAGE("Minimum Optimization:              AVX")
 else(USE_SSE3)
