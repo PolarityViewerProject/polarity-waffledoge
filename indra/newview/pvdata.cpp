@@ -752,7 +752,7 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 		{
 			flags_list.push_back(mAgentTitles[avatar_id]);
 		}
-		if (!(av_flags &FLAG_TITLE_OVERRIDE))
+		if (!(av_flags & FLAG_TITLE_OVERRIDE))
 		{
 			if (av_flags & FLAG_USER_AUTOMUTED)
 			{
