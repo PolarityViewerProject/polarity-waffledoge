@@ -4156,14 +4156,14 @@ Try enclosing path to the editor with double quotes.
   </string>
 
  <!-- Settings sanity checks -->
- <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be at [VALUE_1].</string>
- <string name="SanityCheckNotEquals">&quot;[CONTROL_NAME]&quot; should not be set to [VALUE_1].</string>
- <string name="SanityCheckLessThan"> &quot;[CONTROL_NAME]&quot; should be lower than [VALUE_1].</string>
- <string name="SanityCheckGreaterThan"> &quot;[CONTROL_NAME]&quot; should be higher than [VALUE_1].</string>
- <string name="SanityCheckBetween"> &quot;[CONTROL_NAME]&quot; should be between [VALUE_1] and [VALUE_2].</string>
- <string name="SanityCheckNotBetween"> &quot;[CONTROL_NAME]&quot; should not be between [VALUE_1] and [VALUE_2].</string>
+  <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be at [VALUE_1].</string>
+  <string name="SanityCheckNotEquals">&quot;[CONTROL_NAME]&quot; should not be set to [VALUE_1].</string>
+  <string name="SanityCheckLessThan"> &quot;[CONTROL_NAME]&quot; should be lower than [VALUE_1].</string>
+  <string name="SanityCheckGreaterThan"> &quot;[CONTROL_NAME]&quot; should be higher than [VALUE_1].</string>
+  <string name="SanityCheckBetween"> &quot;[CONTROL_NAME]&quot; should be between [VALUE_1] and [VALUE_2].</string>
+  <string name="SanityCheckNotBetween"> &quot;[CONTROL_NAME]&quot; should not be between [VALUE_1] and [VALUE_2].</string>
 
-<string name="InvFolder #RLV">#RLV</string>
+  <string name="InvFolder #RLV">#RLV</string>
 
   <string name="PropertyLinesEnabled">
     Enabling Parcel property lines. Data may take several seconds to appear.
@@ -4171,11 +4171,10 @@ Try enclosing path to the editor with double quotes.
 
   <string name="DebugSettingsWarning">
     Reminder: Modifying Debug Settings can negatively impact your performance or experience. Read the setting&apos;s description and be careful.
-</string>
+  </string>
 
   <string name="ChatCommandCalcFailed">
     Calculation failed.
-</string>
-
+  </string>
 
 </strings>
