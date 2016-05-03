@@ -712,7 +712,7 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	agent_color = static_cast<LLColor4>(mAgentColors[avatar_id]);
 	LL_INFOS("") << "agent_color == " << agent_color << LL_ENDL;
 	// TODO: Check to make sure it returns black if empty
-	return (agent_color);
+	return agent_color;
 }
 
 // ReSharper disable CppAssignedValueIsNeverUsed
