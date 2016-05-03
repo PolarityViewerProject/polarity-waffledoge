@@ -641,11 +641,11 @@
              label="Property Lines"
              name="Property Lines"
              shortcut="control|alt|shift|P">
-            <menu_item_check.on_check
-               control="ShowPropertyLines" />
-            <menu_item_check.on_click
-               function="ToggleControl"
-               parameter="ShowPropertyLines" />
+             <menu_item_check.on_check
+              function="CheckControl"
+              parameter="ShowPropertyLines" />
+             <menu_item_check.on_click
+              function="Advanced.TogglePropertyLines" />
           </menu_item_check>
           <menu_item_check
              label="Land Owners"

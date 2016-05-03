@@ -4165,4 +4165,8 @@ Try enclosing path to the editor with double quotes.
 
 <string name="InvFolder #RLV">#RLV</string>
 
+  <string name="PropertyLinesEnabled">
+    Enabling Parcel property lines. Data may take several seconds to appear.
+  </string>
+
 </strings>

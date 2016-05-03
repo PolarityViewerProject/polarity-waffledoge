@@ -7773,6 +7773,25 @@ class LLAdvancedToggleDoubleClickTeleport: public view_listener_t
 	}
 };
 
+class LLAdvancedTogglePropertyLines: public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		if (gSavedSettings.getBOOL("ShowPropertyLines"))
+		{
+			gSavedSettings.setBOOL("ShowPropertyLines", FALSE);
+		}
+		else
+		{
+			gSavedSettings.setBOOL("ShowPropertyLines", TRUE);
+			LLSD args;
+			args["MESSAGE"] = LLTrans::getString("PropertyLinesEnabled");
+			LLNotificationsUtil::add("SystemMessageTip", args);
+		}
+		return true;
+	}
+};
+
 void menu_toggle_attached_lights(void* user_data)
 {
 	LLPipeline::sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
@@ -9389,6 +9408,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedCheckToggleHackedGodmode(), "Advanced.CheckToggleHackedGodmode");
 	view_listener_t::addMenu(new LLAdvancedEnableToggleHackedGodmode(), "Advanced.EnableToggleHackedGodmode");
 	#endif
+
+	// Parcel property lines toggle notification
+	view_listener_t::addMenu(new LLAdvancedTogglePropertyLines, "Advanced.TogglePropertyLines");
 
 	// Advanced > World
 	view_listener_t::addMenu(new LLAdvancedDumpScriptedCamera(), "Advanced.DumpScriptedCamera");
