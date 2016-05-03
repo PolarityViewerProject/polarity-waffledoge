@@ -29,6 +29,8 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "pvdata.h"
+// ReSharper disable once CppUnusedIncludeDirective
+#include "pvconstants.h"
 
 /* boost: will not compile unless equivalent is undef'd, beware. */
 #include "fix_macros.h"
@@ -41,8 +43,6 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llfloaterabout.h"
-
-#include "pvconstants.h"
 
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
@@ -552,7 +552,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		if (lockdown_uuid != LLUUID::null)
 		{
 			PVDataErrorMessage = "Something went wrong, and the authentication checks have failed.";
-			return false
+			return false;
 		}
 		signed int av_flags = getAgentFlags(avatar_id);
 		//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
@@ -603,8 +603,8 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 			}
 		}
 	}
-	LL_WARNS("PVData") << "[PVDataErrorMessage] " << PVDataErrorMessage << LL_ENDL;
-	return false;
+	//LL_WARNS("PVData") << "[PVDataErrorMessage] " << PVDataErrorMessage << LL_ENDL;
+	//return false;
 }
 
 bool PVData::isBlockedRelease()
@@ -722,7 +722,10 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 }
 
 // ReSharper disable CppAssignedValueIsNeverUsed
+// ReSharper disable once CppParameterValueIsReassigned
+// ReSharper disable CppEntityAssignedButNoRead
 bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
+// ReSharper restore CppEntityAssignedButNoRead
 {
 	if (!this->hasColor(avatar_id))
 		return false;
@@ -739,6 +742,7 @@ bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
 	return false;
 }
 // ReSharper restore CppAssignedValueIsNeverUsed
+// Resharper restore CppEntityAssignedButNoRead
 
 std::string PVData::getAgentTitle(const LLUUID& avatar_id)
 {
