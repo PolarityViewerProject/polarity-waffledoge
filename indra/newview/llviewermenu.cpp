@@ -7759,14 +7759,13 @@ class LLAdvancedToggleDoubleClickTeleport: public view_listener_t
 	{
 		BOOL checked = gSavedSettings.getBOOL("DoubleClickTeleport");
 		LLSD args;
+		gSavedSettings.setBOOL("DoubleClickTeleport", !checked);
 		if (checked)
 		{
-			gSavedSettings.setBOOL("DoubleClickTeleport", FALSE);
 			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportDisabled");
 		}
 		else
 		{
-			gSavedSettings.setBOOL("DoubleClickTeleport", TRUE);
 			gSavedSettings.setBOOL("DoubleClickAutoPilot", FALSE);
 			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportEnabled");
 		}
@@ -7779,13 +7778,10 @@ class LLAdvancedTogglePropertyLines: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		if (gSavedSettings.getBOOL("ShowPropertyLines"))
+		bool checked = gSavedSettings.getBOOL("ShowPropertyLines");
+		gSavedSettings.setBOOL("ShowPropertyLines", !checked);
+		if(!checked)
 		{
-			gSavedSettings.setBOOL("ShowPropertyLines", FALSE);
-		}
-		else
-		{
-			gSavedSettings.setBOOL("ShowPropertyLines", TRUE);
 			LLSD args;
 			args["MESSAGE"] = LLTrans::getString("PropertyLinesEnabled");
 			LLNotificationsUtil::add("SystemMessageTip", args);
