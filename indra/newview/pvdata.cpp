@@ -572,7 +572,6 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		{
 			return true;
 		}
-#endif // RELEASE_BUILD
 		else
 		{
 			LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
@@ -604,6 +603,12 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 				return false;
 			}
 		}
+#else
+		else
+		{
+			return true;
+		}
+#endif // RELEASE_BUILD
 	}
 	//LL_WARNS("PVData") << "[PVDataErrorMessage] " << PVDataErrorMessage << LL_ENDL;
 	//return false;
