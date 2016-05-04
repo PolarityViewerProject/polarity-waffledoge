@@ -1051,7 +1051,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>0</real>
+      <integer>0</integer>
     </map>
     <key>PVUI_MinimapGuideLine</key>
     <map>
@@ -1084,7 +1084,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <real>1</real>
+      <integer>1</integer>
     </map>
     <key>PVUI_ProgressTipTimer</key>
     <map>
@@ -1205,7 +1205,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <real>3.0</real>
     </map>
     <key>PVWindLight_Parcel_AlwaysUseRegion</key>
     <map>
