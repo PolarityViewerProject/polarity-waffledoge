@@ -2301,8 +2301,8 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 // [/SL:KB]
 				{
 					//BD - Fudge Factor
-					gSavedSettings.setS32("WindowWidth", (width + 16));
-					gSavedSettings.setS32("WindowHeight", (height + 38));
+					gSavedSettings.setU32("WindowWidth", (width + 16));
+					gSavedSettings.setU32("WindowHeight", (height + 38));
 				}
 // [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Modified: Catznip-2.1.2a
 				}
