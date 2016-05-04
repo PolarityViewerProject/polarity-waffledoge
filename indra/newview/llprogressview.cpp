@@ -33,10 +33,8 @@
 #include "llgl.h"
 #include "llrender.h"
 #include "llui.h"
-#include "llfontgl.h"
 #include "lltimer.h"
 #include "lltextbox.h"
-#include "llglheaders.h"
 
 #include "llagent.h"
 #include "llbutton.h"
@@ -46,12 +44,11 @@
 #include "llprogressbar.h"
 #include "llstartup.h"
 #include "llviewercontrol.h"
-#include "llviewertexturelist.h"
 #include "llviewerwindow.h"
 #include "llappviewer.h"
 #include "llweb.h"
-#include "lluictrlfactory.h"
 #include "llpanellogin.h"
+#include "llviewertexture.h"
 
 #include "pvdata.h"
 

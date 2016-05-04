@@ -48,10 +48,8 @@
 #include "llsky.h"
 #include "llstartup.h"
 #include "lltoolfocus.h"
-#include "lltoolmgr.h"
 #include "lltooldraganddrop.h"
 #include "lltoolpie.h"
-#include "lltracker.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llviewercamera.h"
@@ -59,33 +57,27 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
-#include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llappviewer.h"
-#include "llstartup.h"
 #include "llviewershadermgr.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
 #include "llviewertexturelist.h"
 #include "llfocusmgr.h"
-#include "llcubemap.h"
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolbump.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
-#include "llpostprocess.h"
 #include "llscenemonitor.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
-#include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "llprogressview.h"
@@ -1108,7 +1100,7 @@ void render_hud_attachments()
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
 		LLPipeline::sRenderingHUDs = TRUE;
-		LLCamera hud_cam = *LLViewerCamera::getInstance();
+		LLCamera hud_cam = static_cast<LLCamera>(*LLViewerCamera::getInstance());
 		hud_cam.setOrigin(-1.f,0,0);
 		hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
 		LLViewerCamera::updateFrustumPlanes(hud_cam, TRUE);

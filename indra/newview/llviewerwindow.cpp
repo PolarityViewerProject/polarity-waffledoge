@@ -29,9 +29,6 @@
 
 
 // system library includes
-#include <stdio.h>
-#include <iostream>
-#include <fstream>
 #include <algorithm>
 #include <boost/lambda/core.hpp>
 #include <boost/regex.hpp>
@@ -47,8 +44,6 @@
 #include "llviewerkeyboard.h"
 #include "llviewermenu.h"
 
-#include "llviewquery.h"
-#include "llxmltree.h"
 #include "llslurl.h"
 #include "llrender.h"
 
@@ -62,7 +57,6 @@
 #include "llaudioengine.h"		// mute on minimize
 #include "llchatentry.h"
 #include "indra_constants.h"
-#include "llassetstorage.h"
 #include "llerrorcontrol.h"
 #include "llfontgl.h"
 #include "llmousehandler.h"
@@ -74,16 +68,13 @@
 #include "llview.h"
 #include "llxfermanager.h"
 #include "message.h"
-#include "object_flags.h"
 #include "lltimer.h"
-#include "llviewermenu.h"
 #include "lltooltip.h"
 #include "llmediaentry.h"
 #include "llurldispatcher.h"
 #include "raytrace.h"
 
 // newview includes
-#include "llagent.h"
 #include "llbox.h"
 #include "llchicletbar.h"
 #include "llconsole.h"
@@ -101,28 +92,17 @@
 #include "llfilepicker.h"
 #include "llfirstuse.h"
 #include "llfloater.h"
-#include "llfloaterbuildoptions.h"
-#include "llfloaterbuyland.h"
 #include "llfloatercamera.h"
-#include "llfloaterland.h"
-#include "llfloaterinspect.h"
-#include "llfloatermap.h"
-#include "llfloaternamedesc.h"
 #include "llfloaterpreference.h"
 #include "llfloatersnapshot.h"
 #include "llfloatertools.h"
-#include "llfloaterworldmap.h"
 #include "llfocusmgr.h"
 #include "llfontfreetype.h"
 #include "llgesturemgr.h"
 #include "llglheaders.h"
-#include "lltooltip.h"
-#include "llhudmanager.h"
 #include "llhudobject.h"
 #include "llhudview.h"
 #include "llimagebmp.h"
-#include "llimagej2c.h"
-#include "llimageworker.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"
 #include "llmenugl.h"
@@ -131,50 +111,35 @@
 #include "llmorphview.h"
 #include "llmoveview.h"
 #include "llnavigationbar.h"
-#include "llnotificationhandler.h"
 #include "llpaneltopinfobar.h"
 #include "llpopupview.h"
-#include "llpreviewtexture.h"
 #include "llprogressview.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llrootview.h"
 #include "llrendersphere.h"
-#include "llstartup.h"
 #include "llstatusbar.h"
-#include "llstatview.h"
 #include "llsurface.h"
-#include "llsurfacepatch.h"
 #include "lltexlayer.h"
-#include "lltextbox.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "lltexturecache.h"
 #include "lltexturefetch.h"
-#include "lltextureview.h"
 #include "lltoast.h"
 #include "lltool.h"
 #include "lltoolbarview.h"
 #include "lltoolcomp.h"
 #include "lltooldraganddrop.h"
-#include "lltoolface.h"
 #include "lltoolfocus.h"
-#include "lltoolgrab.h"
 #include "lltoolmgr.h"
 #include "lltoolmorph.h"
 #include "lltoolpie.h"
-#include "lltoolselectland.h"
 #include "lltrans.h"
 #include "lluictrlfactory.h"
-#include "llurldispatcher.h"		// SLURL from other app instance
-#include "llversioninfo.h"
 #include "llvieweraudio.h"
 #include "llviewercamera.h"
 #include "llviewergesture.h"
 #include "llviewertexturelist.h"
-#include "llviewerinventory.h"
-#include "llviewerkeyboard.h"
 #include "llviewermedia.h"
-#include "llviewermediafocus.h"
-#include "llviewermenu.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -194,20 +159,17 @@
 #include "llviewernetwork.h"
 #include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
-#include "llagentui.h"
 #include "llwearablelist.h"
 
 #include "llviewereventrecorder.h"
 
 #include "llnotifications.h"
 #include "llnotificationsutil.h"
-#include "llnotificationmanager.h"
 
 #include "llfloaternotificationsconsole.h"
 
 #include "llwindowlistener.h"
 #include "llviewerwindowlistener.h"
-#include "llpaneltopinfobar.h"
 
 // [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c)
 #include "rlvhandler.h"
@@ -5368,19 +5330,20 @@ LLPickInfo::LLPickInfo()
 	: mKeyMask(MASK_NONE),
 	  mPickCallback(NULL),
 	  mPickType(PICK_INVALID),
-	  mWantSurfaceInfo(FALSE),
 	  mObjectFace(-1),
+	  mHUDIcon(NULL),
+	  mIntersection(),
 	  mUVCoords(-1.f, -1.f),
 	  mSTCoords(-1.f, -1.f),
 	  mXYCoords(-1, -1),
-	  mIntersection(),
 	  mNormal(),
 	  mTangent(),
 	  mBinormal(),
-	  mHUDIcon(NULL),
 	  mPickTransparent(FALSE),
 	  mPickRigged(FALSE),
-	  mPickParticle(FALSE)
+	  mPickParticle(FALSE),
+	  mPickUnselectable(0),
+	  mWantSurfaceInfo(FALSE)
 {
 }
 
