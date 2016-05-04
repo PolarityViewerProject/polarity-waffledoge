@@ -41,4 +41,15 @@
              function="CheckNavigationBar"
              parameter="0" />
     </menu_item_check>
+    <menu_item_check
+         label="Show Currency Balance"
+         layout="topleft"
+         name="PVUI_ShowCurrencyBalanceInStatusBar">
+           <on_click
+             function="ToggleControl"
+             parameter="PVUI_ShowCurrencyBalanceInStatusBar" /> 
+             <on_check
+             function="CheckControl"
+             parameter="PVUI_ShowCurrencyBalanceInStatusBar" />
+    </menu_item_check>
 </menu>

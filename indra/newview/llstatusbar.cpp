@@ -330,7 +330,7 @@ void LLStatusBar::refresh()
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
-	getChild<LLUICtrl>("balance_bg")->setVisible(visible);
+	getChild<LLUICtrl>("balance_bg")->setVisible(visible && gSavedSettings.getBOOL("PVUI_ShowCurrencyBalanceInStatusBar"));
 	mBoxBalance->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);

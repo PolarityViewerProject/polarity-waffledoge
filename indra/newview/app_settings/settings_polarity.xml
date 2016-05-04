@@ -1061,6 +1061,17 @@
       <key>Value</key>
       <real>1</real>
     </map>
+    <key>PVUI_ShowCurrencyBalanceInStatusBar</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the current balance in the statusbar if enabled</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_ShowServerVersionChangeNotice</key>
     <map>
       <key>Comment</key>

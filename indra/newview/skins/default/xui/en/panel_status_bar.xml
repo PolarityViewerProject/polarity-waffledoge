@@ -43,6 +43,7 @@
     width="140"
     top="1"
     follows="right|top" 
+    visibility_control="PVUI_ShowCurrencyBalanceInStatusBar"
     name="balance_bg">
     <text
      halign="center"
