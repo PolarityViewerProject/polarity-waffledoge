@@ -151,74 +151,74 @@ void PVData::downloadAgents()
 
 void PVData::handleServerResponse(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure)
 {
-	LL_DEBUGS("PVDataHTTP") << "Examining HTTP response for " << http_source_url << LL_ENDL;
-	LL_DEBUGS("PVDataHTTP") << "http_content=" << http_content << LL_ENDL;
-	LL_DEBUGS("PVDataHTTP") << "http_source_url=" << http_source_url << LL_ENDL;
-	LL_DEBUGS("PVDataHTTP") << "data_file_name=" << data_file_name << LL_ENDL;
-	LL_DEBUGS("PVDataHTTP") << "parse_failure=" << parse_failure << LL_ENDL;
-	LL_DEBUGS("PVDataHTTP") << "http_failure=" << http_failure << LL_ENDL;
+	LL_DEBUGS("PVData") << "Examining HTTP response for " << http_source_url << LL_ENDL;
+	LL_DEBUGS("PVData") << "http_content=" << http_content << LL_ENDL;
+	LL_DEBUGS("PVData") << "http_source_url=" << http_source_url << LL_ENDL;
+	LL_DEBUGS("PVData") << "data_file_name=" << data_file_name << LL_ENDL;
+	LL_DEBUGS("PVData") << "parse_failure=" << parse_failure << LL_ENDL;
+	LL_DEBUGS("PVData") << "http_failure=" << http_failure << LL_ENDL;
 
 	std::string expected_url = mPVDataRemoteURLBase + data_file_name;
 	if (http_source_url != expected_url)
 	{
 		// something isn't quite right
-		LL_ERRS("PVDataHTTP") << "Received " << http_source_url << " which was not expected (expecting " << expected_url << "). Aborting!" << LL_ENDL;
+		LL_ERRS("PVData") << "Received " << http_source_url << " which was not expected (expecting " << expected_url << "). Aborting!" << LL_ENDL;
 	}
 	else
 	{
 		if (data_file_name == "data.xml")
 		{
-			LL_DEBUGS("PVDataHTTP") << "Received a DATA file" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Received a DATA file" << LL_ENDL;
 			if (http_failure)
 			{
 				handleDataFailure();
 			}
 			else if (!http_failure && parse_failure)
 			{
-				LL_WARNS("PVDataHTTP") << "Parse failure, aborting." << LL_ENDL;
+				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
 			}
 			else if (!http_failure && !parse_failure)
 			{
-				LL_DEBUGS("PVDataHTTP") << "Loading " << http_source_url << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << "~~~~~~~~ PVDATA (web) ~~~~~~~~" << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << http_content << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << "~~~~~~~~ END OF PVDATA (web) ~~~~~~~~" << LL_ENDL;
+				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
+				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA (web) ~~~~~~~~" << LL_ENDL;
+				LL_DEBUGS("PVData") << http_content << LL_ENDL;
+				LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA (web) ~~~~~~~~" << LL_ENDL;
 				//eDataParseStatus = INIT; // Don't reset here, that would defeat the purpose.
 				parsePVData(http_content);
 			}
 			else
 			{
-				LL_ERRS("PVDataHTTP") << "Something unexpected happened!" << LL_ENDL;
+				LL_ERRS("PVData") << "Something unexpected happened!" << LL_ENDL;
 			}
 		}
 		else if (data_file_name == "agents.xml")
 		{
-			LL_DEBUGS("PVDataHTTP") << "Received an AGENTS file" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Received an AGENTS file" << LL_ENDL;
 			if (http_failure || parse_failure)
 			{
 				handleAgentsFailure();
 			}
 			else if (!http_failure && parse_failure)
 			{
-				LL_WARNS("PVDataHTTP") << "Parse failure, aborting." << LL_ENDL;
+				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
 			}
 			else if (!http_failure && !parse_failure)
 			{
-				LL_DEBUGS("PVDataHTTP") << "Loading " << http_source_url << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << http_content << LL_ENDL;
-				LL_DEBUGS("PVDataHTTP") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
+				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+				LL_DEBUGS("PVData") << http_content << LL_ENDL;
+				LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
 				//eAgentsParseStatus = INIT; // Don't reset here, that would defeat the purpose.
 				parsePVAgents(http_content);
 			}
 			else
 			{
-				LL_ERRS("PVDataHTTP") << "Something unexpected happened!" << LL_ENDL;
+				LL_ERRS("PVData") << "Something unexpected happened!" << LL_ENDL;
 			}
 		}
 		else
 		{
-			LL_ERRS("PVDataHTTP") << "Received file didn't match any expected patterns, aborting." << LL_ENDL;
+			LL_ERRS("PVData") << "Received file didn't match any expected patterns, aborting." << LL_ENDL;
 		}
 	}
 }
@@ -233,7 +233,7 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 
 bool PVData::canParse(const size_t& status_container) const
 {
-	LL_DEBUGS("PVDataParser") << "Checking parse status" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Checking parse status" << LL_ENDL;
 	bool safe_to_parse = false;
 	switch (status_container)
 	{
@@ -241,16 +241,16 @@ bool PVData::canParse(const size_t& status_container) const
 		safe_to_parse = true;
 		break;
 		case PARSING:
-		LL_WARNS("PVDataParser") << "Parser is already running, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
+		LL_WARNS("PVData") << "Parser is already running, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
 		//safe_to_parse = false;
 		break;
 		case OK:
-		LL_WARNS("PVDataParser") << "Parser already completed, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
+		LL_WARNS("PVData") << "Parser already completed, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
 		//safe_to_parse = false;
 		break;
 		// TODO: Handle the other possible errors here once the checks for those have been implemented.
 		default:
-		LL_WARNS("PVDataParser") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << eAgentsParseStatus << "')" << LL_ENDL;
+		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << eAgentsParseStatus << "')" << LL_ENDL;
 		break;
 	}
 
@@ -260,14 +260,14 @@ bool PVData::canParse(const size_t& status_container) const
 void PVData::handleDataFailure()
 {
 	// Ideally, if data is not present, the user should be treated as a normal resident
-	LL_WARNS("PVDataHTTP") << "Something went wrong downloading data file" << LL_ENDL;
+	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
 
 	gAgent.mMOTD.assign("Nyaaaaaaa~");
 	eDataParseStatus = OK;
 }
 void PVData::handleAgentsFailure()
 {
-	LL_WARNS("PVDataHTTP") << "Something went wrong downloading agents file" << LL_ENDL;
+	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
 
 	// we might want to remove this before release...
 	mAgentAccess[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = 1;
@@ -282,22 +282,22 @@ void PVData::handleAgentsFailure()
 
 void PVData::parsePVData(const LLSD& data_input)
 {
-	LL_DEBUGS("PVDataParser") << "Entering Parser function" << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << "~~~~~~~~ PARSER ~~~~~~~~" << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << data_input << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << "~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Entering Parser function" << LL_ENDL;
+	LL_DEBUGS("PVData") << "~~~~~~~~ PARSER ~~~~~~~~" << LL_ENDL;
+	LL_DEBUGS("PVData") << data_input << LL_ENDL;
+	LL_DEBUGS("PVData") << "~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
 	// Make sure we don't accidentally parse multiple times. Remember to reset eDataParseStatus when parsing is needed again.
 	if (!canParse(eDataParseStatus))
 	{
 		// FIXME: why do we get 'eDataParseStatus==PARSING' BEFORE it's actually being set? (see below)
 		return;
 	}
-	LL_DEBUGS("PVDataParser") << "Beginning to parse Data" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Beginning to parse Data" << LL_ENDL;
 	eDataParseStatus = PARSING;
-	LL_DEBUGS("PVDataParser") << "Attempting to find Blocked Releases" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Blocked Releases" << LL_ENDL;
 	if (data_input.has("BlockedReleases"))
 	{
-		LL_DEBUGS("PVDataParser") << "Populating Blocked Releases list..." << LL_ENDL;
+		LL_DEBUGS("PVData") << "Populating Blocked Releases list..." << LL_ENDL;
 		const LLSD& blocked = data_input["BlockedReleases"];
 		for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
 		{
@@ -305,19 +305,19 @@ void PVData::parsePVData(const LLSD& data_input)
 			const LLSD& reason = iter->second;
 			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
 			mBlockedVersions[version] = reason;
-			LL_DEBUGS("PVDataParser") << "Added " << version << " to mBlockedVersions with reason '" << reason << "'" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Added " << version << " to mBlockedVersions with reason '" << reason << "'" << LL_ENDL;
 
-			LL_DEBUGS("PVDataParser") << "Dumping map contents" << LL_ENDL;
-			LL_DEBUGS("PVDataParser") << "~~~~~~~~ mBlockedVersions ~~~~~~~~" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Dumping map contents" << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ mBlockedVersions ~~~~~~~~" << LL_ENDL;
 			for (const auto &p : mBlockedVersions) {
-				LL_DEBUGS("PVDataParser") << "mBlockedVersions[" << p.first << "] = " << p.second << LL_ENDL;
+				LL_DEBUGS("PVData") << "mBlockedVersions[" << p.first << "] = " << p.second << LL_ENDL;
 			}
-			LL_DEBUGS("PVDataParser") << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
 		}
 	}
 	if (data_input.has("MinimumVersion"))
 	{
-		LL_DEBUGS("PVDataParser") << "Getting minimum version..." << LL_ENDL;
+		LL_DEBUGS("PVData") << "Getting minimum version..." << LL_ENDL;
 		const LLSD& min_version = data_input["MinimumVersion"];
 		for (LLSD::map_const_iterator iter = min_version.beginMap(); iter != min_version.endMap(); ++iter)
 		{
@@ -325,16 +325,16 @@ void PVData::parsePVData(const LLSD& data_input)
 			const LLSD& reason = iter->second;
 			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
 			mMinimumVersion[version] = reason;
-			LL_INFOS("PVDataParser") << "Minimum Version is " << version << LL_ENDL;
+			LL_INFOS("PVData") << "Minimum Version is " << version << LL_ENDL;
 		}
 	}
 
 #if PVDATA_MOTD
 	// Set Message Of The Day if present
-	LL_DEBUGS("PVDataParser") << "Attempting to find MOTD data" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find MOTD data" << LL_ENDL;
 	if (data_input.has("MOTD"))
 	{
-		LL_DEBUGS("PVDataParser") << "Found a MOTD!" << LL_ENDL;
+		LL_DEBUGS("PVData") << "Found a MOTD!" << LL_ENDL;
 		gAgent.mMOTD.assign(data_input["MOTD"]);
 	}
 #if PVDATA_MOTD_CHAT
@@ -348,7 +348,7 @@ void PVData::parsePVData(const LLSD& data_input)
 #endif // PVDATA_MOTD_CHAT
 
 	// If the event falls within the current date, use that for MOTD instead.
-	LL_DEBUGS("PVDataParser") << "Attempting to find Events data" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Events data" << LL_ENDL;
 	if (data_input.has("EventsMOTD"))
 	{
 		const LLSD& events = data_input["EventsMOTD"];
@@ -356,11 +356,11 @@ void PVData::parsePVData(const LLSD& data_input)
 		{
 			std::string name = iter->first;
 			const LLSD& content = iter->second;
-			LL_DEBUGS("PVDataParser") << "Found event MOTD: " << name << LL_ENDL;
+			LL_DEBUGS("PVData") << "Found event MOTD: " << name << LL_ENDL;
 
 			if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
 			{
-				LL_DEBUGS("PVDataParser") << "Setting MOTD to " << name << LL_ENDL;
+				LL_DEBUGS("PVData") << "Setting MOTD to " << name << LL_ENDL;
 				// TODO: Shove into notification well.
 				gAgent.mMOTD.assign(content["EventMOTD"]); // note singular instead of plural above
 				break; // Only use the first one found.
@@ -372,10 +372,10 @@ void PVData::parsePVData(const LLSD& data_input)
 
 	// TODO: Split tips files
 	// <polarity> Load the progress screen tips
-	LL_DEBUGS("PVDataParser") << "Attempting to find Progress Tip data" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Progress Tip data" << LL_ENDL;
 	if (data_input.has("ProgressTip"))
 	{
-		LL_DEBUGS("PVDataParser") << "Found Progress Tips!" << LL_ENDL;
+		LL_DEBUGS("PVData") << "Found Progress Tips!" << LL_ENDL;
 		// Store list for later use
 		memoryResidentProgressTips = data_input["ProgressTip"];
 		gAgent.mMOTD.assign(getNewProgressTipForced());
@@ -383,7 +383,7 @@ void PVData::parsePVData(const LLSD& data_input)
 #endif // PVDATA_PROGRESS_TIPS
 
 	eDataParseStatus = OK;
-	LL_INFOS("PVDataParser") << "Done parsing data" << LL_ENDL;
+	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
 }
 
 std::string PVData::getNewProgressTipForced()
@@ -393,16 +393,16 @@ std::string PVData::getNewProgressTipForced()
 	if (tip_iter == memoryResidentProgressTips.endArray())
 		return "";
 	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(memoryResidentProgressTips.size()))))->asString();
-	LL_INFOS("PVDataParser") << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
+	LL_INFOS("PVData") << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
 	return random_tip;
 }
 
 void PVData::parsePVAgents(const LLSD& data_input)
 {
-	LL_INFOS("PVDataParser") << "Beginning to parse Agents" << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << "~~~~~~~~ PARSER ~~~~~~~~" << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << data_input << LL_ENDL;
-	LL_DEBUGS("PVDataParser") << "~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
+	LL_INFOS("PVData") << "Beginning to parse Agents" << LL_ENDL;
+	LL_DEBUGS("PVData") << "~~~~~~~~ PARSER ~~~~~~~~" << LL_ENDL;
+	LL_DEBUGS("PVData") << data_input << LL_ENDL;
+	LL_DEBUGS("PVData") << "~~~~~~~~~~~~~~~~~~~~~~~~" << LL_ENDL;
 	// Make sure we don't accidentally parse multiple times. Remember to reset eDataParseStatus when parsing is needed again.
 	if (!canParse(eAgentsParseStatus))
 	{
@@ -410,51 +410,51 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	}
 
 	eAgentsParseStatus = PARSING;
-	LL_DEBUGS("PVDataParser") << "Attempting to find Agents Access" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Agents Access" << LL_ENDL;
 	if (data_input.has("AgentAccess"))
 	{
-		LL_DEBUGS("PVDataParser") << "Found Agents data" << LL_ENDL;
+		LL_DEBUGS("PVData") << "Found Agents data" << LL_ENDL;
 		// Populate the SpecialAgents array with the key-flag associations
 		const LLSD& agents_list = data_input["AgentAccess"];
 		for (LLSD::map_const_iterator iter = agents_list.beginMap(); iter != agents_list.endMap(); ++iter)
 		{
 			LLUUID key = LLUUID(iter->first);
-			LL_DEBUGS("PVDataParser") << "Feeding '" << key << "' to the parser" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Feeding '" << key << "' to the parser" << LL_ENDL;
 			mAgentAccess[key] = iter->second.asInteger();
-			LL_DEBUGS("PVDataParser") << "Added " << key << " with flag \'" << mAgentAccess[key] << "\'" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Added " << key << " with flag \'" << mAgentAccess[key] << "\'" << LL_ENDL;
 		}
 	}
-	LL_DEBUGS("PVDataParser") << "Attempting to find Agents Titles" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Agents Titles" << LL_ENDL;
 	if (data_input.has("AgentTitles"))
 	{
-		LL_DEBUGS("PVDataParser") << "Found Agents Titles" << LL_ENDL;
+		LL_DEBUGS("PVData") << "Found Agents Titles" << LL_ENDL;
 		const LLSD& titles_list = data_input["AgentTitles"];
 		for (LLSD::map_const_iterator iter = titles_list.beginMap(); iter != titles_list.endMap(); ++iter)
 		{
 			LLUUID key = LLUUID(iter->first);
-			LL_DEBUGS("PVDataParser") << "Feeding '" << key << "' to the parser" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Feeding '" << key << "' to the parser" << LL_ENDL;
 			mAgentTitles[key] = iter->second.asString();
-			LL_DEBUGS("PVDataParser") << "Added " << key << " with title \'" << mAgentTitles[key] << "\'" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Added " << key << " with title \'" << mAgentTitles[key] << "\'" << LL_ENDL;
 		}
 	}
-	LL_DEBUGS("PVDataParser") << "Attempting to find Agents Colors" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Attempting to find Agents Colors" << LL_ENDL;
 	if (data_input.has("AgentColors"))
 	{
-		LL_DEBUGS("PVDataParser") << "Found Agents Colors" << LL_ENDL;
+		LL_DEBUGS("PVData") << "Found Agents Colors" << LL_ENDL;
 		const LLSD& data = data_input["AgentColors"];
-		LL_DEBUGS("PVDataParser") << "~~~~~~~~~~~~~~~~ AgentColors ~~~~~~~~~~~~~~~~" << "\n"
+		LL_DEBUGS("PVData") << "~~~~~~~~~~~~~~~~ AgentColors ~~~~~~~~~~~~~~~~" << "\n"
 			<< data << "\n"
 			<< "~~~~~~~~~~~~  END OF AgentColors ~~~~~~~~~~~~" << "\n"
 			<< LL_ENDL;
 		for (LLSD::map_const_iterator iter = data.beginMap(); iter != data.endMap(); ++iter)
 		{
 			LLUUID key = LLUUID(iter->first);
-			LL_DEBUGS("PVDataParser") << "Feeding '" << key << "' to the parser" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Feeding '" << key << "' to the parser" << LL_ENDL;
 			LLColor4 color;
 			LLColor4::parseColor4(iter->second, &color);
 			// TODO: Write unit tests to make sure this is a LLColor4.
 			mAgentColors[key] = static_cast<LLColor4>(color);
-			LL_DEBUGS("PVDataParser") << "Added " << key << " with color \'" << color << "\'" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Added " << key << " with color \'" << color << "\'" << LL_ENDL;
 		}
 	}
 
@@ -464,12 +464,12 @@ void PVData::parsePVAgents(const LLSD& data_input)
 		for (LLSD::map_const_iterator itr = support_groups.beginMap(); itr != support_groups.endMap(); ++itr)
 		{
 			mSupportGroup.insert(LLUUID(itr->first));
-			LL_DEBUGS("PVDataParser") << "Added " << itr->first << " to mSupportGroup" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Added " << itr->first << " to mSupportGroup" << LL_ENDL;
 		}
 	}
 
 	eAgentsParseStatus = OK;
-	LL_INFOS("PVDataParser") << "Done parsing agents" << LL_ENDL;
+	LL_INFOS("PVData") << "Done parsing agents" << LL_ENDL;
 	//autoMuteFlaggedAgents();
 }
 
