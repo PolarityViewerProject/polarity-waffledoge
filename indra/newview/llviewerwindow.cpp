@@ -4491,6 +4491,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		// If the user wants the UI, limit the output size to the available screen size
 		image_width  = llmin(image_width, window_width);
 		image_height = llmin(image_height, window_height);
+		// <polarity> PLVR-7 Hide currency balance in snapshots
+		gStatusBar->showBalance((bool)gSavedSettings.getBOOL("PVUI_ShowCurrencyBalanceInSnapshots"));
 	}
 
 	S32 original_width = 0;
@@ -4564,10 +4566,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	else
 	{
+		gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
 		return FALSE ;
 	}
 	if (raw->isBufferInvalid())
 	{
+		gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
 		return FALSE ;
 	}
 
@@ -4743,6 +4747,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_resume();
 	}
 	
+	gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
 	return ret;
 }
 

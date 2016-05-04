@@ -86,6 +86,7 @@ public:
 
 	LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
 
+	void showBalance(bool show); // <polarity> PLVR-7 Hide currency balance in snapshots
 private:
 	
 	void onClickBuyCurrency();

@@ -1072,6 +1072,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_ShowCurrencyBalanceInSnapshots</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the current balance in snapshots if enabled</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_ShowServerVersionChangeNotice</key>
     <map>
       <key>Comment</key>

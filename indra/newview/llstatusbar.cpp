@@ -441,6 +441,13 @@ void LLStatusBar::setHealth(S32 health)
 	mHealth = health;
 }
 
+// <polarity> PLVR-7 Hide currency balance in snapshots
+void LLStatusBar::showBalance(bool show)
+{
+	mBoxBalance->setVisible(show);
+}
+// </polarity>
+
 S32 LLStatusBar::getBalance() const
 {
 	return mBalance;
