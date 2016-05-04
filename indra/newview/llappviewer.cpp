@@ -262,6 +262,7 @@
 
 #include "pvconstants.h"
 #include "sanitycheck.h"
+#include "pvdata.h"
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -5240,7 +5241,9 @@ void LLAppViewer::idle()
 
 	// Execute deferred tasks.
 	LLDeferredTaskList::instance().run();
-	
+
+	PVData::instance().refreshDataFromServer(false);
+
 	// Handle shutdown process, for example, 
 	// wait for floaters to close, send quit message,
 	// forcibly quit if it has taken too long

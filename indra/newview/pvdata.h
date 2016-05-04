@@ -122,7 +122,8 @@ public:
 
 	// Returns ALL the agent's flags as a comma-separated string.
 	std::string getAgentFlagsAsString(const LLUUID& avatar_id);
-
+	void startRefreshTimer();
+	bool refreshDataFromServer(bool force_refresh_now);
 	// Returns the agent title as a string
 	std::string getAgentTitle(const LLUUID& avatar_id);
 
@@ -189,6 +190,7 @@ private:
 	// Cache the variables that get inserted in the HTTP headers to avoid calling the functions every time an object is created
 	std::string mPVDataUserAgent;
 	std::string mPVDataViewerVersion;
+	LLFrameTimer mPVDataRefreshTimer;
 
 	// Data parsing status
 	enum eParseStatusList
@@ -200,7 +202,8 @@ private:
 		OK = 2,
 		// Errors
 		PARSE_FAILURE = 3,
-		LOCAL_MISSING = 4,
+		//LOCAL_MISSING = 4,
+		DOWNLOAD_FAILURE,
 		UNDEFINED = 999
 	};
 
@@ -210,8 +213,16 @@ private:
 	// Agents parse status
 	size_t eAgentsParseStatus = INIT;
 
+	// Data parse status
+	size_t eDataDownloadStatus = INIT;
+
+	// Agents parse status
+	size_t eAgentsDownloadStatus = INIT;
+
 	// Check if it's safe to parse data
-	bool canParse(const size_t& status_container) const;
+	bool canParse(size_t& status_container) const;
+
+	bool canDownload(size_t & status_container) const;
 
 	// [URL COMPONENT]
 	// This is the URL where the PVData data is downloaded from, minus filename

@@ -116,9 +116,9 @@ private:
 // ##     ## ##     ## ##  ##  ## ##   ### ##       ##     ## ##     ## ##     ## ##       ##    ##
 // ########   #######   ###  ###  ##    ## ########  #######  ##     ## ########  ######## ##     ##
 
-PVData::PVData() :
-	eDataParseStatus(INIT),
-	eAgentsParseStatus(INIT)
+PVData::PVData()
+	//eDataParseStatus(INIT),
+	//eAgentsParseStatus(INIT)
 {
 }
 
@@ -141,12 +141,20 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 
 void PVData::downloadData()
 {
-	modularDownloader("data.xml");
+	if (PVData::canDownload(eDataDownloadStatus))
+	{
+		eDataParseStatus = INIT;
+		modularDownloader("data.xml");
+	}
 }
 
 void PVData::downloadAgents()
 {
-	modularDownloader("agents.xml");
+	if (PVData::canDownload(eAgentsDownloadStatus))
+	{
+		eAgentsParseStatus = INIT;
+		modularDownloader("agents.xml");
+	}
 }
 
 void PVData::handleServerResponse(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure)
@@ -173,12 +181,18 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 			{
 				handleDataFailure();
 			}
-			else if (!http_failure && parse_failure)
+			else
+			{
+				eDataDownloadStatus = OK;
+			}
+			if (!http_failure && parse_failure)
 			{
 				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
+				eDataParseStatus = PARSE_FAILURE;
 			}
 			else if (!http_failure && !parse_failure)
 			{
+				eDataParseStatus = INIT;
 				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
 				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA (web) ~~~~~~~~" << LL_ENDL;
 				LL_DEBUGS("PVData") << http_content << LL_ENDL;
@@ -194,16 +208,22 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 		else if (data_file_name == "agents.xml")
 		{
 			LL_DEBUGS("PVData") << "Received an AGENTS file" << LL_ENDL;
-			if (http_failure || parse_failure)
+			if (http_failure)
 			{
 				handleAgentsFailure();
 			}
-			else if (!http_failure && parse_failure)
+			else
+			{
+				eAgentsDownloadStatus = OK;
+			}
+			if (!http_failure && parse_failure)
 			{
 				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
+				eAgentsParseStatus = PARSE_FAILURE;
 			}
 			else if (!http_failure && !parse_failure)
 			{
+				eAgentsParseStatus = INIT;
 				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
 				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
 				LL_DEBUGS("PVData") << http_content << LL_ENDL;
@@ -231,7 +251,7 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 // ##        ##     ## ##    ##  ##    ## ##       ##    ##  ##    ##
 // ##        ##     ## ##     ##  ######  ######## ##     ##  ######
 
-bool PVData::canParse(const size_t& status_container) const
+bool PVData::canParse(size_t& status_container) const
 {
 	LL_DEBUGS("PVData") << "Checking parse status" << LL_ENDL;
 	bool safe_to_parse = false;
@@ -251,10 +271,50 @@ bool PVData::canParse(const size_t& status_container) const
 		// TODO: Handle the other possible errors here once the checks for those have been implemented.
 		default:
 		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << eAgentsParseStatus << "')" << LL_ENDL;
+		// TODO: Make sure this actually sets the variable...
+		status_container = UNDEFINED;
+		//safe_to_parse = false;
 		break;
 	}
 
 	return safe_to_parse;
+}
+
+bool PVData::canDownload(size_t& status_container) const
+{
+	LL_DEBUGS("PVData") << "Checking parse status" << LL_ENDL;
+	bool safe = false;
+	switch (status_container)
+	{
+	case INIT:
+		safe = true;
+		break;
+	case PARSING:
+		LL_WARNS("PVData") << "Download already in progress, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
+		//safe = false;
+		break;
+	case OK:
+		//LL_WARNS("PVData") << "Already downloaded, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
+		safe = true;
+		break;
+	case DOWNLOAD_FAILURE:
+		LL_WARNS("PVData") << "Failed to download and will retry later (STATUS='" << status_container << "')" << LL_ENDL;
+		safe = true;
+		break;
+		// TODO: Handle the other possible errors here once the checks for those have been implemented.
+	default:
+		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << eAgentsParseStatus << "')" << LL_ENDL;
+		// TODO: Make sure this actually sets the variable...
+		status_container = UNDEFINED;
+		//safe = false;
+		break;
+	}
+
+	if (!safe)
+	{
+		LL_WARNS("PVData") << "Download not safe, skipping!" << LL_ENDL;
+	}
+	return safe;
 }
 
 void PVData::handleDataFailure()
@@ -263,7 +323,7 @@ void PVData::handleDataFailure()
 	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
 
 	gAgent.mMOTD.assign("Nyaaaaaaa~");
-	eDataParseStatus = OK;
+	eDataDownloadStatus = DOWNLOAD_FAILURE;
 }
 void PVData::handleAgentsFailure()
 {
@@ -277,7 +337,7 @@ void PVData::handleAgentsFailure()
 	mAgentAccess[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = 32;
 	mAgentAccess[LLUUID("573129df-bf1b-46c2-9bcc-5dca94e328b2")] = 64;
 	mAgentAccess[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = 64;
-	eAgentsParseStatus = OK;
+	eAgentsDownloadStatus = DOWNLOAD_FAILURE;
 }
 
 void PVData::parsePVData(const LLSD& data_input)
@@ -822,4 +882,38 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 		LL_DEBUGS() << "User-friendly flags for " << avatar_id << ": '" << flags_string << "'" << LL_ENDL;
 	}
 	return flags_string;
+}
+
+void PVData::startRefreshTimer()
+{
+	//LL_INFOS("PVData") << "No forced refresh" << LL_ENDL;
+	if (!mPVDataRefreshTimer.getStarted())
+	{
+		LL_INFOS("PVData") << "Starting PVData refresh timer" << LL_ENDL;
+		mPVDataRefreshTimer.start();
+	}
+	else
+	{
+		LL_ERRS("PVData") << "Timer already started!" << LL_ENDL;
+	}
+}
+
+bool PVData::refreshDataFromServer(bool force_refresh_now)
+{
+	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
+	if (force_refresh_now || mPVDataRefreshTimer.getElapsedTimeF32() >= refresh_minutes * 60)
+	{
+		LL_DEBUGS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
+		PVData::instance().downloadData();
+
+		LL_DEBUGS("PVData") << "Attempting to live-refresh Agents data" << LL_ENDL;
+		PVData::instance().downloadAgents();
+		if (!force_refresh_now)
+		{
+			LL_DEBUGS("PVData") << "Resetting timer" << LL_ENDL;
+			mPVDataRefreshTimer.reset();
+		}
+		return true;
+	}
+	return false;
 }
