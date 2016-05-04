@@ -88,6 +88,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "llprogressview.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -439,6 +440,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// of TeleportRequest to the source simulator
 			gTeleportDisplayTimer.reset();
 			gViewerWindow->setShowProgress(TRUE);
+			// <polarity> Add missing call to put new message in TP screen
+			gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(
@@ -449,12 +452,16 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_REQUESTED:
 			// Waiting for source simulator to respond
 			gViewerWindow->setProgressPercent( llmin(teleport_percent, 37.5f) );
+			// <polarity> Add missing call to put new message in TP screen
+			gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			gViewerWindow->setProgressString(message);
 			break;
 
 		case LLAgent::TELEPORT_MOVING:
 			// Viewer has received destination location from source simulator
 			gViewerWindow->setProgressPercent( llmin(teleport_percent, 75.f) );
+			// <polarity> Add missing call to put new message in TP screen
+			gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			gViewerWindow->setProgressString(message);
 			break;
 
@@ -464,6 +471,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 			gViewerWindow->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
+			// <polarity> Add missing call to put new message in TP screen
+			gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			gAgent.setTeleportMessage(
 				LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
@@ -483,6 +492,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				}
 				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
+				// <polarity> Add missing call to put new message in TP screen
+				gViewerWindow->setProgressMessage(gAgent.mMOTD);
 				gViewerWindow->setProgressString(message);
 			}
 			break;

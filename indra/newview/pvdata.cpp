@@ -438,7 +438,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		LL_DEBUGS("PVData") << "Found Progress Tips!" << LL_ENDL;
 		// Store list for later use
 		memoryResidentProgressTips = data_input["ProgressTip"];
-		gAgent.mMOTD.assign(getNewProgressTipForced());
+		//gAgent.mMOTD.assign(getNewProgressTipForced());
 	}
 #endif // PVDATA_PROGRESS_TIPS
 

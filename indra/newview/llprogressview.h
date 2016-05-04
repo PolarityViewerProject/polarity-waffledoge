@@ -76,6 +76,8 @@ public:
 	static void onClickMessage(void*);
 	bool onAlertModal(const LLSD& sd);
 
+	std::string getNewProgressTip(const std::string msg_in);
+
 protected:
 	LLProgressBar* mProgressBar;
 	LLMediaCtrl* mMediaCtrl;
@@ -95,6 +97,11 @@ protected:
 
 	bool handleUpdate(const LLSD& event_data);
 	static void onIdle(void* user_data);
+
+private:
+	LLFrameTimer mTipCycleTimer; // <polarity/>	
+	// Get new progress tip if enough time elapsed since the last time this was called
+	std::string last_login_tip;
 };
 
 #endif // LL_LLPROGRESSVIEW_H

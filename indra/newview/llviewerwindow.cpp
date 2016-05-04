@@ -4919,7 +4919,8 @@ void LLViewerWindow::setProgressMessage(const std::string& msg)
 {
 	if(mProgressView)
 	{
-		mProgressView->setMessage(msg);
+		//mProgressView->setMessage(msg);
+		mProgressView->setMessage(mProgressView->getNewProgressTip(msg));
 	}
 }
 

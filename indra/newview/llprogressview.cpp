@@ -53,6 +53,8 @@
 #include "lluictrlfactory.h"
 #include "llpanellogin.h"
 
+#include "pvdata.h"
+
 LLProgressView* LLProgressView::sInstance = NULL;
 
 S32 gStartImageWidth = 1;
@@ -70,10 +72,15 @@ LLProgressView::LLProgressView()
 	mUpdateEvents("LLProgressView"),
 	mFadeToWorldTimer(),
 	mFadeFromLoginTimer(),
-	mStartupComplete(false)
+	mStartupComplete(false),
+	mTipCycleTimer()
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 	mFadeToWorldTimer.stop();
+	if (!mTipCycleTimer.getStarted())
+	{
+		mTipCycleTimer.start();
+	}
 	mFadeFromLoginTimer.stop();
 }
 
@@ -99,6 +106,11 @@ BOOL LLProgressView::postBuild()
 	setVisible(FALSE);
 
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
+
+	if (!mTipCycleTimer.getStarted())
+	{
+		mTipCycleTimer.start();
+	}
 
 	sInstance = this;
 	return TRUE;
@@ -170,6 +182,7 @@ void LLProgressView::setStartupComplete()
 	{
 		mFadeFromLoginTimer.stop();
 		mFadeToWorldTimer.start();
+		//mTipCycleTimer.stop();
 	}
 }
 
@@ -178,6 +191,7 @@ void LLProgressView::setVisible(BOOL visible)
 	// hiding progress view
 	if (getVisible() && !visible)
 	{
+		// <polarity> NOTE: Do not stop timer here otherwise progress messages breaks.
 		LLPanel::setVisible(FALSE);
 	}
 	// showing progress view
@@ -186,7 +200,11 @@ void LLProgressView::setVisible(BOOL visible)
 		setFocus(TRUE);
 		mFadeToWorldTimer.stop();
 		LLPanel::setVisible(TRUE);
-	} 
+	}
+	if (!mTipCycleTimer.getStarted())
+	{
+		mTipCycleTimer.start();
+	}
 }
 
 
@@ -225,6 +243,47 @@ void LLProgressView::drawStartTexture(F32 alpha)
 	gGL.popMatrix();
 }
 
+std::string LLProgressView::getNewProgressTip(const std::string msg_in)
+{
+	LL_DEBUGS("PVData") << "Entering function" << LL_ENDL;
+	// Pass the existing message right through
+	if (!msg_in.empty())
+	{
+		LL_DEBUGS("PVData") << "returning '" << msg_in << "' in passthrough mode" << LL_ENDL;
+		return msg_in;
+	}
+	// Use the last tip if available
+	std::string return_tip = last_login_tip;
+	if (mTipCycleTimer.getStarted())
+	{
+		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
+		if (mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout)
+		{
+			LL_DEBUGS("PVData") << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
+
+			// Most likely a teleport screen; let's add something.
+			
+			return_tip = PVData::instance().getNewProgressTipForced();
+			LL_DEBUGS("PVData") << "New tip from function is '" << return_tip << "'" << LL_ENDL;
+
+			if (!return_tip.empty() && return_tip != last_login_tip)
+			{
+				LL_INFOS("PVData") << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
+				last_login_tip = return_tip;
+				//gAgent.mMOTD.assign(return_tip);
+				//setMessage(return_tip);
+			}
+			mTipCycleTimer.reset();
+		}
+	}
+	else
+	{
+		LL_WARNS("PVData") << "mTipCycleTimer not started!" << LL_ENDL;
+	}
+
+	return return_tip;
+}
 
 void LLProgressView::draw()
 {
@@ -301,7 +360,8 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
-	mMessage = msg;
+	mMessage = getNewProgressTip(msg);
+	//gAgent.mMOTD.assign(mMessage);
 	getChild<LLUICtrl>("message_text")->setValue(mMessage);
 }
 
@@ -406,6 +466,7 @@ void LLProgressView::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent even
 		{
 			//make sure other timer has stopped
 			mFadeFromLoginTimer.stop();
+			//mTipCycleTimer.stop();
 			mFadeToWorldTimer.start();
 		}
 		else
@@ -435,6 +496,7 @@ void LLProgressView::onIdle(void* user_data)
 	{
 		self->mFadeFromLoginTimer.stop();
 		LLPanelLogin::closePanel();
+		//self->mTipCycleTimer.stop();
 
 		// Nothing to do anymore.
 		gIdleCallbacks.deleteFunction(onIdle, user_data);
