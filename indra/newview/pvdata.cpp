@@ -728,7 +728,7 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	// Prevent ulterior typecasts
 	LLColor4 agent_color; // Will be black here.
 	agent_color = static_cast<LLColor4>(mAgentColors[avatar_id]);
-	LL_INFOS("") << "agent_color == " << agent_color << LL_ENDL;
+	LL_DEBUGS("PVData") << "agent_color == " << agent_color << LL_ENDL;
 	// TODO: Check to make sure it returns black if empty
 	return agent_color;
 }
@@ -746,7 +746,7 @@ bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
 	
 	if (agent_color != LLColor4::black)
 	{
-		LL_INFOS("") << "agent_color == " << agent_color << LL_ENDL;
+		LL_DEBUGS("PVData") << "agent_color == " << agent_color << LL_ENDL;
 		// calling function uses this
 		out_color4 = agent_color;
 		return true;
