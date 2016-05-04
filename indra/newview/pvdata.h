@@ -59,7 +59,7 @@ public:
 	// than storing them into a list and playing musical format conversions.
 	LLSD memoryResidentProgressTips = LLSD::emptyMap();
 
-	enum flags_t: signed int
+	enum flags_t : signed int
 	{
 		//
 		// Dear maintainer:
@@ -85,6 +85,9 @@ public:
 		FLAG_USER_HAS_TITLE = (1 << 7), /* [0000 1000 0000] User that deserves recognition             */
 		FLAG_TITLE_OVERRIDE = (1 << 8), /* [0001 0000 0000] Title overrides general flags list         */
 		FLAG_USER_HAS_COLOR = (1 << 9), /* [0010 0000 0000] User has a custom color                    */
+
+		// Last.
+		FLAG_LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
 	};
 
 	// This returns true when the main data has been processed without errors.

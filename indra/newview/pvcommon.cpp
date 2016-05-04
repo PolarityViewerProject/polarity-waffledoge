@@ -317,6 +317,11 @@ bool PVCommon::isLinden(const LLUUID& av_id)
 	{
 		gCacheName->getFirstLastName(av_id, first_name, last_name);
 	}
+	if (first_name.empty())
+	{
+		// prevent returning 'true' when name is missing.
+		return false;
+	}
 	return (last_name == LL_LINDEN ||
 			last_name == LL_MOLE ||
 			last_name == LL_PRODUCTENGINE ||

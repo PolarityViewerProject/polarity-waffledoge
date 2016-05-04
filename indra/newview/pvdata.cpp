@@ -43,6 +43,8 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llfloaterabout.h"
+#include "pvcommon.h"
+#include "llstartup.h"
 
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
@@ -651,8 +653,18 @@ bool PVData::isBlockedRelease()
 
 int PVData::getAgentFlags(const LLUUID& avatar_id)
 {
-	//std::map<LLUUID, S32>::iterator iter = mAgentAccess.find(avatar_id);
 	int flags = mAgentAccess[avatar_id];
+
+	// Will crash if name resolution is not available yet
+	if (LLStartUp::getStartupState() >= STATE_STARTED)
+	{
+		if (PVCommon::isLinden(avatar_id))
+		{
+			// set bit for LL employee
+			flags = flags |= FLAG_LINDEN_EMPLOYEE;
+			mAgentAccess[avatar_id] = flags;
+		}
+	}
 	LL_DEBUGS("PVData") << "Returning '" << flags << "'" << LL_ENDL;
 	return flags;
 }
@@ -758,12 +770,17 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 	if (av_flags > 0)
 	{
 		std::vector<std::string> flags_list;
+		// TODO: Debate the need for HAS_TITLEand TITLE_OVERRIDE at the same time. We can do better.
 		if (av_flags & FLAG_USER_HAS_TITLE)
 		{
 			flags_list.push_back(mAgentTitles[avatar_id]);
 		}
 		if (!(av_flags & FLAG_TITLE_OVERRIDE))
 		{
+			if (av_flags & FLAG_LINDEN_EMPLOYEE)
+			{
+				flags_list.push_back("Linden Lab Employee");
+			}
 			if (av_flags & FLAG_USER_AUTOMUTED)
 			{
 				flags_list.push_back("Nuisance");

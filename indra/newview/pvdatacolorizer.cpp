@@ -119,6 +119,7 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 			std::string user_name = av_name.getUserName();
 			if (LLMuteList::instance().isLinden(user_name))
 			{
+				// kept in case
 				return linden_color.get();
 			}
 			if (LLMuteList::instance().isMuted(avatar_id, user_name))
@@ -146,6 +147,11 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 					return fallback_color;
 				}
 				return name_color;
+			}
+			if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+			{
+				// was previously flagged as employee, so will end up in this code path
+				return linden_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_DEV)
 			{
