@@ -3587,7 +3587,11 @@ bool process_login_success_response()
 		gAgent.setHomePosRegion(region_handle, position);
 	}
 
-	gAgent.mMOTD.assign(response["message"]);
+#if !PVDATA_MOTD
+	auto motd_response = response["message"];
+	LL_INFOS("PVData") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
+	gAgent.mMOTD.assign(motd_response);
+#endif
 
 	// Options...
 	// Each 'option' is an array of submaps. 
