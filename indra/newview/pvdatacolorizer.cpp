@@ -145,6 +145,7 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 					LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
 					return fallback_color;
 				}
+				return name_color;
 			}
 			else if (av_flags & PVData::FLAG_STAFF_DEV)
 			{
@@ -181,7 +182,7 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 	}
 
 	//LL_DEBUGS("PVData") << "Returning " << fallback_color << LL_ENDL;
-	return fallback_color;
+	//return fallback_color;
 }
 
 // Call this very early.
