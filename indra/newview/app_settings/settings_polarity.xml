@@ -1149,5 +1149,82 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVWindlight_Interpolate</key>
+    <map>
+      <key>Comment</key>
+      <string>Smoother transition between windlight settings </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVWindlight_InterpolateTime</key>
+    <map>
+      <key>Comment</key>
+      <string>How long the transition should last </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <integer>3</integer>
+    </map>
+    <key>PVWindLight_Parcel_AlwaysUseRegion</key>
+    <map>
+      <key>Comment</key>
+      <string>Choose whether to always use the region's environment settings when they are availabe or to allow the manual selections to remain unchanging. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVWindLight_Parcel_AutoApplyFromAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow all land for Phoenix WL sharing </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVWindLight_Parcel_AutoApplyFromFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Whitelist friend's land for Phoenix WL sharing </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVWindLight_Parcel_AutoApplyFromGroups</key>
+    <map>
+      <key>Comment</key>
+      <string>Whitelist group land on groups you are member of for Phoenix WL sharing </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVWindLight_Parcel_Enabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Enables auto setting WL from parcel desc flags </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
   </map>
 </llsd>

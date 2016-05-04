@@ -97,28 +97,30 @@ include_directories(SYSTEM
     )
     
 SET(thirdparty_SOURCE_FILES
-	exopostprocess.cpp
+    exopostprocess.cpp
     fsareasearch.cpp
     fsareasearchmenu.cpp
     fsscrolllistctrl.cpp
+    kcwlinterface.cpp
     pvaligntool.cpp
-    pvrandom.cpp
-    pvdatacolorizer.cpp
-    pvdata.cpp
     pvcommon.cpp
+    pvdata.cpp
+    pvdatacolorizer.cpp
+    pvrandom.cpp
     sanitycheck.cpp
     )
 
 SET(thirdparty_HEADER_FILES
-	exopostprocess.h
+    exopostprocess.h
     fsareasearch.h
     fsareasearchmenu.h
     fsscrolllistctrl.h
+    kcwlinterface.h
     pvaligntool.h
-    pvrandom.h
-    pvdatacolorizer.h
-    pvdata.h
     pvcommon.h
+    pvdata.h
+    pvdatacolorizer.h
+    pvrandom.h
     sanitycheck.h
     )
 

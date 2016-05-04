@@ -491,10 +491,25 @@ bool LLWLParamManager::applyDayCycleParams(const LLSD& params, LLEnvKey::EScope 
 	return true;
 }
 
-bool LLWLParamManager::applySkyParams(const LLSD& params)
+bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= false*/)
 {
+	if (params.size() == 0)
+	{
+		LL_WARNS() << "Undefined sky params" << LL_ENDL;
+		return false;
+	}
+	if (interpolate)
+	{
+		if (!mAnimator.getIsRunning())
+			resetAnimator(0.f, true);
+		if (!params.has("mName") || mCurParams.mName != params["mName"])
+			LLWLParamManager::getInstance()->mAnimator.startInterpolationSky(params);
+	}
+	else
+	{
 	mAnimator.deactivate();
 	mCurParams.setAll(params);
+	}
 	return true;
 }
 
@@ -740,5 +755,30 @@ std::string LLWLParamManager::escapeString(const std::string& str)
 	std::string escaped_str(curl_str);
 	curl_free(curl_str);
 
+	// <FS:Ansariel> FIRE-10861: Fix Windlight settings order
+	// And neither does cURL...
+	LLStringUtil::replaceString(escaped_str, "-", "%2D");
+	LLStringUtil::replaceString(escaped_str, ".", "%2E");
+	// </FS:Ansariel>
+	// <polarity> Ansariel, you're so Lazy
+	LLStringUtil::replaceString(escaped_str, "!", "%21");
+	LLStringUtil::replaceString(escaped_str, "#", "%23");
+	LLStringUtil::replaceString(escaped_str, "$", "%24");
+	LLStringUtil::replaceString(escaped_str, "&", "%26");
+	LLStringUtil::replaceString(escaped_str, "'", "%27");
+	LLStringUtil::replaceString(escaped_str, "(", "%28");
+	LLStringUtil::replaceString(escaped_str, ")", "%29");
+	LLStringUtil::replaceString(escaped_str, "*", "%2A");
+	LLStringUtil::replaceString(escaped_str, "+", "%2B");
+	LLStringUtil::replaceString(escaped_str, ",", "%2C");
+	LLStringUtil::replaceString(escaped_str, "/", "%2F");
+	LLStringUtil::replaceString(escaped_str, ":", "%3A");
+	LLStringUtil::replaceString(escaped_str, ";", "%3B");
+	LLStringUtil::replaceString(escaped_str, "=", "%3D");
+	LLStringUtil::replaceString(escaped_str, "?", "%3F");
+	LLStringUtil::replaceString(escaped_str, "@", "%40");
+	LLStringUtil::replaceString(escaped_str, "[", "%5B");
+	LLStringUtil::replaceString(escaped_str, "]", "%5D");
+	// <polarity>
 	return escaped_str;
 }

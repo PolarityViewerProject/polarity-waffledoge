@@ -11150,4 +11150,34 @@ Would you like to reset the graphic preferences?
    yestext="OK"/>
  </notification>
 
+ <notification
+  icon="notify"
+  label="Apply Windlight settings"
+  name="PVWindLight_Parcel_Ask"
+  type="notify">
+&apos;[PARCEL_NAME]&apos;, owned by [OWNER_NAME], would like to change your Windlight visual environment settings.
+    <form name="form">
+    <button
+     index="0"
+     name="Allow"
+     text="Allow"/>
+    <button
+     index="1"
+     name="Ignore"
+     text="Ignore"/>
+    </form>
+ </notification>
+
+ <notification
+  icon="notify"
+  label="Reset Windlight settings"
+  name="PVWindLight_Parcel_Clear"
+  type="notify">
+Reset WL settings for &apos;[PARCEL_NAME]&apos; to region default?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Yes"/>
+ </notification>
+
 </notifications>

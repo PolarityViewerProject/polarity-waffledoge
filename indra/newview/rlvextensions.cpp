@@ -281,7 +281,13 @@ bool RlvWindLight::setValue(const std::string& strRlvName, const std::string& st
 		}
 		else
 		{
-			pEnvMgr->useRegionSettings();
+			// <FS:Ansariel> FIRE-14466: Menu item checkmark in menu doesn't get properly updated
+			static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);  // <polarity/>
+			pEnvMgr->setUserPrefs(pEnvMgr->getWaterPresetName(),
+						pEnvMgr->getSkyPresetName(),
+						pEnvMgr->getDayCycleName(),
+						false, true, interpolate); // <polarity/>
+			// </FS:Ansariel>
 		}
 		return true;
 	}

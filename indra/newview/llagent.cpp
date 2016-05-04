@@ -95,6 +95,7 @@
 #include "osscriptruntimeperms.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
+#include "kcwlinterface.h"
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
@@ -3875,6 +3876,8 @@ bool LLAgent::teleportCore(bool is_local)
 		gPipeline.resetVertexBuffers();
 		LLSpatialPartition::sTeleportRequested = TRUE;
 	}
+	// Hack from Kadah Coba
+	KCWindlightInterface::instance().setTPing(true);
 	make_ui_sound("UISndTeleportOut");
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.

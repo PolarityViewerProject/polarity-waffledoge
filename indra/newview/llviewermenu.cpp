@@ -8852,22 +8852,31 @@ class LLWorldEnvSettings : public view_listener_t
 			return true;
 		}
 
+		// <polarity> Fix Interpolation
+		static LLCachedControl<bool> interpolate(gSavedSettings,"PVWindlight_Interpolate");
 		if (tod == "sunrise")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Sunrise");
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunrise",interpolate);
 		}
 		else if (tod == "noon")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Midday");
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midday",interpolate);
 		}
 		else if (tod == "sunset")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Sunset");
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunset",interpolate);
 		}
 		else if (tod == "midnight")
 		{
-			LLEnvManagerNew::instance().setUseSkyPreset("Midnight");
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midnight",interpolate);
 		}
+// [RLVa:KB] - Checked: 2011-09-03 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
+		else if ("default" == tod)
+		{
+			LLEnvManagerNew::instance().setUseRegionSettings(interpolate);
+		}
+// [/RLVa:KB]
+		// </polarity>
 		else
 		{
 			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
@@ -8877,7 +8886,7 @@ class LLWorldEnvSettings : public view_listener_t
 			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
 					    envmgr.getSkyPresetName(),
 					    envmgr.getDayCycleName(),
-					    use_fixed_sky, use_region_settings);
+					    use_fixed_sky, use_region_settings, interpolate); // <polarity/>
 		}
 
 		return true;
