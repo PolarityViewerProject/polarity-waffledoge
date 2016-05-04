@@ -46,6 +46,7 @@
 #include "llvoavatarself.h"
 #include "llvolume.h"
 #include "llvolumemessage.h"
+#include "pvdata.h"
 
 OSChatCommand::OSChatCommand()
 	: LLSingleton<OSChatCommand>()
@@ -66,6 +67,7 @@ OSChatCommand::OSChatCommand()
 	gSavedSettings.getControl("ObsidianChatCommandResyncAnim")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("ObsidianChatCommandTeleportToCam")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("ObsidianChatCommandHoverHeight")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("PVChatCommand_PVDataRefresh")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 }
 
 void OSChatCommand::refreshCommands()
@@ -85,6 +87,7 @@ void OSChatCommand::refreshCommands()
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandResyncAnim")), CMD_RESYNC_ANIM);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandTeleportToCam")), CMD_TP_TO_CAM);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHoverHeight")), CMD_HOVER_HEIGHT);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataRefresh")), CMD_REFRESH_PVDATA);
 }
 
 bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
@@ -386,6 +389,11 @@ bool OSChatCommand::parseCommand(std::string data)
 				}
 			}
 		}
+		return true;
+	}
+	case CMD_REFRESH_PVDATA:
+	{
+		PVData::instance().refreshDataFromServer(true);
 		return true;
 	}
 	}
