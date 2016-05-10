@@ -87,7 +87,18 @@
    name="pvcamera_donotcenter"
    tool_tip="Do not center the camera when clicking your avatar.  Also called Mouse Steering."
    top_delta="0"
-   width="280"/>
+   width="125"/>
+  <check_box
+   control_name="PVMovement_ResetCamera"
+   follows="left|top"
+   height="20"
+   label="Moving my avatar"
+   layout="topleft"
+   left_pad="10"
+   name="pvcamera_donotcenter"
+   tool_tip="Automatically reset the camera position when moving."
+   top_delta="0"
+   width="125"/>
   <text
   follows="left|top"
   type="string"
