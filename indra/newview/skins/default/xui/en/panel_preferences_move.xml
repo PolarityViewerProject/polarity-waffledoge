@@ -169,7 +169,7 @@
    control_name="PVMovement_AutomaticFly"
    follows="left|top"
    height="20"
-   label="Hold jump key to start or flying"
+   label="Hold jump key to start flying"
    layout="topleft"
    left_delta="0"
    name="automatic_fly"
