@@ -564,7 +564,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
 		{
 			sDesiredDiscardBias += discard_bias_delta;
-			LL_INFOS() << "new bias " << sDesiredDiscardBias
+			LL_DEBUGS() << "new bias " << sDesiredDiscardBias
 					<< " sBoundTextureMemory " << sBoundTextureMemory 
 					<< " sTotalTextureMemory " << sTotalTextureMemory
 					<< " sMaxBoundTextureMemory " << sMaxBoundTextureMemory
