@@ -8714,6 +8714,8 @@
     <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
@@ -8728,6 +8730,8 @@
     <key>Comment</key>
     <string>Near clip plane split distances for shadow map frusta.</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
@@ -8744,6 +8748,8 @@
     <string>Near clip plane split distances for shadow map frusta (x=perspective, y=ortho, z=transition rate).</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
     <key>Value</key>
@@ -8758,6 +8764,8 @@
     <key>Comment</key>
     <string>Near clip plane split distances for orthographic shadow map frusta.</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>Vector3</string>
@@ -9094,6 +9102,8 @@
     <string>Bias value for shadows (prevent shadow acne).</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -9104,6 +9114,8 @@
     <key>Comment</key>
     <string>Offset value for shadows (prevent shadow acne).</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -9116,6 +9128,8 @@
     <string>Error scale for shadow bias (based on altitude).</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -9126,6 +9140,8 @@
     <key>Comment</key>
     <string>Error scale for shadow offset (based on altitude).</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -9221,6 +9237,8 @@
     <key>Comment</key>
     <string>Scale of shadow map resolution vs. screen resolution</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -9440,6 +9458,8 @@
     <string>Magnitude of noise on shadow samples.</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -9451,6 +9471,8 @@
     <string>Cutoff error value to use ortho instead of perspective projection.</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
@@ -9461,6 +9483,8 @@
     <key>Comment</key>
     <string>Cutoff FOV to use ortho instead of perspective projection.</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -9517,6 +9541,8 @@
     <key>Comment</key>
     <string>Distance scaler for shadow blur.</string>
     <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
@@ -10010,6 +10036,8 @@
       <key>Comment</key>
       <string>Detail of shadows.</string>
       <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
