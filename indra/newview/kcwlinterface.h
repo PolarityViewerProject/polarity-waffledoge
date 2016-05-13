@@ -56,6 +56,7 @@ public:
 	bool haveParcelOverride(const LLEnvironmentSettings& new_settings);
 	
 	bool getWLset() { return mWLset; }
+	void reapplyParcelWindlight();
 	
 private:
 	class LLParcelChangeObserver;

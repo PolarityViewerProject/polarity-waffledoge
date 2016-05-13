@@ -45,7 +45,7 @@ std::string LLEnvPrefs::getWaterPresetName() const
 {
 	if (mWaterPresetName.empty())
 	{
-		LL_WARNS() << "Water preset name is empty" << LL_ENDL;
+		LL_WARNS("Windlight") << "Water preset name is empty" << LL_ENDL;
 	}
 
 	return mWaterPresetName;
@@ -55,7 +55,7 @@ std::string LLEnvPrefs::getSkyPresetName() const
 {
 	if (mSkyPresetName.empty())
 	{
-		LL_WARNS() << "Sky preset name is empty" << LL_ENDL;
+		LL_WARNS("Windlight") << "Sky preset name is empty" << LL_ENDL;
 	}
 
 	return mSkyPresetName;
@@ -65,7 +65,7 @@ std::string LLEnvPrefs::getDayCycleName() const
 {
 	if (mDayCycleName.empty())
 	{
-		LL_WARNS() << "Day cycle name is empty" << LL_ENDL;
+		LL_WARNS("Windlight") << "Day cycle name is empty" << LL_ENDL;
 	}
 
 	return mDayCycleName;
@@ -76,6 +76,7 @@ void LLEnvPrefs::setUseRegionSettings(bool val)
 	mUseRegionSettings = val;
 }
 
+#if 0
 void LLEnvPrefs::setUseWaterPreset(const std::string& name)
 {
 	mUseRegionSettings = false;
@@ -88,6 +89,7 @@ void LLEnvPrefs::setUseSkyPreset(const std::string& name)
 	mUseDayCycle = false;
 	mSkyPresetName = name;
 }
+#endif
 
 void LLEnvPrefs::setUseDayCycle(const std::string& name)
 {
@@ -210,11 +212,11 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
 
 	if (!sky_mgr.getParamSet(LLWLParamKey(name, LLEnvKey::SCOPE_LOCAL), param_set))
 	{
-		LL_WARNS() << "No sky preset named " << name << LL_ENDL;
+		LL_WARNS("Windlight") << "No sky preset named " << name << LL_ENDL;
 		return false;
 	}
 
-	LL_DEBUGS("Windlight") << "Displaying sky preset " << name << LL_ENDL;
+	LL_INFOS("Windlight") << "Displaying sky preset '" << name << "', interpolate : " << interpolate << LL_ENDL;
 	sky_mgr.applySkyParams(param_set.getAll(), interpolate);
 	return true;
 }
@@ -222,7 +224,9 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
 bool LLEnvManagerNew::useSkyParams(const LLSD& params)
 {
 	LL_DEBUGS("Windlight") << "Displaying sky params" << LL_ENDL;
-	LLWLParamManager::instance().applySkyParams(params);
+	// TODO: Make this a global or something
+	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
+	LLWLParamManager::instance().applySkyParams(params, interpolate);
 	return true;
 }
 
@@ -241,7 +245,7 @@ bool LLEnvManagerNew::useDayCycle(const std::string& name, LLEnvKey::EScope scop
 
 		if (!LLDayCycleManager::instance().getPreset(name, params))
 		{
-			LL_WARNS() << "No day cycle named " << name << LL_ENDL;
+			LL_WARNS("Windlight") << "No day cycle named " << name << LL_ENDL;
 			return false;
 		}
 	}
@@ -257,11 +261,11 @@ bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope sco
 	return LLWLParamManager::instance().applyDayCycleParams(params, scope);
 }
 
-void LLEnvManagerNew::setUseRegionSettings(bool val, bool interpolate)
+void LLEnvManagerNew::setUseRegionSettings(const bool val, const bool interpolate)
 {
 	mUserPrefs.setUseRegionSettings(val);
-	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
+	saveUserPrefs();
 }
 
 void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolate)
@@ -269,11 +273,11 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolat
 	// *TODO: make sure the preset exists.
 	if (name.empty())
 	{
-		LL_WARNS() << "Empty water preset name passed" << LL_ENDL;
+		LL_WARNS("Windlight") << "Empty water preset name passed" << LL_ENDL;
 		return;
 	}
-
-	mUserPrefs.setUseWaterPreset(name);
+	mUserPrefs.mUseRegionSettings = false;
+	mUserPrefs.mWaterPresetName = name;
 	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
 }
@@ -283,11 +287,14 @@ void LLEnvManagerNew::setUseSkyPreset(const std::string& name, bool interpolate)
 	// *TODO: make sure the preset exists.
 	if (name.empty())
 	{
-		LL_WARNS() << "Empty sky preset name passed" << LL_ENDL;
+		LL_WARNS("Windlight") << "Empty sky preset name passed" << LL_ENDL;
 		return;
 	}
 
-	mUserPrefs.setUseSkyPreset(name);
+	mUserPrefs.mUseRegionSettings = false;
+	mUserPrefs.mUseDayCycle = false;
+	mUserPrefs.mSkyPresetName = name;
+
 	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
 }
@@ -296,7 +303,7 @@ void LLEnvManagerNew::setUseDayCycle(const std::string& name, bool interpolate)
 {
 	if (!LLDayCycleManager::instance().presetExists(name))
 	{
-		LL_WARNS() << "Invalid day cycle name passed" << LL_ENDL;
+		LL_WARNS("Windlight") << "Invalid day cycle name passed" << LL_ENDL;
 		return;
 	}
 
@@ -362,12 +369,19 @@ void LLEnvManagerNew::setUserPrefs(
 
 void LLEnvManagerNew::dumpUserPrefs()
 {
-	LL_DEBUGS("Windlight") << "WaterPresetName: "	<< gSavedSettings.getString("WaterPresetName") << LL_ENDL;
-	LL_DEBUGS("Windlight") << "SkyPresetName: "		<< gSavedSettings.getString("SkyPresetName") << LL_ENDL;
-	LL_DEBUGS("Windlight") << "DayCycleName: "		<< gSavedSettings.getString("DayCycleName") << LL_ENDL;
+	// TODO: Maybe use globals or something
+	static LLCachedControl<std::string> WaterPresetName(gSavedSettings, "WaterPresetName");
+	static LLCachedControl<std::string> SkyPresetName(gSavedSettings, "SkyPresetName");
+	static LLCachedControl<std::string> DayCycleName(gSavedSettings, "DayCycleName");
+	static LLCachedControl<bool> UseEnvironmentFromRegion(gSavedSettings, "UseEnvironmentFromRegion");
+	static LLCachedControl<bool> UseDayCycle(gSavedSettings,"UseDayCycle") ;
+	
+	LL_DEBUGS("Windlight") << "WaterPresetName: "	<< static_cast<std::string>(WaterPresetName) << LL_ENDL;
+	LL_DEBUGS("Windlight") << "SkyPresetName: "		<< static_cast<std::string>(SkyPresetName) << LL_ENDL;
+	LL_DEBUGS("Windlight") << "DayCycleName: "		<< static_cast<std::string>(DayCycleName) << LL_ENDL;
 
-	LL_DEBUGS("Windlight") << "UseEnvironmentFromRegion: "	<< gSavedSettings.getBOOL("UseEnvironmentFromRegion") << LL_ENDL;
-	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "UseEnvironmentFromRegion: "	<< UseEnvironmentFromRegion << LL_ENDL;
+	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< UseDayCycle << LL_ENDL;
 }
 
 void LLEnvManagerNew::dumpPresets()
@@ -521,7 +535,9 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	mRegionSettingsChangeSignal();
 
 	// reset
-	mInterpNextChangeMessage = false;
+	// TODO: Make this a global or something
+	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
+	mInterpNextChangeMessage = interpolate;
 }
 
 void LLEnvManagerNew::onRegionSettingsApplyResponse(bool ok)
@@ -613,7 +629,7 @@ void LLEnvManagerNew::updateWaterFromPrefs(bool interpolate)
 		LLWaterParamSet params;
 		if (!water_mgr.getParamSet(water, params))
 		{
-			LL_WARNS() << "No water preset named " << water << ", falling back to defaults" << LL_ENDL;
+			LL_WARNS("Windlight") << "No water preset named " << water << ", falling back to defaults" << LL_ENDL;
 			water_mgr.getParamSet("Default", params);
 
 			// *TODO: Fix user preferences accordingly.

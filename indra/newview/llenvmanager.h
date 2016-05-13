@@ -144,8 +144,10 @@ public:
 	std::string getDayCycleName() const;
 
 	void setUseRegionSettings(bool val);
+#if 0
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
+#endif
 	void setUseDayCycle(const std::string& name);
 
 	bool			mUseRegionSettings;
@@ -195,23 +197,23 @@ public:
 	bool useRegionSettings();
 	bool useWaterPreset(const std::string& name);
 	bool useWaterParams(const LLSD& params);
-	bool useSkyPreset(const std::string& name, bool interpolate = false);
+	bool useSkyPreset(const std::string& name, bool interpolate = true);
 	bool useSkyParams(const LLSD& params);
 	bool useDayCycle(const std::string& name, LLEnvKey::EScope scope);
 	bool useDayCycleParams(const LLSD& params, LLEnvKey::EScope scope, F32 time = 0.5);
 
 	// setters for user env. preferences
-	void setUseRegionSettings(bool val, bool interpolate = false);
-	void setUseWaterPreset(const std::string& name, bool interpolate = false);
-	void setUseSkyPreset(const std::string& name, bool interpolate = false);
-	void setUseDayCycle(const std::string& name, bool interpolate = false);
+	void setUseRegionSettings(const bool val, const bool interpolate = true);
+	void setUseWaterPreset(const std::string& name, bool interpolate = true);
+	void setUseSkyPreset(const std::string& name, bool interpolate = true);
+	void setUseDayCycle(const std::string& name, bool interpolate = true);
 	void setUserPrefs(
 		const std::string& water_preset,
 		const std::string& sky_preset,
 		const std::string& day_cycle_preset,
 		bool use_fixed_sky,
 		bool use_region_settings,
-		bool interpolate = false);
+		bool interpolate = true);
 
 	// debugging methods
 	void dumpUserPrefs();

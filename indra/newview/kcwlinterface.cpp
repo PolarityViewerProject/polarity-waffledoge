@@ -212,7 +212,10 @@ void KCWindlightInterface::ApplySettings(const LLSD& settings)
 			if (settings.has("water") && (!mHaveRegionSettings || mRegionOverride))
 			{
 				LL_DEBUGS() << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
-				LLEnvManagerNew::instance().setUseWaterPreset(settings["water"].asString(), gSavedSettings.getBOOL("PVWindlight_Interpolate"));
+				// <polarity> Somebody forgot interpolation...
+				// TODO: use a global or something
+				static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
+				LLEnvManagerNew::instance().setUseWaterPreset(settings["water"].asString(), interpolate);
 				setWL_Status(true);
 			}
 		}
@@ -598,26 +601,6 @@ std::string KCWindlightInterface::getOwnerName(LLParcel *parcel)
 	return owner;
 }
 
-//KC: this is currently not used
-//TODO: merge this relay code in to bridge when more final, currently only supports "Parcel,WLPreset='[preset name]'"
-/*
-integer PHOE_WL_CH = -1346916165;
-default
-{
-    state_entry()
-    {
-		llListen(PHOE_WL_CH, "", NULL_KEY, "");
-    }
-    listen( integer iChan, string sName, key kID, string sMsg )
-    {
-        if ( llGetOwnerKey(kID) == llGetLandOwnerAt(llGetPos()) )
-        {
-            llOwnerSay(")*(" + sMsg);
-        }
-    }
-}
-*/
-
 // Region settings are prefered for default parcel ones
 // But parcel height mapped skies always override region's
 // And parcels can use the "RegionOverride" in their config line
@@ -669,4 +652,9 @@ bool KCWindlightInterface::checkSettings()
 	}
 	mDisabled = false;
 	return false;
+}
+
+void KCWindlightInterface::reapplyParcelWindlight()
+{
+	ApplySkySettings(mCurrentSettings);
 }
