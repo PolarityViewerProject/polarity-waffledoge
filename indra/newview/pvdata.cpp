@@ -641,14 +641,14 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 				LL_WARNS() << "Access level: TESTER" << LL_ENDL;
 				return true;
 			}
-			if (av_flags & FLAG_STAFF_QA)
-			{
-				LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
-				return true;
-			}
 			if (av_flags & FLAG_STAFF_SUPPORT)
 			{
 				LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
+				return true;
+			}
+			if (av_flags & FLAG_STAFF_QA)
+			{
+				LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
 				return true;
 			}
 			if (av_flags & FLAG_STAFF_DEV)
@@ -846,6 +846,7 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 			{
 				flags_list.push_back("Linden Lab Employee");
 			}
+			// here are the bad flags
 			if (av_flags & FLAG_USER_AUTOMUTED)
 			{
 				flags_list.push_back("Nuisance");
@@ -858,6 +859,7 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 			{
 				flags_list.push_back("Unsupported");
 			}
+			// And here are the good flags
 			if (av_flags & FLAG_STAFF_DEV)
 			{
 				flags_list.push_back("Developer");
