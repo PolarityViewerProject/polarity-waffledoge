@@ -45,6 +45,7 @@ class LLMenuButton;
 class LLMenuGL;
 class LLToggleableMenu;
 class LLFloater;
+class LLComboBox;  // ## Zi: Filter dropdown
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -86,6 +87,10 @@ public:
 
 	void setFocusFilterEditor();
 
+	// ## Zi: Filter dropdown
+	void onFilterTypeSelected(const std::string& filter_type_name);
+	void updateFilterDropdown(const LLInventoryFilter* filter);
+	// ## Zi: Filter dropdown
 protected:
 	//
 	// Misc functions
@@ -114,10 +119,15 @@ protected:
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
+	BOOL isSortByChecked(const LLSD& userdata); // ## Zi: Sort By menu handlers
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
 	void updateItemcountText();
 
+	// ## Zi: Inventory Collapse and Expand Buttons
+	void onCollapseButtonClicked();
+	void onExpandButtonClicked();
+	// ## Zi: Inventory Collapse and Expand Buttons
 	void onFocusReceived();
 
 private:
@@ -134,7 +144,13 @@ private:
 	std::string					mFilterSubString;
 	S32							mItemCount;
 	std::string 				mItemCountString;
+	LLTextBox*				mItemcountText;
 
+	// ## Zi: Filter dropdown
+	LLComboBox*				 mFilterComboBox;
+	std::map<std::string,U64>  mFilterMap;		 // contains name-to-number mapping for dropdown filter types
+	U64						 mFilterMask;		// contains the cumulated bit filter for all dropdown filter types
+	// ## Zi: Filter dropdown
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
@@ -170,6 +186,10 @@ private:
 	LLToggleableMenu*			mMenuGearDefault;
 	LLMenuGL*					mMenuAdd;
 	LLMenuButton*				mGearMenuButton;
+	// ## Zi: Inventory Collapse and Expand Buttons
+	LLButton*				 mCollapseBtn;
+	LLButton*				 mExpandBtn;
+	// ## Zi: Inventory Collapse and Expand Buttons
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

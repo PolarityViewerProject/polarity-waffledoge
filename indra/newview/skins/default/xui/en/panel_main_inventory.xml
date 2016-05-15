@@ -23,42 +23,56 @@
    name="ItemcountUnknown">
     Fetched [ITEM_COUNT] Items [FILTER]
   </panel.string>
-  <text
-		     type="string"
-		     length="1"
-		     follows="left|top"
-		     height="13"
-		     layout="topleft"
-    		 left="12"
-		     name="ItemcountText"
-		     font="SansSerifMedium"
-		     text_color="EmphasisColor"
-		     top_pad="0"
-		     width="300">
-    Items:
-  </text>
   <filter_editor
    text_pad_left="10"
    follows="left|top|right"
    height="23"
-   label="Filter Inventory"
+   label="Type here to begin keyword search..."
    layout="topleft"
    left="10"
    max_length_chars="300"
-   name="inventory search editor"
-   top="18"
-   width="303" />
+   name="inventory search editor"   
+   right="150"
+   tool_tip="Type in one or more keywords to search for"
+   top="3" />
+ <combo_box
+  name="filter_combo_box"    
+  follows="top|right"
+  width="150"
+  height="25"
+  left_pad="10"
+  top_delta="0"
+  layout="topleft">
+
+ <combo_box.item value="filter_type_all" label="All Types" />
+ <combo_box.item value="filter_separator" label="------------" enabled="false" />
+ <combo_box.item value="filter_type_animations" label="Animations" />
+ <combo_box.item value="filter_type_calling_cards" label="Calling Cards" />
+ <combo_box.item value="filter_type_clothing" label="Clothing / Body Parts" />
+ <combo_box.item value="filter_type_gestures" label="Gestures" />
+ <combo_box.item value="filter_type_landmarks" label="Landmarks" />
+ <combo_box.item value="filter_type_notecards" label="Notecards" />
+ <combo_box.item value="filter_type_objects" label="Objects" />
+ <combo_box.item value="filter_type_scripts" label="Scripts" />
+ <combo_box.item value="filter_type_sounds" label="Sounds" />
+ <combo_box.item value="filter_type_textures" label="Textures" />
+ <combo_box.item value="filter_type_snapshots" label="Snapshots" />
+ <combo_box.item value="filter_type_meshes" label="Meshes" />
+ <combo_box.item value="filter_separator" label="------------" enabled="false" />
+ <combo_box.item value="filter_type_custom" label="Custom..." />
+
+ </combo_box>
   <tab_container
      follows="all"
      halign="center"
-     height="339"
+     height="363"
      layout="topleft"
-     left="7"
+     left="0"
      name="inventory filter tabs"
      tab_height="30"
      tab_position="top"
      tab_min_width="100"
-     top_pad="10"
+     top="30"
      width="312">
     <inventory_panel
      bg_opaque_color="DkGray2"
@@ -157,11 +171,67 @@
            width="31" />
       </layout_panel>
       <layout_panel
+	 auto_resize="false"
+	 height="25"
+	 layout="topleft"
+	 name="close_folder_btn_panel"
+	 width="32">
+		<button
+		 follows="bottom|left"
+		 height="25"
+		 image_hover_unselected="Toolbar_Middle_Over"
+		 image_overlay="Inv_FolderClosed"
+		 image_selected="Toolbar_Middle_Selected"
+		 image_unselected="Toolbar_Middle_Off"
+		 layout="topleft"
+		 left="0"
+		 name="collapse_btn"
+		 tool_tip="Close all folders"
+		 top="0"
+		 width="31">
+		 </button>
+	</layout_panel>
+	<layout_panel
+	 auto_resize="false"
+	 height="25"
+	 layout="topleft"
+	 name="open_folder_btn_panel"
+	 width="32">
+		<button
+		 follows="bottom|left"
+		 height="25"
+		 image_hover_unselected="Toolbar_Middle_Over"
+		 image_overlay="Inv_FolderOpen"
+		 image_selected="Toolbar_Middle_Selected"
+		 image_unselected="Toolbar_Middle_Off"
+		 layout="topleft"
+		 left="0"
+		 name="expand_btn"
+		 tool_tip="Open all folders"
+		 top="0"
+		 width="31">
+		 </button>
+	</layout_panel>
+	<layout_panel
        auto_resize="true"
        height="25"
        layout="topleft"
        name="dummy_panel"
        width="212">
+		 <text
+		 type="string"
+		 length="1"
+		 follows="left|top"
+		 height="13"
+		 layout="topleft"
+		 left="8"
+		 name="ItemcountText"
+		 font="SansSerifMedium"
+		 text_color="EmphasisColor"
+		 top_pad="5"
+		 width="300">
+		Items:
+		</text>
           <icon
            follows="bottom|left|right"
            height="25"
