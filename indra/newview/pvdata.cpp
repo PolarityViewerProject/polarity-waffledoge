@@ -189,6 +189,7 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 			{
 				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
 				eDataParseStatus = PARSE_FAILURE;
+				handleDataFailure();
 			}
 			else if (!http_failure && !parse_failure)
 			{
@@ -202,7 +203,8 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 			}
 			else
 			{
-				LL_ERRS("PVData") << "Something unexpected happened!" << LL_ENDL;
+				LL_WARNS("PVData") << "Something unexpected happened!" << LL_ENDL;
+				handleDataFailure();
 			}
 		}
 		else if (data_file_name == "agents.xml")
@@ -220,6 +222,7 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 			{
 				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
 				eAgentsParseStatus = PARSE_FAILURE;
+				handleAgentsFailure();
 			}
 			else if (!http_failure && !parse_failure)
 			{
@@ -233,12 +236,14 @@ void PVData::handleServerResponse(const LLSD& http_content, const std::string& h
 			}
 			else
 			{
-				LL_ERRS("PVData") << "Something unexpected happened!" << LL_ENDL;
+				LL_WARNS("PVData") << "Something unexpected happened!" << LL_ENDL;
+				handleAgentsFailure();
 			}
 		}
 		else
 		{
-			LL_ERRS("PVData") << "Received file didn't match any expected patterns, aborting." << LL_ENDL;
+			LL_WARNS("PVData") << "Received file didn't match any expected patterns, aborting." << LL_ENDL;
+			handleAgentsFailure();
 		}
 	}
 }
@@ -593,10 +598,8 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 {
 	PVDataErrorMessage = "Generic Error Message";
 	LLUUID lockdown_uuid = getLockDownUUID();
-	// UUIDs are 36 characters. Faster than doing ((std::string)avatar_id).length all over
 	if (lockdown_uuid != LLUUID::null)
 	{
-		// convert the string back into a uuid to compare it against another UUID.
 		LL_INFOS("PVData") << "Locked-down build; evaluating access level..." << LL_ENDL;
 		if (avatar_id == lockdown_uuid)
 		{
@@ -896,7 +899,7 @@ void PVData::startRefreshTimer()
 	}
 	else
 	{
-		LL_ERRS("PVData") << "Timer already started!" << LL_ENDL;
+		LL_WARNS("PVData") << "Timer already started!" << LL_ENDL;
 	}
 }
 
