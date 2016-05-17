@@ -46,54 +46,76 @@
      name="local_size_combo"
      right="-5"
      top_pad="5">
+     <!-- Don't forget to copy-paste to panel_flickr_photo.xml -->
         <combo_box.item
          label="Current Window"
          name="CurrentWindow"
          value="[i0,i0]" />
+        <combo_box.item value="snapshot_hd" label="-High Definition-" enabled="false" />
         <combo_box.item
-         label="720p 16:9"
+         label="HD"
          name="1280x720"
          value="[i1280,i720]" />
         <combo_box.item
-         label="1280x1024"
-         name="1280x1024"
-         value="[i1280,i1024]" />
-        <combo_box.item
-         label="1080p 16:9"
+         label="Full HD"
          name="1920x1080"
          value="[i1920,i1080]" />
         <combo_box.item
-         label="1600x1200"
-         name="1600x1200"
-         value="[i1600,i1200]" />
-        <combo_box.item
-         label="1080p 21:9 (2.7MP)"
-         name="2560x1080"
-         value="[i2560,i1080]" />
-        <combo_box.item
-         label="4K 16:9 (8.3MP)"
+         label="4K UHD"
          name="3840x2160"
          value="[i3840,i2160]" />
         <combo_box.item
-         label="4K 1.90:1 (8.8MP)"
+         label="DCI 4K (1.90:1)"
          name="4096x2160"
          value="[i4096,i2160]" />
         <combo_box.item
-         label="4K 21:9 (11MP)"
-         name="5120x2160"
-         value="[i5120,i2160]" />
-        <combo_box.item
-         label="4K 4:3 (12.6MP)"
-         name="4096x3072"
-         value="[i4096,i3072]" />
-        <combo_box.item
-         label="8K 16:9 (33.1MP)"
+         label="8K UHD"
          name="7680x4320"
          value="[i7680,i4320]" />
+        <combo_box.item value="snapshot_xga" label="-Extended Graphics Array-" enabled="false" />
         <combo_box.item
-         label="8K 21:9 (43.3MP)"
-         name="10240x4320"
-         value="[i10240,i4320]" />
+         label="WXGA"
+         name="1440x900"
+         value="[i1440,i900]" />
+        <combo_box.item
+         label="UXGA"
+         name="1600x1200"
+         value="[i1600,i1200]" />
+        <combo_box.item
+         label="WUXGA"
+         name="1920x1200"
+         value="[i1920,i1200]" />
+        <combo_box.item value="21:9" label="-Quad Extended Graphics Array-" enabled="false" />
+        <combo_box.item
+         label="WQXGA"
+         name="2560x1600"
+         value="[i2560,i1600]" />
+        <combo_box.item value="21:9" label="-Hyper Extended Graphics Array-" enabled="false" />
+        <combo_box.item
+         label="[W]QHD"
+         name="2560x1080"
+         value="[i2560,i1080]" />
+         <!-- This one is math-perfect, leave it alone :T -->
+        <combo_box.item
+         label="'4K 21:9'"
+         name="5040x2160"
+         value="[i5040,i2160]" />
+         <!-- LEAVE IT. ALONE. :T -->
+        <combo_box.item
+         label="'8K 21:9'"
+         name="10080x4320"
+         value="[i10080,i4320]" />
+        <combo_box.item value="screenshot_surround" label="-Surround (3 panels)-" enabled="false" />
+        <combo_box.item
+         label="3 x 1080p"
+         name="5760x1080"
+         value="[i5120,i2160]" />
+         <!-- I have no idea what kind of GPU can render this. -->
+        <combo_box.item
+         label="3 x 4K"
+         name="11520x2160"
+         value="[i11520,i2160]" />
+        <combo_box.item value="separator" label="-" enabled="false" />
         <combo_box.item
          label="Custom"
          name="Custom"
@@ -143,6 +165,7 @@
      name="local_snapshot_height"
      top_delta="0"
      width="54" />
+     
     <check_box
      top_pad="12"
      follows="left|top"
