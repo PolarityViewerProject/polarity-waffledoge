@@ -99,6 +99,20 @@
          name="Custom"
          value="[i-1,i-1]" />
     </combo_box>
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      height="13"
+      layout="topleft"
+      left_delta="0"
+      name="gpu_texture_size_limit"
+      top_pad="5"
+      text_color="EmphasisColor"
+      tool_tip="Based on your system's hardware limit of 8192 x 8192"
+      width="250">
+         Suggested max: 4096 x 4096
+     </text>
     <spinner
      allow_text_entry="false"
      decimal_digits="0"

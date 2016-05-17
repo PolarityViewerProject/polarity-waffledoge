@@ -4176,5 +4176,10 @@ Try enclosing path to the editor with double quotes.
   <string name="ChatCommandCalcFailed">
     Calculation failed.
   </string>
-
+  <string name="gpu_max_texture_size_side">
+    Based on your system's hardware limit of [RESOLUTION] x [RESOLUTION]
+  </string>
+  <string name="gpu_recommended_texture_size">
+    Suggested max:   [RESOLUTION] x [RESOLUTION]
+  </string>
 </strings>

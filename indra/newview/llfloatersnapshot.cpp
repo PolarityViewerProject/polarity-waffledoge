@@ -47,6 +47,7 @@
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llwebprofile.h"
+#include <lltrans.h>
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -366,6 +367,26 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 	ESnapshotFormat shot_format = (ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
 	LLViewerWindow::ESnapshotType layer_type = getLayerType(floater);
 
+	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
+	// S32 to avoid unecessary typecasts
+	auto limit = static_cast<S32>(LLViewerWindow::getGPUTextureSizeLimit());
+	
+	LLTextBox* gpu_limit = floater->getChild<LLTextBox>("gpu_texture_size_limit");
+	
+	if(gpu_limit)
+	{
+		// Ugh. Not efficient but it works.
+		std::string text; LLSD args;
+		args["RESOLUTION"] = limit;
+		text = LLTrans::getString("gpu_max_texture_size_side", args);
+		gpu_limit->setToolTip(text);
+		// Recommend half the texture maximum to prevent TDR
+		args["RESOLUTION"] = (limit / 2);
+		text = LLTrans::getString("gpu_recommended_texture_size", args); 
+		gpu_limit->setValue(text);
+	}
+	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));	
+
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));
 	floater->getChildView("layer_types")->setEnabled(shot_type == LLSnapshotLivePreview::SNAPSHOT_LOCAL);
 
@@ -418,7 +439,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshot* floater)
 		}
 		else
 		{
-			signed int limit = std::numeric_limits<signed int>::max(); // <polarity/>
 			width_ctrl->setMaxValue(limit);
 			height_ctrl->setMaxValue(limit);
 		}
