@@ -74,12 +74,12 @@
               value="[i10080,i4320]" />
              <combo_box.item value="screenshot_surround" label="-Surround (3 panels)-" enabled="false" />
              <combo_box.item
-              label="1080p"
+              label="3 x 1080p"
               name="5760x1080"
               value="[i5120,i2160]" />
               <!-- I have no idea what kind of GPU can render this. -->
              <combo_box.item
-              label="4K"
+              label="3 x 4K"
               name="11520x2160"
               value="[i11520,i2160]" />
              <combo_box.item value="separator" label="-" enabled="false" />
