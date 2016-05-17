@@ -4389,11 +4389,23 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, do_rebuild, type);
 }
 
+GLint LLViewerWindow::getGPUTextureSizeLimit()
+{
+	GLint result;
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &result);
+	if (result >= 64)
+	{
+		return result;
+	}
+	// fallback to something
+	return 1024;
+}
+
 // Saves the image from the screen to a raw image
 // Since the required size might be bigger than the available screen, this method rerenders the scene in parts (called subimages) and copy
 // the results over to the final raw image.
 BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, 
-								 BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL do_rebuild, ESnapshotType type, S32 max_size)
+								 BOOL keep_window_aspect, BOOL is_texture, BOOL show_ui, BOOL do_rebuild, ESnapshotType type)
 {
 	if (!raw)
 	{
@@ -4515,6 +4527,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	S32 image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height * scale_factor) ;
+
+	S32 max_size = static_cast<S32>(LLViewerWindow::getGPUTextureSizeLimit());
 
 	if ((image_buffer_x > max_size) || (image_buffer_y > max_size)) // boundary check to avoid memory overflow
 	{

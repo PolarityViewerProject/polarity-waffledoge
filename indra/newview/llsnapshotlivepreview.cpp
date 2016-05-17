@@ -111,7 +111,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
-	mMaxImageSize = MAX_SNAPSHOT_IMAGE_SIZE ;
+	mMaxImageSize = (S32)LLViewerWindow::getGPUTextureSizeLimit();
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
@@ -133,7 +133,7 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-    mMaxImageSize = llmin(size,(S32)(MAX_SNAPSHOT_IMAGE_SIZE));
+    mMaxImageSize = llmin(size,(S32)(LLViewerWindow::getGPUTextureSizeLimit()));
 }
 
 LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
@@ -740,8 +740,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
                 previewp->getSnapshotType() == LLSnapshotLivePreview::SNAPSHOT_TEXTURE,
                 previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
                 FALSE,
-                previewp->mSnapshotBufferType,
-                previewp->getMaxImageSize()))
+                previewp->mSnapshotBufferType))
         {
             // Invalidate/delete any existing encoded image
             previewp->mPreviewImageEncoded = NULL;

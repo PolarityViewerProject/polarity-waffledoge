@@ -50,6 +50,7 @@
 #include <boost/function.hpp>
 #include <boost/signals2.hpp>
 #include <boost/scoped_ptr.hpp>
+#include <lliconctrl.h>
 
 class LLView;
 class LLViewerObject;
@@ -135,8 +136,6 @@ private:
 	BOOL			mWantSurfaceInfo;   // do we populate mUVCoord, mNormal, mBinormal?
 
 };
-
-static const U32 MAX_SNAPSHOT_IMAGE_SIZE = 6 * 1024; // max snapshot image size 6144 * 6144
 
 class LLViewerWindow : public LLWindowCallbacks
 {
@@ -347,8 +346,9 @@ public:
 		SNAPSHOT_TYPE_DEPTH
 	} ESnapshotType;
 	BOOL			saveSnapshot(const std::string&  filename, S32 image_width, S32 image_height, BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
+	static GLint	getGPUTextureSizeLimit();
 	BOOL			rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_height, BOOL keep_window_aspect = TRUE, BOOL is_texture = FALSE,
-								BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR, S32 max_size = MAX_SNAPSHOT_IMAGE_SIZE );
+								BOOL show_ui = TRUE, BOOL do_rebuild = FALSE, ESnapshotType type = SNAPSHOT_TYPE_COLOR);
 	BOOL			thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 preview_height, BOOL show_ui, BOOL do_rebuild, ESnapshotType type) ;
 	BOOL			isSnapshotLocSet() const { return ! sSnapshotDir.empty(); }
 	void			resetSnapshotLoc() const { sSnapshotDir.clear(); }
