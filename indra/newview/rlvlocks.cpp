@@ -387,6 +387,13 @@ void RlvAttachmentLocks::updateLockedHUD()
 		return;
 
 	m_fHasLockedHUD = false;
+
+	static LLCachedControl<bool> ignore_lock(gSavedSettings, "PVRLV_IgnoreHUDLock", FALSE);
+	if(ignore_lock)
+	{
+		return;
+	}
+
 	for (LLVOAvatar::attachment_map_t::const_iterator itAttachPt = gAgentAvatarp->mAttachmentPoints.begin(); 
 			itAttachPt != gAgentAvatarp->mAttachmentPoints.end(); ++itAttachPt)
 	{
