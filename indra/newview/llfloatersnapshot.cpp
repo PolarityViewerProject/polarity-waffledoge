@@ -804,6 +804,14 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		}
 		else if (width == -1 || height == -1)
 		{
+			// PLVR-9 Snapshot floater has no safeguards against negative render size
+			// This is sort of savage, but fairly fool-proof. We should revisit this later.
+			if (height < 64 || width < 64) // this should never be smaller than this. Assuming user or code error.
+			{
+				// Enforce valid positive value; 64 is small enough to return almost instantly on modern hardware.
+				width = height = 64;
+			}
+
 			// load last custom value
 			S32 new_width = 0, new_height = 0;
 			LLPanelSnapshot* spanel = getActivePanel(view);
