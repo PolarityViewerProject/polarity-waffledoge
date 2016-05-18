@@ -341,6 +341,22 @@ void LLVoiceVisualizer::render()
 		return;
 	}
 	
+	// <Polarity> PLVR-100: Hide voice dots over avatars
+	// 0 = LL behavior (dot always visible while voice chat is available, waves while talking)
+	// 1 = completely disable indicator
+	// 2 = show dot while voice chat is available, no waves while talking
+	// 3 = waves only when avatar talks.
+	static LLCachedControl<U32> voice_indicator_behavior(gSavedSettings, "PVUI_VoiceIndicatorBehavior", 0);
+	if ( voice_indicator_behavior == 1 )
+	{
+		return;
+	}
+	else if ( voice_indicator_behavior > 3 )
+	{
+		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 0 );
+	}
+	// </Polarity>
+	
 	if ( mSoundSymbol.mActive ) 
 	{				
 		mPreviousTime = mCurrentTime;
@@ -357,10 +373,12 @@ void LLVoiceVisualizer::render()
 		LLGLSPipelineAlpha alpha_blend;
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
+		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 2 ) // <Polarity>
+		{
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
 		//-------------------------------------------------------------
-		LLViewerCamera* camera = LLViewerCamera::getInstance();
 		LLVector3 l	= camera->getLeftAxis() * DOT_SIZE;
 		LLVector3 u	= camera->getUpAxis()   * DOT_SIZE;
 
@@ -390,6 +408,7 @@ void LLVoiceVisualizer::render()
 			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
 		gGL.end();
+		}
 		
 		
 		
@@ -419,6 +438,8 @@ void LLVoiceVisualizer::render()
 			
 		} // if currently speaking
 								
+		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 3 ) // <Polarity>
+		{
 		//---------------------------------------------------
 		// determine color
 		//---------------------------------------------------
@@ -518,6 +539,7 @@ void LLVoiceVisualizer::render()
 			} //if ( mSoundSymbol.mWaveActive[i] ) 
 			
 		}// for loop
+		}
 											
 	}//if ( mSoundSymbol.mActive ) 
 

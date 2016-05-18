@@ -1152,6 +1152,17 @@
       <key>Value</key>
       <string> </string>
     </map>
+    <key>PVUI_VoiceIndicatorBehavior</key>
+    <map>
+      <key>Comment</key>
+      <string>Determines the behavior of the voice chat indicator. 0 = LL default behavior; 1 = completely disable indicator; 2 = show dot only; 3 = show waves only</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVWindow_TitleAnonymize</key>
     <map>
       <key>Comment</key>
