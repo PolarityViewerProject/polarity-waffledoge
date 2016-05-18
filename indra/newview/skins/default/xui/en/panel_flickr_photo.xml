@@ -76,7 +76,7 @@
              <combo_box.item
               label="3 x 1080p"
               name="5760x1080"
-              value="[i5120,i2160]" />
+              value="[i5760,i1080]" />
               <!-- I have no idea what kind of GPU can render this. -->
              <combo_box.item
               label="3 x 4K"
