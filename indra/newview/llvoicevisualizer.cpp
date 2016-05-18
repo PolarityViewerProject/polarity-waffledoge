@@ -341,7 +341,7 @@ void LLVoiceVisualizer::render()
 		return;
 	}
 	
-	// <Polarity> PLVR-100: Hide voice dots over avatars
+	// <polarity> PLVR-3: Quantum voice dot
 	// 0 = LL behavior (dot always visible while voice chat is available, waves while talking)
 	// 1 = completely disable indicator
 	// 2 = show dot while voice chat is available, no waves while talking
@@ -355,7 +355,7 @@ void LLVoiceVisualizer::render()
 	{
 		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 0 );
 	}
-	// </Polarity>
+	// </polarity>
 	
 	if ( mSoundSymbol.mActive ) 
 	{				
@@ -374,7 +374,7 @@ void LLVoiceVisualizer::render()
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
 		LLViewerCamera* camera = LLViewerCamera::getInstance();
-		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 2 ) // <Polarity>
+		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 2 ) // <polarity>
 		{
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
@@ -438,7 +438,7 @@ void LLVoiceVisualizer::render()
 			
 		} // if currently speaking
 								
-		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 3 ) // <Polarity>
+		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 3 ) // <polarity>
 		{
 		//---------------------------------------------------
 		// determine color
