@@ -59,6 +59,10 @@
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
+// Temporary include until we move this to ll_common
+#include "pvconstants.h"
+#include "pvdata.h"
+
 namespace 
 {
 	// This method is used to return an object to mute given an object id.
@@ -228,7 +232,17 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	{
 		return FALSE;
 	}
-	
+
+	// Can't mute our developers
+	if(mute.mType == LLMute::AGENT
+		&& PVData::instance().isDeveloper(mute.mID))
+	{
+		LLSD args;
+		args[APP_NAME] = APP_NAME;
+		LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
+		return FALSE;
+	}
+
 	if (mute.mType == LLMute::BY_NAME)
 	{		
 		// Can't mute empty string by name

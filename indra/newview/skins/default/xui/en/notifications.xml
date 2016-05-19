@@ -11180,4 +11180,15 @@ Reset WL settings for &apos;[PARCEL_NAME]&apos; to region default?
      yestext="Yes"/>
  </notification>
 
+  <notification
+   icon="alertmodal.tga"
+   name="MuteDeveloper"
+   type="alertmodal">
+Sorry, you cannot block [APP_NAME] developers.
+  <tag>fail</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
 </notifications>
