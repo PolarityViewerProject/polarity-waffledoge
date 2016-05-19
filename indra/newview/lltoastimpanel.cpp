@@ -38,6 +38,7 @@
 #include "lltooltip.h"
 
 #include "llviewerchat.h"
+#include <boost/algorithm/string/predicate.hpp> // <polarity/>
 
 const S32 LLToastIMPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 6;
 
@@ -75,7 +76,7 @@ LLToastIMPanel::LLToastIMPanel(LLToastIMPanel::Params &p) :	LLToastPanel(p.notif
 	
 	//Handle IRC styled /me messages.
 	std::string prefix = p.message.substr(0, 4);
-	if (prefix == "/me " || prefix == "/me'")
+	if (boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'")) // <polarity/>
 	{
 		//style_params.font.style = "UNDERLINE";
 		mMessage->clear();

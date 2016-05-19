@@ -62,9 +62,14 @@
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 #include "llmutelist.h"
+#include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
 #include "rlvcommon.h"
 // [/RLVa:KB]
+
+#if PVDATA_COLORIZER
+#include "pvdatacolorizer.h"
+#endif
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
@@ -919,7 +924,18 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-	LLColor4 name_color(txt_color);
+	// <polarity> Color name in chat header
+	LLColor4 name_color = LLUIColorTable::instance().getColor("ChatHeaderDisplayNameColor");
+#if PVDATA_COLORIZER
+	// <polarity> Colored names for special users
+	if ((chat.mSourceType != CHAT_SOURCE_OBJECT) && (chat.mSourceType != CHAT_STYLE_HISTORY) && (chat.mFromName != SYSTEM_FROM) && (chat.mFromID.notNull()) /*&& chat.mFromID != gAgent.getID()*/)
+	{
+		name_color = PVDataColorizer::instance().getColor(chat.mFromID, "ChatHeaderDisplayNameColor", false);
+	}
+	// </polarity>
+#else
+	name_color = txt_color;
+#endif // PVDATA_COLORIZER
 
 	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
@@ -940,7 +956,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	std::string prefix = chat.mText.substr(0, 4);
 
 	//IRC styled /me messages.
-	bool irc_me = prefix == "/me " || prefix == "/me'";
+	bool irc_me = boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <polarity> case insensitive /ME and /ME'S
 
 	// Delimiter after a name in header copy/past and in plain text mode
 	std::string delimiter = ": ";
