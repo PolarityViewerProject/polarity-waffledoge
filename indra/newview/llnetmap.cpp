@@ -64,6 +64,10 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#if PVDATA_COLORIZER
+#include "pvdatacolorizer.h"
+#endif
+
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 LLNetMap::MAP_SCALE_MIN = 32.f;
@@ -375,6 +379,7 @@ void LLNetMap::draw()
 			uuid_vec_t avatar_ids;
 			std::vector<LLVector3d> positions;
 			bool unknown_relative_z;
+			LLColor4 color; // <polarity/>
 
 			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
 
@@ -387,13 +392,18 @@ void LLNetMap::draw()
 
 				pos_map = globalPosToView(positions[i]);
 
+#if !PVDATA_COLORIZER
 				// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
 				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr) &&
 					(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
 				// [/RLVa:KB]
 				//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
-
-				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+#else
+				// <polarity> Colored names for special users. RLV_BHVR_SHOWNAMES is handled inside getColor already.
+				color = PVDataColorizer::instance().getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr));
+				// </polarity>
+#endif
 
 				unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;

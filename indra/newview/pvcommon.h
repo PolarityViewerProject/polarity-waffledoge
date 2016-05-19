@@ -57,8 +57,6 @@ public:
 	// apply default build preferences to the object
 		static void applyDefaultBuildPreferences(LLViewerObject* object);
 
-	static bool isLinden(const LLUUID& av_id);
-
 	/**
 	 * HACK
 	 *

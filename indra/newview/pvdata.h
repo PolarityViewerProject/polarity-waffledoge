@@ -116,6 +116,11 @@ public:
 	// Returns the agent flags as a LLColor4
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 
+	// Better version of isLinden that takes PVData into account
+	bool PVData::isLinden(const LLUUID& av_id);
+
+	bool PVData::seedIsLinden(const LLUUID& av_id);
+
 	// Attempt to replace specified color with agent color. Returns true if replacement was made.
 	bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
 

@@ -1050,6 +1050,8 @@
    value="0.38 0.38 0.38 1.0" />
   <color name="PlvrDevChatColor"
    value="1.00000 0.46275 0.30588 1.0" />
+  <color name="PlvrLindenChatColor"
+   value="0.27451 0.40392 0.47059 1.0" />
   <color name="PlvrMutedChatColor"
    value="0.313 0.313 0.313 1.0" />
   <color name="PlvrQAChatColor"
@@ -1058,5 +1060,10 @@
    value="0.849 0.665 0.974 1.0" />
   <color name="PlvrTesterChatColor"
    value="0.78039 0.21961 0.21961 1.0" />
-
+  <color name="NameTagGroup"
+   value="0.60000 0.60000 0.60000 1.0" />
+  <color name="NameTagStatusText"
+   value="0.53822 0.66097 0.52653 1.0" />
+  <color name="ChatHeaderDisplayNameColor"
+   value="0.80000 0.80000 0.80000 1.0" />
 </colors>

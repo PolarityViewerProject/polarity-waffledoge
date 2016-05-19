@@ -45,6 +45,10 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#if PVDATA_COLORIZER
+#include "pvdatacolorizer.h"
+#endif
+
 static const S32 msg_left_offset = 10;
 static const S32 msg_right_offset = 10;
 static const S32 msg_height_pad = 5;
@@ -231,6 +235,14 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			LLStyle::Params style_params_name;
 
 			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+#if PVDATA_COLORIZER
+			// <polarity> Colored names for special users
+			if ((mSourceType != CHAT_SOURCE_OBJECT) && (mFromID.notNull()))
+			{
+				user_name_color = PVDataColorizer::instance().getColor(mFromID, user_name_color, false);
+			}
+			// </polarity>
+#endif // PVDATA_COLORIZER
 			style_params_name.color(user_name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
@@ -399,14 +411,14 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 			
 			switch (mSourceType)
 			{
+				case CHAT_SOURCE_AGENT:
+					icon->setValue(mFromID);
+					break;
 				case CHAT_SOURCE_OBJECT:
 					icon->setValue(LLSD("OBJECT_Icon"));
 					break;
 				case CHAT_SOURCE_SYSTEM:
 					icon->setValue(LLSD("SL_Logo"));
-					break;
-				case CHAT_SOURCE_AGENT:
-					icon->setValue(mFromID);
 					break;
 				case CHAT_SOURCE_MOTD:
 					icon->setValue(LLSD("SL_Logo"));

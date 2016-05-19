@@ -57,12 +57,6 @@
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
-static const std::string LL_LINDEN = "Linden";
-static const std::string LL_MOLE = "Mole";
-static const std::string LL_PRODUCTENGINE = "ProductEngine";
-static const std::string LL_SCOUT = "Scout";
-static const std::string LL_TESTER = "Tester";
-
 extern S32 gMaxAgentGroups;
 
 bool PVCommon::sAVX_Checked = false;
@@ -304,30 +298,6 @@ void PVCommon::applyDefaultBuildPreferences(LLViewerObject* object)
 }
 #endif
 
-bool PVCommon::isLinden(const LLUUID& av_id)
-{
-	std::string first_name, last_name;
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::get(av_id, &av_name))
-	{
-		std::istringstream full_name(av_name.getUserName());
-		full_name >> first_name >> last_name;
-	}
-	else
-	{
-		gCacheName->getFirstLastName(av_id, first_name, last_name);
-	}
-	if (first_name.empty())
-	{
-		// prevent returning 'true' when name is missing.
-		return false;
-	}
-	return (last_name == LL_LINDEN ||
-			last_name == LL_MOLE ||
-			last_name == LL_PRODUCTENGINE ||
-			last_name == LL_SCOUT ||
-			last_name == LL_TESTER);
-}
 #if 0
 bool PVCommon::checkIsActionEnabled(const LLUUID& av_id, EFSRegistrarFunctionActionType action)
 {

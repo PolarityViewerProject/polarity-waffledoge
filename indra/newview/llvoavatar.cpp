@@ -116,6 +116,11 @@
 #include "llscenemonitor.h"
 #include "llsdserialize.h"
 
+// TODO: Make modular again
+#if PVDATA_COLORIZER
+#include "pvdatacolorizer.h"
+#endif
+
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -2532,8 +2537,24 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartData.mStartScale.mV[VY] = 1.0f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
+#if !PVDATA_COLORIZER
 			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
 			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
+#else
+			if(!isSelf() && (isInMuteList()))
+			{
+				particle_parameters.mPartData.mStartColor = LLUIColorTable::instance().getColor("MutedCloudStart");
+				particle_parameters.mPartData.mEndColor = LLUIColorTable::instance().getColor("MutedCloudEnd");
+			}
+			else
+			{
+				// Get pvdata color, for fun.
+				LLUUID avatar_id = getID();
+				LLColor4 cloud_color = PVDataColorizer::instance().getColor(avatar_id, LLColor4(1, 1, 1, 0.5f), (LLAvatarTracker::instance().getBuddyInfo(avatar_id) != nullptr));
+				particle_parameters.mPartData.mStartColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.5f);
+				particle_parameters.mPartData.mEndColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.0f);
+			}
+#endif
 			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
 			LLViewerTexture* cloud = LLViewerTextureManager::getFetchedTextureFromFile("cloud-particle.j2c");
 			particle_parameters.mPartImageID                 = cloud->getID();
@@ -2628,13 +2649,14 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	}
 	
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
-	const F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
-	const F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
+	static LLCachedControl<F32> NAME_SHOW_TIME(gSavedSettings, "RenderNameShowTime");	// seconds
+	static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.2a) | Added: RLVa-0.2.0b
 	bool fRlvShowNames = gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES);
 // [/RLVa:KB]
 	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
-	BOOL visible_chat = gSavedSettings.getBOOL("UseChatBubbles") && (mChats.size() || mTyping);
+	static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
+	BOOL visible_chat = use_chat_bubbles && (mChats.size() || mTyping);
 	BOOL render_name =	visible_chat ||
 		                (visible_avatar &&
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.2a) | Added: RLVa-1.0.0h
@@ -2646,10 +2668,12 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
 	{
+		static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
+		static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
 		render_name = render_name
 			&& !gAgentCamera.cameraMouselook()
-			&& (visible_chat || (gSavedSettings.getBOOL("RenderNameShowSelf") 
-								 && gSavedSettings.getS32("AvatarNameTagMode") ));
+			&& (visible_chat || (name_show_self
+			&& (name_tag_mode > 0)));
 	}
 
 	if ( !render_name )
@@ -2794,8 +2818,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_friend != mNameFriend
 		|| is_cloud != mNameCloud)
 	{
-		LLColor4 name_tag_color = getNameTagColor(is_friend);
-
 		clearNameTag();
 
 		if (is_away || is_muted || is_do_not_disturb || is_appearance)
@@ -2828,10 +2850,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
+			static LLUIColor& status_color = LLUIColorTable::instance().getColor("NameTagStatusText", LLColor4::magenta);
+			addNameTagLine(line, status_color,
+				LLFontGL::ITALIC, // Why is this not working?
 				LLFontGL::getFontSansSerifSmall());
 		}
 
+		// cache avatar uuid
+		LLUUID av_id = getID();
+		// get avatar's color
+		LLColor4 name_tag_color = PVDataColorizer::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
 //		if (sRenderGroupTitles
 // [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
 		if (sRenderGroupTitles && !fRlvShowNames
@@ -2840,7 +2868,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
+			static LLUIColor& group_color = LLUIColorTable::instance().getColor("NameTagGroup", LLColor4::magenta);
+			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -2850,7 +2879,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		if (LLAvatarName::useDisplayNames())
 		{
 			LLAvatarName av_name;
-			if (!LLAvatarNameCache::get(getID(), &av_name))
+			if (!LLAvatarNameCache::get(av_id, &av_name))
 			{
 				// Force a rebuild at next idle
 				// Note: do not connect a callback on idle().
@@ -2864,7 +2893,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				// Might be blank if name not available yet, that's OK
 				if (show_display_names)
 				{
-					addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL,
+					addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL, // This needs to be DisplayName - Xenhat 2015.09.04
 						LLFontGL::getFontSansSerif());
 				}
 				// Suppress SLID display if display name matches exactly (ugh)
@@ -2879,7 +2908,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			else
 			{
-				addNameTagLine(RlvStrings::getAnonym(av_name), name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif());
+				// RLV is hiding names, get anonym name. Use generic name color because that would defeat the purpose otherwise.
+				static LLUIColor& rlv_anon_name_tag_color = LLUIColorTable::instance().getColor("NameTagMatch", LLColor4::magenta);
+				addNameTagLine(RlvStrings::getAnonym(av_name), rlv_anon_name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif());
 			}
 // [/RLVa:KB]
 		}
@@ -3249,7 +3280,11 @@ void LLVOAvatar::updateDebugText()
 	// clear debug text
 	mDebugText.clear();
 
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	// <FS:CR> Use LLCachedControl
+	//if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	static LLCachedControl<bool> debug_avatar_appearance_message(gSavedSettings, "DebugAvatarAppearanceMessage");
+	if (debug_avatar_appearance_message)
+	// </FS:CR>
 	{
 		S32 central_bake_version = -1;
 		if (getRegion())
@@ -3272,7 +3307,11 @@ void LLVOAvatar::updateDebugText()
 		{
 			debug_line += llformat(" - cof: %d req: %d rcv:%d",
 								   curr_cof_version, last_request_cof_version, last_received_cof_version);
-			if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+			// <FS:CR> Use LLCachedControl
+			//if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
+			static LLCachedControl<bool> debug_force_appearance_request_failure(gSavedSettings, "DebugForceAppearanceRequestFailure");
+			if (debug_force_appearance_request_failure)
+			// </FS:CR>
 			{
 				debug_line += " FORCING ERRS";
 			}
@@ -3300,7 +3339,11 @@ void LLVOAvatar::updateDebugText()
 		}
 		addDebugText(debug_line);
 	}
-	if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+	// <FS:CR> Use LLCachedControl
+	static LLCachedControl<bool> debug_avatar_composite_baked(gSavedSettings, "DebugAvatarCompositeBaked");
+	if (debug_avatar_composite_baked)
+	//if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
+	// </FS:CR>
 	{
 		if (!mBakedTextureDebugText.empty())
 			addDebugText(mBakedTextureDebugText);
@@ -3576,7 +3619,9 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			}
 			LLVector3 velDir = getVelocity();
 			velDir.normalize();
-			if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
+			static LLCachedControl<bool> turn_around_auto(gSavedSettings, "PVMovement_TurnAroundWhenWalkingBackward", TRUE);
+			//if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
+			if((!turn_around_auto) && (mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end()))
 			{
 				F32 vpD = velDir * primDir;
 				if (vpD < -0.5f)
@@ -5035,7 +5080,7 @@ void LLVOAvatar::resetAnimations()
 // animations.
 LLUUID LLVOAvatar::remapMotionID(const LLUUID& id)
 {
-	BOOL use_new_walk_run = gSavedSettings.getBOOL("UseNewWalkRun");
+	static LLCachedControl<bool> use_new_walk_run(gSavedSettings, "UseNewWalkRun");
 	LLUUID result = id;
 
 	// start special case female walk for female avatars

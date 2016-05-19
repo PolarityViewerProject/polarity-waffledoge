@@ -373,6 +373,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
+
+	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )

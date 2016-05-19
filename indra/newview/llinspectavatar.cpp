@@ -403,7 +403,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);
-			agent_role->setColor(PVDataColorizer::instance().getColor(mAvatarID, "DefaultTextColor", false));
+			agent_role->setColor(PVDataColorizer::instance().getColor(mAvatarID, LLUIColorTable::instance().getColor("DefaultTextColor"), false));
 		}
 
 	}

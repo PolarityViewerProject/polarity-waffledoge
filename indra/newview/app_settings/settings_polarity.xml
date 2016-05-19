@@ -343,7 +343,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVColorManager_OverrideFriendColor</key>
+    <key>PVColorManager_LowPriorityFriendStatus</key>
     <map>
       <key>Comment</key>
       <string>Override the friend color when user has a PVData-provided color.</string>

@@ -45,6 +45,13 @@
 #include "llfloaterabout.h"
 #include "pvcommon.h"
 #include "llstartup.h"
+#include "llavatarnamecache.h"
+
+static const std::string LL_LINDEN = "Linden";
+static const std::string LL_MOLE = "Mole";
+static const std::string LL_PRODUCTENGINE = "ProductEngine";
+static const std::string LL_SCOUT = "Scout";
+static const std::string LL_TESTER = "Tester";
 
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
@@ -364,6 +371,8 @@ void PVData::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS("PVData") << "Populating Blocked Releases list..." << LL_ENDL;
 		const LLSD& blocked = data_input["BlockedReleases"];
+		// Clear for new data
+		mBlockedVersions.clear();
 		for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
 		{
 			std::string version = iter->first;
@@ -384,6 +393,8 @@ void PVData::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS("PVData") << "Getting minimum version..." << LL_ENDL;
 		const LLSD& min_version = data_input["MinimumVersion"];
+		// Clear for new data
+		mMinimumVersion.clear();
 		for (LLSD::map_const_iterator iter = min_version.beginMap(); iter != min_version.endMap(); ++iter)
 		{
 			std::string version = iter->first;
@@ -441,6 +452,8 @@ void PVData::parsePVData(const LLSD& data_input)
 	if (data_input.has("ProgressTip"))
 	{
 		LL_DEBUGS("PVData") << "Found Progress Tips!" << LL_ENDL;
+		// Clear for new data
+		memoryResidentProgressTips.clear();
 		// Store list for later use
 		memoryResidentProgressTips = data_input["ProgressTip"];
 		//gAgent.mMOTD.assign(getNewProgressTipForced());
@@ -475,6 +488,9 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	}
 
 	eAgentsParseStatus = PARSING;
+	// Empty data to make sure refresh works right.
+	// FIXME: This isn't really elegant and leaves a moment with no data.
+	mAgentAccess.clear();
 	LL_DEBUGS("PVData") << "Attempting to find Agents Access" << LL_ENDL;
 	if (data_input.has("AgentAccess"))
 	{
@@ -494,6 +510,8 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	{
 		LL_DEBUGS("PVData") << "Found Agents Titles" << LL_ENDL;
 		const LLSD& titles_list = data_input["AgentTitles"];
+		// Clear for new data
+		mAgentTitles.clear();
 		for (LLSD::map_const_iterator iter = titles_list.beginMap(); iter != titles_list.endMap(); ++iter)
 		{
 			LLUUID key = LLUUID(iter->first);
@@ -511,6 +529,8 @@ void PVData::parsePVAgents(const LLSD& data_input)
 			<< data << "\n"
 			<< "~~~~~~~~~~~~  END OF AgentColors ~~~~~~~~~~~~" << "\n"
 			<< LL_ENDL;
+		// Clear map to load new data, in case some went away.
+		mAgentColors.clear();
 		for (LLSD::map_const_iterator iter = data.beginMap(); iter != data.endMap(); ++iter)
 		{
 			LLUUID key = LLUUID(iter->first);
@@ -722,17 +742,6 @@ bool PVData::isBlockedRelease()
 int PVData::getAgentFlags(const LLUUID& avatar_id)
 {
 	int flags = mAgentAccess[avatar_id];
-
-	// Will crash if name resolution is not available yet
-	if (LLStartUp::getStartupState() >= STATE_STARTED)
-	{
-		if (PVCommon::isLinden(avatar_id))
-		{
-			// set bit for LL employee
-			flags = flags |= FLAG_LINDEN_EMPLOYEE;
-			mAgentAccess[avatar_id] = flags;
-		}
-	}
 	LL_DEBUGS("PVData") << "Returning '" << flags << "'" << LL_ENDL;
 	return flags;
 }
@@ -791,9 +800,9 @@ bool PVData::hasTitle(const LLUUID& avatar_id)
 	return (mAgentAccess[avatar_id] & FLAG_USER_HAS_TITLE);
 }
 
-bool PVData::isSupportGroup(const LLUUID& id)
+bool PVData::isSupportGroup(const LLUUID& avatar_id)
 {
-	return (mSupportGroup.count(id));
+	return (mSupportGroup.count(avatar_id));
 }
 
 LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
@@ -804,6 +813,47 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	LL_DEBUGS("PVData") << "agent_color == " << agent_color << LL_ENDL;
 	// TODO: Check to make sure it returns black if empty
 	return agent_color;
+}
+
+bool PVData::isLinden(const LLUUID& avatar_id)
+{
+	// <Polarity> Speed up: Check if we already establed that association
+	if (mAgentAccess[avatar_id] & FLAG_LINDEN_EMPLOYEE)
+	{
+		return true;
+	}
+
+	std::string first_name, last_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(avatar_id, &av_name))
+	{
+		std::istringstream full_name(av_name.getUserName());
+		full_name >> first_name >> last_name;
+	}
+	else
+	{
+		gCacheName->getFirstLastName(avatar_id, first_name, last_name);
+	}
+	if (first_name.empty())
+	{
+		// prevent returning 'true' when name is missing.
+		return false;
+	}
+	bool is_linden = (last_name == LL_LINDEN ||
+		last_name == LL_MOLE ||
+		last_name == LL_PRODUCTENGINE ||
+		last_name == LL_SCOUT ||
+		last_name == LL_TESTER);
+
+	if (is_linden)
+	{
+		// set bit for LL employee
+		// Can't we make this more efficient?
+		signed int av_flags = this->instance().getAgentFlags(avatar_id);
+		av_flags = av_flags |= FLAG_LINDEN_EMPLOYEE;
+		mAgentAccess[avatar_id] = av_flags;
+	}
+	return is_linden;
 }
 
 // ReSharper disable CppAssignedValueIsNeverUsed

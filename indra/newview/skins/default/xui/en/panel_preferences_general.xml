@@ -286,9 +286,18 @@
 	 layout="topleft"
 	 left="35"
 	 name="display_names_check"
-	 width="237"
+	 width="100"
 	 tool_tip="Check to use display names in chat, IM, name tags, etc."
 	 top_pad="3"/>
+    <check_box
+     control_name="PVColorManager_LowPriorityFriendStatus"
+     enabled_control="NameTagShowFriends"
+     height="16"
+     label="Low-priority friend color"
+     layout="topleft"
+     left_pad="50"
+     name="show_friends"
+     tool_tip="Special agent color will replace friend highlight"/>
 	 
 	<text
 	 type="string"

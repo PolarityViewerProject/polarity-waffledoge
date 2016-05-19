@@ -41,10 +41,9 @@
 #include "llversioninfo.h"
 
 #include "pvdata.h"
+#include "pvcommon.h"
 
-//#if RLV_SUPPORT
 #include "rlvhandler.h"
-// #endif // RLV_SUPPORT
 
 LLColor4 PVDataColorizer::addOrSubstractHue(const LLColor4 in_color4, const F32 new_hue_f32)
 {
@@ -82,24 +81,30 @@ LLColor4 PVDataColorizer::addOrSubstractSaturationAndLight(const LLColor4 in_col
 	return out_color;
 }
 
-LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& default_color, const bool& should_show_friend)
+LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy)
 {
-	auto fallback_color = LLUIColorTable::instance().getColor(default_color);
-
-	// handle friend color first since it overrides a lot.
-
-	static LLCachedControl<bool> show_as_friend(gSavedSettings, "NameTagShowFriends");
-	static LLCachedControl<bool> override_friend_color(gSavedSettings, "PVColorManager_OverrideFriendColor", true);
-	if (!override_friend_color && ((should_show_friend && (show_as_friend && (LLAvatarTracker::instance().isBuddy(avatar_id)) && (gAgent.getID() != avatar_id)
-//#if RLV_SUPPORT
-								&& !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)
-//#endif // RLV_SUPPORT
-								))))
+	// Coloring will break immersion and identify agents even if their name is replaced, so return default color in that case.
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
 	{
-		return LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::green);
+		return default_color;
+	}
+	// handle friend color first since it overrides a lot.
+	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
+
+	LLColor4 fallback_color = default_color;
+
+	// Respect user preferences
+	if (show_friends && is_buddy)
+	{
+		fallback_color = LLUIColorTable::instance().getColor("HTMLLinkColor", LLColor4::green);
+	}
+
+	if (!low_priority_friend_status)
+	{
+		return fallback_color;
 	}
 	else
-//#endif
 	{
 		static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
 		static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
@@ -114,19 +119,17 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 		if (av_flags == 0)
 		{
 			// Agent is not flagged by PVData, start user-specific logic
-			LLAvatarName av_name;
-			LLAvatarNameCache::get(avatar_id, &av_name);
-			std::string user_name = av_name.getUserName();
-			if (LLMuteList::instance().isLinden(user_name))
+			if (LLMuteList::instance().isMuted(avatar_id))
+			{
+				return muted_color.get();
+			}
+			if (PVData::instance().isLinden(avatar_id))
 			{
 				// kept in case
 				return linden_color.get();
 			}
-			if (LLMuteList::instance().isMuted(avatar_id, user_name))
-			{
-				return muted_color.get();
-			}
 			// Maybe find a way to indentify partner?
+			// NOTE: This would correctly return friend color
 			return fallback_color;
 		}
 		else
@@ -186,9 +189,6 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 			}
 		}
 	}
-
-	//LL_DEBUGS("PVData") << "Returning " << fallback_color << LL_ENDL;
-	//return fallback_color;
 }
 
 // Call this very early.
