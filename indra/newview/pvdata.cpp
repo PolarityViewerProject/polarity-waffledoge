@@ -327,7 +327,7 @@ void PVData::handleDataFailure()
 	// Ideally, if data is not present, the user should be treated as a normal resident
 	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
 
-	gAgent.mMOTD.assign("Nyaaaaaaa~");
+	gAgent.mMOTD.assign("COULD NOT CONTACT MOTD SERVER");
 	eDataDownloadStatus = DOWNLOAD_FAILURE;
 }
 void PVData::handleAgentsFailure()
