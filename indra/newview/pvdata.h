@@ -111,6 +111,8 @@ public:
 	// This handles the data received from the server after downloading the data
 	void PVData::handleServerResponse(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
 
+	bool isSupportGroup(const LLUUID& id);
+
 	// Returns the agent flags as a LLColor4
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 

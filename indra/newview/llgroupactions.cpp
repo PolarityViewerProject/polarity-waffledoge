@@ -48,6 +48,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "pvdata.h"
+
 //
 // Globals
 //
@@ -239,6 +241,10 @@ void LLGroupActions::join(const LLUUID& group_id)
 	if (!gAgent.canJoinGroups())
 	{
 		LLNotificationsUtil::add("JoinedTooManyGroups");
+		return;
+	}
+	if (PVData::instance().isSupportGroup(group_id) && PVData::instance().isDeniedSupport(gAgentID))
+	{
 		return;
 	}
 

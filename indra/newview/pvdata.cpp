@@ -791,6 +791,11 @@ bool PVData::hasTitle(const LLUUID& avatar_id)
 	return (mAgentAccess[avatar_id] & FLAG_USER_HAS_TITLE);
 }
 
+bool PVData::isSupportGroup(const LLUUID& id)
+{
+	return (mSupportGroup.count(id));
+}
+
 LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 {
 	// Prevent ulterior typecasts
