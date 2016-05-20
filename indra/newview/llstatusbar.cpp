@@ -230,7 +230,18 @@ void LLStatusBar::RefreshClockArea(bool mShowSeconds)
 	// Get current UTC time, adjusted for the user's clock being off.
 	time_t utc_time;
 	utc_time = time_corrected();
-	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	std::string timeStr;
+	// <polarity> PLVR-4 24-hour clock mode
+	static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
+	if (use_24h_clock)
+	{
+		timeStr = getString(mShowSeconds ? "time24Precise" : "time24");
+	}
+	else
+	{
+		timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	}
+	// </polarity>
 	LLSD substitution;
 	substitution["datetime"] = (S32) utc_time;
 	LLStringUtil::format (timeStr, substitution);
