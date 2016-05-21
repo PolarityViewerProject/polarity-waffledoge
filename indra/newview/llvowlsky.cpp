@@ -43,12 +43,14 @@ const U32 LLVOWLSky::MAX_SKY_DETAIL = 2048;
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
-	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
+	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
+	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, WLSkyDetail));
 }
 
 inline U32 LLVOWLSky::getNumSlices(void)
 {
-	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, gSavedSettings.getU32("WLSkyDetail")));
+	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
+	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, WLSkyDetail));
 }
 
 inline U32 LLVOWLSky::getFanNumVerts(void)
@@ -330,7 +332,8 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 	}
 
 	{
-		const U32 max_buffer_bytes = gSavedSettings.getS32("RenderMaxVBOSize")*1024;
+		static LLCachedControl<S32> RenderMaxVBOSize(gSavedSettings, "RenderMaxVBOSize");
+		const U32 max_buffer_bytes = RenderMaxVBOSize * 1024;
 		const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
 		const U32 max_verts = max_buffer_bytes / LLVertexBuffer::calcVertexSize(data_mask);
 
