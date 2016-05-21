@@ -44,13 +44,13 @@ const U32 LLVOWLSky::MAX_SKY_DETAIL = 2048;
 inline U32 LLVOWLSky::getNumStacks(void)
 {
 	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
-	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, WLSkyDetail));
+	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, (U32)WLSkyDetail));
 }
 
 inline U32 LLVOWLSky::getNumSlices(void)
 {
 	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
-	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, WLSkyDetail));
+	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, (U32)WLSkyDetail));
 }
 
 inline U32 LLVOWLSky::getFanNumVerts(void)
