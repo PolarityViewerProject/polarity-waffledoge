@@ -60,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
+#include "osavatarcolormgr.h"
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
@@ -146,8 +147,6 @@ void LLNetMap::setScale( F32 scale )
 void LLNetMap::draw()
 {
  	static LLFrameTimer map_timer;
-	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
-	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
@@ -336,6 +335,7 @@ void LLNetMap::draw()
 		uuid_vec_t avatar_ids;
 		std::vector<LLVector3d> positions;
 		bool unknown_relative_z;
+		LLColor4 color;
 
 		LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
 
@@ -348,9 +348,7 @@ void LLNetMap::draw()
 
 			pos_map = globalPosToView(positions[i]);
 
-			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
-
-			LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+			color = OSAvatarColorMgr::instance().getColor(uuid);
 
 			unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
