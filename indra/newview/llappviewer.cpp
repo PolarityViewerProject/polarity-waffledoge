@@ -264,6 +264,8 @@
 #include "sanitycheck.h"
 #include "pvdata.h"
 
+#include "pvomp.h"
+
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -2194,22 +2196,53 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
-	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-													sImageDecodeThread,
-													enable_threads && true,
-													app_metrics_qa_mode);	
-
-	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
+#if OMP_ENABLE
 	{
-		LLTrace::BlockTimer::setLogLock(new LLMutex());
-		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
-		mFastTimerLogThread->start();
+		PVOpenMP::setOpenMPThreadsCount();
+		{
+			#pragma omp parallel // <KV:Sythos>
+			{
+				LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);	
+			}
+			#pragma omp barrier // <KV:Sythos>
+			{
+				LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
+			}
+			#pragma omp barrier // <KV:Sythos>
+			{
+				LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+																sImageDecodeThread,
+																enable_threads && true,
+																app_metrics_qa_mode);	
+				if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
+				{
+					LLTrace::BlockTimer::setLogLock(new LLMutex());
+					mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
+					mFastTimerLogThread->start();
+				}
+			}
+			// Mesh streaming and caching
+			gMeshRepo.init();
+		}
 	}
+#else
+		LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
+		LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
+		LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+			sImageDecodeThread,
+			enable_threads && true,
+			app_metrics_qa_mode);
 
-	// Mesh streaming and caching
-	gMeshRepo.init();
+		if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
+		{
+			LLTrace::BlockTimer::setLogLock(new LLMutex());
+			mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
+			mFastTimerLogThread->start();
+		}
+
+		// Mesh streaming and caching
+		gMeshRepo.init();
+#endif
 
 	LLFilePickerThread::initClass();
 

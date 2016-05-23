@@ -35,6 +35,11 @@ set(COMPILER_JOBS ${COMPILER_JOBS} CACHE STRING "Amount of simultaneous compiler
 option(USE_AVX "Use the AVX Instruction Set whenever possible" OFF)
 option(USE_SSE3 "Use the SSE3 Instruction Set whenever possible" ON)
 
+# Multi-threading
+option(OMP_ENABLE "Multi-threading using OpenMP (up to v2.0 on Windows)" OFF)
+option(OMP_IMAGEWORKER "Multi-thread the image worker process independently of the decode thread" ${OMP_IMAGEWORKER})
+option(OMP_MANUAL_THREADS "Use Hard-coded amount of threads." OFF)
+
 if(USE_AVX)
   set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
 endif(USE_AVX)

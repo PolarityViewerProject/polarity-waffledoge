@@ -202,6 +202,9 @@ add_definitions(
   /DUSE_LTO=${USE_LTO}
   /DUSE_AVX=${USE_AVX}
   /DUSE_SSE=${USE_SSE3}
+  /DOMP_ENABLE-${OMP_ENABLE}
+  /DOMP_IMAGEWORKER-${OMP_IMAGEWORKER}
+  /DOMP_MANUAL_THREADS-${OMP_MANUAL_THREADS}
   /DRELEASE_BUILD=${RELEASE_BUILD}
   )
 
@@ -214,7 +217,6 @@ MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
 MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
 MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
-MESSAGE("RELEASE_BUILD                      ${RELEASE_BUILD}")
 if(USE_AVX)
 MESSAGE("Minimum Optimization:              AVX")
 else(USE_SSE3)
@@ -222,6 +224,10 @@ MESSAGE("Minimum Optimization:              SSE3")
 else()
 MESSAGE("Minimum Optimization:              SSE2")
 endif(USE_AVX)
+MESSAGE("OpenMP:                            ${OMP_ENABLE}")
+MESSAGE("OpenMP Image worker:               ${OMP_IMAGEWORKER}")
+MESSAGE("OpenMP Manual Threading:           ${OMP_MANUAL_THREADS}")
+MESSAGE("RELEASE_BUILD                      ${RELEASE_BUILD}")
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
 endif(PVDATA_UUID_LOCKDOWN)
