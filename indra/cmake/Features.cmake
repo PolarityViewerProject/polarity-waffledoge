@@ -1,4 +1,9 @@
-# <polarity> This is how you define preprocessor definitions...
+# <polarity> Our feature list. Included in Variables.cmake, please do not include manually.
+
+# Make sure it doesn't happen anyway.
+if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
+set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
+
 # PVData Master Switch. Does not turn off PVData, but allows to easily disable all non-essential features.
 option(PVDATA "PVData master switch for all non-essential components." OFF)
 if (PVDATA)
@@ -35,42 +40,6 @@ if(USE_AVX)
 endif(USE_AVX)
 
 option(RELEASE_BUILD "Used to help configure release binaries" OFF)
-
-# <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
-add_definitions(
-  /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
-  /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
-  /DPVDATA_MOTD_CHAT=${PVDATA_MOTD_CHAT}
-  /DPVDATA_MOTD=${PVDATA_MOTD}
-  /DPVDATA_PROGRESS_TIPS=${PVDATA_PROGRESS_TIPS}
-  /DPVDATA_UUID_LOCKDOWN=${PVDATA_UUID_LOCKDOWN}
-  /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
-  /DUSE_LTO=${USE_LTO}
-  /DUSE_AVX=${USE_AVX}
-  /DUSE_SSE=${USE_SSE3}
-  /DRELEASE_BUILD=${RELEASE_BUILD}
-  )
-
-MESSAGE("======== *FEATURES* ========")
-MESSAGE("ENABLE_MESH_UPLOAD                 ${ENABLE_MESH_UPLOAD}")
-MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
-MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
-MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
-MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
-MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
-MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
-MESSAGE("USE_LTO                            ${USE_LTO}")
-MESSAGE("RELEASE_BUILD                      ${RELEASE_BUILD}")
-if(USE_AVX)
-MESSAGE("Minimum Optimization:              AVX")
-else(USE_SSE3)
-MESSAGE("Minimum Optimization:              SSE3")
-else()
-MESSAGE("Minimum Optimization:              SSE2")
-endif(USE_AVX)
-if(PVDATA_UUID_LOCKDOWN)
-  MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO 'secondlife:///app/agent/${PVDATA_UUID_LOCKTO}/about'")
-endif(PVDATA_UUID_LOCKDOWN)
-MESSAGE("============================")
 # </polarity>
+
+endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
