@@ -160,6 +160,8 @@ LLAvatarList::LLAvatarList(const Params& p)
 	}
 	
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
+	gSavedSettings.getControl("PVUI_AvatarListNameFormat")->getSignal()->connect(
+		boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
 }
 
 
@@ -285,7 +287,8 @@ void LLAvatarList::refresh()
 		LLAvatarName av_name;
 		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
 
-		if (!have_filter || findInsensitive(av_name.getDisplayName(), mNameFilter))
+		std::string name = LLAvatarListItem::formatAvatarName(av_name); // <alchemy/>
+		if (!have_filter || findInsensitive(name, mNameFilter)) // <alchemy/>
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -303,9 +306,8 @@ void LLAvatarList::refresh()
 				}
 				else
 				{
-					std::string display_name = av_name.getDisplayName();
 					addNewItem(buddy_id, 
-						display_name.empty() ? waiting_str : display_name, 
+						name.empty() ? waiting_str : name, // <alchemy/>
 						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				}
 				
@@ -333,7 +335,7 @@ void LLAvatarList::refresh()
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
 			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
-			if (!findInsensitive(av_name.getDisplayName(), mNameFilter))
+			if (!findInsensitive(LLAvatarListItem::formatAvatarName(av_name), mNameFilter)) // <alchemy/>
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -406,7 +408,7 @@ bool LLAvatarList::filterHasMatches()
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(av_name.getDisplayName(), mNameFilter))
+		if (have_name && !findInsensitive(LLAvatarListItem::formatAvatarName(av_name), mNameFilter)) // <alchemy/>
 		{
 			continue;
 		}
@@ -463,7 +465,10 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
-	if ( mContextMenu && !isAvalineItemSelected())
+// if ( mContextMenu && !isAvalineItemSelected())
+// [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a) | Modified: RLVa-1.2.0d
+	if ( (mContextMenu && !isAvalineItemSelected()) && ((!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))) )
+// [/RLVa:KB]
 	{
 		uuid_vec_t selected_uuids;
 		getSelectedUUIDs(selected_uuids);
@@ -585,7 +590,11 @@ void LLAvatarList::updateLastInteractionTimes()
 
 void LLAvatarList::onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
+// mItemDoubleClickSignal(ctrl, x, y, mask);
+// [RLVa:KB] - Checked: 2010-06-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
+	if ( (!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) )
 	mItemDoubleClickSignal(ctrl, x, y, mask);
+// [/RLVa:KB]
 }
 
 bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

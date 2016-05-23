@@ -243,6 +243,36 @@ std::string LLAvatarName::getUserName() const
 	return name;
 }
 
+std::string LLAvatarName::getCompleteNameForced() const
+{
+	// NOTE: Should we prefer display name or user name here?
+	// For now: respect display name preferences but force the parenthesis format.
+	std::string name;
+	if (mUsername.empty() || mIsDisplayNameDefault)
+	{
+		// If this particular display name is defaulted (i.e. based on user name),
+		// then construct a full name from it.
+		name = mDisplayName;
+	}
+	else
+	{
+		name = mDisplayName;
+	}
+	name += " (" + mUsername + ")";
+	return name;
+}
+
+std::string LLAvatarName::getDisplayNameForced() const
+{
+	// This should never be empty, but I can be wrong.
+	if (mDisplayName.empty())
+	{
+		return "MISSING DISPLAY NAME";
+	}
+	return mDisplayName;
+
+}
+
 void LLAvatarName::dump() const
 {
 	LL_DEBUGS("AvNameCache") << "LLAvatarName: "

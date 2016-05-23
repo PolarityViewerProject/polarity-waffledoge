@@ -575,24 +575,28 @@ bool PVData::getAgentsDone() const
 	}
 	return false;
 }
+// <polarity> The Linden Lab viewer's logic is somewhat spaghetti and confusing to me, so I wrote my own.
 std::string PVData::getPreferredName(const LLAvatarName& av_name)
 {
-	std::string name;
 	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
 	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
-	if ((show_username) && (use_display_names))
+	if (use_display_names && show_username)
 	{
-		name = av_name.getCompleteName(); // Show everything
+		return av_name.getCompleteNameForced(); // Show everything
 	}
-	else if (use_display_names)
+	else if (use_display_names && !show_username)
 	{
-		name = av_name.getDisplayName();
+		return av_name.getDisplayNameForced();
+	}
+	else if (!use_display_names && !show_username)
+	{
+		return av_name.getUserName();
 	}
 	else
 	{
-		name = av_name.getUserName();
+		// we shouldn't hit this, but a sane fallback can't hurt.
+		return av_name.getUserName();
 	}
-	return name;
 }
 
 LLUUID PVData::getLockDownUUID()
