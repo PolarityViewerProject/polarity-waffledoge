@@ -100,7 +100,7 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 		fallback_color = LLUIColorTable::instance().getColor("HTMLLinkColor", LLColor4::green);
 	}
 
-	if (!low_priority_friend_status)
+	if ((avatar_id != gAgentID) && !low_priority_friend_status)
 	{
 		return fallback_color;
 	}
