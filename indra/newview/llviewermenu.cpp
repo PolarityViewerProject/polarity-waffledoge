@@ -6127,6 +6127,20 @@ class LLWorldCreateLandmark : public view_listener_t
 	}
 };
 
+// <FS:Ansariel> Toggle teleport history panel directly
+void toggleTeleportHistory()
+{
+	if (LLFloaterReg::instanceVisible("places"))
+	{
+		LLFloaterReg::hideInstance("places");
+	}
+	else
+	{
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
+	}
+}
+// </FS:Ansariel> Toggle teleport history panel directly
+
 class LLWorldPlaceProfile : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -9712,4 +9726,7 @@ void initialize_menus()
 		enable.add("RLV.EnableIfNot", boost::bind(&rlvMenuEnableIfNot, _2));
 	}
 // [/RLVa:KB]
+	// <FS:Ansariel> Toggle teleport history panel directly
+	commit.add("ToggleTeleportHistory", boost::bind(&toggleTeleportHistory));
+	// </FS:Ansariel>
 }
