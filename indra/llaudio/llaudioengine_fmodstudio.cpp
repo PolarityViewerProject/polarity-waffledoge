@@ -376,7 +376,7 @@ void LLAudioEngine_FMODSTUDIO::updateWind(LLVector3 wind_vec, F32 camera_height_
 		// need to convert this to the conventional orientation DS3D and OpenAL use
 		// where +X = right, +Y = up, +Z = backwards
 
-		wind_vec.setVec(-wind_vec.mV[1], wind_vec.mV[2], wind_vec.mV[0]);
+		wind_vec.setVec(-wind_vec.mV[1], wind_vec.mV[2], -wind_vec.mV[0]);
 
 		// cerr << "Wind update" << endl;
 
@@ -653,8 +653,7 @@ bool LLAudioBufferFMODSTUDIO::loadWAV(const std::string& filename)
 	}
 
 	FMOD_MODE base_mode = FMOD_LOOP_NORMAL;
-	FMOD_CREATESOUNDEXINFO exinfo;
-	memset(&exinfo,0,sizeof(exinfo));
+	FMOD_CREATESOUNDEXINFO exinfo = {0};
 	exinfo.cbsize = sizeof(exinfo);
 	exinfo.suggestedsoundtype = FMOD_SOUND_TYPE_WAV;	//Hint to speed up loading.
 	// Load up the wav file into an fmod sample
