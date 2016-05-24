@@ -599,6 +599,40 @@ std::string PVData::getPreferredName(const LLAvatarName& av_name)
 	}
 }
 
+// <polarity> Overload to work with UUIDs
+std::string PVData::getPreferredName(const LLUUID& avatar_lluuid)
+{
+	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
+	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
+	// Get name via name cache
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(avatar_lluuid, &av_name);
+
+	if (!av_name.isValidName())
+	{
+		LL_WARNS("PVData") << "Name lookup failed, aborting!" << LL_ENDL;
+		return "LOOKUPFAILED TRYAGAIN";
+	}
+
+	if (use_display_names && show_username)
+	{
+		return av_name.getCompleteNameForced(); // Show everything
+	}
+	else if (use_display_names && !show_username)
+	{
+		return av_name.getDisplayNameForced();
+	}
+	else if (!use_display_names && !show_username)
+	{
+		return av_name.getUserName();
+	}
+	else
+	{
+		// we shouldn't hit this, but a sane fallback can't hurt.
+		return av_name.getUserName();
+	}
+}
+
 LLUUID PVData::getLockDownUUID()
 {
 // Workaround for missing CMAKE flags

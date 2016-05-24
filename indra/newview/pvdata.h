@@ -168,7 +168,7 @@ public:
 
 	// This returns the avatar's name in the format defined by the viewer settings.
 	static std::string getPreferredName(const LLAvatarName& av_name);
-
+	static std::string getPreferredName(const LLUUID& avatar_lluuid);
 	// Returns whether or not the user can use our viewer
 	bool isAllowedToLogin(const LLUUID& avatar_id);
 
