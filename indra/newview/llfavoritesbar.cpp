@@ -707,7 +707,9 @@ void LLFavoritesBarCtrl::draw()
 	}
 	if (mItemsChangedTimer.getStarted())
 	{
-		if (mItemsChangedTimer.getElapsedTimeF32() > 1.f)
+		// Chill, jesus.
+		// if (mItemsChangedTimer.getElapsedTimeF32() > 1.f)
+		if (mItemsChangedTimer.getElapsedTimeF32() > 60.f)
 		{
 			LLFavoritesOrderStorage::instance().saveFavoritesRecord();
 			mItemsChangedTimer.stop();
