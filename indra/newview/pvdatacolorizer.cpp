@@ -117,7 +117,9 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 		static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
 		static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
 
-		pvdata_color = return_color;
+		// hack
+		bool custom_color_is_valid = false;
+
 		// Special color overrides all colors
 		if (av_flags & PVData::FLAG_USER_HAS_COLOR)
 		{
@@ -130,44 +132,52 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
 				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
 				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-				// pvdata color NOT SET HERE ON PURPOSE.
+			}
+			else
+			{
+				custom_color_is_valid = true;
 			}
 		}
-		if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+		// skip this logic if the user has a custom color
+		if (!custom_color_is_valid)
 		{
-			// was previously flagged as employee, so will end up in this code path
-			pvdata_color = linden_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_DEV)
-		{
-			pvdata_color = dev_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_QA)
-		{
-			pvdata_color = qa_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
-		{
-			pvdata_color = support_color.get();
-		}
-		else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
-		{
-			pvdata_color = tester_color.get();
-		}
-		else if (av_flags & PVData::FLAG_USER_BANNED)
-		{
-			pvdata_color = banned_color.get();
-		}
-		else
-		{
-			LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
-			LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-			LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-			LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-			LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-			return_color = return_color;
+
+			if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+			{
+				// was previously flagged as employee, so will end up in this code path
+				pvdata_color = linden_color.get();
+			}
+			else if (av_flags & PVData::FLAG_STAFF_DEV)
+			{
+				pvdata_color = dev_color.get();
+			}
+			else if (av_flags & PVData::FLAG_STAFF_QA)
+			{
+				pvdata_color = qa_color.get();
+			}
+			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
+			{
+				pvdata_color = support_color.get();
+			}
+			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
+			{
+				pvdata_color = tester_color.get();
+			}
+			else if (av_flags & PVData::FLAG_USER_BANNED)
+			{
+				pvdata_color = banned_color.get();
+			}
+			else
+			{
+				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
+				LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
+				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
+				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
+				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
+				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+				return_color = return_color;
+			}
 		}
 	}
 	// Respect user preferences
