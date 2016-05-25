@@ -2858,8 +2858,12 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		// cache avatar uuid
 		LLUUID av_id = getID();
+#ifdef PVDATA_COLORIZER
 		// get avatar's color
 		LLColor4 name_tag_color = PVDataColorizer::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
+#else
+		LLColor4 name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
+#endif
 //		if (sRenderGroupTitles
 // [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
 		if (sRenderGroupTitles && !fRlvShowNames
