@@ -30,54 +30,54 @@
 #ifndef PV_OMP_H
 #define PV_OMP_H
 
-#if OMP_ENABLE
+#ifdef OMP_ENABLE
 #include <omp.h>
 #pragma warning (disable : 4265)
-#include <thread> // <polarity/>
-#endif OMP_ENABLE
+#include <thread>
+#endif // OMP_ENABLE
 
-//class PVOpenMP
-namespace PVOpenMP
+//class PVThreading
+namespace PVThreading
 {
-	//LOG_CLASS(PVOpenMP); // This adds the class/function tag to the log entry
+	//LOG_CLASS(PVThreading); // This adds the class/function tag to the log entry
 
 	static int getCPUCoresAmount()
 	{
-#if OMP_ENABLE
+#ifdef OMP_ENABLE
 		return std::thread::hardware_concurrency();
 #else // NO OPENMP
 		// Fall back to a safe number. Lower to 2 for builds intended for low power machines.
-#if LOW_POWER_BUILD
+#ifdef LOW_POWER_BUILD
 		return 2;
 #else // NO LOW POWER BUILD
 		return 4;
 #endif // LOW_POWER_BUILD
 #endif // OMP_ENABLE
 	}
-	const int CPU_CORES = PVOpenMP::getCPUCoresAmount();
-	//const int PVInternalsMaxThreads = (CPU_CORES + (CPU_CORES / 2));
-#if LOW_POWER_BUILD
-	const int PVInternalsMaxThreads = (CPU_CORES + 1);
+	const int CPU_CORES = getCPUCoresAmount();
+	//const int mCPUThreadNumber = (CPU_CORES + (CPU_CORES / 2));
+#ifdef LOW_POWER_BUILD
+	const int mCPUThreadNumber = (CPU_CORES + 1);
 #else
-	const int PVInternalsMaxThreads = (CPU_CORES * 4);
+	const int mCPUThreadNumber = (CPU_CORES * 4);
 #endif // LOW_POWER_BUILD
 
-	inline static void setOpenMPThreadsCount()
+	inline static void setTheadCount()
 	{
-#if OMP_ENABLE
-#if OMP_MANUAL_THREADS
+#ifdef OMP_ENABLE
+#ifdef OMP_MANUAL_THREADS
 		omp_set_dynamic(false);     // Explicitly disable dynamic teams
-		omp_set_num_threads(PVInternalsMaxThreads); // Use 'n' threads for all consecutive parallel regions
+		omp_set_num_threads(mCPUThreadNumber); // Use 'n' threads for all consecutive parallel regions
 #else
 		omp_set_dynamic(true);     // Explicitly enable dynamic teams
 #endif // OMP_MANUAL_THREADS
-#endif
+#endif // OMP_ENABLE
 	}
 
-	static void initThreadingParameters()
+	static void initParameters()
 	{
 		getCPUCoresAmount();
-		setOpenMPThreadsCount();
+		setTheadCount();
 	}
 };
 #endif // PV_OMP_H

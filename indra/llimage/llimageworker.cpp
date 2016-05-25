@@ -37,10 +37,10 @@
 LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 	: LLQueuedThread("imagedecode", threaded)
 {
-#if OMP_ENABLE && OMP_IMAGEWORKER
+#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
 	#pragma omp parallel // <KV:Sythos>
 	{
-		// PVOpenMP::setOpenMPThreadsCount();
+		PVThreading::initParameters();
 		// LL_INFOS("OpenMP") << "Creating new LLImageDecodeThread Mutex" << LL_ENDL;
 		mCreationMutex = new LLMutex();
 	}
@@ -52,12 +52,12 @@ LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 //virtual 
 LLImageDecodeThread::~LLImageDecodeThread()
 {
-#if OMP_ENABLE && OMP_IMAGEWORKER
+#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
 	#pragma omp parallel
 	{
 #endif
 	delete mCreationMutex ;
-#if OMP_ENABLE && OMP_IMAGEWORKER
+#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
 	}
 #endif
 }
