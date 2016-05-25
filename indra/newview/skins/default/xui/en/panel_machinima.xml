@@ -1002,7 +1002,9 @@
 				text_width="40"
 				width="295">
 			</slider>
+			<!-- This doesn't quite work yet. Need to figure why. -->
 			<slider
+				enabled="false"
 				control_name="RenderShadowFarClip"
 				decimal_digits="1"
 				follows="left|top"
@@ -1021,6 +1023,7 @@
 				text_width="40"
 				width="295">
 			</slider>
+			<!-- Does not work quite yet. Need to figure why.
 			<slider
 			  enabled_control="RenderDeferred"
 			  decimal_digits="0"
@@ -1092,6 +1095,7 @@
 			    parameter="PVOverride_RenderShadowResolutionScale">
 			  </slider.commit_callback>
 			</slider>
+			-->
 			<text
 				font="SansSerif"
 				font.size="8"
