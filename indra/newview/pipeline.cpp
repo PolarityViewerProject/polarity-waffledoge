@@ -220,6 +220,7 @@ U32 LLPipeline::PVRender_SSRResolution;
 // <Black Dragon:NiranV> Chromatic Aberration
 F32 LLPipeline::PVRender_ChromaStrength;
 BOOL PVRender_DepthOfFieldAlphas;
+BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
 // </Black Dragon:NiranV>
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
@@ -1239,11 +1240,18 @@ void LLPipeline::refreshCachedSettings()
 	PVRender_EnableGodRays = gSavedSettings.getBOOL("PVRender_EnableGodRays");
 	// <polarity> PLVR-15 Depth of Field and God Rays used together creates artifacts on alpha surfaces
 	PVRender_DepthOfFieldAlphas = gSavedSettings.getBOOL("PVRender_DepthOfFieldAlphas");
+	// Not in XML because runtime only.
 	if (PVRender_EnableGodRays && PVRender_DepthOfFieldAlphas)
 	{
+		PVDebug_RenderDepthOfFieldAlphasBackup = PVRender_DepthOfFieldAlphas;
 		PVRender_DepthOfFieldAlphas = FALSE;
-		// Don't actually change the setting, this way it keeps the user preference when god rays are disabled
-		// gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
+		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
+	}
+	// Restore previous value6
+	else if (!PVRender_EnableGodRays && PVDebug_RenderDepthOfFieldAlphasBackup)
+	{
+		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", PVDebug_RenderDepthOfFieldAlphasBackup);
+		PVDebug_RenderDepthOfFieldAlphasBackup = FALSE;
 	}
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	PVRender_GodRaysResolution = gSavedSettings.getU32("PVRender_GodRaysResolution");
