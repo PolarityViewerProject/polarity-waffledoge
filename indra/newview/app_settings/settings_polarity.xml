@@ -904,13 +904,17 @@
     <key>PVOverride_RenderShadowResolutionScale</key>
     <map>
       <key>Comment</key>
-      <string>Scale of shadow map resolution vs. screen resolution</string>
+      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
+      <string>Vector3</string>
       <key>Value</key>
-      <real>1.0</real>
+      <array>
+            <real>2048</real>
+            <real>2048</real>
+            <real>1.0</real>
+      </array>
     </map>
     <key>PVOverride_RenderShadowSplitExponent</key>
     <map>
@@ -925,21 +929,6 @@
         <real>3.34</real>
         <real>3.0</real>
         <real>5.0</real>
-      </array>
-    </map>
-    <key>PVOverride_RenderShadowResolutionScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-            <real>2048</real>
-            <real>2048</real>
-            <real>1.0</real>
       </array>
     </map>
     <key>PVOverride_RenderSSAOEffect</key>
