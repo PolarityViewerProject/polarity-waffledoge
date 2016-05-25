@@ -117,7 +117,7 @@
 #include "llsdserialize.h"
 
 // TODO: Make modular again
-#if PVDATA_COLORIZER
+#ifdef PVDATA_COLORIZER
 #include "pvdatacolorizer.h"
 #endif
 
@@ -2537,7 +2537,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartData.mStartScale.mV[VY] = 1.0f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
-#if !PVDATA_COLORIZER
+#ifndef PVDATA_COLORIZER
 			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
 			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
 #else

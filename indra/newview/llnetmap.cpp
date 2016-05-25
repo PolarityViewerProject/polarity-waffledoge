@@ -64,7 +64,7 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
-#if PVDATA_COLORIZER
+#ifdef PVDATA_COLORIZER
 #include "pvdatacolorizer.h"
 #endif
 

@@ -405,7 +405,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		}
 	}
 
-#if PVDATA_MOTD
+#ifdef PVDATA_MOTD
 	// Set Message Of The Day if present
 	LL_DEBUGS("PVData") << "Attempting to find MOTD data" << LL_ENDL;
 	if (data_input.has("MOTD"))
@@ -413,7 +413,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		LL_DEBUGS("PVData") << "Found a MOTD!" << LL_ENDL;
 		gAgent.mMOTD.assign(data_input["MOTD"]);
 	}
-#if PVDATA_MOTD_CHAT
+#ifdef PVDATA_MOTD_CHAT
 	else if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
 	{
 		LL_DEBUGS("PVData") << "Found Chat MOTDs!" << LL_ENDL;
@@ -444,7 +444,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		}
 	}
 #endif // PVDATA_MOTD
-#if PVDATA_PROGRESS_TIPS
+#ifdef PVDATA_PROGRESS_TIPS
 
 	// TODO: Split tips files
 	// <polarity> Load the progress screen tips

@@ -67,7 +67,7 @@
 #include "rlvcommon.h"
 // [/RLVa:KB]
 
-#if PVDATA_COLORIZER
+#ifdef PVDATA_COLORIZER
 #include "pvdatacolorizer.h"
 #endif
 
@@ -926,7 +926,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
 	// <polarity> Color name in chat header
 	LLColor4 name_color(txt_color);
-#if PVDATA_COLORIZER
+#ifdef PVDATA_COLORIZER
 	// <polarity> Colored names for special users
 	if ((chat.mSourceType != CHAT_SOURCE_OBJECT) && (chat.mSourceType != CHAT_STYLE_HISTORY) && (chat.mFromName != SYSTEM_FROM) && (chat.mFromID.notNull()) /*&& chat.mFromID != gAgent.getID()*/)
 	{
