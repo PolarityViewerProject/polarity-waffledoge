@@ -1136,7 +1136,7 @@
 					width="295">
 				</slider>
 				<slider
-					control_name="RenderSSAOScale"
+					control_name="PVOverride_RenderSSAOScale"
 					enabled_control="RenderDeferredSSAO"
 					decimal_digits="0"
 					can_edit_text="true"
