@@ -570,6 +570,17 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
+    <key>PVRender_DepthOfFieldAlphas</key>
+    <map>
+      <key>Comment</key>
+      <string>Use pass 2 in alpha rendering when depth of field is enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVRender_EnableFilmGrain</key>
     <map>
       <key>Comment</key>
