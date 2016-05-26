@@ -4,13 +4,6 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
-# set(PVDATA_COLORIZER ${PVDATA_COLORIZER} CACHE BOOL "Color avatar names and various other elements based on their role in the project" FORCE)
-# set(PVDATA_MOTD ${PVDATA_MOTD} CACHE BOOL "Use PVData-served Message of the Day" FORCE)
-# set(PVDATA_MOTD_CHAT ${PVDATA_MOTD_CHAT} CACHE BOOL "Display a MOTD in chat at login" FORCE)
-# set(PVDATA_PROGRESS_TIPS ${PVDATA_PROGRESS_TIPS} CACHE BOOL "Use Progress Tips" FORCE)
-# set(PVDATA_UUID_LOCKDOWN ${PVDATA_UUID_LOCKDOWN} CACHE BOOL "Lock down the viewer to a specific user" FORCE)
-# set(PVDATA_UUID_LOCKTO "${PVDATA_UUID_LOCKTO}" CACHE STRING "UUID to lock down to" FORCE)
-
 option(PVDATA_COLORIZER "Color avatar names and various other elements based on their role in the project" OFF)
 option(PVDATA_MOTD "Use PVData-served Message of the Day" OFF)
 option(PVDATA_MOTD_CHAT "Display a MOTD in chat at login" OFF)
