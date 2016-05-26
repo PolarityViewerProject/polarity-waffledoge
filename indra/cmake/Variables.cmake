@@ -189,7 +189,8 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
-# <Polarity> Make sure our feature flags are passed on to the preprocessor/compiler...
+# <Polarity> We could add logic in every CmakeLists file, or we can just create preprocessor definitions
+# that will propagate throughout the entire solution...
 add_definitions(
   /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
