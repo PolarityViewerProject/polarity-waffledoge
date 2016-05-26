@@ -52,4 +52,15 @@
              function="CheckControl"
              parameter="PVUI_ShowCurrencyBalanceInStatusBar" />
     </menu_item_check>
+    <menu_item_check
+         label="Clock uses 24h format"
+         layout="topleft"
+         name="PVUI_ClockUse24hFormat">
+           <on_click
+             function="ToggleControl"
+             parameter="PVUI_ClockUse24hFormat" /> 
+             <on_check
+             function="CheckControl"
+             parameter="PVUI_ClockUse24hFormat" />
+    </menu_item_check>
 </menu>
