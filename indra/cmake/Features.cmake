@@ -29,6 +29,9 @@ option(OMP_ENABLE "Multi-threading using OpenMP (up to v2.0 on Windows)" OFF)
 option(OMP_IMAGEWORKER "Multi-thread the image worker process independently of the decode thread" OFF)
 option(OMP_MANUAL_THREADS "Use Hard-coded amount of threads." OFF)
 
+# Libraries
+option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
+
 if(USE_AVX)
  set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
 endif(USE_AVX)
