@@ -3536,6 +3536,8 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	<string name="IM_unblock_only_groups_friends">To see this message, you must uncheck &apos;Only friends and groups can call or IM me&apos; in Preferences/Privacy.</string>
   <string name="OnlineStatus">Online</string>
   <string name="OfflineStatus">Offline</string>
+	<string name="not_online_msg">User not online - message will be stored and delivered later.</string>
+	<string name="not_online_inventory">User not online - inventory has been saved.</string>
 
 	<!-- voice calls -->
 	<string name="answered_call">Your call has been answered</string>
@@ -3991,36 +3993,40 @@ Try enclosing path to the editor with double quotes.
 
   <!-- commands -->
 
-  <string name="Command_AboutLand_Label">About land</string>
+  <string name="Command_AboutLand_Label">About Land</string>
   <string name="Command_Appearance_Label">Appearance</string>
   <string name="Command_Avatar_Label">Avatar</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
+  <string name="Command_Debug_Label">Debug Settings</string>
   <string name="Command_Destinations_Label">Destinations</string>
   <string name="Command_Facebook_Label">Facebook</string>
   <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
-  <string name="Command_HowTo_Label">How to</string>
+  <string name="Command_HowTo_Label">How To</string>
   <string name="Command_Inventory_Label">Inventory</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
-  <string name="Command_MiniMap_Label">Mini-map</string>
-  <string name="Command_Move_Label">Walk / run / fly</string>
-  <string name="Command_Outbox_Label">Merchant outbox</string>
+  <string name="Command_MiniMap_Label">Mini-Map</string>
+  <string name="Command_Move_Label">Walk / Run / Fly</string>
+  <string name="Command_Outbox_Label">Merchant Outbox</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
   <string name="Command_Preferences_Label">Preferences</string>
   <string name="Command_Profile_Label">Profile</string>
+  <string name="Command_Quick_Settings_Label">Quick Settings</string>
+  <string name="Command_Scripts_Label">Scripts</string>
+  <string name="Command_Stats_Label">Statistics</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
   <string name="Command_Twitter_Label">Twitter</string>
-  <string name="Command_View_Label">Camera controls</string>
-  <string name="Command_Voice_Label">Voice settings</string>
+  <string name="Command_View_Label">Camera Controls</string>
+  <string name="Command_Voice_Label">Voice Settings</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
@@ -4029,6 +4035,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
+  <string name="Command_Debug_Tooltip">Debug settings for advanced users</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
   <string name="Command_Facebook_Tooltip">Post to Facebook</string>
   <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
@@ -4046,6 +4053,9 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Places_Tooltip">Places you've saved</string>
   <string name="Command_Preferences_Tooltip">Preferences</string>
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
+  <string name="Command_Quick_Settings_Tooltip">Quick preferences</string>
+  <string name="Command_Scripts_Tooltip">Scripts attached to your avatar</string>
+  <string name="Command_Stats_Tooltip">Statistics like FPS, network usage and sim performance</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
@@ -4054,6 +4064,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
 
   <string name="Toolbar_Bottom_Tooltip">currently in your bottom toolbar</string>
+  <string name="Toolbar_Top_Tooltip">currently in your top toolbar</string>
   <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
   <string name="Toolbar_Right_Tooltip" >currently in your right toolbar</string>
 

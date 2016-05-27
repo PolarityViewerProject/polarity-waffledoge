@@ -350,6 +350,7 @@ void LLGLSLShader::unloadInternal()
         {
             if (glIsShader(shaders[i]))
             {
+                glDetachShader(mProgramObject, shaders[i]);
                 glDeleteShader(shaders[i]);
             }
         }

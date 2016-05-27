@@ -38,6 +38,7 @@
 #include "llfloaterbuycurrency.h"
 #include "llbuycurrencyhtml.h"
 #include "llpanelnearbymedia.h"
+#include "ospanelquicksettingspulldown.h"
 #include "llpanelvolumepulldown.h"
 #include "llfloaterregioninfo.h"
 #include "llfloaterscriptdebug.h"
@@ -107,6 +108,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mSGBandwidth(NULL),
 	mSGPacketLoss(NULL),
 	mBtnStats(NULL),
+	mBtnQuickSettings(nullptr),
 	mBtnVolume(NULL),
 	mBoxBalance(NULL),
 	mBalance(0),
@@ -169,6 +171,9 @@ BOOL LLStatusBar::postBuild()
 	
 	mBtnStats = getChildView("stat_btn");
 
+	mBtnQuickSettings = getChild<LLButton>("quick_settings_btn");
+	mBtnQuickSettings->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterQuickSettings, this));
+
 	mBtnVolume = getChild<LLButton>( "volume_btn" );
 	mBtnVolume->setClickedCallback( onClickVolume, this );
 	mBtnVolume->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterVolume, this));
@@ -221,6 +226,11 @@ BOOL LLStatusBar::postBuild()
 
 	mSGPacketLoss = LLUICtrlFactory::create<LLStatGraph>(pgp);
 	addChild(mSGPacketLoss);
+
+	mPanelQuickSettingsPulldown = new OSPanelQuickSettingsPulldown();
+	addChild(mPanelQuickSettingsPulldown);
+	mPanelQuickSettingsPulldown->setFollows(FOLLOWS_TOP | FOLLOWS_RIGHT);
+	mPanelQuickSettingsPulldown->setVisible(FALSE);
 
 	mPanelVolumePulldown = new LLPanelVolumePulldown();
 	addChild(mPanelVolumePulldown);
@@ -310,6 +320,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mTextTime->setVisible(visible);
 	getChild<LLUICtrl>("balance_bg")->setVisible(visible);
 	mBoxBalance->setVisible(visible);
+	mBtnQuickSettings->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
@@ -459,6 +470,29 @@ void LLStatusBar::onClickBuyCurrency()
 	LLFirstUse::receiveLindens(false);
 }
 
+void LLStatusBar::onMouseEnterQuickSettings()
+{
+	LLView* popup_holder = gViewerWindow->getRootView()->getChildView("popup_holder");
+	LLRect qs_rect = mPanelQuickSettingsPulldown->getRect();
+	LLRect qs_btn_rect = mBtnQuickSettings->getRect();
+	qs_rect.setLeftTopAndSize(qs_btn_rect.mLeft -
+		(qs_rect.getWidth() - qs_btn_rect.getWidth()) / 2,
+		qs_btn_rect.mBottom,
+		qs_rect.getWidth(),
+		qs_rect.getHeight());
+	// force onscreen
+	qs_rect.translate(popup_holder->getRect().getWidth() - qs_rect.mRight, 0);
+
+	// show the master volume pull-down
+	mPanelQuickSettingsPulldown->setShape(qs_rect);
+	LLUI::clearPopups();
+	LLUI::addPopup(mPanelQuickSettingsPulldown);
+
+	mPanelNearByMedia->setVisible(FALSE);
+	mPanelVolumePulldown->setVisible(FALSE);
+	mPanelQuickSettingsPulldown->setVisible(TRUE);
+}
+
 void LLStatusBar::onMouseEnterVolume()
 {
 	LLButton* volbtn =  getChild<LLButton>( "volume_btn" );
@@ -477,6 +511,7 @@ void LLStatusBar::onMouseEnterVolume()
 	LLUI::clearPopups();
 	LLUI::addPopup(mPanelVolumePulldown);
 	mPanelNearByMedia->setVisible(FALSE);
+	mPanelQuickSettingsPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(TRUE);
 }
 
@@ -499,6 +534,7 @@ void LLStatusBar::onMouseEnterNearbyMedia()
 	LLUI::clearPopups();
 	LLUI::addPopup(mPanelNearByMedia);
 
+	mPanelQuickSettingsPulldown->setVisible(FALSE);
 	mPanelVolumePulldown->setVisible(FALSE);
 	mPanelNearByMedia->setVisible(TRUE);
 }

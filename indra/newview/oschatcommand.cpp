@@ -194,7 +194,7 @@ bool OSChatCommand::parseCommand(std::string data)
 		F32 dist;
 		if (input >> dist)
 		{
-			dist = llclamp(dist, 16.f, 512.f);
+			dist = llclamp(dist, 16.f, 1024.f);
 			gSavedSettings.setF32("RenderFarClip", dist);
 			gAgentCamera.mDrawDistance = dist;
 			return true;

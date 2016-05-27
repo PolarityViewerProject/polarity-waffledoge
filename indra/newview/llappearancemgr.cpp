@@ -23,7 +23,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-
+ 
 #include "llviewerprecompiledheaders.h"
 
 #include <boost/lexical_cast.hpp>
@@ -2230,10 +2230,7 @@ void LLAppearanceMgr::updateCOF(LLInventoryModel::item_array_t& body_items_new,
 	const LLUUID& base_id = (append) ? getBaseOutfitUUID() : idOutfit;
 	LLViewerInventoryCategory* base_cat = (base_id.notNull()) ? gInventory.getCategory(base_id) : NULL;
 // [/RLVa:KB]
-//	if (base_cat)
-// [SL:KB] - Patch: Appearance-Misc | Checked: 2015-06-27 (Catznip-3.7)
-	if ((base_cat) && (base_cat->getPreferredType() == LLFolderType::FT_OUTFIT))
-// [/SL:KB]
+	if (base_cat && (base_cat->getPreferredType() == LLFolderType::FT_OUTFIT))
 	{
 		LLSD base_contents;
 		base_contents["name"] = base_cat->getName();
@@ -4270,7 +4267,6 @@ LLAppearanceMgr::LLAppearanceMgr():
     mRerequestAppearanceBake(false)
 {
 	LLOutfitObserver& outfit_observer = LLOutfitObserver::instance();
-
 	// unlock outfit on save operation completed
 	outfit_observer.addCOFSavedCallback(boost::bind(
 			&LLAppearanceMgr::setOutfitLocked, this, false));
@@ -4278,7 +4274,7 @@ LLAppearanceMgr::LLAppearanceMgr():
 	mUnlockOutfitTimer.reset(new LLOutfitUnLockTimer(gSavedSettings.getS32(
 			"OutfitOperationsTimeout")));
 
-	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle,NULL);
+	gIdleCallbacks.addFunction(&LLAttachmentsMgr::onIdle, NULL);
 }
 
 LLAppearanceMgr::~LLAppearanceMgr()

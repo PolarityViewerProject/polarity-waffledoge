@@ -44,6 +44,7 @@
 #include "lllocationinputctrl.h"
 #include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
+#include "llresizebar.h"
 #include "llsearchcombobox.h"
 #include "llslurl.h"
 #include "llurlregistry.h"
@@ -267,7 +268,10 @@ LLNavigationBar::LLNavigationBar()
 	mBtnForward(NULL),
 	mBtnHome(NULL),
 	mCmbLocation(NULL),
-	mSaveToLocationHistory(false)
+	mSaveToLocationHistory(false),
+	mNavigationPanel(NULL),
+	mFavoritePanel(NULL),
+	mNavPanWidth(0)
 {
 	buildFromFile( "panel_navigation_bar.xml");
 
@@ -318,6 +322,11 @@ BOOL LLNavigationBar::postBuild()
 
 	LLHints::registerHintTarget("nav_bar", getHandle());
 
+	mNavigationPanel = getChild<LLLayoutPanel>("navigation_layout_panel");
+	mFavoritePanel = getChild<LLLayoutPanel>("favorites_layout_panel");
+	mNavigationPanel->getResizeBar()->setResizeListener(boost::bind(&LLNavigationBar::onNavbarResized, this));
+	mFavoritePanel->getResizeBar()->setResizeListener(boost::bind(&LLNavigationBar::onNavbarResized, this));
+
 	return TRUE;
 }
 
@@ -363,6 +372,18 @@ BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 void LLNavigationBar::onBackButtonClicked()
 {
 	LLTeleportHistory::getInstance()->goBack();
+}
+
+void LLNavigationBar::onNavbarResized()
+{
+	S32 new_nav_pan_width = mNavigationPanel->getRect().getWidth();
+	if(mNavPanWidth != new_nav_pan_width)
+	{
+		S32 new_stack_width = new_nav_pan_width + mFavoritePanel->getRect().getWidth();
+		F32 ratio = (F32)new_nav_pan_width / (F32)new_stack_width;
+		gSavedPerAccountSettings.setF32("NavigationBarRatio", ratio);
+		mNavPanWidth = new_nav_pan_width;
+	}
 }
 
 void LLNavigationBar::onBackOrForwardButtonHeldDown(LLUICtrl* ctrl, const LLSD& param)
@@ -667,6 +688,17 @@ void LLNavigationBar::handleLoginComplete()
 	LLTeleportHistory::getInstance()->handleLoginComplete();
 	LLPanelTopInfoBar::instance().handleLoginComplete();
 	mCmbLocation->handleLoginComplete();
+	resizeLayoutPanel();
+}
+
+void LLNavigationBar::resizeLayoutPanel()
+{
+	LLRect nav_bar_rect = mNavigationPanel->getRect();
+
+	S32 nav_panel_width = (nav_bar_rect.getWidth() + mFavoritePanel->getRect().getWidth()) * gSavedPerAccountSettings.getF32("NavigationBarRatio");
+
+	nav_bar_rect.setLeftTopAndSize(nav_bar_rect.mLeft, nav_bar_rect.mTop, nav_panel_width, nav_bar_rect.getHeight());
+	mNavigationPanel->handleReshape(nav_bar_rect,true);
 }
 
 // [RLVa:KB] - Checked: 2014-03-23 (RLVa-1.4.10)
