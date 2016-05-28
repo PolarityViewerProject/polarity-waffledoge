@@ -34,7 +34,7 @@
 			border="false"
 			background_visible="false"
 			follows="left|top|right"
-			height="1215"
+			height="1235"
 			layout="topleft"
 			left="0"
 			name="scroll_panel"
@@ -966,7 +966,7 @@
 				min_val="2"
 				name="PVRender_SSRResolution"
 				top_pad="2"
-				width="295">
+				width="310">
 			</slider>
 			<text
 				font="SansSerif"
@@ -994,13 +994,13 @@
 				label_width="130"
 				tool_tip="Set the strength of each blur pass of shadows"
 				layout="topleft"
-				left_delta="5"
+				left_delta="0"
 				max_val="3"
 				min_val="0.0"
 				name="PVOverride_RenderShadowBlurSize"
 				top_pad="3"
 				text_width="40"
-				width="295">
+				width="310">
 			</slider>
 			<!-- This doesn't quite work yet. Need to figure why. -->
 			<slider
@@ -1021,7 +1021,7 @@
 				name="RenderShadowFarClip"
 				top_pad="1"
 				text_width="40"
-				width="295">
+				width="310">
 			</slider>
 			<!-- Does not work quite yet. Need to figure why.
 			<slider
@@ -1128,12 +1128,12 @@
 					label="Effect:"
 					label_width="130"
 					layout="topleft"
-					left="0"
+					left_delta="5"
 					max_val="4"
 					min_val="-1"
 					name="SSAOEffect"
 					top_pad="0"
-					width="295">
+					width="310">
 				</slider>
 				<slider
 					control_name="PVOverride_RenderSSAOScale"
@@ -1147,12 +1147,12 @@
 					label="Scale:"
 					label_width="130"
 					layout="topleft"
-					left="0"
+					left_delta="0"
 					max_val="3000"
 					min_val="0"
 					name="SSAOScale"
 					top_pad="1"
-					width="295">
+					width="310">
 				</slider>
 				<slider
 					control_name="PVOverride_RenderSSAOMaxScale"
@@ -1166,12 +1166,12 @@
 					label="Max Scale:"
 					label_width="130"
 					layout="topleft"
-					left="0"
+					left_delta="0"
 					max_val="3000"
 					min_val="0"
 					name="SSAOMaxScale"
 					top_pad="1"
-					width="295">
+					width="310">
 				</slider>
 				<slider
 					control_name="PVOverride_RenderSSAOFactor"
@@ -1185,12 +1185,12 @@
 					label="Factor:"
 					label_width="130"
 					layout="topleft"
-					left="0"
+					left_delta="0"
 					max_val="100"
 					min_val="0"
 					name="SSAOFactor"
 					top_pad="1"
-					width="295">
+					width="310">
 				</slider>
 			</panel>
 			<text
@@ -1202,7 +1202,7 @@
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="20"
+				left="5"
 				name="light"
 				top_pad="1"
 				width="295">
@@ -1220,13 +1220,13 @@
 				label="Field of View(°):"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="5"
 				max_val="179"
 				min_val="0"
 				name="CameraFOV"
 				tool_tip="Vertical camera field of view for Depth of Field effect (in degrees)"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="CameraFNumber"
@@ -1240,13 +1240,13 @@
 				label="F-Number:"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="128"
 				min_val="0.50"
 				name="CameraFNum"
 				tool_tip="Camera f-number value for Depth of Field effect"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="CameraFocalLength"
@@ -1260,13 +1260,13 @@
 				label="Focal Length(mm):"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="300"
 				min_val="0"
 				name="CameraFocal"
 				tool_tip="Camera focal length for Depth of Field effect (in millimeters)"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="CameraMaxCoF"
@@ -1280,13 +1280,13 @@
 				label="Circle of Confusion:"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="100"
 				min_val="0"
 				name="CameraCoF"
 				tool_tip="Set the Camera circle of confusion"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				enabled_control="RenderDepthOfField"
@@ -1300,13 +1300,13 @@
 				label="Transition Time(s):"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="20"
 				min_val="0.01"
 				name="CameraFocusTrans"
 				tool_tip="Time taken to alter focus from one place to the next"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="CameraDoFResScale"
@@ -1320,13 +1320,13 @@
 				label="Resolution:"
 				label_width="130"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="1"
 				min_val="0.25"
 				name="CameraDoFRes"
 				tool_tip="Set the Resolution (Quality) of each DoF pixel"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<text
 				font="SansSerif"
@@ -1336,12 +1336,33 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="10"
+				left="5"
 				name="light_header"
 				top_pad="5"
 				width="295">
 				Lighting:
 			</text>
+			<check_box
+				control_name="UseEnvironmentFromRegion"
+				halign="center"
+				height="15"
+				label="Region WL"
+				layout="topleft"
+				left_delta="0"
+				name="UseRegioLight"
+				top_pad="5"
+				width="75">
+			</check_box>
+			<check_box
+				control_name="PVWindLight_Parcel_Enabled"
+				halign="center"
+				height="16"
+				layout="topleft"
+				left_delta="0"
+				name="FSParcelWLEnabled"
+				top_pad="0"
+				width="20">
+			</check_box>
 			<text
 				font="SansSerif"
 				font.size="8"
@@ -1351,53 +1372,119 @@
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="20"
+				left_pad="0"
 				name="windlight_section"
-				top_pad="0"
-				width="295">
-				Windlight:
+				top_delta="-1"
+				width="120">
+				FS Parcel Windlight
 			</text>
 			<check_box
-				control_name="UseEnvironmentFromRegion"
+				control_name="PVWindLight_Parcel_AlwaysUseRegion"
+				enabled_control="PVWindLight_Parcel_Enabled"
 				halign="center"
-				height="15"
-				label="Use Region Windlight"
+				height="16"
+				label="Prefer Region"
 				layout="topleft"
-				left_delta="0"
-				name="UseRegioLight"
+				left_pad="0"
+				name="WindlightInterpolation"
+				top_delta="0"
+				width="75">
+			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="0"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left="10"
+				name="shaders"
+				top_pad="2"
+				width="10">
+				┗
+			</text>
+			<text
+				font="SansSerif"
+				font.size="8"
+				font.style="ITALIC"
+				font_shadow="soft"
+				follows="left|top"
+				height="15"
+				layout="topleft"
+				left_delta="10"
+				name="windlight_section"
+				top_pad="0"
+				width="95">
+				Auto apply from:
+			</text>
+			<check_box
+				control_name="PVWindLight_Parcel_AutoApplyFromFriends"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				halign="center"
+				height="16"
+				label="Friends"
+				layout="topleft"
+				left_pad="30"
+				name="FSWLApplyFromFriends"
+				top_delta="0"
+				width="60">
+			</check_box>
+			<check_box
+				control_name="PVWindLight_Parcel_AutoApplyFromGroups"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				halign="center"
+				height="16"
+				label="Groups"
+				layout="topleft"
+				left_pad="5"
+				name="FSWLApplyFromGroups"
+				top_deltaelta="0"
+				width="60">
+			</check_box>
+			<check_box
+				control_name="PVWindLight_Parcel_AutoApplyFromAll"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				halign="center"
+				height="16"
+				label="All"
+				layout="topleft"
+				left_pad="5"
+				name="FSWLApplyFromAll"
+				top_delta="0"
+				width="60">
+			</check_box>
+			<check_box
+				control_name="PVWindlight_Interpolate"
+				enabled_control="VertexShaderEnable"
+				halign="center"
+				height="16"
+				label="Transitions:"
+				layout="topleft"
+				left="5"
+				name="WindlightInterpolation"
 				top_pad="5"
 				width="75">
 			</check_box>
-			<check_box
-				top_pad="0"
-				height="16"
-				control_name="PVWindlight_Interpolate"
-				halign="center"
-				label="Transitions:"
-				layout="topleft"
-				left_delta="0"
-				name="WindlightInterpolation"
-				width="75">
-			</check_box>
 			<slider
+				can_edit_text="true"
 				control_name="PVWindlight_InterpolateTime"
-				enabled_control="VertexShaderEnable"
+				enabled_control="PVWindlight_Interpolate"
 				decimal_digits="1"
 				follows="left|top"
-				can_edit_text="true"
 				height="15"
 				increment="0.1"
 				initial_value="5"
 				label=""
-				tool_tip="Set how much seconds Windlight transitions between preset selections should take"
-				label_width="130"
+				label_width="45"
 				layout="topleft"
-				left="20"
+				left_pad="10"
 				max_val="20"
 				min_val="0"
 				name="BlurDistance"
+				tool_tip="Set how much seconds Windlight transitions between preset selections should take"
 				top_delta="-1"
-				width="295">
+				width="231">
 			</slider>
 			<text
 				font="SansSerif"
@@ -1408,7 +1495,7 @@
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="20"
+				left="5"
 				name="light"
 				top_pad="8"
 				width="295">
@@ -1425,7 +1512,7 @@
 				initial_value="1"
 				label="Iterations:"
 				label_width="130"
-				left="20"
+				left_delta="5"
 				max_val="5"
 				min_val="0"
 				mouse_opaque="true"
@@ -1433,7 +1520,7 @@
 				show_text="true"
 				top_pad="1"
 				visiblity_control="RenderGlow"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="RenderGlowStrength"
@@ -1447,14 +1534,14 @@
 				initial_value="0.210"
 				label="Strength:"
 				label_width="130"
-				left="20"
+				left_delta="0"
 				max_val="1"
 				min_val="0.001"
 				mouse_opaque="true"
 				name="Strength"
 				show_text="true"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="RenderGlowMinLuminance"
@@ -1468,14 +1555,14 @@
 				initial_value="0"
 				label="Min. Luminance:"
 				label_width="130"
-				left="20"
+				left_delta="0"
 				top_pad="1"
 				max_val="3"
 				min_val="0"
 				mouse_opaque="true"
 				name="MinLuminance"
 				show_text="true"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="RenderGlowWarmthAmount"
@@ -1489,14 +1576,14 @@
 				initial_value="7"
 				label="Warmth:"
 				label_width="130"
-				left="20"
+				left_delta="0"
 				top_pad="1"
 				max_val="20"
 				min_val="0"
 				mouse_opaque="true"
 				name="Warmth"
 				show_text="true"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="RenderGlowWidth"
@@ -1510,14 +1597,14 @@
 				initial_value="3"
 				label="Width:"
 				label_width="130"
-				left="20"
+				left_delta="0"
 				top_pad="1"
 				max_val="4"
 				min_val="0"
 				mouse_opaque="true"
 				name="Width"
 				show_text="true"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="RenderGlowMaxExtractAlpha"
@@ -1531,14 +1618,14 @@
 				initial_value="0.020"
 				label="Max Alpha:"
 				label_width="130"
-				left="20"
+				left_delta="0"
 				top_pad="1"
 				max_val="0.2"
 				min_val="0"
 				mouse_opaque="true"
 				name="MaxAlpha"
 				show_text="true"
-				width="295">
+				width="310">
 			</slider>
 			<text
 				font="SansSerif"
@@ -1549,7 +1636,7 @@
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="20"
+				left_delta="-5"
 				name="light"
 				top_pad="5"
 				width="295">
@@ -1568,12 +1655,12 @@
 				label_width="130"
 				tool_tip="Set the resolution of each godray"
 				layout="topleft"
-				left="20"
+				left_delta="5"
 				max_val="128"
 				min_val="16"
 				name="GodrayResolution"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="PVRender_GodraysMultiplier"
@@ -1588,12 +1675,12 @@
 				label_width="130"
 				tool_tip="Set the brightness of each godray"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="30"
 				min_val="0.01"
 				name="GodrayMultiplier"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="PVRender_GodraysFalloffMultiplier"
@@ -1608,12 +1695,12 @@
 				label_width="130"
 				tool_tip="Set the strength of the brightness falloff over distance"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="60"
 				min_val="0.1"
 				name="GodrayFalloffMultiplier"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<text
 				font="SansSerif"
@@ -1622,7 +1709,7 @@
 				follows="left|top"
 				height="20"
 				layout="topleft"
-				left="10"
+				left_delta="-5"
 				text_color="EmphasisColor"
 				name="shadows"
 				top_pad="6"
@@ -1642,12 +1729,12 @@
 				label_width="130"
 				tool_tip="Set the percentual amount of greyscale's strength"
 				layout="topleft"
-				left="20"
+				left_delta="5"
 				max_val="1"
 				min_val="0"
 				name="GreyscaleStrength"
 				top_pad="2"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="PVRender_PostSepiaStrength"
@@ -1662,12 +1749,12 @@
 				label_width="130"
 				tool_tip="Set the percentual amount of sepia's strength"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="1"
 				min_val="0"
 				name="SepiaStrength"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="PVRender_PostPosterizationSamples"
@@ -1682,12 +1769,12 @@
 				label_width="130"
 				tool_tip="Set the number of color shades we render the scene with in Posterization."
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="64"
 				min_val="1"
 				name="PosterizationSamples"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				control_name="PVRender_ChromaStrength"
@@ -1702,12 +1789,12 @@
 				label_width="130"
 				tool_tip="Set the strength of Chromatic Aberration around the center of the screen"
 				layout="topleft"
-				left="20"
+				left_delta="0"
 				max_val="50"
 				min_val="0"
 				name="ChromaStrength"
 				top_pad="1"
-				width="295">
+				width="310">
 			</slider>
 			<text
 				font="SansSerif"
@@ -1717,7 +1804,7 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="10"
+				left="5"
 				name="camera"
 				top_pad="10"
 				width="295">
@@ -1734,13 +1821,13 @@
 				layout="topleft"
 				label_width="130"
 				label="View Angle:"
-				left="20"
+				left_delta="5"
 				max_val="3.97"
 				min_val="0.17"
 				top_pad="1"
 				name="camera_fov"
 				show_text="true"
-				width="295">
+				width="310">
 			</slider>
 			<slider
 				can_edit_text="true"
@@ -1750,16 +1837,16 @@
 				height="15"
 				increment="1"
 				initial_value="2"
-				layout="topleft"
 				label="Camera Lag:"
-				left_delta="0"
 				label_width="130"
+				layout="topleft"
+				left_delta="0"
 				max_val="60"
 				min_val="0"
 				name="camera_lag"
 				show_text="true"
-				width="295"
-				top_pad="1">
+				top_pad="1"
+				width="310">
 			</slider>
 			<slider
 				can_edit_text="true"
@@ -1769,16 +1856,16 @@
 				height="15"
 				increment="0.001"
 				initial_value="1"
-				layout="topleft"
 				label="Distance:"
-				left_delta="0"
 				label_width="130"
+				layout="topleft"
+				left_delta="0"
 				max_val="3"
 				min_val="0.5"
 				name="camera_offset_scale"
 				show_text="true"
-				width="295"
-				top_pad="1">
+				top_pad="1"
+				width="310">
 			</slider>
 			<slider
 				can_edit_text="true"
@@ -1788,15 +1875,15 @@
 				height="15"
 				increment="0.025"
 				initial_value="1"
-				layout="topleft"
 				label="Smoothing:"
-				left_delta="0"
 				label_width="130"
+				layout="topleft"
+				left_delta="0"
 				max_val="40"
 				min_val="0.5"
 				name="camera_position_smoothing"
 				show_text="true"
-				width="295"
+				width="310"
 				top_pad="1">
 			</slider>
 			<slider
@@ -1807,16 +1894,16 @@
 				height="15"
 				increment="0.001"
 				initial_value="1"
-				layout="topleft"
 				label="Zoom Time:"
-				left_delta="0"
 				label_width="130"
+				layout="topleft"
+				left_delta="0"
 				max_val="10"
 				min_val="0"
 				name="zoomtime"
 				show_text="true"
-				width="295"
-				top_pad="1">
+				top_pad="1"
+				width="310">
 			</slider>
 		</panel>
 	</scroll_container>
