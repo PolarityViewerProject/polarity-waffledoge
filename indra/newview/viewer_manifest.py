@@ -722,7 +722,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 icon_path = self.icon_path()
                 if self.prefix(src=icon_path, dst="") :
-                    self.path("obsidian.icns")
+                    self.path("secondlife.icns")
                     self.end_prefix(icon_path)
 
                 self.path("SecondLife.nib")
@@ -1052,7 +1052,7 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
             self.path("wrapper.sh","obsidian")
             if self.prefix(src="", dst="etc"):
-                self.path("handle_obsidianprotocol.sh")
+                self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
                 self.path("refresh_desktop_app_entry.sh")
                 self.path("launch_url.sh")
@@ -1076,9 +1076,9 @@ class LinuxManifest(ViewerManifest):
         icon_path = self.icon_path()
         print "DEBUG: icon_path '%s'" % icon_path
         if self.prefix(src=icon_path, dst="") :
-            self.path("obsidian_256.png","obsidian_icon.png")
+            self.path("secondlife_256.png","secondlife_icon.png")
             if self.prefix(src="",dst="res-sdl") :
-                self.path("obsidian_256.BMP","ll_icon.BMP")
+                self.path("secondlife_256.BMP","ll_icon.BMP")
                 self.end_prefix("res-sdl")
             self.end_prefix(icon_path)
 
