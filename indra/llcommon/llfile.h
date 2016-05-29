@@ -136,8 +136,6 @@ typedef stream_wrapper<std::ofstream, std::ios_base::out > llofstream;
 std::streamsize LL_COMMON_API llifstream_size(llifstream& fstr);
 std::streamsize LL_COMMON_API llofstream_size(llofstream& fstr);
 
-
-
 #else // ! LL_WINDOWS
 
 // on non-windows, llifstream and llofstream are just mapped directly to the std:: equivalents

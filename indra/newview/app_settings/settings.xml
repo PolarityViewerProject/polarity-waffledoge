@@ -749,7 +749,7 @@
       <string>F32</string>
       <key>Value</key>
       <integer>60</integer>
-    </map>  
+    </map>
     <key>AvatarRotateThresholdFast</key>
     <map>
       <key>Comment</key>
@@ -760,7 +760,7 @@
       <string>F32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map>  
+    </map>
     <key>AvatarBakedTextureUploadTimeout</key>
     <map>
       <key>Comment</key>
@@ -1354,7 +1354,7 @@
       <string>String</string>
       <key>Value</key>
       <string />
-    </map>	
+    </map>
     <key>CacheNumberOfRegionsForObjects</key>
     <map>
       <key>Comment</key>
@@ -3803,7 +3803,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>	
+    </map>
 	<key>FirstSelectedEnabledPopups</key>
     <map>
       <key>Comment</key>
@@ -3814,7 +3814,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>		
+    </map>
     <key>FixedWeather</key>
     <map>
       <key>Comment</key>
@@ -3936,7 +3936,7 @@
       <key>Value</key>
       <string>SW</string>
     </map>
-  
+
     <key>FloaterStatisticsRect</key>
     <map>
       <key>Comment</key>
@@ -4463,7 +4463,7 @@
       <string>String</string>
       <key>Value</key>
       <string>http://lecs-viewer-web-components.s3.amazonaws.com/v3.0/[GRID_LOWERCASE]/howto/index.html</string>
-    </map>    
+    </map>
     <key>HomeSidePanelURL</key>
     <map>
       <key>Comment</key>
@@ -4529,7 +4529,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>	
+    </map>
     <key>HostID</key>
     <map>
       <key>Comment</key>
@@ -4617,7 +4617,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>  
+    </map>
     <key>IgnorePixelDepth</key>
     <map>
       <key>Comment</key>
@@ -4672,7 +4672,7 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.5</real>
-    </map> 
+    </map>
 	<key>InspectorShowTime</key>
     <map>
       <key>Comment</key>
@@ -4683,7 +4683,7 @@
       <string>F32</string>
       <key>Value</key>
       <real>3.0</real>
-    </map> 
+    </map>
     <key>InstallLanguage</key>
     <map>
       <key>Comment</key>
@@ -5256,7 +5256,7 @@
       <key>Value</key>
       <string>0.0.0</string>
     </map>
-  
+
     <key>LastSnapshotToProfileHeight</key>
     <map>
       <key>Comment</key>
@@ -6313,7 +6313,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>  
+    </map>
     <key>MenuAccessKeyTime</key>
     <map>
       <key>Comment</key>
@@ -6478,7 +6478,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map> 
+    </map>
     <key>MouseSun</key>
     <map>
       <key>Comment</key>
@@ -6643,7 +6643,7 @@
       <string>String</string>
       <key>Value</key>
       <string />
-    </map>	
+    </map>
     <key>NextLoginLocation</key>
     <map>
       <key>Comment</key>
@@ -7418,7 +7418,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>  
+    </map>
     <key>PlaySoundFriendIM</key>
     <map>
       <key>Comment</key>
@@ -7529,7 +7529,7 @@
       <key>Value</key>
       <real>0.9</real>
     </map>
-    
+
    <key>PlainTextChatHistory</key>
     <map>
       <key>Comment</key>
@@ -7541,7 +7541,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
+
     <key>PluginInstancesLow</key>
     <map>
       <key>Comment</key>
@@ -7795,7 +7795,7 @@
       <real>0.4</real>
     </array>
   </map>
-  
+
   <key>PreviewDirection2</key>
   <map>
     <key>Comment</key>
@@ -8343,21 +8343,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-  <key>RenderAvatarComplexityLimit</key>
-    <map>
-      <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
   <key>RenderComplexityColorMin</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8373,7 +8362,7 @@
   <key>RenderComplexityColorMid</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8389,7 +8378,7 @@
   <key>RenderComplexityColorMax</key>
     <map>
       <key>Comment</key>
-      <string>Max visual complexity of avatars in a scene</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8405,7 +8394,7 @@
   <key>RenderComplexityThreshold</key>
     <map>
       <key>Comment</key>
-      <string>Only color objects higher than render threshold</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8416,8 +8405,7 @@
   <key>RenderComplexityStaticMax</key>
     <map>
       <key>Comment</key>
-      <string>Sets a static max value for scaling of RenderComplexity 
-        display (-1 for dynamic scaling)</string>
+      <string>Unused obsolete setting</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -8439,13 +8427,13 @@
     <key>RenderAvatarMaxVisible</key>
     <map>
       <key>Comment</key>
-      <string>Maximum number of avatars to display at any one time</string>
+      <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors</string>
       <key>Persist</key>
-      <integer>1</integer>
+      <integer>0</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>12</integer>
+      <integer>0</integer>
     </map>
     <key>RenderAvatarPhysicsLODFactor</key>
     <map>
@@ -8494,7 +8482,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-   
+
   <key>RenderLocalLights</key>
   <map>
     <key>Comment</key>
@@ -8721,7 +8709,7 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string> 
+      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -8758,7 +8746,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
- 
+
   <key>RenderAnimateRes</key>
   <map>
     <key>Comment</key>
@@ -8931,7 +8919,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
   <key>RenderDepthOfField</key>
   <map>
     <key>Comment</key>
@@ -9060,7 +9048,7 @@
     <key>Value</key>
     <real>0.1</real>
   </map>
-  
+
   <key>RenderHighlightBrightness</key>
   <map>
     <key>Comment</key>
@@ -9084,7 +9072,7 @@
     <key>Value</key>
     <real>0.6</real>
   </map>
-  
+
   <key>RenderHighlightColor</key>
   <map>
     <key>Comment</key>
@@ -9113,7 +9101,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
   <key>RenderSpecularResX</key>
   <map>
     <key>Comment</key>
@@ -9867,13 +9855,13 @@
     <key>RenderTerrainDetail</key>
     <map>
       <key>Comment</key>
-      <string>Detail applied to terrain texturing (0 = none, 1 or 2 = full)</string>
+      <string>Detail applied to terrain texturing (0 = none, 1 = full)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>1</integer>
     </map>
     <key>RenderTerrainLODFactor</key>
     <map>
@@ -9985,44 +9973,79 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-    <key>RenderUseFarClip</key>
-    <map>
-      <key>Comment</key>
-      <string>If false, frustum culling will ignore far clip plane.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderUseImpostors</key>
-    <map>
-      <key>Comment</key>
-      <string>Whether we want to use impostors for far away avatars.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-  
+  <key>RenderUseFarClip</key>
+  <map>
+    <key>Comment</key>
+    <string>If false, frustum culling will ignore far clip plane.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>1</integer>
+  </map>
+  <key>RenderUseImpostors</key>
+  <map>
+    <key>Comment</key>
+    <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors and RenderAvatarMaxComplexity.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>Boolean</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum bytes of attachments before an avatar is rendered as a simple impostor (0 for no limit).</string>
+    <string>OBSOLETE and UNUSED.</string>
     <key>Persist</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
     <integer>0</integer>
   </map>
+  <key>RenderAvatarMaxNonImpostors</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum number of avatars to fully render at one time;
+    over this limit uses impostor rendering (simplified rendering
+    with less frequent updates), reducing client lag.</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>12</integer>
+  </map>
   <key>RenderAutoMuteRenderWeightLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum render weight before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
+    <string>OBSOLETE. This setting has been renamed RenderAvatarMaxNonImpostors.</string>
+    <key>Persist</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>0</integer>
+  </map>
+  <key>ShowMyComplexityChanges</key>
+  <map>
+    <key>Comment</key>
+    <string>How long to show notices about avatar complexity (set to zero to disable those notices)</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>U32</string>
+    <key>Value</key>
+    <integer>10</integer>
+  </map>
+  <key>RenderAvatarMaxComplexity</key>
+  <map>
+    <key>Comment</key>
+    <string>Maximum Avatar Complexity; above this value, the avatar is
+    rendered as a solid color outline (0 to disable this limit).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
@@ -10033,24 +10056,15 @@
   <key>RenderAutoMuteSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
-    <string>Maximum surface area of attachments before an avatar is rendered as a simple impostor (0 to not use this limit).</string>
+    <string>Maximum surface area of attachments before an avatar is
+    rendered as a simple impostor (to not use this limit, set to zero
+    or set RenderAvatarMaxComplexity to zero).</string>
     <key>Persist</key>
     <integer>1</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
-  </map>
-  <key>RenderAutoMuteFunctions</key>
-  <map>
-    <key>Comment</key>
-    <string>Developing feature to render some avatars using simple impostors or colored silhouettes.  (Set to 7 for all functionality)</string>
-    <key>Persist</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>U32</string>
-    <key>Value</key>
-    <integer>0</integer>
+    <real>1000.0</real>
   </map>
   <key>RenderAutoMuteLogging</key>
   <map>
@@ -10062,7 +10076,7 @@
     <string>Boolean</string>
     <key>Value</key>
     <integer>0</integer>
-  </map>    
+  </map>
   <key>RenderAutoHideSurfaceAreaLimit</key>
   <map>
     <key>Comment</key>
@@ -10072,7 +10086,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <real>10.0E6</real>
   </map>
 
     <key>RenderVBOEnable</key>
@@ -10548,7 +10562,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>	
+    </map>
     <key>SelectMovableOnly</key>
     <map>
       <key>Comment</key>
@@ -10656,17 +10670,6 @@
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>ShowAdvancedGraphicsSettings</key>
-    <map>
-      <key>Comment</key>
-      <string>Show advanced graphics settings</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
     </map>
@@ -10790,7 +10793,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>	
+    </map>
     <key>ShowCrosshairs</key>
     <map>
       <key>Comment</key>
@@ -10867,7 +10870,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>    
+    </map>
     <key>ShowMiniMapButton</key>
     <map>
       <key>Comment</key>
@@ -10934,7 +10937,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowObjectRenderingCost</key>                
+    <key>ShowObjectRenderingCost</key>
     <map>
       <key>Comment</key>
       <string>Show the object rendering cost  in  build tools</string>
@@ -10943,9 +10946,9 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>   
-    </map>        
-    <key>ShowNavbarFavoritesPanel</key>    
+      <integer>1</integer>
+    </map>
+    <key>ShowNavbarFavoritesPanel</key>
     <map>
       <key>Comment</key>
       <string>Show/hide navigation bar favorites panel</string>
@@ -10954,7 +10957,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>   
+      <integer>1</integer>
     </map>
     <key>ShowWorldMapButton</key>
     <map>
@@ -11099,7 +11102,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>ShowPGSearchAll</key>    
+    <key>ShowPGSearchAll</key>
     <map>
       <key>Comment</key>
       <string>Display results of search All that are flagged as general</string>
@@ -11615,7 +11618,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>  
+    </map>
     <key>SnapshotQuality</key>
     <map>
       <key>Comment</key>
@@ -12484,7 +12487,7 @@
       <string>String</string>
       <key>Value</key>
       <string>B56AF90D-6684-48E4-B1E4-722D3DEB2CB6</string>
-    </map>  
+    </map>
     <key>NearByChatChannelUUID</key>
     <map>
       <key>Comment</key>
@@ -12495,7 +12498,7 @@
       <string>String</string>
       <key>Value</key>
       <string>E1158BD6-661C-4981-9DAD-4DCBFF062502</string>
-    </map>  
+    </map>
     <key>NotificationChannelUUID</key>
     <map>
       <key>Comment</key>
@@ -12506,7 +12509,7 @@
       <string>String</string>
       <key>Value</key>
       <string>AEED3193-8709-4693-8558-7452CCA97AE5</string>
-    </map>  
+    </map>
     <key>AlertChannelUUID</key>
     <map>
       <key>Comment</key>
@@ -12517,7 +12520,7 @@
       <string>String</string>
       <key>Value</key>
       <string>F3E07BC8-A973-476D-8C7F-F3B7293975D1</string>
-    </map>  
+    </map>
     <key>UIImgWhiteUUID</key>
     <map>
       <key>Comment</key>
@@ -12539,7 +12542,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map> 
+    </map>
     <key>UIMaxComboWidth</key>
     <map>
       <key>Comment</key>
@@ -13452,7 +13455,7 @@
       <string>String</string>
       <key>Value</key>
       <string>[i800,i600]</string>
-    </map>  
+    </map>
     <key>sourceid</key>
     <map>
       <key>Comment</key>
@@ -14691,7 +14694,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>    
+    </map>
     <key>EnablePlaceProfile</key>
     <map>
       <key>Comment</key>
@@ -15513,7 +15516,7 @@
     <key>Value</key>
     <integer>0</integer>
   </map>
-  
+
   <key>PathfindingLineWidth</key>
   <map>
     <key>Comment</key>
@@ -15554,7 +15557,7 @@
         <real>1.0</real>
       </array>
     </map>
-    
+
     <key>HideUIControls</key>
     <map>
       <key>Comment</key>
@@ -15718,6 +15721,41 @@
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+  <key>PresetGraphicActive</key>
+    <map>
+      <key>Comment</key>
+      <string>Name of currently selected preference</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string />
+    </map>
+    <key>IndirectMaxComplexity</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls RenderAvatarMaxComplexity in a non-linear fashion (do
+      not set this value)</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>IndirectMaxNonImpostors</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls RenderAvatarMaxNonImpostors in a non-linear fashion (do
+      not set this value)</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>U32</string>
       <key>Value</key>
       <integer>0</integer>
     </map>

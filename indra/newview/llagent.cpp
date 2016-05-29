@@ -61,6 +61,7 @@
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
+#include "llscriptruntimeperms.h"
 #include "llsdutil.h"
 #include "llsky.h"
 #include "llslurl.h"
@@ -89,7 +90,6 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "osscriptruntimeperms.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "llcorehttputil.h"
@@ -4173,6 +4173,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 			break;
 	}
 }
+
 
 void LLAgent::stopCurrentAnimations()
 {
