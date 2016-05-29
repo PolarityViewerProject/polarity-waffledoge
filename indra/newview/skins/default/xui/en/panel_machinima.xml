@@ -1002,7 +1002,6 @@
 				text_width="40"
 				width="310">
 			</slider>
-			<!-- This doesn't quite work yet. Need to figure why. -->
 			<slider
 				enabled="true"
 				control_name="RenderShadowFarClip"
@@ -1476,9 +1475,9 @@
 				increment="0.1"
 				initial_value="5"
 				label=""
-				label_width="45"
+				label_width="50"
 				layout="topleft"
-				left_pad="10"
+				left_pad="9"
 				max_val="20"
 				min_val="0"
 				name="BlurDistance"
