@@ -1499,7 +1499,7 @@
 				layout="topleft"
 				left_delta="-79"
 				max_val="2048"
-				min_val="0.0"
+				min_val="48"
 				name="RenderShadowFarClip"
 				top_pad="1"
 				text_width="40"
