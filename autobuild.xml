@@ -2611,7 +2611,7 @@
                 <key>options</key>
                 <array>
                   <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-project Obsidian.xcodeproj</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2640,7 +2640,7 @@
                 <key>options</key>
                 <array>
                   <string>-configuration RelWithDebInfo</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-project Obsidian.xcodeproj</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2667,7 +2667,7 @@
                 <key>options</key>
                 <array>
                   <string>-configuration Release</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-project Obsidian.xcodeproj</string>
                   <string>-DENABLE_SIGNING:BOOL=YES</string>
                   <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
                 </array>
@@ -2696,7 +2696,7 @@
                 <key>options</key>
                 <array>
                   <string>-configuration Release</string>
-                  <string>-project SecondLife.xcodeproj</string>
+                  <string>-project Obsidian.xcodeproj</string>
                   <string>-DENABLE_SIGNING:BOOL=YES</string>
                   <string>-DSIGNING_IDENTITY:STRING="Developer ID Application: Linden Research, Inc."</string>
                 </array>
@@ -2844,7 +2844,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>devenv</string>
@@ -2862,7 +2862,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
@@ -2886,7 +2886,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>msbuild.exe</string>
@@ -2908,7 +2908,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
@@ -2932,7 +2932,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>devenv</string>
@@ -2950,7 +2950,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
@@ -2972,7 +2972,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>msbuild.exe</string>
@@ -2994,7 +2994,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
@@ -3028,7 +3028,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>devenv</string>
@@ -3046,7 +3046,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
@@ -3071,7 +3071,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>msbuild.exe</string>
@@ -3093,7 +3093,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>RelWithDebInfo</string>
                   <string>--startup</string>
@@ -3118,7 +3118,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>devenv</string>
@@ -3136,7 +3136,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
@@ -3159,7 +3159,7 @@
               <map>
                 <key>arguments</key>
                 <array>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                 </array>
                 <key>command</key>
                 <string>msbuild.exe</string>
@@ -3181,7 +3181,7 @@
                   <string>&amp;&amp;</string>
                   <string>..\indra\tools\vstool\VSTool.exe</string>
                   <string>--solution</string>
-                  <string>SecondLife.sln</string>
+                  <string>Obsidian.sln</string>
                   <string>--config</string>
                   <string>Release</string>
                   <string>--startup</string>
