@@ -80,6 +80,7 @@
 #include "llrand.h"
 #include "llregionhandle.h"
 #include "llresmgr.h"
+#include "llscriptruntimeperms.h"
 #include "llselectmgr.h"
 #include "llsprite.h"
 #include "lltargetingmotion.h"
