@@ -332,6 +332,9 @@ extern LLGLSLShader			gDeferredDoFCombineProgram;
 // <Black Dragon:NiranV> God Rays/Volumetric Lighting
 extern LLGLSLShader			gVolumetricLightProgram;
 // </Black Dragon:NiranV>
+// <polarity> Gaussian blur shader
+extern LLGLSLShader			gGaussianBlurProgram;
+// </polarity>
 extern LLGLSLShader			gFXAAProgram;
 extern LLGLSLShader			gDeferredPostNoDoFProgram;
 extern LLGLSLShader			gDeferredPostGammaCorrectProgram;

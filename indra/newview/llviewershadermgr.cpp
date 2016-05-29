@@ -226,6 +226,9 @@ LLGLSLShader			gDeferredPostNoDoFProgram;
 // <Black Dragon:NiranV> God Rays/Volumetric Lighting
 LLGLSLShader			gVolumetricLightProgram;
 // </Black Dragon:NiranV>
+// <polarity> Gaussian blur shader
+LLGLSLShader			gGaussianBlurProgram;
+// </polarity>
 LLGLSLShader			gDeferredWLSkyProgram;
 LLGLSLShader			gDeferredWLCloudProgram;
 LLGLSLShader			gDeferredStarProgram;
@@ -820,6 +823,9 @@ void LLViewerShaderMgr::unloadShaders()
 	// <Black Dragon:NiranV> Exodus post processing shaders
 	unloadExodusPostShaders();
 	// </Black Dragon:NiranV>
+	// <polarity> Gaussian blur shader
+	gGaussianBlurProgram.unload();
+	// </polarity>gGaussianBlurProgram
 
 	gTransformPositionProgram.unload();
 	gTransformTexCoordProgram.unload();
@@ -1095,6 +1101,9 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		gGlowExtractProgram.unload();
 		gPostColorFilterProgram.unload();	
 		gPostNightVisionProgram.unload();
+		// <polarity> Gaussian blur shader
+		gGaussianBlurProgram.unload();
+		// </polarity>gGaussianBlurProgram
 		return TRUE;
 	}
 
@@ -1125,6 +1134,19 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 			LLPipeline::sRenderGlow = FALSE;
 		}
 	}
+	
+	// <polarity> Gaussian blur shader
+	if (success)
+	{
+		gGaussianBlurProgram.mName = "Gaussian Blur Shader";
+		gGaussianBlurProgram.mShaderFiles.clear();
+		gGaussianBlurProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+		gGaussianBlurProgram.mShaderFiles.push_back(make_pair("deferred/gaussianBlurF.glsl", GL_FRAGMENT_SHADER));
+		gGaussianBlurProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
+		success = gGaussianBlurProgram.createShader(NULL, NULL);
+	}
+	// </polarity>
+	
 	// <Black Dragon:NiranV> Exodus post processing shaders
 	success = loadExodusPostShaders();
 	// </Black Dragon:NiranV>
@@ -1180,6 +1202,9 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 		gVolumetricLightProgram.unload();
 		// </Black Dragon:NiranV>
+		// <polarity> Gaussian blur shader
+		gGaussianBlurProgram.unload();
+		// </polarity>
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();

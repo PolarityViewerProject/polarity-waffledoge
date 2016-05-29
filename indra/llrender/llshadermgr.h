@@ -248,6 +248,10 @@ public:
 		// <Black Dragon:NiranV>
 		SECONDS60,
 		// </Black Dragon:NiranV>
+		
+		// <polarity> Gaussian blur shader
+		PLVR_BLUR_DIRECTION,
+		// </polarity>
 
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;

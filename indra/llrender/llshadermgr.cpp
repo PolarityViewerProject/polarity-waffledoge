@@ -1348,6 +1348,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	// <Black Dragon:NiranV> Tofu's SSR
 	mReservedUniforms.push_back("seconds60");
 	// </Black Dragon:NiranV>
+	
+	// <polarity> Gaussian blur shader
+	mReservedUniforms.push_back("blur_direction");
+	// </polarity>
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

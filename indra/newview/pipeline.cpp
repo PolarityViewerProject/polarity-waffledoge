@@ -398,6 +398,8 @@ S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs;
 
+BOOL	LLPipeline::sRenderGaussian = FALSE; // <polarity> Gaussian blur shader
+
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
 
@@ -7641,6 +7643,79 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	// <Black Dragon:NiranV> Exodus post processing shaders
 	exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
 	// </Black Dragon:NiranV>
+
+	// <polarity> Gaussian blur shader
+	if (LLPipeline::sRenderGaussian)
+	{
+		static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
+		for (int i = 0; i < blur_iterations; ++i)
+		{
+			F32 vertical_dir[] = 
+			{
+				0.f,
+				1.f
+			};
+			
+			F32 horizontal_dir[] = 
+			{
+				1.f,
+				0.f
+			};
+			
+			
+			LLGLSLShader *shader = &gGaussianBlurProgram;
+			
+			mScreen.bindTarget();
+			shader->bind();
+			
+			// S32 channel = shader->enableTexture(LLShaderMgr::EXO_RENDER_SCREEN, mScreen.getUsage());
+			// if (channel > -1)
+			// {
+			// 	mScreen.bindTexture(0, channel);
+			// }
+			exoShader::BindRenderTarget(&mScreen, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, vertical_dir);
+			
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+				gGL.vertex2f(-1,-1);
+				
+				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+				gGL.vertex2f(-1,3);
+				
+				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+				gGL.vertex2f(3,-1);
+			gGL.end();
+
+			shader->unbind();
+			mScreen.flush();
+			
+			
+			
+			
+			mScreen.bindTarget();
+			shader->bind();
+			
+			exoShader::BindRenderTarget(&mScreen, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, horizontal_dir);
+			
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
+				gGL.vertex2f(-1,-1);
+				
+				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
+				gGL.vertex2f(-1,3);
+				
+				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
+				gGL.vertex2f(3,-1);
+			gGL.end();
+
+			shader->unbind();
+			mScreen.flush();
+		}
+	}
+	// </polarity>
+	
 	{
 		{
 			LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
