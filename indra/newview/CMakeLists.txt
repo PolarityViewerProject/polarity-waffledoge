@@ -1314,7 +1314,6 @@ set(viewer_HEADER_FILES
     oschatcommand.h
     ospanelquicksettings.h
     ospanelquicksettingspulldown.h
-    osscriptruntimeperms.h
     pipeline.h
     roles_constants.h
     VertexCache.h

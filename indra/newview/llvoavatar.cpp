@@ -104,7 +104,6 @@
 #include "lltrans.h"
 #include "llappearancemgr.h"
 #include "osavatarcolormgr.h"
-#include "osscriptruntimeperms.h"
 
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"

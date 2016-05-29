@@ -114,7 +114,6 @@
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
-#include "osscriptruntimeperms.h"
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
