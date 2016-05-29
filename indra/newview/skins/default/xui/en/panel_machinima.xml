@@ -1485,6 +1485,26 @@
 				top_delta="-1"
 				width="231">
 			</slider>
+			<slider
+				enabled="true"
+				control_name="WLSkyDetail"
+				decimal_digits="0"
+				follows="left|top"
+				height="15"
+				increment="1"
+				can_edit_text="true"
+				label="Sky dome resolution"
+				label_width="129"
+				tool_tip="Higher value increases the resolution of the sky dome, rendering the sun with finer detail."
+				layout="topleft"
+				left_delta="-79"
+				max_val="2048"
+				min_val="0.0"
+				name="RenderShadowFarClip"
+				top_pad="1"
+				text_width="40"
+				width="310">
+			</slider>
 			<text
 				font="SansSerif"
 				font.size="8"
