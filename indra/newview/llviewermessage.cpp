@@ -117,11 +117,8 @@
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
 
 #include "llnotificationmanager.h" //
-#include "llexperiencecache.h"
-
 #include "llexperiencecache.h"
 
 extern void on_new_message(const LLSD& msg);
