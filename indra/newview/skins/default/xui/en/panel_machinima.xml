@@ -34,7 +34,7 @@
 			border="false"
 			background_visible="false"
 			follows="left|top|right"
-			height="1235"
+			height="1255"
 			layout="topleft"
 			left="0"
 			name="scroll_panel"
