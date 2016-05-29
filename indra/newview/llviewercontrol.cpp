@@ -113,7 +113,6 @@ static bool handleRenderShadowFarClipChanged(const LLSD& newvalue)
 {
 	// TODO: Add setting to sync with RenderFarClip
 	F32 shadow_distance = (F32) newvalue.asReal();
-	//LLPipeline * gPipeline = LLPipeline();
 	gPipeline.RenderShadowFarClip = shadow_distance;
 	return true;
 }
