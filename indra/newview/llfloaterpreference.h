@@ -92,7 +92,6 @@ public:
 	void saveAvatarProperties( void );
 	void selectPrivacyPanel();
 	void selectChatPanel();
-	void getControlNames(std::vector<std::string>& names);
 
 protected:	
 	void		onBtnOK(const LLSD& userdata);
@@ -112,7 +111,6 @@ protected:
 	void updateMeterText(LLUICtrl* ctrl);
 	// callback for defaults
 	void setHardwareDefaults();
-	void setRecommended();
 	// callback for when client turns on shaders
 	void onVertexShaderEnable();
 	// callback for when client turns on impostors
@@ -174,7 +172,6 @@ public:
 	void buildPopupLists();
 	static void refreshSkin(void* data);
 	void selectPanel(const LLSD& name);
-	void saveGraphicsPreset(std::string& preset);
 
 private:
 
@@ -196,7 +193,6 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
-	std::string mSavedGraphicsPreset;
 	LOG_CLASS(LLFloaterPreference);
 };
 
@@ -211,7 +207,7 @@ public:
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
-	virtual void setHardwareDefaults();
+	virtual void setHardwareDefaults(){};
 
 	// Disables "Allow Media to auto play" check box only when both
 	// "Streaming Music" and "Media" are unchecked. Otherwise enables it.
@@ -220,11 +216,7 @@ public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
 	virtual void saveSettings();
-
-	void deletePreset(const LLSD& user_data);
-	void savePreset(const LLSD& user_data);
-	void loadPreset(const LLSD& user_data);
-
+	
 	class Updater;
 
 protected:
@@ -253,16 +245,8 @@ public:
 	void saveSettings();
 	void resetDirtyChilds();
 	void setHardwareDefaults();
-	void setPresetText();
-
-	static const std::string getPresetsPath();
-
 protected:
 	bool hasDirtyChilds();
-
-private:
-
-	void onPresetsListChange();
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
