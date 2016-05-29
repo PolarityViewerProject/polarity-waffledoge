@@ -143,6 +143,7 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
+							SHADOW_DISTANCE("shadowdistance", "Shadow Distance"),
 							PENDING_VFS_OPERATIONS("vfspendingoperations"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
@@ -342,6 +343,7 @@ void update_statistics()
 	sample(LLStatViewer::ENABLE_VBO,      (F64)gSavedSettings.getBOOL("RenderVBOEnable"));
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
 	sample(LLStatViewer::DRAW_DISTANCE,   (F64)gSavedSettings.getF32("RenderFarClip"));
+	sample(LLStatViewer::SHADOW_DISTANCE,   (F64)gSavedSettings.getF32("RenderShadowFarClip"));
 	sample(LLStatViewer::CHAT_BUBBLES,    gSavedSettings.getBOOL("UseChatBubbles"));
 
 	typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;

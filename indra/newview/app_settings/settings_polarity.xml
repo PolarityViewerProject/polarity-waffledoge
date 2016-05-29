@@ -2,6 +2,18 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
+    <!-- Unbranded settings we added -->
+    <key>RenderShadowFarClip</key>
+    <map>
+      <key>Comment</key>
+      <string>Distance of shadow far clip plane from camera (meters)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>256.0</real>
+    </map>
     <!-- Add your settings here -->
     <key>7bd9b379-962b-407f-9dd3-2d5ce9eba39a</key>
     <map>

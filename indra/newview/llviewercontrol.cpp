@@ -109,6 +109,15 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	return true;
 }
 
+static bool handleRenderShadowFarClipChanged(const LLSD& newvalue)
+{
+	// TODO: Add setting to sync with RenderFarClip
+	F32 shadow_distance = (F32) newvalue.asReal();
+	//LLPipeline * gPipeline = LLPipeline();
+	gPipeline.RenderShadowFarClip = shadow_distance;
+	return true;
+}
+
 static bool handleTerrainDetailChanged(const LLSD& newvalue)
 {
 	LLDrawPoolTerrain::sDetailMode = newvalue.asInteger();

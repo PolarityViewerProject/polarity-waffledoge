@@ -966,6 +966,8 @@ public:
 	static U32 PVRender_SSRResolution;
 	static F32 PVRender_ChromaStrength;
 	// </Black Dragon:NiranV>
+	
+	static F32 RenderShadowFarClip; // </polarity>
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);

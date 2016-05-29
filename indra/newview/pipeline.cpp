@@ -222,6 +222,9 @@ F32 LLPipeline::PVRender_ChromaStrength;
 BOOL PVRender_DepthOfFieldAlphas;
 BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
 // </Black Dragon:NiranV>
+
+F32 LLPipeline::RenderShadowFarClip; // </polarity>
+
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
@@ -690,6 +693,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlB");
 	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlC");
 	// </Black Dragon:NiranV>
+	connectRefreshCachedSettingsSafe("RenderShadowFarClip");
 }
 
 LLPipeline::~LLPipeline()
@@ -1235,6 +1239,8 @@ void LLPipeline::refreshCachedSettings()
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");       	
+
+	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
 
 	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 	PVRender_EnableGodRays = gSavedSettings.getBOOL("PVRender_EnableGodRays");
@@ -10779,7 +10785,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		// <polarity> Cache more debug settings / Performance improvement
 		// F32 range = gSavedSettings.getF32("RenderShadowFarClip");
-		static LLCachedControl<F32> range(gSavedSettings, "RenderShadowFarClip",128.f);
+		// Moved to RenderShadowFarClip
 
 		LLVector3 split_exp = RenderShadowSplitExponent;
 
@@ -10793,7 +10799,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		{
 			F32 x = (F32)(i+1)/4.f;
 			x = powf(x, sxp);
-			mSunClipPlanes.mV[i] = near_clip+range*x;
+			mSunClipPlanes.mV[i] = near_clip+RenderShadowFarClip*x;
 		}
 
 		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding

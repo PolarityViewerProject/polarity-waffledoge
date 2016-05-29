@@ -1004,7 +1004,7 @@
 			</slider>
 			<!-- This doesn't quite work yet. Need to figure why. -->
 			<slider
-				enabled="false"
+				enabled="true"
 				control_name="RenderShadowFarClip"
 				decimal_digits="1"
 				follows="left|top"
