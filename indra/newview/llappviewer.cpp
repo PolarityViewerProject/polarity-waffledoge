@@ -3244,6 +3244,8 @@ LLSD LLAppViewer::getViewerInfo() const
 	version.append(LLVersionInfo::getBuild());
 	info["VIEWER_VERSION"] = version;
 	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
+	info["BUILD_DATE"] = __DATE__;
+	info["BUILD_TIME"] = __TIME__;
 	info["CHANNEL"] = LLVersionInfo::getChannel();
     std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
@@ -3260,6 +3262,20 @@ LLSD LLAppViewer::getViewerInfo() const
 	url += LLURI::escape(LLVersionInfo::getVersion());
 
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
+
+#if LL_MSVC
+	info["COMPILER"] = "MSVC";
+	info["COMPILER_VERSION"] = _MSC_FULL_VER;
+#elif LL_GNUC
+	info["COMPILER"] = "GCC";
+	info["COMPILER_VERSION"] = GCC_VERSION;
+#endif
+
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
+	info["BUILD_ARCH"] = "x86_64";
+#else
+	info["BUILD_ARCH"] = "x86";
+#endif
 
 	// Position
 	LLViewerRegion* region = gAgent.getRegion();
@@ -3294,7 +3310,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-
+	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
 	bool want_fullname = true;
 	info["AUDIO_DRIVER_VERSION"] = gAudiop ? LLSD(gAudiop->getDriverName(want_fullname)) : LLSD();
