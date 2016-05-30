@@ -290,13 +290,14 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 	LL_DEBUGS("PVData") << "parse_success=" << parse_success << LL_ENDL;
 	//LL_DEBUGS("PVData") << "http_failure=" << http_failure << LL_ENDL;
 
-	// This doesn't work.
+	// Set status to OK here for now.
+	eDataParseStatus = eAgentsParseStatus = OK;
 	if (http_source_url == mPVDataURLFull)
 	{
 		LL_DEBUGS("PVData") << "Received a DATA file" << LL_ENDL;
 		if (!parse_success)
 		{
-			LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
+			LL_WARNS("PVData") << "DATA Parse failure, aborting." << LL_ENDL;
 			eDataParseStatus = PARSE_FAILURE;
 			handleDataFailure();
 		}
@@ -311,22 +312,25 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 			parsePVData(http_content);
 		}
 	}
-	else if (http_source_url == mPVAgentsURLFull)
+	if (http_source_url == mPVAgentsURLFull)
 	{
 		LL_DEBUGS("PVData") << "Received an AGENTS file" << LL_ENDL;
-		LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
-		eAgentsParseStatus = PARSE_FAILURE;
-		handleAgentsFailure();
-	}
-	else
-	{
-		eAgentsParseStatus = INIT;
-		LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
-		LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
-		LL_DEBUGS("PVData") << http_content << LL_ENDL;
-		LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
-		//eAgentsParseStatus = INIT; // Don't reset here, that would defeat the purpose.
-		parsePVAgents(http_content);
+		if (!parse_success)
+		{
+			LL_WARNS("PVData") << " AGENTS Parse failure, aborting." << LL_ENDL;
+			eAgentsParseStatus = PARSE_FAILURE;
+			handleAgentsFailure();
+		}
+		else
+		{
+			eAgentsParseStatus = INIT;
+			LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+			LL_DEBUGS("PVData") << http_content << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+			//eAgentsParseStatus = INIT; // Don't reset here, that would defeat the purpose.
+			parsePVAgents(http_content);
+		}
 	}
 }
 
@@ -437,6 +441,7 @@ void PVData::parsePVData(const LLSD& data_input)
 	if (!canParse(eDataParseStatus))
 	{
 		// FIXME: why do we get 'eDataParseStatus==PARSING' BEFORE it's actually being set? (see below)
+		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 	LL_DEBUGS("PVData") << "Beginning to parse Data" << LL_ENDL;
@@ -559,6 +564,7 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	// Make sure we don't accidentally parse multiple times. Remember to reset eDataParseStatus when parsing is needed again.
 	if (!canParse(eAgentsParseStatus))
 	{
+		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 
