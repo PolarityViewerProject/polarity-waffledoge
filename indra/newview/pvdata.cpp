@@ -38,7 +38,7 @@
 #include <boost/spirit/include/karma.hpp>
 
 #include "llagent.h"
-#include "llhttpclient.h"
+// #include "llhttpclient.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"

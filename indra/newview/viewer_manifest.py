@@ -1112,7 +1112,7 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
-            self.path("wrapper.sh","obsidian")
+            self.path("wrapper.sh","polarity")
             if self.prefix(src="", dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
@@ -1123,7 +1123,7 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix("linux_tools")
 
         if self.prefix(src="", dst="bin"):
-            self.path("obsidian-bin","do-not-directly-run-obsidian-bin")
+            self.path("polarity-bin","do-not-directly-run-polarity-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
@@ -1158,7 +1158,7 @@ class LinuxManifest(ViewerManifest):
     def copy_finish(self):
         # Force executable permissions to be set for scripts
         # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'obsidian', 'bin/update_install':
+        for script in 'polarity', 'bin/update_install':
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
