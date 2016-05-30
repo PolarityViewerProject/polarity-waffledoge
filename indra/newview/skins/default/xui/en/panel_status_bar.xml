@@ -47,7 +47,7 @@
     </panel.string>
   <panel
     height="18"
-    left="-395"
+    left="-416"
     width="140"
     top="1"
     follows="right|top" 
@@ -143,6 +143,18 @@
      top="2"
      name="volume_btn"
      width="16" />
+	visibility_control="PVUI_StatusBarShowFPSCounter"
+	type="string"
+	font="SansSerifSmall"
+	follows="right|top"
+	halign="left"
+	height="16"
+     image_unselected="Icon_Gear_Foreground"
+	left_pad="5"
+     top="2"
+	tool_tip="Frames per second/Refresh rate"
+      function="Floater.ToggleOrBringToFront"
+      parameter="quick_settings" />
 	 <text
 	visibility_control="PVUI_StatusBarShowFPSCounter"
 	type="string"

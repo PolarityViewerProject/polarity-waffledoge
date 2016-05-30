@@ -1655,7 +1655,11 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 		f(LLViewerInventoryItem* item, const LLUUID& id) : mItem(item), mImageID(id) {}
 		bool apply(LLViewerObject* objectp, S32 te)
 		{
-			if (mItem)
+		    if(objectp && !objectp->permModify())
+		    {
+		        return false;
+		    }
+		    if (mItem)
 			{
 				if (te == -1) // all faces
 				{
@@ -3249,6 +3253,11 @@ void LLSelectMgr::getFirst(LLSelectGetFirstTest* test)
 			}
 		}
 	}
+}
+
+boost::signals2::connection LLSelectMgr::addSelectionUpdateCallback(const update_signal_t::slot_type& cb)
+{
+	return mUpdateSignal.connect(cb);
 }
 
 //-----------------------------------------------------------------------------
@@ -6635,26 +6644,18 @@ void dialog_refresh_all()
 	// *TODO: Eliminate all calls into outside classes below, make those
 	// objects register with the update signal.
 
-	gFloaterTools->dirty();
-
 	gMenuObject->needsArrange();
 
 	if( gMenuAttachmentSelf->getVisible() )
 	{
-		gMenuAttachmentSelf->arrange();
+		gMenuAttachmentSelf->needsArrange();
 	}
 	if( gMenuAttachmentOther->getVisible() )
 	{
-		gMenuAttachmentOther->arrange();
+		gMenuAttachmentOther->needsArrange();
 	}
 
 	LLFloaterProperties::dirtyAll();
-
-	LLFloaterInspect* inspect_instance = LLFloaterReg::getTypedInstance<LLFloaterInspect>("inspect");
-	if(inspect_instance)
-	{
-		inspect_instance->dirty();
-	}
 
 	LLSidepanelTaskInfo *panel_task_info = LLSidepanelTaskInfo::getActivePanel();
 	if (panel_task_info)
@@ -6862,7 +6863,8 @@ LLBBox LLSelectMgr::getBBoxOfSelection() const
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::canUndo() const
 {
-	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstEditableObject() != NULL; // HACK: casting away constness - MG
+	// Can edit or can move
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstUndoEnabledObject() != NULL; // HACK: casting away constness - MG;
 }
 
 //-----------------------------------------------------------------------------
@@ -7793,6 +7795,22 @@ LLViewerObject* LLObjectSelection::getFirstMoveableObject(BOOL get_parent)
 		}
 	} func;
 	return getFirstSelectedObject(&func, get_parent);
+}
+
+//-----------------------------------------------------------------------------
+// getFirstUndoEnabledObject()
+//-----------------------------------------------------------------------------
+LLViewerObject* LLObjectSelection::getFirstUndoEnabledObject(BOOL get_parent)
+{
+    struct f : public LLSelectedNodeFunctor
+    {
+        bool apply(LLSelectNode* node)
+        {
+            LLViewerObject* obj = node->getObject();
+            return obj && (obj->permModify() || (obj->permMove() && !obj->isPermanentEnforced()));
+        }
+    } func;
+    return getFirstSelectedObject(&func, get_parent);
 }
 
 //-----------------------------------------------------------------------------

@@ -323,7 +323,7 @@ public:
 		mTextColor = LLColor4( 0.86f, 0.86f, 0.86f, 1.f );
 
 		// Draw stuff growing up from right lower corner of screen
-		S32 xpos = mWindow->getWorldViewWidthScaled() - 400;
+		S32 xpos = mWindow->getWorldViewWidthScaled() - 500;
 		xpos = llmax(xpos, 0);
 		S32 ypos = 64;
 		const S32 y_inc = 20;
@@ -1000,7 +1000,16 @@ BOOL LLViewerWindow::handleAnyMouseClick(LLWindow *window,  LLCoordGL pos, MASK 
 
 BOOL LLViewerWindow::handleMouseDown(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = TRUE;
+    mAllowMouseDragging = FALSE;
+    if (!mMouseDownTimer.getStarted())
+    {
+        mMouseDownTimer.start();
+    }
+    else
+    {
+        mMouseDownTimer.reset();
+    }    
+    BOOL down = TRUE;
 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
 
@@ -1019,7 +1028,11 @@ BOOL LLViewerWindow::handleDoubleClick(LLWindow *window,  LLCoordGL pos, MASK ma
 
 BOOL LLViewerWindow::handleMouseUp(LLWindow *window,  LLCoordGL pos, MASK mask)
 {
-	BOOL down = FALSE;
+    if (mMouseDownTimer.getStarted())
+    {
+        mMouseDownTimer.stop();
+    }
+    BOOL down = FALSE;
 	return handleAnyMouseClick(window,pos,mask,LLMouseHandler::CLICK_LEFT,down);
 }
 
@@ -1249,6 +1262,22 @@ void LLViewerWindow::handleMouseMove(LLWindow *window,  LLCoordGL pos, MASK mask
 	{
 		gAgent.clearAFK();
 	}
+}
+
+void LLViewerWindow::handleMouseDragged(LLWindow *window,  LLCoordGL pos, MASK mask)
+{
+    if (mMouseDownTimer.getStarted())
+    {
+        if (mMouseDownTimer.getElapsedTimeF32() > 0.1)
+        {
+            mAllowMouseDragging = TRUE;
+            mMouseDownTimer.stop();
+        }
+    }
+    if(mAllowMouseDragging || !LLToolCamera::getInstance()->hasMouseCapture())
+    {
+        handleMouseMove(window, pos, mask);
+    }
 }
 
 void LLViewerWindow::handleMouseLeave(LLWindow *window)
@@ -1580,6 +1609,8 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	mMiddleMouseDown(FALSE),
 	mRightMouseDown(FALSE),
 	mMouseInWindow( FALSE ),
+    mAllowMouseDragging(TRUE),
+    mMouseDownTimer(),
 	mLastMask( MASK_NONE ),
 	mToolStored( NULL ),
 	mHideCursorPermanent( FALSE ),
@@ -2377,6 +2408,7 @@ void LLViewerWindow::drawDebugText()
 	}
 }
 
+extern void check_blend_funcs();
 void LLViewerWindow::draw()
 {
 	
@@ -2462,7 +2494,9 @@ void LLViewerWindow::draw()
 
 		// Draw all nested UI views.
 		// No translation needed, this view is glued to 0,0
+		if(gDebugGL)check_blend_funcs();
 		mRootView->draw();
+		if(gDebugGL)check_blend_funcs();
 
 		if (LLView::sDebugRects)
 		{
@@ -2479,7 +2513,9 @@ void LLViewerWindow::draw()
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			LLUI::translate( (F32) screen_x, (F32) screen_y);
+			if(gDebugGL)check_blend_funcs();
 			top_ctrl->draw();	
+			if(gDebugGL)check_blend_funcs();
 			LLUI::popMatrix();
 		}
 

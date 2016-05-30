@@ -185,6 +185,10 @@ void LLProgressView::setStartupComplete()
 
 void LLProgressView::setVisible(BOOL visible)
 {
+    if (!visible && mFadeFromLoginTimer.getStarted())
+    {
+        mFadeFromLoginTimer.stop();
+    }
 	// hiding progress view
 	if (getVisible() && !visible)
 	{

@@ -24,6 +24,7 @@
 
 #include "rlvdefines.h"
 #include "rlvcommon.h"
+#include <boost/variant.hpp>
 
 // ============================================================================
 // RlvCommand
@@ -53,7 +54,7 @@ public:
 	typedef std::map<std::string, ERlvBehaviour> bhvr_map_t;
 	static ERlvBehaviour		getBehaviourFromString(const std::string& strBhvr, bool* pfStrict = NULL);
 	static bool					getCommands(bhvr_map_t& cmdList, const std::string& strMatch);
-	static const std::string&	getStringFromBehaviour(ERlvBehaviour eBhvr);
+	//static const std::string&	getStringFromBehaviour(ERlvBehaviour eBhvr); // not implemented
 	static bool					hasStrictVariant(ERlvBehaviour eBhvr);
 
 	static void initLookupTable();
@@ -347,16 +348,15 @@ public:
 	/*
 	 * Event handlers
 	 */
-public:
+//public:
 	static void	onWear(LLWearableType::EType eType, bool fAllowed);
 	static void	onTakeOff(LLWearableType::EType eType, bool fAllowed);
 	static void	onAttach(const LLViewerJointAttachment* pAttachPt, bool fAllowed);
 	static void	onDetach(const LLViewerJointAttachment* pAttachPt, bool fAllowed);
 	static void	onReattach(const LLViewerJointAttachment* pAttachPt, bool fAllowed);
 protected:
-	void		onCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet, bool fInternal);
+	void onCommand(const RlvCommand& rlvCmd, ERlvCmdRet eRet, bool fInternal) const;
 
-protected:
 	struct notifyData
 	{
 		S32         nChannel;

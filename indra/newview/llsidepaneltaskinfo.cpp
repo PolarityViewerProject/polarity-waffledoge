@@ -374,6 +374,7 @@ void LLSidepanelTaskInfo::refresh()
 	
 	// Update creator text field
 	getChildView("Creator:")->setEnabled(TRUE);
+
 	std::string creator_name;
 // [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
 	BOOL creators_identical = LLSelectMgr::getInstance()->selectGetCreator(mCreatorID, creator_name);
@@ -385,6 +386,10 @@ void LLSidepanelTaskInfo::refresh()
 //	{
 //		mDACreatorName->setValue(creator_name);
 //		mCreatorID = creator_id;
+//	}
+//	if(mDACreatorName->getValue().asString() == LLStringUtil::null)
+//	{
+//	    mDACreatorName->setValue(creator_name);
 //	}
 //	mDACreatorName->setEnabled(TRUE);
 // [RLVa:KB] - Moved further down to avoid an annoying flicker when the text is set twice in a row

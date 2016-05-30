@@ -380,10 +380,6 @@ void LLToast::setVisible(BOOL show)
 		{
 			mTimer->start();
 		}
-		if (!getVisible())
-		{
-			LLModalDialog::setFrontmost(FALSE);
-		}
 	}
 	else
 	{
@@ -586,8 +582,9 @@ S32	LLToast::notifyParent(const LLSD& info)
 //static
 void LLToast::updateClass()
 {
-	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(); 
-			iter != LLInstanceTracker<LLToast>::endInstances(); ) 
+	for (LLInstanceTracker<LLToast>::instance_iter iter = LLInstanceTracker<LLToast>::beginInstances(),
+		end_iter = LLInstanceTracker<LLToast>::endInstances();
+			iter != end_iter; )
 	{
 		LLToast& toast = *iter++;
 		

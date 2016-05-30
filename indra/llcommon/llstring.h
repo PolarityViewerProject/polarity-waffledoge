@@ -1375,6 +1375,7 @@ BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 	return rv;
 }
 
+// *TODO: reimplement in terms of algorithm 
 //static
 template<class T> 
 void LLStringUtilBase<T>::stripNonprintable(string_type& string)
@@ -1408,6 +1409,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 	delete []c_string;
 }
 
+// *TODO: reimplement in terms of algorithm 
 template<class T>
 std::basic_string<T> LLStringUtilBase<T>::quote(const string_type& str,
 												const string_type& triggers,

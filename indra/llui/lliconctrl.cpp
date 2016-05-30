@@ -54,7 +54,9 @@ LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 	mUseDrawContextAlpha(p.use_draw_context_alpha),
 	mPriority(0),
 	mMinWidth(p.min_width),
-	mMinHeight(p.min_height)
+	mMinHeight(p.min_height),
+	mMaxWidth(0),
+	mMaxHeight(0)
 {
 	if (mImagep.notNull())
 	{
@@ -81,7 +83,12 @@ void LLIconCtrl::draw()
 
 // virtual
 // value might be a string or a UUID
-void LLIconCtrl::setValue(const LLSD& value )
+void LLIconCtrl::setValue(const LLSD& value)
+{
+    setValue(value, mPriority);
+}
+
+void LLIconCtrl::setValue(const LLSD& value, S32 priority)
 {
 	LLSD tvalue(value);
 	if (value.isString() && LLUUID::validate(value.asString()))
@@ -92,11 +99,11 @@ void LLIconCtrl::setValue(const LLSD& value )
 	LLUICtrl::setValue(tvalue);
 	if (tvalue.isUUID())
 	{
-		mImagep = LLUI::getUIImageByID(tvalue.asUUID(), mPriority);
+        mImagep = LLUI::getUIImageByID(tvalue.asUUID(), priority);
 	}
 	else
 	{
-		mImagep = LLUI::getUIImage(tvalue.asString(), mPriority);
+        mImagep = LLUI::getUIImage(tvalue.asString(), priority);
 	}
 
 	if(mImagep.notNull() 
@@ -104,7 +111,15 @@ void LLIconCtrl::setValue(const LLSD& value )
 		&& mMinWidth 
 		&& mMinHeight)
 	{
-		mImagep->getImage()->setKnownDrawSize(llmax(mMinWidth, mImagep->getWidth()), llmax(mMinHeight, mImagep->getHeight()));
+        S32 desired_draw_width = llmax(mMinWidth, mImagep->getWidth());
+        S32 desired_draw_height = llmax(mMinHeight, mImagep->getHeight());
+        if (mMaxWidth && mMaxHeight)
+        {
+            desired_draw_width = llmin(desired_draw_width, mMaxWidth);
+            desired_draw_height = llmin(desired_draw_height, mMaxHeight);
+        }
+
+        mImagep->getImage()->setKnownDrawSize(desired_draw_width, desired_draw_height);
 	}
 }
 

@@ -860,7 +860,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		error = glGetError();
 		if (error != GL_NO_ERROR)
 		{
-			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShaderObject: " << error << LL_ENDL;
+			LL_WARNS("ShaderLoading") << "GL ERROR in glCreateShader: " << error << LL_ENDL;
 			glDeleteShader(ret); //no longer need handle
 			ret=0;
 		}
@@ -979,7 +979,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	return ret;
 }
 
-void LLShaderMgr::cleanupShaders()
+void LLShaderMgr::cleanupShaderSources()
 {
 	if (!mProgramObjects.empty())
 	{
@@ -987,20 +987,25 @@ void LLShaderMgr::cleanupShaders()
 			iter_end = mProgramObjects.cend(); iter != iter_end; ++iter)
 		{
 			GLuint program = iter->second;
-			GLuint shaders[1024] = {};
-			GLsizei count = -1;
-			glGetAttachedShaders(program, 1024, &count, shaders);
-			if (count > 0)
+			if (program > 0 && glIsProgram(program))
 			{
-				for (GLsizei i = 0; i < count; ++i)
+				GLuint shaders[1024] = {};
+				GLsizei count = -1;
+				glGetAttachedShaders(program, 1024, &count, shaders);
+				if (count > 0)
 				{
-					if (glIsShader(shaders[i]))
+					for (GLsizei i = 0; i < count; ++i)
 					{
-						glDetachShader(program, shaders[i]);
+						if (glIsShader(shaders[i]))
+						{
+							glDetachShader(program, shaders[i]);
+						}
 					}
 				}
 			}
 		}
+
+		// Clear the linked program list as its no longer needed
 		mProgramObjects.clear();
 	}
 	if (!mShaderObjects.empty())
@@ -1008,9 +1013,14 @@ void LLShaderMgr::cleanupShaders()
 		for (auto iter = mShaderObjects.cbegin(),
 			iter_end = mShaderObjects.cend(); iter != iter_end; ++iter)
 		{
-			if (iter->second && glIsShader(iter->second))
-				glDeleteShader(iter->second);
+			GLuint shader = iter->second;
+			if (shader > 0 && glIsShader(shader))
+			{
+				glDeleteShader(shader);
+			}
 		}
+
+		// Clear the compiled shader list as its no longer needed
 		mShaderObjects.clear();
 	}
 }
@@ -1352,6 +1362,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	// <polarity> Gaussian blur shader
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>
+
+	mReservedUniforms.push_back("custom_alpha");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

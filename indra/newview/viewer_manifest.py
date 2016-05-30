@@ -29,6 +29,7 @@ $/LicenseInfo$
 """
 import sys
 import os.path
+import shutil
 import errno
 import re
 import tarfile
@@ -436,8 +437,6 @@ class WindowsManifest(ViewerManifest):
             self.path("vivoxsdk.dll")
             self.path("ortp.dll")
             self.path("libsndfile-1.dll")
-            self.path("zlib1.dll")
-            self.path("vivoxplatform.dll")
             self.path("vivoxoal.dll")
             self.path("ca-bundle.crt")
 
@@ -658,7 +657,7 @@ class WindowsManifest(ViewerManifest):
                 !define VENDORSTR "Polarity Viewer Project ><(((°>"
                 """
 
-            tempfile = "polarity_setup_tmp.nsi"
+        tempfile = "polarity_setup_tmp.nsi"
             # the following replaces strings in the nsi template
             # it also does python-style % substitution
             self.replace_in("installers/windows/installer_template.nsi", tempfile, {
@@ -754,7 +753,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
-        self.path(self.args['configuration'] + "/Second Life.app", dst="")
+        self.path(self.args['configuration'] + "/Obsidian.app", dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -912,7 +911,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 self.end_prefix("Resources")
 
-                # CEF framework goes inside Second Life.app/Contents/Frameworks
+                # CEF framework goes inside Obsidian.app/Contents/Frameworks
                 if self.prefix(src="", dst="Frameworks"):
                     frameworkfile="Chromium Embedded Framework.framework"
                     self.path2basename(relpkgdir, frameworkfile)
@@ -921,14 +920,17 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # This code constructs a relative path from the
                 # target framework folder back to the location of the symlink.
                 # It needs to be relative so that the symlink still works when
-                # (as is normal) the user moves the app bunlde out of the DMG
+                # (as is normal) the user moves the app bundle out of the DMG
                 # and into the /Applications folder. Note we also call 'raise'
                 # to terminate the process if we get an error since without
                 # this symlink, Second Life web media can't possibly work.
                 # Real Framework folder:
-                #   Second Life.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                # Location of symlink and why it'ds relavie 
-                #   Second Life.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                #   Obsidian.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                # Location of symlink and why it'ds relative 
+                #   Obsidian.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
+                #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
                 frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
                 try:
                     symlinkf(frameworkpath, pluginframeworkpath)
@@ -938,10 +940,6 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             self.end_prefix("Contents")
 
-        # fix up media_plugin.dylib so it knows where to look for CEF files it needs
-        self.run_command('install_name_tool -change "@executable_path/Chromium Embedded Framework" "@executable_path/../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework" "%(config)s/Second Life.app/Contents/Resources/llplugin/media_plugin_cef.dylib"' %
-                        { 'config' : self.args['configuration'] })
-
         # NOTE: the -S argument to strip causes it to keep enough info for
         # annotated backtraces (i.e. function names in the crash log).  'strip' with no
         # arguments yields a slightly smaller binary but makes crash logs mostly useless.
@@ -949,7 +947,7 @@ class Darwin_i386_Manifest(ViewerManifest):
         if ("package" in self.args['actions'] or
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
-                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Second Life')})
+                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Obsidian')})
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
@@ -1087,7 +1085,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 raise
                     self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': app_in_dmg })
 
-            imagename="SecondLife_" + '_'.join(self.args['version'])
+            imagename="Obsidian_" + '_'.join(self.args['version'])
 
 
         finally:
@@ -1114,7 +1112,7 @@ class LinuxManifest(ViewerManifest):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
             self.path("client-readme-joystick.txt","README-linux-joystick.txt")
-            self.path("wrapper.sh","secondlife")
+            self.path("wrapper.sh","obsidian")
             if self.prefix(src="", dst="etc"):
                 self.path("handle_secondlifeprotocol.sh")
                 self.path("register_secondlifeprotocol.sh")
@@ -1125,7 +1123,7 @@ class LinuxManifest(ViewerManifest):
             self.end_prefix("linux_tools")
 
         if self.prefix(src="", dst="bin"):
-            self.path("secondlife-bin","do-not-directly-run-secondlife-bin")
+            self.path("obsidian-bin","do-not-directly-run-obsidian-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
             self.path2basename("../llplugin/slplugin", "SLPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
@@ -1160,7 +1158,7 @@ class LinuxManifest(ViewerManifest):
     def copy_finish(self):
         # Force executable permissions to be set for scripts
         # see CHOP-223 and http://mercurial.selenic.com/bts/issue1802
-        for script in 'secondlife', 'bin/update_install':
+        for script in 'obsidian', 'bin/update_install':
             self.run_command("chmod +x %r" % os.path.join(self.get_dst_prefix(), script))
 
     def package_finish(self):
@@ -1221,10 +1219,8 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
-            self.path("libdb*.so")
             self.path("libexpat.so.*")
             self.path("libGLOD.so")
-            self.path("libuuid.so*")
             self.path("libSDL-1.2.so.*")
             self.path("libdirectfb-1.*.so.*")
             self.path("libfusion-1.*.so.*")
@@ -1312,12 +1308,33 @@ def symlinkf(src, dst):
         # file, but that strategy doesn't work so well if we don't have
         # permissions to remove it. Check to see if it's already the
         # symlink we want, which is the usual reason for EEXIST.
-        if not (os.path.islink(dst) and os.readlink(dst) == src):
-            # Here either dst isn't a symlink or it's the wrong symlink.
-            # Remove and recreate. Caller will just have to deal with any
-            # exceptions at this stage.
+        elif os.path.islink(dst):
+            if os.readlink(dst) == src:
+                # the requested link already exists
+                pass
+            else:
+                # dst is the wrong symlink; attempt to remove and recreate it
+                os.remove(dst)
+                os.symlink(src, dst)
+        elif os.path.isdir(dst):
+            print "Requested symlink (%s) exists but is a directory; replacing" % dst
+            shutil.rmtree(dst)
+            os.symlink(src, dst)
+        elif os.path.exists(dst):
+            print "Requested symlink (%s) exists but is a file; replacing" % dst
             os.remove(dst)
             os.symlink(src, dst)
+        else:
+            # see if the problem is that the parent directory does not exist
+            # and try to explain what is missing
+            (parent, tail) = os.path.split(dst)
+            while not os.path.exists(parent):
+                (parent, tail) = os.path.split(parent)
+            if tail:
+                raise Exception("Requested symlink (%s) cannot be created because %s does not exist"
+                                % os.path.join(parent, tail))
+            else:
+                raise
 
 if __name__ == "__main__":
     main()

@@ -181,42 +181,13 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mSymbolSize(p.symbol_size),
 	mSymbolPos(p.symbol_pos)
 {
-	mPriority = LLViewerFetchedTexture::BOOST_NONE; // NaCl - Do not keep icons in memory
-	
-	LLRect rect = p.rect;
+	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 
-	// BottomRight is the default position
-	S32 left = rect.getWidth() - mSymbolSize - mSymbolHpad;
-	S32 bottom = mSymbolVpad;
-
-	switch(mSymbolPos)
-	{
-	default:
-	case LLAvatarIconCtrlEnums::BOTTOM_RIGHT:
-	{
-		// We set bottom right as the default so nothing to do here.
-		break;
-	}
-	case LLAvatarIconCtrlEnums::BOTTOM_LEFT:
-	{
-		left = mSymbolHpad;
-		bottom = mSymbolVpad;
-		break;
-	}
-	case LLAvatarIconCtrlEnums::TOP_LEFT:
-	{
-		left = mSymbolHpad;
-		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
-		break;
-	}
-	case LLAvatarIconCtrlEnums::TOP_RIGHT:
-	{
-		left = rect.getWidth() - mSymbolSize - mSymbolHpad;
-		bottom = rect.getHeight() - mSymbolSize - mSymbolVpad;
-		break;
-	}
-	}
-	rect.setOriginAndSize(left, bottom, mSymbolSize, mSymbolSize);
+    // don't request larger image then necessary to save gl memory,
+    // but ensure that quality is sufficient
+    LLRect rect = p.rect;
+    mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
+    mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
 
 	if (p.avatar_id.isProvided())
 	{
@@ -225,7 +196,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	}
 	else
 	{
-		LLIconCtrl::setValue(mDefaultIconName);
+		LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
 	}
 }
 
@@ -272,7 +243,7 @@ void LLAvatarIconCtrl::setValue(const LLSD& value)
 				// *TODO: Consider getting avatar icon/badge directly from 
 				// People API, rather than sending AvatarPropertyRequest
 				// messages.  People API already hits the user table.
-				LLIconCtrl::setValue(mDefaultIconName);
+				LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
 				app->addObserver(mAvatarId, this);
 				app->sendAvatarPropertiesRequest(mAvatarId);
 			}
@@ -313,7 +284,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	}
 	else
 	{
-		LLIconCtrl::setValue(mDefaultIconName);
+		LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
         return false;
 	}
 

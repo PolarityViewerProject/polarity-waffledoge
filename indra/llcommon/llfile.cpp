@@ -57,8 +57,6 @@ std::string strerr(int errn)
 	return buffer;
 }
 
-typedef std::basic_ios<char,std::char_traits < char > > _Myios;
-
 #else
 // On Posix we want to call strerror_r(), but alarmingly, there are two
 // different variants. The one that returns int always populates the passed

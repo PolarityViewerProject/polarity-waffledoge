@@ -95,6 +95,7 @@ public:
 	static void setUploadAmount(S32 amount) { sUploadAmount = amount; }
 
 	void setDetails(F32 x, F32 y, F32 z, F32 streaming_cost, F32 physics_cost);
+	void setPreviewLOD(S32 lod);
 	
 	void onBrowseLOD(S32 lod);
 	
@@ -261,8 +262,9 @@ public:
 	void clearModel(S32 lod);
 	void loadModel(std::string filename, S32 lod, bool force_disable_slm = false);
 	void loadModelCallback(S32 lod);
+    bool lodsReady() { return !mGenLOD && mLodsQuery.empty(); }
+    void queryLODs() { mGenLOD = true; };
 	void genLODs(S32 which_lod = -1, U32 decimation = 3, bool enforce_tri_limit = false);
-	void genModelBBox(); // Generate just a model BBox if we can't generate proper LOD
 	void generateNormals();
 	void restoreNormals();
 	U32 calcResourceCost();
@@ -290,6 +292,7 @@ public:
 	void setLegacyRigValid( bool rigValid ) { mLegacyRigValid = rigValid; }		
 
 	static void	textureLoadedCallback( BOOL success, LLViewerFetchedTexture *src_vi, LLImageRaw* src, LLImageRaw* src_aux, S32 discard_level, BOOL final, void* userdata );
+    static bool lodQueryCallback();
 	
 	boost::signals2::connection setDetailsCallback( const details_signal_t::slot_type& cb ){  return mDetailsSignal.connect(cb);  }
 	boost::signals2::connection setModelLoadedCallback( const model_loaded_signal_t::slot_type& cb ){  return mModelLoadedSignal.connect(cb);  }
@@ -303,6 +306,7 @@ public:
 	LLVector3 getTranslationForJointOffset( std::string joint );
 
 	static bool 		sIgnoreLoadedCallback;
+    std::vector<S32> mLodsQuery;
 
 protected:
 

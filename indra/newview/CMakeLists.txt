@@ -146,8 +146,6 @@ set(viewer_SOURCE_FILES
     llappearancemgr.cpp
     llappviewer.cpp
     llappviewerlistener.cpp
-    llassetuploadqueue.cpp
-    llassetuploadresponders.cpp
     llattachmentsmgr.cpp
     llaudiosourcevo.cpp
     llautoreplace.cpp
@@ -164,8 +162,6 @@ set(viewer_SOURCE_FILES
     llbrowsernotification.cpp
     llbuycurrencyhtml.cpp
     llcallingcard.cpp
-    llcapabilitylistener.cpp
-    llcaphttpsender.cpp
     llchannelmanager.cpp
     llchatbar.cpp
     llchathistory.cpp
@@ -174,7 +170,6 @@ set(viewer_SOURCE_FILES
     llchiclet.cpp
     llchicletbar.cpp
     llclassifiedinfo.cpp
-    llclassifiedstatsresponder.cpp
     llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
@@ -219,7 +214,6 @@ set(viewer_SOURCE_FILES
     lleventnotifier.cpp
     lleventpoll.cpp
     llexpandabletextbox.cpp
-    llexperienceassociationresponder.cpp
     llexperiencelog.cpp
     llexternaleditor.cpp
     llface.cpp
@@ -256,7 +250,6 @@ set(viewer_SOURCE_FILES
     llfloaterconversationpreview.cpp
     llfloaterdeleteenvpreset.cpp
     llfloaterdestinations.cpp
-    llfloaterdisplayname.cpp
     llfloatereditdaycycle.cpp
     llfloatereditsky.cpp
     llfloatereditwater.cpp
@@ -300,7 +293,6 @@ set(viewer_SOURCE_FILES
     llfloaternotificationstabbed.cpp 
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
-    llfloateroutbox.cpp
     llfloaterpathfindingcharacters.cpp
     llfloaterpathfindingconsole.cpp
     llfloaterpathfindinglinksets.cpp
@@ -357,7 +349,6 @@ set(viewer_SOURCE_FILES
     llgroupmgr.cpp
     llhasheduniqueid.cpp
     llhints.cpp
-    llhomelocationresponder.cpp
     llhttpretrypolicy.cpp
     llhudeffect.cpp
     llhudeffectbeam.cpp
@@ -594,7 +585,6 @@ set(viewer_SOURCE_FILES
     lltextureinfo.cpp
     lltextureinfodetails.cpp
     lltexturestats.cpp
-    lltexturestatsuploader.cpp
     lltextureview.cpp
     lltoast.cpp
     lltoastalertpanel.cpp
@@ -630,7 +620,6 @@ set(viewer_SOURCE_FILES
     lltwitterconnect.cpp
     lluilistener.cpp
     lluploaddialog.cpp
-    lluploadfloaterobservers.cpp
     llurl.cpp
     llurldispatcher.cpp
     llurldispatcherlistener.cpp
@@ -643,6 +632,7 @@ set(viewer_SOURCE_FILES
     llviewerassetstats.cpp
     llviewerassetstorage.cpp
     llviewerassettype.cpp
+    llviewerassetupload.cpp
     llviewerattachmenu.cpp
     llvieweraudio.cpp
     llviewercamera.cpp
@@ -650,7 +640,6 @@ set(viewer_SOURCE_FILES
     llviewercontrol.cpp
     llviewercontrollistener.cpp
     llviewerdisplay.cpp
-    llviewerdisplayname.cpp
     llviewerfloaterreg.cpp
     llviewerfoldertype.cpp
     llviewergenericmessage.cpp
@@ -736,7 +725,10 @@ set(viewer_SOURCE_FILES
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
+    osavatarcolormgr.cpp
     oschatcommand.cpp
+    ospanelquicksettings.cpp
+    ospanelquicksettingspulldown.cpp
     pipeline.cpp
     rlvactions.cpp
     rlvhandler.cpp
@@ -776,8 +768,6 @@ set(viewer_HEADER_FILES
     llappearancemgr.h
     llappviewer.h
     llappviewerlistener.h
-    llassetuploadqueue.h
-    llassetuploadresponders.h
     llattachmentsmgr.h
     llaudiosourcevo.h
     llautoreplace.h
@@ -793,9 +783,7 @@ set(viewer_HEADER_FILES
     llbreadcrumbview.h
     llbuycurrencyhtml.h
     llcallingcard.h
-    llcapabilitylistener.h
     llcapabilityprovider.h
-    llcaphttpsender.h
     llchannelmanager.h
     llchatbar.h
     llchathistory.h
@@ -804,7 +792,6 @@ set(viewer_HEADER_FILES
     llchiclet.h
     llchicletbar.h
     llclassifiedinfo.h
-    llclassifiedstatsresponder.h
     llcofwearables.h
     llcolorswatch.h
     llcommanddispatcherlistener.h
@@ -849,7 +836,6 @@ set(viewer_HEADER_FILES
     lleventnotifier.h
     lleventpoll.h
     llexpandabletextbox.h
-    llexperienceassociationresponder.h
     llexperiencelog.h
     llexternaleditor.h
     llface.h
@@ -886,7 +872,6 @@ set(viewer_HEADER_FILES
     llfloaterconversationpreview.h
     llfloaterdeleteenvpreset.h
     llfloaterdestinations.h
-    llfloaterdisplayname.h
     llfloatereditdaycycle.h
     llfloatereditsky.h
     llfloatereditwater.h
@@ -933,7 +918,6 @@ set(viewer_HEADER_FILES
     llfloaternotificationstabbed.h 
     llfloaterobjectweights.h
     llfloateropenobject.h
-    llfloateroutbox.h
     llfloaterpathfindingcharacters.h
     llfloaterpathfindingconsole.h
     llfloaterpathfindinglinksets.h
@@ -990,7 +974,6 @@ set(viewer_HEADER_FILES
     llhasheduniqueid.h
     llhints.h
     llhttpretrypolicy.h
-    llhomelocationresponder.h
     llhudeffect.h
     llhudeffectbeam.h
     llhudeffectlookat.h
@@ -1215,7 +1198,6 @@ set(viewer_HEADER_FILES
     lltextureinfo.h
     lltextureinfodetails.h
     lltexturestats.h
-    lltexturestatsuploader.h
     lltextureview.h
     lltoast.h
     lltoastalertpanel.h
@@ -1265,6 +1247,7 @@ set(viewer_HEADER_FILES
     llviewerassetstats.h
     llviewerassetstorage.h
     llviewerassettype.h
+    llviewerassetupload.h
     llviewerattachmenu.h
     llvieweraudio.h
     llviewercamera.h
@@ -1272,7 +1255,6 @@ set(viewer_HEADER_FILES
     llviewercontrol.h
     llviewercontrollistener.h
     llviewerdisplay.h
-    llviewerdisplayname.h
     llviewerfloaterreg.h
     llviewerfoldertype.h
     llviewergenericmessage.h
@@ -1358,7 +1340,10 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     macmain.h
     noise.h
+    osavatarcolormgr.h
     oschatcommand.h
+    ospanelquicksettings.h
+    ospanelquicksettingspulldown.h
     osscriptruntimeperms.h
     pipeline.h
     rlvactions.h
@@ -1382,8 +1367,8 @@ source_group("CMake Rules" FILES ViewerInstall.cmake)
 # the summary.json file is created for the benefit of the TeamCity builds, where
 #   it is used to provide descriptive information to the build results page
 add_custom_target(generate_viewer_version ALL
-                  COMMAND cmake -E echo ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                  COMMAND cmake -E echo {"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"} > ${CMAKE_BINARY_DIR}/summary.json
+                  COMMAND ${CMAKE_COMMAND} -E echo ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+                  COMMAND ${CMAKE_COMMAND} -E echo {"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"} > ${CMAKE_BINARY_DIR}/summary.json
                   COMMENT "Generating viewer_version.txt for manifest processing"
                   )
 
@@ -1785,8 +1770,6 @@ if (WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxsdk.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ortp.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libsndfile-1.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/zlib1.dll
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxplatform.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ca-bundle.crt
       ${GOOGLE_PERF_TOOLS_SOURCE}
@@ -2089,10 +2072,10 @@ if (DARWIN)
   set(MACOSX_BUNDLE_ICON_FILE "secondlife.icns")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.secondlife.indra.viewer")
   set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
-  set(MACOSX_BUNDLE_BUNDLE_NAME "SecondLife")
+  set(MACOSX_BUNDLE_BUNDLE_NAME "Polarity")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
-  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Linden Research, Inc. 2007")
+  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Polarity Viewer Project 2014-2016")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
   
@@ -2177,7 +2160,7 @@ if (PACKAGE)
   set(SYMBOL_SEARCH_DIRS "")
   if (WINDOWS)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-windows.tar.bz2")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-windows.tar.bz2")
     # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
     # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
     set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
@@ -2191,14 +2174,14 @@ if (PACKAGE)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-darwin.tar.bz2")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-darwin.tar.bz2")
     set(VIEWER_EXE_GLOBS "'Polarity' SLPlugin mac-crash-logger")
     set(VIEWER_EXE_GLOBS "'Polarity' mac-crash-logger")
     set(VIEWER_LIB_GLOB "*.dylib")
   endif (DARWIN)
   if (LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/secondlife-symbols-linux.tar.bz2")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-linux.tar.bz2")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin SLPlugin")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
@@ -2239,10 +2222,9 @@ if (LL_TESTS)
   SET(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     lldateutil.cpp
-    llmediadataclient.cpp
+#    llmediadataclient.cpp
     lllogininstance.cpp
-    llremoteparcelrequest.cpp
-    lltranslate.cpp
+#    llremoteparcelrequest.cpp
     llviewerhelputil.cpp
     llversioninfo.cpp
     llworldmap.cpp
@@ -2259,20 +2241,15 @@ if (LL_TESTS)
   )
 
   set(test_libs
+    ${LLCOMMON_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${CURL_LIBRARIES}
     )
 
   set_source_files_properties(
-    lltranslate.cpp
-    PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
-  )
-
-  set_source_files_properties(
     llmediadataclient.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_LIBRARIES "${CURL_LIBRARIES}"
+    LL_TEST_ADDITIONAL_LIBRARIES "${test_libs}"
   )
 
   set_source_files_properties(
@@ -2328,7 +2305,6 @@ if (LL_TESTS)
   LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
-  set(test_sources llcapabilitylistener.cpp)
   ##################################################
   # DISABLING PRECOMPILED HEADERS USAGE FOR TESTS
   ##################################################
@@ -2343,25 +2319,28 @@ if (LL_TESTS)
     ${LLCOMMON_LIBRARIES}
     )
 
-  LL_ADD_INTEGRATION_TEST(llcapabilitylistener
-    "${test_sources}"
-    "${test_libs}"
-    ${PYTHON_EXECUTABLE}
-    "${CMAKE_SOURCE_DIR}/llmessage/tests/test_llsdmessage_peer.py"
-    )
+  if (LINUX)
+    # llcommon uses `clock_gettime' which is provided by librt on linux.
+    set(LIBRT_LIBRARY
+      rt
+      )
+  endif (LINUX)
 
   set(test_libs
-    ${LLMESSAGE_LIBRARIES}
-    ${LLCOREHTTP_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLCOMMON_LIBRARIES}
+    ${LLMESSAGE_LIBRARIES}
+    ${LLCOREHTTP_LIBRARIES}
     ${OPENSSL_LIBRARIES}
     ${CRYPTO_LIBRARIES}
+    ${LIBRT_LIBRARY}
+    ${BOOST_COROUTINE_LIBRARY}
+    ${BOOST_CONTEXT_LIBRARY}
   )
 
-    LL_ADD_INTEGRATION_TEST(llsechandler_basic
+  LL_ADD_INTEGRATION_TEST(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
     )
@@ -2392,13 +2371,12 @@ if (LL_TESTS)
     "${test_libs}"
     )
 
-  LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
+# LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
 
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfo viewer)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
-  #ADD_VIEWER_BUILD_TEST(lltexturestatsuploader viewer)
 
 include(LLAddBuildTest)
 SET(viewer_TEST_SOURCE_FILES

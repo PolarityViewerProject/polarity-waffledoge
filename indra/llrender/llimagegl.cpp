@@ -51,11 +51,15 @@ U32 wpo2(U32 i);
 
 U32 LLImageGL::sUniqueCount				= 0;
 U32 LLImageGL::sBindCount				= 0;
-// <FS:Ansariel> Texture memory management
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
 S64Bytes LLImageGL::sGlobalTextureMemory(0);
 S64Bytes LLImageGL::sBoundTextureMemory(0);
 S64Bytes LLImageGL::sCurBoundTextureMemory(0);
-// </FS:Ansariel>
+#else
+S32Bytes LLImageGL::sGlobalTextureMemory(0);
+S32Bytes LLImageGL::sBoundTextureMemory(0);
+S32Bytes LLImageGL::sCurBoundTextureMemory(0);
+#endif
 S32 LLImageGL::sCount					= 0;
 
 BOOL LLImageGL::sGlobalUseAnisotropic	= FALSE;
@@ -195,6 +199,8 @@ S32 LLImageGL::dataFormatBits(S32 dataformat)
 	  case GL_ALPHA:							return 8;
 	  case GL_COLOR_INDEX:						return 8;
 	  case GL_LUMINANCE_ALPHA:					return 16;
+	  case GL_RED:								return 8;
+	  case GL_RG:								return 16;
 	  case GL_RGB:								return 24;
 	  case GL_RGB8:								return 24;
 	  case GL_RGBA:								return 32;
@@ -231,6 +237,8 @@ S32 LLImageGL::dataFormatComponents(S32 dataformat)
 	  case GL_ALPHA:							return 1;
 	  case GL_COLOR_INDEX:						return 1;
 	  case GL_LUMINANCE_ALPHA:					return 2;
+	  case GL_RED:								return 1;
+	  case GL_RG:								return 2;
 	  case GL_RGB:								return 3;
 	  case GL_RGBA:								return 4;
 	  case GL_BGRA:								return 4;		// Used for QuickTime media textures on the Mac
@@ -253,9 +261,7 @@ void LLImageGL::updateStats(F32 current_time)
 }
 
 //static
-// <FS:Ansariel> Texture memory management
-S64 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
-// </FS:Ansariel>
+S32 LLImageGL::updateBoundTexMem(const S32Bytes mem, const S32 ncomponents, S32 category)
 {
 	LLImageGL::sCurBoundTextureMemory += mem ;
 	return LLImageGL::sCurBoundTextureMemory.value();

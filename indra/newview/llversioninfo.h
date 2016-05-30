@@ -60,7 +60,7 @@ public:
 	static const std::string &getShortVersion();
 
 	/// return the viewer version and channel as a string
-	/// like "Second Life Release 2.0.0.200030"
+	/// like "Polarity Release 2.0.0.200030"
 	static const std::string &getChannelAndVersion();
 
 	// <polarity> PVData
@@ -72,7 +72,7 @@ public:
 	static const std::string &getChannelAndVersionStatic();
 	static const std::string &getCompiledChannel();
 	// </polarity> PVData
-	/// return the channel name, e.g. "Second Life"
+	/// return the channel name, e.g. "Polarity"
 	static const std::string &getChannel();
 	
 	/// reset the channel name used by the viewer.
