@@ -4568,11 +4568,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	F32 depth_conversion_factor_2 = (LLViewerCamera::getInstance()->getFar() - LLViewerCamera::getInstance()->getNear()) / (2.f * LLViewerCamera::getInstance()->getFar() * LLViewerCamera::getInstance()->getNear());
 
 	gObjectList.generatePickList(*LLViewerCamera::getInstance());
-	
-	if (LLPipeline::sRenderDeferred)
-	{
-		LLPipeline::sRenderGaussian = TRUE; // <polarity> Gaussian blur shader
-	}
 
 	// Subimages are in fact partial rendering of the final view. This happens when the final view is bigger than the screen.
 	// In most common cases, scale_factor is 1 and there's no more than 1 iteration on x and y
@@ -4728,7 +4723,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_resume();
 	}
 	
-	LLPipeline::sRenderGaussian = FALSE; // <polarity> Gaussian blur shader
 	gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
 	return ret;
 }
