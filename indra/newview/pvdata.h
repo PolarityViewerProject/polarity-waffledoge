@@ -109,7 +109,15 @@ public:
 	void downloadAgents();
 
 	// This handles the data received from the server after downloading the data
-	void PVData::handleServerResponse(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
+	void handleResponseFromServer(const LLSD& http_content,
+		const std::string& http_source_url,
+		//const std::string& data_file_name,
+		const bool& parse_success
+		// TODO: re-implement last-modified support
+		//const bool& http_failure
+		//const LLDate& last_modified
+		);
+	//void handleResponseFromServer(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
 
 	bool isSupportGroup(const LLUUID& id);
 
@@ -117,12 +125,12 @@ public:
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 
 	// Better version of isLinden that takes PVData into account
-	bool PVData::isLinden(const LLUUID& av_id);
+	bool isLinden(const LLUUID& av_id);
 
-	bool PVData::seedIsLinden(const LLUUID& av_id);
+	bool seedIsLinden(const LLUUID& av_id);
 
 	// Attempt to replace specified color with agent color. Returns true if replacement was made.
-	bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
+	bool replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
 
 	// Returns the agent flags as a decimal number
 	int getAgentFlags(const LLUUID& avatar_id);
@@ -159,7 +167,7 @@ public:
 	// Is the avatar denied access to the viewer?
 	bool isBanned(const LLUUID& avatar_id);
 	// Has the avatar earned a special color?
-	bool PVData::hasColor(const LLUUID& avatar_id);
+	bool hasColor(const LLUUID& avatar_id);
 	// Has the avatar earned a special title?
 	bool hasTitle(const LLUUID& avatar_id);
 
@@ -236,8 +244,16 @@ private:
 	std::string mPVDataRemoteURLBase;
 
 	// [URL COMPONENT]
-	// This is the complete URL where the PVData data is downloaded from, with file name.
+	// This is the complete URL where the modular file is downloaded from, with file name.
 	std::string mPVDataModularRemoteURLFull;
+
+	// [URL COMPONENT]
+	// This is the complete URL where the data file is downloaded from, with file name.
+	std::string mPVDataURLFull;
+
+	// [URL COMPONENT]
+	// This is the complete URL where the agents file is downloaded from, with file name.
+	std::string mPVAgentsURLFull;
 
 	// This contains the LLSD blob received from the server.
 	// Kept in memory to avoid Filesystem I/O delays and dependencies
