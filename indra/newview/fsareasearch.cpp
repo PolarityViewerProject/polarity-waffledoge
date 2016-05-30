@@ -155,7 +155,7 @@ FSAreaSearch::~FSAreaSearch()
 	{
 		LLViewerParcelMgr::getInstance()->removeObserver(mParcelChangedObserver);
 		delete mParcelChangedObserver;
-		mParcelChangedObserver = nullptr;
+		mParcelChangedObserver = NULL;
 	}
 }
 
@@ -263,7 +263,7 @@ void FSAreaSearch::checkRegion()
 	if (mInstance && mActive)
 	{
 		// Check if we changed region, and if we did, clear the object details cache.
-		LLViewerRegion* region = gAgent.getRegion(); // getRegion can return nullptr if disconnected.
+		LLViewerRegion* region = gAgent.getRegion(); // getRegion can return NULL if disconnected.
 		if (region && (region != mLastRegion))
 		{
 			if (!mExcludeNeighborRegions)
@@ -356,7 +356,7 @@ void FSAreaSearch::findObjects()
 
 		if (object_id.isNull())
 		{
-			LL_WARNS("FSAreaSearch") << "WTF?! Selectable object with id of nullptr!!" << LL_ENDL;
+			LL_WARNS("FSAreaSearch") << "WTF?! Selectable object with id of NULL!!" << LL_ENDL;
 			continue;
 		}
 
