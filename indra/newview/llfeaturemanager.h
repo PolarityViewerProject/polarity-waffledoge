@@ -160,7 +160,7 @@ public:
 
 	// load the dynamic GPU/feature table from a website
 	void fetchHTTPTables();
-	void fetchFallbackHTTPTable();
+	// void fetchFallbackHTTPTable();
 	
 protected:
 	bool loadGPUClass();

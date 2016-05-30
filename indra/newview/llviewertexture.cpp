@@ -59,6 +59,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
+const S32Megabytes gMinVideoRam(32);
 #ifdef LL_X86_64
 const S32Megabytes gMaxVideoRam(2048);
 #else

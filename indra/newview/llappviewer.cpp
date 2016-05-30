@@ -3368,7 +3368,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["COMPILER_VERSION"] = GCC_VERSION;
 #endif
 
-#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
+#ifdef LL_X86_64
 	info["BUILD_ARCH"] = "x86_64";
 #else
 	info["BUILD_ARCH"] = "x86";

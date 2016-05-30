@@ -803,6 +803,8 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 }
 
 
+				// <polarity> TODO: re-add using a coroutine. See below.
+				#ifdef COROUTINE
 				// <FS:Cron> area search
 				// Update area search to have current information.
 				FSAreaSearch* area_search_floater = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
@@ -811,6 +813,7 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 					area_search_floater->updateObjectCosts(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
 				}
 				// </FS:Cron> area search
+				#endif
 static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent)

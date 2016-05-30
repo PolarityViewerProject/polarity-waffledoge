@@ -450,11 +450,12 @@ bool idle_startup()
 
 		// load dynamic GPU/feature tables from website (S3)
 		LLFeatureManager::getInstance()->fetchHTTPTables();
+/*
 		if (!mFeatureTableExistsForVersion)
 		{
 			LLFeatureManager::getInstance()->fetchFallbackHTTPTable();
 		}
-
+*/
 		std::string xml_file = LLUI::locateSkin("xui_version.xml");
 		LLXMLNodePtr root;
 		bool xml_ok = false;

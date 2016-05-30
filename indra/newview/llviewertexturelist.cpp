@@ -1436,7 +1436,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
 	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
 	
-#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
+#ifdef LL_X86_64
 	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam / 2)
 	{
 		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + (S32Megabytes) (mMaxResidentTexMemInMegaBytes * 0.25f);
