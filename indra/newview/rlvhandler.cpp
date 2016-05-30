@@ -36,6 +36,7 @@
 #include "rlvextensions.h"
 
 #include <boost/algorithm/string.hpp>
+#include <boost/variant.hpp>
 
 // ============================================================================
 // Static variable initialization
@@ -213,21 +214,21 @@ void RlvHandler::removeException(const LLUUID& idObj, ERlvBehaviour eBhvr, const
 //
 
 // Checked: 2010-04-07 (RLVa-1.2.0d) | Modified: RLVa-1.1.0f
-void RlvHandler::addCommandHandler(RlvCommandHandler* pCmdHandler)
+void RlvHandler::addCommandHandler(RlvCommandHandler* pCmdHandler) const
 {
 	if ( (pCmdHandler) && (std::find(m_CommandHandlers.begin(), m_CommandHandlers.end(), pCmdHandler) == m_CommandHandlers.end()) )
 		m_CommandHandlers.push_back(pCmdHandler);
 }
 
 // Checked: 2010-04-07 (RLVa-1.2.0d) | Modified: RLVa-1.1.0f
-void RlvHandler::removeCommandHandler(RlvCommandHandler* pCmdHandler)
+void RlvHandler::removeCommandHandler(RlvCommandHandler* pCmdHandler) const
 {
 	if (pCmdHandler)
 		m_CommandHandlers.remove(pCmdHandler);
 }
 
 // Checked: 2010-04-07 (RLVa-1.2.0d) | Modified: RLVa-1.1.0a
-void RlvHandler::clearCommandHandlers()
+void RlvHandler::clearCommandHandlers() const
 {
 	std::list<RlvCommandHandler*>::const_iterator itHandler = m_CommandHandlers.begin();
 	while (itHandler != m_CommandHandlers.end())
@@ -274,7 +275,7 @@ ERlvCmdRet RlvHandler::processCommand(const RlvCommand& rlvCmd, bool fFromObj)
 	m_CurCommandStack.push(&rlvCmd); m_CurObjectStack.push(rlvCmd.getObjectID());
 	const LLUUID& idCurObj = m_CurObjectStack.top();
 
-	ERlvCmdRet eRet = RLV_RET_UNKNOWN;
+	ERlvCmdRet eRet;
 	switch (rlvCmd.getParamType())
 	{
 		case RLV_TYPE_ADD:		// Checked: 2009-11-26 (RLVa-1.1.0f) | Modified: RLVa-1.1.0f
@@ -290,7 +291,7 @@ ERlvCmdRet RlvHandler::processCommand(const RlvCommand& rlvCmd, bool fFromObj)
 					break;
 				}
 
-				rlv_object_map_t::iterator itObj = m_Objects.find(idCurObj); bool fAdded = false;
+				rlv_object_map_t::iterator itObj = m_Objects.find(idCurObj); bool fAdded;
 				if (itObj != m_Objects.end())
 				{
 					RlvObject& rlvObj = itObj->second;
@@ -461,7 +462,7 @@ bool RlvHandler::handleEvent(LLPointer<LLOldEvents::LLEvent> event, const LLSD& 
 }
 
 // Checked: 2010-08-29 (RLVa-1.2.1c) | Modified: RLVa-1.2.1c
-void RlvHandler::onSitOrStand(bool fSitting)
+void RlvHandler::onSitOrStand(bool fSitting) const
 {
 	#ifdef RLV_EXTENSION_STARTLOCATION
 	if (rlv_handler_t::isEnabled())
@@ -632,7 +633,7 @@ bool RlvHandler::onGC()
 // Checked: 2009-11-26 (RLVa-1.1.0f) | Added: RLVa-1.1.0f
 void RlvHandler::onIdleStartup(void* pParam)
 {
-	LLTimer* pTimer = (LLTimer*)pParam;
+	LLTimer* pTimer = static_cast<LLTimer*>(pParam);
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
 		// We don't want to run this *too* often
@@ -1194,12 +1195,12 @@ ERlvCmdRet RlvHandler::processAddRemCommand(const RlvCommand& rlvCmd)
 				ERlvLockMask eLock = (RLV_BHVR_ADDOUTFIT == eBhvr) ? RLV_LOCK_ADD : RLV_LOCK_REMOVE;
 				for (int idxType = 0; idxType < LLWearableType::WT_COUNT; idxType++)
 				{
-					if ( (rlvCmdOption.isEmpty()) || ((LLWearableType::EType)idxType == rlvCmdOption.getWearableType()) )
+					if ( (rlvCmdOption.isEmpty()) || (static_cast<LLWearableType::EType>(idxType) == rlvCmdOption.getWearableType()) )
 					{
 						if (RLV_TYPE_ADD == eType)
-							gRlvWearableLocks.addWearableTypeLock((LLWearableType::EType)idxType, rlvCmd.getObjectID(), eLock);
+							gRlvWearableLocks.addWearableTypeLock(static_cast<LLWearableType::EType>(idxType), rlvCmd.getObjectID(), eLock);
 						else
-							gRlvWearableLocks.removeWearableTypeLock((LLWearableType::EType)idxType, rlvCmd.getObjectID(), eLock);
+							gRlvWearableLocks.removeWearableTypeLock(static_cast<LLWearableType::EType>(idxType), rlvCmd.getObjectID(), eLock);
 					}
 				}
 			}
@@ -1430,7 +1431,7 @@ ERlvCmdRet RlvHandler::processAddRemCommand(const RlvCommand& rlvCmd)
 }
 
 // Checked: 2010-03-03 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
-ERlvCmdRet RlvHandler::onAddRemAttach(const RlvCommand& rlvCmd, bool& fRefCount)
+ERlvCmdRet RlvHandler::onAddRemAttach(const RlvCommand& rlvCmd, bool& fRefCount) const
 {
 	RLV_ASSERT( (RLV_TYPE_ADD == rlvCmd.getParamType()) || (RLV_TYPE_REMOVE == rlvCmd.getParamType()) );
 	RLV_ASSERT( (RLV_BHVR_ADDATTACH == rlvCmd.getBehaviourType()) || (RLV_BHVR_REMATTACH == rlvCmd.getBehaviourType()) );
@@ -1498,9 +1499,9 @@ ERlvCmdRet RlvHandler::onAddRemDetach(const RlvCommand& rlvCmd, bool& fRefCount)
 			return RLV_RET_FAILED_OPTION;
 
 		if (RLV_TYPE_ADD == rlvCmd.getParamType())
-			gRlvAttachmentLocks.addAttachmentPointLock(idxAttachPt, rlvCmd.getObjectID(), (ERlvLockMask)(RLV_LOCK_ADD | RLV_LOCK_REMOVE));
+			gRlvAttachmentLocks.addAttachmentPointLock(idxAttachPt, rlvCmd.getObjectID(), static_cast<ERlvLockMask>(RLV_LOCK_ADD | RLV_LOCK_REMOVE));
 		else
-			gRlvAttachmentLocks.removeAttachmentPointLock(idxAttachPt, rlvCmd.getObjectID(), (ERlvLockMask)(RLV_LOCK_ADD | RLV_LOCK_REMOVE));
+			gRlvAttachmentLocks.removeAttachmentPointLock(idxAttachPt, rlvCmd.getObjectID(), static_cast<ERlvLockMask>(RLV_LOCK_ADD | RLV_LOCK_REMOVE));
 	}
 
 	fRefCount = false;	// Don't reference count @detach[:<option>]=n
@@ -1508,7 +1509,7 @@ ERlvCmdRet RlvHandler::onAddRemDetach(const RlvCommand& rlvCmd, bool& fRefCount)
 }
 
 // Checked: 2010-11-30 (RLVa-1.3.0b) | Added: RLVa-1.3.0b
-ERlvCmdRet RlvHandler::onAddRemFolderLock(const RlvCommand& rlvCmd, bool& fRefCount)
+ERlvCmdRet RlvHandler::onAddRemFolderLock(const RlvCommand& rlvCmd, bool& fRefCount) const
 {
 	RlvCommandOptionGeneric rlvCmdOption(rlvCmd.getOption());
 
@@ -1748,8 +1749,8 @@ ERlvCmdRet RlvHandler::onForceRemOutfit(const RlvCommand& rlvCmd) const
 
 	for (int idxType = 0; idxType < LLWearableType::WT_COUNT; idxType++)
 	{
-		if ( (rlvCmdOption.isEmpty()) || ((LLWearableType::EType)idxType == rlvCmdOption.getWearableType()))
-			RlvForceWear::instance().forceRemove((LLWearableType::EType)idxType);
+		if ( (rlvCmdOption.isEmpty()) || (static_cast<LLWearableType::EType>(idxType) == rlvCmdOption.getWearableType()))
+			RlvForceWear::instance().forceRemove(static_cast<LLWearableType::EType>(idxType));
 	}
 	return RLV_RET_SUCCESS;
 }
@@ -1762,7 +1763,7 @@ ERlvCmdRet RlvHandler::onForceGroup(const RlvCommand& rlvCmd) const
 		return RLV_RET_FAILED_LOCK;
 	}
 
-	LLUUID idGroup; bool fValid = false;
+	LLUUID idGroup; bool fValid;
 	if (idGroup.set(rlvCmd.getOption()))
 	{
 		fValid = (idGroup.isNull()) || (gAgent.isInGroup(idGroup, true));
@@ -1838,7 +1839,7 @@ ERlvCmdRet RlvHandler::onForceWear(const LLViewerInventoryCategory* pFolder, ERl
 	if ( (RLV_BHVR_ATTACHALL == eBhvr) || (RLV_BHVR_ATTACHALLOVER == eBhvr) || (RLV_BHVR_DETACHALL == eBhvr) ||
 		 (RLV_BHVR_ATTACHALLTHIS == eBhvr) || (RLV_BHVR_ATTACHALLTHISOVER == eBhvr) || (RLV_BHVR_DETACHALLTHIS == eBhvr) )
 	{
-		eFlags = (RlvForceWear::EWearFlags)(eFlags | RlvForceWear::FLAG_MATCHALL);
+		eFlags = static_cast<RlvForceWear::EWearFlags>(eFlags | RlvForceWear::FLAG_MATCHALL);
 	}
 
 	RlvForceWear::instance().forceFolder(pFolder, eAction, eFlags);
@@ -2274,7 +2275,7 @@ ERlvCmdRet RlvHandler::onGetOutfitNames(const RlvCommand& rlvCmd, std::string& s
 
 	for (int idxType = 0; idxType < LLWearableType::WT_COUNT; idxType++)
 	{
-		bool fAdd = false; LLWearableType::EType wtType = (LLWearableType::EType)idxType;
+		bool fAdd = false; LLWearableType::EType wtType = static_cast<LLWearableType::EType>(idxType);
 		switch (rlvCmd.getBehaviourType())
 		{
 			case RLV_BHVR_GETOUTFITNAMES:		// Every layer that has at least one worn wearable
@@ -2301,7 +2302,7 @@ ERlvCmdRet RlvHandler::onGetOutfitNames(const RlvCommand& rlvCmd, std::string& s
 }
 
 // Checked: 2010-08-30 (RLVa-1.2.1c) | Modified: RLVa-1.2.1c
-ERlvCmdRet RlvHandler::onGetPath(const RlvCommand& rlvCmd, std::string& strReply) const
+ERlvCmdRet RlvHandler::onGetPath(const RlvCommand& rlvCmd, std::string& strReply)
 {
 	RLV_ASSERT(RLV_TYPE_REPLY == rlvCmd.getParamType());
 	RLV_ASSERT( (RLV_BHVR_GETPATH == rlvCmd.getBehaviourType()) || (RLV_BHVR_GETPATHNEW == rlvCmd.getBehaviourType()) ); 

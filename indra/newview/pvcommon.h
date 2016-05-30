@@ -72,10 +72,27 @@ public:
 
 	static bool isDefaultTexture(const LLUUID& asset_id);
 
+	/**
+	* Convert a string of a specified date format into seconds since the Epoch.
+	*
+	* Many of the format flags are those used by strftime(...), but not all.
+	* For the full list of supported time format specifiers
+	* see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
+	*
+	* time support added by Techwolf Lupindo
+	*
+	* @param format Format characters string. Example: "%A %b %d, %Y"
+	* @param str    Date string containing the time in specified format.
+	*
+	* @return Number of seconds since 01/01/1970 UTC.
+	*/
+	static S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
+
 	static bool isAVXSupported();
 private:
 	static bool sAVX_Checked;
 	static bool sAVXSupported;
+
 };
 
 #endif // PV_COMMON_H

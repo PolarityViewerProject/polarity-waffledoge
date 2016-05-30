@@ -617,5 +617,4 @@ void LLFloaterSettingsDebug::updateControl()
 			break;
 		}
 	}
-
 }

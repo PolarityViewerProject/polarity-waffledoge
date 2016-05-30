@@ -1029,6 +1029,7 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 	}
 }
 
+LLRender::eBlendFactor blendfunc_debug[4]={LLRender::BF_UNDEF};
 LLRender::LLRender()
   : mDirty(false),
     mCount(0),
@@ -1649,6 +1650,14 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 	}
 }
 
+void check_blend_funcs()
+{
+	llassert_always(blendfunc_debug[0] == LLRender::BF_SOURCE_ALPHA );
+	llassert_always(blendfunc_debug[1] == LLRender::BF_SOURCE_ALPHA );
+	llassert_always(blendfunc_debug[2] == LLRender::BF_ONE_MINUS_SOURCE_ALPHA );
+	llassert_always(blendfunc_debug[3] == LLRender::BF_ONE_MINUS_SOURCE_ALPHA );
+}
+
 void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
 	llassert(sfactor < BF_UNDEF);
@@ -1660,6 +1669,8 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 		mCurrBlendAlphaSFactor = sfactor;
 		mCurrBlendColorDFactor = dfactor;
 		mCurrBlendAlphaDFactor = dfactor;
+		blendfunc_debug[0]=blendfunc_debug[1]=sfactor;
+		blendfunc_debug[2]=blendfunc_debug[3]=dfactor;
 		flush();
 		glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
 	}
@@ -1685,6 +1696,10 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 		mCurrBlendAlphaSFactor = alpha_sfactor;
 		mCurrBlendColorDFactor = color_dfactor;
 		mCurrBlendAlphaDFactor = alpha_dfactor;
+		blendfunc_debug[0]=color_sfactor;
+		blendfunc_debug[1]=alpha_sfactor;
+		blendfunc_debug[2]=color_dfactor;
+		blendfunc_debug[3]=alpha_dfactor;
 		flush();
 		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
 				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);

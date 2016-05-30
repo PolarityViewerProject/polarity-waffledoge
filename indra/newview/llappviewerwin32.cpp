@@ -98,9 +98,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-// To retain SLURL association compatibility (passing a SLURL to a running viewer), this
-// MUST match VIEWER_WINDOW_CLASSNAME in llappviewer.cpp
-//const std::string LLAppViewerWin32::sWindowClass = "Polarity";
+const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -436,6 +434,7 @@ static bool create_console()
 
 	// allocate a console for this app
 	const bool isConsoleAllocated = AllocConsole();
+
 	// set the screen buffer to be big enough to let us scroll text
 	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
 	coninfo.dwSize.Y = MAX_CONSOLE_LINES;

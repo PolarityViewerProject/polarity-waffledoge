@@ -88,8 +88,8 @@ public:
 	const LLUUID&     getAgentGroup() const			{ return m_idAgentGroup; }					// @setgroup
 	bool              getCanCancelTp() const		{ return m_fCanCancelTp; }					// @accepttp and @tpto
 	void              setCanCancelTp(bool fAllow)	{ m_fCanCancelTp = fAllow; }				// @accepttp and @tpto
-	const LLVector3d& getSitSource() const						{ return m_posSitSource; }		// @standtp
-	void              setSitSource(const LLVector3d& posSource)	{ m_posSitSource = posSource; }	// @standtp
+	const LLVector3d& getSitSource() const			{ return m_posSitSource; }					// @standtp
+	void              setSitSource(const LLVector3d& posSource) const { m_posSitSource = posSource; }	// @standtp
 
 	// Command specific helper functions
 	bool canEdit(const LLViewerObject* pObj) const;												// @edit and @editobj
@@ -113,7 +113,7 @@ public:
 	static BOOL isEnabled()	{ return m_fEnabled; }
 	static BOOL setEnabled(BOOL fEnable);
 protected:
-	void clearState();
+	static void clearState();
 
 	// --------------------------------
 
@@ -129,10 +129,10 @@ public:
 	typedef boost::signals2::signal<void (const RlvCommand&, ERlvCmdRet, bool)> rlv_command_signal_t;
 	boost::signals2::connection setCommandCallback(const rlv_command_signal_t::slot_type& cb )			 { return m_OnCommand.connect(cb); }
 
-	void addCommandHandler(RlvCommandHandler* pHandler);
-	void removeCommandHandler(RlvCommandHandler* pHandler);
+	void addCommandHandler(RlvCommandHandler* pHandler) const;
+	void removeCommandHandler(RlvCommandHandler* pHandler) const;
 protected:
-	void clearCommandHandlers();
+	void clearCommandHandlers() const;
 	bool notifyCommandHandlers(rlvCommandHandler f, const RlvCommand& rlvCmd, ERlvCmdRet& eRet, bool fNotifyAll) const;
 
 	// Externally invoked event handlers
@@ -142,7 +142,7 @@ public:
 	void onDetach(const LLViewerObject* pAttachObj, const LLViewerJointAttachment* pAttachPt);
 	bool onGC();
 	void onLoginComplete();
-	void onSitOrStand(bool fSitting);
+	void onSitOrStand(bool fSitting) const;
 	void onTeleportFailed();
 	void onTeleportFinished(const LLVector3d& posArrival);
 	static void onIdleStartup(void* pParam);
@@ -156,10 +156,10 @@ protected:
 
 	// Command handlers (RLV_TYPE_ADD and RLV_TYPE_CLEAR)
 	ERlvCmdRet processAddRemCommand(const RlvCommand& rlvCmd);
-	ERlvCmdRet onAddRemAttach(const RlvCommand& rlvCmd, bool& fRefCount);
+	ERlvCmdRet onAddRemAttach(const RlvCommand& rlvCmd, bool& fRefCount) const;
 	ERlvCmdRet onAddRemDetach(const RlvCommand& rlvCmd, bool& fRefCount);
-	ERlvCmdRet onAddRemFolderLock(const RlvCommand& rlvCmd, bool& fRefCount);
-	ERlvCmdRet onAddRemFolderLockException(const RlvCommand& rlvCmd, bool& fRefCount);
+	ERlvCmdRet onAddRemFolderLock(const RlvCommand& rlvCmd, bool& fRefCount) const;
+	static ERlvCmdRet onAddRemFolderLockException(const RlvCommand& rlvCmd, bool& fRefCount);
 	// Command handlers (RLV_TYPE_FORCE)
 	ERlvCmdRet processForceCommand(const RlvCommand& rlvCmd) const;
 	ERlvCmdRet onForceRemAttach(const RlvCommand& rlvCmd) const;
@@ -177,7 +177,7 @@ protected:
 	ERlvCmdRet onGetInvWorn(const RlvCommand& rlvCmd, std::string& strReply) const;
 	ERlvCmdRet onGetOutfit(const RlvCommand& rlvCmd, std::string& strReply) const;
 	ERlvCmdRet onGetOutfitNames(const RlvCommand& rlvCmd, std::string& strReply) const;
-	ERlvCmdRet onGetPath(const RlvCommand& rlvCmd, std::string& strReply) const;
+	static ERlvCmdRet onGetPath(const RlvCommand& rlvCmd, std::string& strReply);
 
 	// --------------------------------
 

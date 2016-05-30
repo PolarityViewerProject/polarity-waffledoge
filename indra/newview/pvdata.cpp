@@ -1,31 +1,35 @@
 /**
-* @file pvdata.cpp
-* @brief Downloadable metadata for viewer features.
-* Inspired by FSData by Techwolf Lupindo
-* Re-implented by Xenhat Liamano
-*
-* $LicenseInfo:firstyear=2015&license=viewerlgpl$
-* Polarity Viewer Source Code
-* Copyright (C) 2015 Xenhat Liamano
-* Portions Copyright (C)
-*  2011 Wolfspirit Magi
-*  2011-2013 Techwolf Lupindo
-*  2012 Ansariel Hiller @ Second Life
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation;
-* version 2.1 of the License only.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* The Polarity Viewer Project
-* http://www.polarityviewer.org
-* $/LicenseInfo$
-*/
+ * @file pvdata.cpp
+ * @brief Downloadable metadata for viewer features.
+ * Inspired by FSData by Techwolf Lupindo
+ * Re-implented by Xenhat Liamano
+ *
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * Polarity Viewer Source Code
+ * Copyright (C) 2015 Xenhat Liamano
+ * Portions Copyright (C)
+ *  2011 Wolfspirit Magi
+ *  2011-2013 Techwolf Lupindo
+ *  2012 Ansariel Hiller @ Second Life
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * 
+ * The Polarity Viewer Project
+ * http://www.polarityviewer.org
+ * $/LicenseInfo$
+ */
 
 #include "llviewerprecompiledheaders.h"
 #include "pvdata.h"
@@ -38,7 +42,7 @@
 #include <boost/spirit/include/karma.hpp>
 
 #include "llagent.h"
-#include "llhttpclient.h"
+// #include "llhttpclient.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
@@ -64,8 +68,98 @@ static const std::string LL_TESTER = "Tester";
 // Local timeout override to ensure we don't abort too soon
 const F32 HTTP_TIMEOUT = 30.f;
 
+#if LL_DARWIN
+size_t strnlen(const char *s, size_t n)
+{
+	const char *p = (const char *)memchr(s, 0, n);
+	return(p ? p-s : n);
+}
+#endif // LL_DARWIN
+
 // We make exception of the coding style guide here because this class is only used internally, and is not
 // interacted directly with when hooking up to PVData from other files
+
+// Crappy port
+
+void downloadComplete( LLSD const &aData, std::string const &aURL )
+{
+	LL_DEBUGS() << aData << LL_ENDL;
+	
+	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+
+	LLDate lastModified;
+	if (header.has("last-modified"))
+	{
+		lastModified.secondsSinceEpoch( PVCommon::secondsSinceEpochFromString( "%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString() ) );
+	}
+
+	LLSD data = aData;
+	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
+	
+	// TODO: re-implement last-modified support
+	//PVData::getInstance()->handleResponseFromServer( data, aURL,true, lastModified);
+	PVData::getInstance()->handleResponseFromServer(data, aURL, true /*,lastModified*/);
+}
+
+void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::string const &aFilename  )
+{
+	LL_DEBUGS() << aData << LL_ENDL;
+	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+    LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD( aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ] );
+
+	LLDate lastModified;
+	if (header.has("last-modified"))
+	{
+		lastModified.secondsSinceEpoch( PVCommon::secondsSinceEpochFromString( "%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString() ) );
+	}
+    const LLSD::Binary &rawData = aData[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
+
+	if ( status.getType() == HTTP_NOT_MODIFIED )
+	{
+		LL_INFOS("PVData") << "Got [304] not modified for " << aURL << LL_ENDL;
+		return;
+	}
+
+	if (rawData.size() <= 0)
+	{
+		LL_WARNS("PVData") << "Received zero data for " << aURL << LL_ENDL;
+		return;
+	}
+
+	// <polarity> We don't use this.
+#if SCRIPT_LIBRARY
+	// basic check for valid data received
+	LLXMLNodePtr xml_root;
+	std::string stringData;
+	stringData.assign( rawData.begin(), rawData.end() ); // LLXMLNode::parseBuffer wants a U8*, not a const U8*, so need to copy here just to be safe
+	if ( (!LLXMLNode::parseBuffer( reinterpret_cast< U8*> ( &stringData[0] ), stringData.size(), xml_root, NULL)) || (xml_root.isNull()) || (!xml_root->hasName("script_library")) )
+	{
+		LL_WARNS("PVData") << "Could not read the script library data from "<< aURL << LL_ENDL;
+		return;
+	}
+		
+	LLAPRFile outfile ;
+	outfile.open(aFilename, LL_APR_WB);
+	if (!outfile.getFileHandle())
+	{
+		LL_WARNS("PVData") << "Unable to open file for writing: " << aFilename << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("PVData") << "Saving " << aFilename << LL_ENDL;
+		outfile.write(  &rawData[0], rawData.size() );
+		outfile.close() ;
+	}
+#endif // SCRIPT_LIBRARY
+}
+
+void downloadError( LLSD const &aData, std::string const &aURL )
+{
+	LL_WARNS() << "Failed to download " << aURL << ": " << aData << LL_ENDL;
+	PVData::getInstance()->handleResponseFromServer(aData, aURL, false);
+}
+
+#ifdef COROUTINE
 
 // Think of this one as a private class.
 class PVDataDownloader: public LLHTTPClient::Responder
@@ -114,6 +208,7 @@ private:
 	std::string mSourceFileName;
 	//LLDate mLastModified;
 };
+#endif // COROUTINE
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
 // ##     ## ##     ## ##  ##  ## ###   ## ##       ##     ##   ## ##   ##     ## ##       ##     ##
@@ -140,10 +235,22 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 	// construct download url from file name
 	mHeaders.insert("User-Agent", mPVDataUserAgent);
 	mHeaders.insert("viewer-version", mPVDataViewerVersion);
+	// FIXME: This is ugly
 	mPVDataModularRemoteURLFull = mPVDataRemoteURLBase + pfile_name_in;
+	if (pfile_name_in == "data.xml")
+	{
+		mPVDataURLFull = mPVDataModularRemoteURLFull;
+	}
+	else if (pfile_name_in == "agents.xml")
+	{
+		mPVAgentsURLFull = mPVDataModularRemoteURLFull;
+	}
+
 	LL_DEBUGS("PVData") << "Downloading " << pfile_name_in << " from " << mPVDataModularRemoteURLFull << LL_ENDL;
 	// TODO: HTTP eTag support
-	LLHTTPClient::get(mPVDataModularRemoteURLFull, new PVDataDownloader(mPVDataModularRemoteURLFull, pfile_name_in), mHeaders, HTTP_TIMEOUT);
+	//LLHTTPClient::get(mPVDataModularRemoteURLFull, new PVDataDownloader(mPVDataModularRemoteURLFull, pfile_name_in), mHeaders, HTTP_TIMEOUT);
+	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet( mPVDataModularRemoteURLFull, boost::bind( downloadComplete, _1, mPVDataModularRemoteURLFull ),
+		boost::bind( downloadError, _1, mPVDataModularRemoteURLFull ) );
 }
 
 void PVData::downloadData()
@@ -152,6 +259,7 @@ void PVData::downloadData()
 	{
 		eDataParseStatus = INIT;
 		modularDownloader("data.xml");
+
 	}
 }
 
@@ -164,93 +272,64 @@ void PVData::downloadAgents()
 	}
 }
 
-void PVData::handleServerResponse(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure)
+//void FSData::processResponder(const LLSD& http_content, const std::string& http_source_url, bool save_to_file, const LLDate& last_modified)
+//void PVData::handleResponseFromServer(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure)
+void PVData::handleResponseFromServer(const LLSD& http_content,
+	const std::string& http_source_url,
+	//const std::string& data_file_name,
+	const bool& parse_success
+	// TODO: re-implement last-modified support
+	//const bool& http_failure
+	//const LLDate& last_modified
+	)
 {
 	LL_DEBUGS("PVData") << "Examining HTTP response for " << http_source_url << LL_ENDL;
 	LL_DEBUGS("PVData") << "http_content=" << http_content << LL_ENDL;
 	LL_DEBUGS("PVData") << "http_source_url=" << http_source_url << LL_ENDL;
-	LL_DEBUGS("PVData") << "data_file_name=" << data_file_name << LL_ENDL;
-	LL_DEBUGS("PVData") << "parse_failure=" << parse_failure << LL_ENDL;
-	LL_DEBUGS("PVData") << "http_failure=" << http_failure << LL_ENDL;
+	//LL_DEBUGS("PVData") << "data_file_name=" << data_file_name << LL_ENDL;
+	LL_DEBUGS("PVData") << "parse_success=" << parse_success << LL_ENDL;
+	//LL_DEBUGS("PVData") << "http_failure=" << http_failure << LL_ENDL;
 
-	std::string expected_url = mPVDataRemoteURLBase + data_file_name;
-	if (http_source_url != expected_url)
+	// Set status to OK here for now.
+	eDataParseStatus = eAgentsParseStatus = OK;
+	if (http_source_url == mPVDataURLFull)
 	{
-		// something isn't quite right
-		LL_ERRS("PVData") << "Received " << http_source_url << " which was not expected (expecting " << expected_url << "). Aborting!" << LL_ENDL;
-	}
-	else
-	{
-		if (data_file_name == "data.xml")
+		LL_DEBUGS("PVData") << "Received a DATA file" << LL_ENDL;
+		if (!parse_success)
 		{
-			LL_DEBUGS("PVData") << "Received a DATA file" << LL_ENDL;
-			if (http_failure)
-			{
-				handleDataFailure();
-			}
-			else
-			{
-				eDataDownloadStatus = OK;
-			}
-			if (!http_failure && parse_failure)
-			{
-				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
-				eDataParseStatus = PARSE_FAILURE;
-				handleDataFailure();
-			}
-			else if (!http_failure && !parse_failure)
-			{
-				eDataParseStatus = INIT;
-				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
-				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA (web) ~~~~~~~~" << LL_ENDL;
-				LL_DEBUGS("PVData") << http_content << LL_ENDL;
-				LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA (web) ~~~~~~~~" << LL_ENDL;
-				//eDataParseStatus = INIT; // Don't reset here, that would defeat the purpose.
-				parsePVData(http_content);
-			}
-			else
-			{
-				LL_WARNS("PVData") << "Something unexpected happened!" << LL_ENDL;
-				handleDataFailure();
-			}
-		}
-		else if (data_file_name == "agents.xml")
-		{
-			LL_DEBUGS("PVData") << "Received an AGENTS file" << LL_ENDL;
-			if (http_failure)
-			{
-				handleAgentsFailure();
-			}
-			else
-			{
-				eAgentsDownloadStatus = OK;
-			}
-			if (!http_failure && parse_failure)
-			{
-				LL_WARNS("PVData") << "Parse failure, aborting." << LL_ENDL;
-				eAgentsParseStatus = PARSE_FAILURE;
-				handleAgentsFailure();
-			}
-			else if (!http_failure && !parse_failure)
-			{
-				eAgentsParseStatus = INIT;
-				LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
-				LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
-				LL_DEBUGS("PVData") << http_content << LL_ENDL;
-				LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
-				//eAgentsParseStatus = INIT; // Don't reset here, that would defeat the purpose.
-				parsePVAgents(http_content);
-			}
-			else
-			{
-				LL_WARNS("PVData") << "Something unexpected happened!" << LL_ENDL;
-				handleAgentsFailure();
-			}
+			LL_WARNS("PVData") << "DATA Parse failure, aborting." << LL_ENDL;
+			eDataParseStatus = PARSE_FAILURE;
+			handleDataFailure();
 		}
 		else
 		{
-			LL_WARNS("PVData") << "Received file didn't match any expected patterns, aborting." << LL_ENDL;
+			eDataParseStatus = INIT;
+			LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA (web) ~~~~~~~~" << LL_ENDL;
+			LL_DEBUGS("PVData") << http_content << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA (web) ~~~~~~~~" << LL_ENDL;
+			//eDataParseStatus = INIT; // Don't reset here, that would defeat the purpose.
+			parsePVData(http_content);
+		}
+	}
+	if (http_source_url == mPVAgentsURLFull)
+	{
+		LL_DEBUGS("PVData") << "Received an AGENTS file" << LL_ENDL;
+		if (!parse_success)
+		{
+			LL_WARNS("PVData") << " AGENTS Parse failure, aborting." << LL_ENDL;
+			eAgentsParseStatus = PARSE_FAILURE;
 			handleAgentsFailure();
+		}
+		else
+		{
+			eAgentsParseStatus = INIT;
+			LL_DEBUGS("PVData") << "Loading " << http_source_url << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+			LL_DEBUGS("PVData") << http_content << LL_ENDL;
+			LL_DEBUGS("PVData") << "~~~~~~~~ END OF PVDATA AGENTS (web) ~~~~~~~~" << LL_ENDL;
+			//eAgentsParseStatus = INIT; // Don't reset here, that would defeat the purpose.
+			parsePVAgents(http_content);
 		}
 	}
 }
@@ -362,6 +441,7 @@ void PVData::parsePVData(const LLSD& data_input)
 	if (!canParse(eDataParseStatus))
 	{
 		// FIXME: why do we get 'eDataParseStatus==PARSING' BEFORE it's actually being set? (see below)
+		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 	LL_DEBUGS("PVData") << "Beginning to parse Data" << LL_ENDL;
@@ -484,6 +564,7 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	// Make sure we don't accidentally parse multiple times. Remember to reset eDataParseStatus when parsing is needed again.
 	if (!canParse(eAgentsParseStatus))
 	{
+		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 
@@ -973,8 +1054,9 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 				flags_list.push_back("Tester");
 			}
 		}
-		std::ostringstream string_stream;
+
 		using namespace boost::spirit::karma;
+		std::ostringstream string_stream;
 		string_stream << format(string % ',', flags_list);
 		flags_string = string_stream.str();
 		LL_DEBUGS() << "User-friendly flags for " << avatar_id << ": '" << flags_string << "'" << LL_ENDL;

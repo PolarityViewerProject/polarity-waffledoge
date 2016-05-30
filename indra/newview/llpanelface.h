@@ -193,7 +193,22 @@ protected:
 
 	static F32     valueGlow(LLViewerObject* object, S32 face);
 
-	
+	LLTextureCtrl*	mTextureCtrl;
+	LLTextureCtrl*	mShinyTextureCtrl;
+	LLTextureCtrl*	mBumpyTextureCtrl;
+	LLColorSwatchCtrl*	mColorSwatch;
+	LLColorSwatchCtrl*	mShinyColorSwatch;
+
+	LLComboBox*		mComboTexGen;
+	LLComboBox*		mComboMatMedia;
+	LLComboBox*		mComboMatType;
+
+	LLCheckBoxCtrl	*mCheckFullbright;
+
+	LLTextBox*		mLabelColorTransp;
+	LLSpinCtrl*		mCtrlColorTransp;		// transparency = 1 - alpha
+
+	LLSpinCtrl*     mCtrlGlow;
 
 private:
 
@@ -201,24 +216,24 @@ private:
 
 	// Convenience funcs to keep the visual flack to a minimum
 	//
-	LLUUID	getCurrentNormalMap() const;
-	LLUUID	getCurrentSpecularMap() const;
-	U32		getCurrentShininess() const;
-	U32		getCurrentBumpiness() const;
-	U8		getCurrentDiffuseAlphaMode() const;
-	U8		getCurrentAlphaMaskCutoff() const;
-	U8		getCurrentEnvIntensity() const;
-	U8		getCurrentGlossiness() const;
-	F32		getCurrentBumpyRot() const;
-	F32		getCurrentBumpyScaleU() const;
-	F32		getCurrentBumpyScaleV() const;
-	F32		getCurrentBumpyOffsetU() const;
-	F32		getCurrentBumpyOffsetV() const;
-	F32		getCurrentShinyRot() const;
-	F32		getCurrentShinyScaleU() const;
-	F32		getCurrentShinyScaleV() const;
-	F32		getCurrentShinyOffsetU() const;
-	F32		getCurrentShinyOffsetV() const;
+	LLUUID	getCurrentNormalMap();
+	LLUUID	getCurrentSpecularMap();
+	U32		getCurrentShininess();
+	U32		getCurrentBumpiness();
+	U8			getCurrentDiffuseAlphaMode();
+	U8			getCurrentAlphaMaskCutoff();
+	U8			getCurrentEnvIntensity();
+	U8			getCurrentGlossiness();
+	F32		getCurrentBumpyRot();
+	F32		getCurrentBumpyScaleU();
+	F32		getCurrentBumpyScaleV();
+	F32		getCurrentBumpyOffsetU();
+	F32		getCurrentBumpyOffsetV();
+	F32		getCurrentShinyRot();
+	F32		getCurrentShinyScaleU();
+	F32		getCurrentShinyScaleV();
+	F32		getCurrentShinyOffsetU();
+	F32		getCurrentShinyOffsetV();
 
 	// Update visibility of controls to match current UI mode
 	// (e.g. materials vs media editing)
@@ -245,7 +260,7 @@ private:
 		LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc > edit(data);
 		struct LLSelectedTEEditMaterial : public LLSelectedTEMaterialFunctor
 		{
-			LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp) : _edit(editp), _panel(panel) {}
+			LLSelectedTEEditMaterial(LLPanelFace* panel, LLMaterialEditFunctor< DataType, SetValueType, MaterialEditFunc >* editp) : _panel(panel), _edit(editp) {}
 			virtual ~LLSelectedTEEditMaterial() {};
 			virtual LLMaterialPtr apply(LLViewerObject* object, S32 face, LLTextureEntry* tep, LLMaterialPtr& current_material)
 			{

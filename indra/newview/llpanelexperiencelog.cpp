@@ -111,21 +111,19 @@ void LLPanelExperienceLog::refresh()
 	int itemsToSkip = mPageSize*mCurrentPage;
 	int items = 0;
 	bool moreItems = false;
-	LLSD events_to_save = events;
+	
 	if (!events.emptyMap())
 	{
 		LLSD::map_const_iterator day = events.endMap();
 		do
 		{
 			--day;
-			const LLSD& dayArray = day->second;
-
-			std::string date = day->first;
-			if(!LLExperienceLog::instance().isNotExpired(date))
+			const std::string& date = day->first;
+			if (LLExperienceLog::instance().isExpired(date))
 			{
-				events_to_save.erase(day->first);
 				continue;
 			}
+			const LLSD& dayArray = day->second;
 			int size = dayArray.size();
 			if(itemsToSkip > size)
 			{
@@ -146,7 +144,7 @@ void LLPanelExperienceLog::refresh()
 				}
 				const LLSD event = dayArray[i];
 				LLUUID id = event[LLExperienceCache::EXPERIENCE_ID].asUUID();
-				const LLSD& experience = LLExperienceCache::get(id);
+                const LLSD& experience = LLExperienceCache::instance().get(id);
 				if(experience.isUndefined()){
 					waiting = true;
 					waiting_id = id;
@@ -170,12 +168,11 @@ void LLPanelExperienceLog::refresh()
 			}
 		} while (day != events.beginMap());
 	}
-	LLExperienceLog::getInstance()->setEventsToSave(events_to_save);
 	if(waiting)
 	{
 		mEventList->deleteAllItems();
 		mEventList->setCommentText(getString("loading"));
-		LLExperienceCache::get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
+        LLExperienceCache::instance().get(waiting_id, boost::bind(&LLPanelExperienceLog::refresh, this));
 	}
 	else
 	{

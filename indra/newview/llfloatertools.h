@@ -198,7 +198,7 @@ public:
 
 private:
 	BOOL					mDirty;
-	BOOL                    mHasSelection;
+	boost::signals2::scoped_connection mSelectionChangedConnection;
 
 	std::map<std::string, std::string> mStatusText;
 

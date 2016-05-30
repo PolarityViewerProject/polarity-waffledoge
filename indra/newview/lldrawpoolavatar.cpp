@@ -1010,7 +1010,7 @@ void LLDrawPoolAvatar::beginRiggedShinySimple()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->bind();
-		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 	}
 }
 
@@ -1019,7 +1019,7 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
-		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
 		sVertexProgram = NULL;
 	}
@@ -1060,7 +1060,7 @@ void LLDrawPoolAvatar::beginRiggedFullbrightShiny()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->bind();
-		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::bindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 
 		if (LLPipeline::sRenderingHUDs || !LLPipeline::sRenderDeferred)
 		{
@@ -1078,7 +1078,7 @@ void LLDrawPoolAvatar::endRiggedFullbrightShiny()
 	LLVertexBuffer::unbind();
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
-		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel, false);
+		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
 		sVertexProgram = NULL;
 	}
@@ -1401,7 +1401,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 				renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
 				renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
 				renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
-
+				gGL.setSceneBlendType(LLRender::BT_ALPHA);
 				gGL.setColorMask(true, false);
 			}
 			return;
@@ -2172,6 +2172,7 @@ void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.setColorMask(true, false);
 	}
 }
@@ -2189,6 +2190,7 @@ void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_FULLBRIGHT_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA);
 		gGL.setColorMask(true, false);
 	}
 }

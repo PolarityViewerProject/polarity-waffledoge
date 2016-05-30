@@ -437,7 +437,7 @@ bool LLCrashLoggerWindows::init(void)
 	/*
 	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
 	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
-	swprintf(gProductName, L"Second Life"); 
+	swprintf(gProductName, L"Polarity"); 
 	*/
 
 	LL_INFOS() << "Loading dialogs" << LL_ENDL;

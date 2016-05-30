@@ -1156,8 +1156,6 @@ void render_hud_attachments()
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_ALPHA_MASK);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_FULLBRIGHT_SHINY);
 		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_SHINY);
-		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISIBLE);
-		gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_PASS_INVISI_SHINY);
 		
 		gPipeline.stateSort(hud_cam, result);
 
@@ -1465,6 +1463,7 @@ void render_ui_3d()
 	stop_glerror();
 }
 
+extern void check_blend_funcs();
 void render_ui_2d()
 {
 	LLGLSUIDefault gls_ui;
@@ -1510,7 +1509,8 @@ void render_ui_2d()
 		gGL.popMatrix();
 		stop_glerror();
 	}
-	
+
+	if(gDebugGL)check_blend_funcs();
 	static LLCachedControl<bool> renderUIBuffer(gSavedSettings, "RenderUIBuffer");
 	if (renderUIBuffer)
 	{
@@ -1575,7 +1575,7 @@ void render_ui_2d()
 		gViewerWindow->draw();
 	}
 
-
+	if(gDebugGL)check_blend_funcs();
 
 	// reset current origin for font rendering, in case of tiling render
 	LLFontGL::sCurOrigin.set(0, 0);

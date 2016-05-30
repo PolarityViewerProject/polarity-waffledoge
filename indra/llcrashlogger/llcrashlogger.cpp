@@ -41,37 +41,44 @@
 #include "lldir.h"
 #include "llfile.h"
 #include "llsdserialize.h"
-#include "lliopipe.h"
-#include "llpumpio.h"
-#include "llhttpclient.h"
 #include "llsdserialize.h"
 #include "llproxy.h"
- 
-LLPumpIO* gServicePump = NULL;
+#include "llcorehttputil.h"
+#include "llhttpsdhandler.h"
+#include "httpcommon.h"
+#include "httpresponse.h"
+
+#include <curl/curl.h>
+#include <openssl/crypto.h>
+
 BOOL gBreak = false;
 BOOL gSent = false;
 
-class LLCrashLoggerResponder : public LLHTTPClient::Responder
+int LLCrashLogger::ssl_mutex_count = 0;
+LLCoreInt::HttpMutex ** LLCrashLogger::ssl_mutex_list = NULL;
+
+class LLCrashLoggerHandler : public LLHttpSDHandler
 {
-	LOG_CLASS(LLCrashLoggerResponder);
+    LOG_CLASS(LLCrashLoggerHandler);
 public:
-	LLCrashLoggerResponder() 
-	{
-	}
+    LLCrashLoggerHandler() {}
 
 protected:
-	virtual void httpFailure()
-	{
-		LL_WARNS() << dumpResponse() << LL_ENDL;
-		gBreak = true;
-	}
+    virtual void onSuccess(LLCore::HttpResponse * response, const LLSD &content);
+    virtual void onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status);
 
-	virtual void httpSuccess()
-	{
-		gBreak = true;
-		gSent = true;
-	}
 };
+
+void LLCrashLoggerHandler::onSuccess(LLCore::HttpResponse * response, const LLSD &content)
+{
+    gBreak = true;
+    gSent = true;
+}
+
+void LLCrashLoggerHandler::onFailure(LLCore::HttpResponse * response, LLCore::HttpStatus status)
+{
+    gBreak = true;
+}
 
 LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
@@ -144,7 +151,7 @@ std::string getStartupStateFromLog(std::string& sllog)
 bool LLCrashLogger::readDebugFromXML(LLSD& dest, const std::string& filename )
 {
     std::string db_file_name = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,filename);
-    std::ifstream debug_log_file(db_file_name.c_str());
+    llifstream debug_log_file(db_file_name.c_str());
     
 	// Look for it in the debug_info.log file
 	if (debug_log_file.is_open())
@@ -170,7 +177,7 @@ bool LLCrashLogger::readMinidump(std::string minidump_path)
 {
 	size_t length=0;
 
-	std::ifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
+	llifstream minidump_stream(minidump_path.c_str(), std::ios_base::in | std::ios_base::binary);
 	if(minidump_stream.is_open())
 	{
 		minidump_stream.seekg(0, std::ios::end);
@@ -204,32 +211,35 @@ void LLCrashLogger::gatherFiles()
         mergeLogs(dynamic_sd);
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
 
-		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
+		mFileMap["PolarityLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
 		if(mDebugLog.has("CAFilename"))
 		{
-			LLCurl::setCAFile(mDebugLog["CAFilename"].asString());
+            LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, mDebugLog["CAFilename"].asString(), NULL);
 		}
 		else
 		{
-			LLCurl::setCAFile(gDirUtilp->getCAFile());
+            LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+                LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS() << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
+		LL_INFOS() << "Using log file from debug log " << mFileMap["PolarityLog"] << LL_ENDL;
 		LL_INFOS() << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
 	{
 		// Figure out the filename of the second life log
-		LLCurl::setCAFile(gDirUtilp->getCAFile());
+        LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
+            LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
-		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"SecondLife.log");
+		mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-    if (!gDirUtilp->fileExists(mFileMap["SecondLifeLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
+    if (!gDirUtilp->fileExists(mFileMap["PolarityLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
     {
-        mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"SecondLife.old");
+        mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");
     }
 
 	gatherPlatformSpecificFiles();
@@ -267,7 +277,7 @@ void LLCrashLogger::gatherFiles()
 
 	for(std::map<std::string, std::string>::iterator itr = mFileMap.begin(); itr != mFileMap.end(); ++itr)
 	{
-		std::ifstream f((*itr).second.c_str());
+		llifstream f((*itr).second.c_str());
 		if(!f.is_open())
 		{
 			LL_INFOS("CRASHREPORT") << "Can't find file " << (*itr).second << LL_ENDL;
@@ -277,7 +287,7 @@ void LLCrashLogger::gatherFiles()
 		s << f.rdbuf();
 
 		std::string crash_info = s.str();
-		if(itr->first == "SecondLifeLog")
+		if(itr->first == "PolarityLog")
 		{
 			if(!mCrashInfo["DebugLog"].has("StartupState"))
 			{
@@ -314,7 +324,7 @@ void LLCrashLogger::gatherFiles()
             if ( ( iter->length() > 30 ) && (iter->rfind(".dmp") == (iter->length()-4) ) )
             {
                 std::string fullname = pathname + *iter;
-                std::ifstream fdat( fullname.c_str(), std::ifstream::binary);
+                llifstream fdat( fullname.c_str(), std::ifstream::binary);
                 if (fdat)
                 {
                     char buf[5];
@@ -390,19 +400,38 @@ bool LLCrashLogger::saveCrashBehaviorSetting(S32 crash_behavior)
 
 bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout)
 {
+    LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
+    LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+
 	gBreak = false;
+    httpOpts->setTimeout(timeout);
+
 	for(int i = 0; i < retries; ++i)
 	{
 		updateApplication(llformat("%s, try %d...", msg.c_str(), i+1));
-		LLHTTPClient::post(host, data, new LLCrashLoggerResponder(), timeout);
-		while(!gBreak)
+
+        LLCore::HttpHandle handle = LLCoreHttpUtil::requestPostWithLLSD(httpRequest.get(), LLCore::HttpRequest::DEFAULT_POLICY_ID, 0,
+            host, data, httpOpts, LLCore::HttpHeaders::ptr_t(), LLCore::HttpHandler::ptr_t(new LLCrashLoggerHandler));
+
+        if (handle == LLCORE_HTTP_HANDLE_INVALID)
+        {
+            LLCore::HttpStatus status = httpRequest->getStatus();
+            LL_WARNS("CRASHREPORT") << "Request POST failed to " << host << " with status of [" <<
+                status.getType() << "]\"" << status.toString() << "\"" << LL_ENDL;
+            return false;
+        }
+
+        while(!gBreak)
 		{
 			updateApplication(); // No new message, just pump the IO
+            httpRequest->update(0L);
 		}
 		if(gSent)
 		{
 			return gSent;
 		}
+
+        LL_WARNS("CRASHREPORT") << "Failed to send crash report to \"" << host << "\"" << LL_ENDL;
 	}
 	return gSent;
 }
@@ -412,7 +441,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     gDirUtilp->setDumpDir( dump_dir );
     
     std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-                                                           "SecondLifeCrashReport");
+                                                           "PolarityCrashReport");
     std::string report_file = dump_path + ".log";
    
 	gatherFiles();
@@ -422,7 +451,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     
 	updateApplication("Sending reports...");
 
-	std::ofstream out_file(report_file.c_str());
+	llofstream out_file(report_file.c_str());
 	LLSDSerialize::toPrettyXML(post_data, out_file);
 	out_file.close();
     
@@ -511,21 +540,19 @@ bool LLCrashLogger::sendCrashLogs()
 
 void LLCrashLogger::updateApplication(const std::string& message)
 {
-	gServicePump->pump();
-    gServicePump->callback();
 	if (!message.empty()) LL_INFOS() << message << LL_ENDL;
 }
 
 bool LLCrashLogger::init()
 {
-	LLCurl::initClass(false);
+    LLCore::LLHttp::initialize();
 
 	// We assume that all the logs we're looking for reside on the current drive
 	gDirUtilp->initAppDirs("Polarity");
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
-	// Default to the product name "Second Life" (this is overridden by the -name argument)
+	// Default to the product name "Polarity" (this is overridden by the -name argument)
 	mProductName = "Polarity";
 
 	// Rename current log file to ".old"
@@ -577,16 +604,74 @@ bool LLCrashLogger::init()
 		return false;
 	}
     
-	gServicePump = new LLPumpIO(gAPRPoolp);
-	gServicePump->prime(gAPRPoolp);
-	LLHTTPClient::setPump(*gServicePump);
- 	
+    init_curl();
+    LLCore::HttpRequest::createService();
+    LLCore::HttpRequest::startThread();
+
 	return true;
 }
 
 // For cleanup code common to all platforms.
 void LLCrashLogger::commonCleanup()
 {
+    term_curl();
 	LLError::logToFile("");   //close crashreport.log
 	LLProxy::cleanupClass();
 }
+
+void LLCrashLogger::init_curl()
+{
+    curl_global_init(CURL_GLOBAL_ALL);
+
+    ssl_mutex_count = CRYPTO_num_locks();
+    if (ssl_mutex_count > 0)
+    {
+        ssl_mutex_list = new LLCoreInt::HttpMutex *[ssl_mutex_count];
+
+        for (int i(0); i < ssl_mutex_count; ++i)
+        {
+            ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
+        }
+
+        CRYPTO_set_locking_callback(ssl_locking_callback);
+        CRYPTO_set_id_callback(ssl_thread_id_callback);
+    }
+}
+
+
+void LLCrashLogger::term_curl()
+{
+    CRYPTO_set_locking_callback(NULL);
+    for (int i(0); i < ssl_mutex_count; ++i)
+    {
+        delete ssl_mutex_list[i];
+    }
+    delete[] ssl_mutex_list;
+}
+
+
+unsigned long LLCrashLogger::ssl_thread_id_callback(void)
+{
+#if LL_WINDOWS
+    return (unsigned long)(intptr_t)GetCurrentThread();
+#else
+    return (unsigned long)pthread_self();
+#endif
+}
+
+
+void LLCrashLogger::ssl_locking_callback(int mode, int type, const char * /* file */, int /* line */)
+{
+    if (type >= 0 && type < ssl_mutex_count)
+    {
+        if (mode & CRYPTO_LOCK)
+        {
+            ssl_mutex_list[type]->lock();
+        }
+        else
+        {
+            ssl_mutex_list[type]->unlock();
+        }
+    }
+}
+

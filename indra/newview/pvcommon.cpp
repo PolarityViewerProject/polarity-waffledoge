@@ -376,6 +376,22 @@ bool PVCommon::isDefaultTexture(const LLUUID& asset_id)
 	return false;
 }
 
+S32 PVCommon::secondsSinceEpochFromString(const std::string& format, const std::string& str) const
+{
+	// LLDateUtil::secondsSinceEpochFromString does not handle time, only the date.
+	// copied that function here and added the needed code to handle time fields.  -- TL
+	time_input_facet *facet = new time_input_facet(format);
+	std::stringstream ss;
+	ss << str;
+	ss.imbue(std::locale(ss.getloc(), facet));
+	ptime time_t_date;
+	ss >> time_t_date;
+	ptime time_t_epoch(date(1970, 1, 1));
+	time_duration diff = time_t_date - time_t_epoch;
+	return diff.total_seconds();
+}
+
+
 bool PVCommon::isAVXSupported()
 {
 	if (sAVX_Checked) // Has been checked already, return the cached result

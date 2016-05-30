@@ -60,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
+#include "osavatarcolormgr.h"
 // [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f)
 #include "rlvhandler.h"
 // [/RLVa:KB]
@@ -394,11 +395,11 @@ void LLNetMap::draw()
 
 #if !PVDATA_COLORIZER
 				// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
-				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr) &&
-					(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
+				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) &&
+//				(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
 				// [/RLVa:KB]
 				//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
-				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
+				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 #else
 				// <polarity> Colored names for special users. RLV_BHVR_SHOWNAMES is handled inside getColor already.
 				color = PVDataColorizer::instance().getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr));

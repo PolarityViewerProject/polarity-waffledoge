@@ -371,7 +371,6 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 	mLandImpactsObserver(NULL),
 
 	mDirty(TRUE),
-	mHasSelection(TRUE),
 	mNeedMediaTitle(TRUE)
 {
 	gFloaterTools = this;
@@ -405,10 +404,15 @@ LLFloaterTools::LLFloaterTools(const LLSD& key)
 
 	mLandImpactsObserver = new LLLandImpactsObserver();
 	LLViewerParcelMgr::getInstance()->addObserver(mLandImpactsObserver);
+
+	if (!mSelectionChangedConnection.connected())
+		mSelectionChangedConnection = LLSelectMgr::instance().addSelectionUpdateCallback(boost::bind(&LLFloaterTools::dirty, this));
 }
 
 LLFloaterTools::~LLFloaterTools()
 {
+	mSelectionChangedConnection.disconnect();
+
 	// children automatically deleted
 	gFloaterTools = NULL;
 
@@ -543,13 +547,6 @@ void LLFloaterTools::refresh()
 
 void LLFloaterTools::draw()
 {
-    BOOL has_selection = !LLSelectMgr::getInstance()->getSelection()->isEmpty();
-    if(!has_selection && (mHasSelection != has_selection))
-    {
-        mDirty = TRUE;
-    }
-    mHasSelection = has_selection;
-
     if (mDirty)
 	{
 		refresh();

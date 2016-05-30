@@ -27,7 +27,6 @@
 	#pragma warning (push)
 	#pragma warning (disable : 4702) // warning C4702: unreachable code
 #endif
-#include <boost/variant.hpp>
 #ifdef LL_WINDOWS
 	#pragma warning (pop)
 #endif
@@ -246,7 +245,8 @@ bool rlvPredCanNotRemoveItem(const LLViewerInventoryItem* pItem);
 struct RlvPredCanWearItem
 {
 	RlvPredCanWearItem(ERlvWearMask eWearMask) : m_eWearMask(eWearMask) {}
-	bool operator()(const LLViewerInventoryItem* pItem) { return rlvPredCanWearItem(pItem, m_eWearMask); }
+	bool operator()(const LLViewerInventoryItem* pItem) const
+	{ return rlvPredCanWearItem(pItem, m_eWearMask); }
 protected:
 	ERlvWearMask m_eWearMask;
 };
@@ -254,7 +254,8 @@ protected:
 struct RlvPredCanNotWearItem
 {
 	RlvPredCanNotWearItem(ERlvWearMask eWearMask) : m_eWearMask(eWearMask) {}
-	bool operator()(const LLViewerInventoryItem* pItem) { return rlvPredCanNotWearItem(pItem, m_eWearMask); }
+	bool operator()(const LLViewerInventoryItem* pItem) const
+	{ return rlvPredCanNotWearItem(pItem, m_eWearMask); }
 protected:
 	ERlvWearMask m_eWearMask;
 };
@@ -262,13 +263,15 @@ protected:
 struct RlvPredCanRemoveItem
 {
 	RlvPredCanRemoveItem() {}
-	bool operator()(const LLViewerInventoryItem* pItem) { return rlvPredCanRemoveItem(pItem); }
+	bool operator()(const LLViewerInventoryItem* pItem) const
+	{ return rlvPredCanRemoveItem(pItem); }
 };
 
 struct RlvPredCanNotRemoveItem
 {
 	RlvPredCanNotRemoveItem() {}
-	bool operator()(const LLViewerInventoryItem* pItem) { return rlvPredCanNotRemoveItem(pItem); }
+	bool operator()(const LLViewerInventoryItem* pItem) const
+	{ return rlvPredCanNotRemoveItem(pItem); }
 };
 
 struct RlvPredIsEqualOrLinkedItem

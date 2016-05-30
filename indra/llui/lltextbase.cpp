@@ -164,6 +164,7 @@ LLTextBase::Params::Params()
 	trusted_content("trusted_content", true),
 	use_ellipses("use_ellipses", false),
 	parse_urls("parse_urls", false),
+	force_urls_external("force_urls_external", false),
 	parse_highlights("parse_highlights", false)
 {
 	addSynonym(track_end, "track_bottom");
@@ -216,6 +217,7 @@ LLTextBase::LLTextBase(const LLTextBase::Params &p)
 	mWordWrap(p.wrap),
 	mUseEllipses( p.use_ellipses ),
 	mParseHTML(p.parse_urls),
+	mForceUrlsExternal(p.force_urls_external),
 	mParseHighlights(p.parse_highlights),
 	mBGVisible(p.bg_visible),
 	mScroller(NULL),
@@ -674,7 +676,7 @@ void LLTextBase::drawText()
 			line_end = next_start;
 		}
 
-		LLRect text_rect(line.mRect);
+        LLRectf text_rect(line.mRect.mLeft, line.mRect.mTop, line.mRect.mRight, line.mRect.mBottom);
 		text_rect.mRight = mDocumentView->getRect().getWidth(); // clamp right edge to document extents
 		text_rect.translate(mDocumentView->getRect().mLeft, mDocumentView->getRect().mBottom); // adjust by scroll position
 
@@ -747,7 +749,7 @@ void LLTextBase::drawText()
 				++misspell_it;
 			}
 
-			text_rect.mLeft = (S32)(cur_segment->draw(seg_start - cur_segment->getStart(), clipped_end, selection_left, selection_right, text_rect));
+			text_rect.mLeft = cur_segment->draw(seg_start - cur_segment->getStart(), clipped_end, selection_left, selection_right, text_rect);
 
 			seg_start = clipped_end + cur_segment->getStart();
 		}
@@ -1938,7 +1940,7 @@ void LLTextBase::createUrlContextMenu(S32 x, S32 y, const std::string &in_url)
 	registrar.add("Url.Open", boost::bind(&LLUrlAction::openURL, url));
 	registrar.add("Url.OpenInternal", boost::bind(&LLUrlAction::openURLInternal, url));
 	registrar.add("Url.OpenExternal", boost::bind(&LLUrlAction::openURLExternal, url));
-	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url));
+	registrar.add("Url.Execute", boost::bind(&LLUrlAction::executeSLURL, url, true));
 	registrar.add("Url.Block", boost::bind(&LLUrlAction::blockObject, url));
 	registrar.add("Url.Teleport", boost::bind(&LLUrlAction::teleportToLocation, url));
 	registrar.add("Url.ShowProfile", boost::bind(&LLUrlAction::showProfile, url));
@@ -3031,7 +3033,7 @@ bool LLTextSegment::getDimensions(S32 first_char, S32 num_chars, S32& width, S32
 S32	LLTextSegment::getOffset(S32 segment_local_x_coord, S32 start_offset, S32 num_chars, bool round) const { return 0; }
 S32	LLTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 line_offset, S32 max_chars) const { return 0; }
 void LLTextSegment::updateLayout(const LLTextBase& editor) {}
-F32	LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect) { return draw_rect.mLeft; }
+F32	LLTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect) { return draw_rect.mLeft; }
 bool LLTextSegment::canEdit() const { return false; }
 void LLTextSegment::unlinkFromDocument(LLTextBase*) {}
 void LLTextSegment::linkToDocument(LLTextBase*) {}
@@ -3097,7 +3099,7 @@ LLNormalTextSegment::~LLNormalTextSegment()
 }
 
 
-F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 {
 	if( end - start > 0 )
 	{
@@ -3107,7 +3109,7 @@ F32 LLNormalTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selec
 }
 
 // Draws a single text segment, reversing the color for selection if needed.
-F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRect rect)
+F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 selection_start, S32 selection_end, LLRectf rect)
 {
 	F32 alpha = LLViewDrawContext::getCurrentContext().mAlpha;
 
@@ -3139,7 +3141,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 &right_x, 
 				 mEditor.getUseEllipses());
 	}
-	rect.mLeft = (S32)ceil(right_x);
+	rect.mLeft = right_x;
 	
 	if( (selection_start < seg_end) && (selection_end > seg_start) )
 	{
@@ -3158,7 +3160,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 &right_x, 
 				 mEditor.getUseEllipses());
 	}
-	rect.mLeft = (S32)ceil(right_x);
+	rect.mLeft = right_x;
 	if( selection_end < seg_end )
 	{
 		// Draw normally
@@ -3175,7 +3177,7 @@ F32 LLNormalTextSegment::drawClippedSegment(S32 seg_start, S32 seg_end, S32 sele
 				 &right_x, 
 				 mEditor.getUseEllipses());
 	}
-	return right_x;
+    return right_x;
 }
 
 BOOL LLNormalTextSegment::handleHover(S32 x, S32 y, MASK mask)
@@ -3228,7 +3230,15 @@ BOOL LLNormalTextSegment::handleMouseUp(S32 x, S32 y, MASK mask)
 		// Only process the click if it's actually in this segment, not to the right of the end-of-line.
 		if(mEditor.getSegmentAtLocalPos(x, y, false) == this)
 		{
-			LLUrlAction::clickAction(getStyle()->getLinkHREF(), mEditor.isContentTrusted());
+            std::string url = getStyle()->getLinkHREF();
+            if (!mEditor.mForceUrlsExternal)
+            {
+                LLUrlAction::clickAction(url, mEditor.isContentTrusted());
+            }
+            else if (!LLUrlAction::executeSLURL(url, mEditor.isContentTrusted()))
+            {
+                LLUrlAction::openURLExternal(url);
+            }
 			return TRUE;
 		}
 	}
@@ -3406,7 +3416,7 @@ LLOnHoverChangeableTextSegment::LLOnHoverChangeableTextSegment( LLStyleConstSP s
 	  mNormalStyle(normal_style){}
 
 /*virtual*/ 
-F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+F32 LLOnHoverChangeableTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 {
 	F32 result = LLNormalTextSegment::draw(start, end, selection_start, selection_end, draw_rect);
 	if (end == mEnd - mStart)
@@ -3484,7 +3494,7 @@ void LLInlineViewSegment::updateLayout(const LLTextBase& editor)
 	mView->setOrigin(start_rect.mLeft + mLeftPad, start_rect.mBottom + mBottomPad);
 }
 
-F32	LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+F32	LLInlineViewSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 {
 	// return padded width of widget
 	// widget is actually drawn during mDocumentView's draw()
@@ -3525,7 +3535,7 @@ S32	LLLineBreakTextSegment::getNumChars(S32 num_pixels, S32 segment_offset, S32 
 {
 	return 1;
 }
-F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+F32	LLLineBreakTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 {
 	return  draw_rect.mLeft;
 }
@@ -3591,7 +3601,7 @@ void LLImageTextSegment::setToolTip(const std::string& tooltip)
 	mTooltip = tooltip;
 }
 
-F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRect& draw_rect)
+F32	LLImageTextSegment::draw(S32 start, S32 end, S32 selection_start, S32 selection_end, const LLRectf& draw_rect)
 {
 	if ( (start >= 0) && (end <= mEnd - mStart))
 	{

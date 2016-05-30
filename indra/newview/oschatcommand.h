@@ -2,8 +2,9 @@
  * @file oschatcommand.h
  * @brief OSChatCommand header for chat input commands
  *
- * $LicenseInfo:firstyear=2013&license=viewerlgpl$
- * Copyright (C) 2013 Drake Arconis
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * Obsidian Viewer Source Code
+ * Copyright (C) 2015, Drake Arconis.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public

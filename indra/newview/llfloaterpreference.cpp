@@ -479,9 +479,14 @@ BOOL LLFloaterPreference::postBuild()
 	changed();
 
 	LLLogChat::setSaveHistorySignal(boost::bind(&LLFloaterPreference::onLogChatHistorySaved, this));
+
+
+	LLSliderCtrl* fov_slider = getChild<LLSliderCtrl>("camera_fov");
+	fov_slider->setMinValue(LLViewerCamera::getInstance()->getMinView());
+	fov_slider->setMaxValue(LLViewerCamera::getInstance()->getMaxView());
+
 	// <Black Dragon:NiranV> Refresh all controls
 	refreshGraphicControls();
-
 	return TRUE;
 }
 
