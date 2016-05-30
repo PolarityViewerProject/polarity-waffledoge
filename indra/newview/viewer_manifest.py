@@ -657,7 +657,7 @@ class WindowsManifest(ViewerManifest):
                 !define VENDORSTR "Polarity Viewer Project ><(((°>"
                 """
 
-        tempfile = "polarity_setup_tmp.nsi"
+            tempfile = "polarity_setup_tmp.nsi"
             # the following replaces strings in the nsi template
             # it also does python-style % substitution
             self.replace_in("installers/windows/installer_template.nsi", tempfile, {
