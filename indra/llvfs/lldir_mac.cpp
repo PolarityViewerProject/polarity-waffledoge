@@ -64,7 +64,7 @@ LLDir_Mac::LLDir_Mac()
 {
 	mDirDelimiter = "/";
 
-    const std::string     secondLifeString = "Obsidian";
+    const std::string     secondLifeString = "Polarity";
     
     std::string *executablepathstr = getSystemExecutableFolder();
 

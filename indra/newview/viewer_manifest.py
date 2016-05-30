@@ -753,7 +753,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
     def construct(self):
         # copy over the build result (this is a no-op if run within the xcode script)
-        self.path(self.args['configuration'] + "/Obsidian.app", dst="")
+        self.path(self.args['configuration'] + "/Polarity.app", dst="")
 
         pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
         relpkgdir = os.path.join(pkgdir, "lib", "release")
@@ -911,7 +911,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 self.end_prefix("Resources")
 
-                # CEF framework goes inside Obsidian.app/Contents/Frameworks
+                # CEF framework goes inside Polarity.app/Contents/Frameworks
                 if self.prefix(src="", dst="Frameworks"):
                     frameworkfile="Chromium Embedded Framework.framework"
                     self.path2basename(relpkgdir, frameworkfile)
@@ -925,9 +925,9 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # to terminate the process if we get an error since without
                 # this symlink, Second Life web media can't possibly work.
                 # Real Framework folder:
-                #   Obsidian.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                #   Polarity.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 # Location of symlink and why it'ds relative 
-                #   Obsidian.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
+                #   Polarity.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
                 #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
@@ -947,7 +947,7 @@ class Darwin_i386_Manifest(ViewerManifest):
         if ("package" in self.args['actions'] or
             "unpacked" in self.args['actions']):
             self.run_command('strip -S %(viewer_binary)r' %
-                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Obsidian')})
+                             { 'viewer_binary' : self.dst_path_of('Contents/MacOS/Polarity')})
 
     def copy_finish(self):
         # Force executable permissions to be set for scripts
@@ -1085,7 +1085,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                                 raise
                     self.run_command('spctl -a -texec -vv %(bundle)r' % { 'bundle': app_in_dmg })
 
-            imagename="Obsidian_" + '_'.join(self.args['version'])
+            imagename="Polarity_" + '_'.join(self.args['version'])
 
 
         finally:

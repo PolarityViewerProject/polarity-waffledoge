@@ -64,7 +64,7 @@ class LLDir
 	LLDir();
 	virtual ~LLDir();
 
-	// app_name - Usually Obsidian, used for creating settings directories
+	// app_name - Usually Polarity, used for creating settings directories
 	// in OS-specific location, such as C:\Documents and Settings
 	// app_read_only_data_dir - Usually the source code directory, used
 	// for test applications to read newview data files.
@@ -85,7 +85,7 @@ class LLDir
 	virtual std::string getLLPluginFilename(std::string base_name) = 0; // full path and name to the plugin DSO for this base_name (i.e. 'FOO' -> '/bar/baz/libFOO.so')
 
 	const std::string &getExecutablePathAndName() const;	// Full pathname of the executable
-	const std::string &getAppName() const;			// install directory under progams/ ie "Obsidian"
+	const std::string &getAppName() const;			// install directory under progams/ ie "Polarity"
 	const std::string &getExecutableDir() const;	// Directory where the executable is located
 	const std::string &getExecutableFilename() const;// Filename of .exe
 	const std::string &getWorkingDir() const; // Current working directory
@@ -220,7 +220,7 @@ protected:
 							const std::string& filename,
 							const FUNCTION& function) const;
 
-	std::string mAppName;               // install directory under progams/ ie "Obsidian"   
+	std::string mAppName;               // install directory under progams/ ie "Polarity"   
 	std::string mExecutablePathAndName; // full path + Filename of .exe
 	std::string mExecutableFilename;    // Filename of .exe
 	std::string mExecutableDir;	 	 // Location of executable

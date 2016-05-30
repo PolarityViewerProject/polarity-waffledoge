@@ -211,7 +211,7 @@ void LLCrashLogger::gatherFiles()
         mergeLogs(dynamic_sd);
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
 
-		mFileMap["ObsidianLog"] = mDebugLog["SLLog"].asString();
+		mFileMap["PolarityLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
 		if(mDebugLog.has("CAFilename"))
 		{
@@ -224,7 +224,7 @@ void LLCrashLogger::gatherFiles()
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS() << "Using log file from debug log " << mFileMap["ObsidianLog"] << LL_ENDL;
+		LL_INFOS() << "Using log file from debug log " << mFileMap["PolarityLog"] << LL_ENDL;
 		LL_INFOS() << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
@@ -233,13 +233,13 @@ void LLCrashLogger::gatherFiles()
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
             LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
-		mFileMap["ObsidianLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Obsidian.log");
+		mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-    if (!gDirUtilp->fileExists(mFileMap["ObsidianLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
+    if (!gDirUtilp->fileExists(mFileMap["PolarityLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
     {
-        mFileMap["ObsidianLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Obsidian.old");
+        mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");
     }
 
 	gatherPlatformSpecificFiles();
@@ -287,7 +287,7 @@ void LLCrashLogger::gatherFiles()
 		s << f.rdbuf();
 
 		std::string crash_info = s.str();
-		if(itr->first == "ObsidianLog")
+		if(itr->first == "PolarityLog")
 		{
 			if(!mCrashInfo["DebugLog"].has("StartupState"))
 			{
@@ -441,7 +441,7 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     gDirUtilp->setDumpDir( dump_dir );
     
     std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-                                                           "ObsidianCrashReport");
+                                                           "PolarityCrashReport");
     std::string report_file = dump_path + ".log";
    
 	gatherFiles();
