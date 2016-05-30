@@ -143,31 +143,33 @@
      top="2"
      name="volume_btn"
      width="16" />
-	visibility_control="PVUI_StatusBarShowFPSCounter"
-	type="string"
-	font="SansSerifSmall"
-	follows="right|top"
-	halign="left"
-	height="16"
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="Icon_Gear_Background"
+     image_pressed="Icon_Gear_Background"
      image_unselected="Icon_Gear_Foreground"
-	left_pad="5"
+     left_pad="5"
      top="2"
-	tool_tip="Frames per second/Refresh rate"
+     name="quick_settings_btn"
+     width="16">
+     <click_callback
       function="Floater.ToggleOrBringToFront"
       parameter="quick_settings" />
-	 <text
-	visibility_control="PVUI_StatusBarShowFPSCounter"
-	type="string"
-	font="SansSerifSmall"
-	follows="right|top"
-	halign="left"
-	height="16"
-	top="4"
-	layout="topleft"
-	left_pad="5"
-	name="FPS_count"
-	tool_tip="Frames per second/Refresh rate"
-	width="65">
+    </button>
+    <text
+    visibility_control="PVUI_StatusBarShowFPSCounter"
+    type="string"
+    font="SansSerifSmall"
+    follows="right|top"
+    halign="left"
+    height="16"
+    top="4"
+    layout="topleft"
+    left_pad="5"
+    name="FPS_count"
+    tool_tip="Frames per second/Refresh rate"
+    width="65">
 999.0/120
 	 </text>
 </panel>
