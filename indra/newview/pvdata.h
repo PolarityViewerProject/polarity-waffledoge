@@ -116,6 +116,11 @@ public:
 	// Returns the agent flags as a LLColor4
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 
+	// Better version of isLinden that takes PVData into account
+	bool PVData::isLinden(const LLUUID& av_id);
+
+	bool PVData::seedIsLinden(const LLUUID& av_id);
+
 	// Attempt to replace specified color with agent color. Returns true if replacement was made.
 	bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
 
@@ -163,7 +168,7 @@ public:
 
 	// This returns the avatar's name in the format defined by the viewer settings.
 	static std::string getPreferredName(const LLAvatarName& av_name);
-
+	static std::string getPreferredName(const LLUUID& avatar_lluuid);
 	// Returns whether or not the user can use our viewer
 	bool isAllowedToLogin(const LLUUID& avatar_id);
 

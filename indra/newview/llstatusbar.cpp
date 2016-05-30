@@ -223,36 +223,6 @@ BOOL LLStatusBar::postBuild()
 	return TRUE;
 }
 
-// <polarity> Split clock refresh into its own function
-void LLStatusBar::RefreshClockArea(bool mShowSeconds)
-{
-	mClockUpdateTimer.reset();
-	// Get current UTC time, adjusted for the user's clock being off.
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr;
-	// <polarity> PLVR-4 24-hour clock mode
-	static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
-	if (use_24h_clock)
-	{
-		timeStr = getString(mShowSeconds ? "time24Precise" : "time24");
-	}
-	else
-	{
-		timeStr = getString(mShowSeconds ? "timePrecise" : "time");
-	}
-	// </polarity>
-	LLSD substitution;
-	substitution["datetime"] = (S32) utc_time;
-	LLStringUtil::format (timeStr, substitution);
-	mTextTime->setText(timeStr);
-	// set the tooltip to have the date
-	std::string dtStr = getString("timeTooltip");
-	LLStringUtil::format (dtStr, substitution);
-	mTextTime->setToolTip (dtStr);
-}
-// </polarity>
-
 // Per-frame updates of visibility
 void LLStatusBar::refresh()
 {
@@ -306,8 +276,19 @@ void LLStatusBar::refresh()
 	// Get current UTC time, adjusted for the user's clock being off.
 	time_t utc_time;
 	utc_time = time_corrected();
+	std::string timeStr;
+	// <polarity> PLVR-4 24-hour clock mode
 	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
-	std::string timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
+	if (use_24h_clock)
+	{
+		timeStr = getString(mShowSeconds ? "time24Precise" : "time24");
+	}
+	else
+	{
+		timeStr = getString(mShowSeconds ? "timePrecise" : "time");
+	}
+	// </polarity>
 	LLSD substitution;
 	substitution["datetime"] = static_cast<S32>(utc_time);
 	LLStringUtil::format(timeStr, substitution);

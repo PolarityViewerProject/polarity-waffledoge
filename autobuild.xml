@@ -3231,7 +3231,7 @@
               <key>default</key>
               <string>True</string>
               <key>name</key>
-              <string>RelWithDebInfo</string>
+              <string>ReleaseOS</string>
             </map>
             <key>RelWithDebInfoOS</key>
             <map>

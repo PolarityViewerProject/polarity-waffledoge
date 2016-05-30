@@ -41,10 +41,9 @@
 #include "llversioninfo.h"
 
 #include "pvdata.h"
+#include "pvcommon.h"
 
-//#if RLV_SUPPORT
 #include "rlvhandler.h"
-// #endif // RLV_SUPPORT
 
 LLColor4 PVDataColorizer::addOrSubstractHue(const LLColor4 in_color4, const F32 new_hue_f32)
 {
@@ -82,96 +81,91 @@ LLColor4 PVDataColorizer::addOrSubstractSaturationAndLight(const LLColor4 in_col
 	return out_color;
 }
 
-LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& default_color, const bool& should_show_friend)
+LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy)
 {
-	auto fallback_color = LLUIColorTable::instance().getColor(default_color);
-
-	// handle friend color first since it overrides a lot.
-
-	static LLCachedControl<bool> show_as_friend(gSavedSettings, "NameTagShowFriends");
-	static LLCachedControl<bool> override_friend_color(gSavedSettings, "PVColorManager_OverrideFriendColor", true);
-	if (!override_friend_color && ((should_show_friend && (show_as_friend && (LLAvatarTracker::instance().isBuddy(avatar_id)) && (gAgent.getID() != avatar_id)
-//#if RLV_SUPPORT
-								&& !gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)
-//#endif // RLV_SUPPORT
-								))))
+	// Coloring will break immersion and identify agents even if their name is replaced, so return default color in that case.
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
 	{
-		return LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::green);
+		return default_color;
+	}
+	LLColor4 return_color, pvdata_color = default_color; // Need to assign pvdata_color as well to avoid returning black on normal agents
+	
+	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
+	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
+
+	// Check for agents flagged through PVData
+	signed int av_flags = PVData::instance().getAgentFlags(avatar_id);
+	if (av_flags == 0)
+	{
+		// Agent is not flagged by PVData, start user-specific logic
+		// Should have been flagged already, but may be the first time we seen this Linden in this session
+		if (PVData::instance().isLinden(avatar_id))
+		{
+			// kept in case
+			return_color = linden_color.get();
+		}
+		else if (LLMuteList::instance().isMuted(avatar_id))
+		{
+			return_color = muted_color.get();
+		}
 	}
 	else
-//#endif
 	{
-		static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
-		static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
-		static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
-		static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
-		static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
-		static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
 		static const LLUIColor banned_color = LLUIColorTable::instance().getColor("PlvrBannedChatColor", LLColor4::grey2);
+		static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
+		static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
+		static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
+		static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
 
-		// Check for agents flagged through PVData
-		signed int av_flags = PVData::instance().getAgentFlags(avatar_id);
-		if (av_flags == 0)
+		// hack
+		bool custom_color_is_valid = false;
+
+		// Special color overrides all colors
+		if (av_flags & PVData::FLAG_USER_HAS_COLOR)
 		{
-			// Agent is not flagged by PVData, start user-specific logic
-			LLAvatarName av_name;
-			LLAvatarNameCache::get(avatar_id, &av_name);
-			std::string user_name = av_name.getUserName();
-			if (LLMuteList::instance().isLinden(user_name))
+			// Gross hack.
+			pvdata_color = PVData::instance().getAgentColor(avatar_id);
+			if (pvdata_color == return_color || pvdata_color == LLColor4::black)
 			{
-				// kept in case
-				return linden_color.get();
+				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to have a color but none is defined!" << LL_ENDL;
+				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
+				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
+				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
 			}
-			if (LLMuteList::instance().isMuted(avatar_id, user_name))
+			else
 			{
-				return muted_color.get();
+				custom_color_is_valid = true;
 			}
-			// Maybe find a way to indentify partner?
-			return fallback_color;
 		}
-		else
+		// skip this logic if the user has a custom color
+		if (!custom_color_is_valid)
 		{
-			LLUIColor name_color = fallback_color;
-			// Special color overrides all colors
-			if (av_flags & PVData::FLAG_USER_HAS_COLOR)
-			{
-				// Gross hack.
-				name_color = PVData::instance().getAgentColor(avatar_id);
-				if (name_color == fallback_color || name_color == LLColor4::black)
-				{
-					LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to have a color but none is defined!" << LL_ENDL;
-					LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-					LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-					LL_WARNS("PVData") << "would-be name_color = " << name_color << LL_ENDL;
-					LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-					return fallback_color;
-				}
-				return name_color;
-			}
+
 			if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
 			{
 				// was previously flagged as employee, so will end up in this code path
-				return linden_color.get();
+				pvdata_color = linden_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_DEV)
 			{
-				return dev_color.get();
+				pvdata_color = dev_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_QA)
 			{
-				return qa_color.get();
+				pvdata_color = qa_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
 			{
-				return support_color.get();
+				pvdata_color = support_color.get();
 			}
 			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
 			{
-				return tester_color.get();
+				pvdata_color = tester_color.get();
 			}
 			else if (av_flags & PVData::FLAG_USER_BANNED)
 			{
-				return banned_color.get();
+				pvdata_color = banned_color.get();
 			}
 			else
 			{
@@ -179,16 +173,25 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const std::string& d
 				LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
 				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
 				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-				LL_WARNS("PVData") << "would-be name_color = " << name_color << LL_ENDL;
+				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
 				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
 				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-				return fallback_color;
+				return_color = return_color;
 			}
 		}
 	}
-
-	//LL_DEBUGS("PVData") << "Returning " << fallback_color << LL_ENDL;
-	//return fallback_color;
+	// Respect user preferences
+	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
+	if (!low_priority_friend_status && show_friends && is_buddy)
+	{
+		return_color = LLUIColorTable::instance().getColor("HTMLLinkColor", LLColor4::green);
+	}
+	else
+	{
+		return_color = pvdata_color;
+	}
+	return return_color;
 }
 
 // Call this very early.

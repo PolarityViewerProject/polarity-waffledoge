@@ -31,11 +31,11 @@
     </panel.string>
     <panel.string
      name="time24">
-        [hour24, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+        [hour24, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
     </panel.string>
     <panel.string
      name="time24Precise">
-        [hour24, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+        [hour24, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [timezone,datetime, slt]
     </panel.string>
     <panel.string
      name="timeTooltip">

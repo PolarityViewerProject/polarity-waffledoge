@@ -230,6 +230,24 @@ BOOL LLFloaterColorPicker::postBuild()
 	// <FS:Zi> Add float LSL color entry widgets
 	mCopyLSLBtn = getChild<LLButton>( "copy_lsl_btn" );
 	mCopyLSLBtn->setClickedCallback ( onClickCopyLSL, this );
+
+	// Can't hide a button directly by design, need to make a wrapper panel.
+	mCopyLLColor4Panel = getChild<LLPanel>("copy_llcolor4_panel");
+	mCopyLLColor4Btn = getChild<LLButton>("copy_llcolor4_btn");
+	if (mCopyLLColor4Panel && mCopyLLColor4Btn)
+	{
+		mCopyLLColor4Btn->setClickedCallback(onClickCopyLLColor4, this);
+		// TODO: Add a hook somewhere to show/hide the button when the menu visibility changes.
+		static LLCachedControl<bool> advanced_menu(gSavedSettings, "UseDebugMenus");
+		mCopyLLColor4Panel->setVisible(advanced_menu);
+	}
+
+	mCopyHexBtn = getChild<LLButton>("copy_hex_btn");
+	if (mCopyHexBtn)
+	{
+		mCopyHexBtn->setClickedCallback(onClickCopyHex, this);
+	}
+
 	childSetCommitCallback("rspin_lsl", onTextCommit, (void*)this );
 	childSetCommitCallback("gspin_lsl", onTextCommit, (void*)this );
 	childSetCommitCallback("bspin_lsl", onTextCommit, (void*)this );
@@ -1196,3 +1214,30 @@ void LLFloaterColorPicker::onClickCopyLSL ( void* data )
 	}
 }
 // </FS:Zi>
+void LLFloaterColorPicker::onClickCopyLLColor4 ( void* data )
+{
+	if (data)
+	{
+		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
+		if ( self )
+		{
+			getWindow()->copyTextToClipboard(utf8str_to_wstring(llformat("%.5f %.5f %.5f 1.0",self->getCurR(),self->getCurG(),self->getCurB())));
+			LLNotificationsUtil::add("LSLColorCopiedToClipboard");
+		}
+	}
+}
+
+void LLFloaterColorPicker::onClickCopyHex(void* data)
+{
+	if (data)
+	{
+		LLFloaterColorPicker* self = (LLFloaterColorPicker*)data;
+		if (self)
+		{
+			// I can't seem to be able to getValue() the field itself, so I apologize for the code duplication.
+			getWindow()->copyTextToClipboard(utf8str_to_wstring(llformat("%02x%02x%02x", (S32)(self->getCurR()*255.0), (S32)(self->getCurG()*255.0), (S32)(self->getCurB()*255.0))));
+			LLNotificationsUtil::add("LSLColorCopiedToClipboard");
+		}
+	}
+}
+

@@ -1638,8 +1638,8 @@
                 </menu_item_check.on_check>
             </menu_item_check>
         </menu>
-<!--         <menu_item_check
-            enabled="false"
+        <menu_item_check
+            enabled="true"
             label="Machinima Sidebar"
             shortcut="F1"
             name="Machinima Sidebar">
@@ -1651,7 +1651,7 @@
                 function="ToggleControl"
                 parameter="PVUI_MachinimaSidebar">
             </menu_item_check.on_click>
-        </menu_item_check> -->
+        </menu_item_check>
         <menu_item_separator>
         </menu_item_separator>
         <menu_item_call
@@ -1733,8 +1733,7 @@
      tear_off="true">
         <menu_item_call
          label="How to..."
-         name="How To"
-         shortcut="F1">
+         name="How To">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
@@ -3088,7 +3087,8 @@
         </menu_item_check>
         <menu_item_check
          label="Physics Shapes"
-         name="Physics Shapes">
+         name="Physics Shapes"
+         enabled="false">
           <menu_item_check.on_check
            function="Advanced.CheckInfoDisplay"
            parameter="physics shapes" />

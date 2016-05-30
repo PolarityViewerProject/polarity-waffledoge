@@ -6,6 +6,7 @@
     <command name="chat"/>
     <command name="speak"/>
     <command name="people"/>
+    <command name="env_settings"/>
     <command name="snapshot"/>
     <command name="minimap"/>
   </top_toolbar>

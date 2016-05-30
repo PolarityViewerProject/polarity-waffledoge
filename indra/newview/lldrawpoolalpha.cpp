@@ -73,11 +73,16 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
+	static LLCachedControl<bool> RenderDepthOfField(gSavedSettings, "RenderDepthOfField"); // <FS:PP> Attempt to speed up things a little
+	static LLCachedControl<bool> dof_alphas(gSavedSettings, "PVRender_DepthOfFieldAlphas", false); // <Black Dragon:NiranV> Depth of Field Alpha setting
 	if (LLPipeline::sImpostorRender)
 	{ //skip depth buffer filling pass when rendering impostors
 		return 1;
 	}
-	else if (gSavedSettings.getBOOL("RenderDepthOfField"))
+	// <FS:PP> Attempt to speed up things a little
+	// else if (gSavedSettings.getBOOL("RenderDepthOfField"))
+	else if (RenderDepthOfField && dof_alphas) // <Black Dragon:NiranV> Depth of Field Alpha setting
+	// </FS:>
 	{
 		return 2; 
 	}

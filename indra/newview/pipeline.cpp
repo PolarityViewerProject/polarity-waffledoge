@@ -219,7 +219,12 @@ F32 LLPipeline::PVRender_GodRaysFalloffMultiplier;
 U32 LLPipeline::PVRender_SSRResolution;
 // <Black Dragon:NiranV> Chromatic Aberration
 F32 LLPipeline::PVRender_ChromaStrength;
+BOOL PVRender_DepthOfFieldAlphas;
+BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
 // </Black Dragon:NiranV>
+
+F32 LLPipeline::RenderShadowFarClip; // </polarity>
+
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
@@ -632,6 +637,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("PVRender_PostSepiaStrength");
 	connectRefreshCachedSettingsSafe("PVRender_PostPosterizationSamples");
 	connectRefreshCachedSettingsSafe("PVRender_ChromaStrength");
+	connectRefreshCachedSettingsSafe("PVRender_DepthOfFieldAlphas");
 	// </Black Dragon:NiranV>
 
 	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowNoise");
@@ -689,6 +695,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlB");
 	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlC");
 	// </Black Dragon:NiranV>
+	connectRefreshCachedSettingsSafe("RenderShadowFarClip");
 }
 
 LLPipeline::~LLPipeline()
@@ -1235,9 +1242,26 @@ void LLPipeline::refreshCachedSettings()
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");       	
 
+	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
+
 	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 	PVRender_EnableGodRays = gSavedSettings.getBOOL("PVRender_EnableGodRays");
-		RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
+	// <polarity> PLVR-15 Depth of Field and God Rays used together creates artifacts on alpha surfaces
+	PVRender_DepthOfFieldAlphas = gSavedSettings.getBOOL("PVRender_DepthOfFieldAlphas");
+	// Not in XML because runtime only.
+	if (PVRender_EnableGodRays && PVRender_DepthOfFieldAlphas)
+	{
+		PVDebug_RenderDepthOfFieldAlphasBackup = PVRender_DepthOfFieldAlphas;
+		PVRender_DepthOfFieldAlphas = FALSE;
+		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
+	}
+	// Restore previous value6
+	else if (!PVRender_EnableGodRays && PVDebug_RenderDepthOfFieldAlphasBackup)
+	{
+		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", PVDebug_RenderDepthOfFieldAlphasBackup);
+		PVDebug_RenderDepthOfFieldAlphasBackup = FALSE;
+	}
+	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	PVRender_GodRaysResolution = gSavedSettings.getU32("PVRender_GodRaysResolution");
 	PVRender_GodRaysMultiplier = gSavedSettings.getF32("PVRender_GodRaysMultiplier");
 	PVRender_GodRaysFalloffMultiplier = gSavedSettings.getF32("PVRender_GodRaysFalloffMultiplier");
@@ -10834,7 +10858,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
 
-		F32 range = far_clip-near_clip;
+		// <polarity> Cache more debug settings / Performance improvement
+		// F32 range = gSavedSettings.getF32("RenderShadowFarClip");
+		// Moved to RenderShadowFarClip
 
 		LLVector3 split_exp = RenderShadowSplitExponent;
 
@@ -10848,7 +10874,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		{
 			F32 x = (F32)(i+1)/4.f;
 			x = powf(x, sxp);
-			mSunClipPlanes.mV[i] = near_clip+range*x;
+			mSunClipPlanes.mV[i] = near_clip+RenderShadowFarClip*x;
 		}
 
 		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding

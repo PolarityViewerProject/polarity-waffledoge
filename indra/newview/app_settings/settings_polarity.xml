@@ -2,6 +2,18 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
+    <!-- Unbranded settings we added -->
+    <key>RenderShadowFarClip</key>
+    <map>
+      <key>Comment</key>
+      <string>Distance of shadow far clip plane from camera (meters)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>256.0</real>
+    </map>
     <!-- Add your settings here -->
     <key>7bd9b379-962b-407f-9dd3-2d5ce9eba39a</key>
     <map>
@@ -343,7 +355,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVColorManager_OverrideFriendColor</key>
+    <key>PVColorManager_LowPriorityFriendStatus</key>
     <map>
       <key>Comment</key>
       <string>Override the friend color when user has a PVData-provided color.</string>
@@ -569,6 +581,17 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.0</real>
+    </map>
+    <key>PVRender_DepthOfFieldAlphas</key>
+    <map>
+      <key>Comment</key>
+      <string>Use pass 2 in alpha rendering when depth of field is enabled.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>PVRender_EnableFilmGrain</key>
     <map>
@@ -893,13 +916,17 @@
     <key>PVOverride_RenderShadowResolutionScale</key>
     <map>
       <key>Comment</key>
-      <string>Scale of shadow map resolution vs. screen resolution</string>
+      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
+      <string>Vector3</string>
       <key>Value</key>
-      <real>1.0</real>
+      <array>
+            <real>2048</real>
+            <real>2048</real>
+            <real>1.0</real>
+      </array>
     </map>
     <key>PVOverride_RenderShadowSplitExponent</key>
     <map>
@@ -914,21 +941,6 @@
         <real>3.34</real>
         <real>3.0</real>
         <real>5.0</real>
-      </array>
-    </map>
-    <key>PVOverride_RenderShadowResolutionScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-            <real>2048</real>
-            <real>2048</real>
-            <real>1.0</real>
       </array>
     </map>
     <key>PVOverride_RenderSSAOEffect</key>
@@ -1053,6 +1065,23 @@
       <key>Value</key>
       <integer>1023</integer>
     </map>
+    <key>PVUI_AvatarListNameFormat</key>
+    <map>
+      <key>Comment</key>
+      <string>Display names in format specified.
+0 = Respect user preferences
+1 = Display Name (Bob♥Smith)
+2 = Legacy Name (bobsmith Resident)
+3 = Account Name (bobsmith)
+4 = Everything (User fi + account Name)
+      </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <string>0</string>
+    </map>
     <key>PVUI_ClockShowSeconds</key>
     <map>
       <key>Comment</key>
@@ -1075,7 +1104,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
+    <key>PVUI_MachinimaSidebar</key>
+    <map>
+      <key>Comment</key>
+      <string>Debug option to open the Machinima Sidebar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_MapShowAgentCount</key>
     <map>
       <key>Comment</key>

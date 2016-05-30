@@ -2860,6 +2860,20 @@ void handle_object_edit()
 	return;
 }
 
+// [SL:KB] - Patch: Inventory-AttachmentEdit - Checked: 2010-08-25 (Catznip-2.2.0a) | Added: Catznip-2.1.2a
+void handle_attachment_edit(const LLUUID& idItem)
+{
+	const LLInventoryItem* pItem = gInventory.getItem(idItem);
+	if ( (!isAgentAvatarValid()) || (!pItem) )
+		return;
+	LLViewerObject* pAttachObj = gAgentAvatarp->getWornAttachment(pItem->getLinkedUUID());
+	if (!pAttachObj)
+		return;
+	LLSelectMgr::getInstance()->deselectAll();
+	LLSelectMgr::getInstance()->selectObjectAndFamily(pAttachObj);
+	handle_object_edit();
+}
+// [/SL:KB]
 void handle_object_inspect()
 {
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
@@ -6112,6 +6126,20 @@ class LLWorldCreateLandmark : public view_listener_t
 		return true;
 	}
 };
+
+// <FS:Ansariel> Toggle teleport history panel directly
+void toggleTeleportHistory()
+{
+	if (LLFloaterReg::instanceVisible("places"))
+	{
+		LLFloaterReg::hideInstance("places");
+	}
+	else
+	{
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
+	}
+}
+// </FS:Ansariel> Toggle teleport history panel directly
 
 class LLWorldPlaceProfile : public view_listener_t
 {
@@ -9698,4 +9726,7 @@ void initialize_menus()
 		enable.add("RLV.EnableIfNot", boost::bind(&rlvMenuEnableIfNot, _2));
 	}
 // [/RLVa:KB]
+	// <FS:Ansariel> Toggle teleport history panel directly
+	commit.add("ToggleTeleportHistory", boost::bind(&toggleTeleportHistory));
+	// </FS:Ansariel>
 }

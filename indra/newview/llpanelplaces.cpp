@@ -82,6 +82,8 @@ static const std::string LANDMARK_INFO_TYPE			= "landmark";
 static const std::string REMOTE_PLACE_INFO_TYPE		= "remote_place";
 static const std::string TELEPORT_HISTORY_INFO_TYPE	= "teleport_history";
 static const std::string LANDMARK_TAB_INFO_TYPE     = "open_landmark_tab";
+// <FS:Ansariel> Toggle teleport history panel directly
+static const std::string TELEPORT_HISTORY_TAB_INFO_TYPE = "open_teleport_history_tab";
 
 // Support for secondlife:///app/parcel/{UUID}/about SLapps
 class LLParcelHandler : public LLCommandHandler
@@ -217,7 +219,9 @@ public:
 	}
 	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason)
 	{
-		LL_ERRS() << "Can't complete remote parcel request. Http Status: "
+		// <FS:Ansariel> Don't error out because of a HTTP error!
+		//LL_ERRS() << "Can't complete remote parcel request. Http Status: "
+		LL_WARNS() << "Can't complete remote parcel request. Http Status: "
 			   << status << ". Reason : " << reason << LL_ENDL;
 	}
 
@@ -383,6 +387,27 @@ void LLPanelPlaces::onOpen(const LLSD& key)
 			// Update the buttons at the bottom of the panel
 			updateVerbs();
 		}
+		// <FS:Ansariel> Toggle teleport history panel directly
+		else if (key_type == TELEPORT_HISTORY_TAB_INFO_TYPE)
+		{
+			togglePlaceInfoPanel(FALSE);
+			// This has been set intentially to not mess up other functions!
+			mPlaceInfoType = LANDMARK_TAB_INFO_TYPE;
+			// This has been basically borrowed from togglePlaceInfoPanel()
+			// further down.
+			mLandmarkInfo->setVisible(FALSE);
+			LLTeleportHistoryPanel* teleport_history_panel =
+					dynamic_cast<LLTeleportHistoryPanel*>(mTabContainer->getPanelByName("Teleport History"));
+			if (teleport_history_panel)
+			{
+				mTabContainer->selectTabPanel(teleport_history_panel);
+			}
+			// Update the active tab
+			onTabSelected();
+			// Update the buttons at the bottom of the panel
+			updateVerbs();
+		}
+		// </FS:Ansariel> Toggle teleport history panel directly
 		else
 		{
 			mFilterEditor->clear();
@@ -796,7 +821,11 @@ void LLPanelPlaces::onOverflowButtonClicked()
 		// STORM-411
 		// Creating landmarks for remote locations is impossible.
 		// So hide menu item "Make a Landmark" in "Teleport History Profile" panel.
-		menu->setItemVisible("landmark", mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE);
+		// <FS:Ansariel> If it doesn't work for remote locations, disable
+		//			 it properly for ALL displays of remote locations!
+		//menu->setItemVisible("landmark", mPlaceInfoType != TELEPORT_HISTORY_INFO_TYPE);
+		menu->setItemVisible("landmark", is_agent_place_info_visible);
+		// </FS:Ansariel>
 		menu->arrangeAndClear();
 	}
 	else if (mPlaceInfoType == LANDMARK_INFO_TYPE && mLandmarkMenu != NULL)

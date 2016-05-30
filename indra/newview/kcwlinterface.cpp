@@ -421,7 +421,7 @@ bool KCWindlightInterface::ParseParcelForWLSettings(const std::string& desc, LLS
 	{
 		boost::smatch mat_block;
 		//parcel desc /*[data goes here]*/
-		const boost::regex Parcel_exp("(?i)\\/\\*(?:Windlight)?([\\s\\S]*?)\\*\\/");
+		const boost::regex Parcel_exp("(?i)\\/\\*(?:Windlight|WL)?([\\s\\S]*?)\\*\\/");
 		if(boost::regex_search(desc, mat_block, Parcel_exp))
 		{
 			//std::string data1(mat_block[1].first, mat_block[1].second);
@@ -434,7 +434,7 @@ bool KCWindlightInterface::ParseParcelForWLSettings(const std::string& desc, LLS
 			std::string::const_iterator start = mat_block[1].first;
 			std::string::const_iterator end = mat_block[1].second;
 			//Sky: "preset" Water: "preset"
-			const boost::regex key_regex("(?i)(?:(?:(Sky)(?:\\s?@\\s?([\\d]+)m?\\s?(?:to|-)\\s?([\\d]+)m?)?)|(Water))\\s?:\\s?\"([^\"\\r\\n]+)\"|(RegionOverride)");
+			const boost::regex key_regex("(?i)(?:(?:(Sky|S)(?:\\s?@\\s?([\\d]+)m?\\s?(?:to|-)\\s?([\\d]+)m?)?)|(Water|W))\\s?:\\s?\"([^\"\\r\\n]+)\"|(RegionOverride|RO)");
 			while (boost::regex_search(start, end, match, key_regex, boost::match_default))
 			{
 				if (match[1].matched)

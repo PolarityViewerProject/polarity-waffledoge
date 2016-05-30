@@ -198,8 +198,13 @@ class LLFloaterColorPicker
 	// <FS:Zi> Add float LSL color entry widgets
 	protected:
 		static void onClickCopyLSL ( void* data );
-	private:
+		static void onClickCopyLLColor4(void* data);
+		static void onClickCopyHex(void* data);
+private:
 		LLButton* mCopyLSLBtn;
+		LLPanel* mCopyLLColor4Panel;
+		LLButton* mCopyLLColor4Btn;
+		LLButton* mCopyHexBtn;
 		LLLineEditor* mHexValue;
 	// </FS:Zi>
 };

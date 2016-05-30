@@ -47,20 +47,16 @@
 #include "llvieweraudio.h"
 #include "llviewermenu.h"
 #include "llviewertexturelist.h"
-#include "llviewerthrottle.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llvoiceclient.h"
-#include "llvosky.h"
 #include "llvotree.h"
 #include "llvovolume.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h"
 #include "llparcel.h"
-#include "llkeyboard.h"
 #include "llerrorcontrol.h"
 #include "llappviewer.h"
 #include "llvosurfacepatch.h"
@@ -68,7 +64,6 @@
 #include "llrender.h"
 #include "llnavigationbar.h"
 #include "llfloatertools.h"
-#include "llpaneloutfitsinventory.h"
 #include "llpanellogin.h"
 #include "llpaneltopinfobar.h"
 #include "llspellcheck.h"
@@ -111,6 +106,14 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	F32 draw_distance = (F32) newvalue.asReal();
 	gAgentCamera.mDrawDistance = draw_distance;
 	LLWorld::getInstance()->setLandFarClip(draw_distance);
+	return true;
+}
+
+static bool handleRenderShadowFarClipChanged(const LLSD& newvalue)
+{
+	// TODO: Add setting to sync with RenderFarClip
+	F32 shadow_distance = (F32) newvalue.asReal();
+	gPipeline.RenderShadowFarClip = shadow_distance;
 	return true;
 }
 
