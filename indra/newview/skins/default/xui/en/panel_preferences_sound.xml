@@ -444,8 +444,8 @@
             value="0"/>
            <combo_box.item
             label="Waves only"
-            name="2"
-            value="2"/>
+            name="3"
+            value="3"/>
            <combo_box.item
             label="Status dot only"
             name="2"
