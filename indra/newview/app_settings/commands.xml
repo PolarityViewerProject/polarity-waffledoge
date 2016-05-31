@@ -248,7 +248,7 @@
            />
   <command name="quick_settings"
            available_in_toybox="true"
-           icon="Command_Scripts_Icon"
+           icon="Command_Gear_Icon"
            label_ref="Command_Quick_Settings_Label"
            tooltip_ref="Command_Quick_Settings_Tooltip"
            execute_function="Floater.ToggleOrBringToFront"
