@@ -102,7 +102,6 @@
 #include "llanimstatelabels.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
-#include "osavatarcolormgr.h"
 #include "osscriptruntimeperms.h"
 // [RLVa:KB] - Checked: 2010-04-01 (RLVa-1.2.0c)
 #include "rlvhandler.h"
@@ -2807,9 +2806,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 	}
 
-	static LLCachedControl<bool> use_color_mgr(gSavedSettings, "ObsidianColorManagerNameTags", false);
-	const LLColor4& name_tag_color = use_color_mgr ? (isSelf() ? LLColor4::white : OSAvatarColorMgr::instance().getColor(getID())) : getNameTagColor(is_friend);
-
 	// Rebuild name tag if state change detected
 	if (!mNameIsSet
 		|| new_name
@@ -2820,9 +2816,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_muted != mNameMute
 		|| is_appearance != mNameAppearance 
 		|| is_friend != mNameFriend
-		|| is_cloud != mNameCloud
-		|| name_tag_color != mColorLast)
+		|| is_cloud != mNameCloud)
 	{
+		LLColor4 name_tag_color = getNameTagColor(is_friend);
+
 		clearNameTag();
 
 		if (is_away || is_muted || is_do_not_disturb || is_appearance)
@@ -2942,7 +2939,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameAppearance = is_appearance;
 		mNameFriend = is_friend;
 		mNameCloud = is_cloud;
-		mColorLast = name_tag_color;
 		mTitle = title ? title->getString() : "";
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;

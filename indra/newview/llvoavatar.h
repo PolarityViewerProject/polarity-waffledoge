@@ -912,7 +912,6 @@ private:
 	std::deque<LLChat> mChats;
 	BOOL			mTyping;
 	LLFrameTimer	mTypingTimer;
-	LLColor4		mColorLast;
 
 /**                    Name
  **                                                                            **

@@ -178,7 +178,8 @@
       <key>Value</key>
       <string>/tp2cam</string>
     </map>
-    <key>ObsidianColorManagerNameTags</key>
+<!-- We have our own.
+   <key>ObsidianColorManagerNameTags</key>
     <map>
       <key>Comment</key>
       <string>Color nametags based on the central avatar color system</string>
@@ -189,7 +190,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-<!-- We have our own.
     <key>ObsidianLookAtDisabled</key>
     <map>
       <key>Comment</key>
