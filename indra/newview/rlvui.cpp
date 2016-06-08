@@ -28,7 +28,6 @@
 #include "lloutfitslist.h"				// "My Outfits" sidebar panel
 #include "llpaneloutfitsinventory.h"	// "My Appearance" sidebar panel
 #include "llpanelpeople.h"				// "People" sidebar panel
-// ReSharper disable once CppUnusedIncludeDirective
 #include "llpanelwearing.h"				// "Current Outfit" sidebar panel
 #include "llparcel.h"
 #include "llpaneltopinfobar.h"
@@ -40,15 +39,12 @@
 #include "llviewerregion.h"
 #include "llvoavatar.h"
 #include "roles_constants.h"			// Group "powers"
-#include "llfloaterreg.h"
 
 #include "rlvui.h"
 #include "rlvhandler.h"
 #include "rlvextensions.h"
 
 // ============================================================================
-
-// ReSharper disable CppMemberFunctionMayBeStatic
 
 // Checked: 2010-02-28 (RLVa-1.4.0a) | Added: RLVa-1.2.0a
 RlvUIEnabler::RlvUIEnabler()
@@ -110,7 +106,7 @@ void RlvUIEnabler::onBehaviourToggle(ERlvBehaviour eBhvr, ERlvParamType eType)
 // ============================================================================
 
 // Checked: 2010-03-02 (RLVa-1.4.0a) | Added: RLVa-1.2.0a
-void RlvUIEnabler::onRefreshHoverText() const
+void RlvUIEnabler::onRefreshHoverText()
 {
 	// Refresh all hover text each time any of the monitored behaviours get set or unset
 	LLHUDText::refreshAllObjectText();
@@ -143,7 +139,7 @@ void RlvUIEnabler::onToggleEdit()
 }
 
 // Checked: 2010-03-02 (RLVa-1.4.0a) | Modified: RLVa-1.4.0a
-void RlvUIEnabler::onToggleMovement() const
+void RlvUIEnabler::onToggleMovement()
 {
 	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_FLY)) && (gAgent.getFlying()) )
 		gAgent.setFlying(FALSE);
@@ -157,14 +153,14 @@ void RlvUIEnabler::onToggleMovement() const
 }
 
 // Checked: 2013-05-11 (RLVa-1.4.9)
-void RlvUIEnabler::onToggleSendIM() const
+void RlvUIEnabler::onToggleSendIM()
 {
 	bool fEnable = !gRlvHandler.hasBehaviour(RLV_BHVR_SENDIM);
 	gSavedPerAccountSettings.getControl("DoNotDisturbModeResponse")->setHiddenFromSettingsEditor(!fEnable);
 }
 
 // Checked: 2011-05-28 (RLVa-1.4.0a) | Added: RLVa-1.4.0a
-void RlvUIEnabler::onToggleSetDebug() const
+void RlvUIEnabler::onToggleSetDebug()
 {
 	bool fEnable = !gRlvHandler.hasBehaviour(RLV_BHVR_SETDEBUG);
 	for (std::map<std::string, S16>::const_iterator itSetting = RlvExtGetSet::m_DbgAllowed.begin(); 
@@ -363,7 +359,7 @@ void RlvUIEnabler::onToggleShowMinimap()
 }
 
 // Checked: 2010-12-08 (RLVa-1.4.0a) | Modified: RLVa-1.2.2c
-void RlvUIEnabler::onToggleShowNames(bool fQuitting) const
+void RlvUIEnabler::onToggleShowNames(bool fQuitting)
 {
 	if (fQuitting)
 		return;							// Nothing to do if the viewer is shutting down
@@ -415,7 +411,7 @@ void RlvUIEnabler::onToggleShowWorldMap()
 }
 
 // Checked: 2010-08-22 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-void RlvUIEnabler::onToggleTp() const
+void RlvUIEnabler::onToggleTp()
 {
 	// Disable the navigation bar "Home" button if both @tplm=n *and* @tploc=n restricted
 	LLButton* pNavBarHomeBtn = LLNavigationBar::getInstance()->findChild<LLButton>("home_btn");
@@ -425,7 +421,7 @@ void RlvUIEnabler::onToggleTp() const
 }
 
 // Checked: 2010-03-01 (RLVa-1.2.0c) | Added: RLVa-1.2.0a
-void RlvUIEnabler::onToggleUnsit() const
+void RlvUIEnabler::onToggleUnsit()
 {
 	bool fEnable = !gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT);
 
@@ -455,7 +451,7 @@ void RlvUIEnabler::onToggleViewXXX()
 }
 
 // Checked: 2010-04-01 (RLVa-1.2.0c) | Added: RLVa-1.2.0c
-void RlvUIEnabler::onUpdateLoginLastLocation(bool fQuitting) const
+void RlvUIEnabler::onUpdateLoginLastLocation(bool fQuitting)
 {
 	if (!fQuitting)
 		RlvSettings::updateLoginLastLocation();
@@ -491,7 +487,7 @@ bool RlvUIEnabler::filterFloaterGeneric(const std::string& strName, const LLSD&)
 }
 
 // Checked: 2010-04-22 (RLVa-1.4.5) | Added: RLVa-1.2.0
-bool RlvUIEnabler::filterFloaterShowLoc(const std::string& strName, const LLSD&) const
+bool RlvUIEnabler::filterFloaterShowLoc(const std::string& strName, const LLSD&)
 {
 	if ("about_land" == strName)
 		return canViewParcelProperties();
@@ -503,7 +499,7 @@ bool RlvUIEnabler::filterFloaterShowLoc(const std::string& strName, const LLSD&)
 }
 
 // Checked: 2012-02-07 (RLVa-1.4.5) | Added: RLVa-1.4.5
-bool RlvUIEnabler::filterPanelShowLoc(const std::string& strFloater, const std::string&, const LLSD& sdKey) const
+bool RlvUIEnabler::filterPanelShowLoc(const std::string& strFloater, const std::string&, const LLSD& sdKey)
 {
 	if ("places" == strFloater)
 	{
@@ -517,19 +513,19 @@ bool RlvUIEnabler::filterPanelShowLoc(const std::string& strFloater, const std::
 }
 
 // Checked: 2010-03-01 (RLVa-1.2.0b) | Added: RLVa-1.2.0a
-bool RlvUIEnabler::filterFloaterViewXXX(const std::string& strName, const LLSD&) const
+bool RlvUIEnabler::filterFloaterViewXXX(const std::string& strName, const LLSD&)
 {
 	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWNOTE)) && ("preview_notecard" == strName) )
 	{
 		RlvUtil::notifyBlockedViewXXX(LLAssetType::AT_NOTECARD);
 		return false;
 	}
-	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWSCRIPT)) && (("preview_script" == strName) || ("preview_scriptedit" == strName)) )
+	else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWSCRIPT)) && (("preview_script" == strName) || ("preview_scriptedit" == strName)) )
 	{
 		RlvUtil::notifyBlockedViewXXX(LLAssetType::AT_SCRIPT);
 		return false;
 	}
-	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWTEXTURE)) && ("preview_texture" == strName) )
+	else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_VIEWTEXTURE)) && ("preview_texture" == strName) )
 	{
 		RlvUtil::notifyBlockedViewXXX(LLAssetType::AT_TEXTURE);
 		return false;
@@ -547,7 +543,7 @@ bool RlvUIEnabler::canViewParcelProperties()
 	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
 	{
 		// RELEASE-RLVa: [SL-3.2] Check that opening the "About Land" floater still sets focus to the current parcel is none is selected
-		const LLParcel* pParcel;
+		const LLParcel* pParcel = NULL;
 		if (LLViewerParcelMgr::getInstance()->selectionEmpty())
 		{
 			pParcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
@@ -623,5 +619,5 @@ bool RlvUIEnabler::isBuildEnabled()
 {
 	return (gAgent.canEditParcel()) && ((!gRlvHandler.hasBehaviour(RLV_BHVR_EDIT)) || (!gRlvHandler.hasBehaviour(RLV_BHVR_REZ)));
 }
-// ReSharper enable CppMemberFunctionMayBeStatic
+
 // ============================================================================

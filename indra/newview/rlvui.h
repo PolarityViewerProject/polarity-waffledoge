@@ -17,6 +17,7 @@
 #ifndef RLV_UI_H
 #define RLV_UI_H
 
+#include "llfloaterreg.h"
 #include "llsingleton.h"
 
 #include "rlvdefines.h"
@@ -42,21 +43,21 @@ public:
 	 * Behaviour handlers
 	 */
 protected:
-	void onRefreshHoverText() const;											// showloc, shownames, showhovertext(all|world|hud)
+	void onRefreshHoverText();											// showloc, shownames, showhovertext(all|world|hud)
 	void onToggleEdit();												// edit
-	void onToggleMovement() const;											// fly, alwaysrun and temprun
-	void onToggleSendIM() const;												// sendim
-	void onToggleSetDebug() const;											// setdebug
+	void onToggleMovement();											// fly, alwaysrun and temprun
+	void onToggleSendIM();												// sendim
+	void onToggleSetDebug();											// setdebug
 	void onToggleSetEnv();												// setenv
 	void onToggleShowInv(bool fQuitting);								// showinv
 	void onToggleShowLoc();												// showloc
 	void onToggleShowMinimap();											// showminimap
-	void onToggleShowNames(bool fQuitting) const;								// shownames
+	void onToggleShowNames(bool fQuitting);								// shownames
 	void onToggleShowWorldMap();										// showworldmap
-	void onToggleTp() const;													// tploc and tplm
-	void onToggleUnsit() const;												// unsit
+	void onToggleTp();													// tploc and tplm
+	void onToggleUnsit();												// unsit
 	void onToggleViewXXX();												// viewnote, viewscript, viewtexture
-	void onUpdateLoginLastLocation(bool fQuitting) const;						// tploc and unsit
+	void onUpdateLoginLastLocation(bool fQuitting);						// tploc and unsit
 
  	/*
 	 * Floater and sidebar validation callbacks
@@ -67,12 +68,12 @@ protected:
 
 	bool filterFloaterGeneric(const std::string&, const LLSD&);
 	boost::signals2::connection m_ConnFloaterGeneric;
-	bool filterFloaterShowLoc(const std::string&, const LLSD& ) const;
+	bool filterFloaterShowLoc(const std::string&, const LLSD& );
 	boost::signals2::connection m_ConnFloaterShowLoc;					// showloc
-	bool filterFloaterViewXXX(const std::string&, const LLSD&) const;
+	bool filterFloaterViewXXX(const std::string&, const LLSD&);
 	boost::signals2::connection m_ConnFloaterViewXXX;					// viewnote, viewscript, viewtexture
 
-	bool filterPanelShowLoc(const std::string&, const std::string&, const LLSD& ) const;
+	bool filterPanelShowLoc(const std::string&, const std::string&, const LLSD& );
 	boost::signals2::connection m_ConnPanelShowLoc;						// showloc
 
 	/*

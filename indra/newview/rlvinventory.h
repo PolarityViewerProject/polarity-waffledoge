@@ -45,30 +45,30 @@ public:
 	typedef boost::signals2::signal<void (void)> callback_signal_t;
 	void						addSharedRootIDChangedCallback(const callback_signal_t::slot_type& cb) { m_OnSharedRootIDChanged.connect(cb); }
 	// Find all folders that match a supplied criteria (clears the output array)
-	static bool						findSharedFolders(const std::string& strCriteria, LLInventoryModel::cat_array_t& folders);
+	bool						findSharedFolders(const std::string& strCriteria, LLInventoryModel::cat_array_t& folders) const;
 	// Gets the shared path for any shared items present in idItems (clears the output array)
-	static bool						getPath(const uuid_vec_t& idItems, LLInventoryModel::cat_array_t& folders);
+	bool						getPath(const uuid_vec_t& idItems, LLInventoryModel::cat_array_t& folders) const;
 	// Returns a pointer to the shared root folder (if there is one)
 	LLViewerInventoryCategory*	getSharedRoot() const;
 	const LLUUID&				getSharedRootID() const;
 	// Returns a subfolder of idParent that starts with strFolderName (exact match > partial match)
-	static LLViewerInventoryCategory*	getSharedFolder(const LLUUID& idParent, const std::string& strFolderName, bool fMatchPartial = true);
+	LLViewerInventoryCategory*	getSharedFolder(const LLUUID& idParent, const std::string& strFolderName, bool fMatchPartial = true) const;
 	// Looks up a folder from a path (relative to the shared root)
 	LLViewerInventoryCategory*	getSharedFolder(const std::string& strPath, bool fMatchPartial = true) const;
 	// Returns the path of the supplied folder (relative to the shared root)
 	std::string					getSharedPath(const LLViewerInventoryCategory* pFolder) const;
 	std::string					getSharedPath(const LLUUID& idFolder) const;
 	// Returns TRUE if the supplied folder is a descendent of the #RLV folder
-	bool						isSharedFolder(const LLUUID& idFolder) const;
+	bool						isSharedFolder(const LLUUID& idFolder);
 
 	/*
 	 * Inventory fetching
 	 */
 public:
 	void fetchSharedInventory();
-	static void fetchWornItems();
+	void fetchWornItems();
 protected:
-	void fetchSharedLinks() const;
+	void fetchSharedLinks();
 
 	/*
 	 * General purpose helper functions
@@ -125,7 +125,7 @@ protected:
 protected:
 	bool         createDestinationFolder(const std::string& strPath);
 	virtual void onDestinationCreated(const LLUUID& idFolder, const std::string& strName) = 0;
-	static void         moveAndRename(const LLUUID& idFolder, const LLUUID& idDestination, const std::string& strName);
+	void         moveAndRename(const LLUUID& idFolder, const LLUUID& idDestination, const std::string& strName);
 private:
 	static void  onCategoryCreateCallback(LLUUID idFolder, RlvGiveToRLVOffer* pInstance);
 
@@ -225,8 +225,8 @@ public:
 
 	const LLUUID&             getFoldedParent(const LLUUID& idFolder) const;
 	RlvForceWear::EWearAction getWearAction(const LLUUID& idFolder) const;
-	RlvForceWear::EWearAction getWearActionNormal(const LLInventoryCategory* pFolder) const;
-	//RlvForceWear::EWearAction getWearActionFolded(const LLInventoryCategory* pFolder); // not implemented
+	RlvForceWear::EWearAction getWearActionNormal(const LLInventoryCategory* pFolder);
+	RlvForceWear::EWearAction getWearActionFolded(const LLInventoryCategory* pFolder);
 	bool                      isLinkedFolder(const LLUUID& idFolder);
 protected:
 	const LLUUID              m_idFolder;
@@ -320,7 +320,7 @@ inline bool RlvInventory::isFoldedFolder(const LLInventoryCategory* pFolder, boo
 }
 
 // Checked: 2010-08-29 (RLVa-1.2.0c) | Added: RLVa-1.2.0c
-inline bool RlvInventory::isSharedFolder(const LLUUID& idFolder) const
+inline bool RlvInventory::isSharedFolder(const LLUUID& idFolder)
 {
 	const LLViewerInventoryCategory* pRlvRoot = getSharedRoot();
 	return (pRlvRoot) ? (pRlvRoot->getUUID() != idFolder) && (gInventory.isObjectDescendentOf(idFolder, pRlvRoot->getUUID())) : false;

@@ -127,8 +127,7 @@ public:
 	typedef std::multimap<S32, LLUUID> rlv_attachptlock_map_t;
 	// Accessors for RlvFloaterLocks
 	const rlv_attachptlock_map_t& getAttachPtLocks(ERlvLockMask eLock) { return (RLV_LOCK_ADD == eLock) ? m_AttachPtAdd : m_AttachPtRem; }
-	const rlv_attachobjlock_map_t& getAttachObjLocks() const
-	{ return m_AttachObjRem; }
+	const rlv_attachobjlock_map_t& getAttachObjLocks() { return m_AttachObjRem; }
 private:
 	rlv_attachptlock_map_t	m_AttachPtAdd;		// Map of attachment points that can't be attached to (idxAttachPt -> idObj)
 	rlv_attachptlock_map_t	m_AttachPtRem;		// Map of attachment points whose attachments can't be detached (idxAttachPt -> idObj)
@@ -207,8 +206,8 @@ protected:
 		ERlvWearMask eWearAction;
 		F64          tsWear;
 		std::map<S32, uuid_vec_t> attachPts;
-	//protected:
-		//RlvWearInfo(); // not implemented
+	protected:
+		RlvWearInfo();
 	};
 	typedef std::map<LLUUID, RlvWearInfo> rlv_wear_map_t;
 	rlv_wear_map_t m_PendingWear;
@@ -360,7 +359,7 @@ public:
 protected:
 	bool getLockedFolders(const folderlock_source_t& lockSource, LLInventoryModel::cat_array_t& lockFolders) const;
 	bool getLockedItems(const LLUUID& idFolder, LLInventoryModel::item_array_t& lockItems) const;
-	void onNeedsLookupRefresh() const;
+	void onNeedsLookupRefresh();
 	void refreshLockedLookups() const;
 
 	/*
@@ -369,12 +368,9 @@ protected:
 public:
 	typedef std::list<const folderlock_descr_t*> folderlock_list_t;
 	// Accessors for RlvFloaterLocks
-	const folderlock_list_t& getFolderLocks() const
-	{ return m_FolderLocks; }
-	const uuid_vec_t& getAttachmentLookups() const
-	{ return m_LockedAttachmentRem; }
-	const uuid_vec_t& getWearableLookups() const
-	{ return m_LockedWearableRem; }
+	const folderlock_list_t& getFolderLocks() { return m_FolderLocks; }
+	const uuid_vec_t& getAttachmentLookups()  { return m_LockedAttachmentRem; }
+	const uuid_vec_t& getWearableLookups()    { return m_LockedWearableRem; }
 protected:
 	// Map of folder locks (idRlvObj -> lockDescr)
 	folderlock_list_t	m_FolderLocks;			// List of add and remove locked folder descriptions
@@ -399,19 +395,19 @@ private:
 // Checked: 2010-11-30 (RLVa-1.4.0b) | Added: RLVa-1.4.0b
 inline LLViewerJointAttachment* RlvAttachPtLookup::getAttachPoint(S32 idxAttachPt)
 {
-	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, idxAttachPt, static_cast<LLViewerJointAttachment*>(NULL)) : NULL;
+	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, idxAttachPt, (LLViewerJointAttachment*)NULL) : NULL;
 }
 
 // Checked: 2010-03-03 (RLVa-1.2.0a) | Modified: RLVa-0.2.0d
 inline LLViewerJointAttachment* RlvAttachPtLookup::getAttachPoint(const std::string& strText)
 {
-	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, getAttachPointIndex(strText), static_cast<LLViewerJointAttachment*>(NULL)) : NULL;
+	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, getAttachPointIndex(strText), (LLViewerJointAttachment*)NULL) : NULL;
 }
 
 // Checked: 2010-03-03 (RLVa-1.2.0a) | Modified: RLVa-1.0.1b
 inline LLViewerJointAttachment* RlvAttachPtLookup::getAttachPoint(const LLInventoryItem* pItem)
 {
-	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, getAttachPointIndex(pItem), static_cast<LLViewerJointAttachment*>(NULL)) : NULL;
+	return (isAgentAvatarValid()) ? get_if_there(gAgentAvatarp->mAttachmentPoints, getAttachPointIndex(pItem), (LLViewerJointAttachment*)NULL) : NULL;
 }
 
 // Checked: 2010-03-03 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
@@ -455,9 +451,9 @@ inline ERlvWearMask RlvAttachmentLocks::canAttach(const LLViewerJointAttachment*
 	// Empty attachment point           => RLV_WEAR_ADD | RLV_WEAR_REPLACE
 	RLV_ASSERT(pAttachPt);	// TODO-RLVa: [RLVa-1.2.1] Maybe it's better to just return something similar like above?
 	return 
-		static_cast<ERlvWearMask>(((pAttachPt) && (!isLockedAttachmentPoint(pAttachPt, RLV_LOCK_ADD))) 
-									  ? ((canDetach(pAttachPt, true)) ? RLV_WEAR_REPLACE : 0) | RLV_WEAR_ADD
-									  : RLV_WEAR_LOCKED);
+		(ERlvWearMask)(((pAttachPt) && (!isLockedAttachmentPoint(pAttachPt, RLV_LOCK_ADD))) 
+			? ((canDetach(pAttachPt, true)) ? RLV_WEAR_REPLACE : 0) | RLV_WEAR_ADD
+			: RLV_WEAR_LOCKED);
 }
 
 // Checked: 2010-02-28 (RLVa-1.2.0)
