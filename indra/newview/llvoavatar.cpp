@@ -2819,9 +2819,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_friend != mNameFriend
 		|| is_cloud != mNameCloud)
 	{
-		LLColor4 name_tag_color = getNameTagColor(is_friend);
-
 		clearNameTag();
+		LLColor4 name_tag_color = getNameTagColor(is_friend);
 
 		if (is_away || is_muted || is_do_not_disturb || is_appearance)
 		{
@@ -2863,9 +2862,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		LLUUID av_id = getID();
 #ifdef PVDATA_COLORIZER
 		// get avatar's color
-		LLColor4 name_tag_color = PVDataColorizer::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
+		name_tag_color = PVDataColorizer::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
 #else
-		LLColor4 name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
+		name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
 #endif
 //		if (sRenderGroupTitles
 // [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
@@ -2907,7 +2906,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				if (show_usernames && !av_name.isDisplayNameDefault())
 				{
 					// *HACK: Desaturate the color
-					LLColor4 username_color = name_tag_color * 0.83f;
+					LLColor4 username_color = LLColor4(name_tag_color * 0.83f);
 					addNameTagLine(av_name.getUserName(), username_color, LLFontGL::NORMAL,
 					LLFontGL::getFontSansSerifSmall());
 				}
