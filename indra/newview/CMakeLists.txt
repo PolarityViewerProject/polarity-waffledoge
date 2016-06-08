@@ -725,7 +725,6 @@ set(viewer_SOURCE_FILES
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
-    osavatarcolormgr.cpp
     oschatcommand.cpp
     ospanelquicksettings.cpp
     ospanelquicksettingspulldown.cpp
@@ -1340,7 +1339,6 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     macmain.h
     noise.h
-    osavatarcolormgr.h
     oschatcommand.h
     ospanelquicksettings.h
     ospanelquicksettingspulldown.h
