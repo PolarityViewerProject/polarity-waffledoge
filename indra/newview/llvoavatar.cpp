@@ -2649,8 +2649,9 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	}
 	
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
-	static LLCachedControl<F32> NAME_SHOW_TIME(gSavedSettings, "RenderNameShowTime");	// seconds
-	static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
+	// <polarity> Making these static will break nametag fading in our implementation.
+	F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
+	F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.2a) | Added: RLVa-0.2.0b
 	bool fRlvShowNames = gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES);
 // [/RLVa:KB]
