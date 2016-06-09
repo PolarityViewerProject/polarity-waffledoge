@@ -116,7 +116,6 @@
 #include "llscenemonitor.h"
 #include "llsdserialize.h"
 
-// TODO: Make modular again
 #ifdef PVDATA_COLORIZER
 #include "pvdatacolorizer.h"
 #endif
