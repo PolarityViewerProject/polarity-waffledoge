@@ -13,6 +13,7 @@
      bottom="197"
      follows="left|top|right|bottom"
      font="MonospaceSmall"
+     parse_urls="true"
      height="176"
      layout="topleft"
      max_length="2147483647"
