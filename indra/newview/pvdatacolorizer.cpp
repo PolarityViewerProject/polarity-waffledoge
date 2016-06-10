@@ -88,8 +88,11 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 	{
 		return default_color;
 	}
-	LLColor4 return_color, pvdata_color = default_color; // Need to assign pvdata_color as well to avoid returning black on normal agents
-	
+	LLColor4 return_color = default_color; // color we end up with at the end of the logic
+	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
+
+	bool  pvdata_color_is_valid = false;
+
 	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
 	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
 
@@ -117,9 +120,6 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 		static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
 		static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
 
-		// hack
-		bool custom_color_is_valid = false;
-
 		// Special color overrides all colors
 		if (av_flags & PVData::FLAG_USER_HAS_COLOR)
 		{
@@ -135,37 +135,43 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 			}
 			else
 			{
-				custom_color_is_valid = true;
+				pvdata_color_is_valid = true;
+				return_color = pvdata_color;
 			}
 		}
 		// skip this logic if the user has a custom color
-		if (!custom_color_is_valid)
+		if (!pvdata_color_is_valid)
 		{
-
 			if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
 			{
 				// was previously flagged as employee, so will end up in this code path
 				pvdata_color = linden_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else if (av_flags & PVData::FLAG_STAFF_DEV)
 			{
 				pvdata_color = dev_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else if (av_flags & PVData::FLAG_STAFF_QA)
 			{
 				pvdata_color = qa_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
 			{
 				pvdata_color = support_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
 			{
 				pvdata_color = tester_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else if (av_flags & PVData::FLAG_USER_BANNED)
 			{
 				pvdata_color = banned_color.get();
+				pvdata_color_is_valid = true;
 			}
 			else
 			{
@@ -176,21 +182,28 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
 				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
 				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-				return_color = return_color;
+				pvdata_color = default_color;
+				pvdata_color_is_valid = false; // to be sure
 			}
 		}
+		return_color = pvdata_color;
 	}
 	// Respect user preferences
 	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
 	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-	if (!low_priority_friend_status && show_friends && is_buddy)
+
+	if (show_friends && is_buddy)
 	{
-		return_color = LLUIColorTable::instance().getColor("HTMLLinkColor", LLColor4::green);
+		if (low_priority_friend_status && pvdata_color_is_valid)
+		{
+			return_color = pvdata_color;
+		}
+		else
+		{
+			return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+		}
 	}
-	else
-	{
-		return_color = pvdata_color;
-	}
+
 	return return_color;
 }
 
