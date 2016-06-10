@@ -84,7 +84,7 @@ public:
 		FLAG_USER_BETA_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
 		FLAG_USER_HAS_TITLE = (1 << 7), /* [0000 1000 0000] User that deserves recognition             */
 		FLAG_TITLE_OVERRIDE = (1 << 8), /* [0001 0000 0000] Title overrides general flags list         */
-		FLAG_USER_HAS_COLOR = (1 << 9), /* [0010 0000 0000] User has a custom color                    */
+		FLAG_USER_HAS_COLOR = (1 << 9), /* DEPRECATED DO NOT USE [0010 0000 0000] User has a custom color                    */
 
 		// Last.
 		FLAG_LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
@@ -166,8 +166,6 @@ public:
 	bool isMuted(const LLUUID& avatar_id);
 	// Is the avatar denied access to the viewer?
 	bool isBanned(const LLUUID& avatar_id);
-	// Has the avatar earned a special color?
-	bool hasColor(const LLUUID& avatar_id);
 	// Has the avatar earned a special title?
 	bool hasTitle(const LLUUID& avatar_id);
 

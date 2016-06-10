@@ -119,30 +119,28 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 		static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
 		static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
 		static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
+		static const LLUIColor default_tag_color = LLUIColorTable::instance().getColor("NameTagMatch", LLColor4::white);
 
-		// Special color overrides all colors
-		if (av_flags & PVData::FLAG_USER_HAS_COLOR)
+		// Special color, when defined, overrides all colors
+		pvdata_color = PVData::instance().getAgentColor(avatar_id);
+		if (pvdata_color == LLColor4::black)
 		{
-			// Gross hack.
-			pvdata_color = PVData::instance().getAgentColor(avatar_id);
-			if (pvdata_color == return_color || pvdata_color == LLColor4::black)
-			{
-				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to have a color but none is defined!" << LL_ENDL;
-				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-			}
-			else
-			{
-				pvdata_color_is_valid = true;
-				return_color = pvdata_color;
-			}
+			// No custom color defined, set as white.
+			// TODO: Use a color defined in colors.xml
+			pvdata_color = default_tag_color;
+		}
+		else
+		{
+			pvdata_color_is_valid = true;
 		}
 		// skip this logic if the user has a custom color
 		if (!pvdata_color_is_valid)
 		{
-			if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+			if (av_flags & PVData::FLAG_USER_HAS_TITLE && !(av_flags & PVData::FLAG_TITLE_OVERRIDE))
+			{
+				// Do not warn when the user only has a title and no special color since it is acceptable
+			}
+			else if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
 			{
 				// was previously flagged as employee, so will end up in this code path
 				pvdata_color = linden_color.get();

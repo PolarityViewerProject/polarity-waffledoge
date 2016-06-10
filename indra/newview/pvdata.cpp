@@ -909,11 +909,6 @@ bool PVData::isBanned(const LLUUID& avatar_id)
 	return (mAgentAccess[avatar_id] & FLAG_USER_BANNED);
 }
 
-bool PVData::hasColor(const LLUUID& avatar_id)
-{
-	return (mAgentAccess[avatar_id] & FLAG_USER_HAS_COLOR);
-}
-
 bool PVData::hasTitle(const LLUUID& avatar_id)
 {
 	return (mAgentAccess[avatar_id] & FLAG_USER_HAS_TITLE);
@@ -981,7 +976,7 @@ bool PVData::isLinden(const LLUUID& avatar_id)
 bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
 // ReSharper restore CppEntityAssignedButNoRead
 {
-	if (!this->hasColor(avatar_id))
+	if (!this->isSpecial(avatar_id))
 		return false;
 	LLColor4 agent_color; // Will be black here.
 	agent_color = static_cast<LLColor4>(mAgentColors[avatar_id]);
