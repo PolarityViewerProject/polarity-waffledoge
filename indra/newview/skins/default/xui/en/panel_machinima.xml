@@ -805,7 +805,7 @@
 				tool_tip="Toggles if experimental volumetric light should be rendered, causing godrays in certain circumstances"
 				layout="topleft"
 				left_pad="0"
-				name="Godrays"
+				name="GodRays"
 				top_delta="0"
 				width="115">
 			</check_box>
@@ -1662,7 +1662,7 @@
 				God Rays:
 			</text>
 			<slider
-				control_name="PVRender_GodraysResolution"
+				control_name="PVRender_GodRaysResolution"
 				enabled_control="RenderDeferred"
 				decimal_digits="0"
 				follows="left|top"
@@ -1677,12 +1677,12 @@
 				left_delta="5"
 				max_val="128"
 				min_val="16"
-				name="GodrayResolution"
+				name="GodRayResolution"
 				top_pad="1"
 				width="310">
 			</slider>
 			<slider
-				control_name="PVRender_GodraysMultiplier"
+				control_name="PVRender_GodRaysMultiplier"
 				enabled_control="RenderDeferred"
 				decimal_digits="2"
 				follows="left|top"
@@ -1697,12 +1697,12 @@
 				left_delta="0"
 				max_val="30"
 				min_val="0.01"
-				name="GodrayMultiplier"
+				name="GodRayMultiplier"
 				top_pad="1"
 				width="310">
 			</slider>
 			<slider
-				control_name="PVRender_GodraysFalloffMultiplier"
+				control_name="PVRender_GodRaysFalloffMultiplier"
 				enabled_control="RenderDeferred"
 				decimal_digits="1"
 				follows="left|top"
@@ -1717,7 +1717,7 @@
 				left_delta="0"
 				max_val="60"
 				min_val="0.1"
-				name="GodrayFalloffMultiplier"
+				name="GodRayFalloffMultiplier"
 				top_pad="1"
 				width="310">
 			</slider>
