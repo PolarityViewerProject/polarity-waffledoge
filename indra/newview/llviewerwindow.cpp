@@ -2343,7 +2343,8 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	{
 		// when it's time to show navigation bar we need to ensure that the user wants to see it
 		// i.e. NavigationBarStyle option is set to 2(Navigation Bar)
-		navbarp->setVisible(visible && (gSavedSettings.getU32("ObsidianNavigationBarStyle") == 2));
+		static LLCachedControl<U32> ObsidianNavigationBarStyle(gSavedSettings, "ObsidianNavigationBarStyle");
+		navbarp->setVisible(visible && (ObsidianNavigationBarStyle == 2));
 	}
 }
 

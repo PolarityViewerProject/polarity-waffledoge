@@ -3238,7 +3238,8 @@ class OSCheckNavigationBar : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		return userdata.asInteger() == gSavedSettings.getU32("ObsidianNavigationBarStyle");
+		static LLCachedControl<U32> ObsidianNavigationBarStyle(gSavedSettings, "ObsidianNavigationBarStyle");
+		return userdata.asInteger() == ObsidianNavigationBarStyle;
 	}
 };
 
