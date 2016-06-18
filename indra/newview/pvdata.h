@@ -75,16 +75,16 @@ public:
 		// Those aren't numbers. They are bits and here we use them as an array of booleans.
 		// Every avatar flag has its own bit and you can combine them should such need arise.
 		// REMINDER: Check against 0 for avatars not in the list, NOT -1
-		FLAG_USER_BANNED = (1 << 0), /* [0000 0000 0001] We don't want them using our stuff.        */
-		FLAG_USER_AUTOMUTED = (1 << 1), /* [0000 0000 0010] Automatically muted on login.              */
-		FLAG_USER_NO_SUPPORT = (1 << 2), /* [0000 0000 0100] User voided their warranty.                */
-		FLAG_STAFF_DEV = (1 << 3), /* [0000 0000 1000] They wrote the code you're looking at.     */
-		FLAG_STAFF_QA = (1 << 4), /* [0000 0001 0000] They approved the code you're looking at.  */
-		FLAG_STAFF_SUPPORT = (1 << 5), /* [0000 0010 0000] They help users.                           */
+		FLAG_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */
+		FLAG_USER_AUTOMUTED = (1 << 1),   /* [0000 0000 0010] Automatically muted on login.              */
+		FLAG_USER_NO_SUPPORT = (1 << 2),  /* [0000 0000 0100] User voided their warranty.                */
+		FLAG_STAFF_DEV = (1 << 3),        /* [0000 0000 1000] They wrote the code you're looking at.     */
+		FLAG_STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
+		FLAG_STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
 		FLAG_USER_BETA_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
-		FLAG_USER_HAS_TITLE = (1 << 7), /* [0000 1000 0000] User that deserves recognition             */
-		FLAG_TITLE_OVERRIDE = (1 << 8), /* [0001 0000 0000] Title overrides general flags list         */
-		FLAG_USER_HAS_COLOR = (1 << 9), /* DEPRECATED DO NOT USE [0010 0000 0000] User has a custom color                    */
+		FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
+		FLAG_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
+		FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
 
 		// Last.
 		FLAG_LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
