@@ -37,6 +37,9 @@
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
 
+#include "lltransutil.h" // getString
+#include "pvcommon.h" // reportToNearbyChat
+
 /**
  * The panel provides UI for saving snapshot to a local folder.
  */
@@ -192,7 +195,7 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 	}
 	else
 	{
-		LLNotificationsUtil::add("CannotSaveSnapshot");
+		reportToNearbyChat(LLTrans::getString("CannotSaveSnapshot"));
 		floater->notify(LLSD().with("set-ready", true));
 	}
 }

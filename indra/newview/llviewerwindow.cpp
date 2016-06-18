@@ -4323,7 +4323,8 @@ void do_save_image(LLImageFormatted* image, const std::string& snapshot_dir, con
 
 	LL_INFOS() << "Saving snapshot to " << filepath << LL_ENDL;
 
-	if (gSavedSettings.getBOOL("FSLogSnapshotsToLocal"))
+	static LLCachedControl<bool> log_snapshot(gSavedSettings, "PVUI_LogSnapshotToLocal", true);
+	if (log_snapshot)
 	{
 		LLStringUtil::format_map_t args;
 		args["FILENAME"] = filepath;

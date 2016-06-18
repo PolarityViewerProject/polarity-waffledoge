@@ -355,6 +355,17 @@
       <key>Value</key>
       <string>/pvdatarefresh</string>
     </map>
+    <key>PVUI_LogSnapshotToLocal</key>
+    <map>
+      <key>Comment</key>
+      <string>Log snapshots to disk in local chat</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVChat_MarkObjectsWithNoName</key>
     <map>
       <key>Comment</key>
