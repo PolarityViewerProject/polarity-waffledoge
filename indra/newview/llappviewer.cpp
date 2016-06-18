@@ -3356,7 +3356,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	url += LLURI::escape(LLVersionInfo::getVersion());
 #else
 	// Temporary static release notes url
-	std::string url = "http://www.polarityviewer.org/2016/04/01/polarity-public-beta/";
+	std::string url = "https://www.polarityviewer.org/category/release/";
 #endif
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
 
