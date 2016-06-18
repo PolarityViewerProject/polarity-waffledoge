@@ -333,6 +333,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVChatCommand_PurgeChat</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to purge chat history</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/purgechat</string>
+    </map>
     <key>PVChatCommand_PVDataRefresh</key>
     <map>
       <key>Comment</key>

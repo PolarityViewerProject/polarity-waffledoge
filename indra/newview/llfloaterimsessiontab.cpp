@@ -1144,3 +1144,15 @@ BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 	}
 	return handled;
 }
+
+// <polarity> Allow to purge chat history
+// This is in fact Alchemy Viewer's initial implementation of the clear chat
+// function. Some residents preferred this one so let's re-add it.
+void LLFloaterIMSessionTab::purgeChatHistory()
+{
+	if (mChatHistory)
+	{
+		mChatHistory->clear();
+	}
+}
+// </polarity>

@@ -45,6 +45,7 @@ class OSChatCommand : public LLSingleton<OSChatCommand>
 		CMD_TP_TO_CAM,
 		CMD_HOVER_HEIGHT,
 		CMD_REFRESH_PVDATA,
+		CMD_PURGE_CHAT,
 		CMD_UNKNOWN
 	} e_chat_commands;
 

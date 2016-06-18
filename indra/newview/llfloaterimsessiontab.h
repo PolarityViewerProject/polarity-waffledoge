@@ -103,6 +103,8 @@ public:
 	void restoreFloater();
 	void saveCollapsedState();
 
+	void purgeChatHistory(); // <polarity> Allow to clear chat history
+
 protected:
 
 	// callback for click on any items of the visual states menu
