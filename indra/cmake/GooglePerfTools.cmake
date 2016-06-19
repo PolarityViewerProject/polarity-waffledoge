@@ -33,9 +33,7 @@ else (USESYSTEMLIBS)
 endif (USESYSTEMLIBS)
 
 if (GOOGLE_PERFTOOLS_FOUND)
-  # XXX Disable temporarily, until we have compilation issues on 64-bit
-  # Etch sorted.
-  set(USE_GOOGLE_PERFTOOLS OFF CACHE BOOL "Build with Google PerfTools support.")
+  set(USE_GOOGLE_PERFTOOLS ON CACHE BOOL "Build with Google PerfTools support.")
 endif (GOOGLE_PERFTOOLS_FOUND)
 
 if (WINDOWS)
