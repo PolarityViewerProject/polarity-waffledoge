@@ -1438,7 +1438,7 @@
 				layout="topleft"
 				left_pad="5"
 				name="FSWLApplyFromGroups"
-				top_deltaelta="0"
+				top_delta="0"
 				width="60">
 			</check_box>
 			<check_box
