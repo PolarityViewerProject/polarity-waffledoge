@@ -1646,13 +1646,15 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	
 	if (mNeedsCreateTexture)
 	{
-		// <FS:ND> NaN has some very special comparison characterisctics. Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
+		// <FS:ND> NaN has some very special comparison characterisctics.
+		// Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
 		if( llisnan(mDecodePriority ) )
 		{
 			LL_WARNS() << "Detected NaN for decode priority" << LL_ENDL;
 			mDecodePriority = 0; // What to put here? Something low? high? zero?
 		}
-		// </FS:NS>
+		// </FS:ND>
+
 		return mDecodePriority; // no change while waiting to create
 	}
 	if(mFullyLoaded && !mForceToSaveRawImage)//already loaded for static texture
