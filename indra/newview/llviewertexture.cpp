@@ -1793,6 +1793,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 			priority += additional;
 		}
 	}
+
 	// <FS:ND> NaN has some very special comparison characterisctics. Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
 	if( llisnan(priority) )
 	{
@@ -1800,6 +1801,7 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 		priority = 0; // What to put here? Something low? high? zero?
 	}
 	// </FS:ND>
+
 	return priority;
 }
 
@@ -1826,6 +1828,7 @@ void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 		priority = 0; // What to put here? Something low? high? zero?
 	}
 	// </FS:ND>
+    
 	mDecodePriority = priority;
 
 	if(mDecodePriority < F_ALMOST_ZERO)
