@@ -24,7 +24,9 @@
  * $/LicenseInfo$
  */
 
+#if (LL_TESTS)
 #include "linden_common.h"
 
 // implementation is all in the header, this include dep ensures the unit test is rerun if the implementation changes.
 #include "llmodularmath.h"
+#endif // LL_TESTS
