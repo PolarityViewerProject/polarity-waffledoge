@@ -474,7 +474,7 @@ public:
 		}
 
 		this->notifyRemoval(data);
-		checkAlive();
+		this->checkAlive();
 	}
 
 	bool remove(T* data)
@@ -648,7 +648,7 @@ public:
 			mChildMap[mChild[i]->getOctant()] = i;
 		}
 
-		checkAlive();
+		this->checkAlive();
 	}
 
 	void checkAlive()
