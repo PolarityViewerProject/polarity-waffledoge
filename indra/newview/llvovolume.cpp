@@ -1011,6 +1011,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 	
 		updateSculptTexture();
 
+		// NaCl - Graphics crasher protection
+		getVolume()->calcSurfaceArea();
+		// NaCl End
+
 		if (isSculpted())
 		{
 			updateSculptTexture();
