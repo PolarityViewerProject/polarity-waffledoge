@@ -694,6 +694,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsSitting(FALSE),
 	mTimeVisible(),
 	mTyping(FALSE),
+	mTypingLast(false),
 	mMeshValid(FALSE),
 	mVisible(FALSE),
 	mWindFreq(0.f),
@@ -2804,6 +2805,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	bool is_friend = (!fRlvShowNames) && (LLAvatarTracker::instance().isBuddy(getID()));
 // [/RLVa:KB]
 	bool is_cloud = getIsCloud();
+	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
+	static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
+	bool is_typing = typing_in_status && mTyping;
 
 	if (is_appearance != mNameAppearance)
 	{
@@ -2873,11 +2877,12 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| complexity != mNameArc
 		|| complexity_color != mNameArcColor
 		// </FS:Ansariel>
-		|| name_tag_color != mColorLast)
+		|| name_tag_color != mColorLast
+		|| is_typing != mTypingLast)
 	{
 		clearNameTag();
 
-		if (is_away || is_muted || is_do_not_disturb || is_appearance)
+		if (is_away || is_muted || is_do_not_disturb || is_appearance || is_typing)
 		{
 			std::string line;
 			if (is_away)
@@ -2903,6 +2908,11 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			if (is_cloud)
 			{
 				line += LLTrans::getString("LoadingData");
+				line += ", ";
+			}
+			if (is_typing && !use_chat_bubbles)
+			{
+				line += LLTrans::getString("AvatarTyping");
 				line += ", ";
 			}
 			// trim last ", "
@@ -3004,6 +3014,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameAppearance = is_appearance;
 		mNameFriend = is_friend;
 		mNameCloud = is_cloud;
+		mTypingLast = is_typing;
 		mTitle = title ? title->getString() : "";
 		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
 		mNameArc = complexity;
@@ -3069,7 +3080,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 		mNameText->setVisibleOffScreen(TRUE);
 
-		if (mTyping)
+		if (mTyping && use_chat_bubbles && !typing_in_status)
 		{
 			S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
 			switch(dot_count)
