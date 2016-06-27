@@ -1383,6 +1383,11 @@ void LLVOVolume::updateFaceFlags()
 	// There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
 	for (S32 i = 0; i < getVolume()->getNumFaces() && i < mDrawable->getNumFaces(); i++)
 	{
+		// <FS:ND> There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
+		if( mDrawable->getNumFaces() <= i || getNumTEs() <= i )
+			return;
+		// </FS:ND>
+
 		LLFace *face = mDrawable->getFace(i);
 		if (face)
 		{
@@ -1492,6 +1497,11 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 		 i < getVolume()->getNumVolumeFaces() && i < mDrawable->getNumFaces() && i < getNumTEs();
 		 i++)
 	{
+		// <FS:ND> There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
+		if( mDrawable->getNumFaces() <= i )
+			break;
+		// </FS:ND>
+
 		LLFace *face = mDrawable->getFace(i);
 		if (!face)
 		{
@@ -3760,10 +3770,17 @@ F32 LLVOVolume::getBinRadius()
 	
 	F32 scale = 1.f;
 
-	S32 size_factor = llmax(gSavedSettings.getS32("OctreeStaticObjectSizeFactor"), 1);
-	S32 attachment_size_factor = llmax(gSavedSettings.getS32("OctreeAttachmentSizeFactor"), 1);
-	LLVector3 distance_factor = gSavedSettings.getVector3("OctreeDistanceFactor");
-	LLVector3 alpha_distance_factor = gSavedSettings.getVector3("OctreeAlphaDistanceFactor");
+	// <FS:Ansariel> Use faster LLCachedControls for frequently visited locations
+	static LLCachedControl<S32> octreeStaticObjectSizeFactor(gSavedSettings, "OctreeStaticObjectSizeFactor");
+	static LLCachedControl<S32> octreeAttachmentSizeFactor(gSavedSettings, "OctreeAttachmentSizeFactor");
+	static LLCachedControl<LLVector3> octreeDistanceFactor(gSavedSettings, "OctreeDistanceFactor");
+	static LLCachedControl<LLVector3> octreeAlphaDistanceFactor(gSavedSettings, "OctreeAlphaDistanceFactor");
+
+	S32 size_factor = (S32)octreeStaticObjectSizeFactor;
+	S32 attachment_size_factor = (S32)octreeAttachmentSizeFactor;
+	LLVector3 distance_factor = (LLVector3)octreeDistanceFactor;
+	LLVector3 alpha_distance_factor = (LLVector3)octreeAlphaDistanceFactor;
+	// </FS:Ansariel>
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
 	BOOL shrink_wrap = mDrawable->isAnimating();
@@ -4244,24 +4261,25 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 					LLMatrix4a final_mat;
 					final_mat.clear();
 
-					S32 idx[4];
+					// <FS:ND> Avoid the 8 floorf by using SSE2.
+					// Using _mm_cvttps_epi32 (truncate) under the assumption that the index can never be negative.
 
-					LLVector4 wght;
+					LL_ALIGN_16( S32 idx[4] );
+					LL_ALIGN_16( F32 wght[4] );
 
-					F32 scale = 0.f;
-					for (U32 k = 0; k < 4; k++)
-					{
-						F32 w = weight[j][k];
-						F32 w_floored = floorf(w);
+					__m128i _mIdx = _mm_cvttps_epi32( weight[j] );
+					__m128 _mWeight = _mm_sub_ps( weight[j], _mm_cvtepi32_ps( _mIdx ) );
 
-						idx[k] = (S32) w_floored;
-						wght[k] = w - w_floored;
-						scale += wght[k];
-					}
-                    // This is enforced  in unpackVolumeFaces()
-                    llassert(scale>0.f);
-                    wght *= 1.f / scale;
+					_mm_store_si128( (__m128i*)idx, _mIdx );
 
+					__m128 _mScale = _mm_add_ps( _mWeight, _mm_movehl_ps( _mWeight, _mWeight ));
+					_mScale = _mm_add_ss( _mScale, _mm_shuffle_ps( _mScale, _mScale, 1) );
+					_mScale = _mm_shuffle_ps( _mScale, _mScale, 0 );
+
+					_mWeight = _mm_div_ps( _mWeight, _mScale );
+					_mm_store_ps( wght, _mWeight );
+					// </FS:ND>
+					
 					for (U32 k = 0; k < 4; k++)
 					{
 						F32 w = wght[k];
@@ -4300,6 +4318,9 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 				dst_face.mCenter->mul(0.5f);
 
 			}
+		// <FS:ND> Crashfix if mExtents is 0
+		if( dst_face.mExtents )
+		// </FS:ND>
 
 			{
 				LL_RECORD_BLOCK_TIME(FTM_RIGGED_OCTREE);
@@ -4780,8 +4801,12 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	U32 useage = group->getSpatialPartition()->mBufferUsage;
 
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
-	U32 max_total = (gSavedSettings.getS32("RenderMaxNodeSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+	// <FS:ND> replace frequent calls to saved settings with LLCachedControl
+	static LLCachedControl< S32 > RenderMaxVBOSize( gSavedSettings, "RenderMaxVBOSize");
+	static LLCachedControl< S32 > RenderMaxNodeSize( gSavedSettings, "RenderMaxNodeSize");
+	U32 max_vertices = (RenderMaxVBOSize*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+	U32 max_total = (RenderMaxNodeSize*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+	// </FS:ND>
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	U32 cur_total = 0;
@@ -4885,7 +4910,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						pAvatarVO->addAttachmentPosOverridesForObject(vobj);
 					}
 
-					if (pool)
+					// <FS:ND> need an texture entry, or we crash
+					// if (pool)
+					if (pool && facep->getTextureEntry() )
+					// </FS:ND>
 					{
 						const LLTextureEntry* te = facep->getTextureEntry();
 
@@ -5051,7 +5079,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 					const LLTextureEntry* te = facep->getTextureEntry();
 					LLViewerTexture* tex = facep->getTexture();
 
-					if (te->getGlow() >= 1.f/255.f)
+					// <FS:ND> More crash avoding ...
+					// if (te->getGlow() >= 1.f/255.f)
+					if (te && te->getGlow() >= 1.f/255.f)
+					// </FS:ND>
 					{
 						emissive = true;
 					}
@@ -5112,7 +5143,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						}
 						else
 						{
-							if (te->getColor().mV[3] > 0.f)
+							// <FS:ND> Even more crash avoidance ...
+							// if (te->getColor().mV[3] > 0.f)
+							if (te && te->getColor().mV[3] > 0.f)
+							// </FS:ND>
 							{ //only treat as alpha in the pipeline if < 100% transparent
 								drawablep->setState(LLDrawable::HAS_ALPHA);
 							}
@@ -5132,7 +5166,10 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						if (gPipeline.canUseWindLightShadersOnObjects()
 							&& LLPipeline::sRenderBump)
 						{
-							if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
+							// <FS:ND> We just skip all of this is there is no te entry. This might get some funny results (which would be a face without te anyway).
+							// if (LLPipeline::sRenderDeferred && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
+							if (LLPipeline::sRenderDeferred && te && te->getMaterialParams().notNull()  && !te->getMaterialID().isNull())
+							// </FS:ND>
 							{
 								LLMaterial* mat = te->getMaterialParams().get();
 								if (mat->getNormalID().notNull())
@@ -5513,8 +5550,13 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 	}
 #endif
 	
-	//calculate maximum number of vertices to store in a single buffer
-	U32 max_vertices = (gSavedSettings.getS32("RenderMaxVBOSize")*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+
+	// <FS:ND> replace frequent calls to saved settings with LLCachedControl
+	static LLCachedControl< S32 > RenderMaxVBOSize( gSavedSettings, "RenderMaxVBOSize");
+	U32 max_vertices = (RenderMaxVBOSize*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
+
+	// </FS:ND>
+
 	max_vertices = llmin(max_vertices, (U32) 65535);
 
 	{
@@ -5557,7 +5599,11 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 		texture_index_channels = gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels;
 	}
 
-	texture_index_channels = llmin(texture_index_channels, (S32) gSavedSettings.getU32("RenderMaxTextureIndex"));
+	// <FS:ND> replace frequent calls to saved settings with LLCachedControl
+	static LLCachedControl< U32 > RenderMaxTextureIndex( gSavedSettings, "RenderMaxTextureIndex");
+	texture_index_channels = llmin(texture_index_channels, (S32) RenderMaxTextureIndex);
+
+	// </FS:ND>
 	
 	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
 	texture_index_channels = llmin(texture_index_channels, 16);
