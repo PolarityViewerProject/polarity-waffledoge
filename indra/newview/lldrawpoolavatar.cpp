@@ -459,7 +459,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	// NaCl - Faster Avatar Shadows
 	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 3);
-	if (!_NACL_SimpleAvatarShadows)
+	if (0 == _NACL_SimpleAvatarShadows)
 		return;
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 
