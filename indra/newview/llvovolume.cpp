@@ -962,6 +962,21 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 				is404 = TRUE;
 				lod = 0;
 			}
+			// Force Highest/Lowest LOD on attachements. Highly requested hack.
+			if (isAttachment())
+			{
+				// TODO: Find how to optionally restrict to gAgent/self. I can't find how to get the attachment owner.
+				static LLCachedControl<bool> force_max_lod(gSavedSettings, "PVRender_ForceAttachmentLODToMaximum", false);
+				static LLCachedControl<bool> force_min_lod(gSavedSettings, "PVRender_ForceAttachmentLODToMinimum", false);
+				if (force_min_lod && !force_max_lod)
+				{
+					lod = 0;
+				}
+				else if (!force_min_lod && force_max_lod)
+				{
+					lod = 3;
+				}
+			}
 		}
 	}
 
