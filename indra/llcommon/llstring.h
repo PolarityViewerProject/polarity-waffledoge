@@ -413,6 +413,8 @@ public:
 	
 	static bool		isPartOfWord(T c) { return (c == (T)'_') || LLStringOps::isAlnum(c); }
 
+	// Check for substring match without modifying the source string.
+	static bool		findSubString(const std::string& str, const std::string& substr);
 
 #ifdef _DEBUG	
 	LL_COMMON_API static void		testHarness();

@@ -1318,6 +1318,16 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 	return res;
 }
 
+bool LLStringUtil::findSubString(const std::string& str, const std::string& substr)
+{
+	size_t pos = str.find(substr);
+	if (pos != std::string::npos)
+	{
+		return true;
+	}
+	return false;
+}
+
 ////////////////////////////////////////////////////////////
 // Testing
 
