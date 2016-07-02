@@ -2310,6 +2310,15 @@ NVIDIA Corporation GeForce GTX 780M/PCIe/SSE2                                   
 NVIDIA Corporation GeForce GTX TITAN/PCIe/SSE2                                                           supported      5     0     4.3    NVIDIA GTX TITAN
 NVIDIA Corporation GeForce GTX TITAN/PCIe/SSE2/3DNOW!                                                    supported      5     0     4.3    NVIDIA GTX TITAN
 NVIDIA Corporation GeForce GTX Titan/PCIe/SSE2                                                           supported      5     0     4.3    NVIDIA GTX TITAN
+NVIDIA Corporation GeForce GTX 950/PCIe/SSE2                                                             supported      3     0     4.3    NVIDIA GTX 950
+NVIDIA Corporation GeForce GTX 960/PCIe/SSE2                                                             supported      4     0     4.3    NVIDIA GTX 960
+NVIDIA Corporation GeForce GTX 970/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 970
+NVIDIA Corporation GeForce GTX 980/PCIe/SSE2                                                             supported      5     0     4.3    NVIDIA GTX 980
+NVIDIA Corporation GeForce GTX 980 Ti/PCIe/SSE2                                                          supported      5     0     4.3    NVIDIA GTX 980 Ti
+NVIDIA Corporation GeForce GTX TITAN Z/PCIe/SSE2                                                         supported      5     0     4.3    NVIDIA GTX TITAN Z
+NVIDIA Corporation GeForce GTX Titan Z/PCIe/SSE2                                                         supported      5     0     4.3    NVIDIA GTX TITAN Z
+NVIDIA Corporation GeForce GTX 1070/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 1070
+NVIDIA Corporation GeForce GTX 1080/PCIe/SSE2                                                            supported      5     0     4.3    NVIDIA GTX 1080
 NVIDIA Corporation GeForce Go 6100/PCI/SSE2                                                              supported      0     1     2.1    NVIDIA GeForce Go 6100
 NVIDIA Corporation GeForce Go 6100/PCI/SSE2/3DNOW!                                                       supported      0     1     2.1    NVIDIA GeForce Go 6100
 NVIDIA Corporation GeForce Go 6150/PCI/SSE2                                                              supported      0     1     2.1    NVIDIA GeForce Go 6100
@@ -2795,6 +2804,14 @@ NVIDIA GTX 680M                                                                 
 NVIDIA GTX 690                                                                                           supported      5     1     4.3    NVIDIA GTX 69x
 NVIDIA GTX 770                                                                                           supported      5     0     4.3    NVIDIA GTX 77x
 NVIDIA GTX TITAN                                                                                         supported      5     0     4.3    NVIDIA GTX TITAN
+NVIDIA GTX 950                                                                                           supported      3     0     4.3    NVIDIA GTX 950
+NVIDIA GTX 960                                                                                           supported      4     0     4.3    NVIDIA GTX 960
+NVIDIA GTX 970                                                                                           supported      5     0     4.3    NVIDIA GTX 970
+NVIDIA GTX 980                                                                                           supported      5     0     4.3    NVIDIA GTX 980
+NVIDIA GTX 980 Ti                                                                                        supported      5     0     4.3    NVIDIA GTX 980 Ti
+NVIDIA GTX TITAN Z                                                                                       supported      5     0     4.3    NVIDIA GTX TITAN Z
+NVIDIA GTX 1070                                                                                          supported      5     0     4.3    NVIDIA GTX 1070
+NVIDIA GTX 1080                                                                                          supported      5     0     4.3    NVIDIA GTX 1080
 NVIDIA GeForce 2                                                                                         supported      0     1     1.5    NVIDIA GeForce 2
 NVIDIA GeForce 3                                                                                         supported      2     1     2.1    NVIDIA GeForce 3
 NVIDIA GeForce 4                                                                                         supported      0     1     1.5    NVIDIA GeForce 4
