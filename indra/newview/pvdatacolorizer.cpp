@@ -167,13 +167,13 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 			}
 			else
 			{
-				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
-				LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
-				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
-				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+				LL_WARNS() << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
+				LL_WARNS() << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
+				LL_WARNS() << "avatar_id = " << avatar_id << LL_ENDL;
+				LL_WARNS() << "av_flags = " << av_flags << LL_ENDL;
+				LL_WARNS() << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+				LL_WARNS() << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
+				LL_WARNS() << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
 				pvdata_color = default_color;
 				pvdata_color_is_valid = false; // to be sure
 			}
@@ -201,7 +201,7 @@ LLColor4 PVDataColorizer::getColor(const LLUUID& avatar_id, const LLColor4& defa
 // Call this very early.
 void PVDataColorizer::initThemeColors()
 {
-	LL_INFOS("LLViewerWindow") << "Initializing theme default color..." << LL_ENDL;
+	LL_INFOS() << "Initializing theme default color..." << LL_ENDL;
 	// Initial theme color setup. A bit savage, but this is work in progress.
 	//bAgentHasCustomColor = false;
 
@@ -211,7 +211,7 @@ void PVDataColorizer::initThemeColors()
 	if (init_color4 == LLColor4::black || init_color4 == LLColor4::magenta)
 	{
 		// First run, force automatic color
-		LL_INFOS("LLViewerWindow") << "something went wrong, fixing colors..." << LL_ENDL;
+		LL_INFOS() << "something went wrong, fixing colors..." << LL_ENDL;
 		const auto old_choice = gSavedSettings.getU32("PVUI_ThemeColorSelection");
 		// TODO: Optimize me!
 		gSavedSettings.setU32("PVUI_ThemeColorSelection", 0);
@@ -222,12 +222,12 @@ void PVDataColorizer::initThemeColors()
 	{
 		setNewSkinColorFromSelection();
 	}
-	LL_INFOS("LLViewerWindow") << "Theme default color initialized!" << LL_ENDL;
+	LL_INFOS() << "Theme default color initialized!" << LL_ENDL;
 }
 
 void PVDataColorizer::setNewSkinColorFromSelection()
 {
-	LL_DEBUGS("LLViewerWindow") << "Getting theme colors from selection dropdown..." << LL_ENDL;
+	LL_DEBUGS() << "Getting theme colors from selection dropdown..." << LL_ENDL;
 	// Force specific theme color
 	// 0 = automatic - channel-based
 	// 1 = release
@@ -293,27 +293,27 @@ void PVDataColorizer::setNewSkinColorFromSelection()
 
 void PVDataColorizer::setEmphasisColorSet()
 {
-	LL_INFOS("LLViewerWindow") << "Setting emphasis color..." << LL_ENDL;
+	LL_INFOS() << "Setting emphasis color..." << LL_ENDL;
 	// <polarity> Replace the color in the color table.
 	const LLColor4 input_new_color = newCustomThemeColor; // Temporary variable to avoid creating a ton of new ones
 	LLColor4 tmp_color = input_new_color;
 
 	if (tmp_color == LLColor4::black)
 	{
-		LL_WARNS("LLViewerWindow") << "OH GOD HELP MY COLORS WENT BLACK" << LL_ENDL;
+		LL_WARNS() << "OH GOD HELP MY COLORS WENT BLACK" << LL_ENDL;
 		return;
 	}
 	// Override the entire accent color set. Wheeeee. \o.o/
-	LL_WARNS("LLViewerWindow") << "New theme color = " << tmp_color << LL_ENDL;
+	LL_WARNS() << "New theme color = " << tmp_color << LL_ENDL;
 	LLUIColorTable::instance().setColor("EmphasisColor", LLColor4(input_new_color));
 
 	LLColor4 tmp_color_13 = LLColor4(input_new_color.mV[0], input_new_color.mV[1], input_new_color.mV[2], 0.13f);
 	LLUIColorTable::instance().setColor("EmphasisColor_13", tmp_color_13);
-	//LL_WARNS("LLViewerWindow") << "EmphasisColor_13 = " << tmp_color_13 << LL_ENDL;
+	//LL_WARNS() << "EmphasisColor_13 = " << tmp_color_13 << LL_ENDL;
 
 	LLColor4 tmp_color_35 = LLColor4(input_new_color.mV[0], input_new_color.mV[1], input_new_color.mV[2], 0.35f);
 	LLUIColorTable::instance().setColor("EmphasisColor_35", tmp_color_35);
-	//LL_WARNS("LLViewerWindow") << "EmphasisColor_35 = " << tmp_color_35 << LL_ENDL;
+	//LL_WARNS() << "EmphasisColor_35 = " << tmp_color_35 << LL_ENDL;
 
 	LLUIColorTable::instance().setColor("FilterTextColor", tmp_color_13);
 
@@ -396,12 +396,12 @@ void PVDataColorizer::setEmphasisColorSet()
 	// Finally update our new color as "current"
 	currentThemeColor = newCustomThemeColor;
 
-	LL_INFOS("LLViewerWindow") << "Theme colors set!" << LL_ENDL;
+	LL_INFOS() << "Theme colors set!" << LL_ENDL;
 }
 
 bool PVDataColorizer::themeColorHasChanged() const
 {
-	LL_WARNS("LLViewerWindow") << "Theme color has changed!" << LL_ENDL;
+	LL_WARNS() << "Theme color has changed!" << LL_ENDL;
 	return (newCustomThemeColor != currentThemeColor);
 }
 
@@ -410,7 +410,7 @@ void PVDataColorizer::refreshThemeColors()
 {
 	if (themeColorHasChanged())
 	{
-		LL_INFOS("LLViewerWindow") << "Refreshing theme colors!" << LL_ENDL;
+		LL_INFOS() << "Refreshing theme colors!" << LL_ENDL;
 		setEmphasisColorSet();
 	}
 }
