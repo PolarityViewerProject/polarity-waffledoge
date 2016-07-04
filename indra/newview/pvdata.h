@@ -33,14 +33,14 @@
 // boost::spirit::terminal<boost::spirit::tag::oct>::result_helper': redefinition of default parameter: parameter 3
 #pragma warning (disable : 4348)
 
-#include "llsingleton.h"
+#include "llsingleton.h" // for instance()
 #include "llavatarname.h"   // for convenience
-#include "llerror.h"
+#include "llerror.h" // for LOG_CLASS
 #include "boost/container/flat_set.hpp"
 
-class PVData: public LLSingleton<PVData>
+class PVData : public LLSingleton <PVData> // required for instance()
 {
-	friend class LLSingleton<PVData>;
+	friend class LLSingleton <PVData>;
 	LOG_CLASS(PVData); // Required to enable the log messages prefix
 public:
 

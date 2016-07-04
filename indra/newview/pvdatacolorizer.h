@@ -22,16 +22,17 @@
 
 #pragma once // <polarity> Compilation speedup
 
-#include "llsingleton.h"
+#include "llsingleton.h" // for instance()
+#include "llerror.h" // for LOG_CLASS
 
 class LLColor4;
 class LLColor3;
 class LLUUID;
 
-class PVDataColorizer: public LLSingleton <PVDataColorizer>
+class PVDataColorizer : public LLSingleton <PVDataColorizer>  // required for instance()
 {
-private:
 	friend class LLSingleton <PVDataColorizer>;
+	LOG_CLASS(PVDataColorizer); // Required to enable the log messages prefix
 public:
 	~PVDataColorizer()
 	{
