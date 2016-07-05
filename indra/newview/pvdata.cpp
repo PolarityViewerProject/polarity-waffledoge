@@ -929,7 +929,7 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	return agent_color;
 }
 
-bool PVData::isLinden(const LLUUID& avatar_id)
+bool PVData::isLinden(const LLUUID& avatar_id, LLAvatarName &av_name)
 {
 	// <Polarity> Speed up: Check if we already establed that association
 	if (mAgentAccess[avatar_id] & FLAG_LINDEN_EMPLOYEE)
@@ -938,7 +938,6 @@ bool PVData::isLinden(const LLUUID& avatar_id)
 	}
 
 	std::string first_name, last_name;
-	LLAvatarName av_name;
 	if (LLAvatarNameCache::get(avatar_id, &av_name))
 	{
 		std::istringstream full_name(av_name.getUserName());
