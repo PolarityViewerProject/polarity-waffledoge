@@ -187,6 +187,14 @@ public:
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string PVDataErrorMessage = "";
 
+#if !RELEASE_BUILD
+	/// <summary>
+	/// Developer-only log output.
+	/// </summary>
+	static void PV_DEBUG(const std::string log_in_s, const LLError::ELevel& level);
+#endif // !RELEASE_BUILD
+	static void Dump(const std::string name, const LLSD & map);
+
 private:
 
 	// This processes the main data
@@ -257,6 +265,7 @@ private:
 
 	typedef std::map<std::string, LLSD> str_llsd_pairs;
 	// This contains the viewer versions that aren't allowed to be used anymore
+	// TODO: Use native LLSD OR change it->second's type for performance concerns
 	str_llsd_pairs mBlockedVersions;
 
 	// Minimum viewer version allowed to be used
@@ -270,10 +279,12 @@ private:
 	typedef std::map<LLUUID, std::string> agent_data_t;
 	agent_data_t mAgentTitles;
 
+public:
 	// agents <-> color association	s
 	typedef std::map<LLUUID, LLColor4> agent_color_map_t;
 	agent_color_map_t mAgentColors;
 
+private:
 	// This contains the progress view tips
 	// Somehow Re-Sharper errors here.
 	boost::container::flat_set<std::string> mProgressViewTipsList;
