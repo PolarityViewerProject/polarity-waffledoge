@@ -121,7 +121,7 @@ public:
 
 	bool isSupportGroup(const LLUUID& id);
 
-	// Returns the agent flags as a LLColor4
+	// Returns the agent color as a LLColor4
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 
 	// Better version of isLinden that takes PVData into account
