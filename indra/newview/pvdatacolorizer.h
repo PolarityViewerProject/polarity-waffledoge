@@ -63,7 +63,7 @@ public:
 	static LLColor4 addOrSubstractSaturationAndLight(LLColor4 in_color4, const F32 new_sat_f32, const F32 new_light_f32);
 
 	// Get a color for the specified agent (UUID version)
-	static LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_friend);
+	static LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it);
 
 	void setNewSkinColorFromSelection();
 	void initThemeColors();
