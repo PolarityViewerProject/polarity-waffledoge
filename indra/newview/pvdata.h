@@ -72,7 +72,7 @@ public:
 		// please increment the following counter as a warning
 		// to the next guy:
 		//
-		// total_hours_wasted_here = 68
+		// total_hours_wasted_here = 84
 		//
 
 		// Those aren't numbers. They are bits and here we use them as an array of booleans.
