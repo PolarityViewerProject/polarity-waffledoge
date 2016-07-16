@@ -117,7 +117,7 @@
 #include "llsdserialize.h"
 
 #ifdef PVDATA_COLORIZER
-#include "pvdatacolorizer.h"
+#include "pvdata.h"
 #endif
 
 extern F32 SPEED_ADJUST_MAX;
@@ -2549,7 +2549,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			{
 				// Get pvdata color, for fun.
 				LLUUID avatar_id = getID();
-				LLColor4 cloud_color = PVDataColorizer::instance().getColor(avatar_id, LLColor4(1, 1, 1, 0.5f), (LLAvatarTracker::instance().getBuddyInfo(avatar_id) != nullptr));
+				LLColor4 cloud_color = PVData::instance().getColor(avatar_id, LLColor4(1, 1, 1, 0.5f), (LLAvatarTracker::instance().getBuddyInfo(avatar_id) != nullptr));
 				particle_parameters.mPartData.mStartColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.5f);
 				particle_parameters.mPartData.mEndColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.0f);
 			}
@@ -2861,7 +2861,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		LLUUID av_id = getID();
 #ifdef PVDATA_COLORIZER
 		// get avatar's color
-		name_tag_color = PVDataColorizer::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
+		name_tag_color = PVData::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
 #else
 		name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
 #endif

@@ -105,7 +105,6 @@ SET(thirdparty_SOURCE_FILES
     pvaligntool.cpp
     pvcommon.cpp
     pvdata.cpp
-    pvdatacolorizer.cpp
     pvrandom.cpp
     sanitycheck.cpp
     )
@@ -119,7 +118,6 @@ SET(thirdparty_HEADER_FILES
     pvaligntool.h
     pvcommon.h
     pvdata.h
-    pvdatacolorizer.h
     pvrandom.h
     sanitycheck.h
     )

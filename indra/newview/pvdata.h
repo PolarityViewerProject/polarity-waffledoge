@@ -33,10 +33,13 @@
 // boost::spirit::terminal<boost::spirit::tag::oct>::result_helper': redefinition of default parameter: parameter 3
 #pragma warning (disable : 4348)
 
-#include "llsingleton.h" // for instance()
-#include "llavatarname.h"   // for convenience
-#include "llerror.h" // for LOG_CLASS
 #include "boost/container/flat_set.hpp"
+//#include "llavatarname.h" // for convenience
+#include "llerror.h" // for LOG_CLASS
+#include "llsingleton.h" // for instance()
+
+class LLColor4;
+class LLUUID;
 
 class PVData : public LLSingleton <PVData> // required for instance()
 {
@@ -195,6 +198,8 @@ public:
 #endif // !RELEASE_BUILD
 	static void Dump(const std::string name, const LLSD & map);
 
+	// Get a color for the specified agent (UUID version)
+	static LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it);
 private:
 
 	// This processes the main data

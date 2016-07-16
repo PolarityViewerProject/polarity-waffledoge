@@ -38,19 +38,19 @@
 
 /* boost: will not compile unless equivalent is undef'd, beware. */
 #include "fix_macros.h"
-//#include <boost/filesystem.hpp>
 #include <boost/spirit/include/karma.hpp>
 
 #include "llagent.h"
-// #include "llhttpclient.h"
+#include "llavatarnamecache.h"
+#include "llfloaterabout.h"
+#include "llmutelist.h"
+#include "llsdserialize.h"
+#include "llstartup.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
-#include "llfloaterabout.h"
 #include "pvcommon.h"
-#include "llstartup.h"
-#include "llavatarnamecache.h"
-#include <llsdserialize.h>
+#include "rlvhandler.h"
 
 static const std::string LL_LINDEN = "Linden";
 static const std::string LL_MOLE = "Mole";
@@ -1154,4 +1154,161 @@ void PVData::Dump(const std::string name, const LLSD& map)
 		<< "</" << name << ">"
 		<< "\n==========================="
 	<< LL_ENDL;
+}
+
+LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
+{
+	// Coloring will break immersion and identify agents even if their name is replaced, so return default color in that case.
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
+	{
+		return default_color;
+	}
+	LLColor4 return_color = default_color; // color we end up with at the end of the logic
+	LLColor4 pvdata_color; // User color from PVData if user has one, equals return_color otherwise.
+
+	static bool pvdata_color_is_valid = false;
+
+	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
+	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
+
+	// we'll need this later. Defined here to avoid multiple calls in the same code path.
+	//LLAvatarName av_name;
+
+	// Called first to seed av_name
+	/*
+	if (PVData::instance().isLinden(avatar_id, av_name))
+	{
+	// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
+	// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
+	// an entirely different list. Another solution (probably the most lightweight one) would be to check
+	// if a custom title has been attributed to them here instead of down there.
+	return_color = linden_color.get();
+	}
+	*/
+	// Some PVData-flagged users CAN be muted.
+	if (LLMuteList::instance().isMuted(avatar_id))
+	{
+		return_color = muted_color.get();
+		return return_color;
+	}
+
+	// Check if agent is flagged through PVData
+	signed int av_flags = PVData::instance().getAgentFlags(avatar_id);
+	bool has_flags = (av_flags > 0);
+	if (has_flags)
+	{
+		pvdata_color_is_valid = true;
+		if (av_flags & PVData::FLAG_USER_HAS_TITLE && !(av_flags & PVData::FLAG_TITLE_OVERRIDE))
+		{
+			// Do not warn when the user only has a title and no special color since it is acceptable
+		}
+		else if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+		{
+			// was previously flagged as employee, so will end up in this code path
+			pvdata_color = linden_color.get();
+		}
+		else if (av_flags & PVData::FLAG_STAFF_DEV)
+		{
+			static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
+			pvdata_color = dev_color.get();
+		}
+		else if (av_flags & PVData::FLAG_STAFF_QA)
+		{
+			static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
+			pvdata_color = qa_color.get();
+		}
+		else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
+		{
+			static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
+			pvdata_color = support_color.get();
+		}
+		else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
+		{
+			static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
+			pvdata_color = tester_color.get();
+		}
+		else if (av_flags & PVData::FLAG_USER_BANNED)
+		{
+			static const LLUIColor banned_color = LLUIColorTable::instance().getColor("PlvrBannedChatColor", LLColor4::grey2);
+			pvdata_color = banned_color.get();
+		}
+		else
+		{
+			LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
+			LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
+			LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
+			LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
+			LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+			LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
+			LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+			//pvdata_color = default_color;
+			pvdata_color_is_valid = false; // to be sure
+		}
+		// Special color, when defined, overrides all colors
+		//pvdata_color = PVData::instance().getAgentColor(avatar_id);
+		LLColor4 agent_color = static_cast<LLColor4>(PVData::instance().mAgentColors[avatar_id]);
+		if (agent_color != LLColor4::black && agent_color != LLColor4::magenta)
+		{
+			// No custom color defined, set as white.
+			// TODO: Use a color defined in colors.xml
+			//static const LLUIColor default_tag_color = LLUIColorTable::instance().getColor("NameTagMatch", LLColor4::white);
+			pvdata_color = agent_color;
+			pvdata_color_is_valid = true;
+		}
+		if (!pvdata_color_is_valid)
+		{
+			pvdata_color = default_color;
+		}
+	}
+
+	/*	Respect user preferences
+	Expected behavior:
+	+Friend, +PVDATA, +lpf = show PVDATA
+	+Friend, +PVDATA, -lpl = show FRIEND
+	+Friend, -PVDATA, +lpl = show FRIEND
+	+Friend, -PVDATA, -lpl = show FRIEND
+	-Friend, +PVDATA, +lpl = show PVDATA
+	-Friend, +PVDATA, -lpl = show PVDATA
+	-Friend, -PVDATA, +lpl = show FALLBACK
+	-Friend, -PVDATA, -lpl = show FALLBACK
+	*/
+	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
+	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+	bool show_f = (show_friends && is_buddy_and_show_it);
+
+	// Lengthy but fool-proof.
+	if (show_f && has_flags && low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (show_f && has_flags && !low_priority_friend_status)
+	{
+		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+	}
+	if (show_f && !has_flags && low_priority_friend_status)
+	{
+		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+	}
+	if (show_f && !has_flags && !low_priority_friend_status)
+	{
+		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+	}
+	if (!show_f && has_flags && low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!show_f && has_flags && !low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!show_f && !has_flags && low_priority_friend_status)
+	{
+		return_color = default_color;
+	}
+	if (!show_f && !has_flags && !low_priority_friend_status)
+	{
+		return_color = default_color;
+	}
+
+	return return_color;
 }

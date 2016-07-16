@@ -204,7 +204,6 @@
 
 // <polarity> Polarity Includes
 #include "pvdata.h"
-#include "pvdatacolorizer.h"
 #include "pvcommon.h"
 #include "pvrandom.h"
 //
@@ -650,7 +649,7 @@ bool idle_startup()
 		// <polarity> PVData
 		// Begin fetching the required assets used by PVData
 		PVData::instance().downloadData();
-		// PVDataColorizer::instance().initThemeColors();
+		// PVData::instance().initThemeColors();
 		// </polarity> PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
