@@ -2911,6 +2911,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
                   <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/m:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3004,6 +3005,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
                   <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/m:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3103,6 +3105,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
                   <string>/p:"VCBuildAdditionalOptions= /incremental"</string>
+                  <string>/m:1</string>
                 </array>
               </map>
               <key>configure</key>
