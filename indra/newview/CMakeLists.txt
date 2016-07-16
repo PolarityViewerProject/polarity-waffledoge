@@ -95,37 +95,86 @@ include_directories(SYSTEM
     ${LLXML_SYSTEM_INCLUDE_DIRS}
     ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
     )
-    
-SET(thirdparty_SOURCE_FILES
-    exopostprocess.cpp
-    fsareasearch.cpp
-    fsareasearchmenu.cpp
-    fsscrolllistctrl.cpp
-    kcwlinterface.cpp
-    pvaligntool.cpp
-    pvcommon.cpp
-    pvdata.cpp
-    pvrandom.cpp
-    sanitycheck.cpp
-    )
 
-SET(thirdparty_HEADER_FILES
+set(exodus_HEADER_FILES
     exopostprocess.h
+    )
+set(exodus_SOURCE_FILES
+    exopostprocess.cpp
+    )
+source_group("Third Party/Exodus" FILES ${exodus_HEADER_FILES} ${exodus_SOURCE_FILES})
+
+set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
     fsscrolllistctrl.h
     kcwlinterface.h
+    sanitycheck.h
+    )
+set(firestorm_SOURCE_FILES
+    fsareasearch.cpp
+    fsareasearchmenu.cpp
+    fsscrolllistctrl.cpp
+    kcwlinterface.cpp
+    sanitycheck.cpp
+    )
+source_group("Third Party/Firestorm" FILES ${firestorm_HEADER_FILES} ${firestorm_SOURCE_FILES})
+
+set(obsidian_HEADER_FILES
+    oschatcommand.h
+    ospanelquicksettings.h
+    ospanelquicksettingspulldown.h
+    osscriptruntimeperms.h
+    )
+set(obsidian_SOURCE_FILES
+    oschatcommand.cpp
+    ospanelquicksettings.cpp
+    ospanelquicksettingspulldown.cpp
+    )
+source_group("Third Party/Obsidian" FILES ${obsidian_HEADER_FILES} ${obsidian_SOURCE_FILES})
+
+set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
     pvdata.h
+    pvdatacolorizer.h
     pvrandom.h
-    sanitycheck.h
     )
+set(polarity_SOURCE_FILES
+    pvaligntool.cpp
+    pvcommon.cpp
+    pvdata.cpp
+    pvdatacolorizer.cpp
+    pvrandom.cpp
+    )
+source_group("Third Party/Polarity" FILES ${polarity_HEADER_FILES} ${polarity_SOURCE_FILES})
 
-SOURCE_GROUP("Third Party" FILES ${thirdparty_SOURCE_FILES} ${thirdparty_HEADER_FILES})
+set(rlva_SOURCE_FILES
+    rlvactions.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvcommon.cpp
+    rlvlocks.cpp
+    rlvinventory.cpp
+    rlvextensions.cpp
+    rlvfloaters.cpp
+    rlvui.cpp
+    )
+set(rlva_HEADER_FILES
+    rlvactions.h
+    rlvdefines.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvcommon.h
+    rlvlocks.h
+    rlvinventory.h
+    rlvextensions.h
+    rlvfloaters.h
+    rlvui.h
+    )
+source_group("Third Party/Restrained Love API" FILES ${rlva_SOURCE_FILES} ${rlva_HEADER_FILES})
 
 set(viewer_SOURCE_FILES
-    ${thirdparty_SOURCE_FILES}
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -723,19 +772,7 @@ set(viewer_SOURCE_FILES
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
-    oschatcommand.cpp
-    ospanelquicksettings.cpp
-    ospanelquicksettingspulldown.cpp
     pipeline.cpp
-    rlvactions.cpp
-    rlvhandler.cpp
-    rlvhelper.cpp
-    rlvcommon.cpp
-    rlvlocks.cpp
-    rlvinventory.cpp
-    rlvextensions.cpp
-    rlvfloaters.cpp
-    rlvui.cpp
     )
 
 set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
@@ -744,7 +781,6 @@ set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-    ${thirdparty_HEADER_FILES}
     groupchatlistener.h
     llaccountingcost.h
     llaccountingcostmanager.h
@@ -1337,24 +1373,27 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     macmain.h
     noise.h
-    oschatcommand.h
-    ospanelquicksettings.h
-    ospanelquicksettingspulldown.h
-    osscriptruntimeperms.h
     pipeline.h
-    rlvactions.h
-    rlvdefines.h
-    rlvhandler.h
-    rlvhelper.h
-    rlvcommon.h
-    rlvlocks.h
-    rlvinventory.h
-    rlvextensions.h
-    rlvfloaters.h
-    rlvui.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
+    )
+
+# These goes after the viewer files definition because some
+# of them need to go first, i.e ViewerInstall.cmake
+list(APPEND viewer_HEADER_FILES
+    ${exodus_HEADER_FILES}
+    ${firestorm_HEADER_FILES}
+    ${obsidian_HEADER_FILES}
+    ${polarity_HEADER_FILES}
+    ${rlva_HEADER_FILES}
+    )
+list(APPEND viewer_SOURCE_FILES
+    ${exodus_SOURCE_FILES}
+    ${firestorm_SOURCE_FILES}
+    ${obsidian_SOURCE_FILES}
+    ${polarity_SOURCE_FILES}
+    ${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
