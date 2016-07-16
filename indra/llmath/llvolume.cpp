@@ -424,7 +424,11 @@ public:
 		}
 		else
 		{
-			LL_ERRS() << "Empty leaf" << LL_ENDL;
+			// <FS:NaCl> [Megaprim crash fix]
+			//LL_ERRS() << "Empty leaf" << LL_ENDL;
+			LL_WARNS() << "Empty leaf" << LL_ENDL;
+			return;
+			// </FS:NaCl> [Megaprim crash fix]
 		}
 
 		for (S32 i = 0; i < branch->getChildCount(); ++i)
@@ -2869,6 +2873,12 @@ inline LLVector4a sculpt_xy_to_vector(U32 x, U32 y, U16 sculpt_width, U16 sculpt
 	return sculpt_index_to_vector(index, sculpt_data);
 }
 
+// NaCl - Graphics crasher protection
+void LLVolume::calcSurfaceArea()
+{
+  mSurfaceArea = sculptGetSurfaceArea();
+}
+// NaCl End
 
 F32 LLVolume::sculptGetSurfaceArea()
 {

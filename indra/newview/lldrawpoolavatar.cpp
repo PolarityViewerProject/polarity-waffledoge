@@ -458,8 +458,8 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 3);
-	if (!_NACL_SimpleAvatarShadows)
+	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 2);
+	if (0 == _NACL_SimpleAvatarShadows)
 		return;
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 
@@ -490,23 +490,10 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		avatarp->renderSkinned();
 	}
-	// Nacl - Faster Avatar Shadows -- Marine Kelly's implementation
-	else if (_NACL_SimpleAvatarShadows == 1)
+// Nacl - Faster Avatar Shadows
+	else if (_NACL_SimpleAvatarShadows == 4)
 	{
-		// Don't render the shadow of anything that is rigged. Instead, force the shadow of the avatar shape to render instead.
-		// See LLVOAvatar::isTextureVisible() and LLVOAvatarSelf::isTextureVisible()
-		return;
-	}
-	else if (_NACL_SimpleAvatarShadows == 2)
-	{
-		renderRiggedShadows (avatarp);
-	}
-	else // _NACL_SimpleAvatarShadows == 3+
-	{
-		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
-		{
-			renderRigged(avatarp, i);
-		}
+			renderRiggedShadows(avatarp);
 	}
 }
 

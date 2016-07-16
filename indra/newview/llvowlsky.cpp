@@ -38,18 +38,18 @@
 #define DOME_SLICES 1
 const F32 LLVOWLSky::DISTANCE_TO_STARS = (HORIZON_DIST - 10.f)*0.25f;
 
-const U32 LLVOWLSky::MIN_SKY_DETAIL = 48;
-const U32 LLVOWLSky::MAX_SKY_DETAIL = 2048;
+const U32 LLVOWLSky::MIN_SKY_DETAIL = 3;
+const U32 LLVOWLSky::MAX_SKY_DETAIL = 1024;
 
 inline U32 LLVOWLSky::getNumStacks(void)
 {
-	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
+	U32 WLSkyDetail = gSavedSettings.getU32("WLSkyDetail");
 	return llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, (U32)WLSkyDetail));
 }
 
 inline U32 LLVOWLSky::getNumSlices(void)
 {
-	static LLCachedControl<U32> WLSkyDetail(gSavedSettings, "WLSkyDetail");
+	U32 WLSkyDetail = gSavedSettings.getU32("WLSkyDetail");
 	return 2 * llmin(MAX_SKY_DETAIL, llmax(MIN_SKY_DETAIL, (U32)WLSkyDetail));
 }
 
@@ -332,8 +332,7 @@ BOOL LLVOWLSky::updateGeometry(LLDrawable * drawable)
 	}
 
 	{
-		static LLCachedControl<S32> RenderMaxVBOSize(gSavedSettings, "RenderMaxVBOSize");
-		const U32 max_buffer_bytes = RenderMaxVBOSize * 1024;
+		const U32 max_buffer_bytes = static_cast<U32>(gSavedSettings.getS32("RenderMaxVBOSize")) * 1024;
 		const U32 data_mask = LLDrawPoolWLSky::SKY_VERTEX_DATA_MASK;
 		const U32 max_verts = max_buffer_bytes / LLVertexBuffer::calcVertexSize(data_mask);
 

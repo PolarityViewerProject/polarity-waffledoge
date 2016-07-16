@@ -71,10 +71,11 @@ WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
 RenderMaxTextureIndex		1	16
-// HACK: Define settings overrides here. this avoids messing
-// with llcontrol and what not.
-NameTagShowFriends			1	1
-NameTagShowUsernames		1	0
+PVRender_EnableFilmGrain	1	1
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	1
 
 
 //
@@ -108,7 +109,11 @@ RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
-
+PVRender_EnableFilmGrain	1	0
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	0
 
 //
 // Low Graphics Settings
@@ -141,6 +146,11 @@ RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
+PVRender_EnableFilmGrain	1	0
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	0
 
 //
 // Medium Low Graphics Settings
@@ -172,6 +182,11 @@ RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	0
+PVRender_EnableFilmGrain	1	0
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	0
 
 //
 // Medium Graphics Settings (standard)
@@ -203,6 +218,11 @@ RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+PVRender_EnableFilmGrain	1	0
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	0
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -234,6 +254,11 @@ RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+PVRender_EnableFilmGrain	1	0
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	1
 
 //
 // High Graphics Settings (deferred + SSAO)
@@ -265,6 +290,11 @@ RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	0
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
+PVRender_EnableFilmGrain	1	1
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	1
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -296,7 +326,11 @@ RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	2
 WLSkyDetail					1	48
 RenderFSAASamples			1	2
-
+PVRender_EnableFilmGrain	1	1
+PVRender_EnableGodRays		1	0
+PVRender_EnableLensFlare	1	0
+PVRender_EnableSSR			1	0
+PVRender_EnableToneMapping	1	1
 
 //
 // Ultra graphics (REALLY PURTY!)
@@ -327,6 +361,11 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	2
 RenderFSAASamples			1	2
+PVRender_EnableFilmGrain	1	1
+PVRender_EnableGodRays		1	1
+PVRender_EnableLensFlare	1	1
+PVRender_EnableSSR			1	1
+PVRender_EnableToneMapping	1	1
 
 
 //

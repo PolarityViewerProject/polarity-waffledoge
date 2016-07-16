@@ -35,6 +35,7 @@
 #include "lldir.h"
 #include "llwindow.h"
 #include "llxmlnode.h"
+#include "llstring.h"
 
 extern LLControlGroup gSavedSettings;
 
@@ -107,18 +108,6 @@ bool removeSubString(std::string& str, const std::string& substr)
 	return false;
 }
 
-// Check for substring match without modifying the source string.
-bool findSubString(std::string& str, const std::string& substr)
-{
-	size_t pos = str.find(substr);
-	if (pos != string::npos)
-	{
-		return true;
-	}
-	return false;
-}
-
-
 // Normal form is
 // - raw name
 // - bold, italic style info reflected in both style and font name.
@@ -151,7 +140,7 @@ LLFontDescriptor LLFontDescriptor::normalize() const
 	// HACK - Monospace is the only one we don't remove, so
 	// name "Monospace" doesn't get taken down to ""
 	// For other fonts, there's no ambiguity between font name and size specifier.
-	if (new_size != s_template_string && new_size.empty() && findSubString(new_name,"Monospace"))
+	if (new_size != s_template_string && new_size.empty() && LLStringUtil::findSubString(new_name,"Monospace"))
 		new_size = "Monospace";
 	if (new_size.empty())
 		new_size = "Medium";
