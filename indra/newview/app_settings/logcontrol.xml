@@ -27,6 +27,7 @@
 							<string>Window</string>
 							<string>RenderInit</string>
 							<string>MediaAuth</string>
+							<string>PVData</string>
 						</array>
 				</map>
 				<!-- <map>
