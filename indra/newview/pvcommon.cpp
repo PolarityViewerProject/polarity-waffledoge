@@ -376,7 +376,7 @@ bool PVCommon::isDefaultTexture(const LLUUID& asset_id)
 	return false;
 }
 
-S32 PVCommon::secondsSinceEpochFromString(const std::string& format, const std::string& str) const
+S32 PVCommon::secondsSinceEpochFromString(const std::string& format, const std::string& str)
 {
 	// LLDateUtil::secondsSinceEpochFromString does not handle time, only the date.
 	// copied that function here and added the needed code to handle time fields.  -- TL
