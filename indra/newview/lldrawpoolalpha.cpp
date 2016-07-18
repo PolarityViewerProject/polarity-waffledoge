@@ -73,11 +73,12 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
+	static LLCachedControl<bool> render_dof(gSavedSettings, "RenderDepthOfField", false);
 	if (LLPipeline::sImpostorRender)
 	{ //skip depth buffer filling pass when rendering impostors
 		return 1;
 	}
-	else if (gSavedSettings.getBOOL("RenderDepthOfField"))
+	else if (render_dof)
 	{
 		return 2; 
 	}
