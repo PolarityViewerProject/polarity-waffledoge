@@ -33,8 +33,6 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "pvdata.h"
-// ReSharper disable once CppUnusedIncludeDirective
-#include "pvconstants.h"
 
 /* boost: will not compile unless equivalent is undef'd, beware. */
 #include "fix_macros.h"

@@ -59,8 +59,6 @@
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
-// Temporary include until we move this to ll_common
-#include "pvconstants.h"
 #include "pvdata.h"
 
 namespace 

@@ -71,8 +71,6 @@
 
 #include <exception>
 
-#include "pvconstants.h"
-
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;

@@ -258,7 +258,6 @@
 #include "glib.h"
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
-#include "pvconstants.h"
 #include "sanitycheck.h"
 #include "pvdata.h"
 
