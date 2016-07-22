@@ -34,7 +34,7 @@
 #pragma warning (disable : 4348)
 
 #include "boost/container/flat_set.hpp"
-//#include "llavatarname.h" // for convenience
+#include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
 
