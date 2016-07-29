@@ -52,17 +52,30 @@ public:
 	// every object of this class will contain the code defined here.
 	// This also means that every logic within this block will run as the object is created.
 	// USE SPARINGLY AND OPTIMIZE YOUR CODE.
-	PVData();
-
-	// This contains the raw LLSD data blob returned by the server.
-	//LLSD memoryResidentDataBlob = LLSD::emptyMap();
+	PVData()
+	{}
+	// Destructor
+	~PVData()
+	{}
 
 	// This contains the re-usable LLSD data for login tips.
 	// It is easier (at least for me) to parse the LLSD over and over and get a new value,
 	// than storing them into a list and playing musical format conversions.
-	LLSD memoryResidentProgressTips = LLSD::emptyMap();
+	LLSD progress_tips_list_ = LLSD::emptyMap();
 
-	enum flags_t : signed int
+	// Events MOTD
+	LLSD motd_events_list_ = LLSD::emptyMap();
+	
+	// Agents access levels
+	LLSD agents_access_ = LLSD::emptyMap();
+	
+	// Agents Titles
+	LLSD agents_titles_ = LLSD::emptyMap();
+	
+	// Agents Colors
+	LLSD agents_colors_ = LLSD::emptyMap();
+
+	enum flags_t : S32
 	{
 		//
 		// Dear maintainer:
@@ -122,7 +135,7 @@ public:
 		);
 	//void handleResponseFromServer(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
 
-	bool isSupportGroup(const LLUUID& id);
+	bool isSupportGroup(const LLUUID& id) const;
 
 	// Returns the agent color as a LLColor4
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
@@ -134,7 +147,7 @@ public:
 	bool replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
 
 	// Returns the agent flags as a decimal number
-	int getAgentFlags(const LLUUID& avatar_id);
+	S32 getAgentFlags(const LLUUID& avatar_id);
 
 	// Returns ALL the agent's flags as a comma-separated string.
 	std::string getAgentFlagsAsString(const LLUUID& avatar_id);
@@ -147,11 +160,7 @@ public:
 	// functions to quickly find if somebody has the proper flag
 	//
 
-	// Returns a boolean indicating if specified flag is attributed to the speficied agent.
-	// Also returns 'false' if the agent cannot be found in the special agents list.
-	bool is(const LLUUID& avatar_id, const U32& av_flag);
-	// Does the avatar have any flag?
-	// Use getAgentFlag() to get which flag.
+	// Does the avatar have any flag? Use getAgentFlag() to get which flag.
 	bool isSpecial(const LLUUID& avatar_id) const;
 	// Is the avatar a Viewer Developer?
 	bool isDeveloper(const LLUUID& avatar_id);
@@ -188,7 +197,7 @@ public:
 	std::string getNewProgressTipForced();
 
 	// Contains the error message to display to the user if something goes wrong with PVData.
-	std::string PVDataErrorMessage = "";
+	std::string pvdata_error_message_ = "";
 
 #if !RELEASE_BUILD
 	/// <summary>
@@ -209,12 +218,12 @@ private:
 	void parsePVAgents(const LLSD& data_input);
 
 	// Temporary blob to store the hand-crafted HTTP header
-	LLSD mHeaders;
+	LLSD headers_;
 
 	// Cache the variables that get inserted in the HTTP headers to avoid calling the functions every time an object is created
-	std::string mPVDataUserAgent;
-	std::string mPVDataViewerVersion;
-	LLFrameTimer mPVDataRefreshTimer;
+	std::string pvdata_user_agent_;
+	std::string pvdata_viewer_version_;
+	LLFrameTimer pvdata_refresh_timer_;
 
 	// Data parsing status
 	enum eParseStatusList
@@ -232,16 +241,16 @@ private:
 	};
 
 	// Data parse status
-	size_t eDataParseStatus = INIT;
+	size_t data_parse_status_ = INIT;
 
 	// Agents parse status
-	size_t eAgentsParseStatus = INIT;
+	size_t agents_parse_status_ = INIT;
 
 	// Data parse status
-	size_t eDataDownloadStatus = INIT;
+	size_t data_download_status_ = INIT;
 
 	// Agents parse status
-	size_t eAgentsDownloadStatus = INIT;
+	size_t agents_download_status_ = INIT;
 
 	// Check if it's safe to parse data
 	bool canParse(size_t& status_container) const;
@@ -250,52 +259,44 @@ private:
 
 	// [URL COMPONENT]
 	// This is the URL where the PVData data is downloaded from, minus filename
-	std::string mPVDataRemoteURLBase;
+	std::string pvdata_remote_url_base_;
 
 	// [URL COMPONENT]
 	// This is the complete URL where the modular file is downloaded from, with file name.
-	std::string mPVDataModularRemoteURLFull;
+	std::string pvdata_modular_remote_url_full_;
 
 	// [URL COMPONENT]
 	// This is the complete URL where the data file is downloaded from, with file name.
-	std::string mPVDataURLFull;
+	std::string pvdata_url_full_;
 
 	// [URL COMPONENT]
 	// This is the complete URL where the agents file is downloaded from, with file name.
-	std::string mPVAgentsURLFull;
-
-	// This contains the LLSD blob received from the server.
-	// Kept in memory to avoid Filesystem I/O delays and dependencies
-	LLSD mPVDataMemoryData;
+	std::string pvdata_agents_url_full_;
 
 	typedef std::map<std::string, LLSD> str_llsd_pairs;
 	// This contains the viewer versions that aren't allowed to be used anymore
 	// TODO: Use native LLSD OR change it->second's type for performance concerns
-	str_llsd_pairs mBlockedVersions;
+	str_llsd_pairs blocked_versions_;
 
 	// Minimum viewer version allowed to be used
-	str_llsd_pairs mMinimumVersion;
+	str_llsd_pairs minimum_version_;
 
 	// agents <-> role associations
 	typedef std::map<LLUUID, S32> flag_db_t;
-	flag_db_t mAgentAccess;
+	//flag_db_t mAgentAccess;
 
 	// agents <-> title associations
 	typedef std::map<LLUUID, std::string> agent_data_t;
-	agent_data_t mAgentTitles;
+	// agent_data_t mAgentTitles;
 
 public:
 	// agents <-> color association	s
 	typedef std::map<LLUUID, LLColor4> agent_color_map_t;
-	agent_color_map_t mAgentColors;
+	//agent_color_map_t mAgentColors;
 
 private:
-	// This contains the progress view tips
-	// Somehow Re-Sharper errors here.
-	boost::container::flat_set<std::string> mProgressViewTipsList;
-
 	// This contains the UUID of our support group
-	std::set<LLUUID> mSupportGroup;
+	std::set<LLUUID> support_group_;
 
 	void handleDataFailure();
 	void handleAgentsFailure();

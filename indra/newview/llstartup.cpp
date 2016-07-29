@@ -1318,12 +1318,12 @@ bool idle_startup()
 			else
 			{
 				// <polarity> Custom error message related to PVData
-				if (!PVData::instance().PVDataErrorMessage.empty())
+				if (!PVData::instance().pvdata_error_message_.empty())
 				{
 				LLSD args;
-					args["ERROR_MESSAGE"] = PVData::instance().PVDataErrorMessage;
+					args["ERROR_MESSAGE"] = PVData::instance().pvdata_error_message_;
 					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-					transition_back_to_login_panel(PVData::instance().PVDataErrorMessage);
+					transition_back_to_login_panel(PVData::instance().pvdata_error_message_);
 					show_connect_box = true;
 					return FALSE;
 				}
@@ -3739,18 +3739,7 @@ bool process_login_success_response()
 		LL_INFOS("LLStartup") << "Missing max-agent-groups, using default value for gMaxAgentGroups: "
 							  << gMaxAgentGroups << LL_ENDL;
 	}
-		
-	// <polarity> PVData
-	// Prevent particularly harmful users from using our viewer
-	// to do their deeds.
-#if 0
-	if (PVData::instance().is(gAgentID, PVData::FLAG_USER_BANNED))
-	{
-		LL_WARNS("PVData") << "You have been disallowed from using " << APP_NAME << " Viewer. Aborting login sequence" << LL_ENDL;
-		LLLoginInstance::getInstance()->disconnect(); // Cleanly disconnect
-		gAgentID.setNull();
-	}
-#endif
+
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.

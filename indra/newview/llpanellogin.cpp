@@ -854,7 +854,7 @@ void LLPanelLogin::onClickConnect(void *)
 		if (PVData::instance().isBlockedRelease())
 		{
 			LLSD args;
-			args["REASON"] = PVData::instance().PVDataErrorMessage;
+			args["REASON"] = PVData::instance().pvdata_error_message_;
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 			return;
 		}
