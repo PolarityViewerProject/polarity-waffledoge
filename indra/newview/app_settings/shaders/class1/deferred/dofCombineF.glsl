@@ -84,7 +84,14 @@ void main()
 
 	diff = mix(diff, dof, a);
 #if USE_FILM_GRAIN
-	vec3 noise_strength = 1.2 - diff.rgb;
+	float noise_mult = 1.3; // TODO: make this a setting
+	vec3 noise_strength = noise_mult - diff.rgb;
+	int noise_iterations = 1; // TODO: make this a setting
+	for (int i = 0; i < noise_iterations; i++)
+	{
+		noise_strength *= noise_strength;
+	}
+
 	vec2 s60 = vec2(seconds60);
 	float rndf = rand(tc.xy + s60 / 64);
 	vec3 rand3 = vec3(rndf, fract(rndf + 0.33), fract(rndf + 0.67));
