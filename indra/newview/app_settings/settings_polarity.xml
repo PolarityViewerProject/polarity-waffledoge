@@ -123,6 +123,28 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVChat_NoKeyboardShout</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables shouting with the Control(CTRL) + Enter key combinaison. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVChat_NoKeyboardWhisper</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables whispering with the Shift + Enter key combinaison. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVChatCommand_PurgeChat</key>
     <map>
       <key>Comment</key>

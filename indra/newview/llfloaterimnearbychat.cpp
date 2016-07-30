@@ -385,17 +385,29 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	if( KEY_RETURN == key && mask == MASK_CONTROL)
+	// <polarity> Allow user to disable keyboard shortcuts for shout and whisper
+	static LLCachedControl<bool> no_kb_shout(gSavedSettings, "PVChat_NoKeyboardShout", false);
+	static LLCachedControl<bool> no_kb_whisper(gSavedSettings, "PVChat_NoKeyboardWhisper", false);
+	if (KEY_RETURN == key)
 	{
-		// shout
-		sendChat(CHAT_TYPE_SHOUT);
-		handled = TRUE;
-	}
-	else if (KEY_RETURN == key && mask == MASK_SHIFT)
-	{
-		// whisper
-		sendChat(CHAT_TYPE_WHISPER);
-		handled = TRUE;
+		if(mask == MASK_CONTROL && !no_kb_shout)
+		{
+			// shout
+			sendChat(CHAT_TYPE_SHOUT);
+			handled = TRUE;
+		}
+		else if (mask == MASK_SHIFT && !no_kb_whisper)
+		{
+			// whisper
+			sendChat(CHAT_TYPE_WHISPER);
+			handled = TRUE;
+		}
+		else
+		{
+			// normal chat
+			sendChat(CHAT_TYPE_NORMAL);
+			handled = TRUE;
+		}
 	}
 
 
