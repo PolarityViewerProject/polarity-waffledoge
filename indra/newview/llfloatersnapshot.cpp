@@ -1542,7 +1542,8 @@ LLSnapshotFloaterView::~LLSnapshotFloaterView()
 BOOL LLSnapshotFloaterView::handleKey(KEY key, MASK mask, BOOL called_from_parent)
 {
 	// use default handler when not in freeze-frame mode
-	if(!gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if(!freeze_time)
 	{
 		return LLFloaterView::handleKey(key, mask, called_from_parent);
 	}
@@ -1563,7 +1564,8 @@ BOOL LLSnapshotFloaterView::handleKey(KEY key, MASK mask, BOOL called_from_paren
 BOOL LLSnapshotFloaterView::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 	// use default handler when not in freeze-frame mode
-	if(!gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if(!freeze_time)
 	{
 		return LLFloaterView::handleMouseDown(x, y, mask);
 	}
@@ -1578,7 +1580,8 @@ BOOL LLSnapshotFloaterView::handleMouseDown(S32 x, S32 y, MASK mask)
 BOOL LLSnapshotFloaterView::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	// use default handler when not in freeze-frame mode
-	if(!gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if(!freeze_time)
 	{
 		return LLFloaterView::handleMouseUp(x, y, mask);
 	}
@@ -1593,7 +1596,8 @@ BOOL LLSnapshotFloaterView::handleMouseUp(S32 x, S32 y, MASK mask)
 BOOL LLSnapshotFloaterView::handleHover(S32 x, S32 y, MASK mask)
 {
 	// use default handler when not in freeze-frame mode
-	if(!gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if(!freeze_time)
 	{
 		return LLFloaterView::handleHover(x, y, mask);
 	}	

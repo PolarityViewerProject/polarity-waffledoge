@@ -107,7 +107,8 @@ int PVCommon::HasSpecialCharacters(const std::string& oocstring)
 
 std::string applyAutoCloseOoc(const std::string& message)
 {
-	if (!gSavedSettings.getBOOL("PVChat_AutoCloseOOC"))
+	static LLCachedControl<bool> autoclose_ooc(gSavedSettings, "PVChat_AutoCloseOOC", true);
+	if (!autoclose_ooc)
 	{
 		return message;
 	}
@@ -171,8 +172,14 @@ std::string applyMuPose(const std::string& message)
 {
 	std::string utf8_text(message);
 
+	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
+	if (!mu_pose)
+	{
+		return utf8_text;
+	}
+
 	// Convert MU*s style poses into IRC emotes here.
-	if (gSavedSettings.getBOOL("PVChat_AllowMUpose") && utf8_text.find(":") == 0 && utf8_text.length() > 3)
+	if (utf8_text.find(":") == 0 && utf8_text.length() > 3)
 	{
 		if (utf8_text.find(":'") == 0)
 		{

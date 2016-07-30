@@ -189,7 +189,7 @@ void FSAreaSearch::draw()
 {
 	LLFloater::draw();
 
-	static LLCachedControl<S32> beacon_line_width(gSavedSettings, "DebugBeaconLineWidth");
+	static LLCachedControl<S32> beacon_line_width(gSavedSettings, "DebugBeaconLineWidth", 1);
 
 	if (mBeacons)
 	{
@@ -1429,7 +1429,7 @@ void FSPanelAreaSearchList::updateScrollList()
 
 void FSPanelAreaSearchList::updateResultListColumns()
 {
-	U32 column_config = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
+	mColumnConfig = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
 	std::vector<LLScrollListColumn::Params> column_params = mResultList->getColumnInitParams();
 	std::string current_sort_col = mResultList->getSortColumnName();
 	BOOL current_sort_asc = mResultList->getSortAscending();
@@ -1450,7 +1450,7 @@ void FSPanelAreaSearchList::updateResultListColumns()
 		params.sort_column = p.sort_column;
 		params.tool_tip = p.tool_tip;
 
-		if (column_config & mColumnBits[p.name.getValue()])
+		if (mColumnConfig & mColumnBits[p.name.getValue()])
 		{
 			params.width = p.width;
 		}
@@ -1470,17 +1470,17 @@ void FSPanelAreaSearchList::updateResultListColumns()
 void FSPanelAreaSearchList::onColumnVisibilityChecked(const LLSD& userdata)
 {
 	std::string column = userdata.asString();
-	U32 column_config = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
+	mColumnConfig = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
 
 	U32 new_value;
-	U32 enabled = (mColumnBits[column] & column_config);
+	U32 enabled = (mColumnBits[column] & mColumnConfig);
 	if (enabled)
 	{
-		new_value = (column_config & ~mColumnBits[column]);
+		new_value = (mColumnConfig & ~mColumnBits[column]);
 	}
 	else
 	{
-		new_value = (column_config | mColumnBits[column]);
+		new_value = (mColumnConfig | mColumnBits[column]);
 	}
 
 	gSavedSettings.setU32("PVUI_AreaSearchColumnConfig", new_value);
@@ -1491,9 +1491,9 @@ void FSPanelAreaSearchList::onColumnVisibilityChecked(const LLSD& userdata)
 bool FSPanelAreaSearchList::onEnableColumnVisibilityChecked(const LLSD& userdata)
 {
 	std::string column = userdata.asString();
-	U32 column_config = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
+	mColumnConfig = gSavedSettings.getU32("PVUI_AreaSearchColumnConfig");
 
-	return (mColumnBits[column] & column_config);
+	return (mColumnBits[column] & mColumnConfig);
 }
 
 void FSPanelAreaSearchList::updateName(LLUUID id, std::string name) const

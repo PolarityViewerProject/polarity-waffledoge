@@ -440,6 +440,8 @@ private:
 
 	std::map<std::string, U32> mColumnBits;
 	boost::signals2::connection mFSAreaSearchColumnConfigConnection;
+
+	U32 mColumnConfig;
 };
 
 

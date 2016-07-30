@@ -1891,13 +1891,11 @@ void LLAgent::propagate(const F32 dt)
 		LLVector3 land_vel = getVelocity();
 		land_vel.mV[VZ] = 0.f;
 
+		static LLCachedControl<bool> automatic_land(gSavedSettings, "PVMovement_AutomaticLand", true);
 		if (!in_air 
 			&& gAgentCamera.getUpKey() < 0 
 			&& (land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED)
-			// <polarity> Sanity self-check, this is named dumb.
-			// && !(gSavedSettings.getBOOL("PVMovement_DisableAutomaticLand")))
-			&& gSavedSettings.getBOOL("PVMovement_AutomaticLand"))
-			// </polarity>
+			&& automatic_land)
 		{
 			// land automatically
 			setFlying(FALSE);
@@ -1912,7 +1910,8 @@ void LLAgent::propagate(const F32 dt)
 //-----------------------------------------------------------------------------
 void LLAgent::updateAgentPosition(const F32 dt, const F32 yaw_radians, const S32 mouse_x, const S32 mouse_y)
 {
-	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > gSavedSettings.getF32("NotMovingHintTimeout"))
+	static LLCachedControl<F32> not_moving_hint_timeout(gSavedSettings, "NotMovingHintTimeout", 120.0f);
+	if (mMoveTimer.getStarted() && mMoveTimer.getElapsedTimeF32() > not_moving_hint_timeout)
 	{
 		LLFirstUse::notMoving();
 	}
@@ -1986,7 +1985,8 @@ void LLAgent::startTyping()
 		}
 	}
 
-	if (gSavedSettings.getBOOL("PlayTypingAnim"))
+	static LLCachedControl<bool> play_typing_anim(gSavedSettings, "PlayTypingAnim", true);
+	if (play_typing_anim)
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
@@ -4282,7 +4282,8 @@ void LLAgent::setTeleportState(ETeleportState state)
         return;
     }
 	mTeleportState = state;
-	if (mTeleportState > TELEPORT_NONE && gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if (mTeleportState > TELEPORT_NONE && freeze_time)
 	{
 		LLFloaterReg::hideInstance("snapshot");
 	}
