@@ -69,7 +69,7 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	static LLCachedControl<F32> RenderTerrainScale(gSavedSettings, "RenderTerrainScale");
 	static LLCachedControl<S32> RenderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
 	sDetailScale = 1.f/RenderTerrainScale;
-	sDetailMode = RenderTerrainDetail;
+	sDetailMode = static_cast<S32>(RenderTerrainDetail);
 
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
@@ -212,8 +212,8 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> showParcelOwners(gSavedSettings, "ShowParcelOwners");
-	if (showParcelOwners)
+	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners");
+	if (show_parcel_owners)
 	{
 		highlightParcelOwners();
 	}
@@ -247,7 +247,8 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	renderFullShader();
 
 	// Special-case for land ownership feedback
-	if (gSavedSettings.getBOOL("ShowParcelOwners"))
+	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
+	if (show_parcel_owners)
 	{
 		highlightParcelOwners();
 	}
