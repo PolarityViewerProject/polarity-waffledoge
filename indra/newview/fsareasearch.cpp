@@ -163,7 +163,8 @@ BOOL FSAreaSearch::postBuild()
 {
 	mTab = getChild<LLTabContainer>("area_searchtab");
 
-	if (!gSavedSettings.getBOOL("FSAreaSearchAdvanced"))
+	static LLCachedControl<bool> area_search_advanced(gSavedSettings, "PVUI_AreaSearchAdvanced", false);
+	if (!area_search_advanced)
 	{
 		LLPanel* advanced_tab = mTab->getPanelByName("area_search_advanced_panel");
 		if (advanced_tab)
