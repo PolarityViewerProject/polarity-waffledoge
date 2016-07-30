@@ -68,6 +68,7 @@
 // [/RLVa:KB]
 
 #include "pvdata.h"
+#include "pvcommon.h" // For MuPose and AutoCloseOOC
 
 const F32 ME_TYPING_TIMEOUT = 4.0f;
 const F32 OTHER_TYPING_TIMEOUT = 9.0f;
@@ -259,6 +260,9 @@ void LLFloaterIMSession::sendMsgFromInputEditor()
 			{
 				// Truncate and convert to UTF8 for transport
 				std::string utf8_text = wstring_to_utf8str(text);
+				// <polarity> Apply OOC and Mu Pose stuff
+				utf8_text = applyAutoCloseOoc(utf8_text);
+				utf8_text = applyMuPose(utf8_text);
 
 				sendMsg(utf8_text);
 

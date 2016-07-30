@@ -72,6 +72,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "pvcommon.h" // for MuPose and AutoCloseOOC
+
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
 const S32 EXPANDED_HEIGHT = 266;
@@ -458,7 +460,10 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
 	S32 length = raw_text.length();
 
-	if( (length > 0) && (raw_text[0] != '/') )  // forward slash is used for escape (eg. emote) sequences
+	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
+	if( (length > 0) && (raw_text[0] != '/') // forward slash is used for escape (eg. emote) sequences
+		&& (mu_pose && (raw_text[0] != ':')) // colon is used for MU pose
+	)
 	{
 		gAgent.startTyping();
 	}
@@ -583,6 +588,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			std::string utf8_revised_text;
 			if (0 == channel)
 			{
+				utf8text = applyAutoCloseOoc(utf8text);
+				utf8text = applyMuPose(utf8text);
 				// discard returned "found" boolean
 				if(!LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text))
 				{

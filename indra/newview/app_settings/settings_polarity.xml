@@ -90,6 +90,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVChat_AllowMUpose</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow use of &quot; : &quot; instead of /me for IRC-style emotes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVChat_AutoCloseOOC</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically close Our Of Character markers &quot;((&quot; and &quot;))&quot;</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVChat_MarkObjectsWithNoName</key>
     <map>
       <key>Comment</key>

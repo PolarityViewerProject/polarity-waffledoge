@@ -91,9 +91,9 @@ int PVCommon::HasSpecialCharacters(const std::string& oocstring)
 
 	// Convert the C++ string to a c-style string (char array) to check for special characters presence.
 	const char * str = oocstring.c_str();
-	hasSpecial = (str[strspn(str, " !	\"\'#$%&()*+,-./0123456789:;<=>?@[\\]^_`AaBbCcDdEeFfGgHhIiİJjKkLlMmNnOo\
-    PpQqRrSsTtUuVvWwXxYyZz{|}~¢£¤¦§¬®±²³¼½¾ßÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþÿĀāĂăĄą\
-    ĆćĈĉċĊČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğġĠĢģĤĥħĨĩĪīĬĭĮįŌōŎŏŐőŒœ‱€№℗℠™")] != 0);
+	hasSpecial = (str[strspn(str, " !	\"\'#$%&*+,-./0123456789:;?@AaBbCcDdEeFfGgHhIiİJjKkLlMmNnOo\
+		PpQqRrSsTtUuVvWwXxYyZz|~¢£¤¦§¬®±²³¼½¾ßÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþÿĀāĂăĄą\
+		ĆćĈĉċĊČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğġĠĢģĤĥħĨĩĪīĬĭĮįŌōŎŏŐőŒœ‱€№℗℠™")] != 0);
 	// The above returns true (0x1) if it contains a character other than the ones in the string.
 	// P.S. Does not support Japanese and such.
 
@@ -115,21 +115,13 @@ std::string applyAutoCloseOoc(const std::string& message)
 
 	std::string utf8_text(message);
 
-	// <polarity> OOC Auto-close breaks ASCII art
-	// It might be more flexible to subtract the opening parentheses, brackets and other things
-	// from the string and run the result through HasSpecialChacters but I'm not really interested
-	// in doing more substring operations. -Xenhat
-
-	// Moved down to avoid checking every single passed string
-	// if (PVCommon::HasSpecialCharacters(utf8_text))
-	// return message;
-
 	// Try to find any unclosed OOC chat (i.e. an opening
 	// double parenthesis without a matching closing double
 	// parenthesis.
 	if (utf8_text.find("(( ") != std::string::npos && utf8_text.find("))") == std::string::npos)
 	{
-		if (PVCommon::HasSpecialCharacters(utf8_text))
+		// <polarity> OOC Auto-close breaks ASCII art
+		if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
 			return message;
 		// add the missing closing double parenthesis.
 		utf8_text += " ))";
@@ -141,14 +133,16 @@ std::string applyAutoCloseOoc(const std::string& message)
 			// cosmetic: add a space first to avoid a closing triple parenthesis
 			utf8_text += " ";
 		}
-		if (PVCommon::HasSpecialCharacters(utf8_text))
+		// <polarity> OOC Auto-close breaks ASCII art
+		if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
 			return message;
 		// add the missing closing double parenthesis.
 		utf8_text += "))";
 	}
 	else if (utf8_text.find("[[ ") != std::string::npos && utf8_text.find("]]") == std::string::npos)
 	{
-		if (PVCommon::HasSpecialCharacters(utf8_text))
+		// <polarity> OOC Auto-close breaks ASCII art
+		if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
 			return message;
 		// add the missing closing double parenthesis.
 		utf8_text += " ]]";
@@ -160,7 +154,8 @@ std::string applyAutoCloseOoc(const std::string& message)
 			// cosmetic: add a space first to avoid a closing triple parenthesis
 			utf8_text += " ";
 		}
-		if (PVCommon::HasSpecialCharacters(utf8_text))
+		// <polarity> OOC Auto-close breaks ASCII art
+		if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
 			return message;
 		// add the missing closing double parenthesis.
 		utf8_text += "]]";
@@ -181,17 +176,34 @@ std::string applyMuPose(const std::string& message)
 	// Convert MU*s style poses into IRC emotes here.
 	if (utf8_text.find(":") == 0 && utf8_text.length() > 3)
 	{
-		if (utf8_text.find(":'") == 0)
+		if (isValidWord(std::string(utf8_text, 4))) // the first 4 characters should be enough to determine if it's a word or gibberish
 		{
-			utf8_text.replace(0, 1, "/me");
-		}
-		else if (!isdigit(utf8_text.at(1)) && !ispunct(utf8_text.at(1)) && !isspace(utf8_text.at(1)))  // Do not prevent smileys and such.
-		{
-			utf8_text.replace(0, 1, "/me ");
+			if(utf8_text.find(":'") == 0) // don't break /me's and such
+			{
+				utf8_text.replace(0, 1, "/me");
+			}
+			else
+			{
+				utf8_text.replace(0, 1, "/me ");
+			}
 		}
 	}
 
 	return utf8_text;
+}
+
+bool isValidWord(const std::string& message)
+{
+	for(int i = 0; i < message.length(); i++)//for each char in string,
+	{
+		// check if it's a letter or other allowed character
+		if (!isdigit(message.at(i)) && !ispunct(message.at(i)) && !isspace(message.at(i)))
+		{
+			// return as soon as it's valid
+			return true;
+		}
+	}
+	return false;
 }
 
 std::string formatString(std::string text, const LLStringUtil::format_map_t& args)
