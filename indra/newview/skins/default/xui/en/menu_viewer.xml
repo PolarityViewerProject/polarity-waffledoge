@@ -1443,9 +1443,9 @@
             name="Character Tests"
             tear_off="true">
             <menu_item_call
+                enabled="false"
                 label="I am crashing!"
-                name="Panic button"
-                shortcut="control|alt|P">
+                name="Panic button">
                 <menu_item_call.on_click
                     function="Advanced.PanicButton">
                 </menu_item_call.on_click>
