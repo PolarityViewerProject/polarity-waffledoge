@@ -72,6 +72,16 @@ class ViewerManifest(LLManifest):
         self.path(src="../../scripts/messages/message_template.msg", dst="app_settings/message_template.msg")
         self.path(src="../../etc/message.xml", dst="app_settings/message.xml")
 
+        # <FS:LO> Copy dictionaries to a place where the viewer can find them if ran from visual studio
+        if self.prefix(src="app_settings"):
+            # ... and the included spell checking dictionaries
+            pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+            if self.prefix(src=pkgdir,dst=""):
+                self.path("dictionaries")
+                self.end_prefix(pkgdir)
+            self.end_prefix("app_settings")
+        # </FS:LO>
+
         if self.prefix(src="app_settings"):
             self.exclude("logcontrol.xml")
             self.exclude("logcontrol-dev.xml")
