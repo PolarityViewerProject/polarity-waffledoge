@@ -84,9 +84,9 @@ void main()
 
 	diff = mix(diff, dof, a);
 #if USE_FILM_GRAIN
-	float noise_mult = 1.3; // TODO: make this a setting
+	float noise_mult = 1.15; // TODO: make this a setting
 	vec3 noise_strength = noise_mult - diff.rgb;
-	int noise_iterations = 1; // TODO: make this a setting
+	int noise_iterations = 3; // TODO: make this a setting
 	for (int i = 0; i < noise_iterations; i++)
 	{
 		noise_strength *= noise_strength;
