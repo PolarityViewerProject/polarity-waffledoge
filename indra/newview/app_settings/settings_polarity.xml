@@ -779,7 +779,7 @@
         <real>0.275</real>
       </array>
     </map>
-    <key>PVRender_ForceAttachmentLODToMaximum</key>
+    <key>PVRender_RiggedAttachmentLODForceToMaximum</key>
     <map>
       <key>Comment</key>
       <string>Force avatar attachments to be rendered at their maximum level of detail.</string>
@@ -790,7 +790,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRender_ForceAttachmentLODToMinimum</key>
+    <key>PVRender_RiggedAttachmentLODForceToMinimum</key>
     <map>
       <key>Comment</key>
       <string>Force avatar attachments to be rendered at their minimum level of detail.</string>
