@@ -102,14 +102,14 @@ public:
 
 	void shift(const LLVector3 &offset);
 
-	F32 getBoxRadius() { return mBoxRadius; }
-	F32 getBoxSide() { return mBoxSide; }
+	F32 getBoxRadius() const { return mBoxRadius; }
+	F32 getBoxSide() const { return mBoxSide; }
 
 	typedef std::vector<LLViewerPart*>  part_list_t;
 	part_list_t mParticles;
 
 	const LLVector3 &getCenterAgent() const		{ return mCenterAgent; }
-	S32 getCount() const					{ return (S32) mParticles.size(); }
+	S32 getCount() const					{ return static_cast<S32>(mParticles.size()); }
 	LLViewerRegion *getRegion() const		{ return mRegionp; }
 
 	void removeParticlesByID(const U32 source_id);
@@ -142,7 +142,7 @@ public:
 	typedef std::vector<LLViewerPartGroup *> group_list_t;
 	typedef std::vector<LLPointer<LLViewerPartSource> > source_list_t;
 
-	void enable(bool enabled);
+	void enable(bool enabled) const;
 
 	void shift(const LLVector3 &offset);
 
@@ -153,7 +153,8 @@ public:
 	void cleanupRegion(LLViewerRegion *regionp);
 
 	static BOOL shouldAddPart(); // Just decides whether this particle should be added or not (for particle count capping)
-	F32 maxRate() // Return maximum particle generation rate
+	static F32 maxRate()
+	// Return maximum particle generation rate
 	{
 		if (sParticleCount >= MAX_PART_COUNT)
 		{
@@ -165,10 +166,10 @@ public:
 		}
 		return 0.f;
 	}
-	F32 getRefRate() { return sParticleAdaptiveRate; }
-	F32 getBurstRate() {return sParticleBurstRate; }
+	F32 getRefRate() const { return sParticleAdaptiveRate; }
+	F32 getBurstRate() const {return sParticleBurstRate; }
 	void addPart(LLViewerPart* part);
-	void updatePartBurstRate() ;
+	void updatePartBurstRate() const;
 	void clearParticlesByID(const U32 system_id);
 	void clearParticlesByOwnerID(const LLUUID& task_id);
 	void removeLastCreatedSource();
