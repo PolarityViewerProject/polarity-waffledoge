@@ -27,13 +27,13 @@
 #include "llviewerprecompiledheaders.h"
 #include "llviewerpartsource.h"
 
-#include "llviewercontrol.h"
+//#include "llviewercontrol.h"
 #include "llrender.h"
 
 #include "llagent.h"
 #include "lldrawable.h"
 #include "llviewercamera.h"
-#include "llviewertexturelist.h"
+//#include "llviewertexturelist.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
 #include "llvoavatar.h"
@@ -313,7 +313,7 @@ void LLViewerPartSourceScript::update(const F32 dt)
 
 			part->mStartGlow = mPartSysData.mPartData.mStartGlow;
 			part->mEndGlow = mPartSysData.mPartData.mEndGlow;
-			part->mGlow = LLColor4U(0, 0, 0, (U8) ll_round(part->mStartGlow*255.f));
+			part->mGlow = LLColor4U(0, 0, 0, static_cast<U8>(ll_round(part->mStartGlow*255.f)));
 			
 			if (mPartSysData.mPattern & LLPartSysData::LL_PART_SRC_PATTERN_DROP)
 			{
@@ -557,9 +557,10 @@ void LLViewerPartSourceSpiral::updatePart(LLViewerPart &part, const F32 dt)
 {
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
-	LLVector3 center_pos;
+	// unused
+	// LLVector3 center_pos;
 	LLPointer<LLViewerPartSource>& ps = part.mPartSourcep;
-	LLViewerPartSourceSpiral *pss = (LLViewerPartSourceSpiral *)ps.get();
+	LLViewerPartSourceSpiral *pss = static_cast<LLViewerPartSourceSpiral *>(ps.get());
 	if (!pss->mSourceObjectp.isNull() && !pss->mSourceObjectp->mDrawable.isNull())
 	{
 		part.mPosAgent = pss->mSourceObjectp->getRenderPosition();
@@ -665,8 +666,8 @@ void LLViewerPartSourceBeam::setColor(const LLColor4 &color)
 
 void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 {
-	LLViewerPartSource *ps = (LLViewerPartSource*)part.mPartSourcep;
-	LLViewerPartSourceBeam *psb = (LLViewerPartSourceBeam *)ps;
+	LLViewerPartSource *ps = static_cast<LLViewerPartSource*>(part.mPartSourcep);
+	LLViewerPartSourceBeam *psb = static_cast<LLViewerPartSourceBeam *>(ps);
 	if (psb->mSourceObjectp.isNull())
 	{
 		part.mFlags = LLPartData::LL_PART_DEAD_MASK;
@@ -680,7 +681,7 @@ void LLViewerPartSourceBeam::updatePart(LLViewerPart &part, const F32 dt)
 		if (psb->mSourceObjectp->isAvatar())
 		{
 			LLViewerObject *objp = psb->mSourceObjectp;
-			LLVOAvatar *avp = (LLVOAvatar *)objp;
+			LLVOAvatar *avp = static_cast<LLVOAvatar *>(objp);
 			source_pos_agent = avp->mWristLeftp->getWorldPosition();
 		}
 		else
@@ -717,7 +718,7 @@ void LLViewerPartSourceBeam::update(const F32 dt)
 		if (mSourceObjectp->isAvatar())
 		{
 			LLViewerObject *objp = mSourceObjectp;
-			LLVOAvatar *avp = (LLVOAvatar *)objp;
+			LLVOAvatar *avp = static_cast<LLVOAvatar *>(objp);
 			mPosAgent = avp->mWristLeftp->getWorldPosition();
 		}
 		else
@@ -813,9 +814,10 @@ void LLViewerPartSourceChat::updatePart(LLViewerPart &part, const F32 dt)
 {
 	F32 frac = part.mLastUpdateTime/part.mMaxAge;
 
-	LLVector3 center_pos;
-	LLViewerPartSource *ps = (LLViewerPartSource*)part.mPartSourcep;
-	LLViewerPartSourceChat *pss = (LLViewerPartSourceChat *)ps;
+	// unused
+	// LLVector3 center_pos;
+	LLViewerPartSource *ps = static_cast<LLViewerPartSource*>(part.mPartSourcep);
+	LLViewerPartSourceChat *pss = static_cast<LLViewerPartSourceChat *>(ps);
 	if (!pss->mSourceObjectp.isNull() && !pss->mSourceObjectp->mDrawable.isNull())
 	{
 		part.mPosAgent = pss->mSourceObjectp->getRenderPosition();
