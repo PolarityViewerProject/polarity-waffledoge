@@ -2613,8 +2613,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
 	<string name="ScriptLimitsParcelsOwned">Parcels Listed: [PARCELS]</string>
-	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available</string>
-	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] kb</string>
+	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] KB out of [MAX] kb; [AVAILABLE] KB available</string>
+	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] KB</string>
 	<string name="ScriptLimitsParcelScriptURLs">Parcel Script URLs</string>
 	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
 	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
