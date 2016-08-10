@@ -5003,6 +5003,12 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 	{
 		if (anim_id == ANIM_AGENT_TYPE)
 		{
+			static LLCachedControl<bool> no_typing_sound(gSavedSettings, "PVChat_HideTypingForAll");
+			if (no_typing_sound)
+			{
+				// Do not play typing sounds if not desired
+				return result;
+			}
 			if (gAudiop)
 			{
 				LLVector3d char_pos_global = gAgent.getPosGlobalFromAgent(getCharacterPosition());
