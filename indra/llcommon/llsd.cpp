@@ -35,6 +35,7 @@
 #include "llformat.h"
 #include "llsdserialize.h"
 #include "stringize.h"
+#include "llrand.h"
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #define NAME_UNNAMED_NAMESPACE
@@ -987,4 +988,14 @@ std::string		LLSD::typeString(Type type)
 		return sTypeNameArray[type];
 	}
 	return STRINGIZE("** invalid type value " << type);
+}
+
+std::string LLSD::getRandom() const
+{
+	// This assigns a random entry as the MOTD / Progress Tip message.
+	LLSD::array_const_iterator tip_iter = this->beginArray();
+	if (tip_iter == this->endArray())
+		return "";
+	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(this->size()))))->asString();
+	return random_tip;
 }
