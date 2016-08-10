@@ -3165,17 +3165,26 @@ bool LLAppViewer::initWindow()
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 
+	static LLCachedControl<S32> WindowX(gSavedSettings, "WindowX");
+	static LLCachedControl<S32> WindowY(gSavedSettings, "WindowY");
+	static LLCachedControl<U32> WindowWidth(gSavedSettings, "WindowWidth");
+	static LLCachedControl<U32> WindowHeight(gSavedSettings, "WindowHeight");
+	static LLCachedControl<U32> MinWindowWidth(gSavedSettings, "MinWindowWidth");
+	static LLCachedControl<U32> MinWindowHeight(gSavedSettings, "MinWindowHeight");
+	static LLCachedControl<BOOL> FullScreen(gSavedSettings, "FullScreen");
+
+	gWindowTitle = PVGetDynamicWindowTitle();
 	LLViewerWindow::Params window_params;
 	window_params
 		.title(gWindowTitle)
 		.name(APP_NAME)
-		.x(gSavedSettings.getS32("WindowX"))
-		.y(gSavedSettings.getS32("WindowY"))
-		.width(gSavedSettings.getU32("WindowWidth"))
-		.height(gSavedSettings.getU32("WindowHeight"))
-		.min_width(gSavedSettings.getU32("MinWindowWidth"))
-		.min_height(gSavedSettings.getU32("MinWindowHeight"))
-		.fullscreen(gSavedSettings.getBOOL("FullScreen"))
+		.x(WindowX)
+		.y(WindowY)
+		.width(WindowWidth)
+		.height(WindowHeight)
+		.min_width(MinWindowWidth)
+		.min_height(MinWindowHeight)
+		.fullscreen(FullScreen)
 		.ignore_pixel_depth(ignorePixelDepth);
 
 	gViewerWindow = new LLViewerWindow(window_params);
