@@ -46,8 +46,8 @@ public:
 	static void TriggerPanicMode();
 };
 
-class PVPerformanceMaidMenuItemHandler : public view_listener_t,
-                                         public PVPerformanceMaid
+class PVPerformanceMaidPanicButton : public view_listener_t,
+                                     public PVPerformanceMaid
 {
 	bool handleEvent(const LLSD& userdata);
 };

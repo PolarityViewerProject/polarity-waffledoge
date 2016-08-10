@@ -25,31 +25,32 @@
 
 #include "pvperformancemaid.h"
 #include "llviewercontrol.h"
+#include "pipeline.h"
 
 void PVPerformanceMaid::TriggerPanicMode()
 {
-	auto pvMaid = getInstance();
-	if (!pvMaid->is_in_panic_mode_())
+	if (!PVPerformanceMaid::instance().is_in_panic_mode_())
 	{
 		LL_WARNS() << "User is in panic! Disabling fancy graphics!" << LL_ENDL;
 		// TODO PLVR: Store the settings somewhere in the XML File to restore AFTER relog?
 		// TODO PLVR: An even better way would be to temporarily disable the render features without touching the settings at all.
-		pvMaid->previous_vertex_mode_ = gSavedSettings.getBOOL("VertexShaderEnable");
-		pvMaid->previous_draw_distance_ = gSavedSettings.getBOOL("RenderFarClip");
+		// Not saved to settings all that often, so get directly from the pipeline
+		PVPerformanceMaid::instance().previous_vertex_mode_ = LLPipeline::VertexShaderEnable;
+		PVPerformanceMaid::instance().previous_draw_distance_ = LLPipeline::RenderFarClip;
 		gSavedSettings.setBOOL("VertexShaderEnable", false);
-		gSavedSettings.setF32("RenderFarClip", 5.f);
-		pvMaid->in_panic_mode_ = true;
+		gSavedSettings.setF32("RenderFarClip", 25.f);
+		PVPerformanceMaid::instance().in_panic_mode_ = true;
 	}
 	else
 	{
 		LL_WARNS() << "Restoring previous settings" << LL_ENDL;
-		gSavedSettings.setF32("RenderFarClip", pvMaid->previous_draw_distance_);
-		gSavedSettings.setBOOL("VertexShaderEnable", pvMaid->previous_vertex_mode_);
-		pvMaid->in_panic_mode_ = true;
+		gSavedSettings.setF32("RenderFarClip", PVPerformanceMaid::instance().previous_draw_distance_);
+		gSavedSettings.setBOOL("VertexShaderEnable", PVPerformanceMaid::instance().previous_vertex_mode_);
+		PVPerformanceMaid::instance().in_panic_mode_ = false;
 	}
 }
 
-bool PVPerformanceMaidMenuItemHandler::handleEvent(const LLSD& userdata)
+bool PVPerformanceMaidPanicButton::handleEvent(const LLSD& userdata)
 {
 	TriggerPanicMode();
 	return true;
