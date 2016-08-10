@@ -45,6 +45,8 @@ class PVData : public LLSingleton <PVData> // required for instance()
 {
 	friend class LLSingleton <PVData>;
 	LOG_CLASS(PVData); // Required to enable the log messages prefix
+
+	// PLVR TODO: Make this stuff private
 public:
 
 	// Constructor. Is automatically called every time a new object of this class is created.
@@ -196,6 +198,9 @@ public:
 	// Force getting a new progress tip, regardless of the timer
 	std::string getNewProgressTipForced();
 
+	// Get a new progress tip (throttled)
+	std::string getNewProgressTip(const std::string msg_in);
+
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string pvdata_error_message_ = "";
 
@@ -289,15 +294,18 @@ private:
 	typedef std::map<LLUUID, std::string> agent_data_t;
 	// agent_data_t mAgentTitles;
 
-public:
-	// agents <-> color association	s
-	typedef std::map<LLUUID, LLColor4> agent_color_map_t;
-	//agent_color_map_t mAgentColors;
-
-private:
 	// This contains the UUID of our support group
 	std::set<LLUUID> support_group_;
 
 	void handleDataFailure();
 	void handleAgentsFailure();
+
+	LLFrameTimer mTipCycleTimer; // <polarity/>	
+								 // Get new progress tip if enough time elapsed since the last time this was called
+	std::string last_login_tip;
+
+public:
+	// agents <-> color association	s
+	typedef std::map<LLUUID, LLColor4> agent_color_map_t;
+	//agent_color_map_t mAgentColors;
 };

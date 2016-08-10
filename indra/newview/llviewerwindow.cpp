@@ -181,6 +181,7 @@
 #endif
  
 #include "pvcommon.h"
+#include "pvdata.h"
 
 //
 // Globals
@@ -4973,7 +4974,7 @@ void LLViewerWindow::setProgressMessage(const std::string& msg)
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);
-		mProgressView->setMessage(mProgressView->getNewProgressTip(msg));
+		mProgressView->setMessage(PVData::instance().getNewProgressTip(msg));
 	}
 }
 

@@ -49,6 +49,7 @@
 #include "llviewermedia.h"
 #include "pvcommon.h"
 #include "rlvhandler.h"
+#include "llprogressview.h"
 
 static const std::string LL_LINDEN = "Linden";
 static const std::string LL_MOLE = "Mole";
@@ -522,7 +523,6 @@ void PVData::parsePVData(const LLSD& data_input)
 		//PV_DEBUG("Found Progress Tips!", LLError::LEVEL_DEBUG);
 		// Store list for later use
 		progress_tips_list_ = data_input["ProgressTip"];
-		//gAgent.mMOTD.assign(getNewProgressTipForced());
 	}
 #endif // PVDATA_PROGRESS_TIPS
 
@@ -545,6 +545,48 @@ std::string PVData::getNewProgressTipForced()
 	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(progress_tips_list_.size()))))->asString();
 	LL_INFOS("PVData") << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
 	return random_tip;
+}
+
+std::string PVData::getNewProgressTip(const std::string msg_in)
+{
+	LL_DEBUGS("PVData") << "Entering function" << LL_ENDL;
+	// Pass the existing message right through
+	if (!msg_in.empty())
+	{
+		LL_DEBUGS("PVData") << "returning '" << msg_in << "' in passthrough mode" << LL_ENDL;
+		return msg_in;
+	}
+	// Use the last tip if available
+	std::string return_tip = last_login_tip;
+	if (mTipCycleTimer.getStarted())
+	{
+		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
+		if (mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout)
+		{
+			LL_DEBUGS("PVData") << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
+			LL_DEBUGS("PVData") << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
+
+			// Most likely a teleport screen; let's add something.
+
+			return_tip = PVData::instance().progress_tips_list_.getRandom();
+			LL_DEBUGS("PVData") << "New tip from function is '" << return_tip << "'" << LL_ENDL;
+
+			if (!return_tip.empty() && return_tip != last_login_tip)
+			{
+				LL_INFOS("PVData") << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
+				last_login_tip = return_tip;
+				//gAgent.mMOTD.assign(return_tip);
+				//setMessage(return_tip);
+			}
+			mTipCycleTimer.reset();
+		}
+	}
+	else
+	{
+		LL_WARNS("PVData") << "mTipCycleTimer not started!" << LL_ENDL;
+	}
+
+	return return_tip;
 }
 
 void PVData::parsePVAgents(const LLSD& data_input)
