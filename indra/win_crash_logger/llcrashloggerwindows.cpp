@@ -67,7 +67,6 @@ HINSTANCE hInst= NULL;					// current instance
 TCHAR szTitle[MAX_LOADSTRING];				/* Flawfinder: ignore */		// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];		/* Flawfinder: ignore */		// The title bar text
 
-std::string gProductName;
 HWND gHwndReport = NULL;	// Send/Don't Send dialog
 HWND gHwndProgress = NULL;	// Progress window
 HCURSOR gCursorArrow = NULL;
@@ -151,7 +150,7 @@ void LLCrashLoggerWindows::ProcessCaption(HWND hWnd)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetWindowText(hWnd, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), mProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetWindowText(hWnd, header);
 }
@@ -164,7 +163,7 @@ void LLCrashLoggerWindows::ProcessDlgItemText(HWND hWnd, int nIDDlgItem)
 	TCHAR header[MAX_STRING];
 	std::string final;
 	GetDlgItemText(hWnd, nIDDlgItem, templateText, sizeof(templateText));
-	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), gProductName.c_str());
+	final = llformat(ll_convert_wide_to_string(templateText, CP_ACP).c_str(), mProductName.c_str());
 	ConvertLPCSTRToLPWSTR(final.c_str(), header);
 	SetDlgItemText(hWnd, nIDDlgItem, header);
 }
@@ -434,12 +433,6 @@ bool LLCrashLoggerWindows::init(void)
 
 	initCrashServer();
 
-	/*
-	mbstowcs( gProductName, mProductName.c_str(), LL_ARRAY_SIZE(gProductName) );
-	gProductName[ LL_ARRY_SIZE(gProductName) - 1 ] = 0;
-	swprintf(gProductName, L"Polarity"); 
-	*/
-
 	LL_INFOS() << "Loading dialogs" << LL_ENDL;
 
 	// Initialize global strings
@@ -484,7 +477,6 @@ bool LLCrashLoggerWindows::mainLoop()
 	// Note: parent hwnd is 0 (the desktop).  No dlg proc.  See Petzold (5th ed) HexCalc example, Chapter 11, p529
 	// win_crash_logger.rc has been edited by hand.
 	// Dialogs defined with CLASS "WIN_CRASH_LOGGER" (must be same as szWindowClass)
-	gProductName = mProductName;
 	gHwndProgress = CreateDialog(hInst, MAKEINTRESOURCE(IDD_PROGRESS), 0, NULL);
 	ProcessCaption(gHwndProgress);
 	ShowWindow(gHwndProgress, SW_HIDE );

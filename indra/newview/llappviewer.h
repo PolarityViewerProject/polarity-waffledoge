@@ -161,6 +161,7 @@ public:
 	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
 	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
+	std::string PVGetDynamicWindowTitle();
 	// Handle the 'login completed' event.
 	// *NOTE:Mani Fix this for login abstraction!!
 	void handleLoginComplete();

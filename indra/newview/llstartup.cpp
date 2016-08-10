@@ -1104,22 +1104,22 @@ bool idle_startup()
 			"Finding more Vespene Gas",
 			"Turning it up to 11",
 			"Ayyyyyyy lmao",
+			"Yooooooo rofl",
 			"Contacting proprietary DRM server from hell, lol",
 			"Hold on a sec, I forgot something",
 			"Searching for The Master",
 			"Ruling out Lupus",
 			"Creating a good Dalek",
-			"lo plo blo do kro no go sho po vo do blo to blo"
+			"lo plo blo do kro no go sho po vo do blo to blo",
+			"Thank you for using Polarity Viewer!"
 		};
-		set_startup_status(0.09f, PVRandom::instance().getRandomElement(string_list), LLStringUtil::null);
+		gViewerWindow->getWindow()->setTitle(PVRandom::instance().getRandomElement(string_list));
 		PVData::instance().downloadAgents();
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
 	}
 	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
 	{
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on agents data" << LL_ENDL;
 		static LLFrameTimer agents_timer;
 		const F32 agents_time = agents_timer.getElapsedTimeF32();
 		const F32 MAX_AGENTS_TIME = 15.f;
