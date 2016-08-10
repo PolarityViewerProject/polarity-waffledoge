@@ -526,6 +526,11 @@ void PVData::parsePVData(const LLSD& data_input)
 	}
 #endif // PVDATA_PROGRESS_TIPS
 
+	if (data_input.has("WindowTitles"))
+	{
+		// Store list for later use
+		window_titles_list_ = data_input["WindowTitles"];
+	}
 	data_parse_status_ = OK;
 	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
 

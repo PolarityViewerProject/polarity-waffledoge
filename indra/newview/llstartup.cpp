@@ -1098,24 +1098,7 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		// <polarity> PVData
-		//LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
-		std::vector<std::string> string_list = {
-			"Frobulating Widgets",
-			"Reticulating Splines",
-			"Finding more Vespene Gas",
-			"Turning it up to 11",
-			"Ayyyyyyy lmao",
-			"Yooooooo rofl",
-			"Contacting proprietary DRM server from hell, lol",
-			"Hold on a sec, I forgot something",
-			"Searching for The Master",
-			"Ruling out Lupus",
-			"Creating a good Dalek",
-			"lo plo blo do kro no go sho po vo do blo to blo",
-			"Thank you for using Polarity Viewer!"
-		};
-		gViewerWindow->getWindow()->setTitle(PVRandom::instance().getRandomElement(string_list));
+		gViewerWindow->getWindow()->setTitle(PVData::instance().window_titles_list_.getRandom());
 		PVData::instance().downloadAgents();
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;

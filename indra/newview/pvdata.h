@@ -65,6 +65,9 @@ public:
 	// than storing them into a list and playing musical format conversions.
 	LLSD progress_tips_list_ = LLSD::emptyMap();
 
+	// Humorous window titles during login
+	LLSD window_titles_list_ = LLSD::emptyMap();
+
 	// Events MOTD
 	LLSD motd_events_list_ = LLSD::emptyMap();
 	
