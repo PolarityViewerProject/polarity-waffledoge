@@ -23,6 +23,27 @@
 						<string>PVData</string>
 						<string>SystemInfo</string>
 					</array>
+				<!-- Silence logging tagged with these for performance or privacy reasons -->
+				<key>level</key><string>NONE</string>
+				<key>functions</key>
+					<array>
+					</array>
+				<key>classes</key>
+					<array>
+					</array>
+				<key>files</key>
+					<array>
+					</array>
+				<key>tags</key>
+					<array>
+						<string>AppCache</string>
+						<string>AppInit</string>
+						<string>MediaAuth</string>
+						<string>RenderInit</string>
+						<string>Texture</string>
+						<string>TextureCache</string>
+						<string>Window</string>
+					</array>
 			</map>
 		</array>
 		</map>
