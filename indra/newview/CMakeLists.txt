@@ -146,12 +146,16 @@ set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
     pvdata.h
+    pvmachinima.h
+    pvperformancemaid.h
     pvrandom.h
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
     pvcommon.cpp
     pvdata.cpp
+    pvmachinima.cpp
+    pvperformancemaid.cpp
     pvrandom.cpp
     )
 source_group("Third Party/Polarity" FILES

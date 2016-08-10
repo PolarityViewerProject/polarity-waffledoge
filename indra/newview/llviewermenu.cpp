@@ -154,6 +154,9 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
+#include "pvmachinima.h"
+#include "pvperformancemaid.h"
+
 using namespace LLAvatarAppearanceDefines;
 
 typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
@@ -9503,6 +9506,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedCheckAgentPilotLoop(), "Advanced.CheckAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
+
+	// Polarity Menu
+	view_listener_t::addMenu(new PVPerformanceMaidMenuItemHandler(), "Advanced.PanicButton");
+	view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
+	view_listener_t::addMenu(new PVMachimimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");

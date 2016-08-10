@@ -1443,7 +1443,6 @@
             name="Character Tests"
             tear_off="true">
             <menu_item_call
-                enabled="false"
                 label="I am crashing!"
                 name="Panic button">
                 <menu_item_call.on_click
@@ -1481,20 +1480,19 @@
                 </menu_item_call.on_click>
             </menu_item_call>
             <menu_item_call
-                enabled="false"
-                label="Release Controls"
+                label="Release Controls/Keys"
                 name="Release Keys"
-                shortcut="control|alt|shift|A">
+                shortcut="control|alt|shift|K">
                 <menu_item_call.on_click
-                    function="Tools.ReleaseKeys"
-                    parameter="" >
-                    <menu_item_call.on_enable
-                        function="Tools.EnableReleaseKeys"
-                        parameter="" >
-                    </menu_item_call.on_enable>
-                </menu_item_call.on_click>
+                 function="Tools.ReleaseKeys"
+                 parameter="">
+               </menu_item_call.on_click>
+                <menu_item_call.on_enable
+                 function="Tools.EnableReleaseKeys"
+                 parameter="">
+               </menu_item_call.on_enable>
             </menu_item_call>
-            <menu_item_separator> </menu_item_separator>
+            <menu_item_separator></menu_item_separator>
             <menu_item_call
                 label="Female Test Avatar"
                 name="Test Female">
@@ -1584,7 +1582,6 @@
             </menu_item_check.on_check>
         </menu_item_check>
         <menu_item_call
-            enabled="false"
             label="Cinematic Mode"
             name="CinematicMode"
             shortcut="alt|shift|c">
@@ -1632,7 +1629,6 @@
             </menu_item_check>
         </menu>
         <menu_item_check
-            enabled="true"
             label="Machinima Sidebar"
             shortcut="F1"
             name="Machinima Sidebar">
@@ -2026,13 +2022,6 @@
          name="Kill All Viewer Effects">
             <menu_item_call.on_click
              function="Tools.KillAllVE" />
-        </menu_item_call>
-        <menu_item_call
-         label="Rebake Textures"
-         name="Rebake Texture"
-         shortcut="control|alt|R">
-            <menu_item_call.on_click
-             function="Advanced.RebakeTextures" />
         </menu_item_call>
         <menu_item_call
            label="Set UI Size to Default"
@@ -2489,17 +2478,6 @@
              function="ToggleControl"
              parameter="MouseSmooth" />
         </menu_item_check>
-            <menu_item_call
-             enabled="false"
-             label="Release Keys"
-             name="Release Keys">
-                <menu_item_call.on_click
-                 function="Tools.ReleaseKeys"
-                 parameter="" />
-                <menu_item_call.on_enable
-                 function="Tools.EnableReleaseKeys"
-                 parameter="" />
-            </menu_item_call>
         <menu_item_separator/>
 
         <menu
