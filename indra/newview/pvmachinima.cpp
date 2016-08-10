@@ -136,7 +136,7 @@ void PVCinematicMode::confirm(const LLSD& notification, const LLSD& response)
 bool PVMachinimaSidebar::handleEvent(const LLSD& userdata)
 {
 	static LLCachedControl<bool> sidebar_visible(gSavedSettings, "PVUI_MachinimaSidebar", false);
-	gSavesSettings.setBOOL("PVUI_MachinimaSidebar",!sidebar_visible);
+	gSavedSettings.setBOOL("PVUI_MachinimaSidebar",!sidebar_visible);
 	return true;
 }
 
