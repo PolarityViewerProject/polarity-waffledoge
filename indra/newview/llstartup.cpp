@@ -1083,6 +1083,8 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
+		gAgent.mMOTD = PVData::instance().getNewProgressTipForced();
+
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
