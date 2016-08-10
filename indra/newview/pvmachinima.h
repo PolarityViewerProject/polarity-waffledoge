@@ -58,5 +58,5 @@ class PVMachinimaSidebar : public view_listener_t,
 {
 	bool handleEvent(const LLSD& userdata);
 public:
-	bool isVisible() const;
+	bool isVisible(const LLSD& userdata);
 };

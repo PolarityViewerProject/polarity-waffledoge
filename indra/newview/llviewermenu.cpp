@@ -9508,9 +9508,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
 	// Polarity Menu
-	view_listener_t::addMenu(new PVPerformanceMaidMenuItemHandler(), "Advanced.PanicButton");
+	view_listener_t::addMenu(new PVPerformanceMaidMenuItemHandler(), "Polarity.PanicButton");
 	view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
-	view_listener_t::addMenu(new PVMachimimaSidebar(), "Polarity.MachinimaSidebar");
+	view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
