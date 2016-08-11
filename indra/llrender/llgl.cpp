@@ -571,10 +571,12 @@ bool LLGLManager::initGL()
 	}
 
 
+#ifdef BLOCK_HD3000
 	if (mIsIntel && mGLVersion <= 3.f)
 	{ //never try to use framebuffer objects on older intel drivers (crashy)
 		mHasFramebufferObject = FALSE;
 	}
+#endif
 #endif
 
 	if (mHasFramebufferObject)
