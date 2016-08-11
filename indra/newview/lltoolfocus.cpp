@@ -222,10 +222,11 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 			gAgentCamera.setFocusGlobal(pick_info);
 		}
 
+		static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
 		if (!(pick_info.mKeyMask & MASK_ALT) &&
 			gAgentCamera.cameraThirdPerson() &&
 			gViewerWindow->getLeftMouseDown() && 
-			!gSavedSettings.getBOOL("FreezeTime") &&
+			!freeze_time &&
 			(hit_obj == gAgentAvatarp || 
 			 (hit_obj && hit_obj->isAttachment() && LLVOAvatar::findAvatarFromAttachment(hit_obj)->isSelf())))
 		{

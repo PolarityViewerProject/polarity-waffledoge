@@ -110,7 +110,8 @@ public:
 
 	/*virtual*/ void setDead();
 
-	BOOL updateFromMesg();
+	// unused
+	// BOOL updateFromMesg();
 
 	// Returns a new particle source to attach to an object...
 	static LLPointer<LLViewerPartSourceScript> unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, const S32 block_num);
@@ -163,14 +164,15 @@ class LLViewerPartSourceBeam : public LLViewerPartSource
 public:
 	LLViewerPartSourceBeam();
 
-	/*virtual*/ void setDead();
+	void setDead() override;
 
-	/*virtual*/ void update(const F32 dt);
+	void update(const F32 dt) override;
 
 	void setSourceObject(LLViewerObject *objp);
 	void setTargetObject(LLViewerObject *objp);
-	void setSourcePosGlobal(const LLVector3d &pos_global);
-	void setTargetPosGlobal(const LLVector3d &pos_global);
+	// unused
+	// void setSourcePosGlobal(const LLVector3d &pos_global);
+	// void setTargetPosGlobal(const LLVector3d &pos_global);
 	void setColor(const LLColor4 &color);
 
 	static void updatePart(LLViewerPart &part, const F32 dt);

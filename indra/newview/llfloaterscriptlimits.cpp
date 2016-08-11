@@ -1139,16 +1139,22 @@ void LLPanelScriptLimitsAttachment::setAttachmentSummary(LLSD content)
 		return;
 	}
 
-	if((mAttachmentMemoryUsed >= 0) && (mAttachmentMemoryMax >= 0))
+	if((mAttachmentMemoryUsed >= 0))
 	{
-		S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
-
 		LLStringUtil::format_map_t args_attachment_memory;
 		args_attachment_memory["[COUNT]"] = llformat ("%d", mAttachmentMemoryUsed);
-		args_attachment_memory["[MAX]"] = llformat ("%d", mAttachmentMemoryMax);
-		args_attachment_memory["[AVAILABLE]"] = llformat ("%d", attachment_memory_available);
-		std::string msg_attachment_memory = LLTrans::getString("ScriptLimitsMemoryUsed", args_attachment_memory);
-		getChild<LLUICtrl>("memory_used")->setValue(LLSD(msg_attachment_memory));
+		// Work around broken/missing data
+		if (mAttachmentMemoryMax > 0)
+		{
+			S32 attachment_memory_available = mAttachmentMemoryMax - mAttachmentMemoryUsed;
+			args_attachment_memory["[MAX]"] = llformat("%d", mAttachmentMemoryMax);
+			args_attachment_memory["[AVAILABLE]"] = llformat("%d", attachment_memory_available);
+			getChild<LLUICtrl>("memory_used")->setValue(LLSD(LLTrans::getString("ScriptLimitsMemoryUsed", args_attachment_memory)));
+		}
+		else
+		{
+			getChild<LLUICtrl>("memory_used")->setValue(LLSD(LLTrans::getString("ScriptLimitsMemoryUsedSimple", args_attachment_memory)));
+		}
 	}
 
 	if((mAttachmentURLsUsed >= 0) && (mAttachmentURLsMax >= 0))

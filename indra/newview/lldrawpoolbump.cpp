@@ -203,8 +203,8 @@ void LLDrawPoolBump::prerender()
 // static
 S32 LLDrawPoolBump::numBumpPasses()
 {
-	static LLCachedControl<bool> renderObjectBump(gSavedSettings, "RenderObjectBump");
-	if (renderObjectBump)
+	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump",true);
+	if (render_bump)
 	{
 		if (mVertexShaderLevel > 1)
 		{
@@ -805,8 +805,8 @@ void LLDrawPoolBump::endBump(U32 pass)
 
 S32 LLDrawPoolBump::getNumDeferredPasses()
 { 
-	static LLCachedControl<bool> RenderObjectBump(gSavedSettings, "RenderObjectBump");
-	if (RenderObjectBump)
+	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump",true);
+	if (render_bump)
 	{
 		return 1;
 	}

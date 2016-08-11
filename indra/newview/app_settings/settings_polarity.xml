@@ -90,10 +90,65 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVChat_AllowMUpose</key>
+    <map>
+      <key>Comment</key>
+      <string>Allow use of &quot; : &quot; instead of /me for IRC-style emotes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVChat_AutoCloseOOC</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically close Our Of Character markers &quot;((&quot; and &quot;))&quot;</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVChat_HideTypingForAll</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables typing sounds entirely</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVChat_MarkObjectsWithNoName</key>
     <map>
       <key>Comment</key>
       <string>Replace empty object names with "(Unnamed)" to prevent spoofing. Undesired for immersion.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVChat_NoKeyboardShout</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables shouting with the Control(CTRL) + Enter key combinaison. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVChat_NoKeyboardWhisper</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables whispering with the Shift + Enter key combinaison. </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -735,7 +790,7 @@
         <real>0.275</real>
       </array>
     </map>
-    <key>PVRender_ForceAttachmentLODToMaximum</key>
+    <key>PVRender_RiggedAttachmentLODForceToMaximum</key>
     <map>
       <key>Comment</key>
       <string>Force avatar attachments to be rendered at their maximum level of detail.</string>
@@ -746,7 +801,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRender_ForceAttachmentLODToMinimum</key>
+    <key>PVRender_RiggedAttachmentLODForceToMinimum</key>
     <map>
       <key>Comment</key>
       <string>Force avatar attachments to be rendered at their minimum level of detail.</string>
@@ -1037,6 +1092,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>1023</integer>
+    </map>
+    <key>PVUI_AreaSearchAdvanced</key>
+    <map>
+      <key>Comment</key>
+      <string>Displays the advanced settings tab</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
     <key>PVUI_AvatarListNameFormat</key>
     <map>

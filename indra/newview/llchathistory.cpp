@@ -68,7 +68,7 @@
 // [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER
-#include "pvdatacolorizer.h"
+#include "pvdata.h"
 #endif
 
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
@@ -930,7 +930,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// <polarity> Colored names for special users
 	if ((chat.mSourceType != CHAT_SOURCE_OBJECT) && (chat.mSourceType != CHAT_STYLE_HISTORY) && (chat.mFromName != SYSTEM_FROM) && (chat.mFromID.notNull()) /*&& chat.mFromID != gAgent.getID()*/)
 	{
-		name_color = PVDataColorizer::instance().getColor(chat.mFromID, txt_color, false);
+		name_color = PVData::instance().getColor(chat.mFromID, txt_color, false);
 	}
 	// </polarity>
 #endif

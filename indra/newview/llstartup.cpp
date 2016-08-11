@@ -204,7 +204,6 @@
 
 // <polarity> Polarity Includes
 #include "pvdata.h"
-#include "pvdatacolorizer.h"
 #include "pvcommon.h"
 #include "pvrandom.h"
 //
@@ -650,7 +649,7 @@ bool idle_startup()
 		// <polarity> PVData
 		// Begin fetching the required assets used by PVData
 		PVData::instance().downloadData();
-		// PVDataColorizer::instance().initThemeColors();
+		// PVData::instance().initThemeColors();
 		// </polarity> PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
@@ -1084,6 +1083,8 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
+		gAgent.mMOTD = PVData::instance().getNewProgressTipForced();
+
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
@@ -1097,30 +1098,13 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		// <polarity> PVData
-		//LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
-		std::vector<std::string> string_list = {
-			"Frobulating Widgets",
-			"Reticulating Splines",
-			"Finding more Vespene Gas",
-			"Turning it up to 11",
-			"Ayyyyyyy lmao",
-			"Contacting proprietary DRM server from hell, lol",
-			"Hold on a sec, I forgot something",
-			"Searching for The Master",
-			"Ruling out Lupus",
-			"Creating a good Dalek",
-			"lo plo blo do kro no go sho po vo do blo to blo"
-		};
-		set_startup_status(0.09f, PVRandom::instance().getRandomElement(string_list), LLStringUtil::null);
+		gViewerWindow->getWindow()->setTitle(PVData::instance().window_titles_list_.getRandom());
 		PVData::instance().downloadAgents();
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
 	}
 	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
 	{
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on agents data" << LL_ENDL;
 		static LLFrameTimer agents_timer;
 		const F32 agents_time = agents_timer.getElapsedTimeF32();
 		const F32 MAX_AGENTS_TIME = 15.f;
@@ -1319,12 +1303,12 @@ bool idle_startup()
 			else
 			{
 				// <polarity> Custom error message related to PVData
-				if (!PVData::instance().PVDataErrorMessage.empty())
+				if (!PVData::instance().pvdata_error_message_.empty())
 				{
 				LLSD args;
-					args["ERROR_MESSAGE"] = PVData::instance().PVDataErrorMessage;
+					args["ERROR_MESSAGE"] = PVData::instance().pvdata_error_message_;
 					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-					transition_back_to_login_panel(PVData::instance().PVDataErrorMessage);
+					transition_back_to_login_panel(PVData::instance().pvdata_error_message_);
 					show_connect_box = true;
 					return FALSE;
 				}
@@ -3740,18 +3724,7 @@ bool process_login_success_response()
 		LL_INFOS("LLStartup") << "Missing max-agent-groups, using default value for gMaxAgentGroups: "
 							  << gMaxAgentGroups << LL_ENDL;
 	}
-		
-	// <polarity> PVData
-	// Prevent particularly harmful users from using our viewer
-	// to do their deeds.
-#if 0
-	if (PVData::instance().is(gAgentID, PVData::FLAG_USER_BANNED))
-	{
-		LL_WARNS("PVData") << "You have been disallowed from using " << APP_NAME << " Viewer. Aborting login sequence" << LL_ENDL;
-		LLLoginInstance::getInstance()->disconnect(); // Cleanly disconnect
-		gAgentID.setNull();
-	}
-#endif
+
 	bool success = false;
 	// JC: gesture loading done below, when we have an asset system
 	// in place.  Don't delete/clear gUserCredentials until then.

@@ -74,7 +74,9 @@ LLViewerPart::LLViewerPart() :
 	mPartID(0),
 	mLastUpdateTime(0.f),
 	mSkipOffset(0.f),
-	mImagep(NULL)
+	mImagep(NULL),
+	mStartGlow(0),
+	mEndGlow(0)
 {
 	mPartSourcep = NULL;
 	mParent = NULL;
@@ -149,11 +151,11 @@ LLViewerPartGroup::LLViewerPartGroup(const LLVector3 &center_agent, const F32 bo
 
 	if (mHud)
 	{
-		mVOPartGroupp = (LLVOPartGroup *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_HUD_PART_GROUP, getRegion());
+		mVOPartGroupp = static_cast<LLVOPartGroup *>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_HUD_PART_GROUP, getRegion()));
 	}
 	else
 	{
-	mVOPartGroupp = (LLVOPartGroup *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_PART_GROUP, getRegion());
+	mVOPartGroupp = static_cast<LLVOPartGroup *>(gObjectList.createObjectViewer(LLViewerObject::LL_VO_PART_GROUP, getRegion()));
 	}
 	mVOPartGroupp->setViewerPartGroup(this);
 	mVOPartGroupp->setPositionAgent(getCenterAgent());
@@ -195,7 +197,7 @@ LLViewerPartGroup::~LLViewerPartGroup()
 {
 	cleanup();
 	
-	S32 count = (S32) mParticles.size();
+	S32 count = static_cast<S32>(mParticles.size());
 	for(S32 i = 0 ; i < count ; i++)
 	{
 		delete mParticles[i] ;
@@ -274,16 +276,18 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 {
 	F32 dt;
 	
-	LLVector3 gravity(0.f, 0.f, GRAVITY);
+	// Unused
+	//LLVector3 gravity(0.f, 0.f, GRAVITY);
 
 	LLViewerPartSim::checkParticleCount(mParticles.size());
 
 	LLViewerCamera* camera = LLViewerCamera::getInstance();
 	LLViewerRegion *regionp = getRegion();
-	S32 end = (S32) mParticles.size();
-	for (S32 i = 0 ; i < (S32)mParticles.size();)
+	auto end = static_cast<S32>(mParticles.size());
+	for (auto i = 0 ; i < static_cast<S32>(mParticles.size());)
 	{
-		LLVector3 a(0.f, 0.f, 0.f);
+		// unused
+		//LLVector3 a(0.f, 0.f, 0.f);
 		LLViewerPart* part = mParticles[i] ;
 
 		dt = lastdt + mSkippedTime - part->mSkipOffset;
@@ -387,7 +391,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 		}
 
 		// Do glow interpolation
-		part->mGlow.mV[3] = (U8) ll_round(lerp(part->mStartGlow, part->mEndGlow, frac)*255.f);
+		part->mGlow.mV[3] = static_cast<U8>(ll_round(lerp(part->mStartGlow, part->mEndGlow, frac)*255.f));
 
 		// Set the last update time to now.
 		part->mLastUpdateTime = cur_time;
@@ -417,7 +421,7 @@ void LLViewerPartGroup::updateParticles(const F32 lastdt)
 		}
 	}
 
-	S32 removed = end - (S32)mParticles.size();
+	S32 removed = end - static_cast<S32>(mParticles.size());
 	if (removed > 0)
 	{
 		// we removed one or more particles, so flag this group for update
@@ -445,7 +449,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 	mMinObjPos += offset;
 	mMaxObjPos += offset;
 
-	for (S32 i = 0 ; i < (S32)mParticles.size(); i++)
+	for (auto i = 0 ; i < static_cast<S32>(mParticles.size()); i++)
 	{
 		mParticles[i]->mPosAgent += offset;
 	}
@@ -453,7 +457,7 @@ void LLViewerPartGroup::shift(const LLVector3 &offset)
 
 void LLViewerPartGroup::removeParticlesByID(const U32 source_id)
 {
-	for (S32 i = 0; i < (S32)mParticles.size(); i++)
+	for (auto i = 0; i < static_cast<S32>(mParticles.size()); i++)
 	{
 		if(mParticles[i]->mPartSourcep->getID() == source_id)
 		{
@@ -476,7 +480,7 @@ void LLViewerPartSim::checkParticleCount(U32 size)
 		LL_ERRS() << "sParticleCount: " << LLViewerPartSim::sParticleCount << " ; sParticleCount2: " << LLViewerPartSim::sParticleCount2 << LL_ENDL ;
 	}
 
-	if(size > (U32)LLViewerPartSim::sParticleCount2)
+	if(size > static_cast<U32>(LLViewerPartSim::sParticleCount2))
 	{
 		LL_ERRS() << "curren particle size: " << LLViewerPartSim::sParticleCount2 << " array size: " << size << LL_ENDL ;
 	}
@@ -490,7 +494,7 @@ LLViewerPartSim::LLViewerPartSim()
 }
 
 //enable/disable particle system
-void LLViewerPartSim::enable(bool enabled)
+void LLViewerPartSim::enable(bool enabled) const
 {
 	if(!enabled && sMaxParticleCount > 0)
 	{
@@ -506,12 +510,9 @@ void LLViewerPartSim::enable(bool enabled)
 
 void LLViewerPartSim::destroyClass()
 {
-	S32 i;
-	S32 count;
-
 	// Kill all of the groups (and particles)
-	count = (S32) mViewerPartGroups.size();
-	for (i = 0; i < count; i++)
+	auto count = static_cast<S32>(mViewerPartGroups.size());
+	for (auto i = 0; i < count; i++)
 	{
 		delete mViewerPartGroups[i];
 	}
@@ -531,7 +532,7 @@ BOOL LLViewerPartSim::shouldAddPart()
 
 	if (sParticleCount > PART_THROTTLE_THRESHOLD*sMaxParticleCount)
 	{
-		F32 frac = (F32)sParticleCount/(F32)sMaxParticleCount;
+		auto frac = static_cast<F32>(sParticleCount)/static_cast<F32>(sMaxParticleCount);
 		frac -= PART_THROTTLE_THRESHOLD;
 		frac *= PART_THROTTLE_RESCALE;
 		if (ll_frand() < frac)
@@ -561,7 +562,8 @@ void LLViewerPartSim::addPart(LLViewerPart* part)
 	{
 		//delete the particle if can not add it in
 		delete part ;
-		part = NULL ;
+		// this is C++
+		// part = NULL ;
 	}
 }
 
@@ -582,7 +584,7 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 		LLViewerCamera* camera = LLViewerCamera::getInstance();
 		F32 desired_size = calc_desired_size(camera, part->mPosAgent, part->mScale);
 
-		S32 count = (S32) mViewerPartGroups.size();
+		S32 count = static_cast<S32>(mViewerPartGroups.size());
 		for (S32 i = 0; i < count; i++)
 		{
 			if (mViewerPartGroups[i]->addPart(part, desired_size))
@@ -617,7 +619,8 @@ LLViewerPartGroup *LLViewerPartSim::put(LLViewerPart* part)
 	if(!return_group) //failed to insert the particle
 	{
 		delete part ;
-		part = NULL ;
+		// this is c++
+		//part = NULL ;
 	}
 
 	return return_group ;
@@ -637,8 +640,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 {
 	S32 i;
 	S32 count;
-
-	count = (S32) mViewerPartSources.size();
+	count = static_cast<S32>(mViewerPartSources.size());
 	for (i = 0; i < count; i++)
 	{
 		mViewerPartSources[i]->mPosAgent += offset;
@@ -646,7 +648,7 @@ void LLViewerPartSim::shift(const LLVector3 &offset)
 		mViewerPartSources[i]->mLastUpdatePosAgent += offset;
 	}
 
-	count = (S32) mViewerPartGroups.size();
+	count = static_cast<S32>(mViewerPartGroups.size());
 	for (i = 0; i < count; i++)
 	{
 		mViewerPartGroups[i]->shift(offset);
@@ -677,17 +679,17 @@ void LLViewerPartSim::updateSimulation()
 	// order or something, but sorting particle sources will be a big
 	// pain.
 	S32 i;
-	S32 count = (S32) mViewerPartSources.size();
-	S32 start = (S32)ll_frand((F32)count);
-	S32 dir = 1;
-	S32 deldir = 0;
+	auto count = static_cast<S32>(mViewerPartSources.size());
+	auto start = static_cast<S32>(ll_frand(count));
+	auto dir = 1;
+	auto deldir = 0;
 	if (ll_frand() > 0.5f)
 	{
 		dir = -1;
 		deldir = -1;
 	}
 
-	S32 num_updates = 0;
+	auto num_updates = 0;
 	for (i = start; num_updates < count;)
 	{
 		if (i >= count)
@@ -707,7 +709,7 @@ void LLViewerPartSim::updateSimulation()
 				LLViewerObject* vobj = mViewerPartSources[i]->mSourceObjectp;
 				if (vobj && (vobj->getPCode() == LL_PCODE_VOLUME))
 				{
-					LLVOVolume* vvo = (LLVOVolume *)vobj;
+					LLVOVolume* vvo = static_cast<LLVOVolume *>(vobj);
 					if (vvo && vvo->isAttachment())
 					{
 						upd = FALSE;
@@ -734,7 +736,7 @@ void LLViewerPartSim::updateSimulation()
 		num_updates++;
 	}
 
-	count = (S32) mViewerPartGroups.size();
+	count = static_cast<S32>(mViewerPartGroups.size());
 	for (i = 0; i < count; i++)
 	{
 		LLViewerObject* vobj = mViewerPartGroups[i]->mVOPartGroupp;
@@ -793,7 +795,7 @@ void LLViewerPartSim::updateSimulation()
 	//LL_INFOS() << "Particles: " << sParticleCount << " Adaptive Rate: " << sParticleAdaptiveRate << LL_ENDL;
 }
 
-void LLViewerPartSim::updatePartBurstRate()
+void LLViewerPartSim::updatePartBurstRate() const
 {
 	if (!(LLDrawable::getCurrentFrame() & 0xf))
 	{

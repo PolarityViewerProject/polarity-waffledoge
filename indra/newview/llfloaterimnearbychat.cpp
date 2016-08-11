@@ -72,6 +72,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "pvcommon.h" // for MuPose and AutoCloseOOC
+
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
 const S32 EXPANDED_HEIGHT = 266;
@@ -133,7 +135,8 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
 
-	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
+	static LLCachedControl<bool> log_show_history(gSavedPerAccountSettings, "LogShowHistory", true);
+	if (log_show_history)
 	{
 		loadHistory();
 	}
@@ -347,8 +350,9 @@ bool LLFloaterIMNearbyChat::isChatVisible() const
 	llassert(im_box != NULL);
 	if (im_box != NULL)
 	{
+		static LLCachedControl<bool> nearby_not_torn_off(gSavedPerAccountSettings, "NearbyChatIsNotTornOff");
 		isVisible =
-				isChatMultiTab() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotTornOff")?
+				isChatMultiTab() && nearby_not_torn_off?
 						im_box->getVisible() && !im_box->isMinimized() :
 						getVisible() && !isMinimized();
 	}
@@ -383,17 +387,29 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
 
-	if( KEY_RETURN == key && mask == MASK_CONTROL)
+	// <polarity> Allow user to disable keyboard shortcuts for shout and whisper
+	static LLCachedControl<bool> no_kb_shout(gSavedSettings, "PVChat_NoKeyboardShout", false);
+	static LLCachedControl<bool> no_kb_whisper(gSavedSettings, "PVChat_NoKeyboardWhisper", false);
+	if (KEY_RETURN == key)
 	{
-		// shout
-		sendChat(CHAT_TYPE_SHOUT);
-		handled = TRUE;
-	}
-	else if (KEY_RETURN == key && mask == MASK_SHIFT)
-	{
-		// whisper
-		sendChat(CHAT_TYPE_WHISPER);
-		handled = TRUE;
+		if(mask == MASK_CONTROL && !no_kb_shout)
+		{
+			// shout
+			sendChat(CHAT_TYPE_SHOUT);
+			handled = TRUE;
+		}
+		else if (mask == MASK_SHIFT && !no_kb_whisper)
+		{
+			// whisper
+			sendChat(CHAT_TYPE_WHISPER);
+			handled = TRUE;
+		}
+		else
+		{
+			// normal chat
+			sendChat(CHAT_TYPE_NORMAL);
+			handled = TRUE;
+		}
 	}
 
 
@@ -458,7 +474,10 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
 	S32 length = raw_text.length();
 
-	if( (length > 0) && (raw_text[0] != '/') )  // forward slash is used for escape (eg. emote) sequences
+	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
+	if( (length > 0) && (raw_text[0] != '/') // forward slash is used for escape (eg. emote) sequences
+		&& (mu_pose && (raw_text[0] != ':')) // colon is used for MU pose
+	)
 	{
 		gAgent.startTyping();
 	}
@@ -487,6 +506,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 	// Ignore "special" keys, like backspace, arrows, etc.
 	if (length > 1 
 		&& raw_text[0] == '/'
+		&& (raw_text[1] != '/' || raw_text[1] != '*') // // <polarity> Do not eat LSL snippets starting with a comment
 		&& key < KEY_SPECIAL)
 	{
 		// we're starting a gesture, attempt to autocomplete
@@ -583,6 +603,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 			std::string utf8_revised_text;
 			if (0 == channel)
 			{
+				utf8text = applyAutoCloseOoc(utf8text);
+				utf8text = applyMuPose(utf8text);
 				// discard returned "found" boolean
 				if(!LLGestureMgr::instance().triggerAndReviseString(utf8text, &utf8_revised_text))
 				{
@@ -603,7 +625,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 				if(!OSChatCommand::instance().parseCommand(utf8_revised_text))
 				{
 					// Chat with animation
-					sendChatFromViewer(utf8_revised_text, type, gSavedSettings.getBOOL("PlayChatAnim"));
+					static LLCachedControl<bool> play_chat_anim(gSavedSettings, "PlayChatAnim", true);
+					sendChatFromViewer(utf8_revised_text, type, play_chat_anim);
 				}
 			}
 		}
@@ -615,7 +638,8 @@ void LLFloaterIMNearbyChat::sendChat( EChatType type )
 
 	// If the user wants to stop chatting on hitting return, lose focus
 	// and go out of chat mode.
-	if (gSavedSettings.getBOOL("CloseChatOnReturn"))
+	static LLCachedControl<bool> close_chat_on_return(gSavedSettings, "CloseChatOnReturn", false);
+	if (close_chat_on_return)
 	{
 		stopChat();
 	}
@@ -635,7 +659,8 @@ void LLFloaterIMNearbyChat::addMessage(const LLChat& chat,bool archive,const LLS
 	}
 
 	// logging
-	if (!args["do_not_log"].asBoolean() && gSavedPerAccountSettings.getS32("KeepConversationLogTranscripts") > 1)
+	static LLCachedControl<S32> keep_transcripts(gSavedPerAccountSettings, "KeepConversationLogTranscripts");
+	if (!args["do_not_log"].asBoolean() && keep_transcripts > 1)
 	{
 		std::string from_name = chat.mFromName;
 

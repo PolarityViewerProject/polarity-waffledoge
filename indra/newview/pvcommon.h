@@ -42,6 +42,7 @@ bool isPolarityDeveloper(const LLUUID& av_id);
 
 std::string applyAutoCloseOoc(const std::string& message);
 std::string applyMuPose(const std::string& message);
+bool isValidWord(const std::string& message);
 std::string formatString(std::string text, const LLStringUtil::format_map_t& args);
 
 class PVCommon

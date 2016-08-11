@@ -2613,8 +2613,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
 	<string name="ScriptLimitsParcelsOwned">Parcels Listed: [PARCELS]</string>
-	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available</string>
-	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] kb</string>
+	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] KB out of [MAX] kb; [AVAILABLE] KB available</string>
+	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] KB</string>
 	<string name="ScriptLimitsParcelScriptURLs">Parcel Script URLs</string>
 	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
 	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
@@ -4001,6 +4001,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Label">Avatar</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
+  <string name="Command_Cinematic_Label">Cinematic Mode</string>
   <string name="Command_Conversations_Label">Conversations</string>
   <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Debug_Label">Debug Settings</string>
@@ -4011,12 +4012,15 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Gestures_Label">Gestures</string>
   <string name="Command_HowTo_Label">How To</string>
   <string name="Command_Inventory_Label">Inventory</string>
+  <string name="Command_Joystick_Label">Joystick</string>
+  <string name="Command_Sidebar_Label">Sidebar</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
   <string name="Command_MiniMap_Label">Mini-Map</string>
   <string name="Command_Move_Label">Walk / Run / Fly</string>
   <string name="Command_Outbox_Label">Merchant Outbox</string>
+  <string name="Command_Panic_Label">Panic!</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
@@ -4038,6 +4042,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
+  <string name="Command_CinematicMode_Tooltip">Hide most of the UI away</string>  
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Debug_Tooltip">Debug settings for advanced users</string>
@@ -4048,12 +4053,15 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
+  <string name="Command_Joystick_Tooltip">Configure your joystick</string>
+  <string name="Command_Sidebar_Tooltip">Graphical settings</string>
   <string name="Command_Map_Tooltip">Map of the world</string>
   <string name="Command_Marketplace_Tooltip">Go shopping</string>
   <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
   <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
+  <string name="Command_Panic_Tooltip">Press this if [APP_NAME] runs very slowly </string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>

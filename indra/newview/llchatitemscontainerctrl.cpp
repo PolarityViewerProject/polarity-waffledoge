@@ -46,7 +46,7 @@
 // [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER
-#include "pvdatacolorizer.h"
+#include "pvdata.h"
 #endif
 
 static const S32 msg_left_offset = 10;
@@ -239,7 +239,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			// <polarity> Colored names for special users
 			if ((mSourceType != CHAT_SOURCE_OBJECT) && (mFromID.notNull()))
 			{
-				user_name_color = PVDataColorizer::instance().getColor(mFromID, user_name_color, false);
+				user_name_color = PVData::instance().getColor(mFromID, user_name_color, false);
 			}
 			// </polarity>
 #endif // PVDATA_COLORIZER

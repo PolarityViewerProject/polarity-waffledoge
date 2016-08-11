@@ -50,7 +50,6 @@
 
 // <polarity>
 #include "pvdata.h" // for getPreferredName()
-#include "pvdatacolorizer.h" // For agent_role color
 // </polarity>
 class LLFetchAvatarData;
 
@@ -403,7 +402,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);
-			agent_role->setColor(PVDataColorizer::instance().getColor(mAvatarID, LLUIColorTable::instance().getColor("DefaultTextColor"), false));
+			agent_role->setColor(PVData::instance().getColor(mAvatarID, LLColor4::white, false));
 		}
 
 	}

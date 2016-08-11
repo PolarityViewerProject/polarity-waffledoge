@@ -51,14 +51,14 @@ include(VisualLeakDetector)
 include(ZLIB)
 include(URIPARSER)
 
-if (NOT HAVOK_TPV)
-   # When using HAVOK_TPV, the library is precompiled, so no need for this
-   add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
-endif (NOT HAVOK_TPV)
+if(NOT HAVOK_TPV)
+  # When using HAVOK_TPV, the library is precompiled, so no need for this
+  add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+endif()
 
 if(FMODSTUDIO)
   include_directories(${FMODSTUDIO_INCLUDE_DIR})
-endif(FMODSTUDIO)
+endif()
 
 include_directories(
     ${DBUSGLIB_INCLUDE_DIRS}
@@ -95,39 +95,103 @@ include_directories(SYSTEM
     ${LLXML_SYSTEM_INCLUDE_DIRS}
     ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
     )
-    
-SET(thirdparty_SOURCE_FILES
+
+set(exodus_HEADER_FILES
+    exopostprocess.h
+    )
+set(exodus_SOURCE_FILES
     exopostprocess.cpp
-    fsareasearch.cpp
-    fsareasearchmenu.cpp
-    fsscrolllistctrl.cpp
-    kcwlinterface.cpp
-    pvaligntool.cpp
-    pvcommon.cpp
-    pvdata.cpp
-    pvdatacolorizer.cpp
-    pvrandom.cpp
-    sanitycheck.cpp
+    )
+source_group("Third Party/Exodus" FILES
+    ${exodus_HEADER_FILES}
+    ${exodus_SOURCE_FILES}
     )
 
-SET(thirdparty_HEADER_FILES
-    exopostprocess.h
+set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
     fsscrolllistctrl.h
     kcwlinterface.h
+    sanitycheck.h
+    )
+set(firestorm_SOURCE_FILES
+    fsareasearch.cpp
+    fsareasearchmenu.cpp
+    fsscrolllistctrl.cpp
+    kcwlinterface.cpp
+    sanitycheck.cpp
+    )
+source_group("Third Party/Firestorm" FILES
+    ${firestorm_HEADER_FILES}
+    ${firestorm_SOURCE_FILES}
+    )
+
+set(obsidian_HEADER_FILES
+    oschatcommand.h
+    ospanelquicksettings.h
+    ospanelquicksettingspulldown.h
+    osscriptruntimeperms.h
+    )
+set(obsidian_SOURCE_FILES
+    oschatcommand.cpp
+    ospanelquicksettings.cpp
+    ospanelquicksettingspulldown.cpp
+    )
+source_group("Third Party/Obsidian" FILES
+    ${obsidian_HEADER_FILES}
+    ${obsidian_SOURCE_FILES}
+    )
+
+set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
     pvdata.h
-    pvdatacolorizer.h
+    pvmachinima.h
+    pvperformancemaid.h
     pvrandom.h
-    sanitycheck.h
+    )
+set(polarity_SOURCE_FILES
+    pvaligntool.cpp
+    pvcommon.cpp
+    pvdata.cpp
+    pvmachinima.cpp
+    pvperformancemaid.cpp
+    pvrandom.cpp
+    )
+source_group("Third Party/Polarity" FILES
+    ${polarity_HEADER_FILES}
+    ${polarity_SOURCE_FILES}
     )
 
-SOURCE_GROUP("Third Party" FILES ${thirdparty_SOURCE_FILES} ${thirdparty_HEADER_FILES})
+set(rlva_SOURCE_FILES
+    rlvactions.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvcommon.cpp
+    rlvlocks.cpp
+    rlvinventory.cpp
+    rlvextensions.cpp
+    rlvfloaters.cpp
+    rlvui.cpp
+    )
+set(rlva_HEADER_FILES
+    rlvactions.h
+    rlvdefines.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvcommon.h
+    rlvlocks.h
+    rlvinventory.h
+    rlvextensions.h
+    rlvfloaters.h
+    rlvui.h
+    )
+source_group("Third Party/Restrained Love API" FILES
+    ${rlva_SOURCE_FILES}
+    ${rlva_HEADER_FILES}
+    )
 
 set(viewer_SOURCE_FILES
-    ${thirdparty_SOURCE_FILES}
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
     llaisapi.cpp
@@ -290,7 +354,7 @@ set(viewer_SOURCE_FILES
     llfloatermodeluploadbase.cpp
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
-    llfloaternotificationstabbed.cpp 
+    llfloaternotificationstabbed.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpathfindingcharacters.cpp
@@ -725,19 +789,7 @@ set(viewer_SOURCE_FILES
     llxmlrpclistener.cpp
     llxmlrpctransaction.cpp
     noise.cpp
-    oschatcommand.cpp
-    ospanelquicksettings.cpp
-    ospanelquicksettingspulldown.cpp
     pipeline.cpp
-    rlvactions.cpp
-    rlvhandler.cpp
-    rlvhelper.cpp
-    rlvcommon.cpp
-    rlvlocks.cpp
-    rlvinventory.cpp
-    rlvextensions.cpp
-    rlvfloaters.cpp
-    rlvui.cpp
     )
 
 set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
@@ -746,7 +798,6 @@ set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
 set(viewer_HEADER_FILES
     CMakeLists.txt
     ViewerInstall.cmake
-    ${thirdparty_HEADER_FILES}
     groupchatlistener.h
     llaccountingcost.h
     llaccountingcostmanager.h
@@ -914,7 +965,7 @@ set(viewer_HEADER_FILES
     llfloatermodeluploadbase.h
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
-    llfloaternotificationstabbed.h 
+    llfloaternotificationstabbed.h
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpathfindingcharacters.h
@@ -1339,53 +1390,61 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     macmain.h
     noise.h
-    oschatcommand.h
-    ospanelquicksettings.h
-    ospanelquicksettingspulldown.h
-    osscriptruntimeperms.h
     pipeline.h
-    rlvactions.h
-    rlvdefines.h
-    rlvhandler.h
-    rlvhelper.h
-    rlvcommon.h
-    rlvlocks.h
-    rlvinventory.h
-    rlvextensions.h
-    rlvfloaters.h
-    rlvui.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
     )
 
+# These goes after the viewer files definition because some
+# of them need to go first, i.e ViewerInstall.cmake
+list(APPEND viewer_HEADER_FILES
+    ${exodus_HEADER_FILES}
+    ${firestorm_HEADER_FILES}
+    ${obsidian_HEADER_FILES}
+    ${polarity_HEADER_FILES}
+    ${rlva_HEADER_FILES}
+    )
+list(APPEND viewer_SOURCE_FILES
+    ${exodus_SOURCE_FILES}
+    ${firestorm_SOURCE_FILES}
+    ${obsidian_SOURCE_FILES}
+    ${polarity_SOURCE_FILES}
+    ${rlva_SOURCE_FILES}
+    )
+
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
-# the summary.json file is created for the benefit of the TeamCity builds, where
-#   it is used to provide descriptive information to the build results page
+# The viewer_version.txt file created here is for passing to viewer_manifest and
+#   autobuild.
+# The summary.json file is created for the benefit of the TeamCity builds, where
+#   it is used to provide descriptive information to the build results page.
 add_custom_target(generate_viewer_version ALL
-                  COMMAND ${CMAKE_COMMAND} -E echo ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-                  COMMAND ${CMAKE_COMMAND} -E echo {"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"} > ${CMAKE_BINARY_DIR}/summary.json
-                  COMMENT "Generating viewer_version.txt for manifest processing"
-                  )
+    # FIXME: This line violates CMake standards (too long)
+    # and COMMAND cannot be split.
+    COMMAND ${CMAKE_COMMAND} -E echo ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
+    COMMAND ${CMAKE_COMMAND} -E echo {"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"} > ${CMAKE_BINARY_DIR}/summary.json
+    COMMENT "Generating viewer_version.txt for manifest processing"
+    )
 
 set_source_files_properties(
-   llversioninfo.cpp tests/llversioninfo_test.cpp 
-   PROPERTIES
-   DEPENDS generate_viewer_version  # dummy dependency to force recompile every time
-   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-   )
+    llversioninfo.cpp tests/llversioninfo_test.cpp
+    PROPERTIES
+    # dummy dependency to force recompile every time
+    DEPENDS generate_viewer_version
+    # see BuildVersion.cmake
+    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+    )
 
-if (DARWIN)
-  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
-  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.mm)
-  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.h)
-  LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
-  LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
+if(DARWIN)
+    list(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
+    list(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.mm)
+    list(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.h)
+    list(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
+    list(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
 
   # This should be compiled with the viewer.
-  LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  list(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1417,42 +1476,45 @@ if (DARWIN)
     ${viewer_RESOURCE_FILES}
     PROPERTIES
     HEADER_FILE_ONLY TRUE
-    #MACOSX_PACKAGE_LOCATION Resources #don't do this! this tells cmake to copy the files.
+    #don't do this! this tells cmake to copy the files.
+    #MACOSX_PACKAGE_LOCATION Resources
     )
-  SOURCE_GROUP("Resources" FILES ${viewer_RESOURCE_FILES})
+  source_group("Resources" FILES ${viewer_RESOURCE_FILES})
   list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-endif (DARWIN)
+endif() # Darwin
 
-if (LINUX)
-    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
-    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
-    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+if(LINUX)
+    list(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    list(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
     set(viewer_LIBRARIES
         Xinerama
         )
-    if (OPENAL)
-      LIST(APPEND viewer_LIBRARIES ${OPENAL_LIBRARIES})
-    endif (OPENAL)
-endif (LINUX)
+    if(OPENAL)
+      list(APPEND viewer_LIBRARIES ${OPENAL_LIBRARIES})
+    endif()
+endif()
 
-if (WINDOWS)
+if(WINDOWS)
     list(APPEND viewer_SOURCE_FILES
-         llappviewerwin32.cpp
-         llwindebug.cpp
-         )
+        llappviewerwin32.cpp
+        llwindebug.cpp
+        )
 
     list(APPEND viewer_HEADER_FILES
-         llappviewerwin32.h
-         llwindebug.h
-         )
+        llappviewerwin32.h
+        llwindebug.h
+        )
 
-  if (NVAPI)
+  if(NVAPI)
     set(APPVWRW32_COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS} -DUSE_NVAPI=1")
-  else (NVAPI)
+  else()
     set(APPVWRW32_COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS} -UUSE_NVAPI")
-  endif (NVAPI)
-  set_source_files_properties(llappviewerwin32.cpp PROPERTIES COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS}")
+  endif()
+  set_source_files_properties(
+    llappviewerwin32.cpp PROPERTIES COMPILE_FLAGS "${APPVWRW32_COMPILE_FLAGS}"
+    )
 
     # precompiled header configuration
     # llviewerprecompiledheaders.cpp generates
@@ -1464,8 +1526,10 @@ if (WINDOWS)
             PROPERTIES
             COMPILE_FLAGS "/Ycllviewerprecompiledheaders.h"
             )
-        set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}" llviewerprecompiledheaders.cpp)
-    endif(USE_PRECOMPILED_HEADERS)
+        set(viewer_SOURCE_FILES "${viewer_SOURCE_FILES}"
+            llviewerprecompiledheaders.cpp
+        )
+    endif()
 
     # Replace the icons with the appropriate ones for the channel
     # ('test' is the default)
@@ -1549,11 +1613,16 @@ if (WINDOWS)
     set_source_files_properties(${viewer_RESOURCE_FILES}
                                 PROPERTIES HEADER_FILE_ONLY TRUE)
 
-    configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/res/viewerRes.rc
                     ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
                     )
+    if (SANDY_FIX)
+        set(manifest_file "compatibility_sandy.manifest")
+    else (SANDY_FIX)
+        set(manifest_file "compatibility.manifest")
+    endif (SANDY_FIX)
     list(APPEND viewer_RESOURCE_FILES
-        ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest
+        ${CMAKE_SOURCE_DIR}/tools/manifests/${manifest_file}
         ${CMAKE_CURRENT_BINARY_DIR}/viewerRes.rc
         )
 
@@ -1561,13 +1630,14 @@ if (WINDOWS)
       PROPERTIES COMPILE_FLAGS "-I${CMAKE_CURRENT_SOURCE_DIR}/res"
       )
 
-    SOURCE_GROUP("Resource Files" FILES ${viewer_RESOURCE_FILES})
+    source_group("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    if (NOT USESYSTEMLIBS)
+    if(NOT USESYSTEMLIBS)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
-    endif (NOT USESYSTEMLIBS)
+    endif()
 
-# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib (windows libs)
+# see EXP-1765 - theory is opengl32.lib needs to be included before gdi32.lib
+# (windows libs)
     set(viewer_LIBRARIES
         opengl32
         ${WINDOWS_LIBRARIES}
@@ -1583,7 +1653,7 @@ if (WINDOWS)
         Vfw32
         winspool
         )
-endif (WINDOWS)
+endif() # WINDOWS
 
 # Add the xui files. This is handy for searching for xui elements
 # from within the IDE.
@@ -1592,11 +1662,11 @@ set(viewer_XUI_FILES
     skins/default/textures/textures.xml
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
+    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
 
 file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
+    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
 
 # Cannot append empty lists in CMake, wait until we have files here.
@@ -1618,13 +1688,10 @@ set(viewer_APPSETTINGS_FILES
     app_settings/cmd_line.xml
     app_settings/commands.xml
     app_settings/grass.xml
-    app_settings/high_graphics.xml
     app_settings/ignorable_dialogs.xml
     app_settings/keys.xml
     app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
-    app_settings/low_graphics.xml
-    app_settings/mid_graphics.xml
     app_settings/settings.xml
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
@@ -1634,7 +1701,6 @@ set(viewer_APPSETTINGS_FILES
     app_settings/std_bump.ini
     app_settings/toolbars.xml
     app_settings/trees.xml
-    app_settings/ultra_graphics.xml
     app_settings/viewerart.xml
     ${CMAKE_SOURCE_DIR}/../etc/message.xml
     ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
@@ -1660,11 +1726,11 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if (NOT USESYSTEMLIBS)
+if(NOT USESYSTEMLIBS)
     list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
-endif (NOT USESYSTEMLIBS)
+endif()
 
-if (WINDOWS)
+if(WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
 
   source_group("Installer Files" FILES ${viewer_INSTALLER_FILES})
@@ -1673,18 +1739,20 @@ if (WINDOWS)
                               PROPERTIES HEADER_FILE_ONLY TRUE)
 
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
-endif (WINDOWS)
+endif() # WINDOWS
 
-if (OPENAL)
+if(OPENAL)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_OPENAL")
-endif (OPENAL)
+endif()
 
-if (FMODSTUDIO)
+if(FMODSTUDIO)
   set(LLSTARTUP_COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS} -DLL_FMODSTUDIO")
   set(FMOD_LIBRARY ${FMODSTUDIO_LIBRARY})
-endif (FMODSTUDIO)
+endif()
 
-set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS "${LLSTARTUP_COMPILE_FLAGS}")
+set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_FLAGS
+                            "${LLSTARTUP_COMPILE_FLAGS}"
+                            )
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
@@ -1697,21 +1765,21 @@ add_executable(${VIEWER_BINARY_NAME}
     ${viewer_SOURCE_FILES}
     )
 
-if (SDL_FOUND)
+if(SDL_FOUND)
   set_property(TARGET ${VIEWER_BINARY_NAME}
     PROPERTY COMPILE_DEFINITIONS LL_SDL=1
     )
-endif (SDL_FOUND)
+endif()
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
-     ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
+    ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
 list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
 
 set(PACKAGE ON CACHE BOOL
     "Add a package target that builds an installer package.")
 
-if (WINDOWS)
+if(WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
@@ -1726,14 +1794,16 @@ if (WINDOWS)
             PROPERTIES
             COMPILE_FLAGS "/Yullviewerprecompiledheaders.h"
             )
-    endif(USE_PRECOMPILED_HEADERS)
+    endif()
 
-    # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
-    # here.
-    # *NOTE:Mani - This is a crappy hack to have important dependencies for the viewer_manifest copy action
-    # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
-    # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
-    # and have the build deps get tracked *please* tell me about it.
+    # If adding a file to viewer_manifest.py in the WindowsManifest.construct()
+    # method, be sure to add the dependency here.
+    # *NOTE:Mani - This is a crappy hack to have important dependencies for the
+    # viewer_manifest copy action be met. I'm looking forward to a source-code
+    # split-up project next year that will address this kind of thing.
+    # In the meantime, if you have any ideas on how to easily maintain one list,
+    # either here or in viewer_manifest.py and have the build deps get tracked
+    # *please* tell me about it.
 
     if(USE_TCMALLOC)
       # Configure a var for tcmalloc location, if used.
@@ -1743,12 +1813,14 @@ if (WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
         ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
         )
-    endif(USE_TCMALLOC)
+    endif()
 
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at build time. Can't do this here.
-      #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
+      # The following commented dependencies are determined at variably at
+      # build time. Can't do this here.
+      #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll \
+      # => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
@@ -1784,21 +1856,21 @@ if (WINDOWS)
       windows-crash-logger
       )
 
-    if (FMODSTUDIO)
-      if (WORD_SIZE EQUAL 64)
+    if(FMODSTUDIO)
+      if(WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
-             ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
-             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod64.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL64.dll
+            ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
+            ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod64.dll
+            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL64.dll
             )
-      else (WORD_SIZE EQUAL 64)
+      else()
         list(APPEND COPY_INPUT_DEPENDENCIES
-             ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
-             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
+            ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+            ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
             )
-      endif (WORD_SIZE EQUAL 64)
-    endif (FMODSTUDIO)
+      endif()
+    endif()
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
@@ -1825,13 +1897,17 @@ if (WINDOWS)
       COMMENT "Performing viewer_manifest copy"
       )
 
-    add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
+    add_custom_target(
+        copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat
+                    )
 
-    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
+    add_dependencies(
+        # FIXME: This violates CMake Standards (too long)
+        ${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
 
-    if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
+    if(EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
-    endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
+    endif()
 
     add_dependencies(${VIEWER_BINARY_NAME}
       SLPlugin
@@ -1848,12 +1924,14 @@ if (WINDOWS)
           --workingdir
           ${VIEWER_BINARY_NAME}
           "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
+        COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory\
+                for debugging."
         )
 
-    if (PACKAGE)
+    if(PACKAGE)
       add_custom_command(
-        OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
+        # FIXME: This violates CMake Standards (too long)
+        OUTPUT ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CFG_INTDIR}/event_host.tar.bz2
         COMMAND ${PYTHON_EXECUTABLE}
         ARGS
           ${CMAKE_CURRENT_SOURCE_DIR}/event_host_manifest.py
@@ -1897,19 +1975,20 @@ if (WINDOWS)
         # sorted out on the parabuild cluster...
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
-    endif (PACKAGE)
-elseif (DARWIN)
+    endif()
+elseif(DARWIN)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker\
+        -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
         )
-else (WINDOWS)
-        # Linux
+elseif(LINUX)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,--Map=${VIEWER_BINARY_NAME}.MAP"
+        LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Wl,\
+        --Map=${VIEWER_BINARY_NAME}.MAP"
         )
-endif (WINDOWS)
+endif() # WINDOWS
 
 # *NOTE: - this list is very sensitive to ordering, test carefully on all
 # platforms if you change the releative order of the entries here.
@@ -1924,7 +2003,7 @@ endif (WINDOWS)
 # one of these being libz where you can find four or more versions in play
 # at once.  On Linux, libz can be found at link and run time via a number
 # of paths:
-#     
+#
 #      => -lfreetype
 #        => libz.so.1 (on install machine, not build)
 #      => -lSDL
@@ -1993,7 +2072,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
     "Path to artwork files.")
 
-if (LINUX)
+if(LINUX)
+  # FIXME: This violates CMake Standards (too long)
   set(product Polarity-${ARCH}-${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION})
 
   # These are the generated targets that are copied to package/
@@ -2022,16 +2102,15 @@ if (LINUX)
         --dest=${CMAKE_CURRENT_BINARY_DIR}/packaged
         --grid=${GRID}
         --source=${CMAKE_CURRENT_SOURCE_DIR}
+        # FIXME: This violates CMake Standards (too long)
         --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
       DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
         ${COPY_INPUT_DEPENDENCIES}
       )
 
-  if (PACKAGE)
-  endif (PACKAGE)
-
   add_custom_command(
+    # FIXME: This violates CMake Standards (too long)
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
     COMMAND ${PYTHON_EXECUTABLE}
     ARGS
@@ -2053,30 +2132,34 @@ if (LINUX)
     COMMENT "Performing viewer_manifest copy"
     )
 
+  # FIXME: This violates CMake Standards (too long)
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
-  if (PACKAGE)
+  if(PACKAGE)
     add_custom_target(llpackage ALL DEPENDS ${product}.tar.bz2)
-    # Make sure we don't run two instances of viewer_manifest.py at the same time.
+    # Make sure we don't run two instances of viewer_manifest.py
+    # at the same time.
     add_dependencies(llpackage copy_l_viewer_manifest)
     check_message_template(llpackage)
-  endif (PACKAGE)
-endif (LINUX)
+  endif()
+endif() # LINUX
 
-if (DARWIN)
+if(DARWIN)
   # These all get set with PROPERTIES
   set(product "Polarity")
   set(MACOSX_BUNDLE_INFO_STRING "Polarity Viewer")
   set(MACOSX_BUNDLE_ICON_FILE "secondlife.icns")
   set(MACOSX_BUNDLE_GUI_IDENTIFIER "com.secondlife.indra.viewer")
-  set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
+  set(MACOSX_BUNDLE_LONG_VERSION_STRING "${VIEWER_CHANNEL} \
+    ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
   set(MACOSX_BUNDLE_BUNDLE_NAME "Polarity")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}")
-  set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
+  set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}\
+    ${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
   set(MACOSX_BUNDLE_COPYRIGHT "Copyright © Polarity Viewer Project 2014-2016")
   set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
   set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
-  
+
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
@@ -2086,8 +2169,9 @@ if (DARWIN)
     )
 
   configure_file(
-     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
-     "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+    "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/\
+    ${product}.app/Contents/Info.plist"
     )
 
   add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
@@ -2113,16 +2197,17 @@ if (DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
+  # FIXME: This violates CMake Standards (too long)
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_cef mac-crash-logger)
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 
-  if (ENABLE_SIGNING)
+  if(ENABLE_SIGNING)
       set(SIGNING_SETTING "--signature=${SIGNING_IDENTITY}")
-  else (ENABLE_SIGNING)
+  else()
       set(SIGNING_SETTING "")
-  endif (ENABLE_SIGNING)
+  endif()
 
-  if (PACKAGE)
+  if(PACKAGE)
       add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
       add_dependencies(llpackage generate_viewer_version)
 
@@ -2142,58 +2227,69 @@ if (DARWIN)
           --channel=${VIEWER_CHANNEL}
           --versionfile=${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
           --source=${CMAKE_CURRENT_SOURCE_DIR}
+          # FIXME: This violates CMake Standards (too long)
           --touch=${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.touched
           ${SIGNING_SETTING}
         DEPENDS
           ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
       )
-  endif (PACKAGE)
-endif (DARWIN)
+  endif()
+endif() # DARWIN
 
-if (INSTALL)
+if(INSTALL)
   include(${CMAKE_CURRENT_SOURCE_DIR}/ViewerInstall.cmake)
-endif (INSTALL)
+endif()
 
-if (PACKAGE)
+if(PACKAGE)
   set(SYMBOL_SEARCH_DIRS "")
-  if (WINDOWS)
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-windows.tar.bz2")
-    # slplugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
-    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} slplugin.exe")
+  if(WINDOWS)
+    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/\
+        ${CMAKE_CFG_INTDIR}")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}\
+        /polarity-symbols-windows.tar.bz2")
+    # slplugin.exe failing symbols dump - need to debug, might have to do with
+    # updated version of google breakpad
+    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} \
+    # slplugin.exe")
     set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
     set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
-  endif (WINDOWS)
-  if (DARWIN)
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
-    # *TODO: Generate these search dirs in the cmake files related to each binary.
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
-    list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-darwin.tar.bz2")
+  elseif(DARWIN)
+    list(APPEND SYMBOL_SEARCH_DIRS
+        "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
+    # *TODO: Generate these search dirs in the cmake files related
+    # to each binary.
+    list(APPEND SYMBOL_SEARCH_DIRS
+        "${CMAKE_BINARY_DIR}/llplugin/slplugin/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS
+        "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS
+        "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
+    list(APPEND SYMBOL_SEARCH_DIRS
+        "${CMAKE_BINARY_DIR}/media_plugins/quicktime/${CMAKE_CFG_INTDIR}")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}\
+        /polarity-symbols-darwin.tar.bz2")
     set(VIEWER_EXE_GLOBS "'Polarity' SLPlugin mac-crash-logger")
     set(VIEWER_EXE_GLOBS "'Polarity' mac-crash-logger")
     set(VIEWER_LIB_GLOB "*.dylib")
-  endif (DARWIN)
-  if (LINUX)
+  elseif(LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
-    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-linux.tar.bz2")
+    set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}\
+        /polarity-symbols-linux.tar.bz2")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin SLPlugin")
     set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
-  endif (LINUX)
+  endif()
 
   if(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
   if(CMAKE_CFG_INTDIR STREQUAL ".")
       set(LLBUILD_CONFIG ${CMAKE_BUILD_TYPE})
-  else(CMAKE_CFG_INTDIR STREQUAL ".")
+  else()
       # set LLBUILD_CONFIG to be a shell variable evaluated at build time
       # reflecting the configuration we are currently building.
       set(LLBUILD_CONFIG ${CMAKE_CFG_INTDIR})
-  endif(CMAKE_CFG_INTDIR STREQUAL ".")
+  endif()
   add_custom_command(OUTPUT "${VIEWER_SYMBOL_FILE}"
     COMMAND "${PYTHON_EXECUTABLE}"
     ARGS
@@ -2208,16 +2304,17 @@ if (PACKAGE)
         VERBATIM)
 
   add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_dependencies(generate_breakpad_symbols
+    "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
   add_dependencies(llpackage generate_breakpad_symbols)
-  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
-endif (PACKAGE)
+  endif()
+endif() # PACKAGE
 
-if (LL_TESTS)
+if(LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)
-  SET(viewer_TEST_SOURCE_FILES
+  set(viewer_TEST_SOURCE_FILES
     llagentaccess.cpp
     lldateutil.cpp
 #    llmediadataclient.cpp
@@ -2233,7 +2330,7 @@ if (LL_TESTS)
     llworldmap.cpp
     llworldmipmap.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    LL_TEST_ADDITIONAL_SOURCE_FILES
     tests/llviewertexture_stub.cpp
     #llviewertexturelist.cpp
   )
@@ -2266,7 +2363,7 @@ if (LL_TESTS)
     llworldmap.cpp
     llworldmipmap.cpp
     PROPERTIES
-    LL_TEST_ADDITIONAL_SOURCE_FILES 
+    LL_TEST_ADDITIONAL_SOURCE_FILES
     tests/llviewertexture_stub.cpp
     #llviewertexturelist.cpp
     LL_TEST_ADDITIONAL_LIBRARIES "${BOOST_SYSTEM_LIBRARY}"
@@ -2300,7 +2397,7 @@ if (LL_TESTS)
   #         LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
   #       )
   # endif(USE_PRECOMPILED_HEADERS)
-  LL_ADD_PROJECT_UNIT_TESTS(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
+  ll_add_project_unit_tests(${VIEWER_BINARY_NAME} "${viewer_TEST_SOURCE_FILES}")
 
   #set(TEST_DEBUG on)
   ##################################################
@@ -2317,12 +2414,12 @@ if (LL_TESTS)
     ${LLCOMMON_LIBRARIES}
     )
 
-  if (LINUX)
+  if(LINUX)
     # llcommon uses `clock_gettime' which is provided by librt on linux.
     set(LIBRT_LIBRARY
       rt
       )
-  endif (LINUX)
+  endif()
 
   set(test_libs
     ${WINDOWS_LIBRARIES}
@@ -2338,13 +2435,13 @@ if (LL_TESTS)
     ${BOOST_CONTEXT_LIBRARY}
   )
 
-  LL_ADD_INTEGRATION_TEST(llsechandler_basic
+  ll_add_integration_test(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
     )
 
-  LL_ADD_INTEGRATION_TEST(llsecapi
-     llsecapi.cpp
+  ll_add_integration_test(llsecapi
+    llsecapi.cpp
     "${test_libs}"
     )
 
@@ -2354,22 +2451,23 @@ if (LL_TESTS)
   )
 
 
-  LL_ADD_INTEGRATION_TEST(llslurl
-     "${llslurl_test_sources}"
+  ll_add_integration_test(llslurl
+    "${llslurl_test_sources}"
     "${test_libs}"
     )
 
-  LL_ADD_INTEGRATION_TEST(llviewernetwork
-     llviewernetwork.cpp
+  ll_add_integration_test(llviewernetwork
+    llviewernetwork.cpp
     "${test_libs}"
     )
 
-  LL_ADD_INTEGRATION_TEST(llviewerassetstats
+  ll_add_integration_test(llviewerassetstats
     llviewerassetstats.cpp
     "${test_libs}"
     )
 
-# LL_ADD_INTEGRATION_TEST(llhttpretrypolicy "llhttpretrypolicy.cpp" "${test_libs}")
+# ll_add_integration_test(llhttpretrypolicy "llhttpretrypolicy.cpp"\
+#   "${test_libs}")
 
   #ADD_VIEWER_BUILD_TEST(llmemoryview viewer)
   #ADD_VIEWER_BUILD_TEST(llagentaccess viewer)
@@ -2377,7 +2475,7 @@ if (LL_TESTS)
   #ADD_VIEWER_BUILD_TEST(lltextureinfodetails viewer)
 
 include(LLAddBuildTest)
-SET(viewer_TEST_SOURCE_FILES
+set(viewer_TEST_SOURCE_FILES
   llagentaccess.cpp
   llwlparammanager.cpp
   )
@@ -2387,7 +2485,7 @@ set_source_files_properties(
     LL_TEST_ADDITIONAL_SOURCE_FILES llviewerprecompiledheaders.cpp
   )
 
-endif (LL_TESTS)
+endif() # LL_TESTS
 
 check_message_template(${VIEWER_BINARY_NAME})
 

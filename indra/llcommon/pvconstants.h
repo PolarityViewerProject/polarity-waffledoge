@@ -24,9 +24,18 @@
 
 #ifndef PV_CONSTANTS_H
 #define PV_CONSTANTS_H
+#if (LL_WINDOWS)
+#include "llwin32headers.h"
+#endif
 //#include "stdtypes.h" // for std::string
+#include <string>
 
 // <polarity> This contains the name of the viewer.
 const std::string APP_NAME = "Polarity";
+
+#if (LL_WINDOWS)
+const std::wstring LAPP_NAME = L"Polarity";
+const LPCWSTR LAPP_NAME_LPCWSTR = LAPP_NAME.c_str();
+#endif
 
 #endif

@@ -60,6 +60,8 @@
 #include <dinput.h>
 #include <Dbt.h.>
 
+#include "pvconstants.h" // for APP_NAME
+
 // culled from winuser.h
 #ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
 const S32	WM_MOUSEWHEEL = 0x020A;
@@ -435,7 +437,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	if (title.empty())
 	{
 		mWindowTitle = new WCHAR[50];
-		wsprintf(mWindowTitle, L"OpenGL Window");
+		wsprintf(mWindowTitle, LAPP_NAME_LPCWSTR);
 	}
 	else
 	{
@@ -448,7 +450,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	if (name.empty())
 	{
 		mWindowClassName = new WCHAR[50];
-		wsprintf(mWindowClassName, L"OpenGL Window");
+		wsprintf(mWindowClassName, LAPP_NAME_LPCWSTR);
 	}
 	else
 	{
@@ -3196,7 +3198,7 @@ void LLWindowWin32::setTitle(const std::string win_title)
 	// Set the window title
 	if (win_title.empty())
 	{
-		wsprintf(mWindowTitle, L"OpenGL Window");
+		wsprintf(mWindowTitle, LAPP_NAME_LPCWSTR);
 	}
 	else
 	{

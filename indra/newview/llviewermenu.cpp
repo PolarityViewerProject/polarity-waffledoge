@@ -55,8 +55,10 @@
 #include "lldebugview.h"
 #include "llenvmanager.h"
 #include "llfacebookconnect.h"
+#if !LL_WINDOWS
 #include "llfilepicker.h"
 #include "llfirstuse.h"
+#endif
 #include "llfloaterabout.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -71,16 +73,22 @@
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
+#if !LL_WINDOWS
 #include "llfloaterscriptdebug.h"
 #include "llfloatersnapshot.h"
+#endif // !LL_WINDOWS
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
+#if !LL_WINDOWS
 #include "llfloaterbuildoptions.h"
+#endif // !LL_WINDOWS
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
+#if !LL_WINDOWS
 #include "llhints.h"
+#endif // !LL_WINDOWS
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimview.h"
@@ -106,7 +114,9 @@
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
 #include "lltrans.h"
+#if !LL_WINDOWS
 #include "llviewerdisplay.h" //for gWindowResized
+#endif
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
@@ -121,12 +131,16 @@
 #include "pipeline.h"
 #include "llviewerjoystick.h"
 #include "llwaterparammanager.h"
+#if !LL_WINDOWS
 #include "llwlanimator.h"
+#endif
 #include "llwlparammanager.h"
 #include "llfloatercamera.h"
 #include "lluilistener.h"
 #include "llappearancemgr.h"
+#if !LL_WINDOWS
 #include "lltrans.h"
+#endif
 #include "lleconomy.h"
 #include "lltoolgrab.h"
 #include "llwindow.h"
@@ -134,13 +148,14 @@
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
  
-#include "pvcommon.h"
-
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
+
+#include "pvmachinima.h"
+#include "pvperformancemaid.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -7984,7 +7999,8 @@ class LLViewEnableMouselook : public view_listener_t
 	{
 		// You can't go directly from customize avatar to mouselook.
 		// TODO: write code with appropriate dialogs to handle this transition.
-		bool new_value = (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && !gSavedSettings.getBOOL("FreezeTime"));
+		static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+		bool new_value = (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && !freeze_time);
 		return new_value;
 	}
 };
@@ -9490,6 +9506,11 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedCheckAgentPilotLoop(), "Advanced.CheckAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
+
+	// Polarity Menu
+	view_listener_t::addMenu(new PVPerformanceMaidPanicButton(), "Polarity.PanicButton");
+	view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
+	view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");

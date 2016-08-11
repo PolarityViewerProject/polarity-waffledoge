@@ -162,7 +162,7 @@ public:
 	//@}
 
 	void clear();	///< resets to Undefined
-
+	std::string getRandom() const;
 
 	/** @name Scalar Types
 	    The scalar types, and how they map onto C++

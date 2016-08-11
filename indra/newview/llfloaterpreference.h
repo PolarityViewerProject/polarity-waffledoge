@@ -52,6 +52,8 @@ typedef std::map<std::string, std::string> notifications_map;
 bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response);
 // </polarity>
 
+// Unused
+#ifdef OLD_GRAPHIC_SETTINGS
 typedef enum
 	{
 		GS_LOW_GRAPHICS,
@@ -60,7 +62,7 @@ typedef enum
 		GS_ULTRA_GRAPHICS
 		
 	} EGraphicsSettings;
-
+#endif
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver

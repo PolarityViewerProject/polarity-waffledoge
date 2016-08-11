@@ -472,7 +472,11 @@ BOOL LLFloaterPreference::postBuild()
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
-		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
+		// <polarity> Don't overwrite DND custom string here.
+		if (!gSavedPerAccountSettings.getBOOL("DoNotDisturbResponseChanged"))
+		{
+			gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
+		}
 	}
 
 	// set 'enable' property for 'Clear log...' button

@@ -895,7 +895,8 @@ void LLViewerObjectList::update(LLAgent &agent)
 
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
-	if (gSavedSettings.getBOOL("FreezeTime"))
+	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	if (freeze_time)
 	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
