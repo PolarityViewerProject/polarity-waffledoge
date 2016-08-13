@@ -1225,6 +1225,39 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_NameTagRenderWeightEnable</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, the avatar complexity will be shown in the nametag for every avatar.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVUI_NameTagRenderWeightSelf</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, the avatar complexity for the own avatar will be shown in the nametag.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVUI_NameTagRenderWeightThresholdOnly</key>
+    <map>
+      <key>Comment</key>
+      <string>If enabled, the avatar complexity will be shown in the nametag only for too complex avatars (Jelly Dolls)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_ProgressTipTimer</key>
     <map>
       <key>Comment</key>

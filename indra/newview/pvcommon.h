@@ -82,6 +82,13 @@ public:
 	static S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
 
 	static bool isAVXSupported();
+
+	/* \brief Wrapper around LLStringUtil::format.
+	 *
+	 * I'm not sure we we need this yet.
+	 */
+	static std::string format_string(std::string text, const LLStringUtil::format_map_t& args);
+
 private:
 	static bool sAVX_Checked;
 	static bool sAVXSupported;

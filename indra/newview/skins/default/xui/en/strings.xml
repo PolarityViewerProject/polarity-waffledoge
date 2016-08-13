@@ -4206,4 +4206,6 @@ Try enclosing path to the editor with double quotes.
 
   <string name="SnapshotSavedToDisk">Snapshot saved: [FILENAME]</string>
   <string name="CannotSaveSnapshot">Snapshot not saved due to failure or cancellation</string>
+
+  <string name="Nametag_Complexity_Label">Complexity: [COMPLEXITY]</string>
 </strings>

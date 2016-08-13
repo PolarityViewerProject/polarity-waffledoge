@@ -455,3 +455,9 @@ bool PVCommon::isAVXSupported()
 
 	return sAVXSupported;
 }
+
+std::string PVCommon::format_string(std::string text, const LLStringUtil::format_map_t& args)
+{
+	LLStringUtil::format(text, args);
+	return text;
+}

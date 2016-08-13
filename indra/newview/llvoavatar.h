@@ -900,6 +900,10 @@ private:
 	bool			mNameCloud;
 	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
+	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
+	U32				mNameArc;
+	LLColor4		mNameArcColor;
+	// </FS:Ansariel>
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

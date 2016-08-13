@@ -116,6 +116,8 @@
 #include "llscenemonitor.h"
 #include "llsdserialize.h"
 
+#include "pvcommon.h"
+
 #ifdef PVDATA_COLORIZER
 #include "pvdata.h"
 #endif
@@ -701,6 +703,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mAppearanceAnimating(FALSE),
     mNameIsSet(false),
 	mTitle(),
+	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
+	mNameArc(0),
+	mNameArcColor(LLColor4::white),
+	// </FS:Ansariel>
 	mNameAway(false),
 	mNameDoNotDisturb(false),
 	mNameMute(false),
@@ -2806,6 +2812,31 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 	}
 
+	// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
+	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
+	static LLCachedControl<bool> show_too_complex_only_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightThresholdOnly", true);
+	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelf", false);
+	U32 complexity(0);
+	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
+
+	if (show_arw_tag &&
+		((isSelf() && show_own_arw_tag) ||
+		(!isSelf() && (!show_too_complex_only_arw_tag || isTooComplex()))))
+	{
+		complexity = mVisualComplexity;
+
+		// Show complexity color if we're limiting and not showing our own ARW...
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+		if (max_render_cost != 0 && !isSelf())
+		{
+			// This calculation is copied from idleUpdateRenderComplexity()
+			F32 green_level = 1.f - llclamp(((F32)complexity - (F32)max_render_cost) / (F32)max_render_cost, 0.f, 1.f);
+			F32 red_level = llmin((F32)complexity / (F32)max_render_cost, 1.f);
+			complexity_color.set(red_level, green_level, 0.f, 1.f);
+		}
+	}
+	// </FS:Ansariel>
+
 	// Rebuild name tag if state change detected
 	if (!mNameIsSet
 		|| new_name
@@ -2816,7 +2847,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_muted != mNameMute
 		|| is_appearance != mNameAppearance 
 		|| is_friend != mNameFriend
-		|| is_cloud != mNameCloud)
+		|| is_cloud != mNameCloud
+		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
+		|| complexity != mNameArc
+		|| complexity_color != mNameArcColor)
 	{
 		clearNameTag();
 		LLColor4 name_tag_color = getNameTagColor(is_friend);
@@ -2932,6 +2966,23 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
 		}
 
+		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
+		static const std::string complexity_label = LLTrans::getString("Nametag_Complexity_Label");
+		if (show_arw_tag &&
+			((isSelf() && show_own_arw_tag) ||
+			(!isSelf() && (!show_too_complex_only_arw_tag || isTooComplex()))))
+		{
+			std::string complexity_string;
+			LLLocale locale(LLLocale::USER_LOCALE);
+			LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
+
+			LLStringUtil::format_map_t label_args;
+			label_args["COMPLEXITY"] = complexity_string;
+
+			addNameTagLine(PVCommon::format_string(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
+		}
+		// </FS:Ansariel>
+
 		mNameAway = is_away;
 		mNameDoNotDisturb = is_do_not_disturb;
 		mNameMute = is_muted;
@@ -2939,6 +2990,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameFriend = is_friend;
 		mNameCloud = is_cloud;
 		mTitle = title ? title->getString() : "";
+		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
+		mNameArc = complexity;
+		mNameArcColor = complexity_color;
+		// </FS:Ansariel>
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
