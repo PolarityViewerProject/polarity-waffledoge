@@ -4352,7 +4352,7 @@ void LLAgent::stopCurrentAnimations()
 		{
 			U32 permissions = SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TRIGGER_ANIMATION].permbit | SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS].permbit;
 			sendRevokePermissions(mRegionp->getRegionID(), permissions);
-			static LLCachedControl<BOOL> no_stand_on_reset(gSavedSettings, "PVMovement_DoNotStandUpOnAnimReset", FALSE);
+			static LLCachedControl<bool> no_stand_on_reset(gSavedSettings, "PVMovement_DoNotStandUpOnAnimReset", FALSE);
 			if (gAgentAvatarp->isSitting() && !no_stand_on_reset)
 			{	// Also stand up, since auto-granted sit animation permission has been revoked
 				gAgent.standUp();

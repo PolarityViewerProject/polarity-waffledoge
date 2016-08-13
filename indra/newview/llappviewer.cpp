@@ -3171,7 +3171,7 @@ bool LLAppViewer::initWindow()
 	static LLCachedControl<U32> WindowHeight(gSavedSettings, "WindowHeight");
 	static LLCachedControl<U32> MinWindowWidth(gSavedSettings, "MinWindowWidth");
 	static LLCachedControl<U32> MinWindowHeight(gSavedSettings, "MinWindowHeight");
-	static LLCachedControl<BOOL> FullScreen(gSavedSettings, "FullScreen");
+	static LLCachedControl<bool> FullScreen(gSavedSettings, "FullScreen");
 
 	gWindowTitle = PVGetDynamicWindowTitle();
 	LLViewerWindow::Params window_params;
