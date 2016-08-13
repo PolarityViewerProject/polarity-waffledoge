@@ -1,7 +1,7 @@
 <llsd>
 	<map>
 		<!-- default-level can be ALL, DEBUG, INFO, WARN, ERROR, or NONE -->
-		<key>default-level</key>    <string>INFO</string>
+		<key>default-level</key>    <string>WARN</string>
 		<key>print-location</key>   <boolean>false</boolean>
 		<key>settings</key>
 		<array>
@@ -36,13 +36,13 @@
 					</array>
 				<key>tags</key>
 					<array>
-						<string>AppCache</string>
-						<string>AppInit</string>
-						<string>MediaAuth</string>
-						<string>RenderInit</string>
+						<!-- <string>AppCache</string> -->
+						<!-- <string>AppInit</string> -->
+						<!-- <string>MediaAuth</string> -->
+						<!-- <string>RenderInit</string> -->
 						<string>Texture</string>
-						<string>TextureCache</string>
-						<string>Window</string>
+						<!-- <string>TextureCache</string> -->
+						<!-- <string>Window</string> -->
 					</array>
 			</map>
 		</array>
