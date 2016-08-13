@@ -1101,8 +1101,8 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 }
 
 // static
-// I tried, but that's not thread-safe.
-#if !RELEASE_BUILD
+// TODO: Fix non-null terminated strings issue.
+#if !RELEASE_BUILD && FIXED_STRINGS_NULL_TERM
 void PVData::PV_DEBUG(const std::string log_in_s, const LLError::ELevel& level)
 {
 	// Skip debug entirely if the user isn't authenticated yet
