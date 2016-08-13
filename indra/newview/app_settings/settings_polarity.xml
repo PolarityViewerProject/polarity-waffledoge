@@ -13,6 +13,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>_NACL_LogLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Logging level: 0 - Debug, 1 - Info, 2 - Warn, 3 - Error, 4 - None</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>4</integer>
+    </map>
      <key>_NACL_SimpleAvatarShadows</key>
      <map>
        <key>Comment</key>
