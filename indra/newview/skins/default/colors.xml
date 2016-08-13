@@ -1086,7 +1086,7 @@
    reference="MapAvatarFriendColor" />
   <color
    name="AvatarLindenColor"
-   reference="MapAvatarLindenColor" />
+   value="0 1 1 1" />
   <color
    name="AvatarMutedColor"
    reference="Gray" />
