@@ -892,6 +892,10 @@ protected:
 private:
     bool            mNameIsSet;
 	std::string  	mTitle;
+	// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
+	std::string		mNameFirstname;
+	std::string		mNameLastname;
+	// </FS:Ansariel>
 	bool	  		mNameAway;
 	bool	  		mNameDoNotDisturb;
 	bool	  		mNameMute;

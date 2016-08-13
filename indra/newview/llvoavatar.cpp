@@ -702,6 +702,10 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mLastAppearanceBlendTime(0.f),
 	mAppearanceAnimating(FALSE),
     mNameIsSet(false),
+	// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
+	mNameFirstname(),
+	mNameLastname(),
+	// </FS:Ansariel>
 	mTitle(),
 	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
 	mNameArc(0),
@@ -2852,6 +2856,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	// Rebuild name tag if state change detected
 	if (!mNameIsSet
 		|| new_name
+		// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
+		|| (firstname->getString() != mNameFirstname || lastname->getString() != mNameLastname)
+		// </FS:Ansariel>
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
 		|| is_away != mNameAway 
@@ -3000,6 +3007,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
 		mColorLast = name_tag_color;
+		// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
+		mNameFirstname = firstname->getString();
+		mNameLastname = lastname->getString();
+		// </FS:Ansariel>
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
