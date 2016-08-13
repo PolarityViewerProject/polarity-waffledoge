@@ -1228,7 +1228,7 @@
     <key>PVUI_ProgressTipTimer</key>
     <map>
       <key>Comment</key>
-      <string>Show the current balance in the statusbar if enabled</string>
+      <string>How long to wait before showing a new progress tip</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
