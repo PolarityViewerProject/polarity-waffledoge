@@ -2430,6 +2430,8 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		U32 level = userdata.asInteger();
+		// NaCl - Store Log Level
+		gSavedSettings.setU32("_NACL_LogLevel", level);
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
 		return true;
 	}
