@@ -214,7 +214,7 @@ LLUICtrl::~LLUICtrl()
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
-		LL_WARNS() << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << LL_ENDL;
+		LL_WARNS() << "UI Control holding top ctrl deleted: " << LLView::getName() << ".  Top view removed." << LL_ENDL;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
 
@@ -755,12 +755,12 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 	// search for text field first
 	if(prefer_text_fields)
 	{
-		LLViewQuery query = getTabOrderQuery();
-		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-		child_list_t result = query(this);
-		if(result.size() > 0)
+		LLViewQuery ll_view_query = getTabOrderQuery();
+		ll_view_query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+		child_list_t ll_views = ll_view_query(this);
+		if(ll_views.size() > 0)
 		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
+			LLUICtrl * ctrl = static_cast<LLUICtrl*>(ll_views.back());
 			if(!ctrl->hasFocus())
 			{
 				ctrl->setFocus(TRUE);
@@ -878,10 +878,10 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 			{
 				child = *it;
 				// do we have a panel with a help topic?
-				LLPanel *panel = dynamic_cast<LLPanel *>(child);
-				if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
+				LLPanel *ll_panel = dynamic_cast<LLPanel *>(child);
+				if (ll_panel && ll_panel->isInVisibleChain() && !ll_panel->getHelpTopic().empty())
 				{
-					subpanel = panel;
+					subpanel = ll_panel;
 					break;
 				}
 			}
