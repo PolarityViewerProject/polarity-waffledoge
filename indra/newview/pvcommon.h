@@ -34,12 +34,9 @@
 class LLAvatarName;
 class LLViewerObject;
 
+// TODO PLVR: Move these into a class
 void reportToNearbyChat(const std::string& message);
-// <polarity>
 void reportSpecialToNearbyChat(const std::string& message, EChatSourceType CHAT_TYPE, std::string fromName);
-bool isPolarityDeveloper(const LLUUID& av_id);
-// </polarity>
-
 std::string applyAutoCloseOoc(const std::string& message);
 std::string applyMuPose(const std::string& message);
 bool isValidWord(const std::string& message);
@@ -47,24 +44,20 @@ std::string formatString(std::string text, const LLStringUtil::format_map_t& arg
 
 class PVCommon
 {
+	// TODO PLVR: Convert into a singleton
 public:
-	/**
-	* Convert a string to a char array and check for special characters presence.
-	* We use this to check of the user is trying to send ASCII art and short-circuit
-	* the OOC logic if that's the case.
-	*/
+	/** \brief Convert a string to a char array and check for special characters presence.
+	 *
+	 * We use this to check of the user is trying to send ASCII art and short-circuit
+	 * the OOC logic if that's the case.
+	 */
 	static int HasSpecialCharacters(const std::string& oocstring); \
 
-	// apply default build preferences to the object
-		static void applyDefaultBuildPreferences(LLViewerObject* object);
-
-	/**
-	 * HACK
+	/** \brief Keep track of ObjectAdd messages sent to the simulator.
 	 *
-	 * This is used to work around a LL design flaw of the similular returning the same object update packet
+	 * HACK: This is used to work around a LL design flaw of the similular returning the same object update packet
 	 * for _PREHASH_ObjectAdd, _PREHASH_RezObject, and _PREHASH_RezObjectFromNotecard.
 	 *
-	 * keep track of ObjectAdd messages sent to the similular.
 	 */
 	static  S32 sObjectAddMsg;
 
@@ -73,20 +66,19 @@ public:
 
 	static bool isDefaultTexture(const LLUUID& asset_id);
 
-	/**
-	* Convert a string of a specified date format into seconds since the Epoch.
-	*
-	* Many of the format flags are those used by strftime(...), but not all.
-	* For the full list of supported time format specifiers
-	* see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
-	*
-	* time support added by Techwolf Lupindo
-	*
-	* @param format Format characters string. Example: "%A %b %d, %Y"
-	* @param str    Date string containing the time in specified format.
-	*
-	* @return Number of seconds since 01/01/1970 UTC.
-	*/
+	/** \brief Convert a string of a specified date format into seconds since the Epoch.
+	 *
+	 * Many of the format flags are those used by strftime(...), but not all.
+	 * For the full list of supported time format specifiers
+	 * see http://www.boost.org/doc/libs/1_47_0/doc/html/date_time/date_time_io.html#date_time.format_flags
+	 *
+	 * time support added by Techwolf Lupindo
+	 *
+	 * @param format Format characters string. Example: "%A %b %d, %Y"
+	 * @param str    Date string containing the time in specified format.
+	 *
+	 * @return Number of seconds since 01/01/1970 UTC.
+	 */
 	static S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
 
 	static bool isAVXSupported();
