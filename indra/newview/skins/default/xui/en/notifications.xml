@@ -1657,7 +1657,7 @@ Visit [_URL] for more information?
       http://www.intel.com/p/en_US/support/detect/graphics
     </url>
     <usetemplate
-     ignoretext="My graphics driver is out of date"
+     ignoretext="My Intel graphics driver is out of date"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -1676,7 +1676,7 @@ Visit [_URL] for more information?
       http://support.amd.com/us/Pages/AMDSupportHub.aspx
     </url>
     <usetemplate
-     ignoretext="My graphics driver is out of date"
+     ignoretext="My AMD graphics driver is out of date"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
@@ -1695,7 +1695,7 @@ Visit [_URL] for more information?
       http://www.nvidia.com/Download/index.aspx?lang=en-us
     </url>
     <usetemplate
-     ignoretext="My graphics driver is out of date"
+     ignoretext="My NVIDIA graphics driver is out of date"
      name="okcancelignore"
      notext="No"
      yestext="Yes"/>
