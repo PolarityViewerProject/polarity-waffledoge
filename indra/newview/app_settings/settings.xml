@@ -10385,7 +10385,7 @@
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
-    <integer>0</integer>
+    <integer>1000.0</integer>
   </map>
 
     <key>RenderVBOEnable</key>
