@@ -968,7 +968,6 @@
 			</slider>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1095,7 +1094,6 @@
 			-->
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1192,7 +1190,6 @@
 			</panel>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1362,7 +1359,6 @@
 			</check_box>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1403,7 +1399,6 @@
 			</text>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1505,7 +1500,6 @@
 			</slider>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
@@ -1646,7 +1640,6 @@
 			</slider>
 			<text
 				font="SansSerif"
-				font.size="8"
 				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
