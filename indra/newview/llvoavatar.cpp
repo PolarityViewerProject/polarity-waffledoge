@@ -2914,7 +2914,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			else
 			{
 				// RLV is hiding names, get anonym name. Use generic name color because that would defeat the purpose otherwise.
-				static LLUIColor& rlv_anon_name_tag_color = LLUIColorTable::instance().getColor("NameTagMatch", LLColor4::magenta);
+				static LLUIColor rlv_anon_name_tag_color = LLUIColorTable::instance().getColor("NameTagMatch", LLColor4::magenta);
 				addNameTagLine(RlvStrings::getAnonym(av_name), rlv_anon_name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif());
 			}
 // [/RLVa:KB]
