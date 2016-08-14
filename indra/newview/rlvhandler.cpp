@@ -607,7 +607,8 @@ bool RlvHandler::onGC()
 		{
 			// Assertion: if the GC encounters an RlvObject instance that hasn't existed in gObjectList up until now then
 			//            it has to be a rezzed prim (if it was an attachment then RlvHandler::onAttach() should have caught it)
-			RLV_ASSERT( (itCurObj->second.m_fLookup) || (!pObj->isAttachment()) );
+			// I'm disabling this assert until we can fix it.
+			//RLV_ASSERT( (itCurObj->second.m_fLookup) || (!pObj->isAttachment()) );
 			if (!itCurObj->second.m_fLookup)
 			{
 				RLV_INFOS << "Resolved missing object " << itCurObj->first.asString() << RLV_ENDL;
@@ -618,8 +619,11 @@ bool RlvHandler::onGC()
 				// NOTE: the following code should NEVER run (see assertion above), but just to be double-triple safety sure
 				//	-> if it does run it likely means that there's a @detach=n in a *child* prim that we couldn't look up in onAttach()
 				//  -> since RLV doesn't currently support @detach=n from child prims it's actually not such a big deal right now but still
-				if ( (pObj->isAttachment()) && (itCurObj->second.hasBehaviour(RLV_BHVR_DETACH, false)) )
+				if ( (pObj->isAttachment()) && (itCurObj->second.hasBehaviour(RLV_BHVR_DETACH, false)))
+				{
+					LL_WARNS() << "Attempting to @detach a child prim!!! WTF! Please inform the content creator of this object." << LL_ENDL;
 					gRlvAttachmentLocks.addAttachmentLock(pObj->getID(), itCurObj->second.getObjectID());
+				}
 			}
 		}
 	}
