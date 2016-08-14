@@ -2837,8 +2837,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			// This calculation is re-implemented from a copy located in idleUpdateRenderComplexity()
 			// I changed the C-like typecasts to static_cast to ensure no runtime typecasting is done (dynamic_cast).
 
-			static F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
-			static F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
+			F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
+			F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
 			complexity_color.set(red_level, green_level, 0.f, 1.f);
 		}
 	}
