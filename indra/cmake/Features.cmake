@@ -17,6 +17,9 @@ option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 # Workarounds
 option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
 
+# Experimental viewer features
+option(GL_TRANSFORM_FEEDBACK_BUFFER "Use OpenGL Transform Feedback Buffer" OFF)
+
 # Build process tweaks
 set(COMPILER_JOBS "8" CACHE STRING "Amount of simultaneous compiler jobs")
 
