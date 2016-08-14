@@ -713,6 +713,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameAppearance(false),
 	mNameFriend(false),
 	mNameAlpha(0.f),
+	mColorLast(LLColor4::white),
 	mRenderGroupTitles(sRenderGroupTitles),
 	mNameCloud(false),
 	mFirstTEMessageReceived( FALSE ),
@@ -2837,6 +2838,15 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	// </FS:Ansariel>
 
+	// cache avatar uuid
+	LLUUID av_id = getID();
+#ifdef PVDATA_COLORIZER
+	// get avatar's color
+	auto name_tag_color = getNameTagColor(av_id, (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
+#else
+	auto name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
+#endif
+
 	// Rebuild name tag if state change detected
 	if (!mNameIsSet
 		|| new_name
@@ -2850,10 +2860,11 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_cloud != mNameCloud
 		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
 		|| complexity != mNameArc
-		|| complexity_color != mNameArcColor)
+		|| complexity_color != mNameArcColor
+		// </FS:Ansariel>
+		|| name_tag_color != mColorLast)
 	{
 		clearNameTag();
-		LLColor4 name_tag_color = getNameTagColor(is_friend);
 
 		if (is_away || is_muted || is_do_not_disturb || is_appearance)
 		{
@@ -2891,14 +2902,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				LLFontGL::getFontSansSerifSmall());
 		}
 
-		// cache avatar uuid
-		LLUUID av_id = getID();
-#ifdef PVDATA_COLORIZER
-		// get avatar's color
-		name_tag_color = PVData::instance().getColor(av_id, LLUIColorTable::instance().getColor("NameTagMatch"), (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
-#else
-		name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
-#endif
 //		if (sRenderGroupTitles
 // [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
 		if (sRenderGroupTitles && !fRlvShowNames
@@ -2994,6 +2997,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameArc = complexity;
 		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
+		mColorLast = name_tag_color;
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
@@ -3179,33 +3183,28 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 	}
 }
 
-LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
+LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id, const bool is_friend)
 {
-	static LLUICachedControl<bool> show_friends("NameTagShowFriends", false);
-	const char* color_name;
-	if (show_friends && is_friend)
-	{
-		color_name = "NameTagFriend";
-	}
-	else if (LLAvatarName::useDisplayNames())
+	static LLColor4 color_name;
+	if (LLAvatarName::useDisplayNames())
 	{
 		// ...color based on whether username "matches" a computed display name
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(getID(), &av_name) && av_name.isDisplayNameDefault())
+		if (LLAvatarNameCache::get(av_id, &av_name) && av_name.isDisplayNameDefault())
 		{
-			color_name = "NameTagMatch";
+			color_name = LLUIColorTable::instance().getColor("NameTagMatch");
 		}
 		else
 		{
-			color_name = "NameTagMismatch";
+			color_name = LLUIColorTable::instance().getColor("NameTagMismatch");
 		}
 	}
 	else
 	{
 		// ...not using display names
-		color_name = "NameTagLegacy";
+		color_name = LLUIColorTable::instance().getColor("NameTagLegacy");
 	}
-	return LLUIColorTable::getInstance()->getColor( color_name );
+	return PVData::instance().getColor(av_id, color_name, is_friend);
 }
 
 void LLVOAvatar::idleUpdateBelowWater()
