@@ -2817,22 +2817,24 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 	}
 
-	// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
+	// <polarity> Show ARW in nametag options (for Jelly Dolls)
+	// Inspired by Ansariel's implementation.
 	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
 	static LLCachedControl<bool> show_too_complex_only_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightThresholdOnly", true);
 	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelf", false);
 	U32 complexity(0);
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 
-	if (show_arw_tag &&
-		((isSelf() && show_own_arw_tag) ||
-		(!isSelf() && (!show_too_complex_only_arw_tag || isTooComplex()))))
+	// The original check gave me a headache. This is easily readable.
+	if (show_arw_tag && (mVisualComplexity != 0 &&
+							!(isSelf() && !show_own_arw_tag) &&
+							!(show_too_complex_only_arw_tag && !isTooComplex())))
 	{
 		complexity = mVisualComplexity;
 
-		// Show complexity color if we're limiting and not showing our own ARW...
+		// Show complexity color if we're limiting and the complexity is above 0
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-		if (max_render_cost != 0 && !isSelf())
+		if (max_render_cost != 0)
 		{
 			// This calculation is re-implemented from a copy located in idleUpdateRenderComplexity()
 			// I changed the C-like typecasts to static_cast to ensure no runtime typecasting is done (dynamic_cast).
@@ -2842,7 +2844,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			complexity_color.set(red_level, green_level, 0.f, 1.f);
 		}
 	}
-	// </FS:Ansariel>
+	// </polarity>
 
 	// cache avatar uuid
 	LLUUID av_id = getID();
@@ -2980,9 +2982,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
 		static const std::string complexity_label = LLTrans::getString("Nametag_Complexity_Label");
-		if (show_arw_tag &&
-			((isSelf() && show_own_arw_tag) ||
-			(!isSelf() && (!show_too_complex_only_arw_tag || isTooComplex()))))
+		// The original check gave me a headache. This is easily readable.
+		if (show_arw_tag && (mVisualComplexity != 0 &&
+			!(isSelf() && !show_own_arw_tag) &&
+			!(show_too_complex_only_arw_tag && !isTooComplex())))
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -6779,7 +6782,9 @@ BOOL LLVOAvatar::isFullyLoaded() const
 
 bool LLVOAvatar::isTooComplex() const
 {
-	if (gSavedSettings.getS32("RenderAvatarComplexityLimit") > 0 && mVisualComplexity >= gSavedSettings.getS32("RenderAvatarComplexityLimit"))
+	// save one function call
+	auto complexitylimit = gSavedSettings.getS32("RenderAvatarComplexityLimit");
+	if (complexitylimit > 0 && mVisualComplexity >= complexitylimit)
 	{
 		return true;
 	}
