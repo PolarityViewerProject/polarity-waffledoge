@@ -758,76 +758,57 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		{
 			LL_INFOS("PVData") << "Identity confirmed. Proceeding. Enjoy your privileges." << LL_ENDL;
 			return true;
-		}
-		else
-		{
-			pvdata_error_message_ = "This build is locked down to another account.";
-			return false;
-		}
+		}// else
+		pvdata_error_message_ = "This build is locked down to another account.";
+		return false;
 	}
-	else
+	if (lockdown_uuid != LLUUID::null)
 	{
-		if (lockdown_uuid != LLUUID::null)
-		{
-			pvdata_error_message_ = "Something went wrong, and the authentication checks have failed.";
-			return false;
-		}
-		S32 av_flags = getAgentFlags(avatar_id);
-		//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
-		auto compiled_channel = LLVersionInfo::getCompiledChannel();
-		if (av_flags & FLAG_USER_BANNED)
-		{
-			pvdata_error_message_ = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
-			return false;
-		}
-#if RELEASE_BUILD
-		// prevent non-release builds to fall in the wrong hands
-		else if (compiled_channel == APP_NAME + " Release"
-			// Allow beta builds as well.
-			|| compiled_channel == APP_NAME + " Beta")
-		{
-			return true;
-		}
-		else
-		{
-			LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
-			LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
-			if (av_flags & FLAG_USER_BETA_TESTER)
-			{
-				LL_WARNS() << "Access level: TESTER" << LL_ENDL;
-				return true;
-			}
-			if (av_flags & FLAG_STAFF_SUPPORT)
-			{
-				LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
-				return true;
-			}
-			if (av_flags & FLAG_STAFF_QA)
-			{
-				LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
-				return true;
-			}
-			if (av_flags & FLAG_STAFF_DEV)
-			{
-				LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
-				return true;
-			}
-			else
-			{
-				LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
-				pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
-				return false;
-			}
-		}
-#else
-		else
-		{
-			return true;
-		}
-#endif // RELEASE_BUILD
+		pvdata_error_message_ = "Something went wrong, and the authentication checks have failed.";
+		return false;
 	}
-	//LL_WARNS("PVData") << "[pvdata_error_message_] " << pvdata_error_message_ << LL_ENDL;
-	//return false;
+	S32 av_flags = getAgentFlags(avatar_id);
+	//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
+	auto compiled_channel = LLVersionInfo::getCompiledChannel();
+	if (av_flags & FLAG_USER_BANNED)
+	{
+		pvdata_error_message_ = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
+		return false;
+	}
+	if (compiled_channel == APP_NAME + " Release"
+		// Allow beta builds as well.
+		|| compiled_channel == APP_NAME + " Beta")
+	{
+		return true;
+	}
+#ifndef RELEASE_BUILD
+	// prevent non-release builds to fall in the wrong hands
+	LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
+	LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
+	if (av_flags & FLAG_USER_BETA_TESTER)
+	{
+		LL_WARNS() << "Access level: TESTER" << LL_ENDL;
+		return true;
+	}
+	if (av_flags & FLAG_STAFF_SUPPORT)
+	{
+		LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
+		return true;
+	}
+	if (av_flags & FLAG_STAFF_QA)
+	{
+		LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
+		return true;
+	}
+	if (av_flags & FLAG_STAFF_DEV)
+	{
+		LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
+		return true;
+	}
+#endif //RELEASE_BUILD
+	LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
+	pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
+	return false;
 }
 
 bool PVData::isBlockedRelease()
