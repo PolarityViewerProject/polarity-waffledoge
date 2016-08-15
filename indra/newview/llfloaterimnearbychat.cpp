@@ -476,7 +476,7 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 
 	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
 	if( (length > 0) && (raw_text[0] != '/') // forward slash is used for escape (eg. emote) sequences
-		&& (mu_pose && (raw_text[0] != ':')) // colon is used for MU pose
+		|| (mu_pose && (raw_text[0] != ':')) // colon is used for MU pose
 	)
 	{
 		gAgent.startTyping();
