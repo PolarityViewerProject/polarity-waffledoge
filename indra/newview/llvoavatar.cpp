@@ -2799,12 +2799,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	{
 		is_muted = isInMuteList();
 	}
-
-	// cache avatar uuid
-	LLUUID av_id = getID();
 //	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 // [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	bool is_friend = (!fRlvShowNames) && (LLAvatarTracker::instance().isBuddy(av_id));
+	bool is_friend = (!fRlvShowNames) && (LLAvatarTracker::instance().isBuddy(getID()));
 // [/RLVa:KB]
 	bool is_cloud = getIsCloud();
 
@@ -2847,6 +2844,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	// </FS:Ansariel>
 
+	// cache avatar uuid
+	LLUUID av_id = getID();
 #ifdef PVDATA_COLORIZER
 	// get avatar's color
 	auto name_tag_color = getNameTagColor(av_id, (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
