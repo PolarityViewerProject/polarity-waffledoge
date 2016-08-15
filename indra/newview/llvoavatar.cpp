@@ -2906,7 +2906,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			static LLUIColor& status_color = LLUIColorTable::instance().getColor("NameTagStatusText", LLColor4::magenta);
+			static LLUIColor status_color = LLUIColorTable::instance().getColor("NameTagStatusText", LLColor4::magenta);
 			addNameTagLine(line, status_color,
 				LLFontGL::ITALIC, // Why is this not working?
 				LLFontGL::getFontSansSerifSmall());
@@ -2920,7 +2920,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			static LLUIColor& group_color = LLUIColorTable::instance().getColor("NameTagGroup", LLColor4::magenta);
+			static LLUIColor group_color = LLUIColorTable::instance().getColor("NameTagGroup", LLColor4::magenta);
 			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
