@@ -206,7 +206,7 @@ add_definitions(
   /DRELEASE_BUILD=${RELEASE_BUILD}
   /DUSE_AVX=${USE_AVX}
   /DUSE_LTO=${USE_LTO}
-  /DUSE_SSE=${USE_SSE3}
+  /DUSE_SSE3=${USE_SSE3}
   )
 
 MESSAGE("======== *FEATURES* ========")
