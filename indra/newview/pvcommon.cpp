@@ -165,6 +165,7 @@ std::string applyAutoCloseOoc(const std::string& message)
 }
 std::string applyMuPose(const std::string& message)
 {
+#ifdef MU_POSE
 	std::string utf8_text(message);
 
 	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
@@ -190,6 +191,9 @@ std::string applyMuPose(const std::string& message)
 	}
 
 	return utf8_text;
+#else
+	return message;
+#endif
 }
 
 bool isValidWord(const std::string& message)
