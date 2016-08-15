@@ -207,7 +207,7 @@ public:
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string pvdata_error_message_ = "";
 
-#if !RELEASE_BUILD
+#if !RELEASE_BUILD && FIXED_STRINGS_NULL_TERM
 	/// <summary>
 	/// Developer-only log output.
 	/// </summary>
