@@ -2926,7 +2926,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += LLTrans::getString("AvatarEditingAppearance");
 				line += ", ";
 			}
-			if (is_cloud)
+			if (is_cloud && !isTooComplex())
 			{
 				line += LLTrans::getString("LoadingData");
 				line += ", ";
