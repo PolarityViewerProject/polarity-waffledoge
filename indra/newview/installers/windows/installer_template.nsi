@@ -282,7 +282,7 @@ Function CheckCPUFlags
 FunctionEnd
 
 ;SSE3
-Function CheckCPUFlags
+Function CheckSSE3
     Push $1
     System::Call 'kernel32::IsProcessorFeaturePresent(i) i(13) .r1'
     IntCmp $1 1 OK_SSE3
@@ -511,7 +511,7 @@ Function .onInit
   Call CheckIfAdministrator
   ;Don't install if we lack required cpu support
   Call CheckCPUFlags
-
+  Call CheckSSE3
   Push $0
 
   ;Get installation folder from registry if available for 64bit
