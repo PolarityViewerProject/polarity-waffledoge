@@ -6794,7 +6794,7 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	// save one function call
-	auto complexitylimit = gSavedSettings.getS32("RenderAvatarComplexityLimit");
+	auto complexitylimit = gSavedSettings.getU32("RenderAutoMuteRenderWeightLimit");
 	if (complexitylimit > 0 && mVisualComplexity >= complexitylimit)
 	{
 		return true;
