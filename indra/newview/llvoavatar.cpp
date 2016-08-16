@@ -2776,6 +2776,39 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
+// Easier for me to make a function than brain inline stuff.
+inline bool LLVOAvatar::canShowARWTag() const
+{
+	// my head hurts, forgive me for this sin.
+	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
+	static LLCachedControl<bool> show_too_complex_only_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightThresholdOnly", true);
+	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelf", false);
+	static LLCachedControl<bool> show_only_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelfOnly", false);
+
+	if (!show_arw_tag)
+	{
+		return false;
+	}
+	if (mVisualComplexity == 0)
+	{
+		return false;
+	}
+	if (!isTooComplex() && show_too_complex_only_arw_tag)
+	{
+		return false;
+	}
+	if (isSelf() && !show_own_arw_tag)
+	{
+		return false;
+	}
+	if (!isSelf() && show_only_own_arw_tag)
+	{
+		return false;
+	}
+
+	return true;
+}
+
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 {
 	LLNameValue *title = getNVPair("Title");
@@ -2823,30 +2856,18 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// <polarity> Show ARW in nametag options (for Jelly Dolls)
 	// Inspired by Ansariel's implementation.
-	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
-	static LLCachedControl<bool> show_too_complex_only_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightThresholdOnly", true);
-	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelf", false);
-	U32 complexity(0);
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
-
-	// The original check gave me a headache. This is easily readable.
-	if (show_arw_tag && (mVisualComplexity != 0 &&
-							!(isSelf() && !show_own_arw_tag) &&
-							!(show_too_complex_only_arw_tag && !isTooComplex())))
+	// create a snapshot of the current complexity to determine if the nametag should update.
+	U32 complexity(0);
+	if (canShowARWTag())
 	{
+		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
-
-		// Show complexity color if we're limiting and the complexity is above 0
+		// Color the complexity value based on how bad it is
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-		if (max_render_cost != 0)
-		{
-			// This calculation is re-implemented from a copy located in idleUpdateRenderComplexity()
-			// I changed the C-like typecasts to static_cast to ensure no runtime typecasting is done (dynamic_cast).
-
-			F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
-			F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
-			complexity_color.set(red_level, green_level, 0.f, 1.f);
-		}
+		F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
+		F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
+		complexity_color.set(red_level, green_level, 0.f, 1.f);
 	}
 	// </polarity>
 
@@ -2992,10 +3013,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
 		static const std::string complexity_label = LLTrans::getString("Nametag_Complexity_Label");
-		// The original check gave me a headache. This is easily readable.
-		if (show_arw_tag && (mVisualComplexity != 0 &&
-			!(isSelf() && !show_own_arw_tag) &&
-			!(show_too_complex_only_arw_tag && !isTooComplex())))
+		if (canShowARWTag())
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);

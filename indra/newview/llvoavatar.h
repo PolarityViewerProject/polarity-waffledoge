@@ -244,6 +244,7 @@ public:
 	void 			idleUpdateLoadingEffect();
 	void 			idleUpdateWindEffect();
 	void 			idleUpdateNameTag(const LLVector3& root_pos_last);
+	bool 			canShowARWTag() const;
 	void			idleUpdateNameTagText(BOOL new_name);
 	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
