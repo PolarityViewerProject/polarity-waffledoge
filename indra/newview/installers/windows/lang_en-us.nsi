@@ -36,6 +36,7 @@ LangString CheckIfCurrentMB ${LANG_ENGLISH} "It appears that ${APPNAME} ${VERSIO
 
 ; checkcpuflags
 LangString MissingSSE2 ${LANG_ENGLISH} "This machine may not have a CPU with SSE2 support, which is required to run ${APPNAME} ${VERSION_LONG}. Do you want to continue?"
+LangString MissingSSE3 ${LANG_ENGLISH} "This machine may not have a CPU with SSE3 support, which is required to run ${APPNAME} ${VERSION_LONG}. Do you want to continue?"
 
 ; closesecondlife function (install)
 LangString CloseSecondLifeInstDP ${LANG_ENGLISH} "Waiting for Polarity to shut down..."

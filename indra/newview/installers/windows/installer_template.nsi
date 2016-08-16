@@ -281,6 +281,19 @@ Function CheckCPUFlags
     Return
 FunctionEnd
 
+;SSE3
+Function CheckCPUFlags
+    Push $1
+    System::Call 'kernel32::IsProcessorFeaturePresent(i) i(13) .r1'
+    IntCmp $1 1 OK_SSE3
+    MessageBox MB_OKCANCEL $(MissingSSE3) /SD IDOK IDOK OK_SSE3
+    Quit
+
+  OK_SSE3:
+    Pop $1
+    Return
+FunctionEnd
+
 ;Checks if installed version is same as installer and offers to cancel
 Function CheckIfAlreadyCurrent
 !ifdef WIN64_BIN_BUILD
