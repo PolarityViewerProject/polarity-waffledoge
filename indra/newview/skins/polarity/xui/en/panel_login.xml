@@ -32,10 +32,9 @@
  <text
 	follows="left|top"
 	font.style="BOLD"
-	font="SansSerif"
-	font.size="14"
+	font="SansSerifHuge"
 	height="25"
-	left="25"
+	left="5"
 	name="app_name_text"
 	text_color="EmphasisColor"
 	top="35"
@@ -46,8 +45,7 @@
  <text
 	follows="left|top"
 	font.style="BOLD"
-	font="SansSerif"
-	font.size="14"
+	font="SansSerifHuge"
 	height="25"
 	left="5"
 	halign="right"
