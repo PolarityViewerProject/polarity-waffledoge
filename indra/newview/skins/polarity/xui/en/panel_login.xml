@@ -86,6 +86,13 @@ Viewer
 	name="username_combo"
 	width="258">
 	<combo_box.combo_editor
+	border_color="LtGray"
+	background_image="TextField_Off_Dark"
+	background_image_disabled="TextField_Disabled_Dark"
+	background_image_focused="TextField_Active_Dark"
+	text_color="LtGray"
+	text_readonly_color="LtGray"
+	text_tentative_color="LtGray"
 	text_pad_left="8" />
 	<combo_box.combo_button
 	visible="false" />
@@ -93,6 +100,9 @@ Viewer
 	visible="false" />
  </combo_box>
  <line_editor
+	background_image="TextField_Off_Dark"
+	background_image_disabled="TextField_Disabled_Dark"
+	background_image_focused="TextField_Active_Dark"
 	commit_on_focus_lost="false"
 	follows="left|top"
 	font="SansSerif"
@@ -103,7 +113,10 @@ Viewer
 	max_length_bytes="16"
 	name="password_edit"
 	select_on_focus="true"
+	text_color="LtGray"
 	text_pad_left="8"
+	text_readonly_color="LtGray"
+	text_tentative_color="LtGray"
 	top_pad="10"
 	width="232" />
  <check_box
@@ -139,16 +152,22 @@ Viewer
 	value="home" />
  </combo_box>
  <line_editor
-	follows="left|top"
-	width="232"
-	height="26"
-	left="1"
-	text_pad_left="8"
-	name="location_edit"
-	label="Type a location"
-	font="SansSerif"
-	select_on_focus="true"
+	background_image="TextField_Off_Dark"
+	background_image_disabled="TextField_Disabled_Dark"
+	background_image_focused="TextField_Active_Dark"
 	commit_on_focus_lost="false"
+	follows="left|top"
+	font="SansSerif"
+	height="26"
+	label="Type a location"
+	left="1"
+	name="location_edit"
+	select_on_focus="true"
+	text_color="LtGray"
+	text_pad_left="8"
+	text_readonly_color="LtGray"
+	text_tentative_color="LtGray"
+	width="232"
 	top_pad="10" />
 	<!-- Very horrible hack because the panel border doesn't work. Equivalent of <hr /> -->
 <!--  <text
