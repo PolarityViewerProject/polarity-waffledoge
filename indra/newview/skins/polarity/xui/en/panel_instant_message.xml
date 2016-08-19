@@ -46,16 +46,6 @@
          top="0"
          width="18" />
         <avatar_icon
-         follows="right"
-         height="18"
-         image_name="Generic_Person"
-         layout="topleft"
-         left_pad="2"
-         mouse_opaque="false"
-         name="avatar_of_grp_icon"
-         top_delta="0"
-         width="18" />
-        <avatar_icon
          color="Green"
          follows="right"
          height="18"
@@ -72,19 +62,6 @@
          layout="topleft"
          left="25"
          name="user_name"
-         parse_urls="false"
-         text_color="White"
-         top="4"
-         translate="false"
-         use_ellipses="true"
-         value="TestString PleaseIgnore"
-         width="195" />
-        <text
-         follows="left|right"
-         height="12"
-         layout="topleft"
-         left="47"
-         name="user_name_of_grp"
          parse_urls="false"
          text_color="White"
          top="4"
