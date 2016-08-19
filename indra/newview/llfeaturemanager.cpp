@@ -62,19 +62,25 @@
 
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
+#ifdef VERSIONED_FEATURETABLE
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_mac.%s.txt";
+#endif
 #elif LL_LINUX
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
+#ifdef VERSIONED_FEATURETABLE
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_linux.%s.txt";
+#endif
 #elif LL_SOLARIS
 const char FEATURE_TABLE_FILENAME[] = "featuretable_solaris.txt";
+#ifdef VERSIONED_FEATURETABLE
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_solaris.%s.txt";
+#endif
 #else
-const char FEATURE_TABLE_FILENAME[] = "featuretable%s.txt";
+const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
+#ifdef VERSIONED_FEATURETABLE
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
 #endif
-const char FEATURE_TABLE_GENERIC[]  = "featuretable.txt";
-
+#endif
 #if 0                               // consuming code in #if 0 below
 #endif
 LLFeatureInfo::LLFeatureInfo(const std::string& name, const BOOL available, const F32 level)
@@ -276,11 +282,17 @@ bool LLFeatureManager::loadFeatureTables()
 	std::string filename;
 	std::string http_filename; 
 #if LL_WINDOWS
-	filename = llformat(FEATURE_TABLE_FILENAME, "");
+	filename = FEATURE_TABLE_FILENAME;
+#ifdef VERSIONED_FEATURETABLE
 	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "", LLVersionInfo::getVersion().c_str());
 #else
+	http_filename = FEATURE_TABLE_FILENAME;
+#endif
+#else
 	filename = FEATURE_TABLE_FILENAME;
+#ifdef VERSIONED_FEATURETABLE
 	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
+#endif
 #endif
 
 	app_path += filename;
@@ -543,7 +555,11 @@ void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
 void LLFeatureManager::fetchHTTPTables()
 {
     LLCoros::instance().launch("LLFeatureManager::fetchFeatureTableCoro",
+#ifdef VERSIONED_FEATURE_TABLE
         boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_VER_FILENAME));
+#else
+		boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_FILENAME));
+#endif
 }
 
 void LLFeatureManager::cleanupFeatureTables()
