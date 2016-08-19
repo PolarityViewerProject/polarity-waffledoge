@@ -201,7 +201,7 @@ public:
 	/*virtual*/ S32		setTEMediaTexGen(const U8 te, const U8 media);
 	/*virtual*/ BOOL 	setMaterial(const U8 material);
 
-				void	setTexture(const S32 face);
+				void	setTexture(const S32 face) const;
 				S32     getIndexInTex() const {return mIndexInTex ;}
 	/*virtual*/ BOOL	setVolume(const LLVolumeParams &volume_params, const S32 detail, bool unique_volume = false);
 				void	updateSculptTexture();
@@ -220,10 +220,10 @@ public:
 	/*virtual*/ void	updateTextures();
 				void	updateTextureVirtualSize(bool forced = false);
 
-				void	updateFaceFlags();
+				void	updateFaceFlags() const;
 				void	regenFaces();
 				BOOL	genBBoxes(BOOL force_global);
-				void	preRebuild();
+				void	preRebuild() const;
 	virtual		void	updateSpatialExtents(LLVector4a& min, LLVector4a& max);
 	virtual		F32		getBinRadius();
 	
@@ -272,14 +272,14 @@ public:
 	void updateObjectMediaData(const LLSD &media_data_array, const std::string &media_version);
     
     // Bounce back media at the given index to its current URL (or home URL, if current URL is empty)
-	void mediaNavigateBounceBack(U8 texture_index);
+	void mediaNavigateBounceBack(U8 texture_index) const;
     
     // Returns whether or not this object has permission to navigate or control 
 	// the given media entry
 	enum MediaPermType {
 		MEDIA_PERM_INTERACT, MEDIA_PERM_CONTROL
 	};
-    bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type);
+    bool hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type) const;
     
 	void mediaNavigated(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, std::string new_location);
 	void mediaEvent(LLViewerMediaImpl *impl, LLPluginClassMedia* plugin, LLViewerMediaObserver::EMediaEvent event);
@@ -297,7 +297,7 @@ public:
    
 	bool hasMedia() const;
 	
-	LLVector3 getApproximateFaceNormal(U8 face_id);
+	LLVector3 getApproximateFaceNormal(U8 face_id) const;
 	
 	void notifyMeshLoaded();
 	
@@ -314,23 +314,23 @@ public:
 
 	//rigged volume update (for raycasting)
 	void updateRiggedVolume(bool force_update = false);
-	LLRiggedVolume* getRiggedVolume();
+	LLRiggedVolume* getRiggedVolume() const;
 
 	//returns true if volume should be treated as a rigged volume
 	// - Build tools are open
 	// - object is an attachment
 	// - object is attached to self
 	// - object is rendered as rigged
-	bool treatAsRigged();
+	bool treatAsRigged() const;
 
 	//clear out rigged volume and revert back to non-rigged state for picking/LOD/distance updates
 	void clearRiggedVolume();
 
 protected:
-	S32	computeLODDetail(F32	distance, F32 radius);
+	S32	computeLODDetail(F32	distance, F32 radius) const;
 	BOOL calcLOD();
 	LLFace* addFace(S32 face_index);
-	void updateTEData();
+	static void updateTEData();
 
 	// stats tracking for render complexity
 	static S32 mRenderComplexity_last;
@@ -377,7 +377,7 @@ private:
 
 	// statics
 public:
-	static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
+	//static F32 sLODSlopDistanceFactor;// Changing this to zero, effectively disables the LOD transition slop
 	static F32 sLODFactor;				// LOD scale factor
 	static F32 sDistanceFactor;			// LOD distance factor
 

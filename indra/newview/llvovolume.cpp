@@ -33,11 +33,15 @@
 #include <sstream>
 
 #include "llviewercontrol.h"
+#if !LL_WINDOWS
 #include "lldir.h"
+#endif
 #include "llflexibleobject.h"
 #include "llfloatertools.h"
 #include "llmaterialid.h"
+#if !LL_WINDOWS
 #include "llmaterialtable.h"
+#endif
 #include "llprimitive.h"
 #include "llvolume.h"
 #include "llvolumeoctree.h"
@@ -52,8 +56,10 @@
 #include "lldrawpoolbump.h"
 #include "llface.h"
 #include "llspatialpartition.h"
+#if !LL_WINDOWS
 #include "llhudmanager.h"
 #include "llflexibleobject.h"
+#endif
 #include "llsky.h"
 #include "lltexturefetch.h"
 #include "llvector4a.h"
@@ -90,7 +96,7 @@ BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
-F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
+//F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
 S32 LLVOVolume::mRenderComplexity_last = 0;
@@ -116,12 +122,12 @@ public:
 	{
 		mObject->removeMDCImpl();
 	}
-	
-	virtual U8 getMediaDataCount() const 
-		{ return mObject->getNumTEs(); }
 
-	virtual LLSD getMediaDataLLSD(U8 index) const 
-		{
+	U8 getMediaDataCount() const override
+	{ return mObject->getNumTEs(); }
+
+	LLSD getMediaDataLLSD(U8 index) const override
+	{
 			LLSD result;
 			LLTextureEntry *te = mObject->getTE(index); 
 			if (NULL != te)
@@ -140,8 +146,9 @@ public:
 			}
 			return result;
 		}
-	virtual bool isCurrentMediaUrl(U8 index, const std::string &url) const
-		{
+
+	bool isCurrentMediaUrl(U8 index, const std::string &url) const override
+	{
 			LLTextureEntry *te = mObject->getTE(index); 
 			if (te)
 			{
@@ -153,22 +160,22 @@ public:
 			return url.empty();
 		}
 
-	virtual LLUUID getID() const
-		{ return mObject->getID(); }
+	LLUUID getID() const override
+	{ return mObject->getID(); }
 
-	virtual void mediaNavigateBounceBack(U8 index)
-		{ mObject->mediaNavigateBounceBack(index); }
+	void mediaNavigateBounceBack(U8 index) override
+	{ mObject->mediaNavigateBounceBack(index); }
+
+	bool hasMedia() const override
+	{ return mObject->hasMedia(); }
+
+	void updateObjectMediaData(LLSD const &data, const std::string &version_string) override
+	{ mObject->updateObjectMediaData(data, version_string); }
 	
-	virtual bool hasMedia() const
-		{ return mObject->hasMedia(); }
-	
-	virtual void updateObjectMediaData(LLSD const &data, const std::string &version_string) 
-		{ mObject->updateObjectMediaData(data, version_string); }
-	
-	virtual F64 getMediaInterest() const 
+	F64 getMediaInterest() const override
 		{ 
-			F64 interest = mObject->getTotalMediaInterest();
-			if (interest < (F64)0.0)
+			auto interest = mObject->getTotalMediaInterest();
+			if (interest < static_cast<F64>(0.0))
 			{
 				// media interest not valid yet, try pixel area
 				interest = mObject->getPixelArea();
@@ -182,21 +189,21 @@ public:
 			return interest; 
 		}
 	
-	virtual bool isInterestingEnough() const
+	bool isInterestingEnough() const override
 		{
 			return LLViewerMedia::isInterestingEnough(mObject, getMediaInterest());
 		}
 
-	virtual std::string getCapabilityUrl(const std::string &name) const
+	std::string getCapabilityUrl(const std::string &name) const override
 		{ return mObject->getRegion()->getCapability(name); }
 	
-	virtual bool isDead() const
+	bool isDead() const override
 		{ return mObject->isDead(); }
 	
-	virtual U32 getMediaVersion() const
+	U32 getMediaVersion() const override
 		{ return LLTextureEntry::getVersionFromMediaVersionString(mObject->getMediaURL()); }
 	
-	virtual bool isNew() const
+	bool isNew() const override
 		{ return mNew; }
 
 private:
@@ -305,7 +312,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 										  U32 block_num, EObjectUpdateType update_type,
 										  LLDataPacker *dp)
 {
-	LLColor4U color;
+	//LLColor4U color;
 	const S32 teDirtyBits = (TEM_CHANGE_TEXTURE|TEM_CHANGE_COLOR|TEM_CHANGE_MEDIA);
 
 	// Do base class updates...
@@ -315,7 +322,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 	U8 sculpt_type = 0;
 	if (isSculpted())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLSculptParams *sculpt_params = static_cast<LLSculptParams *>(getParameterEntry(LLNetworkData::PARAMS_SCULPT));
 		sculpt_id = sculpt_params->getSculptTexture();
 		sculpt_type = sculpt_params->getSculptType();
 	}
@@ -376,7 +383,7 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 		// Unpack texture entry data
 		//
 
-		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, (S32) block_num);
+		S32 result = unpackTEMessage(mesgsys, _PREHASH_ObjectData, static_cast<S32>(block_num));
 		if (result & teDirtyBits)
 		{
 			updateTEData();
@@ -593,7 +600,7 @@ void LLVOVolume::animateTextures()
 				}
 				else
 				{
-					start = (U8) mTextureAnimp->mFace;
+					start = static_cast<U8>(mTextureAnimp->mFace);
 					count = 1;
 				}
 
@@ -654,10 +661,10 @@ BOOL LLVOVolume::isVisible() const
 
 	if(isAttachment())
 	{
-		LLViewerObject* objp = (LLViewerObject*)getParent() ;
+		LLViewerObject* objp = static_cast<LLViewerObject*>(getParent()) ;
 		while(objp && !objp->isAvatar())
 		{
-			objp = (LLViewerObject*)objp->getParent() ;
+			objp = static_cast<LLViewerObject*>(objp->getParent()) ;
 		}
 
 		return objp && objp->mDrawable.notNull() && objp->mDrawable->isVisible() ;
@@ -727,7 +734,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
 		if (isHUDAttachment())
 		{
-			F32 area = (F32) camera->getScreenPixelArea();
+			F32 area = static_cast<F32>(camera->getScreenPixelArea());
 			vsize = area;
 			imagep->setBoostLevel(LLGLTexture::BOOST_HUD);
  			face->setPixelArea(area); // treat as full screen
@@ -775,7 +782,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	
 	if (isSculpted())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLSculptParams *sculpt_params = static_cast<LLSculptParams *>(getParameterEntry(LLNetworkData::PARAMS_SCULPT));
 		LLUUID id =  sculpt_params->getSculptTexture();
 		
 		updateSculptTexture();
@@ -784,14 +791,14 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
 		if (mSculptTexture.notNull())
 		{
-			mSculptTexture->setBoostLevel(llmax((S32)mSculptTexture->getBoostLevel(),
-												(S32)LLGLTexture::BOOST_SCULPTED));
+			mSculptTexture->setBoostLevel(llmax(static_cast<S32>(mSculptTexture->getBoostLevel()),
+												static_cast<S32>(LLGLTexture::BOOST_SCULPTED)));
 			mSculptTexture->setForSculpt() ;
 			
 			if(!mSculptTexture->isCachedRawImageReady())
 			{
 				S32 lod = llmin(mLOD, 3);
-				F32 lodf = ((F32)(lod + 1.0f)/4.f);
+				F32 lodf = (static_cast<F32>(lod + 1.0f)/4.f);
 				F32 tex_size = lodf * LLViewerTexture::sMaxSculptRez ;
 				mSculptTexture->addTextureStats(2.f * tex_size * tex_size, FALSE);
 			
@@ -827,7 +834,7 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 
 	if (getLightTextureID().notNull())
 	{
-		LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+		LLLightImageParams* params = static_cast<LLLightImageParams*>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 		LLUUID id = params->getLightTexture();
 		mLightTexture = LLViewerTextureManager::getFetchedTexture(id);
 		if (mLightTexture.notNull())
@@ -841,15 +848,15 @@ void LLVOVolume::updateTextureVirtualSize(bool forced)
 	
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_AREA))
 	{
-		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+		setDebugText(llformat("%.0f:%.0f", static_cast<F32>(sqrt(min_vsize)),static_cast<F32>(sqrt(max_vsize))));
 	}
  	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY))
  	{
- 		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+ 		setDebugText(llformat("%.0f:%.0f", static_cast<F32>(sqrt(min_vsize)),static_cast<F32>(sqrt(max_vsize))));
  	}
 	else if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_FACE_AREA))
 	{
-		setDebugText(llformat("%.0f:%.0f", (F32) sqrt(min_vsize),(F32) sqrt(max_vsize)));
+		setDebugText(llformat("%.0f:%.0f", static_cast<F32>(sqrt(min_vsize)),static_cast<F32>(sqrt(max_vsize))));
 	}
 
 	if (mPixelArea == 0)
@@ -870,7 +877,7 @@ BOOL LLVOVolume::setMaterial(const U8 material)
 	return res;
 }
 
-void LLVOVolume::setTexture(const S32 face)
+void LLVOVolume::setTexture(const S32 face) const
 {
 	llassert(face < getNumTEs());
 	gGL.getTexUnit(0)->bind(getTEImage(face));
@@ -896,7 +903,9 @@ void LLVOVolume::setScale(const LLVector3 &scale, BOOL damped)
 	}
 }
 
+// ReSharper disable CppMemberFunctionMayBeConst
 LLFace* LLVOVolume::addFace(S32 f)
+// ReSharper restore CppMemberFunctionMayBeConst
 {
 	const LLTextureEntry* te = getTE(f);
 	LLViewerTexture* imagep = getTEImage(f);
@@ -987,7 +996,7 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 		setParameterEntryInUse(LLNetworkData::PARAMS_FLEXIBLE, TRUE, false);
 		if (!mVolumeImpl)
 		{
-			LLFlexibleObjectData* data = (LLFlexibleObjectData*)getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE);
+			LLFlexibleObjectData* data = static_cast<LLFlexibleObjectData*>(getParameterEntry(LLNetworkData::PARAMS_FLEXIBLE));
 			mVolumeImpl = new LLVolumeImplFlexible(this, data);
 		}
 	}
@@ -1092,7 +1101,7 @@ void LLVOVolume::updateSculptTexture()
 
 	if (isSculpted() && !isMesh())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLSculptParams *sculpt_params = static_cast<LLSculptParams *>(getParameterEntry(LLNetworkData::PARAMS_SCULPT));
 		LLUUID id =  sculpt_params->getSculptTexture();
 		if (id.notNull())
 		{
@@ -1135,10 +1144,10 @@ void LLVOVolume::sculpt()
 {	
 	if (mSculptTexture.notNull())
 	{				
-		U16 sculpt_height = 0;
-		U16 sculpt_width = 0;
+		U16 sculpt_height;
+		U16 sculpt_width;
 		S8 sculpt_components = 0;
-		const U8* sculpt_data = NULL;
+		const U8* sculpt_data;
 	
 		S32 discard_level = mSculptTexture->getCachedRawImageLevel() ;
 		LLImageRaw* raw_image = mSculptTexture->getCachedRawImage() ;
@@ -1157,7 +1166,7 @@ void LLVOVolume::sculpt()
 		if(current_discard < -2)
 		{
 			static S32 low_sculpty_discard_warning_count = 1;
-			S32 exponent = llmax(1, llfloor( log10((F64) low_sculpty_discard_warning_count) ));
+			S32 exponent = llmax(1, llfloor( log10(static_cast<F64>(low_sculpty_discard_warning_count)) ));
 			S32 interval = pow(10.0, exponent);
 			if ( low_sculpty_discard_warning_count < 10 ||
 				(low_sculpty_discard_warning_count % interval) == 0)
@@ -1176,7 +1185,7 @@ void LLVOVolume::sculpt()
 		else if (current_discard > MAX_DISCARD_LEVEL)
 		{
 			static S32 high_sculpty_discard_warning_count = 1;
-			S32 exponent = llmax(1, llfloor( log10((F64) high_sculpty_discard_warning_count) ));
+			S32 exponent = llmax(1, llfloor( log10(static_cast<F64>(high_sculpty_discard_warning_count)) ));
 			S32 interval = pow(10.0, exponent);
 			if ( high_sculpty_discard_warning_count < 10 ||
 				(high_sculpty_discard_warning_count % interval) == 0)
@@ -1236,7 +1245,7 @@ void LLVOVolume::sculpt()
 	}
 }
 
-S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
+S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius) const
 {
 	S32	cur_detail;
 	if (LLPipeline::sDynamicLOD)
@@ -1247,7 +1256,7 @@ S32	LLVOVolume::computeLODDetail(F32 distance, F32 radius)
 	}
 	else
 	{
-		cur_detail = llclamp((S32) (sqrtf(radius)*LLVOVolume::sLODFactor*4.f), 0, 3);		
+		cur_detail = llclamp(static_cast<S32>(sqrtf(radius)*sLODFactor*4.f), 0, 3);		
 	}
 	return cur_detail;
 }
@@ -1259,7 +1268,7 @@ BOOL LLVOVolume::calcLOD()
 		return FALSE;
 	}
 
-	S32 cur_detail = 0;
+	S32 cur_detail;
 	
 	F32 radius;
 	F32 distance;
@@ -1315,7 +1324,7 @@ BOOL LLVOVolume::calcLOD()
 
 	if (cur_detail != mLOD)
 	{
-		mAppAngle = ll_round((F32) atan2( mDrawable->getRadius(), mDrawable->mDistanceWRTCamera) * RAD_TO_DEG, 0.01f);
+		mAppAngle = ll_round(static_cast<F32>(atan2( mDrawable->getRadius(), mDrawable->mDistanceWRTCamera)) * RAD_TO_DEG, 0.01f);
 		mLOD = cur_detail;		
 		return TRUE;
 	}
@@ -1378,10 +1387,10 @@ BOOL LLVOVolume::setDrawableParent(LLDrawable* parentp)
 	return TRUE;
 }
 
-void LLVOVolume::updateFaceFlags()
+void LLVOVolume::updateFaceFlags() const
 {
 	// There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
-	for (S32 i = 0; i < getVolume()->getNumFaces() && i < mDrawable->getNumFaces(); i++)
+	for (auto i = 0; i < getVolume()->getNumFaces() && i < mDrawable->getNumFaces(); i++)
 	{
 		// <FS:ND> There's no guarantee that getVolume()->getNumFaces() == mDrawable->getNumFaces()
 		if( mDrawable->getNumFaces() <= i || getNumTEs() <= i )
@@ -1455,7 +1464,7 @@ void LLVOVolume::regenFaces()
 		
 		// If the face had media on it, this will have broken the link between the LLViewerMediaTexture and the face.
 		// Re-establish the link.
-		if((int)mMediaImplList.size() > i)
+		if(static_cast<int>(mMediaImplList.size()) > i)
 		{
 			if(mMediaImplList[i])
 			{
@@ -1540,7 +1549,7 @@ BOOL LLVOVolume::genBBoxes(BOOL force_global)
 	return res;
 }
 
-void LLVOVolume::preRebuild()
+void LLVOVolume::preRebuild() const
 {
 	if (mVolumeImpl != NULL)
 	{
@@ -1563,8 +1572,8 @@ void LLVOVolume::updateRelativeXform(bool force_identity)
 	  //inverse of render matrix should go to partition space
 		mRelativeXform = getRenderMatrix();
 
-		F32* dst = (F32*) mRelativeXformInvTrans.mMatrix;
-		F32* src = (F32*) mRelativeXform.mMatrix;
+		auto* dst = reinterpret_cast<F32*>(mRelativeXformInvTrans.mMatrix);
+		auto* src = reinterpret_cast<F32*>(mRelativeXform.mMatrix);
 		dst[0] = src[0]; dst[1] = src[1]; dst[2] = src[2];
 		dst[3] = src[4]; dst[4] = src[5]; dst[5] = src[6];
 		dst[6] = src[8]; dst[7] = src[9]; dst[8] = src[10];
@@ -1668,7 +1677,7 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 	old_volumep = getVolume();
 	old_lod = old_volumep->getDetail();
 	old_num_faces = old_volumep->getNumFaces();
-	old_volumep = NULL;
+	//old_volumep = NULL;
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_GEN_VOLUME);
@@ -1679,14 +1688,14 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 	new_volumep = getVolume();
 	new_lod = new_volumep->getDetail();
 	new_num_faces = new_volumep->getNumFaces();
-	new_volumep = NULL;
+	//new_volumep = NULL;
 
 	if ((new_lod != old_lod) || mSculptChanged)
 	{
 		compiled = TRUE;
 		sNumLODChanges += new_num_faces;
 
-		if ((S32)getNumTEs() != getVolume()->getNumFaces())
+		if (static_cast<S32>(getNumTEs()) != getVolume()->getNumFaces())
 		{
 			setNumTEs(getVolume()->getNumFaces()); //mesh loading may change number of faces.
 		}
@@ -1695,7 +1704,7 @@ bool LLVOVolume::lodOrSculptChanged(LLDrawable *drawable, BOOL &compiled)
 
 		{
 			LL_RECORD_BLOCK_TIME(FTM_GEN_TRIANGLES);
-			regen_faces = new_num_faces != old_num_faces || mNumFaces != (S32)getNumTEs();
+			regen_faces = new_num_faces != old_num_faces || mNumFaces != static_cast<S32>(getNumTEs());
 			if (regen_faces)
 			{
 				regenFaces();
@@ -1839,7 +1848,7 @@ void LLVOVolume::updateFaceSize(S32 idx)
 
 BOOL LLVOVolume::isRootEdit() const
 {
-	if (mParent && !((LLViewerObject*)mParent)->isAvatar())
+	if (mParent && !static_cast<LLViewerObject*>(mParent)->isAvatar())
 	{
 		return FALSE;
 	}
@@ -1931,7 +1940,7 @@ S32 LLVOVolume::setTEColor(const U8 te, const LLColor4& color)
 	const LLTextureEntry *tep = getTE(te);
 	if (!tep)
 	{
-		LL_WARNS("MaterialTEs") << "No texture entry for te " << (S32)te << ", object " << mID << LL_ENDL;
+		LL_WARNS("MaterialTEs") << "No texture entry for te " << static_cast<S32>(te) << ", object " << mID << LL_ENDL;
 	}
 	else if (color != tep->getColor())
 	{
@@ -2045,7 +2054,7 @@ S32 LLVOVolume::setTEGlow(const U8 te, const F32 glow)
 
 void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLMaterialID &pMaterialID, const LLMaterialPtr pMaterialParams, U32 te)
 {
-	LLVOVolume* pVol = (LLVOVolume*)gObjectList.findObject(objectID);
+	LLVOVolume* pVol = static_cast<LLVOVolume*>(gObjectList.findObject(objectID));
 	if (pVol)
 	{
 		LL_DEBUGS("MaterialTEs") << "materialid " << pMaterialID.asString() << " to TE " << te << LL_ENDL;
@@ -2063,7 +2072,7 @@ void LLVOVolume::setTEMaterialParamsCallbackTE(const LLUUID& objectID, const LLM
 S32 LLVOVolume::setTEMaterialID(const U8 te, const LLMaterialID& pMaterialID)
 {
 	S32 res = LLViewerObject::setTEMaterialID(te, pMaterialID);
-	LL_DEBUGS("MaterialTEs") << "te "<< (S32)te << " materialid " << pMaterialID.asString() << " res " << res
+	LL_DEBUGS("MaterialTEs") << "te "<< static_cast<S32>(te) << " materialid " << pMaterialID.asString() << " res " << res
 								<< ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 								<< LL_ENDL;
 		
@@ -2313,7 +2322,7 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 
 	S32 res = LLViewerObject::setTEMaterialParams(te, pMaterial);
 
-	LL_DEBUGS("MaterialTEs") << "te " << (S32)te << " material " << ((pMaterial) ? pMaterial->asLLSD() : LLSD("null")) << " res " << res
+	LL_DEBUGS("MaterialTEs") << "te " << static_cast<S32>(te) << " material " << ((pMaterial) ? pMaterial->asLLSD() : LLSD("null")) << " res " << res
 							 << ( LLSelectMgr::getInstance()->getSelection()->contains(const_cast<LLVOVolume*>(this), te) ? " selected" : " not selected" )
 							 << LL_ENDL;
 	setChanged(ALL_CHANGED);
@@ -2384,7 +2393,7 @@ bool LLVOVolume::hasMedia() const
 	return result;
 }
 
-LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
+LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id) const
 {
 	LLVolume* volume = getVolume();
 	LLVector4a result;
@@ -2395,7 +2404,7 @@ LLVector3 LLVOVolume::getApproximateFaceNormal(U8 face_id)
 	if (volume && face_id < volume->getNumVolumeFaces())
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(face_id);
-		for (S32 i = 0; i < (S32)face.mNumVertices; ++i)
+		for (auto i = 0; i < static_cast<S32>(face.mNumVertices); ++i)
 		{
 			result.add(face.mNormals[i]);
 		}
@@ -2443,7 +2452,7 @@ void LLVOVolume::updateObjectMediaData(const LLSD &media_data_array, const std::
 	U32 fetched_version = LLTextureEntry::getVersionFromMediaVersionString(media_version);
 
 	// Only update it if it is newer!
-	if ( (S32)fetched_version > mLastFetchedMediaVersion)
+	if ( static_cast<S32>(fetched_version) > mLastFetchedMediaVersion)
 	{
 		mLastFetchedMediaVersion = fetched_version;
 		//LL_INFOS() << "updating:" << this->getID() << " " << ll_pretty_print_sd(media_data_array) << LL_ENDL;
@@ -2519,7 +2528,7 @@ void LLVOVolume::syncMediaData(S32 texture_index, const LLSD &media_data, bool m
 		<< ((NULL == te->getMediaData()) ? "NULL MEDIA DATA" : ll_pretty_print_sd(te->getMediaData()->asLLSD())) << LL_ENDL;
 }
 
-void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
+void LLVOVolume::mediaNavigateBounceBack(U8 texture_index) const
 {
 	// Find the media entry for this navigate
 	const LLMediaEntry* mep = NULL;
@@ -2565,7 +2574,7 @@ void LLVOVolume::mediaNavigateBounceBack(U8 texture_index)
     }
 }
 
-bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type)
+bool LLVOVolume::hasMediaPermission(const LLMediaEntry* media_entry, MediaPermType perm_type) const
 {
     // NOTE: This logic ALMOST duplicates the logic in the server (in particular, in llmediaservice.cpp).
     if (NULL == media_entry ) return false; // XXX should we assert here?
@@ -2731,7 +2740,7 @@ void LLVOVolume::sendMediaDataUpdate()
 
 void LLVOVolume::removeMediaImpl(S32 texture_index)
 {
-	if(mMediaImplList.size() <= (U32)texture_index || mMediaImplList[texture_index].isNull())
+	if(mMediaImplList.size() <= static_cast<U32>(texture_index) || mMediaImplList[texture_index].isNull())
 	{
 		return ;
 	}
@@ -2752,7 +2761,7 @@ void LLVOVolume::removeMediaImpl(S32 texture_index)
 	
 	//check if some other face(s) of this object reference(s)to this media impl.
 	S32 i ;
-	S32 end = (S32)mMediaImplList.size() ;
+	S32 end = static_cast<S32>(mMediaImplList.size()) ;
 	for(i = 0; i < end ; i++)
 	{
 		if( i != texture_index && mMediaImplList[i] == mMediaImplList[texture_index])
@@ -2772,7 +2781,7 @@ void LLVOVolume::removeMediaImpl(S32 texture_index)
 
 void LLVOVolume::addMediaImpl(LLViewerMediaImpl* media_impl, S32 texture_index)
 {
-	if((S32)mMediaImplList.size() < texture_index + 1)
+	if(static_cast<S32>(mMediaImplList.size()) < texture_index + 1)
 	{
 		mMediaImplList.resize(texture_index + 1) ;
 	}
@@ -2830,7 +2839,7 @@ F64 LLVOVolume::getTotalMediaInterest() const
 	if (LLViewerMediaFocus::getInstance()->getFocusedObjectID() == getID())
 		return F64_MAX;
 	
-	F64 interest = (F64)-1.0;  // means not interested;
+	F64 interest = static_cast<F64>(-1.0);  // means not interested;
     
 	// If this object is selected, this object has "high" interest, but since 
 	// there can be more than one, we still add in calculated impl interest
@@ -2845,7 +2854,7 @@ F64 LLVOVolume::getTotalMediaInterest() const
 		const viewer_media_t &impl = getMediaImpl(i);
 		if (!impl.isNull())
 		{
-			if (interest == (F64)-1.0) interest = (F64)0.0;
+			if (interest == static_cast<F64>(-1.0)) interest = static_cast<F64>(0.0);
 			interest += impl->getInterest();
 		}
 	}
@@ -2854,7 +2863,7 @@ F64 LLVOVolume::getTotalMediaInterest() const
 
 S32 LLVOVolume::getFaceIndexWithMediaImpl(const LLViewerMediaImpl* media_impl, S32 start_face_id)
 {
-	S32 end = (S32)mMediaImplList.size() ;
+	S32 end = static_cast<S32>(mMediaImplList.size()) ;
 	for(S32 face_id = start_face_id + 1; face_id < end; face_id++)
 	{
 		if(mMediaImplList[face_id] == media_impl)
@@ -2875,7 +2884,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 		{
 			setParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE, TRUE, true);
 		}
-		LLLightImageParams* param_block = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+		LLLightImageParams* param_block = static_cast<LLLightImageParams*>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 		if (param_block && param_block->getLightTexture() != id)
 		{
 			param_block->setLightTexture(id);
@@ -2895,7 +2904,7 @@ void LLVOVolume::setLightTextureID(LLUUID id)
 
 void LLVOVolume::setSpotLightParams(LLVector3 params)
 {
-	LLLightImageParams* param_block = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+	LLLightImageParams* param_block = static_cast<LLLightImageParams*>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 	if (param_block && param_block->getParams() != params)
 	{
 		param_block->setParams(params);
@@ -2932,7 +2941,7 @@ void LLVOVolume::setIsLight(BOOL is_light)
 
 void LLVOVolume::setLightColor(const LLColor3& color)
 {
-	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	LLLightParams *param_block = static_cast<LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		if (param_block->getColor() != color)
@@ -2947,7 +2956,7 @@ void LLVOVolume::setLightColor(const LLColor3& color)
 
 void LLVOVolume::setLightIntensity(F32 intensity)
 {
-	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	LLLightParams *param_block = static_cast<LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		if (param_block->getColor().mV[3] != intensity)
@@ -2960,7 +2969,7 @@ void LLVOVolume::setLightIntensity(F32 intensity)
 
 void LLVOVolume::setLightRadius(F32 radius)
 {
-	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	LLLightParams *param_block = static_cast<LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		if (param_block->getRadius() != radius)
@@ -2973,7 +2982,7 @@ void LLVOVolume::setLightRadius(F32 radius)
 
 void LLVOVolume::setLightFalloff(F32 falloff)
 {
-	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	LLLightParams *param_block = static_cast<LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		if (param_block->getFalloff() != falloff)
@@ -2986,7 +2995,7 @@ void LLVOVolume::setLightFalloff(F32 falloff)
 
 void LLVOVolume::setLightCutoff(F32 cutoff)
 {
-	LLLightParams *param_block = (LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	LLLightParams *param_block = static_cast<LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		if (param_block->getCutoff() != cutoff)
@@ -3006,7 +3015,7 @@ BOOL LLVOVolume::getIsLight() const
 
 LLColor3 LLVOVolume::getLightBaseColor() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return LLColor3(param_block->getColor());
@@ -3019,7 +3028,7 @@ LLColor3 LLVOVolume::getLightBaseColor() const
 
 LLColor3 LLVOVolume::getLightColor() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return LLColor3(param_block->getColor()) * param_block->getColor().mV[3];
@@ -3034,7 +3043,7 @@ LLUUID LLVOVolume::getLightTextureID() const
 {
 	if (getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
 	{
-		const LLLightImageParams *param_block = (const LLLightImageParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+		const LLLightImageParams *param_block = static_cast<const LLLightImageParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 		if (param_block)
 		{
 			return param_block->getLightTexture();
@@ -3049,7 +3058,7 @@ LLVector3 LLVOVolume::getSpotLightParams() const
 {
 	if (getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
 	{
-		const LLLightImageParams *param_block = (const LLLightImageParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+		const LLLightImageParams *param_block = static_cast<const LLLightImageParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 		if (param_block)
 		{
 			return param_block->getParams();
@@ -3090,7 +3099,7 @@ void LLVOVolume::updateSpotLightPriority()
 
 bool LLVOVolume::isLightSpotlight() const
 {
-	LLLightImageParams* params = (LLLightImageParams*) getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE);
+	LLLightImageParams* params = static_cast<LLLightImageParams*>(getParameterEntry(LLNetworkData::PARAMS_LIGHT_IMAGE));
 	if (params && getParameterEntryInUse(LLNetworkData::PARAMS_LIGHT_IMAGE))
 	{
 		return params->isLightSpotlight();
@@ -3120,7 +3129,7 @@ LLViewerTexture* LLVOVolume::getLightTexture()
 
 F32 LLVOVolume::getLightIntensity() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return param_block->getColor().mV[3];
@@ -3133,7 +3142,7 @@ F32 LLVOVolume::getLightIntensity() const
 
 F32 LLVOVolume::getLightRadius() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return param_block->getRadius();
@@ -3146,7 +3155,7 @@ F32 LLVOVolume::getLightRadius() const
 
 F32 LLVOVolume::getLightFalloff() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return param_block->getFalloff();
@@ -3159,7 +3168,7 @@ F32 LLVOVolume::getLightFalloff() const
 
 F32 LLVOVolume::getLightCutoff() const
 {
-	const LLLightParams *param_block = (const LLLightParams *)getParameterEntry(LLNetworkData::PARAMS_LIGHT);
+	const LLLightParams *param_block = static_cast<const LLLightParams *>(getParameterEntry(LLNetworkData::PARAMS_LIGHT));
 	if (param_block)
 	{
 		return param_block->getCutoff();
@@ -3213,7 +3222,7 @@ BOOL LLVOVolume::isMesh() const
 {
 	if (isSculpted())
 	{
-		LLSculptParams *sculpt_params = (LLSculptParams *)getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+		LLSculptParams *sculpt_params = static_cast<LLSculptParams *>(getParameterEntry(LLNetworkData::PARAMS_SCULPT));
 		U8 sculpt_type = sculpt_params->getSculptType();
 
 		if ((sculpt_type & LL_SCULPT_TYPE_MASK) == LL_SCULPT_TYPE_MESH)
@@ -3375,6 +3384,7 @@ BOOL LLVOVolume::isHUDAttachment() const
 }
 
 
+// ReSharper disable once CppConstValueFunctionReturnType
 const LLMatrix4 LLVOVolume::getRenderMatrix() const
 {
 	if (mDrawable->isActive() && !mDrawable->isRoot())
@@ -3394,8 +3404,8 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	// Skip if this is object doesn't have a volume (e.g. is an avatar).
 	BOOL has_volume = (getVolume() != NULL);
 	LLVolumeParams volume_params;
-	LLPathParams path_params;
-	LLProfileParams profile_params;
+	//LLPathParams path_params;
+	//LLProfileParams profile_params;
 
 	U32 num_triangles = 0;
 
@@ -3419,7 +3429,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	static const F32 ARC_ANIM_TEX_COST = 4.f; // tested based on performance
 	static const F32 ARC_ALPHA_COST = 4.f; // 4x max - based on performance
 
-	F32 shame = 0;
+	F32 shame;
 
 	U32 invisi = 0;
 	U32 shiny = 0;
@@ -3440,15 +3450,15 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	if (has_volume)
 	{
 		volume_params = getVolume()->getParams();
-		path_params = volume_params.getPathParams();
-		profile_params = volume_params.getProfileParams();
+		//path_params = volume_params.getPathParams();
+		//profile_params = volume_params.getProfileParams();
 
 		F32 weighted_triangles = -1.0;
 		getStreamingCost(NULL, NULL, &weighted_triangles);
 
 		if (weighted_triangles > 0.0)
 		{
-			num_triangles = (U32)(weighted_triangles); 
+			num_triangles = static_cast<U32>(weighted_triangles); 
 		}
 	}
 
@@ -3481,14 +3491,14 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		}
 		else
 		{
-			const LLSculptParams *sculpt_params = (LLSculptParams *) getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			const LLSculptParams *sculpt_params = static_cast<LLSculptParams *>(getParameterEntry(LLNetworkData::PARAMS_SCULPT));
 			LLUUID sculpt_id = sculpt_params->getSculptTexture();
 			if (textures.find(sculpt_id) == textures.end())
 			{
 				LLViewerFetchedTexture *texture = LLViewerTextureManager::getFetchedTexture(sculpt_id);
 				if (texture)
 				{
-					S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
+					S32 texture_cost = 256 + static_cast<S32>(ARC_TEXTURE_COST * (texture->getFullHeight() / 128.f + texture->getFullWidth() / 128.f));
 					textures.insert(texture_cost_t::value_type(sculpt_id, texture_cost));
 				}
 			}
@@ -3520,7 +3530,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			if (textures.find(img->getID()) == textures.end())
 			{
-				S32 texture_cost = 256 + (S32)(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
+				auto texture_cost = 256 + static_cast<S32>(ARC_TEXTURE_COST * (img->getFullHeight() / 128.f + img->getFullWidth() / 128.f));
 				textures.insert(texture_cost_t::value_type(img->getID(), texture_cost));
 			}
 		}
@@ -3624,7 +3634,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 	{
 		const LLPartSysData *part_sys_data = &(mPartSourcep->mPartSysData);
 		const LLPartData *part_data = &(part_sys_data->mPartData);
-		U32 num_particles = (U32)(part_sys_data->mBurstPartCount * llceil( part_data->mMaxAge / part_sys_data->mBurstRate));
+		U32 num_particles = static_cast<U32>(part_sys_data->mBurstPartCount * llceil( part_data->mMaxAge / part_sys_data->mBurstRate));
 		num_particles = num_particles > ARC_PARTICLE_MAX ? ARC_PARTICLE_MAX : num_particles;
 		F32 part_size = (llmax(part_data->mStartScale[0], part_data->mEndScale[0]) + llmax(part_data->mStartScale[1], part_data->mEndScale[1])) / 2.f;
 		shame += num_particles * part_size * ARC_PARTICLE_COST;
@@ -3642,10 +3652,10 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 
 	if (shame > mRenderComplexity_current)
 	{
-		mRenderComplexity_current = (S32)shame;
+		mRenderComplexity_current = static_cast<S32>(shame);
 	}
 
-	return (U32)shame;
+	return static_cast<U32>(shame);
 }
 
 F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_value) const
@@ -3695,25 +3705,25 @@ U32 LLVOVolume::getTriangleCount(S32* vcount) const
 
 U32 LLVOVolume::getHighLODTriangleCount()
 {
-	U32 ret = 0;
+	U32 ret;
 
-	LLVolume* volume = getVolume();
+	auto volume = getVolume();
 
 	if (!isSculpted())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		auto ref = getVolumeManager()->refVolume(volume->getParams(), 3);
 		ret = ref->getNumTriangles();
-		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+		getVolumeManager()->unrefVolume(ref);
 	}
 	else if (isMesh())
 	{
-		LLVolume* ref = LLPrimitive::getVolumeManager()->refVolume(volume->getParams(), 3);
+		auto ref = getVolumeManager()->refVolume(volume->getParams(), 3);
 		if (!ref->isMeshAssetLoaded() || ref->getNumVolumeFaces() == 0)
 		{
 			gMeshRepo.loadMesh(this, volume->getParams(), LLModel::LOD_HIGH);
 		}
 		ret = ref->getNumTriangles();
-		LLPrimitive::getVolumeManager()->unrefVolume(ref);
+		getVolumeManager()->unrefVolume(ref);
 	}
 	else
 	{ //default sculpts have a constant number of triangles
@@ -3776,21 +3786,23 @@ F32 LLVOVolume::getBinRadius()
 	static LLCachedControl<LLVector3> octreeDistanceFactor(gSavedSettings, "OctreeDistanceFactor");
 	static LLCachedControl<LLVector3> octreeAlphaDistanceFactor(gSavedSettings, "OctreeAlphaDistanceFactor");
 
-	S32 size_factor = (S32)octreeStaticObjectSizeFactor;
-	S32 attachment_size_factor = (S32)octreeAttachmentSizeFactor;
-	LLVector3 distance_factor = (LLVector3)octreeDistanceFactor;
-	LLVector3 alpha_distance_factor = (LLVector3)octreeAlphaDistanceFactor;
+	auto size_factor = static_cast<S32>(octreeStaticObjectSizeFactor);
+	auto attachment_size_factor = static_cast<S32>(octreeAttachmentSizeFactor);
+	auto distance_factor = static_cast<LLVector3>(octreeDistanceFactor);
+	auto alpha_distance_factor = static_cast<LLVector3>(octreeAlphaDistanceFactor);
 	// </FS:Ansariel>
+
+	// ReSharper disable once CppUseAuto
 	const LLVector4a* ext = mDrawable->getSpatialExtents();
 	
-	BOOL shrink_wrap = mDrawable->isAnimating();
-	BOOL alpha_wrap = FALSE;
+	auto shrink_wrap = mDrawable->isAnimating();
+	auto alpha_wrap = FALSE;
 
 	if (!isHUDAttachment())
 	{
-		for (S32 i = 0; i < mDrawable->getNumFaces(); i++)
+		for (auto i = 0; i < mDrawable->getNumFaces(); i++)
 		{
-			LLFace* face = mDrawable->getFace(i);
+			auto face = mDrawable->getFace(i);
 			if (!face) continue;
 			if (face->getPoolType() == LLDrawPool::POOL_ALPHA &&
 			    !face->canRenderAsMask())
@@ -3834,7 +3846,7 @@ F32 LLVOVolume::getBinRadius()
 	}
 	else if (mDrawable->getVObj()->isAttachment())
 	{
-		radius = llmax((S32) mDrawable->getRadius(),1)*attachment_size_factor;
+		radius = llmax(static_cast<S32>(mDrawable->getRadius()),1)*attachment_size_factor;
 	}
 	else
 	{
@@ -3846,6 +3858,8 @@ F32 LLVOVolume::getBinRadius()
 	return llclamp(radius*scale, 0.5f, 256.f);
 }
 
+
+// ReSharper disable once CppConstValueFunctionReturnType
 const LLVector3 LLVOVolume::getPivotPositionAgent() const
 {
 	if (mVolumeImpl)
@@ -3998,6 +4012,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			tn = *tangent;
 		}
 
+		// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 		S32 face_hit = -1;
 
 		S32 start_face, end_face;
@@ -4013,7 +4028,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		}
 
 		bool special_cursor = specialHoverCursor();
-		for (S32 i = start_face; i < end_face; ++i)
+		for (auto i = start_face; i < end_face; ++i)
 		{
 			if (!special_cursor && !pick_transparent && getTE(i) && getTE(i)->getColor().mV[3] == 0.f)
 			{ //don't attempt to pick completely transparent faces unless
@@ -4026,11 +4041,11 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 			
 			if (face_hit >= 0 && mDrawable->getNumFaces() > face_hit)
 			{
-				LLFace* face = mDrawable->getFace(face_hit);				
+				LLFace* ll_face = mDrawable->getFace(face_hit);				
 
 				bool ignore_alpha = false;
 
-				const LLTextureEntry* te = face->getTextureEntry();
+				const LLTextureEntry* te = ll_face->getTextureEntry();
 				if (te)
 				{
 					LLMaterial* mat = te->getMaterialParams();
@@ -4046,12 +4061,12 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 					}
 				}
 
-				if (face &&
+				if (ll_face &&
 					(ignore_alpha ||
 					pick_transparent || 
-					!face->getTexture() || 
-					!face->getTexture()->hasGLTexture() || 
-					face->getTexture()->getMask(face->surfaceToTexture(tc, p, n))))
+					!ll_face->getTexture() || 
+					!ll_face->getTexture()->hasGLTexture() || 
+					ll_face->getTexture()->getMask(ll_face->surfaceToTexture(tc, p, n))))
 				{
 					local_end = p;
 					if (face_hitp != NULL)
@@ -4123,7 +4138,7 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 	return ret;
 }
 
-bool LLVOVolume::treatAsRigged()
+bool LLVOVolume::treatAsRigged() const
 {
 	return isSelected() &&
 			isAttachment() &&
@@ -4131,7 +4146,7 @@ bool LLVOVolume::treatAsRigged()
 			mDrawable->isState(LLDrawable::RIGGED);
 }
 
-LLRiggedVolume* LLVOVolume::getRiggedVolume()
+LLRiggedVolume* LLVOVolume::getRiggedVolume() const
 {
 	return mRiggedVolume;
 }
@@ -4218,7 +4233,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 	static const size_t kMaxJoints = 52;
 
 	LLMatrix4a mp[kMaxJoints];
-	LLMatrix4* mat = (LLMatrix4*) mp;
+	LLMatrix4* mat = reinterpret_cast<LLMatrix4*>(mp);
 	
 	U32 maxJoints = llmin(skin->mJointNames.size(), kMaxJoints);
 	for (U32 j = 0; j < maxJoints; ++j)
@@ -4270,7 +4285,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 					__m128i _mIdx = _mm_cvttps_epi32( weight[j] );
 					__m128 _mWeight = _mm_sub_ps( weight[j], _mm_cvtepi32_ps( _mIdx ) );
 
-					_mm_store_si128( (__m128i*)idx, _mIdx );
+					_mm_store_si128( reinterpret_cast<__m128i*>(idx), _mIdx );
 
 					__m128 _mScale = _mm_add_ps( _mWeight, _mm_movehl_ps( _mWeight, _mWeight ));
 					_mScale = _mm_add_ss( _mScale, _mm_shuffle_ps( _mScale, _mScale, 1) );
@@ -4287,7 +4302,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 						LLMatrix4a src;
 						// Insure ref'd bone is in our clamped array of mats
 						// clamp idx to maxJoints to avoid reading garbage off stack in release
-                        S32 index = llclamp((S32)idx[k],(S32)0,(S32)kMaxJoints-1);
+                        auto index = llclamp(static_cast<S32>(idx[k]),static_cast<S32>(0),static_cast<S32>(kMaxJoints)-1);
 						src.setMul(mp[index], w);
 						final_mat.add(src);
 					}
@@ -4432,7 +4447,7 @@ LLVolumeGeometryManager::~LLVolumeGeometryManager()
 	}
 }
 
-void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount)
+void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount) const
 {
 	sFullbrightFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
 	sBumpFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
@@ -4443,7 +4458,7 @@ void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount)
 	sAlphaFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
 }
 
-void LLVolumeGeometryManager::freeFaces()
+void LLVolumeGeometryManager::freeFaces() const
 {
 	ll_aligned_free<64>(sFullbrightFaces);
 	ll_aligned_free<64>(sBumpFaces);
@@ -4464,7 +4479,7 @@ void LLVolumeGeometryManager::freeFaces()
 
 static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
 
-void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
+void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type) const
 {
 	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
 	if (type == LLRenderPass::PASS_ALPHA && facep->getTextureEntry()->getMaterialParams().notNull() && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT))
@@ -4506,6 +4521,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		tex_mat = facep->mTextureMatrix;	
 	}
 
+	// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 	const LLMatrix4* model_mat = NULL;
 
 	LLDrawable* drawable = facep->getDrawable();
@@ -4646,12 +4662,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				
 				if (!mat->getSpecularID().isNull())
 				{
-					LLVector4 specColor;
-					specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
-					specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
-					specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
-					specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
-					draw_info->mSpecColor = specColor;
+					LLVector4 spec_color;
+					spec_color.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
+					spec_color.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
+					spec_color.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
+					spec_color.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
+					draw_info->mSpecColor = spec_color;
 					draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
 					draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
 				}
@@ -4720,7 +4736,7 @@ static LLDrawPoolAvatar* get_avatar_drawpool(LLViewerObject* vobj)
 				{
 					if (drawpool->getType() == LLDrawPool::POOL_AVATAR)
 					{
-						return (LLDrawPoolAvatar*) drawpool;
+						return static_cast<LLDrawPoolAvatar*>(drawpool);
 					}
 				}
 			}
@@ -4807,7 +4823,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 	U32 max_vertices = (RenderMaxVBOSize*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	U32 max_total = (RenderMaxNodeSize*1024)/LLVertexBuffer::calcVertexSize(group->getSpatialPartition()->mVertexDataMask);
 	// </FS:ND>
-	max_vertices = llmin(max_vertices, (U32) 65535);
+	max_vertices = llmin(max_vertices, static_cast<U32>(65535));
 
 	U32 cur_total = 0;
 
@@ -4826,7 +4842,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		//get all the faces into a list
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+			LLDrawable* drawablep = static_cast<LLDrawable*>((*drawable_iter)->getDrawable());
 		
 			if (!drawablep || drawablep->isDead() || drawablep->isState(LLDrawable::FORCE_INVISIBLE) )
 			{
@@ -4921,7 +4937,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 						LLDrawPool* old_pool = facep->getPool();
 						if (old_pool && old_pool->getType() == LLDrawPool::POOL_AVATAR)
 						{
-							((LLDrawPoolAvatar*) old_pool)->removeRiggedFace(facep);
+							static_cast<LLDrawPoolAvatar*>(old_pool)->removeRiggedFace(facep);
 						}
 
 						//add face to new pool
@@ -5056,7 +5072,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 				{
 					if (facep->isState(LLFace::RIGGED))
 					{ //face is not rigged but used to be, remove from rigged face pool
-						LLDrawPoolAvatar* pool = (LLDrawPoolAvatar*) facep->getPool();
+						LLDrawPoolAvatar* pool = static_cast<LLDrawPoolAvatar*>(facep->getPool());
 						if (pool)
 						{
 							pool->removeRiggedFace(facep);
@@ -5115,19 +5131,19 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 							S32 face;
 							for (face = 0; face < vobj->getNumTEs(); face++)
 							{
-								LLFace * facep = drawablep->getFace(face);
-								if (facep)
+								LLFace * ll_face = drawablep->getFace(face);
+								if (ll_face)
 								{
-									facep->setState(LLFace::TEXTURE_ANIM);
+									ll_face->setState(LLFace::TEXTURE_ANIM);
 								}
 							}
 						}
 						else if (vobj->mTextureAnimp->mFace < vobj->getNumTEs())
 						{
-							LLFace * facep = drawablep->getFace(vobj->mTextureAnimp->mFace);
-							if (facep)
+							LLFace * ll_face = drawablep->getFace(vobj->mTextureAnimp->mFace);
+							if (ll_face)
 							{
-								facep->setState(LLFace::TEXTURE_ANIM);
+								ll_face->setState(LLFace::TEXTURE_ANIM);
 							}
 						}
 					}
@@ -5325,7 +5341,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		//drawables have been rebuilt, clear rebuild status
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+			LLDrawable* drawablep = static_cast<LLDrawable*>((*drawable_iter)->getDrawable());
 			if(drawablep)
 			{
 			drawablep->clearState(LLDrawable::REBUILD_ALL);
@@ -5386,7 +5402,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 		for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 		{
-			LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+			LLDrawable* drawablep = static_cast<LLDrawable*>((*drawable_iter)->getDrawable());
 
 			if (drawablep && !drawablep->isDead() && drawablep->isState(LLDrawable::REBUILD_ALL) && !drawablep->isState(LLDrawable::RIGGED) )
 			{
@@ -5457,7 +5473,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 			LL_WARNS() << "Not all mapped vertex buffers are unmapped!" << LL_ENDL ; 
 			for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 			{
-				LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+				LLDrawable* drawablep = static_cast<LLDrawable*>((*drawable_iter)->getDrawable());
 				if(!drawablep)
 				{
 					continue;
@@ -5485,7 +5501,7 @@ void LLVolumeGeometryManager::rebuildMesh(LLSpatialGroup* group)
 
 struct CompareBatchBreakerModified
 {
-	bool operator()(const LLFace* const& lhs, const LLFace* const& rhs)
+	bool operator()(const LLFace* const& lhs, const LLFace* const& rhs) const
 	{
 		const LLTextureEntry* lte = lhs->getTextureEntry();
 		const LLTextureEntry* rte = rhs->getTextureEntry();
@@ -5557,7 +5573,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 	// </FS:ND>
 
-	max_vertices = llmin(max_vertices, (U32) 65535);
+	max_vertices = llmin(max_vertices, static_cast<U32>(65535));
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_GEN_DRAW_INFO_SORT);
@@ -5601,7 +5617,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 	// <FS:ND> replace frequent calls to saved settings with LLCachedControl
 	static LLCachedControl< U32 > RenderMaxTextureIndex( gSavedSettings, "RenderMaxTextureIndex");
-	texture_index_channels = llmin(texture_index_channels, (S32) RenderMaxTextureIndex);
+	texture_index_channels = llmin(texture_index_channels, static_cast<S32>(RenderMaxTextureIndex));
 
 	// </FS:ND>
 	
@@ -5731,7 +5747,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 					facep->setTextureIndex(0);
 				}
 
-				tex = texture_list[0];
+				//tex = texture_list[0];
 			}
 			else
 			{
@@ -5769,6 +5785,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 		}
 
 		//create vertex buffer
+		// ReSharper disable once CppInitializedValueIsAlwaysRewritten
 		LLVertexBuffer* buffer = NULL;
 
 		{
@@ -5849,24 +5866,24 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 			}
 
 			const LLTextureEntry* te = facep->getTextureEntry();
-			tex = facep->getTexture();
+			//tex = facep->getTexture();
 
 			BOOL is_alpha = (facep->getPoolType() == LLDrawPool::POOL_ALPHA) ? TRUE : FALSE;
 		
-			LLMaterial* mat = te->getMaterialParams().get();
+			LLMaterial* ll_material = te->getMaterialParams().get();
 
 			bool can_be_shiny = true;
-			if (mat)
+			if (ll_material)
 			{
-				U8 mode = mat->getDiffuseAlphaMode();
+				U8 mode = ll_material->getDiffuseAlphaMode();
 				can_be_shiny = mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE ||
 								mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE;
 			}
 
-			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!mat || mat->getNormalID().isNull());
+			bool use_legacy_bump = te->getBumpmap() && (te->getBumpmap() < 18) && (!ll_material || ll_material->getNormalID().isNull());
 			bool opaque = te->getColor().mV[3] >= 0.999f;
 
-			if (mat && LLPipeline::sRenderDeferred && !hud_group)
+			if (ll_material && LLPipeline::sRenderDeferred && !hud_group)
 			{
 				bool material_pass = false;
 
@@ -5876,7 +5893,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 				//
 				if (te->getFullbright())
 				{
-					if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+					if (ll_material->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
 						if (opaque)
 						{
@@ -5893,7 +5910,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 					}
 					else
 					{
-						if (mat->getEnvironmentIntensity() > 0 ||
+						if (ll_material->getEnvironmentIntensity() > 0 ||
 							te->getShiny() > 0)
 						{
 							material_pass = true;
@@ -5944,18 +5961,18 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 						LLRenderPass::PASS_NORMSPEC_EMISSIVE,
 					};
 
-					U32 mask = mat->getShaderMask();
+					U32 d1_mask = ll_material->getShaderMask();
 
 					llassert(mask < sizeof(pass)/sizeof(U32));
 
-					mask = llmin(mask, (U32)(sizeof(pass)/sizeof(U32)-1));
+					d1_mask = llmin(d1_mask, static_cast<U32>(sizeof(pass)/sizeof(U32)-1));
 
-					registerFace(group, facep, pass[mask]);
+					registerFace(group, facep, pass[d1_mask]);
 				}
 			}
-			else if (mat)
+			else if (ll_material)
 			{
-				U8 mode = mat->getDiffuseAlphaMode();
+				U8 mode = ll_material->getDiffuseAlphaMode();
 				if (te->getColor().mV[3] < 0.999f)
 				{
 					mode = LLMaterial::DIFFUSE_ALPHA_MODE_BLEND;
@@ -6042,7 +6059,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 			{ //not alpha and not shiny
 				if (fullbright || bake_sunlight)
 				{ //fullbright
-					if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+					if (ll_material && ll_material->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 					{
 						registerFace(group, facep, LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
 					}
@@ -6064,7 +6081,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 					else
 					{ //all around simple
 						llassert(mask & LLVertexBuffer::MAP_NORMAL);
-						if (mat && mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
+						if (ll_material && ll_material->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 						{ //material alpha mask can be respected in non-deferred
 							registerFace(group, facep, LLRenderPass::PASS_ALPHA_MASK);
 						}
@@ -6127,7 +6144,7 @@ void LLGeometryManager::addGeometryCount(LLSpatialGroup* group, U32 &vertex_coun
 
 	for (LLSpatialGroup::element_iter drawable_iter = group->getDataBegin(); drawable_iter != group->getDataEnd(); ++drawable_iter)
 	{
-		LLDrawable* drawablep = (LLDrawable*)(*drawable_iter)->getDrawable();
+		LLDrawable* drawablep = static_cast<LLDrawable*>((*drawable_iter)->getDrawable());
 		
 		if (!drawablep || drawablep->isDead())
 		{
