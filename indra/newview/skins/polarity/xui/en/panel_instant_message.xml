@@ -40,10 +40,10 @@
          height="18"
          default_icon_name="Generic_Group"
          layout="topleft"
-         left="2"
+         left="3"
          mouse_opaque="false"
          name="group_icon"
-         top="0"
+         top="3"
          width="18" />
         <avatar_icon
          color="Green"
@@ -51,10 +51,10 @@
          height="18"
          image_name="Generic_Person"
          layout="topleft"
-         left="2"
+         left="3"
          mouse_opaque="false"
          name="adhoc_icon"
-         top="0"
+         top="3"
          width="18" />
         <text
          follows="left|right"
