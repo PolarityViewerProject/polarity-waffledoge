@@ -112,6 +112,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVChat_AnnounceIncomingIM</key>
+    <map>
+      <key>Comment</key>
+      <string>Opens the IM floater and announces an incoming IM as soon as somebody is starting to write an IM to you. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVChat_AutoCloseOOC</key>
     <map>
       <key>Comment</key>

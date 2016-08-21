@@ -4209,4 +4209,6 @@ Try enclosing path to the editor with double quotes.
 
   <string name="Nametag_Complexity_Label">Complexity: [COMPLEXITY]</string>
   <string name="AvatarTyping">Typing...</string>
+
+  <string name="NotifyIncomingMessage">/me is typing...</string>
 </strings>
