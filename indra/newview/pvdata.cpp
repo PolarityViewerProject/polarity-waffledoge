@@ -675,23 +675,30 @@ std::string PVData::getPreferredName(const LLAvatarName& av_name)
 {
 	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
 	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
+	// Fallback
+	std::string preferred_name = "";
+
+	if (!use_display_names && !show_username)
+	{
+		return av_name.getUserName();
+	}
 	if (use_display_names && show_username)
 	{
-		return av_name.getCompleteNameForced(); // Show everything
+		preferred_name = av_name.getCompleteNameForced(); // Show everything
 	}
 	else if (use_display_names && !show_username)
 	{
-		return av_name.getDisplayNameForced();
+		preferred_name = av_name.getDisplayNameForced();
 	}
-	else if (!use_display_names && !show_username)
-	{
-		return av_name.getUserName();
-	}
-	else
+
+	if (preferred_name == "")
 	{
 		// we shouldn't hit this, but a sane fallback can't hurt.
-		return av_name.getUserName();
+		preferred_name = av_name.getUserName();
+		LL_WARNS("PVData") << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
 	}
+	
+	return preferred_name;
 }
 
 // <polarity> Overload to work with UUIDs
