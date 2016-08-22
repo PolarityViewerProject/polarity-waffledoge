@@ -2073,7 +2073,11 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			}
 
 			// output the styled Url
-			appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+			// <FS:CR> FIRE-11437 - Don't supress font style for chat history name links
+			//appendAndHighlightTextImpl(match.getLabel(), part, link_params, match.underlineOnHoverOnly());
+			appendAndHighlightTextImpl(match.getLabel(), part, link_params,
+										input_params.override_link_style ? false : match.underlineOnHoverOnly());
+			// </FS:CR>
 			bool tooltip_required =  !match.getTooltip().empty();
 
 			// set the tooltip for the Url label
@@ -2088,7 +2092,7 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			{
 				link_params.color = LLColor4::grey;
 				link_params.readonly_color = LLColor4::grey;
-				appendAndHighlightTextImpl(label, part, link_params, match.underlineOnHoverOnly());
+				appendAndHighlightTextImpl(label, part, link_params, input_params.override_link_style ? false : match.underlineOnHoverOnly());
 
 				// set the tooltip for the query part of url
 				if (tooltip_required)
