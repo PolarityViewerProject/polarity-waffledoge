@@ -442,7 +442,8 @@ public:
 				mFrom = chat.mFromName.substr(0, username_start);
 				user_name->setValue(mFrom);
 
-				if (gSavedSettings.getBOOL("NameTagShowUsernames"))
+				static LLCachedControl<bool> nameTagShowUsername(gSavedSettings, "NameTagShowUsernames");
+				if (nameTagShowUsername)
 				{
 					std::string username = chat.mFromName.substr(username_start + 2);
 					username = username.substr(0, username.length() - 1);
@@ -924,15 +925,21 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-	// <polarity> Color name in chat header
-	LLColor4 name_color(txt_color);
 #ifdef PVDATA_COLORIZER
+
 	// <polarity> Colored names for special users
+	LLColor4 name_color;
 	if ((chat.mSourceType != CHAT_SOURCE_OBJECT) && (chat.mSourceType != CHAT_STYLE_HISTORY) && (chat.mFromName != SYSTEM_FROM) && (chat.mFromID.notNull()) /*&& chat.mFromID != gAgent.getID()*/)
 	{
 		name_color = PVData::instance().getColor(chat.mFromID, txt_color, false);
 	}
+	else
+	{
+		name_color = txt_color;
+	}
 	// </polarity>
+#else
+	LLColor4 name_color(txt_color);
 #endif
 
 	LLViewerChat::getChatColor(chat,txt_color);
@@ -1046,6 +1053,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
+				link_params.color.control = "HTMLLinkColor";
 				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
@@ -1061,7 +1069,19 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 // [/RLVa:KB]
 			{
 				LLStyle::Params link_params(body_message_params);
+				auto font_style_backup = body_message_params.font.style;
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				link_params.override_link_style = true;
+#if PVDATA_COLORIZER
+				// <polarity> Colored names for special users
+				static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
+				if (use_colorizer /* && chat.mFromID != gAgent.getID()*/)
+				{
+					link_params.color = name_color;
+					link_params.readonly_color = name_color;
+				}
+				// </polarity>
+#endif // PVDATA_COLORIZER
 
 				// Add link to avatar's inspector and delimiter to message.
 				mEditor->appendText(std::string(link_params.link_href) + delimiter,
