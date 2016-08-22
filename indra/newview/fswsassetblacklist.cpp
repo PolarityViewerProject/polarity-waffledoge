@@ -87,7 +87,7 @@ bool FSWSAssetBlacklist::isBlacklisted(const LLUUID& id, LLAssetType::EType type
 	return (uuids.find(id) != uuids.end());
 }
 
-void FSWSAssetBlacklist::addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool save)
+void FSWSAssetBlacklist::addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool save, bool permanent)
 {
 	if (isBlacklisted(id, type))
 	{
@@ -104,6 +104,7 @@ void FSWSAssetBlacklist::addNewItemToBlacklist(const LLUUID& id, const std::stri
 	data["asset_region"] = region;
 	data["asset_type"] = type;
 	data["asset_date"] = input_date;
+	data["asset_permanent"] = permanent;
 
 	addNewItemToBlacklistData(id, data, save);
 }
@@ -122,6 +123,7 @@ void FSWSAssetBlacklist::removeItemFromBlacklist(const LLUUID& id)
 
 	LLSD data = it->second;
 	LLAssetType::EType type = S32toAssetType(data["asset_type"].asInteger());
+	// PLVR TODO: Do we need to remove permanent boolean too?
 
 	mBlacklistTypeContainer[type].erase(id);
 	mBlacklistData.erase(it);
@@ -212,56 +214,15 @@ void FSWSAssetBlacklist::loadBlacklist()
 					{
 						continue;
 					}
-					
-					addNewItemToBlacklistData(uid, entry_data, false);
+					// Don't re-add temporary data if it got saved accidentally
+					//if (entry_data["permanent"].asBoolean())
+					//{
+						addNewItemToBlacklistData(uid, entry_data, false);
+					//}
 				}
 			}
 		}
 		blacklist_data_stream.close();
-	}
-	else
-	{
-		// Try to import old blacklist data from Phoenix
-		std::string old_file = gDirUtilp->getOSUserDir() + gDirUtilp->getDirDelimiter() + "SecondLife" + gDirUtilp->getDirDelimiter() + "user_settings" + gDirUtilp->getDirDelimiter() + "floater_blist_settings.xml";
-		if (gDirUtilp->fileExists(old_file))
-		{
-			LLSD datallsd;
-			llifstream oldfile;
-			oldfile.open(old_file.c_str());
-			if (oldfile.is_open())
-			{
-				LLSDSerialize::fromXMLDocument(datallsd, oldfile);
-				for (LLSD::map_const_iterator itr = datallsd.beginMap(); itr != datallsd.endMap(); ++itr)
-				{
-					LLUUID uid = LLUUID(itr->first);
-					LLSD data = itr->second;
-					if (uid.isNull() || !data.has("entry_name") || !data.has("entry_type") || !data.has("entry_date"))
-					{
-						continue;
-					}
-					LLAssetType::EType type = S32toAssetType(data["entry_type"].asInteger());
-					
-					LLSD newdata;
-					newdata["asset_name"] = "[PHOENIX] " + data["entry_name"].asString();
-					newdata["asset_type"] = type;
-					newdata["asset_date"] = data["entry_date"].asString();
-
-					//if (!data["ID_hashed"].asBoolean())
-					//{
-					//	uid = LLUUID::generateNewID(uid.asString() + "hash");
-					//}
-					
-					addNewItemToBlacklistData(uid, newdata, false);
-				}
-			}
-			oldfile.close();
-			saveBlacklist();
-			LL_INFOS("AssetBlacklist") << "Using old Phoenix file: " << old_file << LL_ENDL;
-		}
-		else
-		{
-			LL_INFOS("AssetBlacklist") << "No Settings file found." << old_file << LL_ENDL;
-		}
 	}
 }
 

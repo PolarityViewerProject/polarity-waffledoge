@@ -91,6 +91,9 @@ void FSFloaterWSAssetBlacklist::addElementToList(const LLUUID& id, const LLSD& d
 	element["columns"][3]["column"] = "date";
 	element["columns"][3]["type"] = "text";
 	element["columns"][3]["value"] = data["asset_date"].asString();
+	element["columns"][4]["column"] = "permanent";
+	element["columns"][4]["type"] = "text";
+	element["columns"][4]["value"] = data["asset_permanent"].asBoolean() ? "true" : "false"; // ewwww.
 
 	mResultList->addElement(element, ADD_BOTTOM);
 }

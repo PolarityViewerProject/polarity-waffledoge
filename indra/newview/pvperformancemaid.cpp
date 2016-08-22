@@ -34,6 +34,7 @@ void PVPerformanceMaid::TriggerPanicMode()
 		LL_WARNS() << "User is in panic! Disabling fancy graphics!" << LL_ENDL;
 		// TODO PLVR: Store the settings somewhere in the XML File to restore AFTER relog?
 		// TODO PLVR: An even better way would be to temporarily disable the render features without touching the settings at all.
+		// TODO PLVR: We NEED to ensure that all checks to these settings are done against the runtime version when applicable.
 		// Not saved to settings all that often, so get directly from the pipeline
 		PVPerformanceMaid::instance().previous_vertex_mode_ = LLPipeline::VertexShaderEnable;
 		PVPerformanceMaid::instance().previous_draw_distance_ = LLPipeline::RenderFarClip;

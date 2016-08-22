@@ -2625,7 +2625,9 @@ void derenderObject(bool permanent)
 		if ( (objp) && (gAgentID != objp->getID()) && ((!rlv_handler_t::isEnabled()) || (!objp->isAttachment()) || (!objp->permYouOwner())) )
 // [/RLVa:KB]
 		{
-			if (permanent)
+			// <polarity> always add derendered items to blacklist, but add permanence setting to it. This enables on-the-fly re-rendering.
+			// This fixes FIRE-15164 and FIRE-15223 among others. Very demanded feature.
+			//if (permanent)
 			{
 				std::string entry_name = "";
 				std::string region_name;
@@ -2656,7 +2658,7 @@ void derenderObject(bool permanent)
 					asset_type = LLAssetType::AT_OBJECT;
 				}
 			
-				FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(objp->getID(), entry_name, region_name, asset_type);
+				FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(objp->getID(), entry_name, region_name, asset_type, true, permanent);
 			}
 
 			select_mgr->deselectObjectOnly(objp);
