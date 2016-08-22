@@ -428,7 +428,7 @@ void LLVivoxVoiceClient::connectorCreate()
 
 void LLVivoxVoiceClient::connectorShutdown()
 {
-	if(!mConnectorEstablished)
+	if(mConnectorEstablished)
 	{
 		std::ostringstream stream;
 		stream
