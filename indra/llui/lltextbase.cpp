@@ -2044,7 +2044,10 @@ void LLTextBase::appendTextImpl(const std::string &new_text, const LLStyle::Para
 			end = match.getEnd()+1;
 
 			LLStyle::Params link_params(style_params);
-			link_params.overwriteFrom(match.getStyle());
+			if (!style_params.override_link_style)
+			{
+				link_params.overwriteFrom(match.getStyle());
+			}
 
 			// output the text before the Url
 			if (start > 0)
