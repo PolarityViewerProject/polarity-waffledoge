@@ -258,8 +258,8 @@
                                  parse_urls="true"
                                  right="-1"
                                  left="0"
-                                 top="0"
-                                 bottom="-1" />
+                                 top="1"
+                                 bottom="-3" />
                             </layout_panel>
                         </layout_stack>
                     </layout_panel>
