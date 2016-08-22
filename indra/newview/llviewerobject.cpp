@@ -106,6 +106,7 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
+#include "fswsassetblacklist.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -2696,7 +2697,10 @@ void LLViewerObject::doUpdateInventory(
 	LLViewerInventoryItem* old_item = NULL;
 	if(TASK_INVENTORY_ITEM_KEY == key)
 	{
-		old_item = (LLViewerInventoryItem*)getInventoryObject(item->getUUID());
+		// <FS:ND> Do not use C-Style cast for polymorphic upcasting
+//		old_item = (LLViewerInventoryItem*)getInventoryObject(item->getUUID());
+		old_item = dynamic_cast<LLViewerInventoryItem*>(getInventoryObject(item->getUUID()));
+		// </FS:ND>
 	}
 	else if(TASK_INVENTORY_ASSET_KEY == key)
 	{
@@ -3032,6 +3036,15 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 		object->mInventorySerialNum = ft->mSerial;
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
+
+		// <FS:ND> Crashfix, not sure why object->mInventory can be 0
+		if( !object->mInventory )
+		{
+			LL_WARNS() << "object->mInventory == 0" << LL_ENDL;
+			delete ft;
+			return;
+		}
+		// </FS:ND>
 
 			LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
 			LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
@@ -3763,6 +3776,11 @@ LLNameValue *LLViewerObject::getNVPair(const std::string& name) const
 	char		*canonical_name;
 
 	canonical_name = gNVNameTable.addString(name);
+	// It's possible for addString to return NULL.
+	if (canonical_name == NULL)
+	{
+		return NULL;
+	}
 
 	// If you access a map with a name that isn't in it, it will add the name and a null pointer.
 	// So first check if the data is in the map.
@@ -5331,6 +5349,14 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		}
 		return;
 	}
+
+	// <FS:Ansariel> Asset blacklist
+	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(audio_uuid, LLAssetType::AT_SOUND))
+	{
+		return;
+	}
+	// </FS:Ansariel>
+
 	if (flags & LL_SOUND_FLAG_LOOP
 		&& mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData()
 		&& mAudioSourcep->getCurrentData()->getID() == audio_uuid)

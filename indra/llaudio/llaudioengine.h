@@ -179,6 +179,9 @@ public:
 
 	bool updateBufferForData(LLAudioData *adp, const LLUUID &audio_uuid = LLUUID::null);
 
+ 
+	// <FS:Ansariel> Asset blacklisting
+	void removeAudioData(const LLUUID& audio_uuid);
 
 	// Asset callback when we're retrieved a sound from the asset server.
 	void startNextTransfer();
@@ -252,6 +255,16 @@ protected:
 private:
 	void setDefaults();
 	LLStreamingAudioInterface *mStreamingAudioImpl;
+
+	// <FS:ND> Protect against corrupted sounds
+
+	std::map<LLUUID,U32> mCorruptData;
+
+public:
+	void markSoundCorrupt( LLUUID const & );
+	bool isCorruptSound( LLUUID const& ) const;
+
+	// </FS:ND>
 };
 
 

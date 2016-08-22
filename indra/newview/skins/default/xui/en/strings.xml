@@ -3999,6 +3999,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Appearance_Label">Appearance</string>
   <string name="Command_Areasearch_Label">Area search</string>
   <string name="Command_Avatar_Label">Avatar</string>
+  <string name="Command_Blacklist_Label">Asset blacklist</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
   <string name="Command_Cinematic_Label">Cinematic Mode</string>
@@ -4040,6 +4041,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
   <string name="Command_Areasearch_Tooltip">Search the area for objects</string>
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
+  <string name="Command_Blacklist_Tooltip">Opens the list of all the items you have blacklisted</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
   <string name="Command_CinematicMode_Tooltip">Hide most of the UI away</string>  

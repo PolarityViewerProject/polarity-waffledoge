@@ -129,6 +129,7 @@
 #include "llexperiencecache.h"
 
 #include "fsareasearch.h"
+#include "fswsassetblacklist.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -5208,6 +5209,17 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_SoundID, sound_id);
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_OwnerID, owner_id);
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ObjectID, object_id);
+
+	// <FS:ND> Protect against corrupted sounds
+	if( gAudiop->isCorruptSound( sound_id ) )
+		return;
+	// </FS:ND>
+
+	// <FS> Asset blacklist
+	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	{
+		return;
+	}
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ParentID, parent_id);
 	msg->getU64Fast(_PREHASH_SoundData, _PREHASH_Handle, region_handle);
 	msg->getVector3Fast(_PREHASH_SoundData, _PREHASH_Position, pos_local);
@@ -5268,6 +5280,18 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_ObjectID, object_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
+	// <FS> Asset blacklist
+	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	{
+		return;
+	}
+	// </FS>
+
+	// <FS:ND> Protect against corrupted sounds
+	if( gAudiop->isCorruptSound( sound_id ) )
+		return;
+	// </FS:ND>
+
 	LLViewerObject *objectp = gObjectList.findObject(object_id);
 	if (!objectp) return;
 
@@ -5303,6 +5327,13 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_SoundID, sound_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_ObjectID, object_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
+
+	// <FS> Asset blacklist
+	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	{
+		return;
+	}
+	// </FS>
 	msg->getF32Fast(_PREHASH_DataBlock, _PREHASH_Gain, gain);
 	msg->getU8Fast(_PREHASH_DataBlock, _PREHASH_Flags, flags);
 

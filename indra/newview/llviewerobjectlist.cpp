@@ -84,6 +84,7 @@
 #include <iterator>
 
 #include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
+#include "fswsassetblacklist.h"
 #include "llfloaterreg.h"
 
 extern F32 gMinObjectDistance;
@@ -1873,7 +1874,10 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;
-				if (attachment->getIsHUDAttachment())
+				// <FS:Ansariel> Possible crash fix
+				//if (attachment->getIsHUDAttachment())
+				if (attachment && attachment->getIsHUDAttachment())
+				// </FS:Ansariel>
 				{
 					for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 						 attachment_iter != attachment->mAttachedObjects.end();
@@ -2000,6 +2004,11 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 	
 	updateActive(objectp);
 
+	// <FS:ND> We might have killed this object earlier, but it might get resurrected from fastcache. Kill it again to make sure it stays dead.
+	if( mDerendered.end() != mDerendered.find( uuid ) )
+		killObject( objectp );
+	// </FS:ND>
+
 	return objectp;
 }
 
@@ -2037,6 +2046,11 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 	mObjects.push_back(objectp);
 
 	updateActive(objectp);
+
+	// <FS:ND> We might have killed this object earlier, but it might get resurrected from fastcache. Kill it again to make sure it stays dead.
+	if( mDerendered.end() != mDerendered.find( uuid ) )
+		killObject( objectp );
+	// </FS:ND>
 
 	return objectp;
 }
@@ -2266,3 +2280,28 @@ LLDebugBeacon::~LLDebugBeacon()
 		mHUDObject->markDead();
 	}
 }
+
+// <FS:ND> Helper function to purge the internal list of derendered objects on teleport.
+
+void LLViewerObjectList::resetDerenderList()
+{
+	std::map< LLUUID, bool > oDerendered;
+
+	for( std::map< LLUUID, bool >::iterator itr = mDerendered.begin(); itr != mDerendered.end(); ++itr )
+		if( itr->second )
+			oDerendered[ itr->first ] = itr->second;
+
+	mDerendered.swap( oDerendered );
+}
+
+// <FS:ND> Helper function to add items from global blacklist after teleport.
+void LLViewerObjectList::addDerenderedItem( LLUUID const &aId, bool aPermanent )
+{
+	mDerendered[ aId ] = aPermanent;
+}
+void LLViewerObjectList::removeDerenderedItem( LLUUID const &aId )
+{
+	mDerendered.erase( aId );
+}
+
+// </FS:ND>

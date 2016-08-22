@@ -156,6 +156,7 @@
 
 #include "pvmachinima.h"
 #include "pvperformancemaid.h"
+#include "fswsassetblacklist.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -376,11 +377,28 @@ LLMenuParcelObserver::~LLMenuParcelObserver()
 void LLMenuParcelObserver::changed()
 {
 	LLParcel *parcel = LLViewerParcelMgr::getInstance()->getParcelSelection()->getParcel();
-	gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
-	
+	// <FS:Ansariel> FIRE-4454: Cache controls because of performance reasons
+	//gMenuHolder->childSetEnabled("Land Buy Pass", LLPanelLandGeneral::enableBuyPass(NULL) && !(parcel->getOwnerID()== gAgent.getID()));
+	//
+	//BOOL buyable = enable_buy_land(NULL);
+	//gMenuHolder->childSetEnabled("Land Buy", buyable);
+	//gMenuHolder->childSetEnabled("Buy Land...", buyable);
+
+	static LLView* land_buy_pass = gMenuHolder->getChildView("Land Buy Pass");
+	static LLView* land_buy_pass_pie = gMenuHolder->getChildView("Land Buy Pass Pie");
+	static LLView* land_buy = gMenuHolder->getChildView("Land Buy");
+	static LLView* land_buy_pie = gMenuHolder->getChildView("Land Buy Pie");
+	static LLView* buy_land = gMenuHolder->getChildView("Buy Land...");
+
+	BOOL pass_buyable = LLPanelLandGeneral::enableBuyPass(NULL) && parcel->getOwnerID() != gAgentID;
+	land_buy_pass->setEnabled(pass_buyable);
+	land_buy_pass_pie->setEnabled(pass_buyable);
+
 	BOOL buyable = enable_buy_land(NULL);
-	gMenuHolder->childSetEnabled("Land Buy", buyable);
-	gMenuHolder->childSetEnabled("Buy Land...", buyable);
+	land_buy->setEnabled(buyable);
+	land_buy_pie->setEnabled(buyable);
+	buy_land->setEnabled(buyable);
+	// </FS:Ansariel> FIRE-4454: Cache controls because of performance reasons
 }
 
 
@@ -555,7 +573,8 @@ void init_menus()
 	LLRect menuBarRect = gLoginMenuBarView->getRect();
 	menuBarRect.setLeftTopAndSize(0, menu_bar_holder->getRect().getHeight(), menuBarRect.getWidth(), menuBarRect.getHeight());
 	gLoginMenuBarView->setRect(menuBarRect);
-	gLoginMenuBarView->setBackgroundColor( color );
+	// do not set colors in code, always lat the skin decide. -Zi
+	// gLoginMenuBarView->setBackgroundColor( color );
 	menu_bar_holder->addChild(gLoginMenuBarView);
 	
 	// tooltips are on top of EVERYTHING, including menus
@@ -2592,6 +2611,96 @@ void cleanup_menus()
 //-----------------------------------------------------------------------------
 // Object pie menu
 //-----------------------------------------------------------------------------
+// <FS:Ansariel> FIRE-6970/FIRE-6998: Optional permanent derendering of multiple objects
+void derenderObject(bool permanent)
+{
+	LLViewerObject* objp;
+	LLSelectMgr* select_mgr = LLSelectMgr::getInstance();
+
+	while ((objp = select_mgr->getSelection()->getFirstRootObject(TRUE)))
+	{
+//		if ( (objp) && (gAgentID != objp->getID()) )
+// [RLVa:KB] - Checked: 2012-03-11 (RLVa-1.4.5) | Added: RLVa-1.4.5 | FS-specific
+		// Don't allow derendering of own attachments when RLVa is enabled
+		if ( (objp) && (gAgentID != objp->getID()) && ((!rlv_handler_t::isEnabled()) || (!objp->isAttachment()) || (!objp->permYouOwner())) )
+// [/RLVa:KB]
+		{
+			if (permanent)
+			{
+				std::string entry_name = "";
+				std::string region_name;
+				LLAssetType::EType asset_type;
+
+				if (objp->isAvatar())
+				{
+					LLNameValue* firstname = objp->getNVPair("FirstName");
+					LLNameValue* lastname = objp->getNVPair("LastName");
+					entry_name = llformat("%s %s", firstname->getString(), lastname->getString());
+					asset_type = LLAssetType::AT_PERSON;
+				}
+				else
+				{
+					LLSelectNode* nodep = select_mgr->getSelection()->getFirstRootNode();
+					if (nodep)
+					{
+						if (!nodep->mName.empty())
+						{
+							entry_name = nodep->mName;
+						}
+					}
+					LLViewerRegion* region = objp->getRegion();
+					if (region)
+					{
+						region_name = region->getName();
+					}
+					asset_type = LLAssetType::AT_OBJECT;
+				}
+			
+				FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(objp->getID(), entry_name, region_name, asset_type);
+			}
+
+			select_mgr->deselectObjectOnly(objp);
+
+			// <FS:ND> Pass true to make sure this object stays dead.
+			// gObjectList.killObject(objp);
+			gObjectList.addDerenderedItem( objp->getID(), permanent );
+			gObjectList.killObject(objp);
+			// </FS:ND>
+		}
+		else if( (objp) && (gAgentID != objp->getID()) && ((rlv_handler_t::isEnabled()) || (objp->isAttachment()) || (objp->permYouOwner())) )
+		{
+			select_mgr->deselectObjectOnly(objp);
+			return;
+		}
+	}
+}
+
+class LLObjectDerenderPermanent : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		derenderObject(true);
+		return true;
+	}
+};
+
+class LLObjectDerender : public view_listener_t
+{
+    bool handleEvent(const LLSD& userdata)
+    {
+		derenderObject(false);
+		return true;
+    }
+};
+// </FS:Ansariel>
+
+// <FS:CR> FIRE-10082 - Don't enable derendering own attachments when RLVa is enabled
+bool enable_derender_object()
+{
+	return (!rlv_handler_t::isEnabled());
+}
+// </FS:CR>
+
 
 class LLObjectReportAbuse : public view_listener_t
 {
@@ -2678,15 +2787,14 @@ bool enable_object_touch(LLUICtrl* ctrl)
 	{
 		LLViewerObject* parent = (LLViewerObject*)obj->getParent();
 		new_value = obj->flagHandleTouch() || (parent && parent->flagHandleTouch());
-	}
-
 // [RLVa:KB] - Checked: 2010-11-12 (RLVa-1.2.1g) | Added: RLVa-1.2.1g
-	if ( (rlv_handler_t::isEnabled()) && (new_value) )
-	{
-		// RELEASE-RLVa: [RLVa-1.2.1] Make sure this stays in sync with handle_object_touch()
-		new_value = gRlvHandler.canTouch(obj, LLToolPie::getInstance()->getPick().mObjectOffset);
+		if ( (rlv_handler_t::isEnabled()) && (new_value) )
+		{
+			// RELEASE-RLVa: [RLVa-1.2.1] Make sure this stays in sync with handle_object_touch()
+			new_value = gRlvHandler.canTouch(obj, LLToolPie::getInstance()->getPick().mObjectOffset);
 	}
 // [/RLVa:KB]
+	}
 
 	std::string item_name = ctrl->getName();
 	init_default_item_label(item_name);
@@ -2953,6 +3061,8 @@ BOOL enable_object_build(void*)
 
 bool enable_object_edit()
 {
+	if (!isAgentAvatarValid()) return false;
+	
 	// *HACK:  The new "prelude" Help Islands have a build sandbox area,
 	// so users need the Edit and Create pie menu options when they are
 	// there.  Eventually this needs to be replaced with code that only 
@@ -9612,6 +9722,9 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectReturn(), "Object.Return");
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
+	view_listener_t::addMenu(new LLObjectDerender(), "Object.Derender");
+	view_listener_t::addMenu(new LLObjectDerenderPermanent(), "Object.DerenderPermanent"); // <FS:Ansariel> Optional derender & blacklist
+	enable.add("Object.EnableDerender", boost::bind(&enable_derender_object));	// <FS:CR> FIRE-10082 - Don't enable derendering own attachments when RLVa is enabled as well
 
 	enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
 	enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
