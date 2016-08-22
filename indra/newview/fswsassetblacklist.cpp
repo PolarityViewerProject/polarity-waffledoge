@@ -87,7 +87,7 @@ bool FSWSAssetBlacklist::isBlacklisted(const LLUUID& id, LLAssetType::EType type
 	return (uuids.find(id) != uuids.end());
 }
 
-void FSWSAssetBlacklist::addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool save, bool permanent)
+void FSWSAssetBlacklist::addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool permanent, bool save)
 {
 	if (isBlacklisted(id, type))
 	{
@@ -123,7 +123,6 @@ void FSWSAssetBlacklist::removeItemFromBlacklist(const LLUUID& id)
 
 	LLSD data = it->second;
 	LLAssetType::EType type = S32toAssetType(data["asset_type"].asInteger());
-	// PLVR TODO: Do we need to remove permanent boolean too?
 
 	mBlacklistTypeContainer[type].erase(id);
 	mBlacklistData.erase(it);
@@ -214,11 +213,8 @@ void FSWSAssetBlacklist::loadBlacklist()
 					{
 						continue;
 					}
-					// Don't re-add temporary data if it got saved accidentally
-					//if (entry_data["permanent"].asBoolean())
-					//{
-						addNewItemToBlacklistData(uid, entry_data, false);
-					//}
+					
+					addNewItemToBlacklistData(uid, entry_data, false);
 				}
 			}
 		}
