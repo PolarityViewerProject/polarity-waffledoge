@@ -43,8 +43,8 @@ FSFloaterWSAssetBlacklist::~FSFloaterWSAssetBlacklist()
 {
 	if (mResultList)
 	{
-		gSavedSettings.setString("FSFloaterBlacklistSortColumn", mResultList->getSortColumnName());
-		gSavedSettings.setBOOL("FSFloaterBlacklistSortAscending", mResultList->getSortAscending());
+		gSavedSettings.setString("PVUI_AssetBlacklistSortColumn", mResultList->getSortColumnName());
+		gSavedSettings.setBOOL("PVUI_AssetBlacklistSortAscending", mResultList->getSortAscending());
 	}
 }
 
@@ -114,8 +114,8 @@ BOOL FSFloaterWSAssetBlacklist::postBuild()
 {
 	mResultList = getChild<LLScrollListCtrl>("result_list");
 	childSetAction("remove_btn", boost::bind(&FSFloaterWSAssetBlacklist::onRemoveBtn, this));
-	std::string order_by = gSavedSettings.getString("FSFloaterBlacklistSortColumn");
-	BOOL ascending = gSavedSettings.getBOOL("FSFloaterBlacklistSortAscending");
+	std::string order_by = gSavedSettings.getString("PVUI_AssetBlacklistSortColumn");
+	BOOL ascending = gSavedSettings.getBOOL("PVUI_AssetBlacklistSortAscending");
 
 	if (!order_by.empty())
 	{

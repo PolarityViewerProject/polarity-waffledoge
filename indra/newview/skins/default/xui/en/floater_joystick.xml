@@ -130,7 +130,7 @@
 	 width="60" />
 	<check_box
 	 top_delta="0"
-	 control_name="JoystickInvertPitch"
+	 control_name="PVInput_JoystickInvertPitch"
 	 label="Invert Pitch"
 	 layout="topleft"
 	 left="5"
@@ -294,7 +294,7 @@
 	width="22"/>
     <spinner
 	 top_pad="5"
-	 control_name="JoystickButtonJump"
+	 control_name="PVInput_JoystickButtonJump"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Jump Mapping"
@@ -307,7 +307,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonCrouch"
+	 control_name="PVInput_JoystickButtonCrouch"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Crouch Mapping"
@@ -320,7 +320,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonFly"
+	 control_name="PVInput_JoystickButtonFly"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Fly Mapping"
@@ -333,7 +333,7 @@
 	 width="160" />
 	<spinner
 	 top_delta="-42"
-	 control_name="JoystickButtonRunToggle"
+	 control_name="PVInput_JoystickButtonRunToggle"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Toggle Run Mapping"
@@ -346,7 +346,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonMouselook"
+	 control_name="PVInput_JoystickButtonMouselook"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Mouselook Mapping"
@@ -359,7 +359,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonZoomDefault"
+	 control_name="PVInput_JoystickButtonZoomDefault"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Zoom Default Mapping"
@@ -372,7 +372,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonFlycam"
+	 control_name="PVInput_JoystickButtonFlycam"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Flycam Mapping"
@@ -385,7 +385,7 @@
 	 width="160" />
 	<spinner
 	 top_delta="-63"
-	 control_name="JoystickButtonZoomOut"
+	 control_name="PVInput_JoystickButtonZoomOut"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Zoom Out Mapping"
@@ -398,7 +398,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonZoomIn"
+	 control_name="PVInput_JoystickButtonZoomIn"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Zoom In Mapping"
@@ -411,7 +411,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonRollLeft"
+	 control_name="PVInput_JoystickButtonRollLeft"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Roll Left Mapping"
@@ -424,7 +424,7 @@
 	 width="160" />
 	<spinner
 	 top_pad="11"
-	 control_name="JoystickButtonRollRight"
+	 control_name="PVInput_JoystickButtonRollRight"
 	 decimal_digits="0"
 	 increment="1"
 	 label="Roll Right Mapping"

@@ -4044,7 +4044,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Blacklist_Tooltip">Opens the list of all the items you have blacklisted</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
-  <string name="Command_CinematicMode_Tooltip">Hide most of the UI away</string>  
+  <string name="Command_Cinematic_Tooltip">Hide most of the UI away</string>  
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
   <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Debug_Tooltip">Debug settings for advanced users</string>

@@ -503,10 +503,10 @@ void LLViewerJoystick::moveObjects(bool reset)
 // // <Black Dragon:NiranV> Remappable joystick controls
 	S32 buttons[] =
 	{
-		gSavedSettings.getS32("JoystickButtonRollLeft"),
-		gSavedSettings.getS32("JoystickButtonRollRight"),
-		gSavedSettings.getS32("JoystickButtonJump"),
-		gSavedSettings.getS32("JoystickButtonCrouch")
+		gSavedSettings.getS32("PVInput_JoystickButtonRollLeft"),
+		gSavedSettings.getS32("PVInput_JoystickButtonRollRight"),
+		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
+		gSavedSettings.getS32("PVInput_JoystickButtonCrouch")
 	};
 	if (reset || mResetFlag)
 	{
@@ -556,7 +556,7 @@ void LLViewerJoystick::moveObjects(bool reset)
 		cur_delta[2] += getJoystickButton(buttons[2]);
 		cur_delta[2] -= getJoystickButton(buttons[3]);
 //	// <Black Dragon:NiranV> Invertable pitch controls
-		if(gSavedSettings.getBOOL("JoystickInvertPitch"))
+		if(gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
 			cur_delta[4] *= -1.f;
 		F32 tmp = cur_delta[i];
 		if (absolute)
@@ -643,11 +643,11 @@ void LLViewerJoystick::moveAvatar(bool reset)
 // // <Black Dragon:NiranV> Remappable joystick controls
 	S32 buttons[] =
 	{
-		gSavedSettings.getS32("JoystickButtonFly"),
-		gSavedSettings.getS32("JoystickButtonJump"),
-		gSavedSettings.getS32("JoystickButtonCrouch"),
-		gSavedSettings.getS32("JoystickButtonRunToggle"),
-		gSavedSettings.getS32("JoystickButtonMouselook")
+		gSavedSettings.getS32("PVInput_JoystickButtonFly"),
+		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
+		gSavedSettings.getS32("PVInput_JoystickButtonCrouch"),
+		gSavedSettings.getS32("PVInput_JoystickButtonRunToggle"),
+		gSavedSettings.getS32("PVInput_JoystickButtonMouselook")
 	};
 	if (reset || mResetFlag)
 	{
@@ -789,7 +789,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 	}
 
 // // <Black Dragon:NiranV> Invertable pitch controls
-	if(!gSavedSettings.getBOOL("JoystickInvertPitch"))
+	if(!gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
 		cur_delta[RX_I] *= -1.f;
 	// forward|backward movements overrule the real dominant movement if 
 	// they're bigger than its 20%. This is what you want 'cos moving forward
@@ -862,13 +862,13 @@ void LLViewerJoystick::moveFlycam(bool reset)
 // // <Black Dragon:NiranV> Remappable joystick controls
 	S32 buttons[] =
 	{
-		gSavedSettings.getS32("JoystickButtonRollLeft"),
-		gSavedSettings.getS32("JoystickButtonRollRight"),
-		gSavedSettings.getS32("JoystickButtonZoomOut"),
-		gSavedSettings.getS32("JoystickButtonZoomIn"),
-		gSavedSettings.getS32("JoystickButtonJump"),
-		gSavedSettings.getS32("JoystickButtonCrouch"),
-		gSavedSettings.getS32("JoystickButtonZoomDefault")
+		gSavedSettings.getS32("PVInput_JoystickButtonRollLeft"),
+		gSavedSettings.getS32("PVInput_JoystickButtonRollRight"),
+		gSavedSettings.getS32("PVInput_JoystickButtonZoomOut"),
+		gSavedSettings.getS32("PVInput_JoystickButtonZoomIn"),
+		gSavedSettings.getS32("PVInput_JoystickButtonJump"),
+		gSavedSettings.getS32("PVInput_JoystickButtonCrouch"),
+		gSavedSettings.getS32("PVInput_JoystickButtonZoomDefault")
 	};
 	bool in_build_mode = LLToolMgr::getInstance()->inBuildMode();
 	if (reset || mResetFlag)
@@ -940,7 +940,7 @@ void LLViewerJoystick::moveFlycam(bool reset)
 		cur_delta[2] += getJoystickButton(buttons[4]);
 		cur_delta[2] -= getJoystickButton(buttons[5]);
 //	// <Black Dragon:NiranV> Invertable pitch controls
-		if(!gSavedSettings.getBOOL("JoystickInvertPitch"))
+		if(!gSavedSettings.getBOOL("PVInput_JoystickInvertPitch"))
 			cur_delta[4] *= -1.f;
 		if (getJoystickButton(buttons[6]))
 			sFlycamZoom = DEFAULT_FIELD_OF_VIEW;
@@ -1096,9 +1096,9 @@ void LLViewerJoystick::scanJoystick()
 	static long toggle_flycam = 0;
 
 // // <Black Dragon:NiranV> Toggle flycam
-	if (mBtn[gSavedSettings.getS32("JoystickButtonFlycam")] == 1)
+	if (mBtn[gSavedSettings.getS32("PVInput_JoystickButtonFlycam")] == 1)
     {
-		if (mBtn[gSavedSettings.getS32("JoystickButtonFlycam")] != toggle_flycam)
+		if (mBtn[gSavedSettings.getS32("PVInput_JoystickButtonFlycam")] != toggle_flycam)
 		{
 			toggle_flycam = toggleFlycam() ? 1 : 0;
 		}
@@ -1165,17 +1165,17 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setS32("JoystickAxis5", 5); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
 	
-	gSavedSettings.setS32("JoystickButtonJump", -1);
-	gSavedSettings.setS32("JoystickButtonCrouch", -1);
-	gSavedSettings.setS32("JoystickButtonFly", 1);
-	gSavedSettings.setS32("JoystickButtonRunToggle", -1);
-	gSavedSettings.setS32("JoystickButtonMouselook", -1);
-	gSavedSettings.setS32("JoystickButtonZoomDefault", -1);
-	gSavedSettings.setS32("JoystickButtonFlycam", 0);
-	gSavedSettings.setS32("JoystickButtonZoomOut", -1);
-	gSavedSettings.setS32("JoystickButtonZoomIn", -1);
-	gSavedSettings.setS32("JoystickButtonRollLeft", -1);
-	gSavedSettings.setS32("JoystickButtonRollRight", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonJump", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonCrouch", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonFly", 1);
+	gSavedSettings.setS32("PVInput_JoystickButtonRunToggle", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonMouselook", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomDefault", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonFlycam", 0);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomOut", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomIn", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonRollLeft", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonRollRight", -1);
 	gSavedSettings.setBOOL("Cursor3D", is_3d_cursor);
 	gSavedSettings.setBOOL("AutoLeveling", false);
 	gSavedSettings.setBOOL("ZoomDirect", false);
@@ -1234,17 +1234,17 @@ void LLViewerJoystick::setXbox360Defaults()
 	gSavedSettings.setS32("JoystickAxis4", 4); // roll
 	gSavedSettings.setS32("JoystickAxis5", 3); // yaw
 	gSavedSettings.setS32("JoystickAxis6", -1);
-	gSavedSettings.setS32("JoystickButtonJump", 0);
-	gSavedSettings.setS32("JoystickButtonCrouch", 1);
-	gSavedSettings.setS32("JoystickButtonFly", 2);
-	gSavedSettings.setS32("JoystickButtonRunToggle", 8);
-	gSavedSettings.setS32("JoystickButtonMouselook", 9);
-	gSavedSettings.setS32("JoystickButtonZoomDefault", 6);
-	gSavedSettings.setS32("JoystickButtonFlycam", 7);
-	gSavedSettings.setS32("JoystickButtonZoomOut", 5);
-	gSavedSettings.setS32("JoystickButtonZoomIn", 4);
-	gSavedSettings.setS32("JoystickButtonRollLeft", -1);
-	gSavedSettings.setS32("JoystickButtonRollRight", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonJump", 0);
+	gSavedSettings.setS32("PVInput_JoystickButtonCrouch", 1);
+	gSavedSettings.setS32("PVInput_JoystickButtonFly", 2);
+	gSavedSettings.setS32("PVInput_JoystickButtonRunToggle", 8);
+	gSavedSettings.setS32("PVInput_JoystickButtonMouselook", 9);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomDefault", 6);
+	gSavedSettings.setS32("PVInput_JoystickButtonFlycam", 7);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomOut", 5);
+	gSavedSettings.setS32("PVInput_JoystickButtonZoomIn", 4);
+	gSavedSettings.setS32("PVInput_JoystickButtonRollLeft", -1);
+	gSavedSettings.setS32("PVInput_JoystickButtonRollRight", -1);
 	gSavedSettings.setBOOL("Cursor3D", false);
 	gSavedSettings.setBOOL("AutoLeveling", false);
 	gSavedSettings.setBOOL("ZoomDirect", false);
