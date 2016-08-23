@@ -80,6 +80,9 @@ public:
 	// Agents Colors
 	LLSD agents_colors_ = LLSD::emptyMap();
 
+	// Linden Lab employees and other God-like agents
+	LLSD agents_linden_ = LLSD::emptyMap();
+
 	enum flags_t : S32
 	{
 		//
@@ -103,9 +106,9 @@ public:
 		FLAG_STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
 		FLAG_STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
 		FLAG_USER_BETA_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
-		FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
+		//FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
 		FLAG_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
-		FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
+		//FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
 
 		// Last.
 		FLAG_LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
@@ -142,14 +145,8 @@ public:
 
 	bool isSupportGroup(const LLUUID& id) const;
 
-	// Returns the agent color as a LLColor4
-	LLColor4 getAgentColor(const LLUUID& avatar_id);
-
 	// Better version of isLinden that takes PVData into account
 	bool isLinden(const LLUUID& avatar_id, S32& av_flags);
-
-	// Attempt to replace specified color with agent color. Returns true if replacement was made.
-	bool replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
 
 	// Returns the agent flags as a decimal number
 	S32 getAgentFlags(const LLUUID& avatar_id);
@@ -159,7 +156,7 @@ public:
 	void startRefreshTimer();
 	bool refreshDataFromServer(bool force_refresh_now);
 	// Returns the agent title as a string
-	std::string getAgentTitle(const LLUUID& avatar_id);
+	bool getAgentTitle(const LLUUID& avatar_id, std::string& agent_title);
 
 	//
 	// functions to quickly find if somebody has the proper flag

@@ -426,8 +426,7 @@ void PVData::handleAgentsFailure()
 void PVData::parsePVData(const LLSD& data_input)
 {
 	/*
-		TODO 1:	Keep a copy of data_input in memory until we segment everything
-				into dedicated memory blobs
+		TODO 1:	Keep a copy of data_input in memory until we segment everything into dedicated memory blobs
 		TODO 2:	store section LLSD blobs as class member variables
 				i.e:
 				'const LLSD& events = data_input["EventsMOTD"];'
@@ -821,16 +820,9 @@ bool PVData::isBlockedRelease()
 	return false;
 }
 
-S32 PVData::getAgentFlags(const LLUUID& avatar_id)
+inline S32 PVData::getAgentFlags(const LLUUID& avatar_id)
 {
-	S32 flags = agents_access_[avatar_id.asString()].asInteger();
-	return flags;
-}
-
-bool PVData::isSpecial(const LLUUID& avatar_id) const
-{
-	bool special = (agents_access_[avatar_id.asString()].asInteger() > 0);
-	return special;
+	return agents_access_[avatar_id.asString()].asInteger();
 }
 
 bool PVData::isDeveloper(const LLUUID& avatar_id)
@@ -868,80 +860,60 @@ bool PVData::isBanned(const LLUUID& avatar_id)
 	return (getAgentFlags(avatar_id) & FLAG_USER_BANNED);
 }
 
-bool PVData::hasTitle(const LLUUID& avatar_id)
-{
-	return (getAgentFlags(avatar_id) & FLAG_USER_HAS_TITLE);
-}
-
 bool PVData::isSupportGroup(const LLUUID& avatar_id) const
 {
 	return (support_group_.count(avatar_id));
 }
 
-LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
-{
-	// Prevent ulterior typecasts
-	LLColor4 agent_color = LLColor4::black;
-	if (isSpecial(avatar_id))
-	{
-		LLColor4::parseColor4(agents_colors_[avatar_id.asString()], &agent_color);
-	}
-	//PV_DEBUG("agent_color == " + agent_color); // FIXME; can't convert LLColor4 to const char*
-	return agent_color;
-}
-
+// Hey, chill out, will you.
+#pragma optimize("", off)
 bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags)
 {
 	// <Polarity> Speed up: Check if we already establed that association
-	if (av_flags & FLAG_LINDEN_EMPLOYEE)
+	if (agents_linden_[avatar_id.asString()].asBoolean())
 	{
 		return true;
 	}
 
 	std::string first_name, last_name;
-	gCacheName->getFirstLastName(avatar_id, first_name, last_name);
-
-	if (first_name.empty())
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(avatar_id, &av_name))
 	{
-		// prevent returning 'true' when name is missing.
+		std::istringstream full_name(av_name.getUserName());
+		full_name >> first_name >> last_name;
+	}
+	else
+	{
+		gCacheName->getFirstLastName(avatar_id, first_name, last_name);
+	}
+	if (first_name == "(waiting)" || last_name.empty()) // name cache not ready or Resident, which will never be a linden/god. abort.
+	{
 		return false;
 	}
 	if (last_name == LL_LINDEN
-			|| last_name == LL_MOLE
-			|| last_name == LL_PRODUCTENGINE
-			|| last_name == LL_SCOUT
-			|| last_name == LL_TESTER)
+		|| last_name == LL_MOLE
+		|| last_name == LL_PRODUCTENGINE
+		|| last_name == LL_SCOUT
+		|| last_name == LL_TESTER)
 	{
 		// set bit for LL employee
-		// Can't we make this more efficient?
-		av_flags = av_flags |= FLAG_LINDEN_EMPLOYEE;
-		agents_access_[avatar_id.asString()] = av_flags;
+		PV_DEBUG(first_name + " " + last_name + " is a linden!", LLError::LEVEL_INFO);
+		//agents_access_[avatar_id.asString()] = (av_flags |= FLAG_LINDEN_EMPLOYEE);
+		agents_linden_[avatar_id.asString()] = true;
 		return true;
 	}
-	return false;
-}
 
-// ReSharper disable CppAssignedValueIsNeverUsed
-// ReSharper disable once CppParameterValueIsReassigned
-// ReSharper disable CppEntityAssignedButNoRead
-bool PVData::replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4)
-// ReSharper restore CppEntityAssignedButNoRead
-{
-	LLColor4 temporary_color = getAgentColor(avatar_id);
-	if (temporary_color != LLColor4::black)
-	{
-		out_color4 = temporary_color;
-		return true;
-	}
-	return false;
-}
-// ReSharper restore CppAssignedValueIsNeverUsed
-// Resharper restore CppEntityAssignedButNoRead
 
-std::string PVData::getAgentTitle(const LLUUID& avatar_id)
+	PV_DEBUG(first_name + (last_name.empty() ? "" : " " + last_name) + " is NOT a linden!", LLError::LEVEL_DEBUG);
+	return false;
+//	return false;
+}
+#pragma optimize("", on)
+
+bool PVData::getAgentTitle(const LLUUID& avatar_id, std::string& agent_title)
 {
-	std::string title = agents_titles_[avatar_id.asString()].asString();
-	return title;
+	agent_title = agents_titles_[avatar_id.asString()].asString();
+	return (!agent_title.empty());
 }
 // Checks on the agent using the viewer
 
@@ -949,22 +921,25 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 {
 	// Check for agents flagged through PVData
 	std::string flags_string = "";
+	std::vector<std::string> flags_list;
 	S32 av_flags = PVData::instance().getAgentFlags(avatar_id);
-	if (av_flags > 0)
+	if (isLinden(avatar_id, av_flags))
+	{
+		flags_list.push_back("Linden Lab Employee");
+	}
+	if (av_flags || !flags_list.empty())
 	{
 		// LL_WARNS() << "Agent Flags for " << avatar_id << " = " << av_flags << LL_ENDL;
-		std::vector<std::string> flags_list;
-		// TODO: Debate the need for HAS_TITLEand TITLE_OVERRIDE at the same time. We can do better.
-		if (av_flags & FLAG_USER_HAS_TITLE)
+		std::string custom_title;
+		//auto title_ptr *
+		if (getAgentTitle(avatar_id, custom_title))
 		{
-			flags_list.push_back(getAgentTitle(avatar_id));
+			// Custom tag present, drop previous title to use that one instead.
+			flags_list.clear();
+			flags_list.push_back(custom_title);
 		}
-		if (!(av_flags & FLAG_TITLE_OVERRIDE))
+		else
 		{
-			if (av_flags & FLAG_LINDEN_EMPLOYEE)
-			{
-				flags_list.push_back("Linden Lab Employee");
-			}
 			// here are the bad flags
 			if (av_flags & FLAG_USER_AUTOMUTED)
 			{
@@ -1105,9 +1080,7 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		return default_color;
 	}
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
-	LLColor4 pvdata_color; // User color from PVData if user has one, equals return_color otherwise.
-
-	static bool pvdata_color_is_valid;
+	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
 	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
 	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
@@ -1117,78 +1090,69 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	if (LLMuteList::instance().isMuted(avatar_id))
 	{
 		return_color = muted_color.get();
-		//return return_color;
+		return return_color;
 	}
+
+	// Special color, when defined, overrides all colors
+	LLColor4 agent_color;
+	// speedup/sanity: don't try to parse a non-existing color from a non-existing agent.
+
 	// Check if agent is flagged through PVData
 	S32 av_flags = instance().getAgentFlags(avatar_id);
-	if (instance().isLinden(avatar_id, av_flags))
+
+	if (instance().agents_colors_.has(avatar_id.asString()) && LLColor4::parseColor4(instance().agents_colors_[avatar_id.asString()], &agent_color))
 	{
-		// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
-		// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
-		// an entirely different list. Another solution (probably the most lightweight one) would be to check
-		// if a custom title has been attributed to them here instead of down there.
-		return_color = linden_color.get();
+		// No custom color defined, set as fallback
+		// TODO: Use a color defined in colors.xml
+		pvdata_color = agent_color;
 	}
-	if (av_flags)
+	else
 	{
-		pvdata_color_is_valid = true;
-		if (av_flags & PVData::FLAG_USER_HAS_TITLE && !(av_flags & PVData::FLAG_TITLE_OVERRIDE))
+		if (instance().isLinden(avatar_id, av_flags))
 		{
-			// Do not warn when the user only has a title and no special color since it is acceptable
+			// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
+			// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
+			// an entirely different list. Another solution (probably the most lightweight one) would be to check
+			// if a custom title has been attributed to them here instead of down there.
+			return_color = linden_color.get();
 		}
-		else if (av_flags & PVData::FLAG_LINDEN_EMPLOYEE)
+		if (av_flags)
 		{
-			// was previously flagged as employee, so will end up in this code path
-			pvdata_color = linden_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_DEV)
-		{
-			static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
-			pvdata_color = dev_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_QA)
-		{
-			static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
-			pvdata_color = qa_color.get();
-		}
-		else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
-		{
-			static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
-			pvdata_color = support_color.get();
-		}
-		else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
-		{
-			static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
-			pvdata_color = tester_color.get();
-		}
-		else if (av_flags & PVData::FLAG_USER_BANNED)
-		{
-			static const LLUIColor banned_color = LLUIColorTable::instance().getColor("PlvrBannedChatColor", LLColor4::grey2);
-			pvdata_color = banned_color.get();
-		}
-		else
-		{
-			LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
-			LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-			LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-			LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-			LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-			pvdata_color_is_valid = false; // to be sure
-		}
-		// Special color, when defined, overrides all colors
-		LLColor4 agent_color = PVData::instance().getAgentColor(avatar_id);
-		if (agent_color != LLColor4::black && agent_color != LLColor4::magenta)
-		{
-			// No custom color defined, set as fallback
-			// TODO: Use a color defined in colors.xml
-			pvdata_color = agent_color;
-			pvdata_color_is_valid = true;
-		}
-		if (!pvdata_color_is_valid)
-		{
-			pvdata_color = default_color;
+			if (av_flags & PVData::FLAG_STAFF_DEV)
+			{
+				static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
+				pvdata_color = dev_color.get();
+			}
+			else if (av_flags & PVData::FLAG_STAFF_QA)
+			{
+				static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
+				pvdata_color = qa_color.get();
+			}
+			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
+			{
+				static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
+				pvdata_color = support_color.get();
+			}
+			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
+			{
+				static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
+				pvdata_color = tester_color.get();
+			}
+			else if (av_flags & PVData::FLAG_USER_BANNED)
+			{
+				static const LLUIColor banned_color = LLUIColorTable::instance().getColor("PlvrBannedChatColor", LLColor4::grey2);
+				pvdata_color = banned_color.get();
+			}
+			else
+			{
+				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
+				LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
+				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
+				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
+				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
+				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+			}
 		}
 	}
 
