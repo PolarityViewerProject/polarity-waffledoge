@@ -497,10 +497,9 @@ public:
 			case CHAT_SOURCE_OBJECT:
 				icon->setValue(LLSD("OBJECT_Icon"));
 				break;
-			case CHAT_SOURCE_SYSTEM:
-				icon->setValue(LLSD("SL_Logo"));
-				break;
 			case CHAT_SOURCE_MOTD:
+			/* FALLTHROUGH */
+			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
 				break;
 			case CHAT_SOURCE_UNKNOWN: 
@@ -925,21 +924,27 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-#ifdef PVDATA_COLORIZER
 
+	//LLColor4 name_color(txt_color);
+#ifdef PVDATA_COLORIZER
 	// <polarity> Colored names for special users
-	LLColor4 name_color;
-	if ((chat.mSourceType != CHAT_SOURCE_OBJECT) && (chat.mSourceType != CHAT_STYLE_HISTORY) && (chat.mFromName != SYSTEM_FROM) && (chat.mFromID.notNull()) /*&& chat.mFromID != gAgent.getID()*/)
+	LLColor4 name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
+	if (use_colorizer
+		// Speed improvement; only run agent color on agent chat.
+		&& (chat.mSourceType == CHAT_SOURCE_AGENT)
+		//&& (chat.mSourceType != CHAT_SOURCE_OBJECT) // FROM: Not an object
+		//&& (chat.mSourceType != CHAT_STYLE_HISTORY) // and not replayed chat log
+		//&& (chat.mFromName != SYSTEM_FROM) // and not a system message
+		&& (chat.mFromID.notNull()) // and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
+		/*&& chat.mFromID != gAgent.getID()*/) // Color ourselves as well.
 	{
-		name_color = PVData::instance().getColor(chat.mFromID, txt_color, false);
-	}
-	else
-	{
-		name_color = txt_color;
+		
+		name_color = PVData::instance().getColor(chat.mFromID, name_color, false);
 	}
 	// </polarity>
 #else
-	LLColor4 name_color(txt_color);
+	LLColor4 name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 #endif
 
 	LLViewerChat::getChatColor(chat,txt_color);
@@ -1053,8 +1058,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
-				link_params.color.control = "HTMLLinkColor";
 				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+				link_params.override_link_style = true;
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
 				link_params.is_link = true;
@@ -1069,19 +1074,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 // [/RLVa:KB]
 			{
 				LLStyle::Params link_params(body_message_params);
-				auto font_style_backup = body_message_params.font.style;
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				
+				// Colorize agent links.
 				link_params.override_link_style = true;
-#if PVDATA_COLORIZER
-				// <polarity> Colored names for special users
-				static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
-				if (use_colorizer /* && chat.mFromID != gAgent.getID()*/)
-				{
-					link_params.color = name_color;
-					link_params.readonly_color = name_color;
-				}
-				// </polarity>
-#endif // PVDATA_COLORIZER
+				link_params.color = name_color;
+				link_params.readonly_color = name_color;
 
 				// Add link to avatar's inspector and delimiter to message.
 				mEditor->appendText(std::string(link_params.link_href) + delimiter,
