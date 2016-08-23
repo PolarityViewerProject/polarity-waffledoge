@@ -240,7 +240,7 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 		pvdata_agents_url_full_ = pvdata_modular_remote_url_full_;
 	}
 
-	//PV_DEBUG("Downloading " + pfile_name_in + " from " + pvdata_modular_remote_url_full_, LLError::LEVEL_INFO);
+	PV_DEBUG("Downloading " + pfile_name_in + " from " + pvdata_modular_remote_url_full_, LLError::LEVEL_INFO);
 	// TODO: HTTP eTag support
 	//LLHTTPClient::get(pvdata_modular_remote_url_full_, new PVDataDownloader(pvdata_modular_remote_url_full_, pfile_name_in), headers_, HTTP_TIMEOUT);
 	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet( pvdata_modular_remote_url_full_, boost::bind( downloadComplete, _1, pvdata_modular_remote_url_full_ ),
@@ -275,18 +275,18 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 	)
 {
 	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", true);
-	//PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
-	//PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
-	//PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
+	PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
+	PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
+	PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
 	//PV_DEBUG("data_file_name=" + data_file_name);
-	//PV_DEBUG("parse_success=" + parse_success, LLError::LEVEL_DEBUG);
+	PV_DEBUG("parse_success=" + parse_success, LLError::LEVEL_DEBUG);
 	//PV_DEBUG("http_failure=" + http_failure);
 
 	// Set status to OK here for now.
 	data_parse_status_ = agents_parse_status_ = OK;
 	if (http_source_url == pvdata_url_full_)
 	{
-		//PV_DEBUG("Received a DATA file", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Received a DATA file", LLError::LEVEL_DEBUG);
 		if (!parse_success)
 		{
 			LL_WARNS("PVData") << "DATA Parse failure, aborting." << LL_ENDL;
@@ -306,7 +306,7 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 	}
 	if (http_source_url == pvdata_agents_url_full_)
 	{
-		//PV_DEBUG("Received an AGENTS file", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Received an AGENTS file", LLError::LEVEL_DEBUG);
 		if (!parse_success)
 		{
 			LL_WARNS("PVData") << " AGENTS Parse failure, aborting." << LL_ENDL;
@@ -336,7 +336,7 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 
 bool PVData::canParse(size_t& status_container) const
 {
-	//PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
 	bool safe_to_parse = false;
 	switch (status_container)
 	{
@@ -365,7 +365,7 @@ bool PVData::canParse(size_t& status_container) const
 
 bool PVData::canDownload(size_t& status_container) const
 {
-	//PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
 	bool safe = false;
 	switch (status_container)
 	{
@@ -444,12 +444,12 @@ void PVData::parsePVData(const LLSD& data_input)
 		return;
 	}
 
-	//PV_DEBUG("Beginning to parse Data", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Beginning to parse Data", LLError::LEVEL_DEBUG);
 	data_parse_status_ = PARSING;
-	//PV_DEBUG("Attempting to find Blocked Releases", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Blocked Releases", LLError::LEVEL_DEBUG);
 	if (data_input.has("BlockedReleases"))
 	{
-		//PV_DEBUG("Populating Blocked Releases list...", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Populating Blocked Releases list...", LLError::LEVEL_DEBUG);
 		const LLSD& blocked = data_input["BlockedReleases"];
 		for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
 		{
@@ -457,12 +457,12 @@ void PVData::parsePVData(const LLSD& data_input)
 			const LLSD& reason = iter->second;
 			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
 			blocked_versions_[version] = reason;
-			//PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
+			PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
 		}
 	}
 	if (data_input.has("MinimumVersion"))
 	{
-		//PV_DEBUG("Getting minimum version...", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Getting minimum version...", LLError::LEVEL_DEBUG);
 		const LLSD& min_version = data_input["MinimumVersion"];
 		for (LLSD::map_const_iterator iter = min_version.beginMap(); iter != min_version.endMap(); ++iter)
 		{
@@ -476,16 +476,16 @@ void PVData::parsePVData(const LLSD& data_input)
 
 #ifdef PVDATA_MOTD
 	// Set Message Of The Day if present
-	//PV_DEBUG("Attempting to find MOTD data", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find MOTD data", LLError::LEVEL_DEBUG);
 	if (data_input.has("MOTD"))
 	{
-		//PV_DEBUG("Found a MOTD!", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found a MOTD!", LLError::LEVEL_DEBUG);
 		gAgent.mMOTD.assign(data_input["MOTD"]);
 	}
 #ifdef PVDATA_MOTD_CHAT
 	else if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
 	{
-		//PV_DEBUG("Found Chat MOTDs!", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found Chat MOTDs!", LLError::LEVEL_DEBUG);
 		const LLSD& motd = data_input["ChatMOTD"];
 		LLSD::array_const_iterator iter = motd.beginArray();
 		gAgent.mChatMOTD.assign((iter + (ll_rand(static_cast<S32>(motd.size()))))->asString());
@@ -493,7 +493,7 @@ void PVData::parsePVData(const LLSD& data_input)
 #endif // PVDATA_MOTD_CHAT
 
 	// If the event falls within the current date, use that for MOTD instead.
-	//PV_DEBUG("Attempting to find Events data", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Events data", LLError::LEVEL_DEBUG);
 	if (data_input.has("EventsMOTD"))
 	{
 		PVData::motd_events_list_ = data_input["EventsMOTD"];
@@ -501,11 +501,11 @@ void PVData::parsePVData(const LLSD& data_input)
 		{
 			std::string name = iter->first;
 			const LLSD& content = iter->second;
-			//PV_DEBUG("Found event MOTD: " + name, LLError::LEVEL_DEBUG);
+			PV_DEBUG("Found event MOTD: " + name, LLError::LEVEL_DEBUG);
 
 			if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
 			{
-				//PV_DEBUG("Setting MOTD to " + name, LLError::LEVEL_DEBUG);
+				PV_DEBUG("Setting MOTD to " + name, LLError::LEVEL_DEBUG);
 				// TODO: Shove into notification well.
 				gAgent.mMOTD.assign(content["EventMOTD"]); // note singular instead of plural above
 				break; // Only use the first one found.
@@ -517,10 +517,10 @@ void PVData::parsePVData(const LLSD& data_input)
 
 	// TODO: Split tips files
 	// <polarity> Load the progress screen tips
-	//PV_DEBUG("Attempting to find Progress Tip data", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Progress Tip data", LLError::LEVEL_DEBUG);
 	if (data_input.has("ProgressTip"))
 	{
-		//PV_DEBUG("Found Progress Tips!", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found Progress Tips!", LLError::LEVEL_DEBUG);
 		// Store list for later use
 		progress_tips_list_ = data_input["ProgressTip"];
 	}
@@ -607,25 +607,25 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	LL_INFOS("PVData") << "Beginning to parse Agents" << LL_ENDL;
 
 	// Empty data to make sure refresh works right.
-	//PV_DEBUG("Attempting to find Agents Access", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Agents Access", LLError::LEVEL_DEBUG);
 	if (data_input.has("AgentAccess"))
 	{
-		//PV_DEBUG("Found Agents data", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found Agents data", LLError::LEVEL_DEBUG);
 		// Populate the SpecialAgents array with the key-flag associations
 		PVData::agents_access_ = data_input["AgentAccess"];
 		Dump("PVAgents (AgentAccess)", agents_access_);
 	}
-	//PV_DEBUG("Attempting to find Agents Titles", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Agents Titles", LLError::LEVEL_DEBUG);
 	if (data_input.has("AgentTitles"))
 	{
-		//PV_DEBUG("Found Agents Titles", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found Agents Titles", LLError::LEVEL_DEBUG);
 		PVData::agents_titles_ = data_input["AgentTitles"];
 		Dump("PVAgents (agents_titles_)", agents_titles_);
 	}
-	//PV_DEBUG("Attempting to find Agents Colors", LLError::LEVEL_DEBUG);
+	PV_DEBUG("Attempting to find Agents Colors", LLError::LEVEL_DEBUG);
 	if (data_input.has("AgentColors"))
 	{
-		//PV_DEBUG("Found Agents Colors", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Found Agents Colors", LLError::LEVEL_DEBUG);
 		PVData::agents_colors_ = data_input["AgentColors"];
 		Dump("PVAgents (AgentColors)", agents_colors_);
 	}
@@ -636,19 +636,14 @@ void PVData::parsePVAgents(const LLSD& data_input)
 		for (LLSD::map_const_iterator itr = support_groups.beginMap(); itr != support_groups.endMap(); ++itr)
 		{
 			support_group_.insert(LLUUID(itr->first));
-			//PV_DEBUG("Added " + itr->first + " to support_group_", LLError::LEVEL_DEBUG);
+			PV_DEBUG("Added " + itr->first + " to support_group_", LLError::LEVEL_DEBUG);
 		}
 	}
 
 	agents_parse_status_ = OK;
 	LL_INFOS("PVData") << "Done parsing agents" << LL_ENDL;
 
-	//static LLCachedControl<bool> dump_ram_data(gSavedSettings, "PVDebug_DumpMemoryResidentData", true);
-	//if (dump_ram_data)
-	//{
-	//	Dump("PVAgents (Memory)", data_input);
-	//}
-
+	// TODO PLVR: Hook up
 	//autoMuteFlaggedAgents();
 }
 
@@ -853,7 +848,7 @@ bool PVData::isBlockedRelease()
 	}
 	else
 	{
-		//PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
+		PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
 	}
 
 	// default
@@ -925,7 +920,7 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	{
 		LLColor4::parseColor4(agents_colors_[avatar_id.asString()], &agent_color);
 	}
-	//PV_DEBUG("agent_color == " + agent_color);
+	//PV_DEBUG("agent_color == " + agent_color); // FIXME; can't convert LLColor4 to const char*
 	return agent_color;
 }
 
@@ -1076,11 +1071,11 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 		LL_INFOS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
 		PVData::instance().downloadData();
 
-		//PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
+		PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
 		PVData::instance().downloadAgents();
 		if (!force_refresh_now)
 		{
-			//PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
+			PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
 			pvdata_refresh_timer_.reset();
 		}
 		return true;
@@ -1089,9 +1084,7 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 }
 
 // static
-// TODO: Fix non-null terminated strings issue.
-#if !RELEASE_BUILD && FIXED_STRINGS_NULL_TERM
-void PVData::PV_DEBUG(const std::string log_in_s, const LLError::ELevel& level)
+void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
 {
 	// Skip debug entirely if the user isn't authenticated yet
 	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE)
@@ -1106,24 +1099,22 @@ void PVData::PV_DEBUG(const std::string log_in_s, const LLError::ELevel& level)
 		return;
 	}
 
-	std::string out_s = log_in_s;
+	// Ensure our string is null-terminated.
+	const std::string nullterm_string = log_in_s.c_str();
 
-	if (LLError::LEVEL_WARN == level && LLError::getDefaultLevel() == level)
+	if (LLError::LEVEL_WARN == level)
 	{
-		LL_WARNS("PVData") << out_s << LL_ENDL;
+		LL_WARNS("PVData") << nullterm_string << LL_ENDL;
 	}
-	if (LLError::LEVEL_ERROR == level && LLError::getDefaultLevel() == level)
+	if (LLError::LEVEL_ERROR == level)
 	{
-		LL_ERRS("PVData") << out_s << LL_ENDL;
+		LL_ERRS("PVData") << nullterm_string << LL_ENDL;
 	}
-		if (LLError::LEVEL_WARN == level && LLError::getDefaultLevel() == level)
-	LL_INFOS("PVData") << out_s << LL_ENDL;
-
-	// plug potential leak
-	out_s.clear();
-	return;
+	if (LLError::LEVEL_INFO == level)
+	{
+		LL_INFOS("PVData") << nullterm_string << LL_ENDL;
+	}
 }
-#endif // !RELEASE_BUILD
 
 void PVData::Dump(const std::string name, const LLSD& map)
 {
@@ -1138,14 +1129,14 @@ void PVData::Dump(const std::string name, const LLSD& map)
 	
 	std::stringstream str;
 	LLSDSerialize::toPrettyXML(map, str);
-	LL_INFOS("PVData")
+	LL_DEBUGS("PVData")
 		<< "\n==========================="
-		<< "\n<" << name << ">"
+		<< "\n<!--  <" << name << "> -->"
 		<< "\n"
 		<< str.str()
-		<< "\n"
-		<< "</" << name << ">"
+		<< "\n<!--  </" << name << "> -->"
 		<< "\n==========================="
+		<< "\n"
 	<< LL_ENDL;
 }
 
