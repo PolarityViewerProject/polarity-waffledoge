@@ -696,40 +696,6 @@ std::string PVData::getPreferredName(const LLAvatarName& av_name)
 	return preferred_name;
 }
 
-// <polarity> Overload to work with UUIDs
-std::string PVData::getPreferredName(const LLUUID& avatar_lluuid)
-{
-	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
-	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
-	// Get name via name cache
-	LLAvatarName av_name;
-	LLAvatarNameCache::get(avatar_lluuid, &av_name);
-
-	if (!av_name.isValidName())
-	{
-		LL_WARNS("PVData") << "Name lookup failed, aborting!" << LL_ENDL;
-		return "LOOKUPFAILED TRYAGAIN";
-	}
-
-	if (use_display_names && show_username)
-	{
-		return av_name.getCompleteNameForced(); // Show everything
-	}
-	else if (use_display_names && !show_username)
-	{
-		return av_name.getDisplayNameForced();
-	}
-	else if (!use_display_names && !show_username)
-	{
-		return av_name.getUserName();
-	}
-	else
-	{
-		// we shouldn't hit this, but a sane fallback can't hurt.
-		return av_name.getUserName();
-	}
-}
-
 LLUUID PVData::getLockDownUUID()
 {
 // Workaround for missing CMAKE flags
@@ -924,44 +890,35 @@ LLColor4 PVData::getAgentColor(const LLUUID& avatar_id)
 	return agent_color;
 }
 
-bool PVData::isLinden(const LLUUID& avatar_id, LLAvatarName &av_name)
+bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags)
 {
 	// <Polarity> Speed up: Check if we already establed that association
-	if (getAgentFlags(avatar_id) & FLAG_LINDEN_EMPLOYEE)
+	if (av_flags & FLAG_LINDEN_EMPLOYEE)
 	{
 		return true;
 	}
 
 	std::string first_name, last_name;
-	if (LLAvatarNameCache::get(avatar_id, &av_name))
-	{
-		std::istringstream full_name(av_name.getUserName());
-		full_name >> first_name >> last_name;
-	}
-	else
-	{
-		gCacheName->getFirstLastName(avatar_id, first_name, last_name);
-	}
+	gCacheName->getFirstLastName(avatar_id, first_name, last_name);
+
 	if (first_name.empty())
 	{
 		// prevent returning 'true' when name is missing.
 		return false;
 	}
-	bool is_linden = (last_name == LL_LINDEN ||
-		last_name == LL_MOLE ||
-		last_name == LL_PRODUCTENGINE ||
-		last_name == LL_SCOUT ||
-		last_name == LL_TESTER);
-
-	if (is_linden)
+	if (last_name == LL_LINDEN
+			|| last_name == LL_MOLE
+			|| last_name == LL_PRODUCTENGINE
+			|| last_name == LL_SCOUT
+			|| last_name == LL_TESTER)
 	{
 		// set bit for LL employee
 		// Can't we make this more efficient?
-		S32 av_flags = this->instance().getAgentFlags(avatar_id);
 		av_flags = av_flags |= FLAG_LINDEN_EMPLOYEE;
 		agents_access_[avatar_id.asString()] = av_flags;
+		return true;
 	}
-	return is_linden;
+	return false;
 }
 
 // ReSharper disable CppAssignedValueIsNeverUsed
@@ -1150,36 +1107,29 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
 	LLColor4 pvdata_color; // User color from PVData if user has one, equals return_color otherwise.
 
-	static bool pvdata_color_is_valid = false;
+	static bool pvdata_color_is_valid;
 
 	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
 	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
 
-	// we'll need this later. Defined here to avoid multiple calls in the same code path.
-	//LLAvatarName av_name;
-
-	// Called first to seed av_name
-	/*
-	if (PVData::instance().isLinden(avatar_id, av_name))
-	{
-	// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
-	// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
-	// an entirely different list. Another solution (probably the most lightweight one) would be to check
-	// if a custom title has been attributed to them here instead of down there.
-	return_color = linden_color.get();
-	}
-	*/
 	// Some PVData-flagged users CAN be muted.
+	// TODO PLVR: Do we still need this?
 	if (LLMuteList::instance().isMuted(avatar_id))
 	{
 		return_color = muted_color.get();
-		return return_color;
+		//return return_color;
 	}
-
 	// Check if agent is flagged through PVData
-	S32 av_flags = PVData::instance().getAgentFlags(avatar_id);
-	bool has_flags = (av_flags > 0);
-	if (has_flags)
+	S32 av_flags = instance().getAgentFlags(avatar_id);
+	if (instance().isLinden(avatar_id, av_flags))
+	{
+		// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
+		// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
+		// an entirely different list. Another solution (probably the most lightweight one) would be to check
+		// if a custom title has been attributed to them here instead of down there.
+		return_color = linden_color.get();
+	}
+	if (av_flags)
 	{
 		pvdata_color_is_valid = true;
 		if (av_flags & PVData::FLAG_USER_HAS_TITLE && !(av_flags & PVData::FLAG_TITLE_OVERRIDE))
@@ -1258,35 +1208,35 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	bool show_f = (show_friends && is_buddy_and_show_it);
 
 	// Lengthy but fool-proof.
-	if (show_f && has_flags && low_priority_friend_status)
+	if (show_f && av_flags && low_priority_friend_status)
 	{
 		return_color = pvdata_color;
 	}
-	if (show_f && has_flags && !low_priority_friend_status)
+	if (show_f && av_flags && !low_priority_friend_status)
 	{
 		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
 	}
-	if (show_f && !has_flags && low_priority_friend_status)
+	if (show_f && !av_flags && low_priority_friend_status)
 	{
 		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
 	}
-	if (show_f && !has_flags && !low_priority_friend_status)
+	if (show_f && !av_flags && !low_priority_friend_status)
 	{
 		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
 	}
-	if (!show_f && has_flags && low_priority_friend_status)
+	if (!show_f && av_flags && low_priority_friend_status)
 	{
 		return_color = pvdata_color;
 	}
-	if (!show_f && has_flags && !low_priority_friend_status)
+	if (!show_f && av_flags && !low_priority_friend_status)
 	{
 		return_color = pvdata_color;
 	}
-	if (!show_f && !has_flags && low_priority_friend_status)
+	if (!show_f && !av_flags && low_priority_friend_status)
 	{
 		return_color = default_color;
 	}
-	if (!show_f && !has_flags && !low_priority_friend_status)
+	if (!show_f && !av_flags && !low_priority_friend_status)
 	{
 		return_color = default_color;
 	}

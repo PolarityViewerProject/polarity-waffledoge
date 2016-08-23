@@ -146,7 +146,7 @@ public:
 	LLColor4 getAgentColor(const LLUUID& avatar_id);
 
 	// Better version of isLinden that takes PVData into account
-	bool isLinden(const LLUUID& avatar_id, LLAvatarName &av_name);
+	bool isLinden(const LLUUID& avatar_id, S32& av_flags);
 
 	// Attempt to replace specified color with agent color. Returns true if replacement was made.
 	bool replaceWithAgentColor(const LLUUID& avatar_id, LLColor4 out_color4);
