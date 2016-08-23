@@ -42,6 +42,7 @@
 #include "llavatarnamecache.h"
 #include "llfloaterabout.h"
 #include "llmutelist.h"
+#include "llprogressview.h"
 #include "llsdserialize.h"
 #include "llstartup.h"
 #include "llversioninfo.h"
@@ -49,7 +50,6 @@
 #include "llviewermedia.h"
 #include "pvcommon.h"
 #include "rlvhandler.h"
-#include "llprogressview.h"
 
 static const std::string LL_LINDEN = "Linden";
 static const std::string LL_MOLE = "Mole";
