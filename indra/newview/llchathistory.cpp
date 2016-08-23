@@ -928,7 +928,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	//LLColor4 name_color(txt_color);
 #ifdef PVDATA_COLORIZER
 	// <polarity> Colored names for special users
-	LLColor4 name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	LLColor4 name_color = txt_color;
 	static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
 	if (use_colorizer
 		// Speed improvement; only run agent color on agent chat.
@@ -1059,7 +1059,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
 				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-				link_params.override_link_style = true;
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
 				link_params.is_link = true;
