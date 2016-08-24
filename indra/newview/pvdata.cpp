@@ -1114,7 +1114,8 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 			// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
 			// an entirely different list. Another solution (probably the most lightweight one) would be to check
 			// if a custom title has been attributed to them here instead of down there.
-			return_color = linden_color.get();
+			// for now, linden color will override everything. I'll fix it later.
+			return linden_color.get();
 		}
 		if (av_flags)
 		{
