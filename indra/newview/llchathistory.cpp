@@ -931,13 +931,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	LLColor4 name_color;
 	static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
 	if (use_colorizer
-		// Speed improvement; only run agent color on agent chat.
-		&& (chat.mSourceType == CHAT_SOURCE_AGENT)
-		&& (chat.mSourceType != CHAT_SOURCE_OBJECT) // FROM: Not an object
-		&& (chat.mSourceType != CHAT_STYLE_HISTORY) // and not replayed chat log
-		&& (chat.mFromName != SYSTEM_FROM) // and not a system message
-		&& (chat.mFromID.notNull()) // and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
-		/*&& chat.mFromID != gAgent.getID()*/) // Color ourselves as well.
+		&& (chat.mSourceType != CHAT_SOURCE_OBJECT)		// FROM: Not an object
+		&& (chat.mSourceType != CHAT_STYLE_HISTORY)		// and not replayed chat log
+		&& (chat.mFromName != SYSTEM_FROM)				// and not a system message
+		&& (chat.mFromID.notNull()))					// and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
 	{
 		
 		name_color = PVData::instance().getColor(chat.mFromID, txt_color, false);
