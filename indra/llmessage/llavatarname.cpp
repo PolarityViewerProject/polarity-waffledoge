@@ -264,10 +264,9 @@ std::string LLAvatarName::getCompleteNameForced() const
 
 std::string LLAvatarName::getDisplayNameForced() const
 {
-	// This should never be empty, but I can be wrong.
 	if (mDisplayName.empty())
 	{
-		return "MISSING DISPLAY NAME";
+		return "Second Life";
 	}
 	return mDisplayName;
 
