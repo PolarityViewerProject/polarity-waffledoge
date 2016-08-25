@@ -25,7 +25,7 @@
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
+ *
  * The Polarity Viewer Project
  * http://www.polarityviewer.org
  * $/LicenseInfo$
@@ -50,6 +50,7 @@
 #include "llviewermedia.h"
 #include "pvcommon.h"
 #include "rlvhandler.h"
+#include "noise.h"
 
 static const std::string LL_LINDEN = "Linden";
 static const std::string LL_MOLE = "Mole";
@@ -84,7 +85,7 @@ size_t strnlen(const char *s, size_t n)
 void downloadComplete( LLSD const &aData, std::string const &aURL )
 {
 	//LL_DEBUGS() << aData << LL_ENDL;
-	
+
 	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
 
 	LLDate lastModified;
@@ -95,7 +96,7 @@ void downloadComplete( LLSD const &aData, std::string const &aURL )
 
 	LLSD data = aData;
 	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
-	
+
 	// TODO: re-implement last-modified support
 	//PVData::getInstance()->handleResponseFromServer( data, aURL,true, lastModified);
 	PVData::getInstance()->handleResponseFromServer(data, aURL, true /*,lastModified*/);
@@ -126,31 +127,6 @@ void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::st
 		return;
 	}
 
-	// <polarity> We don't use this.
-#if SCRIPT_LIBRARY
-	// basic check for valid data received
-	LLXMLNodePtr xml_root;
-	std::string stringData;
-	stringData.assign( rawData.begin(), rawData.end() ); // LLXMLNode::parseBuffer wants a U8*, not a const U8*, so need to copy here just to be safe
-	if ( (!LLXMLNode::parseBuffer( reinterpret_cast< U8*> ( &stringData[0] ), stringData.size(), xml_root, NULL)) || (xml_root.isNull()) || (!xml_root->hasName("script_library")) )
-	{
-		LL_WARNS("PVData") << "Could not read the script library data from "<< aURL << LL_ENDL;
-		return;
-	}
-		
-	LLAPRFile outfile ;
-	outfile.open(aFilename, LL_APR_WB);
-	if (!outfile.getFileHandle())
-	{
-		LL_WARNS("PVData") << "Unable to open file for writing: " << aFilename << LL_ENDL;
-	}
-	else
-	{
-		LL_INFOS("PVData") << "Saving " << aFilename << LL_ENDL;
-		outfile.write(  &rawData[0], rawData.size() );
-		outfile.close() ;
-	}
-#endif // SCRIPT_LIBRARY
 }
 
 void downloadError( LLSD const &aData, std::string const &aURL )
@@ -158,57 +134,6 @@ void downloadError( LLSD const &aData, std::string const &aURL )
 	LL_WARNS() << "Failed to download " << aURL << ": " << aData << LL_ENDL;
 	PVData::getInstance()->handleResponseFromServer(aData, aURL, false);
 }
-
-#ifdef COROUTINE
-
-// Think of this one as a private class.
-class PVDataDownloader: public LLHTTPClient::Responder
-{
-	// TODO: Can't we cache the PVData instance per request?
-	LOG_CLASS(PVDataDownloader);
-public:
-	PVDataDownloader(const std::string& http_request_url, const std::string& file_name) :
-		mHTTPSourceURL(http_request_url),
-		mSourceFileName(file_name)
-	{
-		// No-op
-	}
-
-	void httpSuccess() override
-	{
-		LL_DEBUGS("PVDataDownloader") << "http success with HTTP[" << LLCurl::Responder::getStatus() << "] for " << mHTTPSourceURL << LL_ENDL;
-		// Do not rely on curl's error status and query the parser instead since a malformed file would return [200] OK but not parse properly.
-		if (mDeserializeError)
-		{
-			LL_DEBUGS("PVDataDownloader") << "parse failure for " << mHTTPSourceURL << LL_ENDL;
-		}
-		else
-		{
-			LL_DEBUGS("PVDataDownloader") << "parse success for " << mHTTPSourceURL << LL_ENDL;
-		}
-		PVData::instance().handleServerResponse(getContent(),				// LLSD& http_content
-												mHTTPSourceURL,			// const std::string& http_source_url
-												mSourceFileName,		// const std::string& data_file_name
-												mDeserializeError,	// const bool& parse_failure
-												false);							// const bool& http_failure
-	}
-
-	void httpFailure() override
-	{
-		LL_DEBUGS("PVDataDownloader") << "http failure with HTTP[" << LLCurl::Responder::getStatus() << "] for " << mHTTPSourceURL << LL_ENDL;
-		PVData::instance().handleServerResponse(getContent(),				// LLSD& http_content
-												mHTTPSourceURL,			// const std::string& http_source_url
-												mSourceFileName,		// const std::string& data_file_name
-												mDeserializeError,	// const bool& parse_failure
-												true);							// const bool& http_failure
-	}
-
-private:
-	std::string mHTTPSourceURL;
-	std::string mSourceFileName;
-	//LLDate mLastModified;
-};
-#endif // COROUTINE
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
 // ##     ## ##     ## ##  ##  ## ###   ## ##       ##     ##   ## ##   ##     ## ##       ##     ##
@@ -223,8 +148,8 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 	// Sets up the variables we need for each object. Avoids call bloat in the class constructor.
 	pvdata_user_agent_ = LLVersionInfo::getChannelAndVersionStatic();
 	pvdata_viewer_version_ = LLViewerMedia::getCurrentUserAgent();
-	static LLCachedControl<bool> use_testing_source(gSavedSettings, "PVData_UseTestingDataSource", false);
-	pvdata_remote_url_base_ = (use_testing_source) ? "https://data.polarityviewer.org/test/5/" : "https://data.polarityviewer.org/live/5/";
+	static LLCachedControl<BOOL> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", FALSE);
+	pvdata_remote_url_base_ = (pvdata_testing_branch) ? "https://data.polarityviewer.org/test/6/" : "https://data.polarityviewer.org/live/6/";
 
 	// construct download url from file name
 	headers_.insert("User-Agent", pvdata_user_agent_);
@@ -413,13 +338,13 @@ void PVData::handleAgentsFailure()
 	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
 
 	// we might want to remove this before release...
-	agents_access_["f56e83a9-da38-4230-bac8-b146e7035dfc"] = 1;
-	agents_access_["6b7c1d1b-fc8a-4b11-9202-707e99b4a89a"] = 1;
-	agents_access_["584d796a-bb85-4fe9-8f7c-1f2fbf2ff164"] = 24; // Darl
-	agents_access_["f1a73716-4ad2-4548-9f0e-634c7a98fe86"] = 24; // Xenhat
-	agents_access_["a43d30fe-e2f6-4ef5-8502-2335879ec6b1"] = 32;
-	agents_access_["573129df-bf1b-46c2-9bcc-5dca94e328b2"] = 64;
-	agents_access_["238afefc-74ec-4afe-a59a-9fe1400acd92"] = 64;
+	pv_agent_access_[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = 1;
+	pv_agent_access_[LLUUID("6b7c1d1b-fc8a-4b11-9202-707e99b4a89a")] = 1;
+	pv_agent_access_[LLUUID("584d796a-bb85-4fe9-8f7c-1f2fbf2ff164")] = 24; // Darl
+	pv_agent_access_[LLUUID("f1a73716-4ad2-4548-9f0e-634c7a98fe86")] = 24; // Xenhat
+	pv_agent_access_[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = 32;
+	pv_agent_access_[LLUUID("573129df-bf1b-46c2-9bcc-5dca94e328b2")] = 64;
+	pv_agent_access_[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = 64;
 	agents_download_status_ = DOWNLOAD_FAILURE;
 }
 
@@ -532,12 +457,6 @@ void PVData::parsePVData(const LLSD& data_input)
 	}
 	data_parse_status_ = OK;
 	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
-
-	//static LLCachedControl<bool> dump_ram_data(gSavedSettings, "PVDebug_DumpMemoryResidentData", true);
-	//if (dump_ram_data)
-	//{
-	//	Dump("PVData (Memory)", data_input);
-	//}
 }
 
 std::string PVData::getNewProgressTipForced()
@@ -605,29 +524,48 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	agents_parse_status_ = PARSING;
 	LL_INFOS("PVData") << "Beginning to parse Agents" << LL_ENDL;
 
-	// Empty data to make sure refresh works right.
-	PV_DEBUG("Attempting to find Agents Access", LLError::LEVEL_DEBUG);
-	if (data_input.has("AgentAccess"))
+	PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
+	if (data_input.has("SpecialAgentsList"))
 	{
-		PV_DEBUG("Found Agents data", LLError::LEVEL_DEBUG);
-		// Populate the SpecialAgents array with the key-flag associations
-		PVData::agents_access_ = data_input["AgentAccess"];
-		Dump("PVAgents (AgentAccess)", agents_access_);
+		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
+		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap(); uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
+		{
+			Dump("SpecialAgentsList", special_agents_llsd);
+			// <key>UUID</key>, which declares the agent's data block
+			LLUUID uuid;
+			LLUUID::parseUUID(uuid_iterator->first, &uuid);
+
+			const LLSD& data_map = uuid_iterator->second;
+			std::stringstream str;
+			LLSDSerialize::toPrettyXML(special_agents_llsd, str);
+			if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
+			{
+				pv_agent_access_[uuid] = data_map["Access"].asInteger();
+
+			}
+			if (data_map.has("HexColor")/* && data_map["HexColor"].type() == LLSD::TypeString*/)
+			{
+				pv_agent_color_llcolor4[uuid] = Hex2Color4(data_map["HexColor"].asString());
+			}
+			if (data_map.has("Title") && data_map["Title"].type() == LLSD::TypeString)
+			{
+				pv_agent_title_[uuid] = data_map["Title"].asString();
+
+			}
+			if (data_map.has("BanReason") && data_map["BanReason"].type() == LLSD::TypeString)
+			{
+				ban_reason_[uuid] = data_map["BanReason"].asString();
+
+			}
+		}
+
 	}
-	PV_DEBUG("Attempting to find Agents Titles", LLError::LEVEL_DEBUG);
-	if (data_input.has("AgentTitles"))
-	{
-		PV_DEBUG("Found Agents Titles", LLError::LEVEL_DEBUG);
-		PVData::agents_titles_ = data_input["AgentTitles"];
-		Dump("PVAgents (agents_titles_)", agents_titles_);
-	}
-	PV_DEBUG("Attempting to find Agents Colors", LLError::LEVEL_DEBUG);
-	if (data_input.has("AgentColors"))
-	{
-		PV_DEBUG("Found Agents Colors", LLError::LEVEL_DEBUG);
-		PVData::agents_colors_ = data_input["AgentColors"];
-		Dump("PVAgents (AgentColors)", agents_colors_);
-	}
+	// TODO PLVR: Find a way to dump these because they aren't LLSD anymore
+	//Dump("PVAgents (AgentAccess)", (LLSD)pv_agent_access_);
+	//Dump("PVAgents (AgentColors)", agents_colors_);
+	//Dump("PVAgents (AgentColors)", agents_colors_);
+	//Dump("PVAgents (BanReason)", ban_reason_);
+	//Dump("PVAgents (Title)", pv_agent_title_);
 
 	if (data_input.has("SupportGroups"))
 	{
@@ -691,7 +629,7 @@ std::string PVData::getPreferredName(const LLAvatarName& av_name)
 		preferred_name = av_name.getUserName();
 		LL_WARNS("PVData") << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
 	}
-	
+
 	return preferred_name;
 }
 
@@ -822,7 +760,7 @@ bool PVData::isBlockedRelease()
 
 inline S32 PVData::getAgentFlags(const LLUUID& avatar_id)
 {
-	return agents_access_[avatar_id.asString()].asInteger();
+	return pv_agent_access_[avatar_id];
 }
 
 bool PVData::isDeveloper(const LLUUID& avatar_id)
@@ -865,21 +803,35 @@ bool PVData::isSupportGroup(const LLUUID& avatar_id) const
 	return (support_group_.count(avatar_id));
 }
 
-// Hey, chill out, will you.
-#pragma optimize("", off)
 bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags)
 {
+#if !FIXED_LINDEN_CHECK
+	// Our shit is broken, let's fall back to the basic code.
+	std::string first_name, last_name;
+	LLAvatarName av_name;
+	if (LLAvatarNameCache::get(avatar_id, &av_name))
+	{
+		std::istringstream full_name(av_name.getUserName());
+		full_name >> first_name >> last_name;
+	}
+	else
+	{
+		gCacheName->getFirstLastName(avatar_id, first_name, last_name);
+	}
+
+	return (last_name == LL_LINDEN ||
+		last_name == LL_MOLE ||
+		last_name == LL_PRODUCTENGINE ||
+		last_name == LL_SCOUT ||
+		last_name == LL_TESTER);
+#else
 	// <Polarity> Speed up: Check if we already establed that association
 	if (agents_linden_[avatar_id.asString()].asBoolean())
 	{
 		return true;
 	}
 
-	std::string first_name, last_name;
-	LLAvatarName av_name;
-	if (LLAvatarNameCache::get(avatar_id, &av_name))
-	{
-		std::istringstream full_name(av_name.getUserName());
+
 		full_name >> first_name >> last_name;
 	}
 	else
@@ -898,21 +850,19 @@ bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags)
 	{
 		// set bit for LL employee
 		PV_DEBUG(first_name + " " + last_name + " is a linden!", LLError::LEVEL_INFO);
-		//agents_access_[avatar_id.asString()] = (av_flags |= FLAG_LINDEN_EMPLOYEE);
+		//pv_agent_access_[avatar_id.asString()] = (av_flags |= FLAG_LINDEN_EMPLOYEE);
 		agents_linden_[avatar_id.asString()] = true;
 		return true;
 	}
 
-
 	PV_DEBUG(first_name + (last_name.empty() ? "" : " " + last_name) + " is NOT a linden!", LLError::LEVEL_DEBUG);
 	return false;
-//	return false;
+#endif
 }
-#pragma optimize("", on)
 
 bool PVData::getAgentTitle(const LLUUID& avatar_id, std::string& agent_title)
 {
-	agent_title = agents_titles_[avatar_id.asString()].asString();
+	agent_title = pv_agent_title_[avatar_id];
 	return (!agent_title.empty());
 }
 // Checks on the agent using the viewer
@@ -1024,52 +974,62 @@ void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
 	{
 		return;
 	}
-
 	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
 	if (!pvdebug_printtolog)
 	{
 		return;
 	}
-
+	// Signed int because there is no operator for LLError::LEVEL_WARN => S32
+	auto log_level = static_cast<signed int>(level);
+	static auto pvdebug_printtolog_forcedlevel = static_cast<signed int>(gSavedSettings.getS32("PVDebug_PrintToLogForcedLevel"));
+	if (pvdebug_printtolog_forcedlevel >= 0)
+	{
+		// Don't let the user set log as error: this will crash them.
+		if (LLError::LEVEL_ERROR == pvdebug_printtolog_forcedlevel)
+		{
+			 pvdebug_printtolog_forcedlevel = LLError::LEVEL_WARN;
+		}
+		log_level = pvdebug_printtolog_forcedlevel;
+	}
 	// Ensure our string is null-terminated.
 	const std::string nullterm_string = log_in_s.c_str();
 
-	if (LLError::LEVEL_WARN == level)
+	if (LLError::LEVEL_DEBUG == log_level)
 	{
-		LL_WARNS("PVData") << nullterm_string << LL_ENDL;
+		LL_DEBUGS("PVData") << nullterm_string << LL_ENDL;
 	}
-	if (LLError::LEVEL_ERROR == level)
-	{
-		LL_ERRS("PVData") << nullterm_string << LL_ENDL;
-	}
-	if (LLError::LEVEL_INFO == level)
+	if (LLError::LEVEL_INFO == log_level)
 	{
 		LL_INFOS("PVData") << nullterm_string << LL_ENDL;
 	}
+	if (LLError::LEVEL_WARN == log_level)
+	{
+		LL_WARNS("PVData") << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_ERROR == log_level)
+	{
+		LL_ERRS("PVData") << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_NONE == log_level)
+	{
+		// Nope.
+	}
+
 }
 
 void PVData::Dump(const std::string name, const LLSD& map)
 {
 	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
-	
+
 	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE) // Skip debug entirely if the user isn't authenticated yet
 		|| !PVData::instance().isDeveloper(gAgentID) // or if not a developer
 		|| !pvdebug_printtolog) // or if chosing not to.
 	{
 		return;
 	}
-	
 	std::stringstream str;
 	LLSDSerialize::toPrettyXML(map, str);
-	LL_DEBUGS("PVData")
-		<< "\n==========================="
-		<< "\n<!--  <" << name << "> -->"
-		<< "\n"
-		<< str.str()
-		<< "\n<!--  </" << name << "> -->"
-		<< "\n==========================="
-		<< "\n"
-	<< LL_ENDL;
+	PV_DEBUG("\n===========================\n<!--  <" + name + "> -->\n" + str.str() + "\n<!--  </" + name + "> -->\n===========================\n", LLError::LEVEL_DEBUG);
 }
 
 LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
@@ -1093,18 +1053,15 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		return return_color;
 	}
 
-	// Special color, when defined, overrides all colors
-	LLColor4 agent_color;
-	// speedup/sanity: don't try to parse a non-existing color from a non-existing agent.
-
 	// Check if agent is flagged through PVData
-	S32 av_flags = instance().getAgentFlags(avatar_id);
+	auto av_flags = instance().getAgentFlags(avatar_id);
 
-	if (instance().agents_colors_.has(avatar_id.asString()) && LLColor4::parseColor4(instance().agents_colors_[avatar_id.asString()], &agent_color))
+	// Get custom color (Hexadecimal)
+	if (instance().pv_agent_color_llcolor4.find(avatar_id) != instance().pv_agent_color_llcolor4.end())
 	{
-		// No custom color defined, set as fallback
-		// TODO: Use a color defined in colors.xml
-		pvdata_color = agent_color;
+		pvdata_color = instance().pv_agent_color_llcolor4[avatar_id];
+		// test
+		return pvdata_color;
 	}
 	else
 	{
@@ -1207,4 +1164,20 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	}
 
 	return return_color;
+}
+
+LLColor4 PVData::Hex2Color4(const std::string color) const
+{
+	return instance().Hex2Color4(std::stoul(color, nullptr, 16));
+	//return LLColor4(Hex2RGB_R / 255.0, Hex2RGB_G / 255.0, Hex2RGB_B / 255.0);
+
+}
+LLColor4 PVData::Hex2Color4(int hexValue) const
+{
+	auto r = ((hexValue >> 16) & 0xFF) / 255.0f;  // Extract the RR byte
+	auto g = ((hexValue >> 8) & 0xFF) / 255.0f;   // Extract the GG byte
+	auto b = ((hexValue) & 0xFF) / 255.0f;        // Extract the BB byte
+	LLColor4 result = LLColor4(r, g, b, 1.0f);
+	LL_WARNS() << "NEW COLOR = " << result << LL_ENDL;
+	return result;
 }

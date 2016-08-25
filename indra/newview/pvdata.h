@@ -60,6 +60,13 @@ public:
 	~PVData()
 	{}
 
+	// Some typedefs
+	// agents <-> color association	s
+	typedef std::map<LLUUID, LLColor4> pv_pair_uuid_llcolor4;
+	typedef std::map<LLUUID, unsigned int> pv_pair_uuid_uint;
+	typedef std::map<LLUUID, signed int> pv_pair_uuid_sint;
+	typedef std::map<LLUUID, std::string> pv_pair_uuid_string;
+
 	// This contains the re-usable LLSD data for login tips.
 	// It is easier (at least for me) to parse the LLSD over and over and get a new value,
 	// than storing them into a list and playing musical format conversions.
@@ -70,18 +77,21 @@ public:
 
 	// Events MOTD
 	LLSD motd_events_list_ = LLSD::emptyMap();
-	
+
 	// Agents access levels
-	LLSD agents_access_ = LLSD::emptyMap();
-	
+	pv_pair_uuid_sint pv_agent_access_;
+
 	// Agents Titles
-	LLSD agents_titles_ = LLSD::emptyMap();
-	
+	pv_pair_uuid_string pv_agent_title_;
+
 	// Agents Colors
-	LLSD agents_colors_ = LLSD::emptyMap();
+	pv_pair_uuid_llcolor4 pv_agent_color_llcolor4;
 
 	// Linden Lab employees and other God-like agents
-	LLSD agents_linden_ = LLSD::emptyMap();
+	std::vector<LLUUID> agents_linden_;
+
+	// Ban reason, if present
+	pv_pair_uuid_string ban_reason_;
 
 	enum flags_t : S32
 	{
@@ -93,7 +103,7 @@ public:
 		// please increment the following counter as a warning
 		// to the next guy:
 		//
-		// total_hours_wasted_here = 86
+		// total_hours_wasted_here = 100
 		//
 
 		// Those aren't numbers. They are bits and here we use them as an array of booleans.
@@ -135,11 +145,7 @@ public:
 	// This handles the data received from the server after downloading the data
 	void handleResponseFromServer(const LLSD& http_content,
 		const std::string& http_source_url,
-		//const std::string& data_file_name,
 		const bool& parse_success
-		// TODO: re-implement last-modified support
-		//const bool& http_failure
-		//const LLDate& last_modified
 		);
 	//void handleResponseFromServer(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
 
@@ -162,8 +168,6 @@ public:
 	// functions to quickly find if somebody has the proper flag
 	//
 
-	// Does the avatar have any flag? Use getAgentFlag() to get which flag.
-	bool isSpecial(const LLUUID& avatar_id) const;
 	// Is the avatar a Viewer Developer?
 	bool isDeveloper(const LLUUID& avatar_id);
 	// Is the avatar a Support Team Member?
@@ -178,15 +182,12 @@ public:
 	bool isMuted(const LLUUID& avatar_id);
 	// Is the avatar denied access to the viewer?
 	bool isBanned(const LLUUID& avatar_id);
-	// Has the avatar earned a special title?
-	bool hasTitle(const LLUUID& avatar_id);
 
 	// Returns the lockdown UUID constant as a string
 	static LLUUID PVData::getLockDownUUID();
 
 	// This returns the avatar's name in the format defined by the viewer settings.
 	static std::string getPreferredName(const LLAvatarName& av_name);
-	static std::string getPreferredName(const LLUUID& avatar_lluuid);
 	// Returns whether or not the user can use our viewer
 	bool isAllowedToLogin(const LLUUID& avatar_id);
 
@@ -212,6 +213,11 @@ public:
 
 	// Get a color for the specified agent (UUID version)
 	static LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it);
+
+	// some color helpers
+	LLColor4 Hex2Color4(const std::string color) const;
+	LLColor4 Hex2Color4(int hexValue) const;
+
 private:
 
 	// This processes the main data
@@ -284,26 +290,13 @@ private:
 	// Minimum viewer version allowed to be used
 	str_llsd_pairs minimum_version_;
 
-	// agents <-> role associations
-	typedef std::map<LLUUID, S32> flag_db_t;
-	//flag_db_t mAgentAccess;
-
-	// agents <-> title associations
-	typedef std::map<LLUUID, std::string> agent_data_t;
-	// agent_data_t mAgentTitles;
-
 	// This contains the UUID of our support group
 	std::set<LLUUID> support_group_;
 
 	void handleDataFailure();
 	void handleAgentsFailure();
 
-	LLFrameTimer mTipCycleTimer; // <polarity/>	
+	LLFrameTimer mTipCycleTimer; // <polarity/>
 								 // Get new progress tip if enough time elapsed since the last time this was called
 	std::string last_login_tip;
-
-public:
-	// agents <-> color association	s
-	typedef std::map<LLUUID, LLColor4> agent_color_map_t;
-	//agent_color_map_t mAgentColors;
 };
