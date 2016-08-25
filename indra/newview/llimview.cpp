@@ -74,7 +74,6 @@
 #include "rlvcommon.h"
 // [/RLVa:KB]
 
-#include "pvdata.h" // for getPreferredName()
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
 const static std::string NEARBY_P2P_BY_OTHER("nearby_P2P_by_other");
@@ -129,7 +128,7 @@ void process_dnd_im(const LLSD& notification)
         LLAvatarName av_name;
         if (LLAvatarNameCache::get(data["FROM_ID"], &av_name))
         {
-            name = PVData::getPreferredName(av_name);
+            name = av_name.getDisplayName();
         }
 		
         
@@ -1468,13 +1467,9 @@ void LLIMModel::sendMessage(const std::string& utf8_text,
 	   (other_participant_id.notNull()))
 	{
 		// Do we have to replace the /me's here?
-		//std::string from;
-		// TODO PLR: Do we need this?
-		//LLAgentUI::buildFullname(from);
-		LLAvatarName av_name;
-		LLAvatarNameCache::get(gAgent.getID(), &av_name);
-		// Note: getPreferredName will return username if all else fails
-		LLIMModel::getInstance()->addMessage(im_session_id, PVData::getPreferredName(av_name), gAgentID, utf8_text);
+		std::string from;
+		LLAgentUI::buildFullname(from);
+		LLIMModel::getInstance()->addMessage(im_session_id, from, gAgentID, utf8_text);
 
 		//local echo for the legacy communicate panel
 		std::string history_echo;
@@ -2143,7 +2138,7 @@ void LLOutgoingCallDialog::show(const LLSD& key)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(callee_id, &av_name))
 		{
-			final_callee_name = PVData::getPreferredName(av_name);
+			final_callee_name = av_name.getDisplayName();
 			title = av_name.getCompleteName();
 		}
 	}
@@ -2677,15 +2672,12 @@ void LLIMMgr::addMessage(
 	}
 
 	bool new_session = !hasSession(new_session_id);
-	LLAvatarName av_name;
-	bool got_name = LLAvatarNameCache::get(other_participant_id, &av_name);
-
 	if (new_session)
 	{
-
-		if (got_name && !name_is_setted)
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
 		{
-			fixed_session_name = PVData::getPreferredName(av_name);
+			fixed_session_name = av_name.getDisplayName();
 		}
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
@@ -2737,7 +2729,7 @@ void LLIMMgr::addMessage(
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
-		LLIMModel::instance().addMessage(new_session_id, PVData::getPreferredName(av_name), other_participant_id, msg);
+		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
 
 	// Open conversation floater if offline messages are present
@@ -3064,7 +3056,7 @@ void LLIMMgr::inviteToSession(
 						LLAvatarName av_name;
 						if (LLAvatarNameCache::get(caller_id, &av_name))
 						{
-							fixed_session_name = PVData::getPreferredName(av_name);
+							fixed_session_name = av_name.getDisplayName();
 						}
 					}
 					LLIMModel::getInstance()->newSession(session_id, fixed_session_name, IM_NOTHING_SPECIAL, caller_id, false, false);
@@ -3393,7 +3385,7 @@ void LLIMMgr::noteOfflineUsers(
 			{
 				LLUIString offline = LLTrans::getString("offline_message");
 				// Use display name only because this user is your friend
-				offline.setArg("[NAME]", PVData::getPreferredName(av_name));
+				offline.setArg("[NAME]", av_name.getDisplayName());
 				im_model.proccessOnlineOfflineNotification(session_id, offline);
 			}
 		}
