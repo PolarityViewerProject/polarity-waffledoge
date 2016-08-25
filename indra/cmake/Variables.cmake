@@ -205,7 +205,6 @@ add_definitions(
   /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
   /DUSE_AVX=${USE_AVX}
   /DUSE_LTO=${USE_LTO}
-  /DUSE_SSE3=${USE_SSE3}
   )
 
 MESSAGE("======== *FEATURES* ========")
@@ -218,12 +217,19 @@ MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
 MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
 if(USE_AVX)
-MESSAGE("Minimum Optimization:              AVX")
-else(USE_SSE3)
-MESSAGE("Minimum Optimization:              SSE3")
+MESSAGE("Preferred SIMD intrinsics:         AVX")
+endif()
+if(USE_SSE3)
+MESSAGE("Preferred SIMD intrinsics:         SSE3")
+endif()
+if(RESTRICT_SSE2)
+MESSAGE("Preferred SIMD intrinsics:         SSE2")
+endif()
+if(RESTRICT_PURE)
+MESSAGE("Preferred SIMD intrinsics:         PURE")
 else()
-MESSAGE("Minimum Optimization:              SSE2")
-endif(USE_AVX)
+MESSAGE("Preferred SIMD intrinsics:         Any")
+endif()
 MESSAGE("OpenMP:                            ${OMP_ENABLE}")
 MESSAGE("OpenMP Image worker:               ${OMP_IMAGEWORKER}")
 MESSAGE("OpenMP Manual Threading:           ${OMP_MANUAL_THREADS}")

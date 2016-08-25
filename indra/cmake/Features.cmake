@@ -24,8 +24,11 @@ option(GL_TRANSFORM_FEEDBACK_BUFFER "Use OpenGL Transform Feedback Buffer" OFF)
 set(COMPILER_JOBS "8" CACHE STRING "Amount of simultaneous compiler jobs")
 
 # Optimizations
-option(USE_AVX "Use the AVX Instruction Set whenever possible" OFF)
-option(USE_SSE3 "Use the SSE3 Instruction Set whenever possible" ON)
+# Note: Default is to use any available. Performance may vary on different CPUs.
+option(USE_AVX "[GLOBAL]Use AVX Instrinsics whenever possible" OFF)
+option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" OFF)
+option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
+option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 
 # Multi-threading
 option(OMP_ENABLE "Multi-threading using OpenMP (up to v2.0 on Windows)" OFF)
@@ -34,10 +37,6 @@ option(OMP_MANUAL_THREADS "Use Hard-coded amount of threads." OFF)
 
 # Libraries
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
-
-if(USE_AVX)
- set(USE_SSE3 OFF CACHE BOOL "Use the SSE3 Instruction Set whenever possible" FORCE)
-endif(USE_AVX)
 
 option(RELEASE_BUILD "Used to help configure release binaries" OFF)
 # </polarity>

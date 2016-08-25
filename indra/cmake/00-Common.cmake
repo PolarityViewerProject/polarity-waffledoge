@@ -124,12 +124,24 @@ if (WINDOWS)
   /DGLM_FORCE_SSE2=0
   /DGLM_FORCE_AVX=0
   )
-  else()
+  else(RESTRICT_SSE2)
   add_compile_options(
   /DGLM_FORCE_SSE3=0
   /DGLM_FORCE_SSE2=1
   /DGLM_FORCE_AVX=0
   )
+  else(RESTRICT_PURE)
+  add_compile_options(
+  /DGLM_FORCE_SSE3=0
+  /DGLM_FORCE_SSE2=0
+  /DGLM_FORCE_AVX=0
+  /DGLM_FORCE_PURE=1
+  )
+  else() # The default configuration
+  unset(GLM_FORCE_SSE3)
+  unset(GLM_FORCE_SSE2)
+  unset(GLM_FORCE_AVX)
+  unset(GLM_FORCE_PURE)
   endif(USE_AVX)
 
   if (USE_LTO)
