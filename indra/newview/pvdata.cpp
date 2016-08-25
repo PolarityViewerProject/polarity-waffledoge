@@ -97,14 +97,11 @@ void downloadComplete( LLSD const &aData, std::string const &aURL )
 	LLSD data = aData;
 	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
 
-	// TODO: re-implement last-modified support
-	//PVData::getInstance()->handleResponseFromServer( data, aURL,true, lastModified);
 	PVData::getInstance()->handleResponseFromServer(data, aURL, true /*,lastModified*/);
 }
 
 void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::string const &aFilename  )
 {
-	//LL_DEBUGS() << aData << LL_ENDL;
 	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
 	LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD( aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ] );
 
@@ -120,13 +117,11 @@ void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::st
 		LL_INFOS("PVData") << "Got [304] not modified for " << aURL << LL_ENDL;
 		return;
 	}
-
 	if (rawData.size() <= 0)
 	{
 		LL_WARNS("PVData") << "Received zero data for " << aURL << LL_ENDL;
 		return;
 	}
-
 }
 
 void downloadError( LLSD const &aData, std::string const &aURL )
@@ -270,18 +265,13 @@ bool PVData::canParse(size_t& status_container) const
 		break;
 		case PARSING:
 		LL_WARNS("PVData") << "Parser is already running, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		//safe_to_parse = false;
 		break;
 		case OK:
 		LL_WARNS("PVData") << "Parser already completed, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		//safe_to_parse = false;
 		break;
-		// TODO: Handle the other possible errors here once the checks for those have been implemented.
 		default:
 		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << agents_parse_status_ << "')" << LL_ENDL;
-		// TODO: Make sure this actually sets the variable...
 		status_container = UNDEFINED;
-		//safe_to_parse = false;
 		break;
 	}
 
@@ -302,19 +292,15 @@ bool PVData::canDownload(size_t& status_container) const
 		//safe = false;
 		break;
 	case OK:
-		//LL_WARNS("PVData") << "Already downloaded, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
 		safe = true;
 		break;
 	case DOWNLOAD_FAILURE:
 		LL_WARNS("PVData") << "Failed to download and will retry later (STATUS='" << status_container << "')" << LL_ENDL;
 		safe = true;
 		break;
-		// TODO: Handle the other possible errors here once the checks for those have been implemented.
 	default:
 		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << agents_parse_status_ << "')" << LL_ENDL;
-		// TODO: Make sure this actually sets the variable...
 		status_container = UNDEFINED;
-		//safe = false;
 		break;
 	}
 
@@ -350,16 +336,6 @@ void PVData::handleAgentsFailure()
 
 void PVData::parsePVData(const LLSD& data_input)
 {
-	/*
-		TODO 1:	Keep a copy of data_input in memory until we segment everything into dedicated memory blobs
-		TODO 2:	store section LLSD blobs as class member variables
-				i.e:
-				'const LLSD& events = data_input["EventsMOTD"];'
-				becomes
-				'PVData::EventsMOTD = data_input["EventsMOTD"];'
-		TODO 3:	Revert custom maps into LLSD blobs if performance allows it.
-	*/
-
 	// Make sure we don't accidentally parse multiple times. Remember to reset data_parse_status_ when parsing is needed again.
 	if (!canParse(data_parse_status_))
 	{
@@ -498,8 +474,6 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 			{
 				LL_INFOS("PVData") << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
 				last_login_tip = return_tip;
-				//gAgent.mMOTD.assign(return_tip);
-				//setMessage(return_tip);
 			}
 			mTipCycleTimer.reset();
 		}
@@ -528,7 +502,8 @@ void PVData::parsePVAgents(const LLSD& data_input)
 	if (data_input.has("SpecialAgentsList"))
 	{
 		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
-		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap(); uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
+		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
+			 uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
 			Dump("SpecialAgentsList", special_agents_llsd);
 			// <key>UUID</key>, which declares the agent's data block
@@ -536,26 +511,21 @@ void PVData::parsePVAgents(const LLSD& data_input)
 			LLUUID::parseUUID(uuid_iterator->first, &uuid);
 
 			const LLSD& data_map = uuid_iterator->second;
-			std::stringstream str;
-			LLSDSerialize::toPrettyXML(special_agents_llsd, str);
 			if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
 			{
 				pv_agent_access_[uuid] = data_map["Access"].asInteger();
-
 			}
-			if (data_map.has("HexColor")/* && data_map["HexColor"].type() == LLSD::TypeString*/)
+			if (data_map.has("HexColor") && data_map["HexColor"].type() == LLSD::TypeString)
 			{
 				pv_agent_color_llcolor4[uuid] = Hex2Color4(data_map["HexColor"].asString());
 			}
 			if (data_map.has("Title") && data_map["Title"].type() == LLSD::TypeString)
 			{
 				pv_agent_title_[uuid] = data_map["Title"].asString();
-
 			}
 			if (data_map.has("BanReason") && data_map["BanReason"].type() == LLSD::TypeString)
 			{
 				ban_reason_[uuid] = data_map["BanReason"].asString();
-
 			}
 		}
 
@@ -673,7 +643,6 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		return false;
 	}
 	S32 av_flags = getAgentFlags(avatar_id);
-	//LL_WARNS() << "AGENT_FLAGS = " << av_flag << LL_ENDL;
 	auto compiled_channel = LLVersionInfo::getCompiledChannel();
 	if (av_flags & FLAG_USER_BANNED)
 	{
@@ -926,14 +895,12 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 		std::ostringstream string_stream;
 		string_stream << format(string % ',', flags_list);
 		flags_string = string_stream.str();
-		// LL_WARNS() << "User-friendly flags for " << avatar_id << ": '" << flags_string << "'" << LL_ENDL;
 	}
 	return flags_string;
 }
 
 void PVData::startRefreshTimer()
 {
-	//LL_INFOS("PVData") << "No forced refresh" << LL_ENDL;
 	if (!pvdata_refresh_timer_.getStarted())
 	{
 		LL_INFOS("PVData") << "Starting PVData refresh timer" << LL_ENDL;
@@ -1014,7 +981,6 @@ void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
 	{
 		// Nope.
 	}
-
 }
 
 void PVData::Dump(const std::string name, const LLSD& map)
@@ -1162,22 +1128,17 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	{
 		return_color = default_color;
 	}
-
 	return return_color;
 }
 
 LLColor4 PVData::Hex2Color4(const std::string color) const
 {
 	return instance().Hex2Color4(std::stoul(color, nullptr, 16));
-	//return LLColor4(Hex2RGB_R / 255.0, Hex2RGB_G / 255.0, Hex2RGB_B / 255.0);
-
 }
 LLColor4 PVData::Hex2Color4(int hexValue) const
 {
 	auto r = ((hexValue >> 16) & 0xFF) / 255.0f;  // Extract the RR byte
 	auto g = ((hexValue >> 8) & 0xFF) / 255.0f;   // Extract the GG byte
 	auto b = ((hexValue) & 0xFF) / 255.0f;        // Extract the BB byte
-	LLColor4 result = LLColor4(r, g, b, 1.0f);
-	LL_WARNS() << "NEW COLOR = " << result << LL_ENDL;
-	return result;
+	return LLColor4(r, g, b, 1.0f);
 }
