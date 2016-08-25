@@ -1202,7 +1202,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>Socks</string>
+      <string>None</string>
     </map>
     <key>Socks5ProxyHost</key>
     <map>
