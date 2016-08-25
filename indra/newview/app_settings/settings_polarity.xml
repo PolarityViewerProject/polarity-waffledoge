@@ -1065,7 +1065,7 @@
     <key>PVRender_KeepSettingsOnGPUChange</key>
     <map>
       <key>Comment</key>
-      <string>Keep graphicsl preferences when GPU changes</string>
+      <string>Keep graphical preferences when GPU changes</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
