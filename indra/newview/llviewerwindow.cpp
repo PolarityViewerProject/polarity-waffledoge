@@ -1744,11 +1744,14 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	gGL.init() ;
 
 	if (LLFeatureManager::getInstance()->isSafe()
-	//	|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
-	//	|| (gSavedSettings.getString("LastGPUString") != LLFeatureManager::getInstance()->getGPUString())
+		|| (gSavedSettings.getS32("LastFeatureVersion") != LLFeatureManager::getInstance()->getVersion())
+		|| (gSavedSettings.getString("LastGPUString") != LLFeatureManager::getInstance()->getGPUString())
 		|| (gSavedSettings.getBOOL("ProbeHardwareOnStartup")))
 	{
-		//LLFeatureManager::getInstance()->applyRecommendedSettings();
+		//if (gSavedSettings.getString("LastGPUString") == "" || gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") < 1)
+		{
+			LLFeatureManager::getInstance()->applyRecommendedSettings();
+		}
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 

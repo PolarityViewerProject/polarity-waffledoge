@@ -424,7 +424,7 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
-		else if (!lastGPU.empty() && (lastGPU != thisGPU) && !gSavedSettings.getBOOL("PVRender_KeepSettingsOnGPUChange"))
+		else if ((!lastGPU.empty() && (lastGPU != thisGPU) && (gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") > static_cast<S32>(0))))
 		{
 			LLSD subs;
 			subs["LAST_GPU"] = lastGPU;
@@ -3764,7 +3764,7 @@ bool callbackConfirmDisplayPreferencesReset(const LLSD& notification, const LLSD
 		break;
 	default:
 		// Don't ask again
-		gSavedSettings.setBOOL("PVRender_KeepSettingsOnGPUChange", TRUE);
+		gSavedSettings.setS32("PVRender_KeepSettingsOnGPUChange", 1);
 		break;
 	}
 	return false;

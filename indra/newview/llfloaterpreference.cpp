@@ -1208,6 +1208,9 @@ void LLFloaterPreference::refreshEnabledState()
 	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLRadioGroup* radio_reflection_detail = getChild<LLRadioGroup>("ReflectionDetailRadio");
 	
+	// <polarity> Hack to fix wrong value type (How this happens, I have no idea.)
+	gSavedSettings.setU32("RenderReflectionDetail", static_cast<U32>(ctrl_reflections->getValue().asInteger()));
+
 // [RLVa:KB] - Checked: 2013-05-11 (RLVa-1.4.9)
 	if (rlv_handler_t::isEnabled())
 	{
@@ -1438,7 +1441,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderReflectionDetail"))
 	{
 		ctrl_reflections->setEnabled(FALSE);
-		ctrl_reflections->setValue(FALSE);
+		ctrl_reflections->setValue(0);
 	}
 	
 	// disabled av
