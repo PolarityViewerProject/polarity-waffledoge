@@ -1026,18 +1026,11 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	if (instance().pv_agent_color_llcolor4.find(avatar_id) != instance().pv_agent_color_llcolor4.end())
 	{
 		pvdata_color = instance().pv_agent_color_llcolor4[avatar_id];
-		// test
-		return pvdata_color;
 	}
 	else
 	{
 		if (instance().isLinden(avatar_id, av_flags))
 		{
-			// TODO: Make sure we only hit this code path once per Linden (make sure they get added properly)
-			// This means we need to save the linden list somewhere probably when refreshing pvdata, or just use
-			// an entirely different list. Another solution (probably the most lightweight one) would be to check
-			// if a custom title has been attributed to them here instead of down there.
-			// for now, linden color will override everything. I'll fix it later.
 			return linden_color.get();
 		}
 		if (av_flags)
