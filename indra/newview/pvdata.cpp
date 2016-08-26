@@ -528,7 +528,6 @@ void PVData::parsePVAgents(const LLSD& data_input)
 				ban_reason_[uuid] = data_map["BanReason"].asString();
 			}
 		}
-
 	}
 	// TODO PLVR: Find a way to dump these because they aren't LLSD anymore
 	//Dump("PVAgents (AgentAccess)", (LLSD)pv_agent_access_);
