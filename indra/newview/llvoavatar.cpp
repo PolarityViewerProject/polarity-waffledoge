@@ -715,7 +715,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameArc(0),
 	mNameArcColor(LLColor4::white),
 	// </FS:Ansariel>
-	mComplexityString(),
+	mShowComplexityString(false),
 	mNameAway(false),
 	mNameDoNotDisturb(false),
 	mNameMute(false),
@@ -2861,7 +2861,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	// <polarity> Show ARW in nametag options (for Jelly Dolls)
 	// Inspired by Ansariel's implementation.
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
-	std::string complexity_string;
+	static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
 	// create a snapshot of the current complexity to determine if the nametag should update.
 	U32 complexity(0);
 	if (canShowARWTag())
@@ -2906,7 +2906,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
 		|| complexity != mNameArc
 		|| complexity_color != mNameArcColor
-		|| complexity_string != mComplexityString
+		|| show_complexity_string != mShowComplexityString
 		// </FS:Ansariel>
 		|| name_tag_color != mColorLast
 		|| is_typing != mTypingLast)
@@ -3022,17 +3022,15 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
-		static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
-		static std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
+		std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
 		if (canShowARWTag())
 		{
-			
+			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
 			LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
 
 			LLStringUtil::format_map_t label_args;
 			label_args["COMPLEXITY"] = complexity_string;
-			mComplexityString = complexity_string;
 			addNameTagLine(PVCommon::format_string(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
 		}
 		// </FS:Ansariel>
@@ -3054,6 +3052,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameArc = complexity;
 		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
+		mShowComplexityString = show_complexity_string;
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}

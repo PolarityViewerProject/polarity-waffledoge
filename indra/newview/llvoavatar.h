@@ -910,7 +910,7 @@ private:
 	U32				mNameArc;
 	LLColor4		mNameArcColor;
 	// </FS:Ansariel>
-	std::string		mComplexityString;
+	bool			mShowComplexityString;
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)
