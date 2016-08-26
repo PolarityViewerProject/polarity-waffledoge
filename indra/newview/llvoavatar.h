@@ -30,7 +30,7 @@
 
 #include <map>
 #include <deque>
-#include <string>
+//#include <string>
 #include <vector>
 
 #include <boost/signals2/trackable.hpp>
@@ -617,6 +617,7 @@ public:
 	static BOOL 	isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 private:
 	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
+	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 
 	//--------------------------------------------------------------------
@@ -909,6 +910,7 @@ private:
 	U32				mNameArc;
 	LLColor4		mNameArcColor;
 	// </FS:Ansariel>
+	std::string		mComplexityString;
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

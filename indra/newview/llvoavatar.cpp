@@ -112,11 +112,12 @@
 #include "llvoicevisualizer.h" // Ventrella
 
 #include "lldebugmessagebox.h"
-#include "llsdutil.h"
+//#include "llsdutil.h"
 #include "llscenemonitor.h"
 #include "llsdserialize.h"
 
 #include "pvcommon.h"
+//#include "llsidepanelappearance.h"
 
 #ifdef PVDATA_COLORIZER
 #include "pvdata.h"
@@ -201,6 +202,8 @@ const F32 BUBBLE_CHAT_TIME = CHAT_FADE_TIME * 3.f;
 const F32 NAMETAG_UPDATE_THRESHOLD = 0.3f;
 const F32 NAMETAG_VERTICAL_SCREEN_OFFSET = 25.f;
 const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
+
+const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 
 enum ERenderName
 {
@@ -681,8 +684,8 @@ static F32 calc_bouncy_animation(F32 x);
 // LLVOAvatar()
 //-----------------------------------------------------------------------------
 LLVOAvatar::LLVOAvatar(const LLUUID& id,
-					   const LLPCode pcode,
-					   LLViewerRegion* regionp) :
+	const LLPCode pcode,
+	LLViewerRegion* regionp) :
 	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
 	mSpecialRenderMode(0),
@@ -690,7 +693,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mAttachmentSurfaceArea(-1.f),
 	mReportedVisualComplexity(-1),
 	mTurning(FALSE),
-	mLastSkeletonSerialNum( 0 ),
+	mLastSkeletonSerialNum(0),
 	mIsSitting(FALSE),
 	mTimeVisible(),
 	mTyping(FALSE),
@@ -698,11 +701,11 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mMeshValid(FALSE),
 	mVisible(FALSE),
 	mWindFreq(0.f),
-	mRipplePhase( 0.f ),
+	mRipplePhase(0.f),
 	mBelowWater(FALSE),
 	mLastAppearanceBlendTime(0.f),
 	mAppearanceAnimating(FALSE),
-    mNameIsSet(false),
+	mNameIsSet(false),
 	// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
 	mNameFirstname(),
 	mNameLastname(),
@@ -712,6 +715,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameArc(0),
 	mNameArcColor(LLColor4::white),
 	// </FS:Ansariel>
+	mComplexityString(),
 	mNameAway(false),
 	mNameDoNotDisturb(false),
 	mNameMute(false),
@@ -2857,6 +2861,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	// <polarity> Show ARW in nametag options (for Jelly Dolls)
 	// Inspired by Ansariel's implementation.
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
+	std::string complexity_string;
 	// create a snapshot of the current complexity to determine if the nametag should update.
 	U32 complexity(0);
 	if (canShowARWTag())
@@ -2865,9 +2870,13 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		complexity = mVisualComplexity;
 		// Color the complexity value based on how bad it is
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-		F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
-		F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
-		complexity_color.set(red_level, green_level, 0.f, 1.f);
+		if (max_render_cost != 0)
+		{
+			// FIXME: For some god forsaken reason, the color curve does not update when max_render_cost changes. Math isn't my thing.
+			F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
+			F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
+			complexity_color.set(red_level, green_level, 0.f, 1.f);
+		}
 	}
 	// </polarity>
 
@@ -2888,15 +2897,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		// </FS:Ansariel>
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
-		|| is_away != mNameAway 
-		|| is_do_not_disturb != mNameDoNotDisturb 
+		|| is_away != mNameAway
+		|| is_do_not_disturb != mNameDoNotDisturb
 		|| is_muted != mNameMute
-		|| is_appearance != mNameAppearance 
+		|| is_appearance != mNameAppearance
 		|| is_friend != mNameFriend
 		|| is_cloud != mNameCloud
 		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
 		|| complexity != mNameArc
 		|| complexity_color != mNameArcColor
+		|| complexity_string != mComplexityString
 		// </FS:Ansariel>
 		|| name_tag_color != mColorLast
 		|| is_typing != mTypingLast)
@@ -3013,16 +3023,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
 		static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
-		static const std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
+		static std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
 		if (canShowARWTag())
 		{
-			std::string complexity_string;
+			
 			LLLocale locale(LLLocale::USER_LOCALE);
 			LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
 
 			LLStringUtil::format_map_t label_args;
 			label_args["COMPLEXITY"] = complexity_string;
-
+			mComplexityString = complexity_string;
 			addNameTagLine(PVCommon::format_string(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
 		}
 		// </FS:Ansariel>
@@ -3033,16 +3043,16 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameAppearance = is_appearance;
 		mNameFriend = is_friend;
 		mNameCloud = is_cloud;
-		mTypingLast = is_typing;
-		mTitle = title ? title->getString() : "";
-		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
-		mNameArc = complexity;
-		mNameArcColor = complexity_color;
-		// </FS:Ansariel>
 		mColorLast = name_tag_color;
+		mTitle = title ? title->getString() : "";
+		mTypingLast = is_typing;
 		// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
 		mNameFirstname = firstname->getString();
 		mNameLastname = lastname->getString();
+		// </FS:Ansariel>
+		// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
+		mNameArc = complexity;
+		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
@@ -3238,17 +3248,17 @@ LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id, const bool is_friend)
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(av_id, &av_name) && av_name.isDisplayNameDefault())
 		{
-			color_name = LLUIColorTable::instance().getColor("NameTagMatch");
+			color_name = LLUIColorTable::getInstance()->getColor("NameTagMatch");
 		}
 		else
 		{
-			color_name = LLUIColorTable::instance().getColor("NameTagMismatch");
+			color_name = LLUIColorTable::getInstance()->getColor("NameTagMismatch");
 		}
 	}
 	else
 	{
 		// ...not using display names
-		color_name = LLUIColorTable::instance().getColor("NameTagLegacy");
+		color_name = LLUIColorTable::getInstance()->getColor("NameTagLegacy");
 	}
 	return PVData::instance().getColor(av_id, color_name, is_friend);
 }
@@ -3281,6 +3291,11 @@ bool LLVOAvatar::isVisuallyMuted()
 
 	if (!isSelf())
 	{
+		// <FS:Ansariel> FIRE-11783: Always visually mute avatars that are muted
+		if (isInMuteList())
+		{
+			return true;
+		}
 		static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions", 0);
 		if (render_auto_mute_functions)		// Hacky debug switch for developing feature
 		{
@@ -3295,7 +3310,6 @@ bool LLVOAvatar::isVisuallyMuted()
 
 			static LLCachedControl<U32> max_attachment_bytes(gSavedSettings, "RenderAutoMuteByteLimit", 0);
 			static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 0.0);
-			static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
 
 			if (mVisuallyMuteSetting == ALWAYS_VISUAL_MUTE)
 			{	// Always want to see this AV as an impostor
@@ -3315,7 +3329,7 @@ bool LLVOAvatar::isVisuallyMuted()
 				}
 				else
 				{	// Determine if visually muted or not
-
+					static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
 					U32 max_cost = (U32) (max_render_cost*(LLVOAvatar::sLODFactor+0.5));
 
 					muted = (mAttachmentGeometryBytes > max_attachment_bytes && max_attachment_bytes > 0) ||
@@ -3352,7 +3366,7 @@ bool LLVOAvatar::isVisuallyMuted()
 		}
 	}
 
-	return isInMuteList() || muted;
+	return muted;
 }
 
 void	LLVOAvatar::forceUpdateVisualMuteSettings()
@@ -3724,7 +3738,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			}
 			LLVector3 velDir = getVelocity();
 			velDir.normalize();
-			static LLCachedControl<bool> turn_around_auto(gSavedSettings, "PVMovement_TurnAroundWhenWalkingBackward", TRUE);
+			static LLCachedControl<bool> turn_around_auto(gSavedSettings, "PVMovement_TurnAroundWhenWalkingBackward", true);
 			//if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
 			if((!turn_around_auto) && (mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end()))
 			{
@@ -6813,8 +6827,8 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	// save one function call
-	auto complexitylimit = gSavedSettings.getU32("RenderAutoMuteRenderWeightLimit");
-	if (complexitylimit > 0 && mVisualComplexity >= complexitylimit)
+	static U32 max_render_cost = gSavedSettings.getU32("RenderAutoMuteRenderWeightLimit");
+	if (max_render_cost > 0 && mVisualComplexity > max_render_cost)
 	{
 		return true;
 	}
@@ -8397,7 +8411,7 @@ void LLVOAvatar::updateFreezeCounter(S32 counter)
 
 BOOL LLVOAvatar::updateLOD()
 {
-	if (isImpostor())
+	if (isImpostor() && 0 != mDrawable->getNumFaces() && mDrawable->getFace(0)->hasGeometry())
 	{
 		return TRUE;
 	}
@@ -8499,65 +8513,132 @@ void LLVOAvatar::getImpostorValues(LLVector4a* extents, LLVector3& angle, F32& d
 
 void LLVOAvatar::idleUpdateRenderCost()
 {
-	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-	static const U32 ARC_LIMIT = 20000;
+    // Render Complexity
+	calculateUpdateRenderCost(); // Update mVisualComplexity if needed	
 
-	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES))
-	{ //set debug text to attachment geometry bytes here so render cost will override
-		setDebugText(llformat("%.1f KB, %.2f m^2", mAttachmentGeometryBytes/1024.f, mAttachmentSurfaceArea));
-	}
-
-	if (!gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME) && max_render_cost == 0)
-	{
-		return;
-	}
-
-	calculateUpdateRenderCost();				// Update mVisualComplexity if needed
-	
 	if (gPipeline.hasRenderDebugMask(LLPipeline::RENDER_DEBUG_SHAME))
 	{
-		std::string viz_string = LLVOAvatar::rezStatusToString(getRezzedStatus());
-		setDebugText(llformat("%s %d", viz_string.c_str(), mVisualComplexity));
-		F32 green = 1.f-llclamp(((F32) mVisualComplexity-(F32)ARC_LIMIT)/(F32)ARC_LIMIT, 0.f, 1.f);
-		F32 red = llmin((F32) mVisualComplexity/(F32)ARC_LIMIT, 1.f);
-		mText->setColor(LLColor4(red,green,0,1));
+		std::string info_line;
+		F32 red_level;
+		F32 green_level;
+		LLColor4 info_color;
+		LLFontGL::StyleFlags info_style;
+		
+		if ( !mText )
+		{
+			initHudText();
+			mText->setFadeDistance(20.0, 5.0); // limit clutter in large crowds
+		}
+		else
+		{
+			mText->clearString(); // clear debug text
+		}
+
+		/*
+		 * NOTE: the logic for whether or not each of the values below
+		 * controls muting MUST match that in the isVisuallyMuted and isTooComplex methods.
+		 */
+
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
+		info_line = llformat("%d Complexity", mVisualComplexity);
+
+		if (max_render_cost != 0) // zero means don't care, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp(((F32) mVisualComplexity-(F32)max_render_cost)/(F32)max_render_cost, 0.f, 1.f);
+			red_level   = llmin((F32) mVisualComplexity/(F32)max_render_cost, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mVisualComplexity > max_render_cost
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+		}
+		else
+		{
+			info_color.set(LLColor4::grey);
+			info_style = LLFontGL::NORMAL;
+		}
+		mText->addLine(info_line, info_color, info_style);
+
+		// Visual rank
+		info_line = llformat("%d rank", mVisibilityRank);
+		// Use grey for imposters, white for normal rendering or no impostors
+		info_color.set(isImpostor() ? LLColor4::grey : LLColor4::white);
+		info_style = LLFontGL::NORMAL;
+		mText->addLine(info_line, info_color, info_style);
+
+		// Attachment Surface Area
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
+		info_line = llformat("%.0f m^2", mAttachmentSurfaceArea);
+
+		if (max_render_cost != 0 && max_attachment_area != 0) // zero means don't care, so don't bother coloring based on this
+		{
+			green_level = 1.f-llclamp((mAttachmentSurfaceArea-max_attachment_area)/max_attachment_area, 0.f, 1.f);
+			red_level   = llmin(mAttachmentSurfaceArea/max_attachment_area, 1.f);
+			info_color.set(red_level, green_level, 0.0, 1.0);
+			info_style = (  mAttachmentSurfaceArea > max_attachment_area
+						  ? LLFontGL::BOLD : LLFontGL::NORMAL );
+
+		}
+		else
+		{
+			info_color.set(LLColor4::grey);
+			info_style = LLFontGL::NORMAL;
+		}
+		mText->addLine(info_line, info_color, info_style);
+
+		updateText(); // corrects position
 	}
 }
+
 
 
 // Calculations for mVisualComplexity value
 void LLVOAvatar::calculateUpdateRenderCost()
 {
-	static const U32 ARC_BODY_PART_COST = 200;
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
+	static const U32 COMPLEXITY_BODY_PART_COST = 200;
 
 	// Diagnostic list of all textures on our avatar
-	static std::set<LLUUID> all_textures;
+	// <FS:Ansariel> Disable useless diagnostics
+	//static std::set<LLUUID> all_textures;
 
 	if (mVisualComplexityStale)
 	{
-		mVisualComplexityStale = FALSE;
-		U32 cost = 0;
+		U32 cost = VISUAL_COMPLEXITY_UNKNOWN;
 		LLVOVolume::texture_cost_t textures;
 
 		for (U8 baked_index = 0; baked_index < BAKED_NUM_INDICES; baked_index++)
 		{
-		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict = LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
+		    const LLAvatarAppearanceDictionary::BakedEntry *baked_dict
+				= LLAvatarAppearanceDictionary::getInstance()->getBakedTexture((EBakedTextureIndex)baked_index);
 			ETextureIndex tex_index = baked_dict->mTextureIndex;
 			if ((tex_index != TEX_SKIRT_BAKED) || (isWearingWearableType(LLWearableType::WT_SKIRT)))
 			{
 				if (isTextureVisible(tex_index))
 				{
-					cost +=ARC_BODY_PART_COST;
+					cost +=COMPLEXITY_BODY_PART_COST;
 				}
 			}
 		}
+        LL_DEBUGS("ARCdetail") << "Avatar body parts complexity: " << cost << LL_ENDL;
 
 
-		for (attachment_map_t::const_iterator iter = mAttachmentPoints.begin(); 
-			 iter != mAttachmentPoints.end();
-			 ++iter)
+		for (attachment_map_t::const_iterator attachment_point = mAttachmentPoints.begin(); 
+			 attachment_point != mAttachmentPoints.end();
+			 ++attachment_point)
 		{
-			LLViewerJointAttachment* attachment = iter->second;
+			LLViewerJointAttachment* attachment = attachment_point->second;
+
+			// <FS:Ansariel> Possible crash fix
+			if (!attachment)
+			{
+				continue;
+			}
+			// </FS:Ansariel>
+
 			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 				 attachment_iter != attachment->mAttachedObjects.end();
 				 ++attachment_iter)
@@ -8572,7 +8653,12 @@ void LLVOAvatar::calculateUpdateRenderCost()
 						const LLVOVolume* volume = drawable->getVOVolume();
 						if (volume)
 						{
-							cost += volume->getRenderCost(textures);
+                            U32 attachment_total_cost = 0;
+                            U32 attachment_volume_cost = 0;
+                            U32 attachment_texture_cost = 0;
+                            U32 attachment_children_cost = 0;
+
+							attachment_volume_cost += volume->getRenderCost(textures);
 
 							const_child_list_t children = volume->getChildren();
 							for (const_child_list_t::const_iterator child_iter = children.begin();
@@ -8583,15 +8669,27 @@ void LLVOAvatar::calculateUpdateRenderCost()
 								LLVOVolume *child = dynamic_cast<LLVOVolume*>( child_obj );
 								if (child)
 								{
-									cost += child->getRenderCost(textures);
+									attachment_children_cost += child->getRenderCost(textures);
 								}
 							}
 
-							for (LLVOVolume::texture_cost_t::iterator iter = textures.begin(); iter != textures.end(); ++iter)
+							for (LLVOVolume::texture_cost_t::iterator volume_texture = textures.begin();
+								 volume_texture != textures.end();
+								 ++volume_texture)
 							{
 								// add the cost of each individual texture in the linkset
-								cost += iter->second;
+								attachment_texture_cost += volume_texture->second;
 							}
+
+                            attachment_total_cost = attachment_volume_cost + attachment_texture_cost + attachment_children_cost;
+                            LL_DEBUGS("ARCdetail") << "Attachment costs " << attached_object->getAttachmentItemID()
+                                                   << " total: " << attachment_total_cost
+                                                   << ", volume: " << attachment_volume_cost
+                                                   << ", textures: " << attachment_texture_cost
+                                                   << ", " << volume->numChildren()
+                                                   << " children: " << attachment_children_cost
+                                                   << LL_ENDL;
+                            cost += attachment_total_cost;
 						}
 					}
 				}
@@ -8601,6 +8699,8 @@ void LLVOAvatar::calculateUpdateRenderCost()
 		// Diagnostic output to identify all avatar-related textures.
 		// Does not affect rendering cost calculation.
 		// Could be wrapped in a debug option if output becomes problematic.
+		// <FS:Ansariel> Disable useless diagnostics
+		/*
 		if (isSelf())
 		{
 			// print any attachment textures we didn't already know about.
@@ -8616,28 +8716,61 @@ void LLVOAvatar::calculateUpdateRenderCost()
 				}
 			}
 
-			// print any avatar textures we didn't already know about
-		    for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-			 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
-				 ++iter)
-			{
-			    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
-				// TODO: MULTI-WEARABLE: handle multiple textures for self
-				const LLViewerTexture* te_image = getImage(iter->first,0);
-				if (!te_image)
-					continue;
-				LLUUID image_id = te_image->getID();
-				if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
-					continue;
-				if (all_textures.find(image_id) == all_textures.end())
-				{
-					LL_INFOS() << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
-					all_textures.insert(image_id);
-				}
-			}
+		//	// print any avatar textures we didn't already know about
+		//    for (LLAvatarAppearanceDictionary::Textures::const_iterator iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+		//	 iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		//		 ++iter)
+		//	{
+		//	    const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = iter->second;
+		//		// TODO: MULTI-WEARABLE: handle multiple textures for self
+		//		const LLViewerTexture* te_image = getImage(iter->first,0);
+		//		if (!te_image)
+		//			continue;
+		//		LLUUID image_id = te_image->getID();
+		//		if( image_id.isNull() || image_id == IMG_DEFAULT || image_id == IMG_DEFAULT_AVATAR)
+		//			continue;
+		//		if (all_textures.find(image_id) == all_textures.end())
+		//		{
+		//			LL_INFOS() << "local_texture: " << texture_dict->mName << ": " << image_id << LL_ENDL;
+		//			all_textures.insert(image_id);
+		//		}
+		//	}
+		//}
+		// </FS:Ansariel>
+		*/
+
+        if ( cost != mVisualComplexity )
+        {
+            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
+                                      << " complexity updated was " << mVisualComplexity << " now " << cost
+                                      << " reported " << mReportedVisualComplexity
+                                      << LL_ENDL;
+        }
+        else
+        {
+            LL_DEBUGS("AvatarRender") << "Avatar "<< getID()
+                                      << " complexity updated no change " << mVisualComplexity
+                                      << " reported " << mReportedVisualComplexity
+                                      << LL_ENDL;
+        }
+		mVisualComplexity = cost;
+		mVisualComplexityStale = false;
+
+        static LLCachedControl<U32> show_my_complexity_changes(gSavedSettings, "ShowMyComplexityChanges", 20);
+
+		/* Unused yet
+		// <FS:Ansariel> Show avatar complexity in appearance floater
+		if (isSelf() && show_my_complexity_changes)
+		{
+			LLAvatarRenderNotifier::getInstance()->updateNotificationAgent(mVisualComplexity);
 		}
 
-		mVisualComplexity = cost;
+		if (isSelf())
+		{
+			LLSidepanelAppearance::updateAvatarComplexity(mVisualComplexity);
+		}
+		*/
+		// </FS:Ansariel>
 	}
 }
 
@@ -8741,8 +8874,23 @@ BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U
 		return FALSE;
 	}
 
-	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
-			getImage(te, index)->getID() != IMG_DEFAULT);
+	// <FS:ND> getImage(te, index) can return 0 in some edge cases. Plus make this faster as it gets called frequently.
+
+	// return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
+	// 		getImage(te, index)->getID() != IMG_DEFAULT);
+
+
+	LLViewerTexture *pImage( getImage( te, index ) );
+
+	if( !pImage )
+	{
+		LL_WARNS() << "getImage( " << (S32)te << ", " << index << " ) returned invalid ptr" << LL_ENDL;
+		return FALSE;
+	}
+	// </FS:ND>
+
+	LLUUID const &id = pImage->getID();
+	return id != IMG_DEFAULT_AVATAR && id != IMG_DEFAULT;
 }
 
 //virtual
