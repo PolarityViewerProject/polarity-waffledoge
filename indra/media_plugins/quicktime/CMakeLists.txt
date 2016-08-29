@@ -65,7 +65,6 @@ if (WINDOWS)
     media_plugin_quicktime
     PROPERTIES
     LINK_FLAGS "/MANIFEST:NO"
-    LINK_FLAGS_DEBUG "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMTD"
     )
 endif (WINDOWS)
 

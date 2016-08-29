@@ -76,6 +76,11 @@ target_link_libraries(SLPlugin
 if (DARWIN)
   # Mac version needs to link against Carbon
   target_link_libraries(SLPlugin ${COCOA_LIBRARY})
+  set_target_properties(SLPlugin
+    PROPERTIES
+    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
+    )
+
   # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
   add_custom_command(
     TARGET SLPlugin POST_BUILD
