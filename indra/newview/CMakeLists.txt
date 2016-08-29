@@ -51,6 +51,10 @@ include(VisualLeakDetector)
 include(ZLIB)
 include(URIPARSER)
 
+if(MSVC)
+    use_prebuilt_binary(vcredist)
+endif()
+
 if(NOT HAVOK_TPV)
   # When using HAVOK_TPV, the library is precompiled, so no need for this
   add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
