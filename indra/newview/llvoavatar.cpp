@@ -2780,39 +2780,6 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	idleUpdateNameTagAlpha(new_name, alpha);
 }
 
-// Easier for me to make a function than brain inline stuff.
-inline bool LLVOAvatar::canShowARWTag() const
-{
-	// my head hurts, forgive me for this sin.
-	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
-	static LLCachedControl<bool> show_too_complex_only_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightThresholdOnly", true);
-	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelf", false);
-	static LLCachedControl<bool> show_only_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightSelfOnly", false);
-
-	if (!show_arw_tag)
-	{
-		return false;
-	}
-	if (mVisualComplexity == 0)
-	{
-		return false;
-	}
-	if (!isTooComplex() && show_too_complex_only_arw_tag)
-	{
-		return false;
-	}
-	if (isSelf() && !show_own_arw_tag)
-	{
-		return false;
-	}
-	if (!isSelf() && show_only_own_arw_tag)
-	{
-		return false;
-	}
-
-	return true;
-}
-
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 {
 	LLNameValue *title = getNVPair("Title");
@@ -2860,11 +2827,18 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// <polarity> Show ARW in nametag options (for Jelly Dolls)
 	// Inspired by Ansariel's implementation.
-	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 	static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
 	// create a snapshot of the current complexity to determine if the nametag should update.
+	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
+	static LLCachedControl<bool> show_under_threshold_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowUnderThreshold", true);
+	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowSelf", true);
+	static LLCachedControl<bool> show_others_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowOthers", false);
 	U32 complexity(0);
-	if (canShowARWTag())
+	auto complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
+
+		if (show_arw_tag &&
+				((show_under_threshold_arw_tag || isTooComplex())
+				 && ((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))))
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
@@ -2936,12 +2910,12 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += LLTrans::getString("AvatarEditingAppearance");
 				line += ", ";
 			}
-			if (is_cloud && !isTooComplex())
+			if (!isTooComplex() && is_cloud)
 			{
 				line += LLTrans::getString("LoadingData");
 				line += ", ";
 			}
-			if (is_typing && !use_chat_bubbles)
+			if (!use_chat_bubbles && is_typing)
 			{
 				line += LLTrans::getString("AvatarTyping");
 				line += ", ";
@@ -3023,7 +2997,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
 		std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
-		if (canShowARWTag())
+		
+		if (show_arw_tag &&
+				((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag)) &&
+				(show_under_threshold_arw_tag || isTooComplex()))
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -3291,10 +3268,10 @@ bool LLVOAvatar::isVisuallyMuted()
 	if (!isSelf())
 	{
 		// <FS:Ansariel> FIRE-11783: Always visually mute avatars that are muted
-		if (isInMuteList())
-		{
-			return true;
-		}
+		//if (isInMuteList())
+		//{
+		//	return true;
+		//}
 		static LLCachedControl<U32> render_auto_mute_functions(gSavedSettings, "RenderAutoMuteFunctions", 0);
 		if (render_auto_mute_functions)		// Hacky debug switch for developing feature
 		{
@@ -6825,16 +6802,18 @@ BOOL LLVOAvatar::isFullyLoaded() const
 
 bool LLVOAvatar::isTooComplex() const
 {
-	// save one function call
-	static U32 max_render_cost = gSavedSettings.getU32("RenderAutoMuteRenderWeightLimit");
-	if (max_render_cost > 0 && mVisualComplexity > max_render_cost)
+	if (/*isSelf() || */mVisuallyMuteSetting == NEVER_VISUAL_MUTE)
 	{
-		return true;
+		return false;
 	}
-
-	return false;
+	// Determine if visually muted or not
+	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
+	static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
+	// If the user has chosen unlimited max complexity, we also disregard max attachment area
+	// so that unlimited will completely disable the overly complex impostor rendering
+	// yes, this leaves them vulnerable to griefing objects... their choice
+	return (((max_render_cost > 0) && mVisualComplexity <= max_render_cost) || (max_attachment_area > 0.0f) && mAttachmentSurfaceArea <= max_attachment_area);
 }
-
 
 //-----------------------------------------------------------------------------
 // findMotion()
