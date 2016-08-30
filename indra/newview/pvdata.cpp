@@ -1005,12 +1005,6 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		return default_color;
 	}
 
-	// return cached color if existing to prevent running this code too often
-	if (instance().pv_agent_color_llcolor4.find(avatar_id) != instance().pv_agent_color_llcolor4.end())
-	{
-		return instance().pv_agent_color_llcolor4[avatar_id];
-	}
-
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
 	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
@@ -1028,7 +1022,7 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	// Check if agent is flagged through PVData
 	auto av_flags = instance().getAgentFlags(avatar_id);
 
-	// Get custom color (from PVData)
+	// Get custom color (from PVData or fast cache
 	if (instance().pv_agent_color_llcolor4.find(avatar_id) != instance().pv_agent_color_llcolor4.end())
 	{
 		pvdata_color = instance().pv_agent_color_llcolor4[avatar_id];
