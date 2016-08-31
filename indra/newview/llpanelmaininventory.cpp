@@ -659,13 +659,17 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 {
 	if (!mActivePanel)
 		return;
-	U32 filterTypes = ~0;
+	//U32 filterTypes = ~0;
 	LLFloaterInventoryFinder* finder = getFinder();
 	if (mSeparatorMap.find(separator_selected) != mSeparatorMap.end())
 	{
-		filterTypes = mSeparatorMap[separator_selected];
-		LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
-		PVData::instance().setSearchSeparator(filterTypes);
+		//filterTypes = ;
+		//LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
+		PVData::instance().setSearchSeparator(mSeparatorMap[separator_selected]);
+		// refresh substring search or something.
+		//std::string old_substring = mFilterSubString;
+		//setFilterSubString(mFilterSubString);
+		onFilterSelected();
 	}
 	//else if (separator_selected == "filter_type_all")
 	//{
@@ -686,7 +690,7 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 		LL_WARNS() << "Invalid filter selection: " << separator_selected << LL_ENDL;
 		return;
 	}
-	mActivePanel->setFilterTypes(filterTypes);
+	//mActivePanel->setFilterTypes(filterTypes);
 	if (finder)
 		finder->updateElementsFromFilter();
 }
@@ -980,6 +984,7 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
+	PVData::instance().getSearchSeparatorFromSettings();
 	return TRUE;
 }
 void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)

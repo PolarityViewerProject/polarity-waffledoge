@@ -1155,8 +1155,9 @@ void PVData::getSearchSeparatorFromSettings()
 {
 	// Handle human-readable separators here.
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", PVSearchSeparators::separator_space);
-	instance().PVSearchSeparatorSelected = instance().PVSearchSeparatorAssociation[settings_separator]; // Convert to hex directly to keep setting user-friendly
-	LL_INFOS("PVData") << "Getting separator from settings: '" << instance().PVSearchSeparatorSelected << "'" << LL_ENDL;
+	auto pvss = PVData::getInstance();
+	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator]; // Convert to hex directly to keep setting user-friendly
+	LL_DEBUGS("PVData") << "Getting separator from settings: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
 }
 
 void PVData::setSearchSeparator(const U32 separator_in_u32)
@@ -1167,6 +1168,13 @@ void PVData::setSearchSeparator(const U32 separator_in_u32)
 
 char PVData::getSearchSeparator()
 {
-	LL_INFOS("PVData") << "Returning runtime value of search separator: '" << instance().PVSearchSeparatorSelected << "'" << LL_ENDL;
-	return instance().PVSearchSeparatorSelected;
+	auto pvss = PVData::getInstance();
+	if(pvss->PVSearchSeparatorSelected == NULL)
+	{
+		// eep!
+		//PVSearchSeparatorAssociation[PVSearchSeparators::separator_space];
+		getSearchSeparatorFromSettings();
+	}
+	LL_DEBUGS("PVData") << "Returning runtime value of search separator: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
+	return pvss->PVSearchSeparatorSelected;
 }
