@@ -58,6 +58,17 @@ static const std::string LL_PRODUCTENGINE = "ProductEngine";
 static const std::string LL_SCOUT = "Scout";
 static const std::string LL_TESTER = "Tester";
 
+std::map<U32, char> PVData::PVSearchSeparatorAssociation
+{
+	{ separator_colon,    ':' },
+	{ separator_comma,    ',' },
+	{ separator_period,   '.' },
+	{ separator_pipe,     '|' },
+	{ separator_plus,     '+' },
+	{ separator_semicolon,';' },
+	{ separator_space,    ' ' },
+};
+
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##         ##  ##
@@ -1137,4 +1148,25 @@ LLColor4 PVData::Hex2Color4(int hexValue) const
 	auto g = ((hexValue >> 8) & 0xFF) / 255.0f;   // Extract the GG byte
 	auto b = ((hexValue) & 0xFF) / 255.0f;        // Extract the BB byte
 	return LLColor4(r, g, b, 1.0f);
+}
+
+
+void PVData::getSearchSeparatorFromSettings()
+{
+	// Handle human-readable separators here.
+	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", PVSearchSeparators::separator_space);
+	instance().PVSearchSeparatorSelected = instance().PVSearchSeparatorAssociation[settings_separator]; // Convert to hex directly to keep setting user-friendly
+	LL_INFOS("PVData") << "Getting separator from settings: '" << instance().PVSearchSeparatorSelected << "'" << LL_ENDL;
+}
+
+void PVData::setSearchSeparator(const U32 separator_in_u32)
+{
+	instance().PVSearchSeparatorSelected = PVSearchSeparatorAssociation[separator_in_u32];
+	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
+}
+
+char PVData::getSearchSeparator()
+{
+	LL_INFOS("PVData") << "Returning runtime value of search separator: '" << instance().PVSearchSeparatorSelected << "'" << LL_ENDL;
+	return instance().PVSearchSeparatorSelected;
 }

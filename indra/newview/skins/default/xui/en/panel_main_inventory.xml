@@ -35,20 +35,43 @@
    right="150"
    tool_tip="Type in one or more keywords to search for"
    top="3" />
+<combo_box
+ name="search_separator_combo_box"    
+ follows="top|right"
+ width="75"
+ height="25"
+ left_pad="2"
+ tool_tip="Search Separator"
+ top_delta="0"
+ layout="topleft">
+  
+  <!-- TODO: Set label programmatically? We have the value stored anyway. I think. Converting
+  Chat to string sucks though. -->
+ <combo_box.item value="search_separator_space" 	label="Space" />
+ <combo_box.item value="search_separator_comma" 	label="Comma ( , )" />
+ <combo_box.item value="search_separator_plus" 	 	label="Plus ( + )" />
+ <combo_box.item value="search_separator_pipe" 	 	label="Pipe ( | )" />
+ <!-- I'm not really sure why these would be desired, but they are supported. -->
+ <!-- <combo_box.item value="search_separator_semicolon" label=";" /> -->
+ <!-- <combo_box.item value="search_separator_colon"		label=":" /> -->
+ <!-- <combo_box.item value="search_separator_period"	label="." /> -->
+</combo_box>
+
  <combo_box
   name="filter_combo_box"    
   follows="top|right"
-  width="150"
+  width="100"
   height="25"
-  left_pad="10"
+  left_pad="2"
   top_delta="0"
+  tool_tip="Type filter"
   layout="topleft">
 
  <combo_box.item value="filter_type_all" label="All Types" />
  <combo_box.item value="filter_separator" label="------------" enabled="false" />
  <combo_box.item value="filter_type_animations" label="Animations" />
  <combo_box.item value="filter_type_calling_cards" label="Calling Cards" />
- <combo_box.item value="filter_type_clothing" label="Clothing / Body Parts" />
+ <combo_box.item value="filter_type_clothing" label="Clothes/Body" />
  <combo_box.item value="filter_type_gestures" label="Gestures" />
  <combo_box.item value="filter_type_landmarks" label="Landmarks" />
  <combo_box.item value="filter_type_notecards" label="Notecards" />
@@ -70,7 +93,7 @@
      left="0"
      name="inventory filter tabs"
      tab_position="top"
-     tab_min_width="100"
+     tab_min_width="50"
      top="30"
      width="312">
     <inventory_panel

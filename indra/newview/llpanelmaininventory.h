@@ -91,6 +91,8 @@ public:
 	void onFilterTypeSelected(const std::string& filter_type_name);
 	void updateFilterDropdown(const LLInventoryFilter* filter);
 	// ## Zi: Filter dropdown
+
+	void onSeparatorSelected(const std::string& separator_selected);
 protected:
 	//
 	// Misc functions
@@ -106,6 +108,8 @@ protected:
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
 	
+	void updateSeparatorDropdown(const LLInventoryFilter * filter);
+
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
 
@@ -151,6 +155,10 @@ private:
 	std::map<std::string,U64>  mFilterMap;		 // contains name-to-number mapping for dropdown filter types
 	U64						 mFilterMask;		// contains the cumulated bit filter for all dropdown filter types
 	// ## Zi: Filter dropdown
+
+	LLComboBox*				mSeparatorComboBox;
+	std::map<std::string, U32>  mSeparatorMap;
+	U64						 mSeparatorMask;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //

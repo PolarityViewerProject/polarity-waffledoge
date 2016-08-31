@@ -218,6 +218,30 @@ public:
 	LLColor4 Hex2Color4(const std::string color) const;
 	LLColor4 Hex2Color4(int hexValue) const;
 
+	char PVSearchSeparatorSelected;
+	// refresh from settings
+	static void getSearchSeparatorFromSettings();
+	static void setSearchSeparator(const U32 separator_in_u32);
+	// get separator
+	static char getSearchSeparator();
+
+	enum PVSearchSeparators : U32
+	{
+		separator_colon = (1 << 0),
+		separator_comma = (1 << 1),
+		separator_period = (1 << 2),
+		separator_pipe = (1 << 3),
+		separator_plus = (1 << 4),
+		separator_semicolon = (1 << 5),
+		separator_space = (1 << 6),
+	};
+
+	/**
+	* \brief Contains the possible search separators
+	*/
+	static std::map<U32, char> PVSearchSeparatorAssociation;
+
+
 private:
 
 	// This processes the main data

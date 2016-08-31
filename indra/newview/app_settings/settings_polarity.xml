@@ -1529,13 +1529,14 @@
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>
-      <string>Character to use to separate search keywords. Defaults to space</string>
+      <string>Character to use to separate search keywords. Defaults to space. Possible values are: 0 for colon, 1 for comma, 2 for period, 3 for pipe, 4 for plus, 5 for semicolon, 6 for space
+      </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>String</string>
+      <string>U32</string>
       <key>Value</key>
-      <string> </string>
+      <string>6</string>
     </map>
     <key>PVUI_VoiceIndicatorBehavior</key>
     <map>

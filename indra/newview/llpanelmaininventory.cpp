@@ -57,6 +57,7 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
+#include "pvdata.h"
 
 // <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
@@ -278,6 +279,14 @@ BOOL LLPanelMainInventory::postBuild()
 	mFilterComboBox = getChild<LLComboBox>("filter_combo_box");
 	mFilterComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterTypeSelected, this, _2));
 	// </FS:Zi> Filter dropdown
+	
+	// <polarity> Search separator dropdown
+	mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
+	if(mSeparatorComboBox)
+	{
+		mSeparatorComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onSeparatorSelected, this, _2));
+	}
+	// </polarity>
 
 	mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
@@ -646,6 +655,69 @@ void LLPanelMainInventory::updateFilterDropdown(const LLInventoryFilter* filter)
 }
 // ## Zi: Filter dropdown
 
+void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_selected)
+{
+	if (!mActivePanel)
+		return;
+	U32 filterTypes = ~0;
+	LLFloaterInventoryFinder* finder = getFinder();
+	if (mSeparatorMap.find(separator_selected) != mSeparatorMap.end())
+	{
+		filterTypes = mSeparatorMap[separator_selected];
+		LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
+		PVData::instance().setSearchSeparator(filterTypes);
+	}
+	//else if (separator_selected == "filter_type_all")
+	//{
+	//	if (finder)
+	//		LLFloaterInventoryFinder::selectAllTypes(finder);
+	//}
+	//else if (separator_selected == "filter_type_custom")
+	//{
+	//	if (!finder)
+	//		toggleFindOptions();
+	//	else
+	//		finder->setFocus(TRUE);
+	//	return;
+	//}
+	// invalid selection (broken XML?)
+	else
+	{
+		LL_WARNS() << "Invalid filter selection: " << separator_selected << LL_ENDL;
+		return;
+	}
+	mActivePanel->setFilterTypes(filterTypes);
+	if (finder)
+		finder->updateElementsFromFilter();
+}
+// reflect state of current filter selection in the dropdown list
+void LLPanelMainInventory::updateSeparatorDropdown(const LLInventoryFilter* filter)
+{
+	if (!mFilterComboBox)
+		return;
+	// extract filter bits we need to see
+	U64 filterTypes = filter->getFilterObjectTypes() & mSeparatorMask;
+	std::string controlName;
+	// check if the filter types match our filter mask, meaning "All"
+	//if (filterTypes == mSeparatorMask)
+	//	controlName = "filter_type_all";
+	//else
+	{
+		// find the name of the current filter in our filter map, if exists
+		for (std::map<std::string, U64>::iterator i = mFilterMap.begin(); i != mFilterMap.end(); ++i)
+		{
+			if ((*i).second == filterTypes)
+			{
+				controlName = (*i).first;
+				break;
+			}
+		}
+		// no filter type found in the map, must be a custom filter
+		//if (controlName.empty())
+		//	controlName = "filter_type_custom";
+	}
+	mFilterComboBox->setValue(controlName);
+}
 
  //static
  BOOL LLPanelMainInventory::incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward)

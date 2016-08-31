@@ -47,6 +47,7 @@
 
 #include <boost/algorithm/string.hpp> // <polarity/>
 #include "llappearancemgr.h" // needed to query whether we are in COF
+#include "pvdata.h"
 
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 
@@ -713,10 +714,9 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 	std::string filter_sub_string_new = string;
 	mFilterSubStringOrig = string;
 	LLStringUtil::trimHead(filter_sub_string_new);
-	boost::to_upper(filter_sub_string_new); // <polarity>
+	LLStringUtil::toUpper(filter_sub_string_new); // <polarity>
 	// <FS:Zi> Multi-substring inventory search
 	// Cut filter string into several substrings
-	//std::string separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
 	{
 		mFilterSubStrings.clear();
 		mSubStringMatchOffsets.clear();
@@ -727,8 +727,10 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		{
 			// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
 			// TODO: Add "whole word" option.
-			// to = filter_sub_string_new.find_first_of(separator,frm);
-			to = filter_sub_string_new.find_first_of(' ',frm);
+			char separator = PVData::instance().getSearchSeparator();
+			LL_WARNS() << "FUCKING SEPARATOR = '" << separator << "'" << LL_ENDL;
+			to = filter_sub_string_new.find_first_of(separator,frm);
+			// to = filter_sub_string_new.find_first_of(' ',frm);
 			std::string subSubString = (to == std::string::npos) ? filter_sub_string_new.substr(frm, to) : filter_sub_string_new.substr(frm, to-frm);
 			if (subSubString.size())
 			{

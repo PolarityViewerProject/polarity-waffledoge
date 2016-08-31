@@ -37,6 +37,7 @@
 #include "llviewerfoldertype.h"
 #include "lltransientfloatermgr.h"
 #include "llviewercontrol.h"
+#include "pvdata.h"
 
 ///----------------------------------------------------------------------------
 /// LLFloaterInventory
@@ -98,37 +99,7 @@ void LLFloaterInventory::cleanup()
 void LLFloaterInventory::onOpen(const LLSD& key)
 {
 	//LLFirstUse::useInventory();
-	// Handle human-readable separators here.
-	std::string char_separator = gSavedSettings.getString("PVUI_SubstringSearchSeparator");
-	if (char_separator.length() > 1)
-	{
-		if(char_separator == "space")
-		{
-			char_separator = " ";
-		}
-		if(char_separator == "comma")
-		{
-			char_separator = ",";
-		}
-		if(char_separator == "period" || char_separator == "dot")
-		{
-			char_separator = ".";
-		}
-		if(char_separator == "colon")
-		{
-			char_separator = ":";
-		}
-		if(char_separator == "semicolon")
-		{
-			char_separator = ";";
-		}
-		else
-		{
-			LL_WARNS("") << "Unrecognized separator character! Falling back to space." << LL_ENDL;
-			char_separator = " ";
-		}
-	}
-	gSavedSettings.setString("PVUI_SubstringSearchSeparator", char_separator);
+	PVData::instance().getSearchSeparatorFromSettings();
 }
 
 void LLFloaterInventory::onClose(bool app_quitting)
