@@ -163,6 +163,11 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 		mFilterMask |= (*it).second;
 	}
 	// </FS:Zi> Filter dropdown
+
+	mSeparatorMap["search_separator_space"] = PVData::separator_space;
+	mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
+	mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
+	mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
 }
 
 BOOL LLPanelMainInventory::postBuild()
@@ -690,7 +695,7 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 	// invalid selection (broken XML?)
 	else
 	{
-		LL_WARNS() << "Invalid filter selection: " << separator_selected << LL_ENDL;
+		LL_WARNS() << "Invalid separator selection: " << separator_selected << LL_ENDL;
 		return;
 	}
 	//mActivePanel->setFilterTypes(filterTypes);
