@@ -164,10 +164,10 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	}
 	// </FS:Zi> Filter dropdown
 
-	mSeparatorMap["search_separator_space"] = PVData::separator_space;
-	mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
-	mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
-	mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
+	PVData::getInstance()->mSeparatorMap["search_separator_space"] = PVData::separator_space;
+	PVData::getInstance()->mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
+	PVData::getInstance()->mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
+	PVData::getInstance()->mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
 }
 
 BOOL LLPanelMainInventory::postBuild()
@@ -669,11 +669,11 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 		return;
 	//U32 filterTypes = ~0;
 	LLFloaterInventoryFinder* finder = getFinder();
-	if (mSeparatorMap.find(separator_selected) != mSeparatorMap.end())
+	if (PVData::getInstance()->mSeparatorMap.find(separator_selected) != PVData::getInstance()->mSeparatorMap.end())
 	{
 		//filterTypes = ;
 		//LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
-		PVData::instance().setSearchSeparator(mSeparatorMap[separator_selected]);
+		PVData::instance().setSearchSeparator(PVData::getInstance()->mSeparatorMap[separator_selected]);
 		// refresh substring search or something.
 		LLInventoryModelBackgroundFetch::instance().start();
 		std::string old_substring = mFilterSubString;
@@ -993,7 +993,24 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
-	PVData::instance().getSearchSeparatorFromSettings();
+
+#if FIXED_SCOPE_STUFF
+	auto mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
+	if (mSeparatorComboBox)
+	{
+		auto separator_index = PVData::getInstance()->getSearchSeparatorFromSettings();
+		for (auto&& map_iterator : PVData::getInstance()->mSeparatorMap)
+		{
+			if (map_iterator.second == separator_index)
+			{
+				auto nya = map_iterator.first;
+				mSeparatorComboBox->setValue(nya);
+				break;
+			}
+		}
+		
+	}
+#endif
 	return TRUE;
 }
 void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)

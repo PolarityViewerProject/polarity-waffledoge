@@ -154,7 +154,7 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 	// Sets up the variables we need for each object. Avoids call bloat in the class constructor.
 	pvdata_user_agent_ = LLVersionInfo::getChannelAndVersionStatic();
 	pvdata_viewer_version_ = LLViewerMedia::getCurrentUserAgent();
-	static LLCachedControl<BOOL> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", FALSE);
+	static LLCachedControl<bool> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", FALSE);
 	pvdata_remote_url_base_ = (pvdata_testing_branch) ? "https://data.polarityviewer.org/test/6/" : "https://data.polarityviewer.org/live/6/";
 
 	// construct download url from file name
@@ -851,7 +851,7 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 	// Check for agents flagged through PVData
 	std::string flags_string = "";
 	std::vector<std::string> flags_list;
-	S32 av_flags = PVData::instance().getAgentFlags(avatar_id);
+	S32 av_flags = PVData::getInstance()->getAgentFlags(avatar_id);
 	if (isLinden(avatar_id, av_flags))
 	{
 		flags_list.push_back("Linden Lab Employee");
@@ -927,11 +927,12 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
 	if (force_refresh_now || pvdata_refresh_timer_.getElapsedTimeF32() >= refresh_minutes * 60)
 	{
+		auto pvD = PVData::getInstance();
 		LL_INFOS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
-		PVData::instance().downloadData();
+		pvD->downloadData();
 
 		PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
-		PVData::instance().downloadAgents();
+		pvD->downloadAgents();
 		if (!force_refresh_now)
 		{
 			PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
@@ -1016,11 +1017,15 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		return default_color;
 	}
 
+	// Try to operate in the same instance, reduce call overhead
+	auto uiCT = LLUIColorTable::getInstance();
+	auto pvD = PVData::getInstance();
+
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
 	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
-	static const LLUIColor linden_color = LLUIColorTable::instance().getColor("PlvrLindenChatColor", LLColor4::cyan);
-	static const LLUIColor muted_color = LLUIColorTable::instance().getColor("PlvrMutedChatColor", LLColor4::grey);
+	static const LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
+	static const LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
 
 	// Some PVData-flagged users CAN be muted.
 	// TODO PLVR: Do we still need this?
@@ -1031,16 +1036,16 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	}
 
 	// Check if agent is flagged through PVData
-	auto av_flags = instance().getAgentFlags(avatar_id);
+	auto av_flags = pvD->getAgentFlags(avatar_id);
 
 	// Get custom color (from PVData or fast cache
-	if (instance().pv_agent_color_llcolor4.find(avatar_id) != instance().pv_agent_color_llcolor4.end())
+	if (pvD->pv_agent_color_llcolor4.find(avatar_id) != pvD->pv_agent_color_llcolor4.end())
 	{
-		pvdata_color = instance().pv_agent_color_llcolor4[avatar_id];
+		pvdata_color = pvD->pv_agent_color_llcolor4[avatar_id];
 	}
 	else
 	{
-		if (instance().isLinden(avatar_id, av_flags))
+		if (pvD->isLinden(avatar_id, av_flags))
 		{
 			instance().pv_agent_color_llcolor4.insert_or_assign(avatar_id, linden_color.get());
 			return linden_color.get();
@@ -1049,27 +1054,27 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		{
 			if (av_flags & PVData::FLAG_STAFF_DEV)
 			{
-				static const LLUIColor dev_color = LLUIColorTable::instance().getColor("PlvrDevChatColor", LLColor4::orange);
+				static const LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
 				pvdata_color = dev_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_QA)
 			{
-				static const LLUIColor qa_color = LLUIColorTable::instance().getColor("PlvrQAChatColor", LLColor4::red);
+				static const LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
 				pvdata_color = qa_color.get();
 			}
 			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
 			{
-				static const LLUIColor support_color = LLUIColorTable::instance().getColor("PlvrSupportChatColor", LLColor4::magenta);
+				static const LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
 				pvdata_color = support_color.get();
 			}
 			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
 			{
-				static const LLUIColor tester_color = LLUIColorTable::instance().getColor("PlvrTesterChatColor", LLColor4::yellow);
+				static const LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
 				pvdata_color = tester_color.get();
 			}
 			else if (av_flags & PVData::FLAG_USER_BANNED)
 			{
-				static const LLUIColor banned_color = LLUIColorTable::instance().getColor("PlvrBannedChatColor", LLColor4::grey2);
+				static const LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
 				pvdata_color = banned_color.get();
 			}
 			else
@@ -1083,7 +1088,7 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
 			}
 			// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
-			instance().pv_agent_color_llcolor4.insert_or_assign(avatar_id, pvdata_color);
+			pvD->pv_agent_color_llcolor4.insert_or_assign(avatar_id, pvdata_color);
 		}
 	}
 
@@ -1109,15 +1114,15 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	}
 	if (show_f && av_flags && !low_priority_friend_status)
 	{
-		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+		return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 	}
 	if (show_f && !av_flags && low_priority_friend_status)
 	{
-		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+		return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 	}
 	if (show_f && !av_flags && !low_priority_friend_status)
 	{
-		return_color = LLUIColorTable::instance().getColor("NameTagFriend", LLColor4::yellow);
+		return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 	}
 	if (!show_f && av_flags && low_priority_friend_status)
 	{
@@ -1151,13 +1156,14 @@ LLColor4 PVData::Hex2Color4(int hexValue) const
 }
 
 
-void PVData::getSearchSeparatorFromSettings()
+U32 PVData::getSearchSeparatorFromSettings()
 {
 	// Handle human-readable separators here.
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", PVSearchSeparators::separator_space);
 	auto pvss = PVData::getInstance();
-	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator]; // Convert to hex directly to keep setting user-friendly
+	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator];
 	LL_DEBUGS("PVData") << "Getting separator from settings: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
+	return settings_separator;
 }
 
 void PVData::setSearchSeparator(const U32 separator_in_u32)

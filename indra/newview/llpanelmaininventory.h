@@ -157,7 +157,6 @@ private:
 	// ## Zi: Filter dropdown
 
 	LLComboBox*				mSeparatorComboBox;
-	std::map<std::string, U32>  mSeparatorMap;
 	U64						 mSeparatorMask;
 
 	//////////////////////////////////////////////////////////////////////////////////

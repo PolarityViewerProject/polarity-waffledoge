@@ -218,9 +218,11 @@ public:
 	LLColor4 Hex2Color4(const std::string color) const;
 	LLColor4 Hex2Color4(int hexValue) const;
 
+	// The scope hacks I have to do, sigh...
+	std::map<std::string, U32>  mSeparatorMap;
 	char PVSearchSeparatorSelected;
 	// refresh from settings
-	static void getSearchSeparatorFromSettings();
+	static U32 getSearchSeparatorFromSettings();
 	static void setSearchSeparator(const U32 separator_in_u32);
 	// get separator
 	static char getSearchSeparator();
