@@ -277,7 +277,10 @@ BOOL LLPanelMainInventory::postBuild()
 	}
 	// <FS:Zi> Filter dropdown
 	mFilterComboBox = getChild<LLComboBox>("filter_combo_box");
-	mFilterComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterTypeSelected, this, _2));
+	if (mFilterComboBox)
+	{
+		mFilterComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterTypeSelected, this, _2));
+	}
 	// </FS:Zi> Filter dropdown
 	
 	// <polarity> Search separator dropdown
