@@ -3446,7 +3446,7 @@ void LLIMMgr::processIMTypingCore(const LLIMInfo* im_info, BOOL typing)
 		const std::string notify_str = LLTrans::getString("NotifyIncomingMessage", args);
 		gIMMgr->addMessage(session_id,
 						 im_info->mFromID,
-						 LLStringUtil::null,
+						 im_info->mName, // Pass name to display right in plain text
 						 notify_str,
 						 false,
 						 LLStringUtil::null,
