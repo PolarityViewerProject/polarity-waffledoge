@@ -994,11 +994,12 @@ BOOL LLFloaterInventoryFinder::postBuild()
 
 	updateElementsFromFilter();
 
-#if FIXED_SCOPE_STUFF
 	auto mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
 	if (mSeparatorComboBox)
 	{
+#if FIXED_SCOPE_STUFF
 		auto separator_index = PVData::getInstance()->getSearchSeparatorFromSettings();
+
 		for (auto&& map_iterator : PVData::getInstance()->mSeparatorMap)
 		{
 			if (map_iterator.second == separator_index)
@@ -1008,7 +1009,9 @@ BOOL LLFloaterInventoryFinder::postBuild()
 				break;
 			}
 		}
-		
+#else
+
+		mSeparatorComboBox->setValue((int)PVData::getInstance()->getSearchSeparatorFromSettings());
 	}
 #endif
 	return TRUE;
