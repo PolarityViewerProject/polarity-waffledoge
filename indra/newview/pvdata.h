@@ -43,7 +43,6 @@ class LLUUID;
 
 class PVData : public LLSingleton <PVData> // required for instance()
 {
-	friend class LLSingleton <PVData>;
 	LOG_CLASS(PVData); // Required to enable the log messages prefix
 
 	// PLVR TODO: Make this stuff private
