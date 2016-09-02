@@ -26,6 +26,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
+
 #ifdef INCLUDE_VLD
 #include "vld.h"
 #endif
@@ -100,6 +102,7 @@
 #include "llspellcheckmenuhandler.h"
 #include "llstatusbar.h"
 #include "lltextureview.h"
+#include "lltexturecache.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "lltoolbarview.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
@@ -117,6 +120,7 @@
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
 #include "llvoicevivox.h"
+#include "llvovolume.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "llworldmap.h"
 #include "pipeline.h"
 #include "llviewerjoystick.h"
@@ -9044,6 +9048,121 @@ class OSWorldSyncAnimations : public view_listener_t
 	}
 };
 
+// <polarity> PLVR-32 Refresh texture on objects and avatars
+void refresh_selection_textures(LLObjectSelectionHandle selection, std::unordered_set<LLUUID>& textures_to_refresh = std::unordered_set<LLUUID>())
+{
+	for (LLSelectNode* node : *selection.get())
+	{
+		LLViewerObject* objectp = node->getObject();
+		U8 texture_entry_count = objectp->getNumTEs();
+		for (U8 index = 0; index < texture_entry_count; ++index)
+		{
+			// LLTextureEntry* texture_entry = objectp->getTE(index);
+			LLViewerTexture* diffuse_map = objectp->getTEImage(index);
+			LLViewerTexture* normal_map = objectp->getTENormalMap(index);
+			LLViewerTexture* specular_map = objectp->getTESpecularMap(index);
+			LLViewerTexture* default_image = (LLViewerTexture*)LLViewerFetchedTexture::sDefaultImagep;
+			
+			if (diffuse_map != default_image)
+			{
+				textures_to_refresh.insert(diffuse_map->getID());
+			}
+			
+			if (normal_map != default_image)
+			{
+				textures_to_refresh.insert(normal_map->getID());
+			}
+			
+			if (specular_map != default_image)
+			{
+				textures_to_refresh.insert(specular_map->getID());
+			}
+		}
+		
+		if (objectp->isSculpted())
+		{
+			LLSculptParams* sculpt_params = (LLSculptParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			if (sculpt_params)
+			{
+				textures_to_refresh.insert(sculpt_params->getSculptTexture());
+			}
+		}
+	}
+	
+	for (LLUUID texture_id : textures_to_refresh)
+	{
+		LLViewerFetchedTexture* texture = LLViewerTextureManager::getFetchedTexture(texture_id);
+		texture->clearFetchedResults();
+		LLAppViewer::getTextureCache()->removeFromCache(texture_id);
+		
+		S32 num_volumes = texture->getNumVolumes();
+		if (num_volumes > 0)
+		{
+			const LLViewerTexture::ll_volume_list_t* volumes = texture->getVolumeList();
+			for (S32 volume_index = 0; volume_index < num_volumes; ++volume_index)
+			{
+				LLVOVolume* volume = volumes->at(volume_index);
+				if (volume)
+				{
+					volume->notifyMeshLoaded();
+				}
+			}
+		}
+	}
+}
+
+class PLVRObjectTextureRefresh : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+		refresh_selection_textures(selection);
+		
+		return true;
+	}
+};
+
+class PLVRAvatarTextureRefresh : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		//gAgentAvatarp->getChildren
+		std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
+		
+		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		textures_to_refresh.insert(avatar->getTE(TEX_HAIR_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(TEX_HEAD_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(TEX_EYES_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(TEX_UPPER_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(TEX_LOWER_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(TEX_SKIRT_BAKED)->getID());
+		
+		std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
+		avatar->addThisAndAllChildren(objects);
+		
+		LLSelectMgr::getInstance()->setForceSelection(TRUE);
+		
+		LLObjectSelectionHandle selection;
+		for (LLViewerObject* viewer_object : objects)
+		{
+			if (viewer_object != avatar)
+			{
+				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
+			}
+		}
+		
+		//LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->selectObjectAndFamily(avatar);
+		refresh_selection_textures(selection, textures_to_refresh);
+		
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(avatar->getID());
+		
+		LLSelectMgr::getInstance()->setForceSelection(FALSE);
+		
+		return true;
+	}
+};
+// </polarity>
+
 void handle_flush_name_caches()
 {
 	LLAvatarNameCache::cleanupClass();
@@ -9690,4 +9809,9 @@ void initialize_menus()
 	// <FS:Ansariel> Toggle teleport history panel directly
 	commit.add("ToggleTeleportHistory", boost::bind(&toggleTeleportHistory));
 	// </FS:Ansariel>
+
+	// <polarity> PLVR-32 Refresh texture on objects and avatars
+	view_listener_t::addMenu(new PLVRObjectTextureRefresh(), "Polarity.Object.TextureRefresh");
+	view_listener_t::addMenu(new PLVRAvatarTextureRefresh(), "Polarity.Avatar.TextureRefresh");
+	// </polarity>
 }
