@@ -782,7 +782,7 @@ bool PVData::isSupportGroup(const LLUUID& avatar_id) const
 	return (support_group_.count(avatar_id));
 }
 
-bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags)
+bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 {
 #if !FIXED_LINDEN_CHECK
 	// Our shit is broken, let's fall back to the basic code.
@@ -1147,7 +1147,7 @@ LLColor4 PVData::Hex2Color4(const std::string color) const
 {
 	return instance().Hex2Color4(std::stoul(color, nullptr, 16));
 }
-LLColor4 PVData::Hex2Color4(int hexValue) const
+LLColor4 PVData::Hex2Color4(int hexValue)
 {
 	auto r = ((hexValue >> 16) & 0xFF) / 255.0f;  // Extract the RR byte
 	auto g = ((hexValue >> 8) & 0xFF) / 255.0f;   // Extract the GG byte

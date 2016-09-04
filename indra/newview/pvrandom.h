@@ -33,6 +33,6 @@ class PVRandom: public LLSingleton<PVRandom>
 	friend class LLSingleton<PVRandom>;
 	//LOG_CLASS(PVData); // unused yet
 public:
-	std::string getRandomElement(const std::vector<std::string>& vector);
+	std::string getRandomElement(const std::vector<std::string>& vector) const;
 };
 #endif // PV_RANDOM_H

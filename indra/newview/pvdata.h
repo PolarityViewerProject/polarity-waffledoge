@@ -151,7 +151,7 @@ public:
 	bool isSupportGroup(const LLUUID& id) const;
 
 	// Better version of isLinden that takes PVData into account
-	bool isLinden(const LLUUID& avatar_id, S32& av_flags);
+	bool isLinden(const LLUUID& avatar_id, S32& av_flags) const;
 
 	// Returns the agent flags as a decimal number
 	S32 getAgentFlags(const LLUUID& avatar_id);
@@ -215,7 +215,7 @@ public:
 
 	// some color helpers
 	LLColor4 Hex2Color4(const std::string color) const;
-	LLColor4 Hex2Color4(int hexValue) const;
+	static LLColor4 Hex2Color4(int hexValue);
 
 	// The scope hacks I have to do, sigh...
 	std::map<std::string, U32>  mSeparatorMap;

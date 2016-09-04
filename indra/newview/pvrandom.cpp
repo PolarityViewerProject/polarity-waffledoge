@@ -25,7 +25,7 @@
 #include "llviewerprecompiledheaders.h"
 #include "pvrandom.h"
 
-std::string PVRandom::getRandomElement(const std::vector<std::string>& vector)
+std::string PVRandom::getRandomElement(const std::vector<std::string>& vector) const
 {
 	size_t r = ll_rand(vector.size());
 	return (r) ? vector[r] : "";

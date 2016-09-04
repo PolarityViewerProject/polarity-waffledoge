@@ -49,5 +49,5 @@ public:
 class PVPerformanceMaidPanicButton : public view_listener_t,
                                      public PVPerformanceMaid
 {
-	bool handleEvent(const LLSD& userdata);
+	bool handleEvent(const LLSD& userdata) override;
 };
