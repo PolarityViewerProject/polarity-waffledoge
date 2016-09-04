@@ -24,17 +24,6 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-     <key>_NACL_SimpleAvatarShadows</key>
-     <map>
-       <key>Comment</key>
-       <string>0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows, always render system avatar. 4 = Full shadows.</string>
-       <key>Persist</key>
-       <integer>1</integer>
-       <key>Type</key>
-       <string>U32</string>
-       <key>Value</key>
-       <integer>2</integer>
-     </map>
     <key>FSDestroyGLTexturesImmediately</key>
     <map>
       <key>Comment</key>
@@ -1157,6 +1146,17 @@
         <real>2048</real>
         <real>1.0</real>
       </array>
+    </map>
+    <key>PVRender_ShadowDetailRigged</key>
+    <map>
+      <key>Comment</key>
+      <string>0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows but always render system avatar. 3 = Full detail, but slow.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>2</integer>
     </map>
     <key>PVRender_SSRResolution</key>
     <map>

@@ -8875,7 +8875,7 @@ BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U
 BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
 {
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> _NACL_SimpleAvatarShadows(gSavedSettings, "_NACL_SimpleAvatarShadows", 4);
+	static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
 	if (isIndexLocalTexture(type))
 	{
 		return isTextureDefined(type, index);
@@ -8884,7 +8884,7 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	{
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
-			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (_NACL_SimpleAvatarShadows == 2)))
+			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_ShadowDetailRigged == 2)))
 				|| LLDrawPoolAlpha::sShowDebugAlpha));
 	}
 }
