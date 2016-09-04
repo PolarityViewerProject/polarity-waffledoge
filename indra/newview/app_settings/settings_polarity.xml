@@ -115,7 +115,7 @@
     <key>PVChat_AutoCloseOOC</key>
     <map>
       <key>Comment</key>
-      <string>Automatically close Our Of Character markers &quot;((&quot; and &quot;))&quot;</string>
+      <string>Automatically close Out-of-Character markers &quot;((&quot; and &quot;))&quot;</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
