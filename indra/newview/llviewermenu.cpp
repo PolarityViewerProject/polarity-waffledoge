@@ -9222,6 +9222,12 @@ void refresh_selection_textures(LLObjectSelectionHandle selection, std::unordere
 	for (LLUUID texture_id : textures_to_refresh)
 	{
 		LLViewerFetchedTexture* texture = LLViewerTextureManager::getFetchedTexture(texture_id);
+		if (texture->getFTType() == FTT_LOCAL_FILE)
+		{
+			// Skip reloading local textures
+			continue;
+		}
+
 		texture->clearFetchedResults();
 		LLAppViewer::getTextureCache()->removeFromCache(texture_id);
 		
@@ -9272,12 +9278,15 @@ class PLVRAvatarTextureRefresh : public view_listener_t
 		
 		LLSelectMgr::getInstance()->setForceSelection(TRUE);
 		
-		LLObjectSelectionHandle selection;
-		for (LLViewerObject* viewer_object : objects)
+		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+		if (objects.size() > 0)
 		{
-			if (viewer_object != avatar)
+			for (LLViewerObject* viewer_object : objects)
 			{
-				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
+				if (viewer_object != avatar)
+				{
+					selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
+				}
 			}
 		}
 		

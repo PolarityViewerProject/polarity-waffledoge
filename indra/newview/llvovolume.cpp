@@ -5963,7 +5963,7 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 
 					U32 d1_mask = ll_material->getShaderMask();
 
-					llassert(mask < sizeof(pass)/sizeof(U32));
+					llassert(d1_mask < sizeof(pass)/sizeof(U32));
 
 					d1_mask = llmin(d1_mask, static_cast<U32>(sizeof(pass)/sizeof(U32)-1));
 
