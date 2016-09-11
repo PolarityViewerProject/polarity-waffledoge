@@ -11089,13 +11089,13 @@ Changes won't take effect until after you restart [APP_NAME].
   icon="notify"
   name="NoseyLookAt"
   type="alertmodal">
-The Polarity Viewer Project does not endorse hiding your own lookat while displaying other users&apos;, as it is a moral privacy concern to some people.
+The Polarity Viewer Project does not endorse hiding your own lookat while displaying those of other users, as it is a privacy concern to some people.
 
-We ask that you consider this carefully before chosing that route.
+We ask that you consider this carefully before choosing that route.
   <usetemplate
   name="okcancelbuttons"
   yestext="I understand"
-  notext="Keep the hidden"/>
+  notext="Keep them hidden"/>
  </notification>
 
  <notification
