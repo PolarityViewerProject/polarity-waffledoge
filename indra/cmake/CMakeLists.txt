@@ -41,6 +41,7 @@ set(cmake_SOURCE_FILES
     FMODSTUDIO.cmake
     FreeType.cmake
     GLH.cmake
+    GLM.cmake
     GLOD.cmake
     GStreamer010Plugin.cmake
     Glut.cmake
