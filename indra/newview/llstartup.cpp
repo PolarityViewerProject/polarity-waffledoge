@@ -424,7 +424,7 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
-		else if ((!lastGPU.empty() && (lastGPU != thisGPU) && (gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") > static_cast<S32>(0))))
+		else if ((!lastGPU.empty() && (lastGPU != thisGPU) && (gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") == -1)))
 		{
 			LLSD subs;
 			subs["LAST_GPU"] = lastGPU;
