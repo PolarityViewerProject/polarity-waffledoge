@@ -7970,7 +7970,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (channel > -1)
 				{
 					mScreen.bindTexture(0, channel);
-					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
 
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
