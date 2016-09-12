@@ -120,6 +120,13 @@
 //BD - Exodus Post Process
 #include "exopostprocess.h"
 
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #ifdef _DEBUG
 // Debug indices is disabled for now for debug performance - djs 4/24/02
 //#define DEBUG_INDICES
@@ -354,17 +361,6 @@ void glh_set_current_modelview(const glh::matrix4f& mat)
 void glh_set_current_projection(glh::matrix4f& mat)
 {
 	glh_copy_matrix(mat, gGLProjection);
-}
-
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar)
-{
-	glh::matrix4f ret(
-		2.f/(right-left), 0.f, 0.f, -(right+left)/(right-left),
-		0.f, 2.f/(top-bottom), 0.f, -(top+bottom)/(top-bottom),
-		0.f, 0.f, -2.f/(zfar-znear),  -(zfar+znear)/(zfar-znear),
-		0.f, 0.f, 0.f, 1.f);
-
-	return ret;
 }
 
 void display_update_camera();
@@ -7685,7 +7681,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (channel > -1)
 				{
 					mDeferredLight.bindTexture(0, channel);
-					//gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR); // scale fairly pleasantly
+					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR); // scale fairly pleasantly
 				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
@@ -7735,9 +7731,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
 				{
-					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f); // <alchemy/>
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f);
 				} else {
-					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f); // <alchemy/>
+					shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f);
 				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
@@ -7792,9 +7788,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			if (!LLViewerCamera::getInstance()->cameraUnderWater())
 			{
-				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f); // <alchemy/>
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 2.2f);
 			} else {
-				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f); // <alchemy/>
+				shader->uniform1f(LLShaderMgr::GLOBAL_GAMMA, 1.0f);
 			}
 			// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 			gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -9442,7 +9438,7 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 	n.normalize();
 	
 	F32 proj_range = far_clip - near_clip;
-	glh::matrix4f light_proj = gl_perspective(fovy, aspect, near_clip, far_clip);
+	glh::matrix4f light_proj = glh::matrix4f(const_cast<float*>(glm::value_ptr(glm::perspective(glm::radians(fovy), aspect, near_clip, far_clip))));
 	screen_to_light = trans * light_proj * screen_to_light;
 	shader.uniformMatrix4fv(LLShaderMgr::PROJECTOR_MATRIX, 1, FALSE, screen_to_light.m);
 	shader.uniform1f(LLShaderMgr::PROJECTOR_NEAR, near_clip);
@@ -10763,9 +10759,10 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				{ //just use ortho projection
 					mShadowFOV.mV[j] = -1.f;
 					origin.clearVec();
-					proj[j] = gl_ortho(min.mV[0], max.mV[0],
+					proj[j] = glh::matrix4f(const_cast<float*>(
+						glm::value_ptr(glm::ortho(min.mV[0], max.mV[0],
 										min.mV[1], max.mV[1],
-										-max.mV[2], -min.mV[2]);
+										-max.mV[2], -min.mV[2]))));
 				}
 				else
 				{
@@ -10854,9 +10851,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					{ //just use ortho projection
 						origin.clearVec();
 						mShadowError.mV[j] = -1.f;
-						proj[j] = gl_ortho(min.mV[0], max.mV[0],
+						proj[j] = glh::matrix4f(const_cast<float*>(glm::value_ptr(glm::ortho(min.mV[0], max.mV[0],
 								min.mV[1], max.mV[1],
-								-max.mV[2], -min.mV[2]);
+								-max.mV[2], -min.mV[2]))));
 					}
 					else
 					{
@@ -11036,8 +11033,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			F32 fovy = fov * RAD_TO_DEG;
 			F32 aspect = width/height;
-			
-			proj[i+4] = gl_perspective(fovy, aspect, near_clip, far_clip);
+
+			proj[i+4] = glh::matrix4f(const_cast<float*>(glm::value_ptr(glm::perspective(glm::radians(fovy), aspect, near_clip, far_clip))));
 
 			//translate and scale to from [-1, 1] to [0, 1]
 			glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
@@ -11264,7 +11261,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		F32 distance = (pos-camera.getOrigin()).length();
 		F32 fov = atanf(tdim.mV[1]/distance)*2.f*RAD_TO_DEG;
 		F32 aspect = tdim.mV[0]/tdim.mV[1];
-		glh::matrix4f persp = gl_perspective(fov, aspect, 1.f, 256.f);
+		glh::matrix4f persp = glh::matrix4f(const_cast<float*>(glm::value_ptr(glm::perspective(glm::radians(fov), aspect, 1.f, 256.f))));
 		glh_set_current_projection(persp);
 		gGL.loadMatrix(persp.m);
 
