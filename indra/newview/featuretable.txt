@@ -58,7 +58,7 @@ UseStartScreen				1	1
 UseOcclusion				1	1
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	128
+WLSkyDetail					1	1024
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
@@ -108,7 +108,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -146,7 +146,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -183,7 +183,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -220,7 +220,7 @@ WindLightUseAtmosShaders	1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -256,7 +256,7 @@ WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	0
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -292,7 +292,7 @@ WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	0
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	0
@@ -329,7 +329,7 @@ WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	2
-WLSkyDetail					1	48
+WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	0
@@ -362,7 +362,7 @@ RenderUseImpostors			1	1
 RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	128
+WLSkyDetail					1	1024
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 PVOverride_RenderShadowDetail			1	2
