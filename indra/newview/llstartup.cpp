@@ -448,7 +448,10 @@ bool idle_startup()
 		gSavedSettings.setString("LastGPUString", thisGPU);
 
 		// load dynamic GPU/feature tables from website (S3)
-		LLFeatureManager::getInstance()->fetchHTTPTables();
+		if(gSavedSettings.getBOOL("PVNetwork_UseHTTPFeatureTable"))
+		{
+			LLFeatureManager::getInstance()->fetchHTTPTables();
+		}
 /*
 		if (!mFeatureTableExistsForVersion)
 		{
