@@ -292,7 +292,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.loadIdentity();
 
-	glh::matrix4f proj_mat;
+	glm::mat4 proj_mat;
 
 	if (for_selection)
 	{
@@ -305,8 +305,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 			gViewerWindow->getWorldViewRectRaw().getWidth(),
 			gViewerWindow->getWorldViewRectRaw().getHeight());
 		
-		proj_mat = glh::matrix4f((float*)glm::value_ptr(glm::pickMatrix(
-			glm::vec2(x+width/2.f, y_from_bot+height/2.f), glm::vec2((F32) width, (F32) height), viewport)));
+		proj_mat = glm::pickMatrix(glm::vec2(x+width/2.f, y_from_bot+height/2.f), glm::vec2((F32) width, (F32) height), viewport);
 
 		if (limit_select_distance)
 		{
@@ -342,38 +341,36 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 		float offset = mZoomFactor - 1.f;
 		int pos_y = mZoomSubregion / llceil(mZoomFactor);
 		int pos_x = mZoomSubregion - (pos_y*llceil(mZoomFactor));
-		glh::matrix4f translate;
-		translate.set_translate(glh::vec3f(offset - (F32)pos_x * 2.f, offset - (F32)pos_y * 2.f, 0.f));
-		glh::matrix4f scale;
-		scale.set_scale(glh::vec3f(mZoomFactor, mZoomFactor, 1.f));
 
-		proj_mat = scale*proj_mat;
-		proj_mat = translate*proj_mat;
+		proj_mat = glm::translate(proj_mat, glm::vec3(offset - (F32) pos_x * 2.f, offset - (F32) pos_y * 2.f, 0.f));
+		proj_mat = glm::scale(proj_mat, glm::vec3(mZoomFactor, mZoomFactor, 1.f));
 	}
 
 	calcProjection(z_far); // Update the projection matrix cache
 
-	proj_mat *= glh::matrix4f(const_cast<float*>(glm::value_ptr(glm::perspective(glm::radians(fov_y), aspect, z_near, z_far))));
+	proj_mat *= glm::perspective(glm::radians(fov_y), aspect, z_near, z_far);
 
-	gGL.loadMatrix(proj_mat.m);
+	F32* proj_matp = glm::value_ptr(proj_mat);
+
+	gGL.loadMatrix(proj_matp);
 
 	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
-		gGLProjection[i] = proj_mat.m[i];
+		gGLProjection[i] = proj_matp[i];
 	}
 
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 
-	glh::matrix4f modelview((GLfloat*) OGL_TO_CFR_ROTATION);
+	glm::mat4 modelview(glm::make_mat4((GLfloat*) OGL_TO_CFR_ROTATION));
 
 	GLfloat			ogl_matrix[16];
-
 	getOpenGLTransform(ogl_matrix);
 
-	modelview *= glh::matrix4f(ogl_matrix);
+	modelview *= glm::make_mat4(ogl_matrix);
 	
-	gGL.loadMatrix(modelview.m);
+        F32* modelviewp = glm::value_ptr(modelview);
+	gGL.loadMatrix(modelviewp);
 	
 	if (for_selection && (width > 1 || height > 1))
 	{
@@ -394,7 +391,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 		//@todo PLVR: use memcpy
 		for (U32 i = 0; i < 16; i++)
 		{
-			gGLModelView[i] = modelview.m[i];
+			gGLModelView[i] = modelviewp[i];
 		}
 	}
 
