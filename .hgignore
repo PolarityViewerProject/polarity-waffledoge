@@ -42,6 +42,7 @@ indra/newview/mozilla-universal-darwin.tgz
 indra/newview/res/ll_icon.*
 indra/newview/res-sdl/ll_icon.*
 indra/newview/skins/obsidian
+indra/newview/skins/legacy
 indra/newview/vivox-runtime
 indra/server-linux-*
 indra/temp
