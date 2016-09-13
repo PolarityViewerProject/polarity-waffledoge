@@ -3,10 +3,10 @@
  height="768"
  layout="topleft"
  name="panel_login"
- focus_root="true"
- background_visible="true"
- bg_opaque_color="0.1372549019607843 0.1372549019607843 0.1372549019607843 1"
+ bg_opaque_color="MenuDefaultBgColor"
  background_opaque="true"
+ background_visible="true"
+ focus_root="true"
  width="1024">
  <layout_stack
  follows="left|right|top"
@@ -256,7 +256,6 @@ ________________________________________________________________________________
  <web_browser
     tab_stop="false"
     trusted_content="true"
-    bg_opaque_color="0.1372549019607843 0.1372549019607843 0.1372549019607843 1"
     border_visible="false"
     follows="all"
     left="250"

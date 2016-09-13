@@ -515,6 +515,8 @@ void init_menus()
 	///
 	LLColor4 color;
 
+	// do not set colors in code, let the skin decide. -Zi
+	/*
 	LLColor4 context_menu_color = LLUIColorTable::instance().getColor("MenuPopupBgColor");
 	
 	gMenuAvatarSelf->setBackgroundColor( context_menu_color );
@@ -527,6 +529,7 @@ void init_menus()
 
 	color = LLUIColorTable::instance().getColor( "MenuPopupBgColor" );
 	gPopupMenuView->setBackgroundColor( color );
+	*/
 
 	// If we are not in production, use a different color to make it apparent.
 	if (LLGridManager::getInstance()->isInProductionGrid())
