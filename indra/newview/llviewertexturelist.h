@@ -140,7 +140,7 @@ public:
 
 	static S32Megabytes getMinVideoRamSetting();
 	// <FS:Ansariel> Proper texture memory calculation
-	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier, bool clamp_upper_limit = true);
+	static S32Megabytes getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier);
 	
 private:
 	void updateImagesDecodePriorities();

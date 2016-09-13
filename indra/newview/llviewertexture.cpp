@@ -59,11 +59,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
+#ifdef LL_VRAM_CODE
 const S32Megabytes gMinVideoRam(32);
+#endif
 #ifdef LL_X86_64
-const S32Megabytes gMaxVideoRam(2048);
+S32Megabytes gMaxVideoRam;
 #else
-const S32Megabytes gMaxVideoRam(1024);
+S32Megabytes gMaxVideoRam(1024);
 #endif
 
 

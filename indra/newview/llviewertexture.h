@@ -39,8 +39,10 @@
 #include <map>
 #include <list>
 
+#ifdef LL_VRAM_CODE
 extern const S32Megabytes gMinVideoRam;
-extern const S32Megabytes gMaxVideoRam;
+#endif
+extern S32Megabytes gMaxVideoRam;
 
 class LLFace;
 class LLImageGL ;

@@ -1336,18 +1336,21 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 // Returns min setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
+#ifdef LL_VRAM_CODE
 	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
 	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
+#else
+	return S32Megabytes(128); // 2016
+#endif
 }
 
 //static
 // Returns max setting for TextureMemory (in MB)
-// <FS:Ansariel> Proper texture memory calculation
 //S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
-S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier, bool clamp_upper_limit /* = true */)
-// </FS:Ansariel>
+S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier)
 {
+#if LL_VRAM_CODE
 	S32Megabytes max_texmem;
 	if (gGLManager.mVRAM != 0)
 	{
@@ -1402,6 +1405,57 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, fl
 #endif
 
 	return max_texmem;
+#else
+	S32 Hardware_VRAM;
+	bool no_hw_probe = gSavedSettings.getBOOL("NoHardwareProbe");
+	if (no_hw_probe) //did not do hardware detection at startup
+	{
+		Hardware_VRAM = 512;
+	}
+	else
+	{
+		Hardware_VRAM = gGLManager.mVRAM;
+	}
+
+	LL_DEBUGS() << "VIDEO MEMORY AMOUNT = " << Hardware_VRAM << LL_ENDL;
+	auto minimum_VRAM = getMinVideoRamSetting();
+	auto adjusted_max_vram = Hardware_VRAM;
+
+
+	static LLCachedControl<bool> leave_vram_for_os(gSavedSettings, "PVDebug_ReserveVRAMForSystem", true,
+		"Do not allocate all VRAM and leave 25% or 3GB (first occurence) for other programs");
+
+	if (leave_vram_for_os || gGLManager.mIsATI)
+	{
+		if ((Hardware_VRAM * 0.25f) > 3072) // we have a lot of VRAM
+		{
+			// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
+			adjusted_max_vram = Hardware_VRAM - 3072;
+		}
+		else
+		{
+			// shrink the availabe vram to avoid starving the rest of the system
+			adjusted_max_vram = S32(adjusted_max_vram * 0.75f);
+		}
+	}
+
+	if (get_recommended)
+	{
+		//adjusted_max_vram = llmin(adjusted_max_vram, S32Megabytes(adjusted_max_vram * 0.75f)); // half was too few.
+	}
+	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
+	adjusted_max_vram = llmin(adjusted_max_vram, S32(mem_multiplier * adjusted_max_vram));
+	if (Hardware_VRAM < minimum_VRAM.value())
+	{
+		LL_WARNS() << "VRAM amount not detected or less than 128MB, defaulting to " << minimum_VRAM.value() << " MB" << LL_ENDL;
+	}
+	
+	//if (gMaxVideoRam != adjusted_max_vram) // be nice on memory writes
+	{
+		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
+	}
+	return gMaxVideoRam;
+#endif
 }
 
 // <polarity> TODO: Make this dynamic based on the snapshot texture size
@@ -1425,7 +1479,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	mem = llclamp(mem, getMinVideoRamSetting(), getMaxVideoRamSetting(false, mem_multiplier));
 	if (mem != cur_mem)
 	{
-		gSavedSettings.setS32("TextureMemory", mem.value());
+		gSavedSettings.setS32("TextureMemory", (S32)mem.value());
 		return; //listener will re-enter this function
 	}
 
@@ -1433,22 +1487,23 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	// currently max(12MB, VRAM/4) assumed...
 	
 	S32Megabytes vb_mem = mem;
-	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, vb_mem/4);
+	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, S32Megabytes(vb_mem * 0.25f));
 	mMaxResidentTexMemInMegaBytes = (vb_mem - fb_mem) ; //in MB
 	
 #ifdef LL_X86_64
-	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam / 2)
+	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam * 0.75f) // 75%, also removed division.
 	{
-		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + (S32Megabytes) (mMaxResidentTexMemInMegaBytes * 0.25f);
+		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + S32Megabytes((mMaxResidentTexMemInMegaBytes * 0.25f));
 	}
 	else
 	{
 		mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
 	}
 #else
-	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 2;
+	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 1.75f; // conform to logic above
 	if (mMaxResidentTexMemInMegaBytes > (S32Megabytes)640)
 	{
+		// TODO revise this math - Xenhat 2016-09-12
 		mMaxTotalTextureMemInMegaBytes -= (mMaxResidentTexMemInMegaBytes / 4);
 	}
 #endif
@@ -1466,8 +1521,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 		mMaxTotalTextureMemInMegaBytes = system_ram - min_non_texture_mem ;
 	}
 	
-	LL_INFOS() << "Total Video Memory set to: " << vb_mem << " MB" << LL_ENDL;
-	LL_INFOS() << "Available Texture Memory set to: " << (vb_mem - fb_mem) << " MB" << LL_ENDL;
+	LL_INFOS() << "Total Video Memory set to: " << mem << " MB" << LL_ENDL;
 	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << " MB" << LL_ENDL;
 	LL_INFOS() << "Maxiumum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << " MB" << LL_ENDL;
 }
