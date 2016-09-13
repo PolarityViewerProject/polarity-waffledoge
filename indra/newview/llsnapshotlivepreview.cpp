@@ -799,16 +799,16 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
     if (!scaled->isBufferInvalid())
     {
         // leave original image dimensions, just scale up texture buffer
-        if (mPreviewImageEncoded->getWidth() > 1024 || mPreviewImageEncoded->getHeight() > 1024)
+        if (mPreviewImageEncoded->getWidth() > MAX_IMAGE_SIZE || mPreviewImageEncoded->getHeight() > MAX_IMAGE_SIZE)
         {
             // go ahead and shrink image to appropriate power of 2 for display
-            scaled->biasedScaleToPowerOfTwo(1024);
+            scaled->biasedScaleToPowerOfTwo(MAX_IMAGE_SIZE);
             setImageScaled(TRUE);
         }
         else
         {
             // expand image but keep original image data intact
-            scaled->expandToPowerOfTwo(1024, FALSE);
+            scaled->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
         }
 
         mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);

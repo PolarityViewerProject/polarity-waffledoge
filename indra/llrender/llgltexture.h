@@ -42,7 +42,7 @@ class LLGLTexture : public LLTexture
 public:
 	enum
 	{
-		MAX_IMAGE_SIZE_DEFAULT = 1024,
+		MAX_IMAGE_SIZE_DEFAULT = MAX_IMAGE_SIZE, // Magic numbers removal
 		INVALID_DISCARD_LEVEL = 0x7fff
 	};
 

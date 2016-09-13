@@ -1471,7 +1471,7 @@ BOOL LLImageGL::readBackRaw(S32 discard_level, LLImageRaw* imageraw, bool compre
 		return FALSE ;
 	}
 
-	if (width <= 0 || width > 2048 || height <= 0 || height > 2048 || ncomponents < 1 || ncomponents > 4)
+	if (width <= 0 || width > MAX_IMAGE_SIZE || height <= 0 || height > MAX_IMAGE_SIZE || ncomponents < 1 || ncomponents > 4)
 	{
 		LL_ERRS() << llformat("LLImageGL::readBackRaw: bogus params: %d x %d x %d",width,height,ncomponents) << LL_ENDL;
 	}

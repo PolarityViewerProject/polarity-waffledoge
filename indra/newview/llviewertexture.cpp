@@ -3232,8 +3232,8 @@ void LLViewerLODTexture::processTextureStats()
 		discard_level = floorf(discard_level);
 
 		F32 min_discard = 0.f;
-		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
-			min_discard = 1.f; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
+		if (mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE)
+			min_discard = 1.f;
 
 		discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
 		
