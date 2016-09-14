@@ -45,7 +45,6 @@
 #include "llvector4a.h"
 #include "llvector4a.h"
 #include <boost/align/aligned_allocator.hpp>
-#include <glh/glh_linear.h>
 #include <glm/mat4x4.hpp>
 
 class LLVertexBuffer;
