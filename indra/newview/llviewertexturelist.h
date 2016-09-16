@@ -139,7 +139,6 @@ public:
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
 	static S32Megabytes getMinVideoRamSetting();
-	// <FS:Ansariel> Proper texture memory calculation
 	static S32Megabytes getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier);
 	
 private:
