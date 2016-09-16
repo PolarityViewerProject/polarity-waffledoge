@@ -35,6 +35,7 @@ import re
 import tarfile
 import time
 import random
+import datetime # for utcnow
 viewer_dir = os.path.dirname(__file__)
 # Add indra/lib/python to our path so we don't have to muck with PYTHONPATH.
 # Put it FIRST because some of our build hosts have an ancient install of
@@ -280,26 +281,21 @@ class ViewerManifest(LLManifest):
 
     def installer_base_name(self):
         global CHANNEL_VENDOR_BASE
-        # get raw epoch
-        temp_epoch_raw = time.time()
-        # convert to string (required for truncation)
-        temp_epoch_str = "{:0}".format(temp_epoch_raw)
-        # Truncate string
-        time_epoch = temp_epoch_str[:9]
+        today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
         # a standard map of strings for replacing in the templates
         substitution_strings = {
-            'channel_vendor_base' : '_'.join(CHANNEL_VENDOR_BASE.split()),
+            'channel_vendor_base' : '-'.join(CHANNEL_VENDOR_BASE.split()),
             'channel_variant_underscores':self.channel_variant_app_suffix(),
-            'epoch':''.join(str(time_epoch)),
             'version_underscores' : '_'.join(self.args['version']),
-            'arch':self.args['arch']
+            'arch' : self.args['arch'],
+            'utcdate' : ''.join(str(today_str))
             }
         channel_type=self.channel_type()
         installer_file_name=""
-        if channel_type == 'release':
-            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s"
+        if channel_type == 'test':
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(utcdate)s_%(arch)s"
         else:
-            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(epoch)s_%(version_underscores)s_%(arch)s"
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s"
         return installer_file_name % substitution_strings
 
     def app_name(self):
