@@ -372,6 +372,9 @@ const long UPLOAD_RETRY_LIMIT = 0L;
 // See wiki at https://wiki.secondlife.com/wiki/Mesh/Mesh_Asset_Format
 const S32 MAX_MESH_VERSION = 999;
 
+//<FS:TS> FIRE-11451: Cap concurrent mesh requests at a sane value 
+//</FS:TS> FIRE-11451 
+
 U32 LLMeshRepository::sBytesReceived = 0;
 U32 LLMeshRepository::sMeshRequestCount = 0;
 U32 LLMeshRepository::sHTTPRequestCount = 0;
@@ -3287,8 +3290,13 @@ void LLMeshRepository::notifyLoadedMeshes()
 	if (1 == mGetMeshVersion)
 	{
 		// Legacy GetMesh operation with high connection concurrency
+		// <FS:Ansariel> Use faster LLCachedControls for frequently visited locations
+		//LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("MeshMaxConcurrentRequests");
 		static LLCachedControl<U32> mesh_max_concur_req(gSavedSettings, "MeshMaxConcurrentRequests");
+		//<FS:TS> FIRE-11451: Cap concurrent requests at a sane value
+		//</FS:TS> FIRE-11451 
 		LLMeshRepoThread::sMaxConcurrentRequests = mesh_max_concur_req;
+		// </FS:Ansariel>
 		LLMeshRepoThread::sRequestHighWater = llclamp(2 * S32(LLMeshRepoThread::sMaxConcurrentRequests),
 													  REQUEST_HIGH_WATER_MIN,
 													  REQUEST_HIGH_WATER_MAX);
@@ -3306,7 +3314,11 @@ void LLMeshRepository::notifyLoadedMeshes()
 				  ? (2 * LLAppCoreHttp::PIPELINING_DEPTH)
 				  : 5);
 
+		// <FS:TM> Use faster LLCachedControls for frequently visited locations
 		LLMeshRepoThread::sMaxConcurrentRequests = gSavedSettings.getU32("Mesh2MaxConcurrentRequests");
+		//<FS:TS> FIRE-11451: Cap concurrent requests at a sane value
+		//</FS:TS> FIRE-11451 
+		// </FS:TM>
 		LLMeshRepoThread::sRequestHighWater = llclamp(scale * S32(LLMeshRepoThread::sMaxConcurrentRequests),
 													  REQUEST2_HIGH_WATER_MIN,
 													  REQUEST2_HIGH_WATER_MAX);
@@ -3958,7 +3970,7 @@ F32 LLMeshRepository::getStreamingCost(LLSD& header, F32 radius, S32* bytes, S32
 		}
 	}
 
-	F32 max_area = 102932.f; //area of circle that encompasses region
+	F32 max_area = 102944.f; //area of circle that encompasses region (see MAINT-6559)
 	F32 min_area = 1.f;
 
 	F32 high_area = llmin(F_PI*dmid*dmid, max_area);

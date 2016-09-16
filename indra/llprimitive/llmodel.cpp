@@ -1393,7 +1393,10 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 	{
 		for (U32 i = 0; i < skin["joint_names"].size(); ++i)
 		{
-			mJointNames.push_back(skin["joint_names"][i]);
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//			mJointNames.push_back( skin[ "joint_names" ][ i ] );
+			mJointNames.push_back( JointKey::construct( skin[ "joint_names" ][ i ] ) );
+// </FS>ND>
 		}
 	}
 
@@ -1454,7 +1457,10 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
 
 	for (U32 i = 0; i < mJointNames.size(); ++i)
 	{
-		ret["joint_names"][i] = mJointNames[i];
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//		ret[ "joint_names" ][ i ] = mJointNames[ i ];
+		ret[ "joint_names" ][ i ] = mJointNames[ i ].mName;
+// </FS:ND>
 
 		for (U32 j = 0; j < 4; j++)
 		{

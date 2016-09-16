@@ -40,6 +40,8 @@
 #include "httphandler.h"
 #include "llthread.h"
 
+#include <boost/unordered_map.hpp>
+
 #define LLCONVEXDECOMPINTER_STATIC 1
 
 #include "llconvexdecomposition.h"
@@ -524,7 +526,9 @@ public:
 	typedef std::map<LLVolumeParams, std::set<LLUUID> > mesh_load_map;
 	mesh_load_map mLoadingMeshes[4];
 	
-	typedef std::map<LLUUID, LLMeshSkinInfo> skin_map;
+	// <polarity> Faster Lookup (Based on Ansariel's Fix)
+	//typedef std::map<LLUUID, LLMeshSkinInfo> skin_map;
+	typedef boost::unordered_map<LLUUID, LLMeshSkinInfo> skin_map;
 	skin_map mSkinMap;
 
 	typedef std::map<LLUUID, LLModel::Decomposition*> decomposition_map;

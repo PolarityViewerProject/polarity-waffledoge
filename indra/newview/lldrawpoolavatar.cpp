@@ -1250,8 +1250,8 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	BOOL impostor = avatarp->isImpostor() && !single_avatar;
 
-	if (( avatarp->isInMuteList() 
-		  || impostor 
+	if (( /*avatarp->isInMuteList() // <FS:Ansariel> Partially undo MAINT-5700: Draw imposter for muted avatars
+		  ||*/ impostor 
 		  || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
 	{ //don't draw anything but the impostor for impostored avatars
 		return;
@@ -1566,9 +1566,6 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 				{
 					LLPointer<LLVertexBuffer> cur_buffer = facep->getVertexBuffer();
 					const LLVolumeFace& cur_vol_face = volume->getVolumeFace(i);
-					// <FS:ND> FIRE-14261 try to skip broken or out of bounds faces
- 					if( cur_vol_face.mNumVertices > 0x10000 || cur_vol_face.mNumVertices < 0 || cur_vol_face.mNumIndices < 0 )
- 						continue;
 					getRiggedGeometry(facep, cur_buffer, face_data_mask, skin, volume, cur_vol_face);
 				}
 			}
@@ -1579,11 +1576,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		else
 		{
 			//just rebuild this face
-			// <FS:Ansariel> FIRE-14261 try to skip broken or out of bounds faces
-			//getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
-			if (vol_face.mNumVertices <= 0x10000 && vol_face.mNumVertices >= 0 && vol_face.mNumIndices >= 0)
-				getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
-			// </FS:Ansariel>
+			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
 		}
 	}
 
@@ -1615,7 +1608,17 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 			LLJoint* joint = avatar->getJoint(skin->mJointNames[j]);
 			if (!joint)
 			{
-				joint = avatar->getJoint("mPelvis");
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//				joint = avatar->getJoint( "mPelvis" );
+				joint = avatar->getJoint( JointKey::construct( "mPelvis" ) );
+// </FS:ND>
+			}
+			if (!joint)
+			{
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//				LL_DEBUGS( "Avatar" ) << "Failed to find " << skin->mJointNames[ j ] << LL_ENDL;
+				LL_DEBUGS( "Avatar" ) << "Failed to find " << skin->mJointNames[ j ].mName << LL_ENDL;
+// </FS:ND>
 			}
 			if (joint)
 			{
@@ -1627,28 +1630,49 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(LLVOAvatar* avatar, LLFace* 
 		LLMatrix4a bind_shape_matrix;
 		bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
+		__m128i _mMaxIdx = _mm_set_epi16( count-1, count-1, count-1, count-1, count-1, count-1, count-1, count-1 );
+		
 		for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 		{
 			LLMatrix4a final_mat;
 			final_mat.clear();
 
-			S32 idx[4];
+			// <FS:ND> Avoid the 8 floorf by using SSE2.
+			// S32 idx[4];
+			// 
+			// LLVector4 wght;
+			// 
+			// F32 scale = 0.f;
+			// for (U32 k = 0; k < 4; k++)
+			// {
+			// 	F32 w = weight[j][k];
+			// 
+			// 	idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)JOINT_COUNT-1);
+			// 
+			// 
+			// 	wght[k] = w - floorf(w);
+			// 	scale += wght[k];
+			// }
+            //// This is enforced  in unpackVolumeFaces()
+            //llassert(scale>0.f);
+			// wght *= 1.f/scale;
 
-			LLVector4 wght;
+			LL_ALIGN_16( S32 idx[4] );
+			LL_ALIGN_16( F32 wght[4] );
 
-			F32 scale = 0.f;
-			for (U32 k = 0; k < 4; k++)
-			{
-				F32 w = weight[j][k];
+			__m128i _mIdx = _mm_cvttps_epi32( weight[j] );
+			__m128 _mWeight = _mm_sub_ps( weight[j], _mm_cvtepi32_ps( _mIdx ) );
 
-				idx[k] = llclamp((S32) floorf(w), (S32)0, (S32)JOINT_COUNT-1);
+			_mIdx = _mm_min_epi16( _mIdx, _mMaxIdx );
+			_mm_store_si128( (__m128i*)idx, _mIdx );
+			
+			__m128 _mScale = _mm_add_ps( _mWeight, _mm_movehl_ps( _mWeight, _mWeight ));
+			_mScale = _mm_add_ss( _mScale, _mm_shuffle_ps( _mScale, _mScale, 1) );
+			_mScale = _mm_shuffle_ps( _mScale, _mScale, 0 );
 
-				wght[k] = w - floorf(w);
-				scale += wght[k];
-			}
-            // This is enforced  in unpackVolumeFaces()
-            llassert(scale>0.f);
-			wght *= 1.f/scale;
+			_mWeight = _mm_div_ps( _mWeight, _mScale );
+			_mm_store_ps( wght, _mWeight );
+			// </FS:ND>
 
 			for (U32 k = 0; k < 4; k++)
 			{
@@ -1749,8 +1773,11 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 					LLJoint* joint = avatar->getJoint(skin->mJointNames[i]);
                     if (!joint)
                     {
-                        joint = avatar->getJoint("mPelvis");
-                    }
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//						joint = avatar->getJoint( "mPelvis" );
+						joint = avatar->getJoint( JointKey::construct( "mPelvis" ) );
+// </FS>ND>
+					}
 					if (joint)
 					{
 						mat[i] = skin->mInvBindMatrix[i];
@@ -2283,7 +2310,11 @@ void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 			}
 			else
 			{
-				LL_ERRS() << "Face reference data corrupt for rigged type " << i << LL_ENDL;
+				// <FS:Ansariel> Additional debugging code
+				//LL_ERRS() << "Face reference data corrupt for rigged type " << i << LL_ENDL;
+				std::string cause = (index >= mRiggedFace[i].size() ? "Index out of bounds" : "Index incorrect");
+				LL_WARNS() << "Face reference data corrupt for rigged type " << i << ": " << cause << LL_ENDL;
+				// </FS:Ansariel>
 			}
 		}
 	}
