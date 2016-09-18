@@ -525,6 +525,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
+#if DEBUG_MATERIAL_DATA_FROM_SERVER
 	else
 	{
 		llassert(response_data.isArray());
@@ -551,6 +552,7 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 			// *TODO: do we really still need to process this?
 		}
 	}
+#endif
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MATERIALS_IDLE("Idle Materials");
