@@ -110,6 +110,7 @@ if (WINDOWS)
       /Oy-
       /fp:fast
       /Zm140
+      /bigobj
       )
 
   if(USE_AVX)
