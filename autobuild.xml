@@ -2930,7 +2930,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14"</string>
+                  <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                 </array>
               </map>
@@ -2976,7 +2976,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14"</string>
+                  <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3021,7 +3021,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14"</string>
+                  <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3068,7 +3068,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14"</string>
+                  <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
@@ -3120,7 +3120,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string>
+                  <string>"Visual Studio 14 2015 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
@@ -3167,7 +3167,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string>
+                  <string>"Visual Studio 14 2015 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
@@ -3214,7 +3214,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string>
+                  <string>"Visual Studio 14 2015 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
@@ -3262,7 +3262,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string>
+                  <string>"Visual Studio 14 2015 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.10586.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
