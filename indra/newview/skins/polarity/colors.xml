@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<colors>
+        <!-- Named Colors -->
+	<color
+	 name="EmphasisColor"
+	 value="0.38 0.694 0.573 1" />
+	<color
+	 name="EmphasisColor_13"
+	 value="0.38 0.694 0.573 0.13" />
+	<color
+	 name="EmphasisColor_35"
+	 value="0.38 0.694 0.573 0.35" />
+        <color
+         name="MenuBarBgColor"
+         value="0.1372549019607843 0.1372549019607843 0.1372549019607843 1" />
+        <color
+         name="MenuDefaultBgColor"
+         value="0.1372549019607843 0.1372549019607843 0.1372549019607843 1" />
+</colors>
