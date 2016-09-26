@@ -5192,9 +5192,8 @@ void process_time_synch(LLMessageSystem *mesgsys, void **user_data)
 
 void process_sound_trigger(LLMessageSystem *msg, void **)
 {
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -5266,9 +5265,8 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 
 void process_preload_sound(LLMessageSystem *msg, void **user_data)
 {
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 

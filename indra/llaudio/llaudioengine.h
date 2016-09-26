@@ -265,6 +265,12 @@ public:
 	bool isCorruptSound( LLUUID const& ) const;
 
 	// </FS:ND>
+
+public:
+	static bool missingAudioWarnedAlready_;
+
+public:
+	inline static bool isInstanceMissing();
 };
 
 

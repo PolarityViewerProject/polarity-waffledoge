@@ -96,9 +96,8 @@ void LLViewerAudio::startInternetStreamWithAutoFade(std::string streamURI)
 	switch (mFadeState)
 	{
 	case FADE_IDLE:
-		if (!gAudiop)
+		if (LLAudioEngine::isInstanceMissing())
 		{
-			LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 			break;
 		}
 		// If a stream is playing fade it out first
@@ -570,9 +569,8 @@ void audio_update_wind(bool force_update)
 			volume_delta = 1.f;
 		}
 
-		if (!gAudiop)
+		if (LLAudioEngine::isInstanceMissing())
 		{
-			LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 			return;
 		}
 

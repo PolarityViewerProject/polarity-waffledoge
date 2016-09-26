@@ -875,9 +875,8 @@ void LLPanelNearByMedia::onClickParcelAudioPlay()
 	// User *explicitly* started the internet stream, so keep the stream
 	// playing and updated as they cross to other parcels etc.
 	mParcelAudioAutoStart = true;
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -898,9 +897,8 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 	// re-start audio when i.e. they move to another parcel, until
 	// they explicitly start it again.
 	mParcelAudioAutoStart = false;
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -909,9 +907,8 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 
 void LLPanelNearByMedia::onClickParcelAudioPause()
 {
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 

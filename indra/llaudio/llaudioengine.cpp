@@ -46,6 +46,7 @@ extern void request_sound(const LLUUID &sound_guid);
 
 LLAudioEngine* gAudiop = NULL;
 
+bool LLAudioEngine::missingAudioWarnedAlready_ = false;
 
 //
 // LLAudioEngine implementation
@@ -1239,13 +1240,32 @@ void LLAudioEngine::startNextTransfer()
 	}
 }
 
+// inline static
+bool LLAudioEngine::isInstanceMissing()
+{
+	if(gAudiop)
+	{
+		return false;
+	}
+	if (!missingAudioWarnedAlready_)
+	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist"
+#if defined(LL_FMODSTUDIO) || defined(LL_OPENAL)
+			<< "!"
+#else
+			<< ", audio driver missing! (FMOD or OpenAL required for audio support)"
+#endif
+			<< LL_ENDL;
+		missingAudioWarnedAlready_ = true;
+	}
+	return true;
+}
 
 // static
 void LLAudioEngine::assetCallback(LLVFS *vfs, const LLUUID &uuid, LLAssetType::EType type, void *user_data, S32 result_code, LLExtStat ext_status)
 {
-	if (!gAudiop)
+	if (isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -1398,9 +1418,8 @@ bool LLAudioSource::setupChannel()
 		return false;
 	}
 
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return false;
 	}
 
@@ -1446,9 +1465,8 @@ bool LLAudioSource::play(const LLUUID &audio_uuid)
 	// Reset our age timeout if someone attempts to play the source.
 	mAgeTimer.reset();
 
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return false;
 	}
 
@@ -1562,9 +1580,8 @@ void LLAudioSource::addAudioData(LLAudioData *adp, const bool set_current)
 	// Only handle a single piece of audio data associated with a source right now,
 	// until I implement prefetch.
 
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -1738,9 +1755,8 @@ void LLAudioChannel::setSource(LLAudioSource *sourcep)
 
 bool LLAudioChannel::updateBuffer()
 {
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return false;
 	}
 
@@ -1810,9 +1826,8 @@ LLAudioData::LLAudioData(const LLUUID &uuid) :
 		return;
 	}
 
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 	
@@ -1840,9 +1855,8 @@ bool LLAudioData::load()
 		return true;
 	}
 
-	if (!gAudiop)
+	if (LLAudioEngine::isInstanceMissing())
 	{
-		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return false;
 	}
 	
