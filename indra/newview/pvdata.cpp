@@ -336,15 +336,12 @@ void PVData::handleDataFailure()
 void PVData::handleAgentsFailure()
 {
 	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
-
-	// we might want to remove this before release...
-	pv_agent_access_[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = 1;
-	pv_agent_access_[LLUUID("6b7c1d1b-fc8a-4b11-9202-707e99b4a89a")] = 1;
-	pv_agent_access_[LLUUID("584d796a-bb85-4fe9-8f7c-1f2fbf2ff164")] = 24; // Darl
-	pv_agent_access_[LLUUID("f1a73716-4ad2-4548-9f0e-634c7a98fe86")] = 24; // Xenhat
-	pv_agent_access_[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = 32;
-	pv_agent_access_[LLUUID("573129df-bf1b-46c2-9bcc-5dca94e328b2")] = 64;
-	pv_agent_access_[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = 64;
+	pv_agent_access_[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = FLAG_USER_BANNED;
+	pv_agent_access_[LLUUID("6b7c1d1b-fc8a-4b11-9202-707e99b4a89a")] = FLAG_USER_BANNED;
+	pv_agent_access_[LLUUID("584d796a-bb85-4fe9-8f7c-1f2fbf2ff164")] = FLAG_STAFF_DEV | FLAG_STAFF_QA; // Darl
+	pv_agent_access_[LLUUID("f1a73716-4ad2-4548-9f0e-634c7a98fe86")] = FLAG_STAFF_DEV; // Xenhat
+	pv_agent_access_[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = FLAG_STAFF_DEV;
+	pv_agent_access_[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = FLAG_STAFF_SUPPORT;
 	agents_download_status_ = DOWNLOAD_FAILURE;
 }
 
