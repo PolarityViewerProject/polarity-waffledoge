@@ -398,7 +398,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		}
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
-		std::string agent_role_text = PVData::getInstance()->getAgentFlagsAsString(mAvatarID);
+		std::string agent_role_text = gPVData->getAgentFlagsAsString(mAvatarID);
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);

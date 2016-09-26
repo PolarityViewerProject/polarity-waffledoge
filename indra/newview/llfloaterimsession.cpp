@@ -431,7 +431,7 @@ BOOL LLFloaterIMSession::postBuild()
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
-	BOOL is_support_group = PVData::getInstance()->isSupportGroup(mSessionID);
+	BOOL is_support_group = gPVData->isSupportGroup(mSessionID);
 	getChild<LLUICtrl>("support_group_ribbon")->setVisible(is_support_group);
 
 	initIMFloater();

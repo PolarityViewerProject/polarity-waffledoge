@@ -92,6 +92,7 @@ public:
 	// Ban reason, if present
 	pv_pair_uuid_string ban_reason_;
 
+	// Last updated 2016-09-26 1:23:12 PM
 	enum flags_t : S32
 	{
 		//
@@ -325,3 +326,6 @@ private:
 								 // Get new progress tip if enough time elapsed since the last time this was called
 	std::string last_login_tip;
 };
+
+/// <summary> Cached instance. Use this or findInstance() instead of getInstance if you can. </summary>
+extern PVData* gPVData;

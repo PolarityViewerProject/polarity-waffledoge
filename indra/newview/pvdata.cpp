@@ -52,6 +52,8 @@
 #include "rlvhandler.h"
 #include "noise.h"
 
+PVData* gPVData = NULL;
+
 static const std::string LL_LINDEN = "Linden";
 static const std::string LL_MOLE = "Mole";
 static const std::string LL_PRODUCTENGINE = "ProductEngine";
@@ -108,7 +110,7 @@ void downloadComplete( LLSD const &aData, std::string const &aURL )
 	LLSD data = aData;
 	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
 
-	PVData::getInstance()->handleResponseFromServer(data, aURL, true /*,lastModified*/);
+	gPVData->handleResponseFromServer(data, aURL, true /*,lastModified*/);
 }
 
 void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::string const &aFilename  )
@@ -138,7 +140,7 @@ void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::st
 void downloadError( LLSD const &aData, std::string const &aURL )
 {
 	LL_WARNS() << "Failed to download " << aURL << ": " << aData << LL_ENDL;
-	PVData::getInstance()->handleResponseFromServer(aData, aURL, false);
+	gPVData->handleResponseFromServer(aData, aURL, false);
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
@@ -180,6 +182,7 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 
 void PVData::downloadData()
 {
+	gPVData = PVData::getInstance();
 	if (PVData::canDownload(data_download_status_))
 	{
 		data_parse_status_ = INIT;
@@ -478,7 +481,7 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 
 			// Most likely a teleport screen; let's add something.
 
-			return_tip = PVData::instance().progress_tips_list_.getRandom();
+			return_tip = gPVData->progress_tips_list_.getRandom();
 			LL_DEBUGS("PVData") << "New tip from function is '" << return_tip << "'" << LL_ENDL;
 
 			if (!return_tip.empty() && return_tip != last_login_tip)
@@ -851,7 +854,7 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 	// Check for agents flagged through PVData
 	std::string flags_string = "";
 	std::vector<std::string> flags_list;
-	S32 av_flags = PVData::getInstance()->getAgentFlags(avatar_id);
+	S32 av_flags = gPVData->getAgentFlags(avatar_id);
 	if (isLinden(avatar_id, av_flags))
 	{
 		flags_list.push_back("Linden Lab Employee");
@@ -927,12 +930,11 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
 	if (force_refresh_now || pvdata_refresh_timer_.getElapsedTimeF32() >= refresh_minutes * 60)
 	{
-		auto pvD = PVData::getInstance();
 		LL_INFOS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
-		pvD->downloadData();
+		instance().downloadData();
 
 		PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
-		pvD->downloadAgents();
+		instance().downloadAgents();
 		if (!force_refresh_now)
 		{
 			PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
@@ -948,7 +950,7 @@ void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
 {
 	// Skip debug entirely if the user isn't authenticated yet
 	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE)
-		|| !PVData::instance().isDeveloper(gAgentID)) // or if not a developer
+		|| !(gPVData->isDeveloper(gAgentID))) // or if not a developer
 	{
 		return;
 	}
@@ -999,7 +1001,7 @@ void PVData::Dump(const std::string name, const LLSD& map)
 	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
 
 	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE) // Skip debug entirely if the user isn't authenticated yet
-		|| !PVData::instance().isDeveloper(gAgentID) // or if not a developer
+		|| !gPVData->isDeveloper(gAgentID) // or if not a developer
 		|| !pvdebug_printtolog) // or if chosing not to.
 	{
 		return;
@@ -1019,7 +1021,6 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 
 	// Try to operate in the same instance, reduce call overhead
 	auto uiCT = LLUIColorTable::getInstance();
-	auto pvD = PVData::getInstance();
 
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
 	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
@@ -1036,16 +1037,16 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	}
 
 	// Check if agent is flagged through PVData
-	auto av_flags = pvD->getAgentFlags(avatar_id);
+	auto av_flags = gPVData->getAgentFlags(avatar_id);
 
 	// Get custom color (from PVData or fast cache
-	if (pvD->pv_agent_color_llcolor4.find(avatar_id) != pvD->pv_agent_color_llcolor4.end())
+	if (gPVData->pv_agent_color_llcolor4.find(avatar_id) != gPVData->pv_agent_color_llcolor4.end())
 	{
-		pvdata_color = pvD->pv_agent_color_llcolor4[avatar_id];
+		pvdata_color = gPVData->pv_agent_color_llcolor4[avatar_id];
 	}
 	else
 	{
-		if (pvD->isLinden(avatar_id, av_flags))
+		if (gPVData->isLinden(avatar_id, av_flags))
 		{
 			instance().pv_agent_color_llcolor4.insert_or_assign(avatar_id, linden_color.get());
 			return linden_color.get();
@@ -1088,7 +1089,7 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
 			}
 			// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
-			pvD->pv_agent_color_llcolor4.insert_or_assign(avatar_id, pvdata_color);
+			gPVData->pv_agent_color_llcolor4.insert_or_assign(avatar_id, pvdata_color);
 		}
 	}
 
@@ -1160,7 +1161,7 @@ U32 PVData::getSearchSeparatorFromSettings()
 {
 	// Handle human-readable separators here.
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", PVSearchSeparators::separator_space);
-	auto pvss = PVData::getInstance();
+	auto pvss = gPVData;
 	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator];
 	LL_DEBUGS("PVData") << "Getting separator from settings: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
 	return settings_separator;
@@ -1174,7 +1175,7 @@ void PVData::setSearchSeparator(const U32 separator_in_u32)
 
 char PVData::getSearchSeparator()
 {
-	auto pvss = PVData::getInstance();
+	auto pvss = gPVData;
 	if(pvss->PVSearchSeparatorSelected == NULL)
 	{
 		// eep!

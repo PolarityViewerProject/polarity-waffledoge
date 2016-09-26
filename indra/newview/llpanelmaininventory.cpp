@@ -164,10 +164,10 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	}
 	// </FS:Zi> Filter dropdown
 
-	PVData::getInstance()->mSeparatorMap["search_separator_space"] = PVData::separator_space;
-	PVData::getInstance()->mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
-	PVData::getInstance()->mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
-	PVData::getInstance()->mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
+	gPVData->mSeparatorMap["search_separator_space"] = PVData::separator_space;
+	gPVData->mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
+	gPVData->mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
+	gPVData->mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
 }
 
 BOOL LLPanelMainInventory::postBuild()
@@ -669,11 +669,11 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 		return;
 	//U32 filterTypes = ~0;
 	LLFloaterInventoryFinder* finder = getFinder();
-	if (PVData::getInstance()->mSeparatorMap.find(separator_selected) != PVData::getInstance()->mSeparatorMap.end())
+	if (gPVData->mSeparatorMap.find(separator_selected) != gPVData->mSeparatorMap.end())
 	{
 		//filterTypes = ;
 		//LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
-		PVData::instance().setSearchSeparator(PVData::getInstance()->mSeparatorMap[separator_selected]);
+		PVData::instance().setSearchSeparator(gPVData->mSeparatorMap[separator_selected]);
 		// refresh substring search or something.
 		LLInventoryModelBackgroundFetch::instance().start();
 		std::string old_substring = mFilterSubString;
@@ -998,9 +998,9 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	if (mSeparatorComboBox)
 	{
 #if FIXED_SCOPE_STUFF
-		auto separator_index = PVData::getInstance()->getSearchSeparatorFromSettings();
+		auto separator_index = gPVData->getSearchSeparatorFromSettings();
 
-		for (auto&& map_iterator : PVData::getInstance()->mSeparatorMap)
+		for (auto&& map_iterator : gPVData->mSeparatorMap)
 		{
 			if (map_iterator.second == separator_index)
 			{
@@ -1011,7 +1011,7 @@ BOOL LLFloaterInventoryFinder::postBuild()
 		}
 #else
 
-		mSeparatorComboBox->setValue((int)PVData::getInstance()->getSearchSeparatorFromSettings());
+		mSeparatorComboBox->setValue((int)gPVData->getSearchSeparatorFromSettings());
 	}
 #endif
 	return TRUE;

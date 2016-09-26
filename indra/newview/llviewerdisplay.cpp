@@ -1355,6 +1355,7 @@ void swap()
 	{
 		gViewerWindow->getWindow()->swapBuffers();
 	}
+	// Crashed here opening RDP out to another machine??!?!?!?!
 	gDisplaySwapBuffers = TRUE;
 }
 
