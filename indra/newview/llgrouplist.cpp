@@ -43,6 +43,8 @@
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "llviewermenu.h"		// for gMenuHolder
 #include "llvoiceclient.h"
+#include "llslurl.h"
+#include "llurlaction.h"
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
@@ -271,6 +273,12 @@ bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
 	{
 		LLGroupActions::leave(selected_group);
 	}
+	// <FS:Ansariel> FIRE-20146: Add "Copy URI" to menu choices when right clicking a group name
+	else if (action == "copy_slurl")
+	{
+		LLUrlAction::copyURLToClipboard(LLSLURL("group", selected_group, "about").getSLURLString());
+	}
+	// </FS:Ansariel>
 
 	return true;
 }
