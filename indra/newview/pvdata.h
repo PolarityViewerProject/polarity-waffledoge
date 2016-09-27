@@ -191,9 +191,6 @@ public:
 	// Returns whether or not the user can use our viewer
 	bool isAllowedToLogin(const LLUUID& avatar_id);
 
-	// Returns a string containing the reason why the current release is blocked from logging in.
-	// In case the release is allowed to be used, an empty string is returned, which gets interpreted as an "OK"
-	// during the login process.
 	bool isBlockedRelease();
 
 	// Force getting a new progress tip, regardless of the timer

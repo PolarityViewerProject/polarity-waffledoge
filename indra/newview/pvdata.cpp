@@ -695,6 +695,10 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 	return false;
 }
 
+/**
+ * \brief Determines if the current binary is a known, and blocked release.
+ * \return true if the release is blocked, false if allowed.
+ */
 bool PVData::isBlockedRelease()
 {
 	// This little bit of code here does a few things. First it grabs the viewer's current version. Then it attempts to find that specific version
