@@ -4977,7 +4977,7 @@ void LLViewerWindow::setProgressMessage(const std::string& msg)
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);
-		mProgressView->setMessage(PVData::instance().getNewProgressTip(msg));
+		mProgressView->setMessage(gPVData->getNewProgressTip(msg));
 	}
 }
 

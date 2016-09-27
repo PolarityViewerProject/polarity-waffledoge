@@ -182,8 +182,8 @@ void PVData::modularDownloader(const std::string& pfile_name_in)
 
 void PVData::downloadData()
 {
-	gPVData = PVData::getInstance();
-	if (PVData::canDownload(data_download_status_))
+	gPVData = this->getInstance();
+	if (canDownload(data_download_status_))
 	{
 		data_parse_status_ = INIT;
 		modularDownloader("data.xml");
@@ -192,7 +192,7 @@ void PVData::downloadData()
 
 void PVData::downloadAgents()
 {
-	if (PVData::canDownload(agents_download_status_))
+	if (canDownload(agents_download_status_))
 	{
 		agents_parse_status_ = INIT;
 		modularDownloader("agents.xml");
@@ -407,7 +407,7 @@ void PVData::parsePVData(const LLSD& data_input)
 	PV_DEBUG("Attempting to find Events data", LLError::LEVEL_DEBUG);
 	if (data_input.has("EventsMOTD"))
 	{
-		PVData::motd_events_list_ = data_input["EventsMOTD"];
+		motd_events_list_ = data_input["EventsMOTD"];
 		for (LLSD::map_const_iterator iter = motd_events_list_.beginMap(); iter != motd_events_list_.endMap(); ++iter)
 		{
 			std::string name = iter->first;
@@ -1050,27 +1050,27 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		}
 		if (av_flags)
 		{
-			if (av_flags & PVData::FLAG_STAFF_DEV)
+			if (av_flags & FLAG_STAFF_DEV)
 			{
 				static const LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
 				pvdata_color = dev_color.get();
 			}
-			else if (av_flags & PVData::FLAG_STAFF_QA)
+			else if (av_flags & FLAG_STAFF_QA)
 			{
 				static const LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
 				pvdata_color = qa_color.get();
 			}
-			else if (av_flags & PVData::FLAG_STAFF_SUPPORT)
+			else if (av_flags & FLAG_STAFF_SUPPORT)
 			{
 				static const LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
 				pvdata_color = support_color.get();
 			}
-			else if (av_flags & PVData::FLAG_USER_BETA_TESTER)
+			else if (av_flags & FLAG_USER_BETA_TESTER)
 			{
 				static const LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
 				pvdata_color = tester_color.get();
 			}
-			else if (av_flags & PVData::FLAG_USER_BANNED)
+			else if (av_flags & FLAG_USER_BANNED)
 			{
 				static const LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
 				pvdata_color = banned_color.get();
@@ -1143,7 +1143,7 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 
 LLColor4 PVData::Hex2Color4(const std::string color) const
 {
-	return instance().Hex2Color4(std::stoul(color, nullptr, 16));
+	return instance().Hex2Color4(stoul(color, nullptr, 16));
 }
 LLColor4 PVData::Hex2Color4(int hexValue)
 {
@@ -1157,7 +1157,7 @@ LLColor4 PVData::Hex2Color4(int hexValue)
 U32 PVData::getSearchSeparatorFromSettings()
 {
 	// Handle human-readable separators here.
-	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", PVSearchSeparators::separator_space);
+	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", separator_space);
 	auto pvss = gPVData;
 	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator];
 	LL_DEBUGS("PVData") << "Getting separator from settings: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;

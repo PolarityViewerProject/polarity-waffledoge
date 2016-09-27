@@ -5212,7 +5212,7 @@ void LLAppViewer::idle()
 	}
 	else
 	{
-		PVData::instance().refreshDataFromServer(false);
+		gPVData->refreshDataFromServer(false);
 		PVGetDynamicWindowTitle();
 	}
 }

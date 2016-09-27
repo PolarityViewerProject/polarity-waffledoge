@@ -401,7 +401,7 @@ void LLNetMap::draw()
 				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 #else
 				// <polarity> Colored names for special users. RLV_BHVR_SHOWNAMES is handled inside getColor already.
-				color = PVData::instance().getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr));
+				color = gPVData->getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr));
 				// </polarity>
 #endif
 

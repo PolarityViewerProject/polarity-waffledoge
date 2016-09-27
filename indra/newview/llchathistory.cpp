@@ -937,7 +937,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		&& (chat.mFromID.notNull()))					// and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
 	{
 		
-		name_color = PVData::instance().getColor(chat.mFromID, txt_color, false);
+		name_color = gPVData->getColor(chat.mFromID, txt_color, false);
 	}
 	else
 	{
@@ -1081,7 +1081,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// Colorize agent links.
 				if (use_colorizer)
 				{
-					name_color = PVData::instance().getColor(chat.mFromID, LLUIColorTable::instance().getColor("HTMLLinkColor"), false);
+					name_color = gPVData->getColor(chat.mFromID, LLUIColorTable::instance().getColor("HTMLLinkColor"), false);
 					link_params.color = name_color;
 					link_params.readonly_color = name_color;
 				}

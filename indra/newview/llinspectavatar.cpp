@@ -402,7 +402,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);
-			agent_role->setColor(PVData::instance().getColor(mAvatarID, LLColor4::white, false));
+			agent_role->setColor(gPVData->getColor(mAvatarID, LLColor4::white, false));
 		}
 
 	}

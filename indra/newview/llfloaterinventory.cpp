@@ -99,7 +99,7 @@ void LLFloaterInventory::cleanup()
 void LLFloaterInventory::onOpen(const LLSD& key)
 {
 	//LLFirstUse::useInventory();
-	PVData::instance().getSearchSeparatorFromSettings();
+	gPVData->getSearchSeparatorFromSettings();
 }
 
 void LLFloaterInventory::onClose(bool app_quitting)

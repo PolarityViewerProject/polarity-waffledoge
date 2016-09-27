@@ -243,7 +243,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-	if (PVData::instance().isSupportGroup(group_id) && PVData::instance().isDeniedSupport(gAgentID))
+	if (gPVData->isSupportGroup(group_id) && gPVData->isDeniedSupport(gAgentID))
 	{
 		return;
 	}

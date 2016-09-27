@@ -415,7 +415,7 @@ bool OSChatCommand::parseCommand(std::string data)
 	}
 	case CMD_REFRESH_PVDATA:
 	{
-		PVData::instance().refreshDataFromServer(true);
+		gPVData->refreshDataFromServer(true);
 		return true;
 	}
 	}

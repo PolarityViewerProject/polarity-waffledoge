@@ -851,10 +851,10 @@ void LLPanelLogin::onClickConnect(void *)
 
 		// The start location SLURL has already been sent to LLStartUp::setStartSLURL
 
-		if (PVData::instance().isBlockedRelease())
+		if (gPVData->isBlockedRelease())
 		{
 			LLSD args;
-			args["REASON"] = PVData::instance().pvdata_error_message_;
+			args["REASON"] = gPVData->pvdata_error_message_;
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 			return;
 		}

@@ -651,8 +651,8 @@ bool idle_startup()
 
 		// <polarity> PVData
 		// Begin fetching the required assets used by PVData
-		PVData::instance().downloadData();
-		// PVData::instance().initThemeColors();
+		PVData::getInstance()->downloadData();
+		// gPVData->initThemeColors();
 		// </polarity> PVData
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
@@ -763,7 +763,7 @@ bool idle_startup()
 		display_startup();
 		// LLViewerMedia::initBrowser();
 		//LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-		PVData::instance().downloadData();
+		gPVData->downloadData();
 		LLGridManager::getInstance()->initialize(std::string());
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
 		return FALSE;
@@ -776,7 +776,7 @@ bool idle_startup()
 		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
 		const F32 MAX_PVDATA_TIME = 15.f;
 		bool timed_out = (pvdata_time > MAX_PVDATA_TIME);
-		bool data_done = (PVData::instance().getDataDone());
+		bool data_done = (gPVData->getDataDone());
 		if (timed_out || data_done)
 		{
 			if (data_done)
@@ -1088,7 +1088,7 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
-		gAgent.mMOTD = PVData::instance().getNewProgressTipForced();
+		gAgent.mMOTD = gPVData->getNewProgressTipForced();
 
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
@@ -1103,8 +1103,8 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		gViewerWindow->getWindow()->setTitle(PVData::instance().window_titles_list_.getRandom());
-		PVData::instance().downloadAgents();
+		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
+		gPVData->downloadAgents();
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
 	}
@@ -1114,7 +1114,7 @@ bool idle_startup()
 		const F32 agents_time = agents_timer.getElapsedTimeF32();
 		const F32 MAX_AGENTS_TIME = 15.f;
 		bool timed_out = (agents_time > MAX_AGENTS_TIME);
-		bool agents_done = (PVData::instance().getAgentsDone());
+		bool agents_done = (gPVData->getAgentsDone());
 		if (timed_out || agents_done)
 		{
 			if (agents_done)
@@ -1308,12 +1308,12 @@ bool idle_startup()
 			else
 			{
 				// <polarity> Custom error message related to PVData
-				if (!PVData::instance().pvdata_error_message_.empty())
+				if (!gPVData->pvdata_error_message_.empty())
 				{
 				LLSD args;
-					args["ERROR_MESSAGE"] = PVData::instance().pvdata_error_message_;
+					args["ERROR_MESSAGE"] = gPVData->pvdata_error_message_;
 					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-					transition_back_to_login_panel(PVData::instance().pvdata_error_message_);
+					transition_back_to_login_panel(gPVData->pvdata_error_message_);
 					show_connect_box = true;
 					return FALSE;
 				}
@@ -2381,7 +2381,7 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		PVData::instance().refreshDataFromServer(false);
+		gPVData->refreshDataFromServer(false);
 
 		return TRUE;
 	}
@@ -3374,7 +3374,7 @@ bool process_login_success_response()
 	// <polarity> PVData
 	// Prevent particularly harmful users from using our viewer
 	// to do their deeds.
-	if (!(PVData::instance().isAllowedToLogin(gAgentID)))
+	if (!(gPVData->isAllowedToLogin(gAgentID)))
 	{
 		LLLoginInstance::getInstance()->disconnect();
 		gAgentID.setNull();

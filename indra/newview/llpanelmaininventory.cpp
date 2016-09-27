@@ -673,7 +673,7 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 	{
 		//filterTypes = ;
 		//LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
-		PVData::instance().setSearchSeparator(gPVData->mSeparatorMap[separator_selected]);
+		gPVData->setSearchSeparator(gPVData->mSeparatorMap[separator_selected]);
 		// refresh substring search or something.
 		LLInventoryModelBackgroundFetch::instance().start();
 		std::string old_substring = mFilterSubString;
