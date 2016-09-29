@@ -501,16 +501,16 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;
 
-	// Load region sky presets.
+s	// Load region sky presets.
 	LLWLParamManager::instance().refreshRegionPresets();
 
-	// Use the region settings if parcel settings didnt override it already -KC
-	if (KCWindlightInterface::instance().haveParcelOverride(new_settings))
+	//<FS:KC> Use the region settings if parcel settings didnt override it already
+	if (!KCWindlightInterface::instance().haveParcelOverride(new_settings))
 	{
 		// If using server settings, update managers.
 		// TODO: Centralize in kcwlinterface
 		static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
-	if (getUseRegionSettings())
+	//if (getUseRegionSettings())
 
 		{
 			updateManagersFromPrefs(mInterpNextChangeMessage);
