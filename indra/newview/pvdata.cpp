@@ -52,6 +52,9 @@
 #include "rlvhandler.h"
 #include "noise.h"
 
+#include <stdlib.h> // for setenv
+#include "llfloaterpreference.h"
+
 PVData* gPVData = NULL;
 
 static const std::string LL_LINDEN = "Linden";
@@ -947,6 +950,11 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 }
 
 // static
+/**
+ * \brief Developer-only message logger
+ * \param log_in_s message to display/log
+ * \param level severity level, defaults to debug
+ */
 void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
 {
 	// Skip debug entirely if the user isn't authenticated yet
@@ -1185,4 +1193,229 @@ char PVData::getSearchSeparator()
 	}
 	LL_DEBUGS("PVData") << "Returning runtime value of search separator: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
 	return pvss->PVSearchSeparatorSelected;
+}
+
+// static
+void PVData::setChatLogsDirOverride()
+{
+#ifdef FINISHED_CHAT_LOG_WRITE
+/*
+	// ReSharper disable CppDeprecatedEntity // we are cross-platform.
+	auto override_location = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
+	// ReSharper restore CppDeprecatedEntity
+	if (override_location && override_location != gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str())
+	{
+
+		LL_WARNS("PVData") << "Would set logs location to: " << override_location << LL_ENDL;
+		//gSavedPerAccountSettings.setString("InstantMessageLogPath", override_location);
+		//LLFloaterPreference::moveTranscriptsAndLog();
+	}
+
+	LPCWSTR name_ = L"PV_CHATLOGS_LOCATION_OVERRIDE";
+	std::string value_ = log_location_from_settings;
+
+	HKEY        key;
+	HKEY        subKey;
+	char const *subKeyName;
+
+	if (es_invalid == scope_) {
+		return;
+	}
+
+	switch (scope_) {
+	case es_system:
+		key = HKEY_LOCAL_MACHINE;
+		subKeyName = systemEnvSubKey;
+		break;
+
+	case es_user:
+		key = HKEY_CURRENT_USER;
+		subKeyName = userEnvSubKey;
+		break;
+	}
+
+	// Assign the new value.
+	value_ = text;
+
+	// Write the new value to the registry.
+	RegOpenKeyEx(key, subKeyName, 0, KEY_SET_VALUE, &subKey);
+	RegSetValueEx(subKey,
+		name_.c_str(),
+		0,
+		REG_EXPAND_SZ,
+		reinterpret_cast<const BYTE *>(value_.c_str()),
+		value_.length() + 1);
+	RegCloseKey(key);
+*/
+#endif
+}
+
+#if LL_WINDOWS
+// Microsoft's runtime library doesn't support the standard setenv() function.
+// http://stackoverflow.com/a/23616164
+int setenv(const char *name, const char *value, int overwrite)
+{
+	int errcode = 0;
+	if (!overwrite) {
+		size_t envsize = 0;
+		errcode = getenv_s(&envsize, NULL, 0, name);
+		if (errcode || envsize) return errcode;
+	}
+	return _putenv_s(name, value);
+}
+
+#endif // LL_WINDOWS
+
+std::string getRegKey(const std::string& name_) {
+	//LL_WARNS("PVData") << "Would set logs location to: " << log_location_from_settings << LL_ENDL;
+	// README: This assumes the variable is set.
+	//setenv("PV_CHATLOGS_LOCATION_OVERRIDE", gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str(), 1);
+	// Borrowed from editenv.dll by Dan Moulding (Visual Leak Detector's author)
+
+	//PBYTE       data;
+
+	char *		data = nullptr;
+	HKEY        key = HKEY_CURRENT_USER;
+	DWORD		size = 1024 * sizeof(TCHAR);;
+	LONG        status;
+	HKEY        subKey;
+	std::string value = "";
+
+	long ret;
+	ret = RegOpenKeyExA(HKEY_CURRENT_USER, "\\Environment", 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &subKey);
+	status = RegQueryValueExA(subKey, name_.c_str(), 0, NULL, NULL, &size);
+	if (ret != ERROR_SUCCESS) {
+		LL_WARNS("PVData") << "Key [" << name_ << "] does not exist!" << LL_ENDL;
+		return std::string();
+	}
+	// This environment variable already exists.
+	ret = RegQueryValueExA(key, name_.c_str(), 0, 0, (LPBYTE)data, &size);
+	if (ret != ERROR_SUCCESS)
+	{
+		return std::string();
+	}
+		LL_WARNS("PVData") << "Key [" << name_ << "] exist!" << LL_ENDL;
+		if (data != nullptr)
+		{
+			value = std::string(data);
+		}
+		delete[] data;
+	
+		LL_WARNS("PVData") << "Key [" << value << "] = exist!" << LL_ENDL;
+	RegCloseKey(key);
+	//auto nya = RegCreateKeyEx(HKEY_CURRENT_USER, ,0,NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE,);
+	// TODO: Linux and OSX support
+	return value;
+}
+
+void PVData::getChatLogsDirOverride()
+{
+	std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
+	std::string registry_key = "PV_CHATLOGS_LOCATION_OVERRIDE"; // TODO: Move to global
+	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
+	char* log_location_from_registry = getenv(registry_key.c_str());
+
+	
+	auto log_location_from_runtime = gDirUtilp->getChatLogsDir();
+	std::string new_chat_logs_dir = "";
+	if (log_location_from_settings.empty() || log_location_from_registry == NULL)
+	{
+		new_chat_logs_dir = gDirUtilp->getOSUserAppDir();
+	}
+	else if (log_location_from_registry != NULL && log_location_from_registry[0] != '\0')
+	{
+
+		new_chat_logs_dir = log_location_from_registry;
+	}
+	if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
+	{
+		PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
+		PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
+
+		LL_WARNS("PVData") << "New log location = " << new_chat_logs_dir << LL_ENDL;
+	}
+	if (new_chat_logs_dir.empty())
+	{
+		LL_ERRS("PVData") << "new_chat_logs_dir is null!" << LL_ENDL;
+	}
+	else if (new_chat_logs_dir == "")
+	{
+		LL_ERRS("PVData") << "new_chat_logs_dir is empty!" << LL_ENDL;
+	}
+	else
+	{
+		gDirUtilp->setChatLogsDir(new_chat_logs_dir);
+	}
+	
+	if(new_chat_logs_dir != gDirUtilp->getChatLogsDir())
+	{
+		PV_DEBUG("Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir(),LLError::LEVEL_WARN);
+	}
+
+	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
+}
+
+// Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
+bool PVData::moveTranscriptsAndLog(std::string userid) const
+{
+	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);
+
+	bool madeDirectory = false;
+
+	//Does the directory really exist, if not then make it
+	if (!LLFile::isdir(chatLogPath))
+	{
+		//mkdir success is defined as zero
+		if (LLFile::mkdir(chatLogPath) != 0)
+		{
+			return false;
+		}
+		madeDirectory = true;
+	}
+
+	std::string originalConversationLogDir = LLConversationLog::instance().getFileName();
+	std::string targetConversationLogDir = gDirUtilp->add(chatLogPath, "conversation.log");
+	//Try to move the conversation log
+	if (!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
+	{
+		//Couldn't move the log and created a new directory so remove the new directory
+		if (madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+		return false;
+	}
+
+	//Attempt to move transcripts
+	std::vector<std::string> listOfTranscripts;
+	std::vector<std::string> listOfFilesMoved;
+
+	LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
+
+	if (!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
+		instantMessageLogPath,
+		listOfTranscripts,
+		listOfFilesMoved))
+	{
+		//Couldn't move all the transcripts so restore those that moved back to their old location
+		LLLogChat::moveTranscripts(instantMessageLogPath,
+			gDirUtilp->getChatLogsDir(),
+			listOfFilesMoved);
+
+		//Move the conversation log back
+		LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
+
+		if (madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+
+		return false;
+	}
+
+	gDirUtilp->setChatLogsDir(instantMessageLogPath);
+	gDirUtilp->updatePerAccountChatLogsDir();
+
+	return true;
 }

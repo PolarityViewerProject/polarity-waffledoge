@@ -1002,19 +1002,25 @@ bool idle_startup()
 		//Default the path if one isn't set.
 		// *NOTE: unable to check variable differ from "InstantMessageLogPath" because it was
 		// provided in pre 2.0 viewer. See EXT-6661
-		if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
-		{
-			gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
-			gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
-		}
-		else
-		{
-			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
-		}
+		//if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
+		//{
+		//	gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
+		//	gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
+		//}
+		//else
+		//{
+		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
+		//}
+
+		gPVData->getChatLogsDirOverride();
+
 		gDirUtilp->setPerAccountChatLogsDir(userid);  
 		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
+
+		//gPVData->moveTranscriptsAndLog(userid);
+		//gPVData->setChatLogsDirOverride();
 
 		// NaCl - Store Log Level
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(gSavedSettings.getU32("_NACL_LogLevel")));

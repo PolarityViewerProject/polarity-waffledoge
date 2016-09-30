@@ -202,10 +202,7 @@ public:
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string pvdata_error_message_ = "";
 
-	/// <summary>
-	/// Developer-only log output.
-	/// </summary>
-	static void PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level);
+	static void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level = LLError::LEVEL_DEBUG);
 	static void Dump(const std::string name, const LLSD & map);
 
 	// Get a color for the specified agent (UUID version)
@@ -240,7 +237,10 @@ public:
 	*/
 	static std::map<U32, char> PVSearchSeparatorAssociation;
 
-
+	/// <summary>Attempt to set the chat logs location from environment if available</summary>
+	static void getChatLogsDirOverride();
+	static void setChatLogsDirOverride();
+	bool moveTranscriptsAndLog(std::string userid) const;
 private:
 
 	// This processes the main data
