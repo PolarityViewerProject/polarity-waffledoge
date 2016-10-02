@@ -20,9 +20,7 @@
 #include "llappviewer.h"
 #include "llgroupactions.h"
 #include "llhudtext.h"
-#include "llparcel.h"
 #include "llstartup.h"
-#include "llui.h"
 #include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
@@ -103,7 +101,7 @@ static bool rlvParseGetStatusOption(const std::string& strOption, std::string& s
 //
 
 // Checked: 2010-04-07 (RLVa-1.2.0d) | Modified: RLVa-1.0.1d
-RlvHandler::RlvHandler() : m_pGCTimer(NULL), m_fCanCancelTp(true), m_posSitSource()
+RlvHandler::RlvHandler() : m_fCanCancelTp(true), m_posSitSource(), m_pGCTimer(NULL)
 {
 	gAgent.addListener(this, "new group");
 
@@ -607,8 +605,7 @@ bool RlvHandler::onGC()
 		{
 			// Assertion: if the GC encounters an RlvObject instance that hasn't existed in gObjectList up until now then
 			//            it has to be a rezzed prim (if it was an attachment then RlvHandler::onAttach() should have caught it)
-			// I'm disabling this assert until we can fix it.
-			//RLV_ASSERT( (itCurObj->second.m_fLookup) || (!pObj->isAttachment()) );
+			RLV_ASSERT( (itCurObj->second.m_fLookup) || (!pObj->isAttachment()) );
 			if (!itCurObj->second.m_fLookup)
 			{
 				RLV_INFOS << "Resolved missing object " << itCurObj->first.asString() << RLV_ENDL;
@@ -619,11 +616,8 @@ bool RlvHandler::onGC()
 				// NOTE: the following code should NEVER run (see assertion above), but just to be double-triple safety sure
 				//	-> if it does run it likely means that there's a @detach=n in a *child* prim that we couldn't look up in onAttach()
 				//  -> since RLV doesn't currently support @detach=n from child prims it's actually not such a big deal right now but still
-				if ( (pObj->isAttachment()) && (itCurObj->second.hasBehaviour(RLV_BHVR_DETACH, false)))
-				{
-					LL_WARNS() << "Attempting to @detach a child prim!!! WTF! Please inform the content creator of this object." << LL_ENDL;
+				if ( (pObj->isAttachment()) && (itCurObj->second.hasBehaviour(RLV_BHVR_DETACH, false)) )
 					gRlvAttachmentLocks.addAttachmentLock(pObj->getID(), itCurObj->second.getObjectID());
-				}
 			}
 		}
 	}
@@ -1928,12 +1922,6 @@ ERlvCmdRet RlvHandler::processReplyCommand(const RlvCommand& rlvCmd) const
 		case RLV_BHVR_GETGROUP:			// @getgroup=<channel>					- Checked: 2011-03-28 (RLVa-1.4.1a) | Added: RLVa-1.3.0f
 			strReply = (gAgent.getGroupID().notNull()) ? gAgent.getGroupName() : "none";
 			break;
-		case RLV_BHVR_GETPARCELGROUPKEY:	// @getparcelgroupkey
-		{
-			LLUUID group_id = LLViewerParcelMgr::getInstance()->getAgentParcel()->getGroupID();
-			strReply = (group_id.notNull()) ? group_id.asString() : LLUUID::null.asString();
-			break;
-		}
 		case RLV_BHVR_GETSITID:			// @getsitid=<channel>					- Checked: 2010-03-09 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
 			{
 				// NOTE: RLV-1.16.1 returns a NULL UUID if we're not sitting

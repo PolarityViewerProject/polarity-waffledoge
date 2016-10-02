@@ -169,7 +169,7 @@ void RlvCommand::initLookupTable()
 				"detachallthis_except", "adjustheight", "tpto", "version", "versionnew", "versionnum", "getattach", "getattachnames", 
 				"getaddattachnames", "getremattachnames", "getoutfit", "getoutfitnames", "getaddoutfitnames", "getremoutfitnames", 
 				"findfolder", "findfolders", "getpath", "getpathnew", "getinv", "getinvworn", "getgroup", "getsitid", "getcommand", 
-				"getstatus", "getstatusall","geteffectcolor","getparcelgroupkey"
+				"getstatus", "getstatusall","geteffectcolor"
 			};
 
 		for (int idxBvhr = 0; idxBvhr < RLV_BHVR_COUNT; idxBvhr++)
@@ -675,10 +675,7 @@ void RlvForceWear::forceDetach(const LLViewerJointAttachment* pAttachPt)
 	for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator itAttachObj = pAttachPt->mAttachedObjects.begin();
 			itAttachObj != pAttachPt->mAttachedObjects.end(); ++itAttachObj)
 	{
-		if(pAttachPt)
-		{
-			(forceDetach(*itAttachObj));
-		}
+		forceDetach(*itAttachObj);
 	}
 }
 

@@ -4054,17 +4054,17 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 					// Silly people want comprehensive debug messages, blah :p
 					if ( (!strExecuted.empty()) && (strFailed.empty()) && (strRetained.empty()) )
 					{
-						chat.mText = "executes: @";
+						chat.mText = " executes: @";
 						mesg = strExecuted;
 					}
 					else if ( (strExecuted.empty()) && (!strFailed.empty()) && (strRetained.empty()) )
 					{
-						chat.mText = "failed: @";
+						chat.mText = " failed: @";
 						mesg = strFailed;
 					}
 					else if ( (strExecuted.empty()) && (strFailed.empty()) && (!strRetained.empty()) )
 					{
-						chat.mText = "retained: @";
+						chat.mText = " retained: @";
 						mesg = strRetained;
 					}
 					else

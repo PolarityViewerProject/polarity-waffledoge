@@ -74,12 +74,7 @@ public:
 	//   - RLV_LOCK_REMOVE: specific attachment locked *or* any attachment point locked (regardless of whether it currently has attachments)
 	bool hasLockedAttachmentPoint(ERlvLockMask eLock) const;
 	// Returns TRUE if there is at least 1 non-detachable HUD attachment
-	// <polarity> Ignore RLV HUD Locking if the user chooses to.
-	bool hasLockedHUD() const {
-		static LLCachedControl<bool> ignore_lock(gSavedSettings, "PVRLV_IgnoreHUDLock", FALSE);
-		return (m_fHasLockedHUD && !(ignore_lock));
-	}
-	// </polarity>
+	bool hasLockedHUD() const { return m_fHasLockedHUD; }
 
 	// Returns TRUE if the attachment is RLV_LOCK_REMOVE locked
 	bool isLockedAttachment(const LLViewerObject* pAttachObj) const;
