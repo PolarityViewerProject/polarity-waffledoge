@@ -63,8 +63,6 @@
 #include "llautoreplace.h"
 #include "llcorehttputil.h"
 // [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
-#include "rlvactions.h"
-#include "rlvcommon.h"
 // [/RLVa:KB]
 
 #include "pvdata.h"

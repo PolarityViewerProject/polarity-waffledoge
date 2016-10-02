@@ -171,34 +171,6 @@ source_group("Third Party/Polarity" FILES
     ${polarity_SOURCE_FILES}
     )
 
-set(rlva_SOURCE_FILES
-    rlvactions.cpp
-    rlvhandler.cpp
-    rlvhelper.cpp
-    rlvcommon.cpp
-    rlvlocks.cpp
-    rlvinventory.cpp
-    rlvextensions.cpp
-    rlvfloaters.cpp
-    rlvui.cpp
-    )
-set(rlva_HEADER_FILES
-    rlvactions.h
-    rlvdefines.h
-    rlvhandler.h
-    rlvhelper.h
-    rlvcommon.h
-    rlvlocks.h
-    rlvinventory.h
-    rlvextensions.h
-    rlvfloaters.h
-    rlvui.h
-    )
-source_group("Third Party/Restrained Love API" FILES
-    ${rlva_SOURCE_FILES}
-    ${rlva_HEADER_FILES}
-    )
-
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
@@ -1411,14 +1383,12 @@ list(APPEND viewer_HEADER_FILES
     ${firestorm_HEADER_FILES}
     ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
-    ${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${exodus_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
     ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}
-    ${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)

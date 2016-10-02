@@ -104,7 +104,6 @@
 #include "llappearancemgr.h"
 #include "osscriptruntimeperms.h"
 // [RLVa:KB] - Checked: 2010-04-01 (RLVa-1.2.0c)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations

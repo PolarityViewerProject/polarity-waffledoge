@@ -73,8 +73,6 @@
 #include "llwaterparammanager.h"
 #include "llscenemonitor.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
 // [/RLVa:KB]
 
 #include <glm/mat4x4.hpp>

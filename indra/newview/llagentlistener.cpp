@@ -44,8 +44,6 @@
 #include "llhudeffectlookat.h"
 #include "llagentcamera.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
 #include "llvoavatarself.h"
 // [/RLVa:KB]
 

@@ -65,7 +65,6 @@
 #include "lltrans.h"
 // [RLVa:KB] - Checked: 2010-08-25 (RLVa-1.2.2a)
 #include "llslurl.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 U8 string_value_to_click_action(std::string p_value);

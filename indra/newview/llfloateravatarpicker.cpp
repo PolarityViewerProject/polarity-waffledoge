@@ -38,8 +38,6 @@
 #include "llviewerregion.h"		// getCapability()
 #include "llworld.h"
 // [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 // Linden libraries

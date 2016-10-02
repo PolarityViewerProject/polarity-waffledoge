@@ -64,7 +64,6 @@
 #include "llmutelist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
-#include "rlvcommon.h"
 // [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER

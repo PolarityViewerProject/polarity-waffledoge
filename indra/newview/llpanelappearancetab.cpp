@@ -33,8 +33,6 @@
 #include "llinventorymodel.h"
 #include "llviewerinventory.h"
 // [RLVa:KB] - Checked: 2012-07-08 (RLVa-1.4.7)
-#include "rlvcommon.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //virtual

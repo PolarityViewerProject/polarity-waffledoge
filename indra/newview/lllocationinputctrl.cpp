@@ -64,7 +64,6 @@
 #include "llurllineeditorctrl.h"
 #include "llagentui.h"
 // [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.0d)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //============================================================================

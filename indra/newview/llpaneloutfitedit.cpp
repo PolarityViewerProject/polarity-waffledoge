@@ -74,7 +74,6 @@
 #include "llwearabletype.h"
 #include "llweb.h"
 // [RLVa:KB] - Checked: 2010-09-16 (RLVa-1.2.1a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 static LLPanelInjector<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");

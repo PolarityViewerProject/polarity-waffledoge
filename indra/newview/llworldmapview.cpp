@@ -56,7 +56,6 @@
 #include "llviewerwindow.h"
 #include "lltrans.h"
 // [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "llglheaders.h"

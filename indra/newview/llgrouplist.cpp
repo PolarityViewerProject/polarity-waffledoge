@@ -44,7 +44,6 @@
 #include "llviewermenu.h"		// for gMenuHolder
 #include "llvoiceclient.h"
 // [RLVa:KB] - Checked: 2011-03-28 (RLVa-1.3.0f) | Added: RLVa-1.3.0f
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");

@@ -52,8 +52,6 @@
 #include "llwearablelist.h"
 #include "llfloaterperms.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
 // [/RLVa:KB]
 
 #include <boost/scoped_ptr.hpp>

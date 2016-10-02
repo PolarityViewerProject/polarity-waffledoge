@@ -45,7 +45,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 // [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 class LLPanelTopInfoBar::LLParcelChangeObserver : public LLParcelObserver

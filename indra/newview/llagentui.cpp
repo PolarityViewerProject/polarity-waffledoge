@@ -39,7 +39,6 @@
 #include "llvoavatarself.h"
 #include "llslurl.h"
 // [RLVa:KB] - Checked: 2010-04-04 (RLVa-1.2.0d)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //static

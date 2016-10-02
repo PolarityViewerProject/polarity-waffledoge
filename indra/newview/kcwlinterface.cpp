@@ -38,7 +38,6 @@
 #include "llviewerparcelmgr.h"
 #include "llwaterparammanager.h"
 #include "llwlparammanager.h"
-#include "rlvhandler.h"
 
 #include <boost/regex.hpp>
 
@@ -46,8 +45,7 @@ const F32 PARCEL_WL_CHECK_TIME = 2.f; // <polarity> Nobody ain't got time for th
 const S32 PARCEL_WL_MIN_ALT_CHANGE = 3;
 const std::string PARCEL_WL_DEFAULT = "Default";
 
- #include "rlvcommon.h" // <polarity> PLVR-202
-
+ 
 class KCWindlightInterface::LLParcelChangeObserver : public LLParcelObserver
 {
 public:

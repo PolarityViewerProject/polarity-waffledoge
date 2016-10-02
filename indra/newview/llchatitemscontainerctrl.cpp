@@ -42,7 +42,6 @@
 #include "llslurl.h"
 
 // [RLVa:KB] - Checked: 2010-04-21 (RLVa-1.2.0f)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER

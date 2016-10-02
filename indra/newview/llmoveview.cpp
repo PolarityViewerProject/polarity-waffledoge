@@ -51,7 +51,6 @@
 #include "llviewerregion.h"
 #include "lltooltip.h"
 // [RLVa:KB] - Checked: 2010-03-07 (RLVa-1.2.0c)
-#include "rlvactions.h"
 // [/RLVa:KB]
 
 //

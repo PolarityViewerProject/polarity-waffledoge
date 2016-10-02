@@ -58,7 +58,6 @@
 #include "llworld.h"
 #include "llmenugl.h"
 // [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 const S32 SLOP_DIST_SQ = 4;

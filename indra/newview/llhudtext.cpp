@@ -47,7 +47,6 @@
 #include "llmenugl.h"
 #include "pipeline.h"
 // [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.4.0a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 #include <boost/tokenizer.hpp>
 

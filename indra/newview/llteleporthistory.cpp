@@ -40,7 +40,6 @@
 #include "llworldmap.h"
 #include "llagentui.h"
 // [RLVa:KB] - Checked: 2010-09-03 (RLVa-1.2.1b)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //////////////////////////////////////////////////////////////////////////////

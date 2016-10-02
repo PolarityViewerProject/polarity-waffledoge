@@ -75,7 +75,6 @@
 #include "llagentui.h"
 #include "llslurl.h"
 // [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 

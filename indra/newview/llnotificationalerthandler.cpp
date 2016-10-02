@@ -39,7 +39,6 @@
 #include "lltoastalertpanel.h"
 
 // [RLVa:KB] - Checked: 2013-05-09 (RLVa-1.4.9)
-#include "rlvactions.h"
 // [/RLVa:KB]
 
 using namespace LLNotificationsUI;

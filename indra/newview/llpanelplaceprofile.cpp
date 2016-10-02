@@ -53,7 +53,6 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 // [RLVa:KB] - Checked: 2010-09-02 (RLVa-1.2.1b)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;

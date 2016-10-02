@@ -53,8 +53,6 @@
 #include "llinventorypanel.h"
 
 // [RLVa:KB] - Checked: 2013-05-08 (RLVa-1.4.9)
-#include "rlvactions.h"
-#include "rlvcommon.h"
 // [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");

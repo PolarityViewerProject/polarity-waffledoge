@@ -58,8 +58,6 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 // [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e)
-#include "rlvhandler.h"
-#include "rlvui.h"
 // [/RLVa:KB]
 
 // Used when app not active to avoid processing hover.

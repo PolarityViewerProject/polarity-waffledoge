@@ -48,7 +48,6 @@
 #include "llvoavatarself.h"
 #include "llworld.h"
 // [RLVa:KB] - Checked: 2010-03-06 (RLVa-1.2.0c)
-#include "rlvhandler.h"
 #include "llfloaterreg.h"
 // [/RLVa:KB]
 

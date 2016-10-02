@@ -55,7 +55,6 @@
 #include "lltrans.h" // getString()
 #include "llagentcamera.h" // gAgentCamera
 #include "llviewerjoystick.h" // For disabling/re-enabling when requested to look at an object.
-#include "rlvhandler.h"
 #include "fsareasearchmenu.h"
 #include "fsscrolllistctrl.h"
 #include "llviewermediafocus.h"

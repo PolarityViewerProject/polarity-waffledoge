@@ -61,7 +61,6 @@
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 // [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER

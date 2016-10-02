@@ -60,9 +60,6 @@
 #include "llcoros.h"
 #include "lleventcoro.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-#include "rlvlocks.h"
 // [/RLVa:KB]
 
 namespace 

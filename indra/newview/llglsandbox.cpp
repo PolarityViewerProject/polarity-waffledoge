@@ -64,7 +64,6 @@
 #include "llspatialpartition.h"
 #include "llviewershadermgr.h"
 // [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 // Height of the yellow selection highlight posts for land

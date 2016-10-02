@@ -69,7 +69,6 @@
 #include "llautoreplace.h"
 #include "oschatcommand.h"
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0b)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "pvcommon.h" // for MuPose and AutoCloseOOC

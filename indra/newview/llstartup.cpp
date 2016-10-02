@@ -189,7 +189,6 @@
 #include "llpathfindingmanager.h"
 
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "lllogin.h"

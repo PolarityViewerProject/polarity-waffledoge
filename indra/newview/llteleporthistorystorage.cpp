@@ -34,7 +34,6 @@
 #include "llteleporthistory.h"
 #include "llagent.h"
 // [RLVa:KB] - Checked: 2010-09-03 (RLVa-1.2.1b)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 // Max offset for two global positions to consider them as equal

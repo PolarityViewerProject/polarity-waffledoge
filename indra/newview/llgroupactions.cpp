@@ -43,9 +43,6 @@
 #include "groupchatlistener.h"
 // [RLVa:KB] - Checked: 2011-03-28 (RLVa-1.3.0)
 #include "llslurl.h"
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "pvdata.h"

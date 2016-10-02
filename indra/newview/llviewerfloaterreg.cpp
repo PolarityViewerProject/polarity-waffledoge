@@ -154,7 +154,6 @@
 
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 // [RLVa:KB] - Checked: 2010-03-11
-#include "rlvfloaters.h"
 // [/RLVa:KB]
 
 #include "fsareasearch.h"

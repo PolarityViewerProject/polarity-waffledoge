@@ -77,7 +77,6 @@
 #include <algorithm>
 
 // [RLVa:KB] - Checked: 2010-08-22 (RLVa-1.2.1a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //---------------------------------------------------------------------------

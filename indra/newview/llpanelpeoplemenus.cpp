@@ -42,8 +42,6 @@
 #include "llconversationmodel.h"
 #include "llviewerobjectlist.h"
 // [RLVa:KB] - Checked: 2014-03-31 (Catznip-3.6)
-#include "rlvactions.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 namespace LLPanelPeopleMenus

@@ -57,7 +57,6 @@
 #include "llviewermenu.h"
 #include "llviewerregion.h"
 // [RLVa:KB]
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 // Not yet implemented; need to remove buildPanel() from constructor when we switch

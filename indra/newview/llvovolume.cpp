@@ -84,8 +84,6 @@
 #include "llvocache.h"
 #include "llmaterialmgr.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
 // [/RLVa:KB]
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;

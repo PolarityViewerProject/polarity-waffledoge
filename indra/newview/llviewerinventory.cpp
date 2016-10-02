@@ -70,7 +70,6 @@
 #include "llclipboard.h"
 #include "llhttpretrypolicy.h"
 // [RLVa:KB] - Checked: 2014-11-02 (RLVa-1.4.11)
-#include "rlvcommon.h"
 // [/RLVa:KB]
 
 // do-nothing ops for use in callbacks.

@@ -36,7 +36,6 @@
 #include "lluictrl.h"
 #include "llurlaction.h"
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 //////////////////////////////////////////////////////////////////////////////

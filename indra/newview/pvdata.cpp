@@ -49,7 +49,6 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "pvcommon.h"
-#include "rlvhandler.h"
 #include "noise.h"
 
 #include <stdlib.h> // for setenv

@@ -96,8 +96,6 @@
 #include "llappearancemgr.h"
 // [/SL:KB]
 // [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g)
-#include "rlvactions.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 #include "llweb.h"

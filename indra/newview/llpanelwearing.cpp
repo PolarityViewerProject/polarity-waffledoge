@@ -41,8 +41,6 @@
 #include "llsdserialize.h"
 #include "llclipboard.h"
 // [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
-#include "rlvcommon.h"
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 // Context menu and Gear menu helper.

@@ -95,10 +95,6 @@
 #include "kcwlinterface.h"
 #include "llcorehttputil.h"
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-#include "rlvui.h"
 // [/RLVa:KB]
 
 using namespace LLAvatarAppearanceDefines;

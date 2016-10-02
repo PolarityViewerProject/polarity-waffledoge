@@ -75,8 +75,6 @@
 #include "llavatarname.h"
 #include "llagentui.h"
 // [RLVa:KB] - Checked: 2011-04-11 (RLVa-1.3.0)
-#include "rlvactions.h"
-#include "rlvcommon.h"
 // [/RLVa:KB]
 
 // Flags for kick message

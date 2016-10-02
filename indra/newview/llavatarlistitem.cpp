@@ -43,7 +43,6 @@
 #include "lltooldraganddrop.h"
 #include "llviewercontrol.h" // <alchemy/>
 // [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 #include "pvdata.h" // for getPreferredName()
 

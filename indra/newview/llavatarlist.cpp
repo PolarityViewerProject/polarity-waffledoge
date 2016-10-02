@@ -48,7 +48,6 @@
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "lltooldraganddrop.h"
 // [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a)
-#include "rlvhandler.h"
 // [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
