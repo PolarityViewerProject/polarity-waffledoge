@@ -63,8 +63,9 @@
 #include "llviewermenu.h"
 #include "llurllineeditorctrl.h"
 #include "llagentui.h"
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.0d)
-// [/RLVa:KB]
+
+#include "llmenuoptionpathfindingrebakenavmesh.h"
+#include "llpathfindingmanager.h"
 
 //============================================================================
 /*
@@ -642,20 +643,12 @@ void LLLocationInputCtrl::onInfoButtonClicked()
 
 void LLLocationInputCtrl::onForSaleButtonClicked()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
 
 	handle_buy_land();
 }
 
 void LLLocationInputCtrl::onAddLandmarkButtonClicked()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
 
 	LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 	// Landmark exists, open it for preview and edit
@@ -784,9 +777,7 @@ void LLLocationInputCtrl::onTextEditorRightClicked(S32 x, S32 y, MASK mask)
 
 void LLLocationInputCtrl::refresh()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	mInfoBtn->setEnabled(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
+
 
 	refreshLocation();			// update location string
 	refreshParcelIcons();
@@ -1065,9 +1056,7 @@ void LLLocationInputCtrl::enableAddLandmarkButton(bool val)
 // depending on whether current parcel has been landmarked.
 void LLLocationInputCtrl::updateAddLandmarkButton()
 {
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-	mAddLandmarkBtn->setVisible(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
+
 	enableAddLandmarkButton(LLLandmarkActions::hasParcelLandmark());
 }
 void LLLocationInputCtrl::updateAddLandmarkTooltip()
@@ -1097,9 +1086,8 @@ void LLLocationInputCtrl::updateContextMenu(){
 		{
 			landmarkItem->setLabel(LLTrans::getString("EditLandmarkNavBarMenu"));
 		}
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-		landmarkItem->setEnabled(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC));
-// [/RLVa:KB]
+
+
 	}
 }
 void LLLocationInputCtrl::updateWidgetlayout()
@@ -1155,23 +1143,17 @@ void LLLocationInputCtrl::onLocationContextMenuItemClicked(const LLSD& userdata)
 	}
 	else if (item == "landmark")
 	{
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.4.5) | Added: RLVa-1.2.0
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		
+		if(!landmark)
 		{
-// [/RLVa:KB]
-			LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
-			
-			if(!landmark)
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
-			}
-			else
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
-			}
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.0d) | Added: RLVa-1.2.0d
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 		}
-// [/RLVa:KB]
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+
+		}
 	}
 	else if (item == "cut")
 	{
@@ -1227,6 +1209,18 @@ bool LLLocationInputCtrl::onLocationContextMenuItemEnabled(const LLSD& userdata)
 	return false;
 }
 
+void LLLocationInputCtrl::callbackRebakeRegion(const LLSD& notification, const LLSD& response)
+{
+	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	if (option == 0) // OK
+	{
+		if (LLPathfindingManager::getInstance() != NULL)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh::getInstance()->sendRequestRebakeNavmesh();
+		}
+	}
+}
+
 void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 {
 	switch (icon)
@@ -1244,6 +1238,16 @@ void LLLocationInputCtrl::onParcelIconClick(EParcelIcon icon)
 		LLNotificationsUtil::add("NoBuild");
 		break;
 	case PATHFINDING_DIRTY_ICON:
+		if (LLPathfindingManager::getInstance() != NULL)
+		{
+			LLMenuOptionPathfindingRebakeNavmesh *rebakeInstance = LLMenuOptionPathfindingRebakeNavmesh::getInstance();
+			if (rebakeInstance && rebakeInstance->canRebakeRegion() && (rebakeInstance->getMode() == LLMenuOptionPathfindingRebakeNavmesh::kRebakeNavMesh_Available))
+			{
+				LLNotificationsUtil::add("PathfindingDirtyRebake", LLSD(), LLSD(),
+										 boost::bind(&LLLocationInputCtrl::callbackRebakeRegion, this, _1, _2));
+				break;
+			}
+		}
 		LLNotificationsUtil::add("PathfindingDirty");
 		break;
 	case PATHFINDING_DISABLED_ICON:

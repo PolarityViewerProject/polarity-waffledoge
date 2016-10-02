@@ -117,8 +117,8 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 void LLDrawPoolTerrain::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
-	static LLCachedControl<S32> renderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
-	sDetailMode = (S32)renderTerrainDetail;
+	static LLCachedControl<S32> render_terrain_detail(gSavedSettings, "RenderTerrainDetail", 1);
+	sDetailMode = static_cast<S32>(render_terrain_detail);
 }
 
 void LLDrawPoolTerrain::beginRenderPass( S32 pass )
@@ -212,7 +212,7 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners");
+	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
 	if (show_parcel_owners)
 	{
 		highlightParcelOwners();

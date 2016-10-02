@@ -60,8 +60,8 @@ void LLDrawPoolGround::prerender()
 
 void LLDrawPoolGround::render(S32 pass)
 {
-	static LLCachedControl<bool> render_ground(gSavedSettings, "RenderGround", true);
-	if (mDrawFace.empty() || !render_ground)
+	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderGround", true);
+	if (mDrawFace.empty() || !render_bump)
 	{
 		return;
 	}	

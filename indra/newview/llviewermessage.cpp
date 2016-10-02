@@ -78,6 +78,7 @@
 #include "llpanelgrouplandmoney.h"
 #include "llrecentpeople.h"
 #include "llscriptfloater.h"
+#include "llscriptruntimeperms.h"
 #include "llselectmgr.h"
 #include "llstartup.h"
 #include "llsky.h"
@@ -114,16 +115,11 @@
 #include "llpanelplaceprofile.h"
 #include "llviewerregion.h"
 #include "llfloaterregionrestarting.h"
-#include "osscriptruntimeperms.h"
-// [RLVa:KB] - Checked: 2010-03-09 (RLVa-1.2.0a)
-// [/RLVa:KB]
 
 #include <boost/algorithm/string/split.hpp> //
 #include <boost/regex.hpp>
 
 #include "llnotificationmanager.h" //
-#include "llexperiencecache.h"
-
 #include "fsareasearch.h"
 #include "fswsassetblacklist.h"
 
@@ -235,18 +231,7 @@ bool friendship_offer_callback(const LLSD& notification, const LLSD& response)
 	    // modified_form->setElementEnabled("Accept", false);
 	    // modified_form->setElementEnabled("Decline", false);
 	    // notification_ptr->updateForm(modified_form);
-// [SL:KB] - Patch: UI-Notifications | Checked: 2013-05-09 (Catznip-3.5)
-//		// Assume that any offer notification with "getCanBeStored() == true" is the result of RLVa routing it to the notifcation syswell
-//		/*const*/ LLNotificationsUI::LLScreenChannel* pChannel = LLNotificationsUI::LLChannelManager::instance().getNotificationScreenChannel();
-//		/*const*/ LLNotificationsUI::LLToast* pToast = (pChannel) ? pChannel->getToastByNotificationID(notification["id"].asUUID()) : NULL;
-//		if ( (!pToast) || (!pToast->getCanBeStored()) )
-//		{
-// [/SL:KB]
-//			notification_ptr->repost();
-// [SL:KB] - Patch: UI-Notifications | Checked: 2013-05-09 (Catznip-3.5)
-//		}
-// [/SL:KB]
-
+	    // notification_ptr->repost();
     }
 
 	return false;
@@ -2593,7 +2578,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -2642,7 +2627,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			}
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			bool mute_im = is_muted;
 			if(accept_im_from_only_friend && !is_friend && !is_linden)
@@ -3152,7 +3137,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = message;
 	
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "message in dnd; session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			// add to IM panel, but do not bother the user
 			gIMMgr->addMessage(
@@ -3179,7 +3164,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 
 			buffer = saved + message;
 
-			LL_INFOS("Messaging") << "process_improved_im: session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
+			LL_DEBUGS("Messaging") << "standard message session_id( " << session_id << " ), from_id( " << from_id << " )" << LL_ENDL;
 
 			gIMMgr->addMessage(
 				session_id,

@@ -528,11 +528,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4b307f5f2a8536b27a090301b0200805</string>
+              <string>531ce35c3d230cf10b830c1240e06b4e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.08.01-windows-201604091408.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib/fmodstudio-1.08.08-windows-201607172139.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -542,18 +542,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b5cbef5e8df0573a2568dffc33548852</string>
+              <string>dc52cb0e789f54da5ed72a21a6a02066</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.08.01-windows64-201604091406.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib/fmodstudio-1.08.08-windows64-201607172133.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.08.01</string>
+        <string>1.08.08</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -780,18 +780,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0b9f7eb7d129cf9791e86d2728944ab4</string>
+              <string>a3887ed1534f18d9b6d3991853ce27d1</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/common/lib/glm-0.9.7.4-common-201604101405.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/common/lib/glm-0.9.7.6-common-201607172129.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.9.7.4</string>
+        <string>0.9.7.6</string>
       </map>
       <key>glod</key>
       <map>
@@ -1682,11 +1682,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>468e88a527e610804c3eecf07f4ed70b</string>
+              <string>01a7cc9d0e56238a9abedd7a41ccd0a3</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298369/arch/Darwin/installer/llphysicsextensions_source-1.0.298369-darwin-298369.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/Darwin/installer/llphysicsextensions_source-1.0.313564-darwin-313564.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1696,9 +1696,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>793964e49c935b414c4bdbb8a0d14ad1</string>
+              <string>c94dc7ab6efe59c0d5d04fc447257c57</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298369/arch/Linux/installer/llphysicsextensions_source-1.0.298369-linux-298369.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/Linux/installer/llphysicsextensions_source-1.0.313564-linux-313564.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1708,16 +1708,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>922aad5261aac150e5ce3c094e57f373</string>
+              <string>e760be34addeb0cd6e2ec43394834bac</string>
               <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions-source_llphysicsextensions-update/rev/298369/arch/CYGWIN/installer/llphysicsextensions_source-1.0.298369-windows-298369.tar.bz2</string>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/CYGWIN/installer/llphysicsextensions_source-1.0.313564-windows-313564.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.298369</string>
+        <string>1.0.313564</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -1736,11 +1736,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1175977a191ffc936fd0ccca433c8278</string>
+              <string>c8c6e5867d1ead7ad452a3359b22cf44</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298370/arch/Darwin/installer/llphysicsextensions_stub-1.0.298370-darwin-298370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions/rev/313563/arch/Darwin/installer/llphysicsextensions_stub-1.0.313563-darwin-313563.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1750,9 +1750,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d13d7927692eab2d6a63e36166b72a8a</string>
+              <string>e99afb25a4fd5b08c5cd3060ae9c1d59</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298370/arch/Linux/installer/llphysicsextensions_stub-1.0.298370-linux-298370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions/rev/313563/arch/Linux/installer/llphysicsextensions_stub-1.0.313563-linux-313563.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1774,9 +1774,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9594f6fd79ee924fe675a4a23e30516e</string>
+              <string>6f4307a35c692e44b872125d7932df8e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions-stub_llphysicsextensions-update/rev/298370/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.298370-windows-298370.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/llphysicsextensions/rev/313563/arch/CYGWIN/installer/llphysicsextensions_stub-1.0.313563-windows-313563.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1797,7 +1797,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.0.298370</string>
+        <string>1.0.313563</string>
       </map>
       <key>mesa</key>
       <map>

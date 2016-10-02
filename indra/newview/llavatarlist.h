@@ -83,6 +83,7 @@ public:
 	void setShowIcons(std::string param_name);
 	bool getIconsVisible() const { return mShowIcons; }
 	const std::string getIconParamName() const{return mIconParamName;}
+	std::string getAvatarName(LLAvatarName av_name);
 	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
 	/*virtual*/ BOOL handleMouseDown( S32 x, S32 y, MASK mask );
 	/*virtual*/ BOOL handleMouseUp(S32 x, S32 y, MASK mask);
@@ -91,11 +92,6 @@ public:
 	// Return true if filter has at least one match.
 	bool filterHasMatches();
 
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	void setRlvCheckShowNames(bool fRlvCheckShowNames) { mRlvCheckShowNames = fRlvCheckShowNames; }
-	// We need this to be public since we call it from RlvUIEnabler::onToggleShowNames()
-	void updateAvatarNames();
-// [/RLVa:KB]
 
 	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
@@ -105,6 +101,8 @@ public:
 
 	void addAvalineItem(const LLUUID& item_id, const LLUUID& session_id, const std::string& item_name);
 	void handleDisplayNamesOptionChanged();
+
+	void setShowCompleteName(bool show) { mShowCompleteName = show;};
 
 protected:
 	void refresh();
@@ -117,7 +115,7 @@ protected:
 	void updateLastInteractionTimes();	
 	void rebuildNames();
 	void onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask);
-//	void updateAvatarNames();
+	void updateAvatarNames();
 
 private:
 
@@ -132,8 +130,7 @@ private:
 	bool mShowProfileBtn;
 	bool mShowSpeakingIndicator;
 	bool mShowPermissions;
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	bool mRlvCheckShowNames;
+	bool mShowCompleteName;
 // [/RLVa:KB]
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer

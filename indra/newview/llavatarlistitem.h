@@ -106,14 +106,12 @@ public:
 	void setShowPermissions(bool show) { mShowPermissions = show; };
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	void setRlvCheckShowNames(bool fRlvCheckShowNames) { mRlvCheckShowNames = fRlvCheckShowNames; }
+	void setShowCompleteName(bool show) { mShowCompleteName = show;};
 // [/RLVa:KB]
 	
 	const LLUUID& getAvatarId() const;
 	std::string getAvatarName() const;
 	std::string getAvatarToolTip() const;
-	static std::string formatAvatarName(const LLAvatarName& av_name); // <alchemy/>
 
 	void onInfoBtnClick();
 	void onProfileBtnClick();
@@ -215,16 +213,15 @@ private:
 	//Speaker indicator and avatar name coords are translated accordingly
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	bool mRlvCheckShowNames;
-// [/RLVa:KB]
-
 	/// indicates whether to show icons representing permissions granted
 	bool mShowPermissions;
 
 	/// true when the mouse pointer is hovering over this item
 	bool mHovered;
 	
+	bool mShowCompleteName;
+	std::string mGreyOutUsername;
+
 	void fetchAvatarName();
 	boost::signals2::connection mAvatarNameCacheConnection;
 

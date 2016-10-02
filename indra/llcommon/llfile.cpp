@@ -593,7 +593,7 @@ LLFILE *	LLFile::_Fiopen(const std::string& filename,
 
 std::streamsize llifstream_size(llifstream& ifstr)
 {
-	if (!ifstr.is_open()) return 0;
+	if(!ifstr.is_open()) return 0;
 	std::streampos pos_old = ifstr.tellg();
 	ifstr.seekg(0, std::ios_base::beg);
 	std::streampos pos_beg = ifstr.tellg();
@@ -605,7 +605,7 @@ std::streamsize llifstream_size(llifstream& ifstr)
 
 std::streamsize llofstream_size(llofstream& ofstr)
 {
-	if (!ofstr.is_open()) return 0;
+	if(!ofstr.is_open()) return 0;
 	std::streampos pos_old = ofstr.tellp();
 	ofstr.seekp(0, std::ios_base::beg);
 	std::streampos pos_beg = ofstr.tellp();

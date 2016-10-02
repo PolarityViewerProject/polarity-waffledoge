@@ -198,6 +198,7 @@ set(viewer_SOURCE_FILES
     llavatarlist.cpp
     llavatarlistitem.cpp
     llavatarrenderinfoaccountant.cpp
+    llavatarrendernotifier.cpp
     llavatarpropertiesprocessor.cpp
     llblockedlistitem.cpp
     llblocklist.cpp
@@ -312,7 +313,6 @@ set(viewer_SOURCE_FILES
     llfloatergroupinvite.cpp
     llfloatergroups.cpp
     llfloaterhandler.cpp
-    llfloaterhardwaresettings.cpp
     llfloaterhelpbrowser.cpp
     llfloaterhoverheight.cpp
     llfloaterhud.cpp
@@ -807,6 +807,7 @@ set(viewer_HEADER_FILES
     llavatarlistitem.h
     llavatarpropertiesprocessor.h
     llavatarrenderinfoaccountant.h
+    llavatarrendernotifier.h
     llblockedlistitem.h
     llblocklist.h
     llbox.h
@@ -920,7 +921,6 @@ set(viewer_HEADER_FILES
     llfloatergroupinvite.h
     llfloatergroups.h
     llfloaterhandler.h
-    llfloaterhardwaresettings.h
     llfloaterhelpbrowser.h
     llfloaterhoverheight.h
     llfloaterhud.h
@@ -1187,6 +1187,7 @@ set(viewer_HEADER_FILES
     llscreenchannel.h
     llscripteditor.h
     llscriptfloater.h
+    llscriptruntimeperms.h
     llscrollingpanelparam.h
     llscrollingpanelparambase.h
     llsearchcombobox.h
@@ -1393,25 +1394,15 @@ list(APPEND viewer_SOURCE_FILES
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
 
-# The viewer_version.txt file created here is for passing to viewer_manifest and
-#   autobuild.
-# The summary.json file is created for the benefit of the TeamCity builds, where
-#   it is used to provide descriptive information to the build results page.
-add_custom_target(generate_viewer_version ALL
-    # FIXME: This line violates CMake standards (too long)
-    # and COMMAND cannot be split.
-    COMMAND ${CMAKE_COMMAND} -E echo ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} > ${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt
-    COMMAND ${CMAKE_COMMAND} -E echo {"Type":"viewer","Version":"${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}"} > ${CMAKE_BINARY_DIR}/summary.json
-    COMMENT "Generating viewer_version.txt for manifest processing"
-    )
+#summary.json creation moved to viewer_manifest.py MAINT-6413
+# the viewer_version.txt file created here is for passing to viewer_manifest and autobuild
+file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
+           "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
 
 set_source_files_properties(
     llversioninfo.cpp tests/llversioninfo_test.cpp
     PROPERTIES
-    # dummy dependency to force recompile every time
-    DEPENDS generate_viewer_version
-    # see BuildVersion.cmake
-    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}"
+   COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
     )
 
 if(DARWIN)
@@ -1629,6 +1620,7 @@ if(WINDOWS)
         oleaut32
         shell32
         Vfw32
+        wer
         winspool
         )
 endif() # WINDOWS
@@ -1763,8 +1755,6 @@ if(WINDOWS)
         # *TODO -reenable this once we get server usage sorted out
         LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
         )
-
-    add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
 
     if(USE_PRECOMPILED_HEADERS)
         set_target_properties(
@@ -2063,8 +2053,6 @@ if(LINUX)
     llcommon
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
-
   add_custom_command(
       OUTPUT ${product}.tar.bz2
       COMMAND ${PYTHON_EXECUTABLE}
@@ -2152,8 +2140,6 @@ if(DARWIN)
     ${product}.app/Contents/Info.plist"
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} generate_viewer_version)
-
   add_custom_command(
     TARGET ${VIEWER_BINARY_NAME} POST_BUILD
     COMMAND ${PYTHON_EXECUTABLE}
@@ -2187,7 +2173,6 @@ if(DARWIN)
 
   if(PACKAGE)
       add_custom_target(llpackage ALL DEPENDS ${VIEWER_BINARY_NAME})
-      add_dependencies(llpackage generate_viewer_version)
 
       add_custom_command(
         TARGET llpackage POST_BUILD
@@ -2281,12 +2266,14 @@ if(PACKAGE)
     DEPENDS generate_breakpad_symbols.py
         VERBATIM)
 
-  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}")
-  add_dependencies(generate_breakpad_symbols
-    "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_custom_target(generate_breakpad_symbols DEPENDS "${VIEWER_SYMBOL_FILE}" "${VIEWER_BINARY_NAME}" "${VIEWER_COPY_MANIFEST}")
+  add_dependencies(generate_breakpad_symbols "${VIEWER_BINARY_NAME}")
+  if (WINDOWS OR LINUX)
+    add_dependencies(generate_breakpad_symbols "${VIEWER_COPY_MANIFEST}")
+  endif (WINDOWS OR LINUX)
   add_dependencies(llpackage generate_breakpad_symbols)
-  endif()
-endif() # PACKAGE
+  endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
+endif (PACKAGE)
 
 if(LL_TESTS)
   # To add a viewer unit test, just add the test .cpp file below

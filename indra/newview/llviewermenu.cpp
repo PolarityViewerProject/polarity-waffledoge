@@ -151,10 +151,6 @@
 #include "llpathfindingmanager.h"
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
- 
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-// [/RLVa:KB]
-
 #include "pvmachinima.h"
 #include "pvperformancemaid.h"
 #include "fswsassetblacklist.h"
@@ -1050,10 +1046,6 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXTURE_PRIORITY;
 	}
-	else if ("shame" == info_display)
-	{
-		return LLPipeline::RENDER_DEBUG_SHAME;
-	}
 	else if ("texture area" == info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_TEXTURE_AREA;
@@ -1082,9 +1074,9 @@ U32 info_display_from_string(std::string info_display)
 	{
 		return LLPipeline::RENDER_DEBUG_COMPOSITION;
 	}
-	else if ("attachment bytes" == info_display)
+	else if ("avatardrawinfo" == info_display)
 	{
-		return LLPipeline::RENDER_DEBUG_ATTACHMENT_BYTES;
+		return (LLPipeline::RENDER_DEBUG_AVATAR_DRAW_INFO);
 	}
 	else if ("glow" == info_display)
 	{
@@ -1120,6 +1112,7 @@ U32 info_display_from_string(std::string info_display)
 	}
 	else
 	{
+		LL_WARNS() << "unrecognized feature name '" << info_display << "'" << LL_ENDL;
 		return 0;
 	}
 };
@@ -3245,11 +3238,11 @@ class LLAvatarCheckImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_RENDER_NORMALLY);
 			case 1:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_DO_NOT_RENDER);
 			case 2:
-				return (avatar->getVisualMuteSettings() == LLVOAvatar::NEVER_VISUAL_MUTE);
+				return (avatar->getVisualMuteSettings() == LLVOAvatar::AV_ALWAYS_RENDER);
 			default:
 				return false;
 		}
@@ -3271,19 +3264,18 @@ class LLAvatarSetImpostorMode : public view_listener_t
 		switch (mode) 
 		{
 			case 0:
-				avatar->setVisualMuteSettings(LLVOAvatar::VISUAL_MUTE_NOT_SET);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_RENDER_NORMALLY);
 				break;
 			case 1:
-				avatar->setVisualMuteSettings(LLVOAvatar::ALWAYS_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_DO_NOT_RENDER);
 				break;
 			case 2:
-				avatar->setVisualMuteSettings(LLVOAvatar::NEVER_VISUAL_MUTE);
+				avatar->setVisualMuteSettings(LLVOAvatar::AV_ALWAYS_RENDER);
 				break;
 			default:
 				return false;
 		}
 
-		avatar->forceUpdateVisualMuteSettings();
 		LLVOAvatar::cullAvatarsByPixelArea();
 		return true;
 	}	// handleEvent()
@@ -3303,10 +3295,8 @@ class LLObjectMute : public view_listener_t
 		LLVOAvatar* avatar = find_avatar_from_object(object); 
 		if (avatar)
 		{
-// [RLVa:KB] - Checked: 2010-08-25 (RLVa-1.2.1b) | Added: RLVa-1.0.0e
-			if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-				return true;
-// [/RLVa:KB]
+			avatar->mNeedsImpostorUpdate = TRUE;
+
 			id = avatar->getID();
 
 			LLNameValue *firstname = avatar->getNVPair("FirstName");
@@ -3488,10 +3478,7 @@ void handle_avatar_freeze(const LLSD& avatar_id)
 			if (!fullname.empty())
 			{
 				LLSD args;
-//				args["AVATAR_NAME"] = fullname;
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.0e
-				args["AVATAR_NAME"] = (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) ? fullname : RlvStrings::getAnonym(fullname);
-// [/RLVa:KB]
+				args["AVATAR_NAME"] = fullname;
 				LLNotificationsUtil::add("FreezeAvatarFullname",
 							args,
 							payload,
@@ -3620,10 +3607,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 				if (!fullname.empty())
 				{
     				LLSD args;
-//					args["AVATAR_NAME"] = fullname;
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.0e
-					args["AVATAR_NAME"] = (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) ? fullname : RlvStrings::getAnonym(fullname);
-// [/RLVa:KB]
+    				args["AVATAR_NAME"] = fullname;
     				LLNotificationsUtil::add("EjectAvatarFullname",
     							args,
     							payload,
@@ -3643,10 +3627,7 @@ void handle_avatar_eject(const LLSD& avatar_id)
 				if (!fullname.empty())
 				{
     				LLSD args;
-//					args["AVATAR_NAME"] = fullname;
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.0e
-					args["AVATAR_NAME"] = (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) ? fullname : RlvStrings::getAnonym(fullname);
-// [/RLVa:KB]
+    				args["AVATAR_NAME"] = fullname;
     				LLNotificationsUtil::add("EjectAvatarFullnameNoBan",
     							args,
     							payload,
@@ -3877,10 +3858,7 @@ class LLSelfStandUp : public view_listener_t
 
 bool enable_standup_self()
 {
-// [RLVa:KB] - Checked: 2010-04-01 (RLVa-1.2.0c) | Modified: RLVa-1.0.0g
-	return isAgentAvatarValid() && gAgentAvatarp->isSitting() && !gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT);
-// [/RLVa:KB]
-//	return isAgentAvatarValid() && gAgentAvatarp->isSitting();
+    return isAgentAvatarValid() && gAgentAvatarp->isSitting();
 }
 
 class LLSelfSitDown : public view_listener_t
@@ -4882,17 +4860,6 @@ static void derez_objects(EDeRezDestination dest, const LLUUID& dest_id)
 void handle_take_copy()
 {
 	if (LLSelectMgr::getInstance()->getSelection()->isEmpty()) return;
-
-// [RLVa:KB] - Checked: 2010-03-07 (RLVa-1.2.0c) | Modified: RLVa-1.2.0a
-	if ( (rlv_handler_t::isEnabled()) && (!RlvActions::canStand()) )
-	{
-		// Allow only if the avie isn't sitting on any of the selected objects
-		LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
-		RlvSelectIsSittingOn f(gAgentAvatarp);
-		if ( (hSel.notNull()) && (hSel->getFirstRootNode(&f, TRUE) != NULL) )
-			return;
-	}
-// [/RLVa:KB]
 
 	const LLUUID category_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_OBJECT);
 	derez_objects(DRD_ACQUIRE_TO_AGENT_INVENTORY, category_id);
@@ -7517,20 +7484,25 @@ bool enable_avatar_call()
 
 namespace
 {
-	struct QueueObjects : public LLSelectedObjectFunctor
+	struct QueueObjects : public LLSelectedNodeFunctor
 	{
 		BOOL scripted;
 		BOOL modifiable;
 		LLFloaterScriptQueue* mQueue;
 		QueueObjects(LLFloaterScriptQueue* q) : mQueue(q), scripted(FALSE), modifiable(FALSE) {}
-		virtual bool apply(LLViewerObject* obj)
+		virtual bool apply(LLSelectNode* node)
 		{
+			LLViewerObject* obj = node->getObject();
+			if (!obj)
+			{
+				return true;
+			}
 			scripted = obj->flagScripted();
 			modifiable = obj->permModify();
 
 			if( scripted && modifiable )
 			{
-				mQueue->addObject(obj->getID());
+				mQueue->addObject(obj->getID(), node->mName);
 				return false;
 			}
 			else
@@ -7546,7 +7518,7 @@ void queue_actions(LLFloaterScriptQueue* q, const std::string& msg)
 	QueueObjects func(q);
 	LLSelectMgr *mgr = LLSelectMgr::getInstance();
 	LLObjectSelectionHandle selectHandle = mgr->getSelection();
-	bool fail = selectHandle->applyToObjects(&func);
+	bool fail = selectHandle->applyToNodes(&func);
 	if(fail)
 	{
 		if ( !func.scripted )

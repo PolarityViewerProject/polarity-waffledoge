@@ -192,7 +192,7 @@ void LLDrawPoolTree::renderShadow(S32 pass)
 void LLDrawPoolTree::endShadowPass(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
-	
+
 	static LLCachedControl<F32> render_def_spot_shad_offset(gSavedSettings, "RenderDeferredSpotShadowOffset", 0.8f);
 	static LLCachedControl<F32> render_def_spot_shad_bias(gSavedSettings, "RenderDeferredSpotShadowBias", -64.f);
 	glPolygonOffset(render_def_spot_shad_offset,

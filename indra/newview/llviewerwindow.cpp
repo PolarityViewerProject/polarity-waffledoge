@@ -29,6 +29,9 @@
 
 
 // system library includes
+#include <stdio.h>
+#include <iostream>
+#include <fstream>
 #include <algorithm>
 #include <boost/lambda/core.hpp>
 #include <boost/regex.hpp>
@@ -650,14 +653,13 @@ public:
 			{
 				LLVOAvatar* avatar = av_iter->second;
 
-				avatar->calculateUpdateRenderCost();			// Make sure the numbers are up-to-date
+				avatar->calculateUpdateRenderComplexity(); // Make sure the numbers are up-to-date
 
 				trunc_name = utf8str_truncate(avatar->getFullname(), 16);
-				addText(xpos-100, ypos, llformat("%s : rez %d, weight %d, bytes %d area %.2f",
+				addText(xpos, ypos, llformat("%s : %s, complexity %d, area %.2f",
 					trunc_name.c_str(),
-					avatar->getRezzedStatus(),
+                    LLVOAvatar::rezStatusToString(avatar->getRezzedStatus()).c_str(),
 					avatar->getVisualComplexity(),
-					avatar->getAttachmentGeometryBytes(),
 					avatar->getAttachmentSurfaceArea()));
 				ypos += y_inc;
 				av_iter++;

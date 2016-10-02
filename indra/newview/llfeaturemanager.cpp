@@ -70,15 +70,10 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 #ifdef VERSIONED_FEATURETABLE
 const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_linux.%s.txt";
 #endif
-#elif LL_SOLARIS
-const char FEATURE_TABLE_FILENAME[] = "featuretable_solaris.txt";
-#ifdef VERSIONED_FEATURETABLE
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_solaris.%s.txt";
-#endif
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
 #ifdef VERSIONED_FEATURETABLE
-const char FEATURE_TABLE_VER_FILENAME[] = "featuretable%s.%s.txt";
+const char FEATURE_TABLE_VER_FILENAME[] = "featuretable.%s.txt";
 #endif
 #endif
 #if 0                               // consuming code in #if 0 below
@@ -105,6 +100,10 @@ void LLFeatureList::addFeature(const std::string& name, const BOOL available, co
 	}
 
 	LLFeatureInfo fi(name, available, level);
+    LL_DEBUGS_ONCE("RenderInit") << "Feature '" << name << "' "
+                                 << (available ? "" : "not " ) << "available"
+                                 << " at " << level
+                                 << LL_ENDL;
 	mFeatures[name] = fi;
 }
 
@@ -126,6 +125,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 {
 	if (mFeatures.count(name) && isFeatureAvailable(name))
 	{
+        LL_DEBUGS_ONCE("RenderInit") << "Setting '" << name << "' to recommended value " <<  mFeatures[name].mRecommendedLevel << LL_ENDL;
 		return mFeatures[name].mRecommendedLevel;
 	}
 
@@ -135,7 +135,7 @@ F32 LLFeatureList::getRecommendedValue(const std::string& name)
 
 BOOL LLFeatureList::maskList(LLFeatureList &mask)
 {
-	//LL_INFOS() << "Masking with " << mask.mName << LL_ENDL;
+	LL_DEBUGS_ONCE() << "Masking with " << mask.mName << LL_ENDL;
 	//
 	// Lookup the specified feature mask, and overlay it on top of the
 	// current feature mask.
@@ -182,16 +182,14 @@ BOOL LLFeatureList::maskList(LLFeatureList &mask)
 void LLFeatureList::dump()
 {
 	LL_DEBUGS("RenderInit") << "Feature list: " << mName << LL_ENDL;
-	LL_DEBUGS("RenderInit") << "--------------" << LL_ENDL;
 
 	LLFeatureInfo fi;
 	feature_map_t::iterator feature_it;
 	for (feature_it = mFeatures.begin(); feature_it != mFeatures.end(); ++feature_it)
 	{
 		fi = feature_it->second;
-		LL_DEBUGS("RenderInit") << fi.mName << "\t\t" << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
+		LL_DEBUGS("RenderInit") << "With " << mName << " feature " << fi.mName << " " << fi.mAvailable << ":" << fi.mRecommendedLevel << LL_ENDL;
 	}
-	LL_DEBUGS("RenderInit") << LL_ENDL;
 }
 
 static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
@@ -281,24 +279,19 @@ bool LLFeatureManager::loadFeatureTables()
 
 	std::string filename;
 	std::string http_filename; 
-#if LL_WINDOWS
-	filename = FEATURE_TABLE_FILENAME;
+	filename = llformat(FEATURE_TABLE_FILENAME, "");
 #ifdef VERSIONED_FEATURETABLE
-	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, "", LLVersionInfo::getVersion().c_str());
 #else
 	http_filename = FEATURE_TABLE_FILENAME;
 #endif
-#else
 	filename = FEATURE_TABLE_FILENAME;
 #ifdef VERSIONED_FEATURETABLE
 	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
 #endif
-#endif
 
 	app_path += filename;
 
-	
-	// second table is downloaded with HTTP
+	// second table is downloaded with HTTP - note that this will only be used on the run _after_ it is downloaded
 	std::string http_path = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, http_filename);
 
 	// use HTTP table if it exists
@@ -382,11 +375,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 			file >> name;
 			if (!mMaskList.count(name))
 			{
-			flp = new LLFeatureList(name);
-			mMaskList[name] = flp;
-		}
-		else
-		{
+                flp = new LLFeatureList(name);
+                mMaskList[name] = flp;
+            }
+            else
+            {
 				LL_WARNS("RenderInit") << "Overriding mask " << name << ", this is invalid!" << LL_ENDL;
 				parse_ok = false;
 			}
@@ -395,11 +388,11 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 		{
 			if (flp)
 			{
-			S32 available;
-			F32 recommended;
-			file >> available >> recommended;
-			flp->addFeature(name, available, recommended);
-		}
+                S32 available;
+                F32 recommended;
+                file >> available >> recommended;
+                flp->addFeature(name, available, recommended);
+            }
 			else
 			{
 				LL_WARNS("RenderInit") << "Specified parameter before <list> keyword!" << LL_ENDL;
@@ -587,7 +580,7 @@ void LLFeatureManager::applyRecommendedSettings()
 	// cap the level at 2 (high)
 	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
-	LL_INFOS() << "Applying Recommended Features" << LL_ENDL;
+	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
 	setGraphicsLevel(level, false);
 	gSavedSettings.setU32("RenderQualityPerformance", level);
@@ -794,7 +787,7 @@ void LLFeatureManager::applyBaseMasks()
 	if (osInfo.mMajorVer == 10 && osInfo.mMinorVer < 7)
 	{
 		maskFeatures("OSX_10_6_8");
-        }
+	}
 #endif
 
 	// now mask by gpu string
@@ -831,4 +824,63 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("safe");
 	}
+}
+
+LLSD LLFeatureManager::getRecommendedSettingsMap()
+{
+	// Create the map and fill it with the hardware recommended settings.
+	// It's needed to create an initial Default graphics preset (MAINT-6435).
+	// The process is similar to the one LLFeatureManager::applyRecommendedSettings() does.
+
+	LLSD map(LLSD::emptyMap());
+
+	loadGPUClass();
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
+
+	applyBaseMasks();
+	std::string features(isValidGraphicsLevel(level) ? getNameForGraphicsLevel(level) : "Low");
+
+	maskFeatures(features);
+
+	LLControlVariable* ctrl = gSavedSettings.getControl("RenderQualityPerformance"); // include the quality value for correct preset loading   
+	map["RenderQualityPerformance"]["Value"] = (LLSD::Integer)level;
+	map["RenderQualityPerformance"]["Comment"] = ctrl->getComment();;
+	map["RenderQualityPerformance"]["Persist"] = 1;
+	map["RenderQualityPerformance"]["Type"] = LLControlGroup::typeEnumToString(ctrl->type());
+
+
+
+	for (feature_map_t::iterator mIt = mFeatures.begin(); mIt != mFeatures.end(); ++mIt)
+	{
+		LLControlVariable* ctrl = gSavedSettings.getControl(mIt->first);
+		if (ctrl == NULL)
+		{
+			LL_WARNS() << "AHHH! Control setting " << mIt->first << " does not exist!" << LL_ENDL;
+			continue;
+		}
+
+		if (ctrl->isType(TYPE_BOOLEAN))
+		{
+			map[mIt->first]["Value"] = (LLSD::Boolean)getRecommendedValue(mIt->first);
+		}
+		else if (ctrl->isType(TYPE_S32) || ctrl->isType(TYPE_U32))
+		{
+			map[mIt->first]["Value"] = (LLSD::Integer)getRecommendedValue(mIt->first);
+		}
+		else if (ctrl->isType(TYPE_F32))
+		{
+			map[mIt->first]["Value"] = (LLSD::Real)getRecommendedValue(mIt->first);
+		}
+		else
+		{
+			LL_WARNS() << "AHHH! Control variable is not a numeric type!" << LL_ENDL;
+			continue;
+		}
+		map[mIt->first]["Comment"] = ctrl->getComment();;
+		map[mIt->first]["Persist"] = 1;
+		map[mIt->first]["Type"] = LLControlGroup::typeEnumToString(ctrl->type());
+	}
+	
+	return map;
 }

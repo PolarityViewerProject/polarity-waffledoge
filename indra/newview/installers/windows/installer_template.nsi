@@ -583,6 +583,7 @@ StrCpy $INSTEXE "${INSTEXE}"
   %%DELETE_FILES%%
 
   ;Optional/obsolete files.  Delete won't fail if they don't exist.
+Delete "$INSTDIR\autorun.bat"
   Delete "$INSTDIR\message_template.msg"
   Delete "$INSTDIR\VivoxVoiceService-*.log"
 
@@ -599,15 +600,19 @@ StrCpy $INSTEXE "${INSTEXE}"
   IfFileExists "$INSTDIR" FOLDERFOUND NOFOLDER
 
 FOLDERFOUND:
-  ;Silent uninstall always removes all files (/SD IDYES)
+# Silent uninstall always removes all files (/SD IDYES)
   MessageBox MB_YESNO $(DeleteProgramFilesMB) /SD IDYES IDNO NOFOLDER
   RMDir /r "$INSTDIR"
 
 NOFOLDER:
   DeleteRegKey HKLM "SOFTWARE\${VENDORSTR}\$INSTPROG"
-  DeleteRegKey /ifempty HKLM "SOFTWARE\${VENDORSTR}"
   DeleteRegKey HKLM "SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\$INSTPROG"
-SectionEnd
+  DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Classes\x-grid-location-info"
+  DeleteRegKey HKEY_LOCAL_MACHINE "SOFTWARE\Classes\secondlife"
+  DeleteRegKey HKEY_CLASSES_ROOT "x-grid-location-info"
+  DeleteRegKey HKEY_CLASSES_ROOT "secondlife"
+
+NoDelete:
 
 ;--------------------------------
 ;Uninstaller Functions

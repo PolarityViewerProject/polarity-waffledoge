@@ -220,6 +220,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	if ((mute.mType == LLMute::AGENT)
 		&& isLinden(mute.mName) && (flags & LLMute::flagTextChat || flags == 0))
 	{
+        LL_WARNS() << "Trying to mute a Linden; ignored" << LL_ENDL;
 		LLNotifications::instance().add("MuteLinden", LLSD(), LLSD());
 		return FALSE;
 	}
@@ -232,10 +233,8 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	}
 
 	// Can't mute our developers
-	if(mute.mType == LLMute::AGENT
-		&& gPVData->isDeveloper(mute.mID))
+	if(mute.mType == LLMute::AGENT && gPVData->isDeveloper(mute.mID))
 	{
-		LLSD args;
 		args[APP_NAME] = APP_NAME;
 		LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
 		return FALSE;
@@ -268,6 +267,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		}
 		else
 		{
+			LL_INFOS() << "duplicate mute ignored" << LL_ENDL;
 			// was duplicate
 			return FALSE;
 		}

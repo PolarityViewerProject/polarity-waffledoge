@@ -122,7 +122,6 @@ void LLStandardBumpmap::addstandard()
 	S32 fields_read = fscanf( file, "LLStandardBumpmap version %d", &file_version );
 	if( fields_read != 1 )
 	{
-		fclose( file ); // <FS:ND/> Do not leak the file handle.
 		LL_WARNS() << "Bad LLStandardBumpmap header" << LL_ENDL;
 		fclose(file);
 		return;
@@ -203,7 +202,7 @@ void LLDrawPoolBump::prerender()
 // static
 S32 LLDrawPoolBump::numBumpPasses()
 {
-	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump",true);
+	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump", true);
 	if (render_bump)
 	{
 		if (mVertexShaderLevel > 1)
@@ -805,7 +804,7 @@ void LLDrawPoolBump::endBump(U32 pass)
 
 S32 LLDrawPoolBump::getNumDeferredPasses()
 { 
-	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump",true);
+	static LLCachedControl<bool> render_bump(gSavedSettings, "RenderObjectBump", true);
 	if (render_bump)
 	{
 		return 1;

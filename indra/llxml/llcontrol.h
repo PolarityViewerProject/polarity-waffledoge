@@ -48,6 +48,7 @@ class LLColor3;
 // <Black Dragon:NiranV> Vector4
 class LLVector4;
 
+// if this is changed, also modify mTypeString in llcontrol.h
 typedef enum e_control_type
 {
 	TYPE_U32 = 0,
@@ -201,17 +202,19 @@ class LLControlGroup : public LLInstanceTracker<LLControlGroup, std::string>
 protected:
 	typedef std::map<std::string, LLControlVariablePtr > ctrl_name_table_t;
 	ctrl_name_table_t mNameTable;
-	std::string mTypeString[TYPE_COUNT];
+	static const std::string mTypeString[TYPE_COUNT];
 
 	std::set<std::string> mIncludedFiles;
 
 	// Settings Sanity check
-	std::string mSanityTypeString[SANITY_TYPE_COUNT];
+	static std::string mSanityTypeString[SANITY_TYPE_COUNT];
 public:                                              
-	eControlType typeStringToEnum(const std::string& typestr);
-	eSanityType sanityTypeStringToEnum(const std::string& sanitystr);
-	std::string typeEnumToString(eControlType typeenum);	
+	static eControlType typeStringToEnum(const std::string& typestr);
+
+	static std::string typeEnumToString(eControlType typeenum);	
+	static eSanityType sanityTypeStringToEnum(const std::string& sanitystr);
 	std::string sanityTypeEnumToString(eSanityType sanitytypeenum);
+	
 
 	LLControlGroup(const std::string& name);
 	~LLControlGroup();

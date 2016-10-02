@@ -142,8 +142,7 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowProfileBtn(p.show_profile_btn)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
 , mShowPermissions(p.show_permissions_granted)
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-, mRlvCheckShowNames(false)
+, mShowCompleteName(false)
 // [/RLVa:KB]
 {
 	setCommitOnSelectionChange(true);
@@ -179,6 +178,11 @@ void LLAvatarList::setShowIcons(std::string param_name)
 {
 	mIconParamName= param_name;
 	mShowIcons = gSavedSettings.getBOOL(mIconParamName);
+}
+
+std::string LLAvatarList::getAvatarName(LLAvatarName av_name)
+{
+	return mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
 }
 
 // virtual
@@ -286,8 +290,7 @@ void LLAvatarList::refresh()
 		LLAvatarName av_name;
 		have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
 
-		std::string name = LLAvatarListItem::formatAvatarName(av_name); // <alchemy/>
-		if (!have_filter || findInsensitive(name, mNameFilter)) // <alchemy/>
+		if (!have_filter || findInsensitive(getAvatarName(av_name), mNameFilter))
 		{
 			if (nadded >= ADD_LIMIT)
 			{
@@ -305,8 +308,9 @@ void LLAvatarList::refresh()
 				}
 				else
 				{
+					std::string display_name = getAvatarName(av_name);
 					addNewItem(buddy_id, 
-						name.empty() ? waiting_str : name, // <alchemy/>
+						display_name.empty() ? waiting_str : display_name, 
 						LLAvatarTracker::instance().isBuddyOnline(buddy_id));
 				}
 				
@@ -334,7 +338,7 @@ void LLAvatarList::refresh()
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
 			have_names &= LLAvatarNameCache::get(buddy_id, &av_name);
-			if (!findInsensitive(LLAvatarListItem::formatAvatarName(av_name), mNameFilter)) // <alchemy/>
+			if (!findInsensitive(getAvatarName(av_name), mNameFilter))
 			{
 				removeItemByUUID(buddy_id);
 				modified = true;
@@ -388,6 +392,7 @@ void LLAvatarList::updateAvatarNames()
 	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
+		item->setShowCompleteName(mShowCompleteName);
 		item->updateAvatarName();
 	}
 	mNeedUpdateNames = false;
@@ -407,7 +412,7 @@ bool LLAvatarList::filterHasMatches()
 		// If name has not been loaded yet we consider it as a match.
 		// When the name will be loaded the filter will be applied again(in refresh()).
 
-		if (have_name && !findInsensitive(LLAvatarListItem::formatAvatarName(av_name), mNameFilter)) // <alchemy/>
+		if (have_name && !findInsensitive(getAvatarName(av_name), mNameFilter))
 		{
 			continue;
 		}
@@ -441,8 +446,7 @@ S32 LLAvatarList::notifyParent(const LLSD& info)
 void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is_online, EAddPosition pos)
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	item->setRlvCheckShowNames(mRlvCheckShowNames);
+	item->setShowCompleteName(mShowCompleteName);
 // [/RLVa:KB]
 	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
@@ -455,6 +459,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
 	item->setShowPermissions(mShowPermissions);
 
+
 	item->setDoubleClickCallback(boost::bind(&LLAvatarList::onItemDoubleClicked, this, _1, _2, _3, _4));
 
 	addItem(item, id, pos);
@@ -464,9 +469,8 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
-// if ( mContextMenu && !isAvalineItemSelected())
+	if ( mContextMenu && !isAvalineItemSelected())
 // [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a) | Modified: RLVa-1.2.0d
-	if ( (mContextMenu && !isAvalineItemSelected()) && ((!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))) )
 // [/RLVa:KB]
 	{
 		uuid_vec_t selected_uuids;
@@ -591,7 +595,6 @@ void LLAvatarList::onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
 // mItemDoubleClickSignal(ctrl, x, y, mask);
 // [RLVa:KB] - Checked: 2010-06-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	if ( (!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) )
 	mItemDoubleClickSignal(ctrl, x, y, mask);
 // [/RLVa:KB]
 }

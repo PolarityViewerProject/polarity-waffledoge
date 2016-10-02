@@ -62,6 +62,8 @@
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
 // [/RLVa:KB]
 
+#include "llavatarpropertiesprocessor.h"
+
 namespace 
 {
     const S32   BAKE_RETRY_MAX_COUNT = 5;
@@ -3679,15 +3681,9 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
 {
     if (!mOutstandingAppearanceBakeRequest)
     {
-#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
         mRerequestAppearanceBake = false;
         LLCoprocedureManager::CoProcedure_t proc = boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this, _1);
         LLCoprocedureManager::instance().enqueueCoprocedure("AIS", "LLAppearanceMgr::serverAppearanceUpdateCoro", proc);
-#else
-        LLCoros::instance().launch("serverAppearanceUpdateCoro", 
-            boost::bind(&LLAppearanceMgr::serverAppearanceUpdateCoro, this));
-
-#endif
     }
     else
     {
@@ -3695,17 +3691,8 @@ void LLAppearanceMgr::requestServerAppearanceUpdate()
     }
 }
 
-#ifdef APPEARANCEBAKE_AS_IN_AIS_QUEUE
 void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t &httpAdapter)
-#else
-void LLAppearanceMgr::serverAppearanceUpdateCoro()
-#endif
 {
-#ifndef APPEARANCEBAKE_AS_IN_AIS_QUEUE
-    LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t httpAdapter(
-        new LLCoreHttpUtil::HttpCoroutineAdapter("serverAppearanceUpdateCoro", LLCore::HttpRequest::DEFAULT_POLICY_ID));
-#endif
-
     mRerequestAppearanceBake = false;
     if (!gAgent.getRegion())
     {
@@ -3813,9 +3800,14 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro()
             // on multiple machines.
             if (result.has("expected"))
             {
-
                 S32 expectedCofVersion = result["expected"].asInteger();
                 LL_WARNS("Avatar") << "Server expected " << expectedCofVersion << " as COF version" << LL_ENDL;
+
+                // Force an update texture request for ourself.  The message will return
+                // through the UDP and be handled in LLVOAvatar::processAvatarAppearance
+                // this should ensure that we receive a new canonical COF from the sim
+                // host. Hopefully it will return before the timeout.
+                LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(gAgent.getID());
 
                 bRetry = true;
                 // Wait for a 1/2 second before trying again.  Just to keep from asking too quickly.

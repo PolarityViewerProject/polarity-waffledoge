@@ -61,6 +61,7 @@
 #include "llpaneltopinfobar.h"
 #include "llparcel.h"
 #include "llrendersphere.h"
+#include "llscriptruntimeperms.h"
 #include "llsdutil.h"
 #include "llsky.h"
 #include "llslurl.h"
@@ -89,7 +90,6 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "osscriptruntimeperms.h"
 #include "stringize.h"
 #include "boost/foreach.hpp"
 #include "kcwlinterface.h"
@@ -3290,13 +3290,6 @@ BOOL LLAgent::leftButtonGrabbed() const
 		|| (camera_mouse_look && mControlsTakenPassedOnCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
 }
 
-BOOL LLAgent::leftButtonBlocked() const
-{
-    const BOOL camera_mouse_look = gAgentCamera.cameraMouselook();
-    return (!camera_mouse_look && mControlsTakenCount[CONTROL_LBUTTON_DOWN_INDEX] > 0)
-        || (camera_mouse_look && mControlsTakenCount[CONTROL_ML_LBUTTON_DOWN_INDEX] > 0);
-}
-
 BOOL LLAgent::rotateGrabbed() const		
 { 
 	return (mControlsTakenCount[CONTROL_YAW_POS_INDEX] > 0)
@@ -3754,14 +3747,7 @@ BOOL LLAgent::anyControlGrabbed() const
 
 BOOL LLAgent::isControlGrabbed(S32 control_index) const
 {
-    if (gAgent.mControlsTakenCount[control_index] > 0)
-        return TRUE;
-    return gAgent.mControlsTakenPassedOnCount[control_index] > 0;
-}
-
-BOOL LLAgent::isControlBlocked(S32 control_index) const
-{
-    return mControlsTakenCount[control_index] > 0;
+	return mControlsTakenCount[control_index] > 0;
 }
 
 void LLAgent::forceReleaseControls()
@@ -4307,6 +4293,7 @@ void LLAgent::setTeleportState(ETeleportState state)
 			break;
 	}
 }
+
 
 void LLAgent::stopCurrentAnimations()
 {

@@ -42,8 +42,6 @@
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
 #include "llviewercontrol.h" // <alchemy/>
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a)
-// [/RLVa:KB]
 #include "pvdata.h" // for getPreferredName()
 
 bool LLAvatarListItem::sStaticInitialized = false;
@@ -84,8 +82,10 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mRlvCheckShowNames(false),
 // [/RLVa:KB]
 	mShowPermissions(false),
+	mShowCompleteName(false),
 	mHovered(false),
-	mAvatarNameCacheConnection()
+	mAvatarNameCacheConnection(),
+	mGreyOutUsername("")
 {
 	if (not_from_ui_factory)
 	{
@@ -416,58 +416,30 @@ void LLAvatarListItem::updateAvatarName()
 
 void LLAvatarListItem::setNameInternal(const std::string& name, const std::string& highlight)
 {
-	LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+    if(mShowCompleteName && highlight.empty())
+    {
+        LLTextUtil::textboxSetGreyedVal(mAvatarName, mAvatarNameStyle, name, mGreyOutUsername);
+    }
+    else
+    {
+        LLTextUtil::textboxSetHighlightedVal(mAvatarName, mAvatarNameStyle, name, highlight);
+    }
 }
 
 void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 {
 	mAvatarNameCacheConnection.disconnect();
 
-//	setAvatarName(av_name.getDisplayName());
-//	setAvatarToolTip(av_name.getUserName());
-// [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
-	bool fRlvFilter = (mRlvCheckShowNames) && (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-	setAvatarName( (!fRlvFilter) ? formatAvatarName(av_name) : RlvStrings::getAnonym(av_name) );
-	setAvatarToolTip( (!fRlvFilter) ? av_name.getUserName() : RlvStrings::getAnonym(av_name) );
-	// TODO-RLVa: bit of a hack putting this here. Maybe find a better way?
-	mAvatarIcon->setDrawTooltip(!fRlvFilter);
-// [/RLVa:KB]
+	mGreyOutUsername = "";
+	std::string name_string = mShowCompleteName? av_name.getCompleteName(false) : av_name.getDisplayName();
+	if(av_name.getCompleteName() != av_name.getUserName())
+	{
+	    mGreyOutUsername = "[ " + av_name.getUserName(true) + " ]";
+	    LLStringUtil::toLower(mGreyOutUsername);
+	}
+	setAvatarName(name_string);
+	setAvatarToolTip(av_name.getUserName());
 
-	//requesting the list to resort
-	notifyParent(LLSD().with("sort", LLSD()));
-}
-// static
-// <polarity> This overrides the user preferences for avatar lists. Originally from Alchemy viewer. We modified it for our purpose.
-std::string LLAvatarListItem::formatAvatarName(const LLAvatarName& av_name)
-{
-	static LLCachedControl<U32> control(gSavedSettings, "PVUI_AvatarListNameFormat", 0);
-	std:: string name;
-	switch (control)
-	{
-	default:
-	case 0:
-		name =  PVData::getPreferredName(av_name);
-		break;
-	case 1:
-		name = av_name.getDisplayNameForced();
-		break;
-	case 2:
-		name = av_name.getLegacyName();
-		break;
-	case 3:
-		name = av_name.getAccountName();
-		break;
-	case 4:
-		name = av_name.getCompleteNameForced();
-		break;
-	}
-	if (name.empty())
-	{
-		name = "NAME FORMAT EMPTY";
-	}
-	return name;
-}
-// </polarity>
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
 // taking i18n into account. The format string to use is taken from the panel XML.

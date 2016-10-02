@@ -3398,6 +3398,13 @@ const LLMatrix4 LLVOVolume::getRenderMatrix() const
 // children, and cost should only be increased for unique textures  -Nyx
 U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 {
+    /*****************************************************************
+     * This calculation should not be modified by third party viewers,
+     * since it is used to limit rendering and should be uniform for
+     * everyone. If you have suggested improvements, submit them to
+     * the official viewer for consideration.
+     *****************************************************************/
+
 	// Get access to params we'll need at various points.  
 	// Skip if this is object doesn't have a volume (e.g. is an avatar).
 	BOOL has_volume = (getVolume() != NULL);
@@ -3471,7 +3478,7 @@ U32 LLVOVolume::getRenderCost(texture_cost_t &textures) const
 		{
 			// base cost is dependent on mesh complexity
 			// note that 3 is the highest LOD as of the time of this coding.
-			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(),3);
+			S32 size = gMeshRepo.getMeshSize(volume_params.getSculptID(), getLOD());
 			if ( size > 0)
 			{
 				if (gMeshRepo.getSkinInfo(volume_params.getSculptID(), this))
@@ -3661,10 +3668,8 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 	F32 radius = getScale().length()*0.5f;
 
 	if (isMesh())
-	{	
-		LLSD& header = gMeshRepo.getMeshHeader(getVolume()->getParams().getSculptID());
-
-		return LLMeshRepository::getStreamingCost(header, radius, bytes, visible_bytes, mLOD, unscaled_value);
+	{
+		return gMeshRepo.getStreamingCost(getVolume()->getParams().getSculptID(), radius, bytes, visible_bytes, mLOD, unscaled_value);
 	}
 	else
 	{
@@ -4787,10 +4792,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (pAvatarVO)
 	{
-		pAvatarVO->mAttachmentGeometryBytes -= group->mGeometryBytes;
-		pAvatarVO->mAttachmentGeometryBytes = llmax(pAvatarVO->mAttachmentGeometryBytes, 0);
-		pAvatarVO->mAttachmentSurfaceArea -= group->mSurfaceArea;
-		pAvatarVO->mAttachmentSurfaceArea = llmax(pAvatarVO->mAttachmentSurfaceArea, 0.f);
+		pAvatarVO->subtractAttachmentArea( group->mSurfaceArea );
 	}
 
 	group->mGeometryBytes = 0;
@@ -5360,23 +5362,8 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 
 	if (pAvatarVO)
 	{
-		if (pAvatarVO->mAttachmentGeometryBytes < 0)
-		{	// First time through value is -1
-			pAvatarVO->mAttachmentGeometryBytes = group->mGeometryBytes;
-		}
-		else
-		{
-		pAvatarVO->mAttachmentGeometryBytes += group->mGeometryBytes;
-		}
-		if (pAvatarVO->mAttachmentSurfaceArea < 0.f)
-		{	// First time through value is -1
-			pAvatarVO->mAttachmentSurfaceArea = group->mSurfaceArea;
-		}
-		else
-		{
-		pAvatarVO->mAttachmentSurfaceArea += group->mSurfaceArea;
+        pAvatarVO->addAttachmentArea( group->mSurfaceArea );
 	}
-}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_REBUILD_MESH_FLUSH("Flush Mesh");
