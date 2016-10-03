@@ -50,7 +50,7 @@
 #include "lltoolgrab.h"
 #include "llcombobox.h"
 #include "llnotificationsutil.h"
-//#include "fswsassetblacklist.h"
+#include "fswsassetblacklist.h"
 #include "llworld.h"
 #include "lltrans.h" // getString()
 #include "llagentcamera.h" // gAgentCamera
@@ -58,6 +58,7 @@
 #include "fsareasearchmenu.h"
 #include "fsscrolllistctrl.h"
 #include "llviewermediafocus.h"
+#include "llmoveview.h"
 
 // max number of objects that can be (de-)selected in a single packet.
 const S32 MAX_OBJECTS_PER_PACKET = 255;
@@ -1581,50 +1582,49 @@ bool FSPanelAreaSearchList::onContextMenuItemClick(const LLSD& userdata) const
 	char c = action.at(0);
 	switch (c)
 	{
+		// PLVR TODO: Clean this up, this is awful.
 	case 't': // touch
 	case 's': // script
 	case 'l': // blacklist
-		{
-			std::vector<LLScrollListItem*> selected = mResultList->getAllSelected();
+	{
+		std::vector<LLScrollListItem*> selected = mResultList->getAllSelected();
 
-			for (std::vector<LLScrollListItem*>::iterator item_it = selected.begin();
-			     item_it != selected.end(); ++item_it)
+		for (std::vector<LLScrollListItem*>::iterator item_it = selected.begin();
+			item_it != selected.end(); ++item_it)
+		{
+			switch (c)
 			{
-				switch (c)
+			case 't': // touch
+			{
+				LLViewerObject* objectp = gObjectList.findObject((*item_it)->getUUID());
+				if (objectp)
 				{
-				case 't': // touch
-					{
-						LLViewerObject* objectp = gObjectList.findObject((*item_it)->getUUID());
-						if (objectp)
-						{
-							touchObject(objectp);
-						}
-					}
-					break;
-					/*
-								case 'l': // blacklist
-								{
-									LLUUID object_id = (*item_it)->getUUID();
-									LLViewerObject* objectp = gObjectList.findObject(object_id);
-									if (objectp)
-									{
-										std::string region_name;
-										LLViewerRegion* region = objectp->getRegion();
-										if (region)
-										{
-											region_name = objectp->getRegion()->getName();
-										}
-										//FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(object_id, mFSAreaSearch->mObjectDetails[object_id].name, region_name, LLAssetType::AT_OBJECT);
-										gObjectList.killObject(objectp);
-									}
-								}
-									break;
-					*/
-				default:
-					break;
+					touchObject(objectp);
 				}
 			}
+			break;
+			case 'l': // blacklist
+			{
+				LLUUID object_id = (*item_it)->getUUID();
+				LLViewerObject* objectp = gObjectList.findObject(object_id);
+				if ((objectp) && gAgentID != objectp->getID() || !objectp->isAttachment() || !objectp->permYouOwner())
+				{
+					std::string region_name;
+					LLViewerRegion* region = objectp->getRegion();
+					if (region)
+					{
+						region_name = objectp->getRegion()->getName();
+					}
+					FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(object_id, mFSAreaSearch->mObjectDetails[object_id].name, region_name, LLAssetType::AT_OBJECT, true, true);
+					gObjectList.killObject(objectp);
+				}
+			}
+			break;
+			default:
+				break;
+			}
 		}
+	}
 		break;
 
 	case 'b': // buy
@@ -1652,7 +1652,7 @@ bool FSPanelAreaSearchList::onContextMenuItemClick(const LLSD& userdata) const
 							if (fly_cam_status)
 							{
 								LLViewerJoystick::getInstance()->setOverrideCamera(false);
-								//LLPanelStandStopFlying::clearStandStopFlyingMode(LLPanelStandStopFlying::SSFM_FLYCAM);
+								LLPanelStandStopFlying::clearStandStopFlyingMode(LLPanelStandStopFlying::SSFM_FLYCAM);
 								// *NOTE: Above may not be the proper way to disable flycam.  What I really want to do is just be able to move the camera and then leave the flycam in the the same state it was in, just moved to the new location. ~Cron
 							}
 
@@ -1832,12 +1832,9 @@ void FSPanelAreaSearchList::touchObject(LLViewerObject* objectp)
 {
 	// *NOTE: Hope the packets arrive safely and in order or else
 	// there will be some problems.
-	if (gRlvHandler.canTouch(objectp))
-	{
-		LLPickInfo pick; // default constructor will set sane values.
-		send_ObjectGrab_message(objectp, pick, LLVector3::zero);
-		send_ObjectDeGrab_message(objectp, pick);
-	}
+	LLPickInfo pick; // default constructor will set sane values.
+	send_ObjectGrab_message(objectp, pick, LLVector3::zero);
+	send_ObjectDeGrab_message(objectp, pick);
 }
 
 void FSPanelAreaSearchList::buyObject(FSObjectProperties& details, LLViewerObject* objectp) const

@@ -120,6 +120,7 @@
 #include <boost/regex.hpp>
 
 #include "llnotificationmanager.h" //
+#include "llexperiencecache.h"
 #include "fsareasearch.h"
 #include "fswsassetblacklist.h"
 

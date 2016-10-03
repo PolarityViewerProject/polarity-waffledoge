@@ -3227,4 +3227,3 @@ LLViewerTexture* LLViewerRegion::getMapImage()
 	return mMapImage;
 }
 
-

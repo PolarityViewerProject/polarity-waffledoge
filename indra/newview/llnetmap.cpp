@@ -391,7 +391,7 @@ void LLNetMap::draw()
 				pos_map = globalPosToView(positions[i]);
 
 #if PVDATA_COLORIZER
-				// <polarity> Colored names for special users. RLV_BHVR_SHOWNAMES is handled inside getColor already.
+				// <polarity> Colored names for special users.
 				color = gPVData->getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL));
 				// </polarity>
 #else

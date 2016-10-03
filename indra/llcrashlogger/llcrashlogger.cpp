@@ -247,7 +247,7 @@ void LLCrashLogger::gatherFiles()
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["ObsidianLog"] << LL_ENDL;
+		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["PolarityLog"] << LL_ENDL;
 		LL_INFOS("CRASHREPORT") << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else

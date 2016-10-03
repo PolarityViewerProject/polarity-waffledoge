@@ -189,9 +189,9 @@ protected:
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 class LLFloaterNotRunQueue : public LLFloaterScriptQueue
-    static bool resetObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
-
-    virtual bool startQueue();
+{
+	friend class LLFloaterReg;
+protected:
 	LLFloaterNotRunQueue(const LLSD& key);
 	virtual ~LLFloaterNotRunQueue();
 	

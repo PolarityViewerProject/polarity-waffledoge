@@ -147,9 +147,7 @@ bool LLControlVariable::llsd_compare(const LLSD& a, const LLSD & b)
 
 LLControlVariable::LLControlVariable(const std::string& name, eControlType type,
 							 LLSD initial, const std::string& comment,
-							 eSanityType sanityType,
-							 LLSD sanityValues,
-							 const std::string& sanityComment,
+							 eSanityType sanityType,LLSD sanityValues,const std::string& sanityComment,
 							 ePersist persist, bool hidefromsettingseditor)
 	: mName(name),
 	  mComment(comment),
@@ -317,38 +315,52 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 }
 bool LLControlVariable::isSane()
 {
-	if(mSanityType<=0)
-		return TRUE;
-	bool sanity=FALSE;
+	if (mSanityType <= 0)
+	{
+		return true;
+	}
+
 	// it's the default value, or we can't check sanity, assume it's sane
-	if(mValues.size() < 2 || !mValues[1] || mValues[1].isUndefined())
-		return TRUE;
-	switch(mSanityType)
+	if (mValues.size() < 2 || !mValues[1] || mValues[1].isUndefined())
+	{
+		return true;
+	}
+
+	bool sanity = false;
+
+	switch (mSanityType)
 	{
 		case SANITY_TYPE_EQUALS:
-			sanity=llsd_compare(mValues[1],mSanityValues[0]);
+			sanity = llsd_compare(mValues[1], mSanityValues[0]);
 			break;
 		case SANITY_TYPE_NOT_EQUALS:
-			sanity=!llsd_compare(mValues[1],mSanityValues[0]);
+			sanity = !llsd_compare(mValues[1], mSanityValues[0]);
 			break;
 		case SANITY_TYPE_LESS_THAN:
-			sanity=(mValues[1].asReal()<mSanityValues[0].asReal());
+			sanity = (mValues[1].asReal() < mSanityValues[0].asReal());
 			break;
 		case SANITY_TYPE_GREATER_THAN:
-			sanity=(mValues[1].asReal()>mSanityValues[0].asReal());
+			sanity = (mValues[1].asReal() > mSanityValues[0].asReal());
+			break;
+		case SANITY_TYPE_LESS_THAN_EQUALS:
+			sanity = (mValues[1].asReal() <= mSanityValues[0].asReal());
+			break;
+		case SANITY_TYPE_GREATER_THAN_EQUALS:
+			sanity = (mValues[1].asReal() >= mSanityValues[0].asReal());
 			break;
 		case SANITY_TYPE_BETWEEN:
-			sanity=(mValues[1].asReal()>=mSanityValues[0].asReal() && mValues[1].asReal()<=mSanityValues[1].asReal());
+			sanity = (mValues[1].asReal() >= mSanityValues[0].asReal() && mValues[1].asReal() <= mSanityValues[1].asReal());
 			break;
 		case SANITY_TYPE_NOT_BETWEEN:
-			sanity=(mValues[1].asReal()<=mSanityValues[0].asReal() || mValues[1].asReal()>=mSanityValues[1].asReal());
+			sanity = (mValues[1].asReal() <= mSanityValues[0].asReal() || mValues[1].asReal() >= mSanityValues[1].asReal());
 			break;
 		case SANITY_TYPE_NONE:
-			sanity=TRUE;
+			sanity = true;
 			break;
 		default:
-			sanity=FALSE;
+			sanity = false;
 	}
+
 	return sanity;
 }
 
@@ -408,6 +420,17 @@ const std::string LLControlGroup::mTypeString[TYPE_COUNT] = { "U32"
                                                              ,"Color3"
                                                              ,"LLSD"
                                                              };
+
+const std::string LLControlGroup::mSanityTypeString[SANITY_TYPE_COUNT] = { "None"
+																		  ,"Equals"
+																		  ,"NotEquals"
+																		  ,"LessThan"
+																		  ,"GreaterThan"
+																		  ,"LessThanEquals"
+																		  ,"GreaterThanEquals"
+																		  ,"Between"
+																		  ,"NotBetween"
+																		  };
 
 LLControlGroup::LLControlGroup(const std::string& name)
 :	LLInstanceTracker<LLControlGroup, std::string>(name)

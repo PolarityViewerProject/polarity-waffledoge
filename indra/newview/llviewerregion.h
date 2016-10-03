@@ -438,6 +438,8 @@ public:
 	LLFrameTimer &	getRenderInfoRequestTimer()	{ return mRenderInfoRequestTimer; };
 	LLFrameTimer &	getRenderInfoReportTimer()	{ return mRenderInfoReportTimer; };
 
+	LLPointer<LLViewerTexture> mMapImage; // <polarity/> World Map texture in minimap
+
 	struct CompareRegionByLastUpdate
 	{
 		bool operator()(const LLViewerRegion* const& lhs, const LLViewerRegion* const& rhs)

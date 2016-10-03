@@ -852,11 +852,3 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         floater->getChildView("close")->setEnabled(TRUE);
     }
 }
-            llcoro::suspend();
-    floater = hfloater.get();
-    if (floater)
-    {
-        floater->addStringMessage("Done");
-        floater->getChildView("close")->setEnabled(TRUE);
-    }
-}

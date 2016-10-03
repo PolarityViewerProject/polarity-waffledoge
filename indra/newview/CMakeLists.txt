@@ -138,7 +138,7 @@ set(obsidian_HEADER_FILES
     oschatcommand.h
     ospanelquicksettings.h
     ospanelquicksettingspulldown.h
-    osscriptruntimeperms.h
+    # osscriptruntimeperms.h
     )
 set(obsidian_SOURCE_FILES
     oschatcommand.cpp

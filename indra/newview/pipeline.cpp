@@ -11605,6 +11605,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 		{ //grey muted avatar
             LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set grey" << LL_ENDL;
 			gGL.diffuseColor4fv(LLColor4::pink.mV );
+		}
 
 		{
 		gGL.begin(LLRender::QUADS);
@@ -11651,7 +11652,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	LLGLState::checkClientArrays();
 }
 
-BOOL LLPipeline::hasRenderBatches(const U32 type) const
+BOOL LLPipeline::hasRenderBatches(const U32 type)
 {
 	return sCull->getRenderMapSize(type) > 0;
 }

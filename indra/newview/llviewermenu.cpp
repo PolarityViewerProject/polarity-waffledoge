@@ -2609,7 +2609,7 @@ void derenderObject(bool permanent)
 	while ((objp = select_mgr->getSelection()->getFirstRootObject(TRUE)))
 	{
 //		if ( (objp) && (gAgentID != objp->getID()) )
-		if ( (objp) && (gAgentID != objp->getID()) || (!objp->isAttachment()) || (!objp->permYouOwner())) )
+		if ( (objp) && ((gAgentID != objp->getID()) || (!objp->isAttachment()) || (!objp->permYouOwner())))
 		{
 			// <polarity> always add derendered items to blacklist, but add permanence setting to it. This enables on-the-fly re-rendering.
 			// This fixes FIRE-15164 and FIRE-15223 among others. Very demanded feature.
@@ -2655,7 +2655,7 @@ void derenderObject(bool permanent)
 			gObjectList.killObject(objp);
 			// </FS:ND>
 		}
-		else if( (objp) && (gAgentID != objp->getID()) || (objp->isAttachment()) || (objp->permYouOwner())) )
+		else if( (objp) && ((gAgentID != objp->getID()) || (objp->isAttachment()) || (objp->permYouOwner())))
 		{
 			select_mgr->deselectObjectOnly(objp);
 			return;

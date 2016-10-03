@@ -483,6 +483,7 @@ void LLPanelMainInventory::setSortBy(const LLSD& userdata)
     else
     {
         gSavedSettings.setU32("InventorySortOrder", sort_order_mask);
+	}
 }
 BOOL LLPanelMainInventory::isSortByChecked(const LLSD& userdata)
 {

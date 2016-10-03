@@ -617,7 +617,6 @@ public:
 	static BOOL 	isIndexBakedTexture(LLAvatarAppearanceDefines::ETextureIndex i);
 private:
 	static const LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary *getDictionary() { return sAvatarDictionary; }
-	static const U32 VISUAL_COMPLEXITY_UNKNOWN;
 	static LLAvatarAppearanceDefines::LLAvatarAppearanceDictionary* sAvatarDictionary;
 
 	//--------------------------------------------------------------------

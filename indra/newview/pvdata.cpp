@@ -1021,12 +1021,6 @@ void PVData::Dump(const std::string name, const LLSD& map)
 
 LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
 {
-	// Coloring will break immersion and identify agents even if their name is replaced, so return default color in that case.
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-	{
-		return default_color;
-	}
-
 	// Try to operate in the same instance, reduce call overhead
 	auto uiCT = LLUIColorTable::getInstance();
 

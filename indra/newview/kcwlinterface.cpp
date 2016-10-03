@@ -38,7 +38,6 @@
 #include "llviewerparcelmgr.h"
 #include "llwaterparammanager.h"
 #include "llwlparammanager.h"
-
 #include <boost/regex.hpp>
 
 const F32 PARCEL_WL_CHECK_TIME = 2.f; // <polarity> Nobody ain't got time for this.
@@ -274,9 +273,6 @@ bool KCWindlightInterface::ApplySkySettings(const LLSD& settings)
 
 void KCWindlightInterface::ApplyWindLightPreset(const std::string& preset)
 {
-	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-		return;
-
 	LLWLParamManager* wlprammgr = LLWLParamManager::getInstance();
 	LLWLParamKey key(preset, LLEnvKey::SCOPE_LOCAL);
 	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
@@ -299,9 +295,6 @@ void KCWindlightInterface::ApplyWindLightPreset(const std::string& preset)
 
 void KCWindlightInterface::ResetToRegion(bool force)
 {
-	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-		return;
-
 	//TODO: clear per parcel
 	if (mWeChangedIt || force) //dont reset anything if we didnt do it
 	{
@@ -629,8 +622,7 @@ bool KCWindlightInterface::checkSettings()
 {
 	static LLCachedControl<bool> sPVWindLight_Parcel(gSavedSettings, "PVWindLight_Parcel_Enabled");
 	static LLCachedControl<bool> sPVWindLight_Parcel_AlwaysUseRegion(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
-	if (!sPVWindLight_Parcel || !sPVWindLight_Parcel_AlwaysUseRegion ||
-		(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
+	if (!sPVWindLight_Parcel || !sPVWindLight_Parcel_AlwaysUseRegion)
 	{
 		// The setting changed, clear everything
 		if (!mDisabled)

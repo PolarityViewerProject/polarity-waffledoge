@@ -146,7 +146,9 @@ private:
 	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
 	void onClickSetKey();
+public:
 	void setKey(KEY key);
+private:
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
@@ -160,7 +162,9 @@ private:
 	void refreshEnabledState();
 	void disableUnavailableSettings();
 	void onCommitWindowedMode();
+public:
 	void refresh();	// Refresh enable/disable
+private:
 	// if the quality radio buttons are changed
 	void onChangeQuality(const LLSD& data);
 	
@@ -195,7 +199,9 @@ private:
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
 	void buildPopupLists();
+public:
 	static void refreshSkin(void* data);
+private:
 	void selectPanel(const LLSD& name);
 
 private:

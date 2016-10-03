@@ -75,6 +75,8 @@ typedef enum e_sanity_type
 	SANITY_TYPE_NOT_EQUALS,
 	SANITY_TYPE_LESS_THAN,
 	SANITY_TYPE_GREATER_THAN,
+	SANITY_TYPE_LESS_THAN_EQUALS,
+	SANITY_TYPE_GREATER_THAN_EQUALS,
 	SANITY_TYPE_BETWEEN,
 	SANITY_TYPE_NOT_BETWEEN,
 	SANITY_TYPE_COUNT
@@ -103,17 +105,17 @@ private:
 	std::string		mName;
 	std::string		mComment;
 	eControlType	mType;   
-	// Settings Sanity check
-	eSanityType	 mSanityType;
-	std::string	 mSanityComment;
-	std::vector<LLSD> mSanityValues;  
-	sanity_signal_t mSanitySignal;
 	ePersist		mPersist;
 	bool			mHideFromSettingsEditor;
 	std::vector<LLSD> mValues;
 
 	commit_signal_t mCommitSignal;
 	validate_signal_t mValidateSignal;
+	// Settings Sanity check
+ 	eSanityType	 mSanityType;
+	std::string	 mSanityComment;
+	std::vector<LLSD> mSanityValues;  
+	sanity_signal_t mSanitySignal;
 	
 public:
 	LLControlVariable(const std::string& name, eControlType type,
@@ -207,13 +209,14 @@ protected:
 	std::set<std::string> mIncludedFiles;
 
 	// Settings Sanity check
-	static std::string mSanityTypeString[SANITY_TYPE_COUNT];
+	static const std::string mSanityTypeString[SANITY_TYPE_COUNT];
 public:                                              
 	static eControlType typeStringToEnum(const std::string& typestr);
 
 	static std::string typeEnumToString(eControlType typeenum);	
+	// Settings Sanity check
 	static eSanityType sanityTypeStringToEnum(const std::string& sanitystr);
-	std::string sanityTypeEnumToString(eSanityType sanitytypeenum);
+	static std::string sanityTypeEnumToString(eSanityType sanitytypeenum);
 	
 
 	LLControlGroup(const std::string& name);

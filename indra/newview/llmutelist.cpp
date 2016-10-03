@@ -235,6 +235,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	// Can't mute our developers
 	if(mute.mType == LLMute::AGENT && gPVData->isDeveloper(mute.mID))
 	{
+		LLSD args;
 		args[APP_NAME] = APP_NAME;
 		LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
 		return FALSE;

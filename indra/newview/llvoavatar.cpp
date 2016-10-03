@@ -8431,8 +8431,8 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 		}
 		else
 		{
-	static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
-	static const U32 ARC_LIMIT = 20000;
+			mText->clearString(); // clear debug text
+		}
 
 		/*
 		 * NOTE: the logic for whether or not each of the values below
