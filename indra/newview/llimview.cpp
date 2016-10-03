@@ -69,8 +69,7 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
-// [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
-// [/RLVa:KB]
+
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
@@ -115,7 +114,7 @@ void process_dnd_im(const LLSD& notification)
 {
     LLSD data = notification["substitutions"];
     LLUUID sessionID = data["SESSION_ID"].asUUID();
-	LLUUID fromID = data["FROM_ID"].asUUID();
+    LLUUID fromID = data["FROM_ID"].asUUID();
 
     //re-create the IM session if needed 
     //(when coming out of DND mode upon app restart)
@@ -136,12 +135,10 @@ void process_dnd_im(const LLSD& notification)
             fromID, 
             false, 
             false); //will need slight refactor to retrieve whether offline message or not (assume online for now)
-		}
-
-	notify_of_message(data, true);
     }
 
-
+    notify_of_message(data, true);
+}
 
 
 static void on_avatar_name_cache_toast(const LLUUID& agent_id,
@@ -3643,20 +3640,6 @@ public:
 			{
 				return;
 			}
-// [RLVa:KB] - Checked: 2010-11-30 (RLVa-1.3.0)
-			if ( (RlvActions::hasBehaviour(RLV_BHVR_RECVIM)) || (RlvActions::hasBehaviour(RLV_BHVR_RECVIMFROM)) )
-			{
-				if (gAgent.isInGroup(session_id))						// Group chat: don't accept the invite if not an exception
-				{
-					if (!RlvActions::canReceiveIM(session_id))
-						return;
-				}
-				else if (!RlvActions::canReceiveIM(from_id))			// Conference chat: don't block; censor if not an exception
-				{
-					message = RlvStrings::getString(RLV_STRING_BLOCKED_RECVIM);
-				}
-			}
-// [/RLVa:KB]
 
 			// standard message, not from system
 			std::string saved;

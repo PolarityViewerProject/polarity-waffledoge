@@ -60,8 +60,6 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
-// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f)
-// [/RLVa:KB]
 
 #ifdef PVDATA_COLORIZER
 #include "pvdata.h"
@@ -229,9 +227,8 @@ void LLNetMap::draw()
 		// figure out where agent is
 		S32 region_width = ll_round(LLWorld::getInstance()->getRegionWidthInMeters());
 
-		LLWorld::region_list_t::const_iterator end_it = LLWorld::getInstance()->getRegionList().cend();
 		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
-			 iter != end_it; ++iter)
+			 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 		{
 			LLViewerRegion* regionp = *iter;
 			// Find x and y position relative to camera's center.
@@ -241,10 +238,10 @@ void LLNetMap::draw()
 			F32 relative_y = (rel_region_pos.mV[1] / region_width) * mScale;
 
 			// background region rectangle
-			F32 bottom = relative_y;
-			F32 left = relative_x;
-			F32 top = bottom + mScale;
-			F32 right = left + mScale;
+			F32 bottom =	relative_y;
+			F32 left =		relative_x;
+			F32 top =		bottom + mScale ;
+			F32 right =		left + mScale ;
 
 			if (regionp == curregionp)
 			{
@@ -393,17 +390,12 @@ void LLNetMap::draw()
 
 				pos_map = globalPosToView(positions[i]);
 
-#if !PVDATA_COLORIZER
-				// [RLVa:KB] - Checked: 2010-04-19 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
-				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) &&
-//				(!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-				// [/RLVa:KB]
-				//			bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL);
-				LLColor4 color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
-#else
+#if PVDATA_COLORIZER
 				// <polarity> Colored names for special users. RLV_BHVR_SHOWNAMES is handled inside getColor already.
-				color = gPVData->getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != nullptr));
+				color = gPVData->getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL));
 				// </polarity>
+#else
+				color = LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL ? map_avatar_friend_color : map_avatar_color;
 #endif
 
 				unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
@@ -415,34 +407,34 @@ void LLNetMap::draw()
 					pos_map.mV[VZ], mDotRadius,
 					unknown_relative_z);
 
-				if (uuid.notNull())
+			if(uuid.notNull())
+			{
+				bool selected = false;
+				uuid_vec_t::iterator sel_iter = gmSelected.begin();
+				for (; sel_iter != gmSelected.end(); sel_iter++)
 				{
-					bool selected = false;
-					for (const auto& sel_uuid : gmSelected)
+					if(*sel_iter == uuid)
 					{
-						if (sel_uuid == uuid)
-						{
-							selected = true;
-							break;
-						}
-					}
-					if (selected)
-					{
-						if ((pos_map.mV[VX] < 0) ||
-							(pos_map.mV[VY] < 0) ||
-							(pos_map.mV[VX] >= getRect().getWidth()) ||
-							(pos_map.mV[VY] >= getRect().getHeight()))
-						{
-							S32 x = ll_round(pos_map.mV[VX]);
-							S32 y = ll_round(pos_map.mV[VY]);
-							LLWorldMapView::drawTrackingCircle(getRect(), x, y, color, 1, 10);
-						}
-						else
-						{
-							LLWorldMapView::drawTrackingDot(pos_map.mV[VX], pos_map.mV[VY], color, 0.f);
-						}
+						selected = true;
+						break;
 					}
 				}
+				if(selected)
+				{
+					if( (pos_map.mV[VX] < 0) ||
+						(pos_map.mV[VY] < 0) ||
+						(pos_map.mV[VX] >= getRect().getWidth()) ||
+						(pos_map.mV[VY] >= getRect().getHeight()) )
+					{
+						S32 x = ll_round( pos_map.mV[VX] );
+						S32 y = ll_round( pos_map.mV[VY] );
+						LLWorldMapView::drawTrackingCircle( getRect(), x, y, color, 1, 10);
+					} else
+					{
+						LLWorldMapView::drawTrackingDot(pos_map.mV[VX],pos_map.mV[VY],color,0.f);
+					}
+				}
+			}
 
 				F32	dist_to_cursor_squared = dist_vec_squared(LLVector2(pos_map.mV[VX], pos_map.mV[VY]),
 					LLVector2(local_mouse_x, local_mouse_y));
@@ -676,28 +668,10 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 
 	// If the cursor is near an avatar on the minimap, a mini-inspector will be
 	// shown for the avatar, instead of the normal map tooltip.
-//	if (handleToolTipAgent(mClosestAgentToCursor))
-// [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
-	if ( (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && (handleToolTipAgent(mClosestAgentToCursor)) )
-// [/RLVa:KB]
+	if (handleToolTipAgent(mClosestAgentToCursor))
 	{
 		return TRUE;
 	}
-
-// [RLVa:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Modified: RLVa-1.2.2a
-	LLStringUtil::format_map_t args;
-
-	LLAvatarName avName;
-	if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES)) && 
-		 (mClosestAgentToCursor.notNull()) && (LLAvatarNameCache::get(mClosestAgentToCursor, &avName)) )
-	{
-		args["[AGENT]"] = RlvStrings::getAnonym(avName) + "\n";
-	}
-	else
-	{
-		args["[AGENT]"] = "";
-	}
-// [/RLVa:KB]
 
 	LLRect sticky_rect;
 	std::string region_name;
@@ -710,17 +684,14 @@ BOOL LLNetMap::handleToolTip( S32 x, S32 y, MASK mask )
 		sticky_rect.mRight = sticky_rect.mLeft + 2 * SLOP;
 		sticky_rect.mTop = sticky_rect.mBottom + 2 * SLOP;
 
-//		region_name = region->getName();
-// [RLVa:KB] - Checked: 2010-10-19 (RLVa-1.2.2b) | Modified: RLVa-1.2.2b
-		region_name = ((!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) ? region->getName() : RlvStrings::getString(RLV_STRING_HIDDEN_REGION));
-// [/RLVa:KB]
+		region_name = region->getName();
 		if (!region_name.empty())
 		{
 			region_name += "\n";
 		}
 	}
 
-//	LLStringUtil::format_map_t args;
+	LLStringUtil::format_map_t args;
 	args["[REGION]"] = region_name;
 	std::string msg = mToolTipMsg;
 	LLStringUtil::format(msg, args);

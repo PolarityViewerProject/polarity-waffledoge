@@ -196,10 +196,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 			}
 		}
 
-// [RLVa:KB] - Checked: 2014-03-31 (Catznip-3.6)
-		return result && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-// [/RLVa:KB]
-//		return result;
+		return result;
 	}
 	else if (item == std::string("can_delete"))
 	{
@@ -222,10 +219,7 @@ bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
 			}
 		}
 
-// [RLVa:KB] - Checked: 2014-03-31 (Catznip-3.6)
-		return result && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-// [/RLVa:KB]
-//		return result;
+		return result;
 	}
 	else if (item == std::string("can_call"))
 	{
@@ -321,13 +315,7 @@ void PeopleContextMenu::requestTeleport()
 {
 	// boost::bind cannot recognize overloaded method LLAvatarActions::teleportRequest(),
 	// so we have to use a wrapper.
-// [RLVa:KB] - Checked: 2014-03-31 (Catznip-3.6)
-	bool fRlvCanShowName = (!m_fRlvCheck) || (!RlvActions::isRlvEnabled()) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES));
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTREQUEST, fRlvCanShowName);
 	LLAvatarActions::teleportRequest(mUUIDs.front());
-	RlvActions::setShowName(RlvActions::SNC_TELEPORTREQUEST, true);
-// [/RLVa:KB]
-//	LLAvatarActions::teleportRequest(mUUIDs.front());
 }
 
 void PeopleContextMenu::offerTeleport()

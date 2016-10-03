@@ -35,8 +35,6 @@
 #include "llui.h"
 #include "lluictrl.h"
 #include "llurlaction.h"
-// [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a)
-// [/RLVa:KB]
 
 //////////////////////////////////////////////////////////////////////////////
 // LLInspectRemoteObject
@@ -163,6 +161,7 @@ void LLInspectRemoteObject::update()
 		else
 		{
 			owner = LLSLURL("agent", mOwnerID, "about").getSLURLString();
+		}
 	}
 	else
 	{
@@ -183,8 +182,6 @@ void LLInspectRemoteObject::update()
 
 	// disable the Block button if we don't have the object ID (will this ever happen?)
 	getChild<LLUICtrl>("block_btn")->setEnabled(!mObjectID.isNull() && !LLMuteList::getInstance()->isMuted(mObjectID));
-
-
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -409,31 +409,19 @@ public:
 		DOUBLETAP_SLIDERIGHT
 	};
 
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	void			setAlwaysRun();
-	void			setTempRun();
-	void			clearAlwaysRun();
-	void			clearTempRun();
-	void 			sendWalkRun();
-	bool			getTempRun()			{ return mbTempRun; }
-	bool			getRunning() const 		{ return (mbAlwaysRun) || (mbTempRun); }
-// [/RLVa:KB]
-//	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
-//	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
-//	void			setRunning() 			{ mbRunning = true; }
-//	void			clearRunning() 			{ mbRunning = false; }
-//	void 			sendWalkRun(bool running);
+	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
+	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
+	void			setRunning() 			{ mbRunning = true; }
+	void			clearRunning() 			{ mbRunning = false; }
+	void 			sendWalkRun(bool running);
 	bool			getAlwaysRun() const 	{ return mbAlwaysRun; }
-//	bool			getRunning() const 		{ return mbRunning; }
+	bool			getRunning() const 		{ return mbRunning; }
 public:
 	LLFrameTimer 	mDoubleTapRunTimer;
 	EDoubleTapRunMode mDoubleTapRunMode;
 private:
 	bool 			mbAlwaysRun; 			// Should the avatar run by default rather than walk?
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	bool 			mbTempRun;
-// [/RLVa:KB]
-//	bool 			mbRunning;				// Is the avatar trying to run right now?
+	bool 			mbRunning;				// Is the avatar trying to run right now?
 	bool			mbTeleportKeepsLookAt;	// Try to keep look-at after teleport is complete
 
 	//--------------------------------------------------------------------

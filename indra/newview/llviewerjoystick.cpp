@@ -343,11 +343,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 		if (1 == mJoystickRun)
 		{
 			++mJoystickRun;
-//			gAgent.setRunning();
-//			gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-			gAgent.setTempRun();
-// [/RLVa:KB]
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
 		}
 		else if (0 == mJoystickRun)
 		{
@@ -362,11 +359,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 			--mJoystickRun;
 			if (0 == mJoystickRun)
 			{
-//				gAgent.clearRunning();
-//				gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-				gAgent.clearTempRun();
-// [/RLVa:KB]
+				gAgent.clearRunning();
+				gAgent.sendWalkRun(gAgent.getRunning());
 			}
 		}
 	}
@@ -663,6 +657,7 @@ void LLViewerJoystick::moveAvatar(bool reset)
 
 	bool is_zero = true;
 	static bool button_held = false;
+	// PLVR TODO: Compare against parent branch again if this breaks. I left it alone for now.
 	static bool w_button_held = false;
 	static bool m_button_held = false;
 
@@ -1224,6 +1219,7 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setF32("BuildFeathering", 12.f);
 	gSavedSettings.setF32("FlycamFeathering", 5.f);
 }
+// PLVR TODO: Move to settings.
 void LLViewerJoystick::setXbox360Defaults()
 {
 	LL_INFOS() << "restoring Xbox360 Controller defaults..." << LL_ENDL;

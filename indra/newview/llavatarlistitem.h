@@ -107,7 +107,6 @@ public:
 	void showLastInteractionTime(bool show);
 	void setAvatarIconVisible(bool visible);
 	void setShowCompleteName(bool show) { mShowCompleteName = show;};
-// [/RLVa:KB]
 	
 	const LLUUID& getAvatarId() const;
 	std::string getAvatarName() const;
@@ -213,6 +212,7 @@ private:
 	//Speaker indicator and avatar name coords are translated accordingly
 	bool mShowInfoBtn;
 	bool mShowProfileBtn;
+
 	/// indicates whether to show icons representing permissions granted
 	bool mShowPermissions;
 

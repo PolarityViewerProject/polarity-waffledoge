@@ -38,10 +38,7 @@ void LLUrlRegistryNullCallback(const std::string &url, const std::string &label,
 
 LLUrlRegistry::LLUrlRegistry()
 {
-//	mUrlEntry.reserve(20);
-// [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	mUrlEntry.reserve(21);
-// [/RLVa:KB]
+	mUrlEntry.reserve(20);
 
 	// Urls are matched in the order that they were registered
 	mUrlEntryNoLink = new LLUrlEntryNoLink();
@@ -62,9 +59,6 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryAgentCompleteName());
 	registerUrl(new LLUrlEntryAgentDisplayName());
 	registerUrl(new LLUrlEntryAgentUserName());
-// [RLVa:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	registerUrl(new LLUrlEntryAgentRLVAnonymizedName());
-// [/RLVa:KB]
 	// LLUrlEntryAgent*Name must appear before LLUrlEntryAgent since 
 	// LLUrlEntryAgent is a less specific (catchall for agent urls)
 	registerUrl(new LLUrlEntryAgent());

@@ -92,7 +92,6 @@ public:
 	// Return true if filter has at least one match.
 	bool filterHasMatches();
 
-
 	boost::signals2::connection setRefreshCompleteCallback(const commit_signal_t::slot_type& cb);
 
 	boost::signals2::connection setItemDoubleClickCallback(const mouse_signal_t::slot_type& cb);
@@ -131,7 +130,6 @@ private:
 	bool mShowSpeakingIndicator;
 	bool mShowPermissions;
 	bool mShowCompleteName;
-// [/RLVa:KB]
 
 	LLTimer*				mLITUpdateTimer; // last interaction time update timer
 	std::string				mIconParamName;

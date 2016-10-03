@@ -70,7 +70,6 @@
 #include "stringize.h"
 
 #include <exception>
-
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -96,6 +95,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
+// PLVR TODO: APP_NAME
 const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 // Create app mutex creates a unique global windows object. 
@@ -109,6 +109,7 @@ const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 bool create_app_mutex()
 {
 	bool result = true;
+	// PLVR TODO: APP_NAME
 	LPCWSTR unique_mutex_name = L"PolarityAppMutex";
 	HANDLE hMutex;
 	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
@@ -273,7 +274,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		LL_WARNS() << "Application init failed." << LL_ENDL;
 		return -1;
 	}
-
+	
 #ifdef USE_NVAPI
 	NvAPI_Status status;
     
@@ -363,7 +364,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		delete LLAppViewer::sUpdaterInfo ;
 		LLAppViewer::sUpdaterInfo = NULL ;
 	}
-	
+
 #ifdef USE_NVAPI
 	// (NVAPI) (6) We clean up. This is analogous to doing a free()
 	if (hSession)
@@ -566,7 +567,6 @@ bool LLAppViewerWin32::initHardwareTest()
 		// Disable so debugger can work
 		std::string splash_msg;
 		LLStringUtil::format_map_t args;
-		// args["[APP_NAME]"] = LLAppViewer::instance()->getSecondLifeTitle();
 		args["[APP_NAME]"] = APP_NAME;
 		splash_msg = LLTrans::getString("StartupLoading", args);
 	}

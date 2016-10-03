@@ -46,8 +46,6 @@
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.4.0a)
-// [/RLVa:KB]
 #include <boost/tokenizer.hpp>
 
 const F32 HORIZONTAL_PADDING = 15.f;
@@ -244,27 +242,11 @@ void LLHUDText::setString(const std::string &text_utf8)
 {
 	mTextSegments.clear();
 	static LLCachedControl<bool> force_hide_hover_text(gSavedSettings, "PVRender_HideAllHoverText", false);
-//	addLine(text_utf8, mColor);
-// [RLVa:KB] - Checked: 2010-03-02 (RLVa-1.4.0a) | Modified: RLVa-1.0.0f
-	// NOTE: setString() is called for debug and map beacons as well
-	std::string text_to_add = "";
-	if (!force_hide_hover_text)
+	if (force_hide_hover_text)
 	{
-		text_to_add = text_utf8;
-		if (rlv_handler_t::isEnabled())
-		{
-			if (gRlvHandler.canShowHoverText(mSourceObject))
-			{
-				if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-					RlvUtil::filterLocation(text_to_add);
-				if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))
-					RlvUtil::filterNames(text_to_add);
-			}
-		}
+		return;
 	}
-
-// [/RLVa:KB]
-	addLine(text_to_add, mColor);
+	addLine(text_utf8, mColor);
 }
 
 void LLHUDText::clearString()
@@ -653,15 +635,3 @@ F32 LLHUDText::LLHUDTextSegment::getWidth(const LLFontGL* font)
 		return width;
 	}
 }
-
-// [RLVa:KB] - Checked: 2010-03-27 (RLVa-1.4.0a) | Added: RLVa-1.0.0f
-void LLHUDText::refreshAllObjectText()
-{
-	for (TextObjectIterator itText = sTextObjects.begin(); itText != sTextObjects.end(); ++itText)
-	{
-		LLHUDText* pText = *itText;
-		if ( (pText) && (!pText->mObjText.empty()) && (pText->mSourceObject) && (LL_PCODE_VOLUME == pText->mSourceObject->getPCode()) )
-			pText->setString(pText->mObjText);
-	}
-}
-// [/RLVa:KB]

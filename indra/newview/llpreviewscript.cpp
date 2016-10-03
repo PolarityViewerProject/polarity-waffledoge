@@ -87,8 +87,6 @@
 #include "llexperiencecache.h"
 #include "llfloaterexperienceprofile.h"
 #include "llviewerassetupload.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-// [/RLVa:KB]
 
 const std::string HELLO_LSL =
 	"default\n"
@@ -1664,9 +1662,9 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
         return;
     }
 
-	mPendingUploads = 0;
-	mScriptEd->mErrorList->deleteAllItems();
-	mScriptEd->mEditor->makePristine();
+    mPendingUploads = 0;
+    mScriptEd->mErrorList->deleteAllItems();
+    mScriptEd->mEditor->makePristine();
 
     if (sync)
     {
@@ -2023,14 +2021,6 @@ void LLLiveLSLEditor::onRunningCheckboxClicked( LLUICtrl*, void* userdata )
 	//self->mRunningCheckbox->get();
 	if( object )
 	{
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.5a
-		if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-		{
-			RlvUtil::notifyBlockedGeneric();
-			return;
-		}
-// [/RLVa:KB]
-
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_SetScriptRunning);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2056,14 +2046,6 @@ void LLLiveLSLEditor::onReset(void *userdata)
 	LLViewerObject* object = gObjectList.findObject( self->mObjectUUID );
 	if(object)
 	{
-// [RLVa:KB] - Checked: 2010-09-28 (RLVa-1.2.1f) | Modified: RLVa-1.0.5a
-		if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.isLockedAttachment(object->getRootEdit())) )
-		{
-			RlvUtil::notifyBlockedGeneric();
-			return;
-		}
-// [/RLVa:KB]
-
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_ScriptReset);
 		msg->nextBlockFast(_PREHASH_AgentData);
@@ -2190,15 +2172,15 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
 		return;
 	}
 
-	// get the latest info about it. We used to be losing the script
-	// name on save, because the viewer object version of the item,
-	// and the editor version would get out of synch. Here's a good
-	// place to synch them back up.
-	LLInventoryItem* inv_item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mItemUUID));
-	if(inv_item)
-	{
-		mItem->copyItem(inv_item);
-	}
+    // get the latest info about it. We used to be losing the script
+    // name on save, because the viewer object version of the item,
+    // and the editor version would get out of synch. Here's a good
+    // place to synch them back up.
+    LLInventoryItem* inv_item = dynamic_cast<LLInventoryItem*>(object->getInventoryObject(mItemUUID));
+    if (inv_item)
+    {
+        mItem->copyItem(inv_item);
+    }
 
     // Don't need to save if we're pristine
     if(!mScriptEd->hasChanged())
@@ -2206,7 +2188,7 @@ void LLLiveLSLEditor::saveIfNeeded(bool sync /*= true*/)
         return;
     }
 
-	mPendingUploads = 0;
+    mPendingUploads = 0;
 
     // save the script
     mScriptEd->enableSave(FALSE);

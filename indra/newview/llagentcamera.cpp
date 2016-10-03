@@ -50,8 +50,6 @@
 #include "llvoavatarself.h"
 #include "llwindow.h"
 #include "llworld.h"
-// [RLVa:KB] - Checked: 2010-05-10 (RLVa-1.2.0g)
-// [/RLVa:KB]
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -2288,13 +2286,6 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 	{
 		return;
 	}
-// [RLVa:KB] - Checked: 2010-03-07 (RLVa-1.2.0c) | Modified: RLVa-1.0.0g
-	if ( (rlv_handler_t::isEnabled()) && (!RlvActions::canStand()) )
-	{
-		return;
-	}
-// [/RLVa:KB]
-
 	gAgent.standUp(); // force stand up
 	gViewerWindow->getWindow()->resetBusyCount();
 

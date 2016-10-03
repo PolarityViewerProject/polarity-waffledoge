@@ -177,10 +177,6 @@ protected:
 // [SL:KB] - Patch: Inventory-AttachmentEdit - Checked: 2010-09-04 (Catznip-2.2.0a) | Added: Catznip-2.1.2a
 		menu->setItemVisible("take_off_or_detach", (!allow_detach) && (!allow_take_off) && (clothes_selected) && (attachments_selected));
 // [/SL:KB]
-// [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
-		menu->setItemEnabled("take_off",	!rlv_blocked);
-		menu->setItemEnabled("detach",		!rlv_blocked);
-// [/RLVa:KB]
 		menu->setItemVisible("edit_outfit_separator", allow_take_off || allow_detach);
 		menu->setItemVisible("show_original", mUUIDs.size() == 1);
 	}

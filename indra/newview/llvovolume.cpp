@@ -83,8 +83,6 @@
 #include "llvoavatar.h"
 #include "llvocache.h"
 #include "llmaterialmgr.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-// [/RLVa:KB]
 
 const F32 FORCE_SIMPLE_RENDER_AREA = 512.f;
 const F32 FORCE_CULL_AREA = 8.f;
@@ -94,7 +92,7 @@ BOOL gAnimateTextures = TRUE;
 //extern BOOL gHideSelectedObjects;
 
 F32 LLVOVolume::sLODFactor = 1.f;
-//F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
+F32	LLVOVolume::sLODSlopDistanceFactor = 0.5f; //Changing this to zero, effectively disables the LOD transition slop 
 F32 LLVOVolume::sDistanceFactor = 1.0f;
 S32 LLVOVolume::sNumLODChanges = 0;
 S32 LLVOVolume::mRenderComplexity_last = 0;
@@ -4490,14 +4488,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 		LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
 
-//	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
-// [RLVa:KB] - Checked: 2010-11-29 (RLVa-1.3.0c) | Modified: RLVa-1.3.0c
-	const LLViewerObject* pObj = facep->getViewerObject();
-	if ( (pObj->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects) && 
-		 ( (!rlv_handler_t::isEnabled()) || 
-		   ( ((!pObj->isHUDAttachment()) || (!gRlvAttachmentLocks.isLockedAttachment(pObj->getRootEdit()))) && 
-		     (gRlvHandler.canEdit(pObj)) ) ) )
-// [/RVLa:KB]
+	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 	{
 		return;
 	}
@@ -4665,12 +4656,12 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 				
 				if (!mat->getSpecularID().isNull())
 				{
-					LLVector4 spec_color;
-					spec_color.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
-					spec_color.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
-					spec_color.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
-					spec_color.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
-					draw_info->mSpecColor = spec_color;
+					LLVector4 specColor;
+					specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
+					specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
+					specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
+					specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
+					draw_info->mSpecColor = specColor;
 					draw_info->mEnvIntensity = mat->getEnvironmentIntensity() * (1.f / 255.f);
 					draw_info->mSpecularMap = facep->getViewerObject()->getTESpecularMap(facep->getTEOffset());
 				}

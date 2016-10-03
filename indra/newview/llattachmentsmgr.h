@@ -78,7 +78,7 @@ public:
 	void addAttachmentRequest(const LLUUID& item_id,
                               const U8 attachment_pt,
                               const BOOL add);
-                              const BOOL add);
+    void onAttachmentRequested(const LLUUID& item_id);
 	void requestAttachments(attachments_vec_t& attachment_requests);
 	static void onIdle(void *);
 
@@ -92,7 +92,13 @@ public:
 private:
 
     class LLItemRequestTimes: public std::map<LLUUID,LLTimer>
-    bool isAttachmentStateComplete() const;
+    {
+    public:
+        LLItemRequestTimes(const std::string& op_name, F32 timeout);
+        void addTime(const LLUUID& inv_item_id);
+        void removeTime(const LLUUID& inv_item_id);
+        BOOL wasRequestedRecently(const LLUUID& item_id) const;
+        BOOL getTime(const LLUUID& inv_item_id, LLTimer& timer) const;
 
     private:
         F32 mTimeout;
@@ -117,7 +123,7 @@ private:
     // Attachments that have been requested to detach but have not gone away yet.
 	LLItemRequestTimes mDetachRequests;
 
-    void checkInvalidCOFLinks();
+    // Attachments that have arrived but have not been linked in the COF yet.
     std::set<LLUUID> mRecentlyArrivedAttachments;
     LLTimer mCOFLinkBatchTimer;
 
@@ -126,4 +132,3 @@ private:
 };
 
 #endif
-	LLItemRequestTimes mQuestionableCOFLinks;

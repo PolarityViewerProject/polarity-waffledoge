@@ -41,8 +41,6 @@
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
-#include "llviewercontrol.h" // <alchemy/>
-#include "pvdata.h" // for getPreferredName()
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -78,9 +76,6 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mOnlineStatus(E_UNKNOWN),
 	mShowInfoBtn(true),
 	mShowProfileBtn(true),
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	mRlvCheckShowNames(false),
-// [/RLVa:KB]
 	mShowPermissions(false),
 	mShowCompleteName(false),
 	mHovered(false),
@@ -184,12 +179,8 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
 	getChildView("hovered_icon")->setVisible( true);
-//	mInfoBtn->setVisible(mShowInfoBtn);
-//	mProfileBtn->setVisible(mShowProfileBtn);
-// [RLVa:KB] - Checked: 2010-04-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
-	mInfoBtn->setVisible( (mShowInfoBtn) && ((!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))) );
-	mProfileBtn->setVisible( (mShowProfileBtn) && ((!mRlvCheckShowNames) || (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWNAMES))) );
-// [/RLVa:KB]
+	mInfoBtn->setVisible(mShowInfoBtn);
+	mProfileBtn->setVisible(mShowProfileBtn);
 
 	mHovered = true;
 	LLPanel::onMouseEnter(x, y, mask);
@@ -366,18 +357,12 @@ void LLAvatarListItem::onProfileBtnClick()
 
 BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-//	if(mInfoBtn->getRect().pointInRect(x, y))
-// [SL:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	if ( (mInfoBtn->getVisible()) && (mInfoBtn->getEnabled()) && (mInfoBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mInfoBtn->getRect().pointInRect(x, y))
 	{
 		onInfoBtnClick();
 		return TRUE;
 	}
-//	if(mProfileBtn->getRect().pointInRect(x, y))
-// [SL:KB] - Checked: 2010-10-31 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	if ( (mProfileBtn->getVisible()) && (mProfileBtn->getEnabled()) && (mProfileBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mProfileBtn->getRect().pointInRect(x, y))
 	{
 		onProfileBtnClick();
 		return TRUE;
@@ -440,6 +425,9 @@ void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 	setAvatarName(name_string);
 	setAvatarToolTip(av_name.getUserName());
 
+	//requesting the list to resort
+	notifyParent(LLSD().with("sort", LLSD()));
+}
 
 // Convert given number of seconds to a string like "23 minutes", "15 hours" or "3 years",
 // taking i18n into account. The format string to use is taken from the panel XML.

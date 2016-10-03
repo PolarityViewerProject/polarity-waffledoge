@@ -290,7 +290,7 @@ BOOL LLNavigationBar::postBuild()
 	mBtnBack	= getChild<LLPullButton>("back_btn");
 	mBtnForward	= getChild<LLPullButton>("forward_btn");
 	mBtnHome	= getChild<LLButton>("home_btn");
-	
+
 	mCmbLocation= getChild<LLLocationInputCtrl>("location_combo");
 
 	mBtnBack->setEnabled(FALSE);
@@ -365,7 +365,6 @@ BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		show_navbar_context_menu(this,x,y);
 		handled = true;
 	}
-					
 	return handled;
 }
 
@@ -700,15 +699,6 @@ void LLNavigationBar::resizeLayoutPanel()
 	nav_bar_rect.setLeftTopAndSize(nav_bar_rect.mLeft, nav_bar_rect.mTop, nav_panel_width, nav_bar_rect.getHeight());
 	mNavigationPanel->handleReshape(nav_bar_rect,true);
 }
-
-// [RLVa:KB] - Checked: 2014-03-23 (RLVa-1.4.10)
-void LLNavigationBar::refreshLocationCtrl()
-{
-	if (mCmbLocation)
-		mCmbLocation->refresh();
-}
-// [/RLVa:KB]
-
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
 	LLFloaterReg::showInstance("search", LLSD().with("category", "all").with("query", LLSD(search_text)));

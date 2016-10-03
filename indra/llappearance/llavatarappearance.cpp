@@ -266,20 +266,12 @@ void LLAvatarAppearance::initInstance()
 		// Skip it if there's no associated baked texture.
 		if (baked_texture_index == BAKED_NUM_INDICES) continue;
 		
-		// <FS:Ansariel> FIRE-11915: Variable redefinition
-		//for (avatar_joint_mesh_list_t::iterator iter = mMeshLOD[mesh_index]->mMeshParts.begin();
-		//	 iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
-		//	 ++iter)
-		//{
-		//	LLAvatarJointMesh* mesh = (*iter);
-		//	mBakedTextureDatas[(int)baked_texture_index].mJointMeshes.push_back(mesh);
-		for (avatar_joint_mesh_list_t::iterator ajm_iter = mMeshLOD[mesh_index]->mMeshParts.begin();
-			 ajm_iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
-			 ++ajm_iter)
+		for (avatar_joint_mesh_list_t::iterator iter = mMeshLOD[mesh_index]->mMeshParts.begin();
+			 iter != mMeshLOD[mesh_index]->mMeshParts.end(); 
+			 ++iter)
 		{
-			LLAvatarJointMesh* mesh = (*ajm_iter);
+			LLAvatarJointMesh* mesh = (*iter);
 			mBakedTextureDatas[(S32)baked_texture_index].mJointMeshes.push_back(mesh);
-		// </FS:Ansariel> FIRE-11915: Variable redefinition
 		}
 	}
 
@@ -307,7 +299,11 @@ LLAvatarAppearance::~LLAvatarAppearance()
 		}
 	}
 
-	if (mRoot) mRoot->removeAllChildren();
+	if (mRoot)
+	{
+		mRoot->removeAllChildren();
+		delete mRoot;
+	}
 	mJointMap.clear();
 
 	clearSkeleton();
@@ -326,8 +322,6 @@ LLAvatarAppearance::~LLAvatarAppearance()
 	}
 	std::for_each(mMeshLOD.begin(), mMeshLOD.end(), DeletePointer());
 	mMeshLOD.clear();
-
-	delete mRoot;
 }
 
 //static

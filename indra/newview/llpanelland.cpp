@@ -44,9 +44,6 @@
 
 #include "lluictrlfactory.h"
 
-// [RLVa:KB]
-// [/RLVa:KB]
-
 LLPanelLandSelectObserver* LLPanelLandInfo::sObserver = NULL;
 LLPanelLandInfo* LLPanelLandInfo::sInstance = NULL;
 
@@ -227,14 +224,6 @@ void LLPanelLandInfo::refresh()
 //static
 void LLPanelLandInfo::onClickClaim()
 {
-// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
-/*
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-	{
-		return;
-	}
-*/
-// [/RLVa:KB]
 	LLViewerParcelMgr::getInstance()->startBuyLand();
 }
 

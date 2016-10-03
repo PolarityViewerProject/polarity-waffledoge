@@ -47,8 +47,6 @@
 #include "llvoiceclient.h"
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "lltooldraganddrop.h"
-// [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a)
-// [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLAvatarList> r("avatar_list");
 
@@ -143,7 +141,6 @@ LLAvatarList::LLAvatarList(const Params& p)
 , mShowSpeakingIndicator(p.show_speaking_indicator)
 , mShowPermissions(p.show_permissions_granted)
 , mShowCompleteName(false)
-// [/RLVa:KB]
 {
 	setCommitOnSelectionChange(true);
 
@@ -158,8 +155,6 @@ LLAvatarList::LLAvatarList(const Params& p)
 	}
 	
 	LLAvatarNameCache::addUseDisplayNamesCallback(boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
-	gSavedSettings.getControl("PVUI_AvatarListNameFormat")->getSignal()->connect(
-		boost::bind(&LLAvatarList::handleDisplayNamesOptionChanged, this));
 }
 
 
@@ -447,7 +442,6 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 {
 	LLAvatarListItem* item = new LLAvatarListItem();
 	item->setShowCompleteName(mShowCompleteName);
-// [/RLVa:KB]
 	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
 	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
@@ -470,8 +464,6 @@ BOOL LLAvatarList::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
 	BOOL handled = LLUICtrl::handleRightMouseDown(x, y, mask);
 	if ( mContextMenu && !isAvalineItemSelected())
-// [RLVa:KB] - Checked: 2010-06-04 (RLVa-1.2.2a) | Modified: RLVa-1.2.0d
-// [/RLVa:KB]
 	{
 		uuid_vec_t selected_uuids;
 		getSelectedUUIDs(selected_uuids);
@@ -593,10 +585,7 @@ void LLAvatarList::updateLastInteractionTimes()
 
 void LLAvatarList::onItemDoubleClicked(LLUICtrl* ctrl, S32 x, S32 y, MASK mask)
 {
-// mItemDoubleClickSignal(ctrl, x, y, mask);
-// [RLVa:KB] - Checked: 2010-06-05 (RLVa-1.2.2a) | Added: RLVa-1.2.0d
 	mItemDoubleClickSignal(ctrl, x, y, mask);
-// [/RLVa:KB]
 }
 
 bool LLAvatarItemComparator::compare(const LLPanel* item1, const LLPanel* item2) const

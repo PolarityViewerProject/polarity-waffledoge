@@ -94,8 +94,6 @@
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
 #include "llteleporthistorystorage.h"
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
-// [/RLVa:KB]
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
@@ -1265,13 +1263,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	// <polarity> Hack to fix wrong value type (How this happens, I have no idea.)
 	gSavedSettings.setU32("RenderReflectionDetail", static_cast<U32>(ctrl_reflections->getValue().asInteger()));
 
-// [RLVa:KB] - Checked: 2013-05-11 (RLVa-1.4.9)
-	if (rlv_handler_t::isEnabled())
-	{
-		getChild<LLUICtrl>("do_not_disturb_response")->setEnabled(!RlvActions::hasBehaviour(RLV_BHVR_SENDIM));
-	}
-// [/RLVa:KB]
-
 	// Reflections
 	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
 		&& gGLManager.mHasCubeMap
@@ -1316,7 +1307,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
 
 	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-
+	
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{

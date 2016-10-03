@@ -982,10 +982,7 @@ void LLInventoryCallbackManager::fire(U32 callback_id, const LLUUID& item_id)
 	}
 }
 
-//void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2010-09-28 (Catznip-3.4)
-void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp, bool replace)
-// [/SL:KB]
+void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachmentp)
 {
 	if (inv_item.isNull())
 		return;
@@ -993,10 +990,7 @@ void rez_attachment_cb(const LLUUID& inv_item, LLViewerJointAttachment *attachme
 	LLViewerInventoryItem *item = gInventory.getItem(inv_item);
 	if (item)
 	{
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2010-09-28 (Catznip-3.4)
-		rez_attachment(item, attachmentp, replace);
-// [/SL:KB]
-//		rez_attachment(item, attachmentp);
+		rez_attachment(item, attachmentp);
 	}
 }
 
@@ -1537,10 +1531,7 @@ void purge_descendents_of(const LLUUID& id, LLPointer<LLInventoryCallback> cb)
 		}
 		else
 		{
-//            if (AISAPI::isAvailable())
-// [SL:KB] - Patch: Appearance-AISFilter | Checked: 2015-03-01 (Catznip-3.7)
-			if (AISAPI::isAvailable(AISAPI::CMD_CAT_PURGE))
-// [/SL:KB]
+            if (AISAPI::isAvailable())
 			{
                 AISAPI::completion_t cr = (cb) ? boost::bind(&doInventoryCb, cb, _1) : AISAPI::completion_t();
                 AISAPI::PurgeDescendents(id, cr);
@@ -1685,65 +1676,6 @@ void create_new_item(const std::string& name,
 						  next_owner_perm,
 						  cb);
 }	
-
-// [RLVa:KB] - Checked: 2014-11-02 (RLVa-1.4.11)
-void sync_inventory_folder(const LLUUID& folder_id, const LLInventoryModel::item_array_t& items, LLInventoryModel::item_array_t& items_to_add, LLInventoryModel::item_array_t& items_to_remove)
-{
-	LLInventoryModel::item_array_t curItems, newItems = items;
-
-	// Grab the current contents
-	LLInventoryModel::cat_array_t cats;
-	gInventory.collectDescendents(folder_id, cats, curItems, LLInventoryModel::EXCLUDE_TRASH);
-
-	// Purge everything in curItems that isn't part of newItems
-	for (LLInventoryModel::item_array_t::const_iterator itCurItem = curItems.begin(); itCurItem != curItems.end(); ++itCurItem)
-	{
-		LLViewerInventoryItem* pItem = *itCurItem;
-		if (std::find_if(newItems.begin(), newItems.end(), RlvPredIsEqualOrLinkedItem(pItem)) == newItems.end())
-		{
-			// Item doesn't exist in newItems => purge (if it's a link)
-			if ( (pItem->getIsLinkType()) && 
-				 (LLAssetType::AT_LINK_FOLDER != pItem->getActualType()) && 
-			     (items_to_remove.end() == std::find(items_to_remove.begin(), items_to_remove.end(), pItem)) )
-			{
-				items_to_remove.push_back(pItem);
-			}
-		}
-		else
-		{
-			// Item exists in newItems => remove *all* occurances in newItems (removes duplicate COF links to this item as well)
-			newItems.erase(std::remove_if(newItems.begin(), newItems.end(), RlvPredIsEqualOrLinkedItem(pItem)), newItems.end());
-		}
-	}
-
-	// Whatever remains in newItems will need to have a link created
-	for (LLInventoryModel::item_array_t::const_iterator itNewItem = newItems.begin(); itNewItem != newItems.end(); ++itNewItem)
-	{
-		LLViewerInventoryItem* pItem = *itNewItem;
-		if (items_to_add.end() == std::find(items_to_add.begin(), items_to_add.end(), pItem))
-			items_to_add.push_back(pItem);
-	}
-}
-
-void link_inventory_items(const LLUUID& folder_id, const LLInventoryModel::item_array_t& items, LLPointer<LLInventoryCallback> cb)
-{
-	for (LLInventoryModel::item_array_t::const_iterator itItem = items.begin(); itItem != items.end(); ++itItem)
-	{
-		const LLViewerInventoryItem* pItem = *itItem;
-		link_inventory_object(folder_id, pItem, cb);
-	}
-}
-
-void remove_inventory_items(const LLInventoryModel::item_array_t& items, LLPointer<LLInventoryCallback> cb)
-{
-	for (LLInventoryModel::item_array_t::const_iterator itItem = items.begin(); itItem != items.end(); ++itItem)
-	{
-		const LLViewerInventoryItem* pItem = *itItem;
-		if (pItem->getIsLinkType())
-			remove_inventory_item(pItem->getUUID(), cb);
-	}
-}
-// [/RLVa:KB]
 
 void slam_inventory_folder(const LLUUID& folder_id,
 						   const LLSD& contents,

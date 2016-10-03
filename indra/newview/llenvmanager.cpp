@@ -35,9 +35,6 @@
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-#include <boost/algorithm/string.hpp>
-// [/RLVa:KB]
 #include "kcwlinterface.h"
 
 std::string LLEnvPrefs::getWaterPresetName() const
@@ -513,17 +510,12 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 		// If using server settings, update managers.
 		// TODO: Centralize in kcwlinterface
 		static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
-//	if (getUseRegionSettings())
-// [RLVa:KB] - Checked: 2011-08-29 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-		if ( (getUseRegionSettings()) && (LLWLParamManager::getInstance()->mAnimator.getIsRunning()) )
-// [/RLVa:KB]
+	if (getUseRegionSettings())
+
 		{
 			updateManagersFromPrefs(mInterpNextChangeMessage);
 		}
-		//bit of a hacky override since I've repurposed many of the settings and methods here -KC
-		//NOTE* It might not be a good idea to do this if under RLV_BHVR_SETENV -KC
-		else if (always_use_region
-			&& !(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
+		else if (always_use_region)
 		{
 			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
 			setUserPrefs(getWaterPresetName(), getSkyPresetName(), getDayCycleName(), false, true, mInterpNextChangeMessage);
@@ -643,14 +635,6 @@ void LLEnvManagerNew::updateWaterFromPrefs(bool interpolate)
 void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 {
 	LL_DEBUGS("Windlight")<<LL_ENDL;
-
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-	{
-		return;
-	}
-// [/RLVa:KB]
-
 	// Apply water settings.
 	updateWaterFromPrefs(interpolate);
 

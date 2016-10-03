@@ -92,12 +92,6 @@
 #include "llprogressview.h"
 #include "llvocache.h"
 #include "llvopartgroup.h"
-// [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
-#include "llappearancemgr.h"
-// [/SL:KB]
-// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g)
-// [/RLVa:KB]
-
 #include "llweb.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -486,16 +480,7 @@ void idle_afk_check()
 {
 	// check idle timers
 	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-//	F32 afk_timeout  = gSavedSettings.getS32("AFKTimeout");
-// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
-#ifdef RLV_EXTENSION_CMD_ALLOWIDLE
-	// Enforce an idle time of 30 minutes if @allowidle=n restricted
-	static LLCachedControl<S32> sAFKTimeout(gSavedSettings, "AFKTimeout");
-	S32 afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? sAFKTimeout : 60 * 30;
-#else
 	static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout");
-#endif // RLV_EXTENSION_CMD_ALLOWIDLE
-// [/RLVa:KB]
 	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
 	{
 		LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
@@ -2174,28 +2159,27 @@ bool LLAppViewer::initThreads()
 					mFastTimerLogThread->start();
 				}
 			}
-			// Mesh streaming and caching
-			gMeshRepo.init();
+
 		}
 	}
-#else
-		LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
-		LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-		LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-			sImageDecodeThread,
-			enable_threads && true,
-			app_metrics_qa_mode);
+#else	
+	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
+	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+													sImageDecodeThread,
+													enable_threads && true,
+													app_metrics_qa_mode);	
 
-		if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
-		{
-			LLTrace::BlockTimer::setLogLock(new LLMutex());
-			mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
-			mFastTimerLogThread->start();
-		}
-
-		// Mesh streaming and caching
-		gMeshRepo.init();
+	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
+	{
+		LLTrace::BlockTimer::setLogLock(new LLMutex());
+		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
+		mFastTimerLogThread->start();
+	}
 #endif
+
+	// Mesh streaming and caching
+	gMeshRepo.init();
 
 	LLFilePickerThread::initClass();
 
@@ -2212,14 +2196,7 @@ void errorCallback(const std::string &error_string)
 	//Set the ErrorActivated global so we know to create a marker file
 	gLLErrorActivated = true;
 	
-//	LLError::crashAndLoop(error_string);
-// [SL:KB] - Patch: Viewer-Build | Checked: 2010-12-04 (Catznip-2.4)
-#if !LL_RELEASE_FOR_DOWNLOAD && LL_WINDOWS
-	DebugBreak();
-#else
 	LLError::crashAndLoop(error_string);
-#endif // LL_RELEASE_WITH_DEBUG_INFO && LL_WINDOWS
-// [/SL:KB]
 }
 
 void LLAppViewer::initLoggingAndGetLastDuration()
@@ -3105,8 +3082,21 @@ void LLAppViewer::initUpdater()
 	bool willing_to_test;
 	LL_DEBUGS("UpdaterService") << "channel " << channel << LL_ENDL;
 
-	willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
 
+#if 0
+	// <polarity> What the hell is that?
+	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity()) 
+	{
+		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
+		willing_to_test = false;
+	}
+	else
+	{
+		willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+	}
+#else
+	willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
+#endif
     unsigned char unique_id[MD5HEX_STR_SIZE];
 	if ( ! llHashedUniqueID(unique_id) )
 	{
@@ -3162,26 +3152,18 @@ bool LLAppViewer::initWindow()
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 
-	static LLCachedControl<S32> WindowX(gSavedSettings, "WindowX");
-	static LLCachedControl<S32> WindowY(gSavedSettings, "WindowY");
-	static LLCachedControl<U32> WindowWidth(gSavedSettings, "WindowWidth");
-	static LLCachedControl<U32> WindowHeight(gSavedSettings, "WindowHeight");
-	static LLCachedControl<U32> MinWindowWidth(gSavedSettings, "MinWindowWidth");
-	static LLCachedControl<U32> MinWindowHeight(gSavedSettings, "MinWindowHeight");
-	static LLCachedControl<bool> FullScreen(gSavedSettings, "FullScreen");
-
 	gWindowTitle = PVGetDynamicWindowTitle();
 	LLViewerWindow::Params window_params;
 	window_params
 		.title(gWindowTitle)
 		.name(APP_NAME)
-		.x(WindowX)
-		.y(WindowY)
-		.width(WindowWidth)
-		.height(WindowHeight)
-		.min_width(MinWindowWidth)
-		.min_height(MinWindowHeight)
-		.fullscreen(FullScreen)
+		.x(gSavedSettings.getS32("WindowX"))
+		.y(gSavedSettings.getS32("WindowY"))
+		.width(gSavedSettings.getU32("WindowWidth"))
+		.height(gSavedSettings.getU32("WindowHeight"))
+		.min_width(gSavedSettings.getU32("MinWindowWidth"))
+		.min_height(gSavedSettings.getU32("MinWindowHeight"))
+		.fullscreen(gSavedSettings.getBOOL("FullScreen"))
 		.ignore_pixel_depth(ignorePixelDepth);
 
 	gViewerWindow = new LLViewerWindow(window_params);
@@ -3362,28 +3344,16 @@ LLSD LLAppViewer::getViewerInfo() const
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		if (RlvActions::canShowLocation())
-		{
-// [/RLVa:KB]
-			LLVector3d pos = gAgent.getPositionGlobal();
-			info["POSITION"] = ll_sd_from_vector3d(pos);
-			info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-			info["REGION"] = gAgent.getRegion()->getName();
-			info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
-			info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
-//			info["SERVER_VERSION"] = gLastVersionChannel;
-			LLSLURL slurl;
-			LLAgentUI::buildSLURL(slurl);
-			info["SLURL"] = slurl.getSLURLString();
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		}
-		else
-		{
-			info["REGION"] = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
-		}
+		LLVector3d pos = gAgent.getPositionGlobal();
+		info["POSITION"] = ll_sd_from_vector3d(pos);
+		info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
+		info["REGION"] = gAgent.getRegion()->getName();
+		info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
+		info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
 		info["SERVER_VERSION"] = gLastVersionChannel;
-// [/RLVa:KB]
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		info["SLURL"] = slurl.getSLURLString();
 	}
 
 	// CPU
@@ -3402,9 +3372,6 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 #endif
 
-// [RLVa:KB] - Checked: 2010-04-18 (RLVa-1.2.0)
-	info["RLV_VERSION"] = (rlv_handler_t::isEnabled()) ? RlvStrings::getVersionAbout() : "(disabled)";
-// [/RLVa:KB]
 	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
 	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
 	info["J2C_VERSION"] = LLImageJ2C::getEngineInfo();
@@ -3505,10 +3472,7 @@ std::string LLAppViewer::getViewerInfoString() const
 	}
 	if (info.has("REGION"))
 	{
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		support << "\n\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args);
-// [/RLVa:KB]
-//		support << "\n\n" << LLTrans::getString("AboutPosition", args);
+		support << "\n\n" << LLTrans::getString("AboutPosition", args);
 	}
 	support << "\n\n" << LLTrans::getString("AboutSystem", args);
 	support << "\n";
