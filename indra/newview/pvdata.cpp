@@ -1320,13 +1320,13 @@ void PVData::getChatLogsDirOverride()
 
 		new_chat_logs_dir = log_location_from_registry;
 	}
-	if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
-	{
-		PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
-		PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
+	//if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
+	//{
+	PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
+	PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
 
-		LL_WARNS("PVData") << "New log location = " << new_chat_logs_dir << LL_ENDL;
-	}
+	LL_WARNS("PVData") << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
+	//}
 	if (new_chat_logs_dir.empty())
 	{
 		LL_ERRS("PVData") << "new_chat_logs_dir is null!" << LL_ENDL;
