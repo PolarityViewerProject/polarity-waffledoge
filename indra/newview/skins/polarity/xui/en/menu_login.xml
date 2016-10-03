@@ -50,18 +50,6 @@
          function="Floater.Show"
          parameter="window_size" />
       </menu_item_call>
-      <menu_item_check
-         label="RestrainedLove API"
-         name="RLV API">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RestrainedLove" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RestrainedLove" />
-            <menu_item_check.on_visible
-             function="RLV.MainToggleVisible" />
-      </menu_item_check>
       <menu_item_separator />
       <menu_item_call
        label="Show Debug Settings"
