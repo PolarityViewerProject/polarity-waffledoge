@@ -2072,11 +2072,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>64e75a7e4d5f42406fc36c2a663b6537</string>
+              <string>36238568370ee2eda26e063382a750f4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/openjpeg-1.5.1-windows-201601150944.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/win32/openjpeg-1.5.1-windows-201610031505.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2086,11 +2086,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>68e21f69a90bbf55abbd86882f0a2761</string>
+              <string>d3fc565f829b99fdc1f2c414cb1fdfee</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14/openjpeg-1.5.1-windows64-201601160311.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/14/win64/openjpeg-1.5.1-windows64-201610031501.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
