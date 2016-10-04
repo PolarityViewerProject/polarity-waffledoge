@@ -1401,7 +1401,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 
 	if (get_recommended)
 	{
-		//adjusted_max_vram = llmin(adjusted_max_vram, S32Megabytes(adjusted_max_vram * 0.75f)); // half was too few.
+		adjusted_max_vram = llmin(adjusted_max_vram, S32Megabytes(adjusted_max_vram * 0.75f));
 	}
 	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
 	adjusted_max_vram = llmin(adjusted_max_vram, S32(mem_multiplier * adjusted_max_vram));
