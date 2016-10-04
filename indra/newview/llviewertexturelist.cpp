@@ -1356,62 +1356,6 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 //S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(bool get_recommended, float mem_multiplier)
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier)
 {
-#if LL_VRAM_CODE
-	S32Megabytes max_texmem;
-	if (gGLManager.mVRAM != 0)
-	{
-		// Treat any card with < 32 MB (shudder) as having 32 MB
-		//  - it's going to be swapping constantly regardless
-		S32Megabytes max_vram(gGLManager.mVRAM);
-
-		if(gGLManager.mIsATI)
-		{
-			//shrink the availabe vram for ATI cards because some of them do not handel texture swapping well.
-			max_vram = max_vram * 0.75f; 
-		}
-
-		max_vram = llmax(max_vram, getMinVideoRamSetting());
-		max_texmem = max_vram;
-		if (!get_recommended)
-			max_texmem *= 2;
-	}
-	else
-	{
-		if (!get_recommended)
-		{
-			max_texmem = (S32Megabytes)512;
-		}
-		else if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
-		{
-			max_texmem = (S32Megabytes)512;
-		}
-		else
-		{
-			max_texmem = (S32Megabytes)128;
-		}
-
-		LL_WARNS() << "VRAM amount not detected, defaulting to " << max_texmem << " MB" << LL_ENDL;
-	}
-
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped(); // In MB
-	//LL_INFOS() << "*** DETECTED " << system_ram << " MB of system memory." << LL_ENDL;
-	if (get_recommended)
-		max_texmem = llmin(max_texmem, system_ram/2);
-	else
-		max_texmem = llmin(max_texmem, system_ram);
-		
-    // limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	max_texmem = llmin(max_texmem, (S32Megabytes) (mem_multiplier * max_texmem));
-
-	max_texmem = llclamp(max_texmem, getMinVideoRamSetting(), gMaxVideoRam); 
-	
-#ifdef LL_X86_64
-	if (get_recommended)
-		max_texmem = llmin(max_texmem, S32Megabytes(512));
-#endif
-
-	return max_texmem;
-#else
 	S32 Hardware_VRAM;
 	bool no_hw_probe = gSavedSettings.getBOOL("NoHardwareProbe");
 	if (no_hw_probe) //did not do hardware detection at startup
@@ -1471,7 +1415,6 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
 	}
 	return gMaxVideoRam;
-#endif
 }
 
 // <polarity> TODO: Make this dynamic based on the snapshot texture size
