@@ -53,6 +53,8 @@
 
 #include <boost/foreach.hpp>
 
+#include "roles_constants.h"
+
 LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupBulk(group_id)
 {
 	// Pass on construction of this panel to the control factory.

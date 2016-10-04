@@ -47,6 +47,8 @@
 #include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
+#include "roles_constants.h"
+
 class LLPanelGroupInvite::impl
 {
 public:
