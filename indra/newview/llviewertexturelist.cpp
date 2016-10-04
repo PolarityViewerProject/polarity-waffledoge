@@ -1441,11 +1441,11 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		else
 		{
 			// handle special case when card has 1GB or less
-			if (Hardware_VRAM <= 1024)
+			if (Hardware_VRAM <= 2048)
 			{
 				// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
 				// For this special case, limit VRAM to 512MB to prevent brutal swapping due to fragmentation.
-				adjusted_max_vram = 512;
+				adjusted_max_vram = Hardware_VRAM * 0.5f;
 			}
 			else
 			{
