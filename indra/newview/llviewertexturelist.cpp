@@ -1355,20 +1355,20 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 // Returns max setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier)
 {
-	S32 Hardware_VRAM;
+	S32 Hardware_VRAM_MB;
 	bool no_hw_probe = gSavedSettings.getBOOL("NoHardwareProbe");
 	if (no_hw_probe) //did not do hardware detection at startup
 	{
-		Hardware_VRAM = 512;
+		Hardware_VRAM_MB = 512;
 	}
 	else
 	{
-		Hardware_VRAM = gGLManager.mVRAM;
+		Hardware_VRAM_MB = gGLManager.mVRAM;
 	}
 
-	LL_DEBUGS() << "VIDEO MEMORY AMOUNT = " << Hardware_VRAM << LL_ENDL;
+	LL_DEBUGS() << "VIDEO MEMORY AMOUNT = " << Hardware_VRAM_MB << LL_ENDL;
 	auto minimum_VRAM = getMinVideoRamSetting();
-	auto adjusted_max_vram = Hardware_VRAM;
+	auto adjusted_max_vram = Hardware_VRAM_MB;
 
 
 	static LLCachedControl<bool> leave_vram_for_os(gSavedSettings, "PVDebug_ReserveVRAMForSystem", true,
@@ -1376,25 +1376,22 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 
 	if (leave_vram_for_os || gGLManager.mIsATI)
 	{
-		if ((Hardware_VRAM * 0.25f) > 3072) // we have a lot of VRAM
+		if (Hardware_VRAM_MB * 0.25f > 3072) // we have a lot of VRAM
 		{
 			// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
-			adjusted_max_vram = Hardware_VRAM - 3072;
+			adjusted_max_vram = Hardware_VRAM_MB - 3072;
+		}
+		// handle special case when card has 1GB or less
+		else if (Hardware_VRAM_MB <= 2048)
+		{
+			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
+			// For this special case, limit VRAM to 512MB to prevent brutal swapping due to fragmentation.
+			adjusted_max_vram = Hardware_VRAM_MB * 0.5f;
 		}
 		else
 		{
-			// handle special case when card has 1GB or less
-			if (Hardware_VRAM <= 2048)
-			{
-				// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
-				// For this special case, limit VRAM to 512MB to prevent brutal swapping due to fragmentation.
-				adjusted_max_vram = Hardware_VRAM * 0.5f;
-			}
-			else
-			{
-				// shrink the availabe vram to avoid starving the rest of the system
-				adjusted_max_vram = S32(Hardware_VRAM * 0.75f);
-			}
+			// shrink the availabe vram to avoid starving the rest of the system
+			adjusted_max_vram = Hardware_VRAM_MB * 0.75f;
 		}
 	}
 
@@ -1403,13 +1400,16 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		adjusted_max_vram = (adjusted_max_vram * 0.75f);
 	}
 	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	adjusted_max_vram = llmin(adjusted_max_vram, S32(mem_multiplier * adjusted_max_vram));
-	if (Hardware_VRAM < minimum_VRAM.value())
+	if (mem_multiplier != 1.0)
+	{
+		adjusted_max_vram = (mem_multiplier * adjusted_max_vram);
+	}
+	if (Hardware_VRAM_MB < minimum_VRAM.value())
 	{
 		LL_WARNS() << "VRAM amount not detected or less than 128MB, defaulting to " << minimum_VRAM.value() << " MB" << LL_ENDL;
 	}
 	
-	if (gMaxVideoRam != S32Megabytes(adjusted_max_vram)) // be nice on memory writes
+	if (gMaxVideoRam.value() != adjusted_max_vram) // be nice on memory writes
 	{
 		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
 	}
