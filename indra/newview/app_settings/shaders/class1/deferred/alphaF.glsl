@@ -538,9 +538,10 @@ void main()
 	float final_alpha = diff.a;
 #endif
 #ifdef FOR_IMPOSTOR
-	vec4 color;
-	color.rgb = diff.rgb;
-	color.a = 1.0;
+	//vec4 color;
+	//color.rgb = diff.rgb;
+	//color.a = 1.0;
+	vec4 color = vec4(diff.rgb,final_alpha);
 	
 	// Insure we don't pollute depth with invis pixels in impostor rendering
 	//
