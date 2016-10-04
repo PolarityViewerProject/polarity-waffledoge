@@ -92,10 +92,11 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "stringize.h"
 #include "boost/foreach.hpp"
 #include "kcwlinterface.h"
 #include "llcorehttputil.h"
+#include "roles_constants.h"
+
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
@@ -112,21 +113,21 @@ using namespace LLAvatarAppearanceDefines;
 
 extern LLMenuBarGL* gMenuBarView;
 
-const BOOL ANIMATE = TRUE;
-const U8 AGENT_STATE_TYPING =	0x04;
-const U8 AGENT_STATE_EDITING =  0x10;
+constexpr BOOL ANIMATE = TRUE;
+constexpr U8 AGENT_STATE_TYPING =	0x04;
+constexpr U8 AGENT_STATE_EDITING =  0x10;
 
 // Autopilot constants
-const F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
-const F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
-const F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
+constexpr F32 AUTOPILOT_HEIGHT_ADJUST_DISTANCE = 8.f;			// meters
+constexpr F32 AUTOPILOT_MIN_TARGET_HEIGHT_OFF_GROUND = 1.f;	// meters
+constexpr F32 AUTOPILOT_MAX_TIME_NO_PROGRESS = 1.5f;		// seconds
 
-const F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
-const F64 CHAT_AGE_FAST_RATE = 3.0;
+constexpr F32 MAX_VELOCITY_AUTO_LAND_SQUARED = 4.f * 4.f;
+constexpr F64 CHAT_AGE_FAST_RATE = 3.0;
 
 // fidget constants
-const F32 MIN_FIDGET_TIME = 8.f; // seconds
-const F32 MAX_FIDGET_TIME = 20.f; // seconds
+constexpr F32 MIN_FIDGET_TIME = 8.f; // seconds
+constexpr F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 // The agent instance.
 LLAgent gAgent;

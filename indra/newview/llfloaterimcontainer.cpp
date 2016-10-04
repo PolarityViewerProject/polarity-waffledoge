@@ -57,7 +57,10 @@
 #include "llworld.h"
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
+#include "roles_constants.h"
+
 #include "boost/foreach.hpp"
+
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif

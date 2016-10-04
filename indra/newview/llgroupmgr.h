@@ -28,7 +28,6 @@
 #define LL_LLGROUPMGR_H
 
 #include "lluuid.h"
-#include "roles_constants.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
 
@@ -36,6 +35,8 @@
 class LLMessageSystem;
 class LLGroupRoleData;
 class LLGroupMgr;
+enum class LLRoleChangeType;
+enum class LLRoleMemberChangeType;
 
 enum LLGroupChange
 {
@@ -48,7 +49,7 @@ enum LLGroupChange
 	GC_ALL
 };
 
-const U32 GB_MAX_BANNED_AGENTS = 500;
+constexpr U32 GB_MAX_BANNED_AGENTS = 500;
 
 class LLGroupMgrObserver
 {
@@ -111,7 +112,7 @@ private:
 
 struct LLRoleData
 {
-	LLRoleData() : mRolePowers(0), mChangeType(RC_UPDATE_NONE) { }
+    LLRoleData();
 	LLRoleData(const LLRoleData& rd)
 	: 	mRoleName(rd.mRoleName),
 		mRoleTitle(rd.mRoleTitle),
@@ -180,7 +181,7 @@ private:
 
 struct LLRoleMemberChange
 {
-	LLRoleMemberChange() : mChange(RMC_NONE) { }
+    LLRoleMemberChange();
 	LLRoleMemberChange(const LLUUID& role, const LLUUID& member, LLRoleMemberChangeType change)
 		: mRole(role), mMember(member), mChange(change) { }
 	LLRoleMemberChange(const LLRoleMemberChange& rc)
