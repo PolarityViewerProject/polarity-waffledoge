@@ -32,10 +32,8 @@ out vec4 frag_color;
 uniform float minimum_alpha;
 
 uniform sampler2D diffuseMap;
-// Intel compiler sucks.
-// #if !DEPTH_CLAMP
-// VARYING vec4 post_pos;
-// #endif
+
+VARYING vec4 post_pos;
 VARYING vec2 vary_texcoord0;
 
 void main() 
@@ -48,7 +46,6 @@ void main()
 	}
 
 	frag_color = vec4(1,1,1,1);
-// #if !DEPTH_CLAMP
-// 	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
-// #endif
+	
+	gl_FragDepth = max(post_pos.z/post_pos.w*0.5+0.5, 0.0);
 }
