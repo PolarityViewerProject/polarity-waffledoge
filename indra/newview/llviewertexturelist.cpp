@@ -1410,7 +1410,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		LL_WARNS() << "VRAM amount not detected or less than 128MB, defaulting to " << minimum_VRAM.value() << " MB" << LL_ENDL;
 	}
 	
-	//if (gMaxVideoRam != adjusted_max_vram) // be nice on memory writes
+	if (gMaxVideoRam != adjusted_max_vram) // be nice on memory writes
 	{
 		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
 	}
