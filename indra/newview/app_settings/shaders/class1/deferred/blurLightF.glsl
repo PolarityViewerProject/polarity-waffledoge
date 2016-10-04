@@ -31,7 +31,7 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-#define DELUXE_SHADOW_SMOOTH
+//#define DELUXE_SHADOW_SMOOTH
 #define LINEAR
 uniform sampler2DRect depthMap;
 uniform sampler2DRect normalMap;
