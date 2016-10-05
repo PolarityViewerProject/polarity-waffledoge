@@ -787,7 +787,7 @@ void LLNetMap::renderPoint(const LLVector3 &pos_local, const LLColor4U &color,
 	S32 pos_radius = diameter - neg_radius;
 	S32 x, y;
 
-	if (relative_height > 0)
+	if (relative_height > 0.25f) // <polarity> More sensitive Z-detection
 	{
 		// ...point above agent
 		S32 px, py;
