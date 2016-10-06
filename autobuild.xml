@@ -2076,7 +2076,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/win32/openjpeg-1.5.1-windows-201610031505.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/14/win32/openjpeg-1.5.1-windows-201610031505.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
