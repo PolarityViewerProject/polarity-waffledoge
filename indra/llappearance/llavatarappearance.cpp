@@ -44,7 +44,7 @@
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include "boost/bind.hpp"
-
+#include "llquaternion.h" // for MayaQ
 
 #if LL_MSVC
 // disable boost::lexical_cast warning
@@ -615,11 +615,11 @@ BOOL LLAvatarAppearance::setupBone(const LLAvatarBoneInfo* info, LLJoint* parent
 //-----------------------------------------------------------------------------
 // allocateCharacterJoints()
 //-----------------------------------------------------------------------------
-BOOL LLAvatarAppearance::allocateCharacterJoints( U32 num )
+BOOL LLAvatarAppearance::allocateCharacterJoints( S32 num )
 {
 	clearSkeleton();
 
-	for(S32 joint_num = 0; joint_num < (S32)num; joint_num++)
+	for(S32 joint_num = 0; joint_num < num; joint_num++)
 	{
 		mSkeleton.push_back(createAvatarJoint(joint_num));
 	}
