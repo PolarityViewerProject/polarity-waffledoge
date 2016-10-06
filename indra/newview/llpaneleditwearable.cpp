@@ -781,9 +781,9 @@ BOOL LLPanelEditWearable::postBuild()
                         LL_WARNS() << "could not get wearable dictionary entry for wearable of type: " << type << LL_ENDL;
                         continue;
                 }
-                auto num_subparts = wearable_entry->mSubparts.size();
+                U8 num_subparts = wearable_entry->mSubparts.size();
         
-                for (size_t index = 0; index < num_subparts; ++index)
+                for (U8 index = 0; index < num_subparts; ++index)
                 {
                         // dive into data structures to get the panel we need
                         ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -806,7 +806,7 @@ BOOL LLPanelEditWearable::postBuild()
                         }
         
                         // initialize callback to ensure camera view changes appropriately.
-                        tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed, this, _2, static_cast<U8>(index)));
+                        tab->setDropDownStateChangedCallback(boost::bind(&LLPanelEditWearable::onTabExpandedCollapsed,this,_2,index));
                 }
 
                 // initialize texture and color picker controls
@@ -1184,9 +1184,9 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
                 updatePanelPickerControls(type);
 
                 // clear and rebuild visual param list
-                auto num_subparts = wearable_entry->mSubparts.size();
+                U8 num_subparts = wearable_entry->mSubparts.size();
         
-                for (size_t index = 0; index < num_subparts; ++index)
+                for (U8 index = 0; index < num_subparts; ++index)
                 {
                         // dive into data structures to get the panel we need
                         ESubpart subpart_e = wearable_entry->mSubparts[index];
@@ -1383,10 +1383,10 @@ void LLPanelEditWearable::updateScrollingPanelUI()
                 const LLEditWearableDictionary::WearableEntry *wearable_entry = LLEditWearableDictionary::getInstance()->getWearable(type);
                 llassert(wearable_entry);
                 if (!wearable_entry) return;
-                auto num_subparts = wearable_entry->mSubparts.size();
+                U8 num_subparts = wearable_entry->mSubparts.size();
 
                 LLScrollingPanelParam::sUpdateDelayFrames = 0;
-                for (size_t index = 0; index < num_subparts; ++index)
+                for (U8 index = 0; index < num_subparts; ++index)
                 {
                         // dive into data structures to get the panel we need
                         ESubpart subpart_e = wearable_entry->mSubparts[index];
