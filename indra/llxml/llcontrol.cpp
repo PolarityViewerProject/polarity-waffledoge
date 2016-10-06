@@ -37,13 +37,13 @@
 #include "llstring.h"
 #include "v3math.h"
 #include "v3dmath.h"
-#include "v4math.h"
 #include "v4coloru.h"
 #include "v4color.h"
 #include "v3color.h"
 #include "llrect.h"
 #include "llxmltree.h"
 #include "llsdserialize.h"
+#include "v4math.h" // <Black Dragon:NiranV> Vector4
 
 #if LL_RELEASE_WITH_DEBUG_INFO || LL_DEBUG
 #define CONTROL_ERRS LL_ERRS("ControlErrors")
@@ -313,6 +313,7 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 		firePropertyChanged(originalValue);
 	}
 }
+
 bool LLControlVariable::isSane()
 {
 	if (mSanityType <= 0)
@@ -414,11 +415,11 @@ const std::string LLControlGroup::mTypeString[TYPE_COUNT] = { "U32"
                                                              ,"String"
                                                              ,"Vector3"
                                                              ,"Vector3D"
-															 ,"Vector4"
                                                              ,"Rect"
                                                              ,"Color4"
                                                              ,"Color3"
                                                              ,"LLSD"
+ 															 ,"Vector4"
                                                              };
 
 const std::string LLControlGroup::mSanityTypeString[SANITY_TYPE_COUNT] = { "None"
@@ -563,7 +564,7 @@ LLControlVariable* LLControlGroup::declareLLSD(const std::string& name, const LL
 // <Black Dragon:NiranV> Vector4
 LLControlVariable* LLControlGroup::declareVec4(const std::string& name, const LLVector4 &initial_val, const std::string& comment, LLControlVariable::ePersist persist)
 {
-	return declareControl(name, TYPE_LLSD, initial_val.getValue(), comment, SANITY_TYPE_NONE, LLSD(), std::string(""), persist);
+	return declareControl(name, TYPE_VEC4, initial_val.getValue(), comment, SANITY_TYPE_NONE, LLSD(), std::string(""), persist);
 }
 
 BOOL LLControlGroup::getBOOL(const std::string& name)
@@ -1491,10 +1492,10 @@ template<>
 LLVector4 convert_from_llsd<LLVector4>(const LLSD& sd, eControlType type, const std::string& control_name)
 {
 	if (type == TYPE_VEC4)
-		return (LLVector4)sd;
+		return LLVector4(sd);
 	else
 	{
-		CONTROL_ERRS << "Invalid LLVector4 value for " << control_name << ": " << sd << LL_ENDL;
+		CONTROL_ERRS << "Invalid LLVector4 value for " << control_name << ": " << LLControlGroup::typeEnumToString(type) << " " << sd << LL_ENDL;
 		return LLVector4::zero;
 	}
 }
@@ -1515,6 +1516,7 @@ DECL_LLCC(LLRect, LLRect(0, 0, 100, 500));
 DECL_LLCC(LLColor4, LLColor4(0.0f, 0.5f, 1.0f));
 DECL_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
 DECL_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
+DECL_LLCC(LLVector4, LLVector4(1.0, 2.0f, 3.0, 4.0f)); // <Black Dragon:NiranV> Vector4
 
 LLSD test_llsd = LLSD()["testing1"] = LLSD()["testing2"];
 DECL_LLCC(LLSD, test_llsd);
@@ -1536,6 +1538,7 @@ void test_cached_control()
 	TEST_LLCC(LLColor4, LLColor4(0.0f, 0.5f, 1.0f));
 	TEST_LLCC(LLColor3, LLColor3(1.0f, 0.f, 0.5f));
 	TEST_LLCC(LLColor4U, LLColor4U(255, 200, 100, 255));
+	TEST_LLCC(LLVector4, LLVector4(1.0, 2.0f, 3.0, 4.0f)); // <Black Dragon:NiranV> Vector4
 //There's no LLSD comparsion for LLCC yet. TEST_LLCC(LLSD, test_llsd); 
 
 	if((std::string)test_BrowserHomePage != "http://app.polarityviewer.org") LL_ERRS() << "Fail BrowserHomePage" << LL_ENDL;
