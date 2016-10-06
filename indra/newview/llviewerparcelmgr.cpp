@@ -1619,7 +1619,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 				}
 			}
 			//KC: check for parcel changes for WL settings
-			KCWindlightInterface::instance().ParcelChange();
+			KCWindlightInterface::instance().parcelChange();
 		}
 		else if (agent_parcel_update)
 		{

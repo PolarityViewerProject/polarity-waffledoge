@@ -260,8 +260,8 @@ bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope sco
 void LLEnvManagerNew::setUseRegionSettings(const bool val, const bool interpolate)
 {
 	mUserPrefs.setUseRegionSettings(val);
-	updateManagersFromPrefs(interpolate);
 	saveUserPrefs();
+	updateManagersFromPrefs(interpolate);
 }
 
 void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolate)
@@ -501,7 +501,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	LLEnvironmentSettings new_settings(content[1], content[2], content[3], sun_hour);
 	mCachedRegionPrefs = new_settings;
 
-s	// Load region sky presets.
+	// Load region sky presets.
 	LLWLParamManager::instance().refreshRegionPresets();
 
 	//<FS:KC> Use the region settings if parcel settings didnt override it already
@@ -510,8 +510,7 @@ s	// Load region sky presets.
 		// If using server settings, update managers.
 		// TODO: Centralize in kcwlinterface
 		static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
-	//if (getUseRegionSettings())
-
+		if (getUseRegionSettings())
 		{
 			updateManagersFromPrefs(mInterpNextChangeMessage);
 		}
