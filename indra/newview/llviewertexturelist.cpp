@@ -1370,8 +1370,11 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	auto adjusted_max_vram = Hardware_VRAM_MB;
 
 
+
+	// We don't really need to cache this one, but it's not currently stored in the settings file so we use this call
+	// to initialize it fully
 	static LLCachedControl<bool> leave_vram_for_os(gSavedSettings, "PVDebug_ReserveVRAMForSystem", true,
-		"Do not allocate all VRAM and leave 25% or 3GB (first occurence) for other programs");
+		"Do not allocate all VRAM and leave 25% or 3GB (first occurrence) for other programs");
 
 	if (leave_vram_for_os || gGLManager.mIsATI)
 	{
@@ -1380,16 +1383,16 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 			// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
 			adjusted_max_vram = Hardware_VRAM_MB - 3072;
 		}
-		// handle special case when card has 1GB or less
+		// handle special case when card has 2GB or less
 		else if (Hardware_VRAM_MB <= 2048)
 		{
 			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
-			// For this special case, limit VRAM to 512MB to prevent brutal swapping due to fragmentation.
+			// For this special case, limit VRAM to half the adjusted maximum to prevent brutal swapping due to fragmentation.
 			adjusted_max_vram = Hardware_VRAM_MB * 0.5f;
 		}
 		else
 		{
-			// shrink the availabe vram to avoid starving the rest of the system
+			// shrink the available VRAM to avoid starving the rest of the system
 			adjusted_max_vram = Hardware_VRAM_MB * 0.75f;
 		}
 	}
