@@ -1347,7 +1347,7 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 	//min texture mem sets to 64M if total physical mem is more than 1.5GB
 	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
 #else
-	return S32Megabytes(128); // 2016
+	return S32Megabytes(32); // There doesn't seem to be any real reason to raise minimum allocation.
 #endif
 }
 
@@ -1356,8 +1356,7 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended, const float mem_multiplier)
 {
 	S32 Hardware_VRAM_MB;
-	bool no_hw_probe = gSavedSettings.getBOOL("NoHardwareProbe");
-	if (no_hw_probe) //did not do hardware detection at startup
+	if (gSavedSettings.getBOOL("NoHardwareProbe")) //did not do hardware detection at startup
 	{
 		Hardware_VRAM_MB = 512;
 	}
