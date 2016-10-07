@@ -34,7 +34,9 @@
 #include "lltimer.h"
 #include "lltrace.h"
 #include "lltracethreadrecorder.h"
+
 #include <chrono>
+
 
 #ifdef LL_WINDOWS
 const DWORD MS_VC_EXCEPTION=0x406D1388;
@@ -208,9 +210,9 @@ void LLThread::shutdown()
 				// Put a stake in its heart.
 				boost::thread::native_handle_type thread(mThread.native_handle());
 #if LL_WINDOWS
-		TerminateThread(thread, 0);
+				TerminateThread(thread, 0);
 #else
-		pthread_cancel(thread);
+				pthread_cancel(thread);
 #endif
 			}
 		}
@@ -219,6 +221,7 @@ void LLThread::shutdown()
 			LL_WARNS() << "Failed to join thread: \"" << mName << "\" with id: " << mThread.get_id() << " and interrupted exception" << LL_ENDL;
 		}
 	}
+
 	mRecorder.reset();
 
 	if (mIsLocalPool && mAPRPoolp)
