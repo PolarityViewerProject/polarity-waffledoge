@@ -668,7 +668,7 @@ void LLPanelEditWearable::updateMetricLayout(BOOL new_value)
         mReplacementMetricUrl.setArg( "[URL_METRIC2]", std::string("[secondlife:///app/metricsystem ") + replacment_metric.getString() + std::string("]"));
 }
 
-void LLPanelEditWearable::updateAvatarHeightLabel()
+void LLPanelEditWearable::updateAvatarHeightLabel() const
 {
         mTxtAvatarHeight->setText(LLStringUtil::null);
         LLStyle::Params param;
@@ -681,7 +681,7 @@ void LLPanelEditWearable::updateAvatarHeightLabel()
         mTxtAvatarHeight->appendText(this->mReplacementMetricUrl, false, param);
 }
 
-void LLPanelEditWearable::onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl)
+void LLPanelEditWearable::onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl) const
 {
         if (in_visible_chain.asBoolean() && accordion_ctrl != NULL)
         {
@@ -906,7 +906,7 @@ void LLPanelEditWearable::onSaveAsButtonClicked()
         LLNotificationsUtil::add("SaveWearableAs", args, LLSD(), boost::bind(&LLPanelEditWearable::saveAsCallback, this, _1, _2));
 }
 
-void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& response)
+void LLPanelEditWearable::saveAsCallback(const LLSD& notification, const LLSD& response) const
 {
         S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
         if (0 == option)
@@ -1058,7 +1058,7 @@ void LLPanelEditWearable::incrementCofVersionLegacy()
 
 }
 
-void LLPanelEditWearable::saveChanges(bool force_save_as)
+void LLPanelEditWearable::saveChanges(const bool force_save_as) const
 {
         if (!mWearablePtr || !isDirty())
         {
@@ -1257,12 +1257,12 @@ void LLPanelEditWearable::showWearable(LLViewerWearable* wearable, BOOL show, BO
         }
 }
 
-void LLPanelEditWearable::showDefaultSubpart()
+void LLPanelEditWearable::showDefaultSubpart() const
 {
         changeCamera(0);
 }
 
-void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
+void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index) const
 {
         bool expanded = param.asBoolean();
 
@@ -1279,7 +1279,7 @@ void LLPanelEditWearable::onTabExpandedCollapsed(const LLSD& param, U8 index)
 
 }
 
-void LLPanelEditWearable::changeCamera(U8 subpart)
+void LLPanelEditWearable::changeCamera(U8 subpart) const
 {
 	// Don't change the camera if this type doesn't have a camera switch.
 	// Useful for wearables like physics that don't have an associated physical body part.
@@ -1328,7 +1328,7 @@ void LLPanelEditWearable::updateScrollingPanelList()
         updateScrollingPanelUI();
 }
 
-void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type)
+void LLPanelEditWearable::toggleTypeSpecificControls(LLWearableType::EType type) const
 {
         // Toggle controls specific to shape editing panel.
         {
@@ -1407,81 +1407,65 @@ void LLPanelEditWearable::updateScrollingPanelUI()
         }
 }
 
-LLPanel* LLPanelEditWearable::getPanel(LLWearableType::EType type)
+LLPanel* LLPanelEditWearable::getPanel(const LLWearableType::EType type) const
 {
-        switch (type)
-        {
-                case LLWearableType::WT_SHAPE:
-                        return mPanelShape;
-                        break;
+	switch (type)
+	{
+	case LLWearableType::WT_SHAPE:
+		return mPanelShape;
 
-                case LLWearableType::WT_SKIN:
-                        return mPanelSkin;
-                        break;
+	case LLWearableType::WT_SKIN:
+		return mPanelSkin;
 
-                case LLWearableType::WT_HAIR:
-                        return mPanelHair;
-                        break;
+	case LLWearableType::WT_HAIR:
+		return mPanelHair;
 
-                case LLWearableType::WT_EYES:
-                        return mPanelEyes;
-                        break;
+	case LLWearableType::WT_EYES:
+		return mPanelEyes;
 
-                case LLWearableType::WT_SHIRT:
-                        return mPanelShirt;
-                        break;
+	case LLWearableType::WT_SHIRT:
+		return mPanelShirt;
 
-                case LLWearableType::WT_PANTS:
-                        return mPanelPants;
-                        break;
+	case LLWearableType::WT_PANTS:
+		return mPanelPants;
 
-                case LLWearableType::WT_SHOES:
-                        return mPanelShoes;
-                        break;
+	case LLWearableType::WT_SHOES:
+		return mPanelShoes;
 
-                case LLWearableType::WT_SOCKS:
-                        return mPanelSocks;
-                        break;
+	case LLWearableType::WT_SOCKS:
+		return mPanelSocks;
 
-                case LLWearableType::WT_JACKET:
-                        return mPanelJacket;
-                        break;
+	case LLWearableType::WT_JACKET:
+		return mPanelJacket;
 
-                case LLWearableType::WT_GLOVES:
-                        return mPanelGloves;
-                        break;
+	case LLWearableType::WT_GLOVES:
+		return mPanelGloves;
 
-                case LLWearableType::WT_UNDERSHIRT:
-                        return mPanelUndershirt;
-                        break;
+	case LLWearableType::WT_UNDERSHIRT:
+		return mPanelUndershirt;
 
-                case LLWearableType::WT_UNDERPANTS:
-                        return mPanelUnderpants;
-                        break;
+	case LLWearableType::WT_UNDERPANTS:
+		return mPanelUnderpants;
 
-                case LLWearableType::WT_SKIRT:
-                        return mPanelSkirt;
-                        break;
+	case LLWearableType::WT_SKIRT:
+		return mPanelSkirt;
 
-                case LLWearableType::WT_ALPHA:
-                        return mPanelAlpha;
-                        break;
+	case LLWearableType::WT_ALPHA:
+		return mPanelAlpha;
 
-                case LLWearableType::WT_TATTOO:
-                        return mPanelTattoo;
-                        break;
+	case LLWearableType::WT_TATTOO:
+		return mPanelTattoo;
 
-                case LLWearableType::WT_PHYSICS:
-                        return mPanelPhysics;
-                        break;
+	case LLWearableType::WT_PHYSICS:
+		return mPanelPhysics;
 
-                default:
-                        break;
-        }
-        return NULL;
+	default:
+		break;
+	}
+	return NULL;
 }
 
-void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std::string &edit_group)
+void LLPanelEditWearable::getSortedParams(value_map_t &sorted_params, const std::string &edit_group) const
 {
         LLWearable::visual_param_vec_t param_list;
         ESex avatar_sex = gAgentAvatarp->getSex();

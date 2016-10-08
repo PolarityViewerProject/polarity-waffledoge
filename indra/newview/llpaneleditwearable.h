@@ -63,16 +63,16 @@ public:
 				void		onClose();
 
 	// changes camera angle to default for selected subpart
-	void				changeCamera(U8 subpart);
+	void				changeCamera(U8 subpart) const;
 
 	LLViewerWearable*	getWearable() { return mWearablePtr; }
 	void				setWearable(LLViewerWearable *wearable, BOOL disable_camera_switch = FALSE);
 
-	void				saveChanges(bool force_save_as = false);
+	void				saveChanges(const bool force_save_as = false) const;
 	void				revertChanges();
 
-	void				showDefaultSubpart();
-	void				onTabExpandedCollapsed(const LLSD& param, U8 index);
+	void				showDefaultSubpart() const;
+	void				onTabExpandedCollapsed(const LLSD& param, U8 index) const;
 
 	void 				updateScrollingPanelList();
 
@@ -80,7 +80,7 @@ public:
 	static void			onBackButtonClicked(void* userdata); 
 	void				onCommitSexChange();
 	void				onSaveAsButtonClicked();
-	void				saveAsCallback(const LLSD& notification, const LLSD& response);
+	void				saveAsCallback(const LLSD& notification, const LLSD& response) const;
 
 	virtual void		setVisible(BOOL visible);
 
@@ -89,8 +89,8 @@ private:
 
 	void				showWearable(LLViewerWearable* wearable, BOOL show, BOOL disable_camera_switch = FALSE);
 	void				updateScrollingPanelUI();
-	LLPanel*			getPanel(LLWearableType::EType type);
-	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group);
+	LLPanel*			getPanel(const LLWearableType::EType type) const;
+	void				getSortedParams(value_map_t &sorted_params, const std::string &edit_group) const;
 	void				buildParamList(LLScrollingPanelList *panel_list, value_map_t &sorted_params, LLAccordionCtrlTab *tab, LLJoint* jointp);
 	// update bottom bar buttons ("Save", "Revert", etc)
 	void				updateVerbs();
@@ -98,7 +98,7 @@ private:
 	void				onColorSwatchCommit(const LLUICtrl*);
 	void				onTexturePickerCommit(const LLUICtrl*);
 	void				updatePanelPickerControls(LLWearableType::EType type);
-	void				toggleTypeSpecificControls(LLWearableType::EType type);
+	void				toggleTypeSpecificControls(LLWearableType::EType type) const;
 	void				updateTypeSpecificControls(LLWearableType::EType type);
 
 	//alpha mask checkboxes
@@ -115,9 +115,9 @@ private:
 	void updateMetricLayout(BOOL new_value);
 
 	// updates avatar height label
-	void updateAvatarHeightLabel();
+	void updateAvatarHeightLabel() const;
 
-	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl);
+	void onWearablePanelVisibilityChange(const LLSD &in_visible_chain, LLAccordionCtrl* accordion_ctrl) const;
 
 	void setWearablePanelVisibilityChangeCallback(LLPanel* bodypart_panel);
 
