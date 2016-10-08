@@ -72,6 +72,8 @@ std::map<U32, std::string> PVData::PVSearchSeparatorAssociation
 	{ separator_space,    " " },
 };
 
+static U32 PVSearchSeparatorSelected = gPVData->separator_space;
+
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##         ##  ##
@@ -1160,31 +1162,24 @@ LLColor4 PVData::Hex2Color4(int hexValue)
 
 U32 PVData::getSearchSeparatorFromSettings()
 {
-	// Handle human-readable separators here.
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", separator_space);
-	auto pvss = gPVData;
-	pvss->PVSearchSeparatorSelected = pvss->PVSearchSeparatorAssociation[settings_separator];
-	LL_DEBUGS("PVData") << "Getting separator from settings: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Search separator index from settings: '" << settings_separator << "'" << LL_ENDL;
 	return settings_separator;
 }
 
 void PVData::setSearchSeparator(const U32 separator_in_u32)
 {
-	instance().PVSearchSeparatorSelected = PVSearchSeparatorAssociation[separator_in_u32];
+	PVSearchSeparatorSelected = separator_in_u32;;
+	LL_DEBUGS("PVData") << "Setting search separator to '" << separator_in_u32 << "'" << "('" << gPVData->PVSearchSeparatorAssociation[PVSearchSeparatorSelected] << "')" << LL_ENDL;
 	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
+	
 }
 
 std::string PVData::getSearchSeparator()
 {
-	auto pvss = gPVData;
-	if(pvss->PVSearchSeparatorSelected.empty())
-	{
-		// eep!
-		//PVSearchSeparatorAssociation[PVSearchSeparators::separator_space];
-		getSearchSeparatorFromSettings();
-	}
-	LL_DEBUGS("PVData") << "Returning runtime value of search separator: '" << pvss->PVSearchSeparatorSelected << "'" << LL_ENDL;
-	return pvss->PVSearchSeparatorSelected;
+	auto  separator = PVSearchSeparatorAssociation[PVSearchSeparatorSelected];
+	LL_DEBUGS("PVData") << "Search separator from runtime: '" << separator << "'" << LL_ENDL;
+	return separator;
 }
 
 // static

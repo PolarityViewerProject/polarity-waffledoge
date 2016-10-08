@@ -1000,23 +1000,8 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	auto mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
 	if (mSeparatorComboBox)
 	{
-#if FIXED_SCOPE_STUFF
-		auto separator_index = gPVData->getSearchSeparatorFromSettings();
-
-		for (auto&& map_iterator : gPVData->mSeparatorMap)
-		{
-			if (map_iterator.second == separator_index)
-			{
-				auto nya = map_iterator.first;
-				mSeparatorComboBox->setValue(nya);
-				break;
-			}
-		}
-#else
-
 		mSeparatorComboBox->setValue((int)gPVData->getSearchSeparatorFromSettings());
 	}
-#endif
 	return TRUE;
 }
 void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)
