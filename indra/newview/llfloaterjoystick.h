@@ -44,6 +44,7 @@ public:
 	virtual void cancel();	// Cancel the changed values.
 	virtual void draw();
 	static  void setSNDefaults();
+	static void setXbox360Defaults();
 
 protected:
 
@@ -59,6 +60,7 @@ private:
 	
 	static void onCommitJoystickEnabled(LLUICtrl*, void*);
 	static void onClickRestoreSNDefaults(void*);
+	static void onClickRestoreX360Defaults(void*);
 	static void onClickCancel(void*);
 	static void onClickOK(void*);
 
