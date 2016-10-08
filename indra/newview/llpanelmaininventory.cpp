@@ -163,11 +163,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 		mFilterMask |= (*it).second;
 	}
 	// </FS:Zi> Filter dropdown
-
-	gPVData->mSeparatorMap["search_separator_space"] = PVData::separator_space;
-	gPVData->mSeparatorMap["search_separator_comma"] = PVData::separator_comma;
-	gPVData->mSeparatorMap["search_separator_plus"] = PVData::separator_plus;
-	gPVData->mSeparatorMap["search_separator_pipe"] = PVData::separator_pipe;
 }
 
 BOOL LLPanelMainInventory::postBuild()
@@ -670,32 +665,16 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 {
 	if (!mActivePanel)
 		return;
-	//U32 filterTypes = ~0;
 	LLFloaterInventoryFinder* finder = getFinder();
-	if (gPVData->mSeparatorMap.find(separator_selected) != gPVData->mSeparatorMap.end())
+	if (!separator_selected.empty())
 	{
-		//filterTypes = ;
-		//LL_WARNS() << "SEPARATOR FROM DROPDOWN = '" << filterTypes << "'" << LL_ENDL;
-		gPVData->setSearchSeparator(gPVData->mSeparatorMap[separator_selected]);
-		// refresh substring search or something.
-		LLInventoryModelBackgroundFetch::instance().start();
+		gPVData->setSearchSeparator(std::stoi(separator_selected));
+		// clear, then restore search string to make the new separator effective
+		// TODO: Find a better way to refresh search results
 		std::string old_substring = mFilterSubString;
 		mActivePanel->setFilterSubString(LLStringUtil::null);
 		mActivePanel->setFilterSubString(old_substring);
 	}
-	//else if (separator_selected == "filter_type_all")
-	//{
-	//	if (finder)
-	//		LLFloaterInventoryFinder::selectAllTypes(finder);
-	//}
-	//else if (separator_selected == "filter_type_custom")
-	//{
-	//	if (!finder)
-	//		toggleFindOptions();
-	//	else
-	//		finder->setFocus(TRUE);
-	//	return;
-	//}
 	// invalid selection (broken XML?)
 	else
 	{
@@ -996,12 +975,6 @@ BOOL LLFloaterInventoryFinder::postBuild()
 	childSetAction("Close", onCloseBtn, this);
 
 	updateElementsFromFilter();
-
-	auto mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
-	if (mSeparatorComboBox)
-	{
-		mSeparatorComboBox->setValue((int)gPVData->getSearchSeparatorFromSettings());
-	}
 	return TRUE;
 }
 void LLFloaterInventoryFinder::onTimeAgo(LLUICtrl *ctrl, void *user_data)

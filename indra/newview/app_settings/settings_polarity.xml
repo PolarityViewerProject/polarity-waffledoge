@@ -1557,7 +1557,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <string>64</string>
+      <string>0</string>
     </map>
     <key>PVUI_VoiceIndicatorBehavior</key>
     <map>

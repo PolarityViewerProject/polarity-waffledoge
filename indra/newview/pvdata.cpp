@@ -61,15 +61,15 @@ static const std::string LL_PRODUCTENGINE = "ProductEngine";
 static const std::string LL_SCOUT = "Scout";
 static const std::string LL_TESTER = "Tester";
 
-std::map<U32, std::string> PVData::PVSearchSeparatorAssociation
+std::vector<std::string> PVData::PVSearchSeparatorAssociation
 {
-	{ separator_colon,    ":" },
-	{ separator_comma,    "," },
-	{ separator_period,   "." },
-	{ separator_pipe,     "|" },
-	{ separator_plus,     "+" },
-	{ separator_semicolon,";" },
-	{ separator_space,    " " },
+	" ",
+	"+",
+	",",
+	"|",
+	";",
+	".",
+	":",
 };
 
 static U32 PVSearchSeparatorSelected = gPVData->separator_space;
@@ -1159,7 +1159,6 @@ LLColor4 PVData::Hex2Color4(int hexValue)
 	return LLColor4(r, g, b, 1.0f);
 }
 
-
 U32 PVData::getSearchSeparatorFromSettings()
 {
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", separator_space);
@@ -1170,7 +1169,7 @@ U32 PVData::getSearchSeparatorFromSettings()
 void PVData::setSearchSeparator(const U32 separator_in_u32)
 {
 	PVSearchSeparatorSelected = separator_in_u32;;
-	LL_DEBUGS("PVData") << "Setting search separator to '" << separator_in_u32 << "'" << "('" << gPVData->PVSearchSeparatorAssociation[PVSearchSeparatorSelected] << "')" << LL_ENDL;
+	LL_DEBUGS("PVData") << "Setting search separator to '" << separator_in_u32 << "'" << "('" << getSearchSeparator() << "')" << LL_ENDL;
 	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
 	
 }
@@ -1180,6 +1179,12 @@ std::string PVData::getSearchSeparator()
 	auto  separator = PVSearchSeparatorAssociation[PVSearchSeparatorSelected];
 	LL_DEBUGS("PVData") << "Search separator from runtime: '" << separator << "'" << LL_ENDL;
 	return separator;
+}
+
+std::string PVData::getSearchSeparator(const U32 separator_to_get_u32) const
+{
+	PVSearchSeparatorSelected = separator_to_get_u32;
+	return getSearchSeparator();
 }
 
 // static
