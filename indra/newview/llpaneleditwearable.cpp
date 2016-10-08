@@ -51,15 +51,15 @@
 
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
-#include "lltextureentry.h"
+//#include "lltextureentry.h"
 #include "llviewercontrol.h"    // gSavedSettings
-#include "llviewerregion.h"
+//#include "llviewerregion.h"
 #include "llviewertexturelist.h"
 #include "llagentcamera.h"
 #include "llmorphview.h"
 
 #include "llcommandhandler.h"
-#include "lltextutil.h"
+//#include "lltextutil.h"
 #include "llappearancemgr.h"
 
 // register panel with appropriate XML

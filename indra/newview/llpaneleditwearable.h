@@ -32,7 +32,7 @@
 #include "llmodaldialog.h"
 #include "llavatarappearancedefines.h"
 #include "llwearabletype.h"
-#include "llwearable.h"
+//#include "llwearable.h"
 
 //#include "llwearable.h" // <FS:ND/> for LLWearable::LLWearableObserver
 class LLAccordionCtrl;
