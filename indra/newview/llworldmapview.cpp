@@ -474,14 +474,11 @@ void LLWorldMapView::draw()
 			{
 				mesg = llformat("%s (%s)", info->getName().c_str(), info->getShortAccessString().c_str());
 			}
-			else
-			{
 				font->renderUTF8(
 					mesg, 0,
 					llfloor(left + 3), llfloor(bottom + 2),
 					LLColor4::white,
 					LLFontGL::LEFT, LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
-			}
 		}
 	}
 
