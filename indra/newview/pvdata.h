@@ -209,12 +209,12 @@ public:
 
 	// The scope hacks I have to do, sigh...
 	std::map<std::string, U32>  mSeparatorMap;
-	char PVSearchSeparatorSelected;
+	std::string PVSearchSeparatorSelected;
 	// refresh from settings
 	static U32 getSearchSeparatorFromSettings();
 	static void setSearchSeparator(const U32 separator_in_u32);
 	// get separator
-	static char getSearchSeparator();
+	static std::string getSearchSeparator();
 
 	enum PVSearchSeparators : U32
 	{
@@ -230,7 +230,7 @@ public:
 	/**
 	* \brief Contains the possible search separators
 	*/
-	static std::map<U32, char> PVSearchSeparatorAssociation;
+	static std::map<U32, std::string> PVSearchSeparatorAssociation;
 
 	/// <summary>Attempt to set the chat logs location from environment if available</summary>
 	static void getChatLogsDirOverride();

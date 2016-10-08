@@ -61,15 +61,15 @@ static const std::string LL_PRODUCTENGINE = "ProductEngine";
 static const std::string LL_SCOUT = "Scout";
 static const std::string LL_TESTER = "Tester";
 
-std::map<U32, char> PVData::PVSearchSeparatorAssociation
+std::map<U32, std::string> PVData::PVSearchSeparatorAssociation
 {
-	{ separator_colon,    ':' },
-	{ separator_comma,    ',' },
-	{ separator_period,   '.' },
-	{ separator_pipe,     '|' },
-	{ separator_plus,     '+' },
-	{ separator_semicolon,';' },
-	{ separator_space,    ' ' },
+	{ separator_colon,    ":" },
+	{ separator_comma,    "," },
+	{ separator_period,   "." },
+	{ separator_pipe,     "|" },
+	{ separator_plus,     "+" },
+	{ separator_semicolon,";" },
+	{ separator_space,    " " },
 };
 
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
@@ -1174,10 +1174,10 @@ void PVData::setSearchSeparator(const U32 separator_in_u32)
 	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
 }
 
-char PVData::getSearchSeparator()
+std::string PVData::getSearchSeparator()
 {
 	auto pvss = gPVData;
-	if(pvss->PVSearchSeparatorSelected == NULL)
+	if(pvss->PVSearchSeparatorSelected.empty())
 	{
 		// eep!
 		//PVSearchSeparatorAssociation[PVSearchSeparators::separator_space];
