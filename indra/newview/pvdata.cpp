@@ -48,7 +48,6 @@
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
-#include "pvcommon.h"
 #include "noise.h"
 
 #include <stdlib.h> // for setenv

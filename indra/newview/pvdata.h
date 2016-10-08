@@ -37,6 +37,7 @@
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
+#include "pvcommon.h"
 
 class LLColor4;
 class LLUUID;
@@ -59,12 +60,6 @@ public:
 	~PVData()
 	{}
 
-	// Some typedefs
-	// agents <-> color association	s
-	typedef std::map<LLUUID, LLColor4> pv_pair_uuid_llcolor4;
-	typedef std::map<LLUUID, unsigned int> pv_pair_uuid_uint;
-	typedef std::map<LLUUID, signed int> pv_pair_uuid_sint;
-	typedef std::map<LLUUID, std::string> pv_pair_uuid_string;
 
 	// This contains the re-usable LLSD data for login tips.
 	// It is easier (at least for me) to parse the LLSD over and over and get a new value,
