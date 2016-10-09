@@ -639,11 +639,9 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
-		// <polarity> PVData
-		// Begin fetching the required assets used by PVData
+		// <polarity> Download PVData. Also initializes instance.
 		PVData::getInstance()->downloadData();
-		// gPVData->initThemeColors();
-		// </polarity> PVData
+
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -756,9 +754,6 @@ bool idle_startup()
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
-		// LLViewerMedia::initBrowser();
-		//LLStartUp::setStartupState( STATE_LOGIN_SHOW );
-		gPVData->downloadData();
 		LLGridManager::getInstance()->initialize(std::string());
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
 		return FALSE;
@@ -770,19 +765,15 @@ bool idle_startup()
 		static LLFrameTimer pvdata_timer;
 		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
 		const F32 MAX_PVDATA_TIME = 15.f;
-		bool timed_out = (pvdata_time > MAX_PVDATA_TIME);
-		bool data_done = (gPVData->getDataDone());
-		if (timed_out || data_done)
+		if (gPVData->getDataDone())
 		{
-			if (data_done)
-			{
-				LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
-			}
-			if (timed_out)
-			{
-				LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
-			}
-			LLStartUp::setStartupState( STATE_LOGIN_SHOW );
+			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+		}
+		else if (pvdata_time > MAX_PVDATA_TIME)
+		{
+			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
 		}
 		else
 		{
@@ -1095,7 +1086,6 @@ bool idle_startup()
 		gVFS->pokeFiles();
 
 		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
-		gPVData->downloadAgents();
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
 	}
@@ -1104,25 +1094,21 @@ bool idle_startup()
 		static LLFrameTimer agents_timer;
 		const F32 agents_time = agents_timer.getElapsedTimeF32();
 		const F32 MAX_AGENTS_TIME = 15.f;
-		bool timed_out = (agents_time > MAX_AGENTS_TIME);
-		bool agents_done = (gPVData->getAgentsDone());
-		if (timed_out || agents_done)
+		if (agents_time > MAX_AGENTS_TIME)
 		{
-			if (agents_done)
-			{
-				LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
-				set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
-			}
-			if (timed_out)
-			{
-				LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
-			}
-		LLStartUp::setStartupState( STATE_LOGIN_AUTH_INIT );
+			LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
+		}
+		else if (gPVData->getAgentsDone())
+		{
+			LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
+			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
+			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		}
 		else
 		{
 			ms_sleep(1);
-		return FALSE;
+			return FALSE;
 		}
 	}
 
