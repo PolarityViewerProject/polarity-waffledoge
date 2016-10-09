@@ -202,6 +202,7 @@
 #include "pvdata.h"
 #include "pvcommon.h"
 #include "pvrandom.h"
+#include "fsassetblacklist.h"
 //
 // exported globals
 //
@@ -1032,6 +1033,8 @@ bool idle_startup()
 		std::string user_windlight_days_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/days", ""));
 		LLFile::mkdir(user_windlight_days_path_name.c_str());
 
+		// <FS:WS> Initalize Account based asset_blacklist
+		FSAssetBlacklist::getInstance()->init();
 
 		if (show_connect_box)
 		{
@@ -2377,7 +2380,7 @@ void login_show()
 	// Hide the toolbars: may happen to come back here if login fails after login agent but before login in region
 	if (gToolBarView)
 	{
-		gToolBarView->setVisible(FALSE);
+		gToolBarView->setVisible(FALSE); 
 	}
 	
 	LLPanelLogin::show(	gViewerWindow->getWindowRectScaled(), login_callback, NULL );
