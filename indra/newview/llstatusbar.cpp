@@ -66,6 +66,8 @@
 
 // system includes
 #include "llwindowwin32.h" // for refresh rate and such
+#include "llfloaterreg.h"
+
 //
 // Globals
 //
@@ -89,6 +91,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 	mFPSCount(nullptr), // <polarity> FPS Counter in the status bar
 	mSGBandwidth(nullptr),
 	mSGPacketLoss(nullptr),
+	mBandwidthButton(NULL), // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 	mBtnStats(nullptr),
 	mBtnQuickSettings(nullptr),
 	mBtnVolume(nullptr),
@@ -105,6 +108,7 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
+	gSavedSettings.getControl("ShowNetStats")->getSignal()->connect(boost::bind(&LLStatusBar::updateNetstatVisibility, this, _2));
 
 	buildFromFile("panel_status_bar.xml");
 }
@@ -174,6 +178,22 @@ BOOL LLStatusBar::postBuild()
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
 	LLRect r;
+	
+	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+	r.set( x-((SIM_STAT_WIDTH*2)+2), y+MENU_BAR_HEIGHT-1, x, y+1);
+	LLButton::Params BandwidthButton;
+	BandwidthButton.name(std::string("BandwidthGraphButton"));
+	BandwidthButton.label("");
+	BandwidthButton.rect(r);
+	BandwidthButton.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
+	BandwidthButton.click_callback.function(boost::bind(&LLStatusBar::onBandwidthGraphButtonClicked, this));
+	mBandwidthButton = LLUICtrlFactory::create<LLButton>(BandwidthButton);
+	addChild(mBandwidthButton);
+	LLColor4 BandwidthButtonOpacity;
+	BandwidthButtonOpacity.setAlpha(0);
+	mBandwidthButton->setColor(BandwidthButtonOpacity);
+	// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+	
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
 	LLStatGraph::Params sgp;
 	sgp.name("BandwidthGraph");
@@ -202,7 +222,7 @@ BOOL LLStatusBar::postBuild()
 	pgp.precision(1);
 	pgp.per_sec(false);
 	LLStatGraph::Thresholds thresholds;
-	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
+	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1f).color(LLColor4::green))
 						.add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
 						.add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
 
@@ -229,6 +249,11 @@ BOOL LLStatusBar::postBuild()
 	mScriptOut = getChildView("scriptout");
 
 	mRefreshRate = LLWindowWin32::getRefreshRate();
+	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
+	if (!show_net_stats)
+	{
+		updateNetstatVisibility(LLSD(FALSE));
+	}
 
 	return TRUE;
 }
@@ -257,10 +282,6 @@ void LLStatusBar::refresh()
 	{
 		gMenuBarView->reshape(MENU_RIGHT, gMenuBarView->getRect().getHeight());
 	}
-
-	mSGBandwidth->setVisible(net_stats_visible);
-	mSGPacketLoss->setVisible(net_stats_visible);
-	mBtnStats->setEnabled(net_stats_visible);
 
 	// update the master volume button state
 	bool mute_audio = LLAppViewer::instance()->getMasterSystemAudioMute();
@@ -595,6 +616,25 @@ void LLStatusBar::onClickMediaToggle(void* data)
 	LLViewerMedia::setAllMediaEnabled(enable);
 }
 
+void LLStatusBar::updateNetstatVisibility(const LLSD& data)
+{
+	const S32 NETSTAT_WIDTH = (SIM_STAT_WIDTH + 2) * 2;
+	BOOL showNetStat = data.asBoolean();
+	//S32 translateFactor = (showNetStat ? -1 : 1);
+
+	mSGBandwidth->setVisible(showNetStat);
+	mSGPacketLoss->setVisible(showNetStat);
+	mBandwidthButton->setVisible(showNetStat); // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+
+	//LLRect rect = mFPSCount->getRect();
+	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
+	//mFPSCount->setRect(rect);
+
+	//rect = mBalancePanel->getRect();
+	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
+	//mBalancePanel->setRect(rect);
+}
+
 BOOL can_afford_transaction(S32 cost)
 {
 	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
@@ -604,6 +644,20 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 {
 	refresh();
 }
+
+// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+void LLStatusBar::onBandwidthGraphButtonClicked()
+{
+	if (gSavedSettings.getBOOL("FSUseStatsInsteadOfLagMeter"))
+	{
+		LLFloaterReg::toggleInstance("stats");
+	}
+	else
+	{
+		LLFloaterReg::toggleInstance("lagmeter");
+	}
+}
+// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC

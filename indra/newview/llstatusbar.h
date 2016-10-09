@@ -96,9 +96,18 @@ private:
 	static void onClickScreen(S32 x, S32 y);
 
 	static void onClickMediaToggle(void* data);
+
+	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+	/**
+	 * Handles clicks on the connection status indicator.
+	 */
+	void onBandwidthGraphButtonClicked();
+	// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
+
 	static void onClickBalance(void* data);
 
 private:
+	void updateNetstatVisibility(const LLSD& data);
 	LLTextBox	*mTextTime;
 
 	LLTextBox	*mFPSCount; // <polarity/>
@@ -111,6 +120,7 @@ private:
 	LLButton	*mBtnVolume;
 	LLTextBox	*mBoxBalance;
 	LLButton	*mMediaToggle;
+	LLButton	*mBandwidthButton; // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
 	LLFrameTimer	mFPSCountTimer; // <polarity/>
