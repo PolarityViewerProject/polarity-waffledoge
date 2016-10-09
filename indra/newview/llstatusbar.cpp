@@ -332,9 +332,14 @@ void LLStatusBar::refresh()
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
 	mFPSCountTimer.reset();
 
+	static LLCachedControl<bool> show_fps_meter(gSavedSettings, "PVUI_StatusBarShowFPSCounter", true);
+	if (mFPSCount == NULL || !show_fps_meter)
+	{
+		return;
+	}
 	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
 	auto current_fps_normalized = LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS);
-		// Cap the amount of decimals we return
+	// Cap the amount of decimals we return
 	if (current_fps_normalized > 100.f)
 	{
 		mFPSCount->setValue(llformat("%.0f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
