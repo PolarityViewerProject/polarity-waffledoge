@@ -120,6 +120,16 @@
 	 left_pad="10"
 	 bottom="-6"
 	 follows="left|bottom"/>
+	<check_box
+	 control_name="PVDerender_ClearTempOnTeleport"
+	 name="clear_on_tp_checkbox"
+	 label="Clear temporary on Teleport"
+	 font="SansSerif"
+	 height="24"
+	 width="150"
+	 left_pad="10"
+	 bottom="-6"
+	 follows="left|bottom"/>
 	<button
 	 name="close_btn"
 	 label="Close"
