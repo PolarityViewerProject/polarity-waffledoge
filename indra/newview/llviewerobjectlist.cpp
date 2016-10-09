@@ -83,9 +83,9 @@
 #include <algorithm>
 #include <iterator>
 
-#include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
-#include "fswsassetblacklist.h"
 #include "llfloaterreg.h"
+#include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
+#include "fsassetblacklist.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -322,6 +322,13 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	cached_dpp->unpackUUID(fullid, "ID");
 	cached_dpp->unpackU32(local_id, "LocalID");
 	cached_dpp->unpackU8(pcode, "PCode");
+
+	// <FS:Ansariel> Don't process derendered objects
+	if (mDerendered.end() != mDerendered.find(fullid))
+	{
+		return NULL;
+	}
+	// </FS:Ansariel>
 
 	objectp = findObject(fullid);
 
@@ -609,9 +616,9 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 #endif
 
-			if(FSWSAssetBlacklist::getInstance()->isBlacklisted(fullid,LLAssetType::AT_OBJECT))
+			if (FSAssetBlacklist::getInstance()->isBlacklisted(fullid, LLAssetType::AT_OBJECT))
 			{
-				LL_INFOS() << "Blacklisted object blocked." << LL_ENDL; 
+				LL_INFOS() << "Blacklisted object blocked." << LL_ENDL;
 				continue;
 			}
 
@@ -627,10 +634,14 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mNumNewObjects++;
 		}
 
+		// Gah, why bother spamming the log with messages we can't do
+		//  anything about?! -- TS
+#if 0
 		if (objectp->isDead())
 		{
 			LL_WARNS() << "Dead object " << objectp->mID << " in UUID map 1!" << LL_ENDL;
 		}
+#endif
 
 		//bool bCached = false;
 		if (compressed)
@@ -809,28 +820,32 @@ void LLViewerObjectList::updateApparentAngles(LLAgent &agent)
 	LLVOAvatar::cullAvatarsByPixelArea();
 }
 
-
-				// <polarity> TODO: re-add using a coroutine. See below.
-				#ifdef COROUTINE
-				// <FS:Cron> area search
-				// Update area search to have current information.
-				FSAreaSearch* area_search_floater = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
-				if( area_search_floater )
-				{
-					area_search_floater->updateObjectCosts(object_id, object_cost, link_cost, physics_cost, link_physics_cost);
-				}
-				// </FS:Cron> area search
-				#endif
 static LLTrace::BlockTimerStatHandle FTM_IDLE_COPY("Idle Copy");
 
 void LLViewerObjectList::update(LLAgent &agent)
 {
+	// <FS:Ansariel> Speed up debug settings
+	static LLCachedControl<bool> velocityInterpolate(gSavedSettings, "VelocityInterpolate");
+	static LLCachedControl<bool> pingInterpolate(gSavedSettings, "PingInterpolate");
+	static LLCachedControl<F32> interpolationTime(gSavedSettings, "InterpolationTime");
+	static LLCachedControl<F32> interpolationPhaseOut(gSavedSettings, "InterpolationPhaseOut");
+	static LLCachedControl<bool> animateTextures(gSavedSettings, "AnimateTextures");
+	static LLCachedControl<bool> freezeTime(gSavedSettings, "FreezeTime");
+	// </FS:Ansariel> Speed up debug settings
+
 	// Update globals
-	LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
-	LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
+	// </FS:Ansariel> Speed up debug settings
+	//LLViewerObject::setVelocityInterpolate( gSavedSettings.getBOOL("VelocityInterpolate") );
+	//LLViewerObject::setPingInterpolate( gSavedSettings.getBOOL("PingInterpolate") );
+	//
+	//F32 interp_time = gSavedSettings.getF32("InterpolationTime");
+	//F32 phase_out_time = gSavedSettings.getF32("InterpolationPhaseOut");
+	LLViewerObject::setVelocityInterpolate(velocityInterpolate);
+	LLViewerObject::setPingInterpolate(pingInterpolate);
 	
-	F32 interp_time = gSavedSettings.getF32("InterpolationTime");
-	F32 phase_out_time = gSavedSettings.getF32("InterpolationPhaseOut");
+	F32 interp_time = (F32)interpolationTime;
+	F32 phase_out_time = (F32)interpolationPhaseOut;
+	// </FS:Ansariel> Speed up debug settings
 	if (interp_time < 0.0 || 
 		phase_out_time < 0.0 ||
 		phase_out_time > interp_time)
@@ -842,7 +857,10 @@ void LLViewerObjectList::update(LLAgent &agent)
 	LLViewerObject::setPhaseOutUpdateInterpolationTime( interp_time );
 	LLViewerObject::setMaxUpdateInterpolationTime( phase_out_time );
 
-	gAnimateTextures = gSavedSettings.getBOOL("AnimateTextures");
+	// <FS:Ansariel> Speed up debug settings
+	//gAnimateTextures = gSavedSettings.getBOOL("AnimateTextures");
+	gAnimateTextures = animateTextures;
+	// </FS:Ansariel> Speed up debug settings
 
 	// update global timer
 	F32 last_time = gFrameTimeSeconds;
@@ -902,8 +920,10 @@ void LLViewerObjectList::update(LLAgent &agent)
 
 	std::vector<LLViewerObject*>::iterator idle_end = idle_list.begin()+idle_count;
 
-	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
-	if (freeze_time)
+	// <FS:Ansariel> Speed up debug settings
+	//if (gSavedSettings.getBOOL("FreezeTime"))
+	if (freezeTime)
+	// </FS:Ansariel> Speed up debug settings
 	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
@@ -1730,7 +1750,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 	LLColor4 group_own_below_water_color = 
 						LLUIColorTable::instance().getColor( "NetMapGroupOwnBelowWater" );
 
-	F32 max_radius = gSavedSettings.getF32("MiniMapPrimMaxRadius");
+	static LLCachedControl<F32> max_radius(gSavedSettings, "MiniMapPrimMaxRadius");
 
 	for (vobj_list_t::iterator iter = mMapObjects.begin(); iter != mMapObjects.end(); ++iter)
 	{
@@ -1755,7 +1775,7 @@ void LLViewerObjectList::renderObjectsForMap(LLNetMap &netmap)
 		// Limit the size of megaprims so they don't blot out everything on the minimap.
 		// Attempting to draw very large megaprims also causes client lag.
 		// See DEV-17370 and DEV-29869/SNOW-79 for details.
-		approx_radius = llmin(approx_radius, max_radius);
+		approx_radius = llmin(approx_radius, (F32)max_radius);
 
 		LLColor4U color = above_water_color;
 		if( objectp->permYouOwner() )
@@ -2010,17 +2030,18 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 	
 	updateActive(objectp);
 
-	// <FS:ND> We might have killed this object earlier, but it might get resurrected from fastcache. Kill it again to make sure it stays dead.
-	if( mDerendered.end() != mDerendered.find( uuid ) )
-		killObject( objectp );
-	// </FS:ND>
-
 	return objectp;
 }
 
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
+	// <FS:Ansariel> Don't create derendered objects
+	if (mDerendered.end() != mDerendered.find(uuid))
+	{
+		return NULL;
+	}
+	// </FS:Ansariel>
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)
@@ -2052,11 +2073,6 @@ LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRe
 	mObjects.push_back(objectp);
 
 	updateActive(objectp);
-
-	// <FS:ND> We might have killed this object earlier, but it might get resurrected from fastcache. Kill it again to make sure it stays dead.
-	if( mDerendered.end() != mDerendered.find( uuid ) )
-		killObject( objectp );
-	// </FS:ND>
 
 	return objectp;
 }
@@ -2288,16 +2304,31 @@ LLDebugBeacon::~LLDebugBeacon()
 }
 
 // <FS:ND> Helper function to purge the internal list of derendered objects on teleport.
-
-void LLViewerObjectList::resetDerenderList()
+void LLViewerObjectList::resetDerenderList(bool force /*= false*/)
 {
-	std::map< LLUUID, bool > oDerendered;
+	static LLCachedControl<bool> PVDerender_ClearTempOnTeleport(gSavedSettings, "PVDerender_ClearTempOnTeleport");
+	if (!PVDerender_ClearTempOnTeleport && !force)
+	{
+		return;
+	}
 
-	for( std::map< LLUUID, bool >::iterator itr = mDerendered.begin(); itr != mDerendered.end(); ++itr )
-		if( itr->second )
-			oDerendered[ itr->first ] = itr->second;
+	std::map< LLUUID, bool > oDerendered;
+	uuid_vec_t removed_ids;
+
+	for (std::map< LLUUID, bool >::iterator itr = mDerendered.begin(); itr != mDerendered.end(); ++itr)
+	{
+		if (itr->second)
+		{
+			oDerendered[itr->first] = itr->second;
+		}
+		else
+		{
+			removed_ids.push_back(itr->first);
+		}
+	}
 
 	mDerendered.swap( oDerendered );
+	FSAssetBlacklist::instance().removeItemsFromBlacklist(removed_ids);
 }
 
 // <FS:ND> Helper function to add items from global blacklist after teleport.

@@ -154,7 +154,7 @@
 // *NOTE: Please add files in alphabetical order to keep merges easy.
 
 #include "fsareasearch.h"
-#include "fsfloaterwsassetblacklist.h"
+#include "fsfloaterassetblacklist.h"
 // handle secondlife:///app/openfloater/{NAME} URLs
 class LLFloaterOpenHandler : public LLCommandHandler
 {
@@ -363,7 +363,7 @@ void LLViewerFloaterReg::registerFloaters()
 
 	// *NOTE: Please keep these alphabetized for easier merges
 	LLFloaterReg::add("area_search", "floater_fs_area_search.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<FSAreaSearch>);
-	LLFloaterReg::add("ws_asset_blacklist", "floater_asset_blacklist.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<FSFloaterWSAssetBlacklist>);
+	LLFloaterReg::add("fs_asset_blacklist", "floater_fs_asset_blacklist.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<FSFloaterAssetBlacklist>);
 	
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }

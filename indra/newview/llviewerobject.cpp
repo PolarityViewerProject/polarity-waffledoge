@@ -102,7 +102,7 @@
 #include "llmediaentry.h"
 #include "llfloaterperms.h"
 #include "llvocache.h"
-#include "fswsassetblacklist.h"
+#include "fsassetblacklist.h"
 
 //#define DEBUG_UPDATE_TYPE
 
@@ -5307,7 +5307,7 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 	}
 
 	// <FS:Ansariel> Asset blacklist
-	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(audio_uuid, LLAssetType::AT_SOUND))
+	if (FSAssetBlacklist::getInstance()->isBlacklisted(audio_uuid, LLAssetType::AT_SOUND))
 	{
 		return;
 	}

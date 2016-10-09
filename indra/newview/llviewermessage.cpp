@@ -122,7 +122,7 @@
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
 #include "fsareasearch.h"
-#include "fswsassetblacklist.h"
+#include "fsassetblacklist.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -4794,7 +4794,7 @@ void process_sound_trigger(LLMessageSystem *msg, void **)
 	// </FS:ND>
 
 	// <FS> Asset blacklist
-	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
 	{
 		return;
 	}
@@ -4858,7 +4858,7 @@ void process_preload_sound(LLMessageSystem *msg, void **user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
 	// <FS> Asset blacklist
-	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
 	{
 		return;
 	}
@@ -4906,7 +4906,7 @@ void process_attached_sound(LLMessageSystem *msg, void **user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
 	// <FS> Asset blacklist
-	if (FSWSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
+	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
 	{
 		return;
 	}

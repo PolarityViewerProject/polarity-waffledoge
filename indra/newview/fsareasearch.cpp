@@ -50,7 +50,7 @@
 #include "lltoolgrab.h"
 #include "llcombobox.h"
 #include "llnotificationsutil.h"
-#include "fswsassetblacklist.h"
+#include "fsassetblacklist.h"
 #include "llworld.h"
 #include "lltrans.h" // getString()
 #include "llagentcamera.h" // gAgentCamera
@@ -1615,7 +1615,7 @@ bool FSPanelAreaSearchList::onContextMenuItemClick(const LLSD& userdata) const
 					{
 						region_name = objectp->getRegion()->getName();
 					}
-					FSWSAssetBlacklist::getInstance()->addNewItemToBlacklist(object_id, mFSAreaSearch->mObjectDetails[object_id].name, region_name, LLAssetType::AT_OBJECT, true, true);
+					FSAssetBlacklist::getInstance()->addNewItemToBlacklist(object_id, mFSAreaSearch->mObjectDetails[object_id].name, region_name, LLAssetType::AT_OBJECT, true, true);
 					gObjectList.killObject(objectp);
 				}
 			}

@@ -315,6 +315,12 @@ public:
 
 	void			clearSearchString() { mSearchString.clear(); }
 
+	// <FS:Ansariel> Fix for FS-specific people list (radar)
+	void			setFilterString(const std::string& str);
+	void			setFilterColumn(S32 col) { mFilterColumn = col; }
+	bool			isFiltered(const LLScrollListItem* item) const;
+	// </FS:Ansariel> Fix for FS-specific people list (radar)
+
 	// support right-click context menus for avatar/group lists
 	enum ContextMenuType { MENU_NONE, MENU_AVATAR, MENU_GROUP };
 	void setContextMenu(const ContextMenuType &menu) { mContextMenuType = menu; }
@@ -517,13 +523,20 @@ private:
 	S32				mTotalStaticColumnWidth;
 	S32				mTotalColumnPadding;
 
+	// <FS:Ansariel> Fix for FS-specific people list (radar)
+	std::string		mFilterString;
+	S32				mFilterColumn;
+	bool			mIsFiltered;
+
 	// <FS:Ansariel> Get list of the column init params so we can re-add them
 	std::vector<LLScrollListColumn::Params> mColumnInitParams;
+
 	// <FS:Ansariel> Persists sort order of scroll lists
 	bool			mPersistSortOrder;
 	bool			mPersistedSortOrderLoaded;
 	std::string		mPersistedSortOrderControl;
 	// </FS:Ansariel>
+
 	// <FS:Ansariel> Option to only sort by one column
 	bool			mPrimarySortOnly;
 

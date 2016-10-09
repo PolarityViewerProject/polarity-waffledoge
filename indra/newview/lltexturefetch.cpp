@@ -64,7 +64,7 @@
 #include "llcorehttputil.h"
 
 #include "llhttpretrypolicy.h"
-#include "fswsassetblacklist.h" //For Asset blacklist
+#include "fsassetblacklist.h" //For Asset blacklist
 
 bool LLTextureFetchDebugger::sDebuggerEnabled = false ;
 LLTrace::EventStatHandle<LLUnit<F32, LLUnits::Percent> > LLTextureFetch::sCacheHitRate("texture_cache_hits");
@@ -1175,7 +1175,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 
 	if (mState == INIT)
 	{		
-		if(FSWSAssetBlacklist::getInstance()->isBlacklisted(mID,LLAssetType::AT_TEXTURE))
+		if(FSAssetBlacklist::getInstance()->isBlacklisted(mID,LLAssetType::AT_TEXTURE))
 		{
 			LL_INFOS() << "Blacklisted texture asset blocked." << LL_ENDL; 
 			mState = DONE;

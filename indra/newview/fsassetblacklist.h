@@ -1,10 +1,11 @@
 /**
- * @file fswsassetblacklist.h
+ * @file fsassetblacklist.h
  * @brief Asset Blacklist and Derender
  *
  * $LicenseInfo:firstyear=2012&license=fsviewerlgpl$
  * Phoenix Firestorm Viewer Source Code
  * Copyright (C) 2012, Wolfspirit Magic
+ * Copyright (C) 2016, Ansariel Hiller
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,8 +26,8 @@
  * $/LicenseInfo$
  */
 
-#ifndef FS_WSASSETBLACKLIST_H
-#define FS_WSASSETBLACKLIST_H
+#ifndef FS_ASSETBLACKLIST_H
+#define FS_ASSETBLACKLIST_H
 
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
@@ -34,30 +35,47 @@
 #include "llsingleton.h"
 #include "llassettype.h"
 
-// NOTE: We have a native hash method for LLUUID, no need for FSUUIDHash
+// <polarity> we have a LLUUID hash method, we don't need FSUUIDHash
 typedef boost::unordered_set<LLUUID> blacklisted_uuid_container_t;
-typedef std::map<LLAssetType::EType, blacklisted_uuid_container_t> blacklist_type_map_t;
+typedef std::map<LLAssetType::EType, boost::unordered_set<LLUUID>> blacklist_type_map_t;
 typedef boost::unordered_map<LLUUID, LLSD> blacklist_data_t;
+// <polarity>
 
-class FSWSAssetBlacklist : public LLSingleton<FSWSAssetBlacklist>
+class FSAssetBlacklist : public LLSingleton<FSAssetBlacklist>
 {
 public:
 	void init();
 	bool isBlacklisted(const LLUUID& id, LLAssetType::EType type);
-	void addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool permanent, bool save = true);
+	void addNewItemToBlacklist(const LLUUID& id, const std::string& name, const std::string& region, LLAssetType::EType type, bool permanent = true, bool save = true);
 	void addNewItemToBlacklistData(const LLUUID& id, const LLSD& data, bool save = true);
 	void removeItemFromBlacklist(const LLUUID& id);
+	void removeItemsFromBlacklist(const uuid_vec_t& ids);
+	void saveBlacklist();
 
 	blacklist_data_t getBlacklistData() const { return mBlacklistData; };
 
+	enum eBlacklistOperation
+	{
+		BLACKLIST_ADD,
+		BLACKLIST_REMOVE
+	};
+
+	typedef boost::signals2::signal<void(const LLSD& data, eBlacklistOperation op)> blacklist_changed_callback_t;
+	boost::signals2::connection setBlacklistChangedCallback(const blacklist_changed_callback_t::slot_type& cb)
+	{
+		return mBlacklistChangedCallback.connect(cb);
+	}
+
 private:
 	void loadBlacklist();
-	void saveBlacklist();
+	bool removeItem(const LLUUID& id);
 	bool addEntryToBlacklistMap(const LLUUID& id, LLAssetType::EType type);
 	
 	std::string				mBlacklistFileName;
 	blacklist_type_map_t	mBlacklistTypeContainer;
 	blacklist_data_t		mBlacklistData;
+
+	blacklist_changed_callback_t mBlacklistChangedCallback;
 };
 
-#endif // FS_WSASSETBLACKLIST_H
+#endif // FS_ASSETBLACKLIST_H
