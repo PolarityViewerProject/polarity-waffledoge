@@ -9460,7 +9460,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
 	view_listener_t::addMenu(new LLObjectDerender(), "Object.Derender");
 	view_listener_t::addMenu(new LLObjectDerenderPermanent(), "Object.DerenderPermanent"); // <FS:Ansariel> Optional derender & blacklist
-	//enable.add("Object.EnableDerender", boost::bind(&enable_derender_object));	// <FS:CR> FIRE-10082 - Don't enable derendering own attachments when RLVa is enabled as well
 
 	enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
 	enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
