@@ -404,7 +404,7 @@ bool KCWindlightInterface::loadFromParcel(LLParcel *parcel)
 	return false;
 }
 
-bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLSD& settings)
+bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLSD& settings) const
 {
 	bool found_settings = false;
 	try
@@ -581,7 +581,7 @@ LLUUID KCWindlightInterface::getOwnerID(LLParcel* parcel)
 	return parcel->getOwnerID();
 }
 
-std::string KCWindlightInterface::getOwnerName(LLParcel* parcel)
+std::string KCWindlightInterface::getOwnerName(LLParcel* parcel) const
 {
 	std::string owner;
 	if (parcel->getIsGroupOwned())

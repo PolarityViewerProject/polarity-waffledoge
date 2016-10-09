@@ -44,7 +44,7 @@ public:
 	~KCWindlightInterface();
 
 	void parcelChange();
-	/*virtual*/ BOOL tick(); // From LLEventTime
+	BOOL tick() override; // From LLEventTime
 
 	void applySettings(const LLSD& settings);
 	bool applySkySettings(const LLSD& settings);
@@ -53,12 +53,12 @@ public:
 
 	//bool chatCommand(std::string message, std::string from_name, LLUUID source_id, LLUUID owner_id);
 	bool loadFromParcel(LLParcel *parcel);
-	bool parseParcelForWLSettings(const std::string& desc, LLSD& settings);
+	bool parseParcelForWLSettings(const std::string& desc, LLSD& settings) const;
 	void onClickWLStatusButton();
 	void setTPing(bool value) { mTPing = value; }
 	bool haveParcelOverride(const LLEnvironmentSettings& new_settings);
 	
-	bool getWLset() { return mWLset; }
+	bool getWLset() const { return mWLset; }
 	
 private:
 	boost::signals2::connection mParcelMgrConnection;
@@ -66,8 +66,8 @@ private:
 	bool callbackParcelWL(const LLSD& notification, const LLSD& response);
 	bool callbackParcelWLClear(const LLSD& notification, const LLSD& response);
 	bool allowedLandOwners(const LLUUID& agent_id);
-	LLUUID getOwnerID(LLParcel* parcel);
-	std::string getOwnerName(LLParcel* parcel);
+	static LLUUID getOwnerID(LLParcel* parcel);
+	std::string getOwnerName(LLParcel* parcel) const;
 	void setWL_Status(bool pwl_status);
 	bool checkSettings();
 
