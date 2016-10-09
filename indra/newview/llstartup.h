@@ -62,7 +62,9 @@ typedef enum {
 	STATE_FIRST,					// Initial startup
 	STATE_BROWSER_INIT,             // Initialize web browser for login screen
 	STATE_PVDATA_WAIT,				// Wait for PVData data to be processed
+	STATE_AUDIO_INIT,				// Wait for Audio system to initialize
 	STATE_PVAGENTS_WAIT,			// Wait for PVData agents to be processed
+	STATE_LOGIN_CONFIRM_NOTIFICATON,
 	STATE_LOGIN_SHOW,				// Show login screen
 	STATE_LOGIN_WAIT,				// Wait for user input at login screen
 	STATE_LOGIN_CLEANUP,			// Get rid of login screen and start login

@@ -203,6 +203,7 @@
 #include "pvcommon.h"
 #include "pvrandom.h"
 #include "fsassetblacklist.h"
+#include "llprogressview.h"
 //
 // exported globals
 //
@@ -641,7 +642,35 @@ bool idle_startup()
 
 		// <polarity> Download PVData. Also initializes instance.
 		PVData::getInstance()->downloadData();
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
+	}
 
+	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
+		static LLFrameTimer pvdata_timer;
+		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
+		const F32 MAX_PVDATA_TIME = 15.f;
+		if (gPVData->getDataDone())
+		{
+			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_AUDIO_INIT);
+		}
+		else if (pvdata_time > MAX_PVDATA_TIME)
+		{
+			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_AUDIO_INIT);
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
+
+	if (STATE_AUDIO_INIT == LLStartUp::getStartupState())
+	{
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -755,33 +784,9 @@ bool idle_startup()
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
 		LLGridManager::getInstance()->initialize(std::string());
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
+		LLStartUp::setStartupState(STATE_LOGIN_SHOW);
 		return FALSE;
 	}
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		if (gPVData->getDataDone())
-		{
-			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-		}
-		else if (pvdata_time > MAX_PVDATA_TIME)
-		{
-			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
-
 
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
@@ -1027,6 +1032,9 @@ bool idle_startup()
 		// <FS:WS> Initalize Account based asset_blacklist
 		FSAssetBlacklist::getInstance()->init();
 
+		// <polarity> download agents data
+		gPVData->downloadAgents();
+
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
@@ -1085,7 +1093,6 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
 		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 		return FALSE;
 	}
@@ -1114,6 +1121,7 @@ bool idle_startup()
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
+		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
 		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridId();
 
 		// Update progress status and the display loop.
@@ -1274,6 +1282,16 @@ bool idle_startup()
 			{
 				// Pass the user information to the voice chat server interface.
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
+				// escape from login as soon as possible if user is not allowed.
+				// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
+				if (!(gPVData->isAllowedToLogin(gAgentID)))
+				{
+					//LLLoginInstance::getInstance()->disconnect();
+					gAgentID.setNull();
+					LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+					show_connect_box = true;
+					return FALSE;
+				}
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
 				LLStartUp::setStartupState( STATE_WORLD_INIT);
@@ -1281,30 +1299,41 @@ bool idle_startup()
 			}
 			else
 			{
-				// <polarity> Custom error message related to PVData
-				if (!gPVData->pvdata_error_message_.empty())
-				{
 				LLSD args;
-					args["ERROR_MESSAGE"] = gPVData->pvdata_error_message_;
-					LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-					transition_back_to_login_panel(gPVData->pvdata_error_message_);
-					show_connect_box = true;
-					return FALSE;
-				}
-				else
-				{
-					LLSD args;
 				args["ERROR_MESSAGE"] = emsg.str();
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-				transition_back_to_login_panel(emsg.str());
+				// <FS:Ansariel> Wait for notification confirmation
+				//transition_back_to_login_panel(emsg.str());
+				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+				// </FS:Ansariel>
 				show_connect_box = true;
 				return FALSE;
-				}
 			}
 		}
 		return FALSE;
 	}
+
+	// <FS:Ansariel> Wait for notification confirmation
+	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
+	{
+		display_startup();
+		gViewerWindow->getProgressView()->setVisible(FALSE);
+		// <polarity> Custom error message related to PVData
+		if (!gPVData->pvdata_error_message_.empty())
+		{
+			LLSD args;
+			args["ERROR_MESSAGE"] = gPVData->pvdata_error_message_;
+			LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
+			transition_back_to_login_panel(gPVData->pvdata_error_message_);
+			show_connect_box = true;
+			return FALSE;
+		}
+		display_startup();
+		ms_sleep(1);
+		return FALSE;
+	}
+	// </FS:Ansariel>
 
 	//---------------------------------------------------------------------
 	// World Init
@@ -2327,7 +2356,7 @@ bool idle_startup()
 		// This is a not-uncommon crash site, so surround it with
 		// LL_INFOS() output to aid diagnosis.
 		LL_INFOS("AppInit") << "Doing first audio_update_volume..." << LL_ENDL;
-		audio_update_volume();
+		audio_update_volume(true);
 		LL_INFOS("AppInit") << "Done first audio_update_volume." << LL_ENDL;
 
 		// reset keyboard focus to sane state of pointing at world
@@ -3337,16 +3366,6 @@ bool process_login_success_response()
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 	// Moved here to exit as soon as possible - Xenhat 2015.10.07
-	// <polarity> PVData
-	// Prevent particularly harmful users from using our viewer
-	// to do their deeds.
-	if (!(gPVData->isAllowedToLogin(gAgentID)))
-	{
-		LLLoginInstance::getInstance()->disconnect();
-		gAgentID.setNull();
-		// exit early
-		return false;
-	}
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);
