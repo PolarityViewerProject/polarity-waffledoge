@@ -1559,6 +1559,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_StatusBarShowFPSCounter</key>
+    <map>
+      <key>Comment</key>
+      <string>Show the current frames per second count in the statusbar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_SubstringSearchSeparator</key>
     <map>
       <key>Comment</key>
