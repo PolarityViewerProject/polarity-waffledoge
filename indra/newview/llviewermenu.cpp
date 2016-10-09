@@ -2684,7 +2684,7 @@ void derenderObject(bool permanent)
 			}
 
 		}
-		else if( (objp) && ((gAgentID != objp->getID()) || (objp->isAttachment()) || (objp->permYouOwner())))
+		else if( (objp) && (gAgentID != objp->getID()) && ((objp->isAttachment()) || (objp->permYouOwner())) )
 		{
 			select_mgr->deselectObjectOnly(objp);
 			return;
