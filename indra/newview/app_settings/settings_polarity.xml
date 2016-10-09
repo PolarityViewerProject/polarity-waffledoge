@@ -742,7 +742,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.1</real>
+      <real>-1.0</real>
     </map>
     <key>PVOverride_RenderSSAOFactor</key>
     <map>
@@ -753,7 +753,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.3</real>
+      <real>0.1</real>
     </map>
     <key>PVOverride_RenderSSAOMaxScale</key>
     <map>
@@ -764,7 +764,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>200</integer>
+      <integer>100</integer>
     </map>
     <key>PVOverride_RenderSSAOScale</key>
     <map>
@@ -775,7 +775,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>100.0</real>
+      <real>1000.0</real>
     </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>
