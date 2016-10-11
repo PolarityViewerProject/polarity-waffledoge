@@ -63,4 +63,26 @@
              function="CheckControl"
              parameter="PVUI_ClockUse24hFormat" />
     </menu_item_check>
+    <menu_item_check
+         label="Show FPS Meter"
+         layout="topleft"
+         name="PVUI_StatusBarShowFPSCounter">
+           <on_click
+             function="ToggleControl"
+             parameter="PVUI_StatusBarShowFPSCounter" /> 
+             <on_check
+             function="CheckControl"
+             parameter="PVUI_StatusBarShowFPSCounter" />
+    </menu_item_check>
+    <menu_item_check
+         label="Show Network statistics"
+         layout="topleft"
+         name="ShowNetStats">
+           <on_click
+             function="ToggleControl"
+             parameter="ShowNetStats" /> 
+             <on_check
+             function="CheckControl"
+             parameter="ShowNetStats" />
+    </menu_item_check>
 </menu>
