@@ -2138,7 +2138,7 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-#ifdef OMP_ENABLE
+#if defined(OpenMP_Support)
 	{
 		PVThreading::setTheadCount();
 		{

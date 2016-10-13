@@ -21,6 +21,7 @@ endif(NOT DEFINED COMMON_CMAKE_DIR)
 
  # <polarity>
 Include(Features)
+Include(OpenMP)
 
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
@@ -194,9 +195,6 @@ source_group("CMake Rules" FILES CMakeLists.txt)
 add_definitions(
   /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DOMP_ENABLE=${OMP_ENABLE}
-  /DOMP_IMAGEWORKER=${OMP_IMAGEWORKER}
-  /DOMP_MANUAL_THREADS=${OMP_MANUAL_THREADS}
   /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
   /DPVDATA_MOTD=${PVDATA_MOTD}
   /DPVDATA_MOTD_CHAT=${PVDATA_MOTD_CHAT}
@@ -230,9 +228,16 @@ MESSAGE("Preferred SIMD intrinsics:         PURE")
 else()
 MESSAGE("Preferred SIMD intrinsics:         Any")
 endif()
-MESSAGE("OpenMP:                            ${OMP_ENABLE}")
-MESSAGE("OpenMP Image worker:               ${OMP_IMAGEWORKER}")
-MESSAGE("OpenMP Manual Threading:           ${OMP_MANUAL_THREADS}")
+MESSAGE("OpenMP:                            ${OpenMP_Support}")
+if (OpenMP_Support)
+  MESSAGE("With:")
+  if(OpenMP_ImageWorker)
+    MESSAGE("OpenMP Image worker")
+  endif()
+  if(OpenMP_ManualThreads)
+    MESSAGE("OpenMP Manual Threading")
+  endif()
+endif()
 if(RELEASE_BUILD)
 MESSAGE("THIS IS A RELEASE BUILD: ANYONE NOT BANNED CAN USE IT")
 endif()

@@ -147,12 +147,6 @@ if (WINDOWS)
         )
   endif (USE_LTO)
 
-  if (OMP_ENABLE)
-   add_compile_options(/openmp)
-  else(OMP_ENABLE)
-   add_compile_options(/Qpar)
-  endif (OMP_ENABLE)
-
   if (WORD_SIZE EQUAL 32)
     add_compile_options(/arch:SSE2)
   endif (WORD_SIZE EQUAL 32)
