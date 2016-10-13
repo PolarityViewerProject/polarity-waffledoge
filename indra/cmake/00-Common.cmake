@@ -55,6 +55,10 @@ if (WINDOWS)
       "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Zi /Oi /Os /Ob2 /Zo /Zl /MD ${COMPILER_JOBS} /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
+  if(NOT DEFINED OpenMP_Support)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar")
+  endif()
+
   if (WORD_SIZE EQUAL 32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
   endif (WORD_SIZE EQUAL 32)
