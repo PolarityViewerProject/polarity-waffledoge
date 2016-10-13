@@ -92,6 +92,9 @@ private:
 
 	// stats view 
 	LLStatBar* mAxisStatsBar[6];
+
+//	//BD - Custom Joystick Mapping
+	LLButton* mAxisButton[16];
 };
 
 #endif
