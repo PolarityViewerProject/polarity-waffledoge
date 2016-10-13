@@ -392,8 +392,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				LLDrawInfo& params = **k;
 
 				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
-				{ //FIXME!
-					LL_WARNS_ONCE() << "Missing required components, skipping render batch." << LL_ENDL;
+				{
+					// <polarity> No point spamming this.
+					LL_DEBUGS() << "Missing required components, skipping render batch." << LL_ENDL;
 					continue;
 				}
 
