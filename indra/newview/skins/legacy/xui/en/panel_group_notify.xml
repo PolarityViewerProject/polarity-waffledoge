@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_visible="true"
+ height="70"
+ label="instant_message"
+ layout="topleft"
+ left="0"
+ name="panel_group_notify"
+ top="0"
+ width="305">
+	<string
+	 name="message_max_lines_count"
+	 value="20" />
+	<string
+	 name="subject_font"
+	 value="SANSSERIF_BIG" />
+	<string
+	 name="date_font"
+	 value="SANSSERIF" />
+	<panel
+	 background_visible="true"
+	 follows="top"
+	 height="30"
+	 label="header"
+	 layout="topleft"
+	 left="0"
+	 name="header"
+	 top="0"
+	 width="305">
+		<icon
+		 follows="all"
+		 height="20"
+		 layout="topleft"
+		 left="5"
+		 mouse_opaque="true"
+		 name="group_icon"
+		 top="5"
+		 width="20" />
+		<text
+		 follows="all"
+		 font="SansSerifBold"
+		 height="20"
+		 layout="topleft"
+		 left_pad="5"
+		 name="title"
+		 text_color="GroupNotifyTextColor"
+		 top="8"
+		 use_ellipses="true"
+		 value="Sender Name / Group Name"
+		 width="275" />
+	</panel>
+	<text_editor
+	 parse_urls="true"
+	 enabled="true"
+	 follows="all"
+	 height="0"
+	 layout="topleft"
+	 left="2"
+	 max_length="2147483647"
+	 name="message"
+	 parse_highlights="true"
+	 read_only="true"
+	 text_color="GroupNotifyTextColor"
+	 top_pad="0"
+	 type="string"
+	 use_ellipses="true"
+	 value="message"
+	 width="285"
+	 word_wrap="true" >
+	</text_editor>
+	<icon
+	 bottom="60"
+	 follows="left|bottom|right"
+	 height="17"
+	 layout="topleft"
+	 left="5"
+	 mouse_opaque="true"
+	 name="attachment_icon"
+	 width="15" />
+	<text
+	 top_delta="3"
+	 follows="left|bottom|right"
+	 font="SansSerifSmall"
+	 height="15"
+	 layout="topleft"
+	 left="25"
+	 name="attachment"
+	 parse_urls="false"
+	 text_color="GroupNotifyTextColor"
+	 value="Attachment"
+	 use_ellipses="true"
+	 width="190" />
+	<button
+	 bottom="65"
+	 follows="bottom"
+	 height="23"
+	 left_delta="190"
+	 label="Mark as read"
+	 name="btn_ok"
+	 width="85" />
+</panel>

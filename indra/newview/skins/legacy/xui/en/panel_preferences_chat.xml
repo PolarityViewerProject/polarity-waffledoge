@@ -1,0 +1,1076 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+	border="false"
+	height="408"
+	label="Text Chat"
+	layout="topleft"
+	name="general_chat_settings"
+	width="517">
+
+ <tab_container
+	layout="topleft"
+	follows="all"
+	top="5"
+	bottom="-1"
+	name="tab_container"
+	tab_min_width="50"
+	tab_position="top">
+ <panel
+	label="Chat"
+	border="false"
+	height="380"
+	layout="topleft"
+	top="0"
+	left="13"
+	width="517"
+	name="chat_tab">
+
+	<check_box
+		control_name="PlayTypingAnim"
+		height="16"
+		initial_value="true"
+		label="Play system typing animation"
+		tool_tip="Will not prevent correctly scripted AOs from detecting your typing state"
+		layout="topleft"
+		top_pad="15"
+		left="5"
+		name="play_typing_animation"
+		width="150">
+	</check_box>
+
+	<check_box
+		control_name="PVChat_HideTypingForAll"
+		height="16"
+		initial_value="true"
+		label="Don&apos;t show typing sound/anim for anyone"
+		tool_tip="Local ONLY. Others will still see you typing"
+		layout="topleft"
+		top_pad="5"
+		left="5"
+		name="play_typing_sound"
+		width="150">
+	</check_box>
+	<check_box
+		control_name="PVChat_HideIMTypingStatus"
+		height="16"
+		initial_value="true"
+		label="Don&apos;t send typing status to IM session"
+		tool_tip="Will not warn/notify others that you're typing something in their IM box"
+		layout="topleft"
+		top_pad="5"
+		left="5"
+		name="play_typing_sound"
+		width="150">
+	</check_box>
+	<check_box
+		control_name="PlayChatAnim"
+		height="16"
+		initial_value="true"
+		label="Play chat/shout/whisper animations"
+		tool_tip="Try it, you'll see."
+		layout="topleft"
+		top_pad="5"
+		left="5"
+		name="play_typing_sound"
+		width="150">
+	</check_box>
+	<check_box
+		follows="left|top"
+		height="16"
+		label="Show particles when scripts communicates"
+		tool_tip=""
+		left_delta="0"
+		top_pad="5"
+		name="chat_auto_close"
+		width="275"
+		control_name="EffectScriptChatParticles">
+	</check_box>
+	<check_box
+		follows="left|top"
+		height="16"
+		label="Automatically close chat bar when pressing Enter"
+		tool_tip="Will only close the torn off (detached) chat bar and window, not the CHUI floater."
+		left_delta="0"
+		top_pad="5"
+		name="chat_auto_close"
+		width="275"
+		control_name="CloseChatOnReturn"/>
+	<check_box
+		control_name="PVChat_NoKeyboardShout"
+		follows="left|top"
+		height="16"
+		label="Disable Ctrl+Enter to shout"
+		left_delta="0"
+		name="chat_cmd_toggle"
+		tool_tip="Prevents shouting with the Ctrl+Enter key combination."
+		top_pad="5"
+		width="275"/>
+	<check_box
+		control_name="PVChat_NoKeyboardWhisper"
+		follows="left|top"
+		height="16"
+		label="Disable Shift+Enter to Whisper"
+		left_delta="0"
+		name="chat_cmd_toggle"
+		tool_tip="Prevents whispering with the Shift+Enter key combination."
+		top_pad="5"
+		width="275"/>
+	<check_box
+		enabled="false"
+		height="16"
+		label="Forward offline IMs to my E-mail"
+		layout="topleft"
+		name="send_im_to_email"
+		left_delta="0"
+		top_pad="5"
+		width="330">
+	</check_box>
+
+	<check_box
+		control_name="SLURLTeleportDirectly"
+		height="16"
+		label="Teleport immediately when clicking SLURL"
+		layout="topleft"
+		name="tp_immediately_slurl_checkbox"
+		left_delta="0"
+		top_pad="5"
+		width="330">
+	</check_box>
+
+	<check_box
+		height="16"
+		control_name="PVUtils_ReportTotalScriptCountChanges"
+		label="Report when sim script count changes by"
+		layout="topleft"
+		name="chat_sim_script_change_report"
+		left_delta="0"
+		top_pad="5"
+		width="245">
+	</check_box>
+	<spinner
+		left_pad="0"
+		top_delta="-5"
+		height="10"
+		width="55"
+		decimal_digits="0"
+		increment="1"
+		min_val="1"
+		max_val="1500"
+		follows="top|left"
+		layout="topleft"
+		name="PVUtils_ReportTotalScriptCountChangesThreshold_spinner"
+		control_name="PVUtils_ReportTotalScriptCountChangesThreshold"/>
+
+	<panel
+	height="100"
+	left="300"
+	top="10"
+	width="212"
+	border="false"
+	name="chat_appearance">
+
+	<text
+		left="5"
+		top_pad="10"
+		follows="top|left"
+		layout="topleft"
+		width="140"
+		use_ellipses="false"
+		name="test_text"
+		tool_tip="text">
+		 Nearby Chat toast width:
+	</text>
+	<spinner
+		left_delta="135"
+		top_delta="-5"
+		height="10"
+		width="55"
+		decimal_digits="0"
+		increment="1"
+		min_val="300"
+		max_val="1500"
+		follows="top|left"
+		layout="topleft"
+		name="PVChat_NearbyToastWidth"
+		control_name="PVChat_NearbyToastWidth"
+		tool_tip="Controls the width of the nearby chat toast (pop-up)"/>
+
+	<text
+		layout="topleft"
+		left="5"
+		height="12"
+		name="chat_appearance_text"
+		width="75"
+		top_pad="20">
+		Font Size:
+	</text>
+	<!-- <radio_group
+	 height="25"
+	 layout="topleft"
+	 left_delta="5"
+	 name="text_size_radio"
+	 control_name="ChatFontSize"
+	 tool_tip="Text size"
+	 top_delta="15"
+	 width="200"> -->
+	<combo_box
+	 height="25"
+	 layout="topleft"
+	 left_delta="5"
+	 name="text_size_radio"
+	 control_name="ChatFontSize"
+	 tool_tip="Text size"
+	 top_delta="15"
+	 width="200">
+	<combo_box.item
+	 bottom="20"
+	 layout="topleft"
+	 label="Tiny"
+	 name="Tiny"
+	 value="-2"/>
+	<combo_box.item
+	 bottom="20"
+	 layout="topleft"
+	 label="VerySmall"
+	 name="VerySmall"
+	 value="-1"/>
+	<combo_box.item
+	 bottom="20"
+	 layout="topleft"
+	 label="Small"
+	 name="Small"
+	 value="0"/>
+	<combo_box.item
+	 bottom="20"
+	 left_delta="60"
+	 layout="topleft"
+	 label="Medium"
+	 name="Medium"
+	 value="1"/>
+	 <combo_box.item
+	 bottom="20"
+	 left_delta="70"
+	 layout="topleft"
+	 label="Big"
+	 name="Big"
+	 value="2"/>
+	 <combo_box.item
+	 bottom="20"
+	 left_delta="70"
+	 layout="topleft"
+	 label="Huge"
+	 name="Huge"
+	 value="3"/>
+	<!-- </radio_group> -->
+    </combo_box>
+	<check_box
+		control_name="UseChatBubbles"
+		height="16"
+		label="Use bubble chat"
+		tool_tip="Show chat in a bubble under name tags"
+		layout="topleft"
+		left_delta="0"
+		top_pad="5"
+		name="bubble_text_chat"
+		width="330">
+	</check_box>
+	</panel>
+
+	<text
+		layout="bottomleft"
+		text_color="White"
+		height="17"
+		left="10"
+		bottom="70"
+		width="45">
+		Save:
+	</text>
+
+	<combo_box
+		enabled="false"
+		control_name="KeepConversationLogTranscripts"
+		height="23"
+		layout="bottomleft"
+		name="chat_font_size"
+		left="87"
+		bottom_delta="0"
+		width="165">
+		<item
+			label="Log and transcripts"
+			value="2"/>
+		<item
+			label="Log only"
+			value="1"/>
+		<item
+			label="No log or transcripts"
+			value="0"/>
+	</combo_box>
+
+	<button
+		enabled="false"
+		height="23"
+		label="Clear log..."
+		layout="topleft"
+		left_pad="5"
+		bottom_delta="0"
+		name="clear_log"
+		width="90">
+		<commit_callback
+			function="Pref.ClearLog" />
+	</button>
+
+	<button
+		enabled="false"
+		height="23"
+		label="Delete transcripts..."
+		layout="topleft"
+		left_pad="5"
+		bottom_delta="0"
+		name="delete_transcripts"
+		width="145">
+		<button.commit_callback
+			function="Pref.DeleteTranscripts" />
+	</button>
+
+	<text
+		layout="bottomleft"
+		left="10"
+		text_color="White"
+		height="12"
+		bottom="45"
+		width="55">
+		Location:
+	</text>
+
+	<line_editor
+		control_name="InstantMessageLogPath"
+		border_style="line"
+		border_thickness="1"
+		font="SansSerif"
+		height="23"
+		layout="topleft"
+		left_pad="20"
+		text_pad_left="5"
+		name="log_path_string"
+		top_delta="-5"
+		width="312">
+	</line_editor>
+
+	<button
+		enabled="false"
+		height="23"
+		label="Browse..."
+		label_selected="Browse"
+		layout="topleft"
+		left_pad="5"
+		name="log_path_button"
+		bottom_delta="0"
+		width="95">
+	<commit_callback function="Pref.LogPath" />
+	</button>
+	<button
+	height="23"
+	label="Translation..."
+	layout="bottomleft"
+	left="10"
+	name="ok_btn"
+	bottom="5"
+	width="159">
+	<commit_callback
+		function="Pref.TranslationSettings" />
+ </button>
+ <button
+	height="23"
+	layout="topleft"
+	top_pad="-23"
+	left_pad="5"
+	name="autoreplace_showgui"
+	commit_callback.function="Pref.AutoReplace"
+	label="Auto-Replace..."
+	width="159">
+ </button>
+ <button
+	height="23"
+	layout="topleft"
+	top_pad="-23"
+	left_pad="5"
+	name="spellcheck_showgui"
+	commit_callback.function="Pref.SpellChecker"
+	label="Spell Checking..."
+	width="159">
+ </button>
+ </panel><!--End of chat tab-->
+ <panel
+	label="Appearance"
+	border="false"
+	height="500"
+	layout="topleft"
+	name="im_appearance_settings"
+	top_pad="0"
+	left="13"
+	width="517">
+			<!--<polarity> PLVR-288 Moderators text and name style
+<FS:HG> FS-1734 seperate name and text styles for moderator-->
+			<check_box
+			 layout="topleft"
+			 follows="left|top"
+	 top_pad="10"
+			 left="5"
+			 width="50"
+			 height="20"
+			 control_name="PVChat_HighlightGroupMods"
+			 name="PVChat_HighlightGroupMods"
+			 label="Enable group moderator message highlighting"/>
+			<text
+			 name="Moderator Name Style"
+			 layout="topleft"
+			 follows="left|top"
+			 top_pad="3"
+			 left="20"
+			 height="16"
+			 width="75">
+			Name Style:
+			</text>
+			<combo_box
+			 enabled_control="PVChat_HighlightGroupMods"
+			 control_name="PVChat_ModNameStyle"
+			 layout="topleft"
+			 follows="left|top"
+			 height="20"
+			 left_pad="10"
+			 top_delta="-3"
+			 name="mod_name_style"
+			 width="170">
+			<combo_box.item
+			 label="Normal"
+			 name="normal"
+			 value="0" />
+			<combo_box.item
+			 label="Bold"
+			 name="BOLD"
+			 value="1" />
+			<combo_box.item
+			 label="Italic"
+			 name="ITALIC"
+			 value="2" />
+			<combo_box.item
+			 label="Bold &amp; Italic"
+			 name="BOLDITALIC"
+			 value="3" />
+			<combo_box.item
+			 label="Underline"
+			 name="UNDERLINE"
+			 value="4" />
+			<combo_box.item
+			 label="Bold &amp; Underline"
+			 name="BOLDUNDERLINE"
+			 value="5" />
+			<combo_box.item
+			 label="Italic &amp; Underline"
+			 name="ITALICUNDERLINE"
+			 value="6" />
+			<combo_box.item
+			 label="Bold, Italic &amp; Underline"
+			 name="BOLDITALICUNDERLINE"
+			 value="7" />
+			</combo_box>
+			<text
+			 name="Moderator Text Style"
+			 layout="topleft"
+			 follows="left|top"
+			 top_pad="3"
+			 left="20"
+			 height="16"
+			 width="75">
+			Text Style:
+			</text>
+			<combo_box
+			 enabled_control="PVChat_HighlightGroupMods"
+			 control_name="PVChat_ModTextStyle"
+			 layout="topleft"
+			 follows="left|top"
+			 height="20"
+			 left_pad="10"
+			 top_delta="-3"
+			 name="mod_text_style"
+			 width="170">
+			<combo_box.item
+			label="Normal"
+			name="normal"
+			value="0" />
+			<combo_box.item
+			label="Bold"
+			name="BOLD"
+			value="1" />
+			<combo_box.item
+			label="Italic"
+			name="ITALIC"
+			value="2" />
+			<combo_box.item
+			label="Bold &amp; Italic"
+			name="BOLDITALIC"
+			value="3" />
+			<combo_box.item
+			label="Underline"
+			name="UNDERLINE"
+			value="4" />
+			<combo_box.item
+			label="Bold &amp; Underline"
+			name="BOLDUNDERLINE"
+			value="5" />
+			<combo_box.item
+			label="Italic &amp; Underline"
+			name="ITALICUNDERLINE"
+			value="6" />
+			<combo_box.item
+			label="Bold, Italic &amp; Underline"
+			name="BOLDITALICUNDERLINE"
+			value="7" />
+			</combo_box>
+		<!--</FS:HG> FS-1734 seperate name and text styles for moderator-->
+ </panel><!--End of appearance tab-->
+ <panel
+	label="Notifications"
+	border="false"
+	height="500"
+	layout="topleft"
+	name="im_notification_settings"
+	top_pad="0"
+	left="13"
+	width="517">
+	<text
+		layout="topleft"
+		left="10"
+		height="12"
+		name="friend_ims"
+		width="145"
+		top_pad="142">
+	Friend IMs:
+	</text>
+	<text
+		layout="topleft"
+		left="10"
+		height="12"
+		name="non_friend_ims"
+		width="145"
+		top_pad="15">
+	Non-friend IMs:
+	</text>
+	<text
+		layout="topleft"
+		left="10"
+		height="13"
+		name="conference_ims"
+		width="145"
+		top_pad="15">
+	Conference IMs:
+	</text>
+	<text
+		layout="topleft"
+		left="10"
+		height="12"
+		name="object_ims"
+		width="145"
+		top_pad="15">
+	Objects IMs:
+	</text>
+	<text
+		layout="topleft"
+		left="10"
+		height="13"
+		name="group_chat"
+		width="145"
+		top_pad="15">
+	Group chat:
+	</text>
+	<text
+		layout="topleft"
+		left="10"
+		height="12"
+		name="nearby_chat"
+		width="145"
+		top_pad="15">
+	Nearby chat:
+	</text>
+	<combo_box
+		control_name="NotificationFriendIMOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top="15"
+		name="FriendIMOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolbarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+
+	<combo_box
+		control_name="NotificationNonFriendIMOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top_pad="5"
+		name="NonFriendIMOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolbarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+	<combo_box
+		control_name="NotificationConferenceIMOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top_pad="5"
+		name="ConferenceIMOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolbarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+	<combo_box
+		control_name="NotificationObjectIMOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top_pad="5"
+		name="ObjectIMOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolbarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+	<combo_box
+		control_name="NotificationGroupChatOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top_pad="5"
+		name="GroupChatOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolbarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+
+	<combo_box
+		control_name="NotificationNearbyChatOptions"
+		height="23"
+		layout="topleft"
+		left="160"
+		top_pad="5"
+		name="NearbyChatOptions"
+		width="223">
+	<item
+		label="Open Conversations window"
+		name="OpenConversationsWindow"
+		value="openconversations"/>
+	<item
+		label="Pop up the message"
+		name="PopUpMessage"
+		value="toast"/>
+	<item
+		label="Flash toolbar button"
+		name="FlashToolBarButton"
+		value="flash"/>
+	<item
+		label="No action"
+		name="NoAction"
+		value="noaction"/>
+	</combo_box>
+	<text
+		layout="topleft"
+		left="10"
+		height="13"
+		name="notifications_alert"
+		width="500"
+		top_pad="140"
+		visible="true"
+		text_color="DrYellow">
+	To temporarily stop all notifications, use Communicate &gt; Do Not Disturb.
+	</text>
+
+	<text
+		layout="topleft"
+		left="10"
+		name="play_sound"
+		width="75"
+		top_pad="10"
+		visible="true">
+	Play sound:
+	</text>
+	<check_box
+		control_name="PlaySoundNearbyChatIM"
+		height="16"
+		label="Nearby Chat"
+		layout="topleft"
+		left="25"
+		top="240"
+		name="play_sound_nearby_chat_im"
+		width="70" />
+	<check_box
+		control_name="PlaySoundNewConversation"
+		height="16"
+		label="New IM/Conversation"
+		layout="topleft"
+		left_delta="0"
+		top_pad="5"
+		name="play_sound_new_im"
+		width="70" />
+	<check_box
+		control_name="PlaySoundObjectIM"
+		height="16"
+		label="Every Object IM"
+		layout="topleft"
+		left_delta="0"
+		top_pad="5"
+		name="play_sound_object_im"
+		width="70" />
+	<check_box
+		control_name="PlaySoundIncomingVoiceCall"
+		height="16"
+		label="Voice call"
+		layout="topleft"
+		left_delta="0"
+		top_pad="5"
+		name="incoming_voice_call"
+		width="90" />
+	<check_box
+		control_name="PlaySoundGroupChatIM"
+		height="16"
+		label="Every Group IM"
+		layout="topleft"
+		name="play_sound_group_chat_im"
+		left_pad="70"
+		top="240"
+		width="80" />
+	 <check_box
+		control_name="PlaySoundFriendIM"
+		height="16"
+		label="Every Friend IM"
+		layout="topleft"
+		name="play_sound_friend_im"
+		left_pad="-80"
+		top_pad="5" />
+	 <check_box
+		control_name="PlaySoundNonFriendIM"
+		height="16"
+		label="Every Non-Friend IM"
+		layout="topleft"
+		name="play_sound_non_friend_im"
+		left_pad="-80"
+		top_pad="5" />
+	<check_box
+		control_name="PlaySoundConferenceIM"
+		height="16"
+		label="Every Conference IM"
+		layout="topleft"
+		left_pad="70"
+		top="240"
+		name="play_sound_conference_im"
+		width="80" />
+	<check_box
+		control_name="PlaySoundTeleportOffer"
+		height="16"
+		label="TP offer"
+		layout="topleft"
+		left_pad="-80"
+		top_pad="5"
+		name="teleport_offer"
+		width="150" />
+	<check_box
+		control_name="PlaySoundInventoryOffer"
+		height="16"
+		label="Inventory offer"
+		layout="topleft"
+		left_delta="0"
+		top_pad="5"
+		name="inventory_offer"
+		width="150" />
+</panel> <!--end of Notifications Tab-->
+ <panel
+	label="Commands"
+	border="false"
+	height="500"
+	layout="topleft"
+	name="commands_settings"
+	top="0"
+	left="13"
+	width="517">
+	<check_box
+		top_pad="15"
+		follows="left|top"
+		height="16"
+		label="Enable chat bar commands"
+		left="5"
+		name="chat_cmd_toggle"
+		width="270"
+		control_name="PVChat_Command_Enable"/>.
+	<!--dd-->
+	<text
+		top_pad="10"
+		left="8"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_DrawDistance_txt"
+		width="220">
+		Change Draw Dist (usage: cmd meters)
+	</text>
+	<line_editor
+		top_pad="0"
+		left_delta="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_DrawDistance"
+		control_name="PVChat_Command_DrawDistance"
+		width="220"/>
+	<!--gth-->
+	<text
+		top_pad="10"
+		left_delta="0"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_Height_txt"
+		width="220">
+		Teleport to height (0-8192)
+	</text>
+	<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Height"
+		control_name="PVChat_Command_Height"
+		width="220"/>
+	<!--flr-->
+	<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_Ground_txt"
+		width="220">
+		Teleport to ground
+	</text>
+	<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Ground"
+		control_name="PVChat_Command_Ground"
+		width="220"/>
+	<!--pos-->
+	<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_Pos_txt"
+		width="220">
+		Teleport to position (usage: cmd x y z)
+	</text>
+	<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Pos"
+		control_name="PVChat_Command_Pos"
+		width="220"/>
+	<!--mapto-->
+	<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_Mapto_txt"
+		width="220">
+		Teleport to region
+	</text>
+	<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Mapto"
+		control_name="PVChat_Command_Mapto"
+		width="220"/>
+	<!--clr-->
+	<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_ClearNearby_txt"
+		width="220">
+		Clear contents of nearby chat
+	</text>
+	<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_ClearNearby"
+		control_name="PVChat_Command_ClearNearby"
+		width="220"/>
+		<!--home-->
+		<text
+		top="41"
+		follows="left|top"
+		left_pad="30"
+		height="16"
+		name="PVChat_Command_Home_txt"
+		width="220">
+		Teleport Home
+		</text>
+		<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Home"
+		control_name="PVChat_Command_Home"
+		width="220"/>
+		<!--sethome-->
+		<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_SetHome_txt"
+		width="220">
+		Set Home Location
+		</text>
+		<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_SetHome"
+		control_name="PVChat_Command_SetHome"
+		width="220"/>
+		<!--reserved-->
+		<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="reserved_txt"
+		width="220">
+		Calculator
+		</text>
+		<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_Calc"
+		control_name="PVChat_Command_Calc"
+		width="220"/>
+		<!--rezplat-->
+		<text
+		top_pad="10"
+		follows="left|top"
+		height="16"
+		name="PVChat_Command_RezPlat_txt"
+		width="220">
+		Rez a platform (usage: cmd size)
+		</text>
+		<line_editor
+		top_pad="0"
+		follows="left|top"
+		height="20"
+		max_length_chars="256"
+		text_pad_left="5"
+		name="PVChat_Command_RezPlat"
+		control_name="PVChat_Command_RezPlat"
+		width="220"/>
+		<slider
+		top_pad="5"
+		name="PVChat_Command_RezPlatSize"
+		control_name="PVChat_Command_RezPlatSize"
+		decimal_digits="0"
+		follows="left|top"
+		height="18"
+		increment="1"
+		label="Width"
+		label_width="30"
+		max_val="64"
+		min_val="1"
+		show_text="true"
+		width="226"
+		tool_tip="Default size of rezzed platform when size is not provided with command"/>
+</panel>
+</tab_container>
+</panel>
