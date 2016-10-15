@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
-  legacy_header_height="18"
   bevel_style="none"
   border_style="line"
   can_resize="true"
-  height="582"
+  height="560"
   layout="topleft"
   min_height="271"
-  min_width="328"
+  min_width="575"
   name="script ed float"
   help_topic="script_ed_float"
   save_rect="true"
-  title="SCRIPT: NEW SCRIPT"
+  title="[S] New Script"
   width="508">
   <floater.string
     name="not_allowed">
@@ -23,7 +22,7 @@
   </floater.string>
   <floater.string
     name="Title">
-    SCRIPT: [NAME]
+    [NAME]
   </floater.string>
   <floater.string
     name="experience_enabled">
@@ -50,69 +49,85 @@
      
     border_style="line"
     follows="left|top|right|bottom"
-    height="499"
+    height="552"
     layout="topleft"
-    left="10"
+    left="5"
     name="script ed panel"
-    top="16"
-    width="501" />
+    top="0"
+    width="497">
+  </panel>
   <button
     follows="left|bottom"
-    height="23"
+    height="31"
     label="Reset"
     label_selected="Reset"
     layout="topleft"
     name="Reset"
-    left="10"
-    width="85" />
+    left="4"
+    top_pad="-26"
+    width="55">
+  </button>
   <check_box
-    left_delta="90"
-    top_delta="3"
     enabled="false"
-    follows="left|bottom"
-    font="SansSerif"
-    height="18"
-    initial_value="true"
-    label="Running"
-    layout="topleft"
-    name="running"
-    width="205" />
-  <check_box
-    left_delta="140"
-    enabled="true"
     follows="left|bottom"
     font="SansSerif"
     height="18"
     initial_value="true"
     label="Mono"
     layout="topleft"
+    left_pad="0"
     name="mono"
-    width="100" />
-  <check_box width="130"
-             height="21"
+    top_delta="-1"
+    width="70">
+  </check_box>
+  <check_box
+    enabled="true"
+    follows="left|bottom"
+    font="SansSerif"
+    height="18"
+    initial_value="true"
+    label="Running"
+    layout="topleft"
+    left_delta="0"
+    name="running"
+    top_pad="-3"
+    width="65">
+  </check_box>
+  <check_box
              enabled="false"
-             left="9"
-             top_pad="10"
+    follows="left|bottom"
+    height="18"
+    label="Experience"
              layout="topleft"
-             follows="bottom|left"
-             label="Use Experience:"
-             name="enable_xp"/>
+    left_pad="5"
+    name="enable_xp"
+    top_delta="0"
+    width="90">
+  </check_box>
   <combo_box
-    label=""
-    top_pad="-21"
-    left="149"
-    right="467"
+    label="Experiences..."
+    top_delta="-14"
+    height="31"
+    left_pad="0"
+    right="379"
     layout="topleft"
     follows="left|bottom|right"
-    visible="false"
-    name="Experiences..."/>
+    visible="true"
+    name="Experiences...">
+    <combo_box.item
+      label="Fegit cat experience"
+      name="asdfmovie"
+      value="fegit">
+    </combo_box.item>
+  </combo_box>
   <button label="&gt;"
           name="view_profile"
-          height="23"
+    height="31"
           width="23"
-          right="496"
+    right="402"
           layout="topleft"
-          top_pad="-23"
+    top_delta="0"
           follows="right"
-          visible="false"/>
+    visible="true">
+  </button>
 </floater>
