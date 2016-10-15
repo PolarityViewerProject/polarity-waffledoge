@@ -671,33 +671,51 @@ void LLViewerJoystick::moveAvatar(bool reset)
 			{
 				button_held = true;
 		if(gAgent.getFlying())
+		{
 				gAgent.setFlying(FALSE);
+		}
 		else
+		{
 			gAgent.setFlying(TRUE);
 		}
+	}
 	else if (!getJoystickButton(buttons[0]) && button_held)
+	{
 		button_held = false;
+	}
 	if (getJoystickButton(buttons[3]) && !w_button_held)
 		{
 		w_button_held = true;
 		if(gAgent.getAlwaysRun())
+		{
 			gAgent.clearAlwaysRun();
+		}
 		else
+		{
 			gAgent.setAlwaysRun();
 		}
+	}
 	else if (!getJoystickButton(buttons[3]) && w_button_held)
+	{
 		w_button_held = false;
+	}
 
 	if (getJoystickButton(buttons[4]) && !m_button_held)
 	{
 		m_button_held = true;
 		if(gAgentCamera.cameraMouselook())
+		{
 			gAgentCamera.changeCameraToDefault();
+		}
 		else
+		{
 			gAgentCamera.changeCameraToMouselook();
+		}
 	}
 	else if (!getJoystickButton(buttons[4]) && m_button_held)
+	{
 		m_button_held = false;
+	}
 
 	F32 axis_scale[] =
 	{
