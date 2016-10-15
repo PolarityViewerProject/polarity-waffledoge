@@ -79,8 +79,7 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
-//calculate decreases in ambient lighting when crowded out (SSAO)
-float calcAmbientOcclusion(vec4 pos, vec3 norm)
+vec2 getKern(int i)
 {
 	vec2 kern[8];
 	// exponentially (^2) distant occlusion samples spread around origin
@@ -92,60 +91,62 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	kern[5] = vec2(-0.7071, -0.7071) * 0.750*0.750;
 	kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
 	kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
+       
+	return kern[i];
+}
 
+//calculate decreases in ambient lighting when crowded out (SSAO)
+float calcAmbientOcclusion(vec4 pos, vec3 norm)
+{
+	float ret = 1.0;
 
 	vec2 pos_screen = vary_fragcoord.xy;
 	vec3 pos_world = pos.xyz;
 	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
-
-	// We treat the first sample as the origin, which definitely doesn't obscure itself thanks to being visible for sampling in the first place.
-	float points = 1.0;
-	float angle_hidden = 0.0;
 		
-	// use a kernel scale that diminishes with distance.
-	// a scale of less than 32 is just wasting good samples, though.
-	float scale = max(32.0, min(ssao_radius / -pos.z, ssao_max_radius));
-
+	float angle_hidden = 0.0;
+	float points = 0;
+		
+	float scale = min(ssao_radius / -pos_world.z, ssao_max_radius);
+	
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
-		vec2 samppos_screen = pos_screen + scale * reflect(kern[i], noise_reflect);
-
-
+		vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
 		vec3 samppos_world = getPosition(samppos_screen).xyz; 
-			
-		vec3 diff = samppos_world - pos.xyz;
-
-			if (diff.z < ssao_factor && diff.z != 0.0)
-		{
-			float dist = length(diff);
-				float angrel = max(0.0, dot(norm.xyz, diff/dist));
-				float distrel = 1.0/(1.0+dist*dist);
-
-			float samplehidden = min(angrel, distrel);
-
-			angle_hidden += (samplehidden);
-			points += 1.0;
-		}
-	}
-
-	angle_hidden /= points;
 		
-	float rtn = (1.0 - angle_hidden);
+		vec3 diff = pos_world - samppos_world;
+		float dist2 = dot(diff, diff);
+			
+		// assume each sample corresponds to an occluding sphere with constant radius, constant x-sectional area
+		// --> solid angle shrinking by the square of distance
+		//radius is somewhat arbitrary, can approx with just some constant k * 1 / dist^2
+		//(k should vary inversely with # of samples, but this is taken care of later)
+		
+		float funky_val = (dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) ? 1.0 : 0.0;
+		angle_hidden = angle_hidden + funky_val * min(1.0/dist2, ssao_factor_inv);
+			
+		// 'blocked' samples (significantly closer to camera relative to pos_world) are "no data", not "no occlusion" 
+		float diffz_val = (diff.z > -1.0) ? 1.0 : 0.0;
+		points = points + diffz_val;
+	}
+		
+	angle_hidden = min(ssao_factor*angle_hidden/points, 1.0);
+	
+	float points_val = (points > 0.0) ? 1.0 : 0.0;
+	ret = (1.0 - (points_val * angle_hidden));
 
-	return (rtn * rtn);
+	ret = max(ret, 0.0);
+	return min(ret, 1.0);
 }
 
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	
-	//try doing an unproject here
-	
 	vec4 pos = getPosition(pos_screen);
-	
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
-	norm = decode_normal(norm.xy);
+	
+	norm = decode_normal(norm.xy); // unpack norm
 		
 	frag_color[0] = 1.0;
 	frag_color[1] = calcAmbientOcclusion(pos, norm);
