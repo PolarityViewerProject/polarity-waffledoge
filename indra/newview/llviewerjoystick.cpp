@@ -369,8 +369,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentJump()
 {
-//	//BD - Xbox360 Controller Support
-    gAgent.moveUp(1, false);
+	// <NiranV:Black Dragon> Xbox360 Controller Support
+	gAgent.moveUp(1, false);
 }
 
 // -----------------------------------------------------------------------------
@@ -378,12 +378,12 @@ void LLViewerJoystick::agentSlide(F32 inc)
 {
 	if (inc < 0.f)
 	{
-//		//BD - Xbox360 Controller Support
+		// <NiranV:Black Dragon> Xbox360 Controller Support
 		gAgent.moveLeft(1, false);
 	}
 	else if (inc > 0.f)
 	{
-//		//BD - Xbox360 Controller Support
+		// <NiranV:Black Dragon> Xbox360 Controller Support
 		gAgent.moveLeft(-1, false);
 	}
 }
@@ -416,13 +416,13 @@ void LLViewerJoystick::agentFly(F32 inc)
 		{
 			gAgent.setFlying(true);
 		}
-//		//BD - Xbox360 Controller Support
+		//BD - Xbox360 Controller Support
 		gAgent.moveUp(1, false);
 	}
 	else if (inc > 0.f)
 	{
 		// crouch
-//		//BD - Xbox360 Controller Support
+		//BD - Xbox360 Controller Support
 		gAgent.moveUp(-1, false);
 	}
 }
