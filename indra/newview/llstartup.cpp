@@ -640,8 +640,14 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
-		// <polarity> Download PVData. Also initializes instance.
-		PVData::getInstance()->downloadData();
+		// <polarity> PVData support
+		// Create PVData instance. I put this here because we only need this call once.
+		// If the runtime loses instance, we have bigger problems.
+		gPVData = PVData::getInstance();
+		// Set up initial URL.
+		PVData::getInstance()->init(gSavedSettings.getBOOL("PVData_UseTestingDataSource"));
+		// Download Data.
+		gPVData->downloadData();
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
 	}
 
@@ -671,6 +677,7 @@ bool idle_startup()
 
 	if (STATE_AUDIO_INIT == LLStartUp::getStartupState())
 	{
+		// </polarity>
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.

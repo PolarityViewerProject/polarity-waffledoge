@@ -74,6 +74,12 @@ std::vector<std::string> PVData::PVSearchSeparatorAssociation
 
 static U32 PVSearchSeparatorSelected = gPVData->separator_space;
 
+
+void PVData::init(const bool testing_branch)
+{
+	pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (testing_branch ? std::string("live/") : std::string("test/")) + std::to_string(6) + "/";
+}
+
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
 // ##     ##    ##       ##    ##     ##    ##       ##     ## ##         ##  ##
@@ -113,7 +119,7 @@ void downloadComplete( LLSD const &aData, std::string const &aURL )
 	LLSD data = aData;
 	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
 
-	gPVData->handleResponseFromServer(data, aURL, true /*,lastModified*/);
+	gPVData->handleResponseFromServer(data, aURL, true);
 }
 
 void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::string const &aFilename  )
@@ -157,35 +163,38 @@ void downloadError( LLSD const &aData, std::string const &aURL )
 void PVData::modularDownloader(const std::string& pfile_name_in)
 {
 	// Sets up the variables we need for each object. Avoids call bloat in the class constructor.
-	pvdata_user_agent_ = LLVersionInfo::getChannelAndVersionStatic();
-	pvdata_viewer_version_ = LLViewerMedia::getCurrentUserAgent();
+	pvdata_user_agent_ = LLViewerMedia::getCurrentUserAgent();
+	pvdata_viewer_version_ = LLVersionInfo::getChannelAndVersionStatic(); 
 	static LLCachedControl<bool> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", FALSE);
-	pvdata_remote_url_base_ = (pvdata_testing_branch) ? "https://data.polarityviewer.org/test/6/" : "https://data.polarityviewer.org/live/6/";
-
+	if (pvdata_testing_branch != pv_downloader_testing_branch)
+	{
+		PVData::init(pvdata_testing_branch);
+		pv_downloader_testing_branch = pvdata_testing_branch;
+	}
+	
 	// construct download url from file name
 	headers_.insert("User-Agent", pvdata_user_agent_);
 	headers_.insert("viewer-version", pvdata_viewer_version_);
 	// FIXME: This is ugly
-	pvdata_modular_remote_url_full_ = pvdata_remote_url_base_ + pfile_name_in;
-	if (pfile_name_in == "data.xml")
+	//pvdata_modular_remote_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
+	if (pfile_name_in == pv_file_name_data_string_)
 	{
-		pvdata_url_full_ = pvdata_modular_remote_url_full_;
+		pvdata_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
 	}
-	else if (pfile_name_in == "agents.xml")
+	else if (pfile_name_in == pv_file_name_agents_string_)
 	{
-		pvdata_agents_url_full_ = pvdata_modular_remote_url_full_;
+		pvdata_agents_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
 	}
 
-	PV_DEBUG("Downloading " + pfile_name_in + " from " + pvdata_modular_remote_url_full_, LLError::LEVEL_INFO);
+	PV_DEBUG("Downloading " + pfile_name_in + " from " + pv_url_remote_base_string_ + pfile_name_in, LLError::LEVEL_INFO);
 	// TODO: HTTP eTag support
 	//LLHTTPClient::get(pvdata_modular_remote_url_full_, new PVDataDownloader(pvdata_modular_remote_url_full_, pfile_name_in), headers_, HTTP_TIMEOUT);
-	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet( pvdata_modular_remote_url_full_, boost::bind( downloadComplete, _1, pvdata_modular_remote_url_full_ ),
-		boost::bind( downloadError, _1, pvdata_modular_remote_url_full_ ) );
+	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(pv_url_remote_base_string_ + pfile_name_in, boost::bind( downloadComplete, _1, pv_url_remote_base_string_ + pfile_name_in),
+		boost::bind( downloadError, _1, pv_url_remote_base_string_ + pfile_name_in) );
 }
 
 void PVData::downloadData()
 {
-	gPVData = this->getInstance();
 	if (canDownload(data_download_status_))
 	{
 		data_parse_status_ = INIT;
@@ -211,10 +220,10 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 	//const LLDate& last_modified
 	)
 {
-	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", true);
-	PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
+	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
+	//PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
 	PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
-	PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
+	//PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
 	//PV_DEBUG("data_file_name=" + data_file_name);
 	PV_DEBUG("parse_success=" + parse_success, LLError::LEVEL_DEBUG);
 	//PV_DEBUG("http_failure=" + http_failure);
@@ -274,58 +283,44 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 bool PVData::canParse(size_t& status_container) const
 {
 	PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
-	bool safe_to_parse = false;
 	switch (status_container)
 	{
-		case INIT:
-		safe_to_parse = true;
-		break;
-		case PARSING:
+	case INIT:
+		return true;
+	case PARSING:
 		LL_WARNS("PVData") << "Parser is already running, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		break;
-		case OK:
+		return false;
+	case OK:
 		LL_WARNS("PVData") << "Parser already completed, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		break;
-		default:
-		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << agents_parse_status_ << "')" << LL_ENDL;
+		return false;
+	default:
+		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << status_container << "')" << LL_ENDL;
 		status_container = UNDEFINED;
-		break;
+		return false;
 	}
-
-	return safe_to_parse;
 }
 
 bool PVData::canDownload(size_t& status_container) const
 {
-	PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
-	bool safe = false;
+	PV_DEBUG("Checking download status", LLError::LEVEL_DEBUG);
 	switch (status_container)
 	{
 	case INIT:
-		safe = true;
-		break;
+		return true;
 	case PARSING:
 		LL_WARNS("PVData") << "Download already in progress, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		//safe = false;
-		break;
+		return false;
 	case OK:
-		safe = true;
-		break;
+		// todo: standardize with canParse
+		return true;
 	case DOWNLOAD_FAILURE:
 		LL_WARNS("PVData") << "Failed to download and will retry later (STATUS='" << status_container << "')" << LL_ENDL;
-		safe = true;
-		break;
+		return true;
 	default:
-		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << agents_parse_status_ << "')" << LL_ENDL;
+		LL_WARNS("PVData") << "Download checks failed, download aborted. (STATUS='" << status_container << "')" << LL_ENDL;
 		status_container = UNDEFINED;
-		break;
+		return false;
 	}
-
-	if (!safe)
-	{
-		LL_WARNS("PVData") << "Download not safe, skipping!" << LL_ENDL;
-	}
-	return safe;
 }
 
 void PVData::handleDataFailure()
@@ -397,7 +392,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		gAgent.mMOTD.assign(data_input["MOTD"]);
 	}
 #ifdef PVDATA_MOTD_CHAT
-	else if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
+	if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
 	{
 		PV_DEBUG("Found Chat MOTDs!", LLError::LEVEL_DEBUG);
 		const LLSD& motd = data_input["ChatMOTD"];
@@ -1269,19 +1264,19 @@ std::string getRegKey(const std::string& name_) {
 	char *		data = nullptr;
 	HKEY        key = HKEY_CURRENT_USER;
 	DWORD		size = 1024 * sizeof(TCHAR);;
-	LONG        status;
+	//LONG        status;
 	HKEY        subKey;
 	std::string value = "";
 
 	long ret;
 	ret = RegOpenKeyExA(HKEY_CURRENT_USER, "\\Environment", 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &subKey);
-	status = RegQueryValueExA(subKey, name_.c_str(), 0, NULL, NULL, &size);
+	RegQueryValueExA(subKey, name_.c_str(), 0, NULL, NULL, &size);
 	if (ret != ERROR_SUCCESS) {
 		LL_WARNS("PVData") << "Key [" << name_ << "] does not exist!" << LL_ENDL;
 		return std::string();
 	}
 	// This environment variable already exists.
-	ret = RegQueryValueExA(key, name_.c_str(), 0, 0, (LPBYTE)data, &size);
+	ret = RegQueryValueExA(key, name_.c_str(), 0, 0, reinterpret_cast<LPBYTE>(data), &size);
 	if (ret != ERROR_SUCCESS)
 	{
 		return std::string();

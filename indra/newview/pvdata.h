@@ -139,9 +139,10 @@ public:
 
 	// This handles the data received from the server after downloading the data
 	void handleResponseFromServer(const LLSD& http_content,
-		const std::string& http_source_url,
-		const bool& parse_success
-		);
+	                              const std::string& http_source_url,
+	                              /*const std::string& data_file_name,*/
+	                              const bool& parse_success
+	);
 	//void handleResponseFromServer(const LLSD& http_content, const std::string& http_source_url, const std::string& data_file_name, const bool& parse_failure, const bool& http_failure);
 
 	bool isSupportGroup(const LLUUID& id) const;
@@ -229,7 +230,7 @@ public:
 	* \brief Contains the possible search separators
 	*/
 	static std::vector<std::string> PVSearchSeparatorAssociation;
-
+	void init(const bool testing_branch);
 	/// <summary>Attempt to set the chat logs location from environment if available</summary>
 	static void getChatLogsDirOverride();
 	static void setChatLogsDirOverride();
@@ -282,13 +283,25 @@ private:
 
 	bool canDownload(size_t & status_container) const;
 
+	/**
+	 * \brief Data file name
+	 */
+	const std::string pv_file_name_data_string_ = "data.xml";
+
+	/**
+	 * \brief Agents file name
+	 */
+	const std::string pv_file_name_agents_string_ = "agents.xml";
+
+	bool pv_downloader_testing_branch;
+
 	// [URL COMPONENT]
 	// This is the URL where the PVData data is downloaded from, minus filename
-	std::string pvdata_remote_url_base_;
+	std::string pv_url_remote_base_string_;
 
 	// [URL COMPONENT]
 	// This is the complete URL where the modular file is downloaded from, with file name.
-	std::string pvdata_modular_remote_url_full_;
+	//std::string pvdata_modular_remote_url_full_;
 
 	// [URL COMPONENT]
 	// This is the complete URL where the data file is downloaded from, with file name.
