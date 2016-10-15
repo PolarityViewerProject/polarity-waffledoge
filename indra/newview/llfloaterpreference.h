@@ -199,6 +199,7 @@ private:
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
 	void buildPopupLists();
+	void onClickResetControlDefault(const LLSD& userdata); // <polarity>
 public:
 	static void refreshSkin(void* data);
 private:

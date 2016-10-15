@@ -355,6 +355,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
+	// <polarity> Reset to Default
+	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::onClickResetControlDefault, this, _2)); // <polarity>
+	// </polarity>
 
 	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 }
@@ -2044,6 +2047,16 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 	}
 }
 
+void LLFloaterPreference::onClickResetControlDefault(const LLSD& userdata)
+{
+	const std::string& control_name = userdata.asString();
+	LLControlVariable* controlp = gSavedSettings.getControl(control_name);
+	if (controlp)
+	{
+		controlp->resetToDefault(true);
+		refreshGraphicControls();
+	}
+}
 void LLFloaterPreference::onLogChatHistorySaved()
 {
 	LLButton * delete_transcripts_buttonp = getChild<LLButton>("delete_transcripts");
