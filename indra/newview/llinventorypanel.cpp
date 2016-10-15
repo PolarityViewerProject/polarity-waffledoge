@@ -50,7 +50,6 @@
 #include "llviewerattachmenu.h"
 #include "llviewerfoldertype.h"
 #include "llvoavatarself.h"
-#include "llinventorypanel.h"
 
 static LLDefaultChildRegistry::Register<LLInventoryPanel> r("inventory_panel");
 
