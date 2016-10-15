@@ -298,6 +298,15 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
 	{
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_MARKETPLACE_LISTINGS));
     }
+
+	// <polarity> TODO: Maybe we can improve that logic here?
+	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel");
+	if (!hide_inbox_panel)
+	{
+		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
+	}
+	// can we hook this up to 'hide_inbox_panel' ?
+	gSavedSettings.getControl("PVUI_HideMarketplaceInboxPanel")->getSignal()->connect(boost::bind(&LLInventoryPanel::updateShowInboxFolder, this, _2));
     
 	// set the filter for the empty folder if the debug setting is on
 	if (gSavedSettings.getBOOL("DebugHideEmptySystemFolders"))
@@ -1266,6 +1275,19 @@ void LLInventoryPanel::updateHideEmptySystemFolders(const LLSD &data)
 	filter.setModified(LLInventoryFilter::FILTER_RESTART);
 }
 // </FS:Ansariel> Optional hiding of empty system folders
+void LLInventoryPanel::updateShowInboxFolder(const LLSD &data)
+{
+	LLInventoryFilter& filter = getFilter();
+	if (data.asBoolean())
+	{
+		filter.setFilterCategoryTypes(filter.getFilterCategoryTypes() | (1ULL << LLFolderType::FT_INBOX));
+	}
+	else
+	{
+		filter.setFilterCategoryTypes(filter.getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
+	}
+	filter.setModified(LLInventoryFilter::FILTER_RESTART);
+}
 
 // DEBUG ONLY
 // static 

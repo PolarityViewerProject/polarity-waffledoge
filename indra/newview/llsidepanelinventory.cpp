@@ -146,9 +146,10 @@ LLSidepanelInventory::~LLSidepanelInventory()
 void handleInventoryDisplayInboxChanged()
 {
 	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	static LLCachedControl<bool> display_inbox(gSavedSettings, "InventoryDisplayInbox");
 	if (sidepanel_inventory)
 	{
-		sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+		sidepanel_inventory->enableInbox(display_inbox);
 	}
 }
 
@@ -234,13 +235,16 @@ BOOL LLSidepanelInventory::postBuild()
 		}
 
 		// Set the inbox visible based on debug settings (final setting comes from http request below)
-		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+		
+		// <polarity> handled with our callback below
+		// enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
 
 		// Trigger callback for after login so we can setup to track inbox changes after initial inventory load
 		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
 	}
 
 	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
+	gSavedSettings.getControl("PVUI_HideMarketplaceInboxPanel")->getSignal()->connect(boost::bind(&LLSidepanelInventory::refreshInboxVisibility, this));
 
 	// Update the verbs buttons state.
 	updateVerbs();
@@ -339,7 +343,15 @@ void LLSidepanelInventory::enableInbox(bool enabled)
 	mInboxEnabled = enabled;
 	
 	LLLayoutPanel * inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
-	inbox_layout_panel->setVisible(enabled);
+	// <polarity> Marketplace Inbox visibility
+	//inbox_layout_panel->setVisible(enabled);
+	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel");
+	inbox_layout_panel->setVisible(enabled && !hide_inbox_panel);
+	// </polarity>
+}
+void LLSidepanelInventory::refreshInboxVisibility()
+{
+	enableInbox(mInboxEnabled);
 }
 
 void LLSidepanelInventory::openInbox()

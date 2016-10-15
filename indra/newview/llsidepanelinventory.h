@@ -76,6 +76,7 @@ public:
 
 	void enableInbox(bool enabled);
 	
+	void refreshInboxVisibility();
 	void openInbox();
 	
 	bool isInboxEnabled() const { return mInboxEnabled; }

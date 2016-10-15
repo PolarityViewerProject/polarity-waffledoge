@@ -1405,6 +1405,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_HideMarketplaceInboxPanel</key>
+    <map>
+      <key>Comment</key>
+      <string>Hides the marketplace inbox panel entirely and shows folder in inventory instead</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_MinimapCenterRegion</key>
     <map>
       <key>Comment</key>
