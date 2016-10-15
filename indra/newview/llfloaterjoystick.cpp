@@ -90,6 +90,17 @@ void LLFloaterJoystick::draw()
 		}
 	}
 
+	// <NiranV:Black Dragon> Custom Joystick Mapping
+	for (U32 i = 0; i < 16; i++)
+	{
+		U32 value = joystick->getJoystickButton(i);
+		if(!mAxisButton[i]->getEnabled() && joystick->getJoystickButton(i))
+		{
+			mAxisButton[i]->setEnabled(TRUE);
+		}
+		mAxisButton[i]->setToggleState(value);
+	}
+
 	LLFloater::draw();
 }
 
@@ -108,6 +119,13 @@ BOOL LLFloaterJoystick::postBuild()
 			mAxisStatsBar[i]->setStat(stat_name);
 			mAxisStatsBar[i]->setRange(-range, range);
 		}
+	}
+
+	// <NiranV:Black Dragon> Custom Joystick Mapping
+	for (U32 i = 0; i < 16; i++)
+	{
+		std::string btn_name = llformat("btn%d", i);
+		mAxisButton[i] = getChild<LLButton>(btn_name);
 	}
 	
 	mCheckJoystickEnabled = getChild<LLCheckBoxCtrl>("enable_joystick");
