@@ -520,12 +520,12 @@ private:
 	// All turn off autopilot and make sure the camera is behind the avatar.
 	// Direction is either positive, zero, or negative
 public:
-	void			moveAt(S32 direction, bool reset_view = true);
+	void			moveAt(S32 direction,const bool reset_view = false);
 	void			moveAtNudge(S32 direction);
-	void			moveLeft(S32 direction);
+	void			moveLeft(S32 direction, const bool reset_view = false);
 	void			moveLeftNudge(S32 direction);
-	void			moveUp(S32 direction);
-	void			moveYaw(F32 mag, bool reset_view = true);
+	void			moveUp(S32 direction,const bool reset_view = false);
+	void			moveYaw(F32 mag,const bool reset_view = false);
 	void			movePitch(F32 mag);
 
 	BOOL			isMovementLocked() const				{ return mMovementKeysLocked; }

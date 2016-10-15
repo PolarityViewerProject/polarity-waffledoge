@@ -117,19 +117,22 @@ const F32 MAX_FIDGET_TIME = 20.f; // seconds
 
 // The agent instance.
 LLAgent gAgent;
-void camera_reset_on_motion()
+void camera_reset_on_motion(const bool force_reset_view = false)
 {
+	// let user preference override this setting, except when forced to.
 	static LLCachedControl<bool> reset_camera(gSavedSettings, "PVMovement_ResetCamera");
-	if (reset_camera)
+	if (force_reset_view || reset_camera)
 	{
 		gAgentCamera.resetView();
 	}
+#if INVALIDATE_MENU_ON_MOVE
 	// Things go horribly if we keep the selection while moving.
 	else if (!reset_camera && LLSelectMgr::getInstance()->getSelection()->isAttachment())
 	{
 		LLSelectMgr::getInstance()->deselectAll();
 		if (gMenuHolder) gMenuHolder->hideMenus(); // Menus are invalidated at this point.
 	}
+#endif
 }
 
 class LLTeleportRequest
@@ -562,7 +565,7 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 // moveAt()
 //-----------------------------------------------------------------------------
-void LLAgent::moveAt(S32 direction, bool reset)
+void LLAgent::moveAt(S32 direction, const bool reset_view)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -581,10 +584,8 @@ void LLAgent::moveAt(S32 direction, bool reset)
 		setControlFlags(AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT);
 	}
 
-	if (reset)
-	{
-		camera_reset_on_motion();
-	}
+	camera_reset_on_motion(reset_view);
+
 }
 
 //-----------------------------------------------------------------------------
@@ -615,7 +616,7 @@ void LLAgent::moveAtNudge(S32 direction)
 //-----------------------------------------------------------------------------
 // moveLeft()
 //-----------------------------------------------------------------------------
-void LLAgent::moveLeft(S32 direction)
+void LLAgent::moveLeft(const S32 direction, const bool reset_view)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -634,7 +635,7 @@ void LLAgent::moveLeft(S32 direction)
 		setControlFlags(AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT);
 	}
 
-	camera_reset_on_motion();
+	camera_reset_on_motion(reset_view);
 }
 
 //-----------------------------------------------------------------------------
@@ -665,7 +666,7 @@ void LLAgent::moveLeftNudge(S32 direction)
 //-----------------------------------------------------------------------------
 // moveUp()
 //-----------------------------------------------------------------------------
-void LLAgent::moveUp(S32 direction)
+void LLAgent::moveUp(S32 direction, const bool reset_view)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -684,13 +685,13 @@ void LLAgent::moveUp(S32 direction)
 		setControlFlags(AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP);
 	}
 
-	camera_reset_on_motion();
+	camera_reset_on_motion(reset_view);
 }
 
 //-----------------------------------------------------------------------------
 // moveYaw()
 //-----------------------------------------------------------------------------
-void LLAgent::moveYaw(F32 mag, bool reset_view)
+void LLAgent::moveYaw(F32 mag, const bool reset_view)
 {
 	gAgentCamera.setYawKey(mag);
 
@@ -703,10 +704,7 @@ void LLAgent::moveYaw(F32 mag, bool reset_view)
 		setControlFlags(AGENT_CONTROL_YAW_NEG);
 	}
 
-    if (reset_view)
-	{
-        camera_reset_on_motion();
-	}
+	camera_reset_on_motion(reset_view);
 }
 
 //-----------------------------------------------------------------------------

@@ -369,7 +369,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 // -----------------------------------------------------------------------------
 void LLViewerJoystick::agentJump()
 {
-    gAgent.moveUp(1);
+//	//BD - Xbox360 Controller Support
+    gAgent.moveUp(1, false);
 }
 
 // -----------------------------------------------------------------------------
@@ -377,11 +378,13 @@ void LLViewerJoystick::agentSlide(F32 inc)
 {
 	if (inc < 0.f)
 	{
-		gAgent.moveLeft(1);
+//		//BD - Xbox360 Controller Support
+		gAgent.moveLeft(1, false);
 	}
 	else if (inc > 0.f)
 	{
-		gAgent.moveLeft(-1);
+//		//BD - Xbox360 Controller Support
+		gAgent.moveLeft(-1, false);
 	}
 }
 
@@ -413,12 +416,14 @@ void LLViewerJoystick::agentFly(F32 inc)
 		{
 			gAgent.setFlying(true);
 		}
-		gAgent.moveUp(1);
+//		//BD - Xbox360 Controller Support
+		gAgent.moveUp(1, false);
 	}
 	else if (inc > 0.f)
 	{
 		// crouch
-		gAgent.moveUp(-1);
+//		//BD - Xbox360 Controller Support
+		gAgent.moveUp(-1, false);
 	}
 }
 
