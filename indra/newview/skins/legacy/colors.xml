@@ -269,7 +269,7 @@
 <color name="NotifyCautionWarnColor" reference="PlvrWhite" />
 <color name="NotifyTextColor" reference="PlvrWhite" />
 <color name="ObjectBubbleColor" reference="DkGray_66" />
-<color name="ObjectChatColor" value="0.846 0.999 0.368 1" /> <!-- llSay -->
+<color name="ObjectChatColor" value="0.89563 0.66123 0.21374 1.0" /> <!-- llSay -->
 <color name="ObjectIMColor" value="0.6705882352941176 0.803921568627451 0.6784313725490196 1" /> <!-- abcdad -->
 <color name="Orange" value="1.0, 0.5, 0.0, 1.0" />
 <color name="OutputMonitorMutedColor" reference="DkGray" />
@@ -290,7 +290,7 @@
 <color name="PieMenuLineColor" value="0 0 0 0.5" />
 <color name="PieMenuSelectedColor" value="0.72 0.72 0.74 0.3" />
 <color name="PolarityLightBlue" value="0.2431372549019608 0.7019607843137255 0.9764705882352941 0.50" /> <!-- 3eb3f9 -->
-<color name="ProfileOnlineIndicatorColor" value="0.21961 0.32549 0.19216 1.0" />
+<color name="ProfileOnlineIndicatorColor" value="0.29452 0.47632 0.10181 1.0" />
 <color name="ProfileOfflineIndicatorColor" value="0.16863 0.16863 0.16863 1.0" />
 <color name="ProgressViewBackgroundColor" reference="PlvrWindowBackground" />
 <color name="ProgressViewTextColor" reference="PlvrWhite" />
@@ -409,9 +409,10 @@
 <color name="PlvrWindowBackgroundLight" value="0.23922 0.23922 0.23922 1" />
 <color name="PlvrWindowBackgroundMid" value="0.10980 0.10980 0.10980 1" />
 <color name="PlvrWindowBackgroundMidLight" value="0.12941 0.12941 0.12941 1" />
-<color name="PlvrWindowBorderColor" value="0.1019607843137255 0.1019607843137255 0.1019607843137255> 1" /> <!-- #1A1A1A -->
+<color name="PlvrWindowBorderColor" value="0.1019607843137255 0.1019607843137255 0.1019607843137255 1" /> <!-- #1A1A1A -->
 <color name="PVLineEditorHighlight" reference="EmphasisColor" />
 <color name="PVLineEditorPreEditBackground" reference="White" />
 <color name="PVLineEditorBackgroundSelected" reference="EmphasisColor" />
-<color name="PCMSelectionHighlight" value="0.64483 0.72534 0.57153 1.0" />
+<!-- <color name="PCMSelectionHighlight" value="0.64483 0.72534 0.57153 1.0" /> -->
+<color name="PCMSelectionHighlight" reference="EmphasisColor_35" />
 </colors>
