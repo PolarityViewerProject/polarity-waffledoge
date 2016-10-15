@@ -12,7 +12,7 @@
   <scroll_container
     color="Transparent"
     follows="all"
-    height="450"
+    height="530"
     layout="topleft"
     left="0"
     mouse_opaque="false"
@@ -141,60 +141,104 @@
       top_pad="5"
       width="340">
     </slider>
-    <text
-      follows="left|top"
-      height="16"
-      left="10"
-      length="1"
-      name="heading2"
-      top_pad="5"
-      type="string"
-      width="138">
-      Automatic position for:
-    </text>
-    <check_box
-      control_name="EditCameraMovement"
-      follows="left|top"
-      height="16"
-      label="Build/Edit"
-      layout="topleft"
-      left_pad="5"
-      name="edit_camera_movement"
-      tool_tip="Use automatic camera positioning when entering and exiting edit mode"
-      top_delta="0"
-      width="80">
-    </check_box>
-    <check_box
-      control_name="AppearanceCameraMovement"
-      follows="left|top"
-      height="16"
-      label="Appearance"
-      layout="topleft"
-      left_pad="30"
-      name="appearance_camera_movement"
-      tool_tip="Use automatic camera positioning while in edit mode"
-      top_delta="0"
-      width="80">
-    </check_box>
+  <text
+  follows="left|top"
+  type="string"
+  length="1"
+  height="10"
+  left="15"
+  name="heading2"
+  width="125"
+  top_pad="5">
+    Move camera when
+  </text>
+  <check_box
+     control_name="EditCameraMovement"
+     height="20"
+     follows="left|top"
+     label="Building/Editing"
+     layout="topleft"
+     left_pad="5"
+     name="edit_camera_movement"
+     tool_tip="Use automatic camera positioning when entering and exiting edit mode"
+     top_delta="-5"
+     width="125" />
+  <check_box
+   control_name="PVCamera_ResetOnSelfClick"
+   follows="left|top"
+   height="20"
+   label="Clicking my avatar"
+   layout="topleft"
+   left_pad="0"
+   name="pvcamera_donotcenter"
+   tool_tip="Do not center the camera when clicking your avatar.  Also called Mouse Steering."
+   top_delta="0"
+   width="125"/>
+  <check_box
+   control_name="PVMovement_ResetCamera"
+   follows="left|top"
+   height="20"
+   label="Moving"
+   layout="topleft"
+   left_pad="10"
+   name="pvcamera_donotcenter"
+   tool_tip="Automatically reset the camera position when moving."
+   top_delta="0"
+   width="125"/>
+  <text
+  follows="left|top"
+  type="string"
+  length="1"
+  height="10"
+  left="15"
+  name="heading2"
+  width="125"
+  top_pad="5">
+    Move avatar when
+  </text>
+  <check_box
+   control_name="PVMovement_RotateTowardSelection"
+   follows="left|top"
+   height="16"
+   label="Building/Editing"
+   layout="topleft"
+   left_pad="5"
+   name="pvmovement_rotate_toward_selection"
+   tool_tip="Rotate your avatar toward what you are editing"
+   top_delta="-2"
+   width="130" />
+  <check_box
+   control_name="PVMovement_RotateOnSelfClick"
+   enabled_control="PVCamera_ResetOnSelfClick"
+   follows="left|top"
+   height="16"
+   label="Clicking my avatar"
+   layout="topleft"
+   left_pad="5"
+   name="pvmovement_donotrotate"
+   tool_tip="Rotate your avatar away from the camera when clicking it."
+   top_delta="0"
+   width="130" />
+  <check_box
+   control_name="AppearanceCameraMovement"
+   follows="left|top"
+   height="16"
+   label="Editing Appearance"
+   layout="topleft"
+   left_pad="0"
+   name="appearance_camera_movement"
+   tool_tip="Use automatic camera positioning while in edit mode"
+   top_delta="0"
+   width="242" />
     <check_box
       control_name="PVCamera_RealisticMouseLook"
+      enabled="false"
       follows="left|top"
       height="20"
       label="Realistic first-person camera movement"
       layout="topleft"
       left="5"
       name="realistic_mouselook"
-      top_pad="0"
-      width="237">
-    </check_box>
-    <check_box
-      control_name="PVCamera_KeepPosOnMove"
-      follows="left|top"
-      height="20"
-      label="Keep camera position when moving"
-      layout="topleft"
-      left_delta="0"
-      name="moving_resets_camera"
       top_pad="0"
       width="237">
     </check_box>
