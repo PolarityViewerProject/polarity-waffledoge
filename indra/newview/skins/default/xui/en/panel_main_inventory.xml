@@ -45,9 +45,6 @@
  tool_tip="Search Separator"
  top_delta="0"
  layout="topleft">
-  
-  <!-- TODO: Set label programmatically? We have the value stored anyway. I think. Converting
-  Chat to string sucks though. -->
   <combo_box.item value="0"   label="Space" />
   <combo_box.item value="1"   label="Plus ( + )" />
   <combo_box.item value="2"   label="Comma ( , )" />
