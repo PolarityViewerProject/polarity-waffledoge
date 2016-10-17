@@ -76,6 +76,7 @@ set(cmake_SOURCE_FILES
     OPENAL.cmake
     OpenGL.cmake
     OpenJPEG.cmake
+    OpenMP.cmake
     OpenSSL.cmake
     PNG.cmake
     PluginAPI.cmake
