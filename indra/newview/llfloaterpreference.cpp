@@ -1199,6 +1199,11 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::refreshEnabledState()
 {
+	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
+	static LLCachedControl<bool> avatar_vp(gSavedSettings, "RenderAvatarVP", true);
+	static LLCachedControl<bool> object_bump(gSavedSettings, "RenderObjectBump", true);
+	static LLCachedControl<bool> windlight_atmosph(gSavedSettings, "WindLightUseAtmosShaders", true);
+
 	LLCheckBoxCtrl* ctrl_wind_light = getChild<LLCheckBoxCtrl>("WindLightUseAtmosShaders");
 	LLCheckBoxCtrl* ctrl_deferred = getChild<LLCheckBoxCtrl>("UseLightShaders");
 
@@ -1211,17 +1216,17 @@ void LLFloaterPreference::refreshEnabledState()
 	}
 	else
 	{
-		ctrl_wind_light->setEnabled(gSavedSettings.getBOOL("VertexShaderEnable"));
+		ctrl_wind_light->setEnabled(vertex_shader);
 	}
 
 	//Deferred/SSAO/Shadows
-	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && gSavedSettings.getBOOL("RenderObjectBump");
-	BOOL shaders = gSavedSettings.getBOOL("WindLightUseAtmosShaders") && gSavedSettings.getBOOL("VertexShaderEnable");
+	BOOL bumpshiny = gGLManager.mHasCubeMap && LLCubeMap::sUseCubeMaps && LLFeatureManager::getInstance()->isFeatureAvailable("RenderObjectBump") && object_bump;
+	BOOL shaders = windlight_atmosph && vertex_shader;
 	BOOL enabled = LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 						bumpshiny &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
-						gSavedSettings.getBOOL("RenderAvatarVP") &&
+						avatar_vp &&
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
@@ -1229,14 +1234,17 @@ void LLFloaterPreference::refreshEnabledState()
 
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
+	// <polarity> settings check speed up
 	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
 	// <polarity> Hack to fix wrong value type (How this happens, I have no idea.)
 	gSavedSettings.setU32("RenderReflectionDetail", static_cast<U32>(ctrl_reflections->getValue().asInteger()));
 
+	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
+
 	// Reflections
-	BOOL reflections = gSavedSettings.getBOOL("VertexShaderEnable") 
+	BOOL reflections = vertex_shader 
 		&& gGLManager.mHasCubeMap
 		&& LLCubeMap::sUseCubeMaps;
 	ctrl_reflections->setEnabled(reflections);
@@ -1262,15 +1270,8 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	ctrl_avatar_vp->setEnabled(avatar_vp_enabled);
 	
-	if (gSavedSettings.getBOOL("VertexShaderEnable") == FALSE || 
-		gSavedSettings.getBOOL("RenderAvatarVP") == FALSE)
-	{
-		ctrl_avatar_cloth->setEnabled(FALSE);
-	} 
-	else
-	{
-		ctrl_avatar_cloth->setEnabled(TRUE);
-	}
+	static LLCachedControl<bool> avatar_vp(gSavedSettings, "RenderAvatarVP", true);
+	ctrl_avatar_cloth->setEnabled(vertex_shader && avatar_vp);
 	
 	// Vertex Shaders
 	// Global Shader Enable
@@ -1312,7 +1313,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 						((bumpshiny_ctrl && bumpshiny_ctrl->get()) ? TRUE : FALSE) &&
 						shaders && 
 						gGLManager.mHasFramebufferObject &&
-						gSavedSettings.getBOOL("RenderAvatarVP") &&
+						avatar_vp &&
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
@@ -1325,7 +1326,8 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	// note, okay here to get from ctrl_deferred as it's twin, ctrl_deferred2 will alway match it
 	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferredSSAO") && (ctrl_deferred->get() ? TRUE : FALSE);
 	
-	ctrl_deferred->set(gSavedSettings.getBOOL("RenderDeferred"));
+	static LLCachedControl<bool> render_deferred(gSavedSettings, "RenderDeferred", true);
+	ctrl_deferred->set(render_deferred);
 
 	ctrl_ssao->setEnabled(enabled);
 	ctrl_dof->setEnabled(enabled);
@@ -1336,7 +1338,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	shadow_text->setEnabled(enabled);
 
 	// Hardware settings
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", true);
 	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
 	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
@@ -1389,7 +1391,7 @@ void LLAvatarComplexityControls::setIndirectControls()
 // static
 void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 {
-	U32 max_non_impostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
+	static LLCachedControl<U32> max_non_impostors(gSavedSettings, "RenderAvatarMaxNonImpostors");
 	// for this one, we just need to make zero, which means off, the max value of the slider
 	U32 indirect_max_non_impostors = (0 == max_non_impostors) ? LLVOAvatar::IMPOSTORS_OFF : max_non_impostors;
 	gSavedSettings.setU32("IndirectMaxNonImpostors", indirect_max_non_impostors);
@@ -1397,7 +1399,7 @@ void LLAvatarComplexityControls::setIndirectMaxNonImpostors()
 
 void LLAvatarComplexityControls::setIndirectMaxArc()
 {
-	U32 max_arc = gSavedSettings.getU32("RenderAvatarMaxComplexity");
+	static LLCachedControl<U32> max_arc(gSavedSettings, "RenderAvatarMaxComplexity");
 	U32 indirect_max_arc;
 	if (0 == max_arc)
 	{
@@ -1407,7 +1409,7 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 	else
 	{
 		// This is the inverse of the calculation in updateMaxComplexity
-		indirect_max_arc = (U32)((log(max_arc) - MIN_ARC_LOG) / ARC_LIMIT_MAP_SCALE) + MIN_INDIRECT_ARC_LIMIT;
+		indirect_max_arc = (U32)((log((U32)max_arc) - MIN_ARC_LOG) / ARC_LIMIT_MAP_SCALE) + MIN_INDIRECT_ARC_LIMIT;
 	}
 	gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
 }
@@ -2787,9 +2789,9 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 // <polarity> Lookat preferences logic
 bool LLFloaterPreference::confirmNosyLookAt()
 {
-	bool lookat_local_disabled = gSavedSettings.getBOOL("PVPrivacy_LookAtBroadcastDisabled");
-	bool show_lookat = gSavedSettings.getBOOL("PVPrivacy_LookAtShow");
-	bool nosy = gSavedSettings.getBOOL("PVPrivacy_LookAtShowAnyway");
+	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", true);
+	static LLCachedControl<bool> show_lookat(gSavedSettings, "PVPrivacy_LookAtShow", false);
+	static LLCachedControl<bool> nosy(gSavedSettings, "PVPrivacy_LookAtShowAnyway", false);
 	if (!nosy)
 	{
 		if (show_lookat && lookat_local_disabled)
