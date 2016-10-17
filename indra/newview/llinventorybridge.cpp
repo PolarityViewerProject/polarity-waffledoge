@@ -84,6 +84,8 @@
 #include "lltoolmgr.h"
 #include "lltoolcomp.h"
 
+#include "pvdata.h"
+
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
@@ -3224,12 +3226,11 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         }
 		return;
 	}
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	else if ("delete_system_folder" == action)
+	else if (gPVData->isPolarized(gAgent.getID()) && "delete_system_folder" == action)
 	{
 		removeSystemFolder();
+		return;
 	}
-#endif
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
@@ -3935,12 +3936,10 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		}
 	}
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
-	if (LLFolderType::lookupIsProtectedType(type))
+	if (gPVData->isPolarized(gAgent.getID()) && LLFolderType::lookupIsProtectedType(type))
 	{
 		items.push_back(std::string("Delete System Folder"));
 	}
-#endif
 
 	// wearables related functionality for folders.
 	//is_wearable
