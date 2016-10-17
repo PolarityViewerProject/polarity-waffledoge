@@ -107,11 +107,16 @@ public:
 		FLAG_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */
 		FLAG_USER_AUTOMUTED = (1 << 1),   /* [0000 0000 0010] Automatically muted on login.              */
 		FLAG_USER_NO_SUPPORT = (1 << 2),  /* [0000 0000 0100] User voided their warranty.                */
+		// TODO v7: move under FLAG_STAFF_QA
 		FLAG_STAFF_DEV = (1 << 3),        /* [0000 0000 1000] They wrote the code you're looking at.     */
+		// TODO v7: move under FLAG_STAFF_SUPPORT
 		FLAG_STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
+		// TODO v7: move under FLAG_USER_BETA_TESTER
 		FLAG_STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
+		// TODO v7: move under FLAG_TITLE_OVERRIDE
 		FLAG_USER_BETA_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
 		//FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
+		// TODO v7: move under FLAG_USER_NO_SUPPORT
 		FLAG_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
 		//FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
 
@@ -178,6 +183,9 @@ public:
 	bool isMuted(const LLUUID& avatar_id);
 	// Is the avatar denied access to the viewer?
 	bool isBanned(const LLUUID& avatar_id);
+
+	// should have more features than regular users (for testing or security reasons)
+	bool isPolarized(const LLUUID& avatar_id);
 
 	// Returns the lockdown UUID constant as a string
 	static LLUUID PVData::getLockDownUUID();

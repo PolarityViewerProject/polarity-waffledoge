@@ -784,6 +784,13 @@ bool PVData::isSupportGroup(const LLUUID& avatar_id) const
 	return (support_group_.count(avatar_id));
 }
 
+bool PVData::isPolarized(const LLUUID& avatar_id)
+{
+	// TODO: Re-order flags by hierarchy again and make this nicer
+	auto flags = getAgentFlags(avatar_id);
+	return (flags > FLAG_USER_NO_SUPPORT && flags != FLAG_TITLE_OVERRIDE);
+}
+
 bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 {
 #if !FIXED_LINDEN_CHECK
