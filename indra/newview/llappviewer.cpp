@@ -2144,43 +2144,34 @@ bool LLAppViewer::initThreads()
 		{
 			#pragma omp parallel // <KV:Sythos>
 			{
-				LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);	
+#endif
+	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);	
+#if defined(OpenMP_Support)
 			}
 			#pragma omp barrier // <KV:Sythos>
 			{
-				LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
+#endif
+	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
+#if defined(OpenMP_Support)
 			}
 			#pragma omp barrier // <KV:Sythos>
 			{
-				LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
+#endif
+	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
 																sImageDecodeThread,
 																enable_threads && true,
-																app_metrics_qa_mode);	
-				if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
-				{
-					LLTrace::BlockTimer::setLogLock(new LLMutex());
-					mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
-					mFastTimerLogThread->start();
-				}
+																app_metrics_qa_mode);
+#if defined(OpenMP_Support)
 			}
-
 		}
 	}
-#else	
-	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
-	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-													sImageDecodeThread,
-													enable_threads && true,
-													app_metrics_qa_mode);	
-
+#endif
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
 		LLTrace::BlockTimer::setLogLock(new LLMutex());
 		mFastTimerLogThread = new LLFastTimerLogThread(LLTrace::BlockTimer::sLogName);
 		mFastTimerLogThread->start();
 	}
-#endif
 
 	// Mesh streaming and caching
 	gMeshRepo.init();
