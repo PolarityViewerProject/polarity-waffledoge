@@ -203,7 +203,7 @@
         </check_box.commit_callback>
       </check_box>
       <check_box
-        control_name="PVRender_SSR"
+        control_name="PVRender_EnableSSR"
         height="16"
         initial_value="true"
         label="Screen Space Reflections"
