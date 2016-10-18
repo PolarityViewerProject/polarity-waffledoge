@@ -254,9 +254,9 @@
 <color name="NameTagBackground" value="0 0 0 1" />
 <color name="NameTagChat" reference="EmphasisColor" />
 <color name="NameTagFriend" value="0.650980392156863 0.866666666666667 0.596078431372549" />
-<color name="NameTagLegacy" reference="White_50" />
-<color name="NameTagMatch" reference="White_50" />
-<color name="NameTagMismatch" reference="White_50" />
+<color name="NameTagLegacy" reference="White" />
+<color name="NameTagMatch" reference="White" />
+<color name="NameTagMismatch" reference="White" />
 <color name="NetMapBackgroundColor" reference="Black_25" />
 <color name="NetMapGroupOwnAboveWater" reference="Purple" />
 <color name="NetMapGroupOwnBelowWater" value="0.78 0 0.78 1" />
