@@ -46,7 +46,7 @@
 #include "llfocusmgr.h"
 //#include "llfirstuse.h"
 #include "llfloaterreg.h"
-#include "llfloaterabout.h"
+//#include "llfloaterabout.h"
 #include "llfavoritesbar.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llfloaterimsession.h"
@@ -58,7 +58,7 @@
 #include "llnotificationsutil.h"
 #include "llnotificationtemplate.h"
 #include "llpanellogin.h"
-#include "llpanelvoicedevicesettings.h"
+//#include "llpanelvoicedevicesettings.h"
 #include "llradiogroup.h"
 #include "llsearchcombobox.h"
 #include "llsky.h"
@@ -70,10 +70,10 @@
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llviewerwindow.h"
-#include "llviewermessage.h"
+//#include "llviewermessage.h"
 #include "llviewershadermgr.h"
 #include "llviewerthrottle.h"
-#include "llvoavatarself.h"
+//#include "llvoavatarself.h"
 #include "llfloaterpathfindingconsole.h"
 // linden library includes
 #include "llavatarnamecache.h"
@@ -97,8 +97,8 @@
 
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
-#include "llviewercontrol.h"
-#include "llfeaturemanager.h"
+//#include "llviewercontrol.h"
+//#include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
 
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
