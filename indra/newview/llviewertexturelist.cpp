@@ -1369,48 +1369,57 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	auto minimum_VRAM = getMinVideoRamSetting();
 	auto adjusted_max_vram = Hardware_VRAM_MB;
 
-
-
-	// We don't really need to cache this one, but it's not currently stored in the settings file so we use this call
-	// to initialize it fully
-	static LLCachedControl<bool> leave_vram_for_os(gSavedSettings, "PVDebug_ReserveVRAMForSystem", true,
-		"Do not allocate all VRAM and leave 25% or 3GB (first occurrence) for other programs");
-
-	if (leave_vram_for_os || gGLManager.mIsATI)
+	if (Hardware_VRAM_MB < minimum_VRAM.value())
 	{
-		if (Hardware_VRAM_MB * 0.25f > 3072) // we have a lot of VRAM
+		LL_WARNS() << "VRAM amount not detected or less than 128MB, defaulting to " << minimum_VRAM.value() << " MB" << LL_ENDL;
+		adjusted_max_vram = minimum_VRAM.value();
+	}
+	else
+	{
+		// We don't really need to cache this one, but it's not currently stored in the settings file so we use this call
+		// to initialize it fully
+		static LLCachedControl<bool> leave_vram_for_os(gSavedSettings, "PVDebug_ReserveVRAMForSystem", true,
+			"Do not allocate all VRAM and leave 25% or 3GB (first occurrence) for other programs");
+
+		if (leave_vram_for_os || gGLManager.mIsATI)
 		{
-			// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
-			adjusted_max_vram = Hardware_VRAM_MB - 3072;
-		}
-		// handle special case when card has 2GB or less
-		else if (Hardware_VRAM_MB <= 2048)
-		{
-			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
-			// For this special case, limit VRAM to half the adjusted maximum to prevent brutal swapping due to fragmentation.
-			adjusted_max_vram = Hardware_VRAM_MB * 0.5f;
-		}
-		else
-		{
-			// shrink the available VRAM to avoid starving the rest of the system
-			adjusted_max_vram = Hardware_VRAM_MB * 0.75f;
+			if (Hardware_VRAM_MB * 0.25f > 3072) // we have a lot of VRAM
+			{
+				// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
+				adjusted_max_vram = Hardware_VRAM_MB - 3072;
+			}
+			// handle special case when card has 2GB or less
+			else if (Hardware_VRAM_MB <= 2048)
+			{
+				// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
+				// For this special case, limit VRAM to half the adjusted maximum to prevent brutal swapping due to fragmentation.
+				adjusted_max_vram = Hardware_VRAM_MB * 0.5f;
+			}
+			else
+			{
+				// shrink the available VRAM to avoid starving the rest of the system
+				adjusted_max_vram = Hardware_VRAM_MB * 0.75f;
+			}
 		}
 	}
 
-	if (get_recommended)
-	{
-		adjusted_max_vram = (adjusted_max_vram * 0.75f);
-	}
 	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
 	if (mem_multiplier != 1.0)
 	{
 		adjusted_max_vram = (mem_multiplier * adjusted_max_vram);
 	}
-	if (Hardware_VRAM_MB < minimum_VRAM.value())
+
+	// reminder: this is the texture memory, it must not take all the VRAM because we have more data to store as well.
+	if (get_recommended)
 	{
-		LL_WARNS() << "VRAM amount not detected or less than 128MB, defaulting to " << minimum_VRAM.value() << " MB" << LL_ENDL;
+		adjusted_max_vram = (adjusted_max_vram * 0.50f);
 	}
-	
+	else
+	{
+		// shrink the available VRAM to avoid starving the rest of the system
+		adjusted_max_vram = Hardware_VRAM_MB * 0.75f; // in most cases, 75% of 75% of the card's VRAM.
+	}
+
 	if (gMaxVideoRam.value() != adjusted_max_vram) // be nice on memory writes
 	{
 		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
