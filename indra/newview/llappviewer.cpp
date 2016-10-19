@@ -2138,7 +2138,7 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 	{
 		PVThreading::setTheadCount();
 		{
@@ -2146,13 +2146,13 @@ bool LLAppViewer::initThreads()
 			{
 #endif
 	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);	
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 			}
 			#pragma omp barrier // <KV:Sythos>
 			{
 #endif
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 			}
 			#pragma omp barrier // <KV:Sythos>
 			{
@@ -2161,7 +2161,7 @@ bool LLAppViewer::initThreads()
 																sImageDecodeThread,
 																enable_threads && true,
 																app_metrics_qa_mode);
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 			}
 		}
 	}

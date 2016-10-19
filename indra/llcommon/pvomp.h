@@ -30,7 +30,7 @@
 #ifndef PV_OMP_H
 #define PV_OMP_H
 
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 #include <omp.h>
 #pragma warning (disable : 4265)
 #include <thread>
@@ -43,7 +43,7 @@ namespace PVThreading
 
 	static int getCPUCoresAmount()
 	{
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 		return std::thread::hardware_concurrency();
 #else // NO OPENMP
 		// Fall back to a safe number. Lower to 2 for builds intended for low power machines.
@@ -64,7 +64,7 @@ namespace PVThreading
 
 	inline static void setTheadCount()
 	{
-#if defined(OpenMP_Support)
+#if defined(OMP_ENABLE)
 #if defined(OpenMP_ManualThreading)
 		omp_set_dynamic(false);     // Explicitly disable dynamic teams
 		omp_set_num_threads(mCPUThreadNumber); // Use 'n' threads for all consecutive parallel regions

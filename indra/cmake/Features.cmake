@@ -30,11 +30,6 @@ option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" OFF)
 option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
 option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 
-# Multi-threading
-option(OMP_ENABLE "Multi-threading using OpenMP (up to v2.0 on Windows)" OFF)
-option(OMP_IMAGEWORKER "Multi-thread the image worker process independently of the decode thread" OFF)
-option(OMP_MANUAL_THREADS "Use Hard-coded amount of threads." OFF)
-
 # Libraries
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 

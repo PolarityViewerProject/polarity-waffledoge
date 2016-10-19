@@ -41,6 +41,7 @@ include(NDOF)
 include(NVAPI)
 include(OPENAL)
 include(OpenGL)
+include(OpenMP)
 include(OpenSSL)
 include(PNG)
 include(TemplateCheck)
@@ -2035,6 +2036,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${TCMALLOC_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
+    ${OPENMP_LIBRARY}
     )
 
 set(ARTWORK_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH
