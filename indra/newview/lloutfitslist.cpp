@@ -270,6 +270,15 @@ void LLOutfitsList::arrange()
 // </FS:Ansariel>
 
 //virtual
+void LLOutfitsList::arrange()
+{
+	if (mAccordion)
+	{
+		mAccordion->arrange();
+	}
+}
+
+//virtual
 void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
 {
     if (mOutfitsMap[prev_id])
@@ -924,6 +933,8 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         const LLUUID cat_id = (*iter);
         updateRemovedCategory(cat_id);
     }
+
+    arrange();
 
     // Get changed items from inventory model and update outfit tabs
     // which might have been renamed.
