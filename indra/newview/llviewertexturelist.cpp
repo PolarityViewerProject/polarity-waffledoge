@@ -1417,7 +1417,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	else
 	{
 		// shrink the available VRAM to avoid starving the rest of the system
-		adjusted_max_vram = Hardware_VRAM_MB * 0.75f; // in most cases, 75% of 75% of the card's VRAM.
+		adjusted_max_vram = (adjusted_max_vram * 0.75f); // in most cases, 75% of 75% of the card's VRAM.
 	}
 
 	if (gMaxVideoRam.value() != adjusted_max_vram) // be nice on memory writes
