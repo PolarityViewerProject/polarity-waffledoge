@@ -29,37 +29,19 @@
 #include "llimageworker.h"
 #include "llimagedxt.h"
 
-#include "pvomp.h"
-
 //----------------------------------------------------------------------------
 
 // MAIN THREAD
 LLImageDecodeThread::LLImageDecodeThread(bool threaded)
 	: LLQueuedThread("imagedecode", threaded)
 {
-#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
-	#pragma omp parallel // <KV:Sythos>
-	{
-		PVThreading::initParameters();
-		// LL_INFOS("OpenMP") << "Creating new LLImageDecodeThread Mutex" << LL_ENDL;
-		mCreationMutex = new LLMutex();
-	}
-#else
 	mCreationMutex = new LLMutex();
-#endif // OMP_ENABLE && OMP_IMAGEWORKER
 }
 
 //virtual 
 LLImageDecodeThread::~LLImageDecodeThread()
 {
-#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
-	#pragma omp parallel
-	{
-#endif
 	delete mCreationMutex ;
-#if defined(OMP_ENABLE) && defined(OMP_IMAGEWORKER)
-	}
-#endif
 }
 
 // MAIN THREAD

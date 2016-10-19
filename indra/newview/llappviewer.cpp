@@ -253,8 +253,6 @@
 #include "sanitycheck.h"
 #include "pvdata.h"
 
-#include "pvomp.h"
-
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -2138,34 +2136,13 @@ bool LLAppViewer::initThreads()
 	LLLFSThread::initClass(enable_threads && false);
 
 	// Image decoding
-#if defined(OMP_ENABLE)
-	{
-		PVThreading::setTheadCount();
-		{
-			#pragma omp parallel // <KV:Sythos>
-			{
-#endif
-	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);	
-#if defined(OMP_ENABLE)
-			}
-			#pragma omp barrier // <KV:Sythos>
-			{
-#endif
+	LLAppViewer::sImageDecodeThread = new LLImageDecodeThread(enable_threads && true);
 	LLAppViewer::sTextureCache = new LLTextureCache(enable_threads && true);
-#if defined(OMP_ENABLE)
-			}
-			#pragma omp barrier // <KV:Sythos>
-			{
-#endif
 	LLAppViewer::sTextureFetch = new LLTextureFetch(LLAppViewer::getTextureCache(),
-																sImageDecodeThread,
-																enable_threads && true,
-																app_metrics_qa_mode);
-#if defined(OMP_ENABLE)
-			}
-		}
-	}
-#endif
+													sImageDecodeThread,
+													enable_threads && true,
+													app_metrics_qa_mode);	
+
 	if (LLTrace::BlockTimer::sLog || LLTrace::BlockTimer::sMetricLog)
 	{
 		LLTrace::BlockTimer::setLogLock(new LLMutex());

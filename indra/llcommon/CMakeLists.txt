@@ -123,7 +123,6 @@ set(llcommon_HEADER_FILES
     fix_macros.h
     indra_constants.h
     pvconstants.h
-    pvomp.h
     linden_common.h
     llalignedarray.h
     llallocator.h

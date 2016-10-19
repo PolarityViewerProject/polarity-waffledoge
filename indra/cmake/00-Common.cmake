@@ -113,11 +113,7 @@ if (WINDOWS)
   unset(GLM_FORCE_PURE)
   endif(USE_AVX)
 
-  if(NOT DEFINED OMP_ENABLE)
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar")
-   else ()
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-  endif()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar")
 
   if (WORD_SIZE EQUAL 32)
     add_compile_options(/arch:SSE2)
