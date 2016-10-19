@@ -640,6 +640,32 @@ static bool handleTimeFactorChanged(const LLSD& newvalue)
 	}
 	return true;
 }
+
+static bool handleForceDepthClampSupport(const LLSD& newvalue)
+{
+
+	static LLCachedControl<S32> detected_depthclamp(gSavedSettings, "PVRender_DetectedDepthClampSupport",-1);
+	static LLCachedControl<S32> forced_depth_clamp(gSavedSettings, "PVRender_ForceDepthClampSupport", -1);
+	if (detected_depthclamp == -1)
+	{
+		// store autodetectedvalue. TODO: handle case where depth clamp was forced before startup
+		gSavedSettings.setS32("PVRender_DetectedDepthClampSupport", static_cast<S32>(gGLManager.mHasDepthClamp));
+	}
+	if(forced_depth_clamp == -1)
+	{
+		// re-detect for now.
+		//gGLManager.initExtensions(); // is private
+		gGLManager.mHasDepthClamp = detected_depthclamp;
+	}
+	else
+	{
+		bool new_value_bool = newvalue.asBoolean();
+		gGLManager.mHasDepthClamp = new_value_bool;
+		gSavedSettings.setS32("PVRender_ForceDepthClampSupport", static_cast<S32>(new_value_bool));
+	}
+	handleSetShaderChanged(true);
+	return true;
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -817,6 +843,8 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
 	// </Black Dragon:NiranV>
+
+	gSavedSettings.getControl("PVRender_ForceDepthClampSupport")->getSignal()->connect(boost::bind(&handleForceDepthClampSupport, _2));
 }
 
 #if TEST_CACHED_CONTROL
@@ -860,4 +888,3 @@ void test_cached_control()
 	if((std::string)test_BrowserHomePage != "http://www.secondlife.com") LL_ERRS() << "Fail BrowserHomePage" << LL_ENDL;
 }
 #endif // TEST_CACHED_CONTROL
-
