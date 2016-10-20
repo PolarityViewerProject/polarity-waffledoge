@@ -2064,7 +2064,10 @@ LLVector3 LLManipScale::nearestAxis( const LLVector3& v ) const
 		}
 	}
 
-	return LLVector3( coords[greatest_index] );
+// <FS:Ansariel> [AVX Optimization]
+	//return LLVector3( coords[greatest_index] );
+	return LLVector3(coords[greatest_index][0], coords[greatest_index][1], coords[greatest_index][2]);
+// </FS:Ansariel> [AVX Optimization]
 }
 
 // virtual

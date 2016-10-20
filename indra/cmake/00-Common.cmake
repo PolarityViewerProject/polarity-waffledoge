@@ -86,6 +86,7 @@ if (WINDOWS)
   /DGLM_FORCE_SSE3=0
   /DGLM_FORCE_SSE2=0
   /DGLM_FORCE_AVX=1
+  /arch:AVX
   )
   else(USE_SSE3)
   add_compile_options(
@@ -115,7 +116,7 @@ if (WINDOWS)
 
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar")
 
-  if (WORD_SIZE EQUAL 32)
+  if (WORD_SIZE EQUAL 32) # Do not use AVX on 32bit builds because those are reserved for old hardware
     add_compile_options(/arch:SSE2)
   endif (WORD_SIZE EQUAL 32)
 
