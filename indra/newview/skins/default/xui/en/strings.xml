@@ -4335,4 +4335,6 @@ Try enclosing path to the editor with double quotes.
   <string name="AvatarTyping">Typing...</string>
 
   <string name="NotifyIncomingMessage">/me is typing...</string>
+
+  <string name="SessionTimeString">Session uptime: [UPTIME]</string>
 </strings>

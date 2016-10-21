@@ -60,6 +60,8 @@ class LLViewerJoystick;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
+static LLFrameTimer gUptimeTimer;
+
 class LLAppViewer : public LLApp
 {
 public:
@@ -330,6 +332,10 @@ public:
 
 	void launchUpdater();
 	//---------------------------------------------
+
+	public:
+		static std::string mSessionTime;
+		static std::string updateSessionTime();
 };
 
 // consts from viewer.h

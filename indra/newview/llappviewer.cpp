@@ -366,6 +366,9 @@ static std::string gLaunchFileOnQuit;
 // MUST match LLAppViewerWin32::sWindowClass
 //const char* const VIEWER_WINDOW_CLASSNAME = APP_NAME;
 
+// Misc things
+std::string LLAppViewer::mSessionTime = "";
+
 //-- LLDeferredTaskList ------------------------------------------------------
 
 /**
@@ -1313,6 +1316,8 @@ bool LLAppViewer::mainLoop()
 	{
         LL_INFOS() << "Entering main_loop" << LL_ENDL;
 		mMainloopTimeout = new LLWatchdogTimeout();
+
+		gUptimeTimer.start();
 		
 		//-------------------------------------------
 		// Run main loop until time to quit
@@ -3395,6 +3400,8 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
 
+	info["UPTIME"] = updateSessionTime();
+
 	return info;
 }
 
@@ -3466,6 +3473,11 @@ std::string LLAppViewer::getViewerInfoString() const
 	LLSD substitution;
 	substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
 	support << "\n" << LLTrans::getString("AboutTime", substitution);
+
+	if (info.has("UPTIME"))
+	{
+		support << '\n' << LLTrans::getString("SessionTimeString", args);
+	}
 
 	return support.str();
 }
@@ -4764,6 +4776,7 @@ static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("HUD Effects");
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
+	LLAppViewer::updateSessionTime();
 	pingMainloopTimeout("Main:Idle");
 	
 	// Update frame timers
@@ -6068,3 +6081,14 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 	return gWindowTitle;
 }
 // </polarity>
+
+//static
+std::string LLAppViewer::updateSessionTime()
+{
+	F32 time = gUptimeTimer.getElapsedTimeF32();
+	S32 hours = (S32)(time / (60 * 60));
+	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
+	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
+	mSessionTime = llformat("%d:%02d:%02d", hours, mins, secs);
+	return mSessionTime;
+}
