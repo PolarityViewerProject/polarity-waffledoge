@@ -378,6 +378,13 @@ bool LLGLManager::initGL()
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
+	// In some cases, GLSL Version can be 0.0. In such case, force version to 1.0
+	if (mGLVersion < 1.0)
+	{
+		LL_WARNS() << "GLSL Version was less than 1.0, forcing to 1.0!" << LL_ENDL;
+		mGLVersion = 1.0;
+	}
+
 	if (mGLVersion >= 2.f)
 	{
 		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
