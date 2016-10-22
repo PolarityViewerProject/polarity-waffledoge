@@ -383,7 +383,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		}
 	}
 
-#ifdef PVDATA_MOTD
+#if PVDATA_MOTD
 	// Set Message Of The Day if present
 	PV_DEBUG("Attempting to find MOTD data", LLError::LEVEL_DEBUG);
 	if (data_input.has("MOTD"))
@@ -391,7 +391,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		PV_DEBUG("Found a MOTD!", LLError::LEVEL_DEBUG);
 		gAgent.mMOTD.assign(data_input["MOTD"]);
 	}
-#ifdef PVDATA_MOTD_CHAT
+#if PVDATA_MOTD_CHAT
 	if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
 	{
 		PV_DEBUG("Found Chat MOTDs!", LLError::LEVEL_DEBUG);
@@ -422,7 +422,7 @@ void PVData::parsePVData(const LLSD& data_input)
 		}
 	}
 #endif // PVDATA_MOTD
-#ifdef PVDATA_PROGRESS_TIPS
+#if PVDATA_PROGRESS_TIPS
 
 	// TODO: Split tips files
 	// <polarity> Load the progress screen tips
@@ -663,7 +663,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 	{
 		return true;
 	}
-#ifndef RELEASE_BUILD
+#if !RELEASE_BUILD
 	// prevent non-release builds to fall in the wrong hands
 	LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
 	LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;

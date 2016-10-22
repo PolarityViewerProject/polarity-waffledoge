@@ -2827,7 +2827,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// cache avatar uuid
 	LLUUID av_id = getID();
-#ifdef PVDATA_COLORIZER
+#if PVDATA_COLORIZER
 	// get avatar's color
 	auto name_tag_color = getNameTagColor(av_id, (LLAvatarTracker::instance().getBuddyInfo(av_id) != nullptr));
 #else

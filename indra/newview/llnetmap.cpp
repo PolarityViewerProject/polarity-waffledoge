@@ -61,7 +61,7 @@
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 
-#ifdef PVDATA_COLORIZER
+#if PVDATA_COLORIZER
 #include "pvdata.h"
 #endif
 

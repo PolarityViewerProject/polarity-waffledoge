@@ -891,7 +891,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
-#ifdef PVDATA_COLORIZER
+#if PVDATA_COLORIZER
 	// <polarity> Colored names for special users
 	LLColor4 name_color;
 	static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);

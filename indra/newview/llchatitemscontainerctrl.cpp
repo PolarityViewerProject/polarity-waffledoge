@@ -41,7 +41,7 @@
 
 #include "llslurl.h"
 
-#ifdef PVDATA_COLORIZER
+#if PVDATA_COLORIZER
 #include "pvdata.h"
 #endif
 
@@ -227,7 +227,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			LLStyle::Params style_params_name;
 
 			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-#ifdef PVDATA_COLORIZER
+#if PVDATA_COLORIZER
 			// <polarity> Colored names for special users
 			if ((mSourceType != CHAT_SOURCE_OBJECT) && (mFromID.notNull()))
 			{

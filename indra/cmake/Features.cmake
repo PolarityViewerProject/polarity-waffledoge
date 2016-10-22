@@ -34,8 +34,7 @@ option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 
 option(RELEASE_BUILD "Used to help configure release binaries" OFF)
 
-# <Polarity> We could add logic in every CmakeLists file, or we can just create preprocessor definitions
-# that will propagate throughout the entire solution...
+# Add these CMake flags to the C++ preprocessor to toggle code that way
 add_definitions(
   /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
