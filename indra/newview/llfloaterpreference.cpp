@@ -1238,9 +1238,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
-	// <polarity> Hack to fix wrong value type (How this happens, I have no idea.)
-	gSavedSettings.setU32("RenderReflectionDetail", static_cast<U32>(ctrl_reflections->getValue().asInteger()));
-
 	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
 
 	// Reflections
