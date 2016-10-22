@@ -205,10 +205,75 @@ public:
 ///
 /// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
 ///
-class LLUrlEntrySimpleVendorURL : public LLUrlEntrySecondlifeURL
+class LLUrlEntrySimpleURlVendor : public LLUrlEntrySecondlifeURL
 {
 public:
-	LLUrlEntrySimpleVendorURL();
+	LLUrlEntrySimpleURlVendor();
+};
+class LLUrlEntrySimpleURLe621 : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLe621();
+};
+class LLUrlEntrySimpleURLBitbucket : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLBitbucket();
+};
+class LLUrlEntrySimpleURLFlickr : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLFlickr();
+};
+class LLUrlEntrySimpleURLGithub : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLGithub();
+};
+class LLUrlEntrySimpleURLImgur : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLImgur();
+};
+class LLUrlEntrySimpleURLLastFM : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLLastFM();
+};
+class LLUrlEntrySimpleURLReddit : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLReddit();
+};
+class LLUrlEntrySimpleURLSoundcloud : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLSoundcloud();
+};
+class LLUrlEntrySimpleURLSteam : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLSteam();
+};
+class LLUrlEntrySimpleURLTwitch : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLTwitch();
+};
+class LLUrlEntrySimpleURLTwitter : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLTwitter();
+};
+class LLUrlEntrySimpleURLWikipedia : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLWikipedia();
+};
+class LLUrlEntrySimpleURLYoutube : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleURLYoutube();
 };
 
 ///

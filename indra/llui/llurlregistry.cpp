@@ -38,7 +38,7 @@ void LLUrlRegistryNullCallback(const std::string &url, const std::string &label,
 
 LLUrlRegistry::LLUrlRegistry()
 {
-	mUrlEntry.reserve(20);
+	mUrlEntry.reserve(34);
 
 	// Urls are matched in the order that they were registered
 	mUrlEntryNoLink = new LLUrlEntryNoLink();
@@ -52,8 +52,21 @@ LLUrlRegistry::LLUrlRegistry()
 	// decorated links for host names like: secondlife.com and lindenlab.com
 	registerUrl(new LLUrlEntrySecondlifeURL());
 	registerUrl(new LLUrlEntrySimpleSecondlifeURL());
-	registerUrl(new LLUrlEntrySimpleVendorURL());
-
+	registerUrl(new LLUrlEntrySimpleURlVendor());
+	registerUrl(new LLUrlEntrySimpleURLBitbucket());
+	registerUrl(new LLUrlEntrySimpleURLe621());
+	registerUrl(new LLUrlEntrySimpleURLFlickr());
+	registerUrl(new LLUrlEntrySimpleURLGithub());
+	registerUrl(new LLUrlEntrySimpleURLImgur());
+	registerUrl(new LLUrlEntrySimpleURLLastFM());
+	registerUrl(new LLUrlEntrySimpleURLReddit());
+	registerUrl(new LLUrlEntrySimpleURLSoundcloud());
+	registerUrl(new LLUrlEntrySimpleURLSteam());
+	registerUrl(new LLUrlEntrySimpleURLTwitch());
+	registerUrl(new LLUrlEntrySimpleURLTwitter());
+	registerUrl(new LLUrlEntrySimpleURLWikipedia());
+	registerUrl(new LLUrlEntrySimpleURLYoutube());
+	
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();
 	registerUrl(mUrlEntryHTTPLabel);
@@ -71,8 +84,8 @@ LLUrlRegistry::LLUrlRegistry()
 	registerUrl(new LLUrlEntryObjectIM());
 	registerUrl(new LLUrlEntryPlace());
 	registerUrl(new LLUrlEntryInventory());
-	registerUrl(new LLUrlEntryObjectIM());
-    registerUrl(new LLUrlEntryExperienceProfile());
+	//registerUrl(new LLUrlEntryObjectIM());
+	registerUrl(new LLUrlEntryExperienceProfile());
 	//LLUrlEntrySL and LLUrlEntrySLLabel have more common pattern, 
 	//so it should be registered in the end of list
 	registerUrl(new LLUrlEntrySL());

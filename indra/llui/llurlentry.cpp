@@ -500,18 +500,96 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 //
 // LLUrlEntrySimpleTrustedViewerURL Describes urls to substitute icon 'Vendor_icon.png' before link
 //
-LLUrlEntrySimpleVendorURL::LLUrlEntrySimpleVendorURL()
+LLUrlEntrySimpleURlVendor::LLUrlEntrySimpleURlVendor()
 {
 	// Note: backslashes must be escaped another time in addition to the regex requirements
 	//  e.g.
 	// GOOD: \\.
 	// BAD: \.
-	mPattern = boost::regex("(((http|https):\\/\\/([-\\w\\.]*\\.)?polarityviewer\\.org)(:\\d{1,5})?)\\/\\S*", boost::regex::perl | boost::regex::icase);
-
+	//"(http|https):\/\/([-\w\.]*\.)?polarityviewer\.(org(:\d{1,5})?)\S*"
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?polarityviewer\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
 	mIcon = "Vendor_icon";
 	mMenuName = "menu_url_http.xml";
 }
-
+LLUrlEntrySimpleURLe621::LLUrlEntrySimpleURLe621()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?e621\\.(net(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "e621_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLBitbucket::LLUrlEntrySimpleURLBitbucket()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?bitbucket\\.(org(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Bitbucket_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLFlickr::LLUrlEntrySimpleURLFlickr()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?flickr\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Flickr_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLGithub::LLUrlEntrySimpleURLGithub()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?github\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Github_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLImgur::LLUrlEntrySimpleURLImgur()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?imgur\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Imgur_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLLastFM::LLUrlEntrySimpleURLLastFM()
+{
+	// No https from these guys. Shame.
+	mPattern = boost::regex("(http|https):\\/\\/([-\\w\\.]*\\.)?last\\.(fm(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "LastFM_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLReddit::LLUrlEntrySimpleURLReddit()
+{
+	mPattern = boost::regex("(http|https):\\/\\/([-\\w\\.]*\\.)?reddit\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "LastFM_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLSoundcloud::LLUrlEntrySimpleURLSoundcloud()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?soundcloud\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Soundcloud_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLSteam::LLUrlEntrySimpleURLSteam()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?steam(community|powered)\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Steam_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLTwitch::LLUrlEntrySimpleURLTwitch()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?twitch\\.(tv(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Twitch_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLTwitter::LLUrlEntrySimpleURLTwitter()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?twitter\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Twitter_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLWikipedia::LLUrlEntrySimpleURLWikipedia()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?wikipedia\\.(org(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Wikipedia_icon";
+	mMenuName = "menu_url_http.xml";
+}
+LLUrlEntrySimpleURLYoutube::LLUrlEntrySimpleURLYoutube()
+{
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?((youtube\\.com|youtu\\.be)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mIcon = "Youtube_icon";
+	mMenuName = "menu_url_http.xml";
+}
 //
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
