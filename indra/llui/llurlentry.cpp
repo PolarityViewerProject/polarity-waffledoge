@@ -1496,6 +1496,49 @@ std::string LLUrlEntryIcon::getIcon(const std::string &url)
 }
 
 //
+// LLUrlEntryJira Describes Jira issue names -KC
+//
+LLUrlEntryJira::LLUrlEntryJira()
+{
+	// <FS:CR> Please make sure to sync these with the items in "static bool stringHasJira(const std::string &text)" if you make a change
+	mPattern = boost::regex("((?:ALCH|ARVD|BUG|CHOP|CHUIBUG|CTS|DOC|DN|ECC|EXP|FIRE|FITMESH|LEAP|LLSD|MATBUG|MISC|OPEN|PATHBUG|PLAT|PLVR|PYO|SCR|SH|SINV|SLS|SNOW|SOCIAL|STORM|SUN|SVC|SPOT|SUN|SUP|TPV|VWR|WEB)-\\d+)",
+				// <FS:Ansariel> FIRE-917: Match case to reduce number of false positives
+				//boost::regex::perl|boost::regex::icase);
+				boost::regex::perl);
+	mMenuName = "menu_url_http.xml";
+	mTooltip = LLTrans::getString("TooltipHttpUrl");
+}
+
+std::string LLUrlEntryJira::getLabel(const std::string &url, const LLUrlLabelCallback &cb)
+{
+	return unescapeUrl(url);
+}
+
+std::string LLUrlEntryJira::getTooltip(const std::string &string) const
+{
+	return getUrl(string);
+}
+
+std::string LLUrlEntryJira::getUrl(const std::string &string) const
+{
+	if (string.find("PLVR") != std::string::npos)
+	{
+		return llformat("https://polarityviewer.atlassian.net/browse/%s", string.c_str());
+	}
+	if (string.find("ALCH") != std::string::npos)
+	{
+		return llformat("https://alchemy.atlassian.net/browse/%s", string.c_str());
+	}
+	if (string.find("FIRE") != std::string::npos ||
+		string.find("SLS") != std::string::npos ||
+		string.find("SUP") != std::string::npos )
+	{
+		return llformat("http://jira.phoenixviewer.com/browse/%s", string.c_str());
+	}
+	return llformat("https://jira.secondlife.com/browse/%s", string.c_str());
+}
+
+//
 // LLUrlEntryEmail Describes a generic mailto: Urls
 //
 LLUrlEntryEmail::LLUrlEntryEmail()

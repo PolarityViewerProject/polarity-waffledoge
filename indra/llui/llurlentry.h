@@ -606,5 +606,16 @@ public:
 	/*virtual*/ std::string getUrl(const std::string &string) const;
 };
 
+///
+/// LLUrlEntryJira Describes Jira issue names -KC
+///
+class LLUrlEntryJira : public LLUrlEntryBase
+{
+public:
+	LLUrlEntryJira();
+	/*virtual*/ std::string getLabel(const std::string &url, const LLUrlLabelCallback &cb);
+	/*virtual*/ std::string getTooltip(const std::string &string) const;
+	/*virtual*/ std::string getUrl(const std::string &string) const;
+};
 
 #endif

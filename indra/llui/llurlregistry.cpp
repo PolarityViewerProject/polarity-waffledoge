@@ -92,6 +92,8 @@ LLUrlRegistry::LLUrlRegistry()
 	mUrlEntrySLLabel = new LLUrlEntrySLLabel();
 	registerUrl(mUrlEntrySLLabel);
 	registerUrl(new LLUrlEntryEmail());
+	// parse jira issue names to links -KC
+	registerUrl(new LLUrlEntryJira());
 }
 
 LLUrlRegistry::~LLUrlRegistry()
@@ -173,10 +175,50 @@ static bool stringHasUrl(const std::string &text)
 			text.find("@") != std::string::npos);
 }
 
+static bool stringHasJira(const std::string &text)
+{
+	// same as above, but for jiras
+	// <FS:CR> Please make sure to sync these with the items in LLUrlEntryJira::LLUrlEntryJira() if you make a change
+	return (text.find("ALCH") != std::string::npos ||
+			text.find("ARVD") != std::string::npos ||
+			text.find("BUG") != std::string::npos ||
+			text.find("CHOP") != std::string::npos ||
+			text.find("CHUIBUG") != std::string::npos ||
+			text.find("CTS") != std::string::npos ||
+			text.find("DOC") != std::string::npos ||
+			text.find("DN") != std::string::npos ||
+			text.find("ECC") != std::string::npos ||
+			text.find("EXP") != std::string::npos ||
+			text.find("FIRE") != std::string::npos ||
+			text.find("FITMESH") != std::string::npos ||
+			text.find("LEAP") != std::string::npos ||
+			text.find("LLSD") != std::string::npos ||
+			text.find("MATBUG") != std::string::npos ||
+			text.find("MISC") != std::string::npos ||
+			text.find("OPEN") != std::string::npos ||
+			text.find("PATHBUG") != std::string::npos ||
+			text.find("PLAT") != std::string::npos ||
+			text.find("PLVR") != std::string::npos ||
+			text.find("PYO") != std::string::npos ||
+			text.find("SCR") != std::string::npos ||
+			text.find("SH") != std::string::npos ||
+			text.find("SINV") != std::string::npos ||
+			text.find("SLS") != std::string::npos ||
+			text.find("SNOW") != std::string::npos ||
+			text.find("SOCIAL") != std::string::npos ||
+			text.find("STORM") != std::string::npos ||
+			text.find("SUN") != std::string::npos ||
+			text.find("SUP") != std::string::npos ||
+			text.find("SVC") != std::string::npos ||
+			text.find("TPV") != std::string::npos ||
+			text.find("VWR") != std::string::npos ||
+			text.find("WEB") != std::string::npos);
+}
+
 bool LLUrlRegistry::findUrl(const std::string &text, LLUrlMatch &match, const LLUrlLabelCallback &cb, bool is_content_trusted)
 {
 	// avoid costly regexes if there is clearly no URL in the text
-	if (! stringHasUrl(text))
+	if (! (stringHasUrl(text) || stringHasJira(text)))
 	{
 		return false;
 	}
