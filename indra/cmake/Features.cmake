@@ -33,6 +33,11 @@ option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 
 option(RELEASE_BUILD "Used to help configure release binaries" OFF)
+option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)
+
+if(RELEASE_BUILD)
+	unset(DEVEL_BUILD)
+endif()
 
 # Add these CMake flags to the C++ preprocessor to toggle code that way
 add_definitions(
@@ -47,6 +52,7 @@ add_definitions(
   /DUSE_AVX=${USE_AVX}
   /DUSE_LTO=${USE_LTO}
   /DRELEASE_BUILD=${RELEASE_BUILD}
+  /DDEVEL_BUILD=${DEVEL_BUILD}
   )
 
 MESSAGE("======== *FEATURES* ========")
