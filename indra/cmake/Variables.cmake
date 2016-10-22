@@ -189,47 +189,4 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 
 source_group("CMake Rules" FILES CMakeLists.txt)
 
-# <Polarity> We could add logic in every CmakeLists file, or we can just create preprocessor definitions
-# that will propagate throughout the entire solution...
-add_definitions(
-  /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
-  /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
-  /DPVDATA_MOTD=${PVDATA_MOTD}
-  /DPVDATA_MOTD_CHAT=${PVDATA_MOTD_CHAT}
-  /DPVDATA_PROGRESS_TIPS=${PVDATA_PROGRESS_TIPS}
-  /DPVDATA_UUID_LOCKDOWN=${PVDATA_UUID_LOCKDOWN}
-  /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
-  /DUSE_AVX=${USE_AVX}
-  /DUSE_LTO=${USE_LTO}
-  )
-
-MESSAGE("======== *FEATURES* ========")
-MESSAGE("ENABLE_MESH_UPLOAD                 ${ENABLE_MESH_UPLOAD}")
-MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
-MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
-MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
-MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
-MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
-MESSAGE("USE_LTO                            ${USE_LTO}")
-if(USE_AVX)
-MESSAGE("Preferred SIMD intrinsics:         AVX")
-else(USE_SSE3)
-MESSAGE("Preferred SIMD intrinsics:         SSE3")
-else(RESTRICT_SSE2)
-MESSAGE("Preferred SIMD intrinsics:         SSE2")
-else(RESTRICT_PURE)
-MESSAGE("Preferred SIMD intrinsics:         PURE")
-else()
-MESSAGE("Preferred SIMD intrinsics:         Any")
-endif()
-if(RELEASE_BUILD)
-MESSAGE("THIS IS A RELEASE BUILD: ANYONE NOT BANNED CAN USE IT")
-endif()
-if(PVDATA_UUID_LOCKDOWN)
-  MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
-endif(PVDATA_UUID_LOCKDOWN)
-MESSAGE("============================")
-# </polarity>
-
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
