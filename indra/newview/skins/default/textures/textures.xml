@@ -848,6 +848,7 @@ Additional notes:
   <texture name="Github_icon" file_name="icons/github.png" preload="true" />
   <texture name="Imgur_icon" file_name="icons/imgur.png" preload="true" />
   <texture name="LastFM_icon" file_name="icons/lastfm.png" preload="true" />
+  <texture name="Reddit_icon" file_name="icons/reddit.png" preload="true" />
   <texture name="Soundcloud_icon" file_name="icons/soundcloud.png" preload="true" />
   <texture name="Steam_icon" file_name="icons/steam.png" preload="true" />
   <texture name="Twitch_icon" file_name="icons/twitch.png" preload="true" />

@@ -551,7 +551,7 @@ LLUrlEntrySimpleURLLastFM::LLUrlEntrySimpleURLLastFM()
 LLUrlEntrySimpleURLReddit::LLUrlEntrySimpleURLReddit()
 {
 	mPattern = boost::regex("(http|https):\\/\\/([-\\w\\.]*\\.)?reddit\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "LastFM_icon";
+	mIcon = "Reddit_icon";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLSoundcloud::LLUrlEntrySimpleURLSoundcloud()
