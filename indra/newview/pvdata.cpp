@@ -633,6 +633,9 @@ LLUUID PVData::getLockDownUUID()
 bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 {
 	pvdata_error_message_ = "Generic Error Message";
+#if DEVEL_BUILD
+	return isDeveloper(avatar_id);
+#else
 	LLUUID lockdown_uuid = getLockDownUUID();
 	if (lockdown_uuid != LLUUID::null)
 	{
@@ -691,6 +694,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 	LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
 	pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
 	return false;
+#endif
 }
 
 /**
