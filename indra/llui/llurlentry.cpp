@@ -502,8 +502,11 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 //
 LLUrlEntrySimpleVendorURL::LLUrlEntrySimpleVendorURL()
 {
-	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?polarityviewer\\.org(?!\\S)", // your website url here
-		boost::regex::perl | boost::regex::icase);
+	// Note: backslashes must be escaped another time in addition to the regex requirements
+	//  e.g.
+	// GOOD: \\.
+	// BAD: \.
+	mPattern = boost::regex("(((http|https):\\/\\/([-\\w\\.]*\\.)?polarityviewer\\.org)(:\\d{1,5})?)\\/\\S*", boost::regex::perl | boost::regex::icase);
 
 	mIcon = "Vendor_icon";
 	mMenuName = "menu_url_http.xml";
