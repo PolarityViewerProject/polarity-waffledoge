@@ -1029,7 +1029,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				link_params.override_link_style = true;
-
+#if PVDATA_COLORIZER
 				if (use_colorizer)
 				{
 					// Colorize agent links.
@@ -1037,7 +1037,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 					link_params.color = name_color;
 					link_params.readonly_color = name_color;
 				}
-				
+#endif
 
 
 				// Add link to avatar's inspector and delimiter to message.
