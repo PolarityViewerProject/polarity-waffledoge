@@ -46,6 +46,7 @@ add_definitions(
   /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
   /DUSE_AVX=${USE_AVX}
   /DUSE_LTO=${USE_LTO}
+  /DRELEASE_BUILD=${RELEASE_BUILD}
   )
 
 MESSAGE("======== *FEATURES* ========")
