@@ -52,6 +52,7 @@ LLUrlRegistry::LLUrlRegistry()
 	// decorated links for host names like: secondlife.com and lindenlab.com
 	registerUrl(new LLUrlEntrySecondlifeURL());
 	registerUrl(new LLUrlEntrySimpleSecondlifeURL());
+	registerUrl(new LLUrlEntrySimpleVendorURL());
 
 	registerUrl(new LLUrlEntryHTTP());
 	mUrlEntryHTTPLabel = new LLUrlEntryHTTPLabel();

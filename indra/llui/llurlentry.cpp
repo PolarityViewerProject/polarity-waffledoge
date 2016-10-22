@@ -498,6 +498,18 @@ LLUrlEntrySimpleSecondlifeURL::LLUrlEntrySimpleSecondlifeURL()
 }
 
 //
+// LLUrlEntrySimpleTrustedViewerURL Describes urls to substitute icon 'Vendor_icon.png' before link
+//
+LLUrlEntrySimpleVendorURL::LLUrlEntrySimpleVendorURL()
+{
+	mPattern = boost::regex("https?://([-\\w\\.]*\\.)?polarityviewer\\.org(?!\\S)", // your website url here
+		boost::regex::perl | boost::regex::icase);
+
+	mIcon = "Vendor_icon";
+	mMenuName = "menu_url_http.xml";
+}
+
+//
 // LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 // secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 // x-grid-location-info://lincoln.lindenlab.com/app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about

@@ -203,6 +203,15 @@ public:
 };
 
 ///
+/// LLUrlEntrySeconlifeURLs Describes *secondlife.com and *lindenlab.com Urls
+///
+class LLUrlEntrySimpleVendorURL : public LLUrlEntrySecondlifeURL
+{
+public:
+	LLUrlEntrySimpleVendorURL();
+};
+
+///
 /// LLUrlEntryAgent Describes a Second Life agent Url, e.g.,
 /// secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
 class LLUrlEntryAgent : public LLUrlEntryBase
