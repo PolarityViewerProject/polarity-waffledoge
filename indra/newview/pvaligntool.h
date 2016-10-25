@@ -8,9 +8,7 @@
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  * Portions Copyright (C)
- *  2011 Wolfspirit Magi
- *  2011-2013 Techwolf Lupindo
- *  2012 Ansariel Hiller @ Second Life
+ *  Qarl (Karl Stiefvater)
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,7 +23,7 @@
  * The Polarity Viewer Project
  * http://www.polarityviewer.org
  * $/LicenseInfo$
-*/
+ */
 
 #pragma once
 

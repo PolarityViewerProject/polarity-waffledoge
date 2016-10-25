@@ -2,7 +2,8 @@
  * @file pvloadinganim.h
  * @brief Configurable loading animation widget.
  *
- * $LicenseInfo:firstyear=2016&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * Polarity Viewer Source Code
  * Copyright (C) 2016 Doug Falta
  *
  * This library is free software; you can redistribute it and/or
