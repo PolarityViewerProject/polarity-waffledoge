@@ -2814,7 +2814,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
 		// Color the complexity value based on how bad it is
-		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAutoMuteRenderWeightLimit", 0);
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
 		if (max_render_cost != 0)
 		{
 			// FIXME: For some god forsaken reason, the color curve does not update when max_render_cost changes. Math isn't my thing.
