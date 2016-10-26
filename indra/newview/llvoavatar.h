@@ -801,6 +801,7 @@ public:
 	void			stopTyping() { mTyping = FALSE; }
 private:
 	BOOL			mVisibleChat;
+	BOOL			mVisibleTyping;
 
 	//--------------------------------------------------------------------
 	// Lip synch morphs
@@ -925,7 +926,7 @@ private:
 	LLFrameTimer	mTimeVisible;
 	std::deque<LLChat> mChats;
 	BOOL			mTyping;
-	bool			mTypingLast;
+	bool			mTypingInNameTag;
 	LLFrameTimer	mTypingTimer;
 
 /**                    Name

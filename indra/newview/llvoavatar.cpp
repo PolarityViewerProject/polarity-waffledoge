@@ -690,7 +690,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mIsSitting(FALSE),
 	mTimeVisible(),
 	mTyping(FALSE),
-	mTypingLast(false),
+	mTypingInNameTag(false),
 	mMeshValid(FALSE),
 	mVisible(FALSE),
 	mWindFreq(0.f),
@@ -700,8 +700,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mAppearanceAnimating(FALSE),
 	mNameIsSet(false),
 	// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
-	mNameFirstname(),
-	mNameLastname(),
+	//mNameFirstname(),
+	//mNameLastname(),
 	// </FS:Ansariel>
 	mTitle(),
 	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
@@ -1655,6 +1655,13 @@ LLViewerObject* LLVOAvatar::lineSegmentIntersectRiggedAttachments(const LLVector
 		{
 			LLViewerJointAttachment* attachment = iter->second;
 
+			// <FS:Ansariel> Possible crash fix
+			if (!attachment)
+			{
+				continue;
+			}
+			// </FS:Ansariel>
+
 			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 					attachment_iter != attachment->mAttachedObjects.end();
 					++attachment_iter)
@@ -1801,7 +1808,10 @@ void LLVOAvatar::releaseMeshData()
 		 ++iter)
 	{
 		LLViewerJointAttachment* attachment = iter->second;
-		if (!attachment->getIsHUDAttachment())
+		// <FS:Ansariel> Possible crash fix
+		//if (!attachment->getIsHUDAttachment())
+		if (attachment && !attachment->getIsHUDAttachment())
+		// </FS:Ansariel>
 		{
 			attachment->setAttachmentVisibility(FALSE);
 		}
@@ -2656,28 +2666,36 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mChats.clear();
 	}
 	
+	static LLCachedControl<F32> tag_show_time(gSavedSettings, "RenderNameShowTime");
+	static LLCachedControl<F32> tag_fade_duration(gSavedSettings, "RenderNameFadeDuration");
+	static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
+	static LLCachedControl<S32> tag_mode(gSavedSettings, "AvatarNameTagMode");
+	static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
+	static LLCachedControl<bool> use_bubble_chat(gSavedSettings, "UseChatBubbles");
+	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
+
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	// <polarity> Making these static will break nametag fading in our implementation.
 	// const might work, please investigate.
-	F32 NAME_SHOW_TIME = gSavedSettings.getF32("RenderNameShowTime");	// seconds
-	F32 FADE_DURATION = gSavedSettings.getF32("RenderNameFadeDuration"); // seconds
+	F32 NAME_SHOW_TIME = static_cast<F32>(tag_show_time); // seconds
+	F32 FADE_DURATION = static_cast<F32>(tag_fade_duration); // seconds
 	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
-	static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
-	BOOL visible_chat = use_chat_bubbles && (mChats.size() || mTyping);
+	BOOL visible_chat = use_bubble_chat && (mChats.size() || mTyping);
+	BOOL visible_typing = (use_bubble_chat && !typing_in_status) && mTyping;
 	BOOL render_name =	visible_chat ||
-		(visible_avatar &&
+		visible_typing ||
+			(visible_avatar &&
 		 ((sRenderName == RENDER_NAME_ALWAYS) ||
 		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
 	{
-		static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
-		static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
+
 		render_name = render_name
 			&& !gAgentCamera.cameraMouselook()
 			&& (visible_chat || (name_show_self
-			&& (name_tag_mode > 0)));
+			&& static_cast<S32>(name_tag_mode)));
 	}
 
 	if ( !render_name )
@@ -2698,6 +2716,11 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mVisibleChat = visible_chat;
 		new_name = TRUE;
 	}
+	if (visible_typing != mVisibleTyping)
+	{
+		mVisibleTyping = visible_typing;
+		new_name = TRUE;
+	}
 
 	if (sRenderGroupTitles != mRenderGroupTitles)
 	{
@@ -2711,7 +2734,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	if (mAppAngle > 5.f)
 	{
 		const F32 START_FADE_TIME = NAME_SHOW_TIME - FADE_DURATION;
-		if (!visible_chat && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
+		if (!visible_chat && !visible_typing && sRenderName == RENDER_NAME_FADE && time_visible > START_FADE_TIME)
 		{
 			alpha = 1.f - (time_visible - START_FADE_TIME) / FADE_DURATION;
 		}
@@ -2754,7 +2777,10 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 				
 	idleUpdateNameTagPosition(root_pos_last);
 	idleUpdateNameTagText(new_name);			
-	idleUpdateNameTagAlpha(new_name, alpha);
+	// Wolfspirit: Following thing is already handled in LLHUDNameTag::lineSegmentIntersect
+	// Fixing bubblechat alpha flashing with commenting this out.
+	// idleUpdateNameTagAlpha(new_name, alpha);
+
 }
 
 void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
@@ -2766,6 +2792,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	// Avatars must have a first and last name
 	if (!firstname || !lastname) return;
 
+	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
+	bool is_typing = mTyping && typing_in_status;
 	bool is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
 	bool is_do_not_disturb = mSignaledAnimations.find(ANIM_AGENT_DO_NOT_DISTURB) != mSignaledAnimations.end();
 	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
@@ -2780,9 +2808,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
-	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
-	static LLCachedControl<bool> use_chat_bubbles(gSavedSettings, "UseChatBubbles");
-	bool is_typing = typing_in_status && mTyping;
+
 
 	if (is_appearance != mNameAppearance)
 	{
@@ -2808,8 +2834,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	auto complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 
 		if (show_arw_tag &&
-				((show_under_threshold_arw_tag || isTooComplex())
-				 && ((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))))
+							((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
+							&& (show_under_threshold_arw_tag || isTooComplex()) )
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
@@ -2838,7 +2864,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	if (!mNameIsSet
 		|| new_name
 		// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
-		|| (firstname->getString() != mNameFirstname || lastname->getString() != mNameLastname)
+		//|| (firstname->getString() != mNameFirstname || lastname->getString() != mNameLastname)
 		// </FS:Ansariel>
 		|| (!title && !mTitle.empty())
 		|| (title && mTitle != title->getString())
@@ -2854,7 +2880,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| show_complexity_string != mShowComplexityString
 		// </FS:Ansariel>
 		|| name_tag_color != mColorLast
-		|| is_typing != mTypingLast)
+		|| is_typing != mTypingInNameTag)
 	{
 		clearNameTag();
 
@@ -2881,12 +2907,12 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += LLTrans::getString("AvatarEditingAppearance");
 				line += ", ";
 			}
-			if (!isTooComplex() && is_cloud)
+			if (is_cloud && !isTooComplex())
 			{
 				line += LLTrans::getString("LoadingData");
 				line += ", ";
 			}
-			if (!use_chat_bubbles && is_typing)
+			if (is_typing)
 			{
 				line += LLTrans::getString("AvatarTyping");
 				line += ", ";
@@ -2948,8 +2974,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
 		
 		if (show_arw_tag &&
-				((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag)) &&
-				(show_under_threshold_arw_tag || isTooComplex()))
+			((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
+			&& (show_under_threshold_arw_tag || isTooComplex()))
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -2969,7 +2995,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameCloud = is_cloud;
 		mColorLast = name_tag_color;
 		mTitle = title ? title->getString() : "";
-		mTypingLast = is_typing;
+		mTypingInNameTag = is_typing;
 		// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
 		mNameFirstname = firstname->getString();
 		mNameLastname = lastname->getString();
@@ -2983,7 +3009,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		new_name = TRUE;
 	}
 
-	if (mVisibleChat)
+	if (mVisibleChat || mVisibleTyping)
 	{
 		mNameText->setFont(LLFontGL::getFontSansSerif());
 		mNameText->setTextAlignment(LLHUDNameTag::ALIGN_TEXT_LEFT);
@@ -2993,6 +3019,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameText->clearString();
 
 		LLColor4 new_chat = LLUIColorTable::instance().getColor( isSelf() ? "UserChatColor" : "AgentChatColor" );
+	if (mVisibleChat)
+	{
 		LLColor4 normal_chat = lerp(new_chat, LLColor4(0.8f, 0.8f, 0.8f, 1.f), 0.7f);
 		LLColor4 old_chat = lerp(normal_chat, LLColor4(0.6f, 0.6f, 0.6f, 1.f), 0.7f);
 		if (mTyping && mChats.size() >= MAX_BUBBLE_CHAT_UTTERANCES) 
@@ -3032,9 +3060,10 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				mNameText->addLine(chat_iter->mText, old_chat, style);
 			}
 		}
+	}
 		mNameText->setVisibleOffScreen(TRUE);
 
-		if (mTyping && use_chat_bubbles && !typing_in_status)
+		if (mVisibleTyping && mTyping)
 		{
 			S32 dot_count = (llfloor(mTypingTimer.getElapsedTimeF32() * 3.f) + 2) % 3 + 1;
 			switch(dot_count)
