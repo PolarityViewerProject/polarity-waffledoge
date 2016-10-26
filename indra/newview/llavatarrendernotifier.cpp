@@ -137,7 +137,9 @@ void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
 	}
 
     // log unconditionally
-    LL_WARNS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
+    // Uh, why? This is pretty brutal on the system. - Xenhat 2016-10-26
+    // LL_WARNS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
+    LL_DEBUGS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
 
     if (   expire_delay // expiration of zero means do not show the notices
         && gAgentCamera.getLastCameraMode() != CAMERA_MODE_MOUSELOOK // don't display notices in Mouselook
