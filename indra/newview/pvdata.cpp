@@ -77,7 +77,7 @@ static U32 PVSearchSeparatorSelected = gPVData->separator_space;
 
 void PVData::init(const bool testing_branch)
 {
-	pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (testing_branch ? std::string("live/") : std::string("test/")) + std::to_string(6) + "/";
+	pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (testing_branch ? std::string("test/") : std::string("live/")) + std::to_string(6) + "/";
 }
 
 // ##     ## ######## ######## ########     ##        #######   ######   ####  ######
