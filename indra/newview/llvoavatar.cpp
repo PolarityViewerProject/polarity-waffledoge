@@ -2971,7 +2971,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		}
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
-		std::string complexity_label = show_complexity_string ? LLTrans::getString("Nametag_Complexity_Label") : LLTrans::getString("Nametag_Complexity_Label_Short");
+		static LLCachedControl<bool> show_complexity_string_short(gSavedSettings, "PVUI_NameTagRenderWeightShowStringShort", false);
+		// WOW, nested ternary operator.
+		std::string complexity_label = show_complexity_string ? (show_complexity_string_short ? LLTrans::getString("Nametag_Complexity_Label_Short") : LLTrans::getString("Nametag_Complexity_Label")) : LLTrans::getString("Nametag_Complexity_Label_NoText");
 		
 		if (show_arw_tag &&
 			((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
