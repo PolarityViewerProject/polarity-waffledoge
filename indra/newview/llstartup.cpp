@@ -640,40 +640,9 @@ bool idle_startup()
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
 
-		// <polarity> PVData support
-		// Create PVData instance. I put this here because we only need this call once.
-		// If the runtime loses instance, we have bigger problems.
-		gPVData = PVData::getInstance();
-		// Set up initial URL.
-		PVData::getInstance()->init(gSavedSettings.getBOOL("PVData_UseTestingDataSource"));
-		// Download Data.
-		gPVData->downloadData();
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT);
+		LLStartUp::setStartupState(STATE_AUDIO_INIT);
 	}
 
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		if (gPVData->getDataDone())
-		{
-			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_AUDIO_INIT);
-		}
-		else if (pvdata_time > MAX_PVDATA_TIME)
-		{
-			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_AUDIO_INIT);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
 
 	if (STATE_AUDIO_INIT == LLStartUp::getStartupState())
 	{
@@ -798,11 +767,11 @@ bool idle_startup()
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Initializing Window, show_connect_box = "
-							 << show_connect_box << LL_ENDL;
+			<< show_connect_box << LL_ENDL;
 
 		// if we've gone backwards in the login state machine, to this state where we show the UI
 		// AND the debug setting to exit in this case is true, then go ahead and bail quickly
-		if ( mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated") )
+		if (mLoginStatePastUI && gSavedSettings.getBOOL("QuitOnLoginActivated"))
 		{
 			LL_DEBUGS("AppInit") << "taking QuitOnLoginActivated exit" << LL_ENDL;
 			// no requirement for notification here - just exit
@@ -820,7 +789,77 @@ bool idle_startup()
 			initialize_spellcheck_menu();
 			init_menus();
 		}
+		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD); // Download our data
+	}
 
+	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
+	{
+		// <polarity> PVData support
+		// Create PVData instance. I put this here because we only need this call once.
+		// If the runtime loses instance, we have bigger problems.
+		gPVData = PVData::getInstance();
+		// Set up initial URL.
+		PVData::getInstance()->init(gSavedSettings.getBOOL("PVData_UseTestingDataSource"));
+		// Download Data.
+		gPVData->downloadData();
+		// <polarity> download agents data
+		gPVData->downloadAgents();
+
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
+	}
+
+	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
+		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
+		// then enable the login button again. this will reduce the apparent startup time.
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
+		static LLFrameTimer pvdata_timer;
+		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
+		const F32 MAX_PVDATA_TIME = 15.f;
+		if (gPVData->getDataDone())
+		{
+			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
+		}
+		else if (pvdata_time > MAX_PVDATA_TIME)
+		{
+			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
+
+	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
+	{
+		static LLFrameTimer agents_timer;
+		const F32 agents_time = agents_timer.getElapsedTimeF32();
+		const F32 MAX_AGENTS_TIME = 15.f;
+		if (agents_time > MAX_AGENTS_TIME)
+		{
+			LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
+		}
+		else if (gPVData->getAgentsDone())
+		{
+			LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
+			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
+			LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
+
+	if (STATE_LOGIN_CONTINUE == LLStartUp::getStartupState())
+	{
 		if (show_connect_box)
 		{
 			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
@@ -1025,9 +1064,6 @@ bool idle_startup()
 		// <FS:WS> Initalize Account based asset_blacklist
 		FSAssetBlacklist::getInstance()->init();
 
-		// <polarity> download agents data
-		gPVData->downloadAgents();
-
 		if (show_connect_box)
 		{
 			LLSLURL slurl;
@@ -1086,31 +1122,10 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 
-		LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
+		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
 	}
-	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
-	{
-		static LLFrameTimer agents_timer;
-		const F32 agents_time = agents_timer.getElapsedTimeF32();
-		const F32 MAX_AGENTS_TIME = 15.f;
-		if (agents_time > MAX_AGENTS_TIME)
-		{
-			LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
-		}
-		else if (gPVData->getAgentsDone())
-		{
-			LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
-			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
-			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
+
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
@@ -2453,8 +2468,10 @@ void set_startup_status(const F32 frac, const std::string& string, const std::st
 {
 	gViewerWindow->setProgressPercent(frac*100);
 	gViewerWindow->setProgressString(string);
-
-	gViewerWindow->setProgressMessage(msg);
+	if(LLStartUp::getStartupState() >= STATE_LOGIN_CURL_UNSTUCK)
+	{
+		gViewerWindow->setProgressMessage(msg);
+	}
 }
 
 bool login_alert_status(const LLSD& notification, const LLSD& response)
@@ -2871,9 +2888,13 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 #define RTNENUM(E) case E: return #E
 	switch(state){
 		RTNENUM( STATE_FIRST );
+		RTNENUM(STATE_AUDIO_INIT);
 		RTNENUM( STATE_BROWSER_INIT );
 		RTNENUM( STATE_LOGIN_SHOW );
 		RTNENUM( STATE_LOGIN_WAIT );
+		RTNENUM(STATE_PVDATA_WAIT);
+		RTNENUM(STATE_PVAGENTS_WAIT);
+		RTNENUM(STATE_LOGIN_CONTINUE);
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
 		RTNENUM( STATE_LOGIN_CURL_UNSTUCK );
