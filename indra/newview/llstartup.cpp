@@ -860,6 +860,7 @@ bool idle_startup()
 
 	if (STATE_LOGIN_CONTINUE == LLStartUp::getStartupState())
 	{
+		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
 		if (show_connect_box)
 		{
 			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
@@ -1129,7 +1130,6 @@ bool idle_startup()
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{
-		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
 		gDebugInfo["GridName"] = LLGridManager::getInstance()->getGridId();
 
 		// Update progress status and the display loop.
