@@ -2818,8 +2818,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		if (max_render_cost != 0)
 		{
 			// FIXME: For some god forsaken reason, the color curve does not update when max_render_cost changes. Math isn't my thing.
-			F32 green_level = 1.f - llclamp( (static_cast<F32>(complexity) - static_cast<F32>(max_render_cost)) / static_cast<F32>(max_render_cost), 0.f, 1.f);
-			F32 red_level = llmin(static_cast<F32>(complexity) / static_cast<F32>(max_render_cost), 1.f);
+			F32 green_level = 1.f - llclamp(((F32)complexity - (F32)max_render_cost) / (F32)max_render_cost, 0.f, 1.f);
+			F32 red_level = llmin((F32)complexity / (F32)max_render_cost, 1.f);
 			complexity_color.set(red_level, green_level, 0.f, 1.f);
 		}
 	}
