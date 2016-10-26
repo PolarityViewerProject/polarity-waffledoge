@@ -593,8 +593,12 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 			if (!chat_msg.mFromName.empty())
 			{
 				toast_msg += chat_msg.mFromName;
+				toast_msg += chat_msg.mText.substr(3); // <polarity>
 			}
-			toast_msg += chat_msg.mText.substr(3);
+			else
+			{
+				toast_msg += chat_msg.mText.substr(4); // <polarity>
+			}
 		}
 		else
 		{

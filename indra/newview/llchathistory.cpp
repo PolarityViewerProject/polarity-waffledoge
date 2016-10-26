@@ -1152,8 +1152,22 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// usual messages showing
 	else
 	{
-		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-
+		//std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+		std::string message;
+		// <polarity> Strip leading space in IRC_STYLE messsages coming from objects with empty name
+		if(irc_me && chat.mFromName.empty())
+		{
+			message = chat.mText.substr(4);
+		}
+		else if(irc_me)
+		{
+			message = chat.mText.substr(3);
+		}
+		else
+		{
+			message = chat.mText;
+		}
+		// <polarity>
 
 		//MESSAGE TEXT PROCESSING
 		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
