@@ -312,7 +312,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 {
 	if (type == DAD_NONE)
 	{
-		LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
+		LL_DEBUGS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 		return;
 	}
 	mCargoTypes.clear();
@@ -384,7 +384,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	{
 		if (DAD_NONE == *types_it)
 		{
-			LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
+			LL_DEBUGS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 			return;
 		}
 	}
