@@ -158,7 +158,9 @@ void LLInventoryItemsList::refresh()
 		}
 		LLViewerInventoryItem* item = gInventory.getItem(*it);
 		// Do not rearrange items on each adding, let's do that on filter call
+#if PV_ASSERT_UNTIL_UNUSABLE
 		llassert(item);
+#endif
 		if (item)
 		{
 			addNewItem(item, false);
