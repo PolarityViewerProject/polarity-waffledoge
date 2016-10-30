@@ -8835,6 +8835,8 @@
     <string>Triangle count threshold at which automatic LOD generation stops</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+      <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
@@ -9896,6 +9898,8 @@
       <key>Comment</key>
       <string>Fraction of draw distance defining the switch to a different shader LOD</string>
       <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
       <integer>1</integer>
       <key>Type</key>
       <string>F32</string>
