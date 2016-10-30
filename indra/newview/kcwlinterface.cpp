@@ -631,9 +631,9 @@ void KCWindlightInterface::setWL_Status(bool pwl_status)
 
 bool KCWindlightInterface::checkSettings()
 {
-	static LLCachedControl<bool> sPVWindLight_Parcel(gSavedSettings, "PVWindLight_Parcel_Enabled");
-	static LLCachedControl<bool> sPVWindLight_Parcel_AlwaysUseRegion(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
-	if (!sPVWindLight_Parcel || sPVWindLight_Parcel_AlwaysUseRegion)
+	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled");
+	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
+	if (!parcel_windlight || always_use_region)
 	{
 		// The setting changed, clear everything
 		if (!mDisabled)
