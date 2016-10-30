@@ -69,7 +69,9 @@ OSChatCommand::OSChatCommand()
 	gSavedSettings.getControl("ObsidianChatCommandResyncAnim")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("ObsidianChatCommandTeleportToCam")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("ObsidianChatCommandHoverHeight")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	// TODO: Do not autocomplete if not special user
 	gSavedSettings.getControl("PVChatCommand_PVDataRefresh")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("PVChatCommand_PVDataDump")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("PVChatCommand_PurgeChat")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 }
 
@@ -90,7 +92,8 @@ void OSChatCommand::refreshCommands()
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandResyncAnim")), CMD_RESYNC_ANIM);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandTeleportToCam")), CMD_TP_TO_CAM);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHoverHeight")), CMD_HOVER_HEIGHT);
-	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataRefresh")), CMD_REFRESH_PVDATA);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataRefresh")), CMD_PVDATA_REFRESH);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataDump")), CMD_PVDATA_DUMP); 
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PurgeChat")), CMD_PURGE_CHAT);
 }
 
@@ -333,22 +336,22 @@ bool OSChatCommand::parseCommand(std::string data)
 	}
 	case CMD_PURGE_CHAT:
 	{
-			LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
-			if (nearby_chat)
-			{
-				nearby_chat->purgeChatHistory();
-				// <polarity> The clear chat command does not reset scroll index
-				// as the scroll bar is only reset when a new message is appended to the chat log.
-				// We can either update the scrollbar manually, or add a log entry to record that
-				// the char was cleared and clear again to hide it away said entry.
-				reportToNearbyChat("Clearing chat window...");
-				nearby_chat->purgeChatHistory();
-				return true;
-				// </polarity>
-			}
+		LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+		if (nearby_chat)
+		{
+			nearby_chat->purgeChatHistory();
+			// <polarity> The clear chat command does not reset scroll index
+			// as the scroll bar is only reset when a new message is appended to the chat log.
+			// We can either update the scrollbar manually, or add a log entry to record that
+			// the char was cleared and clear again to hide it away said entry.
+			reportToNearbyChat("Clearing chat window...");
+			nearby_chat->purgeChatHistory();
+			return true;
+			// </polarity>
+		}
 		break;
 	}
-	
+
 	case CMD_CLEAR_CHAT:
 	{
 		LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
@@ -413,9 +416,19 @@ bool OSChatCommand::parseCommand(std::string data)
 		}
 		return true;
 	}
-	case CMD_REFRESH_PVDATA:
+	case CMD_PVDATA_REFRESH:
 	{
-		gPVData->refreshDataFromServer(true);
+		if (gPVData->isPolarized(gAgentID))
+		{
+			gPVData->refreshDataFromServer(true);
+		}
+		return true;
+		break;
+	}
+	case CMD_PVDATA_DUMP:
+	{
+		gPVData->Dump("Runtime",gPVData->gPVData_llsd);
+		gPVData->Dump("Runtime", gPVData->gPVAgents_llsd);
 		return true;
 	}
 	}
