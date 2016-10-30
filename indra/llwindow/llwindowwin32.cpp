@@ -3195,15 +3195,26 @@ void LLWindowWin32::swapBuffers()
 // <polarity> Dynamic window title
 void LLWindowWin32::setTitle(const std::string& win_title)
 {
+	// The safe function mbstowcs_s needs a char*, so let's do the magic
+	const char* title_cstr = win_title.c_str();
+	size_t title_size = strlen(title_cstr) + 1;
 	// Set the window title
-	if (win_title.empty())
+	if (!title_size)
 	{
-		wsprintf(mWindowTitle, LAPP_NAME_LPCWSTR);
+		//wsprintf(mWindowTitle, LAPP_NAME_LPCWSTR);
+		// I assume this is to tell various drivers to not treat this as DirectX and try to apply
+		// multi-GPU to it (SLi, Crossfire, etc) - Xenhat 2016-10-26
+		LL_WARNS("Window") << "Setting empty window title!" << LL_ENDL;
+		wsprintf(mWindowTitle, L"OpenGL Window");
 	}
 	else
 	{
-		mbstowcs(mWindowTitle, win_title.c_str(), 255);
-		mWindowTitle[255] = 0;
+		// <polarity> reduce usage of unsafe/deprecated functions
+		//mbstowcs(mWindowTitle, win_title.c_str(), 255);
+		mWindowTitle = new wchar_t[title_size];
+		size_t outSize;
+		mbstowcs_s(&outSize, mWindowTitle, title_size, title_cstr, 255);
+		mWindowTitle[255] = 0; // Just to be sure.
 	}
 	SetWindowText(mWindowHandle, mWindowTitle);
 }
