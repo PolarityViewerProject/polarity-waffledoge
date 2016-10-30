@@ -473,7 +473,11 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 		return msg_in;
 	}
 	// Use the last tip if available
-	std::string return_tip = last_login_tip;
+	std::string return_tip = "";
+	if (last_login_tip != "")
+	{
+		return_tip = last_login_tip;
+	}
 	if (mTipCycleTimer.getStarted())
 	{
 		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
@@ -636,7 +640,11 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
 	pvdata_error_message_ = "Generic Error Message";
 #if DEVEL_BUILD
-	return isDeveloper(avatar_id);
+	if (isDeveloper(avatar_id))
+	{
+		return true;
+	}
+	pvdata_error_message_ = "Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".";
 #else
 	LLUUID lockdown_uuid = getLockDownUUID();
 	if (lockdown_uuid != LLUUID::null)
@@ -692,11 +700,11 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 		LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
 		return true;
 	}
-#endif //RELEASE_BUILD
+#endif //!RELEASE_BUILD
 	LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
-	pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please wait for the public release.";
-	return false;
+	pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".";
 #endif
+	return false;
 }
 
 /**
