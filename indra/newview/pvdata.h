@@ -206,7 +206,20 @@ public:
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string pvdata_error_message_ = "";
 
+	// static
+	/**
+	* \brief Developer-only message logger
+	* \param log_in_s message to display/log
+	* \param level severity level, defaults to debug
+	*/
 	static void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level = LLError::LEVEL_DEBUG, const bool& developer_only = false);
+
+	// static
+	/**
+	* \brief LLSD dumper. Does not check authentication by itself.
+	* \param name Name of LLSD to display in log
+	* \param map LLSD to dump
+	*/
 	static void Dump(const std::string name, const LLSD & map);
 
 	// Get a color for the specified agent (UUID version)

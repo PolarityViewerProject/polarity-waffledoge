@@ -526,7 +526,7 @@ void PVData::parsePVAgents(const LLSD& data_input)
 		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
 			 uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
-			Dump("SpecialAgentsList", special_agents_llsd);
+			//Dump("SpecialAgentsList", special_agents_llsd);
 			// <key>UUID</key>, which declares the agent's data block
 			LLUUID uuid;
 			LLUUID::parseUUID(uuid_iterator->first, &uuid);
@@ -965,29 +965,27 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 	return false;
 }
 
-// static
-/**
- * \brief Developer-only message logger
- * \param log_in_s message to display/log
- * \param level severity level, defaults to debug
- */
 void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
 {
-	if(developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVData->isDeveloper(gAgentID)))
+	static LLCachedControl<BOOL> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
+	if(!pvdebug_printtolog || (developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVData->isDeveloper(gAgentID))))
 	{
 		return;
 	}
 	// Signed int because there is no operator for LLError::LEVEL_WARN => S32
-	auto log_level = static_cast<signed int>(level);
-	static auto pvdebug_printtolog_forcedlevel = static_cast<signed int>(gSavedSettings.getS32("PVDebug_PrintToLogForcedLevel"));
+	S32 log_level = (S32)level;
+	S32 pvdebug_printtolog_forcedlevel = gSavedSettings.getS32("PVDebug_PrintToLogForcedLevel");
 	if (pvdebug_printtolog_forcedlevel >= 0)
 	{
 		// Don't let the user set log as error: this will crash them.
 		if (LLError::LEVEL_ERROR == pvdebug_printtolog_forcedlevel)
 		{
-			 pvdebug_printtolog_forcedlevel = LLError::LEVEL_WARN;
+			log_level = LLError::LEVEL_WARN;
 		}
-		log_level = pvdebug_printtolog_forcedlevel;
+		else
+		{
+			log_level = pvdebug_printtolog_forcedlevel;
+		}
 	}
 	// Ensure our string is null-terminated.
 	const std::string nullterm_string = log_in_s.c_str();
@@ -1016,14 +1014,6 @@ void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level,
 
 void PVData::Dump(const std::string name, const LLSD& map)
 {
-	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
-
-	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE) // Skip debug entirely if the user isn't authenticated yet
-		|| !gPVData->isDeveloper(gAgentID) // or if not a developer
-		|| !pvdebug_printtolog) // or if chosing not to.
-	{
-		return;
-	}
 	std::stringstream str;
 	LLSDSerialize::toPrettyXML(map, str);
 	PV_DEBUG("\n===========================\n<!--  <" + name + "> -->\n" + str.str() + "\n<!--  </" + name + "> -->\n===========================\n", LLError::LEVEL_DEBUG);
