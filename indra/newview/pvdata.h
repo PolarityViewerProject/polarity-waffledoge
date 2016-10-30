@@ -268,6 +268,7 @@ public:
 	LLSD gPVAgents_llsd;
 private:
 
+	U8 pvdata_file_version = 6;
 	// This processes the main data
 	void parsePVData(const LLSD& data_input);
 
