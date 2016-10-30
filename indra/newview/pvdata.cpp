@@ -973,14 +973,7 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
  */
 void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
 {
-	// Skip debug entirely if the user isn't authenticated yet
-	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE)
-		|| !(gPVData->isDeveloper(gAgentID))) // or if not a developer
-	{
-		return;
-	}
-	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
-	if (!pvdebug_printtolog)
+	if(developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVData->isDeveloper(gAgentID)))
 	{
 		return;
 	}
