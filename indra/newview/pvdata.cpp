@@ -52,6 +52,7 @@
 
 #include <stdlib.h> // for setenv
 #include "llfloaterpreference.h"
+#include "lltrans.h" // for getString
 
 PVData* gPVData = NULL;
 
