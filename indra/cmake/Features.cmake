@@ -25,7 +25,7 @@ set(COMPILER_JOBS "8" CACHE STRING "Amount of simultaneous compiler jobs")
 
 # Optimizations
 option(USE_AVX "[GLOBAL]Use AVX Instrinsics whenever possible" OFF)
-option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" ON)
+option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" OFF)
 option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
 option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 
