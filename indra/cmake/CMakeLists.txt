@@ -6,7 +6,7 @@ project(cmake)
 
 set(cmake_SOURCE_FILES
     CMakeLists.txt
-
+    Variables.cmake
     00-Common.cmake
     APR.cmake
     Audio.cmake
@@ -88,7 +88,6 @@ set(cmake_SOURCE_FILES
     UI.cmake
     UnixInstall.cmake
     URIPARSER.cmake
-    Variables.cmake
     ViewerMiscLibs.cmake
     VisualLeakDetector.cmake
     XmlRpcEpi.cmake
