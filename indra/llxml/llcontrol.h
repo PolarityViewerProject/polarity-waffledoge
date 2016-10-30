@@ -387,6 +387,7 @@ private:
 	{
 		LLControlVariablePtr controlp = group.getControl(name);
 		// <polarity> You crash here if you are missing a setting
+		llassert_always(controlp);
 		mType = controlp->type();
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 
