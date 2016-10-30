@@ -243,6 +243,16 @@ public:
 	static void getChatLogsDirOverride();
 	static void setChatLogsDirOverride();
 	bool moveTranscriptsAndLog(std::string userid) const;
+
+	/**
+	 * \brief PVData main LLSD
+	 */
+	LLSD gPVData_llsd;
+
+	/**
+	 * \brief PVData agents LLSD
+	 */
+	LLSD gPVAgents_llsd;
 private:
 
 	// This processes the main data

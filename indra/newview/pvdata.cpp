@@ -245,6 +245,7 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 		}
 		else
 		{
+			gPVData_llsd = http_content;
 			data_parse_status_ = INIT;
 			
 			//data_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
@@ -262,6 +263,7 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 		}
 		else
 		{
+			gPVAgents_llsd = http_content;
 			agents_parse_status_ = INIT;
 			//agents_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
 			parsePVAgents(http_content);
@@ -535,13 +537,6 @@ void PVData::parsePVAgents(const LLSD& data_input)
 			}
 		}
 	}
-	// TODO PLVR: Find a way to dump these because they aren't LLSD anymore
-	//Dump("PVAgents (AgentAccess)", (LLSD)pv_agent_access_);
-	//Dump("PVAgents (AgentColors)", agents_colors_);
-	//Dump("PVAgents (AgentColors)", agents_colors_);
-	//Dump("PVAgents (BanReason)", ban_reason_);
-	//Dump("PVAgents (Title)", pv_agent_title_);
-
 	if (data_input.has("SupportGroups"))
 	{
 		const LLSD& support_groups = data_input["SupportGroups"];
