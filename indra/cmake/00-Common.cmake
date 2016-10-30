@@ -92,7 +92,7 @@ if (WINDOWS)
   endif (WORD_SIZE EQUAL 32)
 
   # configure win32 API for windows 8+ compatibility. Report says we are unusable on windows 7.
-  set(WINVER "0x0602" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
+  set(WINVER "0x0601" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
   add_definitions("/DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
 
   set(OPT_OPTIONS "/OPT:REF /OPT:ICF=3")
