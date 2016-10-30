@@ -167,6 +167,17 @@
       <key>Value</key>
       <string>/purgechat</string>
     </map>
+    <key>PVChatCommand_PVDataDump</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to dump pvdata</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/pvdatadump</string>
+    </map>
     <key>PVChatCommand_PVDataRefresh</key>
     <map>
       <key>Comment</key>
