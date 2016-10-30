@@ -961,7 +961,7 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
  * \param log_in_s message to display/log
  * \param level severity level, defaults to debug
  */
-void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level)
+void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
 {
 	// Skip debug entirely if the user isn't authenticated yet
 	if ((LLStartUp::getStartupState() <= STATE_LOGIN_PROCESS_RESPONSE)
