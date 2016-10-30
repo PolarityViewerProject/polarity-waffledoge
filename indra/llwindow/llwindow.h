@@ -177,7 +177,7 @@ public:
 
 // <polarity> Dynamic window title
 //this needs to be overridden for all platforms
-	virtual void setTitle(const std::string win_title) {}
+	virtual void setTitle(const std::string& win_title) {};
 
 protected:
 	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);

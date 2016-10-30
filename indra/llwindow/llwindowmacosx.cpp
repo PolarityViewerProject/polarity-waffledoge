@@ -1655,6 +1655,10 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
 	}
 }
 
+void LLWindowMacOSX::setTitle(const std::string &title)
+{
+	setTitleCocoa(mWindow, title);
+}
 S32 OSMessageBoxMacOSX(const std::string& text, const std::string& caption, U32 type)
 {
 	return showAlert(text, caption, type);

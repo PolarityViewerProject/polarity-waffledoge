@@ -3193,7 +3193,7 @@ void LLWindowWin32::swapBuffers()
 }
 
 // <polarity> Dynamic window title
-void LLWindowWin32::setTitle(const std::string win_title)
+void LLWindowWin32::setTitle(const std::string& win_title)
 {
 	// Set the window title
 	if (win_title.empty())
