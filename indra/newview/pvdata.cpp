@@ -432,12 +432,21 @@ void PVData::parsePVData(const LLSD& data_input)
 		// Store list for later use
 		progress_tips_list_ = data_input["ProgressTip"];
 	}
+	else
+	{
+		PV_DEBUG("No progress tips found!", LLError::LEVEL_WARN);
+	}
 #endif // PVDATA_PROGRESS_TIPS
 
 	if (data_input.has("WindowTitles"))
 	{
+		PV_DEBUG("Found Window Titles!", LLError::LEVEL_DEBUG);
 		// Store list for later use
 		window_titles_list_ = data_input["WindowTitles"];
+	}
+	else
+	{
+		PV_DEBUG("No window titles found!", LLError::LEVEL_WARN);
 	}
 	data_parse_status_ = OK;
 	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
@@ -624,6 +633,7 @@ LLUUID PVData::getLockDownUUID()
 }
 bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 {
+	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
 	pvdata_error_message_ = "Generic Error Message";
 #if DEVEL_BUILD
 	return isDeveloper(avatar_id);
@@ -1339,7 +1349,7 @@ void PVData::getChatLogsDirOverride()
 	
 	if(new_chat_logs_dir != gDirUtilp->getChatLogsDir())
 	{
-		PV_DEBUG("Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir(),LLError::LEVEL_WARN);
+		PV_DEBUG("Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
 	}
 
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
