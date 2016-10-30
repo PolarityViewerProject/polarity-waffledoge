@@ -59,7 +59,7 @@ KCWindlightInterface::KCWindlightInterface() :
 {
 	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled", true);
 	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
-	if (!parcel_windlight || !always_use_region)
+	if (!parcel_windlight || always_use_region)
 	{
 		mEventTimer.stop();
 		mDisabled = true;
