@@ -69,6 +69,7 @@ MESSAGE("USE_LTO                            ${USE_LTO}")
 if(USE_AVX)
   add_definitions(
     /DGLM_FORCE_AVX=TRUE
+    /DUSE_AVX=TRUE
     )
   MESSAGE("Preferred SIMD intrinsics:         AVX")
   unset(GLM_FORCE_SSE3)
