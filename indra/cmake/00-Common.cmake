@@ -93,8 +93,7 @@ if (WINDOWS)
 
   # configure win32 API for windows 8+ compatibility. Report says we are unusable on windows 7.
   set(WINVER "0x0602" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
-  set(NTDDI_VERSION "0x06020000")
-  add_definitions("/DNTDDI_VERSION=${NTDDI_VERSION} /DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
+  add_definitions("/DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
 
   set(OPT_OPTIONS "/OPT:REF /OPT:ICF=3")
   if(USE_LTO)
