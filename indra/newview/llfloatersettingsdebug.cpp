@@ -45,6 +45,7 @@
 LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key) 
 // Polarity> Ensure the debug list is populated when opening through the toolbar button
 //: LLFloater(key)
+// TODO: Add a dropdown for this in the floater
 :  LLFloater(key.asString().empty() ? LLSD("all") : key)
 {
 	mCommitCallbackRegistrar.add("SettingSelect",  boost::bind(&LLFloaterSettingsDebug::onSettingSelect, this));
