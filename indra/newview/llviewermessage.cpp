@@ -1887,18 +1887,6 @@ void inventory_offer_handler(LLOfferInfo* info)
 		return;
 	}
 
-	bool bAutoAccept(false);
-	// Avoid the Accept/Discard dialog if the user so desires. JC
-	static LLCachedControl<bool> auto_accept_new_inventory(gSavedSettings, "AutoAcceptNewInventory", false); // <polarity> Re-work auto-accept once more.
-	if (auto_accept_new_inventory
-		&& (info->mType == LLAssetType::AT_NOTECARD
-			|| info->mType == LLAssetType::AT_LANDMARK
-			|| info->mType == LLAssetType::AT_TEXTURE))
-	{
-		// For certain types, just accept the items into the inventory,
-		// and possibly open them on receipt depending upon "ShowNewInventory".
-		bAutoAccept = true;
-	}
 
 	// Strip any SLURL from the message display. (DEV-2754)
 	std::string msg = info->mDesc;
@@ -1965,7 +1953,8 @@ void inventory_offer_handler(LLOfferInfo* info)
 	LLNotification::Params p;
 
 	// Object -> Agent Inventory Offer
-	if (info->mFromObject && !bAutoAccept)
+	static LLCachedControl<bool> auto_accept_inventory(gSavedSettings, "AutoAcceptNewInventory", false); // <polarity>
+	if (info->mFromObject && !auto_accept_inventory)
 	{
 		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
 		args["ITEM_SLURL"] = msg;
@@ -2011,13 +2000,35 @@ void inventory_offer_handler(LLOfferInfo* info)
             send_do_not_disturb_message(gMessageSystem, info->mFromID);
         }
 
-		if( !bAutoAccept ) // if we auto accept, do not pester the user
+		static LLCachedControl<bool> auto_accept_inventory(gSavedSettings, "AutoAcceptNewInventory", false); // <polarity> Re-work auto-accept once more.
+		if( !auto_accept_inventory ) // if we auto accept, do not pester the user
 		{
 			// Inform user that there is a script floater via toast system
 			payload["give_inventory_notification"] = TRUE;
 			p.payload = payload;
 			LLPostponedNotification::add<LLPostponedOfferNotification>(p, info->mFromID, false);
 		}
+			static LLCachedControl<bool> show_offered_inventory(gSavedSettings, "ShowOfferedInventory");
+			if (auto_accept_inventory && show_offered_inventory)
+			{
+            LLViewerInventoryCategory* catp = NULL;
+            catp = (LLViewerInventoryCategory*)gInventory.getCategory(info->mObjectID);
+            LLViewerInventoryItem* itemp = NULL;
+            if(!catp)
+            {
+                itemp = (LLViewerInventoryItem*)gInventory.getItem(info->mObjectID);
+            }
+            LLOpenAgentOffer* open_agent_offer = new LLOpenAgentOffer(info->mObjectID, info->mFromName);
+            open_agent_offer->startFetch();
+            if(catp || (itemp && itemp->isFinished()))
+            {
+                open_agent_offer->done();
+            }
+            else
+            {
+                gInventory.addObserver(open_agent_offer);
+            }
+        }
 	}
 
 	LLFirstUse::newInventory();
