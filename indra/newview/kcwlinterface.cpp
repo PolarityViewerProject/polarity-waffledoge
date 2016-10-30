@@ -633,7 +633,7 @@ bool KCWindlightInterface::checkSettings()
 {
 	static LLCachedControl<bool> sPVWindLight_Parcel(gSavedSettings, "PVWindLight_Parcel_Enabled");
 	static LLCachedControl<bool> sPVWindLight_Parcel_AlwaysUseRegion(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
-	if (!sPVWindLight_Parcel || !sPVWindLight_Parcel_AlwaysUseRegion)
+	if (!sPVWindLight_Parcel || sPVWindLight_Parcel_AlwaysUseRegion)
 	{
 		// The setting changed, clear everything
 		if (!mDisabled)
