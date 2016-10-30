@@ -221,6 +221,10 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 	)
 {
 	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
+	if (dump_web_data)
+	{
+		Dump(http_source_url, http_content);
+	}
 	//PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
 	PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
 	//PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
@@ -242,10 +246,7 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 		else
 		{
 			data_parse_status_ = INIT;
-			if (dump_web_data)
-			{
-				Dump(http_source_url, http_content);
-			}
+			
 			//data_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
 			parsePVData(http_content);
 		}
@@ -262,10 +263,6 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 		else
 		{
 			agents_parse_status_ = INIT;
-			if (dump_web_data)
-			{
-				Dump(http_source_url, http_content);
-			}
 			//agents_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
 			parsePVAgents(http_content);
 		}
