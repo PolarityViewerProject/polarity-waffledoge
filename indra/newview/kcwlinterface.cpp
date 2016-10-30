@@ -107,7 +107,7 @@ void KCWindlightInterface::parcelChange()
 
 	if ( (this_parcel_id != mLastParcelID) || (mLastParcelDesc != desc) ) //parcel changed
 	{
-		LL_DEBUGS() << "Agent in new parcel: " << this_parcel_id << LL_ENDL;
+		LL_DEBUGS("KCWindlightInterface") << "Agent in new parcel: " << this_parcel_id << LL_ENDL;
 
 		mLastParcelID = this_parcel_id;
 		mLastParcelDesc = desc;
@@ -191,7 +191,7 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 		{
 			if (settings.has("water") && (!mHaveRegionSettings || mHasRegionOverride))
 			{
-				LL_DEBUGS() << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
+				LL_INFOS("KCWindlightInterface") << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
 				// <polarity> Somebody forgot interpolation...
 				// TODO: use a global or something
 				static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
@@ -201,7 +201,7 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 		}
 		else
 		{
-			LL_WARNS() << "Cannot apply Parcel WL water preset because region WL default has been set due to invalid sky preset" << LL_ENDL;
+			LL_WARNS("KCWindlightInterface") << "Cannot apply Parcel WL water preset because region WL default has been set due to invalid sky preset" << LL_ENDL;
 		}
 	}
 }
@@ -210,7 +210,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 {
 	if (settings.has("sky"))
 	{
-		LL_DEBUGS() << "Checking if agent is in a defined zone" << LL_ENDL;
+		LL_DEBUGS("KCWindlightInterface") << "Checking if agent is in a defined zone" << LL_ENDL;
 
 		//TODO: there has to be a better way of doing this...
 		mEventTimer.reset();
@@ -228,14 +228,14 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 				if (lower != mCurrentSpace) //workaround: only apply once
 				{
 					mCurrentSpace = lower; //use lower as an id
-					LL_DEBUGS() << "Applying WL sky set: " << (*space_it)["preset"].asString() << LL_ENDL;
+					LL_INFOS("KCWindlightInterface") << "Applying WL sky set: " << (*space_it)["preset"].asString() << LL_ENDL;
 					applyWindlightPreset((*space_it)["preset"].asString());
 				}
 				return true;
 			}
 		}
 
-		LL_DEBUGS() << "Agent is not within a defined zone. Trying default now" << LL_ENDL;
+		LL_DEBUGS("KCWindlightInterface") << "Agent is not within a defined zone. Trying default now" << LL_ENDL;
 	}
 
 	if (mCurrentSpace != NO_ZONES)
@@ -244,7 +244,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 		// set notes on KCWindlightInterface::haveParcelOverride
 		if (settings.has("sky_default") && (!mHaveRegionSettings || mHasRegionOverride))
 		{
-			LL_INFOS() << "Applying WL sky set: " << settings["sky_default"] << " (Parcel WL Default)" << LL_ENDL;
+			LL_INFOS("KCWindlightInterface") << "Applying WL sky set: " << settings["sky_default"] << " (Parcel WL Default)" << LL_ENDL;
 			applyWindlightPreset(settings["sky_default"].asString());
 		}
 		else //reset to default
@@ -259,7 +259,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 				reason = "No zone defined or not in a defined zone, region has custom WL and \"RegionOverride\" parameter was not set";
 			}
 
-			LL_INFOS() << "Applying WL sky set \"Region Default\": " << reason << LL_ENDL;
+			LL_INFOS("KCWindlightInterface") << "Applying WL sky set \"Region Default\": " << reason << LL_ENDL;
 			applyWindlightPreset(PARCEL_WL_DEFAULT);
 			return false;
 		}
@@ -433,7 +433,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 			{
 				if (match[1].matched)
 				{
-					LL_DEBUGS() << "Sky Flags: type = " << match[1] << " from = " << match[2] << " to = " << match[3] << " preset = " << match[5] << LL_ENDL;
+					LL_DEBUGS("KCWindlightInterface") << "Sky Flags: type = " << match[1] << " from = " << match[2] << " to = " << match[3] << " preset = " << match[5] << LL_ENDL;
 
 					std::string preset(match[5]);
 					LLWLParamKey key(preset, LLEnvKey::SCOPE_LOCAL);
@@ -459,20 +459,20 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 						}
 						else
 						{
-							LL_DEBUGS() << "Sky Default = " << preset << LL_ENDL;
+							LL_DEBUGS("KCWindlightInterface") << "Sky Default = " << preset << LL_ENDL;
 							settings["sky_default"] = preset;
 							found_settings = true;
 						}
 					}
 					else
 					{
-						LL_WARNS() << "Parcel Windlight contains unknown sky: " << preset << LL_ENDL;
+						LL_WARNS("KCWindlightInterface") << "Parcel Windlight contains unknown sky: " << preset << LL_ENDL;
 					}
 				}
 				else if (match[4].matched)
 				{
 					std::string preset(match[5]);
-					LL_DEBUGS() << "Got Water Preset: " << preset << LL_ENDL;
+					LL_DEBUGS("KCWindlightInterface") << "Got Water Preset: " << preset << LL_ENDL;
 					if(wwprammgr->hasParamSet(preset))
 					{
 						settings["water"] = preset;
@@ -481,7 +481,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 				}
 				else if (match[6].matched)
 				{
-					LL_DEBUGS() << "Got Region Override Flag" << LL_ENDL;
+					LL_DEBUGS("KCWindlightInterface") << "Got Region Override Flag" << LL_ENDL;
 					settings["region_override"] = true;
 				}
 				
@@ -618,7 +618,7 @@ bool KCWindlightInterface::haveParcelOverride(const LLEnvironmentSettings& new_s
 
 	if (!has_override)
 	{
-		LL_INFOS() << "Region environment settings received. Parcel WL settings will be overridden. Reason: No \"RegionOverride\", region not using default WL and no zones defined or Parcel WL settings received - Region settings taking precedence" << LL_ENDL;
+		LL_INFOS("KCWindlightInterface") << "Region environment settings received. Parcel WL settings will be overridden. Reason: No \"RegionOverride\", region not using default WL and no zones defined or Parcel WL settings received - Region settings taking precedence" << LL_ENDL;
 	}
 	return has_override;
 }
