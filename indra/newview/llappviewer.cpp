@@ -6014,12 +6014,16 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 			{
 				first_name = login_response["first_name"].asString();
 				first_name.erase(std::remove_if(first_name.begin(), first_name.end(), IsChars("\" ")), first_name.end());
+#if HEAVY_LOG
 				LL_DEBUGS("") << "first name = '" << first_name << "'" << LL_ENDL;
+#endif
 				if (login_response.has("last_name"))
 				{
 					last_name = login_response["last_name"].asString();
 					last_name.erase(std::remove_if(last_name.begin(), last_name.end(), IsChars("\" ")), last_name.end());
+#if HEAVY_LOG
 					LL_DEBUGS("") << "last name = '" << last_name << "'" << LL_ENDL;
+#endif
 					if (boost::iequals(last_name, "resident"))
 					{
 						last_name = "";
@@ -6033,19 +6037,18 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 
 				name_string.append(first_name);
 
+				static LLCachedControl<BOOL> force_short_name(gSavedSettings, "PVWindow_TitleForceShortName", true);
 				if (has_last_name)
 				{
 					name_string.append(" " + last_name);
 				}
-				//else if (STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
-				//{
-				//	name_string = "Logging in ";
-				//}
-				else if ((first_name.length() + last_name.length() + window_title_appname_string.length()) > 25) // This number makes no sense, but whatever.
+				else if (force_short_name || ((first_name.length() + last_name.length() + window_title_appname_string.length()) > 25)) // This number makes no sense, but whatever.
 				{
-					LL_DEBUGS("") << "Title is very long! Truncating name!" << LL_ENDL;
+#if HEAVY_LOG
+					LL_DEBUGS("") << "Truncating username in title due to length limit or user preference" << LL_ENDL;
+#endif
 					// use the initials instead
-					//first_name = first_name.at(1);
+					//first_ame = first_name.at(1);
 					name_string = first_name.substr(0, 1);
 					if (has_last_name)
 					{
@@ -6057,8 +6060,9 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 		}
 		new_title.append(name_string + window_title_appname_string);
 	}
+#if HEAVY_LOG
 	LL_DEBUGS("") << "Using computed title '" << new_title << "'" << LL_ENDL;
-
+#endif
 	std::string suffix;
 	if (!gArgs.empty())
 	{
@@ -6073,11 +6077,14 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 	gWindowTitle = new_title + suffix;
 	if (gWindowTitle != last_title)
 	{
+#if HEAVY_LOG
 		LL_DEBUGS() << "Title was different, updating!" << LL_ENDL;
+#endif
 		gViewerWindow->getWindow()->setTitle(gWindowTitle);
 	}
-
+#if HEAVY_LOG
 	LL_DEBUGS() << "Title was NOT different (" + gWindowTitle << "), aborting!" << LL_ENDL;
+#endif
 	return gWindowTitle;
 }
 // </polarity>
