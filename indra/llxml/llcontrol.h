@@ -386,8 +386,7 @@ private:
 	void bindToControl(LLControlGroup& group, const std::string& name)
 	{
 		LLControlVariablePtr controlp = group.getControl(name);
-		// <polarity> You crash here if you are missing a setting
-		llassert_always(controlp);
+		// <polarity> You crash here if you are missing a setting and the check above failed.
 		mType = controlp->type();
 		mCachedValue = convert_from_llsd<T>(controlp->get(), mType, name);
 
