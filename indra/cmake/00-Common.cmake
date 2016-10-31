@@ -91,7 +91,7 @@ if (WINDOWS)
     add_compile_options(/arch:SSE2)
   endif (WORD_SIZE EQUAL 32)
 
-  # configure win32 API for windows 8+ compatibility. Report says we are unusable on windows 7.
+  # configure win32 API for windows 7+ compatibility.
   set(WINVER "0x0601" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
   add_definitions("/DWINVER=${WINVER}" "/D_WIN32_WINNT=${WINVER}")
 
