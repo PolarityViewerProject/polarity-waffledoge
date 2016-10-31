@@ -370,7 +370,12 @@ public:
 		if(!group.controlExists(name))
 		{
 			// <polarity> Make missing controls more obvious
-			LL_ERRS("Settings") << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
+#if RELEASE_BUILD
+			LL_WARNS("Settings")
+#else
+			LL_ERRS("Settings")
+#endif
+			 << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
 		}
 		// <polarity> Don't bind control if it doesn't exist. This avoids crashes.
 		else
