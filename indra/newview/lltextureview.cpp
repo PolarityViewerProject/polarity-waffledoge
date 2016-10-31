@@ -68,17 +68,16 @@ std::set<LLViewerFetchedTexture*> LLTextureView::sDebugImages;
 
 ////////////////////////////////////////////////////////////////////////////
 
-static std::string title_string1a("Tex UUID Area  DDis(Req)  DecodePri(Fetch)     [download] pk/max");
-static std::string title_string1b("Tex UUID Area  DDis(Req)  Fetch(DecodePri)     [download] pk/max");
+static std::string title_string1a("  UUID    Area  DDis(Req)  DecodePri(Fetch)  [progress] pk/max");
+static std::string title_string1b("  UUID    Area  DDis(Req)  Fetch(DecodePri)  [progress] pk/max");
 static std::string title_string2("State");
 static std::string title_string3("Pkt Bnd");
 static std::string title_string4("  W x H (Dis) Mem");
 
 static S32 title_x1 = 0;
-//BD
-static S32 title_x2 = 450;
+static S32 title_x2 = 460;
 static S32 title_x3 = title_x2 + 40;
-static S32 title_x4 = title_x3 + 46;
+static S32 title_x4 = title_x3 + 85;
 static S32 texture_bar_height = 8;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -206,7 +205,7 @@ void LLTextureBar::draw()
 	uuid_str = uuid_str.substr(0,7);
 	if (mTextureView->mOrderFetch)
 	{
-		tex_str = llformat("%s %7.0f %d(%d) 0x%08x(%8.0f)",
+		tex_str = llformat("%s %7.0f  %d(%d)   0x%08x(%8.0f)",
 						   uuid_str.c_str(),
 						   mImagep->mMaxVirtualSize,
 						   mImagep->mDesiredDiscardLevel,
@@ -216,7 +215,7 @@ void LLTextureBar::draw()
 	}
 	else
 	{
-		tex_str = llformat("%s %7.0f %d(%d) %8.0f(0x%08x)",
+		tex_str = llformat("%s %7.0f  %d(%d)   %8.0f(0x%08x)",
 						   uuid_str.c_str(),
 						   mImagep->mMaxVirtualSize,
 						   mImagep->mDesiredDiscardLevel,
@@ -269,9 +268,8 @@ void LLTextureBar::draw()
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 
 	// Draw the progress bar.
-	S32 bar_width = 100;
-	//BD
-	S32 bar_left = 295;
+	S32 bar_width = 130;
+	S32 bar_left = 315;
 
 	left = bar_left;
 	right = left + bar_width;
@@ -543,7 +541,8 @@ void LLGLTexMemBar::draw()
 	//S32 bottom = top + 6;
 	F32 data_progress;
 	S32 bar_width = 300;
-	S32 left = 140;
+	const S32 left_first = 160;
+	S32 left = left_first;
 	S32 right;
 	S32 top = v_offset + line_height * 9;
 	S32 max_vram = gGLManager.mVRAM;
@@ -637,7 +636,7 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	left = 140;
+	left = left_first;
 	gGL.color4f(0.f, 0.f, 0.f, 0.75f);
 	gl_rect_2d(left, top - 9, left + bar_width, top - 3);
 	data_progress = (F32)total_mem.value() / (F32)max_total_mem.value();
@@ -692,8 +691,12 @@ void LLGLTexMemBar::draw()
 		}
 	}
 
+	const S32 column_x_offset1 = 185;
+	const S32 column_x_offset2 = 420;
+	const S32 column_x_offset3 = 620;
+
 	//----------------------------------------------------------------------------
-	//BD - Memory
+	// First Row
 
 	text = llformat("FBO: %d MB", fbo);
 
@@ -701,42 +704,48 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Raw Total: %d MB",
-					LLImageRaw::sGlobalRawMemory >> 20);
+	text = llformat("Cache: %.1f / %.1f MB",
+		cache_usage,
+		cache_max_usage);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 185, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
+	text = llformat("Mesh Reads (Writes): %u (%u)",
+		LLMeshRepository::sCacheReads, LLMeshRepository::sCacheWrites);
 
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
+		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	//----------------------------------------------------------------------------
-	//BD - Textures
+	// Second Row
 
 	U32 cache_read(0U), cache_write(0U), res_wait(0U);
 	LLAppViewer::getTextureFetch()->getStateStats(&cache_read, &cache_write, &res_wait);
 	
-	text = llformat("Discard Bias: %.2f",
-					discard_bias);
-
+	text = llformat("Raw Textures: %d",
+		LLImageRaw::sRawImageCount);
+	
 	top = v_offset + line_height * 5;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Textures: %d",
-					gTextureList.getNumImages());
-
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 185, top,
+	text = llformat("Objects(Cached): %d(%d)",
+		total_objects,
+		total_active_cached_objects);
+	
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Raw Textures: %d",
-					LLImageRaw::sRawImageCount);
+	text = llformat("Discard Bias: %.2f",
+		discard_bias);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 370, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Fetching (Deleted): %d (%d)",
 		LLAppViewer::getTextureFetch()->getNumRequests(), LLAppViewer::getTextureFetch()->getNumDeletes());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 555, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset3, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	/*text = llformat("Net Tot Tex: %.1f MB Tot Obj: %.1f MB #Objs/#Cached: %d/%d Tot Htp: %d Cread: %u Cwrite: %u Rwait: %u",
@@ -750,11 +759,10 @@ void LLGLTexMemBar::draw()
 		res_wait);*/
 
 	//----------------------------------------------------------------------------
-	//BD - Cache
+	// Third Row
 
-	text = llformat("Cache: %.1f / %.1f MB",
-					cache_usage,
-					cache_max_usage);
+	text = llformat("Textures: %d",
+		gTextureList.getNumImages());
 
 	top = v_offset + line_height * 4;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
@@ -764,19 +772,16 @@ void LLGLTexMemBar::draw()
 					cache_read,
 					cache_write);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 185, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Mesh Reads (Writes): %u (%u)",
-					LLMeshRepository::sCacheReads, LLMeshRepository::sCacheWrites);
-
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 370, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Texture Read (Write): %d (%d)",
 					LLAppViewer::getTextureCache()->getNumReads(), LLAppViewer::getTextureCache()->getNumWrites());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 555, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset3, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	/*text = llformat("Textures: %d Fetch: %d(%d) Pkts:%d(%d) Cache R/W: %d/%d LFS:%d RAW:%d HTP:%d DEC:%d CRE:%d ",
@@ -797,11 +802,11 @@ void LLGLTexMemBar::draw()
 											 &x_right, FALSE);*/
 
 	//----------------------------------------------------------------------------
-	//BD - Objects
+	// Fourth Row
 
-	text = llformat("Objects (Cached): %d (%d)",
-					total_objects,
-					total_active_cached_objects);
+	text = llformat("Raw Total: %d MB",
+		LLImageRaw::sGlobalRawMemory >> 20);
+
 
 	top = v_offset + line_height * 3;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
@@ -810,13 +815,13 @@ void LLGLTexMemBar::draw()
 	text = llformat("Object Downloads: %.1f MB",
 					total_object_downloaded.valueInUnits<LLUnits::Megabytes>());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 185, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Texture Downloads: %.1f MB",
 					total_texture_downloaded.valueInUnits<LLUnits::Megabytes>());
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 370, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 
@@ -839,19 +844,19 @@ void LLGLTexMemBar::draw()
 	text = llformat("Packets (Bad): %d (%d)",
 					LLAppViewer::getTextureFetch()->mPacketCount, LLAppViewer::getTextureFetch()->mBadPacketCount);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 185, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Total Http Requests: %d",
 					total_http_requests);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 370, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	text = llformat("Mesh Requests (HTTP): %u (%u)",
 					LLMeshRepository::sMeshRequestCount, LLMeshRepository::sHTTPRequestCount);
 
-	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 555, top,
+	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset3, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 	
 	// Mesh status line
