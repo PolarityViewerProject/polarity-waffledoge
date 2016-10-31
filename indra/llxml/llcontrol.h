@@ -372,8 +372,11 @@ public:
 			// <polarity> Make missing controls more obvious
 			LL_ERRS("Settings") << "Control named \"" << name << "\" not found! Please add it to settings.xml to ensure proper viewer functionality." << LL_ENDL;
 		}
-
-		bindToControl(group, name);
+		// <polarity> Don't bind control if it doesn't exist. This avoids crashes.
+		else
+		{
+			bindToControl(group, name);
+		}
 	}
 
 	~LLControlCache()
