@@ -619,16 +619,6 @@ void LLGLTexMemBar::draw()
 		data_progress = 0.0f;
 		right = left + (data_progress * (F32)bar_width);
 	}
-	LL_WARNS() << "Data Dump:"
-		//<< VAR_NAME // need pvcommon.h
-		<< "\ndata_progress == " << data_progress
-		<< "\nused_vram == " << total_used_vram
-		<< "\navailable_vram == " << available_vram
-		<< "\ntexture_total_mem == " << texture_total_mem
-		<< "\ntexture_bound_memory == " << texture_bound_memory
-		<< "\nfbo == " << fbo
-		<< "\nmax_vram == " << max_vram
-		<< LL_ENDL;
 		data_progress = ((F32)fbo) / (F32)max_vram;
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
