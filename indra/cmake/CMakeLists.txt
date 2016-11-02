@@ -22,7 +22,7 @@ set(cmake_SOURCE_FILES
     DeploySharedLibs.cmake
     DragDrop.cmake
     EXPAT.cmake
-    ExamplePlugin.cmake
+##  ExamplePlugin.cmake
     FindAPR.cmake
     FindAutobuild.cmake
     FindFMODSTUDIO.cmake
@@ -90,6 +90,7 @@ set(cmake_SOURCE_FILES
     URIPARSER.cmake
     ViewerMiscLibs.cmake
     VisualLeakDetector.cmake
+    LibVLCPlugin.cmake
     XmlRpcEpi.cmake
     ZLIB.cmake
     )

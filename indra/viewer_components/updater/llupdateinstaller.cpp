@@ -29,14 +29,16 @@
 #include "llupdateinstaller.h"
 #include "lldir.h" 
 #include "llsd.h"
+#include "llexception.h"
 
 #include <boost/lexical_cast.hpp>
 
-
 namespace {
-	class RelocateError {};
-	
-	
+	struct RelocateError: public LLException
+	{
+		RelocateError(): LLException("llupdateinstaller: RelocateError") {}
+	};
+
 	std::string copy_to_temp(std::string const & path)
 	{
 		std::string scriptFile = gDirUtilp->getBaseFileName(path);

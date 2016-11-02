@@ -1,4 +1,4 @@
- /** 
+/** 
  * @file llimagej2ckdu.cpp
  * @brief This is an implementation of JPEG2000 encode/decode using Kakadu
  *
@@ -31,8 +31,65 @@
 #include "llpointer.h"
 #include "llmath.h"
 #include "llkdumem.h"
+#include "stringize.h"
 
 #include "kdu_block_coding.h"
+
+#include "llexception.h"
+#include <boost/exception/diagnostic_information.hpp>
+#include <sstream>
+#include <iomanip>
+
+namespace {
+// Failure to load an image shouldn't crash the whole viewer.
+struct KDUError: public LLContinueError
+{
+    KDUError(const std::string& msg): LLContinueError(msg) {}
+};
+
+// KDU defines int error codes as hex values, so we should log them in hex
+// so we can grep KDU headers for the hex. However those hex values
+// generally "happen" to encode big-endian multibyte character sequences,
+// e.g. KDU_ERROR_EXCEPTION is 0x6b647545: 'kduE'
+// But beware because KDU_NULL_EXCEPTION is simply 0 -- which doesn't
+// preclude somebody from throwing it.
+std::string report_kdu_exception(kdu_exception mb)
+{
+    std::ostringstream out;
+    // always report mb in hex
+    out << "kdu_exception " << std::hex << mb;
+
+    // Also display as many chars as are encoded in the kdu_exception
+    // value. Make a char array; reserve 1 extra byte for nul terminator.
+    char bytes[sizeof(kdu_exception) + 1];
+    // Back up through 'bytes'
+    char *bptr = bytes + sizeof(bytes);
+    *(--bptr) = '\0';
+    while (mb)
+    {
+        // store low-order byte of mb in next-left char
+        *(--bptr) = char(mb & 0xFF);
+        // then shift mb right by one byte
+        mb >>= 8;
+    }
+    // did that produce any characters?
+    if (*bptr)
+    {
+        out << " (" << bptr << ')';
+    }
+
+    return out.str();
+}
+} // anonymous namespace
+
+// stream kdu_dims to std::ostream
+// Turns out this must NOT be in the anonymous namespace!
+inline
+std::ostream& operator<<(std::ostream& out, const kdu_dims& dims)
+{
+	return out << "(" << dims.pos.x << "," << dims.pos.y << "),"
+				  "[" << dims.size.x << "x" << dims.size.y << "]";
+}
 
 class kdc_flow_control {
 	
@@ -165,9 +222,15 @@ struct LLKDUMessageError : public LLKDUMessage
 		// terminating handler→flush call."
 		// So throwing an exception here isn't arbitrary: we MUST throw an
 		// exception if we want to recover from a KDU error.
+		// Because this confused me: the above quote specifically refers to
+		// the kdu_error class, which is constructed internally within KDU at
+		// the point where a fatal error is discovered and reported. It is NOT
+		// talking about the kdu_message subclass passed to
+		// kdu_customize_errors(). Destroying this static object at program
+		// shutdown will NOT engage the behavior described above.
 		if (end_of_message) 
 		{
-			throw "KDU throwing an exception";
+			LLTHROW(KDUError("LLKDUMessageError::flush()"));
 		}
 	}
 };
@@ -196,6 +259,10 @@ LLImageJ2CKDU::~LLImageJ2CKDU()
 // Stuff for new simple decode
 void transfer_bytes(kdu_byte *dest, kdu_line_buf &src, int gap, int precision);
 
+// This is called by the real (private) initDecode() (keep_codestream true)
+// and getMetadata() methods (keep_codestream false). As far as nat can tell,
+// mode is always MODE_FAST. It was called by findDiscardLevelsBoundaries()
+// as well, when that still existed, with keep_codestream true and MODE_FAST.
 void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECodeStreamMode mode)
 {
 	S32 data_size = base.getDataSize();
@@ -206,6 +273,12 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 	//
 	mCodeStreamp.reset();
 
+	// It's not clear to nat under what circumstances we would reuse a
+	// pre-existing LLKDUMemSource instance. As of 2016-08-05, it consists of
+	// two U32s and a pointer, so it's not as if it would be a huge overhead
+	// to allocate a new one every time.
+	// Also -- why is base.getData() tested specifically here? If that returns
+	// NULL, shouldn't we bail out of the whole method?
 	if (!mInputp && base.getData())
 	{
 		// The compressed data has been loaded
@@ -262,13 +335,19 @@ void LLImageJ2CKDU::setupCodeStream(LLImageJ2C &base, bool keep_codestream, ECod
 
 	S32 components = mCodeStreamp->get_num_components();
 
-	if (components >= 3)
-	{ // Check that components have consistent dimensions (for PPM file)
-		kdu_dims dims1; mCodeStreamp->get_dims(1,dims1);
-		kdu_dims dims2; mCodeStreamp->get_dims(2,dims2);
-		if ((dims1 != dims) || (dims2 != dims))
+	// Check that components have consistent dimensions (for PPM file)
+	for (int idx = 1; idx < components; ++idx)
+	{
+		kdu_dims other_dims;
+		mCodeStreamp->get_dims(idx, other_dims);
+		if (other_dims != dims)
 		{
-			LL_ERRS() << "Components don't have matching dimensions!" << LL_ENDL;
+			// This method is only called from methods that catch KDUError.
+			// We want to fail the image load, not crash the viewer.
+			LLTHROW(KDUError(STRINGIZE("Component " << idx << " dimensions "
+									 << other_dims
+									 << " do not match component 0 dimensions "
+									 << dims << "!")));
 		}
 	}
 
@@ -295,6 +374,9 @@ void LLImageJ2CKDU::cleanupCodeStream()
 	mTileIndicesp.reset();
 }
 
+// This is the protected virtual method called by LLImageJ2C::initDecode().
+// However, as far as nat can tell, LLImageJ2C::initDecode() is called only by
+// llimage_libtest.cpp's load_image() function. No detectable production use.
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, int discard_level, int* region)
 {
 	return initDecode(base,raw_image,0.0f,MODE_FAST,0,4,discard_level,region);
@@ -327,6 +409,9 @@ bool LLImageJ2CKDU::initEncode(LLImageJ2C &base, LLImageRaw &raw_image, int bloc
 	return true;
 }
 
+// This is the real (private) initDecode() called both by the protected
+// initDecode() method and by decodeImpl(). As far as nat can tell, only the
+// decodeImpl() usage matters for production.
 bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 decode_time, ECodeStreamMode mode, S32 first_channel, S32 max_channel_count, int discard_level, int* region)
 {
 	base.resetLastError();
@@ -384,14 +469,24 @@ bool LLImageJ2CKDU::initDecode(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			mTPosp->x = 0;
 		}
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
+		return false;
+	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
 		return false;
 	}
 	catch (...)
 	{
-		base.setLastError("Unknown J2C error");
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 
@@ -480,16 +575,28 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					return false;
 				}
 			}
-			catch (const char* msg)
+			catch (const KDUError& msg)
 			{
-				base.setLastError(ll_safe_string(msg));
+				base.setLastError(msg.what());
+				base.decodeFailed();
+				cleanupCodeStream();
+				return true; // done
+			}
+			catch (kdu_exception kdu_value)
+			{
+				// KDU internally throws kdu_exception. It's possible that such an
+				// exception might leak out into our code. Catch kdu_exception
+				// specially because boost::current_exception_diagnostic_information()
+				// could do nothing with it.
+				base.setLastError(report_kdu_exception(kdu_value));
 				base.decodeFailed();
 				cleanupCodeStream();
 				return true; // done
 			}
 			catch (...)
 			{
-				base.setLastError( "Unknown J2C error" );
+				base.setLastError("Unknown J2C error: " +
+								  boost::current_exception_diagnostic_information());
 				base.decodeFailed();
 				cleanupCodeStream();
 				return true; // done
@@ -674,14 +781,24 @@ bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 		base.updateData(); // set width, height
 		delete[] output_buffer;
 	}
-	catch(const char* msg)
+	catch(const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
+		return false;
+	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
 		return false;
 	}
 	catch( ... )
 	{
-		base.setLastError( "Unknown J2C error" );
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 
@@ -698,14 +815,24 @@ bool LLImageJ2CKDU::getMetadata(LLImageJ2C &base)
 		setupCodeStream(base, false, MODE_FAST);
 		return true;
 	}
-	catch (const char* msg)
+	catch (const KDUError& msg)
 	{
-		base.setLastError(ll_safe_string(msg));
+		base.setLastError(msg.what());
+		return false;
+	}
+	catch (kdu_exception kdu_value)
+	{
+		// KDU internally throws kdu_exception. It's possible that such an
+		// exception might leak out into our code. Catch kdu_exception
+		// specially because boost::current_exception_diagnostic_information()
+		// could do nothing with it.
+		base.setLastError(report_kdu_exception(kdu_value));
 		return false;
 	}
 	catch (...)
 	{
-		base.setLastError( "Unknown J2C error" );
+		base.setLastError("Unknown J2C error: " +
+						  boost::current_exception_diagnostic_information());
 		return false;
 	}
 }
