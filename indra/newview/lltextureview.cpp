@@ -521,7 +521,7 @@ private:
 void LLGLTexMemBar::draw()
 {
 	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
- 	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
+	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
 	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
 	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
@@ -547,14 +547,25 @@ void LLGLTexMemBar::draw()
 	S32 top = v_offset + line_height * 9;
 	S32 max_vram = gGLManager.mVRAM;
 	S32 used_vram;
-	// TODO: Use a call that works on Intel iGPUS
-	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &used_vram);
-	if(used_vram < 1)
+	// <polarity> scope for memory management.
 	{
-		used_vram = 1;
+		GLint memInfo;
+		if (gGLManager.mIsATI)
+		{
+			glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfo);
+		}
+		else if (gGLManager.mIsNVIDIA)
+		{
+			glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &memInfo);
+		}
+		else
+		{
+			// TODO: Use a call that works on Intel iGPUS. Is there even one?
+			memInfo = 1;
+		}
+		used_vram = max_vram - (memInfo / 1024.f);
 	}
-	used_vram = max_vram - (used_vram / 1024.f);
-
+	
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
