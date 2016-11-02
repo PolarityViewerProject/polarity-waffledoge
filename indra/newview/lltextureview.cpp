@@ -545,11 +545,11 @@ void LLGLTexMemBar::draw()
 	S32 left = left_first;
 	S32 right;
 	S32 top = v_offset + line_height * 9;
-	S32 max_vram = gGLManager.mVRAM;
-	S32 used_vram;
+	auto max_vram = gGLManager.mVRAM;
+	S32 total_vram_mb;
 	// <polarity> scope for memory management.
 	{
-		GLint memInfo;
+		GLint memInfo; // in KB
 		if (gGLManager.mIsATI)
 		{
 			glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfo);
@@ -563,8 +563,10 @@ void LLGLTexMemBar::draw()
 			// TODO: Use a call that works on Intel iGPUS. Is there even one?
 			memInfo = 1;
 		}
-		used_vram = max_vram - (memInfo / 1024.f);
+		total_vram_mb = memInfo / 1024;
 	}
+	S32 used_vram = max_vram - total_vram_mb;
+	
 	
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
@@ -588,7 +590,7 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%d MB",
+	text = llformat("%d MB Allocated",
 		max_vram);
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
