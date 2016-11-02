@@ -261,7 +261,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	0
+PVOverride_RenderShadowDetail			1	1
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
@@ -298,7 +298,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	0
+PVOverride_RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
@@ -336,7 +336,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	2
+PVOverride_RenderShadowDetail			1	1
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
@@ -516,6 +516,11 @@ list Intel
 RenderAnisotropic			1	0
 RenderVBOEnable				1	0
 RenderFSAASamples			1	0
+PVRender_DeferredFXAAQuality	1	10
+RenderFarClip				1	32
+RenderShadowFarClip			1	32
+WLSkyDetail					1	128
+RenderCompressTextures		1	1
 
 list GeForce2
 RenderAnisotropic			1	0
