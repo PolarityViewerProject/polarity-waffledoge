@@ -6048,7 +6048,6 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 					LL_DEBUGS("") << "Truncating username in title due to length limit or user preference" << LL_ENDL;
 #endif
 					// use the initials instead
-					//first_ame = first_name.at(1);
 					name_string = first_name.substr(0, 1);
 					if (has_last_name)
 					{
