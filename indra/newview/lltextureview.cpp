@@ -605,6 +605,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
+			// [Grey] In use by other programs
 			gGL.color4f(0.5f, 0.5f , 0.5f, 0.75f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
