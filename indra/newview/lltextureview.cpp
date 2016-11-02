@@ -520,10 +520,10 @@ private:
 
 void LLGLTexMemBar::draw()
 {
-	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
-	S32Megabytes max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
-	S32Megabytes total_mem = LLViewerTexture::sTotalTextureMemory;
-	S32Megabytes max_total_mem = LLViewerTexture::sMaxTotalTextureMem;
+	S32Megabytes texture_bound_memory = LLViewerTexture::sBoundTextureMemory;
+	S32Megabytes texture_max_bound_mem = LLViewerTexture::sMaxBoundTextureMemory;
+	S32Megabytes texture_total_mem = LLViewerTexture::sTotalTextureMemory;
+	S32Megabytes texture_max_total_memory = LLViewerTexture::sMaxTotalTextureMem;
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
 	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();
@@ -539,24 +539,27 @@ void LLGLTexMemBar::draw()
 	//F32 x_right = 0.0;
 	//S32 bar_left = 120;
 	//S32 bottom = top + 6;
-	F32 data_progress;
 	S32 bar_width = 300;
-	const S32 left_first = 160;
+	const S32 left_first = 165;
 	S32 left = left_first;
 	S32 right;
 	S32 top = v_offset + line_height * 9;
-	auto max_vram = gGLManager.mVRAM;
-	S32 total_vram_mb;
+	auto max_vram = gGLManager.mVRAM; // usually the GPU's on-board VRAM amount
+	S32 available_vram;
 	// <polarity> scope for memory management.
 	{
 		GLint memInfo; // in KB
 		if (gGLManager.mIsATI)
 		{
 			glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfo);
+			available_vram = memInfo / 1024;
 		}
 		else if (gGLManager.mIsNVIDIA)
 		{
+			glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &memInfo);
+			available_vram = memInfo / 1024;
 			glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &memInfo);
+			available_vram = memInfo / 1024;
 		}
 		else
 		{
@@ -565,7 +568,7 @@ void LLGLTexMemBar::draw()
 		}
 		total_vram_mb = memInfo / 1024;
 	}
-	S32 used_vram = max_vram - total_vram_mb;
+	S32 total_used_vram = max_vram - available_vram;
 	
 	
 	//----------------------------------------------------------------------------
@@ -585,28 +588,41 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	//BD - GPU Memory
 
-	text = llformat("Total VRAM:    %s MB", (used_vram > 1) ? std::to_string(used_vram) : "N/A");
+	text = llformat("Used VRAM:      %dMB", total_used_vram);
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%d MB Allocated",
-		max_vram);
+	text = llformat("%dMB on-board, %dMB free", max_vram, available_vram);
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	//BD - Render a multi-segmented multi-colored bar showing where our memory goes.
-	gGL.color4f(0.f, 0.f, 0.f, 0.75f);
+	gGL.color4f(0.f, 0.75f, 0.f, 0.75f); // <polarity> Green background to "fill" free VRAM
 	gl_rect_2d(left, top - 9, left + bar_width, top - 3);
-	data_progress = ((F32)used_vram - (F32)total_mem.value() - (F32)bound_mem.value() - (F32)fbo) / (F32)max_vram;
-	if (data_progress > 0.0f)
+	// How this should work: Calculates the ram used by the OS by substracting what the viewer knows about its own usage.
+	// Problem: When total VRAM is unknown (Intel or else), the bar breaks badly because data_progress becomes negative.
+	// Symptom: Bar shows all memory as free.
+	// Fix: TBD, either key in a placeholder system memory value, or skip drawing the grey bar.
+	F32 data_progress = ((F32)total_used_vram - (F32)texture_total_mem.value() - (F32)texture_bound_memory.value() - (F32)fbo) / (F32)max_vram;
+	LL_DEBUGS() << "Data Dump:"
+		//<< VAR_NAME // need pvcommon.h
+		<< "\ndata_progress == " << data_progress
+		<< "\nused_vram == " << total_used_vram
+		<< "\navailable_vram == " << available_vram
+		<< "\ntexture_total_mem == " << texture_total_mem
+		<< "\ntexture_bound_memory == " << texture_bound_memory
+		<< "\nfbo == " << fbo
+		<< "\nmax_vram == " << max_vram
+		<< LL_ENDL;
+	if(data_progress > 0.0f)
 	{
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
 			// [Grey] In use by other programs
-			gGL.color4f(0.5f, 0.5f , 0.5f, 0.75f);
+			gGL.color4f(0.5f, 0.5f, 0.5f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 
@@ -616,27 +632,27 @@ void LLGLTexMemBar::draw()
 		if (right > left)
 		{
 			// [Red] Frame Buffer
-			gGL.color4f(0.75f, 0.f, 0.f, 0.75f);
+			gGL.color4f(0.75f, 0.f, 0.f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 
-		data_progress = ((F32)total_mem.value()) / (F32)max_vram;
+		data_progress = ((F32)texture_total_mem.value()) / (F32)max_vram;
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
 			// [Yellow] Total of memory used
-			gGL.color4f(0.75f, 0.75f, 0.f, 0.75f);
+			gGL.color4f(0.75f, 0.75f, 0.f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 
-		data_progress = ((F32)bound_mem.value()) / (F32)max_vram;
+		data_progress = ((F32)texture_bound_memory.value()) / (F32)max_vram;
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
 			// [Cyan] Texture memory (bound, plz do the kepler love)
-			gGL.color4f(0.f, 0.75f, 0.75f, 0.75f);
+			gGL.color4f(0.f, 0.75f, 0.75f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 	}
@@ -644,15 +660,15 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	//BD - Total System (Viewer) Memory
 
-	text = llformat("System:        %d MB",
-					total_mem.value());
+	text = llformat("Texture Memory: %dMB",
+					texture_total_mem.value());
 
 	top = v_offset + line_height * 8;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%d MB",
-		max_total_mem.value());
+	text = llformat("%dMB Texture Memory Limit",
+		texture_max_total_memory.value());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -660,7 +676,7 @@ void LLGLTexMemBar::draw()
 	left = left_first;
 	gGL.color4f(0.f, 0.f, 0.f, 0.75f);
 	gl_rect_2d(left, top - 9, left + bar_width, top - 3);
-	data_progress = (F32)total_mem.value() / (F32)max_total_mem.value();
+	data_progress = (F32)texture_total_mem.value() / (F32)texture_max_total_memory.value();
 	if (data_progress > 0.0f)
 	{
 		//BD - Clamp
@@ -680,22 +696,22 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	//BD - Current Scene Memory
 
-	text = llformat("Scene:         %d MB",
-					bound_mem.value());
+	text = llformat("Bound textures: %dMB",
+					texture_bound_memory.value());
 
 	top = v_offset + line_height * 7;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%d MB",
-					max_bound_mem.value());
+	text = llformat("%dMB Binding Limit",
+					texture_max_bound_mem.value());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	gGL.color4f(0.f, 0.f, 0.f, 0.75f);
 	gl_rect_2d(left, top - 9, left + bar_width, top - 3);
-	data_progress = (F32)bound_mem.value() / (F32)max_bound_mem.value();
+	data_progress = (F32)texture_bound_memory.value() / (F32)texture_max_bound_mem.value();
 	if (data_progress > 0.0f)
 	{
 		//BD - Clamp
@@ -719,13 +735,13 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	// First Row
 
-	text = llformat("FBO: %d MB", fbo);
+	text = llformat("FBO: %dMB", fbo);
 
 	top = v_offset + line_height * 6;
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Cache: %.1f / %.1f MB",
+	text = llformat("Cache: %.1f / %.1fMB",
 		cache_usage,
 		cache_max_usage);
 
@@ -825,7 +841,7 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	// Fourth Row
 
-	text = llformat("Raw Total: %d MB",
+	text = llformat("Raw Total: %dMB",
 		LLImageRaw::sGlobalRawMemory >> 20);
 
 
@@ -833,13 +849,13 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Object Downloads: %.1f MB",
+	text = llformat("Object Downloads: %.1fMB",
 					total_object_downloaded.valueInUnits<LLUnits::Megabytes>());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset1, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("Texture Downloads: %.1f MB",
+	text = llformat("Texture Downloads: %.1fMB",
 					total_texture_downloaded.valueInUnits<LLUnits::Megabytes>());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, column_x_offset2, top,
