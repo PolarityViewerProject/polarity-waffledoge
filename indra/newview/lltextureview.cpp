@@ -547,7 +547,12 @@ void LLGLTexMemBar::draw()
 	S32 top = v_offset + line_height * 9;
 	S32 max_vram = gGLManager.mVRAM;
 	S32 used_vram;
+	// TODO: Use a call that works on Intel iGPUS
 	glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &used_vram);
+	if(used_vram < 1)
+	{
+		used_vram = 1;
+	}
 	used_vram = max_vram - (used_vram / 1024.f);
 
 	//----------------------------------------------------------------------------
@@ -567,8 +572,7 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	//BD - GPU Memory
 
-	text = llformat("Total VRAM:    %d MB",
-					used_vram);
+	text = llformat("Total VRAM:    %s MB", (used_vram > 1) ? std::to_string(used_vram) : "N/A");
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -597,6 +601,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
+			// [Red] Frame Buffer
 			gGL.color4f(0.75f, 0.f, 0.f, 0.75f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
@@ -606,6 +611,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
+			// [Yellow] Total of memory used
 			gGL.color4f(0.75f, 0.75f, 0.f, 0.75f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
@@ -615,6 +621,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
+			// [Cyan] Texture memory (bound, plz do the kepler love)
 			gGL.color4f(0.f, 0.75f, 0.75f, 0.75f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
