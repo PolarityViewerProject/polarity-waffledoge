@@ -39,6 +39,7 @@ class LLTextureView : public LLContainerView
 	friend class LLTextureBar;
 	friend class LLGLTexMemBar;
 	friend class LLAvatarTexBar;
+	LOG_CLASS(LLTextureView); // Enable Logging Macros
 protected:
 	LLTextureView(const Params&);
 	friend class LLUICtrlFactory;
