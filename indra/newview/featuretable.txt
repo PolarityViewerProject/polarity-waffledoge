@@ -521,6 +521,7 @@ RenderFarClip				1	32
 RenderShadowFarClip			1	32
 WLSkyDetail					1	128
 RenderCompressTextures		1	1
+RenderDeferredSSAO			0	0
 
 list GeForce2
 RenderAnisotropic			1	0
