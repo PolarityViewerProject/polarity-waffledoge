@@ -52,8 +52,12 @@
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <tchar.h>
+#include <hunspell/w_char.hxx>
 using namespace boost::posix_time;
 using namespace boost::gregorian;
+
+//PVCommon *gPVCommon = nullptr;
 
 extern S32 gMaxAgentGroups;
 
@@ -61,6 +65,15 @@ bool PVCommon::sAVX_Checked = false;
 bool PVCommon::sAVXSupported = false;
 
 S32 PVCommon::sObjectAddMsg = 0;
+
+// constructor
+//void PVCommon()
+//{
+//	gPVCommon = PVCommon::getInstance();
+//}
+
+// Fancy little macro to output a variable's name
+#define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
 
 void reportToNearbyChat(const std::string& message)
 {
@@ -311,4 +324,110 @@ std::string PVCommon::format_string(std::string text, const LLStringUtil::format
 {
 	LLStringUtil::format(text, args);
 	return text;
+}
+
+//const char *strConstHwDeviceMapVideo = { "HARDWARE\DEVICEMAP\VIDEO" };
+//const char *strConstMaxObjectNumber = { "MaxObjectNumber" };
+const char *strConstSystemCurrentControlSet = { "system\\currentcontrolset" };
+//const char *strConstHwInfoMemSize = { "HardwareInformation.MemorySize" };
+LPCWSTR LstrConstHwDeviceMapVideo = _T("HARDWARE\\DEVICEMAP\\VIDEO");
+LPCWSTR LstrConstMaxObjectNumber = _T("MaxObjectNumber");
+//LPCWSTR LstrConstSystemCurrentControlSet = _T("system\\currentcontrolset");
+LPCWSTR LstrConstHwInfoMemSize = _T("HardwareInformation.MemorySize");
+
+DWORD PVCommon::GetVideoMemorySizeBytes(void)
+{
+	LONG s;
+	HKEY key, key2 = NULL;
+	DWORD type, buf_size, rv = 0, iMaxObjectNumber = 0;
+	LPBYTE buf = NULL;
+	char * ptr = NULL;
+	char strDeviceVideo[20] = { "\\Device\\Video0" };
+	LPCWSTR LstrDeviceVideo = _T("\\Device\\Video0");
+
+
+	s = RegOpenKeyEx(HKEY_LOCAL_MACHINE, LstrConstHwDeviceMapVideo, 0, KEY_READ, &key);
+
+	if (s != ERROR_SUCCESS) {
+		goto bail_out;
+	}
+
+	// Find total number of obects to be queried
+	type = REG_DWORD;
+	buf_size = 4;
+
+	s = RegQueryValueEx(key, LstrConstMaxObjectNumber, NULL, &type, (LPBYTE)&iMaxObjectNumber, &buf_size);
+
+	if (s != ERROR_SUCCESS) {
+		goto bail_out;
+	}
+
+	for (int i = 0; i <= (int)iMaxObjectNumber; i++)
+	{
+		strDeviceVideo[13] = '0' + i;
+		type = REG_SZ;
+
+		s = RegQueryValueEx(key, LstrDeviceVideo, NULL, &type, NULL, &buf_size);
+
+		if (s != ERROR_SUCCESS) {
+			goto bail_out;
+		}
+
+		if (NULL != buf) {
+			free(buf);
+		}
+
+		buf = (LPBYTE)malloc(buf_size);
+
+		if (buf == NULL) {
+			goto bail_out;
+		}
+
+		s = RegQueryValueEx(key, LstrDeviceVideo, NULL, &type, buf, &buf_size);
+
+		if (s != ERROR_SUCCESS) {
+			goto bail_out;
+		}
+
+		ptr = strstr(_strlwr((char*)buf), strConstSystemCurrentControlSet);
+
+		// hackity hack
+		WCHAR buf2[1024];
+		MultiByteToWideChar(CP_ACP, 0, ptr, -1, buf2, sizeof buf2);
+		if (NULL == ptr)
+			continue;
+		s = RegOpenKeyEx(HKEY_LOCAL_MACHINE, buf2, 0, KEY_READ, &key2);
+
+		if (s != ERROR_SUCCESS) {
+			goto bail_out;
+		}
+
+		type = REG_BINARY;
+		buf_size = 4;
+
+		s = RegQueryValueEx(key2, LstrConstHwInfoMemSize, NULL, &type, (LPBYTE)&rv, &buf_size);
+
+		if (ERROR_SUCCESS == s) {
+			break;
+		}
+
+		if (key != NULL) {
+			RegCloseKey(key2);
+		}
+	}
+
+bail_out:
+	if (buf != NULL) {
+		free(buf);
+	}
+
+	if (key != NULL) {
+		RegCloseKey(key);
+	}
+
+	if (key != NULL) {
+		RegCloseKey(key2);
+	}
+
+	return rv;
 }

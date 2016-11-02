@@ -30,6 +30,8 @@
 #define PV_COMMON_H
 
 #include "llchat.h"
+#include "llerror.h" // for LOG_CLASS
+#include "llsingleton.h" // for instance()
 
 class LLAvatarName;
 class LLViewerObject;
@@ -51,8 +53,9 @@ std::string applyMuPose(const std::string& message);
 bool isValidWord(const std::string& message);
 std::string formatString(std::string text, const LLStringUtil::format_map_t& args);
 
-class PVCommon
+class PVCommon : public LLSingleton <PVCommon> // required for instance()
 {
+	LOG_CLASS(PVCommon);
 	// TODO PLVR: Convert into a singleton
 public:
 	/** \brief Convert a string to a char array and check for special characters presence.
@@ -60,7 +63,7 @@ public:
 	 * We use this to check of the user is trying to send ASCII art and short-circuit
 	 * the OOC logic if that's the case.
 	 */
-	static int HasSpecialCharacters(const std::string& oocstring); \
+	static int HasSpecialCharacters(const std::string& oocstring);
 
 	/** \brief Keep track of ObjectAdd messages sent to the simulator.
 	 *
@@ -97,11 +100,14 @@ public:
 	 * I'm not sure we we need this yet.
 	 */
 	static std::string format_string(std::string text, const LLStringUtil::format_map_t& args);
-
+	DWORD GetVideoMemorySizeBytes();
 private:
 	static bool sAVX_Checked;
 	static bool sAVXSupported;
 
 };
+
+/// <summary> Cached instance. Use this or findInstance() instead of getInstance if you can. </summary>
+extern PVCommon* gPVCommon;
 
 #endif // PV_COMMON_H
