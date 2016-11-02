@@ -578,7 +578,9 @@ bool LLAppViewerWin32::initHardwareTest()
 
 	if (gGLManager.mVRAM == 0)
 	{
+		LL_WARNS("AppInit") << "GL Manager reported empty VRAM, falling back to DirectX query!" << LL_ENDL;
 		gGLManager.mVRAM = gDXHardware.getVRAM();
+		LL_INFOS("AppInit") << "DirectX VRAM query reported: " << gGLManager.mVRAM << LL_ENDL;
 	}
 
 	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
