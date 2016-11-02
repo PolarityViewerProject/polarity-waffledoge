@@ -5601,7 +5601,12 @@ void LLVolumeGeometryManager::genDrawInfo(LLSpatialGroup* group, U32 mask, LLFac
 	// </FS:ND>
 	
 	//NEVER use more than 16 texture index channels (workaround for prevalent driver bug)
-	texture_index_channels = llmin(texture_index_channels, 16);
+	// unless the user desires so.
+	static LLCachedControl<bool> no_channel_limit(gSavedSettings, "PVRender_DoNotLimitTexIndexChannels", false);
+	if(!no_channel_limit)
+	{
+		texture_index_channels = llmin(texture_index_channels, 16);
+	}
 
 	bool flexi = false;
 
