@@ -536,9 +536,6 @@ void LLGLTexMemBar::draw()
 	U32 total_objects = gObjectList.getNumObjects();
 	U32 fbo = LLRenderTarget::sBytesAllocated / (1024 * 1024);
 	//BD
-	//F32 x_right = 0.0;
-	//S32 bar_left = 120;
-	//S32 bottom = top + 6;
 	S32 bar_width = 300;
 	const S32 left_first = 165;
 	S32 left = left_first;
@@ -556,17 +553,15 @@ void LLGLTexMemBar::draw()
 		}
 		else if (gGLManager.mIsNVIDIA)
 		{
-			glGetIntegerv(GL_GPU_MEMORY_INFO_TOTAL_AVAILABLE_MEMORY_NVX, &memInfo);
-			available_vram = memInfo / 1024;
 			glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &memInfo);
 			available_vram = memInfo / 1024;
 		}
 		else
 		{
-			// TODO: Use a call that works on Intel iGPUS. Is there even one?
-			memInfo = 1;
+			// The Intel driver cannot reliably know how much memory is in use,
+			// let's assume we aren't using any vram and skip drawing the grey bar.
+			available_vram = 0;
 		}
-		total_vram_mb = memInfo / 1024;
 	}
 	S32 total_used_vram = max_vram - available_vram;
 	
@@ -605,8 +600,26 @@ void LLGLTexMemBar::draw()
 	// Problem: When total VRAM is unknown (Intel or else), the bar breaks badly because data_progress becomes negative.
 	// Symptom: Bar shows all memory as free.
 	// Fix: TBD, either key in a placeholder system memory value, or skip drawing the grey bar.
-	F32 data_progress = ((F32)total_used_vram - (F32)texture_total_mem.value() - (F32)texture_bound_memory.value() - (F32)fbo) / (F32)max_vram;
-	LL_DEBUGS() << "Data Dump:"
+	F32 data_progress;
+	if(!gGLManager.mIsIntel)
+	{
+		// Calculate VRAM in use by other processes
+		data_progress = ((F32)total_used_vram - (F32)texture_total_mem.value() - (F32)texture_bound_memory.value() - (F32)fbo) / (F32)max_vram;
+
+		right = left + (data_progress * (F32)bar_width);
+		if (right > left)
+		{
+			// [Grey] In use by other programs
+			gGL.color4f(0.5f, 0.5f, 0.5f, 1.f);
+			gl_rect_2d(left, top - 9, right, top - 3);
+		}
+	}
+	else
+	{
+		data_progress = 0.0f;
+		right = left + (data_progress * (F32)bar_width);
+	}
+	LL_WARNS() << "Data Dump:"
 		//<< VAR_NAME // need pvcommon.h
 		<< "\ndata_progress == " << data_progress
 		<< "\nused_vram == " << total_used_vram
@@ -616,16 +629,6 @@ void LLGLTexMemBar::draw()
 		<< "\nfbo == " << fbo
 		<< "\nmax_vram == " << max_vram
 		<< LL_ENDL;
-	if(data_progress > 0.0f)
-	{
-		right = left + (data_progress * (F32)bar_width);
-		if (right > left)
-		{
-			// [Grey] In use by other programs
-			gGL.color4f(0.5f, 0.5f, 0.5f, 1.f);
-			gl_rect_2d(left, top - 9, right, top - 3);
-		}
-
 		data_progress = ((F32)fbo) / (F32)max_vram;
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
@@ -655,7 +658,7 @@ void LLGLTexMemBar::draw()
 			gGL.color4f(0.f, 0.75f, 0.75f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
-	}
+	//}
 
 	//----------------------------------------------------------------------------
 	//BD - Total System (Viewer) Memory
