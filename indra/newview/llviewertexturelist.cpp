@@ -61,6 +61,7 @@
 #include "llviewerdisplay.h"
 #include "llviewerwindow.h"
 #include "llprogressview.h"
+#include <tchar.h>
 ////////////////////////////////////////////////////////////////////////////
 
 void (*LLViewerTextureList::sUUIDCallback)(void **, const LLUUID&) = NULL;
@@ -1362,6 +1363,16 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	}
 	else
 	{
+		// <polarity> Gross hack to fix up Intel memory. I tried shoving it into llappviewerwin32 and it's too early, can't get vendor.
+		if (gGLManager.mIsIntel && gGLManager.mVRAM > 512)
+		{
+			LL_WARNS("AppInit") << "Intel Graphics detected and reporting vram above 512MB, this is probably wrong." << LL_ENDL;
+			if (!gSavedSettings.getBOOL("PVDebug_DoNotLimitIntelVRAM"))
+			{
+				LL_WARNS("AppInit") << "Reported VRAM clamped to 512MB due to Intel Graphics" << LL_ENDL;
+				gGLManager.mVRAM = 512;
+			}
+		}
 		Hardware_VRAM_MB = gGLManager.mVRAM;
 	}
 
