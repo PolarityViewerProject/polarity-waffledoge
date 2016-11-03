@@ -495,9 +495,20 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		avatarp->renderSkinned();
 	}
 // Nacl - Faster Avatar Shadows
-	else if (PVRender_ShadowDetailRigged == 3)
+	else if (PVRender_ShadowDetailRigged == 1)
+	{
+		return;
+	}
+	else if(PVRender_ShadowDetailRigged == 2)
 	{
 		renderRiggedShadows(avatarp);
+	}
+	else
+	{
+		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
+		{
+			renderRigged(avatarp, i);
+		}
 	}
 }
 
