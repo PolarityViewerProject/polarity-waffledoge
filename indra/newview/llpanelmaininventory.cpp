@@ -411,7 +411,7 @@ void LLPanelMainInventory::closeAllFolders()
 
 void LLPanelMainInventory::toggleInboxPanelVisibility()
 {
-	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel");
+	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel", false);
 	gSavedSettings.setBOOL("PVUI_HideMarketplaceInboxPanel", !hide_inbox_panel);
 	LL_INFOS("Inventory") << "Toggling Inbox Visibility " << LL_ENDL;
 }

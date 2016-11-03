@@ -345,7 +345,7 @@ void LLSidepanelInventory::enableInbox(bool enabled)
 	LLLayoutPanel * inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
 	// <polarity> Marketplace Inbox visibility
 	//inbox_layout_panel->setVisible(enabled);
-	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel");
+	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel", false);
 	inbox_layout_panel->setVisible(enabled && !hide_inbox_panel);
 	// </polarity>
 }

@@ -300,7 +300,7 @@ void LLInventoryPanel::initFromParams(const LLInventoryPanel::Params& params)
     }
 
 	// <polarity> TODO: Maybe we can improve that logic here?
-	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel");
+	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel",false);
 	if (!hide_inbox_panel)
 	{
 		getFilter().setFilterCategoryTypes(getFilter().getFilterCategoryTypes() & ~(1ULL << LLFolderType::FT_INBOX));
