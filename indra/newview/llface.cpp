@@ -834,8 +834,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		min = face.mExtents[0];
 		max = face.mExtents[1];
 		
-		llassert(less_than_max_mag(min));
-		llassert(less_than_max_mag(max));
+		//llassert(less_than_max_mag(min));
+		//llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
 
@@ -981,9 +981,30 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const
 {
 	const LLMatrix4& vol_mat = getWorldMatrix();
+	if( ! getViewerObject() )
+	{
+		LL_WARNS() << "No viewer object" << LL_ENDL;
+		return;
+	}
+	if( ! getViewerObject()->getVolume() )
+	{
+		LL_WARNS() << "No volume" << LL_ENDL;
+		return;
+	}
+
+	if( getViewerObject()->getVolume()->getNumVolumeFaces() <= mTEOffset )
+	{
+		LL_WARNS() << "No volume face" << (S32)mTEOffset << LL_ENDL;
+		return;
+	}
+
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
 	const LLVector4a& normal4a = vf.mNormals[0];
 	const LLVector4a& tangent = vf.mTangents[0];
+	if (!&tangent)
+	{
+		return;
+	}
 
 	LLVector4a binormal4a;
 	binormal4a.setCross3(normal4a, tangent);
@@ -1225,6 +1246,21 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 	}
 
 
+	// <FS:ND> The volume face vf can have more indices/vertices than this face. All striders below are aquired with a size of this face, but then written with num_verices/num_indices values,
+	// thus overflowing the buffer when vf holds more data.
+	// We can either clamp num_* down like here, or aquire all striders not using the face size, but the size if vf (that is swapping out mGeomCount with num_vertices and mIndicesCout with num_indices
+	// in all calls to nVertbuffer->get*Strider(...). Final solution is to just return FALSE and be done with it.
+	// 
+	// The correct poison of choice is debatable, either copying not all data of vf (clamping) or writing more data than this face claims to have (aquiring bigger striders). Returning will not display this face at all.
+	//
+	// clamping it is for now.
+
+	num_vertices = llclamp( num_vertices, (S32)0, (S32)mGeomCount );
+	num_indices = llclamp( num_indices, (S32)0, (S32)mIndicesCount );
+
+	// </FS:ND>
+
+
 	//don't use map range (generates many redundant unmap calls)
 	bool map_range = false; //gGLManager.mHasMapBufferRange || gGLManager.mHasFlushBufferRange;
 
@@ -1303,7 +1339,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		clearState(GLOBAL);
 	}
 
-	LLColor4U color = tep->getColor();
+	// <FS:ND> Protection against faces w/o te set.
+	// LLColor4U color = tep->getColor();
+	LLColor4U color = (tep ? tep->getColor() : LLColor4());
+	// </FS:ND>
 
 	if (rebuild_color)
 	{ //decide if shiny goes in alpha channel of color
@@ -1634,7 +1673,11 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				bump_t_primary_light_ray.load3((offset_multiple * t_scale * primary_light_ray).mV);
 			}
 
-			U8 texgen = getTextureEntry()->getTexGen();
+			// <FS:ND> FIRE-14261 Guard against null textures
+			// U8 texgen = getTextureEntry()->getTexGen();
+			U8 texgen = getTextureEntry() ? getTextureEntry()->getTexGen() : LLTextureEntry::TEX_GEN_DEFAULT;
+			// </FS:ND>
+			
 			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{ //planar texgen needs binormals
 				mVObjp->getVolume()->genTangents(f);
@@ -1678,7 +1721,10 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a scalea;
 			scalea.load3(scale.mV);
 
-			LLMaterial* mat = tep->getMaterialParams().get();
+			// <FS:ND> Protection against faces w/o te set.
+			// LLMaterial* mat = tep->getMaterialParams().get();
+			LLMaterial* mat = tep ? tep->getMaterialParams().get() : 0;
+			// </FS:ND>
 
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 
@@ -1702,7 +1748,14 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 						if (!do_xform)
 						{
 							LL_RECORD_BLOCK_TIME(FTM_FACE_TEX_QUICK_NO_XFORM);
-							S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
+
+							// <FS:ND> Don't round up, or there's high risk to write past buffer
+
+							// S32 tc_size = (num_vertices*2*sizeof(F32)+0xF) & ~0xF;
+							S32 tc_size = (num_vertices*2*sizeof(F32));
+
+							// </FS:ND>
+
 							LLVector4a::memcpyNonAliased16((F32*) tex_coords0.get(), (F32*) vf.mTexCoords, tc_size);
 						}
 						else
