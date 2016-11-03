@@ -84,7 +84,7 @@ U32 LLBlowfishCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 			src_len))
 	{
 		LL_WARNS() << "LLBlowfishCipher::encrypt EVP_EncryptUpdate failure" << LL_ENDL;
-		goto ERROR;
+		goto bf_error;
 	}
 
 	// There may be some final data left to encrypt if the input is
@@ -92,14 +92,14 @@ U32 LLBlowfishCipher::encrypt(const U8* src, U32 src_len, U8* dst, U32 dst_len)
 	if (!EVP_EncryptFinal_ex(&context, (unsigned char*)(dst + output_len), &temp_len))
 	{
 		LL_WARNS() << "LLBlowfishCipher::encrypt EVP_EncryptFinal failure" << LL_ENDL;
-		goto ERROR;
+		goto bf_error;
 	}
 	output_len += temp_len;
 
 	EVP_CIPHER_CTX_cleanup(&context);
 	return output_len;
 
-ERROR:
+bf_error:
 	EVP_CIPHER_CTX_cleanup(&context);
 	return 0;
 }
