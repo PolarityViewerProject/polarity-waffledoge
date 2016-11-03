@@ -1084,14 +1084,17 @@ bool LLFace::canRenderAsMask()
 		return false;
 	}
 	
+
 	if ((te->getColor().mV[3] == 1.0f) && // can't treat as mask if we have face alpha
 		(te->getGlow() == 0.f) && // glowing masks are hard to implement - don't mask
+		!getViewerObject()->isHUDAttachment() && // Fix from CoolVL: hud attachments are NOT maskable (else they would get affected by day light)
 		getTexture()->getIsAlphaMask()) // texture actually qualifies for masking (lazily recalculated but expensive)
 	{
 		if (LLPipeline::sRenderDeferred)
 		{
-			if (getViewerObject()->isHUDAttachment() || te->getFullbright())
-			{ //hud attachments and fullbright objects are NOT subject to the deferred rendering pipe
+			// Fix from CoolVL: hud attachments are NOT maskable at all - see above
+			if (/*!getViewerObject()->isHUDAttachment() &&*/ te->getFullbright())
+			{ //fullbright objects are NOT subject to the deferred rendering pipe
 				return LLPipeline::sAutoMaskAlphaNonDeferred;
 			}
 			else
