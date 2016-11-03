@@ -592,6 +592,8 @@ public:
 	static BOOL			 sPVRender_ToneMapping;
 	// </Black Dragon:NiranV>
 
+	static bool			sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
+
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
 	//screen texture

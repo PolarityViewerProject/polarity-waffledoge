@@ -377,6 +377,17 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 			bool is_particle_or_hud_particle = group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE
 													  || group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE;
 
+
+			// <FS:LO> Dont suspend particles processing while they are hidden, just skip over drawing them
+			if(!(gPipeline.sRenderParticles) && (
+												 group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_PARTICLE ||
+												 group->getSpatialPartition()->mPartitionType == LLViewerRegion::PARTITION_HUD_PARTICLE))
+			{
+				continue;
+			}
+			// </FS:LO>
+
+
 			bool draw_glow_for_this_partition = mVertexShaderLevel > 0; // no shaders = no glow.
 
 			

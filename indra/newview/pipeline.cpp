@@ -222,6 +222,8 @@ BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
 
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
 
+bool	LLPipeline::sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
+
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
@@ -513,6 +515,8 @@ void LLPipeline::init()
 		setAllRenderDebugFeatures(); // By default, all debugging features on
 	}
 	clearAllRenderDebugDisplays(); // All debug displays off
+
+	sRenderParticles = true; // <FS:LO> flag to hold correct, user selected, status of particles
 
 	if (gSavedSettings.getBOOL("DisableAllRenderTypes"))
 	{
