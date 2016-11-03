@@ -812,6 +812,11 @@ void LLFloaterPreference::onOpen(const LLSD& key)
 	onNotificationsChange("NearbyChatOptions");
 	onNotificationsChange("ObjectIMOptions");
 
+#if !LL_WINDOWS
+	getChild<LLCheckBoxCtrl>("PVDebug_DisableWMIProbing")->setEnabled(FALSE); // VRAM detection via WMI probing on Windows systems
+#endif
+
+
 	LLPanelLogin::setAlwaysRefresh(true);
 	refresh();
 	refreshGraphicControls();
