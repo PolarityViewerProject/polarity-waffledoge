@@ -96,7 +96,4 @@
 // Library includes from llmessage project
 #include "llcachename.h"
 
-// Polarity constants to avoid including in every file
-#include "pvconstants.h"
-
 #endif
