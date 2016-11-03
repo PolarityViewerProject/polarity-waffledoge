@@ -610,7 +610,7 @@ void LLGLTexMemBar::draw()
 		if (right > left)
 		{
 			// [Grey] In use by other programs
-			gGL.color4f(0.5f, 0.5f, 0.5f, 1.f);
+			gGL.color4f(0.2f, 0.2f, 0.2f, 1.0f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 	}
