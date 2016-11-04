@@ -632,6 +632,13 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 	gPipeline.handleReflectionChanges();
 	return true;
 }
+// <Black Dragon:NiranV> Granular controls refresh
+static bool handleShadowMapsChanged(const LLSD& newvalue)
+{
+	gPipeline.allocateShadowMaps();
+	return true;
+}
+// </Black Dragon:NiranV>
 static bool handleTimeFactorChanged(const LLSD& newvalue)
 {
 	if (gSavedSettings.getBOOL("SlowMotionAnimation"))
@@ -694,9 +701,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderSpecularResY")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderSpecularExponent")->getSignal()->connect(boost::bind(&handleLUTBufferChanged, _2));
 	gSavedSettings.getControl("RenderAnisotropic")->getSignal()->connect(boost::bind(&handleAnisotropicChanged, _2));
-	// <Black Dragon:NiranV> Raw Shadow Resolution
-	gSavedSettings.getControl("PVOverride_RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	// </Black Dragon:NiranV>
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
 	gSavedSettings.getControl("RenderGlow")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderGlowResolutionPow")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
@@ -726,7 +730,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDeferred")->getSignal()->connect(boost::bind(&handleRenderDeferredChanged, _2));
 	gSavedSettings.getControl("PVRender_DeferredFXAAQuality")->getValidateSignal()->connect(boost::bind(validateFXAAQuality, _2));
 	gSavedSettings.getControl("PVRender_DeferredFXAAQuality")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	gSavedSettings.getControl("PVOverride_RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
+	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
 	gSavedSettings.getControl("RenderPerformanceTest")->getSignal()->connect(boost::bind(&handleRenderPerfTestChanged, _2));
 	gSavedSettings.getControl("TextureMemory")->getSignal()->connect(boost::bind(&handleVideoMemoryChanged, _2));
@@ -840,8 +844,9 @@ void settings_setup_listeners()
 	// <Black Dragon:NiranV> change controls at runtime
 	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
 	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
+	// <Black Dragon:NiranV> Shadow Map Allocation
+	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	gSavedSettings.getControl("RenderShadowResolution")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	// </Black Dragon:NiranV>
 
 	gSavedSettings.getControl("PVRender_ForceDepthClampSupport")->getSignal()->connect(boost::bind(&handleForceDepthClampSupport, _2));

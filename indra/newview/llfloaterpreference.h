@@ -170,13 +170,23 @@ private:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
-	// <Black Dragon:NiranV> Arrays Debug
-	void onCommitX(LLUICtrl* ctrl, const LLSD& param);
-	void onCommitY(LLUICtrl* ctrl, const LLSD& param);
-	void onCommitZ(LLUICtrl* ctrl, const LLSD& param);
-	void onCommitXd(LLUICtrl* ctrl, const LLSD& param);
-	void onCommitYd(LLUICtrl* ctrl, const LLSD& param);
-	void onCommitZd(LLUICtrl* ctrl, const LLSD& param);
+public:
+	// <Black Dragon:NiranV> Debug Arrays
+	static void onCommitX(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitY(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitZ(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitXd(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitYd(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitZd(LLUICtrl* ctrl, const LLSD& param);
+	// <Black Dragon:NiranV> Vector4
+	static void onCommitVec4X(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitVec4Y(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitVec4Z(LLUICtrl* ctrl, const LLSD& param);
+	static void onCommitVec4W(LLUICtrl* ctrl, const LLSD& param);
+
+	// <Black Dragon:NiranV> Revert to Default
+	void resetToDefault(LLUICtrl* ctrl);
+private:
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	void toggleFullscreenWindow();
 	// <Black Dragon:NiranV> Refresh all controls
@@ -199,7 +209,7 @@ private:
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
 	void buildPopupLists();
-	void onClickResetControlDefault(const LLSD& userdata); // <polarity>
+
 public:
 	static void refreshSkin(void* data);
 private:

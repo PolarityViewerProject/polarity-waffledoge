@@ -2413,20 +2413,20 @@
             increment="256"
             initial_value="1024"
             can_edit_text="true"
-            label="Shadowmap Width:"
+            label="Near Shadows Res:"
             label_width="150"
-            tool_tip="Set the width of the shadowmap"
+            tool_tip="Close"
             layout="topleft"
             left="10"
-            max_val="4096"
-            min_val="256"
+            max_val="8192"
+            min_val="128"
             name="RenderShadowResolution_X"
             top_pad="5"
             text_width="40"
             width="385">
             <slider.commit_callback
-              function="Pref.ArrayX"
-              parameter="PVOverride_RenderShadowResolutionScale"/>
+              function="Pref.ArrayVec4X"
+              parameter="RenderShadowResolution"/>
             </slider>
             <slider
               enabled_control="RenderDeferred"
@@ -2436,20 +2436,19 @@
               increment="256"
               initial_value="1024"
               can_edit_text="true"
-              label="Shadowmap Height:"
+              label="Mid Shadows Res:"
               label_width="150"
-              tool_tip="Set the height of the shadowmap"
               layout="topleft"
               left="10"
-              max_val="4096"
-              min_val="256"
+              max_val="8192"
+              min_val="128"
               name="RenderShadowResolution_Y"
               top_pad="02"
               text_width="40"
               width="385">
               <slider.commit_callback
-                function="Pref.ArrayY"
-                parameter="PVOverride_RenderShadowResolutionScale">
+                function="Pref.ArrayVec4Y"
+                parameter="RenderShadowResolution">
               </slider.commit_callback>
             </slider>
             <slider
@@ -2460,25 +2459,47 @@
               increment="0.1"
               initial_value="1"
               can_edit_text="true"
-              label="Shadowmap Multiplicator:"
+              label="Far Shadows Res:"
               label_width="150"
-              tool_tip="Set the the multiplicator value for width and height of the shadowmap"
               layout="topleft"
               left="10"
-              max_val="4"
-              min_val="0"
+              max_val="8192"
+              min_val="128"
               name="RenderShadowResolution_Z"
               top_pad="2"
               text_width="40"
               width="385">
               <slider.commit_callback
-                function="Pref.ArrayZ"
-                parameter="PVOverride_RenderShadowResolutionScale">
+                function="Pref.ArrayVec4Z"
+                parameter="RenderShadowResolution">
+              </slider.commit_callback>
+            </slider>
+            <slider
+              enabled_control="RenderDeferred"
+              decimal_digits="1"
+              follows="left|top"
+              height="15"
+              increment="0.1"
+              initial_value="1"
+              can_edit_text="true"
+              label="Far+ Shadows Res:"
+              label_width="150"
+              layout="topleft"
+              left="10"
+              max_val="8192"
+              min_val="128"
+              name="RenderShadowResolution_W"
+              top_pad="2"
+              text_width="40"
+              width="385">
+              <slider.commit_callback
+                function="Pref.ArrayVec4W"
+                parameter="RenderShadowResolution">
               </slider.commit_callback>
             </slider>
             <button
               follows="left|top"
-              control_name="PVOverride_RenderShadowResolutionScale"
+              control_name="RenderShadowResolution"
               height="45"
               is_toggle="false"
               label="⌊Reset⌉"
@@ -2491,11 +2512,11 @@
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="PVOverride_RenderShadowResolutionScale">
+                parameter="RenderShadowResolution">
               </button.commit_callback>
             </button>
             <slider
-              control_name="PVOverride_RenderShadowBlurSize"
+              control_name="RenderShadowBlurSize"
               decimal_digits="1"
               follows="left|top"
               height="15"

@@ -3153,10 +3153,10 @@
                        name="Shadows from Sun/Moon/Projectors">
             <menu_item_check.on_check
              function="Advanced.CheckRenderShadowOption"
-             parameter="PVOverride_RenderShadowDetail" />
+             parameter="RenderShadowDetail" />
             <menu_item_check.on_click
              function="Advanced.ClickRenderShadowOption"
-             parameter="PVOverride_RenderShadowDetail" />
+             parameter="RenderShadowDetail" />
             <menu_item_check.on_enable
                  function="Advanced.EnableRenderDeferredOptions" />
           </menu_item_check>

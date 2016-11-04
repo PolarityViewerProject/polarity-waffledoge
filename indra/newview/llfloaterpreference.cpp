@@ -331,13 +331,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
 	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
 
-	// <Black Dragon:NiranV> Post-Process sliders
-	mCommitCallbackRegistrar.add("Pref.ArrayX",           boost::bind(&LLFloaterPreference::onCommitX, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayY",           boost::bind(&LLFloaterPreference::onCommitY, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayZ",           boost::bind(&LLFloaterPreference::onCommitZ, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayXD",           boost::bind(&LLFloaterPreference::onCommitXd, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayYD",           boost::bind(&LLFloaterPreference::onCommitYd, this,_1, _2));
-	mCommitCallbackRegistrar.add("Pref.ArrayZD",           boost::bind(&LLFloaterPreference::onCommitZd, this,_1, _2));
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	mCommitCallbackRegistrar.add("Pref.FullscreenWindow",		boost::bind(&LLFloaterPreference::toggleFullscreenWindow, this));
 	sSkin = gSavedSettings.getString("SkinCurrent");
@@ -355,9 +348,23 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	mCommitCallbackRegistrar.add("Pref.ClearLog",				boost::bind(&LLConversationLog::onClearLog, &LLConversationLog::instance()));
 	mCommitCallbackRegistrar.add("Pref.DeleteTranscripts",      boost::bind(&LLFloaterPreference::onDeleteTranscripts, this));
-	// <polarity> Reset to Default
-	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::onClickResetControlDefault, this, _2)); // <polarity>
-	// </polarity>
+	
+	// <Black Dragon:NiranV> Array Debugs
+	mCommitCallbackRegistrar.add("Pref.ArrayX", boost::bind(&LLFloaterPreference::onCommitX, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayY", boost::bind(&LLFloaterPreference::onCommitY, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayZ", boost::bind(&LLFloaterPreference::onCommitZ, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayXD", boost::bind(&LLFloaterPreference::onCommitXd, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayYD", boost::bind(&LLFloaterPreference::onCommitYd, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayZD", boost::bind(&LLFloaterPreference::onCommitZd, _1, _2));
+
+	// <Black Dragon:NiranV> Vector4
+	mCommitCallbackRegistrar.add("Pref.ArrayVec4X", boost::bind(&LLFloaterPreference::onCommitVec4X, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayVec4Y", boost::bind(&LLFloaterPreference::onCommitVec4Y, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayVec4Z", boost::bind(&LLFloaterPreference::onCommitVec4Z, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ArrayVec4W", boost::bind(&LLFloaterPreference::onCommitVec4W, _1, _2));
+
+	// <Black Dragon:NiranV> Revert to Default
+	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1));
 
 	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 }
@@ -508,6 +515,31 @@ LLFloaterPreference::~LLFloaterPreference()
 	LLConversationLog::instance().removeObserver(this);
 }
 
+//BD - Vector4
+void LLFloaterPreference::onCommitVec4W(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector4 value = gSavedSettings.getVector4(param.asString());
+	value.mV[VW] = ctrl->getValue().asReal();
+	gSavedSettings.setVector4(param.asString(), value);
+}
+void LLFloaterPreference::onCommitVec4X(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector4 value = gSavedSettings.getVector4(param.asString());
+	value.mV[VX] = ctrl->getValue().asReal();
+	gSavedSettings.setVector4(param.asString(), value);
+}
+void LLFloaterPreference::onCommitVec4Y(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector4 value = gSavedSettings.getVector4(param.asString());
+	value.mV[VY] = ctrl->getValue().asReal();
+	gSavedSettings.setVector4(param.asString(), value);
+}
+void LLFloaterPreference::onCommitVec4Z(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLVector4 value = gSavedSettings.getVector4(param.asString());
+	value.mV[VZ] = ctrl->getValue().asReal();
+	gSavedSettings.setVector4( param.asString() , value);
+}
 // <Black Dragon:NiranV> Arrays Debug
 void LLFloaterPreference::onCommitX(LLUICtrl* ctrl, const LLSD& param)
 {
@@ -560,13 +592,16 @@ void LLFloaterPreference::refreshGraphicControls()
 	getChild<LLUICtrl>("RenderGlowWarmthWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VX]);
 	getChild<LLUICtrl>("RenderGlowWarmthWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VY]);
 	getChild<LLUICtrl>("RenderGlowWarmthWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VZ]);
-	getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VX]);
-	getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VY]);
-	getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale").mV[VZ]);
+	getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VX]);
+	getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VY]);
+	getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VZ]);
+	getChild<LLUICtrl>("RenderShadowResolution_W")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VW]);
+
 	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_X")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VX]);
 	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VY]);
-	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VZ]);
-	getChild<LLUICtrl>("RenderShadowGaussian_Y")->setValue(gSavedSettings.getVector3("PVOverride_RenderShadowGaussian").mV[VY]);
+	getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VZ]);	
+
+	getChild<LLUICtrl>("RenderShadowGaussian_Y")->setValue(gSavedSettings.getVector3("RenderShadowGaussian").mV[VY]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);
@@ -1334,7 +1369,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	ctrl_ssao->setEnabled(enabled);
 	ctrl_dof->setEnabled(enabled);
 
-	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("PVOverride_RenderShadowDetail");
+	enabled = enabled && LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail");
 
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
@@ -1518,7 +1553,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 	}
 	
 	// disabled deferred shadows
-	if (!LLFeatureManager::getInstance()->isFeatureAvailable("PVOverride_RenderShadowDetail"))
+	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderShadowDetail"))
 	{
 		ctrl_shadows->setEnabled(FALSE);
 		ctrl_shadows->setValue(0);
@@ -2051,15 +2086,11 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 	}
 }
 
-void LLFloaterPreference::onClickResetControlDefault(const LLSD& userdata)
+// <Black Dragon:NiranV> Revert to Default
+void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl)
 {
-	const std::string& control_name = userdata.asString();
-	LLControlVariable* controlp = gSavedSettings.getControl(control_name);
-	if (controlp)
-	{
-		controlp->resetToDefault(true);
-		refreshGraphicControls();
-	}
+	ctrl->getControlVariable()->resetToDefault(true);
+	refreshGraphicControls();
 }
 void LLFloaterPreference::onLogChatHistorySaved()
 {

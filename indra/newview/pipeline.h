@@ -100,6 +100,10 @@ public:
 
 	// <Black Dragon:NiranV> Change water reflection resolution on the way
 	void handleReflectionChanges();
+
+//	//BD - Shadow Map Allocation
+	void allocateShadowMaps(bool force_allocate = false);
+
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
@@ -875,11 +879,6 @@ public:
 	static BOOL RenderUIBuffer;
 	static S32 RenderShadowDetail;
 	static BOOL RenderDeferredSSAO;
-	// <Black Dragon:NiranV> Raw Shadow Resolution
-	//static F32 RenderShadowResolutionScale;
-	static LLVector3 RenderShadowResolution;
-	static LLVector3 RenderProjectorShadowResolution;
-	// </Black Dragon:NiranV>
 	static BOOL RenderLocalLights;
 	static BOOL RenderDelayCreation;
 	static BOOL RenderAnimateRes;
@@ -947,6 +946,11 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
+
+	// <Black Dragon:NiranV> Shadow Map Allocation
+	static LLVector4 RenderShadowResolution;
+	static LLVector3 PVRender_ProjectorShadowResolution;
+	// </Black Dragon:NiranV>
 
 	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 	static BOOL PVRender_EnableGodRays;

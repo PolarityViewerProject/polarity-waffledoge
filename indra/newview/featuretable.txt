@@ -67,7 +67,7 @@ RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	2
+RenderShadowDetail			1	2
 WatchdogDisabled				1	1
 RenderUseStreamVBO			1	1
 RenderFSAASamples			1	16
@@ -108,7 +108,7 @@ VertexShaderEnable			1	0
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	0
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
@@ -147,7 +147,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	0
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
@@ -185,7 +185,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	0
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
@@ -223,7 +223,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	0
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
@@ -261,7 +261,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	0
-PVOverride_RenderShadowDetail			1	1
+RenderShadowDetail			1	1
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
@@ -298,7 +298,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	2
+RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
@@ -336,7 +336,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	1
+RenderShadowDetail			1	1
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
@@ -374,7 +374,7 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	1024
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-PVOverride_RenderShadowDetail			1	2
+RenderShadowDetail			1	2
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	1
@@ -389,7 +389,7 @@ PVRender_DeferredFXAAQuality	1	39
 //
 list Unknown
 RenderVBOEnable				1	0
-PVOverride_RenderShadowDetail			1	0
+RenderShadowDetail			1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 
@@ -446,7 +446,7 @@ VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
-PVOverride_RenderShadowDetail			0	0
+RenderShadowDetail			0	0
 
 //
 // No Vertex Shaders available
@@ -459,7 +459,7 @@ VertexShaderEnable			0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
-PVOverride_RenderShadowDetail			0	0
+RenderShadowDetail			0	0
 
 //
 // GL_ARB_map_buffer_range exists
@@ -486,7 +486,7 @@ RenderReflectionDetail		0	0
 WindLightUseAtmosShaders	0	0
 RenderDeferred				0	0
 RenderDeferredSSAO			0	0
-PVOverride_RenderShadowDetail			0	0
+RenderShadowDetail			0	0
 
 //
 // CPU based feature masks

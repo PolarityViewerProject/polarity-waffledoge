@@ -508,7 +508,7 @@ void LLViewerShaderMgr::setShaders()
 			gSavedSettings.getBOOL("RenderAvatarVP") &&
 			gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 		{
-			if (gSavedSettings.getS32("PVOverride_RenderShadowDetail") > 0)
+			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{ //shadows
 				deferred_class = 2;
 			}

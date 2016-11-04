@@ -596,7 +596,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVOverride_RenderShadowBias</key>
+    <key>RenderShadowBias</key>
     <map>
       <key>Comment</key>
       <string>Bias value for shadows (prevent shadow acne).</string>
@@ -607,7 +607,7 @@
       <key>Value</key>
       <real>-0.003</real>
     </map>
-    <key>PVOverride_RenderShadowBiasError</key>
+    <key>RenderShadowBiasError</key>
     <map>
       <key>Comment</key>
       <string>Error scale for shadow bias (based on altitude).</string>
@@ -618,7 +618,7 @@
       <key>Value</key>
       <real>-0.001</real>
     </map>
-    <key>PVOverride_RenderShadowBlurDistFactor</key>
+    <key>RenderShadowBlurDistFactor</key>
     <map>
       <key>Comment</key>
       <string>Distance scaler for shadow blur.</string>
@@ -629,7 +629,7 @@
       <key>Value</key>
       <real>0.01</real>
     </map>
-    <key>PVOverride_RenderShadowBlurSamples</key>
+    <key>RenderShadowBlurSamples</key>
     <map>
       <key>Comment</key>
       <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
@@ -640,7 +640,7 @@
       <key>Value</key>
       <integer>4</integer>
     </map>
-    <key>PVOverride_RenderShadowBlurSize</key>
+    <key>RenderShadowBlurSize</key>
     <map>
       <key>Comment</key>
       <string>Scale of shadow softening kernel.</string>
@@ -651,7 +651,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
-    <key>PVOverride_RenderShadowClipPlanes</key>
+    <key>RenderShadowClipPlanes</key>
     <map>
       <key>Comment</key>
       <string>Near clip plane split distances for shadow map frusta.</string>
@@ -666,7 +666,7 @@
         <real>32.0</real>
       </array>
     </map>
-    <key>PVOverride_RenderShadowDetail</key>
+    <key>RenderShadowDetail</key>
     <map>
       <key>Comment</key>
       <string>Detail of shadows.</string>
@@ -677,7 +677,7 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <key>PVOverride_RenderShadowErrorCutoff</key>
+    <key>RenderShadowErrorCutoff</key>
     <map>
       <key>Comment</key>
       <string>Cutoff error value to use ortho instead of perspective projection.</string>
@@ -688,7 +688,7 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-    <key>PVOverride_RenderShadowFOVCutoff</key>
+    <key>RenderShadowFOVCutoff</key>
     <map>
       <key>Comment</key>
       <string>Cutoff FOV to use ortho instead of perspective projection.</string>
@@ -699,7 +699,7 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-    <key>PVOverride_RenderShadowGaussian</key>
+    <key>RenderShadowGaussian</key>
     <map>
       <key>Comment</key>
       <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
@@ -714,7 +714,7 @@
         <real>0.0</real>
       </array>
     </map>
-    <key>PVOverride_RenderShadowNearDist</key>
+    <key>RenderShadowNearDist</key>
     <map>
       <key>Comment</key>
       <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
@@ -729,7 +729,7 @@
         <real>256</real>
       </array>
     </map>
-    <key>PVOverride_RenderShadowNoise</key>
+    <key>RenderShadowNoise</key>
     <map>
       <key>Comment</key>
       <string>Magnitude of noise on shadow samples.</string>
@@ -740,7 +740,7 @@
       <key>Value</key>
       <real>-0.0001</real>
     </map>
-    <key>PVOverride_RenderShadowOffset</key>
+    <key>RenderShadowOffset</key>
     <map>
       <key>Comment</key>
       <string>Offset value for shadows (prevent shadow acne).</string>
@@ -751,7 +751,7 @@
       <key>Value</key>
       <real>0.01</real>
     </map>
-    <key>PVOverride_RenderShadowOffsetError</key>
+    <key>RenderShadowOffsetError</key>
     <map>
       <key>Comment</key>
       <string>Error scale for shadow offset (based on altitude).</string>
@@ -762,7 +762,7 @@
       <key>Value</key>
       <real>0.0</real>
     </map>
-    <key>PVOverride_RenderShadowOrthoClipPlanes</key>
+    <key>RenderShadowOrthoClipPlanes</key>
     <map>
       <key>Comment</key>
       <string>Near clip plane split distances for orthographic shadow map frusta.</string>
@@ -777,22 +777,23 @@
         <real>24.0</real>
       </array>
     </map>
-    <key>PVOverride_RenderShadowResolutionScale</key>
+    <key>RenderShadowResolution</key>
     <map>
       <key>Comment</key>
-      <string>Raw shadow width (X) and height (Y) by multiplicator (Z)</string>
+      <string>Raw shadow width and height of each of the four shadow maps, closest (X), mid (Y), far (Z) furthest. (W)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector3</string>
+      <string>Vector4</string>
       <key>Value</key>
       <array>
         <real>2048</real>
         <real>2048</real>
-        <real>1.0</real>
+        <real>1024</real>
+        <real>512</real>
       </array>
     </map>
-    <key>PVOverride_RenderShadowSplitExponent</key>
+    <key>RenderShadowSplitExponent</key>
     <map>
       <key>Comment</key>
       <string>Near clip plane split distances for shadow map frusta (x=perspective, y=ortho, z=transition rate).</string>
@@ -807,7 +808,7 @@
         <real>5.0</real>
       </array>
     </map>
-    <key>PVOverride_RenderSSAOEffect</key>
+    <key>RenderSSAOEffect</key>
     <map>
       <key>Comment</key>
       <string>Multiplier for value for areas which are totally occluded. Blends with original color for partly-occluded areas. (Used for NiranV's shader stack)</string>
@@ -818,7 +819,7 @@
       <key>Value</key>
       <real>-1.0</real>
     </map>
-    <key>PVOverride_RenderSSAOFactor</key>
+    <key>RenderSSAOFactor</key>
     <map>
       <key>Comment</key>
       <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
@@ -829,7 +830,7 @@
       <key>Value</key>
       <real>0.1</real>
     </map>
-    <key>PVOverride_RenderSSAOMaxScale</key>
+    <key>RenderSSAOMaxScale</key>
     <map>
       <key>Comment</key>
       <string>Maximum screen radius for sampling (pixels)</string>
@@ -840,7 +841,7 @@
       <key>Value</key>
       <integer>100</integer>
     </map>
-    <key>PVOverride_RenderSSAOScale</key>
+    <key>RenderSSAOScale</key>
     <map>
       <key>Comment</key>
       <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>

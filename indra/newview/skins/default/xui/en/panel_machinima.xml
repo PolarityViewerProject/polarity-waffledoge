@@ -1019,79 +1019,94 @@
 				text_width="40"
 				width="310">
 			</slider>
-			<!-- Does not work quite yet. Need to figure why.
-			<slider
-			  enabled_control="RenderDeferred"
-			  decimal_digits="0"
-			  follows="left|top"
-			  height="15"
-			  increment="256"
-			  initial_value="1024"
-			  can_edit_text="true"
-			  label="X (Width):"
-			  label_width="130"
-			  tool_tip="Set the width of the shadowmap"
-			  layout="topleft"
-			  left="20"
-			  max_val="4096"
-			  min_val="256"
-			  name="PVOverride_RenderShadowResolutionScale_X"
-			  top_pad="0"
-			  text_width="40"
-			  width="250">
-			  <slider.commit_callback
-			    function="Pref.ArrayX"
-			    parameter="PVOverride_RenderShadowResolutionScale"/>
+			<!-- <slider
+				enabled_control="PVOverride_RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="256"
+				initial_value="2048"
+				label="Resolution Closeup:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_X"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4X"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
 			</slider>
 			<slider
-			  enabled_control="RenderDeferred"
-			  decimal_digits="0"
-			  follows="left|top"
-			  height="15"
-			  increment="256"
-			  initial_value="1024"
-			  can_edit_text="true"
-			  label="Y (Height)"
-			  label_width="130"
-			  tool_tip="Set the height of the shadowmap"
-			  layout="topleft"
-			  left="20"
-			  max_val="4096"
-			  min_val="256"
-			  name="PVOverride_RenderShadowResolutionScale_Y"
-			  top_pad="1"
-			  text_width="40"
-			  width="250">
-			  <slider.commit_callback
-			    function="Pref.ArrayY"
-			    parameter="PVOverride_RenderShadowResolutionScale">
-			  </slider.commit_callback>
+				enabled_control="PVOverride_RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="256"
+				initial_value="2048"
+				label="Resolution Close:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_Y"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4Y"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
 			</slider>
 			<slider
-			  enabled_control="RenderDeferred"
-			  decimal_digits="1"
-			  follows="left|top"
-			  height="15"
-			  increment="0.1"
-			  initial_value="1"
-			  can_edit_text="true"
-			  label="Multiplicator:"
-			  label_width="130"
-			  tool_tip="Set the the multiplicator value for width and height of the shadowmap"
-			  layout="topleft"
-			  left="20"
-			  max_val="4"
-			  min_val="0"
-			  name="PVOverride_RenderShadowResolutionScale_Z"
-			  top_pad="1"
-			  text_width="40"
-			  width="250">
-			  <slider.commit_callback
-			    function="Pref.ArrayZ"
-			    parameter="PVOverride_RenderShadowResolutionScale">
-			  </slider.commit_callback>
+				enabled_control="PVOverride_RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="256"
+				initial_value="1024"
+				label="Resolution Far:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_Z"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4Z"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
 			</slider>
-			-->
+			<slider
+				enabled_control="PVOverride_RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="256"
+				initial_value="512"
+				label="Resolution Very Far:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_W"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4W"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
+			</slider> -->
 			<text
 				font="SansSerif"
 				font.style="ITALIC"
@@ -1103,7 +1118,7 @@
 				left_delta="-5"
 				name="ssao_section"
 				top_pad="2"
-				width="295">
+				width="310">
 				Ambient Occlusion (SSAO):
 			</text>
 			<panel

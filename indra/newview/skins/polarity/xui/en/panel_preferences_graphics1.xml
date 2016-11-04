@@ -561,7 +561,7 @@
          	Shadows:
         </text>
         <combo_box
-         control_name="PVOverride_RenderShadowDetail"
+         control_name="RenderShadowDetail"
          height="23"
          layout="topleft"
          left="10"

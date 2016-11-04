@@ -136,10 +136,6 @@ U32 LLPipeline::RenderResolutionDivisor;
 BOOL LLPipeline::RenderUIBuffer;
 S32 LLPipeline::RenderShadowDetail;
 BOOL LLPipeline::RenderDeferredSSAO;
-// <Black Dragon:NiranV> Raw Shadow Resolution
-LLVector3 LLPipeline::RenderShadowResolution;
-LLVector3 LLPipeline::RenderProjectorShadowResolution;
-// </Black Dragon:NiranV>
 BOOL LLPipeline::RenderLocalLights;
 BOOL LLPipeline::RenderDelayCreation;
 BOOL LLPipeline::RenderAnimateRes;
@@ -218,6 +214,10 @@ U32 LLPipeline::PVRender_SSRResolution;
 F32 LLPipeline::PVRender_ChromaStrength;
 BOOL PVRender_DepthOfFieldAlphas;
 BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
+
+// <Black Dragon:NiranV> Shadow Map Allocation
+LLVector4 LLPipeline::RenderShadowResolution;
+LLVector3 LLPipeline::PVRender_ProjectorShadowResolution;
 // </Black Dragon:NiranV>
 
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
@@ -584,12 +584,8 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderFSAASamples");
 	connectRefreshCachedSettingsSafe("RenderResolutionDivisor");
 	connectRefreshCachedSettingsSafe("RenderUIBuffer");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowDetail");
+	connectRefreshCachedSettingsSafe("RenderShadowDetail");
 	connectRefreshCachedSettingsSafe("RenderDeferredSSAO");
-	// <Black Dragon:NiranV> Raw Shadow Resolution
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowResolutionScale");
-	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
-	// </Black Dragon:NiranV>
 	connectRefreshCachedSettingsSafe("RenderLocalLights");
 	connectRefreshCachedSettingsSafe("RenderDelayCreation");
 	connectRefreshCachedSettingsSafe("RenderAnimateRes");
@@ -634,39 +630,43 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("PVRender_DepthOfFieldAlphas");
 	// </Black Dragon:NiranV>
 
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowNoise");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowBlurSize");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderSSAOScale");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderSSAOMaxScale");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderSSAOFactor");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderSSAOEffect");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowOffsetError");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowBiasError");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowOffset");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowBias");
+	connectRefreshCachedSettingsSafe("RenderShadowNoise");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurSize");
+	connectRefreshCachedSettingsSafe("RenderSSAOScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOMaxScale");
+	connectRefreshCachedSettingsSafe("RenderSSAOFactor");
+	connectRefreshCachedSettingsSafe("RenderSSAOEffect");
+	connectRefreshCachedSettingsSafe("RenderShadowOffsetError");
+	connectRefreshCachedSettingsSafe("RenderShadowBiasError");
+	connectRefreshCachedSettingsSafe("RenderShadowOffset");
+	connectRefreshCachedSettingsSafe("RenderShadowBias");
 	connectRefreshCachedSettingsSafe("RenderSpotShadowOffset");
 	connectRefreshCachedSettingsSafe("RenderSpotShadowBias");
 	connectRefreshCachedSettingsSafe("RenderEdgeDepthCutoff");
 	connectRefreshCachedSettingsSafe("RenderEdgeNormCutoff");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowGaussian");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowBlurDistFactor");
+	connectRefreshCachedSettingsSafe("RenderShadowGaussian");
+	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
 	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
 	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
 	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
 	// <Black Dragon:NiranV> Tofu's SSR
 	connectRefreshCachedSettingsSafe("PVRender_EnableSSR");
 	// </Black Dragon:NiranV>
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowClipPlanes");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowOrthoClipPlanes");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowNearDist");
+	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
+	connectRefreshCachedSettingsSafe("RenderShadowNearDist");
 	connectRefreshCachedSettingsSafe("RenderFarClip");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowSplitExponent");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowErrorCutoff");
-	connectRefreshCachedSettingsSafe("PVOverride_RenderShadowFOVCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowSplitExponent");
+	connectRefreshCachedSettingsSafe("RenderShadowErrorCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowFOVCutoff");
 	connectRefreshCachedSettingsSafe("CameraOffset");
 	connectRefreshCachedSettingsSafe("CameraMaxCoF");
 	connectRefreshCachedSettingsSafe("CameraDoFResScale");
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
+
+//	//BD - Shadow Map Allocation
+	connectRefreshCachedSettingsSafe("RenderShadowResolution");
+	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
 
 	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
 	connectRefreshCachedSettingsSafe("PVRender_EnableGodRays");
@@ -1020,41 +1020,8 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		{
 			mDeferredLight.release();
 		}
-		// <Black Dragon:NiranV> Raw Shadow Resolution
-		LLVector3 scale = RenderShadowResolution;
-		LLVector3 proj_scale = RenderProjectorShadowResolution;
-		if (shadow_detail > 0)
-		{ //allocate 4 sun shadow maps
-			U32 sun_shadow_map_width = ((U32(scale[0]*scale[2])+1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
-			for (U32 i = 0; i < 4; i++)
-			{
-				if (!mShadow[i].allocate(sun_shadow_map_width,U32(scale[1]*scale[2]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
-			}
-		// </Black Dragon:NiranV>
-		}
-		else
-		{
-			for (U32 i = 0; i < 4; i++)
-			{
-				mShadow[i].release();
-			}
-		}
-		// <Black Dragon:NiranV>
-		if (shadow_detail > 1)
-		{ //allocate two spot shadow maps
-			for (U32 i = 4; i < 6; i++)
-			{
-				if (!mShadow[i].allocate(U32(proj_scale[0]*proj_scale[2]), U32(proj_scale[1]*proj_scale[2]), 0, TRUE, FALSE)) return false;
-			}
-		}
-		// </Black Dragon:NiranV>
-		else
-		{
-			for (U32 i = 4; i < 6; i++)
-			{
-				mShadow[i].release();
-			}
-		}
+//		//BD - Shadow Map Allocation
+		allocateShadowMaps(true);
 
 		//HACK make screenbuffer allocations start failing after 30 seconds
 		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -1088,6 +1055,46 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 	stop_glerror();
 
 	return true;
+}
+
+//BD - Shadow Map Allocation
+void LLPipeline::allocateShadowMaps(bool force_allocate)
+{
+	LLVector4 scale = RenderShadowResolution;
+	LLVector3 proj_scale = PVRender_ProjectorShadowResolution;
+	U32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
+
+	//BD - Quickly go through all 6 shadow maps and check if they need releasing or allocating.
+	//     Only reallocate them if we have shadows enabled otherwise just clear them.
+	for (U32 i = 0; i < 6; i++)
+	{
+		//BD - Always clear the shadowmap.
+		mShadow[i].release();
+
+		if (i < 4)
+		{
+			//BD - Sun Shadows mismatched.
+			if (shadow_detail > 0
+				&& (force_allocate
+				|| U32(scale.mV[i]) != mShadow[i].getWidth()))
+			{
+				//BD - Now reallocate the released map with the new resolution.
+				mShadow[i].allocate(U32(scale.mV[i]), U32(scale.mV[i]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE);
+			}
+		}
+		else
+		{
+			//BD - Projector Shadows mismatched.
+			if (shadow_detail > 1
+				&& (force_allocate
+				|| (U32(proj_scale.mV[0]) != mShadow[4].getWidth()
+				|| U32(proj_scale.mV[1]) != mShadow[4].getHeight())))
+			{
+				//BD - Now reallocate the released map with the new resolution.
+				mShadow[i].allocate(U32(proj_scale.mV[VX]), U32(proj_scale.mV[VY]), 0, TRUE, FALSE);
+			}
+		}
+	}
 }
 
 //static
@@ -1143,12 +1150,8 @@ void LLPipeline::refreshCachedSettings()
 	RenderFSAASamples = gSavedSettings.getU32("RenderFSAASamples");
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
-	RenderShadowDetail = gSavedSettings.getS32("PVOverride_RenderShadowDetail");
+	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
 	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
-	// <Black Dragon:NiranV> Raw Shadow Resolution
-	RenderShadowResolution = gSavedSettings.getVector3("PVOverride_RenderShadowResolutionScale");
-	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
-	// </Black Dragon:NiranV>
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
 	RenderDelayCreation = gSavedSettings.getBOOL("RenderDelayCreation");
 	RenderAnimateRes = gSavedSettings.getBOOL("RenderAnimateRes");
@@ -1183,34 +1186,34 @@ void LLPipeline::refreshCachedSettings()
 	CameraFNumber = gSavedSettings.getF32("CameraFNumber");
 	CameraFocalLength = gSavedSettings.getF32("CameraFocalLength");
 	CameraFieldOfView = gSavedSettings.getF32("CameraFieldOfView");
-	RenderShadowNoise = gSavedSettings.getF32("PVOverride_RenderShadowNoise");
-	RenderShadowBlurSize = gSavedSettings.getF32("PVOverride_RenderShadowBlurSize");
-	RenderSSAOScale = gSavedSettings.getF32("PVOverride_RenderSSAOScale");
-	RenderSSAOMaxScale = gSavedSettings.getU32("PVOverride_RenderSSAOMaxScale");
-	RenderSSAOFactor = gSavedSettings.getF32("PVOverride_RenderSSAOFactor");
+	RenderShadowNoise = gSavedSettings.getF32("RenderShadowNoise");
+	RenderShadowBlurSize = gSavedSettings.getF32("RenderShadowBlurSize");
+	RenderSSAOScale = gSavedSettings.getF32("RenderSSAOScale");
+	RenderSSAOMaxScale = gSavedSettings.getU32("RenderSSAOMaxScale");
+	RenderSSAOFactor = gSavedSettings.getF32("RenderSSAOFactor");
 	// <Black Dragon:NiranV> SSAO
-	RenderSSAOEffect = gSavedSettings.getF32("PVOverride_RenderSSAOEffect");
+	RenderSSAOEffect = gSavedSettings.getF32("RenderSSAOEffect");
 	// </Black Dragon:NiranV>
-	RenderShadowOffsetError = gSavedSettings.getF32("PVOverride_RenderShadowOffsetError");
-	RenderShadowBiasError = gSavedSettings.getF32("PVOverride_RenderShadowBiasError");
-	RenderShadowOffset = gSavedSettings.getF32("PVOverride_RenderShadowOffset");
-	RenderShadowBias = gSavedSettings.getF32("PVOverride_RenderShadowBias");
+	RenderShadowOffsetError = gSavedSettings.getF32("RenderShadowOffsetError");
+	RenderShadowBiasError = gSavedSettings.getF32("RenderShadowBiasError");
+	RenderShadowOffset = gSavedSettings.getF32("RenderShadowOffset");
+	RenderShadowBias = gSavedSettings.getF32("RenderShadowBias");
 	RenderSpotShadowOffset = gSavedSettings.getF32("RenderSpotShadowOffset");
 	RenderSpotShadowBias = gSavedSettings.getF32("RenderSpotShadowBias");
 	RenderEdgeDepthCutoff = gSavedSettings.getF32("RenderEdgeDepthCutoff");
 	RenderEdgeNormCutoff = gSavedSettings.getF32("RenderEdgeNormCutoff");
-	RenderShadowGaussian = gSavedSettings.getVector3("PVOverride_RenderShadowGaussian");
-	RenderShadowBlurDistFactor = gSavedSettings.getF32("PVOverride_RenderShadowBlurDistFactor");
+	RenderShadowGaussian = gSavedSettings.getVector3("RenderShadowGaussian");
+	RenderShadowBlurDistFactor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
 	RenderDeferredAtmospheric = gSavedSettings.getBOOL("RenderDeferredAtmospheric");
 	RenderReflectionDetail = gSavedSettings.getS32("RenderReflectionDetail");
 	RenderHighlightFadeTime = gSavedSettings.getF32("RenderHighlightFadeTime");
-	RenderShadowClipPlanes = gSavedSettings.getVector3("PVOverride_RenderShadowClipPlanes");
-	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("PVOverride_RenderShadowOrthoClipPlanes");
-	RenderShadowNearDist = gSavedSettings.getVector3("PVOverride_RenderShadowNearDist");
+	RenderShadowClipPlanes = gSavedSettings.getVector3("RenderShadowClipPlanes");
+	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("RenderShadowOrthoClipPlanes");
+	RenderShadowNearDist = gSavedSettings.getVector3("RenderShadowNearDist");
 	RenderFarClip = gSavedSettings.getF32("RenderFarClip");
-	RenderShadowSplitExponent = gSavedSettings.getVector3("PVOverride_RenderShadowSplitExponent");
-	RenderShadowErrorCutoff = gSavedSettings.getF32("PVOverride_RenderShadowErrorCutoff");
-	RenderShadowFOVCutoff = gSavedSettings.getF32("PVOverride_RenderShadowFOVCutoff");
+	RenderShadowSplitExponent = gSavedSettings.getVector3("RenderShadowSplitExponent");
+	RenderShadowErrorCutoff = gSavedSettings.getF32("RenderShadowErrorCutoff");
+	RenderShadowFOVCutoff = gSavedSettings.getF32("RenderShadowFOVCutoff");
 	CameraOffset = gSavedSettings.getBOOL("CameraOffset");
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
@@ -1241,6 +1244,10 @@ void LLPipeline::refreshCachedSettings()
 	PVRender_GodRaysFalloffMultiplier = gSavedSettings.getF32("PVRender_GodRaysFalloffMultiplier");
 	PVRender_SSRResolution = gSavedSettings.getU32("PVRender_SSRResolution");
 	PVRender_ChromaStrength = gSavedSettings.getF32("PVRender_ChromaStrength");
+//	//BD - Shadow Map Allocation
+	PVRender_ProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
+	RenderShadowResolution = gSavedSettings.getVector4("RenderShadowResolution");
+
 	exoPostProcess::instance().ExodusRenderPostSettingsUpdate();
 	// </Black Dragon:NiranV>
 
@@ -10624,7 +10631,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	//clip contains parallel split distances for 3 splits
 	LLVector3 clip = RenderShadowClipPlanes;
 
-	//F32 slope_threshold = gSavedSettings.getF32("PVOverride_RenderShadowSlopeThreshold");
+	//F32 slope_threshold = gSavedSettings.getF32("RenderShadowSlopeThreshold");
 
 	//far clip on last split is minimum of camera view distance and 128
 	mSunClipPlanes = LLVector4(clip, clip.mV[2] * clip.mV[2]/clip.mV[1]);
