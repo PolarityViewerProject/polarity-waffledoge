@@ -158,7 +158,7 @@
     <icon
      follows="top|right"
      height="16"
-     image_name="icon_for_sale.tga"
+     image_name="icon_for_sale"
      layout="topleft"
      mouse_opaque="true"
      name="landforsale"

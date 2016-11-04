@@ -159,7 +159,7 @@ width="22" />
 <icon
 follows="top|right"
 height="16"
-image_name="icon_for_sale.png"
+image_name="icon_for_sale"
 layout="topleft"
 mouse_opaque="true"
 name="landforsale"

@@ -253,9 +253,8 @@ scale.right="31"
 <texture name="icon_diurnal.png" />
 <texture name="Icon_Dock_Foreground" file_name="windows/Icon_Dock_Foreground.png" preload="true" />
 <texture name="Icon_Dock_Press" file_name="windows/Icon_Dock_Press.png" preload="true" />
-<texture name="Icon_For_Sale" file_name="Icon_For_Sale.png" preload="false" />
-<texture name="icon_for_sale.png" file_name="Icon_For_Sale.png" />
-<texture name="icon_for_sale_adult.png" />
+<texture name="icon_for_sale" file_name="icons/icon_for_sale.png" preload="false" />
+<texture name="icon_for_sale_adult" file_name="icons/icon_for_sale_adult.tga" preload="false"/>
 <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
 <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
 <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
