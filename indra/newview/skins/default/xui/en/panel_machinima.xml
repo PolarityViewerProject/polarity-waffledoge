@@ -1033,7 +1033,7 @@
 				left="10"
 				max_val="6144"
 				min_val="256"
-				name="RenderShadowResolution_X"
+				name="RenderShadowResolution_X_Sidebar"
 				top_pad="1"
 				width="310">
 				<slider.commit_callback
@@ -1055,7 +1055,7 @@
 				left="10"
 				max_val="6144"
 				min_val="256"
-				name="RenderShadowResolution_Y"
+				name="RenderShadowResolution_Y_Sidebar"
 				top_pad="1"
 				width="310">
 				<slider.commit_callback
@@ -1077,7 +1077,7 @@
 				left="10"
 				max_val="6144"
 				min_val="256"
-				name="RenderShadowResolution_Z"
+				name="RenderShadowResolution_Z_Sidebar"
 				top_pad="1"
 				width="310">
 				<slider.commit_callback
@@ -1099,7 +1099,7 @@
 				left="10"
 				max_val="6144"
 				min_val="256"
-				name="RenderShadowResolution_W"
+				name="RenderShadowResolution_W_Sidebar"
 				top_pad="1"
 				width="310">
 				<slider.commit_callback

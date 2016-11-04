@@ -1586,7 +1586,7 @@
             width="515">
           </panel>
           <check_box
-            control_name="PVRender_ToneMapping"
+            control_name="PVRender_EnableToneMapping"
             height="16"
             initial_value="false"
             label="Tone Mapping"
@@ -1603,7 +1603,7 @@
             follows="left|top"
             height="16"
             layout="topleft"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             left="10"
             name="tone_style_label"
             top_pad="10"
@@ -1617,7 +1617,7 @@
             label=""
             layout="topleft"
             follows="top|left"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             left="170"
             name="PVRender_ToneMappingTech"
             top_delta="-2"
@@ -1645,8 +1645,8 @@
           </combo_box>
           <slider
             can_edit_text="true"
-            control_name="PVRender_ToneExposure"
-            enabled_control="PVRender_ToneMapping"
+            control_name="PVRender_ToneMappingExposure"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1658,14 +1658,14 @@
             left="10"
             max_val="4"
             min_val="0"
-            name="PVRender_ToneExposure"
+            name="PVRender_ToneMappingExposure"
             top_pad="5"
             text_width="40"
             width="385">
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_ToneExposure"
+            control_name="PVRender_ToneMappingExposure"
             height="15"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -1678,12 +1678,12 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_ToneExposure">
+              parameter="PVRender_ToneMappingExposure">
             </button.commit_callback>
           </button>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1695,18 +1695,18 @@
             left="10"
             max_val="3"
             min_val="0"
-            name="PVRender_ToneAdvOptA_X"
+            name="PVRender_ToneMappingControlA_X"
             top_pad="7"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayX"
-              parameter="PVRender_ToneAdvOptA">
+              parameter="PVRender_ToneMappingControlA">
             </slider.commit_callback>
           </slider>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1718,18 +1718,18 @@
             left="10"
             max_val="3"
             min_val="0"
-            name="PVRender_ToneAdvOptA_Y"
+            name="PVRender_ToneMappingControlA_Y"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayY"
-              parameter="PVRender_ToneAdvOptA">
+              parameter="PVRender_ToneMappingControlA">
             </slider.commit_callback>
           </slider>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1741,18 +1741,18 @@
             left="10"
             max_val="3"
             min_val="0"
-            name="PVRender_ToneAdvOptA_Z"
+            name="PVRender_ToneMappingControlA_Z"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayZ"
-              parameter="PVRender_ToneAdvOptA">
+              parameter="PVRender_ToneMappingControlA">
             </slider.commit_callback>
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_ToneAdvOptA"
+            control_name="PVRender_ToneMappingControlA"
             height="45"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -1765,12 +1765,12 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_ToneAdvOptA">
+              parameter="PVRender_ToneMappingControlA">
             </button.commit_callback>
           </button>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1782,18 +1782,18 @@
             left="10"
             max_val="5"
             min_val="0"
-            name="PVRender_ToneAdvOptB_X"
+            name="PVRender_ToneMappingControlB_X"
             top_pad="7"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayX"
-              parameter="PVRender_ToneAdvOptB">
+              parameter="PVRender_ToneMappingControlB">
             </slider.commit_callback>
           </slider>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1805,18 +1805,18 @@
             left="10"
             max_val="5"
             min_val="0"
-            name="PVRender_ToneAdvOptB_Y"
+            name="PVRender_ToneMappingControlB_Y"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayY"
-              parameter="PVRender_ToneAdvOptB">
+              parameter="PVRender_ToneMappingControlB">
             </slider.commit_callback>
           </slider>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1828,18 +1828,18 @@
             left="10"
             max_val="5"
             min_val="0"
-            name="PVRender_ToneAdvOptB_Z"
+            name="PVRender_ToneMappingControlB_Z"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayZ"
-              parameter="PVRender_ToneAdvOptB">
+              parameter="PVRender_ToneMappingControlB">
             </slider.commit_callback>
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_ToneAdvOptB"
+            control_name="PVRender_ToneMappingControlB"
             height="45"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -1852,12 +1852,12 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_ToneAdvOptB">
+              parameter="PVRender_ToneMappingControlB">
             </button.commit_callback>
           </button>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1869,18 +1869,18 @@
             left="10"
             max_val="25"
             min_val="0"
-            name="PVRender_ToneAdvOptC_X"
+            name="PVRender_ToneMappingControlC_X"
             top_pad="7"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayX"
-              parameter="PVRender_ToneAdvOptC">
+              parameter="PVRender_ToneMappingControlC">
             </slider.commit_callback>
           </slider>
           <slider
             can_edit_text="true"
-            enabled_control="PVRender_ToneMapping"
+            enabled_control="PVRender_EnableToneMapping"
             decimal_digits="2"
             follows="left|top"
             height="15"
@@ -1892,18 +1892,18 @@
             left="10"
             max_val="5"
             min_val="0"
-            name="PVRender_ToneAdvOptC_Y"
+            name="PVRender_ToneMappingControlC_Y"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayY"
-              parameter="PVRender_ToneAdvOptC">
+              parameter="PVRender_ToneMappingControlC">
             </slider.commit_callback>
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_ToneAdvOptC"
+            control_name="PVRender_ToneMappingControlC"
             height="30"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -1916,7 +1916,7 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_ToneAdvOptC">
+              parameter="PVRender_ToneMappingControlC">
             </button.commit_callback>
           </button>
           <text
@@ -2049,13 +2049,13 @@
             left="10"
             max_val="0.5"
             min_val="-0.5"
-            name="PVRender_Offset_X"
+            name="PVRender_HDRBrightnessOffset_X"
             top_pad="7"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayX"
-              parameter="PVRender_Offset">
+              parameter="PVRender_HDRBrightnessOffset">
             </slider.commit_callback>
           </slider>
           <slider
@@ -2071,13 +2071,13 @@
             left="10"
             max_val="0.5"
             min_val="-0.5"
-            name="PVRender_Offset_Y"
+            name="PVRender_HDRBrightnessOffset_Y"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayY"
-              parameter="PVRender_Offset">
+              parameter="PVRender_HDRBrightnessOffset">
             </slider.commit_callback>
           </slider>
           <slider
@@ -2093,18 +2093,18 @@
             left="10"
             max_val="0.5"
             min_val="-0.5"
-            name="PVRender_Offset_Z"
+            name="PVRender_HDRBrightnessOffset_Z"
             top_pad="1"
             text_width="40"
             width="385">
             <slider.commit_callback
               function="Pref.ArrayZ"
-              parameter="PVRender_Offset">
+              parameter="PVRender_HDRBrightnessOffset">
             </slider.commit_callback>
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_Offset"
+            control_name="PVRender_HDRBrightnessOffset"
             height="45"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2117,7 +2117,7 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_Offset">
+              parameter="PVRender_HDRBrightnessOffset">
             </button.commit_callback>
           </button>
           <slider
