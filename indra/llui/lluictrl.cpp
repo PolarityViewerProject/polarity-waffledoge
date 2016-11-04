@@ -260,7 +260,8 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 		}
 		else if (!function_name.empty())
 		{
-			LL_WARNS() << "No callback found for: '" << function_name << "' in control: " << getName() << LL_ENDL;
+			LL_WARNS() << "No callback found for: '" << function_name << "' in control '" << getName()
+				<< "'. Perhaps bound to a function inaccessible in this scope? (usually a private class member)" << LL_ENDL;
 		}			
 	}
 	return default_commit_handler;
