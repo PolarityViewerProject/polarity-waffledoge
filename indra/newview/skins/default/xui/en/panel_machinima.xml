@@ -1020,12 +1020,12 @@
 				width="310">
 			</slider>
 			<!-- <slider
-				enabled_control="PVOverride_RenderShadowDetail"
+				enabled_control="RenderShadowDetail"
 				decimal_digits="0"
 				can_edit_text="true"
 				follows="left|top"
 				height="15"
-				increment="256"
+				increment="64"
 				initial_value="2048"
 				label="Resolution Closeup:"
 				label_width="110"
@@ -1042,12 +1042,12 @@
 				</slider.commit_callback>
 			</slider>
 			<slider
-				enabled_control="PVOverride_RenderShadowDetail"
+				enabled_control="RenderShadowDetail"
 				decimal_digits="0"
 				can_edit_text="true"
 				follows="left|top"
 				height="15"
-				increment="256"
+				increment="64"
 				initial_value="2048"
 				label="Resolution Close:"
 				label_width="110"
@@ -1064,12 +1064,12 @@
 				</slider.commit_callback>
 			</slider>
 			<slider
-				enabled_control="PVOverride_RenderShadowDetail"
+				enabled_control="RenderShadowDetail"
 				decimal_digits="0"
 				can_edit_text="true"
 				follows="left|top"
 				height="15"
-				increment="256"
+				increment="64"
 				initial_value="1024"
 				label="Resolution Far:"
 				label_width="110"
@@ -1086,12 +1086,12 @@
 				</slider.commit_callback>
 			</slider>
 			<slider
-				enabled_control="PVOverride_RenderShadowDetail"
+				enabled_control="RenderShadowDetail"
 				decimal_digits="0"
 				can_edit_text="true"
 				follows="left|top"
 				height="15"
-				increment="256"
+				increment="64"
 				initial_value="512"
 				label="Resolution Very Far:"
 				label_width="110"
