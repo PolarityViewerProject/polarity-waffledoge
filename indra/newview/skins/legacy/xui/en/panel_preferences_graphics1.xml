@@ -411,7 +411,7 @@
         width="266">
       </slider>
       <slider
-        control_name="RenderAvatarMaxVisible"
+        control_name="RenderAvatarMaxNonImpostors"
         decimal_digits="0"
         follows="left|top"
         height="16"
