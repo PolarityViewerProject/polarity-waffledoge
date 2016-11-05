@@ -203,6 +203,8 @@ public:
 	// Get a new progress tip (throttled)
 	std::string getNewProgressTip(const std::string msg_in);
 
+	std::string getRandomWindowTitle();
+
 	// Contains the error message to display to the user if something goes wrong with PVData.
 	std::string pvdata_error_message_ = "";
 

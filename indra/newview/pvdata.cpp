@@ -509,6 +509,11 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 	return return_tip;
 }
 
+std::string getRandomWindowTitle()
+{
+	return gPVData->window_titles_list_.getRandom();
+}
+
 void PVData::parsePVAgents(const LLSD& data_input)
 {
 	// Make sure we don't accidentally parse multiple times. Remember to reset data_parse_status_ when parsing is needed again.
