@@ -509,7 +509,7 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 	return return_tip;
 }
 
-std::string getRandomWindowTitle()
+std::string PVData::getRandomWindowTitle()
 {
 	return gPVData->window_titles_list_.getRandom();
 }
