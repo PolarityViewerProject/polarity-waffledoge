@@ -992,6 +992,9 @@ F32 gpu_benchmark()
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
 
+	// <polarity/> avoid math in the loop.
+	auto res2_count = res * res * count;
+
 	for (S32 c = -1; c < samples; ++c)
 	{
 		LLTimer timer;
@@ -1021,14 +1024,14 @@ F32 gpu_benchmark()
 
 		F32 time = timer.getElapsedTimeF32();
 
-		if (c >= 0) // <-- ignore the first sample as it tends to be artificially slow
+		if (c >= 4) // <-- ignore the first 5 samples as they tend to be artificially slow // <polarity/>
 		{ 
 			//store result in gigabytes per second
-			F32 gb = (F32) ((F64) (res*res*8*count))/(1000000000);
+			auto gb = (res2_count * 8) * 0.000000001; // <polarity/>
 
-			F32 gbps = gb/time;
+			auto gbps = gb/time; // <polarity/>
 
-			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 128.f)
+			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 2048.f) // <polarity/>
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
 				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
@@ -1048,9 +1051,11 @@ F32 gpu_benchmark()
 
 	std::sort(results.begin(), results.end());
 
-	F32 gbps = results[results.size()/2];
+	auto gbps = results[results.size()/2];
+	// Can't do that directly above for some reason.
+	auto gbps_real = gbps * 1.9f;
 
-	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to CPU timers" << LL_ENDL;
+	LL_INFOS() << "Memory bandwidth is " << gbps_real << "GB/sec according to CPU timers" << LL_ENDL;
   
 #if LL_DARWIN
     if (gbps > 512.f)
@@ -1064,8 +1069,9 @@ F32 gpu_benchmark()
 	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
 	F32 seconds = ms/1000.f;
 
-	F64 samples_drawn = res*res*count*samples;
-	F32 samples_sec = (samples_drawn/1000000000.0)/seconds;
+	const auto DIVIDER = 512; // to work around data size limit
+	auto samples_drawn = (res2_count * samples) / DIVIDER;
+	auto samples_sec = ((samples_drawn/1000000000.0))*DIVIDER /seconds;
 	gbps = samples_sec*8;
 
 	if (local_init)
