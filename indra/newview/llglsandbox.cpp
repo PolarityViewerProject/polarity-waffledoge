@@ -1057,14 +1057,14 @@ F32 gpu_benchmark()
 
 	LL_INFOS() << "Memory bandwidth is " << gbps_real << "GB/sec according to CPU timers" << LL_ENDL;
   
-#if LL_DARWIN
-    if (gbps > 512.f)
+//#if LL_DARWIN
+    if (gbps > 2048.f)
     { 
         LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
         //OSX is probably lying, discard result
         gbps = -1.f;
     }
-#endif
+//#endif
 
 	F32 ms = gBenchmarkProgram.mTimeElapsed/1000000.f;
 	F32 seconds = ms/1000.f;
