@@ -165,7 +165,7 @@ list LowMid
 RenderAnisotropic			1	0
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	0.5
-RenderAvatarMaxComplexity   1	100000
+RenderAvatarMaxComplexity   1	40000
 RenderAvatarPhysicsLODFactor 1	0.75
 RenderAvatarVP				1	1
 RenderFarClip				1	96
@@ -203,7 +203,7 @@ list Mid
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxComplexity   1	200000
+RenderAvatarMaxComplexity   1	60000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
@@ -241,7 +241,7 @@ list MidHigh
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxComplexity   1	250000
+RenderAvatarMaxComplexity   1	75000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
@@ -278,7 +278,7 @@ list High
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxComplexity   1	300000
+RenderAvatarMaxComplexity   1	85000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
@@ -316,7 +316,7 @@ list HighUltra
 RenderAnisotropic			1	1
 RenderAvatarCloth			1	0
 RenderAvatarLODFactor		1	1.0
-RenderAvatarMaxComplexity   1	350000
+RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
 RenderFarClip				1	128
