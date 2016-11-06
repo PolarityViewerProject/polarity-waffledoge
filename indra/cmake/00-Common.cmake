@@ -52,7 +52,7 @@ if (WINDOWS)
       "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD ${COMPILER_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Zi /Oi /Os /Ob2 /Zo /Zl /MD ${COMPILER_JOBS} /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /GF /Oi /Os /Ob2 /Zo /Zl /MD ${COMPILER_JOBS} /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
   if (WORD_SIZE EQUAL 32)
