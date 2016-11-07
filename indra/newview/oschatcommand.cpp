@@ -71,7 +71,7 @@ OSChatCommand::OSChatCommand()
 	gSavedSettings.getControl("ObsidianChatCommandHoverHeight")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	// TODO: Do not autocomplete if not special user
 	gSavedSettings.getControl("PVChatCommand_PVDataRefresh")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
-	gSavedSettings.getControl("PVChatCommand_PVDataDump")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	//gSavedSettings.getControl("PVChatCommand_PVDataDump")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("PVChatCommand_PurgeChat")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 }
 
@@ -93,7 +93,7 @@ void OSChatCommand::refreshCommands()
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandTeleportToCam")), CMD_TP_TO_CAM);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("ObsidianChatCommandHoverHeight")), CMD_HOVER_HEIGHT);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataRefresh")), CMD_PVDATA_REFRESH);
-	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataDump")), CMD_PVDATA_DUMP); 
+	//mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataDump")), CMD_PVDATA_DUMP); 
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PurgeChat")), CMD_PURGE_CHAT);
 }
 
@@ -418,19 +418,21 @@ bool OSChatCommand::parseCommand(std::string data)
 	}
 	case CMD_PVDATA_REFRESH:
 	{
-		if (gPVData->isPolarized(gAgentID))
+		if (PVDataAuth::getInstance()->isPolarized(gAgentID))
 		{
-			gPVData->refreshDataFromServer(true);
+			PVDataDownloader::getInstance()->refreshDataFromServer(true);
 		}
 		return true;
 		break;
 	}
+		/* Fix later
 	case CMD_PVDATA_DUMP:
 	{
-		gPVData->Dump("Runtime",gPVData->gPVData_llsd);
-		gPVData->Dump("Runtime", gPVData->gPVAgents_llsd);
+		PVData::getInstance()->Dump("Runtime",PVDataAuth::getInstance()->gPVData_llsd);
+		PVData::getInstance()->Dump("Runtime", PVDataAuth::getInstance()->gPVAgents_llsd);
 		return true;
 	}
+		*/
 	}
 	return false;
 }

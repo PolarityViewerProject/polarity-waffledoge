@@ -54,44 +54,12 @@
 #include "llfloaterpreference.h"
 #include "lltrans.h" // for getString
 
-PVData* gPVData = NULL;
+// This one needs to stay in the global scope, I think
 
-static const std::string LL_LINDEN = "Linden";
-static const std::string LL_MOLE = "Mole";
-static const std::string LL_PRODUCTENGINE = "ProductEngine";
-static const std::string LL_SCOUT = "Scout";
-static const std::string LL_TESTER = "Tester";
+// PVData* gPVData = NULL;
 
-std::vector<std::string> PVData::PVSearchSeparatorAssociation
-{
-	" ",
-	"+",
-	",",
-	"|",
-	";",
-	".",
-	":",
-};
-
-static U32 PVSearchSeparatorSelected = gPVData->separator_space;
-
-
-void PVData::init(const bool testing_branch)
-{
-	pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (testing_branch ? std::string("test/") : std::string("live/")) + std::to_string(pvdata_file_version) + "/";
-	PV_DEBUG("Base url is " + pv_url_remote_base_string_,LLError::LEVEL_INFO, true);
-}
-
-// ##     ## ######## ######## ########     ##        #######   ######   ####  ######
-// ##     ##    ##       ##    ##     ##    ##       ##     ## ##    ##   ##  ##    ##
-// ##     ##    ##       ##    ##     ##    ##       ##     ## ##         ##  ##
-// #########    ##       ##    ########     ##       ##     ## ##   ####  ##  ##
-// ##     ##    ##       ##    ##           ##       ##     ## ##    ##   ##  ##
-// ##     ##    ##       ##    ##           ##       ##     ## ##    ##   ##  ##    ##
-// ##     ##    ##       ##    ##           ########  #######   ######   ####  ######
-
-// Local timeout override to ensure we don't abort too soon
-const F32 HTTP_TIMEOUT = 30.f;
+std::string PVDataDownloader::pvdata_url_full_ = "";
+std::string PVDataDownloader::pvdata_agents_url_full_ = "";
 
 #if LL_DARWIN
 size_t strnlen(const char *s, size_t n)
@@ -101,57 +69,58 @@ size_t strnlen(const char *s, size_t n)
 }
 #endif // LL_DARWIN
 
-// We make exception of the coding style guide here because this class is only used internally, and is not
-// interacted directly with when hooking up to PVData from other files
-
-// Crappy port
-
-void downloadComplete( LLSD const &aData, std::string const &aURL )
+void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
 {
-	//LL_DEBUGS() << aData << LL_ENDL;
-
-	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
-
-	LLDate lastModified;
-	if (header.has("last-modified"))
+	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
+	if (!pvdebug_printtolog || (developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !PVDataAuth::getInstance()->isStaffDeveloper(gAgentID))))
 	{
-		lastModified.secondsSinceEpoch( PVCommon::secondsSinceEpochFromString( "%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString() ) );
-	}
-
-	LLSD data = aData;
-	data.erase( LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS );
-
-	gPVData->handleResponseFromServer(data, aURL, true);
-}
-
-void downloadCompleteScript( LLSD const &aData, std::string const &aURL, std::string const &aFilename  )
-{
-	LLSD header = aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ][ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
-	LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD( aData[ LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS ] );
-
-	LLDate lastModified;
-	if (header.has("last-modified"))
-	{
-		lastModified.secondsSinceEpoch( PVCommon::secondsSinceEpochFromString( "%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString() ) );
-	}
-	const LLSD::Binary &rawData = aData[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_RAW].asBinary();
-
-	if ( status.getType() == HTTP_NOT_MODIFIED )
-	{
-		LL_INFOS("PVData") << "Got [304] not modified for " << aURL << LL_ENDL;
 		return;
 	}
-	if (rawData.size() <= 0)
+	// Signed int because there is no operator for LLError::LEVEL_WARN => S32
+	S32 log_level = (S32)level;
+	S32 pvdebug_printtolog_forcedlevel = gSavedSettings.getS32("PVDebug_PrintToLogForcedLevel");
+	if (pvdebug_printtolog_forcedlevel >= 0)
 	{
-		LL_WARNS("PVData") << "Received zero data for " << aURL << LL_ENDL;
-		return;
+		// Don't let the user set log as error: this will crash them.
+		if (LLError::LEVEL_ERROR == pvdebug_printtolog_forcedlevel)
+		{
+			log_level = LLError::LEVEL_WARN;
+		}
+		else
+		{
+			log_level = pvdebug_printtolog_forcedlevel;
+		}
+	}
+	// Ensure our string is null-terminated.
+	const std::string nullterm_string = log_in_s.c_str();
+
+	if (LLError::LEVEL_DEBUG == log_level)
+	{
+		LL_DEBUGS() << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_INFO == log_level)
+	{
+		LL_INFOS() << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_WARN == log_level)
+	{
+		LL_WARNS() << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_ERROR == log_level)
+	{
+		LL_ERRS() << nullterm_string << LL_ENDL;
+	}
+	if (LLError::LEVEL_NONE == log_level)
+	{
+		// Nope.
 	}
 }
 
-void downloadError( LLSD const &aData, std::string const &aURL )
+void PVData::Dump(const std::string name, const LLSD& map)
 {
-	LL_WARNS() << "Failed to download " << aURL << ": " << aData << LL_ENDL;
-	gPVData->handleResponseFromServer(aData, aURL, false);
+	std::stringstream str;
+	LLSDSerialize::toPrettyXML(map, str);
+	PV_DEBUG("\n===========================\n<!--  <" + name + "> -->\n" + str.str() + "\n<!--  </" + name + "> -->\n===========================\n", LLError::LEVEL_DEBUG);
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
@@ -162,114 +131,178 @@ void downloadError( LLSD const &aData, std::string const &aURL )
 // ##     ## ##     ## ##  ##  ## ##   ### ##       ##     ## ##     ## ##     ## ##       ##    ##
 // ########   #######   ###  ###  ##    ## ########  #######  ##     ## ########  ######## ##     ##
 
-void PVData::modularDownloader(const std::string& pfile_name_in)
+bool PVDataDownloader::can_proceed(U8& status_container) const
 {
+	PVData::getInstance()->PV_DEBUG("Checking status", LLError::LEVEL_DEBUG);
+	switch (status_container)
+	{
+	case UNDEFINED:
+		// try again!
+		status_container = READY;
+		return can_proceed(status_container);
+		break;
+	case READY:
+		return true;
+	case DOWNLOAD_IN_PROGRESS:
+		LL_WARNS("PVData") << "Download already in progress, aborting." << LL_ENDL;
+		return false;
+	case DOWNLOAD_FAILURE:
+		LL_WARNS("PVData") << "Download failed. Will retry later." << LL_ENDL;
+		return true;
+	case DOWNLOAD_OK:
+		LL_DEBUGS("PVData") << "Download success, proceeding." << LL_ENDL;
+		return true;
+	case PARSING_IN_PROGRESS:
+		LL_WARNS("PVData") << "Parser is already running, aborting." << LL_ENDL;
+		return false;
+	case PARSE_FAILURE:
+		LL_WARNS("PVData") << "Parse failed. This is bad." << LL_ENDL;
+		return false;
+	default:
+		LL_WARNS("PVData") << "PVData encountered a problem and has aborted. (STATUS='" << status_container << "')" << LL_ENDL;
+		status_container = UNDEFINED;
+		return false;
+	}
+}
+
+void PVDataDownloader::downloadData()
+{
+	if (can_proceed(pv_data_status_))
+	{
+		pv_data_status_ = DOWNLOAD_IN_PROGRESS;
+		modularDownloader(data_file);
+	}
+}
+
+void PVDataDownloader::downloadAgents()
+{
+	if (can_proceed(pv_agents_status_))
+	{
+		pv_agents_status_ = DOWNLOAD_IN_PROGRESS;
+		modularDownloader(agents_file);
+	}
+}
+
+void PVDataDownloader::modularDownloader(const S8& pfile_name_in)
+{
+	// TODO: Move some place that won't get run twice
+
+	pv_file_name_data_string_ = pv_file_names.find(data_file)->second;
+	pv_file_name_agents_string_ = pv_file_names.find(agents_file)->second;
+
 	// Sets up the variables we need for each object. Avoids call bloat in the class constructor.
 	pvdata_user_agent_ = LLViewerMedia::getCurrentUserAgent();
-	pvdata_viewer_version_ = LLVersionInfo::getChannelAndVersionStatic(); 
-	static LLCachedControl<bool> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", FALSE);
-	if (pvdata_testing_branch != pv_downloader_testing_branch)
+	pvdata_viewer_version_ = LLVersionInfo::getChannelAndVersionStatic();
+	LL_WARNS() << "Checking for testing data source" << LL_ENDL;
+	static LLCachedControl<bool> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", false);
+	LL_WARNS() << "Checking for testing data source part 2" << LL_ENDL;
+	if (pv_url_remote_base_string_ == "" || pvdata_testing_branch != pv_downloader_testing_branch)
 	{
-		PVData::init(pvdata_testing_branch);
+		LL_WARNS() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << LL_ENDL;
+		pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (pvdata_testing_branch ? std::string("test/") : std::string("live/")) + std::to_string(pvdata_file_version) + "/";
+		LL_WARNS() << "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe" << LL_ENDL;
 		pv_downloader_testing_branch = pvdata_testing_branch;
 	}
-	
+	LL_WARNS() << "ccccccccccccccccccccc" << LL_ENDL;
+
 	// construct download url from file name
 	headers_.insert("User-Agent", pvdata_user_agent_);
 	headers_.insert("viewer-version", pvdata_viewer_version_);
+	LL_WARNS() << "ddddddddddddddddddddddddd" << LL_ENDL;
 	// FIXME: This is ugly
 	//pvdata_modular_remote_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
-	if (pfile_name_in == pv_file_name_data_string_)
+	auto iterator = pv_file_names.find(pfile_name_in);
+	LL_WARNS() << "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" << LL_ENDL;
+	std::string requested_file = iterator->second;
+
+	LL_WARNS() << "fffffffffffffffffffffffffffff" << LL_ENDL;
+	if (requested_file == pv_file_name_data_string_)
 	{
-		pvdata_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
+		pvdata_url_full_ = pv_url_remote_base_string_ + requested_file;
 	}
-	else if (pfile_name_in == pv_file_name_agents_string_)
+	else if (requested_file == pv_file_name_agents_string_)
 	{
-		pvdata_agents_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
+		pvdata_agents_url_full_ = pv_url_remote_base_string_ + requested_file;
 	}
 
-	PV_DEBUG("Downloading " + pfile_name_in + " from " + pv_url_remote_base_string_ + pfile_name_in, LLError::LEVEL_INFO);
+	PVData::getInstance()->PV_DEBUG("Downloading " + requested_file + " from " + pv_url_remote_base_string_ + requested_file, LLError::LEVEL_INFO);
 	// TODO: HTTP eTag support
 	//LLHTTPClient::get(pvdata_modular_remote_url_full_, new PVDataDownloader(pvdata_modular_remote_url_full_, pfile_name_in), headers_, HTTP_TIMEOUT);
-	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(pv_url_remote_base_string_ + pfile_name_in, boost::bind( downloadComplete, _1, pv_url_remote_base_string_ + pfile_name_in),
-		boost::bind( downloadError, _1, pv_url_remote_base_string_ + pfile_name_in) );
+	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(pv_url_remote_base_string_ + requested_file,
+		boost::bind(downloadComplete, _1, pv_url_remote_base_string_ + requested_file),
+		boost::bind(downloadError, _1, pv_url_remote_base_string_ + requested_file));
 }
 
-void PVData::downloadData()
+void PVDataDownloader::downloadComplete(const LLSD& aData, std::string& aURL)
 {
-	if (canDownload(data_download_status_))
+	LLSD header = aData[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS][LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS_HEADERS];
+
+	LLDate lastModified;
+	if (header.has("last-modified"))
 	{
-		data_parse_status_ = INIT;
-		modularDownloader("data.xml");
+		lastModified.secondsSinceEpoch(PVCommon::secondsSinceEpochFromString("%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString()));
 	}
+
+	LLSD data = aData;
+	data.erase(LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS);
+
+	handleResponseFromServer(data, aURL, false);
 }
 
-void PVData::downloadAgents()
+void PVDataDownloader::downloadError(const LLSD& aData, std::string& aURL)
 {
-	if (canDownload(agents_download_status_))
-	{
-		agents_parse_status_ = INIT;
-		modularDownloader("agents.xml");
-	}
+	LL_WARNS() << "Failed to download " << aURL << ": " << aData << LL_ENDL;
+	handleResponseFromServer(aData, aURL, true);
 }
 
-void PVData::handleResponseFromServer(const LLSD& http_content,
+void PVDataDownloader::handleResponseFromServer(const LLSD& http_content,
 	const std::string& http_source_url,
-	//const std::string& data_file_name,
-	const bool& parse_success
-	// TODO: re-implement last-modified support
-	//const bool& http_failure
-	//const LLDate& last_modified
-	)
+	const bool& download_failed
+)
 {
 	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
 	if (dump_web_data)
 	{
-		Dump(http_source_url, http_content);
+		PVData::getInstance()->Dump(http_source_url, http_content);
 	}
-	//PV_DEBUG("Examining HTTP response for " + http_source_url, LLError::LEVEL_INFO);
-	PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
-	//PV_DEBUG("http_source_url=" + http_source_url, LLError::LEVEL_DEBUG);
-	//PV_DEBUG("data_file_name=" + data_file_name);
-	PV_DEBUG("parse_success=" + parse_success, LLError::LEVEL_DEBUG);
-	//PV_DEBUG("http_failure=" + http_failure);
+	PVData::getInstance()->PV_DEBUG("http_content=" + http_content.asString(), LLError::LEVEL_DEBUG);
 
-	// Set status to OK here for now.
-	data_parse_status_ = agents_parse_status_ = OK;
 	if (http_source_url == pvdata_url_full_)
 	{
-		PV_DEBUG("Received a DATA file", LLError::LEVEL_DEBUG);
-		if (!parse_success)
+		PVData::getInstance()->PV_DEBUG("Got DATA file", LLError::LEVEL_DEBUG);
+		getInstance()->setDataStatus(NEW_DATA);
+		if (download_failed)
 		{
-			LL_WARNS("PVData") << "DATA Parse failure, aborting." << LL_ENDL;
-			data_parse_status_ = PARSE_FAILURE;
-			handleDataFailure();
+			LL_WARNS("PVData") << "DATA Download failure, aborting." << LL_ENDL;
+			getInstance()->setDataStatus(DOWNLOAD_FAILURE);
+			getInstance()->handleDataFailure();
 		}
 		else
 		{
-			gPVData_llsd = http_content;
-			data_parse_status_ = INIT;
-			
-			//data_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
-			parsePVData(http_content);
+			getInstance()->setDataStatus(DOWNLOAD_OK);
+			getInstance()->parsePVData(http_content);
 		}
 	}
-	if (http_source_url == pvdata_agents_url_full_)
+	else if (http_source_url == pvdata_agents_url_full_)
 	{
-		PV_DEBUG("Received an AGENTS file", LLError::LEVEL_DEBUG);
-		if (!parse_success)
+		PVData::getInstance()->PV_DEBUG("Got AGENTS file", LLError::LEVEL_DEBUG);
+		getInstance()->setAgentsDataStatus(NEW_DATA);
+		if (download_failed)
 		{
-			LL_WARNS("PVData") << " AGENTS Parse failure, aborting." << LL_ENDL;
-			agents_parse_status_ = PARSE_FAILURE;
-			handleAgentsFailure();
+			LL_WARNS("PVData") << " AGENTS Download failure, aborting." << LL_ENDL;
+			getInstance()->setAgentsDataStatus(DOWNLOAD_FAILURE);
+			getInstance()->handleAgentsFailure();
 		}
 		else
 		{
-			gPVAgents_llsd = http_content;
-			agents_parse_status_ = INIT;
-			//agents_parse_status_ = INIT; // Don't reset here, that would defeat the purpose.
-			parsePVAgents(http_content);
+			getInstance()->setAgentsDataStatus(DOWNLOAD_OK);
+			//pv_agents_status_ = INIT; // Don't reset here, that would defeat the purpose.
+			getInstance()->parsePVAgents(http_content);
 		}
+	}
+	else
+	{
+		PVData::getInstance()->PV_DEBUG("Got SOMETHING we weren't expecting. what do?", LLError::LEVEL_WARN);
 	}
 }
 
@@ -281,180 +314,237 @@ void PVData::handleResponseFromServer(const LLSD& http_content,
 // ##        ##     ## ##    ##  ##    ## ##       ##    ##  ##    ##
 // ##        ##     ## ##     ##  ######  ######## ##     ##  ######
 
-bool PVData::canParse(size_t& status_container) const
+
+
+void PVDataDownloader::parsePVData(const LLSD& data_input)
 {
-	PV_DEBUG("Checking parse status", LLError::LEVEL_DEBUG);
-	switch (status_container)
+	// Make sure we don't accidentally parse multiple times. Remember to reset pv_data_status_ when parsing is needed again.
+	if (!can_proceed(pv_data_status_))
 	{
-	case INIT:
-		return true;
-	case PARSING:
-		LL_WARNS("PVData") << "Parser is already running, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		return false;
-	case OK:
-		LL_WARNS("PVData") << "Parser already completed, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		return false;
-	default:
-		LL_WARNS("PVData") << "Parser encountered a problem and has aborted. Parsing disabled. (STATUS='" << status_container << "')" << LL_ENDL;
-		status_container = UNDEFINED;
-		return false;
-	}
-}
-
-bool PVData::canDownload(size_t& status_container) const
-{
-	PV_DEBUG("Checking download status", LLError::LEVEL_DEBUG);
-	switch (status_container)
-	{
-	case INIT:
-		return true;
-	case PARSING:
-		LL_WARNS("PVData") << "Download already in progress, skipping. (STATUS='" << status_container << "')" << LL_ENDL;
-		return false;
-	case OK:
-		// todo: standardize with canParse
-		return true;
-	case DOWNLOAD_FAILURE:
-		LL_WARNS("PVData") << "Failed to download and will retry later (STATUS='" << status_container << "')" << LL_ENDL;
-		return true;
-	default:
-		LL_WARNS("PVData") << "Download checks failed, download aborted. (STATUS='" << status_container << "')" << LL_ENDL;
-		status_container = UNDEFINED;
-		return false;
-	}
-}
-
-void PVData::handleDataFailure()
-{
-	// Ideally, if data is not present, the user should be treated as a normal resident
-	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
-
-	gAgent.mMOTD.assign("COULD NOT CONTACT MOTD SERVER");
-	data_download_status_ = DOWNLOAD_FAILURE;
-}
-void PVData::handleAgentsFailure()
-{
-	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
-	pv_agent_access_[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = FLAG_USER_BANNED;
-	pv_agent_access_[LLUUID("6b7c1d1b-fc8a-4b11-9202-707e99b4a89a")] = FLAG_USER_BANNED;
-	pv_agent_access_[LLUUID("584d796a-bb85-4fe9-8f7c-1f2fbf2ff164")] = FLAG_STAFF_DEV | FLAG_STAFF_QA; // Darl
-	pv_agent_access_[LLUUID("f1a73716-4ad2-4548-9f0e-634c7a98fe86")] = FLAG_STAFF_DEV; // Xenhat
-	pv_agent_access_[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = FLAG_STAFF_DEV;
-	pv_agent_access_[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = FLAG_STAFF_SUPPORT;
-	agents_download_status_ = DOWNLOAD_FAILURE;
-}
-
-void PVData::parsePVData(const LLSD& data_input)
-{
-	// Make sure we don't accidentally parse multiple times. Remember to reset data_parse_status_ when parsing is needed again.
-	if (!canParse(data_parse_status_))
-	{
-		// FIXME: why do we get 'data_parse_status_==PARSING' BEFORE it's actually being set? (see below)
+		// FIXME: why do we get 'pv_data_status_==PARSING' BEFORE it's actually being set? (see below)
 		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
+	auto mInfoInstance = PVDataViewerInfo::getInstance();
+	PVData::getInstance()->PV_DEBUG("Beginning to parse Data", LLError::LEVEL_DEBUG);
+	pv_data_status_ = PARSING_IN_PROGRESS;
 
-	PV_DEBUG("Beginning to parse Data", LLError::LEVEL_DEBUG);
-	data_parse_status_ = PARSING;
-	PV_DEBUG("Attempting to find Blocked Releases", LLError::LEVEL_DEBUG);
-	if (data_input.has("BlockedReleases"))
+	std::string section = pv_data_sections_.at(MinimumVersion);
+
+	// TODO: Loop through sections and check section type to determine validity?
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
 	{
-		PV_DEBUG("Populating Blocked Releases list...", LLError::LEVEL_DEBUG);
-		const LLSD& blocked = data_input["BlockedReleases"];
-		for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
-		{
-			std::string version = iter->first;
-			const LLSD& reason = iter->second;
-			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
-			blocked_versions_[version] = reason;
-			PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
-		}
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		mInfoInstance->setMinimumVersion(data_input[section]);
+		//PVData::getInstance()->PV_DEBUG("Minimum Version is " + mInfoInstance->getMinimumVersion(), LLError::LEVEL_INFO);
 	}
-	if (data_input.has("MinimumVersion"))
+	else
 	{
-		PV_DEBUG("Getting minimum version...", LLError::LEVEL_DEBUG);
-		const LLSD& min_version = data_input["MinimumVersion"];
-		for (LLSD::map_const_iterator iter = min_version.beginMap(); iter != min_version.endMap(); ++iter)
-		{
-			std::string version = iter->first;
-			const LLSD& reason = iter->second;
-			//LL_DEBUGS() << "reason = " << reason << LL_ENDL;
-			minimum_version_[version] = reason;
-			LL_DEBUGS("PVData") << "Minimum Version is " << version << LL_ENDL;
-		}
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_DEBUG);
+	}
+	
+	section = pv_data_sections_.at(BlockedReleases);
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
+	{
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		PVData::getInstance()->PV_DEBUG("Populating Blocked Releases list...", LLError::LEVEL_DEBUG);
+		mInfoInstance->setBlockedVersionsList(data_input[section]);
+	}
+	else
+	{
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_DEBUG);
 	}
 
 #if PVDATA_MOTD
 	// Set Message Of The Day if present
-	PV_DEBUG("Attempting to find MOTD data", LLError::LEVEL_DEBUG);
-	if (data_input.has("MOTD"))
+	section = pv_data_sections_.at(MOTD);
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
 	{
-		PV_DEBUG("Found a MOTD!", LLError::LEVEL_DEBUG);
-		gAgent.mMOTD.assign(data_input["MOTD"]);
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		gAgent.mMOTD.assign(data_input[section]);
 	}
-#if PVDATA_MOTD_CHAT
-	if (data_input.has("ChatMOTD")) // only used if MOTD is not presence in the xml file.
+	else
 	{
-		PV_DEBUG("Found Chat MOTDs!", LLError::LEVEL_DEBUG);
-		const LLSD& motd = data_input["ChatMOTD"];
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_DEBUG); // Don't warn on this one
+	}
+
+#if PVDATA_MOTD_CHAT
+	section = pv_data_sections_.at(ChatMOTD);
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
+	{
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		auto motd = data_input[section];
 		LLSD::array_const_iterator iter = motd.beginArray();
 		gAgent.mChatMOTD.assign((iter + (ll_rand(static_cast<S32>(motd.size()))))->asString());
 	}
+	else
+	{
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_WARN);
+	}
 #endif // PVDATA_MOTD_CHAT
 
+	section = pv_data_sections_.at(EventsMOTD);
 	// If the event falls within the current date, use that for MOTD instead.
-	PV_DEBUG("Attempting to find Events data", LLError::LEVEL_DEBUG);
-	if (data_input.has("EventsMOTD"))
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
 	{
-		motd_events_list_ = data_input["EventsMOTD"];
-		for (LLSD::map_const_iterator iter = motd_events_list_.beginMap(); iter != motd_events_list_.endMap(); ++iter)
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		mInfoInstance->setMotdEventsList(data_input[section]);
+		auto event_motd = mInfoInstance->getEventMotdIfAny();
+		if (event_motd != "")
 		{
-			std::string name = iter->first;
-			const LLSD& content = iter->second;
-			PV_DEBUG("Found event MOTD: " + name, LLError::LEVEL_DEBUG);
-
-			if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
-			{
-				PV_DEBUG("Setting MOTD to " + name, LLError::LEVEL_DEBUG);
-				// TODO: Shove into notification well.
-				gAgent.mMOTD.assign(content["EventMOTD"]); // note singular instead of plural above
-				break; // Only use the first one found.
-			}
+			gAgent.mMOTD.assign(event_motd);
 		}
-	}
-#endif // PVDATA_MOTD
-#if PVDATA_PROGRESS_TIPS
-
-	// TODO: Split tips files
-	// <polarity> Load the progress screen tips
-	PV_DEBUG("Attempting to find Progress Tip data", LLError::LEVEL_DEBUG);
-	if (data_input.has("ProgressTip"))
-	{
-		PV_DEBUG("Found Progress Tips!", LLError::LEVEL_DEBUG);
-		// Store list for later use
-		progress_tips_list_ = data_input["ProgressTip"];
 	}
 	else
 	{
-		PV_DEBUG("No progress tips found!", LLError::LEVEL_WARN);
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_DEBUG); // don't warn on this one
+	}
+#endif // PVDATA_MOTD
+
+#if PVDATA_PROGRESS_TIPS
+	section = pv_data_sections_.at(ProgressTip);
+	// TODO: Split tips files
+	// <polarity> Load the progress screen tips
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
+	{
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		// Store list for later use
+		mInfoInstance->setProgressTipsList(data_input[section]);
+	}
+	else
+	{
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_WARN);
 	}
 #endif // PVDATA_PROGRESS_TIPS
 
-	if (data_input.has("WindowTitles"))
+	section = pv_data_sections_.at(WindowTitles);
+	PVData::getInstance()->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
+	if (data_input.has(section))
 	{
-		PV_DEBUG("Found Window Titles!", LLError::LEVEL_DEBUG);
+		PVData::getInstance()->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		auto blob = data_input[section];
+		PVData::getInstance()->Dump("Window Titles raw", blob);
 		// Store list for later use
-		window_titles_list_ = data_input["WindowTitles"];
+		// FIXME: This sets an empty map?!
+		mInfoInstance->setWindowTitlesList(blob);
 	}
 	else
 	{
-		PV_DEBUG("No window titles found!", LLError::LEVEL_WARN);
+		PVData::getInstance()->PV_DEBUG("No " + section + " found!", LLError::LEVEL_WARN);
 	}
-	data_parse_status_ = OK;
+	pv_data_status_ = READY;
+	gPVData_llsd = data_input;
 	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
 }
 
-std::string PVData::getNewProgressTipForced()
+
+void PVDataDownloader::handleDataFailure()
+{
+	// Ideally, if data is not present, the user should be treated as a normal resident
+	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
+	gAgent.mMOTD.assign("COULD NOT CONTACT MOTD SERVER");
+	pv_data_status_ = DOWNLOAD_FAILURE;
+}
+
+void PVDataAuth::setFallbackAgentsData()
+{
+	pv_special_agent_flags_[LLUUID("f56e83a9-da38-4230-bac8-b146e7035dfc")] = BAD_USER_BANNED;
+	pv_special_agent_flags_[LLUUID("6b7c1d1b-fc8a-4b11-9202-707e99b4a89a")] = BAD_USER_BANNED;
+	pv_special_agent_flags_[LLUUID("584d796a-bb85-4fe9-8f7c-1f2fbf2ff164")] = STAFF_DEVELOPER | STAFF_QA; // Darl
+	pv_special_agent_flags_[LLUUID("f1a73716-4ad2-4548-9f0e-634c7a98fe86")] = STAFF_DEVELOPER; // Xenhat
+	pv_special_agent_flags_[LLUUID("238afefc-74ec-4afe-a59a-9fe1400acd92")] = STAFF_DEVELOPER;
+	pv_special_agent_flags_[LLUUID("a43d30fe-e2f6-4ef5-8502-2335879ec6b1")] = STAFF_SUPPORT;
+}
+
+void PVDataDownloader::handleAgentsFailure()
+{
+	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
+	PVDataAuth::getInstance()->setFallbackAgentsData();
+	pv_agents_status_ = DOWNLOAD_FAILURE;
+}
+
+#if 0 // v7
+std::string PVDataInfo::getMinimumVersion()
+{
+	auto version = minimum_version_.beginMap()->second;
+	// TODO: QA THIS
+	PV_DEBUG("Minimum version is: " + version.asString(), LLError::LEVEL_INFO);
+	return version.asString();
+}
+#endif
+
+bool PVDataViewerInfo::isVersionAtOrAboveMinimum()
+{
+	/* TODO: Implement in v7.
+	* What we need:
+	<key>MinimumVersion</key>
+	<map>
+	<key>VERSION</key>
+	<string>5.12.3</string>
+	<key>REASON</key>
+	<string>This version of Polarity Viewer is too old. Please wait for an updated build to arrive your way or download a new one.</string>
+	</map>
+	*/
+#if VERSION_7
+	std::string min_version_str = getMinimumVersion();
+	std::istringstream iss(min_version_str);
+	std::vector<std::string> tokens;
+	std::string token;
+	while (std::getline(iss, token, '.')) {
+		if (!token.empty())
+			tokens.push_back(token);
+	}
+	// yay implicit conversions!
+	if (token[0] >= LLVersionInfo::getMajor() &&
+		token[1] >= LLVersionInfo::getMinor() &&
+		token[2] >= LLVersionInfo::getPatch())
+	{
+		return true;
+	}
+	else
+	{
+		// TODO: Write tests. omg.
+		// TODO: Finish this once we have v7 deployed.
+		auto version_str = minimum_version_[version_str];
+		if (minimum_version_.has("REASON") && minimum_version_["REASON"].type() == LLSD::TypeString)
+		{
+
+			version_str.beginMap()->first;
+
+		}
+
+		auto version_data = version_map["REASON"];
+		setErrorMessage(version_data->second)
+#else
+	return true;
+#endif
+	}
+
+bool PVDataDownloader::getDataDone()
+{
+	if (pv_data_status_ == READY)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool PVDataDownloader::getAgentsDone()
+{
+	if (pv_agents_status_ == READY)
+	{
+		return true;
+	}
+	return false;
+}
+
+std::string PVDataViewerInfo::getNewProgressTipForced()
 {
 	// This assigns a random entry as the MOTD / Progress Tip message.
 	LLSD::array_const_iterator tip_iter = progress_tips_list_.beginArray();
@@ -465,7 +555,8 @@ std::string PVData::getNewProgressTipForced()
 	return random_tip;
 }
 
-std::string PVData::getNewProgressTip(const std::string msg_in)
+std::string PVDataViewerInfo
+	::getNewProgressTip(const std::string msg_in)
 {
 	LL_DEBUGS("PVData") << "Entering function" << LL_ENDL;
 	// Pass the existing message right through
@@ -490,7 +581,7 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 
 			// Most likely a teleport screen; let's add something.
 
-			return_tip = gPVData->progress_tips_list_.getRandom();
+			return_tip = progress_tips_list_.getRandom();
 			LL_DEBUGS("PVData") << "New tip from function is '" << return_tip << "'" << LL_ENDL;
 
 			if (!return_tip.empty() && return_tip != last_login_tip)
@@ -509,51 +600,79 @@ std::string PVData::getNewProgressTip(const std::string msg_in)
 	return return_tip;
 }
 
-std::string PVData::getRandomWindowTitle()
+std::string PVDataViewerInfo::getRandomWindowTitle()
 {
-	return gPVData->window_titles_list_.getRandom();
+	PVData::getInstance()->PV_DEBUG("Getting random window title from this list:", LLError::LEVEL_INFO);
+	PVData::getInstance()->Dump("window_titles_list_", getInstance()->window_titles_list_);
+	std::string title = getInstance()->window_titles_list_.getRandom();
+	PVData::getInstance()->PV_DEBUG("Returning  '" + title + "'", LLError::LEVEL_INFO);
+	return title;
 }
 
-void PVData::parsePVAgents(const LLSD& data_input)
+void PVDataAuth::setSpecialAgentFlags(const LLUUID& uuid, const S32& flags)
 {
-	// Make sure we don't accidentally parse multiple times. Remember to reset data_parse_status_ when parsing is needed again.
-	if (!canParse(agents_parse_status_))
+	pv_special_agent_flags_[uuid] = flags;
+}
+
+	void PVDataAuth::setSpecialAgentTitle(const LLUUID& uuid, const std::string& title)
+{
+	pv_special_agent_title_[uuid] = title;
+}
+
+	void PVDataAuth::setSpecialAgentColor(const LLUUID& uuid, const LLColor4& color4)
+{
+	pv_special_agent_color_[uuid] = color4;
+}
+
+void PVDataAuth::setSpecialAgentBanReason(const LLUUID& uuid, const std::string& reason)
+{
+	pv_special_agent_ban_reason_[uuid] = reason;
+}
+
+void PVDataAuth::setVendorSupportGroup(const LLUUID& uuid)
+{
+	support_group_.insert(uuid);
+}
+
+void PVDataDownloader::parsePVAgents(const LLSD& data_input)
+{
+	// Make sure we don't accidentally parse multiple times. Remember to reset pv_data_status_ when parsing is needed again.
+	if (!can_proceed(pv_agents_status_))
 	{
 		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 
-	agents_parse_status_ = PARSING;
+	pv_agents_status_ = PARSING_IN_PROGRESS;
 	LL_INFOS("PVData") << "Beginning to parse Agents" << LL_ENDL;
 
-	PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
+	auto mAuthInstance = PVDataAuth::getInstance();
+	PVData::getInstance()->PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
 	if (data_input.has("SpecialAgentsList"))
 	{
 		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
+
 		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
 			 uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
-			//Dump("SpecialAgentsList", special_agents_llsd);
-			// <key>UUID</key>, which declares the agent's data block
 			LLUUID uuid;
 			LLUUID::parseUUID(uuid_iterator->first, &uuid);
-
 			const LLSD& data_map = uuid_iterator->second;
 			if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
 			{
-				pv_agent_access_[uuid] = data_map["Access"].asInteger();
+				mAuthInstance->setSpecialAgentFlags(uuid,data_map["Access"].asInteger());
 			}
 			if (data_map.has("HexColor") && data_map["HexColor"].type() == LLSD::TypeString)
 			{
-				pv_agent_color_llcolor4[uuid] = Hex2Color4(data_map["HexColor"].asString());
+				mAuthInstance->setSpecialAgentColor(uuid,Hex2Color4(data_map["HexColor"].asString()));
 			}
 			if (data_map.has("Title") && data_map["Title"].type() == LLSD::TypeString)
 			{
-				pv_agent_title_[uuid] = data_map["Title"].asString();
+				mAuthInstance->setSpecialAgentTitle(uuid,data_map["Title"].asString());
 			}
 			if (data_map.has("BanReason") && data_map["BanReason"].type() == LLSD::TypeString)
 			{
-				ban_reason_[uuid] = data_map["BanReason"].asString();
+				mAuthInstance->setSpecialAgentBanReason(uuid,data_map["BanReason"].asString());
 			}
 		}
 	}
@@ -562,68 +681,40 @@ void PVData::parsePVAgents(const LLSD& data_input)
 		const LLSD& support_groups = data_input["SupportGroups"];
 		for (LLSD::map_const_iterator itr = support_groups.beginMap(); itr != support_groups.endMap(); ++itr)
 		{
-			support_group_.insert(LLUUID(itr->first));
-			PV_DEBUG("Added " + itr->first + " to support_group_", LLError::LEVEL_DEBUG);
+			mAuthInstance->setVendorSupportGroup(LLUUID(itr->first));
+			PVData::getInstance()->PV_DEBUG("Added " + itr->first + " to support_group_", LLError::LEVEL_DEBUG);
 		}
 	}
 
-	agents_parse_status_ = OK;
+	gPVAgents_llsd = data_input;
+	pv_agents_status_ = PVDataDownloader::READY;
 	LL_INFOS("PVData") << "Done parsing agents" << LL_ENDL;
 
-	// TODO PLVR: Hook up
-	//autoMuteFlaggedAgents();
+	PVDataAuth::getInstance()->autoMuteFlaggedAgents();
 }
 
-
-bool PVData::getDataDone() const
+void PVDataAuth::autoMuteFlaggedAgents()
 {
-	if (data_parse_status_ == OK)
+	if (!gCacheName)
 	{
-		return true;
+		return;
 	}
-	return false;
+	for (std::map<LLUUID, S32>::iterator iter = pv_special_agent_flags_.begin(); iter != pv_special_agent_flags_.end(); ++iter)
+	{
+		if (iter->second & BAD_USER_AUTOMUTED)
+		{
+			LLUUID id = iter->first;
+			std::string name;
+			gCacheName->getFullName(id, name);
+			LLMute mute(id, name, LLMute::EXTERNAL);
+			LLMuteList::getInstance()->add(mute);
+		}
+	}
 }
 
-bool PVData::getAgentsDone() const
-{
-	if (agents_parse_status_ == OK)
-	{
-		return true;
-	}
-	return false;
-}
-// <polarity> The Linden Lab viewer's logic is somewhat spaghetti and confusing to me, so I wrote my own.
-std::string PVData::getPreferredName(const LLAvatarName& av_name)
-{
-	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
-	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
-	// Fallback
-	std::string preferred_name = "";
 
-	if (!use_display_names && !show_username)
-	{
-		return av_name.getUserName();
-	}
-	if (use_display_names && show_username)
-	{
-		preferred_name = av_name.getCompleteNameForced(); // Show everything
-	}
-	else if (use_display_names && !show_username)
-	{
-		preferred_name = av_name.getDisplayNameForced();
-	}
 
-	if (preferred_name == "")
-	{
-		// we shouldn't hit this, but a sane fallback can't hurt.
-		preferred_name = av_name.getUserName();
-		LL_WARNS("PVData") << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
-	}
-
-	return preferred_name;
-}
-
-LLUUID PVData::getLockDownUUID()
+LLUUID PVDataAuth::getLockDownUUID()
 {
 // Workaround for missing CMAKE flags
 #define STRINGIFY(x) #x
@@ -642,12 +733,12 @@ LLUUID PVData::getLockDownUUID()
 	}
 	return static_cast<LLUUID>(temp);
 }
-bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
+bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 {
 	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
-	pvdata_error_message_ = "Generic Error Message";
+	PVData::getInstance()->setErrorMessage("Generic Error Message");
 #if DEVEL_BUILD
-	if (isDeveloper(avatar_id))
+	if (isStaffDeveloper(avatar_id))
 	{
 		return true;
 	}
@@ -662,19 +753,19 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 			LL_INFOS("PVData") << "Identity confirmed. Proceeding. Enjoy your privileges." << LL_ENDL;
 			return true;
 		}// else
-		pvdata_error_message_ = "This build is locked down to another account.";
+		PVData::getInstance()->setErrorMessage("This build is locked down to another account.");
 		return false;
 	}
 	if (lockdown_uuid != LLUUID::null)
 	{
-		pvdata_error_message_ = "Something went wrong, and the authentication checks have failed.";
+		PVData::getInstance()->setErrorMessage("Something went wrong, and the authentication checks have failed.");
 		return false;
 	}
-	S32 av_flags = getAgentFlags(avatar_id);
+	auto av_flags = PVDataAuth::getInstance()->getSpecialAgentFlags(avatar_id);
 	auto compiled_channel = LLVersionInfo::getCompiledChannel();
-	if (av_flags & FLAG_USER_BANNED)
+	if (av_flags & BAD_USER_BANNED)
 	{
-		pvdata_error_message_ = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.";
+		PVData::getInstance()->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download another Viewer.");
 		return false;
 	}
 	if (compiled_channel == APP_NAME + " Release"
@@ -687,29 +778,29 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
 	// prevent non-release builds to fall in the wrong hands
 	LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
 	LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
-	if (av_flags & FLAG_USER_BETA_TESTER)
+	if (av_flags & USER_TESTER)
 	{
 		LL_WARNS() << "Access level: TESTER" << LL_ENDL;
 		return true;
 	}
-	if (av_flags & FLAG_STAFF_SUPPORT)
+	if (av_flags & STAFF_SUPPORT)
 	{
 		LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
 		return true;
 	}
-	if (av_flags & FLAG_STAFF_QA)
+	if (av_flags & STAFF_QA)
 	{
 		LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
 		return true;
 	}
-	if (av_flags & FLAG_STAFF_DEV)
+	if (av_flags & STAFF_DEVELOPER)
 	{
 		LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
 		return true;
 	}
 #endif //!RELEASE_BUILD
 	LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
-	pvdata_error_message_ = "You do not have permission to use this build of [APP_NAME]. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".";
+	PVData::getInstance()->setErrorMessage("You do not have permission to use this build of [APP_NAME]. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
 #endif
 	return false;
 }
@@ -718,7 +809,7 @@ bool PVData::isAllowedToLogin(const LLUUID& avatar_id)
  * \brief Determines if the current binary is a known, and blocked release.
  * \return true if the release is blocked, false if allowed.
  */
-bool PVData::isBlockedRelease()
+bool PVDataViewerInfo::isBlockedRelease()
 {
 	// This little bit of code here does a few things. First it grabs the viewer's current version. Then it attempts to find that specific version
 	// in the list of blocked versions (blocked_versions_).
@@ -726,18 +817,20 @@ bool PVData::isBlockedRelease()
 	const std::string& sCurrentVersion = LLVersionInfo::getChannelAndVersionStatic();
 	const std::string& sCurrentVersionShort = LLVersionInfo::getShortVersion();
 	// Blocked Versions
-	str_llsd_pairs::iterator blockedver_iterator = blocked_versions_.find(sCurrentVersion);
+	auto blockedver_iterator = blocked_versions_.find(sCurrentVersion);
 	// Minimum Version
-	str_llsd_pairs::iterator minver_iterator = minimum_version_.begin();
-	pvdata_error_message_ = "Quit living in the past!";
+	auto minver_iterator = minimum_version_.begin();
+	PVData::getInstance()->setErrorMessage("Quit living in the past!");
 
+	// TODO v7: Check if isVersionAtOrAboveMinimum is more suitable
+	
 	// Check if version is lower than the minimum version
 	if (minver_iterator != minimum_version_.end() // Otherwise crashes if data is missing due to network failures
 		&& sCurrentVersionShort < minver_iterator->first)
 	{
 		const LLSD& reason_llsd = minver_iterator->second;
-		pvdata_error_message_.assign(reason_llsd["REASON"]);
-		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << pvdata_error_message_ << ")" << LL_ENDL;
+		PVData::getInstance()->setErrorMessage(reason_llsd["REASON"]);
+		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVData::getInstance()->getErrorMessage() << ")" << LL_ENDL;
 		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
@@ -746,73 +839,79 @@ bool PVData::isBlockedRelease()
 	{
 		// assign the iterator's associaded value (the reason message) to the LLSD that will be returned to the calling function
 		const LLSD& reason_llsd = blockedver_iterator->second;
-		pvdata_error_message_.assign(reason_llsd["REASON"]);
-		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << pvdata_error_message_ << ")" << LL_ENDL;
+		PVData::getInstance()->setErrorMessage(reason_llsd["REASON"]);
+		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << PVData::getInstance()->getErrorMessage() << ")" << LL_ENDL;
 		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
-	else
-	{
-		PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
-	}
+	PVData::getInstance()->PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
 
 	// default
 	return false;
 }
 
-inline S32 PVData::getAgentFlags(const LLUUID& avatar_id)
+inline S32 PVDataAuth::getSpecialAgentFlags(const LLUUID& avatar_id)
 {
-	return pv_agent_access_[avatar_id];
+	if (getInstance()->pv_special_agent_flags_.count(avatar_id) != 0)
+	{
+		return getInstance()->pv_special_agent_flags_.at(avatar_id);
+	}
+	return 0;
 }
 
-bool PVData::isDeveloper(const LLUUID& avatar_id)
+bool PVDataAuth::isStaffDeveloper(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_STAFF_DEV);
+	return (getSpecialAgentFlags(avatar_id) & STAFF_DEVELOPER);
 }
 
-bool PVData::isSupport(const LLUUID& avatar_id)
+bool PVDataAuth::isStaffSupport(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_STAFF_SUPPORT);
+	return (getSpecialAgentFlags(avatar_id) & STAFF_SUPPORT);
 }
 
-bool PVData::isQA(const LLUUID& avatar_id)
+bool PVDataAuth::isStaffQA(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_STAFF_QA);
+	return (getSpecialAgentFlags(avatar_id) & STAFF_QA);
 }
 
-bool PVData::isTester(const LLUUID& avatar_id)
+bool PVDataAuth::isUserTester(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_USER_BETA_TESTER);
+	return (getSpecialAgentFlags(avatar_id) & USER_TESTER);
 }
 
-bool PVData::isDeniedSupport(const LLUUID& avatar_id)
+bool PVDataAuth::isBadUserUnsupported(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_USER_NO_SUPPORT);
+	return (getSpecialAgentFlags(avatar_id) & BAD_USER_UNSUPPORTED);
 }
 
-bool PVData::isMuted(const LLUUID& avatar_id)
+bool PVDataAuth::isBadUserAutoMuted(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_USER_AUTOMUTED);
+	return (getSpecialAgentFlags(avatar_id) & BAD_USER_AUTOMUTED);
 }
 
-bool PVData::isBanned(const LLUUID& avatar_id)
+bool PVDataAuth::isBadUserBanned(const LLUUID& avatar_id)
 {
-	return (getAgentFlags(avatar_id) & FLAG_USER_BANNED);
+	return (getSpecialAgentFlags(avatar_id) & BAD_USER_BANNED);
 }
 
-bool PVData::isSupportGroup(const LLUUID& avatar_id) const
+bool PVDataAuth::isSupportGroup(const LLUUID& avatar_id) const
 {
 	return (support_group_.count(avatar_id));
 }
 
-bool PVData::isPolarized(const LLUUID& avatar_id)
+bool PVDataAuth::isPolarized(const LLUUID& avatar_id)
 {
 	// TODO: Re-order flags by hierarchy again and make this nicer
-	auto flags = getAgentFlags(avatar_id);
-	return (flags > FLAG_USER_NO_SUPPORT && flags != FLAG_TITLE_OVERRIDE);
+	//auto flags = getAgentFlags(avatar_id);
+	//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
+	auto mAuthInstance = PVDataAuth::getInstance();
+	return (mAuthInstance->getSpecialAgentFlags(avatar_id) != 0 &&
+		!mAuthInstance->isBadUserAutoMuted(avatar_id) &&
+		!mAuthInstance->isBadUserBanned(avatar_id) &&
+		!mAuthInstance->isBadUserUnsupported(avatar_id));
 }
 
-bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags) const
+bool PVDataAuth::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 {
 #if !FIXED_LINDEN_CHECK
 	// Our shit is broken, let's fall back to the basic code.
@@ -859,7 +958,7 @@ bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 	{
 		// set bit for LL employee
 		PV_DEBUG(first_name + " " + last_name + " is a linden!", LLError::LEVEL_INFO);
-		//pv_agent_access_[avatar_id.asString()] = (av_flags |= FLAG_LINDEN_EMPLOYEE);
+		//pv_special_agent_flags_[avatar_id.asString()] = (av_flags |= LINDEN_EMPLOYEE);
 		agents_linden_[avatar_id.asString()] = true;
 		return true;
 	}
@@ -869,29 +968,32 @@ bool PVData::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 #endif
 }
 
-bool PVData::getAgentTitle(const LLUUID& avatar_id, std::string& agent_title)
+bool PVDataAuth::getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::string& new_title)
 {
-	agent_title = pv_agent_title_[avatar_id];
-	return (!agent_title.empty());
+	if(pv_special_agent_title_.find(avatar_id) != pv_special_agent_title_.end())
+	{
+		new_title = pv_special_agent_title_[avatar_id];
+	}
+	return (!new_title.empty());
 }
 // Checks on the agent using the viewer
 
-std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
+std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 {
 	// Check for agents flagged through PVData
-	std::string flags_string = "";
+	std::string agent_title = "";
 	std::vector<std::string> flags_list;
-	S32 av_flags = gPVData->getAgentFlags(avatar_id);
+	S32 av_flags = getSpecialAgentFlags(avatar_id);
 	if (isLinden(avatar_id, av_flags))
 	{
 		flags_list.push_back("Linden Lab Employee");
 	}
-	if (av_flags || !flags_list.empty())
+	if (av_flags != 0 || !flags_list.empty())
 	{
 		// LL_WARNS() << "Agent Flags for " << avatar_id << " = " << av_flags << LL_ENDL;
 		std::string custom_title;
 		//auto title_ptr *
-		if (getAgentTitle(avatar_id, custom_title))
+		if (getSpecialAgentCustomTitle(avatar_id, custom_title))
 		{
 			// Custom tag present, drop previous title to use that one instead.
 			flags_list.clear();
@@ -900,32 +1002,32 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 		else
 		{
 			// here are the bad flags
-			if (av_flags & FLAG_USER_AUTOMUTED)
+			if (isBadUserAutoMuted(avatar_id))
 			{
 				flags_list.push_back("Nuisance");
 			}
-			if (av_flags & FLAG_USER_BANNED)
+			if (isBadUserBanned(avatar_id))
 			{
 				flags_list.push_back("Exiled");
 			}
-			if (av_flags & FLAG_USER_NO_SUPPORT)
+			if (isBadUserUnsupported(avatar_id))
 			{
 				flags_list.push_back("Unsupported");
 			}
 			// And here are the good flags
-			if (av_flags & FLAG_STAFF_DEV)
+			if (isStaffDeveloper(avatar_id))
 			{
 				flags_list.push_back("Developer");
 			}
-			if (av_flags & FLAG_STAFF_QA)
+			if (isStaffQA(avatar_id))
 			{
 				flags_list.push_back("QA");
 			}
-			if (av_flags & FLAG_STAFF_SUPPORT)
+			if (isStaffSupport(avatar_id))
 			{
 				flags_list.push_back("Support");
 			}
-			if (av_flags & FLAG_USER_BETA_TESTER)
+			if (isUserTester(avatar_id))
 			{
 				flags_list.push_back("Tester");
 			}
@@ -934,12 +1036,22 @@ std::string PVData::getAgentFlagsAsString(const LLUUID& avatar_id)
 		using namespace boost::spirit::karma;
 		std::ostringstream string_stream;
 		string_stream << format(string % ',', flags_list);
-		flags_string = string_stream.str();
+		agent_title = string_stream.str();
 	}
-	return flags_string;
+	return agent_title;
 }
 
-void PVData::startRefreshTimer()
+bool PVDataAuth::isSpecialAgentColored(const LLUUID& avatar_id)
+{
+	return pv_special_agent_color_.find(avatar_id) != pv_special_agent_color_.end();
+}
+
+LLColor4 PVDataAuth::getSpecialAgentColorDirectly(const LLUUID& avatar_id)
+{
+	return pv_special_agent_color_[avatar_id];
+}
+
+void PVDataDownloader::startRefreshTimer()
 {
 	if (!pvdata_refresh_timer_.getStarted())
 	{
@@ -952,7 +1064,7 @@ void PVData::startRefreshTimer()
 	}
 }
 
-bool PVData::refreshDataFromServer(bool force_refresh_now)
+bool PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
 {
 	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
 	if (force_refresh_now || pvdata_refresh_timer_.getElapsedTimeF32() >= refresh_minutes * 60)
@@ -960,11 +1072,11 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 		LL_INFOS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
 		instance().downloadData();
 
-		PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
+		PVData::getInstance()->PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
 		instance().downloadAgents();
 		if (!force_refresh_now)
 		{
-			PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
+			PVData::getInstance()->PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
 			pvdata_refresh_timer_.reset();
 		}
 		return true;
@@ -972,61 +1084,7 @@ bool PVData::refreshDataFromServer(bool force_refresh_now)
 	return false;
 }
 
-void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
-{
-	static LLCachedControl<BOOL> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
-	if(!pvdebug_printtolog || (developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVData->isDeveloper(gAgentID))))
-	{
-		return;
-	}
-	// Signed int because there is no operator for LLError::LEVEL_WARN => S32
-	S32 log_level = (S32)level;
-	S32 pvdebug_printtolog_forcedlevel = gSavedSettings.getS32("PVDebug_PrintToLogForcedLevel");
-	if (pvdebug_printtolog_forcedlevel >= 0)
-	{
-		// Don't let the user set log as error: this will crash them.
-		if (LLError::LEVEL_ERROR == pvdebug_printtolog_forcedlevel)
-		{
-			log_level = LLError::LEVEL_WARN;
-		}
-		else
-		{
-			log_level = pvdebug_printtolog_forcedlevel;
-		}
-	}
-	// Ensure our string is null-terminated.
-	const std::string nullterm_string = log_in_s.c_str();
-
-	if (LLError::LEVEL_DEBUG == log_level)
-	{
-		LL_DEBUGS("PVData") << nullterm_string << LL_ENDL;
-	}
-	if (LLError::LEVEL_INFO == log_level)
-	{
-		LL_INFOS("PVData") << nullterm_string << LL_ENDL;
-	}
-	if (LLError::LEVEL_WARN == log_level)
-	{
-		LL_WARNS("PVData") << nullterm_string << LL_ENDL;
-	}
-	if (LLError::LEVEL_ERROR == log_level)
-	{
-		LL_ERRS("PVData") << nullterm_string << LL_ENDL;
-	}
-	if (LLError::LEVEL_NONE == log_level)
-	{
-		// Nope.
-	}
-}
-
-void PVData::Dump(const std::string name, const LLSD& map)
-{
-	std::stringstream str;
-	LLSDSerialize::toPrettyXML(map, str);
-	PV_DEBUG("\n===========================\n<!--  <" + name + "> -->\n" + str.str() + "\n<!--  </" + name + "> -->\n===========================\n", LLError::LEVEL_DEBUG);
-}
-
-LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
+LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
 {
 	// Try to operate in the same instance, reduce call overhead
 	auto uiCT = LLUIColorTable::getInstance();
@@ -1045,61 +1103,66 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 		return return_color;
 	}
 
-	// Check if agent is flagged through PVData
-	auto av_flags = gPVData->getAgentFlags(avatar_id);
+	auto mAuthInstance = PVDataAuth::getInstance();
 
-	// Get custom color (from PVData or fast cache
-	if (gPVData->pv_agent_color_llcolor4.find(avatar_id) != gPVData->pv_agent_color_llcolor4.end())
+	// Check if agent is flagged through PVData
+	auto av_flags = mAuthInstance->getSpecialAgentFlags(avatar_id);
+
+	if (mAuthInstance->isSpecialAgentColored(avatar_id))
 	{
-		pvdata_color = gPVData->pv_agent_color_llcolor4[avatar_id];
+		pvdata_color = mAuthInstance->getSpecialAgentColorDirectly(avatar_id);
 	}
 	else
 	{
-		if (gPVData->isLinden(avatar_id, av_flags))
+		// TODO: QA this
+		//if (PVDataAuth::getInstance()->isLinden(avatar_id, av_flags))
+		//{
+		//	mAuthInstance->setSpecialAgentColor(avatar_id, linden_color.get());
+		//	return linden_color.get();
+		//}
+		if (mAuthInstance->isStaffDeveloper(avatar_id))
 		{
-			instance().pv_agent_color_llcolor4.insert_or_assign(avatar_id, linden_color.get());
-			return linden_color.get();
+			static const LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
+			pvdata_color = dev_color.get();
 		}
-		if (av_flags)
+		else if (mAuthInstance->isStaffQA(avatar_id))
 		{
-			if (av_flags & FLAG_STAFF_DEV)
-			{
-				static const LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
-				pvdata_color = dev_color.get();
-			}
-			else if (av_flags & FLAG_STAFF_QA)
-			{
-				static const LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
-				pvdata_color = qa_color.get();
-			}
-			else if (av_flags & FLAG_STAFF_SUPPORT)
-			{
-				static const LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
-				pvdata_color = support_color.get();
-			}
-			else if (av_flags & FLAG_USER_BETA_TESTER)
-			{
-				static const LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
-				pvdata_color = tester_color.get();
-			}
-			else if (av_flags & FLAG_USER_BANNED)
-			{
-				static const LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
-				pvdata_color = banned_color.get();
-			}
-			else
-			{
-				LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
-				LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
-				LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-				LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-				LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-				LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
-				LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
-			}
-			// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
-			gPVData->pv_agent_color_llcolor4.insert_or_assign(avatar_id, pvdata_color);
+			static const LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
+			pvdata_color = qa_color.get();
 		}
+		else if (mAuthInstance->isStaffSupport(avatar_id))
+		{
+			static const LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
+			pvdata_color = support_color.get();
+		}
+		else if (mAuthInstance->isUserTester(avatar_id))
+		{
+			static const LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
+			pvdata_color = tester_color.get();
+		}
+		else if (mAuthInstance->isBadUserBanned(avatar_id))
+		{
+			static const LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
+			pvdata_color = banned_color.get();
+		}
+		else if (mAuthInstance->isBadUserAutoMuted(avatar_id))
+		{
+			static const LLUIColor banned_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey2);
+			pvdata_color = banned_color.get();
+		}
+		// TODO: Add a color for Unsupported users
+		else
+		{
+			LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
+			LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
+			LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
+			LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
+			LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
+			LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
+			LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+		}
+		// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
+		mAuthInstance->setSpecialAgentColor(avatar_id, pvdata_color);
 	}
 
 	/*	Respect user preferences
@@ -1153,11 +1216,11 @@ LLColor4 PVData::getColor(const LLUUID& avatar_id, const LLColor4& default_color
 	return return_color;
 }
 
-LLColor4 PVData::Hex2Color4(const std::string color) const
+LLColor4 PVDataDownloader::Hex2Color4(const std::string color) const
 {
 	return instance().Hex2Color4(stoul(color, nullptr, 16));
 }
-LLColor4 PVData::Hex2Color4(int hexValue)
+LLColor4 PVDataDownloader::Hex2Color4(int hexValue)
 {
 	auto r = ((hexValue >> 16) & 0xFF) / 255.0f;  // Extract the RR byte
 	auto g = ((hexValue >> 8) & 0xFF) / 255.0f;   // Extract the GG byte
@@ -1165,48 +1228,79 @@ LLColor4 PVData::Hex2Color4(int hexValue)
 	return LLColor4(r, g, b, 1.0f);
 }
 
-U32 PVData::getSearchSeparatorFromSettings()
+U32 PVSearchUtil::PVSearchSeparatorSelected = getInstance()->separator_space;
+
+U32 PVSearchUtil::getSearchSeparatorFromSettings()
 {
 	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", separator_space);
 	LL_DEBUGS("PVData") << "Search separator index from settings: '" << settings_separator << "'" << LL_ENDL;
 	return settings_separator;
 }
 
-void PVData::setSearchSeparator(const U32 separator_in_u32)
+void PVSearchUtil::setSearchSeparator(const U32 separator_in_u32)
 {
 	PVSearchSeparatorSelected = separator_in_u32;;
 	LL_DEBUGS("PVData") << "Setting search separator to '" << separator_in_u32 << "'" << "('" << getSearchSeparator() << "')" << LL_ENDL;
 	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
-	
+
 }
 
-std::string PVData::getSearchSeparator()
+std::string PVSearchUtil::getSearchSeparator()
 {
-	auto  separator = PVSearchSeparatorAssociation[PVSearchSeparatorSelected];
+	auto separator = getInstance()->PVSearchSeparatorAssociation[PVSearchSeparatorSelected];
 	LL_DEBUGS("PVData") << "Search separator from runtime: '" << separator << "'" << LL_ENDL;
 	return separator;
 }
 
-std::string PVData::getSearchSeparator(const U32 separator_to_get_u32) const
+std::string PVSearchUtil::getSearchSeparator(const U32 separator_to_get_u32) const
 {
 	PVSearchSeparatorSelected = separator_to_get_u32;
 	return getSearchSeparator();
 }
 
-// static
-void PVData::setChatLogsDirOverride()
+// <polarity> The Linden Lab viewer's logic is somewhat spaghetti and confusing to me, so I wrote my own.
+std::string PVDataUtil::getPreferredName(const LLAvatarName& av_name)
+{
+	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
+	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
+	// Fallback
+	std::string preferred_name = "";
+
+	if (!use_display_names && !show_username)
+	{
+		return av_name.getUserName();
+	}
+	if (use_display_names && show_username)
+	{
+		preferred_name = av_name.getCompleteNameForced(); // Show everything
+	}
+	else if (use_display_names && !show_username)
+	{
+		preferred_name = av_name.getDisplayNameForced();
+	}
+
+	if (preferred_name == "")
+	{
+		// we shouldn't hit this, but a sane fallback can't hurt.
+		preferred_name = av_name.getUserName();
+		LL_WARNS("PVData") << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
+	}
+
+	return preferred_name;
+}
+void PVDataUtil::setChatLogsDirOverride()
 {
 #ifdef FINISHED_CHAT_LOG_WRITE
-/*
+	/*
 	// ReSharper disable CppDeprecatedEntity // we are cross-platform.
 	auto override_location = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
 	// ReSharper restore CppDeprecatedEntity
 	if (override_location && override_location != gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str())
 	{
 
-		LL_WARNS("PVData") << "Would set logs location to: " << override_location << LL_ENDL;
-		//gSavedPerAccountSettings.setString("InstantMessageLogPath", override_location);
-		//LLFloaterPreference::moveTranscriptsAndLog();
+	LL_WARNS("PVData") << "Would set logs location to: " << override_location << LL_ENDL;
+	//gSavedPerAccountSettings.setString("InstantMessageLogPath", override_location);
+	//LLFloaterPreference::moveTranscriptsAndLog();
 	}
 
 	LPCWSTR name_ = L"PV_CHATLOGS_LOCATION_OVERRIDE";
@@ -1217,19 +1311,19 @@ void PVData::setChatLogsDirOverride()
 	char const *subKeyName;
 
 	if (es_invalid == scope_) {
-		return;
+	return;
 	}
 
 	switch (scope_) {
 	case es_system:
-		key = HKEY_LOCAL_MACHINE;
-		subKeyName = systemEnvSubKey;
-		break;
+	key = HKEY_LOCAL_MACHINE;
+	subKeyName = systemEnvSubKey;
+	break;
 
 	case es_user:
-		key = HKEY_CURRENT_USER;
-		subKeyName = userEnvSubKey;
-		break;
+	key = HKEY_CURRENT_USER;
+	subKeyName = userEnvSubKey;
+	break;
 	}
 
 	// Assign the new value.
@@ -1238,13 +1332,13 @@ void PVData::setChatLogsDirOverride()
 	// Write the new value to the registry.
 	RegOpenKeyEx(key, subKeyName, 0, KEY_SET_VALUE, &subKey);
 	RegSetValueEx(subKey,
-		name_.c_str(),
-		0,
-		REG_EXPAND_SZ,
-		reinterpret_cast<const BYTE *>(value_.c_str()),
-		value_.length() + 1);
+	name_.c_str(),
+	0,
+	REG_EXPAND_SZ,
+	reinterpret_cast<const BYTE *>(value_.c_str()),
+	value_.length() + 1);
 	RegCloseKey(key);
-*/
+	*/
 #endif
 }
 
@@ -1292,28 +1386,28 @@ std::string getRegKey(const std::string& name_) {
 	{
 		return std::string();
 	}
-		LL_WARNS("PVData") << "Key [" << name_ << "] exist!" << LL_ENDL;
-		if (data != nullptr)
-		{
-			value = std::string(data);
-		}
-		delete[] data;
-	
-		LL_WARNS("PVData") << "Key [" << value << "] = exist!" << LL_ENDL;
+	LL_WARNS("PVData") << "Key [" << name_ << "] exist!" << LL_ENDL;
+	if (data != nullptr)
+	{
+		value = std::string(data);
+	}
+	delete[] data;
+
+	LL_WARNS("PVData") << "Key [" << value << "] = exist!" << LL_ENDL;
 	RegCloseKey(key);
 	//auto nya = RegCreateKeyEx(HKEY_CURRENT_USER, ,0,NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE,);
 	// TODO: Linux and OSX support
 	return value;
 }
 
-void PVData::getChatLogsDirOverride()
+void PVDataUtil::getChatLogsDirOverride()
 {
 	std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
 	std::string registry_key = "PV_CHATLOGS_LOCATION_OVERRIDE"; // TODO: Move to global
-	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
+																// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
 	char* log_location_from_registry = getenv(registry_key.c_str());
 
-	
+
 	auto log_location_from_runtime = gDirUtilp->getChatLogsDir();
 	std::string new_chat_logs_dir = "";
 	if (log_location_from_settings.empty() || log_location_from_registry == NULL)
@@ -1327,8 +1421,8 @@ void PVData::getChatLogsDirOverride()
 	}
 	//if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
 	//{
-	PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
-	PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
+	PVData::getInstance()->PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
+	PVData::getInstance()->PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
 
 	LL_WARNS("PVData") << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
 	//}
@@ -1344,17 +1438,17 @@ void PVData::getChatLogsDirOverride()
 	{
 		gDirUtilp->setChatLogsDir(new_chat_logs_dir);
 	}
-	
-	if(new_chat_logs_dir != gDirUtilp->getChatLogsDir())
+
+	if (new_chat_logs_dir != gDirUtilp->getChatLogsDir())
 	{
-		PV_DEBUG("Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
+		PVData::getInstance()->PV_DEBUG("Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
 	}
 
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
 }
 
 // Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
-bool PVData::moveTranscriptsAndLog(std::string userid) const
+bool PVDataUtil::moveTranscriptsAndLog(std::string userid) const
 {
 	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
 	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);

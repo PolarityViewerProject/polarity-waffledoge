@@ -6,6 +6,7 @@ project(cmake)
 
 set(cmake_SOURCE_FILES
     CMakeLists.txt
+    PVData.cmake
     Variables.cmake
     00-Common.cmake
     APR.cmake

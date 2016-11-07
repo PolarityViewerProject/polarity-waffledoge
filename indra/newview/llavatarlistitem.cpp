@@ -41,6 +41,7 @@
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
+#include "pvdata.h"
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -246,7 +247,7 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 void LLAvatarListItem::setState(EItemState item_style)
 {
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
-
+	auto static online_color = LLUIColorTable::getInstance()->getColor("ProfileOnlineIndicatorColor");
 	switch(item_style)
 	{
 	default:
@@ -264,6 +265,8 @@ void LLAvatarListItem::setState(EItemState item_style)
 		break;
 	case IS_ONLINE:
 		mAvatarNameStyle = params.online_style();
+		// <polarity> override online color if agent has a color
+		mAvatarName->setColor(PVDataAuth::getInstance()->getSpecialAgentColor(mAvatarId, online_color, false));
 		break;
 	case IS_OFFLINE:
 		mAvatarNameStyle = params.offline_style();

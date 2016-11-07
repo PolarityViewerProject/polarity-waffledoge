@@ -32,18 +32,12 @@
 #include "llchat.h"
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
+#include "pvtypes.h"
 
 class LLAvatarName;
 class LLViewerObject;
 
-// Some typedefs
-// agents <-> color association	s
-typedef std::map<LLUUID, LLColor4> pv_pair_uuid_llcolor4;
-typedef std::map<LLUUID, unsigned int> pv_pair_uuid_uint;
-typedef std::map<LLUUID, signed int> pv_pair_uuid_sint;
-typedef std::map<LLUUID, std::string> pv_pair_uuid_string;
-// U32,char
-typedef std::map<U32, char> pv_pair_u32_char;
+
 
 // TODO PLVR: Move these into a class
 void reportToNearbyChat(const std::string& message);

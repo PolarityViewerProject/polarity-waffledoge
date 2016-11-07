@@ -231,7 +231,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			// <polarity> Colored names for special users
 			if ((mSourceType != CHAT_SOURCE_OBJECT) && (mFromID.notNull()))
 			{
-				user_name_color = gPVData->getColor(mFromID, user_name_color, false);
+				user_name_color = PVDataAuth::getInstance()->getSpecialAgentColor(mFromID, user_name_color, false);
 			}
 			// </polarity>
 #endif // PVDATA_COLORIZER

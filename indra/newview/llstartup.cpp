@@ -760,8 +760,43 @@ bool idle_startup()
 		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
 		display_startup();
 		LLGridManager::getInstance()->initialize(std::string());
-		LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
 		return FALSE;
+	}
+
+	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
+	{
+		// <polarity> PVData support
+		// Create PVData instance. I put this here because we only need this call once.
+		// If the runtime loses instance, we have bigger problems.
+		//gPVData = PVData::getInstance();
+		// Set up initial URL.
+		//		PVData::getInstance()->init(gSavedSettings.getBOOL("PVData_UseTestingDataSource"));
+		// Download Data.
+		PVDataDownloader::getInstance()->downloadData();
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
+	}
+
+	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
+		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
+		// then enable the login button again. this will reduce the apparent startup time.
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
+		static LLFrameTimer pvdata_timer;
+		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
+		const F32 MAX_PVDATA_TIME = 15.f;
+		if (pvdata_time > MAX_PVDATA_TIME || PVDataDownloader::getInstance()->getDataDone())
+		{
+			LL_WARNS("PVData") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
 	}
 
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
@@ -789,78 +824,11 @@ bool idle_startup()
 			initialize_spellcheck_menu();
 			init_menus();
 		}
-		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD); // Download our data
-	}
-
-	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
-	{
-		// <polarity> PVData support
-		// Create PVData instance. I put this here because we only need this call once.
-		// If the runtime loses instance, we have bigger problems.
-		gPVData = PVData::getInstance();
-		// Set up initial URL.
-		PVData::getInstance()->init(gSavedSettings.getBOOL("PVData_UseTestingDataSource"));
-		// Download Data.
-		gPVData->downloadData();
-		// <polarity> download agents data
-		gPVData->downloadAgents();
-
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
-	}
-
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
-		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
-		// then enable the login button again. this will reduce the apparent startup time.
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		if (gPVData->getDataDone())
-		{
-			LL_INFOS("PVDataStartup") << "Parsing data sucessfully completed, moving on" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
-		}
-		else if (pvdata_time > MAX_PVDATA_TIME)
-		{
-			LL_WARNS("PVDataStartup") << "Parsing data timed out" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
-
-	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
-	{
-		static LLFrameTimer agents_timer;
-		const F32 agents_time = agents_timer.getElapsedTimeF32();
-		const F32 MAX_AGENTS_TIME = 15.f;
-		if (agents_time > MAX_AGENTS_TIME)
-		{
-			LL_WARNS("PVDataStartup") << "Parsing agents timed out" << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
-		}
-		else if (gPVData->getAgentsDone())
-		{
-			LL_INFOS("PVDataStartup") << "Parsing agents sucessfully completed, moving on" << LL_ENDL;
-			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
-			LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
+		LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
 	}
 
 	if (STATE_LOGIN_CONTINUE == LLStartUp::getStartupState())
 	{
-		gViewerWindow->getWindow()->setTitle(gPVData->window_titles_list_.getRandom());
 		if (show_connect_box)
 		{
 			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
@@ -897,6 +865,8 @@ bool idle_startup()
 				}
 			}
 
+			// <polarity> download agents data
+			PVDataDownloader::getInstance()->downloadAgents();
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
@@ -929,6 +899,16 @@ bool idle_startup()
 
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
+		/* Minecraft-like endless title spam
+		llassert(!PVDataDownloader::instance()->getDataDone());
+		std::string new_title = PVDataViewerInfo::getInstance()->getRandomWindowTitle();
+		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
+		{
+			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
+		}
+		gViewerWindow->getWindow()->setTitle(new_title);
+		*/
+
 		// when we get to this state, we've already been past the login UI
 		// (possiblely automatically) - flag this so we can test in the 
 		// STATE_LOGIN_SHOW state if we've gone backwards
@@ -962,6 +942,14 @@ bool idle_startup()
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
+
+		llassert(!PVDataDownloader::instance()->getDataDone());
+		std::string new_title = PVDataViewerInfo::getInstance()->getRandomWindowTitle();
+		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
+		{
+			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
+		}
+		gViewerWindow->getWindow()->setTitle(new_title);
 
 		if (show_connect_box)
 		{
@@ -1036,15 +1024,15 @@ bool idle_startup()
 		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		//}
 
-		gPVData->getChatLogsDirOverride();
+		PVDataUtil::getInstance()->getChatLogsDirOverride();
 
 		gDirUtilp->setPerAccountChatLogsDir(userid);  
 		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//gPVData->moveTranscriptsAndLog(userid);
-		//gPVData->setChatLogsDirOverride();
+		//PVDataAuth::getInstance()->moveTranscriptsAndLog(userid);
+		//PVDataAuth::getInstance()->setChatLogsDirOverride();
 
 		// NaCl - Store Log Level
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(gSavedSettings.getU32("_NACL_LogLevel")));
@@ -1108,7 +1096,7 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
-		gAgent.mMOTD = gPVData->getNewProgressTipForced();
+		gAgent.mMOTD = PVDataViewerInfo::getInstance()->getNewProgressTipForced();
 
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
@@ -1290,20 +1278,7 @@ bool idle_startup()
 			{
 				// Pass the user information to the voice chat server interface.
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
-				// escape from login as soon as possible if user is not allowed.
-				// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
-				if (!(gPVData->isAllowedToLogin(gAgentID)))
-				{
-					//LLLoginInstance::getInstance()->disconnect();
-					gAgentID.setNull();
-					LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-					show_connect_box = true;
-					return FALSE;
-				}
-				// create the default proximal channel
-				LLVoiceChannel::initClass();
-				LLStartUp::setStartupState( STATE_WORLD_INIT);
-				LLTrace::get_frame_recording().reset();
+				LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
 			}
 			else
 			{
@@ -1322,18 +1297,55 @@ bool idle_startup()
 		return FALSE;
 	}
 
+
+
+	// TODO: Move to after curl_unstuck again
+	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
+	{
+		static LLFrameTimer agents_timer;
+		const F32 agents_time = agents_timer.getElapsedTimeF32();
+		const F32 MAX_AGENTS_TIME = 15.f;
+		if (agents_time > MAX_AGENTS_TIME || PVDataDownloader::getInstance()->getAgentsDone())
+		{
+			LL_WARNS("PVData") << "Parsing agents sucess or timeout, moving on..." << LL_ENDL;
+			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
+			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
+			if (!(PVDataAuth::getInstance()->isAllowedToLogin(gAgentID)))
+			{
+				//LLLoginInstance::getInstance()->disconnect();
+				gAgentID.setNull();
+				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+				show_connect_box = true;
+				return FALSE;
+			}
+			else
+			{
+				// create the default proximal channel
+				LLVoiceChannel::initClass();
+				LLStartUp::setStartupState(STATE_WORLD_INIT);
+				LLTrace::get_frame_recording().reset();
+			}
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
+
+
 	// <FS:Ansariel> Wait for notification confirmation
 	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
 	{
 		display_startup();
 		gViewerWindow->getProgressView()->setVisible(FALSE);
 		// <polarity> Custom error message related to PVData
-		if (!gPVData->pvdata_error_message_.empty())
+		if (!PVData::getInstance()->getErrorMessage().empty())
 		{
 			LLSD args;
-			args["ERROR_MESSAGE"] = gPVData->pvdata_error_message_;
+			args["ERROR_MESSAGE"] = PVData::getInstance()->getErrorMessage();
 			LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-			transition_back_to_login_panel(gPVData->pvdata_error_message_);
+			transition_back_to_login_panel(PVData::getInstance()->getErrorMessage());
 			show_connect_box = true;
 			return FALSE;
 		}
@@ -2384,7 +2396,7 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		gPVData->refreshDataFromServer(false);
+		PVDataDownloader::getInstance()->refreshDataFromServer(false);
 
 		return TRUE;
 	}

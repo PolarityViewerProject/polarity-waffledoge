@@ -677,7 +677,7 @@ void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_sele
 	LLFloaterInventoryFinder* finder = getFinder();
 	if (!separator_selected.empty())
 	{
-		gPVData->setSearchSeparator(std::stoi(separator_selected));
+		PVSearchUtil::getInstance()->setSearchSeparator(std::stoi(separator_selected));
 		// clear, then restore search string to make the new separator effective
 		// TODO: Find a better way to refresh search results
 		std::string old_substring = mFilterSubString;

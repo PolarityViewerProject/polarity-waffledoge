@@ -1,5 +1,5 @@
 /**
- * @file Minimal constants header
+ * @file pvconstants.h
  * @brief Vendor-specific constants.
  *
  * $LicenseInfo:firstyear=2015&license=viewerlgpl$

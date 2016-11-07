@@ -993,9 +993,11 @@ std::string		LLSD::typeString(Type type)
 std::string LLSD::getRandom() const
 {
 	// This assigns a random entry as the MOTD / Progress Tip message.
-	LLSD::array_const_iterator tip_iter = this->beginArray();
+	auto tip_iter = this->beginArray();
+	auto random_index = this->get(ll_rand(static_cast<S32>(this->size())));
 	if (tip_iter == this->endArray())
-		return "";
-	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(this->size()))))->asString();
+		return "NO_DATA";
+	
+	std::string random_tip = random_index.asString();
 	return random_tip;
 }

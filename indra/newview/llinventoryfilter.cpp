@@ -727,7 +727,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		{
 			// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
 			// TODO: Add "whole word" option.
-			to = filter_sub_string_new.find_first_of(gPVData->getSearchSeparator(),frm);
+			to = filter_sub_string_new.find_first_of(PVSearchUtil::getInstance()->getSearchSeparator(),frm);
 			// to = filter_sub_string_new.find_first_of(' ',frm);
 			std::string subSubString = (to == std::string::npos) ? filter_sub_string_new.substr(frm, to) : filter_sub_string_new.substr(frm, to-frm);
 			if (subSubString.size())

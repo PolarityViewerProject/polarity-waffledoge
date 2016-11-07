@@ -319,7 +319,7 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
-	mMessage = gPVData->getNewProgressTip(msg);
+	mMessage = PVDataViewerInfo::getInstance()->getNewProgressTip(msg);
 	//gAgent.mMOTD.assign(mMessage);
 	getChild<LLUICtrl>("message_text")->setValue(mMessage);
 }

@@ -379,14 +379,6 @@
 <color name="White_50" value="1 1 1 0.5" />
 <color name="Yellow" value="1 1 0 1" />
 <!-- Polarity Colors -->
-<!-- Avatar colorizer -->
-<!-- <color name="PlvrBannedChatColor" value="0.38 0.38 0.38 1.0" /> -->
-<!-- <color name="PlvrDevChatColor" value="1.00000 0.46275 0.30588 1.0" /> -->
-<!-- <color name="PlvrLindenChatColor" value="0.41569 0.80000 0.99216 1.0" /> -->
-<!-- <color name="PlvrMutedChatColor" value="0.313 0.313 0.313 1.0" /> -->
-<!-- <color name="PlvrQAChatColor" value="0.85490 0.80000 0.32549 1.0" /> -->
-<!-- <color name="PlvrSupportChatColor" value="0.849 0.665 0.974 1.0" /> -->
-<!-- <color name="PlvrTesterChatColor" value="0.78039 0.21961 0.21961 1.0" /> -->
 <color name="NameTagGroup" value="0.60000 0.60000 0.60000 1.0" />
 <color name="EmphasisColorLight" value="0.85882 0.858820.85882 1" />
 

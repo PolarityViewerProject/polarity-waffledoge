@@ -19,6 +19,8 @@ if(NOT DEFINED COMMON_CMAKE_DIR)
     set(COMMON_CMAKE_DIR "${CMAKE_SOURCE_DIR}/cmake")
 endif(NOT DEFINED COMMON_CMAKE_DIR)
 
+Include(PVData)
+
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
@@ -186,12 +188,6 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 
 # <polarity> Our feature list.
 MESSAGE("======== *FEATURES* ========")
-option(PVDATA_COLORIZER "Color avatar names and various other elements based on their role in the project" OFF)
-option(PVDATA_MOTD "Use PVData-served Message of the Day" OFF)
-option(PVDATA_MOTD_CHAT "Display a MOTD in chat at login" OFF)
-option(PVDATA_PROGRESS_TIPS "Use Progress Tips" OFF)
-option(PVDATA_UUID_LOCKDOWN "Lock down the viewer to a specific user" OFF)
-set(PVDATA_UUID_LOCKTO "${PVDATA_UUID_LOCKTO}" CACHE STRING "UUID to lock down to" FORCE)
 
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
@@ -232,10 +228,11 @@ add_definitions(
 
 MESSAGE("ENABLE_MESH_UPLOAD                 ${ENABLE_MESH_UPLOAD}")
 MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
-MESSAGE("PVDATA_COLORIZER                   ${PVDATA_COLORIZER}")
-MESSAGE("PVDATA_MOTD                        ${PVDATA_MOTD}")
-MESSAGE("PVDATA_MOTD_CHAT                   ${PVDATA_MOTD_CHAT}")
-MESSAGE("PVDATA_PROGRESS_TIPS               ${PVDATA_PROGRESS_TIPS}")
+MESSAGE("PVDATA_SYSTEM                      ${PVDATA_COLORIZER}")
+MESSAGE("    PVDATA_COLORIZER               ${PVDATA_COLORIZER}")
+MESSAGE("    PVDATA_MOTD                    ${PVDATA_MOTD}")
+MESSAGE("    PVDATA_MOTD_CHAT               ${PVDATA_MOTD_CHAT}")
+MESSAGE("    PVDATA_PROGRESS_TIPS           ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
 
 if(USE_AVX)

@@ -157,6 +157,7 @@ set(polarity_HEADER_FILES
     pvmachinima.h
     pvperformancemaid.h
     pvrandom.h
+    pvtypes.h
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp

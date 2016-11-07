@@ -392,7 +392,7 @@ void LLNetMap::draw()
 
 #if PVDATA_COLORIZER
 				// <polarity> Colored names for special users.
-				color = gPVData->getColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL));
+				color = PVDataAuth::getInstance()->getSpecialAgentColor(uuid, map_avatar_color, (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL));
 				// </polarity>
 #else
 				color = LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL ? map_avatar_friend_color : map_avatar_color;
