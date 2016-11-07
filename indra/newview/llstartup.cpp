@@ -2836,15 +2836,17 @@ void init_start_screen(S32 location_id)
 
 	std::string temp_str = gDirUtilp->getLindenUserDir() + gDirUtilp->getDirDelimiter();
 
-	if ((S32)START_LOCATION_ID_LAST == location_id)
-	{
-		temp_str += SCREEN_LAST_FILENAME;
-	}
-	else
-	{
-		temp_str += SCREEN_HOME_FILENAME;
-	}
-
+	// <polarity> This doesn't work anymore for us. Force to screen last.
+	//if ((S32)START_LOCATION_ID_LAST == location_id)
+	//{
+	//	temp_str += SCREEN_LAST_FILENAME;
+	//}
+	//else
+	//{
+	//	temp_str += SCREEN_HOME_FILENAME;
+	//}
+	temp_str += SCREEN_LAST_FILENAME;
+	
 	LLPointer<LLImageBMP> start_image_bmp = new LLImageBMP;
 	
 	// Turn off start screen to get around the occasional readback 
