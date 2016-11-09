@@ -1113,7 +1113,7 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 	{
 		pvdata_color = mAuthInstance->getSpecialAgentColorDirectly(avatar_id);
 	}
-	else
+	else if (av_flags != 0) // v7 ready
 	{
 		// TODO: QA this
 		//if (PVDataAuth::getInstance()->isLinden(avatar_id, av_flags))
