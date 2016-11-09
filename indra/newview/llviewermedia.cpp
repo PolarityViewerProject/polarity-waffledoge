@@ -600,7 +600,8 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	LL_RECORD_BLOCK_TIME(FTM_MEDIA_UPDATE);
 
 	// Enable/disable the plugin read thread
-	LLPluginProcessParent::setUseReadThread(gSavedSettings.getBOOL("PluginUseReadThread"));
+	static LLCachedControl<BOOL> use_plugin_thread(gSavedSettings, "PluginUseReadThread", false);
+	LLPluginProcessParent::setUseReadThread(use_plugin_thread);
 
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
 	createSpareBrowserMediaSource();
