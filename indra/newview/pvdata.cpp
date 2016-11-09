@@ -53,6 +53,7 @@
 #include <stdlib.h> // for setenv
 #include "llfloaterpreference.h"
 #include "lltrans.h" // for getString
+#include "llnotificationsutil.h"
 
 // This one needs to stay in the global scope, I think
 
@@ -1153,13 +1154,13 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 		// TODO: Add a color for Unsupported users
 		else
 		{
-			LL_WARNS("PVData") << "Color Manager caught a bug! Agent is supposed to be special but no code path exists for this case!\n" << "(This is most likely caused by a missing agent flag)" << LL_ENDL;
-			LL_WARNS("PVData") << "~~~~~~~ COLOR DUMP ~~~~~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "avatar_id = " << avatar_id << LL_ENDL;
-			LL_WARNS("PVData") << "av_flags = " << av_flags << LL_ENDL;
-			LL_WARNS("PVData") << "would-be pvdata_color = " << pvdata_color << LL_ENDL;
-			LL_WARNS("PVData") << "~~~ END OF COLOR DUMP ~~~" << LL_ENDL;
-			LL_WARNS("PVData") << "Report this occurence and send the lines above to the Polarity Developers" << LL_ENDL;
+			// TODO: Use localizable strings
+			LLSD args;
+			args["AVATAR_ID"] = avatar_id;
+			args["PV_FLAGS"] = std::to_string(av_flags); // NOTE: Maybe use user friendly string instead?
+			args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pvdata_color);
+			args["MESSAGE"] = "Agent has deprecated or unhandled flags associated to it!";
+			LLNotificationsUtil::add("PVData_ColorBug", args);
 		}
 		// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
 		mAuthInstance->setSpecialAgentColor(avatar_id, pvdata_color);
