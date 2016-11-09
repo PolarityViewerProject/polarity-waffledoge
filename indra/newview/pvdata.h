@@ -110,15 +110,8 @@ private:
 		 */
 		std::string pvdata_error_message_ = "";
 	};
-	/// <summary> Cached instance. Use this or findInstance() instead of getInstance if you can. </summary>
-	// extern PVData* gPVData;
+	extern PVData* gPVData;
 
-	class SORTMEFUCK
-	{
-		void init(const bool testing_branch);
-
-
-	};
 	class PVDataUtil : public LLSingleton<PVDataUtil>
 	{
 	public:
@@ -138,6 +131,7 @@ private:
 		static void setChatLogsDirOverride();
 		bool moveTranscriptsAndLog(std::string userid) const;
 	};
+	extern PVDataUtil* gPVDataUtil;
 
 	class PVDataDownloader : public LLSingleton<PVDataDownloader>
 	{
@@ -320,12 +314,12 @@ private:
 		/**
 		* \brief PVData main LLSD
 		*/
-		LLSD gPVData_llsd;
+		LLSD mPVData_llsd;
 
 		/**
 		* \brief PVData agents LLSD
 		*/
-		LLSD gPVAgents_llsd;
+		LLSD mPVAgents_llsd;
 		
 
 		// some color helpers
@@ -335,6 +329,7 @@ private:
 		void startRefreshTimer();
 
 	};
+	extern PVDataDownloader* gPVDataDownloader;
 
 	/**
 	 * \brief Contains authentication and agents data
@@ -537,7 +532,7 @@ private:
 		// This contains the UUID of our support group
 		std::set<LLUUID> support_group_;
 	};
-
+	extern PVDataAuth* gPVDataAuth;
 
 	/**
 	 * \brief Contains information about the viewer itself.
@@ -659,6 +654,7 @@ private:
 
 		std::string last_login_tip;
 	};
+	extern PVDataViewerInfo* gPVDataViewerInfo;
 
 	// Constructor. Is automatically called every time a new object of this class is created.
 	// This is conceptually equivalent to an include or an init script in the way that
@@ -716,3 +712,4 @@ private:
 	*/
 	static U32 PVSearchSeparatorSelected;
 };
+	extern PVSearchUtil* gPVSearchUtil;

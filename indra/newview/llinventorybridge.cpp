@@ -3226,7 +3226,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         }
 		return;
 	}
-	else if (PVDataAuth::getInstance()->isPolarized(gAgent.getID()) && "delete_system_folder" == action)
+	else if (gPVDataAuth->isPolarized(gAgent.getID()) && "delete_system_folder" == action)
 	{
 		removeSystemFolder();
 		return;
@@ -3936,7 +3936,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		}
 	}
 
-	if (PVDataAuth::getInstance()->isPolarized(gAgent.getID()) && LLFolderType::lookupIsProtectedType(type))
+	if (gPVDataAuth->isPolarized(gAgent.getID()) && LLFolderType::lookupIsProtectedType(type))
 	{
 		items.push_back(std::string("Delete System Folder"));
 	}

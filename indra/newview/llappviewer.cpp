@@ -5179,7 +5179,7 @@ void LLAppViewer::idle()
 	}
 	else
 	{
-		PVDataDownloader::getInstance()->refreshDataFromServer(false);
+		gPVDataDownloader->refreshDataFromServer(false);
 		PVGetDynamicWindowTitle();
 	}
 }
