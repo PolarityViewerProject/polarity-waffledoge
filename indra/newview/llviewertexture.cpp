@@ -2275,28 +2275,48 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 
 void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 {
-	if (is_missing == mIsMissingAsset)
+	if (!is_missing)
 	{
-		return;
+		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
 	}
-	if (is_missing)
+	else
 	{
+		if (is_missing == mIsMissingAsset)
+		{
+			return;
+		}
+
 		notifyAboutMissingAsset();
 
-		if (mUrl.empty())
+		mIsMissingAsset = is_missing;
+
+		//if (mUrl.empty())
+		//{
+		//	LL_DEBUGS() << mID << ": Marking image as missing" << LL_ENDL;
+		//}
+		//else
+		//{
+		//	// This may or may not be an error - it is normal to have no
+		//	// map tile on an empty region, but bad if we're failing on a
+		//	// server bake texture.
+		//	if (getFTType() != FTT_MAP_TILE)
+		//	{
+		//		LL_DEBUGS() << mUrl << ": Marking image as missing" << LL_ENDL;
+		//	}
+		//}
+		// <polarity>
+		std::string missing_asset;
+		if (!mUrl.empty() && getFTType() != FTT_MAP_TILE)
 		{
-			LL_WARNS() << mID << ": Marking image as missing" << LL_ENDL;
+			missing_asset = mUrl;
 		}
 		else
 		{
-			// This may or may not be an error - it is normal to have no
-			// map tile on an empty region, but bad if we're failing on a
-			// server bake texture.
-			if (getFTType() != FTT_MAP_TILE)
-			{
-				LL_WARNS() << mUrl << ": Marking image as missing" << LL_ENDL;
-			}
+			missing_asset = mID.asString();
 		}
+		static LLCachedControl<bool> log_missing_assets(gSavedSettings, "PVDebug_LogMissingAssets", false);
+		LL_DEBUGS() << missing_asset << ": Marking image as missing" << LL_ENDL;
+
 		if (mHasFetcher)
 		{
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
@@ -2307,11 +2327,6 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 			mFetchPriority = 0;
 		}
 	}
-	else
-	{
-		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
-	}
-	mIsMissingAsset = is_missing;
 }
 
 void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_callback,
