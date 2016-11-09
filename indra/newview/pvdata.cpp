@@ -1092,8 +1092,8 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 	LLColor4 return_color = default_color; // color we end up with at the end of the logic
 	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
-	static const LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
-	static const LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
+	static LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
+	static LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
 
 	// Some PVData-flagged users CAN be muted.
 	// TODO PLVR: Do we still need this?
@@ -1122,32 +1122,32 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 		//}
 		if (mAuthInstance->isStaffDeveloper(avatar_id))
 		{
-			static const LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
+			static LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
 			pvdata_color = dev_color.get();
 		}
 		else if (mAuthInstance->isStaffQA(avatar_id))
 		{
-			static const LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
+			static LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
 			pvdata_color = qa_color.get();
 		}
 		else if (mAuthInstance->isStaffSupport(avatar_id))
 		{
-			static const LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
+			static LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
 			pvdata_color = support_color.get();
 		}
 		else if (mAuthInstance->isUserTester(avatar_id))
 		{
-			static const LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
+			static LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
 			pvdata_color = tester_color.get();
 		}
 		else if (mAuthInstance->isBadUserBanned(avatar_id))
 		{
-			static const LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
+			static LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
 			pvdata_color = banned_color.get();
 		}
 		else if (mAuthInstance->isBadUserAutoMuted(avatar_id))
 		{
-			static const LLUIColor banned_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey2);
+			static LLUIColor banned_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey2);
 			pvdata_color = banned_color.get();
 		}
 		// TODO: Add a color for Unsupported users
