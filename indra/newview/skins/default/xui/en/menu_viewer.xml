@@ -2244,11 +2244,6 @@
                  parameter="flexible" />
             </menu_item_check>
         </menu>        
-        <menu
-         label="RLVa"
-         name="RLVa Embedded"
-         tear_off="true"
-         visible="true" />
         <menu_item_check
          label="Use Plugin Read Thread"
          name="Use Plugin Read Thread">
