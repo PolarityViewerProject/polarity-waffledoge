@@ -203,24 +203,18 @@ void PVDataDownloader::modularDownloader(const S8& pfile_name_in)
 	LL_WARNS() << "Checking for testing data source part 2" << LL_ENDL;
 	if (pv_url_remote_base_string_ == "" || pvdata_testing_branch != pv_downloader_testing_branch)
 	{
-		LL_WARNS() << "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" << LL_ENDL;
 		pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (pvdata_testing_branch ? std::string("test/") : std::string("live/")) + std::to_string(pvdata_file_version) + "/";
-		LL_WARNS() << "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbe" << LL_ENDL;
 		pv_downloader_testing_branch = pvdata_testing_branch;
 	}
-	LL_WARNS() << "ccccccccccccccccccccc" << LL_ENDL;
 
 	// construct download url from file name
 	headers_.insert("User-Agent", pvdata_user_agent_);
 	headers_.insert("viewer-version", pvdata_viewer_version_);
-	LL_WARNS() << "ddddddddddddddddddddddddd" << LL_ENDL;
 	// FIXME: This is ugly
 	//pvdata_modular_remote_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
 	auto iterator = pv_file_names.find(pfile_name_in);
-	LL_WARNS() << "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee" << LL_ENDL;
 	std::string requested_file = iterator->second;
 
-	LL_WARNS() << "fffffffffffffffffffffffffffff" << LL_ENDL;
 	if (requested_file == pv_file_name_data_string_)
 	{
 		pvdata_url_full_ = pv_url_remote_base_string_ + requested_file;
@@ -833,10 +827,10 @@ bool PVDataViewerInfo::isBlockedRelease()
 		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
-	// Check if version is explicitely blocked
+	// Check if version is explicitly blocked
 	if (blockedver_iterator != blocked_versions_.end()) // if the iterator's value is map::end, it is not in the array.
 	{
-		// assign the iterator's associaded value (the reason message) to the LLSD that will be returned to the calling function
+		// assign the iterator's associated value (the reason message) to the LLSD that will be returned to the calling function
 		const LLSD& reason_llsd = blockedver_iterator->second;
 		gPVData->setErrorMessage(reason_llsd["REASON"]);
 		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
