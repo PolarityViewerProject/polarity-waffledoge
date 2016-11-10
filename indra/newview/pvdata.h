@@ -444,7 +444,6 @@ private:
 		// Returns whether or not the user can use our viewer
 		bool isAllowedToLogin(const LLUUID& avatar_id);
 
-
 		/**
 		 * \brief Agent has a color (either custom or level default)
 		 * \param uuid avatar UUID
@@ -472,6 +471,7 @@ private:
 
 		// NOTE: Maybe return success?
 		void autoMuteFlaggedAgents();
+
 	private:
 		/*static*/ const std::string LL_LINDEN = "Linden";
 		/*static*/ const std::string LL_MOLE = "Mole";
@@ -501,8 +501,6 @@ private:
 		// Last updated 2016-09-26 1:23:12 PM
 		enum flags_t : S32
 		{
-
-
 			// Those aren't numbers. They are bits and here we use them as an array of booleans.
 			// Every avatar flag has its own bit and you can combine them should such need arise.
 			// REMINDER: Check against 0 for avatars not in the list, NOT -1
@@ -655,17 +653,6 @@ private:
 		std::string last_login_tip;
 	};
 	extern PVDataViewerInfo* gPVDataViewerInfo;
-
-	// Constructor. Is automatically called every time a new object of this class is created.
-	// This is conceptually equivalent to an include or an init script in the way that
-	// every object of this class will contain the code defined here.
-	// This also means that every logic within this block will run as the object is created.
-	// USE SPARINGLY AND OPTIMIZE YOUR CODE.
-	//PVData()
-	//{}
-	// Destructor.
-	//~PVData()
-	//{}
 
 // TODO: Move to another file?
 class PVSearchUtil : public LLSingleton <PVSearchUtil>

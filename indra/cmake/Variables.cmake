@@ -210,7 +210,6 @@ option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 # Libraries
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 
-option(RELEASE_BUILD "Used to help configure release binaries" OFF)
 option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)
 
 # Add these CMake flags to the C++ preprocessor to toggle code that way
@@ -273,15 +272,9 @@ if(RESTRICT_PURE)
   unset(GLM_FORCE_SSE2)
 endif()
 
-if(RELEASE_BUILD)
-  add_definitions(/DRELEASE_BUILD=TRUE)
-  MESSAGE("THIS IS A RELEASE BUILD: ANYONE NOT BANNED CAN USE IT")
-  unset(DEVEL_BUILD)
-endif()
 if(DEVEL_BUILD)
   add_definitions(/DDEVEL_BUILD=TRUE)
   MESSAGE("THIS IS A DEVELOPMENT BUILD: ONLY DEVELOPERS CAN USE IT")
-  unset(RELEASE_BUILD)
 endif()
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")

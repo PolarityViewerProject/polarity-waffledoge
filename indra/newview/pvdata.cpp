@@ -729,14 +729,8 @@ LLUUID PVDataAuth::getLockDownUUID()
 bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 {
 	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
-	gPVData->setErrorMessage("Generic Error Message");
-#if DEVEL_BUILD
-	if (isStaffDeveloper(avatar_id))
-	{
-		return true;
-	}
-	pvdata_error_message_ = "Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".";
-#else
+	gPVData->setErrorMessage("Generic clearance failure.");
+#if PVDATA_UUID_LOCKDOWN
 	LLUUID lockdown_uuid = getLockDownUUID();
 	if (lockdown_uuid != LLUUID::null)
 	{
@@ -745,56 +739,63 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 		{
 			LL_INFOS("PVData") << "Identity confirmed. Proceeding. Enjoy your privileges." << LL_ENDL;
 			return true;
-		}// else
+		}
 		gPVData->setErrorMessage("This build is locked down to another account.");
-		return false;
 	}
 	if (lockdown_uuid != LLUUID::null)
 	{
 		gPVData->setErrorMessage("Something went wrong, and the authentication checks have failed.");
-		return false;
 	}
+#elif DEVEL_BUILD
+	if (gPVDataAuth->getSpecialAgentFlags(avatar_id) & STAFF_DEVELOPER)
+	{
+		return true;
+	}
+	gPVData->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
+#endif
+	// NOTE: We make an exception here and cache the agent flags due to the amount of find() calls that would be generated otherwise.
+	// We should probably make a new class for each agent or something... - Xenhat
 	auto av_flags = gPVDataAuth->getSpecialAgentFlags(avatar_id);
-	auto compiled_channel = LLVersionInfo::getCompiledChannel();
 	if (av_flags & BAD_USER_BANNED)
 	{
-		gPVData->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be an error, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
+		gPVData->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
 		return false;
 	}
+	auto compiled_channel = LLVersionInfo::getCompiledChannel();
 	if (compiled_channel == APP_NAME + " Release"
 		// Allow beta builds as well.
 		|| compiled_channel == APP_NAME + " Beta")
 	{
 		return true;
 	}
-#if !RELEASE_BUILD
-	// prevent non-release builds to fall in the wrong hands
-	LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
-	LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
-	if (av_flags & USER_TESTER)
+	//else
 	{
-		LL_WARNS() << "Access level: TESTER" << LL_ENDL;
-		return true;
+		// prevent non-release builds to fall in the wrong hands
+		LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
+		LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
+		if (av_flags & STAFF_DEVELOPER)
+		{
+			LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
+			return true;
+		}
+		if (av_flags & STAFF_SUPPORT)
+		{
+			LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
+			return true;
+		}
+		if (av_flags & STAFF_QA)
+		{
+			LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
+			return true;
+		}
+		if (av_flags & USER_TESTER)
+		{
+			LL_WARNS() << "Access level: TESTER" << LL_ENDL;
+			return true;
+		}
+		LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
+		gPVData->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 	}
-	if (av_flags & STAFF_SUPPORT)
-	{
-		LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
-		return true;
-	}
-	if (av_flags & STAFF_QA)
-	{
-		LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
-		return true;
-	}
-	if (av_flags & STAFF_DEVELOPER)
-	{
-		LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
-		return true;
-	}
-#endif //!RELEASE_BUILD
-	LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
-	gPVData->setErrorMessage("You do not have permission to use this build of [APP_NAME]. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
-#endif
 	return false;
 }
 
@@ -1140,7 +1141,7 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 			static LLUIColor banned_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey2);
 			pvdata_color = banned_color.get();
 		}
-		// TODO: Add a color for Unsupported users
+		// Unsupported users have no color.
 		else
 		{
 			// TODO: Use localizable strings
