@@ -277,7 +277,7 @@
      top_delta="0"
      width="230">
     </text_editor>
-  <check_box
+<!--   <check_box
     top_delta="4"
     enabled="true"
     follows="left|top"
@@ -288,7 +288,7 @@
     mouse_opaque="true"
     name="update_willing_to_test"
     width="400"
-    top_pad="5"/>
+    top_pad="20"/> -->
   <text
      type="string"
      length="1"
