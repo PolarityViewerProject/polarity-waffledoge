@@ -48,6 +48,11 @@
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
 
+#include "llviewercontrol.h" // <FS:ND/> for gSavedSettings
+#include "llresmgr.h"
+#include "lltextbox.h"
+#include "lleconomy.h"
+
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
 static const LLOutfitTabNameComparator OUTFIT_TAB_NAME_COMPARATOR;
@@ -158,7 +163,11 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     // *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
     tab->setDisplayChildren(false);
-    mAccordion->addCollapsibleCtrl(tab);
+
+    // <FS:ND> Calling this when there's a lot of outfits causes horrible perfomance and disconnects, due to arrange eating so many cpu cycles.
+    //mAccordion->addCollapsibleCtrl(tab);
+    mAccordion->addCollapsibleCtrl(tab, false);
+    // </FS:ND>
 
     // Start observing the new outfit category.
     LLWearableItemsList* list = tab->getChild<LLWearableItemsList>("wearable_items_list");
@@ -246,6 +255,17 @@ void LLOutfitsList::updateRemovedCategory(LLUUID cat_id)
     	}
     }
 }
+
+// <FS:Ansariel> Arrange accordions after all have been added
+//virtual
+void LLOutfitsList::arrange()
+{
+	if (mAccordion)
+	{
+		mAccordion->arrange();
+	}
+}
+// </FS:Ansariel>
 
 //virtual
 void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
@@ -769,6 +789,7 @@ bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
 LLOutfitListBase::LLOutfitListBase()
     :   LLPanelAppearanceTab()
     ,   mIsInitialized(false)
+	,	mAvatarComplexityLabel(NULL) // <FS:Ansariel> Show avatar complexity in appearance floater
 {
     mCategoriesObserver = new LLInventoryCategoriesObserver();
     mOutfitMenu = new LLOutfitContextMenu(this);
@@ -834,7 +855,31 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     LLInventoryModel::item_array_t item_array;
 
     // Collect all sub-categories of a given category.
-    LLIsType is_category(LLAssetType::AT_CATEGORY);
+	// <FS:ND> FIRE-6958/VWR-2862; Make sure to only collect folders of type FT_OUTFIT
+
+	class ndOutfitsCollector: public LLIsType
+	{
+	public:
+		ndOutfitsCollector()
+			: LLIsType( LLAssetType::AT_CATEGORY )
+		{ }
+
+		virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
+		{
+			if( !LLIsType::operator()( cat, item ) )
+				return false;
+
+			if( cat && LLFolderType::FT_OUTFIT == cat->getPreferredType() )
+				return true;
+
+			return false;
+		}
+	};
+
+	//	LLIsType is_category(LLAssetType::AT_CATEGORY);
+	ndOutfitsCollector is_category;
+
+	// </FS:ND>
     gInventory.collectDescendentsIf(
         category_id,
         cat_array,
@@ -847,6 +892,27 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
 
     // Create added and removed items vectors.
     computeDifference(cat_array, vadded, vremoved);
+    
+	// <FS:ND> FIRE-6958/VWR-2862; Handle large amounts of outfits, write a least a warning into the logs.
+	if( vadded.size() > 128 )
+		LL_WARNS() << "Large amount of outfits found: " << vadded.size() << " this may cause hangs and disconnects" << LL_ENDL;
+
+	U32 nCap = gSavedSettings.getU32( "FSDisplaySavedOutfitsCap" );
+	if( nCap && nCap < vadded.size() )
+	{
+		vadded.resize( nCap );
+		LL_WARNS() << "Capped outfits to " << nCap << " due to debug setting FSDisplaySavedOutfitsCap" << LL_ENDL;
+	}
+	// </FS:ND>
+
+	// <FS:Ansariel> FIRE-12939: Add outfit count to outfits list
+	{
+		std::string count_string;
+		LLLocale locale("");
+		LLResMgr::getInstance()->getIntegerString(count_string, (S32)cat_array.size());
+		getChild<LLTextBox>("OutfitcountText")->setTextArg("COUNT", count_string);
+	}
+	// </FS:Ansariel>
 
     // Handle added tabs.
     for (uuid_vec_t::const_iterator iter = vadded.begin();
@@ -856,6 +922,9 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         const LLUUID cat_id = (*iter);
         updateAddedCategory(cat_id);
     }
+
+    // <FS:ND> We called mAccordion->addCollapsibleCtrl with false as second paramter and did not let it arrange itself each time. Do this here after all is said and done.
+    arrange();
 
     // Handle removed tabs.
     for (uuid_vec_t::const_iterator iter = vremoved.begin(); iter != vremoved.end(); ++iter)
@@ -921,6 +990,16 @@ void LLOutfitListBase::highlightBaseOutfit()
 
 void LLOutfitListBase::removeSelected()
 {
+	// <FS:Ansariel> FIRE-15888: Include outfit name in delete outfit confirmation dialog
+	LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedOutfitUUID);
+	if (cat)
+	{
+		LLSD args;
+		args["NAME"] = cat->getName();
+		LLNotificationsUtil::add("DeleteOutfitsWithName", args, LLSD(), boost::bind(&LLOutfitsList::onOutfitsRemovalConfirmation, this, _1, _2));
+	}
+	else
+	// </FS:Ansariel>
     LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitListBase::onOutfitsRemovalConfirmation, this, _1, _2));
 }
 
@@ -966,6 +1045,9 @@ BOOL LLOutfitListBase::postBuild()
 {
     mGearMenu = createGearMenu();
 
+	// <FS:Ansariel> Show avatar complexity in appearance floater
+	mAvatarComplexityLabel = getChild<LLTextBox>("avatar_complexity_label");
+
     LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
 
     menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenuBase::updateItemsVisibility, mGearMenu));
@@ -991,6 +1073,17 @@ void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
         signalSelectionOutfitUUID(LLUUID::null);
     }
 }
+
+// <FS:Ansariel> Show avatar complexity in appearance floater
+void LLOutfitListBase::updateAvatarComplexity(U32 complexity)
+{
+	std::string complexity_string;
+	LLLocale locale("");
+	LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
+
+	mAvatarComplexityLabel->setTextArg("[WEIGHT]", complexity_string);
+}
+// </FS:Ansariel>
 
 LLContextMenu* LLOutfitContextMenu::createMenu()
 {
@@ -1102,6 +1195,14 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     llassert(mMenu);
+
+    // </FS:Ansariel> Show correct upload fee in context menu
+    LLMenuItemCallGL* upload_item = mMenu->findChild<LLMenuItemCallGL>("upload_photo");
+    if (upload_item)
+    {
+        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
+    }
+    // </FS:Ansariel>
 }
 
 LLOutfitListGearMenuBase::~LLOutfitListGearMenuBase()

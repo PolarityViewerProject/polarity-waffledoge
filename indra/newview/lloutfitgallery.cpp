@@ -106,7 +106,11 @@ BOOL LLOutfitGallery::postBuild()
 {
     BOOL rv = LLOutfitListBase::postBuild();
     mScrollPanel = getChild<LLScrollContainer>("gallery_scroll_panel");
-    mGalleryPanel = getChild<LLPanel>("gallery_panel");
+    // <FS:Ansariel> Don't parse XML to create a LLPanel manually
+    //mGalleryPanel = getChild<LLPanel>("gallery_panel");
+    LLPanel::Params params = LLPanel::getDefaultParams();
+    mGalleryPanel = LLUICtrlFactory::create<LLPanel>(params);
+    // </FS>
     mMessageTextBox = getChild<LLTextBox>("no_outfits_txt");
     mOutfitGalleryMenu = new LLOutfitGalleryContextMenu(this);
     return rv;
@@ -147,7 +151,10 @@ void LLOutfitGallery::updateRowsIfNeeded()
     {
         reArrangeRows(1);
     }
-    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > 3)
+    // <FS:Ansariel> Fix scroll bars if appearance floater at minimum width
+    //else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > 2)
+    else if((mRowPanelWidth > (getRect().getWidth() + mItemHorizontalGap)) && mItemsInRow > 2)
+    // </FS:Ansariel>
     {
         reArrangeRows(-1);
     }
@@ -640,7 +647,7 @@ BOOL LLOutfitGalleryItem::postBuild()
 
     mOutfitNameText = getChild<LLTextBox>("outfit_name");
     mOutfitWornText = getChild<LLTextBox>("outfit_worn_text");
-    mFotoBgPanel = getChild<LLPanel>("foto_bg_panel");
+    //mFotoBgPanel = getChild<LLPanel>("foto_bg_panel"); // <FS:Ansariel> Does not exist
     mTextBgPanel = getChild<LLPanel>("text_bg_panel");
     setOutfitWorn(false);
     mHidden = false;
@@ -753,7 +760,16 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
     
-    return createFromFile("menu_gallery_outfit_tab.xml");
+    // </FS:Ansariel> Show correct upload fee in context menu
+    //return createFromFile("menu_gallery_outfit_tab.xml");
+    LLContextMenu* menu = createFromFile("menu_gallery_outfit_tab.xml");
+    LLMenuItemCallGL* upload_item = menu->findChild<LLMenuItemCallGL>("upload_photo");
+    if (upload_item)
+    {
+        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
+    }
+    return menu;
+    // </FS:Ansariel>
 }
 
 void LLOutfitGalleryContextMenu::onUploadPhoto(const LLUUID& outfit_cat_id)
@@ -999,7 +1015,7 @@ void LLOutfitGallery::refreshOutfit(const LLUUID& category_id)
         }
     }
     
-    if (mGalleryCreated)
+    if (mGalleryCreated && !LLApp::isQuitting())
     {
         reArrangeRows();
     }
