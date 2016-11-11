@@ -283,7 +283,7 @@
     follows="left|top"
     height="14"
     control_name="UpdaterWillingToTest"
-    label="Give me in Release Candidates"
+    label="Give me Release Candidates"
     left_delta="-130"
     mouse_opaque="true"
     name="update_willing_to_test"
