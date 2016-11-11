@@ -1638,11 +1638,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>827b7c339a2cd401d9d23f9ee02cb83f</string>
+              <string>7b74b58538a3e223fdb98d2f7bc97473</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/311349/arch/CYGWIN/installer/llceflib-1.5.3.311349-windows-311349.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows-201604051552.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1663,7 +1663,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>1.5.3.311349</string>
+        <string>3.2526.1364.gf6bf57b</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2086,11 +2086,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d3fc565f829b99fdc1f2c414cb1fdfee</string>
+              <string>be23b09aa66da8d8b68e7a1db88577f4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/14/win64/openjpeg-1.5.1-windows64-201610031501.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/14/win64/openjpeg-1.5.1-windows64-201611030517.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

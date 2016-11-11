@@ -14,6 +14,7 @@ include(PluginAPI)
 include(MediaPluginBase)
 include(OpenGL)
 include(QuickTimePlugin)
+include(Boost)
 
 include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}

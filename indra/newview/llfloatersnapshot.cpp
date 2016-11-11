@@ -162,7 +162,7 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 	//BD - Automatically calculate the size of our snapshot window to enlarge
 	//     the snapshot preview to its maximum size, this is especially helpfull
 	//     for pretty much every aspect ratio other than 1:1.
-	S32 panel_width = llfloor(400.f * gViewerWindow->getWorldViewAspectRatio());
+	F32 panel_width = 400.f * gViewerWindow->getWorldViewAspectRatio();
 
 	//BD - Make sure we clamp at 700 here because 700 would be for 16:9 which we
 	//     consider the maximum. Everything bigger will be clamped and will have
@@ -960,7 +960,6 @@ void LLFloaterSnapshot::Impl::onSendingPostcardFinished(LLFloaterSnapshotBase* f
 // Default constructor
 LLFloaterSnapshotBase::LLFloaterSnapshotBase(const LLSD& key)
     : LLFloater(key),
-	  mThumbnailPlaceholder(NULL),
 	  mRefreshBtn(NULL),
 	  mRefreshLabel(NULL),
 	  mSucceessLblPanel(NULL),
@@ -1072,7 +1071,7 @@ BOOL LLFloaterSnapshot::postBuild()
 	impl->updateLayout(this);
 	
 
-	previewp->setThumbnailPlaceholderRect(mThumbnailPlaceholder->getRect());
+	previewp->setThumbnailPlaceholderRect(getThumbnailPlaceholderRect());
 
 	return TRUE;
 }
@@ -1095,7 +1094,7 @@ void LLFloaterSnapshotBase::draw()
 		if(previewp->getThumbnailImage())
 		{
 			bool working = impl->getStatus() == ImplBase::STATUS_WORKING;
-			const LLRect& thumbnail_rect = mThumbnailPlaceholder->getRect();
+			const LLRect& thumbnail_rect = getThumbnailPlaceholderRect();
 			const S32 thumbnail_w = previewp->getThumbnailWidth();
 			const S32 thumbnail_h = previewp->getThumbnailHeight();
 
@@ -1341,14 +1340,6 @@ void LLFloaterSnapshot::saveLocal(boost::function<void(bool)> callback)
 // </FS:Ansariel>
 {
 	LL_DEBUGS() << "saveLocal" << LL_ENDL;
-		// <FS:Ansariel> Threaded filepickers
-		//return FALSE;
-		if (callback)
-		{
-			callback(false);
-		}
-		return;
-		// </FS:Ansariel>
 	LLSnapshotLivePreview* previewp = getPreviewView();
 	if (!previewp)
 	{

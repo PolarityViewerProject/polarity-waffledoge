@@ -172,7 +172,7 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 
 	floater->notify(LLSD().with("set-working", true));
 	// <FS:Ansariel> Threaded filepickers
-	BOOL saved = LLFloaterSnapshot::saveLocal();
+	//BOOL saved = floater->saveLocal();
 	//if (saved)
 	//{
 	//	LLFloaterSnapshot::postSave();
@@ -182,7 +182,7 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 	//{
 	//	cancel();
 	//}
-	LLFloaterSnapshot::saveLocal(boost::bind(&LLPanelSnapshotLocal::saveLocalCallback, this, _1));
+	floater->saveLocal(boost::bind(&LLPanelSnapshotLocal::saveLocalCallback, this, _1));
 	// </FS:Ansariel>
 }
 // <FS:Ansariel> Threaded filepickers
@@ -201,6 +201,7 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 		floater->notify(LLSD().with("set-ready", true));
 	}
 }
+
 LLSnapshotModel::ESnapshotType LLPanelSnapshotLocal::getSnapshotType()
 {
 	return LLSnapshotModel::SNAPSHOT_LOCAL;

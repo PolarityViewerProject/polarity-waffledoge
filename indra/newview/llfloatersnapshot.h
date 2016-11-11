@@ -157,8 +157,8 @@ public:
 	static LLFloaterSnapshot* findInstance();
 	/*virtual*/ void saveTexture();
 	// <FS:Ansariel> Threaded filepickers
-	static BOOL saveLocal();
-	static void saveLocal(boost::function<void(bool)> callback);
+	//BOOL saveLocal();
+	void saveLocal(boost::function<void(bool)> callback);
 	// </FS:Ansariel>
 	static void setAgentEmail(const std::string& email);
 
@@ -200,10 +200,11 @@ public:
 	void setAspectRatioCheckboxValue(LLFloaterSnapshotBase* floater, BOOL checked);
 	/*virtual*/ std::string getSnapshotPanelPrefix();
 
-	static const LLRect& getThumbnailPlaceholderRect() { return sThumbnailPlaceholder->getRect(); }
+	void setResolution(LLFloaterSnapshotBase* floater, const std::string& comboname);
 	/*virtual*/ void updateControls(LLFloaterSnapshotBase* floater);
+
 private:
-	static LLUICtrl* sThumbnailPlaceholder;
+	/*virtual*/ LLSnapshotModel::ESnapshotLayerType getLayerType(LLFloaterSnapshotBase* floater);
 	void comboSetCustom(LLFloaterSnapshotBase *floater, const std::string& comboname);
 	void checkAspectRatio(LLFloaterSnapshotBase *view, S32 index);
 	void setFinished(bool finished, bool ok = true, const std::string& msg = LLStringUtil::null);

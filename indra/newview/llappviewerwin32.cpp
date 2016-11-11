@@ -534,7 +534,10 @@ bool LLAppViewerWin32::initHardwareTest()
 
 		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
 		gDXHardware.setWriteDebugFunc(write_debug_dx);
-		BOOL probe_ok = gDXHardware.getInfo(vram_only);
+		// <FS:Ansariel> FIRE-15891: Add option to disable WMI check in case of problems
+		//BOOL probe_ok = gDXHardware.getInfo(vram_only);
+		BOOL probe_ok = gDXHardware.getInfo(vram_only, gSavedSettings.getBOOL("PVDebug_DisableWMIProbing"));
+		// </FS:Ansariel>
 
 		if (!probe_ok
 			&& gWarningSettings.getBOOL("AboutDirectX9"))
@@ -576,9 +579,20 @@ bool LLAppViewerWin32::initHardwareTest()
 
 	if (gGLManager.mVRAM == 0)
 	{
-		LL_WARNS("AppInit") << "GL Manager reported empty VRAM, falling back to DirectX query!" << LL_ENDL;
-		gGLManager.mVRAM = gDXHardware.getVRAM();
-		LL_INFOS("AppInit") << "DirectX VRAM query reported: " << gGLManager.mVRAM << LL_ENDL;
+		// <FS:Ansariel> FIRE-12671: Force VRAM if DirectX detection is broken
+		S32 forced_video_memory;
+		if ((forced_video_memory = gSavedSettings.getS32("PVDebug_ForcedVideoMemory")) > 0)
+		{
+			LL_INFOS("AppInit") << "Forcing VRAM to " << forced_video_memory << " MB" << LL_ENDL;
+			gGLManager.mVRAM = forced_video_memory;
+		}
+		else
+		{
+		// </FS:Ansariel>
+			LL_WARNS("AppInit") << "GL Manager reported empty VRAM, falling back to DirectX query!" << LL_ENDL;
+			gGLManager.mVRAM = gDXHardware.getVRAM();
+			LL_INFOS("AppInit") << "DirectX VRAM query reported: " << gGLManager.mVRAM << LL_ENDL;
+		}
 	}
 
 	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
