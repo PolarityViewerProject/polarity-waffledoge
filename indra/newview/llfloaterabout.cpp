@@ -63,6 +63,7 @@
 #include "llsdutil_math.h"
 #include "lleventapi.h"
 #include "llcorehttputil.h"
+#include "pvdata.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -369,6 +370,15 @@ void LLFloaterAbout::showCheckUpdateNotification(S32 state)
 	switch (state)
 	{
 	case LLUpdaterService::UP_TO_DATE:
+#if INTERNAL_BUILD
+		if (gPVDataAuth->getToken() == "")
+		{
+			LLSD arguments;
+			arguments["MESSAGE"] = LLTrans::getString("MissingTesterToken");
+			LLNotificationsUtil::add("GenericNotifyTip", arguments);
+		}
+		else
+#endif
 		LLNotificationsUtil::add("UpdateViewerUpToDate");
 		break;
 	case LLUpdaterService::DOWNLOADING:
@@ -406,7 +416,7 @@ void LLFloaterAbout::setUpdateListener()
 	LLUpdaterService update_service;
 	S32 service_state = update_service.getState();
 	// Note: Do not set state listener before forceCheck() since it set's new state
-	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest")) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
+	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest"), gPVDataAuth->getToken()) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainlooprepeater"));
 		if (mainloop.getListener(sCheckUpdateListenerName) == LLBoundListener()) // dummy listener

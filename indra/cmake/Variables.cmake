@@ -211,6 +211,7 @@ option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 
 option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)
+option(INTERNAL_BUILD "Nya" OFF)
 
 # Add these CMake flags to the C++ preprocessor to toggle code that way
 add_definitions(
@@ -276,6 +277,10 @@ if(DEVEL_BUILD)
   add_definitions(/DDEVEL_BUILD=TRUE)
   MESSAGE("THIS IS A DEVELOPMENT BUILD: ONLY DEVELOPERS CAN USE IT")
 endif()
+if(INTERNAL_BUILD)
+  add_definitions(/DINTERNAL_BUILD=TRUE)
+endif()
+
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
 endif(PVDATA_UUID_LOCKDOWN)

@@ -245,9 +245,9 @@
      left_delta="50"
      top_pad="5"
      name="updater_service_combobox"
-     width="300">
+     width="125">
         <combo_box.item
-         label="Install automatically"
+         label="Automatic"
          name="Install_automatically"
          value="3" />
       <!--
@@ -257,21 +257,37 @@
          value="1" />
       -->
         <combo_box.item
-         label="I will download and install updates manually"
+         label="Manual"
          name="Install_manual"
          value="0" />
   </combo_box>
+<text_editor
+     commit_on_focus_lost = "true"
+     control_name="PVAuth_TesterToken"
+     follows="left|top"
+     visible="false"
+     enabled="false"
+     height="20"
+     label="Tester Token"
+     layout="topleft"
+     left_pad="5"
+     max_length_chars="32"
+     name="auth_token_editor"
+     use_ellipses="false"
+     top_delta="0"
+     width="230">
+    </text_editor>
   <check_box
     top_delta="4"
     enabled="true"
     follows="left|top"
     height="14"
     control_name="UpdaterWillingToTest"
-    label="Willing to update to release candidates"
-    left_delta="0"
+    label="Give me in Release Candidates"
+    left_delta="-130"
     mouse_opaque="true"
     name="update_willing_to_test"
-    width="400"           
+    width="400"
     top_pad="5"/>
   <text
      type="string"

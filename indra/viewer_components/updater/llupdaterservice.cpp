@@ -33,8 +33,8 @@
 #include "llupdatechecker.h"
 #include "llupdateinstaller.h"
 
-#include <boost/scoped_ptr.hpp>
-#include <boost/weak_ptr.hpp>
+//#include <boost/scoped_ptr.hpp>
+//#include <boost/weak_ptr.hpp>
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
@@ -98,8 +98,9 @@ class LLUpdaterServiceImpl :
 	std::string   mVersion;
 	std::string   mPlatform;
 	std::string   mPlatformVersion;
-	unsigned char mUniqueId[MD5HEX_STR_SIZE];
 	bool          mWillingToTest;
+	unsigned char mUniqueId[MD5HEX_STR_SIZE];
+	std::string   mAuthToken;
 	
 	unsigned int mCheckPeriod;
 	bool mIsChecking;
@@ -119,38 +120,39 @@ public:
 	LLUpdaterServiceImpl();
 	virtual ~LLUpdaterServiceImpl();
 
-	void initialize(const std::string& 	channel,
-					const std::string& 	version,
-					const std::string&  platform,
-					const std::string&  platform_version,
-					const unsigned char uniqueid[MD5HEX_STR_SIZE],
-					const bool&         willing_to_test					
+	void initialize(const std::string & channel,
+					const std::string & version,
+					const std::string & platform,
+					const std::string & platform_version,
+					const bool&         willing_to_test,
+					const unsigned char       uniqueid[MD5HEX_STR_SIZE],
+					const std::string& auth_token
 					);
 	
 	void setCheckPeriod(unsigned int seconds);
-	void setBandwidthLimit(U64 bytesPerSecond);
+	void setBandwidthLimit(U64 bytesPerSecond) const;
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
-	bool forceCheck(const bool is_willing_to_test);
-	bool isChecking();
-	LLUpdaterService::eUpdaterState getState();
+	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in);
+	bool isChecking() const;
+	LLUpdaterService::eUpdaterState getState() const;
 	
 	void setAppExitCallback(LLUpdaterService::app_exit_callback_t aecb) { mAppExitCallback = aecb;}
-	std::string updatedVersion(void);
+	std::string updatedVersion(void) const;
 
 	bool checkForInstall(bool launchInstaller); // Test if a local install is ready.
 	bool checkForResume(); // Test for resumeable d/l.
 
 	// LLUpdateChecker::Client:
-	virtual void error(std::string const & message);
+	void error(std::string const & message) override;
 	
 	// A successful response was received from the viewer version manager
-	virtual void response(LLSD const & content);
+	void response(LLSD const & content) override;
 	
 	// LLUpdateDownloader::Client
-	void downloadComplete(LLSD const & data);
-	void downloadError(std::string const & message);
+	void downloadComplete(LLSD const & data) override;
+	void downloadError(std::string const & message) override;
 
 	bool onMainLoop(LLSD const & event);
 
@@ -165,13 +167,13 @@ private:
 
 const std::string LLUpdaterServiceImpl::sListenerName = "LLUpdaterServiceImpl";
 
-LLUpdaterServiceImpl::LLUpdaterServiceImpl() :
-	mIsChecking(false),
-	mIsDownloading(false),
-	mCheckPeriod(0),
-	mUpdateChecker(*this),
-	mUpdateDownloader(*this),
-	mState(LLUpdaterService::INITIAL)
+LLUpdaterServiceImpl::LLUpdaterServiceImpl() : mWillingToTest(false),
+                                               mCheckPeriod(0),
+                                               mIsChecking(false),
+                                               mIsDownloading(false),
+                                               mUpdateChecker(*this),
+                                               mUpdateDownloader(*this),
+                                               mState(LLUpdaterService::INITIAL)
 {
 }
 
@@ -181,12 +183,13 @@ LLUpdaterServiceImpl::~LLUpdaterServiceImpl()
 	LLEventPumps::instance().obtain("mainloop").stopListening(sListenerName);
 }
 
-void LLUpdaterServiceImpl::initialize(const std::string&  channel,
-									  const std::string&  version,
-									  const std::string&  platform,
-									  const std::string&  platform_version,
-									  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-									  const bool&         willing_to_test)
+void LLUpdaterServiceImpl::initialize(const std::string& channel,
+									  const std::string& version,
+									  const std::string& platform,
+									  const std::string& platform_version,
+									  const bool&        willing_to_test,
+									  const unsigned char       uniqueid[MD5HEX_STR_SIZE],
+									  const std::string& auth_token)
 {
 	if(mIsChecking || mIsDownloading)
 	{
@@ -202,13 +205,15 @@ void LLUpdaterServiceImpl::initialize(const std::string&  channel,
 	mPlatform = platform;
 #endif
 	mPlatformVersion = platform_version;
-	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+	
 	mWillingToTest = willing_to_test;
+	memcpy(mUniqueId, uniqueid, MD5HEX_STR_SIZE);
+	mAuthToken = auth_token;
 	LL_DEBUGS("UpdaterService")
 		<< "\n  channel: " << mChannel
 		<< "\n  version: " << mVersion
+		<< "\n  willing: " << ( mWillingToTest ? "testok" : "testno")
 		<< "\n  uniqueid: " << mUniqueId
-		<< "\n  willing: " << ( mWillingToTest ? "testok" : "testno" )
 		<< LL_ENDL;
 }
 
@@ -217,7 +222,7 @@ void LLUpdaterServiceImpl::setCheckPeriod(unsigned int seconds)
 	mCheckPeriod = seconds;
 }
 
-void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond)
+void LLUpdaterServiceImpl::setBandwidthLimit(U64 bytesPerSecond) const
 {
 	mUpdateDownloader.setBandwidthLimit(bytesPerSecond);
 }
@@ -271,9 +276,10 @@ void LLUpdaterServiceImpl::stopChecking()
 	setState(LLUpdaterService::TERMINAL);
 }
 
-bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test)
+bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test, const std::string auth_token_in)
 {
 	mWillingToTest = is_willing_to_test; // <polarity/>
+	mAuthToken = auth_token_in;
 	if (!mIsDownloading && getState() != LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		if (mIsChecking)
@@ -296,9 +302,15 @@ bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test)
 				if (!query_url.empty())
 				{
 					setState(LLUpdaterService::CHECKING_FOR_UPDATE);
-					mUpdateChecker.checkVersion(query_url, mChannel, mVersion,
-						mPlatform, mPlatformVersion, mUniqueId,
-						mWillingToTest);
+					mUpdateChecker.checkVersion(query_url,
+												mChannel,
+												mVersion,
+												mPlatform,
+												mPlatformVersion,
+												mWillingToTest,
+												mUniqueId,
+												mAuthToken
+												);
 					return true;
 				}
 				else
@@ -312,17 +324,17 @@ bool LLUpdaterServiceImpl::forceCheck(const bool is_willing_to_test)
 	return false;
 }
 
-bool LLUpdaterServiceImpl::isChecking()
+bool LLUpdaterServiceImpl::isChecking() const
 {
 	return mIsChecking;
 }
 
-LLUpdaterService::eUpdaterState LLUpdaterServiceImpl::getState()
+LLUpdaterService::eUpdaterState LLUpdaterServiceImpl::getState() const
 {
 	return mState;
 }
 
-std::string LLUpdaterServiceImpl::updatedVersion(void)
+std::string LLUpdaterServiceImpl::updatedVersion(void) const
 {
 	return mNewVersion;
 }
@@ -563,7 +575,7 @@ void LLUpdaterServiceImpl::restartTimer(unsigned int seconds)
 	LL_INFOS("UpdaterService") << "will check for update again in " << 
 	seconds << " seconds" << LL_ENDL; 
 	mTimer.start();
-	mTimer.setTimerExpirySec((F32)seconds);
+	mTimer.setTimerExpirySec(static_cast<F32>(seconds));
 	LLEventPumps::instance().obtain("mainloop").listen(
 		sListenerName, boost::bind(&LLUpdaterServiceImpl::onMainLoop, this, _1));
 }
@@ -619,10 +631,10 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			LL_WARNS("UpdaterService") << "last install attempt failed" << LL_ENDL;;
 			LLFile::remove(ll_install_failed_marker_path());
 
-			LLSD event;
-			event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
-			event["required"] = LLSD(requiredValue);
-			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(event);
+			LLSD mainloop_event;
+			mainloop_event["type"] = LLSD(LLUpdaterService::INSTALL_ERROR);
+			mainloop_event["required"] = LLSD(requiredValue);
+			LLEventPumps::instance().obtain(LLUpdaterService::pumpName()).post(mainloop_event);
 
 			setState(LLUpdaterService::TERMINAL);
 		}
@@ -631,9 +643,15 @@ bool LLUpdaterServiceImpl::onMainLoop(LLSD const & event)
 			std::string query_url = LLGridManager::getInstance()->getUpdateServiceURL();
 			if ( !query_url.empty() )
 			{
-				mUpdateChecker.checkVersion(query_url, mChannel, mVersion,
-											mPlatform, mPlatformVersion, mUniqueId,
-											mWillingToTest);
+				mUpdateChecker.checkVersion(query_url,
+											mChannel,
+											mVersion,
+											mPlatform,
+											mPlatformVersion,
+											mWillingToTest,
+											mUniqueId,
+											mAuthToken
+											);
 				setState(LLUpdaterService::CHECKING_FOR_UPDATE);
 			}
 			else
@@ -677,8 +695,8 @@ LLUpdaterService::LLUpdaterService()
 {
 	if(gUpdater.expired())
 	{
-		mImpl = 
-			boost::shared_ptr<LLUpdaterServiceImpl>(new LLUpdaterServiceImpl());
+		mImpl =
+			boost::make_shared<LLUpdaterServiceImpl>();
 		gUpdater = mImpl;
 	}
 	else
@@ -691,58 +709,66 @@ LLUpdaterService::~LLUpdaterService()
 {
 }
 
-void LLUpdaterService::initialize(const std::string& channel,
-								  const std::string& version,
-								  const std::string& platform,
-								  const std::string& platform_version,
-								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-								  const bool&         willing_to_test
+void LLUpdaterService::initialize(const std::string & channel,
+								  const std::string & version,
+								  const std::string & platform,
+								  const std::string & platform_version,
+								  const bool&         willing_to_test,
+								  const unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								  const std::string& auth_token
 )
 {
-	mImpl->initialize(channel, version, platform, platform_version, uniqueid, willing_to_test);
+	mImpl->initialize(channel,
+					  version,
+					  platform,
+					  platform_version,
+					  willing_to_test,
+					  uniqueid,
+					  auth_token
+					 );
 }
 
-void LLUpdaterService::setCheckPeriod(unsigned int seconds)
+void LLUpdaterService::setCheckPeriod(unsigned int seconds) const
 {
 	mImpl->setCheckPeriod(seconds);
 }
 
-void LLUpdaterService::setBandwidthLimit(U64 bytesPerSecond)
+void LLUpdaterService::setBandwidthLimit(U64 bytesPerSecond) const
 {
 	mImpl->setBandwidthLimit(bytesPerSecond);
 }
 	
-void LLUpdaterService::startChecking(bool install_if_ready)
+void LLUpdaterService::startChecking(bool install_if_ready) const
 {
 	mImpl->startChecking(install_if_ready);
 }
 
-void LLUpdaterService::stopChecking()
+void LLUpdaterService::stopChecking() const
 {
 	mImpl->stopChecking();
 }
 
-bool LLUpdaterService::forceCheck(const bool is_willing_to_test)
+bool LLUpdaterService::forceCheck(const bool is_willing_to_test, const std::string auth_token_in) const
 {
-	return mImpl->forceCheck(is_willing_to_test);
+	return mImpl->forceCheck(is_willing_to_test, auth_token_in);
 }
 
-bool LLUpdaterService::isChecking()
+bool LLUpdaterService::isChecking() const
 {
 	return mImpl->isChecking();
 }
 
-LLUpdaterService::eUpdaterState LLUpdaterService::getState()
+LLUpdaterService::eUpdaterState LLUpdaterService::getState() const
 {
 	return mImpl->getState();
 }
 
-void LLUpdaterService::setImplAppExitCallback(LLUpdaterService::app_exit_callback_t aecb)
+void LLUpdaterService::setImplAppExitCallback(app_exit_callback_t aecb) const
 {
 	return mImpl->setAppExitCallback(aecb);
 }
 
-std::string LLUpdaterService::updatedVersion(void)
+std::string LLUpdaterService::updatedVersion(void) const
 {
 	return mImpl->updatedVersion();
 }

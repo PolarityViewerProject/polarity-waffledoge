@@ -461,6 +461,12 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
 	getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
+#if INTERNAL_BUILD
+	auto auth_box = getChild<LLTextEditor>("auth_token_editor");
+	auth_box->setEnabled(TRUE);
+	auth_box->setVisible(TRUE);
+#endif
+
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{

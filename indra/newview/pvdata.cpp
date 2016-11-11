@@ -1502,3 +1502,12 @@ bool PVDataUtil::moveTranscriptsAndLog(std::string userid) const
 
 	return true;
 }
+
+std::string PVDataAuth::getToken()
+{
+#if INTERNAL_BUILD
+	return gSavedSettings.getString("PVAuth_TesterToken");
+#else
+	return "";
+#endif
+}

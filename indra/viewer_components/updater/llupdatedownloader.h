@@ -27,7 +27,7 @@
 #define LL_UPDATE_DOWNLOADER_H
 
 
-#include <string>
+//#include <string>
 #include <boost/shared_ptr.hpp>
 #include "lluri.h"
 
@@ -49,7 +49,7 @@ public:
 	
 	// Cancel any in progress download; a no op if none is in progress.  The
 	// client will not receive a complete or error callback.
-	void cancel(void);
+	void cancel(void) const;
 	
 	// Start a new download.
 	void download(LLURI const & uri,
@@ -57,16 +57,16 @@ public:
 				  std::string const & updateChannel,
 				  std::string const & updateVersion,
 				  std::string const & info_url,
-				  bool required=false);
+				  bool required=false) const;
 	
 	// Returns true if a download is in progress.
-	bool isDownloading(void);
+	bool isDownloading(void) const;
 	
 	// Resume a partial download.
-	void resume(void);
+	void resume(void) const;
 	
 	// Set a limit on the dowload rate.
-	void setBandwidthLimit(U64 bytesPerSecond);
+	void setBandwidthLimit(U64 bytesPerSecond) const;
 	
 private:
 	boost::shared_ptr<Implementation> mImplementation;
@@ -78,7 +78,10 @@ private:
 //
 class LLUpdateDownloader::Client {
 public:
-	
+	virtual ~Client()
+	{
+	}
+
 	// The download has completed successfully.
 	// data is a map containing the following items:
 	// url - source (remote) location

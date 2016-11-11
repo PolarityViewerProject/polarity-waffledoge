@@ -4338,4 +4338,5 @@ Try enclosing path to the editor with double quotes.
   <string name="NotifyIncomingMessage">/me is typing...</string>
 
   <string name="SessionTimeString">Session uptime: [UPTIME]</string>
+  <string name="MissingTesterToken">I-it's not like I need a token to enable updates or anything... &gt;////&lt; Set it in Preferences-&gt;Setup, okay?</string>
 </strings>

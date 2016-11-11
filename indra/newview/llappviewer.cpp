@@ -252,6 +252,7 @@
 
 #include "sanitycheck.h"
 #include "pvdata.h"
+#include "llhasheduniqueid.h"
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -3046,7 +3047,7 @@ void LLAppViewer::initUpdater()
 	// Get Version
 
 	/*****************************************************************
-	 * Previously, the url was derived from the settings 
+	 * Previously, the url was derived from the settings
 	 *    UpdaterServiceURL
 	 *    UpdaterServicePath
 	 * it is now obtained from the grid manager.  The settings above
@@ -3062,22 +3063,21 @@ void LLAppViewer::initUpdater()
 
 #if 0
 	// <polarity> What the hell is that?
-	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity()) 
+	if (LLVersionInfo::TEST_VIEWER == LLVersionInfo::getViewerMaturity())
 	{
 		LL_INFOS("UpdaterService") << "Test build: overriding willing_to_test by sending testno" << LL_ENDL;
 		willing_to_test = false;
 	}
+
 	else
+#endif
 	{
 		willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
 	}
-#else
-	willing_to_test = gSavedSettings.getBOOL("UpdaterWillingToTest");
-#endif
-    unsigned char unique_id[MD5HEX_STR_SIZE];
-	if ( ! llHashedUniqueID(unique_id) )
+	unsigned char hardware_id[MD5HEX_STR_SIZE];
+	if (!llHashedUniqueID(hardware_id))
 	{
-		if ( willing_to_test )
+		if (willing_to_test)
 		{
 			LL_WARNS("UpdaterService") << "Unable to provide a unique id; overriding willing_to_test by sending testno" << LL_ENDL;
 		}
@@ -3089,8 +3089,9 @@ void LLAppViewer::initUpdater()
 						 version,
 						 gPlatform,
 						 getOSInfo().getOSVersionString(),
-						 unique_id,
-						 willing_to_test
+						 willing_to_test,
+						 hardware_id,
+						 gPVDataAuth->getToken()
 						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));

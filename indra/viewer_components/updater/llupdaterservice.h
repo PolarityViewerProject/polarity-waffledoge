@@ -28,7 +28,8 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
-#include "llhasheduniqueid.h"
+#include "llmd5.h"
+//#include "llhasheduniqueid.h"
 
 class LLUpdaterServiceImpl;
 
@@ -38,7 +39,7 @@ public:
 	class UsageError: public std::runtime_error
 	{
 	public:
-		UsageError(const std::string& msg) : std::runtime_error(msg) {}
+		explicit UsageError(const std::string& msg) : runtime_error(msg) {}
 	};
 	
 	// Name of the event pump through which update events will be delivered.
@@ -71,22 +72,23 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void initialize(const std::string& 	channel,
-				    const std::string& 	version,
-					const std::string&  platform,
-					const std::string&  platform_version,
-					const unsigned char uniqueid[MD5HEX_STR_SIZE],
-					const bool&         willing_to_test
+	void initialize(const std::string & channel,
+				    const std::string & version,
+					const std::string &  platform,
+					const std::string &  platform_version,
+					const bool&         willing_to_test,
+					const unsigned char       uniqueid[MD5HEX_STR_SIZE],
+					const std::string & auth_token
 					);
 
-	void setCheckPeriod(unsigned int seconds);
-	void setBandwidthLimit(U64 bytesPerSecond);
+	void setCheckPeriod(unsigned int seconds) const;
+	void setBandwidthLimit(U64 bytesPerSecond) const;
 	
-	void startChecking(bool install_if_ready = false);
-	void stopChecking();
-	bool forceCheck(const bool is_willing_to_check);
-	bool isChecking();
-	eUpdaterState getState();
+	void startChecking(bool install_if_ready = false) const;
+	void stopChecking() const;
+	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in) const;
+	bool isChecking() const;
+	eUpdaterState getState() const;
 
 	typedef boost::function<void (void)> app_exit_callback_t;
 	template <typename F>
@@ -99,11 +101,11 @@ public:
 	// If an update is or has been downloaded, this method will return the
 	// version string for that update.  An empty string will be returned
 	// otherwise.
-	std::string updatedVersion(void);
+	std::string updatedVersion(void) const;
 
 private:
 	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;
-	void setImplAppExitCallback(app_exit_callback_t aecb);
+	void setImplAppExitCallback(app_exit_callback_t aecb) const;
 };
 
 // Returns the full version as a string.

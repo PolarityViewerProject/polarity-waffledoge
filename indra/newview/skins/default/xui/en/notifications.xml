@@ -4046,9 +4046,9 @@ Please try again later.
   </notification>
 
   <notification
- icon="alertmodal.tga"
+ icon="notifytip.tga"
  name="UpdateViewerUpToDate"
- type="alertmodal">
+ type="notifytip">
 Your viewer is up to date!
 If you can't wait to try out the latest features and fixes, go compile the [https://bitbucket.org/polarityviewer/ source code] yourself.
     <tag>confirm</tag>
@@ -11270,5 +11270,12 @@ Color: [PV_COLOR]
 [MESSAGE]
     Please report this occurence and send the lines above to the Polarity Developers
   </notification>
+
+ <notification
+  icon="notifytip.png"
+  name="GenericNotifyTip"
+  type="notifytip">
+  [MESSAGE]
+ </notification>
 
 </notifications>
