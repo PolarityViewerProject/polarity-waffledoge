@@ -918,6 +918,12 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
 	llassert( getComponents() <= 4 );
 	// This is fairly bogus, but it'll do for now.
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
+
 	U8 *pos = getData();
 	U32 x, y;
 	for (x = 0; x < getWidth(); x++)
@@ -1045,6 +1051,11 @@ void LLImageRaw::composite( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
+	if (!validateSrcAndDst("LLImageRaw::composite", src, dst))
+	{
+		return;
+	}
+
 	llassert(3 == src->getComponents());
 	llassert(3 == dst->getComponents());
 
@@ -1112,7 +1123,6 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 	llassert( (3 == src->getComponents()) || (4 == src->getComponents()) );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
 
-
 	U8* src_data = src->getData();
 	U8* dst_data = dst->getData();
 	S32 pixels = getWidth() * getHeight();
@@ -1147,6 +1157,11 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
+	if (!validateSrcAndDst("LLImageRaw::copyUnscaledAlphaMask", src, dst))
+	{
+		return;
+	}
+
 	llassert( 1 == src->getComponents() );
 	llassert( 4 == dst->getComponents() );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
@@ -1169,6 +1184,12 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return;
+	}
+
 	S32 pixels = getWidth() * getHeight();
 	if( 4 == getComponents() )
 	{
@@ -1207,13 +1228,12 @@ LLPointer<LLImageRaw> LLImageRaw::duplicate()
 // Src and dst can be any size.  Src and dst can each have 3 or 4 components.
 void LLImageRaw::copy(LLImageRaw* src)
 {
-	if (!src)
+	LLImageRaw* dst = this;  // Just for clarity.
+
+	if (!validateSrcAndDst("LLImageRaw::copy", src, dst))
 	{
-		LL_WARNS() << "LLImageRaw::copy called with a null src pointer" << LL_ENDL;
 		return;
 	}
-
-	LLImageRaw* dst = this;  // Just for clarity.
 
 	if( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) )
 	{
@@ -1341,6 +1361,11 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
 
+	if (!validateSrcAndDst("LLImageRaw::copyScaled", src, dst))
+	{
+		return;
+	}
+
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
 	llassert_always( src->getComponents() == dst->getComponents() );
 
@@ -1377,7 +1402,18 @@ void LLImageRaw::copyScaled( LLImageRaw* src )
 
 bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 {
-	llassert((1 == getComponents()) || (3 == getComponents()) || (4 == getComponents()) );
+    S32 components = getComponents();
+	if (! ((1 == components) || (3 == components) || (4 == components) ))
+    {
+        LL_WARNS() << "Invalid getComponents value (" << components << ")" << LL_ENDL;
+        return false;
+    }
+
+	if (isBufferInvalid())
+	{
+		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
+		return false;
+	}
 
 	S32 old_width = getWidth();
 	S32 old_height = getHeight();
@@ -1391,67 +1427,53 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
 
 	if (scale_image_data)
 	{
-		/*
-		S32 temp_data_size = old_width * new_height * getComponents();
-		llassert_always(temp_data_size > 0);
-		std::vector<U8> temp_buffer(temp_data_size);
+		S32 new_data_size = new_width * new_height * components;
 
-		// Vertical
-		for( S32 col = 0; col < old_width; col++ )
-		{
-			copyLineScaled( getData() + (getComponents() * col), &temp_buffer[0] + (getComponents() * col), old_height, new_height, old_width, old_width );
-		}
-
-		deleteData();
-
-		U8* new_buffer = allocateDataSize(new_width, new_height, getComponents());
-
-		// Horizontal
-		for( S32 row = 0; row < new_height; row++ )
-		{
-			copyLineScaled( &temp_buffer[0] + (getComponents() * old_width * row), new_buffer + (getComponents() * new_width * row), old_width, new_width, 1, 1 );
-		}
-		*/
-
-		S32 new_data_size = new_width * new_height * getComponents();
-		llassert_always(new_data_size > 0);
-
+		if (new_data_size > 0)
+        {
 		U8 *new_data = (U8*) ll_aligned_malloc_16(new_data_size); 
-		if(NULL == new_data) 
-		{
-			return false; 
-		}
+            if(NULL == new_data) 
+            {
+                return false; 
+            }
 
-		bilinear_scale(getData(), old_width, old_height, getComponents(), old_width*getComponents(), new_data, new_width, new_height, getComponents(), new_width*getComponents());
-		setDataAndSize(new_data, new_width, new_height, getComponents()); 
+            bilinear_scale(getData(), old_width, old_height, components, old_width*components, new_data, new_width, new_height, components, new_width*components);
+            setDataAndSize(new_data, new_width, new_height, components); 
+		}
 	}
 	else
 	{
 		// copy	out	existing image data
-		S32	temp_data_size = old_width * old_height	* getComponents();
+		S32	temp_data_size = old_width * old_height	* components;
 		std::vector<U8> temp_buffer(temp_data_size);
 		memcpy(&temp_buffer[0],	getData(), temp_data_size);
 
 		// allocate	new	image data,	will delete	old	data
-		U8*	new_buffer = allocateDataSize(new_width, new_height, getComponents());
+		U8*	new_buffer = allocateDataSize(new_width, new_height, components);
 
-		for( S32 row = 0; row <	new_height;	row++ )
-		{
-			if (row	< old_height)
-			{
-				memcpy(new_buffer +	(new_width * row * getComponents()), &temp_buffer[0] + (old_width *	row	* getComponents()),	getComponents()	* llmin(old_width, new_width));
-				if (old_width <	new_width)
-				{
-					// pad out rest	of row with	black
-					memset(new_buffer +	(getComponents() * ((new_width * row) +	old_width)), 0,	getComponents()	* (new_width - old_width));
-				}
-			}
-			else
-			{
-				// pad remaining rows with black
-				memset(new_buffer +	(new_width * row * getComponents()), 0,	new_width *	getComponents());
-			}
-		}
+        if (!new_buffer)
+        {
+            LL_WARNS() << "Failed to allocate new image data buffer" << LL_ENDL;
+            return false;
+        }
+        
+        for( S32 row = 0; row <	new_height;	row++ )
+        {
+            if (row	< old_height)
+            {
+                memcpy(new_buffer +	(new_width * row * components), &temp_buffer[0] + (old_width *	row	* components),	components * llmin(old_width, new_width));
+                if (old_width <	new_width)
+                {
+                    // pad out rest	of row with	black
+                    memset(new_buffer +	(components * ((new_width * row) +	old_width)), 0,	components * (new_width - old_width));
+                }
+            }
+            else
+            {
+                // pad remaining rows with black
+                memset(new_buffer +	(new_width * row * components), 0,	new_width *	components);
+            }
+        }
 	}
 
 	return true ;
@@ -1668,6 +1690,25 @@ void LLImageRaw::compositeRowScaled4onto3( U8* in, U8* out, S32 in_pixel_len, S3
 	}
 }
 
+bool LLImageRaw::validateSrcAndDst(std::string func, LLImageRaw* src, LLImageRaw* dst)
+{
+	if (!src || !dst || src->isBufferInvalid() || dst->isBufferInvalid())
+	{
+		LL_WARNS() << func << ": Source: ";
+		if (!src) LL_CONT << "Null pointer";
+		else if (src->isBufferInvalid()) LL_CONT << "Invalid buffer";
+		else LL_CONT << "OK";
+
+		LL_CONT << "; Destination: ";
+		if (!dst) LL_CONT << "Null pointer";
+		else if (dst->isBufferInvalid()) LL_CONT << "Invalid buffer";
+		else LL_CONT << "OK";
+		LL_CONT << "." << LL_ENDL;
+
+		return false;
+	}
+	return true;
+}
 
 //----------------------------------------------------------------------------
 

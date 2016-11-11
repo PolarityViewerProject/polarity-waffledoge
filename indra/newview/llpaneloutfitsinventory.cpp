@@ -37,13 +37,16 @@
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
 #include "lloutfitobserver.h"
+#include "lloutfitgallery.h"
 #include "lloutfitslist.h"
 #include "llpanelwearing.h"
 #include "llsaveoutfitcombobtn.h"
 #include "llsidepanelappearance.h"
+#include "llviewercontrol.h"
 #include "llviewerfoldertype.h"
 
 static const std::string OUTFITS_TAB_NAME = "outfitslist_tab";
+static const std::string OUTFIT_GALLERY_TAB_NAME = "outfit_gallery_tab";
 static const std::string COF_TAB_NAME = "cof_tab";
 
 static LLPanelInjector<LLPanelOutfitsInventory> t_inventory("panel_outfits_inventory");
@@ -61,6 +64,9 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+
+	// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
+	mCategoriesObserver = new LLInventoryCategoriesObserver();
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -100,6 +106,17 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 			panel_appearance->fetchInventory();
 			panel_appearance->refreshCurrentOutfitName();
 		}
+
+		// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
+		gInventory.addObserver(mCategoriesObserver);
+		mCategoriesObserver->addCategory(LLAppearanceMgr::instance().getCOF(), boost::bind(&LLPanelOutfitsInventory::onCOFChanged, this));
+		onCOFChanged();
+		// </FS:Ansariel>
+
+		// <FS:Ansariel> FIRE-20180: Select last tab when actually opening the appearance floater for the first time
+		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
+			mAppearanceTabs->selectFirstTab();
+
 		mInitialized = true;
 	}
 
@@ -165,14 +182,22 @@ void LLPanelOutfitsInventory::onSearchEdit(const std::string& string)
 
 void LLPanelOutfitsInventory::onWearButtonClick()
 {
-	if (mMyOutfitsPanel->hasItemSelected())
+	if(isOutfitsListPanelActive())
 	{
-		mMyOutfitsPanel->wearSelectedItems();
+		if (mMyOutfitsPanel->hasItemSelected())
+		{
+			mMyOutfitsPanel->wearSelectedItems();
+		}
+		else
+		{
+			mMyOutfitsPanel->performAction("replaceoutfit");
+		}
 	}
-	else
+	else if(isOutfitsGalleryPanelActive())
 	{
-		mMyOutfitsPanel->performAction("replaceoutfit");
+		mOutfitGalleryPanel->wearSelectedOutfit();
 	}
+
 }
 
 bool LLPanelOutfitsInventory::onSaveCommit(const LLSD& notification, const LLSD& response)
@@ -220,6 +245,24 @@ void LLPanelOutfitsInventory::onSave()
 	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
 }
 
+// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
+void LLPanelOutfitsInventory::onCOFChanged()
+{
+	const LLUUID cof = LLAppearanceMgr::instance().getCOF();
+	LLInventoryModel::item_array_t obj_items;
+	LLInventoryModel::cat_array_t cats;
+	LLIsType is_of_type(LLAssetType::AT_OBJECT);
+	gInventory.collectDescendentsIf(cof, cats, obj_items, LLInventoryModel::EXCLUDE_TRASH, is_of_type);
+	U32 attachments = obj_items.size();
+
+	LLStringUtil::format_map_t args;
+	args["COUNT"] = llformat("%d", attachments);
+	args["MAX"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
+	std::string title = getString("cof_tab_label", args);
+	mAppearanceTabs->setPanelTitle(mAppearanceTabs->getIndexForPanel(mCurrentOutfitPanel), title);
+}
+// </FS:Ansariel>
+
 //static
 LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 {
@@ -234,6 +277,7 @@ void LLPanelOutfitsInventory::initListCommandsHandlers()
 	mListCommands = getChild<LLPanel>("bottom_panel");
 	mListCommands->childSetAction("wear_btn", boost::bind(&LLPanelOutfitsInventory::onWearButtonClick, this));
 	mMyOutfitsPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
+	mOutfitGalleryPanel->childSetAction("trash_btn", boost::bind(&LLPanelOutfitsInventory::onTrashButtonClick, this));
 }
 
 void LLPanelOutfitsInventory::updateListCommands()
@@ -245,15 +289,23 @@ void LLPanelOutfitsInventory::updateListCommands()
 
 	LLButton* wear_btn = mListCommands->getChild<LLButton>("wear_btn");
 	mMyOutfitsPanel->childSetEnabled("trash_btn", trash_enabled);
+	mOutfitGalleryPanel->childSetEnabled("trash_btn", trash_enabled);
 	wear_btn->setEnabled(wear_enabled);
 	wear_btn->setVisible(wear_visible);
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", make_outfit_enabled);
-	wear_btn->setToolTip(getString(mMyOutfitsPanel->hasItemSelected() ? "wear_items_tooltip" : "wear_outfit_tooltip"));
+	wear_btn->setToolTip(getString((!isOutfitsGalleryPanelActive() && mMyOutfitsPanel->hasItemSelected()) ? "wear_items_tooltip" : "wear_outfit_tooltip"));
 }
 
 void LLPanelOutfitsInventory::onTrashButtonClick()
 {
-	mMyOutfitsPanel->removeSelected();
+	if(isOutfitsListPanelActive())
+	{
+		mMyOutfitsPanel->removeSelected();
+	}
+	else if(isOutfitsGalleryPanelActive())
+	{
+		mOutfitGalleryPanel->removeSelected();
+	}
 }
 
 bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
@@ -268,11 +320,15 @@ bool LLPanelOutfitsInventory::isActionEnabled(const LLSD& userdata)
 
 void LLPanelOutfitsInventory::initTabPanels()
 {
+    //TODO: Add LLOutfitGallery change callback
 	mCurrentOutfitPanel = findChild<LLPanelWearing>(COF_TAB_NAME);
 	mCurrentOutfitPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mMyOutfitsPanel = findChild<LLOutfitsList>(OUTFITS_TAB_NAME);
 	mMyOutfitsPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
+
+    mOutfitGalleryPanel = findChild<LLOutfitGallery>(OUTFIT_GALLERY_TAB_NAME);
+    mOutfitGalleryPanel->setSelectionChangeCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 
 	mAppearanceTabs = getChild<LLTabContainer>("appearance_tabs");
 	mAppearanceTabs->setCommitCallback(boost::bind(&LLPanelOutfitsInventory::onTabChange, this));
@@ -296,6 +352,22 @@ bool LLPanelOutfitsInventory::isCOFPanelActive() const
 	return mActivePanel->getName() == COF_TAB_NAME;
 }
 
+bool LLPanelOutfitsInventory::isOutfitsListPanelActive() const
+{
+	if (!mActivePanel) return false;
+
+	return mActivePanel->getName() == OUTFITS_TAB_NAME;
+}
+
+bool LLPanelOutfitsInventory::isOutfitsGalleryPanelActive() const
+{
+	if (!mActivePanel) return false;
+
+	return mActivePanel->getName() == OUTFIT_GALLERY_TAB_NAME;
+}
+
+
+
 void LLPanelOutfitsInventory::setWearablesLoading(bool val)
 {
 	updateVerbs();
@@ -318,3 +390,13 @@ LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 		dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	return panel_appearance;
 }
+
+// <FS:Ansariel> Show avatar complexity in appearance floater
+void LLPanelOutfitsInventory::updateAvatarComplexity(U32 complexity)
+{
+	mOutfitGalleryPanel->updateAvatarComplexity(complexity);
+	mMyOutfitsPanel->updateAvatarComplexity(complexity);
+	mCurrentOutfitPanel->updateAvatarComplexity(complexity);
+}
+// </FS:Ansariel>
+

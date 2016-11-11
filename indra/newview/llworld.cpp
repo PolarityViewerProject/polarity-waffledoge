@@ -957,10 +957,10 @@ void LLWorld::updateWaterObjects()
 	center_y = min_y + (wy >> 1);
 
 	S32 add_boundary[4] = {
-		512 - (max_x - static_cast<S32>(region_x)),
-		512 - (max_y - static_cast<S32>(region_y)),
-		512 - (static_cast<S32>(region_x) - min_x),
-		512 - (static_cast<S32>(region_y) - min_y) };
+		(S32)(512 - (max_x - region_x)),
+		(S32)(512 - (max_y - region_y)),
+		(S32)(512 - (region_x - min_x)),
+		(S32)(512 - (region_y - min_y)) };
 		
 	S32 dir;
 	for (dir = 0; dir < 8; dir++)
