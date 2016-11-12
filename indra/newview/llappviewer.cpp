@@ -1331,16 +1331,6 @@ bool LLAppViewer::frame()
 
 	//check memory availability information
 	checkMemory() ;
-	
-	if (!gUptimeTimer.getStarted())
-	{
-		gUptimeTimer.start();
-	}
-	F32 time = gUptimeTimer.getElapsedTimeF32();
-	S32 hours = (S32)(time / (60 * 60));
-	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
-	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
-	gUptimeString = llformat("%d:%02d:%02d", hours, mins, secs);
 
 	try
 	{
@@ -6097,5 +6087,10 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 //static
 std::string LLAppViewer::getSessionUptime()
 {
-	return gUptimeString;
+
+	F32 time = gFrameTimeSeconds;
+	S32 hours = (S32)(time / (60 * 60));
+	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
+	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
+	return llformat("%d:%02d:%02d", hours, mins, secs);
 }

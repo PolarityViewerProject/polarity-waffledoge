@@ -60,10 +60,6 @@ class LLViewerJoystick;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
-static LLFrameTimer gUptimeTimer;
-
-static std::string gUptimeString;
-
 class LLAppViewer : public LLApp
 {
 public:
