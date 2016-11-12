@@ -447,7 +447,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 		else
 		{
 
-			GLenum array[] =
+			static const GLenum array[] =
 			{
 				GL_VERTEX_ARRAY,
 				GL_NORMAL_ARRAY,
@@ -455,7 +455,7 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 				GL_COLOR_ARRAY,
 			};
 
-			GLenum mask[] = 
+			static const GLenum mask[] = 
 			{
 				MAP_VERTEX,
 				MAP_NORMAL,
@@ -559,7 +559,8 @@ void LLVertexBuffer::setupClientArrays(U32 data_mask)
 static LLTrace::BlockTimerStatHandle FTM_VB_DRAW_ARRAYS("drawArrays");
 void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, const std::vector<LLVector3>& norm)
 {
-	LL_RECORD_BLOCK_TIME(FTM_VB_DRAW_ARRAYS);
+	// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+	//LL_RECORD_BLOCK_TIME(FTM_VB_DRAW_ARRAYS);
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
 	gGL.syncMatrices();
 
@@ -613,6 +614,14 @@ void LLVertexBuffer::drawArrays(U32 mode, const std::vector<LLVector3>& pos, con
 void LLVertexBuffer::drawElements(U32 mode, const LLVector4a* pos, const LLVector2* tc, S32 num_indices, const U16* indicesp)
 {
 	llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShaderPtr != NULL);
+
+	// <FS:Ansariel> Crash fix due to invalid calls to drawElements by Drake Arconis
+	if (num_indices <= 0)
+	{
+		LL_WARNS() << "Called drawElements with 0 indices" << LL_ENDL;
+		return;
+	}
+	// </FS:Ansariel>
 
 	gGL.syncMatrices();
 
@@ -840,7 +849,8 @@ void LLVertexBuffer::drawArrays(U32 mode, U32 first, U32 count) const
 	}
 
 	{
-		LL_RECORD_BLOCK_TIME(FTM_GL_DRAW_ARRAYS);
+		// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+		//LL_RECORD_BLOCK_TIME(FTM_GL_DRAW_ARRAYS);
 		stop_glerror();
 		LLGLSLShader::startProfile();
 		stop_glerror();
@@ -1335,7 +1345,8 @@ void LLVertexBuffer::setupVertexArray()
 		return;
 	}
 
-	LL_RECORD_BLOCK_TIME(FTM_SETUP_VERTEX_ARRAY);
+	// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+	//LL_RECORD_BLOCK_TIME(FTM_SETUP_VERTEX_ARRAY);
 #if GL_ARB_vertex_array_object
 	glBindVertexArray(mGLArray);
 #endif
@@ -1562,7 +1573,8 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 					if (map_range)
 					{
 #ifdef GL_ARB_map_buffer_range
-						LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_BUFFER_RANGE);
+						// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+						//LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_BUFFER_RANGE);
 						S32 offset = mOffsets[type] + sTypeSize[type]*index;
 						S32 length = (sTypeSize[type]*count+0xF) & ~0xF;
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, offset, length, 
@@ -1586,7 +1598,8 @@ volatile U8* LLVertexBuffer::mapVertexBuffer(S32 type, S32 index, S32 count, boo
 							}
 						}
 
-						LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_BUFFER);
+						// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+						//LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_BUFFER);
 						src = (U8*) glMapBufferRange(GL_ARRAY_BUFFER_ARB, 0, mSize, 
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT);
@@ -1751,7 +1764,8 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 					if (map_range)
 					{
 #ifdef GL_ARB_map_buffer_range
-						LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX_RANGE);
+						// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+						//LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX_RANGE);
 						S32 offset = sizeof(U16)*index;
 						S32 length = sizeof(U16)*count;
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length, 
@@ -1763,7 +1777,8 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 					else
 					{
 #ifdef GL_ARB_map_buffer_range
-						LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX);
+						// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+						//LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX);
 						src = (U8*) glMapBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, 0, sizeof(U16)*mNumIndices, 
 							GL_MAP_WRITE_BIT | 
 							GL_MAP_FLUSH_EXPLICIT_BIT);
@@ -1787,7 +1802,8 @@ volatile U8* LLVertexBuffer::mapIndexBuffer(S32 index, S32 count, bool map_range
 				}
 				else
 				{
-					LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX);
+					// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+					//LL_RECORD_BLOCK_TIME(FTM_VBO_MAP_INDEX);
 					map_range = false;
 					src = (U8*) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY_ARB);
 				}
@@ -1856,7 +1872,8 @@ void LLVertexBuffer::unmapBuffer()
 
 	if (mMappedData && mVertexLocked)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_VBO_UNMAP);
+		// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+		//LL_RECORD_BLOCK_TIME(FTM_VBO_UNMAP);
 		bindGLBuffer(true);
 		updated_all = mIndexLocked; //both vertex and index buffers done updating
 
@@ -1898,7 +1915,8 @@ void LLVertexBuffer::unmapBuffer()
 						S32 length = sTypeSize[region.mType]*region.mCount;
 						if (gGLManager.mHasMapBufferRange)
 						{
-							LL_RECORD_BLOCK_TIME(FTM_VBO_FLUSH_RANGE);
+							// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+							//LL_RECORD_BLOCK_TIME(FTM_VBO_FLUSH_RANGE);
 #ifdef GL_ARB_map_buffer_range
 							glFlushMappedBufferRange(GL_ARRAY_BUFFER_ARB, offset, length);
 #endif
@@ -1928,7 +1946,8 @@ void LLVertexBuffer::unmapBuffer()
 	
 	if (mMappedIndexData && mIndexLocked)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_IBO_UNMAP);
+		// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+		//LL_RECORD_BLOCK_TIME(FTM_IBO_UNMAP);
 		bindGLIndices();
 		if(!mMappable)
 		{
@@ -1966,7 +1985,8 @@ void LLVertexBuffer::unmapBuffer()
 						S32 length = sizeof(U16)*region.mCount;
 						if (gGLManager.mHasMapBufferRange)
 						{
-							LL_RECORD_BLOCK_TIME(FTM_IBO_FLUSH_RANGE);
+							// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+							//LL_RECORD_BLOCK_TIME(FTM_IBO_FLUSH_RANGE);
 #ifdef GL_ARB_map_buffer_range
 							glFlushMappedBufferRange(GL_ELEMENT_ARRAY_BUFFER_ARB, offset, length);
 #endif
@@ -2116,7 +2136,8 @@ bool LLVertexBuffer::bindGLArray()
 	if (mGLArray && sGLRenderArray != mGLArray)
 	{
 		{
-			LL_RECORD_BLOCK_TIME(FTM_BIND_GL_ARRAY);
+			// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+			//LL_RECORD_BLOCK_TIME(FTM_BIND_GL_ARRAY);
 #if GL_ARB_vertex_array_object
 			glBindVertexArray(mGLArray);
 #endif
@@ -2167,7 +2188,8 @@ bool LLVertexBuffer::bindGLIndices(bool force_bind)
 	bool ret = false;
 	if (useVBOs() && (force_bind || (mGLIndices && (mGLIndices != sGLRenderIndices || !sIBOActive))))
 	{
-		LL_RECORD_BLOCK_TIME(FTM_BIND_GL_INDICES);
+		// <FS:ND/> Fast timers can have measurable impact in frequent places. A better all around solution would be to disable all fast timers until the fast timer view is open. But we're not there yet.
+		//LL_RECORD_BLOCK_TIME(FTM_BIND_GL_INDICES);
 		/*if (sMapped)
 		{
 			LL_ERRS() << "VBO bound while another VBO mapped!" << LL_ENDL;
@@ -2233,7 +2255,9 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				
 				U32 unsatisfied_mask = (required_mask & ~data_mask);
-				for (U32 i = 0; i < TYPE_MAX; ++i)
+				U32 i = 0;
+
+				while (i < TYPE_MAX)
 				{
                     U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
 					switch (unsatisfied_flag)
