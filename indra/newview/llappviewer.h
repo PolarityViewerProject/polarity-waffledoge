@@ -62,6 +62,8 @@ extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
 static LLFrameTimer gUptimeTimer;
 
+static std::string gUptimeString;
+
 class LLAppViewer : public LLApp
 {
 public:
@@ -334,7 +336,7 @@ public:
 
 	public:
 		static std::string mSessionTime;
-		static std::string updateSessionTime();
+		static std::string getSessionUptime();
 };
 
 // consts from viewer.h

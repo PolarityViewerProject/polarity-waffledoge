@@ -352,7 +352,10 @@ public:
 			S32 mins = (S32)((time - hours*(60*60)) / 60);
 			S32 secs = (S32)((time - hours*(60*60) - mins*60));
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
-		}
+			}
+			{
+				addText(xpos, ypos, LLAppViewer::getSessionUptime()); ypos += y_inc;
+			}
 		}
 		
 #if LL_WINDOWS

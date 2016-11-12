@@ -370,9 +370,6 @@ static std::string gLaunchFileOnQuit;
 // MUST match LLAppViewerWin32::sWindowClass
 //const char* const VIEWER_WINDOW_CLASSNAME = APP_NAME;
 
-// Misc things
-std::string LLAppViewer::mSessionTime = "";
-
 //-- LLDeferredTaskList ------------------------------------------------------
 
 /**
@@ -1316,20 +1313,6 @@ LLTrace::BlockTimerStatHandle FTM_FRAME("Frame");
 
 bool LLAppViewer::frame()
 {
-#if LL_WINDOWS // Untested on non-MSVC compilers
-// Make sure we don't accidentally run into performance problems due to denormals.
-// See https://en.wikipedia.org/wiki/Denormal_number
-// TODO: Find a more elegant way to do this.
-// Undefine previous denormal handling mode
-#undef _MM_SET_FLUSH_ZERO_MODE
-#undef _MM_SET_DENORMALS_ZERO_MODE
-// Re-define for performance at some correctness cost.
-#define _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON)
-#define _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON)
-#endif // LL_WINDOWS
-
-
-		gUptimeTimer.start();
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 
@@ -1348,6 +1331,16 @@ bool LLAppViewer::frame()
 
 	//check memory availability information
 	checkMemory() ;
+	
+	if (!gUptimeTimer.getStarted())
+	{
+		gUptimeTimer.start();
+	}
+	F32 time = gUptimeTimer.getElapsedTimeF32();
+	S32 hours = (S32)(time / (60 * 60));
+	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
+	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
+	gUptimeString = llformat("%d:%02d:%02d", hours, mins, secs);
 
 	try
 	{
@@ -3403,7 +3396,7 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
 
-	info["UPTIME"] = updateSessionTime();
+	info["UPTIME"] = getSessionUptime();
 
 	return info;
 }
@@ -4779,7 +4772,6 @@ static LLTrace::BlockTimerStatHandle FTM_HUD_EFFECTS("HUD Effects");
 ///////////////////////////////////////////////////////
 void LLAppViewer::idle()
 {
-	LLAppViewer::updateSessionTime();
 	pingMainloopTimeout("Main:Idle");
 	
 	// Update frame timers
@@ -5968,22 +5960,19 @@ private:
 // PLVR TODO: set username at login and keep values somewhere for re-use if setting changes.
 std::string LLAppViewer::PVGetDynamicWindowTitle()
 {
-	if (!gViewerWindow || LLAppViewer::isQuitting())
+	// Limit updates after login
+	if (!gViewerWindow
+		|| isQuitting()
+		|| LLStartUp::getStartupState() <= STATE_PRECACHE
+		|| (mTitleBarUpdateTimer.getStarted() && mTitleBarUpdateTimer.getElapsedTimeF32() < 1.f)
+		)
 	{
 		return gWindowTitle;
 	}
-	// Limit updates after login
-	if (LLStartUp::getStartupState() >= STATE_PRECACHE)
+	if (!mTitleBarUpdateTimer.getStarted())
 	{
-		// TODO: Use a callback mechanism instead perhaps?
-		if (!mTitleBarUpdateTimer.getStarted())
-		{
-			mTitleBarUpdateTimer.start();
-		}
-		else if (mTitleBarUpdateTimer.getElapsedTimeF32() < 1.f)
-		{
-			return gWindowTitle;
-		}
+		mTitleBarUpdateTimer.start();
+		return gWindowTitle;
 	}
 	std::string last_title = gWindowTitle;
 	std::string new_title;
@@ -6106,12 +6095,7 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 // </polarity>
 
 //static
-std::string LLAppViewer::updateSessionTime()
+std::string LLAppViewer::getSessionUptime()
 {
-	F32 time = gUptimeTimer.getElapsedTimeF32();
-	S32 hours = (S32)(time / (60 * 60));
-	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
-	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
-	mSessionTime = llformat("%d:%02d:%02d", hours, mins, secs);
-	return mSessionTime;
+	return gUptimeString;
 }
