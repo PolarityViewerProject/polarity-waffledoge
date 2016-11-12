@@ -1291,7 +1291,7 @@ void LLPluginClassMedia::set_cookies(const std::string &cookies)
 
 void LLPluginClassMedia::enable_cookies(bool enable)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "enable_cookies");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookies_enabled");
 	message.setValueBoolean("enable", enable);
 	sendMessage(message);
 }

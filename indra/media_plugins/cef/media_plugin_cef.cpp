@@ -28,9 +28,6 @@
 
 #include "linden_common.h"
 
-#if LL_WINDOWS
-#pragma warning (disable : 4265)
-#endif
 
 #include "indra_constants.h" // for indra keyboard codes
 
@@ -41,7 +38,9 @@
 #include "llpluginmessageclasses.h"
 #include "media_plugin_base.h"
 
-#include <functional>
+#include "boost/function.hpp"
+#include "boost/bind.hpp"
+
 #include "llceflib.h"
 #include "volume_catcher.h"
 
@@ -502,20 +501,20 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			if (message_name == "init")
 			{
 				// event callbacks from LLCefLib
-				mLLCEFLib->setOnPageChangedCallback(std::bind(&MediaPluginCEF::onPageChangedCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6));
-				mLLCEFLib->setOnCustomSchemeURLCallback(std::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnConsoleMessageCallback(std::bind(&MediaPluginCEF::onConsoleMessageCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-				mLLCEFLib->setOnStatusMessageCallback(std::bind(&MediaPluginCEF::onStatusMessageCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnTitleChangeCallback(std::bind(&MediaPluginCEF::onTitleChangeCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnLoadStartCallback(std::bind(&MediaPluginCEF::onLoadStartCallback, this));
-				mLLCEFLib->setOnLoadEndCallback(std::bind(&MediaPluginCEF::onLoadEndCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnAddressChangeCallback(std::bind(&MediaPluginCEF::onAddressChangeCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnNavigateURLCallback(std::bind(&MediaPluginCEF::onNavigateURLCallback, this, std::placeholders::_1, std::placeholders::_2));
-				mLLCEFLib->setOnHTTPAuthCallback(std::bind(&MediaPluginCEF::onHTTPAuthCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4));
-				mLLCEFLib->setOnFileDownloadCallback(std::bind(&MediaPluginCEF::onFileDownloadCallback, this, std::placeholders::_1));
-				mLLCEFLib->setOnFileDialogCallback(std::bind(&MediaPluginCEF::onFileDialogCallback, this));
-				mLLCEFLib->setOnCursorChangedCallback(std::bind(&MediaPluginCEF::onCursorChangedCallback, this, std::placeholders::_1, std::placeholders::_2));
-				mLLCEFLib->setOnRequestExitCallback(std::bind(&MediaPluginCEF::onRequestExitCallback, this));
+				mLLCEFLib->setOnPageChangedCallback(boost::bind(&MediaPluginCEF::onPageChangedCallback, this, _1, _2, _3, _4, _5, _6));
+				mLLCEFLib->setOnCustomSchemeURLCallback(boost::bind(&MediaPluginCEF::onCustomSchemeURLCallback, this, _1));
+				mLLCEFLib->setOnConsoleMessageCallback(boost::bind(&MediaPluginCEF::onConsoleMessageCallback, this, _1, _2, _3));
+				mLLCEFLib->setOnStatusMessageCallback(boost::bind(&MediaPluginCEF::onStatusMessageCallback, this, _1));
+				mLLCEFLib->setOnTitleChangeCallback(boost::bind(&MediaPluginCEF::onTitleChangeCallback, this, _1));
+				mLLCEFLib->setOnLoadStartCallback(boost::bind(&MediaPluginCEF::onLoadStartCallback, this));
+				mLLCEFLib->setOnLoadEndCallback(boost::bind(&MediaPluginCEF::onLoadEndCallback, this, _1));
+				mLLCEFLib->setOnAddressChangeCallback(boost::bind(&MediaPluginCEF::onAddressChangeCallback, this, _1));
+				mLLCEFLib->setOnNavigateURLCallback(boost::bind(&MediaPluginCEF::onNavigateURLCallback, this, _1, _2));
+				mLLCEFLib->setOnHTTPAuthCallback(boost::bind(&MediaPluginCEF::onHTTPAuthCallback, this, _1, _2, _3, _4));
+				mLLCEFLib->setOnFileDownloadCallback(boost::bind(&MediaPluginCEF::onFileDownloadCallback, this, _1));
+				mLLCEFLib->setOnFileDialogCallback(boost::bind(&MediaPluginCEF::onFileDialogCallback, this));
+				mLLCEFLib->setOnCursorChangedCallback(boost::bind(&MediaPluginCEF::onCursorChangedCallback, this, _1, _2));
+				mLLCEFLib->setOnRequestExitCallback(boost::bind(&MediaPluginCEF::onRequestExitCallback, this));
 
 				LLCEFLib::LLCEFLibSettings settings;
 				settings.initial_width = 1024;
@@ -527,11 +526,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				settings.cookie_store_path = mCookiePath;
 				settings.cache_enabled = true;
 				settings.cache_path = mCachePath;
-				settings.locale = generate_cef_locale(mHostLanguage);
 				settings.accept_language_list = mHostLanguage;
 				settings.user_agent_substring = mLLCEFLib->makeCompatibleUserAgentString(mUserAgentSubtring);
-				settings.debug_output = mEnableMediaPluginDebugging;
-				settings.log_file = mLogFile;
 
 				bool result = mLLCEFLib->init(settings);
 				if (!result)
@@ -555,10 +551,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 			{
 				std::string user_data_path_cache = message_in.getValue("cache_path");
 				std::string user_data_path_cookies = message_in.getValue("cookies_path");
-				std::string user_data_path_logs = message_in.getValue("logs_path");
 				mCachePath = user_data_path_cache + "cef_cache";
 				mCookiePath = user_data_path_cookies + "cef_cookies";
-				mLogFile = user_data_path_logs + "cef.log";
 			}
 			else if (message_name == "size_change")
 			{
@@ -706,7 +700,8 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
                 keyEvent(key_event, key, LLCEFLib::KM_MODIFIER_NONE, native_key_data);
 
 #endif
-#elif LL_WINDOWS
+//#elif LL_WINDOWS // <FS:ND/> Windows & Linux
+#else
 				std::string event = message_in.getValue("event");
 				S32 key = message_in.getValueS32("key");
 				std::string modifiers = message_in.getValue("modifiers");
@@ -848,6 +843,13 @@ void MediaPluginCEF::deserializeKeyboardData(LLSD native_key_data, uint32_t& nat
 		native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
 		// TODO: I don't think we need to do anything with native modifiers here -- please verify
 #endif
+#if LL_LINUX
+		native_scan_code = (uint32_t)(native_key_data["sdl_sym"].asInteger());
+		native_virtual_key = (uint32_t)(native_key_data["virtual_key"].asInteger());
+		native_modifiers = (uint32_t)(native_key_data["cef_modifiers"].asInteger());
+		if( native_scan_code == '\n' )
+			native_scan_code = '\r';
+#endif
 	};
 };
 
@@ -882,7 +884,14 @@ void MediaPluginCEF::keyEvent(LLCEFLib::EKeyEvent key_event, int key, LLCEFLib::
 
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
 #endif
-};
+#if LL_LINUX
+	uint32_t native_scan_code = 0;
+	uint32_t native_virtual_key = 0;
+	uint32_t native_modifiers = 0;
+	deserializeKeyboardData(native_key_data, native_scan_code, native_virtual_key, native_modifiers);
+	mLLCEFLib->nativeKeyboardEvent(key_event, native_scan_code, native_virtual_key, native_modifiers);
+#endif
+}
 
 void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboardModifier modifiers, LLSD native_key_data = LLSD::emptyMap())
 {
@@ -904,6 +913,14 @@ void MediaPluginCEF::unicodeInput(const std::string &utf8str, LLCEFLib::EKeyboar
 	U32 wparam = ll_U32_from_sd(native_key_data["w_param"]);
 	U64 lparam = ll_U32_from_sd(native_key_data["l_param"]);
 	mLLCEFLib->nativeKeyboardEvent(msg, wparam, lparam);
+#endif
+#if LL_LINUX && FS_CEFLIB_VERSION <= 7
+	uint32_t native_scan_code = 0;
+	uint32_t native_virtual_key = 0;
+	uint32_t native_modifiers = 0;
+	deserializeKeyboardData(native_key_data, native_scan_code, native_virtual_key, native_modifiers);
+	mLLCEFLib->nativeKeyboardEvent(LLCEFLib::KE_KEY_DOWN, native_scan_code, native_virtual_key, native_modifiers);
+	mLLCEFLib->nativeKeyboardEvent(LLCEFLib::KE_KEY_UP, native_scan_code, native_virtual_key, native_modifiers);
 #endif
 };
 

@@ -221,8 +221,12 @@ attributedStringInfo getSegments(NSAttributedString *str)
 
 - (id) initWithFrame:(NSRect)frame withSamples:(NSUInteger)samples andVsync:(BOOL)vsync
 {
+	// <FS> Fix some bad refcount code and squash some potential leakiness; by Cinder Roxley
+	self = [super initWithFrame:frame];
+	if (!self) { return self; }	// Despite what this may look like, returning nil self is a-ok.
+	// <F/S>
 	[self registerForDraggedTypes:[NSArray arrayWithObject:NSURLPboardType]];
-	[self initWithFrame:frame];
+	//[self initWithFrame:frame]; <FS> Fix some bad refcount code and squash some potential leakiness; by Cinder Roxley
 	
 	// Initialize with a default "safe" pixel format that will work with versions dating back to OS X 10.6.
 	// Any specialized pixel formats, i.e. a core profile pixel format, should be initialized through rebuildContextWithFormat.
@@ -232,8 +236,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		NSOpenGLPFADoubleBuffer,
 		NSOpenGLPFAClosestPolicy,
 		NSOpenGLPFAAccelerated,
-		NSOpenGLPFASampleBuffers, (samples > 0 ? 1 : 0),
-		NSOpenGLPFASamples, samples,
+		NSOpenGLPFASampleBuffers, static_cast<NSOpenGLPixelFormatAttribute>(samples > 0 ? 1 : 0),
+		NSOpenGLPFASamples, static_cast<NSOpenGLPixelFormatAttribute>(samples),
 		NSOpenGLPFAStencilSize, 8,
 		NSOpenGLPFADepthSize, 24,
 		NSOpenGLPFAAlphaSize, 8,
@@ -249,7 +253,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 		return nil;
 	}
 	
-	NSOpenGLContext *glContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+	// <FS> Fix some bad refcount code and squash some potential leakiness; by Cinder Roxley
+	//NSOpenGLContext *glContext = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
+	NSOpenGLContext *glContext = [[[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil] autorelease];
+	// </FS>
 	
 	if (glContext == nil)
 	{
@@ -291,7 +298,10 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	NSOpenGLContext *ctx = [self openGLContext];
 	
 	[ctx clearDrawable];
-	[ctx initWithFormat:format shareContext:nil];
+	// <FS> Fix some bad refcount code and squash some potential leakiness; by Cinder Roxley
+	//[ctx initWithFormat:format shareContext:nil];
+	ctx = [[[NSOpenGLContext alloc] initWithFormat:format shareContext:nil] autorelease];
+	// </FS>
 	
 	if (ctx == nil)
 	{
@@ -370,8 +380,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 - (void)mouseMoved:(NSEvent *)theEvent
 {
 	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaY]
+		static_cast<float>([theEvent deltaX]),
+		static_cast<float>([theEvent deltaY])
 	};
 	
 	callDeltaUpdate(mouseDeltas, 0);
@@ -391,8 +401,8 @@ attributedStringInfo getSegments(NSAttributedString *str)
 	// The old CoreGraphics APIs we previously relied on are now flagged as obsolete.
 	// NSEvent isn't obsolete, and provides us with the correct deltas.
 	float mouseDeltas[2] = {
-		[theEvent deltaX],
-		[theEvent deltaY]
+		static_cast<float>([theEvent deltaX]),
+		static_cast<float>([theEvent deltaY])
 	};
 	
 	callDeltaUpdate(mouseDeltas, 0);
@@ -471,11 +481,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     // OS X intentionally does not send us key-up information on cmd-key combinations.
     // This behaviour is not a bug, and only applies to cmd-combinations (no others).
     // Since SL assumes we receive those, we fake it here.
-    if (mModifiers & NSCommandKeyMask && !mHasMarkedText)
-    {
-        eventData.mKeyEvent = NativeKeyEventData::KEYUP;
-        callKeyUp(&eventData, [theEvent keyCode], mModifiers);
-    }
+    // <FS:Ansariel> Cinder Roxley's fix for FIRE-11648
+    //if (mModifiers & NSCommandKeyMask && !mHasMarkedText)
+    //{
+    //    eventData.mKeyEvent = NativeKeyEventData::KEYUP;
+    //    callKeyUp([theEvent keyCode], mModifiers);
+    //}
+    // </FS:Ansariel>
 }
 
 - (void)flagsChanged:(NSEvent *)theEvent
@@ -592,13 +604,13 @@ attributedStringInfo getSegments(NSAttributedString *str)
     if (mMarkedTextAllowed)
     {
         unsigned int selected[2] = {
-            selectedRange.location,
-            selectedRange.length
+            static_cast<unsigned int>(selectedRange.location),
+            static_cast<unsigned int>(selectedRange.length)
         };
         
         unsigned int replacement[2] = {
-            replacementRange.location,
-            replacementRange.length
+            static_cast<unsigned int>(replacementRange.location),
+            static_cast<unsigned int>(replacementRange.length)
         };
         
         int string_length = [aString length];
