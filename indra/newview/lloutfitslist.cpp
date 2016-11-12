@@ -789,7 +789,6 @@ bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y)
 LLOutfitListBase::LLOutfitListBase()
     :   LLPanelAppearanceTab()
     ,   mIsInitialized(false)
-	,	mAvatarComplexityLabel(NULL) // <FS:Ansariel> Show avatar complexity in appearance floater
 {
     mCategoriesObserver = new LLInventoryCategoriesObserver();
     mOutfitMenu = new LLOutfitContextMenu(this);
@@ -904,15 +903,6 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
 		LL_WARNS() << "Capped outfits to " << nCap << " due to debug setting FSDisplaySavedOutfitsCap" << LL_ENDL;
 	}
 	// </FS:ND>
-
-	// <FS:Ansariel> FIRE-12939: Add outfit count to outfits list
-	{
-		std::string count_string;
-		LLLocale locale("");
-		LLResMgr::getInstance()->getIntegerString(count_string, (S32)cat_array.size());
-		getChild<LLTextBox>("OutfitcountText")->setTextArg("COUNT", count_string);
-	}
-	// </FS:Ansariel>
 
     // Handle added tabs.
     for (uuid_vec_t::const_iterator iter = vadded.begin();
@@ -1045,9 +1035,6 @@ BOOL LLOutfitListBase::postBuild()
 {
     mGearMenu = createGearMenu();
 
-	// <FS:Ansariel> Show avatar complexity in appearance floater
-	mAvatarComplexityLabel = getChild<LLTextBox>("avatar_complexity_label");
-
     LLMenuButton* menu_gear_btn = getChild<LLMenuButton>("options_gear_btn");
 
     menu_gear_btn->setMouseDownCallback(boost::bind(&LLOutfitListGearMenuBase::updateItemsVisibility, mGearMenu));
@@ -1073,17 +1060,6 @@ void LLOutfitListBase::deselectOutfit(const LLUUID& category_id)
         signalSelectionOutfitUUID(LLUUID::null);
     }
 }
-
-// <FS:Ansariel> Show avatar complexity in appearance floater
-void LLOutfitListBase::updateAvatarComplexity(U32 complexity)
-{
-	std::string complexity_string;
-	LLLocale locale("");
-	LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
-
-	mAvatarComplexityLabel->setTextArg("[WEIGHT]", complexity_string);
-}
-// </FS:Ansariel>
 
 LLContextMenu* LLOutfitContextMenu::createMenu()
 {

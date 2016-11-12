@@ -64,9 +64,6 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 	observer.addBOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 	observer.addCOFChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
 	observer.addOutfitLockChangedCallback(boost::bind(&LLPanelOutfitsInventory::updateVerbs, this));
-
-	// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
-	mCategoriesObserver = new LLInventoryCategoriesObserver();
 }
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
@@ -106,12 +103,6 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 			panel_appearance->fetchInventory();
 			panel_appearance->refreshCurrentOutfitName();
 		}
-
-		// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
-		gInventory.addObserver(mCategoriesObserver);
-		mCategoriesObserver->addCategory(LLAppearanceMgr::instance().getCOF(), boost::bind(&LLPanelOutfitsInventory::onCOFChanged, this));
-		onCOFChanged();
-		// </FS:Ansariel>
 
 		// <FS:Ansariel> FIRE-20180: Select last tab when actually opening the appearance floater for the first time
 		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
@@ -245,24 +236,6 @@ void LLPanelOutfitsInventory::onSave()
 	LLNotificationsUtil::add("SaveOutfitAs", args, payload, boost::bind(&LLPanelOutfitsInventory::onSaveCommit, this, _1, _2));
 }
 
-// <FS:Ansariel> FIRE-17626: Attachment count in appearance floater
-void LLPanelOutfitsInventory::onCOFChanged()
-{
-	const LLUUID cof = LLAppearanceMgr::instance().getCOF();
-	LLInventoryModel::item_array_t obj_items;
-	LLInventoryModel::cat_array_t cats;
-	LLIsType is_of_type(LLAssetType::AT_OBJECT);
-	gInventory.collectDescendentsIf(cof, cats, obj_items, LLInventoryModel::EXCLUDE_TRASH, is_of_type);
-	U32 attachments = obj_items.size();
-
-	LLStringUtil::format_map_t args;
-	args["COUNT"] = llformat("%d", attachments);
-	args["MAX"] = llformat("%d", MAX_AGENT_ATTACHMENTS);
-	std::string title = getString("cof_tab_label", args);
-	mAppearanceTabs->setPanelTitle(mAppearanceTabs->getIndexForPanel(mCurrentOutfitPanel), title);
-}
-// </FS:Ansariel>
-
 //static
 LLPanelOutfitsInventory* LLPanelOutfitsInventory::findInstance()
 {
@@ -390,13 +363,3 @@ LLSidepanelAppearance* LLPanelOutfitsInventory::getAppearanceSP()
 		dynamic_cast<LLSidepanelAppearance*>(LLFloaterSidePanelContainer::getPanel("appearance"));
 	return panel_appearance;
 }
-
-// <FS:Ansariel> Show avatar complexity in appearance floater
-void LLPanelOutfitsInventory::updateAvatarComplexity(U32 complexity)
-{
-	mOutfitGalleryPanel->updateAvatarComplexity(complexity);
-	mMyOutfitsPanel->updateAvatarComplexity(complexity);
-	mCurrentOutfitPanel->updateAvatarComplexity(complexity);
-}
-// </FS:Ansariel>
-
