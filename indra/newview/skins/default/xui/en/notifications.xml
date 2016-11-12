@@ -11111,6 +11111,7 @@ Changes won't take effect until after you restart [APP_NAME].
    icon="alert.tga"
    name="OutfitPhotoLoadError"
    type="alertmodal">
+ </notification>
 
   <notification
    icon="notifytip.tga"
