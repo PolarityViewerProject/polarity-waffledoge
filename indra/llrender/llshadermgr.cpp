@@ -506,6 +506,12 @@ static std::string get_shader_log(GLuint ret)
 		res = std::string((char *)log);
 		delete[] log;
 	}
+	// <FS:LO> Fix intel GLSL compiler spitting out "No errors." instead of an empty string like others do when there are no errors, causing log spam.
+	if(!strcmp(res.c_str(),"No errors.\n"))
+	{
+		res = "";
+	}
+	// </FS:LO>
 	return res;
 }
 
