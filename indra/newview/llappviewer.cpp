@@ -3396,7 +3396,7 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["SERVER_RELEASE_NOTES_URL"] = mServerReleaseNotesURL;
 	}
 
-	info["UPTIME"] = getSessionUptime();
+	info["UPTIME"] = secondsToTimeString(gUptimeTimer.getElapsedTimeF32());
 
 	return info;
 }
@@ -6095,7 +6095,11 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 // </polarity>
 
 //static
-std::string LLAppViewer::getSessionUptime()
+std::string LLAppViewer::secondsToTimeString(const F32& seconds_in_f32)
 {
-	return gUptimeString;
+	F32 time = seconds_in_f32;
+	S32 hours = (S32)(time / (60 * 60));
+	S32 mins = (S32)((time - hours*(60 * 60)) / 60);
+	S32 secs = (S32)((time - hours*(60 * 60) - mins * 60));
+	return llformat("%d:%02d:%02d", hours, mins, secs);
 }

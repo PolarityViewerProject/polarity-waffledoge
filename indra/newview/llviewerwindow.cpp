@@ -340,22 +340,21 @@ public:
 			const U32 y_inc2 = 15;
 				LLFrameTimer& timer = gTextureTimer;
 				F32 time = timer.getElapsedTimeF32();
-				S32 hours = (S32)(time / (60*60));
-				S32 mins = (S32)((time - hours*(60*60)) / 60);
-				S32 secs = (S32)((time - hours*(60*60) - mins*60));
-				addText(xpos, ypos, llformat("Texture: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc2;
+				//S32 hours = (S32)(time / (60*60));
+				//S32 mins = (S32)((time - hours*(60*60)) / 60);
+				//S32 secs = (S32)((time - hours*(60*60) - mins*60));
+				//addText(xpos, ypos, llformat("Texture: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc2;
+				addText(xpos, ypos, "Texture: " + LLAppViewer::secondsToTimeString(time)); ypos += y_inc2;
 			}
 			
 			{
-			F32 time = gFrameTimeSeconds;
-			S32 hours = (S32)(time / (60*60));
-			S32 mins = (S32)((time - hours*(60*60)) / 60);
-			S32 secs = (S32)((time - hours*(60*60) - mins*60));
-			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
-			}
-			{
-				addText(xpos, ypos, LLAppViewer::getSessionUptime()); ypos += y_inc;
-			}
+			//F32 time = gFrameTimeSeconds;
+			//S32 hours = (S32)(time / (60*60));
+			//S32 mins = (S32)((time - hours*(60*60)) / 60);
+			//S32 secs = (S32)((time - hours*(60*60) - mins*60));
+			//addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
+			addText(xpos, ypos, "Uptime: " + LLAppViewer::secondsToTimeString(gFrameTimeSeconds)); ypos += y_inc;
+		}
 		}
 		
 #if LL_WINDOWS
