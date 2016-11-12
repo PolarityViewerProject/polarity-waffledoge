@@ -463,8 +463,17 @@ BOOL LLFloaterPreference::postBuild()
 
 #if INTERNAL_BUILD
 	auto auth_box = getChild<LLTextEditor>("auth_token_editor");
-	auth_box->setEnabled(TRUE);
-	auth_box->setVisible(TRUE);
+	if(auth_box)
+	{
+		auth_box->setEnabled(TRUE);
+		auth_box->setVisible(TRUE);
+	}
+	auto auth_text = getChild<LLTextBox>("auth_token_text");
+	if(auth_text)
+	{
+		auth_text->setVisible(TRUE);
+	}
+	
 #endif
 
 	// if floater is opened before login set default localized do not disturb message

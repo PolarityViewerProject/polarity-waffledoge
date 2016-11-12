@@ -13243,7 +13243,7 @@
       <key>Value</key>
       <integer>15</integer>
     </map>
-    <key>UpdaterServiceSetting</key>
+<!--     <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
       <string>Configure updater service.</string>
@@ -13253,7 +13253,7 @@
       <string>U32</string>
       <key>Value</key>
       <integer>3</integer>
-    </map>
+    </map> -->
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>
