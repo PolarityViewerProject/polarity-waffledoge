@@ -123,12 +123,10 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#if !LL_LINUX
 #include "cef/llceflib.h"
-#if LL_WINDOWS
+#if defined(LINK_VLC_PLUGIN) && defined(LL_WINDOWS) || defined(LL_LINUX)
 #include "vlc/libvlc_version.h"
-#endif // LL_WINDOWS
-#endif // LL_LINUX
+#endif
 
 // Third party library includes
 #include <boost/bind.hpp>
@@ -3364,7 +3362,8 @@ LLSD LLAppViewer::getViewerInfo() const
 
 #endif
 
-#if LL_WINDOWS
+
+#if LL_WINDOWS && LINK_VLC_PLUGIN
 	std::ostringstream ver_codec;
 	ver_codec << LIBVLC_VERSION_MAJOR;
 	ver_codec << ".";

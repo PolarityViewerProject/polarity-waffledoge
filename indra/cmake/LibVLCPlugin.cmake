@@ -1,7 +1,9 @@
 # -*- cmake -*-
 include(Linking)
 include(Prebuilt)
+option(LINK_VLC_PLUGIN "Link VLC plugin. Option exists because it breaks." OFF)
 
+if (LINK_VLC_PLUGIN)
 if (USESYSTEMLIBS)
     set(LIBVLCPLUGIN OFF CACHE BOOL
         "LIBVLCPLUGIN support for the llplugin/llmedia test apps.")
@@ -25,3 +27,4 @@ elseif (LINUX)
         ${LIBS_PREBUILT_DIR}/lib/libvlccore.a
     )
 endif (WINDOWS)
+endif (LINK_VLC_PLUGIN)
