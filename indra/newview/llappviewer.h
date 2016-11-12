@@ -336,7 +336,7 @@ public:
 
 	public:
 		static std::string mSessionTime;
-		static std::string getSessionUptime();
+		static std::string secondsToTimeString(const F32& seconds_in_f32);
 };
 
 // consts from viewer.h
