@@ -354,7 +354,7 @@ public:
 			addText(xpos, ypos, llformat("Time: %d:%02d:%02d", hours,mins,secs)); ypos += y_inc;
 			}
 			{
-				addText(xpos, ypos, "Uptime: " + LLAppViewer::getSessionUptime()); ypos += y_inc;
+				addText(xpos, ypos, LLAppViewer::getSessionUptime()); ypos += y_inc;
 			}
 		}
 		
