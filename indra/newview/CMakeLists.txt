@@ -336,6 +336,7 @@ set(viewer_SOURCE_FILES
     llfloaternamedesc.cpp
     llfloaternotificationsconsole.cpp
     llfloaternotificationstabbed.cpp
+    llfloateroutfitsnapshot.cpp
     llfloaterobjectweights.cpp
     llfloateropenobject.cpp
     llfloaterpathfindingcharacters.cpp
@@ -475,6 +476,7 @@ set(viewer_SOURCE_FILES
     llnotificationscripthandler.cpp
     llnotificationstorage.cpp
     llnotificationtiphandler.cpp
+    lloutfitgallery.cpp
     lloutfitslist.cpp
     lloutfitobserver.cpp
     lloutputmonitorctrl.cpp
@@ -947,6 +949,7 @@ set(viewer_HEADER_FILES
     llfloaternamedesc.h
     llfloaternotificationsconsole.h
     llfloaternotificationstabbed.h
+    llfloateroutfitsnapshot.h
     llfloaterobjectweights.h
     llfloateropenobject.h
     llfloaterpathfindingcharacters.h
@@ -1076,6 +1079,7 @@ set(viewer_HEADER_FILES
     llnotificationlistview.h
     llnotificationmanager.h
     llnotificationstorage.h
+    lloutfitgallery.h
     lloutfitslist.h
     lloutfitobserver.h
     lloutputmonitorctrl.h
@@ -1205,6 +1209,7 @@ set(viewer_HEADER_FILES
     llsky.h
     llslurl.h
     llsnapshotlivepreview.h
+    llsnapshotmodel.h
     llspatialpartition.h
     llspeakers.h
     llspeakingindicatormanager.h
@@ -1822,8 +1827,15 @@ if(WINDOWS)
       SLPlugin
       media_plugin_quicktime
       media_plugin_cef
+      # media_plugin_libvlc
       windows-crash-logger
       )
+
+    if(LINK_VLC_PLUGIN)
+        set(COPY_INPUT_DEPENDENCIES
+            media_plugin_libvlc
+        )
+    endif()
 
     if(FMODSTUDIO)
       if(WORD_SIZE EQUAL 64)
@@ -2051,8 +2063,15 @@ if(LINUX)
     linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
+    # media_plugin_libvlc
     llcommon
     )
+
+  if(LINK_VLC_PLUGIN)
+    set(COPY_INPUT_DEPENDENCIES
+        media_plugin_libvlc
+        )
+    endif()
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2164,6 +2183,11 @@ if(DARWIN)
 
   # FIXME: This violates CMake Standards (too long)
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_cef mac-crash-logger)
+
+  if(LINK_VLC_PLUGIN)
+    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc)
+  endif()
+    
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 
   if(ENABLE_SIGNING)

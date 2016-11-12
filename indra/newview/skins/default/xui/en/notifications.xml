@@ -11106,6 +11106,11 @@ Changes won't take effect until after you restart [APP_NAME].
      name="okbutton"
      yestext="OK"/>
   </notification>
+ 
+  <notification
+   icon="alert.tga"
+   name="OutfitPhotoLoadError"
+   type="alertmodal">
 
   <notification
    icon="notifytip.tga"

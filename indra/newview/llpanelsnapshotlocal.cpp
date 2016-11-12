@@ -33,6 +33,7 @@
 
 #include "llfloatersnapshot.h" // FIXME: replace with a snapshot storage model
 #include "llpanelsnapshot.h"
+#include "llsnapshotlivepreview.h"
 #include "llviewercontrol.h" // gSavedSettings
 #include "llviewerwindow.h"
 #include "llnotificationsutil.h"
@@ -59,7 +60,8 @@ private:
 	/*virtual*/ std::string getAspectRatioCBName() const	{ return "local_keep_aspect_check"; }
 	/*virtual*/ std::string getImageSizeComboName() const	{ return "local_size_combo"; }
 	/*virtual*/ std::string getImageSizePanelName() const	{ return "local_image_size_lp"; }
-	/*virtual*/ LLFloaterSnapshot::ESnapshotFormat getImageFormat() const;
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const;
+	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
 	/*virtual*/ void updateControls(const LLSD& info);
 
 	// <FS:Ansariel> Threaded filepickers
@@ -101,23 +103,23 @@ void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 }
 
 // virtual
-LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
+LLSnapshotModel::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 {
-	LLFloaterSnapshot::ESnapshotFormat fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG;
+	LLSnapshotModel::ESnapshotFormat fmt = LLSnapshotModel::SNAPSHOT_FORMAT_PNG;
 
 	LLComboBox* local_format_combo = getChild<LLComboBox>("local_format_combo");
 	const std::string id  = local_format_combo->getValue().asString();
 	if (id == "PNG")
 	{
-		fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_PNG;
+		fmt = LLSnapshotModel::SNAPSHOT_FORMAT_PNG;
 	}
 	else if (id == "JPEG")
 	{
-		fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG;
+		fmt = LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
 	}
 	else if (id == "BMP")
 	{
-		fmt = LLFloaterSnapshot::SNAPSHOT_FORMAT_BMP;
+		fmt = LLSnapshotModel::SNAPSHOT_FORMAT_BMP;
 	}
 
 	return fmt;
@@ -126,11 +128,11 @@ LLFloaterSnapshot::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 // virtual
 void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
-	LLFloaterSnapshot::ESnapshotFormat fmt =
-		(LLFloaterSnapshot::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+	LLSnapshotModel::ESnapshotFormat fmt =
+		(LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
 	getChild<LLComboBox>("local_format_combo")->selectNthItem((S32) fmt);
 
-	const bool show_quality_ctrls = (fmt == LLFloaterSnapshot::SNAPSHOT_FORMAT_JPEG);
+	const bool show_quality_ctrls = (fmt == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
 	getChild<LLUICtrl>("image_quality_slider")->setVisible(show_quality_ctrls);
 	getChild<LLUICtrl>("image_quality_level")->setVisible(show_quality_ctrls);
 
@@ -170,7 +172,7 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 
 	floater->notify(LLSD().with("set-working", true));
 	// <FS:Ansariel> Threaded filepickers
-	//BOOL saved = LLFloaterSnapshot::saveLocal();
+	//BOOL saved = floater->saveLocal();
 	//if (saved)
 	//{
 	//	LLFloaterSnapshot::postSave();
@@ -180,7 +182,7 @@ void LLPanelSnapshotLocal::onSaveFlyoutCommit(LLUICtrl* ctrl)
 	//{
 	//	cancel();
 	//}
-	LLFloaterSnapshot::saveLocal(boost::bind(&LLPanelSnapshotLocal::saveLocalCallback, this, _1));
+	floater->saveLocal(boost::bind(&LLPanelSnapshotLocal::saveLocalCallback, this, _1));
 	// </FS:Ansariel>
 }
 // <FS:Ansariel> Threaded filepickers
@@ -190,7 +192,7 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 
 	if (success)
 	{
-		LLFloaterSnapshot::postSave();
+		mSnapshotFloater->postSave();
 		floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
 	}
 	else
@@ -199,4 +201,8 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 		floater->notify(LLSD().with("set-ready", true));
 	}
 }
-// </FS:Ansariel>
+
+LLSnapshotModel::ESnapshotType LLPanelSnapshotLocal::getSnapshotType()
+{
+	return LLSnapshotModel::SNAPSHOT_LOCAL;
+}

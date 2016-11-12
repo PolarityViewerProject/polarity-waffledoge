@@ -30,8 +30,9 @@
 
 #include "llpanel.h"
 
+class LLOutfitGallery;
 class LLOutfitsList;
-class LLOutfitListGearMenu;
+class LLOutfitListGearMenuBase;
 class LLPanelAppearanceTab;
 class LLPanelWearing;
 class LLMenuGL;
@@ -56,6 +57,8 @@ public:
 
 	static LLSidepanelAppearance* getAppearanceSP();
 
+	LLOutfitsList*  getMyOutfitsPanel()		{ return mMyOutfitsPanel; }
+	LLPanelWearing* getCurrentOutfitPanel()	{ return mCurrentOutfitPanel; }
 	static LLPanelOutfitsInventory* findInstance();
 
 protected:
@@ -64,7 +67,7 @@ protected:
 private:
 	LLTabContainer*			mAppearanceTabs;
 	std::string 			mFilterSubString;
-	std::unique_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
+	std::auto_ptr<LLSaveOutfitComboBtn> mSaveComboBtn;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// tab panels                                                                   //
@@ -72,10 +75,13 @@ protected:
 	void 					initTabPanels();
 	void 					onTabChange();
 	bool 					isCOFPanelActive() const;
+	bool 					isOutfitsListPanelActive() const;
+	bool 					isOutfitsGalleryPanelActive() const;
 
 private:
 	LLPanelAppearanceTab*	mActivePanel;
 	LLOutfitsList*			mMyOutfitsPanel;
+    LLOutfitGallery*        mOutfitGalleryPanel;
 	LLPanelWearing*			mCurrentOutfitPanel;
 
 	// tab panels                                                                   //

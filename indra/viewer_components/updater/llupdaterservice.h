@@ -30,16 +30,17 @@
 #include <boost/function.hpp>
 #include "llmd5.h"
 //#include "llhasheduniqueid.h"
+#include "llexception.h"
 
 class LLUpdaterServiceImpl;
 
 class LLUpdaterService
 {
 public:
-	class UsageError: public std::runtime_error
+	class UsageError: public LLException
 	{
 	public:
-		explicit UsageError(const std::string& msg) : runtime_error(msg) {}
+		UsageError(const std::string& msg) : LLException(msg) {}
 	};
 	
 	// Name of the event pump through which update events will be delivered.
