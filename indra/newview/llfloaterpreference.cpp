@@ -1413,7 +1413,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("antialiasing restart")->setVisible(!LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred"));
+	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
