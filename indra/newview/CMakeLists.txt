@@ -1693,6 +1693,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_obsidian.xml
     app_settings/settings_per_account.xml
     app_settings/settings_polarity.xml
+    app_settings/settings_rlva.xml
     app_settings/std_bump.ini
     app_settings/toolbars.xml
     app_settings/trees.xml
