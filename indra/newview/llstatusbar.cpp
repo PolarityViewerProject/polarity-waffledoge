@@ -406,9 +406,8 @@ void LLStatusBar::refresh()
 			else
 			{
 
-#if VSYNC_DONE
-				// Not implemented yet!
-				U32 vsync_mode = gSavedSettings.getU32("PVRender_Vsync");
+				//U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
+				static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
 				if ((vsync_mode == 1 || vsync_mode == 2)
 					//get some wiggle room for imprecise limiting
 					&& (current_fps_normalized < (mRefreshRate + 2)
@@ -417,7 +416,6 @@ void LLStatusBar::refresh()
 					fps_color = color_vsync;
 				}
 				else
-#endif
 				{
 
 					// To be honest, this should be colorized according to the current raw fps, not the normalized value.

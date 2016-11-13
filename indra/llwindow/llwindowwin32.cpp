@@ -395,7 +395,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
 							 S32 height, U32 flags, 
 							 BOOL fullscreen, BOOL clearBg,
-							 BOOL disable_vsync, BOOL use_gl,
+							 EVSyncSetting vsync_setting, BOOL use_gl,
 							 BOOL ignore_pixel_depth,
 							 U32 fsaa_samples)
 	: LLWindow(callbacks, fullscreen, flags)
@@ -671,7 +671,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	LLCoordScreen windowPos(x,y);
 	LLCoordScreen windowSize(window_rect.right - window_rect.left,
 							 window_rect.bottom - window_rect.top);
-	if (!switchContext(mFullscreen, windowSize, TRUE, &windowPos))
+	if (!switchContext(mFullscreen, windowSize, vsync_setting, &windowPos))
 	{
 		return;
 	}
@@ -1024,7 +1024,7 @@ BOOL LLWindowWin32::setSizeImpl(const LLCoordWindow size)
 }
 
 // changing fullscreen resolution
-BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BOOL disable_vsync, const LLCoordScreen * const posp)
+BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp)
 {
 	GLuint	pixel_format;
 	DEVMODE dev_mode;
@@ -1638,11 +1638,34 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, BO
 		return FALSE;
 	}
 	
-	// Disable vertical sync for swap
-	if (disable_vsync && wglSwapIntervalEXT)
+	if (wglSwapIntervalEXT)
 	{
-		LL_DEBUGS("Window") << "Disabling vertical sync" << LL_ENDL;
-		wglSwapIntervalEXT(0);
+		switch (vsync_setting)
+		{
+		default:
+		case E_VSYNC_DISABLED:
+		{
+			LL_INFOS("Window") << "Disabling vertical sync" << LL_ENDL;
+			wglSwapIntervalEXT(0);
+			break;
+		}
+		case E_VSYNC_NORMAL:
+		{
+			LL_INFOS("Window") << "Enabling vertical sync" << LL_ENDL;
+			wglSwapIntervalEXT(1);
+			break;
+		}
+		case E_VSYNC_ADAPTIVE:
+		{
+			LL_INFOS("Window") << "Enabling adaptive vertical sync" << LL_ENDL;
+			if (!wglSwapIntervalEXT(-1))
+			{
+				LL_INFOS("Window") << "Adaptive vertical sync failed to enable, enabling regular vsync instead" << LL_ENDL;
+				wglSwapIntervalEXT(1);
+			}
+			break;
+		}
+		}
 	}
 	else
 	{
@@ -1992,12 +2015,12 @@ LRESULT CALLBACK LLWindowWin32::mainWindowProc(HWND h_wnd, UINT u_msg, WPARAM w_
 		MASK mask = (l_param>>16 & KF_EXTENDED) ? MASK_EXTENDED : 0x0;
 		BOOL eat_keystroke = TRUE;
 
+		RECT	update_rect;
+		S32		update_width;
+		S32		update_height;
+
 		switch(u_msg)
 		{
-			RECT	update_rect;
-			S32		update_width;
-			S32		update_height;
-
 		case WM_TIMER:
 			window_imp->mCallbacks->handlePingWatchdog(window_imp, "Main:WM_TIMER");
 			window_imp->mCallbacks->handleTimerEvent(window_imp);

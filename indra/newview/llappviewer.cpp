@@ -688,7 +688,7 @@ LLAppViewer::LLAppViewer()
 	mSavePerAccountSettings(false),		// don't save settings on logout unless login succeeded.
 	mQuitRequested(false),
 	mLogoutRequestSent(false),
-	mYieldTime(-1),
+	//mYieldTime(-1), // <polarity/> FPS Limiter
 	mLastAgentControlFlags(0),
 	mLastAgentForceUpdate(0),
 	mMainloopTimeout(NULL),
@@ -1316,7 +1316,10 @@ bool LLAppViewer::frame()
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 
-	LLTimer frameTimer,idleTimer;
+	// <polarity> FPS Limiter
+	//LLTimer frameTimer,idleTimer;
+	LLTimer frameTimer,idleTimer,periodicRenderingTimer;
+	// </polarity>
 	LLTimer debugTime;
 
 	LL_RECORD_BLOCK_TIME(FTM_FRAME);
@@ -1429,7 +1432,7 @@ bool LLAppViewer::frame()
 				display();
 				pingMainloopTimeout("Main:Snapshot");
 				LLFloaterSnapshot::update(); // take snapshots
-					LLFloaterOutfitSnapshot::update();
+				LLFloaterOutfitSnapshot::update();
 				gGLActive = FALSE;
 			}
 		}
@@ -1443,11 +1446,15 @@ bool LLAppViewer::frame()
 			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
 			
 			// yield some time to the os based on command line option
-			if(mYieldTime >= 0)
+			// <polarity> FPS Limiter
+			//if(mYieldTime >= 0)
+			static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime");
+			if(yield_time >= 0)
 			{
 				LL_RECORD_BLOCK_TIME(FTM_YIELD);
-				ms_sleep(mYieldTime);
+				ms_sleep(yield_time);
 			}
+			// </polarity> FPS Limiter
 
 			// yield cooperatively when not running as foreground window
 			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
@@ -1542,6 +1549,26 @@ bool LLAppViewer::frame()
 			{
 				gFrameStalls++;
 			}
+			// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
+			static LLCachedControl<F32> max_fps(gSavedSettings, "PVRender_FPSLimiterTarget");
+			static LLCachedControl<bool> frameLimiter(gSavedSettings, "PVRender_FPSLimiterEnabled", FALSE);
+			// Only limit FPS when we are actually rendering something. Otherwise
+			// logins, logouts and teleports take much longer to complete.
+			if (LLStartUp::getStartupState() == STATE_STARTED
+					&& frameLimiter && (max_fps > F_APPROXIMATELY_ZERO)
+					&& !gTeleportDisplay
+					&& !logoutRequestSent())
+			{
+				// Sleep a while to limit frame rate.
+				F32 min_frame_time = 1.000 / max_fps; // TODO: Convert to multiplication
+				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
+				if (milliseconds_to_sleep > 0)
+				{
+					LL_RECORD_BLOCK_TIME(FTM_YIELD);
+					ms_sleep(milliseconds_to_sleep);
+				}
+			}
+			// </polarity> FPS Limiter
 			frameTimer.reset();
 
 			resumeMainloopTimeout();

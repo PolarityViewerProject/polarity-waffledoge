@@ -849,6 +849,9 @@ void settings_setup_listeners()
 	// </Black Dragon:NiranV>
 
 	gSavedSettings.getControl("PVRender_ForceDepthClampSupport")->getSignal()->connect(boost::bind(&handleForceDepthClampSupport, _2));
+	
+	// <Alchemy:Drake> Adaptive V-Sync
+	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 }
 
 #if TEST_CACHED_CONTROL

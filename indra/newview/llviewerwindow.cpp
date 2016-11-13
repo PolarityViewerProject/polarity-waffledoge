@@ -1649,7 +1649,13 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLViewerWindow::sMovieBaseName = "SLmovie";
 	resetSnapshotLoc();
 
+	// Note: Cannot be a cached control without a typecast, see createWindow below.
+	U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
 
+	// <polarity> cache more settings
+	// TODO QA: Can't we use pipeline::RenderDeferred here?
+	//static LLCachedControl<bool> renderDeferred(gSavedSettings, "RenderDeferred");
+	static LLCachedControl<U32> fsaa_samples(gSavedSettings, "RenderFSAASamples");
 	/*
 	LLWindowCallbacks* callbacks,
 	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
@@ -1664,10 +1670,10 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		p.title, p.name, p.x, p.y, p.width, p.height, 0,
 		p.fullscreen, 
 		gHeadlessClient,
-		gSavedSettings.getBOOL("DisableVerticalSync"),
+		(EVSyncSetting)vsync_mode,
 		!gHeadlessClient,
 		p.ignore_pixel_depth,
-		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
+		gPipeline.RenderDeferred ? 0 : fsaa_samples); //don't use window level anti-aliasing if FBOs are enabled
 
 	if (!LLViewerShaderMgr::sInitialized)
 	{ //immediately initialize shaders

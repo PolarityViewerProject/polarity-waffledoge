@@ -96,7 +96,7 @@
 		Vertical Sync:
 	</text>
 	<combo_box
-	 control_name="PVRender_Vsync"
+	 control_name="PVRender_VsyncMode"
 	 height="22"
 	 initial_value="false"
 	 label="Vertical Sync"
@@ -125,7 +125,7 @@
 	 height="12"
 	 layout="topleft"
 	 left_pad="10"
-	 name="antialiasing restart"
+	 name="vsync_restart"
 	 top_delta="3"
 	 width="230">
 	(requires viewer restart)

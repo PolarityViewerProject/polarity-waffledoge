@@ -2676,7 +2676,7 @@
           Vertical Sync:
         </text>
         <combo_box
-          control_name="PVRender_Vsync"
+          control_name="PVRender_VsyncMode"
           height="21"
           initial_value="false"
           label="Vertical Sync"
