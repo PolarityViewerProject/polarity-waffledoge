@@ -2741,7 +2741,8 @@ bool LLAppViewer::initConfiguration()
 		}
 	}
 
-    mYieldTime = gSavedSettings.getS32("YieldTime");
+	// <FS:Ansariel> MaxFPS Viewer-Chui merge error
+    //mYieldTime = gSavedSettings.getS32("YieldTime");
 
 
 	// Display splash screen.  Must be after above check for previous
