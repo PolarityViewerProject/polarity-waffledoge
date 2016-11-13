@@ -85,6 +85,9 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 
 static void onClickVolume(void* data);
 
+// initialize static member to avoid unresolved external symbols. Ah, C++...
+LLColor4 LLStatusBar::gFPSColor = LLColor4::white;
+
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
 	mTextTime(nullptr),
@@ -343,6 +346,9 @@ void LLStatusBar::refresh()
 	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
 		LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording(); // capture sample of the frame recording, I think.
 		auto current_fps_normalized = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS); // current fps showed to the user
+
+		F32 current_fps_sampled = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 2);
+
 		// Cap the amount of decimals we return
 		if (current_fps_normalized > 100.f)
 		{
@@ -359,98 +365,76 @@ void LLStatusBar::refresh()
 		// </polarity>
 
 		static LLUIColor color_fps_default = LLUIColorTable::instance().getColor("TextDefaultColor");
-		LLColor4 fps_color = color_fps_default; // prevent undefined
 
-		static LLCachedControl<bool> color_fps(gSavedSettings, "PVUI_FPSCounterColorizer", true);
-		if (color_fps)
+		// Quick and Dirty FPS counter colors. Idea is from NiranV, which never got finished.
+		static LLUIColor color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
+		static LLUIColor color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
+		static LLUIColor color_medium = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Medium", LLColor4::yellow);
+		static LLUIColor color_high = LLUIColorTable::instance().getColor("PVUI_FPSCounter_High", LLColor4::green);
+		static LLUIColor color_outstanding = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Outstanding", LLColor4::cyan);
+
+		static LLUIColor color_vsync = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Vsync", LLColor4::blue2);
+		static LLUIColor color_limited = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Limited", LLColor4::purple);
+
+		/*static*/ LLCachedControl<U32> fps_critical(gSavedSettings, "PVUI_FPSCounter_Critical", 10);
+		/*static*/ LLCachedControl<U32> fps_low(gSavedSettings, "PVUI_FPSCounter_Low", 20);
+		/*static*/ LLCachedControl<U32> fps_medium(gSavedSettings, "PVUI_FPSCounter_Medium", 40);
+		/*static*/ LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
+		/*static*/ LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
+
+		static LLCachedControl<bool> fps_limited(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
+		static LLCachedControl<F32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget", 60.f);
+
+		// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
+		// to show vsync'd and limited statuses.
+		// e.g.
+		//_______________________________
+		// FPS Limited Vsync          72 |
+		//-------------------------------|
+		// FPS BAR HERE .    | .        ||
+		// FPS BAR HERE  .   |     .    ||
+		// FPS BAR HERE    . |  .       ||
+		//нннннн-------------------------------|
+		// ~/~
+
+		//U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
+		static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
+		if (fps_limited && (current_fps_normalized <= (fps_limit_target + 1) && current_fps_normalized >= (fps_limit_target - 1)))
 		{
-			// Quick and Dirty FPS counter colors. Idea is from NiranV, which never got finished.
-			static LLUIColor color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
-			static LLUIColor color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
-			static LLUIColor color_medium = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Medium", LLColor4::yellow);
-			static LLUIColor color_high = LLUIColorTable::instance().getColor("PVUI_FPSCounter_High", LLColor4::green);
-			static LLUIColor color_outstanding = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Outstanding", LLColor4::cyan);
-
-			static LLUIColor color_vsync = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Vsync", LLColor4::blue2);
-			static LLUIColor color_limited = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Limited", LLColor4::purple);
-
-			/*static*/ LLCachedControl<U32> fps_critical(gSavedSettings, "PVUI_FPSCounter_Critical", 10);
-			/*static*/ LLCachedControl<U32> fps_low(gSavedSettings, "PVUI_FPSCounter_Low", 20);
-			/*static*/ LLCachedControl<U32> fps_medium(gSavedSettings, "PVUI_FPSCounter_Medium", 40);
-			/*static*/ LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
-			/*static*/ LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
-
-			static LLCachedControl<bool> fps_limited(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
-			static LLCachedControl<S32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget", 60);
-
-			// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
-			// to show vsync'd and limited statuses.
-			// e.g.
-			//_______________________________
-			// FPS Limited Vsync          72 |
-			//-------------------------------|
-			// FPS BAR HERE .    | .        ||
-			// FPS BAR HERE  .   |     .    ||
-			// FPS BAR HERE    . |  .       ||
-			//нннннн-------------------------------|
-			// ~/~
-
-			if (fps_limited)
-			{
-				//get some wiggle room for imprecise limiting
-				if (current_fps_normalized < (fps_limit_target + 2) && current_fps_normalized >(fps_limit_target - 2))
-				{
-					fps_color = color_limited;
-				}
-			}
-			else
-			{
-
-				//U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
-				static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
-				if ((vsync_mode == 1 || vsync_mode == 2)
-					//get some wiggle room for imprecise limiting
-					&& (current_fps_normalized < (mRefreshRate + 2)
-						&& current_fps_normalized >(mRefreshRate - 2)))
-				{
-					fps_color = color_vsync;
-				}
-				else
-				{
-
-					// To be honest, this should be colorized according to the current raw fps, not the normalized value.
-					// this would give the user an estimate of where their fps really is.
-
-					// Base our color on normalized, 1 second FPS sample.
-					// S32 current_fps_sampled_integer = std::round(frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 1));
-					S32 current_fps_sampled_integer = std::round(frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 10));
-					// TODO: Learn how to blend colors
-					if (current_fps_sampled_integer <= fps_critical)
-					{
-						fps_color = color_critical;
-					}
-					else if (current_fps_sampled_integer >= fps_critical && (current_fps_sampled_integer < fps_medium))
-					{
-						fps_color = color_low;
-					}
-					else if (current_fps_sampled_integer >= fps_low && (current_fps_sampled_integer < fps_high))
-					{
-						fps_color = color_medium;
-					}
-					else if (current_fps_sampled_integer >= fps_medium && (current_fps_sampled_integer < fps_outstanding))
-					{
-						fps_color = color_high;
-					}
-					else if (current_fps_sampled_integer >= fps_outstanding)
-					{
-						fps_color = color_outstanding;
-					}
-				}
-			}
-			// Communicate FPS meter color to the rest of the application by defining it in the color table
+			gFPSColor = color_limited;
 		}
-		LLUIColorTable::instance().setColor("PVUI_FPSCounter_Current", fps_color);
-		mFPSCount->setColor(fps_color);
+		else if ((vsync_mode == 1 || vsync_mode == 2) && (current_fps_normalized <= (mRefreshRate + 1) && current_fps_normalized >= (mRefreshRate - 1)))
+		{
+			gFPSColor = color_vsync;
+		}
+		else if (current_fps_sampled <= fps_critical)
+		{
+			gFPSColor = color_critical;
+		}
+		else if (current_fps_sampled >= fps_critical && (current_fps_sampled < fps_medium))
+		{
+			gFPSColor = color_low;
+		}
+		else if (current_fps_sampled >= fps_low && (current_fps_sampled < fps_high))
+		{
+			gFPSColor = color_medium;
+		}
+		else if (current_fps_sampled >= fps_medium && (current_fps_sampled < fps_outstanding))
+		{
+			gFPSColor = color_high;
+		}
+		else if (current_fps_sampled >= fps_outstanding)
+		{
+			gFPSColor = color_outstanding;
+		}
+		else
+		{
+			// all else fails, fallback to default color to prevent blackness
+			gFPSColor = color_fps_default;
+		}
+
+		// Note: We can't/shouldn't use the color table because we do alpha math on that color in the stats floater later. The lookups are probably pretty costy.
+		mFPSCount->setColor(gFPSColor);
 	}
 	// </polarity>
 }

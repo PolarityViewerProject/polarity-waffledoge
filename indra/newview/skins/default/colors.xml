@@ -16,10 +16,10 @@
      value="0.97647 0.27843 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_Low"
-     value="0.97647 0.52549 0.24314 1.0" />
+     value="0.97647 0.43922 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_Medium"
-     value="0.86667 0.97647 0.24314 1.0" />
+     value="0.97256 0.74017 0.24704 1.0" />
     <color
      name="PVUI_FPSCounter_High"
      value="0.24314 0.97647 0.24314 1.0" />

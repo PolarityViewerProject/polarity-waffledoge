@@ -40,6 +40,7 @@
 #include "lltooltip.h"
 #include "lllocalcliprect.h"
 #include <iostream>
+#include "../newview/llstatusbar.h"
 
 // rate at which to update display of value that is rapidly changing
 const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
@@ -194,7 +195,6 @@ LLStatBar::LLStatBar(const Params& p)
 	mStatType(STAT_NONE),
 	// <polarity> Theme-able graphs
 	mBarDotColor(LLUIColorTable::instance().getColor("EmphasisColor")),
-	mBarRangeColor(LLUIColorTable::instance().getColor("PVUI_FPSCounter_Current")),
 	mBarMeanColor(LLUIColorTable::instance().getColor("StatBarMeanBarColor")),
 	mBarBGColor(LLUIColorTable::instance().getColor("StatBarFPSBGColor"))
 	// </polarity>
@@ -447,8 +447,8 @@ void LLStatBar::draw()
 			}
 
 			S32 end = (S32) ((max - mCurMinBar) * value_scale);
-			// The range color is too bright when displayed on the stats bar, desaturate a bit
-			LLColor4 range_bar_fixed = mBarRangeColor.get() * 0.72;
+			// The range color is too bright when displayed on the stats bar, drop the alpha down a little
+			auto range_bar_fixed = LLColor4(LLStatusBar::gFPSColor.mV[0], LLStatusBar::gFPSColor.mV[1], LLStatusBar::gFPSColor.mV[2], 0.65f);
 			if (mOrientation == HORIZONTAL)
 			{
 				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, range_bar_fixed); // <polarity/>
