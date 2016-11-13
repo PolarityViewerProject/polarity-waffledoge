@@ -10263,7 +10263,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
 
-		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
+		//mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
 		// <polarity> disable materials in alpha items. Tremendous speed gains.
