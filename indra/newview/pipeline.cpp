@@ -10255,9 +10255,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
 
-		static LLCachedControl<F32> shadow_min_alpha(gSavedSettings, "PVRender_ShadowMinimumAlpha", 0.598f);
-
-		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
+		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
+		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
 
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
@@ -10269,7 +10268,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
 		
 		// TODO: do we have to call this twice?
-		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
+		//gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 
