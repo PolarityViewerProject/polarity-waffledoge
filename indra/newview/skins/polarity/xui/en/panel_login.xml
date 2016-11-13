@@ -3,10 +3,10 @@
  height="768"
  layout="topleft"
  name="panel_login"
- bg_opaque_color="MenuDefaultBgColor"
- background_opaque="true"
- background_visible="true"
  focus_root="true"
+ background_visible="true"
+ bg_opaque_color="0.1372549019607843 0.1372549019607843 0.1372549019607843 1"
+ background_opaque="true"
  width="1024">
  <layout_stack
  follows="left|right|top"
@@ -72,53 +72,40 @@ Viewer
     parameter="sl_about"/>
  </button> -->
  <combo_box
-    left="1"
-    top="80"
-    allow_text_entry="true"
-    follows="left|top"
-    height="25"
-    label="Username"
-    combo_editor.font="SansSerif"
-    max_chars="128"
-    commit_on_focus_lost="false"
-    combo_editor.prevalidate_callback="ascii"
-    tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
-    name="username_combo"
-    width="258">
-    <combo_box.combo_editor
-    border_color="LtGray"
-    background_image="TextField_Off_Dark"
-    background_image_disabled="TextField_Disabled_Dark"
-    background_image_focused="TextField_Active_Dark"
-    text_color="LtGray"
-    text_readonly_color="LtGray"
-    text_tentative_color="LtGray"
-    text_pad_left="8" />
-    <combo_box.combo_button
-    visible="false" />
-    <combo_box.drop_down_button
-    visible="false" />
+	left="1"
+	top="80"
+	allow_text_entry="true"
+	follows="left|top"
+	height="25"
+	label="Username"
+	combo_editor.font="SansSerif"
+	max_chars="128"
+	commit_on_focus_lost="false"
+	combo_editor.prevalidate_callback="ascii"
+	tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
+	name="username_combo"
+	width="258">
+	<combo_box.combo_editor
+	text_pad_left="8" />
+	<combo_box.combo_button
+	visible="false" />
+	<combo_box.drop_down_button
+	visible="false" />
  </combo_box>
  <line_editor
-    background_image="TextField_Off_Dark"
-    background_image_disabled="TextField_Disabled_Dark"
-    background_image_focused="TextField_Active_Dark"
-    commit_on_focus_lost="false"
-    follows="left|top"
-    font="SansSerif"
-    height="25"
-    is_password="true"
-    label="Password"
-    left_delta="0"
-    max_length_bytes="16"
-    name="password_edit"
-    select_on_focus="true"
-    text_color="LtGray"
-    text_pad_left="8"
-    text_readonly_color="LtGray"
-    text_tentative_color="LtGray"
-    top_pad="10"
-    width="232" />
+	commit_on_focus_lost="false"
+	follows="left|top"
+	font="SansSerif"
+	height="25"
+	is_password="true"
+	label="Password"
+	left_delta="0"
+	max_length_bytes="16"
+	name="password_edit"
+	select_on_focus="true"
+	text_pad_left="8"
+	top_pad="10"
+	width="232" />
  <check_box
     control_name="RememberPassword"
     follows="left|top"
@@ -131,45 +118,39 @@ Viewer
     name="remember_check"
     width="145" />
  <combo_box
-    control_name="NextLoginLocation"
-    follows="left|top"
-    label="Start location"
-    height="26"
-    max_chars="128"
-    combo_editor.font="SansSerif"
-    left="1"
-    top_pad="10"
-    name="start_location_combo"
-    width="232"
-    combo_button.scale_image="true">
-    <combo_box.item
-    label="Last or Custom Location"
-    name="Last"
-    value="last" />
-    <combo_box.item
-    label="My home"
-    name="MyHome"
-    value="home" />
+	control_name="NextLoginLocation"
+	follows="left|top"
+	label="Start location"
+	height="26"
+	max_chars="128"
+	combo_editor.font="SansSerif"
+	left="1"
+	top_pad="10"
+	name="start_location_combo"
+	width="232"
+	combo_button.scale_image="true">
+	<combo_box.item
+	label="Last or Custom Location"
+	name="Last"
+	value="last" />
+	<combo_box.item
+	label="My home"
+	name="MyHome"
+	value="home" />
  </combo_box>
  <line_editor
-    background_image="TextField_Off_Dark"
-    background_image_disabled="TextField_Disabled_Dark"
-    background_image_focused="TextField_Active_Dark"
-    commit_on_focus_lost="false"
-    follows="left|top"
-    font="SansSerif"
-    height="26"
-    label="Type a location"
-    left="1"
-    name="location_edit"
-    select_on_focus="true"
-    text_color="LtGray"
-    text_pad_left="8"
-    text_readonly_color="LtGray"
-    text_tentative_color="LtGray"
-    width="232"
-    top_pad="10" />
-    <!-- Very horrible hack because the panel border doesn't work. Equivalent of <hr /> -->
+	follows="left|top"
+	width="232"
+	height="26"
+	left="1"
+	text_pad_left="8"
+	name="location_edit"
+	label="Type a location"
+	font="SansSerif"
+	select_on_focus="true"
+	commit_on_focus_lost="false"
+	top_pad="10" />
+	<!-- Very horrible hack because the panel border doesn't work. Equivalent of <hr /> -->
 <!--  <text
     follows="left|top"
     font="SansSerif"
@@ -254,6 +235,8 @@ ________________________________________________________________________________
     width="32" />
  </layout_stack>
  <web_browser
+    background_opaque="true"
+    bg_opaque_color="0.1372549019607843 0.1372549019607843 0.1372549019607843 1"
     tab_stop="false"
     trusted_content="true"
     border_visible="false"
