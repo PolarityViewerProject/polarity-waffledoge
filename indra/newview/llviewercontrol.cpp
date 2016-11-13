@@ -70,6 +70,9 @@
 #include "llslurl.h"
 #include "llstartup.h"
 #include "llupdaterservice.h"
+// [RLVa:KB] - Checked: 2015-12-27 (RLVa-1.5.0)
+#include "rlvcommon.h"
+// [/RLVa:KB]
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
@@ -849,6 +852,10 @@ void settings_setup_listeners()
 	// </Black Dragon:NiranV>
 
 	gSavedSettings.getControl("PVRender_ForceDepthClampSupport")->getSignal()->connect(boost::bind(&handleForceDepthClampSupport, _2));
+	
+	// [RLVa:KB] - Checked: 2015-12-27 (RLVa-1.5.0)
+	gSavedSettings.getControl("RestrainedLove")->getSignal()->connect(boost::bind(&RlvSettings::onChangedSettingMain, _2));
+	// [/RLVa:KB]
 }
 
 #if TEST_CACHED_CONTROL

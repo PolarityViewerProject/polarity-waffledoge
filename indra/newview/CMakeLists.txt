@@ -773,6 +773,15 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
+    rlvactions.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvcommon.cpp
+    rlvlocks.cpp
+    rlvinventory.cpp
+    rlvextensions.cpp
+    rlvfloaters.cpp
+    rlvui.cpp
     )
 
 set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
@@ -1378,6 +1387,16 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
+    rlvactions.h
+    rlvdefines.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvcommon.h
+    rlvlocks.h
+    rlvinventory.h
+    rlvextensions.h
+    rlvfloaters.h
+    rlvui.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
@@ -1759,7 +1778,9 @@ if(WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
-        LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} /LARGEADDRESSAWARE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
 
     if(USE_PRECOMPILED_HEADERS)
@@ -1768,7 +1789,7 @@ if(WINDOWS)
             PROPERTIES
             COMPILE_FLAGS "/Yullviewerprecompiledheaders.h"
             )
-    endif()
+    endif(USE_PRECOMPILED_HEADERS)
 
     # If adding a file to viewer_manifest.py in the WindowsManifest.construct()
     # method, be sure to add the dependency here.

@@ -101,6 +101,11 @@
 //#include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
 
+// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
+#include "rlvactions.h"
+#include "rlvhandler.h"
+// [/RLVa:KB]
+
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -1293,9 +1298,15 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLComboBox* ctrl_reflections = getChild<LLComboBox>("Reflections");
 	LLTextBox* reflections_text = getChild<LLTextBox>("ReflectionsText");
 
-	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
+// [RLVa:KB] - Checked: 2013-05-11 (RLVa-1.4.9)
+	if (rlv_handler_t::isEnabled())
+	{
+		getChild<LLUICtrl>("do_not_disturb_response")->setEnabled(!RlvActions::hasBehaviour(RLV_BHVR_SENDIM));
+	}
+// [/RLVa:KB]
 
 	// Reflections
+	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
 	BOOL reflections = vertex_shader 
 		&& gGLManager.mHasCubeMap
 		&& LLCubeMap::sUseCubeMaps;
@@ -1331,8 +1342,14 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	LLSliderCtrl* terrain_detail = getChild<LLSliderCtrl>("TerrainDetail");   // can be linked with control var
 	LLTextBox* terrain_text = getChild<LLTextBox>("TerrainDetailText");
 
-	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
-	
+//	ctrl_shader_enable->setEnabled(LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable"));
+// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a) | Modified: RLVa-0.2.0a
+	// "Basic Shaders" can't be disabled - but can be enabled - under @setenv=n
+	bool fCtrlShaderEnable = LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable");
+	ctrl_shader_enable->setEnabled(
+		fCtrlShaderEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("VertexShaderEnable"))) );
+// [/RLVa:KB]
+
 	BOOL shaders = ctrl_shader_enable->get();
 	if (shaders)
 	{
@@ -1353,7 +1370,13 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 
 	// *HACK just checks to see if we can use shaders... 
 	// maybe some cards that use shaders, but don't support windlight
-	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+//	ctrl_wind_light->setEnabled(ctrl_shader_enable->getEnabled() && shaders);
+// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a) | Modified: RLVa-0.2.0a
+	// "Atmospheric Shaders" can't be disabled - but can be enabled - under @setenv=n
+	bool fCtrlWindLightEnable = fCtrlShaderEnable && shaders;
+	ctrl_wind_light->setEnabled(
+		fCtrlWindLightEnable && ((!gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)) || (!gSavedSettings.getBOOL("WindLightUseAtmosShaders"))) );
+// [/RLVa:KB]
 
 	sky->setEnabled(ctrl_wind_light->get() && shaders);
 	sky_text->setEnabled(ctrl_wind_light->get() && shaders);
