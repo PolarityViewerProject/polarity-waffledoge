@@ -3297,7 +3297,11 @@ static LLTrace::BlockTimerStatHandle FTM_PROCESS_PARTITIONQ("PartitionQ");
 void LLPipeline::processPartitionQ()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PROCESS_PARTITIONQ);
-	for (LLDrawable::drawable_list_t::iterator iter = mPartitionQ.begin(); iter != mPartitionQ.end(); ++iter)
+
+	// <FS:ND> A vector is much better suited for the use case of mPartitionQ
+	// for (LLDrawable::drawable_list_t::iterator iter = mPartitionQ.begin(); iter != mPartitionQ.end(); ++iter)
+	for (LLDrawable::drawable_vector_t::iterator iter = mPartitionQ.begin(); iter != mPartitionQ.end(); ++iter)
+	// </FS:ND>
 	{
 		LLDrawable* drawable = *iter;
 		if (!drawable->isDead())
