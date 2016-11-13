@@ -10262,10 +10262,13 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
+		// <polarity> disable materials in alpha items. Tremendous speed gains.
+#if ALPHA_SHADOW_MATERIAL_PASS
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
 		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
+#endif
 		
 		// TODO: do we have to call this twice?
 		//gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
