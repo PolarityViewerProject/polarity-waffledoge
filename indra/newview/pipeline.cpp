@@ -69,7 +69,7 @@
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "lltracker.h"
-#include "lltool.h"
+//#include "lltool.h"
 #include "llviewercamera.h"
 #include "llviewermediafocus.h"
 #include "llviewerobject.h"
@@ -92,7 +92,7 @@
 #include "llviewerdisplay.h"
 #include "llwlparammanager.h"
 #include "llspatialpartition.h"
-#include "llmutelist.h"
+//#include "llmutelist.h"
 #include "llnotifications.h"
 #include "llpathinglib.h"
 #include "llfloaterpathfindingconsole.h"
@@ -105,7 +105,7 @@
 
 #include "llglmhelpers.h"
 
-#include <glm/vec3.hpp>
+//#include <glm/vec3.hpp>
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
