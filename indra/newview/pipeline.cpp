@@ -11432,7 +11432,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	stateSort(*LLViewerCamera::getInstance(), result);
 	
-	LLCamera camera = *viewer_camera;
+	LLCamera camera = static_cast<LLCamera>(*viewer_camera);
 	LLVector2 tdim;
 	U32 resY = 0;
 	U32 resX = 0;
