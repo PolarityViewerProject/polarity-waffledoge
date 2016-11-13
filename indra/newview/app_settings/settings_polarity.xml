@@ -1527,6 +1527,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_LastAppearanceTab</key>
+    <map>
+      <key>Comment</key>
+      <string>Last selected tab in appearance floater</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_LogSnapshotToLocal</key>
     <map>
       <key>Comment</key>

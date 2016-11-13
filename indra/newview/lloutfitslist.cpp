@@ -896,11 +896,11 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
 	if( vadded.size() > 128 )
 		LL_WARNS() << "Large amount of outfits found: " << vadded.size() << " this may cause hangs and disconnects" << LL_ENDL;
 
-	U32 nCap = gSavedSettings.getU32( "FSDisplaySavedOutfitsCap" );
+	U32 nCap = gSavedSettings.getU32( "PVUI_DisplaySavedOutfitsCap" );
 	if( nCap && nCap < vadded.size() )
 	{
 		vadded.resize( nCap );
-		LL_WARNS() << "Capped outfits to " << nCap << " due to debug setting FSDisplaySavedOutfitsCap" << LL_ENDL;
+		LL_WARNS() << "Capped outfits to " << nCap << " due to debug setting PVUI_DisplaySavedOutfitsCap" << LL_ENDL;
 	}
 	// </FS:ND>
 

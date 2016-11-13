@@ -105,7 +105,7 @@ void LLPanelOutfitsInventory::onOpen(const LLSD& key)
 		}
 
 		// <FS:Ansariel> FIRE-20180: Select last tab when actually opening the appearance floater for the first time
-		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("LastAppearanceTab")))
+		if (!mAppearanceTabs->selectTab(gSavedSettings.getS32("PVUI_LastAppearanceTab")))
 			mAppearanceTabs->selectFirstTab();
 
 		mInitialized = true;
