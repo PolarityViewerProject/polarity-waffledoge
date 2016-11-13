@@ -61,6 +61,10 @@
          name="1920x1080"
          value="[i1920,i1080]" />
         <combo_box.item
+         label="WQHD (1440p)"
+         name="2560x1440"
+         value="[i2560,i1440]" />
+        <combo_box.item
          label="4K UHD"
          name="3840x2160"
          value="[i3840,i2160]" />
@@ -91,13 +95,9 @@
          name="2560x1600"
          value="[i2560,i1600]" />
         <combo_box.item value="21:9" label="-Hyper Extended Graphics Array-" enabled="false" />
-        <combo_box.item
-         label="[W]QHD"
-         name="2560x1080"
-         value="[i2560,i1080]" />
          <!-- This one is math-perfect, leave it alone :T -->
         <combo_box.item
-         label="'4K 21:9'"
+         label="'4K 21:9' (2160p)"
          name="5040x2160"
          value="[i5040,i2160]" />
          <!-- LEAVE IT. ALONE. :T -->
