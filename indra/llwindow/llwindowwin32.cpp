@@ -58,7 +58,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 
 #include <dinput.h>
-#include <Dbt.h.>
+#include <Dbt.h>
 
 // culled from winuser.h
 #ifndef WM_MOUSEWHEEL /* Added to be compatible with later SDK's */
