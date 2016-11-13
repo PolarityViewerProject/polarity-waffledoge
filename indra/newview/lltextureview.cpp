@@ -559,7 +559,7 @@ void LLGLTexMemBar::draw()
 		else
 		{
 			// The Intel driver cannot reliably know how much memory is in use,
-			// let's assume we aren't using any vram and skip drawing the grey bar.
+			// let's assume there is no free vram and skip drawing the grey bar.
 			available_vram = 0;
 		}
 	}
