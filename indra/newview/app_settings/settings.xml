@@ -9165,6 +9165,8 @@
     <string>Force 32-bit floating point LUT</string>
     <key>Persist</key>
     <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
     <key>Type</key>
     <string>U32</string>
     <key>Value</key>
