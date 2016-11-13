@@ -13,31 +13,25 @@
      value="0.05882 0.05882 0.05882 0.25" />
     <color
      name="PVUI_FPSCounter_Critical"
-     value="0.71667 0.08801 0.08801 0.72" />
+     value="0.97647 0.27843 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_Low"
-     value="0.85712 0.26888 0.11163 0.72" />
+     value="0.97647 0.52549 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_Medium"
-     value="0.89412 0.66275 0.21569 0.72" />
+     value="0.86667 0.97647 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_High"
-     value="0.31765 0.51373 0.10980 0.72" />
+     value="0.24314 0.97647 0.24314 1.0" />
     <color
      name="PVUI_FPSCounter_Outstanding"
-     value="0.00000 1.00000 0.97647 0.72" />
+     value="0.24314 0.70196 0.97647 1.0" />
     <color
      name="PVUI_FPSCounter_Vsync"
-     value="0.51056 0.82715 0.04785 0.72" />
+     value="0.50980 0.82745 0.04706 1.0" />
     <color
      name="PVUI_FPSCounter_Limited"
-     value="0.4588235294117647 0.2588235294117647 0.5215686274509804 0.72" />
-    <color
-     name="PVUI_FPSCounter_Vsync"
-     value="0.2431372549019608 0.7019607843137255 0.9764705882352941 0.50" />
-    <color
-     name="PVUI_FPSCounter_Limited"
-     value="0.4588235294117647 0.2588235294117647 0.5215686274509804 0.50" />
+     value="0.69412 0.24314 0.97647 1.0" />
 
 	<!-- Named Colors -->
 	<color
