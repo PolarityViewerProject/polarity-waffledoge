@@ -417,12 +417,11 @@ Section "Viewer"
   SetOutPath "$INSTDIR"  
   ;Remove old shader files first so fallbacks will work.
   RMDir /r "$INSTDIR\app_settings\shaders\*"
+  # Remove skins folder to clean up files removed during development
+  RMDir /r "$INSTDIR\skins"
 
   ;This placeholder is replaced by the complete list of all the files in the installer, by viewer_manifest.py
   %%INSTALL_FILES%%
-
-# Remove skins folder to clean up files removed during development
-RMDir /r "$INSTDIR\skins"
 
 !ifdef WIN64_BIN_BUILD
   ExecWait '"$INSTDIR\redist\vc_redist.x64.exe" /passive'
