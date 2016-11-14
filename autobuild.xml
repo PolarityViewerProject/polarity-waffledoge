@@ -1638,11 +1638,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7b74b58538a3e223fdb98d2f7bc97473</string>
+              <string>3d2eec89d9806878e5515d4ab7801434</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/llceflib-3.2526.1364.gf6bf57b-windows-201604051552.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/14/win32/llceflib-3.2526.1364.gf6bf57b-windows-201611132032.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
