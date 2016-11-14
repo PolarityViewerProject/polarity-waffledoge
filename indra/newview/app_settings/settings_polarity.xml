@@ -1527,6 +1527,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_DisplaySavedOutfitsCap</key>
+    <map>
+      <key>Comment</key>
+      <string>Cap the amount of outfits displayed in the Appearance floater. This helps performance for accounts containing a gigantic amount of outfits (more than 100). Set to 0 to disable.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_LastAppearanceTab</key>
     <map>
       <key>Comment</key>
