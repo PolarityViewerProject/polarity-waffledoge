@@ -172,6 +172,34 @@ source_group("Third Party/Polarity" FILES
     ${polarity_SOURCE_FILES}
     )
 
+set(rlva_SOURCE_FILES
+    rlvactions.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvcommon.cpp
+    rlvlocks.cpp
+    rlvinventory.cpp
+    rlvextensions.cpp
+    rlvfloaters.cpp
+    rlvui.cpp
+    )
+set(rlva_HEADER_FILES
+    rlvactions.h
+    rlvcommon.h
+    rlvdefines.h
+    rlvextensions.h
+    rlvfloaters.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvinventory.h
+    rlvlocks.h
+    rlvui.h
+    )
+source_group("Third Party/Restrained Love API" FILES
+    ${rlva_SOURCE_FILES}
+    ${rlva_HEADER_FILES}
+    )
+
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
@@ -773,15 +801,6 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
-    rlvactions.cpp
-    rlvhandler.cpp
-    rlvhelper.cpp
-    rlvcommon.cpp
-    rlvlocks.cpp
-    rlvinventory.cpp
-    rlvextensions.cpp
-    rlvfloaters.cpp
-    rlvui.cpp
     )
 
 set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
@@ -1387,16 +1406,6 @@ set(viewer_HEADER_FILES
     macmain.h
     noise.h
     pipeline.h
-    rlvactions.h
-    rlvdefines.h
-    rlvhandler.h
-    rlvhelper.h
-    rlvcommon.h
-    rlvlocks.h
-    rlvinventory.h
-    rlvextensions.h
-    rlvfloaters.h
-    rlvui.h
     roles_constants.h
     VertexCache.h
     VorbisFramework.h
@@ -1409,12 +1418,14 @@ list(APPEND viewer_HEADER_FILES
     ${firestorm_HEADER_FILES}
     ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
+	${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${exodus_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
     ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}
+	${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
