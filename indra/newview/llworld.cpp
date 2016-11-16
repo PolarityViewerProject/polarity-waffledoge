@@ -1091,6 +1091,10 @@ static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
 
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
+	static LLCachedControl<bool> do_not_connect_to_beighbors(gSavedSettings, "PVNetwork_DoNotConnectToNeighbors");
+	if((do_not_connect_to_beighbors) && ((gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+		|| (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)))
+		return;
 	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure

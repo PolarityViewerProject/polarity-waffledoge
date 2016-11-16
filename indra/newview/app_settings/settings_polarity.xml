@@ -621,6 +621,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVNetwork_DoNotConnectToNeighbors</key>
+    <map>
+      <key>Comment</key>
+      <string>If true, disconnect from neighboring regions and all further neighbors on teleport</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>RenderShadowBias</key>
     <map>
       <key>Comment</key>
