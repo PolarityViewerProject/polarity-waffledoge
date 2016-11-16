@@ -264,8 +264,7 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 	LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
 	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
-	// S32 to avoid unecessary typecasts
-	auto limit = static_cast<S32>(LLViewerWindow::getGPUTextureSizeLimit());
+	auto limit = gGLManager.mGLMaxTextureSize;
 	
 	LLTextBox* gpu_limit = floater->getChild<LLTextBox>("gpu_texture_size_limit");
 	

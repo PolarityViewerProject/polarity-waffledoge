@@ -181,6 +181,7 @@
 
 #include "pvcommon.h"
 #include "pvdata.h"
+#include "pvgpuinfo.h"
 
 //
 // Globals
@@ -4441,18 +4442,6 @@ BOOL LLViewerWindow::thumbnailSnapshot(LLImageRaw *raw, S32 preview_width, S32 p
 	return rawSnapshot(raw, preview_width, preview_height, FALSE, FALSE, show_ui, do_rebuild, type);
 }
 
-GLint LLViewerWindow::getGPUTextureSizeLimit()
-{
-	GLint result;
-	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &result);
-	if (result >= 64)
-	{
-		return result;
-	}
-	// fallback to something
-	return 1024;
-}
-
 // Saves the image from the screen to a raw image
 // Since the required size might be bigger than the available screen, this method rerenders the scene in parts (called subimages) and copy
 // the results over to the final raw image.
@@ -4491,7 +4480,8 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 
-	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && LLPipeline::sShowHUDAttachments;
+	static LLCachedControl<BOOL> show_hud(gSavedSettings, "RenderHUDInSnapshot");
+	BOOL hide_hud = !show_hud && LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{
 		LLPipeline::sShowHUDAttachments = FALSE;
@@ -4511,6 +4501,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 window_width  = snapshot_width;
 	S32 window_height = snapshot_height;
 	
+	static LLCachedControl<bool> show_currency_setting(gSavedSettings, "PVUI_ShowCurrencyBalanceInSnapshots");
+	static LLCachedControl<bool> show_currency_topbar(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
+	
 	// Note: Scaling of the UI is currently *not* supported so we limit the output size if UI is requested
 	if (show_ui)
 	{
@@ -4518,7 +4511,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		image_width  = llmin(image_width, window_width);
 		image_height = llmin(image_height, window_height);
 		// <polarity> PLVR-7 Hide currency balance in snapshots
-		gStatusBar->showBalance((bool)gSavedSettings.getBOOL("PVUI_ShowCurrencyBalanceInSnapshots"));
+		gStatusBar->showBalance((bool)show_currency_setting);
 	}
 
 	S32 original_width = 0;
@@ -4580,11 +4573,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 
-	S32 max_size = static_cast<S32>(LLViewerWindow::getGPUTextureSizeLimit());
-
-	if ((image_buffer_x > max_size) || (image_buffer_y > max_size)) // boundary check to avoid memory overflow
+	//if ((image_buffer_x * image_buffer_y) > max_size_both_sides) // boundary check to avoid running out of memory
+	if(image_buffer_x > gGLManager.mGLMaxTextureSize || image_buffer_y > gGLManager.mGLMaxTextureSize || !PVGPUInfo::hasEnoughVRAMForSnapshot(snapshot_width, snapshot_height))
 	{
-		scale_factor *= llmin((F32)max_size / image_buffer_x, (F32)max_size / image_buffer_y) ;
+		scale_factor *= llmin((F32)gGLManager.mGLMaxTextureSize / image_buffer_x, (F32)gGLManager.mGLMaxTextureSize / image_buffer_y) ;
 		image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 		image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 	}
@@ -4594,12 +4586,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	else
 	{
-		gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
-		return FALSE ;
+		gStatusBar->showBalance(show_currency_topbar);	// <polarity> PLVR-7 Hide currency balance in snapshots
+		return FALSE;
 	}
 	if (raw->isBufferInvalid())
 	{
-		gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
+		gStatusBar->showBalance(show_currency_topbar);	// <polarity> PLVR-7 Hide currency balance in snapshots
 		return FALSE ;
 	}
 
@@ -4623,28 +4615,47 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 
 	// Subimages are in fact partial rendering of the final view. This happens when the final view is bigger than the screen.
 	// In most common cases, scale_factor is 1 and there's no more than 1 iteration on x and y
-	for (int subimage_y = 0; subimage_y < scale_factor; ++subimage_y)
+
+	// <polarity> initialize once. TODO: use pointers.
+	S32 subimage_y_offset;
+	U32 read_height;
+	S32 output_buffer_offset_x;
+	S32 subimage_x_offset;
+	U32 read_width;
+	U32 subfield;
+	S32 output_buffer_offset;
+	F32 depth_float;
+	F32 linear_depth_float;
+	U8 depth_byte;
+
+	int subimage_y;
+	int subimage_x;
+	S32 out_y;
+	S32 iter;
+	S32 iter_2;
+	for (subimage_y = 0; subimage_y < scale_factor; ++subimage_y)
 	{
-		S32 subimage_y_offset = llclamp(buffer_y_offset - (subimage_y * window_height), 0, window_height);;
+		subimage_y_offset = llclamp(buffer_y_offset - (subimage_y * window_height), 0, window_height);;
 		// handle fractional columns
-		U32 read_height = llmax(0, (window_height - subimage_y_offset) -
+		read_height = llmax(0, (window_height - subimage_y_offset) -
 			llmax(0, (window_height * (subimage_y + 1)) - (buffer_y_offset + raw->getHeight())));
 
-		S32 output_buffer_offset_x = 0;
-		for (int subimage_x = 0; subimage_x < scale_factor; ++subimage_x)
+		output_buffer_offset_x = 0;
+		
+		for (subimage_x = 0; subimage_x < scale_factor; ++subimage_x)
 		{
 			gDisplaySwapBuffers = FALSE;
 			gDepthDirty = TRUE;
 
-			S32 subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
+			subimage_x_offset = llclamp(buffer_x_offset - (subimage_x * window_width), 0, window_width);
 			// handle fractional rows
-			U32 read_width = llmax(0, (window_width - subimage_x_offset) -
+			read_width = llmax(0, (window_width - subimage_x_offset) -
 									llmax(0, (window_width * (subimage_x + 1)) - (buffer_x_offset + raw->getWidth())));
 			
 			// Skip rendering and sampling altogether if either width or height is degenerated to 0 (common in cropping cases)
 			if (read_width && read_height)
 			{
-				const U32 subfield = subimage_x+(subimage_y*llceil(scale_factor));
+				subfield = subimage_x+(subimage_y*llceil(scale_factor));
 				display(do_rebuild, scale_factor, subfield, TRUE);
 				
 				if (!LLPipeline::sRenderDeferred)
@@ -4655,9 +4666,9 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 					swap();
 				}
 				
-				for (U32 out_y = 0; out_y < read_height ; out_y++)
+				for (out_y = 0; out_y < read_height ; out_y++)
 				{
-					S32 output_buffer_offset = ( 
+					output_buffer_offset = ( 
 												(out_y * (raw->getWidth())) // ...plus iterated y...
 												+ (window_width * subimage_x) // ...plus subimage start in x...
 												+ (raw->getWidth() * window_height * subimage_y) // ...plus subimage start in y...
@@ -4690,16 +4701,16 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 									 depth_line_buffer->getData()// current output pixel is beginning of buffer...
 									 );
 
-						for (S32 i = 0; i < (S32)read_width; i++)
+						for (iter = 0; iter < (S32)read_width; iter++)
 						{
-							F32 depth_float = *(F32*)(depth_line_buffer->getData() + (i * sizeof(F32)));
+							depth_float = *(F32*)(depth_line_buffer->getData() + (iter * sizeof(F32)));
 					
-							F32 linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
-							U8 depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
+							linear_depth_float = 1.f / (depth_conversion_factor_1 - (depth_float * depth_conversion_factor_2));
+							depth_byte = F32_to_U8(linear_depth_float, LLViewerCamera::getInstance()->getNear(), LLViewerCamera::getInstance()->getFar());
 							// write converted scanline out to result image
-							for (S32 j = 0; j < raw->getComponents(); j++)
+							for (iter_2 = 0; iter_2 < raw->getComponents(); iter_2++)
 							{
-								*(raw->getData() + output_buffer_offset + (i * raw->getComponents()) + j) = depth_byte;
+								*(raw->getData() + output_buffer_offset + (iter * raw->getComponents()) + iter_2) = depth_byte;
 							}
 						}
 					}

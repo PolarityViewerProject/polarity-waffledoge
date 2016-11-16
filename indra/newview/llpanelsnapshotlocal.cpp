@@ -193,6 +193,7 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 	if (success)
 	{
 		mSnapshotFloater->postSave();
+		//goBack(); // <polarity/>
 		floater->notify(LLSD().with("set-finished", LLSD().with("ok", true).with("msg", "local")));
 	}
 	else

@@ -98,7 +98,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
     mAllowFullScreenPreview(TRUE),
     mViewContainer(NULL)
 {
-	setSnapshotQuality(gSavedSettings.getS32("SnapshotQuality"));
+	setSnapshotQuality(mSnapshotQuality); // <polarity>
 	mSnapshotDelayTimer.setTimerExpirySec(0.0f);
 	mSnapshotDelayTimer.start();
 	// 	gIdleCallbacks.addFunction( &LLSnapshotLivePreview::onIdle, (void*)this );
@@ -111,7 +111,7 @@ LLSnapshotLivePreview::LLSnapshotLivePreview (const LLSnapshotLivePreview::Param
 	mImageScaled[0] = FALSE;
 	mImageScaled[1] = FALSE;
 
-	mMaxImageSize = (S32)LLViewerWindow::getGPUTextureSizeLimit();
+	mMaxImageSize = gGLManager.mGLMaxTextureSize;
 	mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
 	mThumbnailUpdateLock = FALSE ;
 	mThumbnailUpToDate   = FALSE ;
@@ -133,7 +133,7 @@ LLSnapshotLivePreview::~LLSnapshotLivePreview()
 
 void LLSnapshotLivePreview::setMaxImageSize(S32 size) 
 {
-    mMaxImageSize = llmin(size,(S32)(LLViewerWindow::getGPUTextureSizeLimit()));
+    mMaxImageSize = llmin(size, gGLManager.mGLMaxTextureSize);
 }
 
 LLViewerTexture* LLSnapshotLivePreview::getCurrentImage()
@@ -734,13 +734,15 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
         previewp->setImageScaled(FALSE);
 
         // grab the raw image
+		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
+		static LLCachedControl<bool> freeze_frame(gSavedSettings, "UseFreezeFrame");
         if (gViewerWindow->rawSnapshot(
                 previewp->mPreviewImage,
                 previewp->getWidth(),
                 previewp->getHeight(),
                 previewp->mKeepAspectRatio,//gSavedSettings.getBOOL("KeepAspectForSnapshot"),
                 previewp->getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE,
-                previewp->mAllowRenderUI && gSavedSettings.getBOOL("RenderUIInSnapshot"),
+                previewp->mAllowRenderUI && render_ui,
                 FALSE,
                 previewp->mSnapshotBufferType))
         {
@@ -752,7 +754,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->estimateDataSize();
 
             // Full size preview is set: get the decoded image result and save it for animation
-            if (gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview)
+            if (freeze_frame && previewp->mAllowFullScreenPreview)
             {
                 previewp->prepareFreezeFrame();
             }
@@ -765,7 +767,7 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->generateThumbnailImage(TRUE) ;
         }
         previewp->getWindow()->decBusyCount();
-        previewp->setVisible(gSavedSettings.getBOOL("UseFreezeFrame") && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
+        previewp->setVisible(freeze_frame && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = FALSE;
         LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
