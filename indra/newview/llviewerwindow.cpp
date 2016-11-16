@@ -4574,7 +4574,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 
 	//if ((image_buffer_x * image_buffer_y) > max_size_both_sides) // boundary check to avoid running out of memory
-	if(image_buffer_x > gGLManager.mGLMaxTextureSize || image_buffer_y > gGLManager.mGLMaxTextureSize || !PVGPUInfo::hasEnoughVRAMForSnapshot(snapshot_width, snapshot_height))
+	if(image_buffer_x > gGLManager.mGLMaxTextureSize || image_buffer_y > gGLManager.mGLMaxTextureSize /*|| !PVGPUInfo::hasEnoughVRAMForSnapshot(snapshot_width, snapshot_height)*/)
 	{
 		scale_factor *= llmin((F32)gGLManager.mGLMaxTextureSize / image_buffer_x, (F32)gGLManager.mGLMaxTextureSize / image_buffer_y) ;
 		image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
