@@ -855,13 +855,15 @@ static bool needs_tooltip(LLSelectNode* nodep)
 
 BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 {
-	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+	//LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
 	// 
 	//  Do not show hover for land unless prefs are set to allow it.
 	// 
 	static LLCachedControl<bool> show_land_hovertips(gSavedSettings, "ShowLandHoverTip");	
 	if (!show_land_hovertips) return TRUE;
-	
+
+	LLViewerParcelMgr::getInstance()->setHoverParcel( mHoverPick.mPosGlobal );
+
 	// Didn't hit an object, but since we have a land point we
 	// must be hovering over land.
 	
@@ -1012,6 +1014,12 @@ BOOL LLToolPie::handleTooltipLand(std::string line, std::string tooltip_msg)
 
 BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string line, std::string tooltip_msg)
 {
+	// <FS:Ansariel> FIRE-9522: Crashfix
+	if (!hover_object)
+	{
+		return TRUE;
+	}
+	// </FS:Ansariel>
 	if ( hover_object->isHUDAttachment() )
 	{
 		// no hover tips for HUD elements, since they can obscure
