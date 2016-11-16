@@ -71,6 +71,9 @@ public:
 	// asset system. :(
 	void refreshFromInventory(const LLUUID& item_id = LLUUID::null);
 
+	// <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
+	void checkCloseAfterSave();
+
 protected:
 
 	void updateTitleButtons();
@@ -96,6 +99,9 @@ protected:
 	bool handleConfirmDeleteDialog(const LLSD& notification, const LLSD& response);
 
     static void finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, LLUUID newItemId);
+
+    static void finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUID taskId);
+
 
 protected:
 	LLViewerTextEditor* mEditor;
