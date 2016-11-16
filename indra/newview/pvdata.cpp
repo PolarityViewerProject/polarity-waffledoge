@@ -1086,6 +1086,11 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 	LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
 	static LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
+	auto av_flags = gPVDataAuth->getSpecialAgentFlags(avatar_id);
+	if (gPVDataAuth->isLinden(avatar_id, av_flags))
+	{
+		return linden_color;
+	}
 	static LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
 
 	// Some PVData-flagged users CAN be muted.
@@ -1095,10 +1100,7 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 		return_color = muted_color.get();
 		return return_color;
 	}
-
 	// Check if agent is flagged through PVData
-	auto av_flags = gPVDataAuth->getSpecialAgentFlags(avatar_id);
-
 	if (gPVDataAuth->isSpecialAgentColored(avatar_id))
 	{
 		pvdata_color = gPVDataAuth->getSpecialAgentColorDirectly(avatar_id);
