@@ -41,13 +41,14 @@
         function="Outfit.OnVisible"
         parameter="take_off" />
     </menu_item_call>
-    <menu_item_call
+<!-- This has no code hooked to it... -->
+    <!-- <menu_item_call
         label="Upload Photo (L$10)"
         layout="topleft"
         name="upload_photo">
         <on_click
         function="Outfit.UploadPhoto" />
-    </menu_item_call>
+    </menu_item_call> -->
     <menu_item_call
         label="Select Photo"
         layout="topleft"
