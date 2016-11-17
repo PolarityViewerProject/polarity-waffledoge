@@ -453,8 +453,15 @@ private:
 
 		LLColor4 getSpecialAgentColorDirectly(const LLUUID& avatar_id);
 
-		// Get a color for the specified agent (UUID version)
-		static LLColor4 getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it);
+		
+		/**
+		 * \brief 
+		 * \param avatar_id Agent to get the color of
+		 * \param default_color Color to fall back to if the agent has no color
+		 * \param show_buddy_status show buddy color if applicable
+		 * \return 
+		 */
+		static LLColor4 getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status = true);
 		std::string getToken();
 		// setters
 

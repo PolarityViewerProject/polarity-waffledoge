@@ -1077,7 +1077,7 @@ bool PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
 	return false;
 }
 
-LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& is_buddy_and_show_it)
+LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status)
 {
 	// Try to operate in the same instance, reduce call overhead
 	auto uiCT = LLUIColorTable::getInstance();
