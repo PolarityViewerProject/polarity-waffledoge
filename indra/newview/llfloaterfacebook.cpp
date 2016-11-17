@@ -489,7 +489,7 @@ void LLFacebookPhotoPanel::onVisibilityChange(BOOL visible)
 
             previewp->setContainer(this);
             previewp->setSnapshotType(LLSnapshotModel::SNAPSHOT_WEB);
-            previewp->setSnapshotFormat(LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
+            previewp->setSnapshotFormat(LLSnapshotModel::SNAPSHOT_FORMAT_PNG);
             previewp->setSnapshotQuality(mQuality, false);
             previewp->setThumbnailSubsampled(TRUE);     // We want the preview to reflect the *saved* image
             previewp->setAllowRenderUI(FALSE);          // We do not want the rendered UI in our snapshots
