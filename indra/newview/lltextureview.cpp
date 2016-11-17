@@ -547,7 +547,6 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	LLGLSUIDefault gls_ui;
 	LLColor4 text_color(1.f, 1.f, 1.f, 0.75f);
-	LLColor4 color;
 
 	// Gray background using completely magic numbers
 	gGL.color4f(0.f, 0.f, 0.f, 0.25f);
