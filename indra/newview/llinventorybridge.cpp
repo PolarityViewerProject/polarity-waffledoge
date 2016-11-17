@@ -6853,7 +6853,10 @@ public:
 		if (item)
 		{
 			LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
-			preview->setFocus(TRUE);
+			if (preview) // crash fix for edge cases i.e mouselook
+			{
+				preview->setFocus(TRUE);
+			}
 		}
 		LLInvFVBridgeAction::doIt();		
 	}
