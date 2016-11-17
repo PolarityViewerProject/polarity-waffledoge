@@ -96,7 +96,8 @@ LLSnapshotModel::ESnapshotLayerType LLFloaterOutfitSnapshot::Impl::getLayerType(
 void LLFloaterOutfitSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 {
     LLSnapshotModel::ESnapshotType shot_type = getActiveSnapshotType(floater);
-    LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
+    static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
+    LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)static_cast<S32>(snapshot_format);
     LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
     LLSnapshotLivePreview* previewp = getPreviewView();

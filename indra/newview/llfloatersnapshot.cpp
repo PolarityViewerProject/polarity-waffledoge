@@ -260,7 +260,9 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 {
 	LLSnapshotModel::ESnapshotType shot_type = getActiveSnapshotType(floater);
-	LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
+	static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
+
+	LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)static_cast<S32>(snapshot_format);
 	LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
 	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
@@ -280,9 +282,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 		text = LLTrans::getString("gpu_recommended_texture_size", args); 
 		gpu_limit->setValue(text);
 	}
-	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));	
+	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(snapshot_format);
 
-	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(gSavedSettings.getS32("SnapshotFormat"));
 	floater->getChildView("layer_types")->setEnabled(shot_type == LLSnapshotModel::SNAPSHOT_LOCAL);
 
 	LLPanelSnapshot* active_panel = getActivePanel(floater);

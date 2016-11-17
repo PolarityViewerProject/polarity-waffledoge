@@ -78,7 +78,8 @@ static LLPanelInjector<LLPanelSnapshotLocal> panel_class("llpanelsnapshotlocal")
 
 LLPanelSnapshotLocal::LLPanelSnapshotLocal()
 {
-	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
+	static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
+	mLocalFormat = snapshot_format;
 	mCommitCallbackRegistrar.add("Local.Cancel",	boost::bind(&LLPanelSnapshotLocal::cancel,		this));
 }
 
@@ -95,10 +96,10 @@ BOOL LLPanelSnapshotLocal::postBuild()
 // virtual
 void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 {
-	if(gSavedSettings.getS32("SnapshotFormat") != mLocalFormat)
-	{
+	//if(gSavedSettings.getS32("SnapshotFormat") != mLocalFormat)
+	//{
 		getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
-	}
+	//}
 	LLPanelSnapshot::onOpen(key);
 }
 
@@ -128,11 +129,11 @@ LLSnapshotModel::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 // virtual
 void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
-	LLSnapshotModel::ESnapshotFormat fmt =
-		(LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
-	getChild<LLComboBox>("local_format_combo")->selectNthItem((S32) fmt);
-
-	const bool show_quality_ctrls = (fmt == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
+	static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
+	mLocalFormat = snapshot_format;
+	//LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+	getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
+	const bool show_quality_ctrls = (snapshot_format == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
 	getChild<LLUICtrl>("image_quality_slider")->setVisible(show_quality_ctrls);
 	getChild<LLUICtrl>("image_quality_level")->setVisible(show_quality_ctrls);
 
