@@ -59,7 +59,8 @@ public:
 	static void notify(LLSD& message);
 	static std::string getFilename();
 	static std::string getPermissionString(const LLSD& message, const std::string& base);
-	bool isExpired(const std::string& date);
+	void setEventsToSave(LLSD new_events){mEventsToSave = new_events; }
+	bool isNotExpired(std::string& date);
 protected:
 	LLExperienceLog();
 	void handleExperienceMessage(LLSD& message);
@@ -72,6 +73,7 @@ protected:
 
 
 	LLSD mEvents;
+	LLSD mEventsToSave;
 	callback_signal_t mSignals;
 	callback_connection_t mNotifyConnection;
 	U32 mMaxDays;

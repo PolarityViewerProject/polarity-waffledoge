@@ -111,19 +111,21 @@ void LLPanelExperienceLog::refresh()
 	int itemsToSkip = mPageSize*mCurrentPage;
 	int items = 0;
 	bool moreItems = false;
-	
+	LLSD events_to_save = events;
 	if (!events.emptyMap())
 	{
 		LLSD::map_const_iterator day = events.endMap();
 		do
 		{
 			--day;
-			const std::string& date = day->first;
-			if (LLExperienceLog::instance().isExpired(date))
+			const LLSD& dayArray = day->second;
+
+			std::string date = day->first;
+			if(!LLExperienceLog::instance().isNotExpired(date))
 			{
+				events_to_save.erase(day->first);
 				continue;
 			}
-			const LLSD& dayArray = day->second;
 			int size = dayArray.size();
 			if(itemsToSkip > size)
 			{
@@ -168,6 +170,7 @@ void LLPanelExperienceLog::refresh()
 			}
 		} while (day != events.beginMap());
 	}
+	LLExperienceLog::getInstance()->setEventsToSave(events_to_save);
 	if(waiting)
 	{
 		mEventList->deleteAllItems();
