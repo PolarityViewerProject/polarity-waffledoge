@@ -2,7 +2,7 @@
 <panel
   border="false"
   follows="left|top|right|bottom"
-  height="450"
+  height="500"
   label="Move"
   layout="topleft"
   left="102"
@@ -12,7 +12,7 @@
   <scroll_container
     color="Transparent"
     follows="all"
-    height="530"
+    height="500"
     layout="topleft"
     left="0"
     mouse_opaque="false"
@@ -403,7 +403,7 @@
       top_pad="0"
       width="237">
     </check_box>
-    <check_box
+<!--     <check_box
       control_name="PVMovement_CrouchToggle"
       follows="left|top"
       height="20"
@@ -413,7 +413,7 @@
       name="crouch_toggle"
       top_pad="0"
       width="237">
-    </check_box>
+    </check_box> -->
     <check_box
       control_name="AllowTapTapHoldRun"
       follows="left|top"
