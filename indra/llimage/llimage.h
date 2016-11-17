@@ -31,6 +31,7 @@
 #include "llstring.h"
 #include "llpointer.h"
 #include "lltrace.h"
+#include "llerror.h"
 
 const S32 MIN_IMAGE_MIP =  2; // 4x4, only used for expand/contract power of 2
 const S32 MAX_IMAGE_MIP = 10; // 1024x1024
@@ -122,6 +123,7 @@ protected:
 public:
 	LLImageBase();
 
+	LOG_CLASS(LLImageBase);
 	enum
 	{
 		TYPE_NORMAL = 0,
@@ -146,8 +148,15 @@ public:
 
 	void setSize(S32 width, S32 height, S32 ncomponents);
 	U8* allocateDataSize(S32 width, S32 height, S32 ncomponents, S32 size = -1); // setSize() + allocateData()
-	void enableOverSize() {mAllowOverSize = true ;}
-	void disableOverSize() {mAllowOverSize = false; }
+	void enableOverSize() {
+		LL_WARNS() << "Oversize enabled!" << LL_ENDL;
+		mAllowOverSize = true;
+	}
+	void disableOverSize()
+	{
+		LL_WARNS() << "Oversize disabled!" << LL_ENDL; 
+		mAllowOverSize = false;
+	}
 
 protected:
 	// special accessor to allow direct setting of mData and mDataSize by LLImageFormatted
