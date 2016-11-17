@@ -575,10 +575,7 @@ void LLGLTexMemBar::draw()
 	//BD - Render a multi-segmented multi-colored bar showing where our memory goes.
 	gGL.color4f(0.0f, 0.0f, 0.0f, 1.0f);
 	gl_rect_2d(left, top - 9, left + bar_width, top - 3);
-	// How this should work: Calculates the ram used by the OS by substracting what the viewer knows about its own usage.
-	// Problem: When total VRAM is unknown (Intel or else), the bar breaks badly because data_progress becomes negative.
-	// Symptom: Bar shows all memory as free.
-	// Fix: TBD, either key in a placeholder system memory value, or skip drawing the grey bar.
+
 	F32 data_progress;
 	if(!gGLManager.mIsIntel)
 	{
