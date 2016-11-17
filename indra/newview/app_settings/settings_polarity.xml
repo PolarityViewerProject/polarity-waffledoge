@@ -494,6 +494,19 @@
       <key>Value</key>
       <real>1.000</real>
     </map>
+    <key>PVInternal_EditBeamSpecial</key>
+    <map>
+      <key>Comment</key>
+      <string>INTERNAL | this is used to determine if the user is using a special beam color </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVInventory_SaveScriptsAsMono</key>
     <map>
       <key>Comment</key>
@@ -1443,6 +1456,28 @@
     <map>
       <key>Comment</key>
       <string>Disables restrictions imposed by RLV when at least one HUD is locked (Wireframe, hiding HUDs, etc).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVTools_EditBeamAgentColor</key>
+    <map>
+      <key>Comment</key>
+      <string>Makes agent effects use their PVData Color. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVTools_EditBeamRainbow</key>
+    <map>
+      <key>Comment</key>
+      <string>Makes agent effects rainbows. </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

@@ -824,7 +824,7 @@ private:
 	// HUD
 	//--------------------------------------------------------------------
 public:
-	const LLColor4	&getEffectColor();
+	LLColor4 getEffectColor() const;
 	void			setEffectColor(const LLColor4 &color);
 private:
 	LLUIColor * mEffectColor;

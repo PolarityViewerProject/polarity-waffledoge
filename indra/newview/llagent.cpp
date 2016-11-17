@@ -94,6 +94,7 @@
 #include "boost/foreach.hpp"
 #include "kcwlinterface.h"
 #include "llcorehttputil.h"
+#include "pvdata.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -3192,9 +3193,24 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 	return perm.allowOperationBy(op, agent_proxy, group_proxy);
 }
 
-const LLColor4 &LLAgent::getEffectColor()
-{
-	return *mEffectColor;
+ LLColor4 LLAgent::getEffectColor() const
+ {
+	LLColor4 effect_color = *mEffectColor;
+	// <polarity> Rainbow effects for selection beam. Credit: Cryo
+	static LLCachedControl<bool> beam_rainbow(gSavedSettings, "PVTools_EditBeamRainbow");
+	static LLCachedControl<bool> beam_agent(gSavedSettings, "PVTools_EditBeamAgentColor");
+    gSavedSettings.setBOOL("PVInternal_EditBeamSpecial", ( (beam_rainbow || beam_agent) ? TRUE : FALSE));
+    if (beam_rainbow)
+	{
+		LLColor3 rainbow;
+		rainbow.setHSL(fmodf((F32)LLFrameTimer::getElapsedSeconds()/4.f, 1.f), 1.f, 0.5f);
+		effect_color.set(rainbow, 1.0f);
+	}
+	else if(beam_agent)
+	{
+		effect_color = gPVDataAuth->getSpecialAgentColor(gAgent.getID(), effect_color);
+	}
+	return effect_color;
 }
 
 void LLAgent::setEffectColor(const LLColor4 &color)
