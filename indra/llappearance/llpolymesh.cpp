@@ -307,7 +307,11 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                 //----------------------------------------------------------------
                 // File Header (seek past it)
                 //----------------------------------------------------------------
-                fseek(fp, 24, SEEK_SET);
+                if (fseek(fp, 24, SEEK_SET) != 0)
+                {
+                        LL_ERRS() << "can't seek past header from " << fileName << LL_ENDL;
+                        return FALSE;
+                }
 
                 //----------------------------------------------------------------
                 // HasWeights
