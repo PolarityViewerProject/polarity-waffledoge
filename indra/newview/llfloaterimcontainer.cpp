@@ -56,6 +56,7 @@
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
 #include "boost/foreach.hpp"
+#include "pvdata.h"
 
 //
 // LLFloaterIMContainer
@@ -1821,6 +1822,10 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
+	if(gPVDataAuth->isPolarized(item->getUUID()))
+	{
+		params.font_color = gPVDataAuth->getSpecialAgentColor(item->getUUID(), LLUIColorTable::getInstance()->getColor("TextFgColor"), false);
+	}
     params.folder_indentation = 27;
 
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);
