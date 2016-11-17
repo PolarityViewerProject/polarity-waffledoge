@@ -48,7 +48,7 @@ void PVGPUInfo::updateValues()
 		vram_available_mb = S32Kilobytes(0);
 	}
 	vram_in_use_mb = S32Megabytes(gGLManager.mVRAM - vram_available_mb.value());
-	LL_WARNS() << "vram_in_use_mb " << vram_in_use_mb << "\n" << "gGLManager.mVRAM " << gGLManager.mVRAM << "\n" << "vram_available_mb " << vram_available_mb << LL_ENDL;
+	//LL_DEBUGS() << "vram_in_use_mb " << vram_in_use_mb << "\n" << "gGLManager.mVRAM " << gGLManager.mVRAM << "\n" << "vram_available_mb " << vram_available_mb << LL_ENDL;
 }
 
 S32Megabytes PVGPUInfo::getTotalVRAM()
