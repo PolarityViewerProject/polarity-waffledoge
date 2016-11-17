@@ -918,12 +918,15 @@ void LLImageRaw::clear(U8 r, U8 g, U8 b, U8 a)
 {
 	llassert( getComponents() <= 4 );
 	// This is fairly bogus, but it'll do for now.
+
+#if LL_SNAPSHOT_BUFFER_CHECKS
+	// <polarity> This crashes us while we can take screenshots perfectly fine.
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return;
 	}
-
+#endif
 	U8 *pos = getData();
 	U32 x, y;
 	for (x = 0; x < getWidth(); x++)
@@ -1050,12 +1053,12 @@ inline U8 LLImageRaw::fastFractionalMult( U8 a, U8 b )
 void LLImageRaw::composite( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-
+#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (!validateSrcAndDst("LLImageRaw::composite", src, dst))
 	{
 		return;
 	}
-
+#endif
 	llassert(3 == src->getComponents());
 	llassert(3 == dst->getComponents());
 
@@ -1156,12 +1159,12 @@ void LLImageRaw::compositeUnscaled4onto3( LLImageRaw* src )
 void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-
+#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (!validateSrcAndDst("LLImageRaw::copyUnscaledAlphaMask", src, dst))
 	{
 		return;
 	}
-
+#endif
 	llassert( 1 == src->getComponents() );
 	llassert( 4 == dst->getComponents() );
 	llassert( (src->getWidth() == dst->getWidth()) && (src->getHeight() == dst->getHeight()) );
@@ -1184,12 +1187,13 @@ void LLImageRaw::copyUnscaledAlphaMask( LLImageRaw* src, const LLColor4U& fill)
 // Fill the buffer with a constant color
 void LLImageRaw::fill( const LLColor4U& color )
 {
+#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return;
 	}
-
+#endif
 	S32 pixels = getWidth() * getHeight();
 	if( 4 == getComponents() )
 	{
@@ -1360,12 +1364,12 @@ void LLImageRaw::copyUnscaled3onto4( LLImageRaw* src )
 void LLImageRaw::copyScaled( LLImageRaw* src )
 {
 	LLImageRaw* dst = this;  // Just for clarity.
-
+#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (!validateSrcAndDst("LLImageRaw::copyScaled", src, dst))
 	{
 		return;
 	}
-
+#endif
 	llassert_always( (1 == src->getComponents()) || (3 == src->getComponents()) || (4 == src->getComponents()) );
 	llassert_always( src->getComponents() == dst->getComponents() );
 
@@ -1409,11 +1413,13 @@ bool LLImageRaw::scale( S32 new_width, S32 new_height, bool scale_image_data )
         return false;
     }
 
+#if LL_SNAPSHOT_BUFFER_CHECKS
 	if (isBufferInvalid())
 	{
 		LL_WARNS() << "Invalid image buffer" << LL_ENDL;
 		return false;
 	}
+#endif
 
 	S32 old_width = getWidth();
 	S32 old_height = getHeight();
