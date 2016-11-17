@@ -251,7 +251,7 @@ public:
 	void			idleUpdateNameTagText(BOOL new_name);
 	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
-	LLColor4		getNameTagColor(const LLUUID& av_id, const bool is_friend);
+	LLColor4		getNameTagColor(const LLUUID& av_id);
 	void			clearNameTag();
 	static void		invalidateNameTag(const LLUUID& agent_id);
 	// force all name tags to rebuild, useful when display names turned on/off
