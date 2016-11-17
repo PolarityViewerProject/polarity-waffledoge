@@ -82,15 +82,25 @@
 					 text_color="LoginProgressBoxStatusColor"
 					 top_delta="75"
 					 word_wrap="true"/>
+					 <loading_anim
+					 color="EmphasisColor"
+					 follows="left|right|top|bottom"
+					 height="40"
+					 left="80"
+					 name="loading_anim_test"
+					 number_sprites="72"
+					 right="-30"
+					 sprite_image="load_animation_sprite.png"
+					 top_pad="20"/>
 					<progress_bar
-					 bottom="115"
 					 color_bar="EmphasisColor"
 					 follows="left|right|top"
-					 height="16"
+					 height="5"
 					 layout="topleft"
-					 left="50"
+					 left="85"
 					 name="login_progress_bar"
-					 right="-50" />
+					 top_pad="10"
+					 right="-90" />
 					<text
 					 follows="left|right|top|bottom"
 					 font="SansSerifLarge"
@@ -101,7 +111,7 @@
 					 line_spacing.pixels="1"
 					 name="message_text"
 					 text_color="LoginProgressBoxMessageColor"
-					 top="125"
+					 top_pad="20"
 					 right="-50"
 					 word_wrap="true"/>
 				</layout_panel>
