@@ -100,7 +100,7 @@
 					 left="85"
 					 name="login_progress_bar"
 					 top_pad="10"
-					 right="-90" />
+					 right="-100" />
 					<text
 					 follows="left|right|top|bottom"
 					 font="SansSerifLarge"
