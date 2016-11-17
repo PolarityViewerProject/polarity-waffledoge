@@ -422,9 +422,8 @@ private:
 void LLAvatarTexBar::draw()
 {	
 	// <FS:Ansariel> Speed-up
-	//if (!gSavedSettings.getBOOL("DebugAvatarRezTime")) return;
-	static LLCachedControl<BOOL> debugAvatarRezTime(gSavedSettings, "DebugAvatarRezTime");
-	if (!debugAvatarRezTime) return;
+	static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
+	if (!debug_avatar_rez_time) return;
 
 	LLVOAvatarSelf* avatarp = gAgentAvatarp;
 	if (!avatarp) return;
@@ -486,7 +485,7 @@ LLRect LLAvatarTexBar::getRequiredRect()
 {
 	LLRect rect;
 	rect.mTop = 100;
-	static LLCachedControl<BOOL> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
+	static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
 	if (!debug_avatar_rez_time) rect.mTop = 0;
 	return rect;
 }

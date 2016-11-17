@@ -4480,7 +4480,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 
-	static LLCachedControl<BOOL> show_hud(gSavedSettings, "RenderHUDInSnapshot");
+	static LLCachedControl<bool> show_hud(gSavedSettings, "RenderHUDInSnapshot");
 	BOOL hide_hud = !show_hud && LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{

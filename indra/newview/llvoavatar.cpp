@@ -823,7 +823,8 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 					   << " : " << comment
 					   << LL_ENDL;
 
-	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+	static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
+	if (debug_avatar_rez_time)
 	{
 		LLSD args;
 		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());

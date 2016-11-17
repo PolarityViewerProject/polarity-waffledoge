@@ -1479,7 +1479,8 @@ void LLTextureCtrl::draw()
 		}
 
 		// Optionally show more detailed information.
-		if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
+		static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
+		if(debug_avatar_rez_time)
 		{
 			LLFontGL* font = LLFontGL::getFontSansSerif();
 			std::string tdesc;
