@@ -28,9 +28,8 @@
 S32Megabytes PVGPUInfo::vram_available_mb = S32Megabytes(0);
 S32Megabytes PVGPUInfo::vram_in_use_mb = S32Megabytes(0);
 
-PVGPUInfo::PVGPUInfo()
+void PVGPUInfo::updateValues()
 {
-
 	GLint memInfo; // in KB
 	if (gGLManager.mIsATI)
 	{
@@ -46,15 +45,16 @@ PVGPUInfo::PVGPUInfo()
 	{
 		// The Intel driver cannot reliably know how much memory is in use,
 		// let's assume there is no free vram and skip drawing the grey bar.
-		vram_available_mb = S32Kilobytes(128); // 0 causes fun bugs.
+		vram_available_mb = S32Kilobytes(0);
 	}
-	vram_in_use_mb = vram_available_mb - vram_available_mb;
+	vram_in_use_mb = S32Megabytes(gGLManager.mVRAM - vram_available_mb.value());
+	LL_WARNS() << "vram_in_use_mb " << vram_in_use_mb << "\n" << "gGLManager.mVRAM " << gGLManager.mVRAM << "\n" << "vram_available_mb " << vram_available_mb << LL_ENDL;
 }
 
-S32 PVGPUInfo::getTotalVRAMS32()
+S32Megabytes PVGPUInfo::getTotalVRAM()
 {
 	// return existing variable to avoid memory bloat
-	return gGLManager.mVRAM;
+	return S32Megabytes(gGLManager.mVRAM);
 }
 
 bool PVGPUInfo::hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y)

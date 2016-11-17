@@ -558,6 +558,8 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, v_offset + line_height*9,
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
+	PVGPUInfo::updateValues();
+
 	//----------------------------------------------------------------------------
 	//BD - GPU Memory
 
@@ -566,7 +568,7 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%dMB on-board, %dMB free", PVGPUInfo::getTotalVRAMS32(), PVGPUInfo::getAvailableVRAM());
+	text = llformat("%dMB on-board, %dMB free", PVGPUInfo::getTotalVRAM().value(), PVGPUInfo::getAvailableVRAM());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
@@ -582,7 +584,7 @@ void LLGLTexMemBar::draw()
 	if(!gGLManager.mIsIntel)
 	{
 		// Calculate VRAM in use by other processes
-		data_progress = ((F32)PVGPUInfo::getInUseVRAM().value() - (F32)texture_total_mem.value() - (F32)texture_bound_memory.value() - (F32)fbo) / (F32)PVGPUInfo::getTotalVRAMS32();
+		data_progress = ((F32)PVGPUInfo::getInUseVRAM().value() - (F32)texture_total_mem.value() - (F32)texture_bound_memory.value() - (F32)fbo) / (F32)PVGPUInfo::getTotalVRAM().value();
 
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
@@ -597,7 +599,7 @@ void LLGLTexMemBar::draw()
 		data_progress = 0.0f;
 		right = left + (data_progress * (F32)bar_width);
 	}
-		data_progress = ((F32)fbo) / (F32)PVGPUInfo::getTotalVRAMS32();
+		data_progress = ((F32)fbo) / (F32)PVGPUInfo::getTotalVRAM().value();
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
@@ -607,7 +609,7 @@ void LLGLTexMemBar::draw()
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 
-		data_progress = ((F32)texture_total_mem.value()) / (F32)PVGPUInfo::getTotalVRAMS32();
+		data_progress = ((F32)texture_total_mem.value()) / (F32)PVGPUInfo::getTotalVRAM().value();
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
@@ -617,7 +619,7 @@ void LLGLTexMemBar::draw()
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
 
-		data_progress = ((F32)texture_bound_memory.value()) / (F32)PVGPUInfo::getTotalVRAMS32();
+		data_progress = ((F32)texture_bound_memory.value()) / (F32)PVGPUInfo::getTotalVRAM().value();
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)

@@ -46,10 +46,10 @@ public:
 	 * \brief Wrapper around gGLManager.mVRAM
 	 * \return S32
 	 */
-	static S32 getTotalVRAMS32();
+	static S32Megabytes getTotalVRAM();
 
 	
-	PVGPUInfo();
+	static void updateValues();
 
 	// Enables logging for this class
 	typedef PVGPUInfo _LL_CLASS_TO_LOG;
