@@ -1171,7 +1171,7 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 	*/
 	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
 	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
-	bool show_f = (show_friends && is_buddy_and_show_it);
+	bool show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
 
 	// Lengthy but fool-proof.
 	if (show_f && av_flags && low_priority_friend_status)
