@@ -423,7 +423,7 @@ void LLAvatarTexBar::draw()
 {	
 	// <FS:Ansariel> Speed-up
 	//if (!gSavedSettings.getBOOL("DebugAvatarRezTime")) return;
-	static LLCachedControl<bool> debugAvatarRezTime(gSavedSettings, "DebugAvatarRezTime");
+	static LLCachedControl<BOOL> debugAvatarRezTime(gSavedSettings, "DebugAvatarRezTime");
 	if (!debugAvatarRezTime) return;
 
 	LLVOAvatarSelf* avatarp = gAgentAvatarp;
