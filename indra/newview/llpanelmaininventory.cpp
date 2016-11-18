@@ -97,6 +97,7 @@ private:
 	LLSpinCtrl*			mSpinSinceDays;
 	LLSpinCtrl*			mSpinSinceHours;
 	LLInventoryFilter*	mFilter;
+	LLSidepanelInventory * mSidepanelInventory;
 };
 
 ///----------------------------------------------------------------------------
@@ -123,9 +124,6 @@ LLPanelMainInventory::LLPanelMainInventory(const LLPanel::Params& p)
 	mCommitCallbackRegistrar.add("Inventory.ResetFilters", boost::bind(&LLPanelMainInventory::resetFilters, this));
 	mCommitCallbackRegistrar.add("Inventory.SetSortBy", boost::bind(&LLPanelMainInventory::setSortBy, this, _2));
 	mCommitCallbackRegistrar.add("Inventory.Share",  boost::bind(&LLAvatarActions::shareWithAvatars, this));
-	// <polarity> Marketplace Inbox visibility
-		mCommitCallbackRegistrar.add("Inventory.toggleInboxPanelVisibility", boost::bind(&LLPanelMainInventory::toggleInboxPanelVisibility, this));
-	// </polarity>
 
 	// <FS:Zi> Filter Links Menu
 	mCommitCallbackRegistrar.add("Inventory.FilterLinks.Set", boost::bind(&LLPanelMainInventory::onFilterLinksChecked, this, _2));
@@ -414,12 +412,6 @@ void LLPanelMainInventory::closeAllFolders()
 	getPanel()->getRootFolder()->closeAllFolders();
 }
 
-void LLPanelMainInventory::toggleInboxPanelVisibility()
-{
-	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel", false);
-	gSavedSettings.setBOOL("PVUI_HideMarketplaceInboxPanel", !hide_inbox_panel);
-	LL_INFOS("Inventory") << "Toggling Inbox Visibility " << LL_ENDL;
-}
 void LLPanelMainInventory::newWindow()
 {
 	static S32 instance_num = 0;
@@ -1393,10 +1385,6 @@ void LLPanelMainInventory::onCustomAction(const LLSD& userdata)
 	if (command_name == "close_folders")
 	{
 		closeAllFolders();
-	}
-	if (command_name == "show_inbox_panel")
-	{
-		toggleInboxPanelVisibility();
 	}
 	if (command_name == "empty_trash")
 	{

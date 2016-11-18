@@ -1628,7 +1628,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVUI_HideMarketplaceInboxPanel</key>
+    <key>PVUI_ShowMarketplaceInboxPanel</key>
     <map>
       <key>Comment</key>
       <string>Hides the marketplace inbox panel entirely and shows folder in inventory instead</string>

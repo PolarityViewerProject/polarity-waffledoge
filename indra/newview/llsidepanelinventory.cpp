@@ -95,7 +95,6 @@ public:
 			switch (added_category_type)
 			{
 				case LLFolderType::FT_INBOX:
-					mSidepanelInventory->enableInbox(true);
 					mSidepanelInventory->observeInboxModifications(added_category->getUUID());
 					break;
 				default:
@@ -141,16 +140,6 @@ LLSidepanelInventory::~LLSidepanelInventory()
 		gInventory.removeObserver(mInboxAddedObserver);
 	}
 	delete mInboxAddedObserver;
-}
-
-void handleInventoryDisplayInboxChanged()
-{
-	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
-	static LLCachedControl<bool> display_inbox(gSavedSettings, "InventoryDisplayInbox");
-	if (sidepanel_inventory)
-	{
-		sidepanel_inventory->enableInbox(display_inbox);
-	}
 }
 
 BOOL LLSidepanelInventory::postBuild()
@@ -234,17 +223,9 @@ BOOL LLSidepanelInventory::postBuild()
 			inbox_panel->setTargetDim(gSavedPerAccountSettings.getS32("InventoryInboxHeight"));
 		}
 
-		// Set the inbox visible based on debug settings (final setting comes from http request below)
-		
-		// <polarity> handled with our callback below
-		// enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
-
 		// Trigger callback for after login so we can setup to track inbox changes after initial inventory load
 		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
 	}
-
-	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
-	gSavedSettings.getControl("PVUI_HideMarketplaceInboxPanel")->getSignal()->connect(boost::bind(&LLSidepanelInventory::refreshInboxVisibility, this));
 
 	// Update the verbs buttons state.
 	updateVerbs();
@@ -271,9 +252,6 @@ void LLSidepanelInventory::updateInbox()
         // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
         // things can get messy and conventions broken. This call puts everything back together in its right place.
         gInventory.consolidateForType(inbox_id, LLFolderType::FT_INBOX);
-        
-		// Enable the display of the inbox if it exists
-		enableInbox(true);
 
 		observeInboxModifications(inbox_id);
 	}
@@ -336,22 +314,6 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
     LLInventoryPanel* inventory_panel = inbox->setupInventoryPanel();
 	mInventoryPanelInbox = inventory_panel->getInventoryPanelHandle();
-}
-
-void LLSidepanelInventory::enableInbox(bool enabled)
-{
-	mInboxEnabled = enabled;
-	
-	LLLayoutPanel * inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
-	// <polarity> Marketplace Inbox visibility
-	//inbox_layout_panel->setVisible(enabled);
-	static LLCachedControl<bool> hide_inbox_panel(gSavedSettings, "PVUI_HideMarketplaceInboxPanel", false);
-	inbox_layout_panel->setVisible(enabled && !hide_inbox_panel);
-	// </polarity>
-}
-void LLSidepanelInventory::refreshInboxVisibility()
-{
-	enableInbox(mInboxEnabled);
 }
 
 void LLSidepanelInventory::openInbox()

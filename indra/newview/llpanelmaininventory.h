@@ -34,6 +34,7 @@
 #include "lldndbutton.h"
 
 #include "llfolderview.h"
+#include "llerror.h"
 
 class LLFolderViewItem;
 class LLInventoryPanel;
@@ -58,6 +59,8 @@ class LLPanelMainInventory : public LLPanel, LLInventoryObserver
 {
 public:
 	friend class LLFloaterInventoryFinder;
+
+	LOG_CLASS(LLPanelMainInventory);
 
 	LLPanelMainInventory(const LLPanel::Params& p = getDefaultParams());
 	~LLPanelMainInventory();
@@ -120,7 +123,6 @@ protected:
 	// menu callbacks
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
-	void toggleInboxPanelVisibility();
 	void newWindow();
 	void doCreate(const LLSD& userdata);
 	void resetFilters();

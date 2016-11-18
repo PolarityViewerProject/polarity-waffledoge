@@ -57,7 +57,7 @@
                  user_resize="true"
                  follows="left|right|top"
                  name="inbox_layout_panel"
-                 visible="false"
+                 visible="true"
                  min_dim="35"
                  max_dim="235"
                  expanded_min_dim="90"
@@ -75,9 +75,8 @@
                      <string name="InboxLabelWithArg">Received items ([NUM])</string>
                      <string name="InboxLabelNoArg">Received items</string>
                      <button
-                        control_name="InventoryInboxToggleState"
                         label="Received items"
-												font="SansSerifMedium"
+						font="SansSerifMedium"
                         name="inbox_btn"
                         height="35"
                         width="308"

@@ -51,6 +51,7 @@
 					width="330" />
 			 </layout_panel>
 				<layout_panel
+				 visibility_control="PVUI_ShowMarketplaceInboxPanel"
 				 width="330"
 				 layout="topleft"
 				 auto_resize="false"
