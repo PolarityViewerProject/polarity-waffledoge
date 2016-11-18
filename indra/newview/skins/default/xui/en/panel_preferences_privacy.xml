@@ -152,6 +152,24 @@
 	 top_pad="5"
 	 width="350" />
 	<check_box
+	 control_name="PVUI_ShowCurrencyBalanceInStatusBar"
+	 height="16"
+	 label="Show L$ balance in the top bar"
+	 layout="topleft"
+	 left_delta="0"
+	 name="show_balance_status_bar"
+	 top_pad="5"
+	 width="350" />
+	<check_box
+	 control_name="PVUI_ShowCurrencyBalanceInSnapshots"
+	 height="16"
+	 label="Show L$ balance in Snapshots"
+	 layout="topleft"
+	 left_delta="0"
+	 name="show_balance_snapshots"
+	 top_pad="5"
+	 width="350" />
+	<check_box
 	 control_name="ShowFavoritesOnLogin"
 	 enabled="false"
 	 height="16"
