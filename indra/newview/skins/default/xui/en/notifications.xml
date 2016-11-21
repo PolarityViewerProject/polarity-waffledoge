@@ -11284,4 +11284,17 @@ Color: [PV_COLOR]
   [MESSAGE]
  </notification>
 
+<!-- Resurrected from Firestorm -->
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteOutfitsWithName"
+   type="alertmodal">
+    Delete outfit &quot;[NAME]&quot;?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
 </notifications>
