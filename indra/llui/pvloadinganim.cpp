@@ -67,7 +67,7 @@ PVLoadingAnim::~PVLoadingAnim()
 void PVLoadingAnim::draw()
 {
 	static LLTimer timer;
-	// <polarity> Port Prismata's public domain loading animation
+	// <polarity> C++ Port of Prismata's public domain loading animation
 	F32 half_height = (getRect().getHeight() - mSpriteDiameter) / 2;
 	U64 time_step = floor(timer.getElapsedTimeF64() * 60);
 	F32 sprite_y;
