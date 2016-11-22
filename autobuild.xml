@@ -1846,7 +1846,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///c:/devel/secondlife/packages/windows/nvapi-R361v2-windows-201604020339.tar.bz2</string>
+              <string>file:///C:\devel\secondlife\packages\windows\nvapi-R361v2-windows-201605271049.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1860,7 +1860,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///c:/devel/secondlife/packages/windows64/nvapi-R361v2-windows64-201604020338.tar.bz2</string>
+              <string>file:///C:\devel\secondlife\packages\windows64\nvapi-R361v2-windows64-201604021129.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
