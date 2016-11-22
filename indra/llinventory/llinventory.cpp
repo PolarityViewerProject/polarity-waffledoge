@@ -746,7 +746,7 @@ BOOL LLInventoryItem::importFile(LLFILE* fp)
 		else
 		{
 			LL_WARNS() << "unknown keyword '" << keyword
-					<< "' in inventory import of item " << mUUID << LL_ENDL;
+					<< "' in inventory import of item " << mUUID << "( '" << mName << "' ), consider re-creating this asset." << LL_ENDL;
 		}
 	}
 
