@@ -94,7 +94,9 @@
 #include "boost/foreach.hpp"
 #include "kcwlinterface.h"
 #include "llcorehttputil.h"
+
 #include "pvdata.h"
+#include "pvfloaterprogressview.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -3961,6 +3963,10 @@ void LLAgent::teleportRequest(
 	bool is_local = (region_handle == regionp->getHandle());
 	if(regionp && teleportCore(is_local))
 	{
+		LLFloaterProgressView* pProgFloater = LLFloaterReg::getTypedInstance<LLFloaterProgressView>("progress_view");
+		LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(region_handle);
+		pProgFloater->setRegion(info ? info->getName() : LLStringUtil::null);
+		
 		LL_INFOS("") << "TeleportLocationRequest: '" << region_handle << "':"
 					 << pos_local << LL_ENDL;
 		LLMessageSystem* msg = gMessageSystem;
@@ -3993,6 +3999,10 @@ void LLAgent::doTeleportViaLandmark(const LLUUID& landmark_asset_id)
 	LLViewerRegion *regionp = getRegion();
 	if(regionp && teleportCore())
 	{
+		LLFloaterProgressView* pProgFloater =
+			static_cast<LLFloaterProgressView*>(LLFloaterReg::getInstance("progress_view"));
+		pProgFloater->setRegion();
+		
 		LLMessageSystem* msg = gMessageSystem;
 		msg->newMessageFast(_PREHASH_TeleportLandmarkRequest);
 		msg->nextBlockFast(_PREHASH_Info);
@@ -4014,6 +4024,10 @@ void LLAgent::doTeleportViaLure(const LLUUID& lure_id, BOOL godlike)
 	LLViewerRegion* regionp = getRegion();
 	if(regionp && teleportCore())
 	{
+		LLFloaterProgressView* pProgFloater =
+		static_cast<LLFloaterProgressView*>(LLFloaterReg::getInstance("progress_view"));
+		pProgFloater->setRegion();
+		
 		U32 teleport_flags = 0x0;
 		if (godlike)
 		{
@@ -4090,9 +4104,12 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 	}
 
 	U64 handle = to_region_handle(pos_global);
+	LLFloaterProgressView* pProgFloater =
+		LLFloaterReg::getTypedInstance<LLFloaterProgressView>("progress_view");
 	LLSimInfo* info = LLWorldMap::getInstance()->simInfoFromHandle(handle);
 	if(regionp && info)
 	{
+		pProgFloater->setRegion(info->getName());
 		LLVector3d region_origin = info->getGlobalOrigin();
 		LLVector3 pos_local(
 			(F32)(pos_global.mdV[VX] - region_origin.mdV[VX]),
@@ -4103,6 +4120,7 @@ void LLAgent::doTeleportViaLocation(const LLVector3d& pos_global)
 	else if(regionp && 
 		teleportCore(regionp->getHandle() == to_region_handle_global((F32)pos_global.mdV[VX], (F32)pos_global.mdV[VY])))
 	{
+		pProgFloater->setRegion();
 		LL_WARNS() << "Using deprecated teleportlocationrequest." << LL_ENDL; 
 		// send the message
 		LLMessageSystem* msg = gMessageSystem;
@@ -4144,6 +4162,11 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global)
 	}
 
 	U64 region_handle = to_region_handle(pos_global);
+	LLSimInfo* simInfo = LLWorldMap::instance().simInfoFromHandle(region_handle);
+	if (simInfo)
+	{
+		region_handle = simInfo->getHandle();
+	}
 	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
 	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
 }

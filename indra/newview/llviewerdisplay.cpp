@@ -78,7 +78,9 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "llprogressview.h"
+//#include "llprogressview.h"
+#include "pvfloaterprogressview.h"
+#include "llfloaterreg.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -414,57 +416,57 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gAgent.setTeleportMessage(std::string());
 		}
 
+		LLFloaterProgressView* pProgFloater = LLFloaterReg::getTypedInstance<LLFloaterProgressView>("progress_view");
+		
 		const std::string& message = gAgent.getTeleportMessage();
 		switch( gAgent.getTeleportState() )
 		{
 		case LLAgent::TELEPORT_PENDING:
 			gTeleportDisplayTimer.reset();
-			gViewerWindow->setShowProgress(TRUE);
-			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
+			pProgFloater->setVisible(TRUE);
+			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
 			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["pending"]);
-			gViewerWindow->setProgressString(LLAgent::sTeleportProgressMessages["pending"]);
+			pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["pending"]);
 			break;
 
 		case LLAgent::TELEPORT_START:
 			// Transition to REQUESTED.  Viewer has sent some kind
 			// of TeleportRequest to the source simulator
 			gTeleportDisplayTimer.reset();
-			gViewerWindow->setShowProgress(TRUE);
+			pProgFloater->setVisible(TRUE);
 			// <polarity> Add missing call to put new message in TP screen
-			gViewerWindow->setProgressMessage(gAgent.mMOTD);
-			gViewerWindow->setProgressPercent(llmin(teleport_percent, 0.0f));
+			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
+			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
-			gAgent.setTeleportMessage(
-				LLAgent::sTeleportProgressMessages["requesting"]);
-			gViewerWindow->setProgressString(LLAgent::sTeleportProgressMessages["requesting"]);
+			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["requesting"]);
+			pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["requesting"]);
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
 			// Waiting for source simulator to respond
-			gViewerWindow->setProgressPercent( llmin(teleport_percent, 37.5f) );
+			pProgFloater->setProgressPercent(llmin(teleport_percent, 37.5f));
 			// <polarity> Add missing call to put new message in TP screen
-			gViewerWindow->setProgressMessage(gAgent.mMOTD);
-			gViewerWindow->setProgressString(message);
+			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
+			pProgFloater->setProgressText(message);
 			break;
 
 		case LLAgent::TELEPORT_MOVING:
 			// Viewer has received destination location from source simulator
-			gViewerWindow->setProgressPercent( llmin(teleport_percent, 75.f) );
+			pProgFloater->setProgressPercent(llmin(teleport_percent, 75.f));
 			// <polarity> Add missing call to put new message in TP screen
-			gViewerWindow->setProgressMessage(gAgent.mMOTD);
-			gViewerWindow->setProgressString(message);
+			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
+			pProgFloater->setProgressText(message);
 			break;
 
 		case LLAgent::TELEPORT_START_ARRIVAL:
 			// Transition to ARRIVING.  Viewer has received avatar update, etc., from destination simulator
 			gTeleportArrivalTimer.reset();
-				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
-			gViewerWindow->setProgressPercent(75.f);
+			pProgFloater->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
+			pProgFloater->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			// <polarity> Add missing call to put new message in TP screen
-			gViewerWindow->setProgressMessage(gAgent.mMOTD);
-			gAgent.setTeleportMessage(
-				LLAgent::sTeleportProgressMessages["arriving"]);
+			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
+			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
 			
@@ -480,11 +482,11 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
 				}
-				gViewerWindow->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
-				gViewerWindow->setProgressPercent(  arrival_fraction * 25.f + 75.f);
+				pProgFloater->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
+				pProgFloater->setProgressPercent(arrival_fraction * 25.f + 75.f);
 				// <polarity> Add missing call to put new message in TP screen
-				gViewerWindow->setProgressMessage(gAgent.mMOTD);
-				gViewerWindow->setProgressString(message);
+				//gViewerWindow->setProgressMessage(gAgent.mMOTD);
+				pProgFloater->setProgressText(message);
 			}
 			break;
 
@@ -504,7 +506,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 		case LLAgent::TELEPORT_NONE:
 			// No teleport in progress
-			gViewerWindow->setShowProgress(FALSE);
+			pProgFloater->setVisible(FALSE);
 			gTeleportDisplay = FALSE;
 			break;
 		}

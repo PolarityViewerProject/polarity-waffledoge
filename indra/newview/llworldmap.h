@@ -128,6 +128,10 @@ public:
 	const S32 getAgentCount() const;				// Compute the total agents count
 	LLPointer<LLViewerFetchedTexture> getLandForSaleImage();	// Get the overlay image, fetch it if necessary
 
+	const U64& getHandle() const { return mHandle; }
+	const U16 getSizeX() const { return mSizeX; }
+	const U16 getSizeY() const { return mSizeY; }
+
 	bool isName(const std::string& name) const;
 	bool isDown() { return (mAccess == SIM_ACCESS_DOWN); }
 	bool isPG() { return (mAccess <= SIM_ACCESS_PG); }
@@ -160,6 +164,8 @@ public:
 
 private:
 	U64 mHandle;				// This is a hash of the X and Y world coordinates of the SW corner of the sim
+	U16 mSizeX;
+	U16 mSizeY;
 	std::string mName;			// Region name
 
 	F64 mAgentsUpdateTime;		// Time stamp giving the last time the agents information was requested for that region
