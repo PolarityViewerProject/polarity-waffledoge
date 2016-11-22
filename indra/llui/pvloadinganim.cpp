@@ -78,7 +78,7 @@ void PVLoadingAnim::draw()
 	}
 	// </polarity>
 
-	LLView::draw();
+	//LLView::draw();
 }
 
 static LLDefaultChildRegistry::Register<PVLoadingAnim> r("loading_anim");
