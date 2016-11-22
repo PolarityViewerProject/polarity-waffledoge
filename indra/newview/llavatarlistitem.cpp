@@ -247,7 +247,7 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 void LLAvatarListItem::setState(EItemState item_style)
 {
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
-	auto static online_color = LLUIColorTable::getInstance()->getColor("ProfileOnlineIndicatorColor");
+	auto static online_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
 	switch(item_style)
 	{
 	default:
@@ -265,15 +265,8 @@ void LLAvatarListItem::setState(EItemState item_style)
 		break;
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
-		if(gPVDataAuth->isPolarized(mAvatarId))
-		{
-			mAvatarName->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color));
-			mAvatarNameStyle.override_link_style = true;
-		}
-		else
-		{
-			mAvatarNameStyle = params.online_style();
-		}
+		mAvatarName->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color, false));
+		mAvatarNameStyle.override_link_style = true;
 		break;
 	case IS_OFFLINE:
 		mAvatarNameStyle = params.offline_style();

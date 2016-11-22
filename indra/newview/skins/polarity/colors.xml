@@ -1123,10 +1123,6 @@
 		value="0.2431372549019608 0.7019607843137255 0.9764705882352941 0.50">
 	</color> <!-- 3eb3f9 -->
 	<color
-		name="ProfileOnlineIndicatorColor"
-		value="0.29452 0.47632 0.10181 1.0">
-	</color>
-	<color
 		name="ProfileOfflineIndicatorColor"
 		value="0.16863 0.16863 0.16863 1.0">
 	</color>
