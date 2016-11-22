@@ -154,7 +154,7 @@ set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
     pvdata.h
-	pvgpuinfo.h
+    pvgpuinfo.h
     pvmachinima.h
     pvperformancemaid.h
     pvrandom.h
@@ -164,7 +164,7 @@ set(polarity_SOURCE_FILES
     pvaligntool.cpp
     pvcommon.cpp
     pvdata.cpp
-	pvgpuinfo.cpp
+    pvgpuinfo.cpp
     pvmachinima.cpp
     pvperformancemaid.cpp
     pvrandom.cpp
