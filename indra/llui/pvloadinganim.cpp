@@ -44,6 +44,17 @@ PVLoadingAnim::PVLoadingAnim(const Params& p)
 	mSpriteImage(p.sprite_image),
 	mColor(p.color())
 {
+	// Crash fix when required parameters aren't provided
+	if(!p.color.isProvided() || !p.color.isValid())
+	{
+		mColor = LLUIColorTable::getInstance()->getColor("EmphasisColor");
+	}
+	// Division by nullptr is really, really bad.
+	if (mNumSprites == NULL)
+	{
+		mNumSprites = 35;
+	}
+	// FIXME: doesn't handle dynamic sizes
 	mSpriteSeparation = getRect().getWidth() / mNumSprites;
 	mSpriteDiameter = static_cast<S32>(mSpriteSeparation / 5.0f * 4.0f);
 }
