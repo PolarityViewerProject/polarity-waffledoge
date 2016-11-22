@@ -70,9 +70,10 @@ void PVLoadingAnim::draw()
 	// <polarity> Port Prismata's public domain loading animation
 	F32 half_height = (getRect().getHeight() - mSpriteDiameter) / 2;
 	U64 time_step = floor(timer.getElapsedTimeF64() * 60);
+	F32 sprite_y;
 	for (size_t i = 0; i < mNumSprites; i++)
 	{
-		const F32 sprite_y = half_height + half_height * sin(fmod(time_step * (i / 500.0 + 0.02), F_TWO_PI));
+		sprite_y = half_height + half_height * sin(fmod(time_step * (i / 500.0 + 0.02), F_TWO_PI));
 		mSpriteImage->draw(i * mSpriteSeparation, sprite_y, mSpriteDiameter, mSpriteDiameter, mColor.get());
 	}
 	// </polarity>
