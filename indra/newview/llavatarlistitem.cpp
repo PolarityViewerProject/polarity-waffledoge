@@ -265,7 +265,7 @@ void LLAvatarListItem::setState(EItemState item_style)
 		break;
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
-		mAvatarName->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color, false));
+		mAvatarName->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color));
 		mAvatarNameStyle.override_link_style = true;
 		break;
 	case IS_OFFLINE:
