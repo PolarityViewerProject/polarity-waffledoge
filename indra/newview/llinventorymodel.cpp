@@ -1833,7 +1833,7 @@ void LLInventoryModel::accountForUpdate(const LLCategoryUpdate& update) const
 		}
 		else
 		{
-			LL_WARNS(LOG_INV) << "Accounting failed for '" << cat->getName() << "' version: unknown (" 
+			LL_DEBUGS(LOG_INV) << "Accounting failed for '" << cat->getName() << "' version: unknown (" 
 							  << version << ")" << LL_ENDL;
 		}
 	}
