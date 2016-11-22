@@ -61,7 +61,7 @@ PVLoadingAnim::PVLoadingAnim(const Params& p)
 	}
 	// FIXME: doesn't handle all elements width the same. Could we automate some values when not defined so that it fills the element width automatically?
 	mSpriteSeparation = getRect().getWidth() / mNumSprites;
-	mSpriteDiameter = static_cast<S32>((mSpriteSeparation / 5.0f) * 4.0f);
+	mSpriteDiameter = static_cast<S32>((mSpriteSeparation * 0.2f) * 4.0f);
 }
 
 PVLoadingAnim::~PVLoadingAnim()
