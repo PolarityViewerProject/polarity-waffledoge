@@ -54,6 +54,11 @@ PVLoadingAnim::PVLoadingAnim(const Params& p)
 	{
 		mNumSprites = 35;
 	}
+	// Add default texture for this too because XML parsing is slow.
+	if (!p.sprite_image.isProvided())
+	{
+		mSpriteImage = LLUI::getUIImage("load_animation_sprite.png");
+	}
 	// FIXME: doesn't handle dynamic sizes
 	mSpriteSeparation = getRect().getWidth() / mNumSprites;
 	mSpriteDiameter = static_cast<S32>(mSpriteSeparation / 5.0f * 4.0f);
