@@ -21,7 +21,11 @@
  * $/LicenseInfo$
  */
 
+#ifndef PV_MACHINIMA_H
+#define PV_MACHINIMA_H
+
 #pragma once
+
 #include "llmenugl.h"
 
 /////////////////////////////
@@ -60,3 +64,5 @@ class PVMachinimaSidebar : public view_listener_t,
 public:
 	static bool isVisible(const LLSD& userdata);
 };
+
+#endif // PV_MACHINIMA_H

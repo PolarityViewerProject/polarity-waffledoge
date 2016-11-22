@@ -25,6 +25,9 @@
  * $/LicenseInfo$
  */
 
+#ifndef PV_ALIGN_TOOL_H
+#define PV_ALIGN_TOOL_H
+
 #pragma once
 
 #include "lltool.h"
@@ -61,3 +64,5 @@ private:
 	F32			 mHighlightedDirection;
 	BOOL			mForce;
 };
+
+#endif // PV_ALIGN_TOOL_H

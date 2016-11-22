@@ -21,7 +21,11 @@
 * $/LicenseInfo$
 */
 
+#ifndef PV_TYPES_H
+#define PV_TYPES_H
+
 #pragma once
+
 #include <boost/preprocessor.hpp>
 #include "stdtypes.h"
 #include "lluuid.h"
@@ -33,3 +37,5 @@ typedef std::map<LLUUID, std::string> pv_pair_uuid_string;
 typedef std::map<U32, char> pv_pair_u32_char;
 typedef std::map<signed int, std::string> pv_pair_int_string;
 typedef std::map<std::string, LLSD> pv_pair_string_llsd;
+
+#endif // PV_TYPES_H

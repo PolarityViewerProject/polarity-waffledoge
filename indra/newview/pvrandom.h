@@ -22,10 +22,11 @@
  * $/LicenseInfo$
  */
 
-#pragma once
-
 #ifndef PV_RANDOM_H
 #define PV_RANDOM_H
+
+#pragma once
+
 #include "llsingleton.h"
 
 // get random string from a std::vector<std::string>
@@ -36,4 +37,5 @@ class PVRandom: public LLSingleton<PVRandom>
 public:
 	std::string getRandomElement(const std::vector<std::string>& vector) const;
 };
+
 #endif // PV_RANDOM_H

@@ -21,6 +21,9 @@
 * $/LicenseInfo$
 */
 
+#ifndef PV_GPUINFO_H
+#define PV_GPUINFO_H
+
 #pragma once
 
 //#include "llerror.h"
@@ -58,3 +61,5 @@ private:
 	static S32Megabytes vram_available_mb;
 	static S32Megabytes vram_in_use_mb;
 };
+
+#endif // PV_GPUINFO_H

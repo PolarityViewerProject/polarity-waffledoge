@@ -21,7 +21,11 @@
  * $/LicenseInfo$
  */
 
+#ifndef PV_PERFORMANCEMAID_H
+#define PV_PERFORMANCEMAID_H
+
 #pragma once
+
 #include "llmenugl.h"
 
 ///////////////////////////////
@@ -51,3 +55,5 @@ class PVPerformanceMaidPanicButton : public view_listener_t,
 {
 	bool handleEvent(const LLSD& userdata) override;
 };
+
+#endif // PV_PERFORMANCEMAID_H

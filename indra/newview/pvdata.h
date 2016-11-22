@@ -27,6 +27,9 @@
  * $/LicenseInfo$
  */
 
+#ifndef PV_DATA_H
+#define PV_DATA_H
+
 #pragma once
 
  //
@@ -707,3 +710,5 @@ private:
 	static U32 PVSearchSeparatorSelected;
 };
 	extern PVSearchUtil* gPVSearchUtil;
+
+#endif // PV_DATA_H
