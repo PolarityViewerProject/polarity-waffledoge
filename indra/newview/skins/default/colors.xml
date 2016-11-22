@@ -612,16 +612,16 @@
      name="LoginProgressBarFgColor"
      reference="Unused?" />
     <color
-     name="LoginProgressBoxBorderColor"
+     name="LoginProgressBorderColor"
      value="0 0.12 0.24 0" />
     <color
-     name="LoginProgressBoxCenterColor"
+     name="LoginProgressSquarePanelColor"
      value="0 0 0 0.78" />
     <color
-     name="LoginProgressBoxShadowColor"
+     name="LoginProgressShadowColor"
      value="0 0 0 0.78" />
     <color
-     name="LoginProgressBoxTextColor"
+     name="LoginProgressTextColor"
      reference="White" />
     <color
      name="MapAvatarColor"

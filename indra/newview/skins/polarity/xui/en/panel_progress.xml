@@ -7,7 +7,6 @@
  name="login_progress_panel"
  top="768"
  width="1024">
-
 	<layout_stack
 	 follows="left|right|top|bottom"
 	 height="768"
@@ -50,14 +49,15 @@
 				 min_height="250"
 				 name="panel4"
 				 width="670">
-					<icon
-					 color="LoginProgressBoxCenterColor"
-					 follows="left|right|bottom|top"
-					 height="250"
-					 layout="topleft"
-					 left="0"
-					 top="0"
-					 width="670" />
+				<icon
+				 color="LoginProgressSquarePanelColor"
+				 follows="left|right|bottom|top"
+				 height="250"
+				 image_name="Nametag_Rect"
+				 layout="topleft"
+				 left="0"
+				 top="0"
+				 width="670" />
 <!--					 <text
 					 follows="left|right|top"
 					 font="SansSerifHuge"
@@ -67,7 +67,7 @@
 					 layout="topleft"
 					 left_delta="47"
 					 name="title_text"
-					 text_color="LoginProgressBoxMessageColor"
+					 text_color="LoginProgressMessageColor"
 					 top_delta="50"
 					 right="-47"/> -->
 					<text
@@ -79,13 +79,13 @@
 					 layout="topleft"
 					 left="30"
 					 name="progress_text"
-					 text_color="LoginProgressBoxStatusColor"
-					 top_delta="75"
+					 text_color="LoginProgressStatusColor"
+					 top_delta="30"
 					 word_wrap="true"/>
 					 <loading_anim
 					 color="EmphasisColor"
 					 follows="left|right|top|bottom"
-					 height="40"
+					 height="60"
 					 left="80"
 					 name="loading_anim_test"
 					 number_sprites="72"
@@ -95,12 +95,12 @@
 					<progress_bar
 					 color_bar="EmphasisColor"
 					 follows="left|right|top"
-					 height="5"
+					 height="8"
 					 layout="topleft"
-					 left="85"
+					 left="78"
 					 name="login_progress_bar"
 					 top_pad="10"
-					 right="-100" />
+					 right="-85" />
 					<text
 					 follows="left|right|top|bottom"
 					 font="SansSerifLarge"
@@ -110,7 +110,7 @@
 					 left="50"
 					 line_spacing.pixels="1"
 					 name="message_text"
-					 text_color="LoginProgressBoxMessageColor"
+					 text_color="LoginProgressMessageColor"
 					 top_pad="20"
 					 right="-50"
 					 word_wrap="true"/>

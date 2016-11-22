@@ -50,7 +50,7 @@
                  name="panel4"
                  width="670">
                     <icon
-                     color="LoginProgressBoxCenterColor"
+                     color="LoginProgressSquarePanelColor"
                      follows="left|right|bottom|top"
                      height="250"
                      image_name="Rounded_Square"
@@ -67,7 +67,7 @@
                      layout="topleft"
                      left_delta="47"
                      name="title_text"
-                     text_color="LoginProgressBoxTextColor"
+                     text_color="LoginProgressTextColor"
                      top_delta="50"
                      right="-47"/>
                     <text
@@ -79,7 +79,7 @@
                      layout="topleft"
                      left_delta="0"
                      name="progress_text"
-                     text_color="LoginProgressBoxTextColor"
+                     text_color="LoginProgressTextColor"
                      top_pad="5"
                      right="-47"
                      word_wrap="true"/>
@@ -102,7 +102,7 @@
                      left="45"
                      line_spacing.pixels="2"
                      name="message_text"
-                     text_color="LoginProgressBoxTextColor"
+                     text_color="LoginProgressTextColor"
                      top="145"
                      right="-90"
                      word_wrap="true"/>
