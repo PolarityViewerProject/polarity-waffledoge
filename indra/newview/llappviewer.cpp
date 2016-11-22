@@ -4806,8 +4806,12 @@ void LLAppViewer::idle()
 	LLFrameTimer::updateFrameTime();
 	LLFrameTimer::updateFrameCount();
 	LLEventTimer::updateClass();
-	LLNotificationsUI::LLToast::updateClass();
-	LLSmoothInterpolation::updateInterpolants();
+	// <polarity> Crash fix when quitting with XML Preview floater open
+	if (!isQuitting())
+	{
+		LLNotificationsUI::LLToast::updateClass();
+		LLSmoothInterpolation::updateInterpolants();
+	}
 	LLMortician::updateClass();
 	LLFilePickerThread::clearDead();  //calls LLFilePickerThread::notify()
 
