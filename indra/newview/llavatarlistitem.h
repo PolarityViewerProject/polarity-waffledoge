@@ -44,6 +44,7 @@ class LLIconCtrl;
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
 public:
+	LOG_CLASS(LLAvatarListItem);
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<LLStyle::Params>	default_style,
@@ -91,12 +92,12 @@ public:
 	virtual void setValue(const LLSD& value);
 	virtual void changed(U32 mask); // from LLFriendObserver
 
-	void setOnline(bool online);
+	void setOnline(bool online, const bool& show_friend_color = true);
 	void updateAvatarName(); // re-query the name cache
 	void setAvatarName(const std::string& name);
 	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
-	void setState(EItemState item_style);
+	void setState(EItemState item_style, const bool& show_friend_color_b = true);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly
@@ -236,6 +237,12 @@ private:
 	 * @see initChildrenWidths()
 	 */
 	static S32 sChildrenWidths[ALIC_COUNT];
+
+
+	/**
+	 * \brief Contains the color of the currently processed agent. Usually goes to name field.
+	 */
+	LLColor4 mAgentColor;
 
 };
 

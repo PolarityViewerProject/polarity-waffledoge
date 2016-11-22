@@ -216,7 +216,7 @@ void LLAvatarListItem::changed(U32 mask)
 	}
 }
 
-void LLAvatarListItem::setOnline(bool online)
+void LLAvatarListItem::setOnline(bool online, const bool& show_friend_color)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
 
@@ -226,7 +226,7 @@ void LLAvatarListItem::setOnline(bool online)
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	setState(online ? IS_ONLINE : IS_OFFLINE);
+	setState(online ? IS_ONLINE : IS_OFFLINE, show_friend_color);
 }
 
 void LLAvatarListItem::setAvatarName(const std::string& name)
@@ -244,10 +244,13 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setState(EItemState item_style)
+void LLAvatarListItem::setState(EItemState item_style, const bool& show_friend_color_b)
 {
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
+
 	auto static online_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
+	mAgentColor = gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color, show_friend_color_b);
+
 	switch(item_style)
 	{
 	default:
@@ -265,7 +268,7 @@ void LLAvatarListItem::setState(EItemState item_style)
 		break;
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
-		mAvatarName->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color));
+		mAvatarName->setColor(mAgentColor);
 		mAvatarNameStyle.override_link_style = true;
 		break;
 	case IS_OFFLINE:

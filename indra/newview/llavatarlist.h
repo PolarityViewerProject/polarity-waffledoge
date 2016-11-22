@@ -103,6 +103,8 @@ public:
 
 	void setShowCompleteName(bool show) { mShowCompleteName = show;};
 
+	void setShowFriendColor(const bool& show_friend_color = false);
+
 protected:
 	void refresh();
 
@@ -141,6 +143,8 @@ private:
 
 	commit_signal_t mRefreshCompleteSignal;
 	mouse_signal_t mItemDoubleClickSignal;
+
+	bool mShowFriendColor;
 };
 
 /** Abstract comparator for avatar items */

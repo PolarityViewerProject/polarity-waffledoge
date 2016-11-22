@@ -444,7 +444,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowCompleteName(mShowCompleteName);
 	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
-	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
+	item->setOnline(mIgnoreOnlineStatus ? true : is_online, mShowFriendColor);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 
 	item->setAvatarIconVisible(mShowIcons);
@@ -685,4 +685,9 @@ void LLAvalineListItem::setName(const std::string& name)
 		LLAvatarListItem::setAvatarName(formatted_phone);
 		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
+}
+
+void LLAvatarList::setShowFriendColor(const bool& show_friend_color)
+{
+	mShowFriendColor = show_friend_color;
 }
