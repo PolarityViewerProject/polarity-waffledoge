@@ -64,6 +64,8 @@
 #include "llmutelist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
+#include "pvdata.h"
+
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
 #include "rlvcommon.h"
 // [/RLVa:KB]
@@ -797,7 +799,10 @@ LLChatHistory::LLChatHistory(const LLChatHistory::Params& p)
 
 LLSD LLChatHistory::getValue() const
 {
-	return LLSD(mEditor->getText());
+  LLSD* text=new LLSD(); 
+  text->assign(mEditor->getText());
+  return *text;
+    
 }
 
 LLChatHistory::~LLChatHistory()

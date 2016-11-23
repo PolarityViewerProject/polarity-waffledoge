@@ -3857,10 +3857,9 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 //			&& chat.mChatType != CHAT_TYPE_DEBUG_MSG
 //			&& gSavedSettings.getBOOL("EffectScriptChatParticles") )
 // [RLVa:KB] - Checked: 2010-03-09 (RLVa-1.2.0b) | Modified: RLVa-1.0.0g
-		if ( ((chat.mSourceType == CHAT_SOURCE_OBJECT) && (chat.mChatType != CHAT_TYPE_DEBUG_MSG)) && 
-			//&& gSavedSettings.getBOOL("EffectScriptChatParticles") ) // <polarity>
-				&& effect_script_chat_particles ) // <polarity>
-			 ((!rlv_handler_t::isEnabled()) || (CHAT_TYPE_OWNER != chat.mChatType)) )
+		if ( ((chat.mSourceType == CHAT_SOURCE_OBJECT) && (chat.mChatType != CHAT_TYPE_DEBUG_MSG)) &&
+			((!rlv_handler_t::isEnabled()) || (CHAT_TYPE_OWNER != chat.mChatType))
+			&& effect_script_chat_particles) // <polarity>
 // [/RLVa:KB]
 		{
 			LLPointer<LLViewerPartSourceChat> psc = new LLViewerPartSourceChat(chatter->getPositionAgent());

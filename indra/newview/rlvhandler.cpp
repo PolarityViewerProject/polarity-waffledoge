@@ -1497,7 +1497,7 @@ ERlvCmdRet RlvBehaviourAddRemAttachHandler::onCommand(const RlvCommand& rlvCmd, 
 }
 
 // Handles: @detach[:<attachpt>]=n|y
-template<> template<>
+template<> template<> 
 ERlvCmdRet RlvBehaviourHandler<RLV_BHVR_DETACH>::onCommand(const RlvCommand& rlvCmd, bool& fRefCount)
 {
 	// We need to flush any queued force-wear commands before changing the restrictions

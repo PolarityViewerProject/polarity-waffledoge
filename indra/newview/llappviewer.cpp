@@ -490,10 +490,11 @@ void idle_afk_check()
 {
 	// check idle timers
 	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-	static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout"); // <polarity>
+	//static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout"); // <polarity>
+	F32 afk_timeout = static_cast<F32>(gSavedSettings.getS32("AFKTimeout"));
 // [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
 	// Enforce an idle time of 30 minutes if @allowidle=n restricted
-	F32 afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? afk_timeout : 60 * 30;
+	afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? afk_timeout : 60 * 30;
 // [/RLVa:KB]
 	//static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout");
 	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())

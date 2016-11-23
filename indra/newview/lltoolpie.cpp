@@ -725,15 +725,14 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
                                              FALSE /* ignore rigged */,
                                              FALSE /* ignore particles */);
 
-		LLViewerObject* objp = mPick.getObject();
-		// NOTE: Can we make those static? - Xenhat 2016.11.12
-		bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment(); // We clicked on a non-hud object
-		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND; // or on land
-		bool pos_non_zero = !mPick.mPosGlobal.isExactlyZero(); // valid coordinates for pick
-		//if (pos_non_zero && (is_land || is_in_world)) // RLVa merge
-		bool fValidPick = (pos_non_zero			// valid coordinates for pick
-							&& (is_land	// we clicked on land
-							|| is_in_world));				// or on an object
+//        if (!mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
+//            && (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
+//                || mPick.mObjectID.notNull()))				// or on an object
+// [RLVa:KB] - Checked: RLVa-2.0.0
+		bool fValidPick = (!mPick.mPosGlobal.isExactlyZero()			// valid coordinates for pick
+			&& (mPick.mPickType == LLPickInfo::PICK_LAND	// we clicked on land
+				|| mPick.mObjectID.notNull()));				// or on an object
+
 		if ( (fValidPick) && (RlvActions::isRlvEnabled()) && (!RlvActions::canTeleportToLocal(mPick.mPosGlobal)) )
 		{
 			RlvUtil::notifyBlocked(RLV_STRING_BLOCKED_AUTOPILOT);
@@ -743,13 +742,17 @@ BOOL LLToolPie::handleMouseUp(S32 x, S32 y, MASK mask)
 		if (fValidPick)
 // [/RLVa:KB]
         {
+
+            // handle special cases of steering picks
+            LLViewerObject* avatar_object = mPick.getObject();
+
             // get pointer to avatar
-            while (objp && !objp->isAvatar())
+            while (avatar_object && !avatar_object->isAvatar())
             {
-                objp = (LLViewerObject*) objp->getParent();
+                avatar_object = (LLViewerObject*)avatar_object->getParent();
             }
 
-            if (objp && ((LLVOAvatar*) objp)->isSelf())
+            if (avatar_object && ((LLVOAvatar*)avatar_object)->isSelf())
             {
                 const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
                 // pretend we picked some point a bit in front of avatar
@@ -807,6 +810,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
         return TRUE;
     }
 
+	// TODO: Re-optimize
 	bool dbl_click_autoplt = gSavedSettings.getBOOL("DoubleClickAutoPilot");
 	bool dbl_click_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
 
@@ -824,20 +828,19 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 			FALSE /* ignore rigged */,
 			FALSE /* ignore particles */);
 
-		LLViewerObject* objp = mPick.getObject();
-		LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
 
-		bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment();
-		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND;
-		bool pos_non_zero = !mPick.mPosGlobal.isExactlyZero();
-		bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
-		bool no_click_action = final_click_action(objp) == CLICK_ACTION_NONE;
-		if (pos_non_zero && (is_land || (is_in_world && !has_touch_handler && no_click_action)))
+        if(mPick.mPickType == LLPickInfo::PICK_OBJECT)
+        {
+            if (mPick.getObject() && mPick.getObject()->isHUDAttachment())
 		{
+                mPick = savedPick;
+                return FALSE;
+            }
+        }
 		//			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
 // [RLVa:KB] - Checked: RLVa-2.0.0
 		bool fValidPick = ((mPick.mPickType == LLPickInfo::PICK_LAND && !mPick.mPosGlobal.isExactlyZero()) ||
-			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()))
+			(mPick.mObjectID.notNull()  && !mPick.mPosGlobal.isExactlyZero()));
 
 		if ( (fValidPick) && (RlvActions::isRlvEnabled()) && (!RlvActions::canTeleportToLocal(mPick.mPosGlobal)) )
 		{
@@ -845,42 +848,37 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 			fValidPick = false;
 		}
 
-//		if (fValidPick)
+		if (fValidPick)
 // [/RLVa:KB]
-			if (fValidPick && dbl_click_autoplt 
-				&& !gAgent.getFlying()							// don't auto-navigate while flying until that works
-				&& isAgentAvatarValid()
-				&& !gAgentAvatarp->isSitting()
-				)
 			{
-				// get pointer to avatar
-				while (objp && !objp->isAvatar())
-				{
-					objp = (LLViewerObject*) objp->getParent();
+			walkToClickedLocation();
+			return TRUE;
 				}
-
-				if (objp && ((LLVOAvatar*) objp)->isSelf())
+        else
 				{
-					const F64 SELF_CLICK_WALK_DISTANCE = 3.0;
 					// pretend we picked some point a bit in front of avatar
-					mPick.mPosGlobal = gAgent.getPositionGlobal() + LLVector3d(LLViewerCamera::instance().getAtAxis()) * SELF_CLICK_WALK_DISTANCE;
+            mPick = savedPick;
 				}
-				gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-				walkToClickedLocation();
-				LLFirstUse::notMoving(false);
-				return TRUE;
 			}
-			else if (dbl_click_teleport)
+	else if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	{
+		LLViewerObject* objp = mPick.getObject();
+		LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
+
+		bool is_in_world = mPick.mObjectID.notNull() && objp && !objp->isHUDAttachment();
+		bool is_land = mPick.mPickType == LLPickInfo::PICK_LAND;
+		bool pos_non_zero = !mPick.mPosGlobal.isExactlyZero();
+		bool has_touch_handler = (objp && objp->flagHandleTouch()) || (parentp && parentp->flagHandleTouch());
+		bool has_click_action = final_click_action(objp);
+		if (pos_non_zero && (is_land || (is_in_world && !has_touch_handler && !has_click_action)))
 			{
 				LLVector3d pos = mPick.mPosGlobal;
 				pos.mdV[VZ] += gAgentAvatarp->getPelvisToFoot();
 				gAgent.teleportViaLocationLookAt(pos);
 				return TRUE;
-			}
 		}
 
 		// restore the original pick for any other purpose
-		mPick = savedPick;
 	}
 
 	return FALSE;
