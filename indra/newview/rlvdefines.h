@@ -39,7 +39,7 @@ const S32 RLVa_VERSION_MINOR = 0;
 const S32 RLVa_VERSION_PATCH = 3;
 
 // Uncomment before a final release
-//#define RLV_RELEASE
+#define RLV_RELEASE
 
 // Defining these makes it easier if we ever need to change our tag
 #define RLV_WARNS		LL_WARNS("RLV")

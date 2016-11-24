@@ -293,6 +293,9 @@ public:
 
 	/// @return user preset names
 	void getUserPresetNames(preset_name_list_t& user) const;
+	
+	/// @return all local (user + sys) preset names
+	void getLocalPresetNames(preset_name_list_t& local) const;
 
 	/// @return keys of all known presets
 	void getPresetKeys(preset_key_list_t& keys) const;
@@ -315,6 +318,9 @@ public:
 
 	/// escape string in a way different from LLURI::escape()
 	static std::string escapeString(const std::string& str);
+
+	// <FS:Ansariel> Get list of all ParamSets
+	const std::map<LLWLParamKey, LLWLParamSet>& getParamList() const { return mParamList; };
 
 	// helper variables
 	LLWLAnimator mAnimator;
