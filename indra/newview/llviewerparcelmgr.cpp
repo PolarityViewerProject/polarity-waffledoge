@@ -2489,6 +2489,13 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(telepor
 	return mTeleportFailedSignal.connect(cb);
 }
 
+// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
+boost::signals2::connection LLViewerParcelMgr::setTeleportDoneCallback(teleport_done_callback_t cb)
+{
+	return mTeleportDoneSignal.connect(cb);
+}
+// [/SL:KB]
+
 /* Ok, we're notified that teleport has been finished.
  * We should now propagate the notification via mTeleportFinishedSignal
  * to all interested parties.
@@ -2516,3 +2523,10 @@ void LLViewerParcelMgr::onTeleportFailed()
 {
 	mTeleportFailedSignal();
 }
+
+// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
+void LLViewerParcelMgr::onTeleportDone()
+{
+	mTeleportDoneSignal();
+}
+// [/SL:KB]

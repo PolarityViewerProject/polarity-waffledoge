@@ -176,6 +176,34 @@ source_group("Third Party/Polarity" FILES
     ${polarity_SOURCE_FILES}
     )
 
+set(rlva_SOURCE_FILES
+    rlvactions.cpp
+    rlvhandler.cpp
+    rlvhelper.cpp
+    rlvcommon.cpp
+    rlvlocks.cpp
+    rlvinventory.cpp
+    rlvextensions.cpp
+    rlvfloaters.cpp
+    rlvui.cpp
+    )
+set(rlva_HEADER_FILES
+    rlvactions.h
+    rlvcommon.h
+    rlvdefines.h
+    rlvextensions.h
+    rlvfloaters.h
+    rlvhandler.h
+    rlvhelper.h
+    rlvinventory.h
+    rlvlocks.h
+    rlvui.h
+    )
+source_group("Third Party/Restrained Love API" FILES
+    ${rlva_SOURCE_FILES}
+    ${rlva_HEADER_FILES}
+    )
+
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
     llaccountingcostmanager.cpp
@@ -1394,12 +1422,14 @@ list(APPEND viewer_HEADER_FILES
     ${firestorm_HEADER_FILES}
     ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
+	${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${exodus_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
     ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}
+	${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
@@ -1678,6 +1708,7 @@ set(viewer_APPSETTINGS_FILES
     app_settings/settings_obsidian.xml
     app_settings/settings_per_account.xml
     app_settings/settings_polarity.xml
+    app_settings/settings_rlva.xml
     app_settings/std_bump.ini
     app_settings/toolbars.xml
     app_settings/trees.xml
@@ -1763,7 +1794,9 @@ if(WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
-        LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS}"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} /LARGEADDRESSAWARE"
+        LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" /INCREMENTAL:NO /LARGEADDRESSAWARE"
+        LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         )
 
     if(USE_PRECOMPILED_HEADERS)
@@ -1772,7 +1805,7 @@ if(WINDOWS)
             PROPERTIES
             COMPILE_FLAGS "/Yullviewerprecompiledheaders.h"
             )
-    endif()
+    endif(USE_PRECOMPILED_HEADERS)
 
     # If adding a file to viewer_manifest.py in the WindowsManifest.construct()
     # method, be sure to add the dependency here.

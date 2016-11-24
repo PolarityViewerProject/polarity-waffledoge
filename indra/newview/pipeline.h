@@ -591,6 +591,11 @@ public:
 	static F32				sMinRenderSize;
 	static BOOL				sRenderingHUDs;
 
+// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
+	static bool				sRenderTextures;
+// [/SL:KB]
+
+
 	// <Black Dragon:NiranV>
 	static BOOL			 sPVRender_ShaderGamma;
 	static BOOL			 sPVRender_ToneMapping;

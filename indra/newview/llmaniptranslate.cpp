@@ -68,6 +68,10 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0a)
+#include "rlvhandler.h"
+// [/RLVa:KB]
+
 const S32 NUM_AXES = 3;
 const S32 MOUSE_DRAG_SLOP = 2;       // pixels
 const F32 SELECTED_ARROW_SCALE = 1.3f;

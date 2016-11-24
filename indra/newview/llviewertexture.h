@@ -534,6 +534,10 @@ public:
 	static LLPointer<LLViewerFetchedTexture> sSmokeImagep; // Old "Default" translucent texture
 	static LLPointer<LLViewerFetchedTexture> sFlatNormalImagep; // Flat normal map denoting no bumpiness on a surface
 	static LLPointer<LLViewerFetchedTexture> sExodusColorGradeTexp;
+	
+// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
+	static LLPointer<LLViewerFetchedTexture> sDefaultDiffuseImagep;
+// [/SL:KB]
 };
 
 //
