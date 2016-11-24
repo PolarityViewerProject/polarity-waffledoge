@@ -7933,18 +7933,22 @@ class LLAdvancedToggleDoubleClickTeleport: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		BOOL checked = gSavedSettings.getBOOL("DoubleClickTeleport");
+		static LLCachedControl<bool> dbl_click_teleport(gSavedSettings, "DoubleClickTeleport");
 		LLSD args;
-		gSavedSettings.setBOOL("DoubleClickTeleport", !checked);
-		if (checked)
+		if (dbl_click_teleport)
 		{
+			static LLCachedControl<bool> dbl_click_autoplt(gSavedSettings, "DoubleClickAutoPilot");
+			if(dbl_click_autoplt)
+			{
+				gSavedSettings.setBOOL("DoubleClickAutoPilot", FALSE);
+			}
 			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportDisabled");
 		}
 		else
 		{
-			gSavedSettings.setBOOL("DoubleClickAutoPilot", FALSE);
 			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportEnabled");
 		}
+		gSavedSettings.setBOOL("DoubleClickTeleport", !dbl_click_teleport);
 		LLNotificationsUtil::add("SystemMessageTip", args);
 		return true;
 	}

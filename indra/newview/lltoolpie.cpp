@@ -810,11 +810,10 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
         return TRUE;
     }
 
-	// TODO: Re-optimize
 	bool dbl_click_autoplt = gSavedSettings.getBOOL("DoubleClickAutoPilot");
 	bool dbl_click_teleport = gSavedSettings.getBOOL("DoubleClickTeleport");
 
-	if (dbl_click_autoplt || dbl_click_teleport)
+	if (dbl_click_autoplt && !dbl_click_teleport)
 	{
 		// Save the original pick
 		LLPickInfo savedPick = mPick;
@@ -860,7 +859,7 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
             mPick = savedPick;
 				}
 			}
-	else if (gSavedSettings.getBOOL("DoubleClickTeleport"))
+	else if (dbl_click_teleport)
 	{
 		LLViewerObject* objp = mPick.getObject();
 		LLViewerObject* parentp = objp ? objp->getRootEdit() : NULL;
@@ -877,8 +876,6 @@ BOOL LLToolPie::handleDoubleClick(S32 x, S32 y, MASK mask)
 				gAgent.teleportViaLocationLookAt(pos);
 				return TRUE;
 		}
-
-		// restore the original pick for any other purpose
 	}
 
 	return FALSE;
