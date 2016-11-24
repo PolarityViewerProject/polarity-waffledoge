@@ -92,6 +92,14 @@
 #include "llprogressview.h"
 #include "llvocache.h"
 #include "llvopartgroup.h"
+// [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
+#include "llappearancemgr.h"
+// [/SL:KB]
+// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g)
+#include "rlvactions.h"
+#include "rlvhandler.h"
+// [/RLVa:KB]
+
 #include "llweb.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -257,14 +265,6 @@
 #include "pvdata.h"
 #include "llhasheduniqueid.h"
 
-// [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
-#include "llappearancemgr.h"
-// [/SL:KB]
-// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
-
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
@@ -338,6 +338,9 @@ BOOL				gDisconnected = FALSE;
 LLFrameTimer	gRestoreGLTimer;
 BOOL			gRestoreGL = FALSE;
 BOOL			gUseWireframe = FALSE;
+
+//use for remember deferred mode in wireframe switch
+BOOL			gInitialDeferredModeForWireframe = FALSE;
 
 // VFS globals - see llappviewer.h
 LLVFS* gStaticVFS = NULL;
