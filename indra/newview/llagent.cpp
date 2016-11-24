@@ -4308,7 +4308,7 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global, const LL
 		region_handle = simInfo->getHandle();
 	}
 	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
-	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+	teleportRequest(region_handle, pos_local, look_at);
 }
 
 LLAgent::ETeleportState	LLAgent::getTeleportState() const
