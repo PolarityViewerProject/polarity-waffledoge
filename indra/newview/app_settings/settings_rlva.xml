@@ -2,6 +2,17 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
+    <key>ForceMissingType</key>
+    <map>
+      <key>Comment</key>
+      <string>Force this wearable type to be missing from COF</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>255</integer>
+    </map>
     <key>RestrainedLove</key>
     <map>
       <key>Comment</key>
