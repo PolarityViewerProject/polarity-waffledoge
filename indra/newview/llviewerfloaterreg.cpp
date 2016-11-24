@@ -156,7 +156,7 @@
 
 #include "fsareasearch.h"
 #include "fsfloaterassetblacklist.h"
-#include <pvfloaterprogressview.h>
+#include "pvfloaterprogressview.h"
 
 // [RLVa:KB] - Checked: 2010-03-11
 #include "rlvfloaters.h"
