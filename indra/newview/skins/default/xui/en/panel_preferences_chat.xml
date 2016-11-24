@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
     border="true"
-    has_border="true"
     height="408"
     label="Text Chat"
     layout="topleft"

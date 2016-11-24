@@ -54,23 +54,6 @@
     width="190">
 Viewer
  </text>
-<!--  <button
-    follows="left|top|right"
-    height="20"
-    image_unselected="transparent.j2c"
-    image_selected="transparent.j2c"
-    label="[CHANNEL] [VERSION]"
-    font="SansSerifSmall"
-    layout="topleft"
-    left="3"
-    halign="left"
-    name="channel_text"
-    top="15"
-    width="200">
-    <button.commit_callback
-    function="Floater.Show"
-    parameter="sl_about"/>
- </button> -->
  <combo_box
 	left="1"
 	top="80"
@@ -80,7 +63,6 @@ Viewer
 	label="Username"
 	combo_editor.font="SansSerif"
 	max_chars="128"
-	commit_on_focus_lost="false"
 	combo_editor.prevalidate_callback="ascii"
 	tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 	name="username_combo"
@@ -93,7 +75,6 @@ Viewer
 	visible="false" />
  </combo_box>
  <line_editor
-	commit_on_focus_lost="false"
 	follows="left|top"
 	font="SansSerif"
 	height="25"
@@ -148,20 +129,7 @@ Viewer
 	label="Type a location"
 	font="SansSerif"
 	select_on_focus="true"
-	commit_on_focus_lost="false"
 	top_pad="10" />
-	<!-- Very horrible hack because the panel border doesn't work. Equivalent of <hr /> -->
-<!--  <text
-    follows="left|top"
-    font="SansSerif"
-    height="15"
-    name="separator_line"
-    text_color="Gray_15"
-    left="1"
-    top_delta="25"
-    width="232">
-____________________________________________________________________________________________________________________________________________
- </text> -->
  <button
     follows="left|top"
     image_unselected="PushButton_Off"
