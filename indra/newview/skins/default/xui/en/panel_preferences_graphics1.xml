@@ -2240,7 +2240,7 @@
         bottom="-1"
         follows="all"
         left="1"
-        name="Hardware Tab"
+        name="hardware_tab"
         right="-1"
         top_pad="2">
         <text
@@ -2444,14 +2444,13 @@
           decimal_digits="0"
           follows="left|top"
           height="20"
-          increment="16"
-          initial_value="32"
+          increment="8"
           label="Texture Memory (MB):"
           label_width="195"
           layout="topleft"
           left="8"
-          max_val="10240"
           name="GraphicsCardTextureMemory"
+          text_width="40"
           tool_tip="Amount of memory to allocate for textures. Defaults to safe values. Reducing this may improve performance but may also make textures blurry."
           top_pad="20"
           width="360">

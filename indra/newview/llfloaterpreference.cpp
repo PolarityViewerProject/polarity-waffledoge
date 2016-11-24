@@ -1389,12 +1389,17 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
 
-	// Hardware settings
-	static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", true);
-	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
-	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
+	if (hasChild("hardware_tab", TRUE))
+	{
+		// Hardware settings
+		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
+		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
+		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
+		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
+		memorySlider->setMinValue(min_tex_mem);
+		memorySlider->setMaxValue(max_tex_mem);
+		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
+	}
 
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
@@ -2252,6 +2257,20 @@ BOOL LLPanelPreference::postBuild()
 		{
 			ctrl_display_name->setValue(FALSE);
 		}
+	}
+
+	////////////////////// PanelGraphics /////////////////
+	
+	if (hasChild("hardware_tab", TRUE))
+	{
+		// Hardware settings
+		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
+		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
+		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
+		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
+		memorySlider->setMinValue(min_tex_mem);
+		memorySlider->setMaxValue(max_tex_mem);
+		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
 	}
 
 	////////////////////// PanelVoice ///////////////////
