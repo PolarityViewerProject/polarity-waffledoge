@@ -396,6 +396,7 @@ extern BOOL		gDisconnected;
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern BOOL		gUseWireframe;
+extern BOOL		gInitialDeferredModeForWireframe; // <polarity> RLVa merge
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer
