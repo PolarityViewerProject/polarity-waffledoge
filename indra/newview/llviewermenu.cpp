@@ -117,9 +117,7 @@
 #include "lltoolpie.h"
 #include "lltoolselectland.h"
 #include "lltrans.h"
-#if !LL_WINDOWS
 #include "llviewerdisplay.h" //for gWindowResized
-#endif
 #include "llviewergenericmessage.h"
 #include "llviewerhelp.h"
 #include "llviewermenufile.h"	// init_menu_file()
