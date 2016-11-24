@@ -2676,6 +2676,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="DeleteQueueTitle">Delete Progress</string>
 	<string name="DeleteQueueStart">deletion</string>
 
+	<string name="DeleteQueueDeleting">Deleting</string>
+
 	<!-- compile comment text-->
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>

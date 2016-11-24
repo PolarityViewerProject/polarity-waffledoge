@@ -200,4 +200,24 @@ protected:
     virtual bool startQueue();
 };
 
+// <FS> Delete scripts
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Class LLFloaterDeleteQueue
+//
+// This script queue will delete each script.
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+class LLFloaterDeleteQueue : public LLFloaterScriptQueue
+{
+	friend class LLFloaterReg;
+protected:
+	LLFloaterDeleteQueue(const LLSD& key);
+	virtual ~LLFloaterDeleteQueue();
+	
+    static bool deleteObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump);
+
+    virtual bool startQueue();
+};
+// </FS> Delete scripts
+
 #endif // LL_LLCOMPILEQUEUE_H

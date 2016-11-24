@@ -698,6 +698,67 @@ bool LLFloaterNotRunQueue::startQueue()
     return true;
 }
 
+// <FS> Delete scripts
+///----------------------------------------------------------------------------
+/// Class LLFloaterDeleteQueue 
+///----------------------------------------------------------------------------
+
+LLFloaterDeleteQueue::LLFloaterDeleteQueue(const LLSD& key)
+  : LLFloaterScriptQueue(key)
+{
+    setTitle(LLTrans::getString("DeleteQueueTitle"));
+    setStartString(LLTrans::getString("DeleteQueueStart"));
+}
+
+LLFloaterDeleteQueue::~LLFloaterDeleteQueue()
+{ 
+}
+
+/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
+/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
+bool LLFloaterDeleteQueue::deleteObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, 
+    const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
+{
+    LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
+    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
+    // which is caught in objectScriptProcessingQueueCoro
+
+    std::string buffer;
+	// <polarity> get string from strings.xml, not panel xml
+    //buffer = floater->getString("Deleting") + (": ") + inventory->getName();
+	buffer = LLTrans::getString("DeleteQueueDeleting") + (": ") + inventory->getName();
+	
+    floater->addStringMessage(buffer);
+
+    LLMessageSystem* msg = gMessageSystem;
+    msg->newMessageFast(_PREHASH_RemoveTaskInventory);
+    msg->nextBlockFast(_PREHASH_AgentData);
+    msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+    msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+    msg->nextBlockFast(_PREHASH_InventoryData);
+    msg->addU32Fast(_PREHASH_LocalID, object->getLocalID());
+    msg->addUUIDFast(_PREHASH_ItemID, inventory->getUUID());
+    msg->sendReliable(object->getRegion()->getHost());
+
+    return true;
+}
+
+
+bool LLFloaterDeleteQueue::startQueue()
+{
+    LLHandle<LLFloaterScriptQueue> hFloater(getDerivedHandle<LLFloaterScriptQueue>());
+
+    fnQueueAction_t fn = boost::bind(&LLFloaterDeleteQueue::deleteObjectScripts, hFloater, _1, _2, _3);
+    LLCoros::instance().launch("ScriptDeleteQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+        mStartString,
+        hFloater,
+        mObjectList,
+        fn));
+
+    return true;
+}
+// </FS> Delete scripts
+
 ///----------------------------------------------------------------------------
 /// Local function definitions
 ///----------------------------------------------------------------------------
