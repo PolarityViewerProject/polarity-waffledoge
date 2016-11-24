@@ -46,6 +46,10 @@
 #include "llslurl.h"
 #include "llurlaction.h"
 
+// [RLVa:KB] - Checked: RLVa-2.0.3
+#include "rlvactions.h"
+// [/RLVa:KB]
+
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
 
@@ -289,8 +293,14 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 	bool real_group_selected = selected_group_id.notNull(); // a "real" (not "none") group is selected
 
 	// each group including "none" can be activated
+// [RLVa:KB] - Checked: RLVa-1.3.0
 	if (userdata.asString() == "activate")
-		return gAgent.getGroupID() != selected_group_id;
+		return (gAgent.getGroupID() != selected_group_id) && (RlvActions::canChangeActiveGroup());
+	else if (userdata.asString() == "leave")
+		return (real_group_selected) && ((gAgent.getGroupID() != selected_group_id) || (RlvActions::canChangeActiveGroup()));
+// [/RLVa:KB]
+//	if (userdata.asString() == "activate")
+//		return gAgent.getGroupID() != selected_group_id;
 
 	if (userdata.asString() == "call")
 	  return real_group_selected && LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();

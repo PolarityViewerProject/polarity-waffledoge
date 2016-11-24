@@ -6,6 +6,7 @@
   <array>
     <string>settings_obsidian.xml</string>
     <string>settings_polarity.xml</string>
+    <string>settings_rlva.xml</string>
   </array>
   <key>ImporterDebug</key>
   <map>
