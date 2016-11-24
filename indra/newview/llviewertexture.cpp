@@ -2713,7 +2713,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				//llassert_always(mRawImage.notNull());
 				if(mNeedsAux && mAuxRawImage.isNull())
 				{
-					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
+					LL_DEBUGS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
 				}
 				BOOL final = mRawDiscardLevel <= entryp->mDesiredDiscard ? TRUE : FALSE;
 				//LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
