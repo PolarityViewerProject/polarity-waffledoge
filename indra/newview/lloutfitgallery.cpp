@@ -733,7 +733,11 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
-    getChildView("preview_outfit")->setVisible(TRUE);
+	auto preview_outfit = getChildView("preview_outfit");
+	if (preview_outfit)
+	{
+		preview_outfit->setVisible(TRUE);
+	}
     mDefaultImage = true;
 }
 
