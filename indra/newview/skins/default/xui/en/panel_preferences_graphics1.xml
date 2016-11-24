@@ -2380,6 +2380,31 @@
           (requires viewer restart)
         </text>
         <check_box
+          control_name="PVRender_FPSLimiterEnabled"
+          height="16"
+          label="Limit FPS"
+          layout="topleft"
+          left="5"
+          name="fps_limiter_checkbox"
+          top_pad="20"
+          width="135">
+        </check_box>
+        <slider
+          can_edit_text="true"
+          control_name="PVRender_FPSLimiterTarget"
+          decimal_digits="2"
+          increment="0.25"
+          follows="left|top"
+          height="16"
+          layout="topleft"
+          left_pad="5"
+          max_val="144"
+          min_val="1"
+          name="fps_limiter_slider"
+          top_delta="0"
+          width="250">
+          </slider>
+        <check_box
           control_name="RenderAnisotropic"
           height="16"
           label="Anisotropic Filtering (slower when enabled)"
