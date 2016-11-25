@@ -54,6 +54,7 @@
 #include "llfloaterpreference.h"
 #include "lltrans.h" // for getString
 #include "llnotificationsutil.h"
+#include "pvcommon.h"
 
 // This one needs to stay in the global scope, I think
 PVData*				gPVData = NULL;

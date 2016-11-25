@@ -29,31 +29,18 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "pvcommon.h"
-// #include "fsradar.h"
 #include "llagent.h"
 #include "llavataractions.h"
-#include "llavatarnamecache.h"
-#include "llfloaterperms.h"
 #include "llinventorymodel.h"
-#include "lllogchat.h"
-#include "llmutelist.h"
 #include "llnotificationmanager.h"
-#include "llnotificationsutil.h"	// <FS:CR> reportToNearbyChat
 #include "lltooldraganddrop.h"
 #include "llviewerinventory.h"
-#include "llviewernetwork.h"
 #include "llviewerobject.h"
-#include "llviewerregion.h"
-// // 
-// <polarity> Build Fixes
 #include "lltrans.h"
 #include "material_codes.h"
-// </polarity>
-
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <tchar.h>
-#include <hunspell/w_char.hxx>
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 

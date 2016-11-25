@@ -29,15 +29,14 @@
 #ifndef PV_COMMON_H
 #define PV_COMMON_H
 
+#pragma once
+
 #include "llchat.h"
-#include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
 #include "pvtypes.h"
 
 class LLAvatarName;
 class LLViewerObject;
-
-
 
 // TODO PLVR: Move these into a class
 void reportToNearbyChat(const std::string& message);
@@ -49,8 +48,7 @@ std::string formatString(std::string text, const LLStringUtil::format_map_t& arg
 
 class PVCommon : public LLSingleton <PVCommon> // required for instance()
 {
-	LOG_CLASS(PVCommon);
-	// TODO PLVR: Convert into a singleton
+	typedef PVCommon _LL_CLASS_TO_LOG;
 public:
 	/** \brief Convert a string to a char array and check for special characters presence.
 	 *

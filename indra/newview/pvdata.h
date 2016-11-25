@@ -52,7 +52,6 @@
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
-#include "pvcommon.h"
 #include "pvtypes.h"
 
 class LLColor4;
