@@ -1452,17 +1452,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRLV_IgnoreHUDLock</key>
-    <map>
-      <key>Comment</key>
-      <string>Disables restrictions imposed by RLV when at least one HUD is locked (Wireframe, hiding HUDs, etc).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>PVTools_EditBeamAgentColor</key>
     <map>
       <key>Comment</key>
@@ -2006,6 +1995,19 @@
       <string>String</string>
       <key>Value</key>
       <integer></integer>
+    </map>
+
+    <!-- RLVa settings -->
+    <key>PVRLVa_IgnoreHUDLock</key>
+    <map>
+      <key>Comment</key>
+      <string>Disables restrictions imposed by RLV when at least one HUD is locked (Wireframe, hiding HUDs, etc).</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
     </map>
   </map>
 </llsd>
