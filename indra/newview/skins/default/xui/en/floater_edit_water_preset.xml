@@ -51,7 +51,7 @@
 	height="23"
 	label="Save"
 	layout="topleft"
-	left_pad="2"
+	left_pad="0"
 	top_delta="0"
 	name="save"
 	width="70"/>
@@ -66,7 +66,7 @@
   <button
 	follows="bottom|right"
 	height="23"
-	label="Reset"
+	label="Cancel"
 	layout="topleft"
 	left_pad="3"
 	name="cancel"

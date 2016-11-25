@@ -38,9 +38,9 @@ width="700">
   <button
 	 follows="bottom|right"
 	 height="23"
-	 label="Save"
+	 label="Save Preset"
 	 layout="topleft"
-	 left_pad="2"
+	 left_pad="-2"
 	 name="save"
 	 top_delta="0"
 	 width="80"/>
@@ -404,7 +404,7 @@ width="700">
 			</text>
 			<icon
 			 height="20"
-			 image_name="Icon_Diurnal"
+			 image_name="icon_diurnal.png"
 			 layout="topleft"
 			 left_delta="0"
 			 top_pad="8"
