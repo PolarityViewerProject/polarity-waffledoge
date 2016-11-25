@@ -1868,11 +1868,9 @@ if(WINDOWS)
       windows-crash-logger
       )
 
-    if(LINK_VLC_PLUGIN)
-        set(COPY_INPUT_DEPENDENCIES
-            media_plugin_libvlc
-        )
-    endif()
+      set(COPY_INPUT_DEPENDENCIES
+          media_plugin_libvlc
+      )
 
     if(FMODSTUDIO)
       if(WORD_SIZE EQUAL 64)
@@ -2104,11 +2102,9 @@ if(LINUX)
     llcommon
     )
 
-  if(LINK_VLC_PLUGIN)
     set(COPY_INPUT_DEPENDENCIES
         media_plugin_libvlc
         )
-    endif()
 
   add_custom_command(
       OUTPUT ${product}.tar.bz2
@@ -2221,9 +2217,7 @@ if(DARWIN)
   # FIXME: This violates CMake Standards (too long)
   add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_cef mac-crash-logger)
 
-  if(LINK_VLC_PLUGIN)
-    add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc)
-  endif()
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc)
     
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 

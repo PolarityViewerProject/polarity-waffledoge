@@ -208,6 +208,7 @@ option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
 option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 
 # Libraries
+# option(USE_VLC_PLUGIN "Link VLC plugin. Option exists because it breaks." ON)
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 
 option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)

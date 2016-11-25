@@ -132,7 +132,7 @@
 #include "llcoros.h"
 #include "llexception.h"
 #include "cef/llceflib.h"
-#if defined(LINK_VLC_PLUGIN) && defined(LL_WINDOWS) || defined(LL_LINUX)
+#if defined(LL_WINDOWS) || defined(LL_LINUX)
 #include "vlc/libvlc_version.h"
 #endif
 
@@ -3421,7 +3421,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 
-#if LL_WINDOWS && LINK_VLC_PLUGIN
+#if LL_WINDOWS
 	std::ostringstream ver_codec;
 	ver_codec << LIBVLC_VERSION_MAJOR;
 	ver_codec << ".";
