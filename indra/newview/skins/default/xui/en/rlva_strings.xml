@@ -135,6 +135,19 @@
 			<key>customizable</key>
 			<boolean>1</boolean>
 		</map>
+
+		<!-- What to reply to @version instead -->
+		<key>at_version_reply</key>
+			<map>
+				<key>value</key>
+				<string>@version u 2 m8</string>
+				<key>description</key>
+				<string>Reply to @version when RLVaEnableIMQuery is disabled</string>
+				<key>label</key>
+				<string>@version reply</string>
+				<key>customizable</key>
+				<boolean>1</boolean>
+			</map>
 	</map>
 
 	<!-- Generic names used to replace resident names when @shownames restricted -->
@@ -170,6 +183,5 @@
 		<string>Unidentified one</string>
 		<string>A cat</string>
 	</array>
-
 </map>
 </llsd>
