@@ -39,8 +39,6 @@ class LLAvatarName;
 class LLViewerObject;
 
 // TODO PLVR: Move these into a class
-void reportToNearbyChat(const std::string& message);
-void reportSpecialToNearbyChat(const std::string& message, EChatSourceType CHAT_TYPE, std::string fromName);
 std::string applyAutoCloseOoc(const std::string& message);
 std::string applyMuPose(const std::string& message);
 bool isValidWord(const std::string& message);
@@ -50,6 +48,15 @@ class PVCommon : public LLSingleton <PVCommon> // required for instance()
 {
 	typedef PVCommon _LL_CLASS_TO_LOG;
 public:
+
+	/**
+	 * \brief Send a message to local chat history, privately to the user
+	 * \param message string&
+	 * \param fromName string
+	 * \param CHAT_TYPE EChatSourceType
+	 */
+	void reportToNearbyChat(const std::string& message, std::string fromName = APP_NAME, EChatSourceType CHAT_TYPE = CHAT_SOURCE_SYSTEM);
+
 	/** \brief Convert a string to a char array and check for special characters presence.
 	 *
 	 * We use this to check of the user is trying to send ASCII art and short-circuit
