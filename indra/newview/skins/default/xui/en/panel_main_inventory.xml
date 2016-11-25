@@ -55,7 +55,7 @@
   <!-- <combo_box.item value="6"   label="." /> -->
   <!-- <combo_box.item value="7"   label=":" /> -->
 </combo_box>
-``
+
  <combo_box
   name="filter_combo_box"
   width="120"
