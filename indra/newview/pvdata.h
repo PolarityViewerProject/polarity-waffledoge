@@ -440,7 +440,7 @@ private:
 		 * \param avatar_id agent UUID
 		 * \return flags as string
 		 */
-		std::string getAgentFlagsAsStringRaw(const LLUUID& avatar_id);
+		//std::string getAgentFlagsAsStringRaw(const LLUUID& avatar_id);
 
 
 		// Returns the lockdown UUID constant as a string
