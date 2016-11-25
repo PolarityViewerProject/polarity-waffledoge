@@ -129,17 +129,16 @@ LLSnapshotModel::ESnapshotFormat LLPanelSnapshotLocal::getImageFormat() const
 // virtual
 void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
-	static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
-	mLocalFormat = snapshot_format;
-	//LLSnapshotModel::ESnapshotFormat fmt = (LLSnapshotModel::ESnapshotFormat) gSavedSettings.getS32("SnapshotFormat");
+	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
 	getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
-	const bool show_quality_ctrls = (snapshot_format == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
-	getChild<LLUICtrl>("image_quality_slider")->setVisible(show_quality_ctrls);
-	getChild<LLUICtrl>("image_quality_level")->setVisible(show_quality_ctrls);
-
-	getChild<LLUICtrl>("image_quality_slider")->setValue(gSavedSettings.getS32("SnapshotQuality"));
+	static LLSliderCtrl *quality_slider = getChild<LLSliderCtrl>("image_quality_slider");
+	
+	quality_slider->setValue(gSavedSettings.getS32("SnapshotQuality"));
+	// NOTE: Two memory reads are significantly faster than creating a variable (write) to read it twice later in most system configurations. - Xenhat 2016.11.25
+	getChild<LLUICtrl>("image_quality_level")->setVisible(mLocalFormat == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
+	quality_slider->setVisible(mLocalFormat == LLSnapshotModel::SNAPSHOT_FORMAT_JPEG);
 	updateImageQualityLevel();
-
+	
 	const bool have_snapshot = info.has("have-snapshot") ? info["have-snapshot"].asBoolean() : true;
 	getChild<LLUICtrl>("save_btn")->setEnabled(have_snapshot);
 }
