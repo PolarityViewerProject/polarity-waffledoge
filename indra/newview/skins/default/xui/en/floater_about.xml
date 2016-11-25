@@ -247,6 +247,8 @@ Project infrastructure and extra software resources provided by:
  ReSharper Code Analysis
 [http://www.sublimetext.com/ Sublime Text]:
  Cross-platform code editor
+ [https://scan.coverity.com/faq Coverity Scan]:
+ Static Analysis
 </text_editor>
     </panel>
   </tab_container>
