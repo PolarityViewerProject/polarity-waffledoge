@@ -140,34 +140,35 @@
 	<!-- Generic names used to replace resident names when @shownames restricted -->
 	<key>anonyms</key>
 	<array>
-		<string>A resident</string>
-		<string>This resident</string>
-		<string>That resident</string>
-		<string>An individual</string>
-		<string>This individual</string>
-		<string>That individual</string>
-		<string>A person</string>
-		<string>This person</string>
-		<string>That person</string>
-		<string>A stranger</string>
-		<string>This stranger</string>
-		<string>That stranger</string>
 		<string>A being</string>
-		<string>This being</string>
-		<string>That being</string>
-		<string>An agent</string>
-		<string>This agent</string>
-		<string>That agent</string>
+		<string>A person</string>
+		<string>A resident</string>
 		<string>A soul</string>
-		<string>This soul</string>
-		<string>That soul</string>
-		<string>Somebody</string>
-		<string>Some people</string>
-		<string>Someone</string>
-		<string>Mysterious one</string>
+		<string>A stranger</string>
+		<string>An agent</string>
+		<string>An individual</string>
 		<string>An unknown being</string>
-		<string>Unidentified one</string>
 		<string>An unknown person</string>
+		<string>Mysterious one</string>
+		<string>Some people</string>
+		<string>Somebody</string>
+		<string>Someone</string>
+		<string>That agent</string>
+		<string>That being</string>
+		<string>That individual</string>
+		<string>That person</string>
+		<string>That resident</string>
+		<string>That soul</string>
+		<string>That stranger</string>
+		<string>This agent</string>
+		<string>This being</string>
+		<string>This individual</string>
+		<string>This person</string>
+		<string>This resident</string>
+		<string>This soul</string>
+		<string>This stranger</string>
+		<string>Unidentified one</string>
+		<string>A cat</string>
 	</array>
 
 </map>
