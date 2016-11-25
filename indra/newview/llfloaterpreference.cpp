@@ -1105,17 +1105,18 @@ void LLFloaterPreference::onNotificationsChange(const std::string& OptionName)
 {
 	mNotificationOptions[OptionName] = getChild<LLComboBox>(OptionName)->getSelectedItemLabel();
 
-	bool show_notifications_alert = true;
-	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
-	{
-		if(it_notification->second != "No action")
-		{
-			show_notifications_alert = false;
-			break;
-		}
-	}
-
-	getChild<LLTextBox>("notifications_alert")->setVisible(show_notifications_alert);
+// <polarity> I've never seen this work. - Xenhat 2016.11.25
+//	bool show_notifications_alert = true;
+//	for (notifications_map::iterator it_notification = mNotificationOptions.begin(); it_notification != mNotificationOptions.end(); it_notification++)
+//	{
+//		if(it_notification->second != "No action")
+//		{
+//			show_notifications_alert = false;
+//			break;
+//		}
+//	}
+//
+//	getChild<LLTextBox>("notifications_alert")->setVisible(show_notifications_alert);
 }
 
 void LLFloaterPreference::onNameTagOpacityChange(const LLSD& newvalue)

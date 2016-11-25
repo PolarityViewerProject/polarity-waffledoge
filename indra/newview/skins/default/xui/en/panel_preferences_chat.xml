@@ -369,18 +369,6 @@
         top_delta="-3"
         width="28">
     </check_box>
-    <text
-        layout="topleft"
-        left="0"
-        height="13"
-        name="notifications_alert"
-        width="500"
-        top_pad="9"
-        visible="true"
-        text_color="DrYellow">
-      To temporarily stop all notifications, use Communicate &gt; Do Not Disturb.
-    </text>
-
   </panel>
 
   <panel
@@ -437,15 +425,6 @@
         width="150" />
 
   </panel>
-
-  <view_border
-      bevel_style="none"
-      height="0"
-      layout="topleft"
-      left="13"
-      name="cost_text_border"
-      top_pad="5"
-      width="495"/>
 
   <panel
       height="50"
