@@ -2,8 +2,8 @@
 <panel
    background_visible="false"
    background_opaque="false"
-   bg_alpha_color="FrogGreen"
-   bg_opaque_color="FrogGreen"   
+   bg_alpha_color="EmphasisColor"
+   bg_opaque_color="EmphasisColor"
    border="false"
    bevel_style="none"
    follows="left|top"
