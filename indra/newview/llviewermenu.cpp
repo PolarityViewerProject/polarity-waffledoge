@@ -2471,6 +2471,12 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		U32 level = userdata.asInteger();
+		// <polarity> Don't use Error level to avoid crashing every time *something* happens,
+		// skip directly to "none"
+		if (level == 3)
+		{
+			level = 4;
+		}
 		// NaCl - Store Log Level
 		gSavedSettings.setU32("_NACL_LogLevel", level);
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
