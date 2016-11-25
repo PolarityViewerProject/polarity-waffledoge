@@ -244,7 +244,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-	if (gPVDataAuth->isSupportGroup(group_id) && gPVDataAuth->isBadUserUnsupported(gAgentID))
+	if (gPVDataAuth->isSupportGroup(group_id) && gPVDataAuth->isUserUnsupported(gAgentID))
 	{
 		// PLVR TODO: Show notification or something.
 		return;

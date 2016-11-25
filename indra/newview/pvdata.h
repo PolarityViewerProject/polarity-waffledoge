@@ -119,8 +119,8 @@ private:
 	{
 	public:
 		/**
-		 * \brief This returns the avatar's name in the format defined by the viewer settings.
-		 * \param av_name avatar name
+		 * \brief This returns the agent's name in the format defined by the viewer settings.
+		 * \param av_name agent name
 		 * \return preferred name
 		 */
 		static std::string getPreferredName(const LLAvatarName& av_name);
@@ -176,7 +176,7 @@ private:
 		/**
 		 * \brief Check if data downloader/parser is done with the agents data.
 		 * \return true or false
- 		 */
+		 */
 		bool getAgentsDone();
 
 		bool refreshDataFromServer(bool force_refresh_now);
@@ -350,51 +350,54 @@ private:
 		void setFallbackAgentsData();
 
 		/**
-		 * \brief Is the avatar automatically muted on login?
-		 * \param avatar_id avatar UUID
+		 * \brief Is the agent automatically muted on login?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isBadUserAutoMuted(const LLUUID& avatar_id);
+		static bool isUserAutoMuted(const LLUUID& avatar_id);
 
 		/**
-		 * \brief Is the avatar denied access to the viewer?
-		 * \param avatar_id avatar UUID
+		 * \brief Is the agent denied access to the viewer?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isBadUserBanned(const LLUUID& avatar_id);
+		static bool isUserBanned(const LLUUID& avatar_id);
 
 		/**
-		 * \brief Is the avatar prevented from getting support?
-		 * \param avatar_id avatar UUID
+		 * \brief Is the agent prevented from getting support?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isBadUserUnsupported(const LLUUID& avatar_id);
-
-
-		// should have more features than regular users (for testing or security reasons)
-		bool isPolarized(const LLUUID& avatar_id);
+		static bool isUserUnsupported(const LLUUID& avatar_id);
 
 		/**
-		 * \brief Is the avatar a Viewer Developer?
-		 * \param avatar_id avatar UUID
+		 * \brief Determines if agent have more features/rights than regular users (for testing or security reasons)
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isStaffDeveloper(const LLUUID& avatar_id);
+		static bool isUserPolarized(const LLUUID& avatar_id);
+
+		/**
+		 * \brief Is the agent a Viewer Developer?
+		 * \param avatar_id agent UUID
+		 * \return bool
+		 */
+		static bool isUserDevStaff(const LLUUID& avatar_id);
 
 		// 
 		/**
-		 * \briefIs the avatar a QA Team Member?
-		 * \param avatar_id avatar UUID
+		 * \briefIs the agent a QA Team Member?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isStaffQA(const LLUUID& avatar_id);
+		static bool isUserQAStaff(const LLUUID& avatar_id);
 
 		/**
-		 * \brief Is the avatar a Support Team Member?
-		 * \param avatar_id avatar UUID
+		 * \brief Is the agent a Support Team Member?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isStaffSupport(const LLUUID& avatar_id);
+		static bool isUserSupportStaff(const LLUUID& avatar_id);
 
 		/**
 		 * \brief Check if supplied group is one of/the vendor's support group
@@ -404,16 +407,16 @@ private:
 		bool isSupportGroup(const LLUUID& id) const;
 		// 
 		/**
-		 * \brief Is the avatar a Tester?
-		 * \param avatar_id avatar UUID
+		 * \brief Is the agent a Tester?
+		 * \param avatar_id agent UUID
 		 * \return bool
 		 */
-		bool isUserTester(const LLUUID& avatar_id);
+		static bool isUserTester(const LLUUID& avatar_id);
 
 		/**
 		 * \brief Better version of isLinden that takes PVData into account
 		 * TODO: Make overload without flags to parse them if called in weird places
-		 * \param avatar_id avatar UUID
+		 * \param avatar_id agent UUID
 		 * \param av_flags Pass agents flag to avoid parsing again
 		 * \return bool
 		 */
@@ -425,7 +428,7 @@ private:
 
 		/**
 		 * \brief Returns ALL the agent's flags as a comma-separated string.
-		 * \param avatar_id avatar UUID
+		 * \param avatar_id agent UUID
 		 * \return flags as string.
 		 */
 		std::string getAgentFlagsAsString(const LLUUID& avatar_id);
@@ -435,7 +438,7 @@ private:
 
 		/**
 		 * \brief Same as getAgentFlagsAsString, without the custom title
-		 * \param avatar_id avatar UUID
+		 * \param avatar_id agent UUID
 		 * \return flags as string
 		 */
 		std::string getAgentFlagsAsStringRaw(const LLUUID& avatar_id);
@@ -449,7 +452,7 @@ private:
 
 		/**
 		 * \brief Agent has a color (either custom or level default)
-		 * \param uuid avatar UUID
+		 * \param uuid agent UUID
 		 * \return bool
 		 */
 		bool isSpecialAgentColored(const LLUUID& uuid);
@@ -470,7 +473,7 @@ private:
 
 		/**
 		 * \brief Set flag to agent
-		 * \param uuid avatar uuid
+		 * \param uuid agent uuid
 		 * \param flags flags
 		 */
 		void setSpecialAgentFlags(const LLUUID& uuid, const S32& flags);
@@ -512,7 +515,7 @@ private:
 		enum flags_t : S32
 		{
 			// Those aren't numbers. They are bits and here we use them as an array of booleans.
-			// Every avatar flag has its own bit and you can combine them should such need arise.
+			// Every agent flag has its own bit and you can combine them should such need arise.
 			// REMINDER: Check against 0 for avatars not in the list, NOT -1
 			// TODO v7: MAKE -3
 			BAD_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */

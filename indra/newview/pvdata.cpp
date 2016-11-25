@@ -77,7 +77,7 @@ size_t strnlen(const char *s, size_t n)
 void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level, const bool& developer_only)
 {
 	static LLCachedControl<bool> pvdebug_printtolog(gSavedSettings, "PVDebug_PrintToLog", true);
-	if (!pvdebug_printtolog || (developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVDataAuth->isStaffDeveloper(gAgentID))))
+	if (!pvdebug_printtolog || (developer_only && (LLStartUp::getStartupState() >= STATE_LOGIN_CONTINUE && !gPVDataAuth->isUserDevStaff(gAgentID))))
 	{
 		return;
 	}
@@ -853,17 +853,17 @@ inline S32 PVDataAuth::getSpecialAgentFlags(const LLUUID& avatar_id)
 	return 0;
 }
 
-bool PVDataAuth::isStaffDeveloper(const LLUUID& avatar_id)
+bool PVDataAuth::isUserDevStaff(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & STAFF_DEVELOPER);
 }
 
-bool PVDataAuth::isStaffSupport(const LLUUID& avatar_id)
+bool PVDataAuth::isUserSupportStaff(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & STAFF_SUPPORT);
 }
 
-bool PVDataAuth::isStaffQA(const LLUUID& avatar_id)
+bool PVDataAuth::isUserQAStaff(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & STAFF_QA);
 }
@@ -873,17 +873,17 @@ bool PVDataAuth::isUserTester(const LLUUID& avatar_id)
 	return (getSpecialAgentFlags(avatar_id) & USER_TESTER);
 }
 
-bool PVDataAuth::isBadUserUnsupported(const LLUUID& avatar_id)
+bool PVDataAuth::isUserUnsupported(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & BAD_USER_UNSUPPORTED);
 }
 
-bool PVDataAuth::isBadUserAutoMuted(const LLUUID& avatar_id)
+bool PVDataAuth::isUserAutoMuted(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & BAD_USER_AUTOMUTED);
 }
 
-bool PVDataAuth::isBadUserBanned(const LLUUID& avatar_id)
+bool PVDataAuth::isUserBanned(const LLUUID& avatar_id)
 {
 	return (getSpecialAgentFlags(avatar_id) & BAD_USER_BANNED);
 }
@@ -893,15 +893,15 @@ bool PVDataAuth::isSupportGroup(const LLUUID& avatar_id) const
 	return (support_group_.count(avatar_id));
 }
 
-bool PVDataAuth::isPolarized(const LLUUID& avatar_id)
+bool PVDataAuth::isUserPolarized(const LLUUID& avatar_id)
 {
 	// TODO: Re-order flags by hierarchy again and make this nicer
 	//auto flags = getAgentFlags(avatar_id);
 	//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
 	return (gPVDataAuth->getSpecialAgentFlags(avatar_id) != 0 &&
-		!gPVDataAuth->isBadUserAutoMuted(avatar_id) &&
-		!gPVDataAuth->isBadUserBanned(avatar_id) &&
-		!gPVDataAuth->isBadUserUnsupported(avatar_id));
+		!gPVDataAuth->isUserAutoMuted(avatar_id) &&
+		!gPVDataAuth->isUserBanned(avatar_id) &&
+		!gPVDataAuth->isUserUnsupported(avatar_id));
 }
 
 bool PVDataAuth::isLinden(const LLUUID& avatar_id, S32& av_flags) const
@@ -995,28 +995,28 @@ std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 		else
 		{
 			// here are the bad flags
-			if (isBadUserAutoMuted(avatar_id))
+			if (isUserAutoMuted(avatar_id))
 			{
 				flags_list.push_back("Nuisance");
 			}
-			if (isBadUserBanned(avatar_id))
+			if (isUserBanned(avatar_id))
 			{
 				flags_list.push_back("Exiled");
 			}
-			if (isBadUserUnsupported(avatar_id))
+			if (isUserUnsupported(avatar_id))
 			{
 				flags_list.push_back("Unsupported");
 			}
 			// And here are the good flags
-			if (isStaffDeveloper(avatar_id))
+			if (isUserDevStaff(avatar_id))
 			{
 				flags_list.push_back("Developer");
 			}
-			if (isStaffQA(avatar_id))
+			if (isUserQAStaff(avatar_id))
 			{
 				flags_list.push_back("QA");
 			}
-			if (isStaffSupport(avatar_id))
+			if (isUserSupportStaff(avatar_id))
 			{
 				flags_list.push_back("Support");
 			}
@@ -1113,17 +1113,17 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 		//	gPVDataAuth->setSpecialAgentColor(avatar_id, linden_color.get());
 		//	return linden_color.get();
 		//}
-		if (gPVDataAuth->isStaffDeveloper(avatar_id))
+		if (gPVDataAuth->isUserDevStaff(avatar_id))
 		{
 			static LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
 			pvdata_color = dev_color.get();
 		}
-		else if (gPVDataAuth->isStaffQA(avatar_id))
+		else if (gPVDataAuth->isUserQAStaff(avatar_id))
 		{
 			static LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
 			pvdata_color = qa_color.get();
 		}
-		else if (gPVDataAuth->isStaffSupport(avatar_id))
+		else if (gPVDataAuth->isUserSupportStaff(avatar_id))
 		{
 			static LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
 			pvdata_color = support_color.get();
@@ -1133,12 +1133,12 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 			static LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
 			pvdata_color = tester_color.get();
 		}
-		else if (gPVDataAuth->isBadUserBanned(avatar_id))
+		else if (gPVDataAuth->isUserBanned(avatar_id))
 		{
 			static LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
 			pvdata_color = banned_color.get();
 		}
-		else if (gPVDataAuth->isBadUserAutoMuted(avatar_id))
+		else if (gPVDataAuth->isUserAutoMuted(avatar_id))
 		{
 			static LLUIColor banned_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey2);
 			pvdata_color = banned_color.get();
