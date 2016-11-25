@@ -199,7 +199,7 @@ void LLPanelSnapshotLocal::saveLocalCallback(bool success)
 	}
 	else
 	{
-		reportToNearbyChat(LLTrans::getString("CannotSaveSnapshot"));
+		PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("CannotSaveSnapshot"));
 		floater->notify(LLSD().with("set-ready", true));
 	}
 }

@@ -2419,7 +2419,7 @@ bool idle_startup()
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
 		// <polarity> Report web-served MOTD to chat
-		reportSpecialToNearbyChat(gAgent.mChatMOTD, CHAT_SOURCE_MOTD, "");
+		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
 		// </polarity>
 
 		gAgentAvatarp->sendHoverHeight();

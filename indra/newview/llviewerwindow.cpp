@@ -4342,7 +4342,7 @@ void do_save_image(LLImageFormatted* image, const std::string& snapshot_dir, con
 	{
 		LLStringUtil::format_map_t args;
 		args["FILENAME"] = filepath;
-		reportToNearbyChat(LLTrans::getString("SnapshotSavedToDisk", args));
+		PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("SnapshotSavedToDisk", args));
 	}
 
 	bool success = image->save(filepath);
