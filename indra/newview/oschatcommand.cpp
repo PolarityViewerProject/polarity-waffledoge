@@ -49,6 +49,7 @@
 
 #include "pvdata.h"
 #include "pvcommon.h"
+#include "llappviewer.h"
 
 OSChatCommand::OSChatCommand()
 	: LLSingleton<OSChatCommand>()
@@ -73,6 +74,7 @@ OSChatCommand::OSChatCommand()
 	gSavedSettings.getControl("PVChatCommand_PVDataRefresh")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	//gSavedSettings.getControl("PVChatCommand_PVDataDump")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("PVChatCommand_PurgeChat")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("PVChatCommand_Uptime")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 }
 
 void OSChatCommand::refreshCommands()
@@ -95,6 +97,7 @@ void OSChatCommand::refreshCommands()
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataRefresh")), CMD_PVDATA_REFRESH);
 	//mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataDump")), CMD_PVDATA_DUMP); 
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PurgeChat")), CMD_PURGE_CHAT);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_Uptime")), CMD_GET_UPTIME);
 }
 
 bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
@@ -344,7 +347,7 @@ bool OSChatCommand::parseCommand(std::string data)
 			// as the scroll bar is only reset when a new message is appended to the chat log.
 			// We can either update the scrollbar manually, or add a log entry to record that
 			// the char was cleared and clear again to hide it away said entry.
-			reportToNearbyChat("Clearing chat window...");
+			PVCommon::getInstance()->reportToNearbyChat("Clearing chat window...");
 			nearby_chat->purgeChatHistory();
 			return true;
 			// </polarity>
@@ -418,7 +421,7 @@ bool OSChatCommand::parseCommand(std::string data)
 	}
 	case CMD_PVDATA_REFRESH:
 	{
-		if (gPVDataAuth->isPolarized(gAgentID))
+		if (gPVDataAuth->isUserPolarized(gAgentID))
 		{
 			gPVDataDownloader->refreshDataFromServer(true);
 		}
@@ -433,6 +436,11 @@ bool OSChatCommand::parseCommand(std::string data)
 		return true;
 	}
 		*/
+	case CMD_GET_UPTIME:
+		{
+			PVCommon::getInstance()->reportToNearbyChat(gUptimeString);
+			return true;
+		}
 	}
 	return false;
 }
