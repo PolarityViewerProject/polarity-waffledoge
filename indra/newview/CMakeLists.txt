@@ -1864,12 +1864,8 @@ if(WINDOWS)
       SLPlugin
       media_plugin_quicktime
       media_plugin_cef
-      # media_plugin_libvlc
+      media_plugin_libvlc
       windows-crash-logger
-      )
-
-      set(COPY_INPUT_DEPENDENCIES
-          media_plugin_libvlc
       )
 
     if(FMODSTUDIO)
@@ -2098,12 +2094,8 @@ if(LINUX)
     linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
-    # media_plugin_libvlc
+    media_plugin_libvlc
     llcommon
-    )
-
-    set(COPY_INPUT_DEPENDENCIES
-        media_plugin_libvlc
         )
 
   add_custom_command(
@@ -2214,10 +2206,8 @@ if(DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  # FIXME: This violates CMake Standards (too long)
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_cef mac-crash-logger)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_libvlc media_plugin_cef mac-crash-logger)
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_libvlc)
     
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 

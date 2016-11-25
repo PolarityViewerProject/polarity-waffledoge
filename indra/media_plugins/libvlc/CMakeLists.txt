@@ -48,6 +48,7 @@ add_library(media_plugin_libvlc
     ${media_plugin_libvlc_SOURCE_FILES}
 )
 
+
 target_link_libraries(media_plugin_libvlc
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
@@ -56,11 +57,11 @@ target_link_libraries(media_plugin_libvlc
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
 
-add_dependencies(media_plugin_libvlc
-  ${LLPLUGIN_LIBRARIES}
-  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-  ${LLCOMMON_LIBRARIES}
-)
+#add_dependencies(media_plugin_libvlc
+#  ${LLPLUGIN_LIBRARIES}
+#  ${MEDIA_PLUGIN_BASE_LIBRARIES}
+#  ${LLCOMMON_LIBRARIES}
+#)
 
 if (WINDOWS)
   set_target_properties(

@@ -30,6 +30,9 @@ include_directories(SYSTEM
 
 if(NOT WORD_SIZE EQUAL 32)
   if(NOT WINDOWS)
+    add_definitions(
+    /FIXED:NO
+    )
     add_definitions(-fPIC)
   endif(NOT WINDOWS)
 endif(NOT WORD_SIZE EQUAL 32)
