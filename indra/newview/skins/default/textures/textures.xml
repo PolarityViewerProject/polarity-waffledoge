@@ -646,6 +646,7 @@ Additional notes:
 <texture name="up_arrow.png" file_name="up_arrow.png" />
 <texture name="UpArrow_Off" file_name="icons/UpArrow_Off.png" preload="false" />
 <texture name="Vertical Drag Handle" file_name="widgets/vertical_drag_handle.png"/>
+<texture name="Video_URL_Off" file_name="icons/Video_URL_Off.png" preload="true" />
 <texture name="VoicePTT_Lvl1" file_name="bottomtray/VoicePTT_Lvl1.png" preload="false" />
 <texture name="VoicePTT_Lvl2" file_name="bottomtray/VoicePTT_Lvl2.png" preload="false" />
 <texture name="VoicePTT_Lvl3" file_name="bottomtray/VoicePTT_Lvl3.png" preload="false" />
