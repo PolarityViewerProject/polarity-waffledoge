@@ -59,7 +59,7 @@
  <combo_box
   name="filter_combo_box"
   width="120"
-  height="20"
+  height="25"
   left="200"
   top="32"
   follows="top|left"
