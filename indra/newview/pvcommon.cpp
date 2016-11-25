@@ -89,7 +89,7 @@ void PVCommon::reportToNearbyChat(const std::string& message, std::string fromNa
 // Todo: Write a test for this. Use the fish.
 int PVCommon::HasSpecialCharacters(const std::string& oocstring)
 {
-	bool hasSpecial = 0; // return value
+	bool hasSpecial = false; // return value
 
 	// Convert the C++ string to a c-style string (char array) to check for special characters presence.
 	const char * str = oocstring.c_str();
