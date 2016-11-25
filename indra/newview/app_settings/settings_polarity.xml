@@ -189,6 +189,17 @@
       <key>Value</key>
       <string>/pvdatarefresh</string>
     </map>
+    <key>PVChatCommand_Uptime</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to get uptime</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/uptime</string>
+    </map>
     <key>PVChat_NearbyTypingIndicators</key>
     <map>
       <key>Comment</key>
