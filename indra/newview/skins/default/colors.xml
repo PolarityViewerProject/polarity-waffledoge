@@ -394,10 +394,10 @@
     reference="EmphasisColor_13"/>
    <color
     name="DefaultHighlightDark"
-    reference="EmphasisColor_13"/>
+    reference="DkGray2"/>  <!-- Border element color -->
    <color
     name="DefaultHighlightLight"
-    reference="EmphasisColor_13"/>
+    reference="DkGray"/>  <!-- Border element color -->
    <color
     name="DefaultShadowDark"
     reference="Black_50"/>
@@ -861,9 +861,9 @@
    <color
     name="PanelDefaultBackgroundColor"
     reference="DkGray" />
-   <color
+<!--    <color
     name="PanelDefaultHighlightLight"
-    value="0.52 0.52 0.52 0.75"/>
+    value="0.52 0.52 0.52 0.75"/> --> <!-- Unused in Polarity 2016.11.26 -->
    <color
     name="PanelFocusBackgroundColor"
     reference="DkGray2" />
