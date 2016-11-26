@@ -96,10 +96,10 @@ BOOL LLPanelSnapshotLocal::postBuild()
 // virtual
 void LLPanelSnapshotLocal::onOpen(const LLSD& key)
 {
-	//if(gSavedSettings.getS32("SnapshotFormat") != mLocalFormat)
-	//{
+	if(gSavedSettings.getS32("SnapshotFormat") != mLocalFormat)
+	{
 		getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
-	//}
+	}
 	LLPanelSnapshot::onOpen(key);
 }
 
