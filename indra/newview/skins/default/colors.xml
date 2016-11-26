@@ -391,10 +391,10 @@
     value="0.09020 0.09020 0.09020 1"/>
    <color
     name="ContextSilhouetteColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_13"/>
    <color
     name="DefaultHighlightDark"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_13"/>
    <color
     name="DefaultHighlightLight"
     reference="EmphasisColor_13"/>
@@ -436,16 +436,19 @@
     reference="White"/>
    <color
     name="EmphasisColor"
-    value="0.3176470588235294 0.5137254901960784 0.1098039215686275 1"/>
+    value="0.31765 0.51373 0.10980 1.0"/>
    <color
     name="EmphasisColor_13"
-    value="0.3176470588235294 0.5137254901960784 0.1098039215686275 0.13"/>
+    value="0.31765 0.51373 0.10980 1.0 0.13"/>
    <color
     name="EmphasisColor_35"
-    value="0.3176470588235294 0.5137254901960784 0.1098039215686275 0.35"/>
+    value="0.31765 0.51373 0.10980 1.0 0.35"/>
    <color
     name="EmphasisColorLight"
     value="0.85882 0.858820.85882 1"/>
+    <color
+    name="EmphasisColorDark"
+    value="0.20000 0.33659 0.06341 1.0"/>
    <color
     name="EmphasisColorPale"
     value="0.52234 0.64013 0.33241 1.0"/>
@@ -508,7 +511,7 @@
     value="0 0 0 0.31"/>
    <color
     name="GroupActive"
-    value="EmphasisColor"/>
+    reference="EmphasisColor"/>
    <color
     name="GroupHiddenInProfile"
     value="0.38 0.38 0.38 1"/>
@@ -601,7 +604,7 @@
     value="0.15 0.15 0.15 0.75"/>
    <color
     name="InventoryItemWornColor"
-    reference="EmphasisColorLight"/>
+    reference="EmphasisColorDark"/>
    <color
     name="InventoryMouseOverColor"
     reference="EmphasisColor_35"/>
@@ -721,13 +724,13 @@
     reference="PlvrWindowBackgroundLight"/>
    <color
     name="MenuItemEnabledColor"
-    value="0.72 0.72 0.72 1"/>
+    value="0.565 0.565 0.565 1"/>
    <color
     name="MenuItemFlashBgColor"
     reference="BeaconColor"/>
    <color
     name="MenuItemHighlightBgColor"
-    reference="EmphasisColor_35"/>
+    reference="EmphasisColorDark"/>
    <color
     name="MenuItemHighlightFgColor"
     reference="PlvrWhite"/>
@@ -817,7 +820,7 @@
     value="0 0.78 0.78 1"/>
    <color
     name="NotifyBoxColor"
-    value="LtGray"/>
+    reference="LtGray"/>
    <color
     name="NotifyCautionBoxColor"
     value="1 0.82 0.46 1"/>
@@ -841,11 +844,14 @@
     name="Orange"
     value="1.0, 0.5, 0.0, 1.0"/>
    <color
+    name="OutfitGalleryItemSelected"
+    reference="EmphasisColor_35" />
+   <color
     name="OutfitGalleryItemUnselected"
-    value="0.4 0.4 0.4 1" />
+    value="0.250 0.250 0.250 1.0" />
    <color
     name="OutfitGalleryItemWorn"
-    value="0.33 0.58 0.47 1" />
+    reference="Yellow" />
    <color
     name="OutputMonitorMutedColor"
     reference="DkGray"/>
@@ -989,10 +995,10 @@
     value="1 0 1 1"/>
    <color
     name="PVLineEditorBackgroundSelected"
-    reference="EmphasisColor"/>
+    reference="EmphasisColorDark"/>
    <color
     name="PVLineEditorHighlight"
-    reference="EmphasisColor"/>
+    reference="EmphasisColorDark"/>
    <color
     name="PVLineEditorPreEditBackground"
     reference="White"/>
@@ -1118,7 +1124,7 @@
     reference="White_25"/>
    <color
     name="StatBarMinMaxDots"
-    reference="EmphasisColor"/>
+    reference="White"/>
    <color
     name="SyntaxLslComment"
     value="0.386719 0.386719 0.386719 1"/>
@@ -1218,9 +1224,6 @@
    <color
     name="ToolTipTextColor"
     value="0.72 0.72 0.72 1"/>
-   <color
-    name="ToolTipTextColor"
-    reference="DkGray2" />
    <color
     name="Transparent"
     value="0 0 0 0"/>
