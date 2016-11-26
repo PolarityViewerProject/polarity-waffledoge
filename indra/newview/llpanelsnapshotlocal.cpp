@@ -131,7 +131,7 @@ void LLPanelSnapshotLocal::updateControls(const LLSD& info)
 {
 	mLocalFormat = gSavedSettings.getS32("SnapshotFormat");
 	getChild<LLComboBox>("local_format_combo")->selectNthItem(mLocalFormat);
-	static LLSliderCtrl *quality_slider = getChild<LLSliderCtrl>("image_quality_slider");
+	auto quality_slider = getChild<LLUICtrl>("image_quality_slider");
 	
 	quality_slider->setValue(gSavedSettings.getS32("SnapshotQuality"));
 	// NOTE: Two memory reads are significantly faster than creating a variable (write) to read it twice later in most system configurations. - Xenhat 2016.11.25
