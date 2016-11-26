@@ -98,7 +98,7 @@ void LLPanelSnapshot::onOpen(const LLSD& key)
 
 LLSnapshotModel::ESnapshotFormat LLPanelSnapshot::getImageFormat() const
 {
-	return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG;
+	return LLSnapshotModel::SNAPSHOT_FORMAT_PNG;
 }
 
 void LLPanelSnapshot::enableControls(BOOL enable)
