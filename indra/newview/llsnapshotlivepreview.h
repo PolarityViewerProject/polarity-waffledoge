@@ -73,7 +73,25 @@ public:
 	S32  getMaxImageSize() {return mMaxImageSize ;}
 
     LLSnapshotModel::ESnapshotType getSnapshotType() const { return mSnapshotType; }
-    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
+    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const {
+		auto fmt_str = "undefined";
+		switch (mSnapshotFormat)
+		{
+			case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
+			fmt_str = "PNG";
+			break;
+			case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
+			fmt_str = "JPEG";
+			break;
+			case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
+			fmt_str = "BMP";
+			break;
+			default:
+			break;
+		}
+		LL_INFOS() << "Snapshot format is " << fmt_str << LL_ENDL;
+		return mSnapshotFormat;
+	}
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
 	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
