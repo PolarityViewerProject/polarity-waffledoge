@@ -393,7 +393,9 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 	  default:
 		break;
 	}
-	setAspectRatioCheckboxValue(floater, !floater->impl->mAspectRatioCheckOff && gSavedSettings.getBOOL("KeepAspectForSnapshot"));
+	// <polarity> Speed up
+	static LLCachedControl<bool> keep_aspect_ratio(gSavedSettings, "KeepAspectForSnapshot");
+	setAspectRatioCheckboxValue(floater, !floater->impl->mAspectRatioCheckOff && keep_aspect_ratio);
 
 	if (previewp)
 	{
@@ -440,7 +442,9 @@ void LLFloaterSnapshotBase::ImplBase::setNeedRefresh(bool need)
 	if (!mFloater) return;
 
 	// Don't display the "Refresh to save" message if we're in auto-refresh mode.
-	if (gSavedSettings.getBOOL("AutoSnapshot"))
+	// <polarity> Speed up
+	static LLCachedControl<bool> auto_snapshot(gSavedSettings, "AutoSnapshot");
+	if (auto_snapshot)
 	{
 		need = false;
 	}
@@ -454,9 +458,11 @@ void LLFloaterSnapshotBase::ImplBase::checkAutoSnapshot(LLSnapshotLivePreview* p
 {
 	if (previewp)
 	{
-		BOOL autosnap = gSavedSettings.getBOOL("AutoSnapshot");
-		LL_DEBUGS() << "updating " << (autosnap ? "snapshot" : "thumbnail") << LL_ENDL;
-		previewp->updateSnapshot(autosnap, update_thumbnail, autosnap ? AUTO_SNAPSHOT_TIME_DELAY : 0.f);
+		//BOOL autosnap = gSavedSettings.getBOOL("AutoSnapshot");
+		// <polarity> Speed up
+		static LLCachedControl<bool> auto_snapshot(gSavedSettings, "AutoSnapshot");
+		LL_DEBUGS() << "updating " << (auto_snapshot ? "snapshot" : "thumbnail") << LL_ENDL;
+		previewp->updateSnapshot(auto_snapshot, update_thumbnail, auto_snapshot ? AUTO_SNAPSHOT_TIME_DELAY : 0.f);
 	}
 }
 
@@ -559,7 +565,9 @@ void LLFloaterSnapshot::Impl::applyKeepAspectCheck(LLFloaterSnapshotBase* view, 
 		LLSnapshotLivePreview* previewp = getPreviewView() ;
 		if(previewp)
 		{
-			previewp->mKeepAspectRatio = gSavedSettings.getBOOL("KeepAspectForSnapshot") ;
+			// <polarity> Speed up
+			static LLCachedControl<bool> keep_aspect_ratio(gSavedSettings, "KeepAspectForSnapshot");
+			previewp->mKeepAspectRatio = keep_aspect_ratio;
 
 			S32 w, h ;
 			previewp->getSize(w, h) ;
@@ -616,7 +624,9 @@ void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshotBase *view, S32 
 	else if (-1 == index) // custom
 	{
 		enable_cb = TRUE;
-		keep_aspect = gSavedSettings.getBOOL("KeepAspectForSnapshot");
+		// <polarity> Speed up
+		static LLCachedControl<bool> keep_aspect_ratio(gSavedSettings, "KeepAspectForSnapshot");
+		keep_aspect = keep_aspect_ratio;
 	}
 	else // predefined resolution
 	{
@@ -707,7 +717,10 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
 		
-		if (gSavedSettings.getBOOL("RenderUIInSnapshot") || gSavedSettings.getBOOL("RenderHUDInSnapshot"))
+		// <polarity> Speed up
+		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
+		static LLCachedControl<bool> render_hud(gSavedSettings, "RenderHUDInSnapshot");
+		if (render_ui || render_hud)
 		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
 			width = llmin(width, gViewerWindow->getWindowWidthRaw());
 			height = llmin(height, gViewerWindow->getWindowHeightRaw());
