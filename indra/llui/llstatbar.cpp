@@ -447,8 +447,8 @@ void LLStatBar::draw()
 			}
 
 			S32 end = (S32) ((max - mCurMinBar) * value_scale);
-			// The range color is too bright when displayed on the stats bar, drop the alpha down a little
-			auto range_bar_fixed = LLColor4(LLStatusBar::gFPSColor.mV[0], LLStatusBar::gFPSColor.mV[1], LLStatusBar::gFPSColor.mV[2], 0.65f);
+			// The range color is too bright when displayed on the stats bar, darken it a little
+			auto range_bar_fixed = LLColor4(LLStatusBar::gFPSColor.mV[0] - 0.13, LLStatusBar::gFPSColor.mV[1] - 0.13, LLStatusBar::gFPSColor.mV[2] - 0.13, 0.45f);
 			if (mOrientation == HORIZONTAL)
 			{
 				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, range_bar_fixed); // <polarity/>
