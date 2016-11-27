@@ -207,6 +207,8 @@ option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" OFF)
 option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
 option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
 
+option(USE_AUTO_PARALLELIZER "Use MSVC's Auto-Parallelizer" OFF)
+
 # Libraries
 # option(USE_VLC_PLUGIN "Link VLC plugin. Option exists because it breaks." ON)
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
