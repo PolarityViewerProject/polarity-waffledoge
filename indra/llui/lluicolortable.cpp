@@ -206,7 +206,6 @@ void LLUIColorTable::setColor(const std::string& name, const LLColor4& color)
 		setColor(name, color, mUserSetColors);
 		setColor(name, color, mLoadedColors);
 	}
-	
 }
 
 bool LLUIColorTable::loadFromSettings()
