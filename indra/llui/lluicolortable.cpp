@@ -199,8 +199,14 @@ LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& defa
 // update user color, loaded colors are parsed on initialization
 void LLUIColorTable::setColor(const std::string& name, const LLColor4& color)
 {
-	setColor(name, color, mUserSetColors);
-	setColor(name, color, mLoadedColors);
+	// <polarity> Only write new color if the value is actually different.
+	auto current_value = getColor(name, LLColor4::magenta);
+	if(current_value != color)
+	{
+		setColor(name, color, mUserSetColors);
+		setColor(name, color, mLoadedColors);
+	}
+	
 }
 
 bool LLUIColorTable::loadFromSettings()
