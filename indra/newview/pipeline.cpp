@@ -431,8 +431,14 @@ LLPipeline::LLPipeline():
 	mMatrixOpCount(0),
 	mTextureMatrixOps(0),
 	mNumVisibleNodes(0),
+	mDebugTextureUploadCost(0),
+	mDebugSculptUploadCost(0),
+	mDebugMeshUploadCost(0),
 	mNumVisibleFaces(0),
 
+	mScreenWidth(0),
+	mScreenHeight(0),
+	mGILightRadius(0),
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
@@ -441,8 +447,8 @@ LLPipeline::LLPipeline():
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
 	mMeshDirtyQueryObject(0),
-	mGroupQ1Locked(false),
 	mGroupQ2Locked(false),
+	mGroupQ1Locked(false),
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
@@ -461,9 +467,7 @@ LLPipeline::LLPipeline():
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
-	mLightingDetail(0),
-	mScreenWidth(0),
-	mScreenHeight(0)
+	mLightingDetail(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
