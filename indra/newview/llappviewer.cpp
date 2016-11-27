@@ -1577,7 +1577,7 @@ bool LLAppViewer::frame()
 					&& !logoutRequestSent())
 			{
 				// Sleep a while to limit frame rate.
-				F32 min_frame_time = 1.000 / max_fps; // TODO: Convert to multiplication
+				F32 min_frame_time = 1.000f / max_fps;
 				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
 				if (milliseconds_to_sleep > 0)
 				{
