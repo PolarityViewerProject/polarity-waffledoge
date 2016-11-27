@@ -60,7 +60,8 @@ S32 LLImageDecodeThread::update(F32 max_time_ms)
 		bool res = addRequest(req);
 		if (!res)
 		{
-			LL_ERRS() << "request added after LLLFSThread::cleanupClass()" << LL_ENDL;
+			LL_WARNS() << "request added after LLLFSThread::cleanupClass()" << LL_ENDL;
+			return 0;
 		}
 	}
 	mCreationList.clear();
@@ -142,7 +143,19 @@ bool LLImageDecodeThread::ImageRequest::processRequest()
 											  mFormattedImage->getHeight(),
 											  mFormattedImage->getComponents());
 		}
-		done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
+
+		// <FS:ND> Probably out of memory crash
+		// done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
+		if( mDecodedImageRaw->getData() )
+			done = mFormattedImage->decode(mDecodedImageRaw, decode_time_slice); // 1ms
+		else
+		{
+			LL_WARNS() << "No memory for LLImageRaw of size " << (U32)mFormattedImage->getWidth() << "x" << (U32)mFormattedImage->getHeight() << "x"
+					   << (U32)mFormattedImage->getComponents() << LL_ENDL;
+			done = false;
+		}
+		// </FS:ND>
+		
 		// some decoders are removing data when task is complete and there were errors
 		mDecodedRaw = done && mDecodedImageRaw->getData();
 	}
