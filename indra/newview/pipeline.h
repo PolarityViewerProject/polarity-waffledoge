@@ -28,7 +28,7 @@
 #define LL_PIPELINE_H
 
 #include "llcamera.h"
-#include "llerror.h"
+//#include "llerror.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
@@ -95,6 +95,7 @@ extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 class LLPipeline
 {
 public:
+	typedef LLPipeline _LL_CLASS_TO_LOG; // <polarity/>
 	LLPipeline();
 	~LLPipeline();
 
@@ -138,7 +139,7 @@ public:
 	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
-	void bindScreenToTexture() const;
+	//void bindScreenToTexture() const; // <polarity/> Unused 2016.11.27
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -280,7 +281,7 @@ public:
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
-	void renderGeomShadow(LLCamera& camera);
+	void renderGeomShadow(); // <polarity/>
 	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
@@ -911,7 +912,7 @@ public:
 	static F32 RenderGlowWarmthAmount;
 	static LLVector3 RenderGlowLumWeights;
 	static LLVector3 RenderGlowWarmthWeights;
-	static S32 RenderGlowResolutionPow;
+	static U32 RenderGlowResolutionPow; // <polarity/>
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;

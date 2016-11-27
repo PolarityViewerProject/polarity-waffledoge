@@ -165,7 +165,7 @@ F32 LLPipeline::RenderGlowMaxExtractAlpha;
 F32 LLPipeline::RenderGlowWarmthAmount;
 LLVector3 LLPipeline::RenderGlowLumWeights;
 LLVector3 LLPipeline::RenderGlowWarmthWeights;
-S32 LLPipeline::RenderGlowResolutionPow;
+U32 LLPipeline::RenderGlowResolutionPow; // <polarity/>
 S32 LLPipeline::RenderGlowIterations;
 F32 LLPipeline::RenderGlowWidth;
 F32 LLPipeline::RenderGlowStrength;
@@ -379,7 +379,7 @@ BOOL	LLPipeline::sRenderBeacons = FALSE;
 BOOL	LLPipeline::sRenderHighlight = TRUE;
 LLRender::eTexIndex LLPipeline::sRenderHighlightTextureChannel = LLRender::DIFFUSE_MAP;
 BOOL	LLPipeline::sForceOldBakedUpload = FALSE;
-S32		LLPipeline::sUseOcclusion = 0;
+BOOL	LLPipeline::sUseOcclusion = FALSE; // <polarity/>
 BOOL	LLPipeline::sDelayVBUpdate = TRUE;
 BOOL	LLPipeline::sAutoMaskAlphaDeferred = TRUE;
 BOOL	LLPipeline::sAutoMaskAlphaNonDeferred = FALSE;
@@ -1163,7 +1163,7 @@ void LLPipeline::refreshCachedSettings()
 			&& LLGLSLShader::sNoFixedFunction
 			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 			&& gSavedSettings.getBOOL("UseOcclusion") 
-			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
+			&& gGLManager.mHasOcclusionQuery); // <polarity/>
 	
 	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
@@ -1199,7 +1199,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderGlowWarmthAmount = gSavedSettings.getF32("RenderGlowWarmthAmount");
 	RenderGlowLumWeights = gSavedSettings.getVector3("RenderGlowLumWeights");
 	RenderGlowWarmthWeights = gSavedSettings.getVector3("RenderGlowWarmthWeights");
-	RenderGlowResolutionPow = gSavedSettings.getS32("RenderGlowResolutionPow");
+	RenderGlowResolutionPow = gSavedSettings.getU32("RenderGlowResolutionPow"); // <polarity/>
 	RenderGlowIterations = gSavedSettings.getS32("RenderGlowIterations");
 	RenderGlowWidth = gSavedSettings.getF32("RenderGlowWidth");
 	RenderGlowStrength = gSavedSettings.getF32("RenderGlowStrength");
@@ -1249,18 +1249,18 @@ void LLPipeline::refreshCachedSettings()
 	// <polarity> PLVR-15 Depth of Field and God Rays used together creates artifacts on alpha surfaces
 	PVRender_DepthOfFieldAlphas = gSavedSettings.getBOOL("PVRender_DepthOfFieldAlphas");
 	// Not in XML because runtime only.
-	if (PVRender_EnableGodRays && PVRender_DepthOfFieldAlphas)
-	{
-		PVDebug_RenderDepthOfFieldAlphasBackup = PVRender_DepthOfFieldAlphas;
-		PVRender_DepthOfFieldAlphas = FALSE;
-		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
-	}
+	//if (PVRender_EnableGodRays && PVRender_DepthOfFieldAlphas)
+	//{
+	//	PVDebug_RenderDepthOfFieldAlphasBackup = PVRender_DepthOfFieldAlphas;
+	//	PVRender_DepthOfFieldAlphas = FALSE;
+	//	gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
+	//}
 	// Restore previous value6
-	else if (!PVRender_EnableGodRays && PVDebug_RenderDepthOfFieldAlphasBackup)
-	{
-		gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", PVDebug_RenderDepthOfFieldAlphasBackup);
-		PVDebug_RenderDepthOfFieldAlphasBackup = FALSE;
-	}
+	//else if (!PVRender_EnableGodRays && PVDebug_RenderDepthOfFieldAlphasBackup)
+	//{
+	//	gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", PVDebug_RenderDepthOfFieldAlphasBackup);
+	//	PVDebug_RenderDepthOfFieldAlphasBackup = FALSE;
+	//}
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	PVRender_GodRaysResolution = gSavedSettings.getU32("PVRender_GodRaysResolution");
 	PVRender_GodRaysMultiplier = gSavedSettings.getF32("PVRender_GodRaysMultiplier");
@@ -1283,7 +1283,9 @@ void LLPipeline::handleReflectionChanges()
 	mWaterDis.release();
 	if (LLPipeline::sWaterReflections)
 	{
-		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
+		// <polarity/> Speed up
+		static LLCachedControl<U32> render_water_reflection(gSavedSettings, "RenderWaterRefResolution");
+		auto res = llmax((U32)render_water_reflection, (U32)512);
 		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
 		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 	}
@@ -1363,7 +1365,9 @@ void LLPipeline::createGLBuffers()
 
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
-		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
+		// <polarity/> Speed up
+		static LLCachedControl<S32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
+		auto res = llmax((U32)render_water_ref_res, (U32)512);
 			
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
 		//
@@ -1390,8 +1394,10 @@ void LLPipeline::createGLBuffers()
 	
 	if (LLPipeline::sRenderGlow)
 	{ //screen space glow buffers
+		// TODO PLVR: Shouldn't we use the pipeline variable?
+		static LLCachedControl<U32> render_glow_resolution(gSavedSettings, "RenderGlowResolutionPow");
 		const U32 glow_res = llmax(1, 
-			llmin(512, 1 << gSavedSettings.getS32("RenderGlowResolutionPow")));
+			llmin(512, 1 << render_glow_resolution));
 
 		for (U32 i = 0; i < 3; i++)
 		{
@@ -1410,7 +1416,9 @@ void LLPipeline::createGLBuffers()
 			const U32 noiseRes = 128;
 			LLVector3 noise[noiseRes*noiseRes];
 
-			F32 scaler = gSavedSettings.getF32("RenderDeferredNoise")/100.f;
+			// <polarity/> Speed up
+			static LLCachedControl<F32> render_deferred_noise(gSavedSettings, "RenderDeferredNoise");
+			F32 scaler = render_deferred_noise / 100.f;
 			for (U32 i = 0; i < noiseRes*noiseRes; ++i)
 			{
 				noise[i] = LLVector3(ll_frand()-0.5f, ll_frand()-0.5f, 0.f);
@@ -4453,7 +4461,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 
 		BOOL occlude = sUseOcclusion > 1;
-		U32 cur_type = 0;
+		U32 cur_type;
 
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
@@ -4534,7 +4542,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 
 		if (occlude)
 		{
-			occlude = FALSE;
+			//occlude = FALSE; // <polarity/>
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
@@ -4634,7 +4642,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
 
-	U32 cur_type = 0;
+	U32 cur_type;
 
 	gGL.setColorMask(true, true);
 	
@@ -4704,7 +4712,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
-	U32 cur_type = 0;
+	U32 cur_type;
 
 	LLGLEnable cull(GL_CULL_FACE);
 
@@ -4788,7 +4796,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 
 	if (occlude)
 	{
-		occlude = FALSE;
+		//occlude = FALSE; // <polarity/>
 		gGLLastMatrix = NULL;
 		gGL.loadMatrix(gGLModelView);
 		LLGLSLShader::bindNoShader();
@@ -4798,9 +4806,9 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	}
 }
 
-void LLPipeline::renderGeomShadow(LLCamera& camera)
+void LLPipeline::renderGeomShadow() // <polarity/>
 {
-	U32 cur_type = 0;
+	U32 cur_type;
 	
 	LLGLEnable cull(GL_CULL_FACE);
 
@@ -4868,7 +4876,7 @@ void LLPipeline::renderGeomShadow(LLCamera& camera)
 void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 {
 	assertInitialized();
-	S32 count = 0;
+	S32 count;
 	if (render_type == LLRender::TRIANGLE_STRIP)
 	{
 		count = index_count-2;
@@ -7494,6 +7502,7 @@ void apply_cube_face_rotation(U32 face)
 		case 5: 
 			gGL.rotatef(180, 0, 0, 1);
 		break;
+	default: break; // <polarity/>
 	}
 }
 
@@ -7524,10 +7533,11 @@ void validate_framebuffer_object()
 	}
 }
 
-void LLPipeline::bindScreenToTexture() const
-{
-	
-}
+// <polarity/> Unused 2016.11.27
+//void LLPipeline::bindScreenToTexture() const
+//{
+//	
+//}
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
@@ -7700,15 +7710,14 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	tc2.setVec(2,2);
 
 	// power of two between 1 and 1024
-	S32 glowResPow = RenderGlowResolutionPow;
-	const U32 glow_res = llmax(1, 
-		llmin(1024, 1 << glowResPow));
+	const U32 glow_res = llmax((U32)1, 
+		llmin((U32)1024, (U32)1 << RenderGlowResolutionPow)); // <polarity/>
 
 	S32 kernel = RenderGlowIterations*2;
 	F32 delta = RenderGlowWidth / glow_res;
 	// Use half the glow width if we have the res set to less than 9 so that it looks
 	// almost the same in either case.
-	if (glowResPow < 9)
+	if (RenderGlowResolutionPow < 9) // <polarity/>
 	{
 		delta *= 0.5f;
 	}
@@ -7797,7 +7806,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				
 		if (dof_enabled)
 		{
-			LLGLSLShader* shader = &gDeferredPostProgram;
+			LLGLSLShader* shader;
 			LLGLDisable blend(GL_BLEND);
 
 			//depth of field focal plane calculations
@@ -8316,7 +8325,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	}
 
 	shader.bind();
-	S32 channel = 0;
+	S32 channel;
 	channel = shader.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mDeferredScreen.getUsage());
 	if (channel > -1)
 	{
@@ -10267,12 +10276,12 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	if (use_shader)
 	{
 		gDeferredShadowProgram.unbind();
-		renderGeomShadow(shadow_cam);
+		renderGeomShadow(); // <polarity/>
 		gDeferredShadowProgram.bind();
 	}
 	else
 	{
-		renderGeomShadow(shadow_cam);
+		renderGeomShadow(); // <polarity/>
 	}
 	static LLCachedControl<bool> _NACL_AlphaShadows(gSavedSettings, "_NACL_AlphaShadows", 1);
 	if (_NACL_AlphaShadows)
@@ -10710,7 +10719,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	
 	LLCamera main_camera = camera;
 	
-	F32 near_clip = 0.f;
+	F32 near_clip;
 	{
 		//get visible point cloud
 		std::vector<LLVector3> fp;
@@ -11012,7 +11021,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					F32 fovx = 1.f;
 				
 					LLVector3 zp;
-					LLVector3 xp;
+					//LLVector3 xp; // <polarity/>
 
 					for (U32 i = 0; i < wpf.size(); ++i)
 					{
@@ -11031,7 +11040,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 						if (fovx > -atx.mV[1])
 						{
 							fovx = -atx.mV[1];
-							xp = wpf[i];
+							//xp = wpf[i]; // <polarity/>
 						}
 					}
 
@@ -11464,8 +11473,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 	
 	LLCamera camera = static_cast<LLCamera>(*viewer_camera);
 	LLVector2 tdim;
-	U32 resY = 0;
-	U32 resX = 0;
+	U32 resY;
+	U32 resX;
 
 	{
 		LL_RECORD_BLOCK_TIME(FTM_IMPOSTOR_SETUP);
