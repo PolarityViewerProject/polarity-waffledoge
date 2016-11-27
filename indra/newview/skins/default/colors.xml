@@ -164,7 +164,7 @@
     reference="DkGray2"/>
    <color
     name="ChatHeaderTimestampColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="ChatHeaderUserNameColor"
     reference="EmphasisColorLight"/>
@@ -391,7 +391,7 @@
     value="0.09020 0.09020 0.09020 1"/>
    <color
     name="ContextSilhouetteColor"
-    reference="EmphasisColor_13"/>
+    reference="EmphasisColor_35"/>
    <color
     name="DefaultHighlightDark"
     reference="DkGray2"/>  <!-- Border element color -->
@@ -439,16 +439,19 @@
     value="0.31765 0.51373 0.10980 1.0"/>
    <color
     name="EmphasisColor_13"
-    value="0.31765 0.51373 0.10980 1.0 0.13"/>
+    value="0.31765 0.51373 0.10980 0.13"/>
    <color
     name="EmphasisColor_35"
-    value="0.31765 0.51373 0.10980 1.0 0.35"/>
+    value="0.20000 0.33659 0.06341 0.35"/>
    <color
-    name="EmphasisColorLight"
-    value="0.85882 0.858820.85882 1"/>
-    <color
+    name="EmphasisColor_65"
+    value="0.20000 0.33659 0.06341 0.65"/>
+   <color
     name="EmphasisColorDark"
     value="0.20000 0.33659 0.06341 1.0"/>
+   <color
+    name="EmphasisColorLight"
+    value="0.85882 0.85882 0.85882 1.0"/>
    <color
     name="EmphasisColorPale"
     value="0.52234 0.64013 0.33241 1.0"/>
@@ -511,7 +514,7 @@
     value="0 0 0 0.31"/>
    <color
     name="GroupActive"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="GroupHiddenInProfile"
     value="0.38 0.38 0.38 1"/>
@@ -556,7 +559,7 @@
     reference="SilhouetteChildColor"/>
    <color
     name="HighlightInspectColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="HighlightParentColor"
     reference="Yellow"/>
@@ -604,16 +607,16 @@
     value="0.15 0.15 0.15 0.75"/>
    <color
     name="InventoryItemWornColor"
-    reference="EmphasisColorDark"/>
+    reference="EmphasisColor_35"/>
    <color
     name="InventoryMouseOverColor"
     reference="EmphasisColor_35"/>
    <color
     name="InventoryObjectIconColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="InventorySearchStatusColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="LabelDisabledColor"
     reference="LtGray_35"/>
@@ -730,7 +733,7 @@
     reference="BeaconColor"/>
    <color
     name="MenuItemHighlightBgColor"
-    reference="EmphasisColorDark"/>
+    reference="EmphasisColor_65"/>
    <color
     name="MenuItemHighlightFgColor"
     reference="PlvrWhite"/>
@@ -845,7 +848,7 @@
     value="1.0, 0.5, 0.0, 1.0"/>
    <color
     name="OutfitGalleryItemSelected"
-    reference="EmphasisColor_35" />
+    reference="EmphasisColor_65" />
    <color
     name="OutfitGalleryItemUnselected"
     value="0.250 0.250 0.250 1.0" />
@@ -906,6 +909,9 @@
    <color
     name="PieMenuSelectedColor"
     value="0.72 0.72 0.74 0.3"/>
+   <color
+    name="PolarityGreen"
+    value="0.31765 0.51373 0.10980 1.0"/>
    <color
     name="PlvrBannedChatColor"
     value="0.38 0.38 0.38 1.0"/>
@@ -995,10 +1001,10 @@
     value="1 0 1 1"/>
    <color
     name="PVLineEditorBackgroundSelected"
-    reference="EmphasisColorDark"/>
+    reference="EmphasisColor"/>
    <color
     name="PVLineEditorHighlight"
-    reference="EmphasisColorDark"/>
+    reference="EmphasisColor"/>
    <color
     name="PVLineEditorPreEditBackground"
     reference="White"/>
@@ -1094,7 +1100,7 @@
     value="0.42 0.42 0.42 1"/>
    <color
     name="SelectedOutfitTextColor"
-    reference="EmphasisColor"/>
+    reference="EmphasisColor_35"/>
    <color
     name="SilhouetteChildColor"
     value="0.13 0.42 0.77 1"/>
