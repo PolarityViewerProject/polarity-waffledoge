@@ -79,7 +79,7 @@ const U32 LLWorld::mWidth = 256;
 // meters/point, therefore mWidth * mScale = meters per edge
 const F32 LLWorld::mScale = 1.f;
 
-const F32 LLWorld::mWidthInMeters = mWidth * mScale;
+F32 LLWorld::mWidthInMeters = mWidth * mScale;
 
 //
 // Functions
@@ -293,13 +293,13 @@ void LLWorld::removeRegion(const LLHost &host)
 
 	mRegionRemovedSignal(regionp);
 
-	delete regionp;
-
 	updateWaterObjects();
 
 	//double check all objects of this region are removed.
 	gObjectList.clearAllMapObjectsInRegion(regionp) ;
 	//llassert_always(!gObjectList.hasMapObjectInRegion(regionp)) ;
+
+	delete regionp; // <alchemy/> - Use after free fix?
 }
 
 
@@ -408,11 +408,19 @@ LLVector3d	LLWorld::clipToVisibleRegions(const LLVector3d &start_pos, const LLVe
 
 LLViewerRegion* LLWorld::getRegionFromHandle(const U64 &handle)
 {
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
+	U32 x, y;
+	from_region_handle(handle, &x, &y);
+
+	for (region_list_t::iterator iter = mRegionList.begin(), iter_end(mRegionList.end());
+		 iter != iter_end; ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
-		if (regionp->getHandle() == handle)
+		U32 checkRegionX, checkRegionY;
+		F32 checkRegionWidth = regionp->getWidth();
+		from_region_handle(regionp->getHandle(), &checkRegionX, &checkRegionY);
+
+		if (x >= checkRegionX && x < (checkRegionX + checkRegionWidth) &&
+			y >= checkRegionY && y < (checkRegionY + checkRegionWidth))
 		{
 			return regionp;
 		}
@@ -422,8 +430,8 @@ LLViewerRegion* LLWorld::getRegionFromHandle(const U64 &handle)
 
 LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
 {
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
+	for (region_list_t::iterator iter = mRegionList.begin(), iter_end(mRegionList.end());
+		 iter != iter_end; ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		if (regionp->getRegionID() == region_id)
@@ -449,8 +457,8 @@ void LLWorld::updateAgentOffset(const LLVector3d &offset_global)
 
 BOOL LLWorld::positionRegionValidGlobal(const LLVector3d &pos_global)
 {
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
+	for (region_list_t::iterator iter = mRegionList.begin(), iter_end(mRegionList.end());
+		 iter != iter_end; ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		if (regionp->pointInRegionGlobal(pos_global))
@@ -702,20 +710,20 @@ void LLWorld::updateRegions(F32 max_update_time)
 	//sort regions by its mLastUpdate
 	//smaller mLastUpdate first to make sure every region has chance to get updated.
 	LLViewerRegion::region_priority_list_t region_list;
-	for (region_list_t::iterator iter = mRegionList.begin();
-		 iter != mRegionList.end(); ++iter)
+	for (region_list_t::iterator iter = mRegionList.begin(), iter_end = mRegionList.end();
+		iter != iter_end; ++iter)
 	{
 		LLViewerRegion* regionp = *iter;
 		if(regionp != self_regionp)
 		{
 			region_list.insert(regionp);
 		}
-		mNumOfActiveCachedObjects += regionp->getNumOfActiveCachedObjects();
+		if (regionp) mNumOfActiveCachedObjects += regionp->getNumOfActiveCachedObjects();
 	}
 
 	// Perform idle time updates for the regions (and associated surfaces)
-	for (LLViewerRegion::region_priority_list_t::iterator iter = region_list.begin();
-		 iter != region_list.end(); ++iter)
+	for (LLViewerRegion::region_priority_list_t::iterator iter = region_list.begin(), iter_end = region_list.end();
+		 iter != iter_end; ++iter)
 	{
 		if(max_time > 0.f)
 		{
@@ -925,23 +933,24 @@ void LLWorld::updateWaterObjects()
 	mHoleWaterObjects.clear();
 
 	// Use the water height of the region we're on for areas where there is no region
-	F32 water_height = gAgent.getRegion()->getWaterHeight();
+	F32 water_height = gAgent.getRegion()->getWaterHeight() + 256.f;
 
 	// Now, get a list of the holes
 	S32 x, y;
-	for (x = min_x; x <= max_x; x += rwidth)
+	const S32 step = 256;
+	for (x = min_x; x <= max_x; x += step)
 	{
-		for (y = min_y; y <= max_y; y += rwidth)
+		for (y = min_y; y <= max_y; y += step)
 		{
 			U64 region_handle = to_region_handle(x, y);
 			if (!getRegionFromHandle(region_handle))
 			{	// No region at that area, so make water
 				LLVOWater* waterp = (LLVOWater *)gObjectList.createObjectViewer(LLViewerObject::LL_VO_WATER, gAgent.getRegion());
 				waterp->setUseTexture(FALSE);
-				waterp->setPositionGlobal(LLVector3d(x + rwidth/2,
-													 y + rwidth/2,
-													 256.f + water_height));
-				waterp->setScale(LLVector3((F32)rwidth, (F32)rwidth, 512.f));
+				waterp->setPositionGlobal(LLVector3d(x + step/2,
+													 y + step/2,
+													 water_height));
+				waterp->setScale(LLVector3((F32)step, (F32)step, 512.f));
 				gPipeline.createObject(waterp);
 				mHoleWaterObjects.push_back(waterp);
 			}
@@ -951,16 +960,16 @@ void LLWorld::updateWaterObjects()
 	// Update edge water objects
 	S32 wx, wy;
 	S32 center_x, center_y;
-	wx = (max_x - min_x) + rwidth;
-	wy = (max_y - min_y) + rwidth;
+	wx = (max_x - min_x) + step;
+	wy = (max_y - min_y) + step;
 	center_x = min_x + (wx >> 1);
 	center_y = min_y + (wy >> 1);
 
 	S32 add_boundary[4] = {
-		(S32)(512 - (max_x - region_x)),
-		(S32)(512 - (max_y - region_y)),
-		(S32)(512 - (region_x - min_x)),
-		(S32)(512 - (region_y - min_y)) };
+		static_cast<S32>(512 - (max_x - (rwidth - 256) - region_x)),
+		static_cast<S32>(512 - (max_y - (rwidth - 256) - region_y)),
+		512 - ((S32)region_x - min_x),
+		512 - ((S32)region_y - min_y) };
 		
 	S32 dir;
 	for (dir = 0; dir < 8; dir++)
@@ -997,7 +1006,7 @@ void LLWorld::updateWaterObjects()
 		}
 
 		waterp->setRegion(gAgent.getRegion());
-		LLVector3d water_pos(water_center_x, water_center_y, 256.f + water_height) ;
+		LLVector3d water_pos(water_center_x, water_center_y, water_height) ;
 		LLVector3 water_scale((F32) dim[0], (F32) dim[1], 512.f);
 
 		//stretch out to horizon
@@ -1091,11 +1100,16 @@ static LLTrace::BlockTimerStatHandle FTM_ENABLE_SIMULATOR("Enable Sim");
 
 void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 {
+	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
+
+	if (!gAgent.getRegion())
+		return;
+
 	static LLCachedControl<bool> do_not_connect_to_beighbors(gSavedSettings, "PVNetwork_DoNotConnectToNeighbors");
 	if((do_not_connect_to_beighbors) && ((gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
 		|| (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)))
 		return;
-	LL_RECORD_BLOCK_TIME(FTM_ENABLE_SIMULATOR);
+
 	// enable the appropriate circuit for this simulator and 
 	// add its values into the gSimulator structure
 	U64		handle;
