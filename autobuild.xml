@@ -2432,7 +2432,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04cff37070a5f65f3652b4ddcec7183f</string>
+              <string>6bb63f13fe4b143429347c7e8835e373</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
               <string>http://lib.polarityviewer.org/windows32/msvc-14/vlc_bin-2.2.4.201611251057-windows-201611251057.tar.bz2</string>
             </map>
@@ -2455,7 +2457,7 @@
           </map>
         </map>
         <key>version</key>
-        <string>2.2.4.201611250831</string>
+        <string>2.2.4.201611251057</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
