@@ -45,7 +45,7 @@ set(llmath_SOURCE_FILES
 set(llmath_HEADER_FILES
     CMakeLists.txt
 
-    camera.h
+    #camera.h <polarity> Removed 2016.11.28
     coordframe.h
     llbbox.h
     llbboxlocal.h

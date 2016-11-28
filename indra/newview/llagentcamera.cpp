@@ -201,7 +201,7 @@ void LLAgentCamera::init()
 	LLViewerCamera::getInstance()->setView(DEFAULT_FIELD_OF_VIEW);
 	// Leave at 0.1 meters until we have real near clip management
 	LLViewerCamera::getInstance()->setNear(0.1f);
-	LLViewerCamera::getInstance()->setFar(mDrawDistance);			// if you want to change camera settings, do so in camera.h
+	LLViewerCamera::getInstance()->setFar(mDrawDistance);			// if you want to change camera settings, do so in llcamera.h
 	LLViewerCamera::getInstance()->setAspect( gViewerWindow->getWorldViewAspectRatio() );		// default, overridden in LLViewerWindow::reshape
 	LLViewerCamera::getInstance()->setViewHeightInPixels(768);			// default, overridden in LLViewerWindow::reshape
 
