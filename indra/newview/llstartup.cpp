@@ -955,7 +955,7 @@ bool idle_startup()
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
 
-		llassert(!gPVDataDownloader->getDataDone());
+		llassert(gPVDataDownloader->getDataDone());
 		std::string new_title = gPVDataViewerInfo->getRandomWindowTitle();
 		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
 		{
