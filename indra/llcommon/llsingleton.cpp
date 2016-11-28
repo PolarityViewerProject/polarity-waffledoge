@@ -28,4 +28,5 @@
 
 #include "llsingleton.h"
 
-
+// <polarity> Fix LNK4221 Warnings
+namespace { char dummy; };

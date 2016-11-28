@@ -28,3 +28,6 @@
 
 #include "linden_common.h"
 #include "llthreadlocalstorage.h"
+
+// <polarity> Fix LNK4221 Warnings
+namespace { char dummy; };

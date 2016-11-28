@@ -30,3 +30,6 @@
 // implementation is all in the header, this include dep ensures the unit test is rerun if the implementation changes.
 #include "llmodularmath.h"
 #endif // LL_TESTS
+
+// <polarity> Fix LNK4221 Warnings
+namespace { char dummy; };
