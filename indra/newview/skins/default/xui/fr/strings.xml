@@ -5508,4 +5508,6 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La forme physique n’a pas la version correcte. Configurez la version correcte pour le modèle physique.
 	</string>
+	<!-- Area Search -->
+	<string name="free">Gratuit</string>
 </strings>

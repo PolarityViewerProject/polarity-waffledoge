@@ -5508,4 +5508,6 @@ Setzen Sie den Editorpfad in Anführungszeichen
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		Die Physikform hat keine korrekte Version. Legen Sie die korrekte Version für das Physikmodell fest.
 	</string>
+	<!-- Area Search -->
+	<string name="free">kostenlos</string>
 </strings>

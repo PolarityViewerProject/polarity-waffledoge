@@ -4355,4 +4355,8 @@ Try enclosing path to the editor with double quotes.
 
   <!-- Satisfy something -->
   <string name="[Linden Homes / Full Region]">[Linden Homes / Full Region]</string>
+
+  <!-- Area Search -->
+  <string name="free">Free</string>
+
 </strings>
