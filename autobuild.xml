@@ -780,18 +780,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3887ed1534f18d9b6d3991853ce27d1</string>
+              <string>756d62b5a67674ec177d4ef5caccf118</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/common/glm-0.9.7.6-common-201607172129.tar.bz2</string>
+              <string>http://lib.polarityviewer.org/common/glm-0.9.8.3-common-201611271822.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.9.7.6</string>
+        <string>0.9.8.3</string>
       </map>
       <key>glod</key>
       <map>
