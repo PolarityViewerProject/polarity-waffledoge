@@ -3067,6 +3067,7 @@
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
                   <string>/m:1</string>
+                  <string>/nodereuse:false</string>
                 </array>
               </map>
               <key>configure</key>
