@@ -111,6 +111,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/fast_square_root.hpp> // fastNormalize
 
 // [RLVa:KB] - Checked: RLVa-2.0.0
 #include "rlvactions.h"
@@ -9704,7 +9705,8 @@ void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)
 	screen_origin = llglmhelpers::perspectiveTransform(light_to_screen, screen_origin);
 
 	glm::vec3 n = p2-p1;
-	n = glm::normalize(n);
+	// n = glm::normalize(n);
+	n = glm::fastNormalize(n);
 
 	F32 proj_range = far_clip - near_clip;
 	glm::mat4 light_proj = glm::perspective(glm::radians(RAD_TO_DEG * fov), aspect, near_clip, far_clip);
