@@ -177,7 +177,7 @@ if (LL_TESTS)
     # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
     set_target_properties(http_texture_load
                           PROPERTIES
-                          LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE ${TCMALLOC_LINK_FLAGS}"
+                          LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE ${TCMALLOC_LINK_FLAGS} /INCREMENTAL:NO"
                           )
   endif (WINDOWS)
 

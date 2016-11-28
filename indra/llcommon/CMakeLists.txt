@@ -255,7 +255,7 @@ if(LLCOMMON_LINK_SHARED)
   endif(NOT WORD_SIZE EQUAL 32)
   if(WINDOWS)
     # always generate llcommon.pdb, even for "Release" builds
-    set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG")
+    set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG /INCREMENTAL:NO")
     if (SANDY_FIX)
         set(manifest_file "compatibility_sandy.manifest")
     else (SANDY_FIX)
