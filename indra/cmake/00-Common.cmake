@@ -92,6 +92,8 @@ if (WINDOWS)
       /D_CRT_SECURE_NO_WARNINGS
       /D_WINSOCK_DEPRECATED_NO_WARNINGS
       /DGLM_FORCE_SSE2=1 # Can be: /DGLM_FORCE_AVX, /DGLM_FORCE_SSE3, /DGLM_FORCE_SSE3,  /DGLM_FORCE_PURE
+      #/DGLM_MESSAGES=1 # Enable GLM Messages during compilation
+      /DGLM_FORCE_SWIZZLE=1
       )
 
   add_compile_options(
