@@ -202,11 +202,6 @@ option(GL_TRANSFORM_FEEDBACK_BUFFER "Use OpenGL Transform Feedback Buffer" OFF)
 set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
 
 # Optimizations
-option(USE_AVX "[GLOBAL]Use AVX Instrinsics whenever possible" OFF)
-option(USE_SSE3 "[GLM]Use SSE3 Instrinsics whenever possible" OFF)
-option(RESTRICT_SSE2 "[GLM]Restrict to SSE2 Instrinsics" OFF)
-option(RESTRICT_PURE "[GLM]Do not use SIMD Intrinsics at all" OFF)
-
 option(USE_AUTO_PARALLELIZER "Use MSVC's Auto-Parallelizer" OFF)
 
 # Libraries
@@ -237,44 +232,6 @@ MESSAGE("    PVDATA_MOTD                    ${PVDATA_MOTD}")
 MESSAGE("    PVDATA_MOTD_CHAT               ${PVDATA_MOTD_CHAT}")
 MESSAGE("    PVDATA_PROGRESS_TIPS           ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
-
-if(USE_AVX)
-  add_definitions(
-    /DGLM_FORCE_AVX=TRUE
-    /DUSE_AVX=TRUE
-    )
-  MESSAGE("Preferred SIMD intrinsics:         AVX")
-  unset(GLM_FORCE_SSE3)
-  unset(GLM_FORCE_SSE2)
-  unset(GLM_FORCE_PURE)
-endif()
-if(USE_SSE3)
-  add_definitions(
-    /DGLM_FORCE_SSE3=TRUE
-    )
-  MESSAGE("Preferred SIMD intrinsics:         SSE3")
-  unset(GLM_FORCE_AVX)
-  unset(GLM_FORCE_SSE2)
-  unset(GLM_FORCE_PURE)
-endif()
-if(RESTRICT_SSE2)
-  add_definitions(
-    /DGLM_FORCE_SSE2=TRUE
-    )
-  MESSAGE("Preferred SIMD intrinsics:         SSE2")
-  unset(GLM_FORCE_AVX)
-  unset(GLM_FORCE_SSE3)
-  unset(GLM_FORCE_PURE)
-endif()
-if(RESTRICT_PURE)
-  add_definitions(
-    /DGLM_FORCE_PURE=TRUE
-    )
-  MESSAGE("Preferred SIMD intrinsics:         PURE")
-  unset(GLM_FORCE_AVX)
-  unset(GLM_FORCE_SSE3)
-  unset(GLM_FORCE_SSE2)
-endif()
 
 if(DEVEL_BUILD)
   add_definitions(/DDEVEL_BUILD=TRUE)
