@@ -10285,8 +10285,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	{
 		renderGeomShadow(); // <polarity/>
 	}
-	static LLCachedControl<bool> _NACL_AlphaShadows(gSavedSettings, "_NACL_AlphaShadows", 1);
-	if (_NACL_AlphaShadows)
+	static LLCachedControl<bool> PVRender_ShadowsFromAlphaEnabled(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", 1);
+	if (PVRender_ShadowsFromAlphaEnabled)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
@@ -10309,23 +10309,24 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
 		gDeferredTreeShadowProgram.bind();
 		// <polarity> disable materials in alpha items. Tremendous speed gains.
-//#if ALPHA_SHADOW_MATERIAL_PASS
-		static LLCachedControl<bool> PVRender_AlphaShadowsNorm(gSavedSettings, "PVRender_AlphaShadowsNorm", 1);
-		static LLCachedControl<bool> PVRender_AlphaShadowsMatAlpha(gSavedSettings, "PVRender_AlphaShadowsMatAlpha", 1);
-		static LLCachedControl<bool> PVRender_AlphaShadowsSpecMask(gSavedSettings, "PVRender_AlphaShadowsSpecMask", 1);
-		static LLCachedControl<bool> PVRender_AlphaShadowsNormMask(gSavedSettings, "PVRender_AlphaShadowsNormMask", 1);
-		if(PVRender_AlphaShadowsNorm)
+		static LLCachedControl<bool> PVRender_ShadowsFromAlphaMatAlpha(gSavedSettings, "PVRender_ShadowsFromAlphaMatAlpha", 1);
+		static LLCachedControl<bool> PVRender_ShadowsFromAlphaNormMask(gSavedSettings, "PVRender_ShadowsFromAlphaNormMask", 1);
+		static LLCachedControl<bool> PVRender_ShadowsFromAlphaNormSpec(gSavedSettings, "PVRender_ShadowsFromAlphaNormSpec", 1);
+		static LLCachedControl<bool> PVRender_ShadowsFromAlphaSpecMask(gSavedSettings, "PVRender_ShadowsFromAlphaSpecMask", 1);
+		if(PVRender_ShadowsFromAlphaNormSpec)
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
-		if (PVRender_AlphaShadowsMatAlpha)
+		if (PVRender_ShadowsFromAlphaMatAlpha)
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
-		if (PVRender_AlphaShadowsSpecMask)
+		if (PVRender_ShadowsFromAlphaSpecMask)
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
-		if (PVRender_AlphaShadowsNormMask)
+		if (PVRender_ShadowsFromAlphaNormMask)
 		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
-//#endif
-		
+
 		// TODO: do we have to call this twice?
+		static LLCachedControl<bool> PVRender_ShadowsFromAlphaSetMinSecondPass(gSavedSettings, "PVRender_ShadowsFromAlphaSetMinSecondPass", 1);
+		if(PVRender_ShadowsFromAlphaSetMinSecondPass)
 		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
+
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 

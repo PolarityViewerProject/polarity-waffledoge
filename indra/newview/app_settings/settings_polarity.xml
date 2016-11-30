@@ -2,17 +2,7 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
-    <key>_NACL_AlphaShadows</key>
-    <map>
-      <key>Comment</key>
-      <string>Render shadows on alpha objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
+
     <key>_NACL_LogLevel</key>
     <map>
       <key>Comment</key>
@@ -1347,6 +1337,83 @@
         <real>2048</real>
         <real>1.0</real>
       </array>
+    </map>
+    <key>PVRender_ShadowsFromAlphaEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaEnabled</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaMatAlpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaNormMask</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaNormSpec</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaSpecMask</key>
+    <map>
+      <key>Comment</key>
+      <string>Render shadows from and on alpha objects</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVRender_ShadowsFromAlphaSetMinSecondPass</key>
+    <map>
+      <key>Comment</key>
+      <string>Render second pass of SetMinimumAlpha</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
     </map>
     <key>PVRender_ShadowDetailRigged</key>
     <map>
