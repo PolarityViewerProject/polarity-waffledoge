@@ -10300,7 +10300,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
 
-		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
+		const float shadow_min_alpha = 0.598f;
+		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
 		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
 
@@ -10308,15 +10309,23 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 
 		gDeferredTreeShadowProgram.bind();
 		// <polarity> disable materials in alpha items. Tremendous speed gains.
-#if ALPHA_SHADOW_MATERIAL_PASS
+//#if ALPHA_SHADOW_MATERIAL_PASS
+		static LLCachedControl<bool> PVRender_AlphaShadowsNorm(gSavedSettings, "PVRender_AlphaShadowsNorm", 1);
+		static LLCachedControl<bool> PVRender_AlphaShadowsMatAlpha(gSavedSettings, "PVRender_AlphaShadowsMatAlpha", 1);
+		static LLCachedControl<bool> PVRender_AlphaShadowsSpecMask(gSavedSettings, "PVRender_AlphaShadowsSpecMask", 1);
+		static LLCachedControl<bool> PVRender_AlphaShadowsNormMask(gSavedSettings, "PVRender_AlphaShadowsNormMask", 1);
+		if(PVRender_AlphaShadowsNorm)
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
+		if (PVRender_AlphaShadowsMatAlpha)
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
+		if (PVRender_AlphaShadowsSpecMask)
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
+		if (PVRender_AlphaShadowsNormMask)
 		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
-#endif
+//#endif
 		
 		// TODO: do we have to call this twice?
-		//gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
+		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
 	}
 
