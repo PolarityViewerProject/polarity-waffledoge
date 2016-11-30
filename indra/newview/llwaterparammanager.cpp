@@ -61,6 +61,7 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glm/gtx/fast_square_root.hpp> // fastNormalize
 
 LLWaterParamManager::LLWaterParamManager() :
 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
@@ -246,7 +247,8 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 		glm::mat4 invtrans = glm::inverseTranspose(mat);
 
 		norm = llglmhelpers::perspectiveTransform(invtrans, norm);
-		norm = glm::normalize(norm);
+		//norm = glm::normalize(norm); // <polarity>
+		norm = glm::fastNormalize(norm);
 
 		p = llglmhelpers::perspectiveTransform(mat, p);
 
