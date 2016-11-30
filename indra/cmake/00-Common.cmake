@@ -232,7 +232,7 @@ if (LINUX)
     # this stops us requiring a really recent glibc at runtime
     add_definitions(-fno-stack-protector)
     # linking can be very memory-hungry, especially the final viewer link
-    set(CMAKE_CXX_LINK_FLAGS "-Wl,--no-keep-memory")
+    set(CMAKE_CXX_LINKER_FLAGS " ${CMAKE_CXX_LINKER_FLAGS} -Wl,--no-keep-memory")
   endif (NOT USESYSTEMLIBS)
 
   set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
@@ -242,8 +242,8 @@ endif (LINUX)
 
 if (DARWIN)
   add_definitions(-DLL_DARWIN=1)
-  set(CMAKE_CXX_LINK_FLAGS "-Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
+  set(CMAKE_CXX_LINKER_FLAGS " ${CMAKE_CXX_LINKER_FLAGS} -Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
+  #set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS}")
   set(DARWIN_extra_cstar_flags "-g -Wno-unused-local-typedef -Wno-deprecated-declarations")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")

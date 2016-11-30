@@ -10,10 +10,10 @@ else (USESYSTEMLIBS)
        set(TCMALLOC_LIBRARIES 
          debug libtcmalloc_minimal-debug
          optimized libtcmalloc_minimal)
-       set(TCMALLOC_LINK_FLAGS  "/INCLUDE:__tcmalloc")
+       set(TCMALLOC_LINKER_FLAGS  "/INCLUDE:__tcmalloc")
     else (USE_TCMALLOC)
       set(TCMALLOC_LIBRARIES)
-      set(TCMALLOC_LINK_FLAGS)
+      set(TCMALLOC_LINKER_FLAGS)
     endif (USE_TCMALLOC)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
