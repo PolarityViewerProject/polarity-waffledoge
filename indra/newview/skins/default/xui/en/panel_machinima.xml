@@ -1388,7 +1388,7 @@
 			</text>
 			<check_box
 				control_name="PVWindLight_Parcel_AlwaysUseRegion"
-				enabled_control="PVWindLight_Parcel_Enabled"
+				enabled_control="UseEnvironmentFromRegion"
 				halign="center"
 				height="16"
 				label="Prefer Region"
