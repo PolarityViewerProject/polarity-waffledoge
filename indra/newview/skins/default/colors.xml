@@ -34,9 +34,6 @@
     name="AvatarFriendColor"
     reference="MapAvatarFriendColor" />
    <color
-    name="AvatarLindenColor"
-    value="0 1 1 1" />
-   <color
     name="AvatarListItemIconDefaultColor"
     reference="White"/>
    <color
@@ -683,9 +680,6 @@
    <color
     name="MapAvatarFriendColor"
     value="0.70196 0.76078 0.42745 1"/>
-   <color
-    name="MapAvatarLindenColor"
-    value="0.50196 1.00000 1.00000 1"/>
    <color
     name="MapAvatarSelfColor"
     reference="LtGray"/>
