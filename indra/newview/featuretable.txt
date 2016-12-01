@@ -261,7 +261,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	0
-RenderShadowDetail			1	1
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
@@ -298,7 +298,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-RenderShadowDetail			1	2
+RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
@@ -336,7 +336,7 @@ VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
-RenderShadowDetail			1	1
+RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	1
