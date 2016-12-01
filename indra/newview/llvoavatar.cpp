@@ -2116,8 +2116,10 @@ void LLVOAvatar::idleUpdate(LLAgent &agent, const F64 &time)
 		return;
 	}	
 
+	// <polarity> Speed up
+	static LLCachedControl<bool> disable_all_render_types(gSavedSettings, "DisableAllRenderTypes");
 	if (!(gPipeline.hasRenderType(LLPipeline::RENDER_TYPE_AVATAR))
-		&& !(gSavedSettings.getBOOL("DisableAllRenderTypes")) && !isSelf())
+		&& !(disable_all_render_types) && !isSelf())
 	{
 		return;
 	}
@@ -2211,7 +2213,9 @@ void LLVOAvatar::idleUpdateVoiceVisualizer(bool voice_enabled)
 	// Don't render the user's own voice visualizer when in mouselook, or when opening the mic is disabled.
 	if(isSelf())
 	{
-		if(gAgentCamera.cameraMouselook() || gSavedSettings.getBOOL("VoiceDisableMic"))
+		// <polarity> Speed up
+		static LLCachedControl<bool>  voice_disable_mic(gSavedSettings, "VoiceDisableMic");
+		if(gAgentCamera.cameraMouselook() || voice_disable_mic)
 		{
 			render_visualizer = false;
 		}
@@ -7676,7 +7680,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
 	
-	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+	// <polarity> Speed up
+	static LLCachedControl<bool> enable_verbose_dumps(gSavedSettings, "DebugAvatarAppearanceMessage");
 	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
