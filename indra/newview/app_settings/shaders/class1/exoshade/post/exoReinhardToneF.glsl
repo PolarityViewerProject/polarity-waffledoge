@@ -3,7 +3,7 @@
  * Provides linear tone mapping functionality.
  * Copyright Geenz Spad, 2012
  ***********************************/
-#extension GL_ARB_texture_rectangle : enable
+//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
