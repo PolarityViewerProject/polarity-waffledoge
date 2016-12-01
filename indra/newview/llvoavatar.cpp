@@ -130,8 +130,8 @@ extern F32 ANIM_SPEED_MAX;
 extern F32 ANIM_SPEED_MIN;
 extern U32 JOINT_COUNT_REQUIRED_FOR_FULLRIG;
 
-const F32 MAX_HOVER_Z = 2.0;
-const F32 MIN_HOVER_Z = -2.0;
+const F32 MAX_HOVER_Z = 2.0f;
+const F32 MIN_HOVER_Z = -2.0f;
 
 using namespace LLAvatarAppearanceDefines;
 
