@@ -438,7 +438,7 @@ bool OSChatCommand::parseCommand(std::string data)
 		*/
 	case CMD_GET_UPTIME:
 		{
-			PVCommon::getInstance()->reportToNearbyChat(gUptimeString);
+			PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()));
 			return true;
 		}
 	}
