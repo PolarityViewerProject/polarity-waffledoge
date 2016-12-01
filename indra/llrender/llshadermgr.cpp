@@ -1214,6 +1214,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("ssao_factor");
 	mReservedUniforms.push_back("ssao_factor_inv");
 	// <Black Dragon:NiranV> SSAO
+	// mReservedUniforms.push_back("ssao_effect_mat");
 	mReservedUniforms.push_back("ssao_effect");
 	// </Black Dragon:NiranV>
 	mReservedUniforms.push_back("screen_res");
@@ -1288,23 +1289,19 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("matrixPalette");
 	mReservedUniforms.push_back("translationPalette");
 
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	mReservedUniforms.push_back("godray_res");
+	mReservedUniforms.push_back("godray_multiplier");
+	mReservedUniforms.push_back("falloff_multiplier");
+	// <Black Dragon:NiranV> Tofu's SSR
+	mReservedUniforms.push_back("ssr_res");
+	// </Black Dragon:NiranV> SSR
 	// <Black Dragon:NiranV> Post-Process Effects
 	mReservedUniforms.push_back("num_colors");
 	mReservedUniforms.push_back("greyscale_str");
 	mReservedUniforms.push_back("sepia_str");
 	mReservedUniforms.push_back("chroma_str");
 	// </Black Dragon:NiranV>
-
-	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-	mReservedUniforms.push_back("godray_res");
-	mReservedUniforms.push_back("godray_multiplier");
-	mReservedUniforms.push_back("falloff_multiplier");
-
-	// <Black Dragon:NiranV> Tofu's SSR
-	mReservedUniforms.push_back("ssr_res");
-	mReservedUniforms.push_back("seconds60");
-	// </Black Dragon:NiranV>
-	
 	
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");
@@ -1343,12 +1340,15 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("alpha_ramp");
 
 	mReservedUniforms.push_back("origin"); 
+	// <Black Dragon:NiranV> Tofu's SSR
+	mReservedUniforms.push_back("seconds60");
+	// </Black Dragon:NiranV>
 	
 	// <polarity> Gaussian blur shader
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>
 
-	mReservedUniforms.push_back("custom_alpha"); // <alchemy/> Pac-man Stars fix
+	mReservedUniforms.push_back("custom_alpha");
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 

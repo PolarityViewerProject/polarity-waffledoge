@@ -124,6 +124,7 @@ public:
 		DEFERRED_SSAO_FACTOR,
 		DEFERRED_SSAO_FACTOR_INV,
 		// <Black Dragon:NiranV> SSAO
+		//DEFERRED_SSAO_EFFECT_MAT,
 		DEFERRED_SSAO_EFFECT,
 		// </Black Dragon:NiranV>
 		DEFERRED_SCREEN_RES,
@@ -192,22 +193,18 @@ public:
 		AVATAR_MATRIX,
 		AVATAR_TRANSLATION,
 
-
+		// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+		GODRAY_RES,
+		GODRAY_MULTIPLIER,
+		FALLOFF_MULTIPLIER,
+		// </Black Dragon:NiranV> God Rays/Volumetric Lighting
+		// <Black Dragon:NiranV> Tofu's SSR
+		SSR_RES,
 		// <Black Dragon:NiranV> Post-Process Effects
 		DEFERRED_NUM_COLORS,
 		DEFERRED_GREYSCALE_STRENGTH,
 		DEFERRED_SEPIA_STRENGTH,
 		DEFERRED_CHROMA_STRENGTH,
-		// </Black Dragon:NiranV>
-
-		// <Black Dragon:NiranV> Tofu's SSR
-		SSR_RES,
-		// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-		GODRAY_RES,
-		GODRAY_MULTIPLIER,
-		FALLOFF_MULTIPLIER,
-		// <Black Dragon:NiranV> Tofu's SSR
-		SECONDS60,
 		// </Black Dragon:NiranV>
 
 		WATER_SCREENTEX,
@@ -247,11 +244,14 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
+		// <Black Dragon:NiranV>
+		SECONDS60,
+		// </Black Dragon:NiranV>
 		
 		// <polarity> Gaussian blur shader
 		PLVR_BLUR_DIRECTION,
 		// </polarity>
-		CUSTOM_ALPHA, // <alchemy/> Pac-man Stars fix
+		CUSTOM_ALPHA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
