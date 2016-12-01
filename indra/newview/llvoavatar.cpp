@@ -853,8 +853,13 @@ LLVOAvatar::~LLVOAvatar()
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
 	}
 
-	logPendingPhases();
+	// <FS:ND> only call logPendingPhases if we're still alive. Otherwise this can lead to shutdown crashes 
+
+	// logPendingPhases();
+	if (isAgentAvatarValid())
+		logPendingPhases();
 	
+	// </FS:ND>
 	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
@@ -2332,7 +2337,10 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 	BOOL visible = isVisible() || mNeedsAnimUpdate;
 
 	// update attachments positions
-	if (detailed_update || !sUseImpostors)
+	// <FS:Ansariel> Fix LL impostor hacking; No detailed updates if muted when using no impostors
+	//if (detailed_update || !sUseImpostors)
+	if (detailed_update || (!sUseImpostors && !isInMuteList()))
+	// </FS:Ansariel>
 	{
 		LL_RECORD_BLOCK_TIME(FTM_ATTACHMENT_UPDATE);
 		for (attachment_map_t::iterator iter = mAttachmentPoints.begin(); 
@@ -2355,7 +2363,7 @@ void LLVOAvatar::idleUpdateMisc(bool detailed_update)
 				LLViewerObject* attached_object = (*attachment_iter);
 				BOOL visibleAttachment = visible || (attached_object && 
 													 !(attached_object->mDrawable->getSpatialBridge() &&
-													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0));
+													   attached_object->mDrawable->getSpatialBridge()->getRadius() < 2.0f));
 				
 				if (visibleAttachment && attached_object && !attached_object->isDead() && attachment->getValid())
 				{
@@ -2965,7 +2973,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				line += LLTrans::getString("AvatarEditingAppearance");
 				line += ", ";
 			}
-			if (is_cloud && !isTooComplex())
+			if (is_cloud && !is_muted)
 			{
 				line += LLTrans::getString("LoadingData");
 				line += ", ";
@@ -3170,10 +3178,13 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 }
 
-void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font)
+// <FS:Ansariel> Fix nametag not properly updating when display name arrives
+//void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font)
+void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, S32 style, const LLFontGL* font, bool is_name /* = false */)
+// </FS:Ansariel>
 {
 	llassert(mNameText);
-	if (mVisibleChat)
+	if (mVisibleChat || mVisibleTyping)
 	{
 		mNameText->addLabel(line);
 	}
@@ -6497,8 +6508,16 @@ BOOL LLVOAvatar::isWearingWearableType(LLWearableType::EType type) const
 			break; // Do nothing
 	}
 
+
+	// <FS:ND> Gets called quite a lot from processObjectUpdates. Remove the frequent getInstance calls.
+
+	// for (LLAvatarAppearanceDictionary::Textures::const_iterator tex_iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
+	// 	 tex_iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+	// 	 ++tex_iter)
+
+	LLAvatarAppearanceDictionary::Textures::const_iterator itrEnd = LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
 	for (LLAvatarAppearanceDictionary::Textures::const_iterator tex_iter = LLAvatarAppearanceDictionary::getInstance()->getTextures().begin();
-		 tex_iter != LLAvatarAppearanceDictionary::getInstance()->getTextures().end();
+		 tex_iter != itrEnd;
 		 ++tex_iter)
 	{
 		const LLAvatarAppearanceDictionary::TextureEntry *texture_dict = tex_iter->second;
@@ -7714,7 +7733,7 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 		LL_WARNS() << "bad appearance version info, discarding" << LL_ENDL;
 		return;
 	}
-	llassert(appearance_version > 0);
+	//llassert(appearance_version > 0);
 	if (appearance_version > 1)
 	{
 		LL_WARNS() << "unsupported appearance version " << appearance_version << ", discarding appearance message" << LL_ENDL;
@@ -7969,7 +7988,10 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 		{
 			if (!aux_src->getData())
 			{
-				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
+				// <FS:Ansariel> FIRE-16122: Don't crash if we didn't receive any data
+				//LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
+				LL_WARNS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
+				// </FS:Ansariel>
 				return;
 			}
 
@@ -9007,8 +9029,23 @@ BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U
 		return FALSE;
 	}
 
-	return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
-			getImage(te, index)->getID() != IMG_DEFAULT);
+	// <FS:ND> getImage(te, index) can return 0 in some edge cases. Plus make this faster as it gets called frequently.
+
+	// return (getImage(te, index)->getID() != IMG_DEFAULT_AVATAR && 
+	// 		getImage(te, index)->getID() != IMG_DEFAULT);
+
+
+	LLViewerTexture *pImage( getImage( te, index ) );
+
+	if( !pImage )
+	{
+		LL_WARNS() << "getImage( " << (S32)te << ", " << index << " ) returned invalid ptr" << LL_ENDL;
+		return FALSE;
+	}
+	// </FS:ND>
+
+	LLUUID const &id = pImage->getID();
+	return id != IMG_DEFAULT_AVATAR && id != IMG_DEFAULT;
 }
 
 //virtual
