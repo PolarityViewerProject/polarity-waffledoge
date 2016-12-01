@@ -705,8 +705,8 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mAppearanceAnimating(FALSE),
 	mNameIsSet(false),
 	// <FS:Ansariel> FIRE-13414: Avatar name isn't updated when the simulator sends a new name
-	//mNameFirstname(),
-	//mNameLastname(),
+	mNameFirstname(),
+	mNameLastname(),
 	// </FS:Ansariel>
 	mTitle(),
 	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
@@ -3182,7 +3182,13 @@ void LLVOAvatar::addNameTagLine(const std::string& line, const LLColor4& color, 
 	{
 		mNameText->addLine(line, color, (LLFontGL::StyleFlags)style, font);
 	}
-    mNameIsSet |= !line.empty();
+	// <FS:Ansariel> Fix nametag not properly updating when display name arrives
+    //mNameIsSet |= !line.empty();
+	if (is_name)
+	{
+		mNameIsSet |= !line.empty();
+	}
+	// </FS:Ansariel>
 }
 
 void LLVOAvatar::clearNameTag()
