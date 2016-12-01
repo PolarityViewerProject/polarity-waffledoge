@@ -611,7 +611,7 @@ void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegi
 	LLGLDisable cull(GL_CULL_FACE);
 
 	static LLCachedControl<bool> render_parcel_selection_to_mbh(gSavedSettings, "PVTools_RenderParcelSelectionToMaxBuildHeight");
-	F32 height = render_parcel_selection_to_mbh ? LLWorld::instance().getMaxPrimZPos() + PARCEL_POST_HEIGHT : PARCEL_POST_HEIGHT;
+	F32 height = render_parcel_selection_to_mbh ? MAX_OBJECT_Z + PARCEL_POST_HEIGHT : PARCEL_POST_HEIGHT;
 	// </FS:Ansariel>
 
 	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
