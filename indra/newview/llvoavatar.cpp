@@ -2702,8 +2702,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
 
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
-	// <polarity> Making these static will break nametag fading in our implementation.
-	// const might work, please investigate.
+	// <polarity> Making these static or const will break nametag fading in our implementation.
 	F32 NAME_SHOW_TIME = static_cast<F32>(tag_show_time); // seconds
 	F32 FADE_DURATION = static_cast<F32>(tag_fade_duration); // seconds
 
