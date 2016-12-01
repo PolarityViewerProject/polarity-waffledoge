@@ -2885,15 +2885,15 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
 	// create a snapshot of the current complexity to determine if the nametag should update.
 	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
+	static LLCachedControl<bool> show_others_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowOthers", false);
 	static LLCachedControl<bool> show_under_threshold_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowUnderThreshold", true);
 	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowSelf", true);
-	static LLCachedControl<bool> show_others_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowOthers", false);
 	U32 complexity(0);
-	auto complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
+	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 
 		if (show_arw_tag &&
-							((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
-							&& (show_under_threshold_arw_tag || isTooComplex()) )
+							((isSelf() && show_own_arw_tag) ||
+							((!isSelf() && show_others_arw_tag) && (show_under_threshold_arw_tag || isTooComplex()))))
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
