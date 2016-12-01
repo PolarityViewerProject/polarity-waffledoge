@@ -7355,7 +7355,10 @@ LLBBox LLVOAvatar::getHUDBBox() const
 		 ++iter)
 	{
 		LLViewerJointAttachment* attachment = iter->second;
-		if (attachment->getIsHUDAttachment())
+		// <FS:Ansariel> Possible crash fix
+		//if (attachment->getIsHUDAttachment())
+		if (attachment && attachment->getIsHUDAttachment())
+		// </FS:Ansariel>
 		{
 			for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 				 attachment_iter != attachment->mAttachedObjects.end();
