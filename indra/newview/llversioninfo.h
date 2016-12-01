@@ -72,6 +72,10 @@ public:
 	static const std::string &getChannelAndVersionStatic();
 	static const std::string &getCompiledChannel();
 	// </polarity> PVData
+
+	// return the latest Linden Lab release we merged
+	static const std::string &getLastLindenRelease();
+
 	/// return the channel name, e.g. "Polarity"
 	static const std::string &getChannel();
 	

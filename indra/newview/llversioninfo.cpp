@@ -35,7 +35,10 @@
  || ! defined(LL_VIEWER_VERSION_MAJOR) \
  || ! defined(LL_VIEWER_VERSION_MINOR) \
  || ! defined(LL_VIEWER_VERSION_PATCH) \
- || ! defined(LL_VIEWER_VERSION_BUILD)
+ || ! defined(LL_VIEWER_VERSION_BUILD) \
+ || ! defined(LINDEN_SOURCE_MAJOR) \
+ || ! defined(LINDEN_SOURCE_MINOR) \
+ || ! defined(LINDEN_SOURCE_PATCH)
  #error "Channel or Version information is undefined"
 #endif
 
@@ -145,6 +148,20 @@ const std::string &LLVersionInfo::getChannelAndVersion()
 	}
 
 	return sVersionChannel;
+}
+const std::string & LLVersionInfo::getLastLindenRelease()
+{
+	static std::string sLindenRelease("");
+	if(sLindenRelease.empty())
+	{
+		// cache the version string
+		std::ostringstream llrelease;
+		llrelease << LINDEN_SOURCE_MAJOR << "."
+				<< LINDEN_SOURCE_MINOR << "."
+				<< LINDEN_SOURCE_PATCH;
+		sLindenRelease = llrelease.str();
+	}
+	return sLindenRelease;
 }
 
 //static

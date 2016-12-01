@@ -53,12 +53,41 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
       set(VIEWER_VERSION_REVISION 0)
     endif ("${VIEWER_VERSION_REVISION}" STREQUAL "")
 
+	# <polarity> Show latest merged  Linden Lab release
+	if (NOT DEFINED LL_SOURCE_HASH)
+	find_program(CUT cut)
+	if (CUT STREQUAL "CUT-NOTFOUND")
+		message("cut not found in path. Please make sure you added Cygwin to your path.")
+	else ()
+	execute_process(
+		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -l1 --template {latesttag} -k release
+		COMMAND ${CUT} -d "-" -f 1
+		OUTPUT_VARIABLE BASE_TAG
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+	execute_process(
+		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -l1 --template "{node|short}" -k release
+		COMMAND ${CUT} -d "-" -f 3
+		OUTPUT_VARIABLE LL_SOURCE_HASH
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+		)
+		# <polarity> HACK: I'm pretty sure we can do it more straightforwardly
+		string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" LL_SOURCE_MAJOR ${BASE_TAG})
+		string(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" LL_SOURCE_MINOR ${BASE_TAG})
+		string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" LL_SOURCE_PATCH ${BASE_TAG})
+	message("Latest Merge: Second Life Release ${BASE_TAG} (Commit ${LL_SOURCE_HASH})")
+	endif () # Cut
+ endif (NOT DEFINED LL_SOURCE_HASH)
+
     set(VIEWER_CHANNEL_VERSION_DEFINES
         "LL_VIEWER_CHANNEL=\"${VIEWER_CHANNEL}\""
         "LL_VIEWER_VERSION_MAJOR=${VIEWER_VERSION_MAJOR}"
         "LL_VIEWER_VERSION_MINOR=${VIEWER_VERSION_MINOR}"
         "LL_VIEWER_VERSION_PATCH=${VIEWER_VERSION_PATCH}"
         "LL_VIEWER_VERSION_BUILD=${VIEWER_VERSION_REVISION}"
+	"LINDEN_SOURCE_MAJOR=${LL_SOURCE_MAJOR}"
+	"LINDEN_SOURCE_MINOR=${LL_SOURCE_MINOR}"
+	"LINDEN_SOURCE_PATCH=${LL_SOURCE_PATCH}"
         "LLBUILD_CONFIG=\"${CMAKE_BUILD_TYPE}\""
         )
 endif (NOT DEFINED VIEWER_SHORT_VERSION)

@@ -24,6 +24,7 @@
 	<string name="AboutHeader">
 [APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) ([BUILD_ARCH]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
 	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
 	<string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>

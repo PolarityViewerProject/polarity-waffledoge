@@ -3335,6 +3335,14 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 	info["VIEWER_RELEASE_NOTES_URL"] = url;
 
+	info["LATEST_MERGED_VERSION"] = LLVersionInfo::getLastLindenRelease();
+
+	// return a URL to the Latest merged Linden Lab release
+	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
+	ll_source_url += info["LATEST_MERGED_VERSION"];
+	ll_source_url +="-release";
+	info["LATEST_SOURCE_URL"] = ll_source_url;
+
 #if LL_MSVC
 	info["COMPILER"] = "MSVC";
 	info["COMPILER_VERSION"] = _MSC_FULL_VER;
