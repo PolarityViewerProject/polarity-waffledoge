@@ -100,7 +100,9 @@
 #include "llrefcount.h"
 #include "llsdparam.h"
 
+#if(LL_TESTS)
 #include "llnotificationslistener.h"
+#endif
 
 class LLAvatarName;
 typedef enum e_notification_priority
@@ -997,7 +999,9 @@ private:
 
 	bool mIgnoreAllNotifications;
 
+#if(LL_TESTS)
 	boost::scoped_ptr<LLNotificationsListener> mListener;
+#endif
 
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };

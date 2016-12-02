@@ -24,9 +24,11 @@
  * $/LicenseInfo$
  */
 
+#if (LL_TESTS)
 #include "linden_common.h"
 
 #include "llsingleton.h"
+#endif // LL_TESTS
 
 // <polarity> Fix LNK4221 Warnings
 namespace { char dummy; };
