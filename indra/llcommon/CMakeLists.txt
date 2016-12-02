@@ -245,6 +245,20 @@ set(llcommon_HEADER_FILES
     StackWalker.h
     )
 
+# <FS:ND> Intrinsics
+SET( llcommon_ND_SOURCE_FILES
+	 nd/ndintrin.cpp
+	 )
+SET(  llcommon_ND_HEADER_FILES 
+	  nd/ndintrin.h
+	  )
+
+SOURCE_GROUP( nd FILES ${llcommon_ND_SOURCE_FILES} ${llcommon_ND_HEADER_FILES} )
+
+list(APPEND llcommon_SOURCE_FILES  ${llcommon_ND_SOURCE_FILES} )
+list(APPEND llcommon_HEADER_FILES ${llcommon_ND_HEADER_FILES} )
+# </FS:ND>
+
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
