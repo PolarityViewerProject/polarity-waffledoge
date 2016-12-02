@@ -61,6 +61,7 @@
 
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
+#include "llsdutil.h" // for LLSDMap()
 
 namespace
 {

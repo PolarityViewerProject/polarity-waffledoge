@@ -56,6 +56,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "llsdutil.h" // for ll_pretty_print_sd
 const U32 MAX_CACHED_GROUPS = 20;
 
 //
