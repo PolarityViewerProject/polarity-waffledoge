@@ -1016,7 +1016,11 @@ public:
 	void setSculptLevel(S32 level)							{ mSculptLevel = level; }
 
 	
-	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
+
+	// <FS:ND> Cache LOD Triangle counts, it is expensive to calculate them each time.
+	//	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
+	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts, LLVolume*);
+	// </FS:ND>
 
 	S32 getNumTriangles(S32* vcount = NULL) const;
 
@@ -1103,6 +1107,9 @@ public:
 	U16* mHullIndices;
 	S32 mNumHullPoints;
 	S32 mNumHullIndices;
+
+private:
+	struct TrianglesPerLODCache *mTrianglesCache;
 };
 
 std::ostream& operator<<(std::ostream &s, const LLVolumeParams &volume_params);
