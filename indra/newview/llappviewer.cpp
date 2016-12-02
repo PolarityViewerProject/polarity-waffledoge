@@ -5714,7 +5714,10 @@ void LLAppViewer::forceErrorDriverCrash()
 	glDeleteTextures(1, NULL);
 }
 
-void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+//void LLAppViewer::initMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::initMainloopTimeout( char const* state, F32 secs)
+// </FS:ND>
 {
 	if(!mMainloopTimeout)
 	{
@@ -5732,7 +5735,10 @@ void LLAppViewer::destroyMainloopTimeout()
 	}
 }
 
-void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+//void LLAppViewer::resumeMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::resumeMainloopTimeout( char const* state, F32 secs)
+// </FS:ND>
 {
 	if(mMainloopTimeout)
 	{
@@ -5755,7 +5761,10 @@ void LLAppViewer::pauseMainloopTimeout()
 	}
 }
 
-void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+//void LLAppViewer::pingMainloopTimeout(const std::string& state, F32 secs)
+void LLAppViewer::pingMainloopTimeout( char const* state, F32 secs)
+// </FS:ND>
 {
 //	if(!restoreErrorTrap())
 //	{
@@ -5816,6 +5825,7 @@ void LLAppViewer::handleLoginComplete()
 
 	mOnLoginCompleted();
 
+	// TODO PLVR: Use callbacks
 	PVGetDynamicWindowTitle();
 	writeDebugInfo();
 

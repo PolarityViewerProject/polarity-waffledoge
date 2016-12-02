@@ -26,7 +26,6 @@
 
 
 #include "llviewerprecompiledheaders.h"
-#include "llwin32headerslean.h"
 #include "llwatchdog.h"
 #include "llthread.h"
 
@@ -96,7 +95,9 @@ void LLWatchdogEntry::stop()
 }
 
 // LLWatchdogTimeout
-const std::string UNINIT_STRING = "uninitialized";
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+// const std::string UNINIT_STRING = "uninitialized";
+const char *UNINIT_STRING = "uninitialized";
 
 LLWatchdogTimeout::LLWatchdogTimeout() : 
 	mTimeout(0.0f),
@@ -123,7 +124,10 @@ void LLWatchdogTimeout::setTimeout(F32 d)
 	mTimeout = d;
 }
 
-void LLWatchdogTimeout::start(const std::string& state) 
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+// void LLWatchdogTimeout::start(const std::string& state) 
+void LLWatchdogTimeout::start(const char *state) 
+// </FS:ND>
 {
     if (mTimeout == 0)
     {
@@ -145,9 +149,12 @@ void LLWatchdogTimeout::stop()
 	mTimer.stop();
 }
 
-void LLWatchdogTimeout::ping(const std::string& state) 
+// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
+// void LLWatchdogTimeout::ping(const std::string& state) 
+void LLWatchdogTimeout::ping(const char *state) 
+// </FS:ND>
 { 
-	if(!state.empty())
+	if(state)
 	{
 		mPingState = state;
 	}
