@@ -1753,6 +1753,11 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		if (!isAgentAvatarValid() || gAgentAvatarp->mDrawable.isNull())
 		{
 			LL_WARNS() << "Null avatar drawable!" << LL_ENDL;
+			// <polarity> Quick and dirty escape from infinite loop at login when crashing in odd circumstances
+			if(LLStartUp::getStartupState() < STATE_STARTED)
+			{
+				LL_ERRS() << "Your camera location was broken, please close the viewer and try again." << LL_ENDL;
+			}
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
