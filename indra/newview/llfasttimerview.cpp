@@ -1016,11 +1016,13 @@ void LLFastTimerView::printLineStats()
 	}
 }
 
-static LLTrace::BlockTimerStatHandle FTM_DRAW_LINE_GRAPH("Draw line graph");
+// <polarity> Don't add fast timer for the fast timer view, that's bound to create performance issues
+// static LLTrace::BlockTimerStatHandle FTM_DRAW_LINE_GRAPH("Draw line graph");
 
 void LLFastTimerView::drawLineGraph()
 {
-	LL_RECORD_BLOCK_TIME(FTM_DRAW_LINE_GRAPH);
+	// <polarity> Don't add fast timer for the fast timer view, that's bound to create performance issues
+	// LL_RECORD_BLOCK_TIME(FTM_DRAW_LINE_GRAPH);
 	//draw line graph history
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 	LLLocalClipRect clip(mGraphRect);
