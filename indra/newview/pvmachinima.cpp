@@ -47,18 +47,6 @@ void PVCinematicMode::enter_cinematic_mode()
 	// save user-configured value to restore it later.
 	previous_voice_dot_setting_ = gSavedSettings.getU32("PVUI_VoiceIndicatorBehavior");
 	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
-	// HACK: Work around funnies. For now. x_x
-	// TODO PLVR: Remove this once we confirm the whole thing works as intended.
-	if (previous_voice_dot_setting_ == 1)
-	{
-		// LL default
-		previous_voice_dot_setting_ = 0;
-	}
-	if (previous_name_tag_setting_ == 0)
-	{
-		// Auto-hide
-		previous_name_tag_setting_ = 2;
-	}
 	// Hide stuff
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
 	gSavedSettings.setS32("AvatarNameTagMode", 0);
