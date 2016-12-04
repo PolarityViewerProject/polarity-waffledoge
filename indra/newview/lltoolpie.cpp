@@ -1275,7 +1275,9 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 					p.visible_time_near(6.f);
 					p.visible_time_far(3.f);
-					p.delay_time(gSavedSettings.getF32("ObjectInspectorTooltipDelay"));
+					// <polarity> Speed up
+					static LLCachedControl<F32> tooltip_delay(gSavedSettings, "ObjectInspectorTooltipDelay");
+					p.delay_time(tooltip_delay);
 					p.wrap(false);
 					
 					LLToolTipMgr::instance().show(p);
@@ -1538,7 +1540,9 @@ void LLToolPie::stopCameraSteering()
 
 bool LLToolPie::inCameraSteerMode()
 {
-	return mMouseButtonDown && mMouseOutsideSlop && gSavedSettings.getBOOL("ClickToWalk");
+	// <polarity> Speed up
+	static LLCachedControl<bool> click_to_walk(gSavedSettings, "ClickToWalk");
+	return mMouseButtonDown && mMouseOutsideSlop && click_to_walk;
 }
 
 // true if x,y outside small box around start_x,start_y
@@ -1606,7 +1610,9 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 
-    if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	// <polarity> Speed up
+	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
+    if (mop_ui)
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
@@ -1660,7 +1666,9 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 
-    if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
+	// <polarity> Speed up
+	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
+    if (mop_ui)
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
@@ -1710,8 +1718,10 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
 		return false;
 	
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
+	// <polarity> Speed up
+	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
 	if (mep
-		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
+		&& mop_ui)
 	{		
 		viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 		
