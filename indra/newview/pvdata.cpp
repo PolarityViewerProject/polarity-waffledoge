@@ -1058,8 +1058,13 @@ void PVDataDownloader::startRefreshTimer()
 	}
 }
 
-bool PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
+void PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
 {
+	// paranoia check
+	if(!pvdata_refresh_timer_.getStarted())
+	{
+		return;
+	}
 	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
 	if (force_refresh_now || pvdata_refresh_timer_.getElapsedTimeF32() >= refresh_minutes * 60)
 	{
@@ -1073,9 +1078,7 @@ bool PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
 			gPVData->PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);
 			pvdata_refresh_timer_.reset();
 		}
-		return true;
 	}
-	return false;
 }
 
 LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status)

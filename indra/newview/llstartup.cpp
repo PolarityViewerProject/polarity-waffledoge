@@ -2420,11 +2420,13 @@ bool idle_startup()
 		LLPathfindingManager::getInstance()->initSystem();
 		// <polarity> Report web-served MOTD to chat
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
+
+		// start pvdata refresh timer
+		gPVDataDownloader->startRefreshTimer();
 		// </polarity>
 
 		gAgentAvatarp->sendHoverHeight();
 
-		gPVDataDownloader->refreshDataFromServer(false);
 
 		return TRUE;
 	}

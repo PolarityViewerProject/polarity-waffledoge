@@ -4964,6 +4964,7 @@ void LLAppViewer::idle()
 	// Manage statistics
 	//
 	//
+	if(!gDisconnected)
 	{
 		// Initialize the viewer_stats_timer with an already elapsed time
 		// of SEND_STATS_PERIOD so that the initial stats report will
@@ -5061,6 +5062,11 @@ void LLAppViewer::idle()
     {
 		return;
     }
+
+	// <polarity>
+	gPVDataDownloader->refreshDataFromServer();
+	PVGetDynamicWindowTitle();
+	// </polarity>
 
 	gViewerWindow->updateUI();
 
@@ -5251,11 +5257,6 @@ void LLAppViewer::idle()
 	{
 		gGLActive = TRUE;
 		idleShutdown();
-	}
-	else
-	{
-		gPVDataDownloader->refreshDataFromServer(false);
-		PVGetDynamicWindowTitle();
 	}
 }
 

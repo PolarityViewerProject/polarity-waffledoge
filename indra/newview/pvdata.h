@@ -178,11 +178,13 @@ private:
 		 */
 		bool getAgentsDone();
 
-		bool refreshDataFromServer(bool force_refresh_now);
+		void startRefreshTimer();
 
-	private:
+		void refreshDataFromServer(bool force_refresh_now = false);
+
 		// Enables logging for this class
 		typedef PVDataDownloader _LL_CLASS_TO_LOG;
+	private:
 
 		enum pv_data_sections_index
 		{
@@ -327,8 +329,6 @@ private:
 		// some color helpers
 		LLColor4 Hex2Color4(const std::string color) const;
 		static LLColor4 Hex2Color4(int hexValue);
-
-		void startRefreshTimer();
 
 	};
 	extern PVDataDownloader* gPVDataDownloader;
