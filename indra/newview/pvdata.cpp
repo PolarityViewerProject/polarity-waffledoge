@@ -150,22 +150,22 @@ bool PVDataDownloader::can_proceed(U8& status_container) const
 	case READY:
 		return true;
 	case DOWNLOAD_IN_PROGRESS:
-		LL_WARNS("PVData") << "Download already in progress, aborting." << LL_ENDL;
+		LL_WARNS() << "Download already in progress, aborting." << LL_ENDL;
 		return false;
 	case DOWNLOAD_FAILURE:
-		LL_WARNS("PVData") << "Download failed. Will retry later." << LL_ENDL;
+		LL_WARNS() << "Download failed. Will retry later." << LL_ENDL;
 		return true;
 	case DOWNLOAD_OK:
-		LL_DEBUGS("PVData") << "Download success, proceeding." << LL_ENDL;
+		LL_DEBUGS() << "Download success, proceeding." << LL_ENDL;
 		return true;
 	case PARSING_IN_PROGRESS:
-		LL_WARNS("PVData") << "Parser is already running, aborting." << LL_ENDL;
+		LL_WARNS() << "Parser is already running, aborting." << LL_ENDL;
 		return false;
 	case PARSE_FAILURE:
-		LL_WARNS("PVData") << "Parse failed. This is bad." << LL_ENDL;
+		LL_WARNS() << "Parse failed. This is bad." << LL_ENDL;
 		return false;
 	default:
-		LL_WARNS("PVData") << "PVData encountered a problem and has aborted. (STATUS='" << status_container << "')" << LL_ENDL;
+		LL_WARNS() << "PVData encountered a problem and has aborted. (STATUS='" << status_container << "')" << LL_ENDL;
 		status_container = UNDEFINED;
 		return false;
 	}
@@ -273,7 +273,7 @@ void PVDataDownloader::handleResponseFromServer(const LLSD& http_content,
 		gPVDataDownloader->setDataStatus(NEW_DATA);
 		if (download_failed)
 		{
-			LL_WARNS("PVData") << "DATA Download failure, aborting." << LL_ENDL;
+			LL_WARNS() << "DATA Download failure, aborting." << LL_ENDL;
 			gPVDataDownloader->setDataStatus(DOWNLOAD_FAILURE);
 			gPVDataDownloader->handleDataFailure();
 		}
@@ -289,7 +289,7 @@ void PVDataDownloader::handleResponseFromServer(const LLSD& http_content,
 		gPVDataDownloader->setAgentsDataStatus(NEW_DATA);
 		if (download_failed)
 		{
-			LL_WARNS("PVData") << " AGENTS Download failure, aborting." << LL_ENDL;
+			LL_WARNS() << " AGENTS Download failure, aborting." << LL_ENDL;
 			gPVDataDownloader->setAgentsDataStatus(DOWNLOAD_FAILURE);
 			gPVDataDownloader->handleAgentsFailure();
 		}
@@ -320,7 +320,7 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (!can_proceed(pv_data_status_))
 	{
 		// FIXME: why do we get 'pv_data_status_==PARSING' BEFORE it's actually being set? (see below)
-		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
+		LL_WARNS() << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 	gPVDataViewerInfo = PVDataViewerInfo::getInstance();
@@ -438,13 +438,13 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	}
 	pv_data_status_ = READY;
 	mPVData_llsd = data_input;
-	LL_INFOS("PVData") << "Done parsing data" << LL_ENDL;
+	LL_INFOS() << "Done parsing data" << LL_ENDL;
 }
 
 void PVDataDownloader::handleDataFailure()
 {
 	// Ideally, if data is not present, the user should be treated as a normal resident
-	LL_WARNS("PVData") << "Something went wrong downloading data file" << LL_ENDL;
+	LL_WARNS() << "Something went wrong downloading data file" << LL_ENDL;
 	gAgent.mMOTD.assign("COULD NOT CONTACT MOTD SERVER");
 	pv_data_status_ = DOWNLOAD_FAILURE;
 }
@@ -461,7 +461,7 @@ void PVDataAuth::setFallbackAgentsData()
 
 void PVDataDownloader::handleAgentsFailure()
 {
-	LL_WARNS("PVData") << "Something went wrong downloading agents file" << LL_ENDL;
+	LL_WARNS() << "Something went wrong downloading agents file" << LL_ENDL;
 	gPVDataAuth->setFallbackAgentsData();
 	pv_agents_status_ = DOWNLOAD_FAILURE;
 }
@@ -548,18 +548,18 @@ std::string PVDataViewerInfo::getNewProgressTipForced()
 	if (tip_iter == progress_tips_list_.endArray())
 		return "";
 	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(progress_tips_list_.size()))))->asString();
-	LL_INFOS("PVData") << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
+	LL_INFOS() << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
 	return random_tip;
 }
 
 std::string PVDataViewerInfo
 	::getNewProgressTip(const std::string msg_in)
 {
-	LL_DEBUGS("PVData") << "Entering function" << LL_ENDL;
+	LL_DEBUGS() << "Entering function" << LL_ENDL;
 	// Pass the existing message right through
 	if (!msg_in.empty())
 	{
-		LL_DEBUGS("PVData") << "returning '" << msg_in << "' in passthrough mode" << LL_ENDL;
+		LL_DEBUGS() << "returning '" << msg_in << "' in passthrough mode" << LL_ENDL;
 		return msg_in;
 	}
 	// Use the last tip if available
@@ -573,17 +573,17 @@ std::string PVDataViewerInfo
 		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
 		if (mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout)
 		{
-			LL_DEBUGS("PVData") << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
-			LL_DEBUGS("PVData") << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
+			LL_DEBUGS() << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
+			LL_DEBUGS() << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
 
 			// Most likely a teleport screen; let's add something.
 
 			return_tip = progress_tips_list_.getRandom();
-			LL_DEBUGS("PVData") << "New tip from function is '" << return_tip << "'" << LL_ENDL;
+			LL_DEBUGS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
 
 			if (!return_tip.empty() && return_tip != last_login_tip)
 			{
-				LL_INFOS("PVData") << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
+				LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
 				last_login_tip = return_tip;
 			}
 			mTipCycleTimer.reset();
@@ -591,7 +591,7 @@ std::string PVDataViewerInfo
 	}
 	else
 	{
-		LL_WARNS("PVData") << "mTipCycleTimer not started!" << LL_ENDL;
+		LL_WARNS() << "mTipCycleTimer not started!" << LL_ENDL;
 	}
 
 	return return_tip;
@@ -636,12 +636,12 @@ void PVDataDownloader::parsePVAgents(const LLSD& data_input)
 	// Make sure we don't accidentally parse multiple times. Remember to reset pv_data_status_ when parsing is needed again.
 	if (!can_proceed(pv_agents_status_))
 	{
-		LL_WARNS("PVData") << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
+		LL_WARNS() << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
 		return;
 	}
 
 	pv_agents_status_ = PARSING_IN_PROGRESS;
-	LL_INFOS("PVData") << "Beginning to parse Agents" << LL_ENDL;
+	LL_INFOS() << "Beginning to parse Agents" << LL_ENDL;
 
 	gPVData->PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
 	if (data_input.has("SpecialAgentsList"))
@@ -684,7 +684,7 @@ void PVDataDownloader::parsePVAgents(const LLSD& data_input)
 
 	mPVAgents_llsd = data_input;
 	pv_agents_status_ = PVDataDownloader::READY;
-	LL_INFOS("PVData") << "Done parsing agents" << LL_ENDL;
+	LL_INFOS() << "Done parsing agents" << LL_ENDL;
 
 	gPVDataAuth->autoMuteFlaggedAgents();
 }
@@ -729,16 +729,16 @@ LLUUID PVDataAuth::getLockDownUUID()
 }
 bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 {
-	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
+	LL_INFOS() << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
 	gPVData->setErrorMessage("Generic clearance failure.");
 #if PVDATA_UUID_LOCKDOWN
 	LLUUID lockdown_uuid = getLockDownUUID();
 	if (lockdown_uuid != LLUUID::null)
 	{
-		LL_INFOS("PVData") << "Locked-down build; evaluating access level..." << LL_ENDL;
+		LL_INFOS() << "Locked-down build; evaluating access level..." << LL_ENDL;
 		if (avatar_id == lockdown_uuid)
 		{
-			LL_INFOS("PVData") << "Identity confirmed. Proceeding. Enjoy your privileges." << LL_ENDL;
+			LL_INFOS() << "Identity confirmed. Proceeding. Enjoy your privileges." << LL_ENDL;
 			return true;
 		}
 		gPVData->setErrorMessage("This build is locked down to another account.");
@@ -772,21 +772,21 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 	//else
 	{
 		// prevent non-release builds to fall in the wrong hands
-		LL_WARNS("PVData") << "Not a Release build; evaluating access level..." << LL_ENDL;
-		LL_WARNS("PVData") << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
+		LL_WARNS() << "Not a Release build; evaluating access level..." << LL_ENDL;
+		LL_WARNS() << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
 		if (av_flags & STAFF_DEVELOPER)
 		{
-			LL_WARNS("PVData") << "Access level: DEVELOPER" << LL_ENDL;
+			LL_WARNS() << "Access level: DEVELOPER" << LL_ENDL;
 			return true;
 		}
 		if (av_flags & STAFF_SUPPORT)
 		{
-			LL_WARNS("PVData") << "Access level: SUPPORT" << LL_ENDL;
+			LL_WARNS() << "Access level: SUPPORT" << LL_ENDL;
 			return true;
 		}
 		if (av_flags & STAFF_QA)
 		{
-			LL_WARNS("PVData") << "Access level: QA" << LL_ENDL;
+			LL_WARNS() << "Access level: QA" << LL_ENDL;
 			return true;
 		}
 		if (av_flags & USER_TESTER)
@@ -794,7 +794,7 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 			LL_WARNS() << "Access level: TESTER" << LL_ENDL;
 			return true;
 		}
-		LL_WARNS("PVData") << "Access level: NONE" << LL_ENDL;
+		LL_WARNS() << "Access level: NONE" << LL_ENDL;
 		gPVData->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 	}
 	return false;
@@ -825,7 +825,7 @@ bool PVDataViewerInfo::isBlockedRelease()
 	{
 		const LLSD& reason_llsd = minver_iterator->second;
 		gPVData->setErrorMessage(reason_llsd["REASON"]);
-		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
+		LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
 		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
@@ -835,7 +835,7 @@ bool PVDataViewerInfo::isBlockedRelease()
 		// assign the iterator's associated value (the reason message) to the LLSD that will be returned to the calling function
 		const LLSD& reason_llsd = blockedver_iterator->second;
 		gPVData->setErrorMessage(reason_llsd["REASON"]);
-		LL_WARNS("PVData") << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
+		LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
 		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
@@ -1049,12 +1049,12 @@ void PVDataDownloader::startRefreshTimer()
 {
 	if (!pvdata_refresh_timer_.getStarted())
 	{
-		LL_INFOS("PVData") << "Starting PVData refresh timer" << LL_ENDL;
+		LL_INFOS() << "Starting PVData refresh timer" << LL_ENDL;
 		pvdata_refresh_timer_.start();
 	}
 	else
 	{
-		LL_WARNS("PVData") << "Timer already started!" << LL_ENDL;
+		LL_WARNS() << "Timer already started!" << LL_ENDL;
 	}
 }
 
@@ -1068,7 +1068,7 @@ void PVDataDownloader::refreshDataFromServer(bool force_refresh_now)
 	static LLCachedControl<U32> refresh_minutes(gSavedSettings, "PVData_RefreshTimeout", 60); // Minutes
 	if (force_refresh_now || pvdata_refresh_timer_.getElapsedTimeF32() >= refresh_minutes * 60)
 	{
-		LL_INFOS("PVData") << "Attempting to live-refresh PVData" << LL_ENDL;
+		LL_INFOS() << "Attempting to live-refresh PVData" << LL_ENDL;
 		gPVDataDownloader->downloadData();
 
 		gPVData->PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
@@ -1280,7 +1280,7 @@ std::string PVDataUtil::getPreferredName(const LLAvatarName& av_name)
 	{
 		// we shouldn't hit this, but a sane fallback can't hurt.
 		preferred_name = av_name.getUserName();
-		LL_WARNS("PVData") << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
+		LL_WARNS() << "Preferred Name was unavailable, returning '" << preferred_name << "'" << LL_ENDL;
 	}
 
 	return preferred_name;
@@ -1295,7 +1295,7 @@ void PVDataUtil::setChatLogsDirOverride()
 	if (override_location && override_location != gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str())
 	{
 
-	LL_WARNS("PVData") << "Would set logs location to: " << override_location << LL_ENDL;
+	LL_WARNS() << "Would set logs location to: " << override_location << LL_ENDL;
 	//gSavedPerAccountSettings.setString("InstantMessageLogPath", override_location);
 	//LLFloaterPreference::moveTranscriptsAndLog();
 	}
@@ -1356,7 +1356,7 @@ int setenv(const char *name, const char *value, int overwrite)
 #endif // LL_WINDOWS
 
 std::string getRegKey(const std::string& name_) {
-	//LL_WARNS("PVData") << "Would set logs location to: " << log_location_from_settings << LL_ENDL;
+	//LL_WARNS() << "Would set logs location to: " << log_location_from_settings << LL_ENDL;
 	// README: This assumes the variable is set.
 	//setenv("PV_CHATLOGS_LOCATION_OVERRIDE", gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str(), 1);
 	// Borrowed from editenv.dll by Dan Moulding (Visual Leak Detector's author)
@@ -1374,7 +1374,7 @@ std::string getRegKey(const std::string& name_) {
 	ret = RegOpenKeyExA(HKEY_CURRENT_USER, "\\Environment", 0, KEY_QUERY_VALUE | KEY_SET_VALUE, &subKey);
 	RegQueryValueExA(subKey, name_.c_str(), 0, NULL, NULL, &size);
 	if (ret != ERROR_SUCCESS) {
-		LL_WARNS("PVData") << "Key [" << name_ << "] does not exist!" << LL_ENDL;
+		LL_WARNS() << "Key [" << name_ << "] does not exist!" << LL_ENDL;
 		return std::string();
 	}
 	// This environment variable already exists.
@@ -1383,14 +1383,14 @@ std::string getRegKey(const std::string& name_) {
 	{
 		return std::string();
 	}
-	LL_WARNS("PVData") << "Key [" << name_ << "] exist!" << LL_ENDL;
+	LL_WARNS() << "Key [" << name_ << "] exist!" << LL_ENDL;
 	if (data != nullptr)
 	{
 		value = std::string(data);
 	}
 	delete[] data;
 
-	LL_WARNS("PVData") << "Key [" << value << "] = exist!" << LL_ENDL;
+	LL_WARNS() << "Key [" << value << "] = exist!" << LL_ENDL;
 	RegCloseKey(key);
 	//auto nya = RegCreateKeyEx(HKEY_CURRENT_USER, ,0,NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE,);
 	// TODO: Linux and OSX support
@@ -1421,15 +1421,15 @@ void PVDataUtil::getChatLogsDirOverride()
 	gPVData->PV_DEBUG("Would set logs location to: " + new_chat_logs_dir, LLError::LEVEL_WARN);
 	gPVData->PV_DEBUG("gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir(), LLError::LEVEL_WARN);
 
-	LL_WARNS("PVData") << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
+	LL_WARNS() << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
 	//}
 	if (new_chat_logs_dir.empty())
 	{
-		LL_ERRS("PVData") << "new_chat_logs_dir is null!" << LL_ENDL;
+		LL_ERRS() << "new_chat_logs_dir is null!" << LL_ENDL;
 	}
 	else if (new_chat_logs_dir == "")
 	{
-		LL_ERRS("PVData") << "new_chat_logs_dir is empty!" << LL_ENDL;
+		LL_ERRS() << "new_chat_logs_dir is empty!" << LL_ENDL;
 	}
 	else
 	{
