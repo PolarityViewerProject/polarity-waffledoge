@@ -75,6 +75,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "pvdata.h"
+
 extern BOOL gDebugClicks;
 
 static void handle_click_action_play();
@@ -1124,12 +1126,46 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			{
 //				final_name = av_name.getCompleteName();
 // [RLVa:KB] - Checked: RLVa-1.2.2
-				final_name = (RlvActions::canShowName(RlvActions::SNC_DEFAULT, hover_object->getID())) ? av_name.getCompleteName() : RlvStrings::getAnonym(av_name);
+				// <polarity> Show group title in avatar tooltip
+				//final_name = (RlvActions::canShowName(RlvActions::SNC_DEFAULT, hover_object->getID())) ? av_name.getCompleteName() : RlvStrings::getAnonym(av_name);
+				if(RlvActions::canShowName(RlvActions::SNC_DEFAULT, hover_object->getID()))
+				{
+					// <polarity> Show group title in avatar tooltip
+					static LLCachedControl<bool> show_group_title(gSavedSettings, "PVUI_HovertipShowGroupTitle", true);
+					if (show_group_title)
+					{
+						auto group_title_data_nv = hover_object->getNVPair("Title"); // current group title nvPair
+						if (group_title_data_nv)
+						{
+							// Don't write to string to read it back, this wastes RAM cycles.
+							// This looks a bit backward, but this should be efficient.
+							if (group_title_data_nv->getString() != "")
+							{
+								// this SHOULD evaluate false if empty, because LLNameValue's ::string is a char*.
+								// which *should* return a null character when empty.
+								 final_name = group_title_data_nv->getString() + std::string(" ");
+							}
+						}
+					}
+					final_name += av_name.getCompleteName();
+				 }
+				else
+				{
+					// If names cannot be shown, it does not make sense to keep the group title.
+					final_name = RlvStrings::getAnonym(av_name);
+				}
 // [/RLVa:KB]
 			}
 			else
 			{
 				final_name = LLTrans::getString("TooltipPerson");;
+			}
+
+			// <polarity> Add PVData title to hover tip
+			std::string pv_title;
+			if (gPVDataAuth->getSpecialAgentCustomTitle(hover_object->getID(), pv_title))
+			{
+				final_name += ", " + pv_title;
 			}
 
 			// *HACK: We may select this object, so pretend it was clicked

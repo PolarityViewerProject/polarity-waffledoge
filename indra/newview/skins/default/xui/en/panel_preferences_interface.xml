@@ -80,6 +80,7 @@
 				width="256">
 			</check_box>
 			<check_box
+				enabled="false"
 				enabled_control="ShowHoverTips"
 				control_name="PVUI_HoverTipsAdvanced"
 				name="PVUI_HoverTipsAdvanced"
@@ -92,8 +93,8 @@
 			</check_box>
 			<check_box
 				enabled_control="ShowHoverTips"
-				control_name="PVUI_HoverTipsShowGroupTitle"
-				name="PVUI_HoverTipsShowGroupTitle"
+				control_name="PVUI_HovertipShowGroupTitle"
+				name="hovetip_group_title_checkbox"
 				label="Include avatar group title"
 				layout="topleft"
 				left_pad="5"
