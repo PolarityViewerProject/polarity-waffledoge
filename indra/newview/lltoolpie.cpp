@@ -1142,7 +1142,8 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(final_name);
-				p.image.name("Inspector_I");
+				// <polarity> No inspector icon.
+				//p.image.name("Inspector_I");
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
@@ -1266,7 +1267,8 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					LLInspector::Params p;
 					p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 					p.message(tooltip_msg);
-					p.image.name("Inspector_I");
+					// <polarity> No inspector icon.
+					//p.image.name("Inspector_I");
 					p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
 					p.time_based_media(is_time_based_media);
 					p.web_based_media(is_web_based_media);
