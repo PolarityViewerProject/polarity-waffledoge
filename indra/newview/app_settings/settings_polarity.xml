@@ -1058,17 +1058,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRender_ForceDepthClampSupport</key>
-    <map>
-      <key>Comment</key>
-      <string>Fake missing depth clamp support. -1 = auto, 0 = disabled, 1 = enabled, </string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>-1</integer>
-    </map>
     <key>PVRender_FPSLimiterEnabled</key>
     <map>
       <key>Comment</key>
