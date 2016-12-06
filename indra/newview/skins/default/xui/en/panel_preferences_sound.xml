@@ -2,7 +2,6 @@
 <panel
  follows="all"
  height="408"
- label="Sounds"
  layout="topleft"
  left="102"
  name="Preference Media panel"

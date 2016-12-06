@@ -184,9 +184,11 @@ public:
 	// Provide native key event data
 	virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
 
-// <polarity> Dynamic window title
 //this needs to be overridden for all platforms
 	virtual void setTitle(const std::string& win_title) {};
+
+	// Get system UI size based on DPI (for 96 DPI UI size should be 1.0)
+	virtual F32 getSystemUISize() { return 1.0; }
 
 protected:
 	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);

@@ -107,6 +107,7 @@
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
 #include "lllocalbitmaps.h"
+#include "llskinningutil.h"
 
 // Linden library includes
 #include "llavatarnamecache.h"
@@ -714,7 +715,8 @@ LLAppViewer::LLAppViewer()
 	mPeriodicSlowFrame(LLCachedControl<bool>(gSavedSettings,"Periodic Slow Frame", FALSE)),
 	mFastTimerLogThread(NULL),
 	mUpdater(new LLUpdaterService()),
-	mSettingsLocationList(NULL)
+	mSettingsLocationList(NULL),
+	mIsFirstRun(false)
 {
 	if(NULL != sInstance)
 	{
@@ -813,6 +815,9 @@ bool LLAppViewer::init()
 		return false;
 
 	LL_INFOS("InitInfo") << "Configuration initialized." << LL_ENDL ;
+
+	// initialize skinning util
+	LLSkinningUtil::initClass();
 
 	//set the max heap size.
 	initMaxHeapSize() ;
@@ -1136,17 +1141,23 @@ bool LLAppViewer::init()
 #if LL_WINDOWS
 	if (gGLManager.mGLVersion < LLFeatureManager::getInstance()->getExpectedGLVersion())
 	{
+		std::string url;
 		if (gGLManager.mIsIntel)
 		{
-			LLNotificationsUtil::add("IntelOldDriver");
+			url = LLTrans::getString("IntelDriverPage");
 		}
 		else if (gGLManager.mIsNVIDIA)
 		{
-			LLNotificationsUtil::add("NVIDIAOldDriver");
+			url = LLTrans::getString("NvidiaDriverPage");
 		}
 		else if (gGLManager.mIsATI)
 		{
-			LLNotificationsUtil::add("AMDOldDriver");
+			url = LLTrans::getString("AMDDriverPage");
+		}
+
+		if (!url.empty())
+		{
+			LLNotificationsUtil::add("OldGPUDriver", LLSD().with("URL", url));
 		}
 	}
 #endif
@@ -1235,6 +1246,8 @@ bool LLAppViewer::init()
     LLCoprocedureManager::getInstance()->setPropertyMethods(
         boost::bind(&LLControlGroup::getU32, boost::ref(gSavedSettings), _1),
         boost::bind(&LLControlGroup::declareU32, boost::ref(gSavedSettings), _1, _2, _3, LLControlVariable::PERSIST_ALWAYS));
+
+	showReleaseNotesIfRequired();
 
 	/*----------------------------------------------------------------------*/
 	// nat 2016-06-29 moved the following here from the former mainLoop().
@@ -2519,7 +2532,10 @@ bool LLAppViewer::initConfiguration()
 
 	if (gSavedSettings.getBOOL("FirstRunThisInstall"))
 	{
-		// Note that the "FirstRunThisInstall" settings is currently unused.
+		// Set firstrun flag to indicate that some further init actiona should be taken 
+		// like determining screen DPI value and so on
+		mIsFirstRun = true;
+
 		gSavedSettings.setBOOL("FirstRunThisInstall", FALSE);
 	}
 
@@ -3173,7 +3189,8 @@ bool LLAppViewer::initWindow()
 		.min_width(gSavedSettings.getU32("MinWindowWidth"))
 		.min_height(gSavedSettings.getU32("MinWindowHeight"))
 		.fullscreen(gSavedSettings.getBOOL("FullScreen"))
-		.ignore_pixel_depth(ignorePixelDepth);
+		.ignore_pixel_depth(ignorePixelDepth)
+		.first_run(mIsFirstRun);
 
 	gViewerWindow = new LLViewerWindow(window_params);
 
@@ -5948,6 +5965,20 @@ void LLAppViewer::launchUpdater()
 	// LLAppViewer::instance()->forceQuit();
 }
 
+/**
+* Check if user is running a new version of the viewer.
+* Display the Release Notes if it's not overriden by the "UpdaterShowReleaseNotes" setting.
+*/
+void LLAppViewer::showReleaseNotesIfRequired()
+{
+	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+		&& !gSavedSettings.getBOOL("FirstLoginThisInstall"))
+	{
+		LLSD info(getViewerInfo());
+		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+	}
+}
 
 //virtual
 void LLAppViewer::setMasterSystemAudioMute(bool mute)
@@ -5981,7 +6012,6 @@ void LLAppViewer::metricsUpdateRegion(U64 region_handle)
 	}
 }
 
-
 /**
  * Attempts to start a multi-threaded metrics report to be sent back to
  * the grid for consumption.
@@ -5999,6 +6029,11 @@ void LLAppViewer::metricsSend(bool enable_reporting)
 		{
 			std::string	caps_url = regionp->getCapability("ViewerMetrics");
 
+            if (gSavedSettings.getBOOL("QAModeMetrics"))
+            {
+                dump_sequential_xml("metric_asset_stats",gViewerAssetStats->asLLSD(true));
+            }
+            
 			// Make a copy of the main stats to send into another thread.
 			// Receiving thread takes ownership.
 			LLViewerAssetStats * main_stats(new LLViewerAssetStats(*gViewerAssetStats));

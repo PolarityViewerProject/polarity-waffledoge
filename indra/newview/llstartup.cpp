@@ -28,6 +28,7 @@
 
 #include "llappviewer.h"
 #include "llstartup.h"
+#include "llcallstack.h"
 
 #if LL_WINDOWS
 #	include <process.h>		// _spawnl()
@@ -197,6 +198,8 @@
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
 #include "llexperiencelog.h"
+
+#include "llstacktrace.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -876,9 +879,14 @@ bool idle_startup()
 					LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
 				}
 			}
-
 			// <polarity> download agents data
 			gPVDataDownloader->downloadAgents();
+
+			display_startup();
+			if (gViewerWindow->getSystemUIScaleFactorChanged())
+			{
+				LLViewerWindow::showSystemUIScaleFactorChanged();
+			}
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
 		else
@@ -1421,7 +1429,7 @@ bool idle_startup()
 		LLPostProcess::initClass();
 		display_startup();
 
-		LLAvatarAppearance::initClass();
+        LLAvatarAppearance::initClass("avatar_lad.xml","avatar_skeleton.xml");
 		display_startup();
 
 		LLViewerObject::initVOClasses();

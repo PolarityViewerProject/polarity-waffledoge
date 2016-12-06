@@ -27,6 +27,7 @@
 #ifndef LL_LLGLHEADERS_H
 #define LL_LLGLHEADERS_H
 
+extern PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
 #if LL_MESA
 //----------------------------------------------------------------------------
 // MESA headers
@@ -48,6 +49,7 @@
 #include <GL/glew.h>
 #include <GL/glxew.h>
 
+extern PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
 #elif LL_WINDOWS
 //----------------------------------------------------------------------------
 // LL_WINDOWS
@@ -55,6 +57,7 @@
 #include <GL/glew.h>
 #include <GL/wglew.h>
 
+extern PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
 #elif LL_DARWIN
 //----------------------------------------------------------------------------
 // LL_DARWIN

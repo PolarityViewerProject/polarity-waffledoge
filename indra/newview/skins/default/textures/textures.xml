@@ -4,6 +4,7 @@ Images do *NOT* have to appear in this file in order to use them as textures in 
 to them by filename (relative to textures directory).
 NOTE: if you want to reuse an image file with different metadata, simply create a new texture entry
 with the same filename but different name
+
 <texture
   name="MyTexture" (mandatory)
     - this is the name you reference the texture by in XUI.  For example, <button image_unselected="MyTexture"/>
@@ -472,6 +473,9 @@ Additional notes:
 <texture name="Play_Press" file_name="icons/Play_Press.png" preload="false" />
 <texture name="Popup_Caution" file_name="icons/pop_up_caution.png"/>
   <texture name="Presets_Icon" file_name="icons/Presets_Icon.png" preload="true" />
+  <texture name="badge_note.j2c" />
+  <texture name="badge_warn.j2c" />
+  <texture name="badge_ok.j2c" />
 <texture name="Progress_1" file_name="icons/Progress_1.png" preload="true" />
 <texture name="Progress_10" file_name="icons/Progress_10.png" preload="true" />
 <texture name="Progress_11" file_name="icons/Progress_11.png" preload="true" />
