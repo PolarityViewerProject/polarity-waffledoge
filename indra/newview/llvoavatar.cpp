@@ -3025,7 +3025,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				if (show_display_names)
 				{
 				addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL, // This needs to be DisplayName - Xenhat 2015.09.04
-						LLFontGL::getFontSansSerif());
+						LLFontGL::getFontSansSerif(), (!av_name.getDisplayName().empty()) );
 				}
 				// Suppress SLID display if display name matches exactly (ugh)
 				if (show_usernames && !av_name.isDisplayNameDefault())
@@ -3039,7 +3039,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			else
 			{
-				addNameTagLine(RlvStrings::getAnonym(av_name), name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif());
+				addNameTagLine(RlvStrings::getAnonym(av_name), name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif(), (!av_name.getDisplayName().empty()) );
 			}
 // [/RLVa:KB]
 		}
@@ -3053,7 +3053,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				full_name = RlvStrings::getAnonym(full_name);
 			}
 // [/RLVa:KB]
-			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
+			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font, true);
 		}
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
