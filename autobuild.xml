@@ -76,11 +76,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>76186b09770cab66dba6586cb1d2123f</string>
+              <string>407ae48cd291a396954f2710158b4c45</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/apr_suite-1.5.2-windows-201603261507.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/apr_suite-1.5.2-windows-201603261507.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -90,11 +90,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>586739a99e1366cd9e270dc7c9a4e519</string>
+              <string>749c1c91295e79847a5b3dcf0df70a9d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/apr_suite-1.5.2-windows64-201603261452.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/apr_suite-1.5.2-windows64-201603261452.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -214,11 +214,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>add110cc9ed39761ff5b58d83d1074a4</string>
+              <string>ba3e4e888eadbc80a7829f95c8c44a5b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/colladadom-2.3-windows-201604091641.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/colladadom-2.3-windows-201604091641.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -228,11 +228,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df025d1f8b9860194cc09c3fb04b1a5e</string>
+              <string>0b68a6bcf46b6d4b13ae686b705e5835</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/colladadom-2.3-windows64-201604091741.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/colladadom-2.3-windows64-201604091741.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -284,11 +284,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f20491b59795d311cf8d730556cd141e</string>
+              <string>a05eb8079a7d78e753f5fe29984acba5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/curl-7.48.0-windows-201603231720.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/curl-7.48.0-windows-201603231720.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -298,11 +298,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>86feef4905c2e46a9cbdc7a1df23d83f</string>
+              <string>94342170a0bbc37aa177526c4f1ee37f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/curl-7.48.0-windows64-201603231658.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/curl-7.48.0-windows64-201603231658.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -360,11 +360,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>078604ad9373fe35081a7d3e4892ae41</string>
+              <string>60cdb3d29401f635e3a166bd6dd68811</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/common/dictionaries-1-common-201412301501.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/common/dictionaries-1-common-201412301501.rar</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -440,11 +440,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>454170939e4d1ba07060b73d6f81b9fc</string>
+              <string>a741971a6c23b2ded7397bfee4e433b7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/expat-2.1.1-windows-201603261409.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/expat-2.1.1-windows-201603261409.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -454,11 +454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0cf6f4529ade22b7ae78da5d6303ed87</string>
+              <string>e5538ec3f8d4cf1c73ed3576c2da5638</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/expat-2.1.1-windows64-201603261406.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/expat-2.1.1-windows64-201603261406.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -528,11 +528,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>531ce35c3d230cf10b830c1240e06b4e</string>
+              <string>2d542085dfb6da5aac4d6a719d4ca187</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/fmodstudio-1.08.08-windows-201607172139.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/fmodstudio-1.08.08-windows-201607172139.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -542,11 +542,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dc52cb0e789f54da5ed72a21a6a02066</string>
+              <string>2218030a29edd4ad4f2a837cf3145bb4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/fmodstudio-1.08.08-windows64-201607172133.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/fmodstudio-1.08.08-windows64-201607172133.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -604,11 +604,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f98709114cedcdfdce69c9df6a4ac2f4</string>
+              <string>4ef55d862db67256f66cb09b887ad52a</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/freeglut-3.0.0-windows-201601151006.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/freeglut-3.0.0-windows-201601151006.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -618,11 +618,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f281e5b16b380c3e3a77aafa47ba5500</string>
+              <string>7cf57695eaf0f5e1c010d66912250d79</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/freeglut-3.0.0-windows64-201512130218.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/freeglut-3.0.0-windows64-201512130218.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -674,11 +674,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e5be5197f12f9ca8078ba9ce4f1bce10</string>
+              <string>97e5825b33ee484a8fb305e047b4144e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/freetype-2.6.3-windows-201603011805.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/freetype-2.6.3-windows-201603011805.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -688,11 +688,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8c0acbe631d7a4cb1a2890b90e5bc8c</string>
+              <string>94d97ca04862742de032eaced228a8e0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/freetype-2.6.3-windows64-201603011807.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/freetype-2.6.3-windows64-201603011807.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -734,11 +734,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aba7e388272a051dc2d3b39c68a6e60f</string>
+              <string>33ec0259daaefb4d6dccfab726490488</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/glew-1.13.0-windows-201601191519.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/glew-1.13.0-windows-201601191519.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -748,11 +748,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8abe1151226647cb8a9b8ab75d77dcd7</string>
+              <string>c7aab3a270ae07602b9b74c84b8f6991</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/glew-1.13.0-windows64-201601191520.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/glew-1.13.0-windows64-201601191520.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -780,11 +780,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>756d62b5a67674ec177d4ef5caccf118</string>
+              <string>3e098ac3b6630bbc142febf94bff7427</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/common/glm-0.9.8.3-common-201611271822.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/common/glm-0.9.8.3-common-201611271822.rar</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -840,11 +840,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>05134ab3cf05fbfb4bed996b53a0d472</string>
+              <string>6b3745c4333091473dfe8d2fe999aa78</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/glod-1.0pre4-windows-201601151027.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/glod-1.0pre4-windows-201601151027.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -854,11 +854,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2da9e546e4f574ec79ea8962f2c962da</string>
+              <string>d3839e69eff3fb928cc3cd7725376ee8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/glod-1.0pre4-windows64-201512092328.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/glod-1.0pre4-windows64-201512092328.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -910,11 +910,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>19147e19b5cfaaaeb83ff1d9025c06df</string>
+              <string>e8688bc36a2fa4d6cde9aded90ac7709</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/google_breakpad-9e60a27-windows-201601151025.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/google_breakpad-9e60a27-windows-201601151025.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -924,11 +924,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e74e54c2042b1539a81012501e4b67af</string>
+              <string>553b6d42e62116fd1d9f67bb25e218ae</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/google_breakpad-9e60a27-windows64-201512101817.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/google_breakpad-9e60a27-windows64-201512101817.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -992,16 +992,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>edad6dcc354b2d19938ae86f025b9291</string>
+              <string>942318d5af9b76003e2ac907ce8497e0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/gperftools-2.4.6627f92-windows64-201604300223.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/gperftools-2.4.6627f92-windows64-201604300223.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.0.297263</string>
+        <string>2.4.6627f92</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1156,11 +1158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>581db1bb70a7f6b9a6718121d22597a9</string>
+              <string>46da963fc4b3b399f4dd95fe5d175c41</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/jpeglib-1.4.2-windows-201601151022.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/jpeglib-1.4.2-windows-201601151022.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1170,11 +1172,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>982395e50a36334899b900d563003b83</string>
+              <string>524d7b64a0f34e6660bb47ce356e4ea8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/jpeglib-1.4.2-windows64-201512092307.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/jpeglib-1.4.2-windows64-201512092307.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1226,11 +1228,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de7bd51771d3d45185c4977e6aec3a37</string>
+              <string>1365546ef0a60c48b1d31e00721d1a63</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/jsoncpp-1.6.5-windows-201601151019.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/jsoncpp-1.6.5-windows-201601151019.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1240,11 +1242,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4cfc311430b84c8a9eba472fd4469f2e</string>
+              <string>70dee040ff192f6c0e789a9a0c45c2af</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/jsoncpp-1.6.5-windows64-201512092309.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/jsoncpp-1.6.5-windows64-201512092309.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1350,11 +1352,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>440a81e502be320c789337653ad1af7c</string>
+              <string>9c52e6963ea20782be97f0c8996d2963</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/libhunspell-1.3.3-windows-201601151018.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/libhunspell-1.3.3-windows-201601151018.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1364,11 +1366,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>202ec606e90c6a705bc075c334d76f86</string>
+              <string>b32dae425e1f60be956fd04974b813cc</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/libhunspell-1.3.3-windows64-201512100002.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/libhunspell-1.3.3-windows64-201512100002.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1408,11 +1410,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1bed832715f068e3363ba90a0415092f</string>
+              <string>a05e2865fe8aba74d57287daea1b02e6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/libndofdev-0.1-windows-201601151016.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/libndofdev-0.1-windows-201601151016.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1422,11 +1424,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>37da82fd6de8673a46c2c0860b54d6bf</string>
+              <string>a8926d34fb8c0a1b6e0ce9b8c78c8dcb</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/libndofdev-0.1-windows64-201512122040.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/libndofdev-0.1-windows64-201512122040.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1478,11 +1480,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5e7b3ea13fec60f6c9a8965a390cfbd5</string>
+              <string>3f89fbb7a57b812a9abf63dae2b66344</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/libpng-1.6.21-windows-201603011800.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/libpng-1.6.21-windows-201603011800.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1492,11 +1494,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b2f166e496fc19958777c92ffd032331</string>
+              <string>487bb9a0cfe8a6337eba1d239dd82381</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/libpng-1.6.21-windows64-201603011809.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/libpng-1.6.21-windows64-201603011809.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1548,11 +1550,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6f1e3fcceab669df5c3d1c66821b2f24</string>
+              <string>6f51601687db4be9e68591b22e571b43</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/libxml2-2.9.3-windows-201601151053.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/libxml2-2.9.3-windows-201601151053.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1562,11 +1564,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4453be9f68208147e4a7d508db677583</string>
+              <string>b67d9a57e342e1ac9389c50e5434faaa</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/libxml2-2.9.3-windows64-201512122133.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/libxml2-2.9.3-windows64-201512122133.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1638,11 +1640,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3d2eec89d9806878e5515d4ab7801434</string>
+              <string>0f5d7009ebaf784b5381cf253734ec83</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows-201611132032.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows-201611132032.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1652,11 +1654,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2d594809a003444e7015b1426a5ee9a0</string>
+              <string>5007eda00364eb8a172fcf06dd15a117</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows64-201611120539.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows64-201611120539.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1786,18 +1788,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>50d7ea325063219a86d9439ce7458582</string>
+              <string>d5ed75ed190358e108313e789ad8087f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/llphysicsextensions_stub-1.0.298370-windows64-298370.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/llphysicsextensions_stub-1.0.298370-windows64-298370.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.0.313563</string>
+        <string>1.0.298370</string>
       </map>
       <key>mesa</key>
       <map>
@@ -1912,11 +1914,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e8c42c8ee03d570fa5e7fb88e7e1bc92</string>
+              <string>cddabe025f4c136b46224efba2ff48b7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows-201601151012.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows-201601151012.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1926,11 +1928,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c22591d8db9dc3353e4d3dc3d1a2b264</string>
+              <string>92cf17d60e72a75a9154440aec488993</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows64-201512122053.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows64-201512122053.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2002,11 +2004,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fa39ac8fe3714599293563fb7f964fca</string>
+              <string>84705e66822c8628ccfe1487243f77db</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/openal-1.16.0-1.1.0-windows-201504270536.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/openal-1.16.0-1.1.0-windows-201504270536.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2016,11 +2018,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fec29528320a2a67ffa7b3900135592d</string>
+              <string>1b1a377c4e7767a505d1cd5aff639a49</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/openal-1.16.0-1.1.0-windows64-201504270534.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/openal-1.16.0-1.1.0-windows64-201504270534.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2072,11 +2074,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c0886c19b3f5608b3888df2bfa7ea95f</string>
+              <string>407388217bb5fd09b81b2316fd73448d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/openjpeg-1.5.1-windows-201611132041.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/openjpeg-1.5.1-windows-201611132041.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2086,11 +2088,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>be23b09aa66da8d8b68e7a1db88577f4</string>
+              <string>926f7a220970627e79b1368bbd53bc59</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/openjpeg-1.5.1-windows64-201611030517.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/openjpeg-1.5.1-windows64-201611030517.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2142,11 +2144,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>91b9fa570258f627a9265452d9e65231</string>
+              <string>1213a89a6a3ccca088ba043f17db211f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/openssl-1.0.2g-windows-201603011823.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/openssl-1.0.2g-windows-201603011823.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2156,11 +2158,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ec86d96ffcbdc10e715e27b4b0bbda43</string>
+              <string>cad47bdc4eabe79da880e156f1123be5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/openssl-1.0.2g-windows64-201603011842.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/openssl-1.0.2g-windows64-201603011842.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2188,11 +2190,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>66600ab94087d295e48e326ec8961ac5</string>
+              <string>60acfd5ab0980381dfb27cca7245969e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/quicktime-7.3-windows-201504280653.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/quicktime-7.3-windows-201504280653.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2274,11 +2276,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>56601f1217ccd206829e8834e5a1253b</string>
+              <string>15d7dc7a2df495b8b89f93cee1b5d4c5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/common/tut-2008.11.30-common-201504282317.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/common/tut-2008.11.30-common-201504282317.rar</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2330,11 +2332,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f9f82fbd29751a969e9ab55a1f33ac7b</string>
+              <string>cc7b29eeeb61e75b00325f4ec7ea3aa9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/uriparser-0.8.4-windows-201601151009.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/uriparser-0.8.4-windows-201601151009.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2344,11 +2346,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dae3118551880f593f8ee907c122f097</string>
+              <string>e025410791e258a5f02d7199d4bb6f75</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/uriparser-0.8.4-windows64-201512081840.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/uriparser-0.8.4-windows64-201512081840.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2376,11 +2378,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5d7f254d7e2369c208f3e3b441efbb12</string>
+              <string>c20906e8c9438903323fc4f888ba86e2</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/vcredist-14.0.24215.1-windows-201610210225.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/vcredist-14.0.24215.1-windows-201610210225.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2390,11 +2392,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e90163a7761bdc4e8e582d23a7ebb694</string>
+              <string>e47d7697b805886c54ba916b89eb944c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/vcredist-14.0.24215.1-windows64-201610210225.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/vcredist-14.0.24215.1-windows64-201610210225.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2502,11 +2504,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7a619778a2ea5c3113549529dd4f7288</string>
+              <string>19d70698ed258f1d46ea4bf969e6a1ad</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/xmlrpc_epi-0.54.2-windows-201603261505.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/xmlrpc_epi-0.54.2-windows-201603261505.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2516,11 +2518,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1afa5a6bdbc5689e14120628dc0fc124</string>
+              <string>732231a039b1f6291137136fe4e9935b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/xmlrpc_epi-0.54.2-windows64-201603261459.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/xmlrpc_epi-0.54.2-windows64-201603261459.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2574,11 +2576,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a26a7a9d550dc6988528e2e70bb5e85b</string>
+              <string>9c23cfa6f13fd098148ecdcdeb93a616</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/zlib-1.2.8-windows-201601150945.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows32/msvc-14/zlib-1.2.8-windows-201601150945.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2588,11 +2590,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5b3a58a6a939e83f94137171b7f814de</string>
+              <string>18bc34cd7176721c2fca0e31580b3f57</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/zlib-1.2.8-windows64-201512071625.tar.bz2</string>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/zlib-1.2.8-windows64-201512071625.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
