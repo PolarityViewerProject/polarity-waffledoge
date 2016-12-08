@@ -47,7 +47,7 @@ LLListener_FMODSTUDIO::~LLListener_FMODSTUDIO()
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODSTUDIO::translate(LLVector3 offset)
+void LLListener_FMODSTUDIO::translate(const LLVector3& offset)
 {
 	LLListener::translate(offset);
 
@@ -55,7 +55,7 @@ void LLListener_FMODSTUDIO::translate(LLVector3 offset)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODSTUDIO::setPosition(LLVector3 pos)
+void LLListener_FMODSTUDIO::setPosition(const LLVector3& pos)
 {
 	LLListener::setPosition(pos);
 
@@ -63,7 +63,7 @@ void LLListener_FMODSTUDIO::setPosition(LLVector3 pos)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODSTUDIO::setVelocity(LLVector3 vel)
+void LLListener_FMODSTUDIO::setVelocity(const LLVector3& vel)
 {
 	LLListener::setVelocity(vel);
 
@@ -71,7 +71,7 @@ void LLListener_FMODSTUDIO::setVelocity(LLVector3 vel)
 }
 
 //-----------------------------------------------------------------------
-void LLListener_FMODSTUDIO::orient(LLVector3 up, LLVector3 at)
+void LLListener_FMODSTUDIO::orient(const LLVector3& up, const LLVector3& at)
 {
 	LLListener::orient(up, at);
 
