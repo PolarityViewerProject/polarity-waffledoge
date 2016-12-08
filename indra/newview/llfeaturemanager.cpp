@@ -777,9 +777,9 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("MapBufferRange");
 	}
-	if (gGLManager.mVRAM > 512)
+	if (gGLManager.mVRAM > 2048)
 	{
-		maskFeatures("VRAMGT512");
+		maskFeatures("VRAMGT2GB");
 	}
 
 #if LL_DARWIN

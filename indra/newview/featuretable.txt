@@ -430,9 +430,9 @@ list Class5
 RenderVBOEnable				1	1
 
 //
-// VRAM > 512MB
+// VRAM > 2048MB
 //
-list VRAMGT512
+list VRAMGT2GB
 RenderCompressTextures		1	0
 
 //
