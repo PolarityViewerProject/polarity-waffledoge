@@ -1048,7 +1048,7 @@ void LLMotionController::dumpMotions()
 {
 	LL_INFOS() << "=====================================" << LL_ENDL;
 	for (motion_map_t::iterator iter = mAllMotions.begin();
-		 iter != mAllMotions.end(); iter++)
+		 iter != mAllMotions.end(); ++iter)
 	{
 		LLUUID id = iter->first;
 		std::string state_string;
@@ -1072,7 +1072,7 @@ void LLMotionController::dumpMotions()
 void LLMotionController::deactivateAllMotions()
 {
 	for (motion_map_t::iterator iter = mAllMotions.begin();
-		 iter != mAllMotions.end(); iter++)
+		 iter != mAllMotions.end(); ++iter)
 	{
 		LLMotion* motionp = iter->second;
 		deactivateMotionInstance(motionp);
