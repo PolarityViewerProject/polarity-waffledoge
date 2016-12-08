@@ -1494,7 +1494,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	//minimum memory reserved for non-texture use.
 	//if system_raw >= 1GB, reserve at least 512MB for non-texture use;
 	//otherwise reserve half of the system_ram for non-texture use.
-	S32Megabytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE) ; 
+	S32Megabytes min_non_texture_mem = llmin(system_ram / 2, MIN_MEM_FOR_NON_TEXTURE);
 
 	if (mMaxTotalTextureMemInMegaBytes > system_ram - min_non_texture_mem)
 	{
