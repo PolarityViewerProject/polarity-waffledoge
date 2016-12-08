@@ -164,7 +164,7 @@ bool LLDate::split(S32 *year, S32 *month, S32 *day, S32 *hour, S32 *min, S32 *se
 	}
 
 	if (year)
-		*year = exp_time.tm_year + 1900;
+		*year = exp_time.tm_year + 1970;
 
 	if (month)
 		*month = exp_time.tm_mon + 1;

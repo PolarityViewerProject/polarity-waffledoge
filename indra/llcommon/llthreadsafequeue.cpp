@@ -90,7 +90,8 @@ void * LLThreadSafeQueueImplementation::popBack(void)
 
 	if(status == APR_EINTR) {
 		LLTHROW(LLThreadSafeQueueInterrupt());
-	} else if(status != APR_SUCCESS) {
+	}
+        else if (status != APR_SUCCESS) {
 		LLTHROW(LLThreadSafeQueueError("pop failed"));
 	}
 	return element;

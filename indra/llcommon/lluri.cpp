@@ -209,7 +209,6 @@ LLURI::LLURI(const std::string& escaped_str)
 {
 	std::string::size_type delim_pos;
 	delim_pos = escaped_str.find(':');
-	std::string temp;
 	if (delim_pos == std::string::npos)
 	{
 		mScheme = "";
@@ -600,7 +599,7 @@ LLSD LLURI::queryMap(std::string escaped_query_string)
 		else
 		{
 			tuple = escaped_query_string;
-			escaped_query_string = "";
+			escaped_query_string .clear();
 		}
 		if (tuple.empty()) continue;
 

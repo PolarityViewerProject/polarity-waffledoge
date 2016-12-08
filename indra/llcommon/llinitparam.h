@@ -626,7 +626,6 @@ namespace LLInitParam
 		validation_func_t	mValidationFunc;
 		S32					mMinCount;
 		S32					mMaxCount;
-		S32					mNumRefs;
 		UserData*			mUserData;
 	};
 
