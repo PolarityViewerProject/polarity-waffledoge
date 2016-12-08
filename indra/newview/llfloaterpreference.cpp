@@ -1270,9 +1270,13 @@ void LLFloaterPreference::buildPopupLists()
 
 void LLFloaterPreference::updateAALabel()
 {
-	// TODO: Get FXAA as a feature instead of this hacky check
 	LLTextBox* aa_label = getChild<LLTextBox>("antialiasing label");
-	aa_label->setValue("Antialiasing (" + (gPipeline.RenderDeferred) ? "FXAA" : "FSAA" + std::string("):")); // TODO: translate
+	if(aa_label)
+	{
+		// TODO: Get FXAA as a feature instead of this hacky check
+		std::string new_aa_label_text = llformat("Antialiasing (%s):", (gPipeline.RenderDeferred) ? "FXAA" : "FSAA"); // TODO: translate
+		aa_label->setValue(new_aa_label_text);
+	}
 	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
 }
 
@@ -1281,13 +1285,16 @@ void LLFloaterPreference::updateMemorySlider()
 	if (hasChild("hardware_tab", TRUE))
 	{
 		// Hardware settings
-		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
-		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
 		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
-		memorySlider->setMinValue(min_tex_mem);
-		memorySlider->setMaxValue(max_tex_mem);
-		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
+		if(memorySlider)
+		{
+			static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
+			S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
+			S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
+			memorySlider->setMinValue(min_tex_mem);
+			memorySlider->setMaxValue(max_tex_mem);
+			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
+		}
 	}
 }
 
