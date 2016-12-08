@@ -80,6 +80,10 @@ public:
 	/*virtual*/ void changed();
 	/*virtual*/ void changed(const LLUUID& session_id, U32 mask) {};
 
+	// <polarity> code deduplication
+	void updateAALabel();
+	void updateMemorySlider();
+
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email);
 
@@ -204,7 +208,7 @@ private:
 	void onClickPermsDefault();
 	void onClickAutoReplace();
 	void onClickSpellChecker();
-	void onClickAdvanced();
+	//void onClickAdvanced(); // <polarity> unused
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
@@ -235,6 +239,7 @@ private:
 	std::string mDirectoryVisibility;
 	
 	LLAvatarData mAvatarProperties;
+
 	LOG_CLASS(LLFloaterPreference);
 };
 
@@ -292,6 +297,8 @@ protected:
 	LOG_CLASS(LLPanelPreferenceGraphics);
 };
 
+// <polarity> We won't use this duplicated class/floater. Note: at some point we're going to need our own file for this.
+#if 0
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 {
   public: 
@@ -315,6 +322,7 @@ class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 	void onVertexShaderEnable();
 	LOG_CLASS(LLFloaterPreferenceGraphicsAdvanced);
 };
+#endif
 
 class LLAvatarComplexityControls
 {

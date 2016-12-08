@@ -334,7 +334,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.AutoReplace",            boost::bind(&LLFloaterPreference::onClickAutoReplace, this));
 	mCommitCallbackRegistrar.add("Pref.PermsDefault",           boost::bind(&LLFloaterPreference::onClickPermsDefault, this));
 	mCommitCallbackRegistrar.add("Pref.SpellChecker",           boost::bind(&LLFloaterPreference::onClickSpellChecker, this));
-	mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this));
+	//mCommitCallbackRegistrar.add("Pref.Advanced",				boost::bind(&LLFloaterPreference::onClickAdvanced, this)); // <polarity> unused
 
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	mCommitCallbackRegistrar.add("Pref.FullscreenWindow",		boost::bind(&LLFloaterPreference::toggleFullscreenWindow, this));
@@ -769,7 +769,7 @@ void LLFloaterPreference::cancel()
 	LLFloaterReg::hideInstance("prefs_spellchecker");
 
 	// hide advancede floater
-	LLFloaterReg::hideInstance("prefs_graphics_advanced");
+//	LLFloaterReg::hideInstance("prefs_graphics_advanced"); // <polarity> unused
 	
 	// reverts any changes to current skin
 	gSavedSettings.setString("SkinCurrent", sSkin);
@@ -887,6 +887,8 @@ void LLFloaterPreference::onVertexShaderEnable()
 	refreshEnabledGraphics();
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::onVertexShaderEnable()
 {
 	LLFloaterPreference* instance = LLFloaterReg::findTypedInstance<LLFloaterPreference>("preferences");
@@ -902,6 +904,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledGraphics()
 {
 	refreshEnabledState();
 }
+#endif
 
 void LLFloaterPreference::onAvatarImpostorsEnable()
 {
@@ -979,14 +982,17 @@ void LLFloaterPreference::onBtnOK(const LLSD& userdata)
 		saveSettings();
 		apply();
 		
-		if (userdata.asString() == "closeadvanced")
-		{
-			LLFloaterReg::hideInstance("prefs_graphics_advanced");
-		}
-		else
-		{
-			closeFloater(false);
-		}
+		// <polarity> unused
+//		if (userdata.asString() == "closeadvanced")
+//		{
+//			LLFloaterReg::hideInstance("prefs_graphics_advanced");
+//		}
+//		else
+//		{
+//			closeFloater(false);
+//		}
+		// </polarity>
+		closeFloater(false);
 
 		//Conversation transcript and log path changed so reload conversations based on new location
 		if(mPriorInstantMessageLogPath.length())
@@ -1044,14 +1050,16 @@ void LLFloaterPreference::onBtnCancel(const LLSD& userdata)
 	}
 	cancel();
 
-	if (userdata.asString() == "closeadvanced")
-	{
-		LLFloaterReg::hideInstance("prefs_graphics_advanced");
-	}
-	else
-	{
-		closeFloater();
-	}
+// <polarity> unused
+//	if (userdata.asString() == "closeadvanced")
+//	{
+//		LLFloaterReg::hideInstance("prefs_graphics_advanced");
+//	}
+//	else
+//	{
+//		closeFloater();
+//	}
+	closeFloater();
 }
 
 // static 
@@ -1072,11 +1080,12 @@ void LLFloaterPreference::refreshEnabledGraphics()
 		instance->refresh();
 	}
 
-	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-	if (advanced)
-	{
-		advanced->refresh();
-	}
+// <polarity> unused
+//	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+//	if (advanced)
+//	{
+//		advanced->refresh();
+//	}
 }
 
 void LLFloaterPreference::onClickClearCache()
@@ -1258,6 +1267,30 @@ void LLFloaterPreference::buildPopupLists()
 	}
 }
 
+
+void LLFloaterPreference::updateAALabel()
+{
+	// TODO: Get FXAA as a feature instead of this hacky check
+	LLTextBox* aa_label = getChild<LLTextBox>("antialiasing label");
+	aa_label->setValue("Antialiasing (" + (gPipeline.RenderDeferred) ? "FXAA" : "FSAA" + std::string("):")); // TODO: translate
+	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
+}
+
+void LLFloaterPreference::updateMemorySlider()
+{
+	if (hasChild("hardware_tab", TRUE))
+	{
+		// Hardware settings
+		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
+		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
+		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
+		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
+		memorySlider->setMinValue(min_tex_mem);
+		memorySlider->setMaxValue(max_tex_mem);
+		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
+	}
+}
+
 void LLFloaterPreference::refreshEnabledState()
 {
 	static LLCachedControl<bool> vertex_shader(gSavedSettings, "VertexShaderEnable", true);
@@ -1291,8 +1324,13 @@ void LLFloaterPreference::refreshEnabledState()
 						(ctrl_wind_light->get()) ? TRUE : FALSE;
 
 	ctrl_deferred->setEnabled(enabled);
+
+	LLFloaterPreference::updateMemorySlider();
+	LLFloaterPreference::updateAALabel();
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
 	// <polarity> settings check speed up
@@ -1413,18 +1451,6 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	ctrl_shadow->setEnabled(enabled);
 	shadow_text->setEnabled(enabled);
 
-	if (hasChild("hardware_tab", TRUE))
-	{
-		// Hardware settings
-		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
-		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
-		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
-		memorySlider->setMinValue(min_tex_mem);
-		memorySlider->setMaxValue(max_tex_mem);
-		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
-	}
-
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderVBOEnable") ||
 		!gGLManager.mHasVertexBufferObject)
 	{
@@ -1442,7 +1468,8 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("(brightness, lower is brighter)")->setEnabled(!gPipeline.canUseWindLightShaders());
 	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
+
+
 
 	// now turn off any features that are unavailable
 	disableUnavailableSettings();
@@ -1452,6 +1479,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	// Cannot have floater active until caps have been received
 	getChild<LLButton>("default_creation_permissions")->setEnabled(LLStartUp::getStartupState() < STATE_STARTED ? false : true);
 }
+#endif
 
 // static
 void LLAvatarComplexityControls::setIndirectControls()
@@ -1495,6 +1523,8 @@ void LLAvatarComplexityControls::setIndirectMaxArc()
 	gSavedSettings.setU32("IndirectMaxComplexity", indirect_max_arc);
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 {	
 	LLComboBox* ctrl_reflections   = getChild<LLComboBox>("Reflections");
@@ -1643,6 +1673,7 @@ void LLFloaterPreferenceGraphicsAdvanced::disableUnavailableSettings()
 		ctrl_avatar_cloth->setValue(FALSE);
 	}
 }
+#endif 0
 
 void LLFloaterPreference::refresh()
 {
@@ -1651,13 +1682,16 @@ void LLFloaterPreference::refresh()
         gSavedSettings.getU32("RenderAvatarMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
 	refreshEnabledState();
-	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
-	if (advanced)
-	{
-		advanced->refresh();
-	}
+	// <polarity> unused
+	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	//if (advanced)
+	//{
+	//	advanced->refresh();
+	//}
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::refresh()
 {
 	getChild<LLUICtrl>("fsaa")->setValue((LLSD::Integer)  gSavedSettings.getU32("RenderFSAASamples"));
@@ -1683,6 +1717,7 @@ void LLFloaterPreferenceGraphicsAdvanced::refresh()
         getChild<LLTextBox>("IndirectMaxComplexityText", true));
 	refreshEnabledState();
 }
+#endif
 
 void LLFloaterPreference::onCommitWindowedMode()
 {
@@ -1934,6 +1969,8 @@ void LLFloaterPreference::refreshUI()
 	refresh();
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box)
 {
 	if (text_box == NULL || ctrl== NULL)
@@ -1990,6 +2027,7 @@ void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTe
 		text_box->setText(llformat("%d", value));
 	}
 }
+#endif
 
 void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* value_label)
 {
@@ -2036,6 +2074,8 @@ void LLFloaterPreference::updateMaxComplexity()
         getChild<LLTextBox>("IndirectMaxComplexityText"));
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
 {
 	// Called when the IndirectMaxComplexity control changes
@@ -2043,6 +2083,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxComplexity()
         getChild<LLSliderCtrl>("IndirectMaxComplexity"),
         getChild<LLTextBox>("IndirectMaxComplexityText"));
 }
+#endif
 
 void LLFloaterPreference::onChangeMaturity()
 {
@@ -2086,6 +2127,8 @@ void LLFloaterPreference::onClickSpellChecker()
 		LLFloaterReg::showInstance("prefs_spellchecker");
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreference::onClickAdvanced()
 {
 	LLFloaterReg::showInstance("prefs_graphics_advanced");
@@ -2102,6 +2145,7 @@ void LLFloaterPreference::onClickAdvanced()
 		}
 	}
 }
+#endif
 
 void LLFloaterPreference::onClickActionChange()
 {
@@ -2285,17 +2329,7 @@ BOOL LLPanelPreference::postBuild()
 
 	////////////////////// PanelGraphics /////////////////
 	
-	if (hasChild("hardware_tab", TRUE))
-	{
-		// Hardware settings
-		static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
-		S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-		S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
-		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
-		memorySlider->setMinValue(min_tex_mem);
-		memorySlider->setMaxValue(max_tex_mem);
-		memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
-	}
+	//LLFloaterPreference::update;
 
 	////////////////////// PanelVoice ///////////////////
 	if (hasChild("voice_unavailable", TRUE))
@@ -2388,16 +2422,17 @@ void LLPanelPreference::apply()
 
 void LLPanelPreference::saveSettings()
 {
-	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
 
 	// Save the value of all controls in the hierarchy
 	mSavedValues.clear();
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	if (advanced)
-	{
-		view_stack.push_back(advanced);
-	}
+	// <polarity> unused
+	//if (advanced)
+	//{
+	//	view_stack.push_back(advanced);
+	//}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2546,8 +2581,9 @@ static LLPanelInjector<LLPanelPreferencePrivacy> t_pref_privacy("panel_preferenc
 
 BOOL LLPanelPreferenceGraphics::postBuild()
 {
-	LLFloaterReg::showInstance("prefs_graphics_advanced");
-	LLFloaterReg::hideInstance("prefs_graphics_advanced");
+// <polarity> unused
+//	LLFloaterReg::showInstance("prefs_graphics_advanced");
+//	LLFloaterReg::hideInstance("prefs_graphics_advanced");
 
 // Don't do this on Mac as their braindead GL versioning
 // sets this when 8x and 16x are indeed available
@@ -2573,13 +2609,14 @@ void LLPanelPreferenceGraphics::draw()
 
 bool LLPanelPreferenceGraphics::hasDirtyChilds()
 {
-	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	if (advanced)
-	{
-		view_stack.push_back(advanced);
-	}
+	// <polarity> unused
+	//if (advanced)
+	//{
+	//	view_stack.push_back(advanced);
+	//}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2615,13 +2652,14 @@ bool LLPanelPreferenceGraphics::hasDirtyChilds()
 
 void LLPanelPreferenceGraphics::resetDirtyChilds()
 {
-	LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced");
+	//LLFloater* advanced = LLFloaterReg::findTypedInstance<LLFloater>("prefs_graphics_advanced"); // <polarity> unused
 	std::list<LLView*> view_stack;
 	view_stack.push_back(this);
-	if (advanced)
-	{
-		view_stack.push_back(advanced);
-	}
+	// <polarity> unused
+	//if (advanced)
+	//{
+	//	view_stack.push_back(advanced);
+	//}
 	while(!view_stack.empty())
 	{
 		// Process view on top of the stack
@@ -2656,6 +2694,8 @@ void LLPanelPreferenceGraphics::setHardwareDefaults()
 	resetDirtyChilds();
 }
 
+// <polarity> unused
+#if 0
 LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const LLSD& key)
 	: LLFloater(key)
 {
@@ -2667,6 +2707,7 @@ LLFloaterPreferenceGraphicsAdvanced::LLFloaterPreferenceGraphicsAdvanced(const L
 LLFloaterPreferenceGraphicsAdvanced::~LLFloaterPreferenceGraphicsAdvanced()
 {
 }
+#endif
 
 LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
 	: LLFloater(key),
@@ -2677,6 +2718,8 @@ LLFloaterPreferenceProxy::LLFloaterPreferenceProxy(const LLSD& key)
 	mCommitCallbackRegistrar.add("Proxy.Change",            boost::bind(&LLFloaterPreferenceProxy::onChangeSocksSettings, this));
 }
 
+// <polarity> unused
+#if 0
 void LLFloaterPreferenceGraphicsAdvanced::onOpen(const LLSD& key)
 {
     refresh();
@@ -2690,6 +2733,7 @@ void LLFloaterPreferenceGraphicsAdvanced::onClickCloseBtn(bool app_quitting)
 		instance->cancel();
 	}
 }
+#endif
 
 LLFloaterPreferenceProxy::~LLFloaterPreferenceProxy()
 {
