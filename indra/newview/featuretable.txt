@@ -345,7 +345,7 @@ PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	2
-PVRender_DeferredFXAAQuality	1	29
+PVRender_DeferredFXAAQuality	1	20
 
 //
 // Ultra graphics (REALLY PURTY!)
