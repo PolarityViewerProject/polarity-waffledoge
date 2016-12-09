@@ -165,7 +165,8 @@ private:
 	void setPersonalInfo(const std::string& visibility, bool im_via_email);
 	void refreshEnabledState();
 	void disableUnavailableSettings();
-	void onCommitWindowedMode();
+	// <polarity> unused
+	//void onCommitWindowedMode();
 public:
 	void refresh();	// Refresh enable/disable
 private:
