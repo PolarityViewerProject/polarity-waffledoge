@@ -122,14 +122,14 @@ public:
     LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
     );
 
-#if _MSC_VER >= 1300
+//#if _MSC_VER >= 1300
 // due to some reasons, the "STACKWALK_MAX_NAMELEN" must be declared as "public" 
 // in older compilers in order to use it... starting with VC7 we can declare it as "protected"
-protected:
-#endif
+//protected:
+//#endif
 	enum { STACKWALK_MAX_NAMELEN = 4096 }; // max name length for found symbols
 
-protected:
+//protected:
   // Entry for each Callstack-Entry
   typedef struct CallstackEntry
   {
@@ -148,7 +148,9 @@ protected:
     CHAR loadedImageName[STACKWALK_MAX_NAMELEN];
   } CallstackEntry;
 
-  typedef enum CallstackEntryType {firstEntry, nextEntry, lastEntry};
+  // no
+  //typedef enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
+  enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
 
   virtual void OnSymInit(LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName);
   virtual void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion);
