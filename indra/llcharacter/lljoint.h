@@ -47,6 +47,22 @@ struct JointKey
 
 	static JointKey construct( std::string aName );
 };
+
+inline bool operator==(JointKey const &aLHS, JointKey const &aRHS)
+{
+	return aLHS.mName == aRHS.mName;
+}
+
+inline bool operator!=(JointKey const &aLHS, JointKey const &aRHS)
+{
+	return ! (aLHS == aRHS);
+}
+
+inline std::ostream& operator<<(std::ostream &aLHS, JointKey const &aRHS)
+{
+	return aLHS << aRHS.mName << " (" << aRHS.mKey << ")";
+}
+
 // </FS:ND>
 
 const S32 LL_CHARACTER_MAX_JOINTS_PER_MESH = 15;

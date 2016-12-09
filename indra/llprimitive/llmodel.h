@@ -33,6 +33,8 @@
 #include "m4math.h"
 #include <queue>
 
+#include "lljoint.h"
+
 class daeElement;
 class domMesh;
 
@@ -48,7 +50,10 @@ public:
 	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
 
 	LLUUID mMeshID;
-	std::vector<std::string> mJointNames;
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//	std::vector<std::string> mJointNames;
+	std::vector< JointKey > mJointNames;
+// </FS:ND>
     mutable std::vector<S32> mJointNums;
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;

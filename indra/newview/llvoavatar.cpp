@@ -5617,22 +5617,40 @@ const LLUUID& LLVOAvatar::getID() const
 // getJoint()
 //-----------------------------------------------------------------------------
 // RN: avatar joints are multi-rooted to include screen-based attachments
-LLJoint *LLVOAvatar::getJoint( const std::string &name )
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//LLJoint *LLVOAvatar::getJoint( const std::string &name )
+LLJoint *LLVOAvatar::getJoint( const JointKey &name )
+// </FS:ND>
 {
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+	//joint_map_t::iterator iter = mJointMap.find( name );
+
+	//LLJoint* jointp = NULL;
+
+	//if( iter == mJointMap.end() || iter->second == NULL )
+	//{ //search for joint and cache found joint in lookup table
+	//	jointp = mRoot->findJoint( name );
+	//	mJointMap[ name ] = jointp;
+	//}
+	//else
+	//{ //return cached pointer
+	//	jointp = iter->second;
+	//}
 
 	joint_map_t::iterator iter = mJointMap.find( name.mKey );
 
 	LLJoint* jointp = NULL;
 
-	if (iter == mJointMap.end() || iter->second == NULL)
+	if( iter == mJointMap.end() || iter->second == NULL )
 	{   //search for joint and cache found joint in lookup table
-		jointp = mRoot->findJoint(name);
-		mJointMap[name] = jointp;
+		jointp = mRoot->findJoint( name.mName );
+		mJointMap[ name.mKey ] = jointp;
 	}
 	else
 	{   //return cached pointer
 		jointp = iter->second;
 	}
+// </FS:ND>
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
     if (jointp && jointp->getName()!="mScreen" && jointp->getName()!="mRoot")
@@ -5747,8 +5765,11 @@ bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name, const LLViewerOb
 
 	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
 	{
-        if (std::find(pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name) !=
-            pSkinData->mJointNames.end())
+		//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+		//if( std::find( pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name ) !=
+		// </FS:ND>
+		if( std::find( pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), JointKey::construct( joint_name ) ) !=
+				pSkinData->mJointNames.end() )
         {
             return true;
         }
@@ -5850,7 +5871,11 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 			{								
 				for ( int i=0; i<jointCnt; ++i )
 				{
-					std::string lookingForJoint = pSkinData->mJointNames[i].c_str();
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//					std::string lookingForJoint = pSkinData->mJointNames[ i ].c_str();
+					JointKey lookingForJoint  = pSkinData->mJointNames[ i ];
+// </FS:ND>
+
 					LLJoint* pJoint = getJoint( lookingForJoint );
 					if (pJoint)
 					{   									
@@ -5863,7 +5888,10 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
                             if (override_changed)
                             {
                                 //If joint is a pelvis then handle old/new pelvis to foot values
-                                if ( lookingForJoint == "mPelvis" )
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//                              if( lookingForJoint == "mPelvis" )
+                                if( lookingForJoint.mName == "mPelvis" )
+// </FS:ND>
                                 {	
                                     pelvisGotSet = true;											
                                 }										
@@ -6244,7 +6272,12 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         }
 
         attachment->setName(info->mName);
-        LLJoint *parent_joint = getJoint(info->mJointName);
+
+//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
+//		LLJoint *parent_joint = getJoint(info->mJointName);
+		LLJoint *parent_joint = getJoint( JointKey::construct( info->mJointName ) );
+// </FS:ND>
+
         if (!parent_joint)
         {
             // If the intended parent for attachment point is unavailable, avatar_lad.xml is corrupt.
