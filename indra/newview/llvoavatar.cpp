@@ -8887,7 +8887,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         // Root joint
         const LLVector3& pos = mRoot->getPosition();
         const LLVector3& scale = mRoot->getScale();
-        apr_file_printf( file, "\t\t<root name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+		outstream << llformat("\t\t<root name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
                          mRoot->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 
         // Bones
@@ -8905,7 +8905,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
             LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			apr_file_printf( file, "\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+			outstream << llformat("\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
         }
 
@@ -8916,7 +8916,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
             LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			apr_file_printf( file, "\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+			outstream << llformat("\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
         }
 
