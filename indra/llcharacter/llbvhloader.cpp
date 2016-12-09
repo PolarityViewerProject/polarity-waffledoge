@@ -215,7 +215,6 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 	// load data one line at a time
 	//--------------------------------------------------------------------
 	BOOL loadingGlobals = FALSE;
-	Translation *trans = NULL;
 	while ( getLine(infstream) )
 	{
 		//----------------------------------------------------------------
@@ -465,7 +464,7 @@ ELoadStatus LLBVHLoader::loadTranslationTable(const char *fileName)
 		}
 	}
 
-	infile.close() ;
+	infstream.close();
 	return E_ST_OK;
 }
 void LLBVHLoader::makeTranslation(std::string alias_name, std::string joint_name)
@@ -525,7 +524,8 @@ ELoadStatus LLBVHLoader::loadAliases(const char * filename)
         return E_ST_NO_XLT_FILE;
     }
 
-    return E_ST_OK;
+	input_stream.close() ;
+	return E_ST_OK;
 }
 
 void LLBVHLoader::dumpBVHInfo()
@@ -557,8 +557,6 @@ void LLBVHLoader::dumpBVHInfo()
 		}
 	}
 
-	infstream.close() ;
-	return E_ST_OK;
 }
 
 //------------------------------------------------------------------------
