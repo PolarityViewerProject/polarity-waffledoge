@@ -2110,12 +2110,11 @@ void LLKeyframeMotion::dumpToFile(const std::string& name)
         LLDataPackerBinaryBuffer dp(buffer, file_size);
         if (serialize(dp))
         {
-            LLAPRFile outfile;
-            outfile.open(outfilename, LL_APR_WPB);
-            if (outfile.getFileHandle())
-            {
-                outfile.write(buffer, file_size);
-            }
+			llofstream outfile(outfilename, std::ios::out | std::ios::binary | std::ios::trunc);
+			if (outfile.is_open())
+			{
+				outfile.write((char*)buffer, file_size);
+			}
         }
         delete [] buffer;
     }
