@@ -116,8 +116,19 @@
         layout="topleft"
         left="2"
         name="FullScreen"
-        top="32"
+        top="22"
         width="180">
+      </check_box>
+      <check_box
+        control_name="FullScreenWindow"
+        height="16"
+        initial_value="true"
+        label="Borderless Window"
+        layout="topleft"
+        left_delta="0"
+        name="FullScreenWindow"
+        top_pad="2"
+        width="256">
       </check_box>
       <check_box
         control_name="RenderTransparentWater"
@@ -127,7 +138,7 @@
         layout="topleft"
         left_delta="0"
         name="TransparentWater"
-        top="50"
+        top_pad="2"
         width="256">
       </check_box>
       <check_box
@@ -699,7 +710,7 @@
       <button
         follows="left|top"
         height="23"
-        label="Save"
+        label="Apply"
         layout="topleft"
         left="3"
         name="Save"
@@ -729,7 +740,471 @@
       follows="all"
       height="960"
       left="0"
-      name="advanced_tab"
+      right="-1"
+      name="hardware_tab"
+      top_pad="2">
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="12"
+          layout="topleft"
+          left="8"
+          name="antialiasing label"
+          top="10"
+          width="100">
+          Antialiasing:
+        </text>
+        <text
+          invisibility_control="RenderDeferred"
+          type="string"
+          length="1"
+          follows="left|top"
+          height="12"
+          layout="topleft"
+          left_pad="200"
+          name="antialiasing restart"
+          top_delta="0"
+          width="230">
+          (requires viewer restart)
+        </text>
+        <combo_box
+          control_name="RenderFSAASamples"
+          height="20"
+          initial_value="false"
+          layout="topleft"
+          left="150"
+          name="fsaa_dropdown"
+          top_delta="-5"
+          width="130">
+          <combo_box.item
+            label="Disabled"
+            name="FSAADisabled"
+            value="0">
+          </combo_box.item>
+          <combo_box.item
+            label="2x"
+            name="2x"
+            value="2">
+          </combo_box.item>
+          <combo_box.item
+            label="4x"
+            name="4x"
+            value="4">
+          </combo_box.item>
+          <combo_box.item
+            label="8x"
+            name="8x"
+            value="8">
+          </combo_box.item>
+          <combo_box.item
+            label="16x"
+            name="16x"
+            value="16">
+          </combo_box.item>
+        </combo_box>
+        <combo_box
+         control_name="PVRender_DeferredFXAAQuality"
+         visibility_control="RenderDeferred"
+         height="21"
+         initial_value="false"
+         layout="topleft"
+         left="150"
+         name="fxaa_dropbown"
+         top_delta="0"
+         width="130">
+            <combo_box.item
+             label="Very Fast"
+             value="10" />
+            <combo_box.item
+             label="Fast"
+             value="15" />
+            <combo_box.item
+             label="Medium"
+             value="20" />
+            <combo_box.item
+             label="Slow"
+             value="29" />
+            <combo_box.item
+             label="Max"
+             value="39" />
+        </combo_box>
+        <check_box
+          control_name="RenderAnisotropic"
+          height="16"
+          label="Anisotropic Filtering"
+          layout="topleft"
+          left="5"
+          name="ani"
+          top_pad="2"
+          width="256">
+        </check_box>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="12"
+          layout="topleft"
+          left="8"
+          name="vertical_sync_label"
+          top_pad="2"
+          width="188">
+          Vertical Sync:
+        </text>
+        <combo_box
+          control_name="PVRender_VsyncMode"
+          height="21"
+          initial_value="false"
+          label="Vertical Sync"
+          layout="topleft"
+          left="150"
+          name="vertical_sync"
+          top_delta="-5"
+          width="130">
+          <combo_box.item
+            label="Disabled"
+            name="disabled_vsync"
+            value="0">
+          </combo_box.item>
+          <combo_box.item
+            label="Normal"
+            name="normal_vsync"
+            value="1">
+          </combo_box.item>
+          <combo_box.item
+            label="Adaptive"
+            name="adaptive_vsync"
+            value="2">
+          </combo_box.item>
+        </combo_box>
+        <text
+          type="string"
+          length="1"
+          follows="left|top"
+          height="12"
+          layout="topleft"
+          left_pad="10"
+          name="vsync_restart"
+          top_delta="5"
+          width="230">
+          (requires viewer restart)
+        </text>
+        <check_box
+          control_name="PVRender_FPSLimiterEnabled"
+          height="16"
+          label="Limit FPS"
+          layout="topleft"
+          left="5"
+          name="fps_limiter_checkbox"
+          top_pad="5"
+          width="135">
+        </check_box>
+        <slider
+          can_edit_text="true"
+          control_name="PVRender_FPSLimiterTarget"
+          decimal_digits="2"
+          increment="0.25"
+          follows="left|top"
+          height="16"
+          layout="topleft"
+          left_pad="5"
+          max_val="144"
+          min_val="1"
+          name="fps_limiter_slider"
+          top_delta="0"
+          width="185">
+          </slider>
+          <button
+            follows="left|top"
+            control_name="PVRender_FPSLimiterTarget"
+            height="15"
+            is_toggle="false"
+            label="⌊Reset⌉"
+            image_selected="transparent.j2c"
+            image_unselected="transparent.j2c"
+            layout="topleft"
+            left_pad="0"
+            top_delta="0"
+            name="default"
+            width="60">
+            <button.commit_callback
+              function="Pref.ResetToDefault"
+              parameter="PVRender_FPSLimiterTarget">
+            </button.commit_callback>
+          </button>
+        <check_box
+          control_name="RenderCompressTextures"
+          height="16"
+          initial_value="true"
+          label="Enable Texture Compression (requires restart)"
+          layout="topleft"
+          left="5"
+          name="texture compression"
+          top_pad="2"
+          tool_tip="Compresses textures in video memory, allowing for higher resolution textures to be loaded at the cost of some color quality."
+          width="315">
+        </check_box>
+        <slider
+          control_name="TextureMemory"
+          can_edit_text="true"
+          decimal_digits="0"
+          follows="left|top"
+          height="20"
+          increment="8"
+          label="Texture Memory (MB):"
+          label_width="135"
+          layout="topleft"
+          left="8"
+          name="GraphicsCardTextureMemory"
+          text_width="40"
+          tool_tip="Amount of memory to allocate for textures. Defaults to safe values. Reducing this may improve performance but may also make textures blurry."
+          top_pad="2"
+          width="315">
+        </slider>
+        <view_border
+         highlight_light_color="Red"
+         name="hardcore_separator"
+         top_pad="5"
+         bevel_style="none"
+         border_thickness="1"
+         follows="top|left"
+         height="0"
+         left="0"
+         width="512"/>
+          <text
+            follows="top|left"
+            font.style = "BOLD|ITALIC"
+            height="12"
+            layout="topleft"
+            left="9"
+            length="1"
+            name="hardcore_warning_text"
+            text_color="Red"
+            top_pad="2"
+            type="string"
+            width="480"
+            word_wrap="true">
+            These settings can be dangerous and will crash your viewer if used incorrectly.
+          </text>
+          <check_box
+            control_name="TextureLoadFullRes"
+            height="16"
+            initial_value="true"
+            label="Always load textures in full resolution"
+            layout="topleft"
+            left="5"
+            name="LocalLights"
+            tool_tip="This can temporarily fix blurry textures, at a terrible performance and resources cost. Turn this back off as soon as possible."
+            top_pad="5"
+            width="110">
+          </check_box>
+          <slider
+            control_name="PVRender_SSRResolution"
+            can_edit_text="true"
+            decimal_digits="2"
+            follows="left|top"
+            height="15"
+            increment="1"
+            initial_value="1.0"
+            label="SSR Resolution"
+            label_width="150"
+            layout="topleft"
+            left="10"
+            max_val="512"
+            min_val="0"
+            name="PVRender_SSRResolution"
+            tool_tip="This will wreck your shit."
+            top_pad="5"
+            text_width="40"
+            width="385">
+          </slider>
+          <button
+            follows="left|top"
+            control_name="PVRender_SSRResolution"
+            height="15"
+            is_toggle="false"
+            label="⌊Reset⌉"
+            image_selected="transparent.j2c"
+            image_unselected="transparent.j2c"
+            layout="topleft"
+            left_pad="0"
+            top_delta="0"
+            name="default"
+            width="60">
+            <button.commit_callback
+              function="Pref.ResetToDefault"
+              parameter="PVRender_SSRResolution">
+            </button.commit_callback>
+          </button>
+          <text
+            type="string"
+            length="1"
+            top_pad="15"
+            follows="top|left"
+            height="12"
+            width="480"
+            word_wrap="true"
+            font.style="BOLD"
+            layout="topleft"
+            left="9"
+            name="shadows_section_label">
+            Objects &amp; Avatars Shadows
+          </text>
+          <slider
+            enabled_control="RenderShadowDetail"
+            decimal_digits="0"
+            follows="left|top"
+            height="15"
+            increment="64"
+            initial_value="2048"
+            can_edit_text="true"
+            label="Resolution Closeup"
+            label_width="150"
+            tool_tip="Close"
+            layout="topleft"
+            left="10"
+            max_val="8192"
+            min_val="256"
+            name="RenderShadowResolution_X"
+            top_pad="5"
+            text_width="40"
+            width="385">
+            <slider.commit_callback
+              function="Pref.ArrayVec4X"
+              parameter="RenderShadowResolution"/>
+            </slider>
+            <slider
+              enabled_control="RenderShadowDetail"
+              decimal_digits="0"
+              follows="left|top"
+              height="15"
+              increment="64"
+              initial_value="2048"
+              can_edit_text="true"
+              label="Resolution Close:"
+              label_width="150"
+              layout="topleft"
+              left="10"
+              max_val="8192"
+              min_val="256"
+              name="RenderShadowResolution_Y"
+              top_pad="02"
+              text_width="40"
+              width="385">
+              <slider.commit_callback
+                function="Pref.ArrayVec4Y"
+                parameter="RenderShadowResolution">
+              </slider.commit_callback>
+            </slider>
+            <slider
+              enabled_control="RenderShadowDetail"
+              decimal_digits="0"
+              follows="left|top"
+              height="15"
+              increment="64"
+              initial_value="1024"
+              can_edit_text="true"
+              label="Resolution Far:"
+              label_width="150"
+              layout="topleft"
+              left="10"
+              max_val="8192"
+              min_val="256"
+              name="RenderShadowResolution_Z"
+              top_pad="2"
+              text_width="40"
+              width="385">
+              <slider.commit_callback
+                function="Pref.ArrayVec4Z"
+                parameter="RenderShadowResolution">
+              </slider.commit_callback>
+            </slider>
+            <slider
+              enabled_control="RenderShadowDetail"
+              decimal_digits="0"
+              follows="left|top"
+              height="15"
+              increment="64"
+              initial_value="512"
+              can_edit_text="true"
+              label="Resolution Very Far:"
+              label_width="150"
+              layout="topleft"
+              left="10"
+              max_val="8192"
+              min_val="256"
+              name="RenderShadowResolution_W"
+              top_pad="2"
+              text_width="40"
+              width="385">
+              <slider.commit_callback
+                function="Pref.ArrayVec4W"
+                parameter="RenderShadowResolution">
+              </slider.commit_callback>
+            </slider>
+            <!-- TODO: Add projector shadows sliders -->
+            <slider
+              control_name="RenderShadowBlurSize"
+              decimal_digits="1"
+              follows="left|top"
+              height="15"
+              increment="0.1"
+              can_edit_text="true"
+              label="Shadow Blur Size:"
+              label_width="150"
+              tool_tip="Set the strength of each blur pass of shadows"
+              layout="topleft"
+              left="10"
+              max_val="3"
+              min_val="0.0"
+              name="RenderShadowBlurSize"
+              top_pad="2"
+              text_width="40"
+              width="385">
+            </slider>
+            <button
+              follows="left|top"
+              control_name="RenderShadowResolution"
+              height="66"
+              is_toggle="false"
+              label="⌊Reset⌉"
+              image_selected="transparent.j2c"
+              image_unselected="transparent.j2c"
+              layout="topleft"
+              left_pad="0"
+              top_delta="-68"
+              name="default"
+              width="60">
+              <button.commit_callback
+                function="Pref.ResetToDefault"
+                parameter="RenderShadowResolution">
+              </button.commit_callback>
+            </button>
+            <button
+              follows="left|top"
+              control_name="RenderShadowBlurSize"
+              height="15"
+              is_toggle="false"
+              label="⌊Reset⌉"
+              image_selected="transparent.j2c"
+              image_unselected="transparent.j2c"
+              layout="topleft"
+              left_delta="0"
+              top_pad="2"
+              name="default"
+              width="60">
+              <button.commit_callback
+                function="Pref.ResetToDefault"
+                parameter="RenderShadowBlurSize">
+              </button.commit_callback>
+            </button>
+    </panel>
+    <panel label="Post-FX"
+      bottom="-1"
+      follows="all"
+      height="960"
+      left="0"
+      name="effects_tab"
       top_pad="2">
       <scroll_container
         color="Transparent"
@@ -776,6 +1251,7 @@
             top_delta="0"
             width="110">
           </check_box>
+<!-- Unused yet
           <check_box
             control_name="PVRender_DisableFullBright"
             enabled="false"
@@ -801,7 +1277,7 @@
             name="DisableFullBright"
             top_delta="0"
             width="170">
-          </check_box>
+          </check_box> -->
           <panel
             follows="left|top|right"
             height="20"
@@ -2235,498 +2711,5 @@
         </panel>
       </scroll_container>
     </panel>
-      <panel label="Hardware"
-        bottom="-1"
-        follows="all"
-        left="1"
-        name="hardware_tab"
-        right="-1"
-        top_pad="2">
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="12"
-          layout="topleft"
-          left="8"
-          name="antialiasing label"
-          top="20"
-          width="100">
-          Antialiasing:
-        </text>
-        <text
-          invisibility_control="RenderDeferred"
-          type="string"
-          length="1"
-          follows="left|top"
-          height="12"
-          layout="topleft"
-          left_pad="200"
-          name="antialiasing restart"
-          top_delta="0"
-          width="230">
-          (requires viewer restart)
-        </text>
-        <combo_box
-          control_name="RenderFSAASamples"
-          height="20"
-          initial_value="false"
-          layout="topleft"
-          left="150"
-          name="fsaa_dropdown"
-          top_delta="-5"
-          width="130">
-          <combo_box.item
-            label="Disabled"
-            name="FSAADisabled"
-            value="0">
-          </combo_box.item>
-          <combo_box.item
-            label="2x"
-            name="2x"
-            value="2">
-          </combo_box.item>
-          <combo_box.item
-            label="4x"
-            name="4x"
-            value="4">
-          </combo_box.item>
-          <combo_box.item
-            label="8x"
-            name="8x"
-            value="8">
-          </combo_box.item>
-          <combo_box.item
-            label="16x"
-            name="16x"
-            value="16">
-          </combo_box.item>
-        </combo_box>
-        <combo_box
-         control_name="PVRender_DeferredFXAAQuality"
-         visibility_control="RenderDeferred"
-         height="21"
-         initial_value="false"
-         layout="topleft"
-         left="150"
-         name="fxaa_dropbown"
-         top_delta="0"
-         width="130">
-            <combo_box.item
-             label="Very Fast"
-             value="10" />
-            <combo_box.item
-             label="Fast"
-             value="15" />
-            <combo_box.item
-             label="Medium"
-             value="20" />
-            <combo_box.item
-             label="Slow"
-             value="29" />
-            <combo_box.item
-             label="Max"
-             value="39" />
-        </combo_box>
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="12"
-          layout="topleft"
-          left="8"
-          name="antialiasing label"
-          top_pad="11"
-          width="188">
-          Vertical Sync:
-        </text>
-        <combo_box
-          control_name="PVRender_VsyncMode"
-          height="21"
-          initial_value="false"
-          label="Vertical Sync"
-          layout="topleft"
-          left="150"
-          name="vertical_sync"
-          top_delta="-5"
-          width="130">
-          <combo_box.item
-            label="Disabled"
-            name="disabled_vsync"
-            value="0">
-          </combo_box.item>
-          <combo_box.item
-            label="Normal"
-            name="normal_vsync"
-            value="1">
-          </combo_box.item>
-          <combo_box.item
-            label="Adaptive"
-            name="adaptive_vsync"
-            value="2">
-          </combo_box.item>
-        </combo_box>
-        <text
-          type="string"
-          length="1"
-          follows="left|top"
-          height="12"
-          layout="topleft"
-          left_pad="10"
-          name="vsync_restart"
-          top_delta="5"
-          width="230">
-          (requires viewer restart)
-        </text>
-        <check_box
-          control_name="PVRender_FPSLimiterEnabled"
-          height="16"
-          label="Limit FPS"
-          layout="topleft"
-          left="5"
-          name="fps_limiter_checkbox"
-          top_pad="20"
-          width="135">
-        </check_box>
-        <slider
-          can_edit_text="true"
-          control_name="PVRender_FPSLimiterTarget"
-          decimal_digits="2"
-          increment="0.25"
-          follows="left|top"
-          height="16"
-          layout="topleft"
-          left_pad="5"
-          max_val="144"
-          min_val="1"
-          name="fps_limiter_slider"
-          top_delta="0"
-          width="250">
-          </slider>
-        <check_box
-          control_name="RenderAnisotropic"
-          height="16"
-          label="Anisotropic Filtering (slower when enabled)"
-          layout="topleft"
-          left="5"
-          name="ani"
-          top_pad="20"
-          width="256">
-        </check_box>
-        <check_box
-          control_name="RenderVBOEnable"
-          height="16"
-          initial_value="true"
-          label="Enable OpenGL Vertex Buffer Objects"
-          layout="topleft"
-          left_delta="0"
-          top_pad="5"
-          name="vbo"
-          tool_tip="Enabling this on modern hardware gives a performance gain. However, older hardware often has poor implementations of VBOs and you may get crashes when this is enabled."
-          width="315">
-        </check_box>
-        <check_box
-          control_name="RenderCompressTextures"
-          height="16"
-          initial_value="true"
-          label="Enable Texture Compression (requires restart)"
-          layout="topleft"
-          left_delta="0"
-          name="texture compression"
-          top_pad="5"
-          tool_tip="Compresses textures in video memory, allowing for higher resolution textures to be loaded at the cost of some color quality."
-          width="315">
-        </check_box>
-        <slider
-          control_name="TextureMemory"
-          can_edit_text="true"
-          decimal_digits="0"
-          follows="left|top"
-          height="20"
-          increment="8"
-          label="Texture Memory (MB):"
-          label_width="195"
-          layout="topleft"
-          left="8"
-          name="GraphicsCardTextureMemory"
-          text_width="40"
-          tool_tip="Amount of memory to allocate for textures. Defaults to safe values. Reducing this may improve performance but may also make textures blurry."
-          top_pad="20"
-          width="360">
-        </slider>
-        <spinner
-          control_name="RenderFogRatio"
-          decimal_digits="1"
-          follows="left|top"
-          height="22"
-          initial_value="4"
-          label="Fog Distance Ratio:"
-          label_width="198"
-          layout="topleft"
-          left_delta="0"
-          max_val="10"
-          min_val="0.5"
-          name="fog"
-          top_pad="5"
-          width="262">
-        </spinner>
-      </panel>
-    <panel label="Hardcore"
-      bottom="-1"
-      follows="all"
-      height="450"
-      left="0"
-      name="Hardcore Tab"
-      top_pad="2">
-      <scroll_container
-        color="Transparent"
-        follows="all"
-        layout="topleft"
-        mouse_opaque="false"
-        height="450"
-        left="0"
-        name="gfx_scroll"
-        opaque="true"
-        width="509"
-        top="0">
-        <panel
-          layout="topleft"
-          follows="left|top|right"
-          name="gfx_scroll_panel"
-          top="0"
-          mouse_opaque="false"
-          left="0"
-          height="450"
-          width="495">
-          <text
-            text_color="Red"
-            type="string"
-            length="1"
-            top_pad="15"
-            follows="top|left"
-            height="12"
-            width="480"
-            word_wrap="true"
-            font.style = "BOLD|ITALIC"
-            layout="topleft"
-            left="9"
-            name="hardcore_warning_text">
-            These settings can be dangerous and will crash your viewer if used incorrectly.
-          </text>
-          <check_box
-            control_name="TextureLoadFullRes"
-            height="16"
-            initial_value="true"
-            label="Always load textures in full resolution"
-            layout="topleft"
-            left="5"
-            name="LocalLights"
-            tool_tip="This can temporarily fix blurry textures, at a terrible performance and resources cost. Turn this back off as soon as possible."
-            top_pad="5"
-            width="110">
-          </check_box>
-          <slider
-            control_name="PVRender_SSRResolution"
-            can_edit_text="true"
-            decimal_digits="2"
-            follows="left|top"
-            height="15"
-            increment="1"
-            initial_value="1.0"
-            label="SSR Resolution"
-            label_width="150"
-            layout="topleft"
-            left="10"
-            max_val="512"
-            min_val="0"
-            name="PVRender_SSRResolution"
-            tool_tip="This will wreck your shit."
-            top_pad="5"
-            text_width="40"
-            width="385">
-          </slider>
-          <button
-            follows="left|top"
-            control_name="PVRender_SSRResolution"
-            height="15"
-            is_toggle="false"
-            label="⌊Reset⌉"
-            image_selected="transparent.j2c"
-            image_unselected="transparent.j2c"
-            layout="topleft"
-            left_pad="0"
-            top_delta="0"
-            name="default"
-            width="60">
-            <button.commit_callback
-              function="Pref.ResetToDefault"
-              parameter="PVRender_SSRResolution">
-            </button.commit_callback>
-          </button>
-          <text
-            type="string"
-            length="1"
-            top_pad="15"
-            follows="top|left"
-            height="12"
-            width="480"
-            word_wrap="true"
-            font.style="BOLD"
-            layout="topleft"
-            left="9"
-            name="shadows_section_label">
-            Objects &amp; Avatars Shadows
-          </text>
-          <slider
-            enabled_control="RenderShadowDetail"
-            decimal_digits="0"
-            follows="left|top"
-            height="15"
-            increment="64"
-            initial_value="2048"
-            can_edit_text="true"
-            label="Resolution Closeup"
-            label_width="150"
-            tool_tip="Close"
-            layout="topleft"
-            left="10"
-            max_val="8192"
-            min_val="256"
-            name="RenderShadowResolution_X"
-            top_pad="5"
-            text_width="40"
-            width="385">
-            <slider.commit_callback
-              function="Pref.ArrayVec4X"
-              parameter="RenderShadowResolution"/>
-            </slider>
-            <slider
-              enabled_control="RenderShadowDetail"
-              decimal_digits="0"
-              follows="left|top"
-              height="15"
-              increment="64"
-              initial_value="2048"
-              can_edit_text="true"
-              label="Resolution Close:"
-              label_width="150"
-              layout="topleft"
-              left="10"
-              max_val="8192"
-              min_val="256"
-              name="RenderShadowResolution_Y"
-              top_pad="02"
-              text_width="40"
-              width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4Y"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
-            </slider>
-            <slider
-              enabled_control="RenderShadowDetail"
-              decimal_digits="0"
-              follows="left|top"
-              height="15"
-              increment="64"
-              initial_value="1024"
-              can_edit_text="true"
-              label="Resolution Far:"
-              label_width="150"
-              layout="topleft"
-              left="10"
-              max_val="8192"
-              min_val="256"
-              name="RenderShadowResolution_Z"
-              top_pad="2"
-              text_width="40"
-              width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4Z"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
-            </slider>
-            <slider
-              enabled_control="RenderShadowDetail"
-              decimal_digits="0"
-              follows="left|top"
-              height="15"
-              increment="64"
-              initial_value="512"
-              can_edit_text="true"
-              label="Resolution Very Far:"
-              label_width="150"
-              layout="topleft"
-              left="10"
-              max_val="8192"
-              min_val="256"
-              name="RenderShadowResolution_W"
-              top_pad="2"
-              text_width="40"
-              width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4W"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
-            </slider>
-            <!-- TODO: Add projector shadows sliders -->
-            <slider
-              control_name="RenderShadowBlurSize"
-              decimal_digits="1"
-              follows="left|top"
-              height="15"
-              increment="0.1"
-              can_edit_text="true"
-              label="Shadow Blur Size:"
-              label_width="150"
-              tool_tip="Set the strength of each blur pass of shadows"
-              layout="topleft"
-              left="10"
-              max_val="3"
-              min_val="0.0"
-              name="RenderShadowBlurSize"
-              top_pad="2"
-              text_width="40"
-              width="385">
-            </slider>
-            <button
-              follows="left|top"
-              control_name="RenderShadowResolution"
-              height="66"
-              is_toggle="false"
-              label="⌊Reset⌉"
-              image_selected="transparent.j2c"
-              image_unselected="transparent.j2c"
-              layout="topleft"
-              left_pad="0"
-              top_delta="-68"
-              name="default"
-              width="60">
-              <button.commit_callback
-                function="Pref.ResetToDefault"
-                parameter="RenderShadowResolution">
-              </button.commit_callback>
-            </button>
-            <button
-              follows="left|top"
-              control_name="RenderShadowBlurSize"
-              height="15"
-              is_toggle="false"
-              label="⌊Reset⌉"
-              image_selected="transparent.j2c"
-              image_unselected="transparent.j2c"
-              layout="topleft"
-              left_delta="0"
-              top_pad="2"
-              name="default"
-              width="60">
-              <button.commit_callback
-                function="Pref.ResetToDefault"
-                parameter="RenderShadowBlurSize">
-              </button.commit_callback>
-            </button>
-          </panel>
-        </scroll_container>
-      </panel>
     </tab_container>
   </panel>
