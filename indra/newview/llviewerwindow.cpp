@@ -179,6 +179,8 @@
 #include <tchar.h> // For Unicode conversion methods
 #endif
 
+#include "lltabcontainer.h"
+
 #include "pvcommon.h"
 #include "pvdata.h"
 #include "pvgpuinfo.h"
