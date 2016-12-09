@@ -957,7 +957,7 @@
           left="8"
           name="GraphicsCardTextureMemory"
           text_width="40"
-          tool_tip="Amount of memory to allocate for textures. Defaults to safe values. Reducing this may improve performance but may also make textures blurry."
+          tool_tip="Amount of memory to allocate for textures. Reducing this may improve performance but also cause blurred textures. Reminder: This will almost always be lower than your total VRAM amount."
           top_pad="2"
           width="315">
         </slider>
