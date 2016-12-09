@@ -44,4 +44,9 @@ public:
     static void getPerVertexSkinMatrix(F32* weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints);
 };
 
+namespace FSSkinningUtil
+{
+    void getPerVertexSkinMatrixSSE( LLVector4a const &weights, LLMatrix4a* mat, bool handle_bad_scale, LLMatrix4a& final_mat, U32 max_joints );
+}
+
 #endif
