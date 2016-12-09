@@ -236,4 +236,16 @@
      top_delta="-2"
      width="230">
     </text_editor>
+  <check_box
+    top_pad="3"
+    enabled="true"
+    follows="left|top"
+    height="14"
+    control_name="UpdaterShowReleaseNotes"
+    label="Show Release Notes after update"
+    left_delta="0"
+    mouse_opaque="true"
+    name="update_show_release_notes"
+    width="400"
+    top_pad="5"/>
 </panel>

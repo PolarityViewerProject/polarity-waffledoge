@@ -868,7 +868,7 @@ void LLWearableHoldingPattern::onAllComplete()
 //		// attachments, even those that are not being removed. This is
 //		// needed to get joint positions all slammed down to their
 //		// pre-attachment states.
-//		gAgentAvatarp->clearAttachmentPosOverrides();
+//		gAgentAvatarp->clearAttachmentOverrides();
 //
 //		if (objects_to_remove.size() || items_to_add.size())
 //		{
@@ -891,7 +891,7 @@ void LLWearableHoldingPattern::onAllComplete()
 //			 ++it)
 //		{
 //			LLViewerObject *objectp = *it;
-//			gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+//			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
 //		}
 //		
 //		// Add new attachments to match those requested.
@@ -1320,8 +1320,6 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	items = new_items;
 }
 
-//=========================================================================
-
 // [SL:KB] - Patch: Appearance-WearableDuplicateAssets | Checked: 2015-06-30 (Catznip-3.7)
 static void removeDuplicateWearableItemsByAssetID(LLInventoryModel::item_array_t& items)
 {
@@ -1340,6 +1338,8 @@ static void removeDuplicateWearableItemsByAssetID(LLInventoryModel::item_array_t
 		}), items.end());
 }
 // [/SL:KB]
+
+//=========================================================================
 
 const LLUUID LLAppearanceMgr::getCOF() const
 {
@@ -1499,10 +1499,12 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
         }
 
 // [RLVa:KB] - Checked: 2013-02-12 (RLVa-1.4.8)
-		if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item_to_wear, (replace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
-		{
-			continue;
-		}
+        if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item_to_wear, (item_to_wear->getType() == LLAssetType::AT_BODYPART || replace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
+        {
+            LL_DEBUGS("Avatar") << "inventory item cannot be worn because of RLV restriction, skipping "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
+            continue;
+        }
 // [/RLVa:KB]
 
         switch (item_to_wear->getType())
@@ -1970,15 +1972,15 @@ bool LLAppearanceMgr::getCanReplaceCOF(const LLUUID& outfit_cat_id)
 		return false;
 	}
 
-	// Check whether the outfit contains any wearables we aren't wearing already (STORM-702).
+	// Check whether the outfit contains any wearables
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
-	LLFindWearablesEx is_worn(/*is_worn=*/ false, /*include_body_parts=*/ true);
+	LLFindWearables is_wearable;
 	gInventory.collectDescendentsIf(outfit_cat_id,
 		cats,
 		items,
 		LLInventoryModel::EXCLUDE_TRASH,
-		is_worn);
+		is_wearable);
 
 	return items.size() > 0;
 }
@@ -2648,7 +2650,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		// attachments, even those that are not being removed. This is
 		// needed to get joint positions all slammed down to their
 		// pre-attachment states.
-		gAgentAvatarp->clearAttachmentPosOverrides();
+		gAgentAvatarp->clearAttachmentOverrides();
 		// (End of LL code)
 
 		// Take off the attachments that will no longer be in the outfit.
@@ -2664,7 +2666,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin(); it != objects_to_retain.end(); ++it)
 		{
 			LLViewerObject *objectp = *it;
-			gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
 		}
 
 		// Add new attachments to match those requested.
@@ -3832,13 +3834,13 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
         }
         else
         {
-            if (cofVersion < lastRcv)
+            if (cofVersion <= lastRcv)
             {
                 LL_WARNS("Avatar") << "Have already received update for cof version " << lastRcv
                     << " but requesting for " << cofVersion << LL_ENDL;
                 return;
             }
-            if (lastReq > cofVersion)
+            if (lastReq >= cofVersion)
             {
                 LL_WARNS("Avatar") << "Request already in flight for cof version " << lastReq
                     << " but requesting for " << cofVersion << LL_ENDL;
@@ -3858,7 +3860,7 @@ void LLAppearanceMgr::serverAppearanceUpdateCoro(LLCoreHttpUtil::HttpCoroutineAd
             LL_WARNS("Avatar") << "Forcing version failure on COF Baking" << LL_ENDL;
         }
 
-        LL_INFOS() << "Requesting bake for COF version " << cofVersion << LL_ENDL;
+        LL_INFOS("Avatar") << "Requesting bake for COF version " << cofVersion << LL_ENDL;
 
         LLSD postData;
         if (gSavedSettings.getBOOL("DebugAvatarExperimentalServerAppearanceUpdate"))
@@ -4364,6 +4366,10 @@ void LLAppearanceMgr::setAttachmentInvLinkEnable(bool val)
 	LL_DEBUGS("Avatar") << "setAttachmentInvLinkEnable => " << (int) val << LL_ENDL;
 	mAttachmentInvLinkEnabled = val;
 }
+boost::signals2::connection LLAppearanceMgr::setAttachmentsChangedCallback(attachments_changed_callback_t cb)
+{
+	return mAttachmentsChangeSignal.connect(cb);
+}
 
 void dumpAttachmentSet(const std::set<LLUUID>& atts, const std::string& msg)
 {
@@ -4390,6 +4396,8 @@ void LLAppearanceMgr::registerAttachment(const LLUUID& item_id)
 	gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
 
 	LLAttachmentsMgr::instance().onAttachmentArrived(item_id);
+
+	mAttachmentsChangeSignal();
 }
 
 void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
@@ -4410,6 +4418,8 @@ void LLAppearanceMgr::unregisterAttachment(const LLUUID& item_id)
 	{
 		//LL_INFOS() << "no link changes, inv link not enabled" << LL_ENDL;
 	}
+
+	mAttachmentsChangeSignal();
 }
 
 BOOL LLAppearanceMgr::getIsInCOF(const LLUUID& obj_id) const

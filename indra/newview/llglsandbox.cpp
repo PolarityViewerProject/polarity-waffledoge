@@ -233,9 +233,18 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 			 iter != potentials.end(); iter++)
 		{
 			LLDrawable* drawable = *iter;
+			// <FS:Ansariel> FIRE-15206: Crash fixing
+			if (!drawable)
+			{
+				continue;
+			}
+			// </FS:Ansariel>
 			LLViewerObject* vobjp = drawable->getVObj();
 
-			if (!drawable || !vobjp ||
+			// <FS:Ansariel> FIRE-15206: Crash fixing
+			//if (!drawable || !vobjp ||
+			if (!vobjp ||
+			// </FS:Ansariel>
 				vobjp->getPCode() != LL_PCODE_VOLUME || 
 				vobjp->isAttachment() ||
 				(deselect && !vobjp->isSelected()))
@@ -980,7 +989,6 @@ F32 gpu_benchmark()
 		{
 			return -1.f;
 		}
-		LLShaderMgr::instance()->cleanupShaderSources();
 	}
 
 #ifdef GL_ARB_vertex_array_object
@@ -1045,7 +1053,7 @@ F32 gpu_benchmark()
     delete [] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
 
 	LLStrider<LLVector3> v;

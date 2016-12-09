@@ -224,6 +224,7 @@ void LLToolCamera::pickCallback(const LLPickInfo& pick_info)
 
 		static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
 		if (!(pick_info.mKeyMask & MASK_ALT) &&
+			!LLFloaterCamera::inFreeCameraMode() &&
 			gAgentCamera.cameraThirdPerson() &&
 			gViewerWindow->getLeftMouseDown() && 
 			!freeze_time &&

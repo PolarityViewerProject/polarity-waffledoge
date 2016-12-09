@@ -62,17 +62,12 @@
 #include "llwindowshade.h"
 #include "llfloatertools.h"  // to enable hide if build tools are up
 #include "llvector4a.h"
-#include <llglmhelpers.h>
-
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 // Functions pulled from pipeline.cpp
-glm::mat4 glm_get_current_modelview();
-glm::mat4 glm_get_current_projection();
+glh::matrix4f glh_get_current_modelview();
+glh::matrix4f glh_get_current_projection();
 // Functions pulled from llviewerdisplay.cpp
-bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model);
+bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model);
 
 // Warning: make sure these two match!
 const LLPanelPrimMediaControls::EZoomLevel LLPanelPrimMediaControls::kZoomLevels[] = { ZOOM_NONE, ZOOM_MEDIUM };
@@ -639,14 +634,13 @@ void LLPanelPrimMediaControls::updateShape()
 		vert_it = vect_face.begin();
 		vert_end = vect_face.end();
 		
-		glm::mat4 mat;
+		glh::matrix4f mat;
 		if (!is_hud) 
 		{
-			mat = glm_get_current_projection() * glm_get_current_modelview();
+			mat = glh_get_current_projection() * glh_get_current_modelview();
 		}
-		else 
-		{
-			glm::mat4 proj, modelview;
+		else {
+			glh::matrix4f proj, modelview;
 			if (get_hud_matrices(proj, modelview))
 				mat = proj * modelview;
 		}
@@ -655,11 +649,11 @@ void LLPanelPrimMediaControls::updateShape()
 		for(; vert_it != vert_end; ++vert_it)
 		{
 			// project silhouette vertices into screen space
-			glm::vec3 screen_vert(glm::make_vec3(vert_it->mV));
-			screen_vert = llglmhelpers::perspectiveTransform(mat, screen_vert);
-
+			glh::vec3f screen_vert = glh::vec3f(vert_it->mV); 
+			mat.mult_matrix_vec(screen_vert);
+			
 			// add to screenspace bounding box
-			update_min_max(min, max, LLVector3(glm::value_ptr(screen_vert)));
+			update_min_max(min, max, LLVector3(screen_vert.v));
 		}
 		
 		// convert screenspace bbox to pixels (in screen coords)

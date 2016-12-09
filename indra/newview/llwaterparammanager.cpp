@@ -54,14 +54,8 @@
 
 #include "llwlparammanager.h"
 #include "llwaterparamset.h"
-#include "llglmhelpers.h"
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/fast_square_root.hpp> // fastNormalize
+#include "curl/curl.h"
 
 LLWaterParamManager::LLWaterParamManager() :
 	mFogColor(22.f/255.f, 43.f/255.f, 54.f/255.f, 0.0f, 0.0f, "waterFogColor", "WaterFogColor"),
@@ -234,8 +228,8 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 	if(gPipeline.canUseVertexShaders()) 
 	{
 		//transform water plane to eye space
-		glm::vec3 norm(0.f, 0.f, 1.f);
-		glm::vec3 p(0.f, 0.f, gAgent.getRegion()->getWaterHeight() + 0.1f);
+		glh::vec3f norm(0.f, 0.f, 1.f);
+		glh::vec3f p(0.f, 0.f, gAgent.getRegion()->getWaterHeight()+0.1f);
 		
 		F32 modelView[16];
 		for (U32 i = 0; i < 16; i++)
@@ -243,16 +237,15 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 			modelView[i] = (F32) gGLModelView[i];
 		}
 
-		glm::mat4 mat(glm::make_mat4(modelView));
-		glm::mat4 invtrans = glm::inverseTranspose(mat);
+		glh::matrix4f mat(modelView);
+		glh::matrix4f invtrans = mat.inverse().transpose();
+		glh::vec3f enorm;
+		glh::vec3f ep;
+		invtrans.mult_matrix_vec(norm, enorm);
+		enorm.normalize();
+		mat.mult_matrix_vec(p, ep);
 
-		norm = llglmhelpers::perspectiveTransform(invtrans, norm);
-		//norm = glm::normalize(norm); // <polarity>
-		norm = glm::fastNormalize(norm);
-
-		p = llglmhelpers::perspectiveTransform(mat, p);
-
-		mWaterPlane = LLVector4(norm[0], norm[1], norm[2], -glm::dot(p, norm));
+		mWaterPlane = LLVector4(enorm.v[0], enorm.v[1], enorm.v[2], -ep.dot(enorm));
 
 		LLVector3 sunMoonDir;
 		if (gSky.getSunDirection().mV[2] > LLSky::NIGHTTIME_ELEVATION_COS) 	 

@@ -27,6 +27,8 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include <boost/lexical_cast.hpp>
+
 #include "llfeaturemanager.h"
 #include "llviewershadermgr.h"
 
@@ -40,6 +42,8 @@
 #include "llsky.h"
 #include "llvosky.h"
 #include "llrender.h"
+#include "lljoint.h"
+#include "llskinningutil.h"
 
 #ifdef LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
@@ -440,7 +444,6 @@ void LLViewerShaderMgr::setShaders()
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 	
 	// Make sure the compiled shader map is cleared before we recompile shaders.
-	LLShaderMgr::instance()->mProgramObjects.clear();
 	LLShaderMgr::instance()->mShaderObjects.clear();
 	
 	initAttribsAndUniforms();
@@ -594,9 +597,10 @@ void LLViewerShaderMgr::setShaders()
 				mVertexShaderLevel[SHADER_AVATAR] = 3;
 				mMaxAvatarShaderLevel = 3;
 				
-				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+				static LLCachedControl<bool> renderAvatarVP(gSavedSettings, "RenderAvatarVP");
+				if (renderAvatarVP && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
-					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+					static LLCachedControl<bool> avatar_cloth(gSavedSettings, "RenderAvatarCloth");
 					S32 avatar_class = 1;
 				
 					// cloth is a class3 shader
@@ -616,13 +620,13 @@ void LLViewerShaderMgr::setShaders()
 						}
 						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
 						{
-							avatar_cloth = true;
+							gSavedSettings.setBOOL("RenderAvatarCloth", true);
 						}
 						else
 						{
-							avatar_cloth = false;
+							gSavedSettings.setBOOL("RenderAvatarCloth", false);
 						}
-						gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+						
 					}
 				}
 				else
@@ -648,7 +652,6 @@ void LLViewerShaderMgr::setShaders()
 				if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 				{ //disable windlight and try again
 					gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
-					LLShaderMgr::instance()->cleanupShaderSources();
 					unloadShaders();
 					reentrance = false;
 					setShaders();
@@ -658,7 +661,6 @@ void LLViewerShaderMgr::setShaders()
 				if (gSavedSettings.getBOOL("VertexShaderEnable"))
 				{ //disable shaders outright and try again
 					gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
-					LLShaderMgr::instance()->cleanupShaderSources();
 					unloadShaders();
 					reentrance = false;
 					setShaders();
@@ -669,13 +671,11 @@ void LLViewerShaderMgr::setShaders()
 			if (loaded && !loadShadersDeferred())
 			{ //everything else succeeded but deferred failed, disable deferred and try again
 				gSavedSettings.setBOOL("RenderDeferred", FALSE);
-				LLShaderMgr::instance()->cleanupShaderSources();
 				unloadShaders();
 				reentrance = false;
 				setShaders();
 				return;
 			}
-			LLShaderMgr::instance()->cleanupShaderSources();
 		}
 		else
 		{
@@ -907,7 +907,9 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 
 	boost::unordered_map<std::string, std::string> attribs;
-	
+	attribs["MAX_JOINTS_PER_MESH_OBJECT"] = 
+		boost::lexical_cast<std::string>(LLSkinningUtil::getMaxJointCount());
+
 	// We no longer have to bind the shaders to global glhandles, they are automatically added to a map now.
 	for (U32 i = 0; i < shaders.size(); i++)
 	{

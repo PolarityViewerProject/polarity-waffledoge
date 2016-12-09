@@ -2,12 +2,11 @@
 
 include(Variables)
 include(FreeType)
-include(GLM)
-include(GLEW)
+include(GLH)
 
 set(LLRENDER_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llrender
-	${GLM_INCLUDE_DIR}
+    ${GLH_INCLUDE_DIR}
     )
 
 if (BUILD_HEADLESS)

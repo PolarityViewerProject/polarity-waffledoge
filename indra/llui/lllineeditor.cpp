@@ -159,8 +159,6 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	mHighlightColor(p.highlight_color()),
 	mPreeditBgColor(p.preedit_bg_color()),
 	mGLFont(p.font),
-	// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-	mDelayedInit(false),
 	mContextMenuHandle()
 {
 	llassert( mMaxLengthBytes > 0 );
@@ -196,23 +194,12 @@ LLLineEditor::LLLineEditor(const LLLineEditor::Params& p)
 	setPrevalidateInput(p.prevalidate_input_callback());
 	setPrevalidate(p.prevalidate_callback());
 
-	// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-	if (LLMenuGL::sMenuContainer)
-	{
-	// </FS:Ansariel>
 	llassert(LLMenuGL::sMenuContainer != NULL);
 	LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
 		("menu_text_editor.xml",
 		 LLMenuGL::sMenuContainer,
 		 LLMenuHolderGL::child_registry_t::instance());
 	setContextMenu(menu);
-	// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-	}
-	else
-	{
-		mDelayedInit = true;
-	}
-	// </FS:Ansariel>
 }
  
 LLLineEditor::~LLLineEditor()
@@ -226,9 +213,6 @@ LLLineEditor::~LLLineEditor()
         menu->hide();
     }
 	setContextMenu(NULL);
-
-	// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-	mDelayedInit = false;
 
 	// calls onCommit() while LLLineEditor still valid
 	gFocusMgr.releaseFocusIfNeeded( this );
@@ -2607,24 +2591,7 @@ LLWString LLLineEditor::getConvertedText() const
 
 void LLLineEditor::showContextMenu(S32 x, S32 y)
 {
-	//LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
-	// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-	LLContextMenu* menu = NULL;
-	if (mDelayedInit && !mContextMenuHandle.get())
-	{
-		llassert(LLMenuGL::sMenuContainer != NULL);
-		menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>
-			("menu_text_editor.xml",
-			 LLMenuGL::sMenuContainer,
-			 LLMenuHolderGL::child_registry_t::instance());
-		setContextMenu(menu);
-	}
-	else
-	{
-		menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
-	}
-	mDelayedInit = false;
-	// </FS:Ansariel>
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
 
 	if (menu)
 	{
@@ -2669,14 +2636,17 @@ void LLLineEditor::showContextMenu(S32 x, S32 y)
 
 void LLLineEditor::setContextMenu(LLContextMenu* new_context_menu)
 {
-	if (new_context_menu)
-		mContextMenuHandle = new_context_menu->getHandle();
-	else
-	{
-		mContextMenuHandle.markDead();
-		// <FS:Ansariel> Delay context menu initialization if LLMenuGL::sMenuContainer is still NULL
-		mDelayedInit = false;
-	}
+    LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+    if (menu)
+    {
+        menu->die();
+        mContextMenuHandle.markDead();
+    }
+
+    if (new_context_menu)
+    {
+        mContextMenuHandle = new_context_menu->getHandle();
+    }
 }
 
 void LLLineEditor::setFont(const LLFontGL* font)

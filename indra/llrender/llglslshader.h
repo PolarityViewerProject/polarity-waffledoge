@@ -75,7 +75,7 @@ public:
 	LLGLSLShader();
 	~LLGLSLShader();
 
-	static GLuint sCurBoundShader;
+	static GLhandleARB sCurBoundShader;
 	static LLGLSLShader* sCurBoundShaderPtr;
 	static S32 sIndexedTextureChannels;
 	static bool sNoFixedFunction;
@@ -96,9 +96,9 @@ public:
 						std::vector<LLStaticHashedString> * uniforms,
 						U32 varying_count = 0,
 						const char** varyings = NULL);
-	BOOL attachShader(std::string shader);
-	void attachShader(GLuint shader);
-	void attachShaders(GLuint* shader = NULL, S32 count = 0);
+	BOOL attachObject(std::string object);
+	void attachObject(GLhandleARB object);
+	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);
 	BOOL mapAttributes(const std::vector<LLStaticHashedString> * attributes);
 	BOOL mapUniforms(const std::vector<LLStaticHashedString> *);
 	void mapUniform(GLint index, const std::vector<LLStaticHashedString> *);
@@ -115,6 +115,7 @@ public:
 	void uniform2i(const LLStaticHashedString& uniform, GLint i, GLint j);
 	void uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
+	void uniformMatrix3x4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, const GLfloat *v);
 	void uniform1i(const LLStaticHashedString& uniform, GLint i);
 	void uniform1f(const LLStaticHashedString& uniform, GLfloat v);
@@ -165,7 +166,7 @@ public:
 	U32 mMatHash[LLRender::NUM_MATRIX_MODES];
 	U32 mLightHash;
 
-	GLuint mProgramObject;
+	GLhandleARB mProgramObject;
 	std::vector<GLint> mAttribute; //lookup table of attribute enum to attribute channel
 	U32 mAttributeMask;  //mask of which reserved attributes are set (lines up with LLVertexBuffer::getTypeMask())
 	std::vector<GLint> mUniform;   //lookup table of uniform enum to uniform location

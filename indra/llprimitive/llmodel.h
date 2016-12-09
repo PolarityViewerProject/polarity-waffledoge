@@ -44,22 +44,25 @@ class domMesh;
 class LLMeshSkinInfo 
 {
 public:
+	LLMeshSkinInfo();
+	LLMeshSkinInfo(LLSD& data);
+	void fromLLSD(LLSD& data);
+	LLSD asLLSD(bool include_joints, bool lock_scale_if_joint_position) const;
+
 	LLUUID mMeshID;
 //<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
 //	std::vector<std::string> mJointNames;
 	std::vector< JointKey > mJointNames;
 // </FS:ND>
+    mutable std::vector<S32> mJointNums;
 
 	std::vector<LLMatrix4> mInvBindMatrix;
 	std::vector<LLMatrix4> mAlternateBindMatrix;
-	std::map<std::string, U32> mJointMap;
 
-	LLMeshSkinInfo() { }
-	LLMeshSkinInfo(LLSD& data);
-	void fromLLSD(LLSD& data);
-	LLSD asLLSD(bool include_joints) const;
 	LLMatrix4 mBindShapeMatrix;
 	float mPelvisOffset;
+    bool mLockScaleIfJointPosition;
+    bool mInvalidJointsScrubbed;
 };
 
 class LLModel : public LLVolume
@@ -144,6 +147,7 @@ public:
 		const LLModel::Decomposition& decomp,
 		BOOL upload_skin,
 		BOOL upload_joints,
+        BOOL lock_scale_if_joint_position,
 		BOOL nowrite = FALSE,
 		BOOL as_slm = FALSE,
 		int submodel_id = 0);
@@ -178,6 +182,7 @@ public:
 	void addFace(const LLVolumeFace& face);
 
 	void sortVolumeFacesByMaterialName();
+	static void normalizeModels(std::vector<LLPointer<LLModel > > model_list);
 	void normalizeVolumeFaces();
 	void trimVolumeFacesToSize(U32 new_count = LL_SCULPT_MESH_MAX_FACES, LLVolume::face_list_t* remainder = NULL);
 	void optimizeVolumeFaces();

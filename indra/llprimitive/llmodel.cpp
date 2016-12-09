@@ -50,8 +50,12 @@ std::string model_names[] =
 const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
-	: LLVolume(params, detail), mNormalizedScale(1,1,1), mNormalizedTranslation(0,0,0)
-	, mPelvisOffset( 0.0f ), mStatus(NO_ERRORS), mSubmodelID(0)
+	: LLVolume(params, detail), 
+      mNormalizedScale(1,1,1), 
+      mNormalizedTranslation(0,0,0), 
+      mPelvisOffset( 0.0f ), 
+      mStatus(NO_ERRORS), 
+      mSubmodelID(0)
 {
 	mDecompID = -1;
 	mLocalID = -1;
@@ -172,6 +176,165 @@ void LLModel::trimVolumeFacesToSize(U32 new_count, LLVolume::face_list_t* remain
 		//
 		mVolumeFaces.resize(new_count);
 	}
+}
+
+// Shrink group of models to fit
+// on a 1x1x1 cube centered at the origin.
+void LLModel::normalizeModels(std::vector<LLPointer<LLModel > > model_list)
+{
+    std::vector<LLPointer<LLModel > >::iterator iter = model_list.begin();
+
+    LLVector4a min, max;
+    while (iter != model_list.end() && (*iter)->mVolumeFaces.empty())
+    {
+        iter++;
+    }
+    if (iter == model_list.end())
+    {
+        // no models with faces
+        return;
+    }
+
+    min = (*iter)->mVolumeFaces[0].mExtents[0];
+    max = (*iter)->mVolumeFaces[0].mExtents[1];
+
+    // Treat models as a group - each model out of 1x1x1 cube
+    // needs scaling and will affect whole group scale
+    while (iter != model_list.end())
+    {
+        LLPointer<LLModel> model = *iter++;
+
+        if (model.notNull() && !model->mVolumeFaces.empty())
+        {
+            // For all of the volume faces
+            // in the model, loop over
+            // them and see what the extents
+            // of the volume along each axis.
+
+            for (U32 i = 0; i < model->mVolumeFaces.size(); ++i)
+            {
+                LLVolumeFace& face = model->mVolumeFaces[i];
+
+                update_min_max(min, max, face.mExtents[0]);
+                update_min_max(min, max, face.mExtents[1]);
+
+                if (face.mTexCoords)
+                {
+                    LLVector2& min_tc = face.mTexCoordExtents[0];
+                    LLVector2& max_tc = face.mTexCoordExtents[1];
+
+                    min_tc = face.mTexCoords[0];
+                    max_tc = face.mTexCoords[0];
+
+                    for (U32 j = 1; j < face.mNumVertices; ++j)
+                    {
+                        update_min_max(min_tc, max_tc, face.mTexCoords[j]);
+                    }
+                }
+                else
+                {
+                    face.mTexCoordExtents[0].set(0, 0);
+                    face.mTexCoordExtents[1].set(1, 1);
+                }
+            }
+        }
+    }
+
+    // Now that we have the extents of the model
+    // we can compute the offset needed to center
+    // the model at the origin.
+
+    // Compute center of the model
+    // and make it negative to get translation
+    // needed to center at origin.
+    LLVector4a trans;
+    trans.setAdd(min, max);
+    trans.mul(-0.5f);
+
+    // Compute the total size along all
+    // axes of the model.
+    LLVector4a size;
+    size.setSub(max, min);
+
+    // Prevent division by zero.
+    F32 x = size[0];
+    F32 y = size[1];
+    F32 z = size[2];
+    F32 w = size[3];
+    if (fabs(x) < F_APPROXIMATELY_ZERO)
+    {
+        x = 1.0;
+    }
+    if (fabs(y) < F_APPROXIMATELY_ZERO)
+    {
+        y = 1.0;
+    }
+    if (fabs(z) < F_APPROXIMATELY_ZERO)
+    {
+        z = 1.0;
+    }
+    size.set(x, y, z, w);
+
+    // Compute scale as reciprocal of size
+    LLVector4a scale;
+    scale.splat(1.f);
+    scale.div(size);
+
+    LLVector4a inv_scale(1.f);
+    inv_scale.div(scale);
+    
+    iter = model_list.begin();
+    // apply fixed scale and trans to all models as a single group
+    while (iter != model_list.end())
+    {
+        LLPointer<LLModel> model = *iter++;
+
+        if (model.isNull() || model->mVolumeFaces.empty())
+        {
+            continue;
+        }
+
+        for (U32 i = 0; i < model->mVolumeFaces.size(); ++i)
+        {
+            LLVolumeFace& face = model->mVolumeFaces[i];
+
+            // We shrink the extents so
+            // that they fall within
+            // the unit cube.
+            face.mExtents[0].add(trans);
+            face.mExtents[0].mul(scale);
+
+            face.mExtents[1].add(trans);
+            face.mExtents[1].mul(scale);
+
+            // For all the positions, we scale
+            // the positions to fit within the unit cube.
+            LLVector4a* pos = (LLVector4a*)face.mPositions;
+            LLVector4a* norm = (LLVector4a*)face.mNormals;
+
+            for (U32 j = 0; j < face.mNumVertices; ++j)
+            {
+                pos[j].add(trans);
+                pos[j].mul(scale);
+                if (norm && !norm[j].equals3(LLVector4a::getZero()))
+                {
+                    norm[j].mul(inv_scale);
+                    norm[j].normalize3();
+                }
+            }
+        }
+
+        // mNormalizedScale is the scale at which
+        // we would need to multiply the model
+        // by to get the original size of the
+        // model instead of the normalized size.
+        LLVector4a normalized_scale;
+        normalized_scale.splat(1.f);
+        normalized_scale.div(scale);
+        model->mNormalizedScale.set(normalized_scale.getF32ptr());
+        model->mNormalizedTranslation.set(trans.getF32ptr());
+        model->mNormalizedTranslation *= -1.f;
+    }
 }
 
 // Shrink the model to fit
@@ -667,6 +830,7 @@ LLSD LLModel::writeModel(
 	const LLModel::Decomposition& decomp,
 	BOOL upload_skin,
 	BOOL upload_joints,
+    BOOL lock_scale_if_joint_position,
 	BOOL nowrite,
 	BOOL as_slm,
 	int submodel_id)
@@ -686,7 +850,7 @@ LLSD LLModel::writeModel(
 
 	if (skinning)
 	{ //write skinning block
-		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints);
+		mdl["skin"] = high->mSkinInfo.asLLSD(upload_joints, lock_scale_if_joint_position);
 	}
 
 	if (!decomp.mBaseHull.empty() ||
@@ -867,6 +1031,7 @@ LLSD LLModel::writeModel(
 						S32 count = 0;
 						for (weight_list::iterator iter = weights.begin(); iter != weights.end(); ++iter)
 						{
+							// Note joint index cannot exceed 255.
 							if (iter->mJointIdx < 255 && iter->mJointIdx >= 0)
 							{
 								U8 idx = (U8) iter->mJointIdx;
@@ -1000,7 +1165,7 @@ LLSD LLModel::writeModelToStream(std::ostream& ostr, LLSD& mdl, BOOL nowrite, BO
 
 LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 {
-	//1. If a vertex has been weighted then we'll find it via pos and return it's weight list
+	//1. If a vertex has been weighted then we'll find it via pos and return its weight list
 	weight_map::iterator iterPos = mSkinWeights.begin();
 	weight_map::iterator iterEnd = mSkinWeights.end();
 	
@@ -1030,9 +1195,22 @@ LLModel::weight_list& LLModel::getJointInfluences(const LLVector3& pos)
 		weight_map::iterator iter_up = mSkinWeights.lower_bound(pos);
 		weight_map::iterator iter_down = ++iter_up;
 
+		// <FS:ND> FIRE-9251; it can happen than iter_up points at end(), in that case iter_down points to end()+1. Adjust iter_up to end()-1 and iter_down to end then.
+		// This will gurantee we have at least one valid pointer from our map and can use that safely as 'best'.
+		if( mSkinWeights.end() == iter_up )
+		{
+			iter_down = iter_up;
+			--iter_up;
+		}
+		// </FS:ND>
+
+
 		weight_map::iterator best = iter_up;
 
-		F32 min_dist = (iter->first - pos).magVec();
+		// <FS:ND> FIRE-9251; There is no way iter can be valid here, otherwise we had hit the if branch and not the else branch.
+		// F32 min_dist = (iter->first - pos).magVec();
+		F32 min_dist = (best->first - pos).magVec();
+		// </FS:ND>
 
 		bool done = false;
 		while (!done)
@@ -1151,7 +1329,7 @@ bool LLModel::loadModel(std::istream& is)
 
 	const S32 MODEL_LODS = 5;
 
-	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS-1);
+	S32 lod = llclamp((S32) mDetail, 0, MODEL_LODS);
 
 	if (header[lod_name[lod]]["offset"].asInteger() == -1 || 
 		header[lod_name[lod]]["size"].asInteger() == 0 )
@@ -1223,7 +1401,6 @@ bool LLModel::loadModel(std::istream& is)
 	}
 
 	return false;
-
 }
 
 bool LLModel::isMaterialListSubset( LLModel* ref )
@@ -1338,7 +1515,6 @@ bool LLModel::matchMaterialOrder(LLModel* ref, int& refFaceCnt, int& modelFaceCn
 	return true;
 }
 
-
 bool LLModel::loadSkinInfo(LLSD& header, std::istream &is)
 {
 	S32 offset = header["skin"]["offset"].asInteger();
@@ -1381,8 +1557,17 @@ bool LLModel::loadDecomposition(LLSD& header, std::istream& is)
 	return true;
 }
 
+LLMeshSkinInfo::LLMeshSkinInfo():
+    mPelvisOffset(0.0),
+    mLockScaleIfJointPosition(false),
+    mInvalidJointsScrubbed(false)
+{
+}
 
-LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin)
+LLMeshSkinInfo::LLMeshSkinInfo(LLSD& skin):
+    mPelvisOffset(0.0),
+    mLockScaleIfJointPosition(false),
+    mInvalidJointsScrubbed(false)
 {
 	fromLLSD(skin);
 }
@@ -1397,6 +1582,7 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 //			mJointNames.push_back( skin[ "joint_names" ][ i ] );
 			mJointNames.push_back( JointKey::construct( skin[ "joint_names" ][ i ] ) );
 // </FS>ND>
+            mJointNums.push_back(-1);
 		}
 	}
 
@@ -1449,9 +1635,18 @@ void LLMeshSkinInfo::fromLLSD(LLSD& skin)
 	{
 		mPelvisOffset = skin["pelvis_offset"].asReal();
 	}
+
+    if (skin.has("lock_scale_if_joint_position"))
+    {
+        mLockScaleIfJointPosition = skin["lock_scale_if_joint_position"].asBoolean();
+    }
+	else
+	{
+		mLockScaleIfJointPosition = false;
+	}
 }
 
-LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
+LLSD LLMeshSkinInfo::asLLSD(bool include_joints, bool lock_scale_if_joint_position) const
 {
 	LLSD ret;
 
@@ -1491,6 +1686,11 @@ LLSD LLMeshSkinInfo::asLLSD(bool include_joints) const
 				}
 			}
 		}
+
+        if (lock_scale_if_joint_position)
+        {
+            ret["lock_scale_if_joint_position"] = lock_scale_if_joint_position;
+        }
 
 		ret["pelvis_offset"] = mPelvisOffset;
 	}
