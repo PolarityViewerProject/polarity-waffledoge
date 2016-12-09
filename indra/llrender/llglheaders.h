@@ -27,7 +27,7 @@
 #ifndef LL_LLGLHEADERS_H
 #define LL_LLGLHEADERS_H
 
-extern PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv;
+//extern PFNGLUNIFORMMATRIX3X4FVPROC glUniformMatrix3x4fv; // it's down there...
 #if LL_MESA
 //----------------------------------------------------------------------------
 // MESA headers
