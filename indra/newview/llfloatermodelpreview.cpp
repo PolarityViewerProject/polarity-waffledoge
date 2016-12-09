@@ -471,6 +471,13 @@ void LLFloaterModelPreview::disableViewOption(const std::string& option)
 
 void LLFloaterModelPreview::loadModel(S32 lod)
 {
+	// <FS:Ansariel> FIRE-15204: Viewer crashes when clicking "upload model" quickly twice then closing both filepickers
+	if (mModelPreview->mLoading)
+	{
+		return;
+	}
+	// </FS:Ansariel>
+
 	mModelPreview->mLoading = true;
 	if (lod == LLModel::LOD_PHYSICS)
 	{
@@ -483,6 +490,13 @@ void LLFloaterModelPreview::loadModel(S32 lod)
 
 void LLFloaterModelPreview::loadModel(S32 lod, const std::string& file_name, bool force_disable_slm)
 {
+	// <FS:Ansariel> FIRE-15204: Viewer crashes when clicking "upload model" quickly twice then closing both filepickers
+	if (mModelPreview->mLoading)
+	{
+		return;
+	}
+	// </FS:Ansariel>
+
 	mModelPreview->mLoading = true;
 
 	mModelPreview->loadModel(file_name, lod, force_disable_slm);
@@ -4093,7 +4107,7 @@ BOOL LLModelPreview::render()
 							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
                                 LLMatrix4a final_mat;
-                                F32 *wptr = weight[j].mV;
+                                F32 *wptr = weight[j].getF32ptr();
                                 LLSkinningUtil::getPerVertexSkinMatrix(wptr, mat, true, final_mat, max_joints);
 
 								//VECTORIZE THIS

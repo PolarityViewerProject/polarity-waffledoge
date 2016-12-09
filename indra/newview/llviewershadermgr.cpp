@@ -444,7 +444,6 @@ void LLViewerShaderMgr::setShaders()
 	LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 	
 	// Make sure the compiled shader map is cleared before we recompile shaders.
-	LLShaderMgr::instance()->mProgramObjects.clear();
 	LLShaderMgr::instance()->mShaderObjects.clear();
 	
 	initAttribsAndUniforms();
@@ -598,9 +597,10 @@ void LLViewerShaderMgr::setShaders()
 				mVertexShaderLevel[SHADER_AVATAR] = 3;
 				mMaxAvatarShaderLevel = 3;
 				
-				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+				static LLCachedControl<bool> renderAvatarVP(gSavedSettings, "RenderAvatarVP");
+				if (renderAvatarVP && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
-					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
+					static LLCachedControl<bool> avatar_cloth(gSavedSettings, "RenderAvatarCloth");
 					S32 avatar_class = 1;
 				
 					// cloth is a class3 shader
@@ -620,13 +620,13 @@ void LLViewerShaderMgr::setShaders()
 						}
 						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
 						{
-							avatar_cloth = true;
+							gSavedSettings.setBOOL("RenderAvatarCloth", true);
 						}
 						else
 						{
-							avatar_cloth = false;
+							gSavedSettings.setBOOL("RenderAvatarCloth", false);
 						}
-						gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
+						
 					}
 				}
 				else
@@ -652,7 +652,6 @@ void LLViewerShaderMgr::setShaders()
 				if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 				{ //disable windlight and try again
 					gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
-					LLShaderMgr::instance()->cleanupShaderSources();
 					unloadShaders();
 					reentrance = false;
 					setShaders();
@@ -662,7 +661,6 @@ void LLViewerShaderMgr::setShaders()
 				if (gSavedSettings.getBOOL("VertexShaderEnable"))
 				{ //disable shaders outright and try again
 					gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
-					LLShaderMgr::instance()->cleanupShaderSources();
 					unloadShaders();
 					reentrance = false;
 					setShaders();
@@ -673,13 +671,11 @@ void LLViewerShaderMgr::setShaders()
 			if (loaded && !loadShadersDeferred())
 			{ //everything else succeeded but deferred failed, disable deferred and try again
 				gSavedSettings.setBOOL("RenderDeferred", FALSE);
-				LLShaderMgr::instance()->cleanupShaderSources();
 				unloadShaders();
 				reentrance = false;
 				setShaders();
 				return;
 			}
-			LLShaderMgr::instance()->cleanupShaderSources();
 		}
 		else
 		{

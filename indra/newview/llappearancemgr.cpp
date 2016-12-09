@@ -851,52 +851,52 @@ void LLWearableHoldingPattern::onAllComplete()
 
 	if (isAgentAvatarValid())
 	{
-		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
-		LLAgentWearables::llvo_vec_t objects_to_remove;
-		LLAgentWearables::llvo_vec_t objects_to_retain;
-		LLInventoryModel::item_array_t items_to_add;
-
-		LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
-													   objects_to_remove,
-													   objects_to_retain,
-													   items_to_add);
-
-		LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
-							<< " attachments" << LL_ENDL;
-
-		// Here we remove the attachment pos overrides for *all*
-		// attachments, even those that are not being removed. This is
-		// needed to get joint positions all slammed down to their
-		// pre-attachment states.
-		gAgentAvatarp->clearAttachmentOverrides();
-
-		if (objects_to_remove.size() || items_to_add.size())
-		{
-			LL_DEBUGS("Avatar") << "ATT will remove " << objects_to_remove.size()
-								<< " and add " << items_to_add.size() << " items" << LL_ENDL;
-		}
-
-		// Take off the attachments that will no longer be in the outfit.
-		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
-		
+//		LL_DEBUGS("Avatar") << self_av_string() << "Updating " << mObjItems.size() << " attachments" << LL_ENDL;
+//		LLAgentWearables::llvo_vec_t objects_to_remove;
+//		LLAgentWearables::llvo_vec_t objects_to_retain;
+//		LLInventoryModel::item_array_t items_to_add;
+//
+//		LLAgentWearables::findAttachmentsAddRemoveInfo(mObjItems,
+//													   objects_to_remove,
+//													   objects_to_retain,
+//													   items_to_add);
+//
+//		LL_DEBUGS("Avatar") << self_av_string() << "Removing " << objects_to_remove.size()
+//							<< " attachments" << LL_ENDL;
+//
+//		// Here we remove the attachment pos overrides for *all*
+//		// attachments, even those that are not being removed. This is
+//		// needed to get joint positions all slammed down to their
+//		// pre-attachment states.
+//		gAgentAvatarp->clearAttachmentOverrides();
+//
+//		if (objects_to_remove.size() || items_to_add.size())
+//		{
+//			LL_DEBUGS("Avatar") << "ATT will remove " << objects_to_remove.size()
+//								<< " and add " << items_to_add.size() << " items" << LL_ENDL;
+//		}
+//
+//		// Take off the attachments that will no longer be in the outfit.
+//		LLAgentWearables::userRemoveMultipleAttachments(objects_to_remove);
+ 		
 		// Update wearables.
 		LL_INFOS("Avatar") << self_av_string() << "HP " << index() << " updating agent wearables with "
 						   << mResolved << " wearable items " << LL_ENDL;
 		LLAppearanceMgr::instance().updateAgentWearables(this);
 		
-		// Restore attachment pos overrides for the attachments that
-		// are remaining in the outfit.
-		for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
-			 it != objects_to_retain.end();
-			 ++it)
-		{
-			LLViewerObject *objectp = *it;
-			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
-		}
-		
-		// Add new attachments to match those requested.
-		LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
-		LLAgentWearables::userAttachMultipleAttachments(items_to_add);
+//		// Restore attachment pos overrides for the attachments that
+//		// are remaining in the outfit.
+//		for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin();
+//			 it != objects_to_retain.end();
+//			 ++it)
+//		{
+//			LLViewerObject *objectp = *it;
+//			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
+//		}
+//		
+//		// Add new attachments to match those requested.
+//		LL_DEBUGS("Avatar") << self_av_string() << "Adding " << items_to_add.size() << " attachments" << LL_ENDL;
+//		LLAgentWearables::userAttachMultipleAttachments(items_to_add);
 	}
 
 	if (isFetchCompleted() && isMissingCompleted())
@@ -1320,8 +1320,6 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	items = new_items;
 }
 
-//=========================================================================
-
 // [SL:KB] - Patch: Appearance-WearableDuplicateAssets | Checked: 2015-06-30 (Catznip-3.7)
 static void removeDuplicateWearableItemsByAssetID(LLInventoryModel::item_array_t& items)
 {
@@ -1340,6 +1338,8 @@ static void removeDuplicateWearableItemsByAssetID(LLInventoryModel::item_array_t
 		}), items.end());
 }
 // [/SL:KB]
+
+//=========================================================================
 
 const LLUUID LLAppearanceMgr::getCOF() const
 {
@@ -1499,10 +1499,12 @@ void LLAppearanceMgr::wearItemsOnAvatar(const uuid_vec_t& item_ids_to_wear,
         }
 
 // [RLVa:KB] - Checked: 2013-02-12 (RLVa-1.4.8)
-		if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item_to_wear, (replace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
-		{
-			continue;
-		}
+        if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item_to_wear, (item_to_wear->getType() == LLAssetType::AT_BODYPART || replace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
+        {
+            LL_DEBUGS("Avatar") << "inventory item cannot be worn because of RLV restriction, skipping "
+                                << item_to_wear->getName() << " id " << item_id_to_wear << LL_ENDL;
+            continue;
+        }
 // [/RLVa:KB]
 
         switch (item_to_wear->getType())
@@ -2648,7 +2650,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		// attachments, even those that are not being removed. This is
 		// needed to get joint positions all slammed down to their
 		// pre-attachment states.
-		gAgentAvatarp->clearAttachmentPosOverrides();
+		gAgentAvatarp->clearAttachmentOverrides();
 		// (End of LL code)
 
 		// Take off the attachments that will no longer be in the outfit.
@@ -2664,7 +2666,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 		for (LLAgentWearables::llvo_vec_t::iterator it = objects_to_retain.begin(); it != objects_to_retain.end(); ++it)
 		{
 			LLViewerObject *objectp = *it;
-			gAgentAvatarp->addAttachmentPosOverridesForObject(objectp);
+			gAgentAvatarp->addAttachmentOverridesForObject(objectp);
 		}
 
 		// Add new attachments to match those requested.

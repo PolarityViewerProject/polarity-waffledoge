@@ -989,7 +989,6 @@ F32 gpu_benchmark()
 		{
 			return -1.f;
 		}
-		LLShaderMgr::instance()->cleanupShaderSources();
 	}
 
 #ifdef GL_ARB_vertex_array_object
@@ -1054,7 +1053,7 @@ F32 gpu_benchmark()
     delete [] pixels;
 
 	//make a dummy triangle to draw with
-	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX, GL_STATIC_DRAW_ARB);
+	LLPointer<LLVertexBuffer> buff = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, GL_STATIC_DRAW_ARB);
 	buff->allocateBuffer(3, 0, true);
 
 	LLStrider<LLVector3> v;

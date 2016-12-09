@@ -70,7 +70,7 @@ class LLVector4
 			mV[3] = (F32)sd[3].asReal();
 		}
 
-		LLSD LLVector4::getValue() const
+		LLSD getValue() const
 		{
 			LLSD ret;
 			ret[0] = mV[0];

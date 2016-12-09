@@ -1597,7 +1597,7 @@ BOOL LLWindowWin32::switchContext(BOOL fullscreen, const LLCoordScreen &size, EV
 	}
 
 	mhRC = 0;
-	if (WGLEW_ARB_create_context)
+	if (wglCreateContextAttribsARB)
 	{ //attempt to create a specific versioned context
 		S32 attribs[] = 
 		{ //start at 4.5
