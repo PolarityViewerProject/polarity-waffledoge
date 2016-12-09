@@ -701,65 +701,47 @@
         <key>version</key>
         <string>2.6.3</string>
       </map>
-      <key>glew</key>
+      <key>glext</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 2002-2007, Milan Ikits, Copyright (C) 2002-2007, Marcelo E. Magallon, Copyright (C) 2002, Lev Povalahev</string>
+        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
         <key>description</key>
-        <string>The OpenGL Extension Wrangler Library.</string>
+        <string>glext headers define function prototypes and constants for OpenGL extensions</string>
         <key>license</key>
-        <string>BSD</string>
+        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
         <key>license_file</key>
-        <string>LICENSES/glew.txt</string>
+        <string>LICENSES/glext.txt</string>
         <key>name</key>
-        <string>glew</string>
+        <string>glext</string>
         <key>platforms</key>
         <map>
-          <key>linux64</key>
+          <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>33f27ee1d96cee5b19eadc655054ee78</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>4bf4f9e65168138eebbc769e9e12230b</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/linux64/gcc-unknown/glew-1.13.0-linux64-201508301325.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/Linux/installer/glext-68-linux-296893.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>linux64</string>
+            <string>linux</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aba7e388272a051dc2d3b39c68a6e60f</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>6eb51c6f17e717a5617b112858d41c80</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.org/windows32/msvc-14/glew-1.13.0-windows-201601191519.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/CYGWIN/installer/glext-68-windows-296893.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>8abe1151226647cb8a9b8ab75d77dcd7</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.org/windows64/msvc-14/glew-1.13.0-windows64-201601191520.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
         </map>
         <key>version</key>
-        <string>1.13.0</string>
+        <string>68</string>
       </map>
       <key>glh-linear</key>
       <map>

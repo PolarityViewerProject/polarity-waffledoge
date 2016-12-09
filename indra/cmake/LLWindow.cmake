@@ -1,7 +1,7 @@
 # -*- cmake -*-
 
 include(Variables)
-include(GLEW)
+include(GLEXT)
 include(Prebuilt)
 
 if (USESYSTEMLIBS)

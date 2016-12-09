@@ -27,6 +27,7 @@
 // This file sets some global GL parameters, and implements some 
 // useful functions for GL operations.
 
+#define GLH_EXT_SINGLE_FILE
 #include "linden_common.h"
 
 #include "boost/tokenizer.hpp"
@@ -71,80 +72,8 @@ std::ofstream gFailLog;
 #define APIENTRY
 #endif
 
-std::string decode_source(GLenum source)
-{
-	switch (source)
-	{
-	case GL_DEBUG_SOURCE_API_ARB:
-		return "GL_DEBUG_SOURCE_API";
-		break;
-	case GL_DEBUG_SOURCE_WINDOW_SYSTEM_ARB:
-		return "GL_DEBUG_SOURCE_WINDOW_SYSTEM";
-		break;
-	case GL_DEBUG_SOURCE_SHADER_COMPILER_ARB:
-		return "GL_DEBUG_SOURCE_SHADER_COMPILER";
-		break;
-	case GL_DEBUG_SOURCE_THIRD_PARTY_ARB:
-		return "GL_DEBUG_SOURCE_THIRD_PARTY";
-		break;
-	case GL_DEBUG_SOURCE_APPLICATION_ARB:
-		return "GL_DEBUG_SOURCE_APPLICATION";
-		break;
-	case GL_DEBUG_SOURCE_OTHER_ARB:
-		return "GL_DEBUG_SOURCE_OTHER";
-		break;
-	default:
-		return "";
-		break;
-	}
-}
 
-std::string decode_type(GLenum type)
-{
-	switch (type)
-	{
-	case GL_DEBUG_TYPE_ERROR_ARB:
-		return "GL_DEBUG_TYPE_ERROR";
-		break;
-	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB:
-		return "GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR";
-		break;
-	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB:
-		return "GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR";
-		break;
-	case GL_DEBUG_TYPE_PORTABILITY_ARB:
-		return "GL_DEBUG_TYPE_PORTABILITY";
-		break;
-	case GL_DEBUG_TYPE_PERFORMANCE_ARB:
-		return "GL_DEBUG_TYPE_PERFORMANCE";
-		break;
-	case GL_DEBUG_TYPE_OTHER_ARB:
-		return "GL_DEBUG_TYPE_OTHER";
-		break;
-	default:
-		return "";
-		break;
-	}
-}
 
-std::string decode_severity(GLenum severity)
-{
-	switch (severity)
-	{
-	case GL_DEBUG_SEVERITY_LOW_ARB:
-		return "GL_DEBUG_SEVERITY_LOW";
-		break;
-	case GL_DEBUG_SEVERITY_MEDIUM_ARB:
-		return "GL_DEBUG_SEVERITY_MEDIUM";
-		break;
-	case GL_DEBUG_SEVERITY_HIGH_ARB:
-		return "GL_DEBUG_SEVERITY_HIGH";
-		break;
-	default:
-		return "";
-		break;
-	}
-}
 
 void APIENTRY gl_debug_callback(GLenum source,
                                 GLenum type,
@@ -164,10 +93,9 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
 	}
-	LL_WARNS() << "Source: " << decode_source(source) << LL_ENDL;
-	LL_WARNS() << "Type: " << decode_type(type) << LL_ENDL;
-	LL_WARNS() << "ID: " << std::hex << id << std::dec << LL_ENDL;
-	LL_WARNS() << "Severity: " << decode_severity(severity) << LL_ENDL;
+	LL_WARNS() << "Type: " << std::hex << type << LL_ENDL;
+	LL_WARNS() << "ID: " << std::hex << id << LL_ENDL;
+	LL_WARNS() << "Severity: " << std::hex << severity << LL_ENDL;
 	LL_WARNS() << "Message: " << message << LL_ENDL;
 	LL_WARNS() << "-----------------------" << LL_ENDL;
 	if (severity == GL_DEBUG_SEVERITY_HIGH_ARB)
@@ -179,7 +107,6 @@ void APIENTRY gl_debug_callback(GLenum source,
 #endif
 
 void parse_glsl_version(S32& major, S32& minor);
-std::string parse_gl_ext_to_str(F32 glversion);
 
 void ll_init_fail_log(std::string filename)
 {
@@ -524,7 +451,6 @@ LLGLManager::LLGLManager() :
 	mHasCubeMap(FALSE),
 	mHasDebugOutput(FALSE),
 
-	mHasGpuShader5(FALSE),
 	mIsATI(FALSE),
 	mIsNVIDIA(FALSE),
 	mIsIntel(FALSE),
@@ -561,37 +487,38 @@ void LLGLManager::initWGL()
 {
 	mHasPBuffer = FALSE;
 #if LL_WINDOWS && !LL_MESA_HEADLESS
-	GLenum err = wglewInit();
-	if (GLEW_OK != err)
-	{
-		LL_WARNS("RenderInit") << "GLEW WGL Extension init failure." << LL_ENDL;
-	}
-
-	if (!WGLEW_ARB_pixel_format)
+	if (!glh_init_extensions("WGL_ARB_pixel_format"))
 	{
 		LL_WARNS("RenderInit") << "No ARB pixel format extensions" << LL_ENDL;
 	}
 
-	if (!WGLEW_ARB_create_context)
+	if (ExtensionExists("WGL_ARB_create_context",gGLHExts.mSysExts))
+	{
+		GLH_EXT_NAME(wglCreateContextAttribsARB) = (PFNWGLCREATECONTEXTATTRIBSARBPROC)GLH_EXT_GET_PROC_ADDRESS("wglCreateContextAttribsARB");
+	}
+	else
 	{
 		LL_WARNS("RenderInit") << "No ARB create context extensions" << LL_ENDL;
 	}
-	if (!WGLEW_EXT_swap_control)
+	
+	if (ExtensionExists("WGL_EXT_swap_control", gGLHExts.mSysExts))
 	{
-		LL_WARNS("RenderInit") << "No EXT WGL swap control extensions" << LL_ENDL;
+        GLH_EXT_NAME(wglSwapIntervalEXT) = (PFNWGLSWAPINTERVALEXTPROC)GLH_EXT_GET_PROC_ADDRESS("wglSwapIntervalEXT");
 	}
 
-	if (!WGLEW_ARB_pbuffer)
+	if( !glh_init_extensions("WGL_ARB_pbuffer") )
 	{
 		LL_WARNS("RenderInit") << "No ARB WGL PBuffer extensions" << LL_ENDL;
 	}
 
-	if( !WGLEW_ARB_render_texture )
+	if( !glh_init_extensions("WGL_ARB_render_texture") )
 	{
 		LL_WARNS("RenderInit") << "No ARB WGL render texture extensions" << LL_ENDL;
 	}
 
-	mHasPBuffer = WGLEW_ARB_pbuffer && WGLEW_ARB_render_texture && WGLEW_ARB_pixel_format;
+	mHasPBuffer = ExtensionExists("WGL_ARB_pbuffer", gGLHExts.mSysExts) &&
+					ExtensionExists("WGL_ARB_render_texture", gGLHExts.mSysExts) &&
+					ExtensionExists("WGL_ARB_pixel_format", gGLHExts.mSysExts);
 #endif
 }
 
@@ -605,15 +532,39 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 
-#if !LL_DARWIN
-	GLenum err = glewInit();
-	if (GLEW_OK != err)
+#if LL_WINDOWS
+	if (!glGetStringi)
 	{
-		LL_WARNS("RenderInit") << "GLEW Extension init failure." << LL_ENDL;
-		return false;
+		glGetStringi = (PFNGLGETSTRINGIPROC) GLH_EXT_GET_PROC_ADDRESS("glGetStringi");
 	}
-	stop_glerror();
+
+	if (glGetStringi)
+	{
+		std::stringstream str;
+
+		GLint count = 0;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+		for (GLint i = 0; i < count; ++i)
+	{
+			std::string ext((const char*) glGetStringi(GL_EXTENSIONS, i));
+			str << ext << " ";
+			LL_DEBUGS("GLExtensions") << ext << LL_ENDL;
+		}
+		{
+			PFNWGLGETEXTENSIONSSTRINGARBPROC wglGetExtensionsStringARB = 0;
+			wglGetExtensionsStringARB = (PFNWGLGETEXTENSIONSSTRINGARBPROC)wglGetProcAddress("wglGetExtensionsStringARB");
+			if(wglGetExtensionsStringARB)
+			{
+				str << (const char*) wglGetExtensionsStringARB(wglGetCurrentDC());
+			}
+		}
+
+		free(gGLHExts.mSysExts);
+		std::string extensions = str.str();
+		gGLHExts.mSysExts = strdup(extensions.c_str());
+	}
 #endif
+	stop_glerror();
 
 	// Extract video card strings and convert to upper case to
 	// work around driver-to-driver variation in capitalization.
@@ -810,12 +761,7 @@ bool LLGLManager::initGL()
 	{ //setup debug output callback
 		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
 		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
-		if (mIsNVIDIA)
-		{
 		//	glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, 0, GL_TRUE);
-			GLuint debug_ids[3] = { 131076, 131185, 131204 };
-			glDebugMessageControlARB(GL_DEBUG_SOURCE_API, GL_DEBUG_TYPE_OTHER, GL_DONT_CARE, 3, debug_ids, GL_FALSE);
-		}
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
@@ -885,7 +831,7 @@ void LLGLManager::getGLInfo(LLSD& info)
 	}
 
 #if !LL_MESA_HEADLESS
-	std::string all_exts = parse_gl_ext_to_str(mGLVersion);
+	std::string all_exts = ll_safe_string((const char *)gGLHExts.mSysExts);
 	boost::char_separator<char> sep(" ");
 	boost::tokenizer<boost::char_separator<char> > tok(all_exts, sep);
 	for(boost::tokenizer<boost::char_separator<char> >::iterator i = tok.begin(); i != tok.end(); ++i)
@@ -913,7 +859,7 @@ std::string LLGLManager::getGLInfoString()
 	}
 
 #if !LL_MESA_HEADLESS
-	std::string all_exts = parse_gl_ext_to_str(mGLVersion);
+	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	info_str += std::string("GL_EXTENSIONS:\n") + all_exts + std::string("\n");
 #endif
@@ -937,7 +883,7 @@ void LLGLManager::printGLInfoString()
 	}
 
 #if !LL_MESA_HEADLESS
-	std::string all_exts = parse_gl_ext_to_str(mGLVersion);
+	std::string all_exts= ll_safe_string(((const char *)gGLHExts.mSysExts));
 	LLStringUtil::replaceChar(all_exts, ' ', '\n');
 	LL_DEBUGS("RenderInit") << "GL_EXTENSIONS:\n" << all_exts << LL_ENDL;
 #endif
@@ -1023,140 +969,73 @@ void LLGLManager::initExtensions()
 	mHasVertexShader = FALSE;
 	mHasFragmentShader = FALSE;
 	mHasTextureRectangle = FALSE;
-#ifdef GL_ARB_gpu_shader5
-	mHasGpuShader5 = FALSE;
-#endif
-#elif LL_DARWIN
-    std::set<std::string> extensions;
-    const auto extensionString = glGetString(GL_EXTENSIONS);
     
-    if (extensionString)
-    {
-        std::istringstream stream{reinterpret_cast<const char *>(extensionString)};
-        auto extensionName = std::string{};
-        while (std::getline(stream, extensionName, ' '))
-        {
-            extensions.insert(extensionName);
-        }
-    }
     
-    mHasMultitexture = extensions.find("GL_ARB_multitexture") != extensions.end();
-    mHasATIMemInfo = extensions.find("GL_ATI_meminfo") != extensions.end();
-    mHasNVXMemInfo = extensions.find("GL_NVX_gpu_memory_info") != extensions.end();
-    mHasSeparateSpecularColor = extensions.find("GL_EXT_separate_specular_color") != extensions.end();
-    mHasAnisotropic = extensions.find("GL_EXT_texture_filter_anisotropic") != extensions.end();
-    mHasCubeMap = extensions.find("GL_ARB_texture_cube_map") != extensions.end();
-    mHasARBEnvCombine = extensions.find("GL_ARB_texture_env_combine") != extensions.end();
-    mHasCompressedTextures = extensions.find("GL_ARB_texture_compression") != extensions.end();
-    mHasOcclusionQuery = extensions.find("GL_ARB_occlusion_query") != extensions.end();
-    mHasTimerQuery = extensions.find("GL_ARB_timer_query") != extensions.end();
-    mHasOcclusionQuery2 = extensions.find("GL_ARB_occlusion_query2") != extensions.end();
-    mHasVertexBufferObject = extensions.find("GL_ARB_vertex_buffer_object") != extensions.end();
-    mHasVertexArrayObject = extensions.find("GL_ARB_vertex_array_object") != extensions.end();
-    mHasSync = extensions.find("GL_ARB_sync") != extensions.end();
-    mHasMapBufferRange = extensions.find("GL_ARB_map_buffer_range") != extensions.end();
-    mHasFlushBufferRange = extensions.find("GL_APPLE_flush_buffer_range") != extensions.end();
-    mHasDepthClamp = extensions.find("GL_ARB_depth_clamp") != extensions.end()
-                     || extensions.find("GL_NV_depth_clamp") != extensions.end();
     // mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
-    #ifdef GL_ARB_framebuffer_object
-    mHasFramebufferObject = extensions.find("GL_ARB_framebuffer_object") != extensions.end();
 #else
-    mHasFramebufferObject = extensions.find("GL_EXT_framebuffer_object") != extensions.end() &&
-    extensions.find("GL_EXT_framebuffer_blit") != extensions.end() &&
-    extensions.find("GL_EXT_framebuffer_multisample") != extensions.end() &&
-    extensions.find("GL_EXT_packed_depth_stencil") != extensions.end();
-#endif
 
-    mHasFramebufferMultisample = mHasFramebufferObject && extensions.find("GL_EXT_framebuffer_multisample") != extensions.end();
 
-#ifdef GL_EXT_texture_sRGB
-    mHassRGBTexture = extensions.find("GL_EXT_texture_sRGB") != extensions.end();
-#endif
     
-#ifdef GL_ARB_framebuffer_sRGB
-    mHassRGBFramebuffer = extensions.find("GL_ARB_framebuffer_sRGB") != extensions.end();
-#else
-    mHassRGBFramebuffer = extensions.find("GL_EXT_framebuffer_sRGB") != extensions.end();
-#endif
     
-    mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
     
-    mHasDrawBuffers = extensions.find("GL_ARB_draw_buffers") != extensions.end();
-    mHasBlendFuncSeparate = extensions.find("GL_EXT_blend_func_separate") != extensions.end();
-    mHasTextureRectangle = extensions.find("GL_ARB_texture_rectangle") != extensions.end();
-    mHasDebugOutput = extensions.find("GL_ARB_debug_output") != extensions.end();
-    mHasTransformFeedback = mGLVersion >= 4.f || extensions.find("GL_EXT_transform_feedback") != extensions.end();
-#if !LL_DARWIN
-    mHasPointParameters = !mIsATI && extensions.find("GL_ARB_point_parameters") != extensions.end();
-#endif
-	mHasShaderObjects = mGLVersion >= 2.f;
-	mHasVertexShader = mGLVersion >= 2.f;
-	mHasFragmentShader = mGLVersion >= 2.f;
+	mHasMultitexture = glh_init_extensions("GL_ARB_multitexture");
     
-#ifdef GL_ARB_gpu_shader5
-    mHasGpuShader5 = extensions.find("GL_ARB_gpu_shader5") != extensions.end();
-#endif
-
-#else // LL_MESA_HEADLESS
-	mHasMultitexture = GLEW_ARB_multitexture;
-	mHasATIMemInfo = GLEW_ATI_meminfo;
-	mHasNVXMemInfo = GLEW_NVX_gpu_memory_info;
-	mHasSeparateSpecularColor = GLEW_EXT_separate_specular_color;
-	mHasAnisotropic = GLEW_EXT_texture_filter_anisotropic;
-	mHasCubeMap = GLEW_ARB_texture_cube_map;
-	mHasARBEnvCombine = GLEW_ARB_texture_env_combine;
-	mHasCompressedTextures = GLEW_ARB_texture_compression;
-	mHasOcclusionQuery = GLEW_ARB_occlusion_query;
-	mHasTimerQuery = GLEW_ARB_timer_query;
-	mHasOcclusionQuery2 = GLEW_ARB_occlusion_query2;
-	mHasVertexBufferObject = GLEW_ARB_vertex_buffer_object;
-	mHasVertexArrayObject = GLEW_ARB_vertex_array_object;
-	mHasSync = GLEW_ARB_sync;
-	mHasMapBufferRange = GLEW_ARB_map_buffer_range;
-	mHasFlushBufferRange = GLEW_APPLE_flush_buffer_range;
-	mHasDepthClamp = GLEW_ARB_depth_clamp || GLEW_NV_depth_clamp;
+	mHasATIMemInfo = ExtensionExists("GL_ATI_meminfo", gGLHExts.mSysExts);
+	mHasNVXMemInfo = ExtensionExists("GL_NVX_gpu_memory_info", gGLHExts.mSysExts);
+	mHasSeparateSpecularColor = glh_init_extensions("GL_EXT_separate_specular_color");
+	mHasAnisotropic = glh_init_extensions("GL_EXT_texture_filter_anisotropic");
+	glh_init_extensions("GL_ARB_texture_cube_map");
+	mHasCubeMap = ExtensionExists("GL_ARB_texture_cube_map", gGLHExts.mSysExts);
+	mHasARBEnvCombine = ExtensionExists("GL_ARB_texture_env_combine", gGLHExts.mSysExts);
+	mHasCompressedTextures = glh_init_extensions("GL_ARB_texture_compression");
+	mHasOcclusionQuery = ExtensionExists("GL_ARB_occlusion_query", gGLHExts.mSysExts);
+	mHasTimerQuery = ExtensionExists("GL_ARB_timer_query", gGLHExts.mSysExts);
+	mHasOcclusionQuery2 = ExtensionExists("GL_ARB_occlusion_query2", gGLHExts.mSysExts);
+	mHasVertexBufferObject = ExtensionExists("GL_ARB_vertex_buffer_object", gGLHExts.mSysExts);
+	mHasVertexArrayObject = ExtensionExists("GL_ARB_vertex_array_object", gGLHExts.mSysExts);
+	mHasSync = ExtensionExists("GL_ARB_sync", gGLHExts.mSysExts);
+	mHasMapBufferRange = ExtensionExists("GL_ARB_map_buffer_range", gGLHExts.mSysExts);
+	mHasFlushBufferRange = ExtensionExists("GL_APPLE_flush_buffer_range", gGLHExts.mSysExts);
+	//mHasDepthClamp = ExtensionExists("GL_ARB_depth_clamp", gGLHExts.mSysExts) || ExtensionExists("GL_NV_depth_clamp", gGLHExts.mSysExts);
+	mHasDepthClamp = FALSE;
 	// mask out FBO support when packed_depth_stencil isn't there 'cause we need it for LLRenderTarget -Brad
 #ifdef GL_ARB_framebuffer_object
-	mHasFramebufferObject = GLEW_ARB_framebuffer_object;
+	mHasFramebufferObject = ExtensionExists("GL_ARB_framebuffer_object", gGLHExts.mSysExts);
 #else
-	mHasFramebufferObject = GLEW_EXT_framebuffer_object &&
-							GLEW_EXT_framebuffer_blit &&
-							GLEW_EXT_framebuffer_multisample &&
-							GLEW_EXT_packed_depth_stencil;
+	mHasFramebufferObject = ExtensionExists("GL_EXT_framebuffer_object", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_framebuffer_blit", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_framebuffer_multisample", gGLHExts.mSysExts) &&
+							ExtensionExists("GL_EXT_packed_depth_stencil", gGLHExts.mSysExts);
 #endif
 
 #ifdef GL_EXT_texture_sRGB
-	mHassRGBTexture = GLEW_EXT_texture_sRGB;
+	mHassRGBTexture = ExtensionExists("GL_EXT_texture_sRGB", gGLHExts.mSysExts);
 #endif
 	
 #ifdef GL_ARB_framebuffer_sRGB
-	mHassRGBFramebuffer = GLEW_ARB_framebuffer_sRGB;
+	mHassRGBFramebuffer = ExtensionExists("GL_ARB_framebuffer_sRGB", gGLHExts.mSysExts);
 #else
-	mHassRGBFramebuffer = GLEW_EXT_framebuffer_sRGB;
+	mHassRGBFramebuffer = ExtensionExists("GL_EXT_framebuffer_sRGB", gGLHExts.mSysExts);
 #endif
 	
 	mHasMipMapGeneration = mHasFramebufferObject || mGLVersion >= 1.4f;
 
-	mHasDrawBuffers = GLEW_ARB_draw_buffers;
-	mHasBlendFuncSeparate = GLEW_EXT_blend_func_separate;
-	mHasTextureRectangle = GLEW_ARB_texture_rectangle;
-	mHasTextureMultisample = GLEW_ARB_texture_multisample;
-	mHasDebugOutput = GLEW_ARB_debug_output;
-	mHasTransformFeedback = mGLVersion >= 4.f || GLEW_EXT_transform_feedback;
+	mHasDrawBuffers = ExtensionExists("GL_ARB_draw_buffers", gGLHExts.mSysExts);
+	mHasBlendFuncSeparate = ExtensionExists("GL_EXT_blend_func_separate", gGLHExts.mSysExts);
+	mHasTextureRectangle = ExtensionExists("GL_ARB_texture_rectangle", gGLHExts.mSysExts);
+	mHasTextureMultisample = ExtensionExists("GL_ARB_texture_multisample", gGLHExts.mSysExts);
+	mHasDebugOutput = ExtensionExists("GL_ARB_debug_output", gGLHExts.mSysExts);
+	mHasTransformFeedback = mGLVersion >= 4.f ? TRUE : FALSE;
 #if !LL_DARWIN
-	mHasPointParameters = !mIsATI && GLEW_ARB_point_parameters;
+	mHasPointParameters = !mIsATI && ExtensionExists("GL_ARB_point_parameters", gGLHExts.mSysExts);
 #endif
-	mHasShaderObjects = mGLVersion >= 2.f;
-	mHasVertexShader = mGLVersion >= 2.f;
-	mHasFragmentShader = mGLVersion >= 2.f;
-
-#ifdef GL_ARB_gpu_shader5
-	mHasGpuShader5 = GLEW_ARB_gpu_shader5;
-#endif
+	mHasShaderObjects = ExtensionExists("GL_ARB_shader_objects", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
+	mHasVertexShader = ExtensionExists("GL_ARB_vertex_program", gGLHExts.mSysExts) && ExtensionExists("GL_ARB_vertex_shader", gGLHExts.mSysExts)
+		&& (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
+	mHasFragmentShader = ExtensionExists("GL_ARB_fragment_shader", gGLHExts.mSysExts) && (LLRender::sGLCoreProfile || ExtensionExists("GL_ARB_shading_language_100", gGLHExts.mSysExts));
 #endif
 
-#if LL_LINUX
+#if LL_LINUX || LL_SOLARIS
 	LL_INFOS() << "initExtensions() checking shell variables to adjust features..." << LL_ENDL;
 	// Our extension support for the Linux Client is very young with some
 	// potential driver gotchas, so offer a semi-secret way to turn it off.
@@ -1179,7 +1058,6 @@ void LLGLManager::initExtensions()
 		mHasShaderObjects = FALSE;
 		mHasVertexShader = FALSE;
 		mHasFragmentShader = FALSE;
-		mHasGpuShader5 = FALSE;
 		LL_WARNS("RenderInit") << "GL extension support DISABLED via LL_GL_NOEXT" << LL_ENDL;
 	}
 	else if (getenv("LL_GL_BASICEXT"))	/* Flawfinder: ignore */
@@ -1225,7 +1103,6 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'s')) mHasTextureRectangle = FALSE;
 		if (strchr(blacklist,'t')) mHasBlendFuncSeparate = FALSE;//S
 		if (strchr(blacklist,'u')) mHasDepthClamp = FALSE;
-		if (strchr(blacklist,'v')) mHasGpuShader5 = FALSE;
 		
 	}
 #endif // LL_LINUX || LL_SOLARIS
@@ -1278,10 +1155,6 @@ void LLGLManager::initExtensions()
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_fragment_shader" << LL_ENDL;
 	}
-	if (!mHasGpuShader5)
-	{
-		LL_INFOS("RenderInit") << "Couldn't initialize GL_ARB_gpu_shader5" << LL_ENDL;
-	}
 	if (!mHasBlendFuncSeparate)
 	{
 		LL_INFOS("RenderInit") << "Couldn't initialize GL_EXT_blend_func_separate" << LL_ENDL;
@@ -1297,6 +1170,13 @@ void LLGLManager::initExtensions()
 		LL_INFOS("RenderInit") << "Disabling mip-map generation for Intel GPUs" << LL_ENDL;
 		mHasMipMapGeneration = FALSE;
 	}
+#if !LL_DARWIN
+	if (mIsATI && mHasMipMapGeneration)
+	{
+		LL_INFOS("RenderInit") << "Disabling mip-map generation for ATI GPUs (performance opt)" << LL_ENDL;
+		mHasMipMapGeneration = FALSE;
+	}
+#endif
 	
 	// Misc
 	glGetIntegerv(GL_MAX_ELEMENTS_VERTICES, (GLint*) &mGLMaxVertexRange);
@@ -2382,30 +2262,6 @@ void parse_glsl_version(S32& major, S32& minor)
 	LLStringUtil::convertToS32(minor_str, minor);
 }
 
-std::string parse_gl_ext_to_str(F32 glversion)
-{
-	std::string ret;
-#if GL_VERSION_3_0
-	if (glversion >= 3.0)
-	{
-		GLint n = 0;
-		glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-		GLint i;
-		const char* ext;
-		for (i = 0; i < n; ++i)
-		{
-			ext = (const char *) glGetStringi(GL_EXTENSIONS, i);
-			ret.append(llformat("%s ", ext));
-		}
-	}
-	else
-#endif
-	{
-		const char* ext = (const char *) glGetString(GL_EXTENSIONS);
-		ret.append(ext);
-	}
-	return ret;
-}
 
 LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)
 {
