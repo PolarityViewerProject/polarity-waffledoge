@@ -375,6 +375,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 
 	// <polarity> dedicated apply button for graphics
 	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
+	// reset texture memory slider
+	mCommitCallbackRegistrar.add("Pref.getRecommendedtextMem", boost::bind(&LLFloaterPreference::resetTextureMemorySlider, this));
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -1293,7 +1295,11 @@ void LLFloaterPreference::updateAALabel()
 	getChildView("antialiasing restart")->setVisible(!gPipeline.RenderDeferred);
 }
 
-void LLFloaterPreference::updateMemorySlider()
+void LLFloaterPreference::resetTextureMemorySlider()
+{
+	updateMemorySlider(true);
+}
+void LLFloaterPreference::updateMemorySlider(const bool& set_default)
 {
 	if (hasChild("hardware_tab", TRUE))
 	{
@@ -1306,6 +1312,10 @@ void LLFloaterPreference::updateMemorySlider()
 			S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
 			memorySlider->setMinValue(min_tex_mem);
 			memorySlider->setMaxValue(max_tex_mem);
+			if(set_default)
+			{
+				gSavedSettings.setS32("TextureMemory", LLViewerTextureList::getMaxVideoRamSetting(true, mem_multiplier).value());
+			}
 			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
 		}
 	}

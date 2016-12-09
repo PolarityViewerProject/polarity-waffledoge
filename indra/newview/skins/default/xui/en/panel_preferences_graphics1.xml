@@ -961,6 +961,23 @@
           top_pad="2"
           width="315">
         </slider>
+          <button
+            follows="left|top"
+            control_name="TextureMemory"
+            height="15"
+            is_toggle="false"
+            label="⌊Reset⌉"
+            image_selected="transparent.j2c"
+            image_unselected="transparent.j2c"
+            layout="topleft"
+            left_pad="0"
+            top_delta="0"
+            name="default"
+            width="60">
+            <button.commit_callback
+              function="Pref.getRecommendedtextMem">
+            </button.commit_callback>
+          </button>
         <view_border
          highlight_light_color="Red"
          name="hardcore_separator"

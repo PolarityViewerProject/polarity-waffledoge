@@ -82,7 +82,8 @@ public:
 
 	// <polarity> code deduplication
 	void updateAALabel();
-	void updateMemorySlider();
+	void updateMemorySlider(const bool& set_default = false);
+	void resetTextureMemorySlider();
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email);
