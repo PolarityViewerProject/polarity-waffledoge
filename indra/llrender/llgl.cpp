@@ -47,12 +47,6 @@
 #include "llglheaders.h"
 #include "llglslshader.h"
 
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_access.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 #ifdef _DEBUG
 //#define GL_STATE_VERIFY
 #endif
@@ -2413,7 +2407,7 @@ std::string parse_gl_ext_to_str(F32 glversion)
 	return ret;
 }
 
-LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelview, const glm::mat4& projection, bool apply)
+LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glh::matrix4f& modelview, const glh::matrix4f& projection, bool apply)
 {
 	mApply = apply;
 
@@ -2428,26 +2422,27 @@ LLGLUserClipPlane::LLGLUserClipPlane(const LLPlane& p, const glm::mat4& modelvie
 
 void LLGLUserClipPlane::setPlane(F32 a, F32 b, F32 c, F32 d)
 {
-	const glm::mat4& P = mProjection;
-	const glm::mat4& M = mModelview;
+	glh::matrix4f& P = mProjection;
+	glh::matrix4f& M = mModelview;
     
-	glm::mat4 invtrans_MVP = glm::inverseTranspose(P*M);
-    glm::vec4 oplane(a, b, c, d);
-    glm::vec4 cplane = invtrans_MVP * oplane;
+	glh::matrix4f invtrans_MVP = (P * M).inverse().transpose();
+    glh::vec4f oplane(a,b,c,d);
+    glh::vec4f cplane;
+    invtrans_MVP.mult_matrix_vec(oplane, cplane);
 
-    cplane /= fabs(cplane[2]);  // normalize such that depth is not scaled
+    cplane /= fabs(cplane[2]); // normalize such that depth is not scaled
     cplane[3] -= 1;
 
-    if (cplane[2] < 0)
+    if(cplane[2] < 0)
         cplane *= -1;
 
-    glm::mat4 suffix;
-    suffix = glm::row(suffix, 2, cplane);
-    glm::mat4 newP = suffix * P;
+    glh::matrix4f suffix;
+    suffix.set_row(2, cplane);
+    glh::matrix4f newP = suffix * P;
     gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-    gGL.loadMatrix(glm::value_ptr(newP));
-	gGLObliqueProjectionInverse = LLMatrix4(glm::value_ptr(glm::inverseTranspose(newP)));
+    gGL.loadMatrix(newP.m);
+	gGLObliqueProjectionInverse = LLMatrix4(newP.inverse().transpose().m);
     gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
@@ -2636,16 +2631,19 @@ void LLGLDepthTest::checkState()
 	}
 }
 
-LLGLSquashToFarClip::LLGLSquashToFarClip(glm::mat4 P, U32 layer)
+LLGLSquashToFarClip::LLGLSquashToFarClip(glh::matrix4f P, U32 layer)
 {
 
 	F32 depth = 0.99999f - 0.0001f * layer;
-	glm::vec4 P_row_3 = glm::row(P, 3) * depth;
-	P = glm::row(P, 2, P_row_3);
+
+	for (U32 i = 0; i < 4; i++)
+	{
+		P.element(2, i) = P.element(3, i) * depth;
+	}
 
 	gGL.matrixMode(LLRender::MM_PROJECTION);
 	gGL.pushMatrix();
-	gGL.loadMatrix(glm::value_ptr(P));
+	gGL.loadMatrix(P.m);
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 

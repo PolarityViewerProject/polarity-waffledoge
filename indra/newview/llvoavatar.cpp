@@ -31,17 +31,11 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <sstream>
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "llaudioengine.h"
 #include "noise.h"
 #include "sound_ids.h"
 #include "raytrace.h"
-#include "llglmhelpers.h"
 
 #include "llagent.h" //  Get state values from here
 #include "llagentcamera.h"
@@ -1632,36 +1626,37 @@ BOOL LLVOAvatar::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 		for (S32 i = 0; i < mNumCollisionVolumes; ++i)
 		{
 			mCollisionVolumes[i].updateWorldMatrix();
-            
-			glm::mat4 mat(glm::make_mat4((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix));
-			glm::mat4 inverse = glm::inverse(mat);
-			glm::mat4 norm_mat = glm::transpose(inverse);
 
-			glm::vec3 p1(glm::make_vec3(start.getF32ptr()));
-			glm::vec3 p2(glm::make_vec3(end.getF32ptr()));
+			glh::matrix4f mat((F32*) mCollisionVolumes[i].getXform()->getWorldMatrix().mMatrix);
+			glh::matrix4f inverse = mat.inverse();
+			glh::matrix4f norm_mat = inverse.transpose();
 
-			p1 = llglmhelpers::perspectiveTransform(inverse, p1);
-			p2 = llglmhelpers::perspectiveTransform(inverse, p2);
+			glh::vec3f p1(start.getF32ptr());
+			glh::vec3f p2(end.getF32ptr());
+
+			inverse.mult_matrix_vec(p1);
+			inverse.mult_matrix_vec(p2);
 
 			LLVector3 position;
 			LLVector3 norm;
-			if (linesegment_sphere(LLVector3(glm::value_ptr(p1)), LLVector3(glm::value_ptr(p2)), LLVector3(0, 0, 0), 1.f, position, norm))
-			{
-				glm::vec3 res_pos(glm::make_vec3(position.mV));
-				res_pos = llglmhelpers::perspectiveTransform(mat, res_pos);
 
+			if (linesegment_sphere(LLVector3(p1.v), LLVector3(p2.v), LLVector3(0,0,0), 1.f, position, norm))
+			{
+				glh::vec3f res_pos(position.mV);
+				mat.mult_matrix_vec(res_pos);
+				
 				norm.normalize();
-				glm::vec3 res_norm(glm::make_vec3(norm.mV));
-				res_norm = llglmhelpers::perspectiveTransform(norm_mat, res_norm);
+				glh::vec3f res_norm(norm.mV);
+				norm_mat.mult_matrix_dir(res_norm);
 
 				if (intersection)
 				{
-					intersection->load3(glm::value_ptr(res_pos));
+					intersection->load3(res_pos.v);
 				}
 
 				if (normal)
 				{
-					normal->load3(glm::value_ptr(res_norm));
+					normal->load3(res_norm.v);
 				}
 
 				return TRUE;

@@ -36,13 +36,6 @@
 #include "lltexture.h"
 #include "llshadermgr.h"
 
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
 LLRender gGL;
 
 // Handy copies of last good GL matrices
@@ -934,10 +927,12 @@ void LLLightState::setPosition(const LLVector4& position)
 	}
 	else
 	{ //transform position by current modelview matrix
-		glm::vec4 pos = glm::make_vec4(position.mV);
-		pos = gGL.getModelviewMatrix() * pos;
+		glh::vec4f pos(position.mV);
 
-		mPosition.set(glm::value_ptr(pos));
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_vec(pos);
+
+		mPosition.set(pos.v);
 	}
 
 }
@@ -1018,10 +1013,12 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 	}
 	else
 	{ //transform direction by current modelview matrix
-		glm::vec3 dir(glm::make_vec3(direction.mV));
-		dir = glm::mat3(gGL.getModelviewMatrix()) * dir;
+		glh::vec3f dir(direction.mV);
 
-		mSpotDirection.set(glm::value_ptr(dir));
+		const glh::matrix4f& mat = gGL.getModelviewMatrix();
+		mat.mult_matrix_dir(dir);
+
+		mSpotDirection.set(dir.v);
 	}
 }
 
@@ -1189,11 +1186,11 @@ void LLRender::syncMatrices()
 
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
-	static glm::mat4 cached_mvp;
+	static glh::matrix4f cached_mvp;
 	static U32 cached_mvp_mdv_hash = 0xFFFFFFFF;
 	static U32 cached_mvp_proj_hash = 0xFFFFFFFF;
 	
-	static glm::mat4 cached_normal;
+	static glh::matrix4f cached_normal;
 	static U32 cached_normal_hash = 0xFFFFFFFF;
 
 	if (shader)
@@ -1205,9 +1202,9 @@ void LLRender::syncMatrices()
 		U32 i = MM_MODELVIEW;
 		if (mMatHash[i] != shader->mMatHash[i])
 		{ //update modelview, normal, and MVP
-			const glm::mat4& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, glm::value_ptr(mat));
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
 			shader->mMatHash[i] = mMatHash[i];
 
 			//update normal matrix
@@ -1216,11 +1213,20 @@ void LLRender::syncMatrices()
 			{
 				if (cached_normal_hash != mMatHash[i])
 				{
-					cached_normal = glm::inverseTranspose(mat);
+					cached_normal = mat.inverse().transpose();
 					cached_normal_hash = mMatHash[i];
 				}
 
-				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, glm::value_ptr(glm::mat3(cached_normal)));
+				glh::matrix4f& norm = cached_normal;
+
+				F32 norm_mat[] = 
+				{
+					norm.m[0], norm.m[1], norm.m[2],
+					norm.m[4], norm.m[5], norm.m[6],
+					norm.m[8], norm.m[9], norm.m[10] 
+				};
+
+				shader->uniformMatrix3fv(LLShaderMgr::NORMAL_MATRIX, 1, GL_FALSE, norm_mat);
 			}
 
 			//update MVP matrix
@@ -1233,12 +1239,12 @@ void LLRender::syncMatrices()
 				if (cached_mvp_mdv_hash != mMatHash[i] || cached_mvp_proj_hash != mMatHash[MM_PROJECTION])
 				{
 					cached_mvp = mat;
-					cached_mvp = mMatrix[proj][mMatIdx[proj]] * cached_mvp;
+					cached_mvp.mult_left(mMatrix[proj][mMatIdx[proj]]);
 					cached_mvp_mdv_hash = mMatHash[i];
 					cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
 				}
 
-				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
+				shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
 			}
 		}
 
@@ -1246,9 +1252,9 @@ void LLRender::syncMatrices()
 		i = MM_PROJECTION;
 		if (mMatHash[i] != shader->mMatHash[i])
 		{ //update projection matrix, normal, and MVP
-			const glm::mat4& mat = mMatrix[i][mMatIdx[i]];
+			glh::matrix4f& mat = mMatrix[i][mMatIdx[i]];
 
-			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, glm::value_ptr(mat));
+			shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mat.m);
 			shader->mMatHash[i] = mMatHash[i];
 
 			if (!mvp_done)
@@ -1261,12 +1267,12 @@ void LLRender::syncMatrices()
 					{
 						U32 mdv = MM_MODELVIEW;
 						cached_mvp = mat;
-						cached_mvp *= mMatrix[mdv][mMatIdx[mdv]];
+						cached_mvp.mult_right(mMatrix[mdv][mMatIdx[mdv]]);
 						cached_mvp_mdv_hash = mMatHash[MM_MODELVIEW];
 						cached_mvp_proj_hash = mMatHash[MM_PROJECTION];
 					}
 									
-					shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, glm::value_ptr(cached_mvp));
+					shader->uniformMatrix4fv(LLShaderMgr::MODELVIEW_PROJECTION_MATRIX, 1, GL_FALSE, cached_mvp.m);
 				}
 			}
 		}
@@ -1275,7 +1281,7 @@ void LLRender::syncMatrices()
 		{
 			if (mMatHash[i] != shader->mMatHash[i])
 			{
-				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, glm::value_ptr(mMatrix[i][mMatIdx[i]]));
+				shader->uniformMatrix4fv(name[i], 1, GL_FALSE, mMatrix[i][mMatIdx[i]].m);
 				shader->mMatHash[i] = mMatHash[i];
 			}
 		}
@@ -1303,7 +1309,7 @@ void LLRender::syncMatrices()
 			if (mMatHash[i] != mCurMatHash[i])
 			{
 				glMatrixMode(mode[i]);
-				glLoadMatrixf(glm::value_ptr(mMatrix[i][mMatIdx[i]]));
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
 				mCurMatHash[i] = mMatHash[i];
 			}
 		}
@@ -1314,7 +1320,7 @@ void LLRender::syncMatrices()
 			{
 				gGL.getTexUnit(i-2)->activate();
 				glMatrixMode(mode[i]);
-				glLoadMatrixf(glm::value_ptr(mMatrix[i][mMatIdx[i]]));
+				glLoadMatrixf(mMatrix[i][mMatIdx[i]].m);
 				mCurMatHash[i] = mMatHash[i];
 			}
 		}
@@ -1328,7 +1334,12 @@ void LLRender::translatef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 	flush();
 
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::translate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
+		glh::matrix4f trans_mat(1,0,0,x,
+								0,1,0,y,
+								0,0,1,z,
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(trans_mat);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1338,7 +1349,12 @@ void LLRender::scalef(const GLfloat& x, const GLfloat& y, const GLfloat& z)
 	flush();
 	
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::scale(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::vec3(x, y, z));
+		glh::matrix4f scale_mat(x,0,0,0,
+								0,y,0,0,
+								0,0,z,0,
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(scale_mat);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1348,7 +1364,13 @@ void LLRender::ortho(F32 left, F32 right, F32 bottom, F32 top, F32 zNear, F32 zF
 	flush();
 
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::ortho(left, right, bottom, top, zNear, zFar);
+
+		glh::matrix4f ortho_mat(2.f/(right-left),0,0,	-(right+left)/(right-left),
+								0,2.f/(top-bottom),0,	-(top+bottom)/(top-bottom),
+								0,0,-2.f/(zFar-zNear),	-(zFar+zNear)/(zFar-zNear),
+								0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(ortho_mat);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1358,7 +1380,19 @@ void LLRender::rotatef(const GLfloat& a, const GLfloat& x, const GLfloat& y, con
 	flush();
 
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::rotate(mMatrix[mMatrixMode][mMatIdx[mMatrixMode]], glm::radians(a), glm::vec3(x, y, z));
+		F32 r = a * DEG_TO_RAD;
+
+		F32 c = cosf(r);
+		F32 s = sinf(r);
+
+		F32 ic = 1.f-c;
+
+		glh::matrix4f rot_mat(x*x*ic+c,		x*y*ic-z*s,		x*z*ic+y*s,		0,
+							  x*y*ic+z*s,	y*y*ic+c,		y*z*ic-x*s,		0,
+							  x*z*ic-y*s,	y*z*ic+x*s,		z*z*ic+c,		0,
+							  0,0,0,1);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(rot_mat);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1400,7 +1434,7 @@ void LLRender::loadMatrix(const GLfloat* m)
 {
 	flush();
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::make_mat4(m);
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].set_value((GLfloat*) m);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1409,7 +1443,9 @@ void LLRender::multMatrix(const GLfloat* m)
 {
 	flush();
 	{
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] *= glm::make_mat4(m);
+		glh::matrix4f mat((GLfloat*) m);
+	
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].mult_right(mat);
 		mMatHash[mMatrixMode]++;
 	}
 }
@@ -1443,17 +1479,17 @@ void LLRender::loadIdentity()
 	{
 		llassert_always(mMatrixMode < NUM_MATRIX_MODES) ;
 
-		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]] = glm::mat4(1.f);
+		mMatrix[mMatrixMode][mMatIdx[mMatrixMode]].make_identity();
 		mMatHash[mMatrixMode]++;
 	}
 }
 
-const glm::mat4& LLRender::getModelviewMatrix()
+const glh::matrix4f& LLRender::getModelviewMatrix()
 {
 	return mMatrix[MM_MODELVIEW][mMatIdx[MM_MODELVIEW]];
 }
 
-const glm::mat4& LLRender::getProjectionMatrix()
+const glh::matrix4f& LLRender::getProjectionMatrix()
 {
 	return mMatrix[MM_PROJECTION][mMatIdx[MM_PROJECTION]];
 }

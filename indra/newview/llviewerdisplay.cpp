@@ -73,11 +73,6 @@
 #include "llwaterparammanager.h"
 #include "llscenemonitor.h"
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/gtc/matrix_inverse.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 //#include "llprogressview.h"
 #include "pvfloaterprogressview.h"
 #include "llfloaterreg.h"
@@ -86,7 +81,6 @@
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
-
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
 
@@ -743,8 +737,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				LLGLState::checkTextureChannels();
 				LLGLState::checkClientArrays();
 
-				glm::mat4 proj = glm_get_current_projection();
-				glm::mat4 mod = glm_get_current_modelview();
+				glh::matrix4f proj = glh_get_current_projection();
+				glh::matrix4f mod = glh_get_current_modelview();
 				glViewport(0,0,512,512);
 				LLVOAvatar::updateFreezeCounter() ;
 
@@ -753,12 +747,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 					LLVOAvatar::updateImpostors();
 				}
 
-				glm_set_current_projection(proj);
-				glm_set_current_modelview(mod);
+				glh_set_current_projection(proj);
+				glh_set_current_modelview(mod);
 				gGL.matrixMode(LLRender::MM_PROJECTION);
-				gGL.loadMatrix(glm::value_ptr(proj));
+				gGL.loadMatrix(proj.m);
 				gGL.matrixMode(LLRender::MM_MODELVIEW);
-				gGL.loadMatrix(glm::value_ptr(mod));
+				gGL.loadMatrix(mod.m);
 				gViewerWindow->setup3DViewport();
 
 				LLGLState::checkStates();
@@ -1093,8 +1087,8 @@ void render_hud_attachments()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
 		
-	glm::mat4 current_proj = glm_get_current_projection();
-	glm::mat4 current_mod = glm_get_current_modelview();
+	glh::matrix4f current_proj = glh_get_current_projection();
+	glh::matrix4f current_mod = glh_get_current_modelview();
 
 	// clamp target zoom level to reasonable values
 //	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
@@ -1189,8 +1183,8 @@ void render_hud_attachments()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.popMatrix();
 	
-	glm_set_current_projection(current_proj);
-	glm_set_current_modelview(current_mod);
+	glh_set_current_projection(current_proj);
+	glh_set_current_modelview(current_mod);
 }
 
 LLRect get_whole_screen_region()
@@ -1213,7 +1207,7 @@ LLRect get_whole_screen_region()
 	return whole_screen;
 }
 
-bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4 &model)
+bool get_hud_matrices(const LLRect& screen_region, glh::matrix4f &proj, glh::matrix4f &model)
 {
 	if (isAgentAvatarValid() && gAgentAvatarp->hasHUDAttachment())
 	{
@@ -1221,23 +1215,28 @@ bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4 &m
 		LLBBox hud_bbox = gAgentAvatarp->getHUDBBox();
 		
 		F32 hud_depth = llmax(1.f, hud_bbox.getExtentLocal().mV[VX] * 1.1f);
-		proj = glm::ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
-		proj[2][2] = -0.01f;
+		proj = gl_ortho(-0.5f * LLViewerCamera::getInstance()->getAspect(), 0.5f * LLViewerCamera::getInstance()->getAspect(), -0.5f, 0.5f, 0.f, hud_depth);
+		proj.element(2,2) = -0.01f;
 		
 		F32 aspect_ratio = LLViewerCamera::getInstance()->getAspect();
 		
+		glh::matrix4f mat;
 		F32 scale_x = (F32)gViewerWindow->getWorldViewWidthScaled() / (F32)screen_region.getWidth();
 		F32 scale_y = (F32)gViewerWindow->getWorldViewHeightScaled() / (F32)screen_region.getHeight();
-		proj = glm::translate(proj,
-			glm::vec3(clamp_rescale((F32) (screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32) gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
-				clamp_rescale((F32) (screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32) gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
-				0.f));
-		proj = glm::scale(proj, glm::vec3(scale_x, scale_y, 1.f));
+		mat.set_scale(glh::vec3f(scale_x, scale_y, 1.f));
+		mat.set_translate(
+			glh::vec3f(clamp_rescale((F32)(screen_region.getCenterX() - screen_region.mLeft), 0.f, (F32)gViewerWindow->getWorldViewWidthScaled(), 0.5f * scale_x * aspect_ratio, -0.5f * scale_x * aspect_ratio),
+					   clamp_rescale((F32)(screen_region.getCenterY() - screen_region.mBottom), 0.f, (F32)gViewerWindow->getWorldViewHeightScaled(), 0.5f * scale_y, -0.5f * scale_y),
+					   0.f));
+		proj *= mat;
 		
-		model = glm::make_mat4(OGL_TO_CFR_ROTATION);
-		model = glm::translate(model, glm::vec3(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
-		model = glm::scale(model, glm::vec3(zoom_level));
-
+		glh::matrix4f tmp_model((GLfloat*) OGL_TO_CFR_ROTATION);
+		
+		mat.set_scale(glh::vec3f(zoom_level, zoom_level, zoom_level));
+		mat.set_translate(glh::vec3f(-hud_bbox.getCenterLocal().mV[VX] + (hud_depth * 0.5f), 0.f, 0.f));
+		
+		tmp_model *= mat;
+		model = tmp_model;		
 		return TRUE;
 	}
 	else
@@ -1246,7 +1245,7 @@ bool get_hud_matrices(const LLRect& screen_region, glm::mat4 &proj, glm::mat4 &m
 	}
 }
 
-bool get_hud_matrices(glm::mat4 &proj, glm::mat4 &model)
+bool get_hud_matrices(glh::matrix4f &proj, glh::matrix4f &model)
 {
 	LLRect whole_screen = get_whole_screen_region();
 	return get_hud_matrices(whole_screen, proj, model);
@@ -1260,18 +1259,18 @@ BOOL setup_hud_matrices()
 
 BOOL setup_hud_matrices(const LLRect& screen_region)
 {
-	glm::mat4 proj, model;
+	glh::matrix4f proj, model;
 	bool result = get_hud_matrices(screen_region, proj, model);
 	if (!result) return result;
 	
 	// set up transform to keep HUD objects in front of camera
 	gGL.matrixMode(LLRender::MM_PROJECTION);
-	gGL.loadMatrix(glm::value_ptr(proj));
-	glm_set_current_projection(proj);
+	gGL.loadMatrix(proj.m);
+	glh_set_current_projection(proj);
 	
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
-	gGL.loadMatrix(glm::value_ptr(model));
-	glm_set_current_modelview(model);
+	gGL.loadMatrix(model.m);
+	glh_set_current_modelview(model);
 	return TRUE;
 }
 
@@ -1279,13 +1278,13 @@ void render_ui(F32 zoom_factor, int subfield)
 {
 	LLGLState::checkStates();
 	
-	glm::mat4 saved_view = glm_get_current_modelview();
+	glh::matrix4f saved_view = glh_get_current_modelview();
 
 	if (!gSnapshot)
 	{
 		gGL.pushMatrix();
 		gGL.loadMatrix(gGLLastModelView);
-		glm_set_current_modelview(glm_copy_matrix(gGLLastModelView));
+		glh_set_current_modelview(glh_copy_matrix(gGLLastModelView));
 	}
 	
 	if(LLSceneMonitor::getInstance()->needsUpdate())
@@ -1348,7 +1347,7 @@ void render_ui(F32 zoom_factor, int subfield)
 
 	if (!gSnapshot)
 	{
-		glm_set_current_modelview(saved_view);
+		glh_set_current_modelview(saved_view);
 		gGL.popMatrix();
 	}
 }
