@@ -372,6 +372,9 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1));
 
 	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
+
+	// <polarity> dedicated apply button for graphics
+	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -602,6 +605,16 @@ void LLFloaterPreference::toggleFullscreenWindow()
 {
 	if ((gViewerWindow) && (gViewerWindow->canFullscreenWindow()))
 		gViewerWindow->setFullscreenWindow(!gViewerWindow->getFullscreenWindow());
+}
+// <polarity> apply fullscreen setting on save
+void LLFloaterPreference::applyGraphicsOptions()
+{
+	if(!gViewerWindow || !gViewerWindow->canFullscreenWindow())
+	{
+		return;
+	}
+	static LLCachedControl<bool> windowed_fullscreen(gSavedSettings, "FullScreenWindow");
+	gViewerWindow->setFullscreenWindow(windowed_fullscreen);
 }
 // <Black Dragon:NiranV> Refresh all controls
 void LLFloaterPreference::refreshGraphicControls()

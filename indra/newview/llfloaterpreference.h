@@ -194,6 +194,7 @@ public:
 private:
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	void toggleFullscreenWindow();
+	void applyGraphicsOptions(); // <polarity/>
 	// <Black Dragon:NiranV> Refresh all controls
 	void refreshGraphicControls();
 	// </Black Dragon:NiranV>
