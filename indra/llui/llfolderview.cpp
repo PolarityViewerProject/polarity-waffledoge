@@ -1466,7 +1466,6 @@ BOOL LLFolderView::addNoOptions(LLMenuGL* menu) const
 		{
 			return FALSE;
 		}
-		std::string name = menu_item->getName();
 		if (menu_item->getName() == nooptions_str)
 		{
 			nooptions_item = menu_item;
