@@ -2560,7 +2560,7 @@ void LLPanelPreference::cancel()
 		LLControlVariable* control = iter->first;
 		LLSD ctrl_value = iter->second;
 
-		if((control->getName() == "InstantMessageLogPath") && (ctrl_value.asString() == ""))
+		if((control->getName() == "InstantMessageLogPath") && (ctrl_value.asString().empty()))
 		{
 			continue;
 		}

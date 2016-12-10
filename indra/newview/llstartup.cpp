@@ -766,7 +766,7 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
-		set_startup_status(0.03f, msg.c_str());
+		set_startup_status(0.03f, msg);
 		display_startup();
 		LLGridManager::getInstance()->initialize(std::string());
 		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
@@ -3049,7 +3049,7 @@ void LLStartUp::multimediaInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
-	set_startup_status(0.42f, msg.c_str());
+	set_startup_status(0.42f, msg);
 	display_startup();
 
 	// LLViewerMedia::initClass();
@@ -3060,7 +3060,7 @@ void LLStartUp::fontInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing fonts...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingFonts");
-	set_startup_status(0.45f, msg.c_str());
+	set_startup_status(0.45f, msg);
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();
@@ -3357,7 +3357,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 		if((iter->first== std::string(CERT_KEY_USAGE)) |
 		   (iter->first == std::string(CERT_EXTENDED_KEY_USAGE)))
 		{
-			value = "";
+			value.clear();
 			LLSD usage = cert_info[iter->first];
 			for (LLSD::array_iterator usage_iter = usage.beginArray();
 				 usage_iter != usage.endArray();
