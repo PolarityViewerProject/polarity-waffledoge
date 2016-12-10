@@ -418,6 +418,10 @@ std::string LLFloaterIMSessionTab::appendTime()
 	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
 		+LLTrans::getString("TimeMin")+"]";
 
+	// <polarity> Show seconds in chat headers
+	static LLCachedControl<bool> im_show_seconds(gSavedSettings, "PVChat_ShowSeconds", true);
+	if (im_show_seconds)
+		timeStr.append(":["+LLTrans::getString("TimeSec")+"]");
 	LLSD substitution;
 
 	substitution["datetime"] = (S32) utc_time;
@@ -688,6 +692,10 @@ bool LLFloaterIMSessionTab::onIMShowModesMenuItemEnable(const LLSD& userdata)
 		{
 			enabled = false;
 		}
+	}
+	if (item == "PVChat_ShowSeconds" && (!im_show_time && PlainTextChatHistory))
+	{
+		enabled = false;
 	}
 
 	return enabled; //(is_plain_text_mode && (is_not_names || mIsP2PChat));

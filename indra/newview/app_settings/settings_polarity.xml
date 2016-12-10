@@ -201,6 +201,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVChat_ShowSeconds</key>
+    <map>
+      <key>Comment</key>
+      <string>Add seconds to timestamp in chat history floater </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVColorManager_LowPriorityFriendStatus</key>
     <map>
       <key>Comment</key>
