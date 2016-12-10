@@ -1439,10 +1439,6 @@ bool LLFloaterIMContainer::enableContextMenuItem(const std::string& item, uuid_v
     {
     	return is_single_select && LLAvatarActions::canCall();
     }
-    else if ("can_open_voice_conversation" == item)
-    {
-    	return is_single_select && LLAvatarActions::canCall();
-    }
 	else if ("can_zoom_in" == item)
 	{
 		return is_single_select && gObjectList.findObject(single_id);

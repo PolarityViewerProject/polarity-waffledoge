@@ -2613,7 +2613,7 @@ void LLMessageSystem::summarizeLogs(std::ostream& str)
 	F32 avg;
 	for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
 			 end = mMessageTemplates.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		const LLMessageTemplate* mt = iter->second;
 		if(mt->mTotalDecoded > 0)
@@ -2652,7 +2652,7 @@ void LLMessageSystem::resetReceiveCounts()
 
 	for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
 			 end = mMessageTemplates.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		LLMessageTemplate* mt = iter->second;
 		mt->mDecodeTimeThisFrame = 0.f;
@@ -2666,7 +2666,7 @@ void LLMessageSystem::dumpReceiveCounts()
 
 	for (message_template_name_map_t::iterator iter = mMessageTemplates.begin(),
 			 end = mMessageTemplates.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		LLMessageTemplate* mt = iter->second;
 		mt->mReceiveCount = 0;
@@ -2694,7 +2694,7 @@ void LLMessageSystem::dumpReceiveCounts()
 		LL_DEBUGS("Messaging") << "Dump: " << mNumMessageCounts << " messages processed in " << mReceiveTime << " seconds" << LL_ENDL;
 		for (message_template_name_map_t::const_iterator iter = mMessageTemplates.begin(),
 				 end = mMessageTemplates.end();
-			 iter != end; iter++)
+			 iter != end; ++iter)
 		{
 			const LLMessageTemplate* mt = iter->second;
 			if (mt->mReceiveCount > 0)
