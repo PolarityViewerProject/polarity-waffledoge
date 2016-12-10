@@ -86,7 +86,7 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 static void onClickVolume(void* data);
 
 // initialize static member to avoid unresolved external symbols. Ah, C++...
-LLColor4 LLStatusBar::gFPSColor = LLColor4::white;
+LLColor4 LLStatusBar::gFPSColor = LLUIColorTable::instance().getColor("EmphasisColor", LLColor4::green); // is that even legal?
 
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
@@ -364,7 +364,7 @@ void LLStatusBar::refresh()
 		}
 		// </polarity>
 
-		static LLUIColor color_fps_default = LLUIColorTable::instance().getColor("TextDefaultColor");
+		static LLUIColor color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
 
 		// Quick and Dirty FPS counter colors. Idea is from NiranV, which never got finished.
 		static LLUIColor color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
