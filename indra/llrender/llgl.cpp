@@ -695,7 +695,7 @@ bool LLGLManager::initGL()
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-
+		LL_WARNS() << "Raw VRAM from GL_TEXTURE_FREE_MEMORY_ATI:" << meminfo << LL_ENDL;
 		mVRAM = meminfo[0]/1024;
 	}
 	else if (mHasNVXMemInfo)
