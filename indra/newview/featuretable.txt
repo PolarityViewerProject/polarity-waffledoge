@@ -79,6 +79,7 @@ PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	3
 PVRender_DeferredFXAAQuality	1	39
+PVDebug_ForcedVideoMemory	1	0
 
 //
 // Low Graphics Settings (fixed function)
@@ -619,6 +620,9 @@ RenderVBOEnable				0	0
 
 list ATI_Radeon_7xxx
 RenderVBOEnable				0	0
+
+list ATI_Radeon_7700
+PVDebug_ForcedVideoMemory	1	1024
 
 list ATI_All-in-Wonder_Radeon
 RenderVBOEnable				0	0
