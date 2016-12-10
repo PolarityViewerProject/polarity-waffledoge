@@ -1024,9 +1024,9 @@ U32 LLControlGroup::loadFromFile(const std::string& filename, bool set_default_v
 			if (control_map.isArray())
 			{
 #if LL_WINDOWS
-				size_t pos = filename.find_last_of("\\");
+				size_t pos = filename.find_last_of('\\');
 #else
-				size_t pos = filename.find_last_of("/");
+				size_t pos = filename.find_last_of('/');
 #endif			
 				if (pos != std::string::npos)
 				{
