@@ -752,7 +752,6 @@ BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, c
 	S32 index;
 	typedef boost::function<void(EKeystate)> function_t;
 	function_t function = NULL;
-	std::string name;
 
 	// Allow remapping of F2-F12
 	if (function_name[0] == 'F')
