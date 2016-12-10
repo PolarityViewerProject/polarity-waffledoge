@@ -725,7 +725,7 @@ void LLPanelOutfitEdit::onSearchEdit(const std::string& string)
 		LLStringUtil::trimHead(mSearchString);
 	}
 	
-	if (mSearchString == "")
+	if (mSearchString.empty())
 	{
 		mInventoryItemsPanel->setFilterSubString(LLStringUtil::null);
 		mWearableItemsList->setFilterSubString(LLStringUtil::null);

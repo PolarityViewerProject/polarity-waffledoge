@@ -346,9 +346,9 @@ void LLFloaterBuyLandUI::updateParcelInfo()
 	mParcelBillableArea = 0;
 	mParcelSupportedObjects = 0;
 	mParcelSoldWithObjects = false;
-	mParcelLocation = "";
+	mParcelLocation.clear();
 	mParcelSnapshot.setNull();
-	mParcelSellerName = "";
+	mParcelSellerName.clear();
 	
 	mCanBuy = false;
 	mCannotBuyIsError = false;

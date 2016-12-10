@@ -724,7 +724,7 @@ LLAppViewer::LLAppViewer()
 		LL_ERRS() << "Oh no! An instance of LLAppViewer already exists! LLAppViewer is sort of like a singleton." << LL_ENDL;
 	}
 
-    mDumpPath ="";
+    mDumpPath.clear();
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
@@ -3683,7 +3683,7 @@ void LLAppViewer::writeSystemInfo()
 	// that the crash report will go to the proper location in the case of a 
 	// prior freeze.
 	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
-	if(crashHostUrl != "")
+	if(!crashHostUrl.empty())
 	{
 		gDebugInfo["CrashHostUrl"] = crashHostUrl;
 	}
@@ -3787,7 +3787,7 @@ void LLAppViewer::handleViewerCrash()
 	
 	// Insert crash host url (url to post crash log to) if configured.
 	std::string crashHostUrl = gSavedSettings.get<std::string>("CrashHostUrl");
-	if(crashHostUrl != "")
+	if(!crashHostUrl.empty())
 	{
 		gDebugInfo["Dynamic"]["CrashHostUrl"] = crashHostUrl;
 	}

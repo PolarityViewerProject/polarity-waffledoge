@@ -110,7 +110,7 @@ void LLFloaterOpenObject::refresh()
 	}
 	else
 	{
-		name = "";
+		name.clear();
 		enabled = FALSE;
 	}
 	

@@ -329,7 +329,7 @@ void LLFloaterEditDayCycle::onKeyTimeMoved()
 
 	// make sure we have a slider
 	const std::string& cur_sldr = mKeysSlider->getCurSlider();
-	if (cur_sldr == "")
+	if (cur_sldr.empty())
 	{
 		return;
 	}
@@ -386,7 +386,7 @@ void LLFloaterEditDayCycle::onKeyPresetChanged()
 	const std::string& cur_sldr = mKeysSlider->getCurSlider();
 
 	// if null, don't use
-	if (cur_sldr == "")
+	if (cur_sldr.empty())
 	{
 		return;
 	}
