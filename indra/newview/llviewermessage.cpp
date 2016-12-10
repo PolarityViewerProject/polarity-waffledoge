@@ -4072,7 +4072,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		else
 		{
 			static LLCachedControl<bool> effect_script_chat_particles(gSavedSettings, "EffectScriptChatParticles");
-			chat.mText = "";
+			chat.mText.clear();
 			switch(chat.mChatType)
 			{
 			case CHAT_TYPE_WHISPER:

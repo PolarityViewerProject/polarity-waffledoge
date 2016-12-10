@@ -592,10 +592,10 @@ void LLSnapshotLivePreview::generateThumbnailImage(BOOL force_update)
 	{
         // Filter the thumbnail
         // Note: filtering needs to be done *before* the scaling to power of 2 or the effect is distorted
-        if (getFilter() != "")
+        if (!getFilter().empty())
         {
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
-            if (filter_path != "")
+            if (!filter_path.empty())
             {
                 LLImageFilter filter(filter_path);
                 filter.executeFilter(raw);
@@ -640,10 +640,10 @@ LLViewerTexture* LLSnapshotLivePreview::getBigThumbnailImage()
     
         // Filter
         // Note: filtering needs to be done *before* the scaling to power of 2 or the effect is distorted
-        if (getFilter() != "")
+        if (!getFilter().empty())
         {
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
-            if (filter_path != "")
+            if (!filter_path.empty())
             {
                 LLImageFilter filter(filter_path);
                 filter.executeFilter(raw);
@@ -935,10 +935,10 @@ LLPointer<LLImageFormatted>	LLSnapshotLivePreview::getFormattedImage()
     if (!mFormattedImage)
     {
         // Apply the filter to mPreviewImage
-        if (getFilter() != "")
+        if (!getFilter().empty())
         {
             std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
-            if (filter_path != "")
+            if (!filter_path.empty())
             {
                 LLImageFilter filter(filter_path);
                 filter.executeFilter(mPreviewImage);
@@ -1011,10 +1011,10 @@ void LLSnapshotLivePreview::saveTexture(BOOL outfit_snapshot, std::string name)
 		mPreviewImage->getComponents());
 
 	// Apply the filter to mPreviewImage
-	if (getFilter() != "")
+	if (!getFilter().empty())
 	{
 		std::string filter_path = LLImageFiltersManager::getInstance()->getFilterPath(getFilter());
-		if (filter_path != "")
+		if (!filter_path.empty())
 		{
 			LLImageFilter filter(filter_path);
 			filter.executeFilter(scaled);

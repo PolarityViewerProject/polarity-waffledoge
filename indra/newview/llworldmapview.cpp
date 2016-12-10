@@ -1014,7 +1014,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 
 //	if (label != "")
 // [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.4.5) | Added: RLVa-1.0.0
-	if ( (label != "") && (RlvActions::canShowLocation()) )
+	if (!label.empty() && (RlvActions::canShowLocation()) )
 // [/RLVa:KB]
 	{
 		font->renderUTF8(
@@ -1024,7 +1024,7 @@ void LLWorldMapView::drawTracking(const LLVector3d& pos_global, const LLColor4& 
 			LLColor4::white, LLFontGL::HCENTER,
 			LLFontGL::BASELINE, LLFontGL::NORMAL, LLFontGL::DROP_SHADOW);
 
-		if (tooltip != "")
+		if (!tooltip.empty())
 		{
 			text_y -= font->getLineHeight();
 

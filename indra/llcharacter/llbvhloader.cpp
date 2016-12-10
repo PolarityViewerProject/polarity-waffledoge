@@ -1242,7 +1242,7 @@ void LLBVHLoader::reset()
 	mHand = 1;
 	mInitialized = FALSE;
 
-	mEmoteName = "";
+	mEmoteName.clear();
 	mTranslations.clear();
 	mConstraints.clear();
 }

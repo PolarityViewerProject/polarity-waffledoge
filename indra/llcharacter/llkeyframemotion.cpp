@@ -2148,7 +2148,7 @@ void LLKeyframeMotion::setEmote(const LLUUID& emote_id)
 	}
 	else
 	{
-		mJointMotionList->mEmoteName = "";
+		mJointMotionList->mEmoteName.clear();
 	}
 }
 

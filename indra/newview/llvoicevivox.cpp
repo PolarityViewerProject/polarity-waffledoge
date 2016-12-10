@@ -246,7 +246,7 @@ LLVivoxVoiceClient::LLVivoxVoiceClient() :
 {	
 	mSpeakerVolume = scale_speaker_volume(0);
 
-	mVoiceVersion.serverVersion = "";
+	mVoiceVersion.serverVersion.clear();
 	mVoiceVersion.serverType = VOICE_SERVER_TYPE;
 	
 	//  gMuteListp isn't set up at this point, so we defer this until later.
