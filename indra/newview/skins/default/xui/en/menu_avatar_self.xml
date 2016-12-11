@@ -9,7 +9,7 @@
         <menu_item_call.on_click
          function="Self.SitDown"
          parameter="" />
-        <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="Self.EnableSitDown" />
     </menu_item_call>
     <menu_item_call
@@ -19,9 +19,25 @@
         <menu_item_call.on_click
          function="Self.StandUp"
          parameter="" />
-        <menu_item_call.on_enable
+        <menu_item_call.on_visible
          function="Self.EnableStandUp" />
     </menu_item_call>
+   <menu_item_separator></menu_item_separator>
+   <menu_item_call label="Reset Skeleton"
+     layout="topleft"
+     name="Reset Skeleton">
+      <menu_item_call.on_click
+       function="Avatar.ResetSkeleton">
+   </menu_item_call.on_click>
+   </menu_item_call>
+   <menu_item_call label="Local Undeform"
+       layout="topleft"
+       name="Reset Skeleton And Animations">
+       <menu_item_call.on_click
+        function="Avatar.ResetSkeletonAndAnimations" />
+  </menu_item_call>
+   <menu_item_separator></menu_item_separator>
+
     <context_menu
      label="Take Off"
      layout="topleft"
@@ -38,7 +54,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="shirt" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="shirt" />
             </menu_item_call>
@@ -50,7 +66,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="pants" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="pants" />
             </menu_item_call>
@@ -62,7 +78,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="skirt" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="skirt" />
             </menu_item_call>
@@ -74,7 +90,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="shoes" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="shoes" />
             </menu_item_call>
@@ -86,7 +102,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="socks" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="socks" />
             </menu_item_call>
@@ -98,7 +114,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="jacket" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="jacket" />
             </menu_item_call>
@@ -110,7 +126,7 @@
                 <menu_item_call.on_click
                  function="Edit.TakeOff"
                  parameter="gloves" />
-                <menu_item_call.on_enable
+                <menu_item_call.on_visible
                  function="Edit.EnableTakeOff"
                  parameter="gloves" />
             </menu_item_call>
@@ -122,7 +138,7 @@
                     <menu_item_call.on_click
                      function="Edit.TakeOff"
                      parameter="undershirt" />
-                    <menu_item_call.on_enable
+                    <menu_item_call.on_visible
                      function="Edit.EnableTakeOff"
                      parameter="undershirt" />
                 </menu_item_call>
@@ -134,7 +150,7 @@
                     <menu_item_call.on_click
                      function="Edit.TakeOff"
                      parameter="underpants" />
-                    <menu_item_call.on_enable
+                    <menu_item_call.on_visible
                      function="Edit.EnableTakeOff"
                      parameter="underpants" />
                 </menu_item_call>
@@ -146,7 +162,7 @@
                     <menu_item_call.on_click
                      function="Edit.TakeOff"
                      parameter="tattoo" />
-                    <menu_item_call.on_enable
+                    <menu_item_call.on_visible
                      function="Edit.EnableTakeOff"
                      parameter="tattoo" />
                 </menu_item_call>
@@ -158,7 +174,7 @@
                     <menu_item_call.on_click
                      function="Edit.TakeOff"
                      parameter="physics" />
-                    <menu_item_call.on_enable
+                    <menu_item_call.on_visible
                      function="Edit.EnableTakeOff"
                      parameter="physics" />
                 </menu_item_call>
@@ -170,7 +186,7 @@
                     <menu_item_call.on_click
                      function="Edit.TakeOff"
                      parameter="alpha" />
-                    <menu_item_call.on_enable
+                    <menu_item_call.on_visible
                      function="Edit.EnableTakeOff"
                      parameter="alpha" />
                 </menu_item_call>
@@ -200,25 +216,16 @@
             <menu_item_call.on_click
              function="Self.RemoveAllAttachments"
              parameter="" />
-            <menu_item_call.on_enable
+            <menu_item_call.on_visible
              function="Self.EnableRemoveAllAttachments" />
         </menu_item_call>
     </context_menu>
-     <menu_item_call
-     label="My Appearance"
-     layout="topleft"
-     name="Chenge Outfit">
-        <menu_item_call.on_click
-         function="CustomizeAvatar" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
-    </menu_item_call>
     <menu_item_call label="Edit My Outfit" 
     layout="topleft"
     name="Edit Outfit">
        <menu_item_call.on_click
         function="EditOutfit" />
-       <menu_item_call.on_enable
+       <menu_item_call.on_visible
         function="Edit.EnableCustomizeAvatar" />
    </menu_item_call>
     <menu_item_call label="Edit My Shape" 
@@ -226,7 +233,7 @@
     name="Edit My Shape">
        <menu_item_call.on_click
         function="EditShape" />
-       <menu_item_call.on_enable
+       <menu_item_call.on_visible
         function="Edit.EnableEditShape" />
    </menu_item_call>
    <menu_item_call label="Hover Height"
@@ -234,23 +241,24 @@
      name="Hover Height">
      <menu_item_call.on_click
       function="HoverHeight" />
-     <menu_item_call.on_enable
+     <menu_item_call.on_visible
       function="Edit.EnableHoverHeight" />
    </menu_item_call>
-   <menu_item_call label="Reset Skeleton"
+     <menu_item_call
+     label="Show Outfit List"
      layout="topleft"
-     name="Reset Skeleton">
-     <menu_item_call.on_click
-      function="Avatar.ResetSkeleton" />
-   </menu_item_call>
-  <menu_item_call label="Local Undeform"
-       layout="topleft"
-       name="Reset Skeleton And Animations">
-       <menu_item_call.on_click
-        function="Avatar.ResetSkeletonAndAnimations" />
-  </menu_item_call>
+     name="Chenge Outfit">
+        <menu_item_call.on_click
+         function="CustomizeAvatar" />
+        <menu_item_call.on_visible
+         function="Edit.EnableCustomizeAvatar" />
+    </menu_item_call>
+   <context_menu
+    label="Show..."
+    layout="topleft"
+    name="Show &gt;">
    <menu_item_call
-     label="My Friends"
+     label="Friends List"
      layout="topleft"
      name="Friends...">
         <menu_item_call.on_click
@@ -258,7 +266,7 @@
          parameter="friends_panel" />
     </menu_item_call>
     <menu_item_call
-     label="My Groups"
+     label="Groups List"
      layout="topleft"
      name="Groups...">
         <menu_item_call.on_click
@@ -272,6 +280,14 @@
         <menu_item_call.on_click
          function="ShowAgentProfile"
          parameter="agent" />
+    </menu_item_call>
+   <menu_item_call
+     label="Scripts Usage"
+     layout="topleft"
+     name="Profile...">
+        <menu_item_call.on_click
+         function="Floater.ToggleOrBringToFront"
+         parameter="script_limits" />
     </menu_item_call>
     <menu_item_call
 		 label="Debug Textures"
@@ -289,7 +305,7 @@
             <menu_item_call.on_visible
              function="Advanced.EnableAppearanceToXML"/>
     </menu_item_call>
-   <menu_item_separator />
+    </context_menu>
    <context_menu
     label="Copy..."
     layout="topleft"
@@ -324,8 +340,7 @@
      name="Mute Particle">
     <menu_item_call.on_click
      function="Particle.Mute" />
-
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
      function="EnableMuteParticle" />
   </menu_item_call>
   <menu_item_call
