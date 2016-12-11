@@ -111,7 +111,13 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
 
 void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
 {
-    mAgentComplexity = mLatestAgentComplexity;
+    // That's not how this work, wow.
+    //mAgentComplexity = mLatestAgentComplexity;
+    // Fix notification showing up if the render cost didn't change. Darl wanted this.
+    if(mAgentComplexity == mLatestAgentComplexity)
+    {
+        return;
+    }
     mShowOverLimitAgents = show_over_limit;
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
 
@@ -156,6 +162,7 @@ void LLAvatarRenderNotifier::displayNotification(bool show_over_limit)
                                                            .expiry(expire_date)
                                                            .substitutions(args));
     }
+    mAgentComplexity = mLatestAgentComplexity;
 }
 
 bool LLAvatarRenderNotifier::isNotificationVisible()
