@@ -254,6 +254,7 @@ BOOL LLFastTimerView::handleHover(S32 x, S32 y, MASK mask)
 			++bar_index)
 		{
 			TimerBar& bar = row.mBars[bar_index];
+			// This can crash here, but the cause is unknown yet. - Xenhat 2016.11.12
 			if (bar.mSelfStart > mouse_time_offset)
 			{
 				break;
