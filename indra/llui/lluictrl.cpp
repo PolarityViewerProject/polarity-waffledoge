@@ -260,7 +260,8 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 		}
 		else if (!function_name.empty())
 		{
-			LL_WARNS() << "No callback found for: '" << function_name << "' in control '" << getName() << "'! Clean me up." << LL_ENDL;
+			// <polarity> Drake said to ignore these. The menu calls work so I'll just do that.
+			LL_DEBUGS() << "No callback found for: '" << function_name << "' in control '" << getName() << "'! Clean me up." << LL_ENDL;
 		}
 	}
 	return default_commit_handler;
