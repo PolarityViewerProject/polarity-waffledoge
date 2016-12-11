@@ -866,24 +866,38 @@ void LLScriptEdCore::setEnableEditing(bool enable)
 bool LLScriptEdCore::handleSaveChangesDialog(const LLSD& notification, const LLSD& response )
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+	auto parent = (LLFloater*)getParent();
+	if (!parent)
+	{
+		return false;
+	}
 	switch( option )
 	{
 	case 0:  // "Yes"
 		// close after saving
+		if(parent)
+		{
 			doSave( TRUE );
+		}
 		break;
 
 	case 1:  // "No"
 		mForceClose = TRUE;
 		// This will close immediately because mForceClose is true, so we won't
 		// infinite loop with these dialogs. JC
-		((LLFloater*) getParent())->closeFloater();
+		if (parent)
+		{
+			parent->closeFloater();
+		}
 		break;
 
 	case 2: // "Cancel"
 	default:
 		// If we were quitting, we didn't really mean it.
-		LLAppViewer::instance()->abortQuit();
+		if(parent)
+		{
+			LLAppViewer::instance()->abortQuit();
+		}
 		break;
 	}
 	return false;
@@ -1645,8 +1659,11 @@ void LLPreviewLSL::onLoad(void* userdata)
 void LLPreviewLSL::onSave(void* userdata, BOOL close_after_save)
 {
 	LLPreviewLSL* self = (LLPreviewLSL*)userdata;
-	self->mCloseAfterSave = close_after_save;
-	self->saveIfNeeded();
+	if(self)
+	{
+		self->mCloseAfterSave = close_after_save;
+		self->saveIfNeeded();
+	}
 }
 
 /*static*/
@@ -2288,11 +2305,15 @@ void LLLiveLSLEditor::onSave(void* userdata, BOOL close_after_save)
 	if(self)
 	{
 		self->mCloseAfterSave = close_after_save;
-		self->mScriptEd->mErrorList->setCommentText("");
+		// <polarity> Don't try to empty error list that doesn't exist
+		// self->mScriptEd->mErrorList->setCommentText("");
+		if(self->mScriptEd && self->mScriptEd->mErrorList)
+		{
+			self->mScriptEd->mErrorList->setCommentText("");
+		}
 		self->saveIfNeeded();
 	}
 }
-
 
 // static
 void LLLiveLSLEditor::processScriptRunningReply(LLMessageSystem* msg, void**)

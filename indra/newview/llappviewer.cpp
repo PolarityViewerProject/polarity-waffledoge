@@ -4261,6 +4261,11 @@ void LLAppViewer::earlyExitNoNotify()
 
 void LLAppViewer::abortQuit()
 {
+	if(!mQuitRequested)
+	{
+		LL_WARNS() << "abortQuit() already requested, skipping!" << LL_ENDL;
+		return;
+	}
     LL_INFOS() << "abortQuit()" << LL_ENDL;
 	mQuitRequested = false;
 }
