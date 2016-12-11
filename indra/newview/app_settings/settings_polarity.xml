@@ -872,7 +872,7 @@
     <key>RenderSSAOEffect</key>
     <map>
       <key>Comment</key>
-      <string>Multiplier for value for areas which are totally occluded. Blends with original color for partly-occluded areas. (Used for NiranV's shader stack)</string>
+      <string>Multiplier for value for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
@@ -889,7 +889,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.1</real>
+      <real>0.3</real>
     </map>
     <key>RenderSSAOMaxScale</key>
     <map>
@@ -900,7 +900,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>100</integer>
+      <integer>200</integer>
     </map>
     <key>RenderSSAOScale</key>
     <map>
@@ -911,7 +911,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>1000.0</real>
+      <real>100.0</real>
     </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>
