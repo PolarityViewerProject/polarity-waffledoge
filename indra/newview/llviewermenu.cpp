@@ -9392,6 +9392,35 @@ class PLVRAvatarTextureRefresh : public view_listener_t
 };
 // </polarity>
 
+// <polarity> Copy Key. From Alchemy's CopyData.
+class PLVRCopKey : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		LLVOAvatar* avatarp = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
+		if (avatarp)
+		{
+			const std::string& param = userdata.asString();
+			if (param == "copy_name")
+			{
+				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_NAME);
+				return true;
+			}
+			else if (param == "copy_slurl")
+			{
+				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_SLURL);
+				return true;
+			}
+			else if (param == "copy_key")
+			{
+				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_UUID);
+				return true;
+			}
+		}
+		return false;
+	}
+};
+
 void handle_flush_name_caches()
 {
 	// Do nothing, this is crashy for now
@@ -10046,6 +10075,10 @@ void initialize_menus()
 	// <polarity> PLVR-32 Refresh texture on objects and avatars
 	view_listener_t::addMenu(new PLVRObjectTextureRefresh(), "Polarity.Object.TextureRefresh");
 	view_listener_t::addMenu(new PLVRAvatarTextureRefresh(), "Polarity.Avatar.TextureRefresh");
+	// </polarity>
+
+	// <polarity> Copy Key to clipboard
+	view_listener_t::addMenu(new PLVRCopKey(), "Polarity.Common.CopyData");
 	// </polarity>
 	
 // [RLVa:KB] - Checked: RLVa-2.0.0

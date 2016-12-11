@@ -41,6 +41,7 @@
 #include "llappviewer.h"		// for gLastVersionChannel
 #include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
+#include "llclipboard.h" // for CopyToClipboard
 #include "llconversationlog.h"
 #include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
 #include "llfloaterconversationpreview.h"
@@ -1406,4 +1407,76 @@ bool LLAvatarActions::canBlock(const LLUUID& id)
 	bool is_linden = (full_name.find("Linden") != std::string::npos);
 	bool is_self = id == gAgentID;
 	return !is_self && !is_linden;
+}
+
+// static
+void LLAvatarActions::copyData(const LLUUID& id, ECopyDataType type)
+{
+	if (id.notNull())
+	{
+		std::string tmp;
+		switch (type)
+		{
+		case E_DATA_NAME:
+		{
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(id, &av_name);
+			tmp = av_name.getUserName();
+			break;
+		}
+		case E_DATA_SLURL:
+			tmp = LLSLURL("agent", id, "about").getSLURLString();
+			break;
+		case E_DATA_UUID:
+			tmp = id.asString();
+			break;
+		default:
+			break;
+		}
+		LLWString wstr = utf8str_to_wstring(tmp);
+		LLClipboard::instance().copyToClipboard(wstr, 0, wstr.length());
+	}
+}
+
+// static
+void LLAvatarActions::copyData(const uuid_vec_t& ids, ECopyDataType type)
+{
+	if (!ids.empty())
+	{
+		std::string data_string;
+		static LLCachedControl<std::string> seperator(gSavedSettings, "AlchemyCopySeperator", ", ");
+		for (const LLUUID& id : ids)
+		{
+			if (id.isNull())
+				continue;
+
+			if (!data_string.empty())
+				data_string.append(seperator);
+
+			switch (type)
+			{
+			case E_DATA_NAME:
+			{
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(id, &av_name);
+				data_string.append(av_name.getUserName());
+				break;
+			}
+			case E_DATA_SLURL:
+				data_string.append(LLSLURL("agent", id, "about").getSLURLString());
+				break;
+			case E_DATA_UUID:
+				data_string.append(id.asString());
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (!data_string.empty())
+		{
+			LLWString wdata_str = utf8str_to_wstring(data_string);
+			LLClipboard::instance().copyToClipboard(wdata_str, 0, wdata_str.length());
+		}
+	}
 }
