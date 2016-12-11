@@ -105,7 +105,7 @@ name="Edit Outfit">
        <menu_item_call.on_click
         function="Avatar.ResetSkeleton" />
   </menu_item_call>
-  <menu_item_call label="Reset Skeleton And Animations"
+  <menu_item_call label="Local Undeform"
        layout="topleft"
        name="Reset Skeleton And Animations">
        <menu_item_call.on_click
