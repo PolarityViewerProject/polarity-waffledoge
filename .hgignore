@@ -2,6 +2,7 @@ syntax: glob
 
 # WinMerge temp files
 *.bak
+*.orig
 # Compiled python bytecode
 *.pyc
 # Emacs temp files
@@ -9,7 +10,6 @@ syntax: glob
 .*.swp
 #OSX image cache file
 *.DS_Store
-#*.orig
 LICENSES
 indra/.distcc
 build-linux-*
