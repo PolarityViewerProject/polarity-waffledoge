@@ -47,10 +47,12 @@ void PVCinematicMode::enter_cinematic_mode()
 	// save user-configured value to restore it later.
 	previous_voice_dot_setting_ = gSavedSettings.getU32("PVUI_VoiceIndicatorBehavior");
 	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
+	previous_hovertips_setting_ = gSavedSettings.getS32("ShowHoverTips");
 	// Hide stuff
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
 	gSavedSettings.setS32("AvatarNameTagMode", 0);
 	gSavedSettings.setBOOL("PVChat_HideTypingForAll", true);
+	gSavedSettings.setBOOL("ShowHoverTips", false);
 	previous_hud_visibility = LLPipeline::sShowHUDAttachments;
 	// Cinematic HIDES elements, so we set elements to NOT VISIBLE when machinima mode is ON
 	gViewerWindow->setUIVisibility(false); // Show/hide Interface
@@ -71,6 +73,7 @@ void PVCinematicMode::exit_cinematic_mode()
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", previous_voice_dot_setting_);
 	gSavedSettings.setS32("AvatarNameTagMode", previous_name_tag_setting_);
 	gSavedSettings.setBOOL("PVChat_HideTypingForAll", previous_name_tag_setting_);
+	gSavedSettings.setBOOL("ShowHoverTips", previous_hovertips_setting_);
 	// Sanity Check
 	cinematic_mode_ = false;
 	LL_DEBUGS() << "cinematic_mode_=" << cinematic_mode_ << LL_ENDL;

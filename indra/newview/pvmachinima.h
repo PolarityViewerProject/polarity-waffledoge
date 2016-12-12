@@ -46,6 +46,8 @@ protected:
 	S32 previous_name_tag_setting_ = 2;
 	// false=Show for all, true=Hide for all
 	bool previous_chat_anim_setting_ = false;
+	// Hover tips
+	bool previous_hovertips_setting_ = false;
 public:
 	bool previous_hud_visibility = false;
 	// Keeps track of the Cinematic Mode status.
