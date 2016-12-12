@@ -2227,10 +2227,12 @@ void LLTextBase::appendLineBreakSegment(const LLStyle::Params& style_params)
 
 void LLTextBase::appendImageSegment(const LLStyle::Params& style_params)
 {
-	if(getPlainText())
-	{
-		return;
-	}
+	// <polarity> Always show url icons.
+	//if(getPlainText())
+	//{
+	//	return;
+	//}
+	// </polarity>
 	segment_vec_t segments;
 	LLStyleConstSP sp(new LLStyle(style_params));
 	segments.push_back(new LLImageTextSegment(sp, getLength(),*this));
