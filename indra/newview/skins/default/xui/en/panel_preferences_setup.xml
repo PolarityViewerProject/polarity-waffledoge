@@ -206,36 +206,6 @@
 		<button.commit_callback
 		  function="Pref.Proxy" />
   </button>
-  <text
-     visible="false"
-     follows="left|top"
-     height="10"
-     layout="topleft"
-     left="10"
-     length="1"
-     mouse_opaque="false"
-     name="auth_token_text"
-     top_pad="10"
-     type="string"
-     width="145">
-    Test channel Auth Token:
-  </text>
-<text_editor
-     commit_on_focus_lost = "true"
-     control_name="PVAuth_TesterToken"
-     follows="left|top"
-     visible="false"
-     enabled="false"
-     height="20"
-     label="Tester Token"
-     layout="topleft"
-     left_pad="2"
-     max_length_chars="32"
-     name="auth_token_editor"
-     use_ellipses="false"
-     top_delta="-2"
-     width="230">
-    </text_editor>
   <check_box
     top_pad="3"
     enabled="true"
@@ -247,4 +217,32 @@
     mouse_opaque="true"
     name="update_show_release_notes"
     width="400"/>
+  <text
+     follows="left|top"
+     height="10"
+     layout="topleft"
+     left="10"
+     length="1"
+     mouse_opaque="false"
+     name="auth_token_text"
+     top_pad="5"
+     type="string"
+     width="145">
+    Test channel Auth Token:
+  </text>
+<text_editor
+     commit_on_focus_lost = "true"
+     control_name="PVAuth_TesterToken"
+     follows="left|top"
+     enabled="false"
+     height="20"
+     label="Tester Token"
+     layout="topleft"
+     left_pad="2"
+     max_length_chars="32"
+     name="auth_token_editor"
+     use_ellipses="false"
+     top_delta="-2"
+     width="230">
+    </text_editor>
 </panel>
