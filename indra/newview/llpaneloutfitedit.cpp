@@ -1305,6 +1305,9 @@ void LLPanelOutfitEdit::onOutfitChanging(bool started)
 	S32 delta = started ? indicator_delta : 0;
 	S32 right_border = status_panel->getRect().getWidth() - delta;
 
+	// This crashes here if you get RLV-sat on something with
+	// the outfit floater open (usually the outfit gallery)
+	// - Xenhat 2016.12.12
 	update_status_widget_rect(mCurrentOutfitName, right_border);
 	update_status_widget_rect(mStatus, right_border);
 
