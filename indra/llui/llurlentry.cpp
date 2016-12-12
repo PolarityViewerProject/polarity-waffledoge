@@ -515,86 +515,86 @@ LLUrlEntrySimpleURlVendor::LLUrlEntrySimpleURlVendor()
 	// BAD: \.
 	//"(http|https):\/\/([-\w\.]*\.)?polarityviewer\.(org(:\d{1,5})?)\S*"
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?polarityviewer\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Vendor_icon";
+	mIcon = "Url_Icon_Vendor";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLe621::LLUrlEntrySimpleURLe621()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?e621\\.(net(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "e621_icon";
+	mIcon = "Url_Icon_e621";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLBitbucket::LLUrlEntrySimpleURLBitbucket()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?bitbucket\\.(org(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Bitbucket_icon";
+	mIcon = "Url_Icon_Bitbucket";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLFlickr::LLUrlEntrySimpleURLFlickr()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?flickr\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Flickr_icon";
+	mIcon = "Url_Icon_Flickr";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLGithub::LLUrlEntrySimpleURLGithub()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?github\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Github_icon";
+	mIcon = "Url_Icon_Github";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLImgur::LLUrlEntrySimpleURLImgur()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?imgur\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Imgur_icon";
+	mIcon = "Url_Icon_Imgur";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLLastFM::LLUrlEntrySimpleURLLastFM()
 {
 	// No https from these guys. Shame.
 	mPattern = boost::regex("(http|https):\\/\\/([-\\w\\.]*\\.)?last\\.(fm(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "LastFM_icon";
+	mIcon = "Url_Icon_LastFM";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLReddit::LLUrlEntrySimpleURLReddit()
 {
 	mPattern = boost::regex("(http|https):\\/\\/([-\\w\\.]*\\.)?reddit\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Reddit_icon";
+	mIcon = "Url_Icon_Reddit";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLSoundcloud::LLUrlEntrySimpleURLSoundcloud()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?soundcloud\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Soundcloud_icon";
+	mIcon = "Url_Icon_Soundcloud";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLSteam::LLUrlEntrySimpleURLSteam()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?steam(community|powered)\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Steam_icon";
+	mIcon = "Url_Icon_Steam";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLTwitch::LLUrlEntrySimpleURLTwitch()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?twitch\\.(tv(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Twitch_icon";
+	mIcon = "Url_Icon_Twitch";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLTwitter::LLUrlEntrySimpleURLTwitter()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?twitter\\.(com(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Twitter_icon";
+	mIcon = "Url_Icon_Twitter";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLWikipedia::LLUrlEntrySimpleURLWikipedia()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?wikipedia\\.(org(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Wikipedia_icon";
+	mIcon = "Url_Icon_Wikipedia";
 	mMenuName = "menu_url_http.xml";
 }
 LLUrlEntrySimpleURLYoutube::LLUrlEntrySimpleURLYoutube()
 {
 	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?((youtube\\.com|youtu\\.be)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
-	mIcon = "Youtube_icon";
+	mIcon = "Url_Icon_Youtube";
 	mMenuName = "menu_url_http.xml";
 }
 //
