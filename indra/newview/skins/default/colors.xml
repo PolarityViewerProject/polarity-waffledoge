@@ -1094,7 +1094,7 @@
     value="0.42 0.42 0.42 1"/>
    <color
     name="SelectedOutfitTextColor"
-    reference="EmphasisColor_35"/>
+    reference="PolarityGreen"/>
    <color
     name="SilhouetteChildColor"
     value="0.13 0.42 0.77 1"/>
