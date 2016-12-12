@@ -4,7 +4,7 @@
   positioning="cascading"
   legacy_header_height="18"
   can_resize="true"
-  height="588"
+  height="575"
   layout="topleft"
   name="floater_my_appearance"
   help_topic="appearance"
@@ -12,9 +12,9 @@
   single_instance="true"
   reuse_instance="true"
   title="APPEARANCE"
-  min_height="440"
-  min_width="333"
-  width="333">
+  min_height="220"
+  min_width="340"
+  width="340">
     <panel
       top="18"
       class="sidepanel_appearance"

@@ -3,7 +3,7 @@
 <panel
  background_visible="true"
  border="false"
- height="600"
+ height="535"
  follows="all"
  layout="topleft"
  help_topic="edit_outfit"
