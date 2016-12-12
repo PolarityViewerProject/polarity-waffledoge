@@ -246,6 +246,5 @@
     left_delta="0"
     mouse_opaque="true"
     name="update_show_release_notes"
-    width="400"
-    top_pad="5"/>
+    width="400"/>
 </panel>
