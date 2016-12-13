@@ -108,13 +108,13 @@ void APIENTRY gl_debug_callback(GLenum source,
 
 void parse_glsl_version(S32& major, S32& minor);
 
-void ll_init_fail_log(std::string filename)
+void ll_init_fail_log(const std::string& filename)
 {
 	gFailLog.open(filename.c_str());
 }
 
 
-void ll_fail(std::string msg)
+void ll_fail(const std::string& msg)
 {
 	
 	if (gDebugSession)

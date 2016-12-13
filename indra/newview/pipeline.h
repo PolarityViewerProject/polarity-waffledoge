@@ -428,7 +428,7 @@ private:
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
 	void assertInitializedDoError() const;
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
-	void connectRefreshCachedSettingsSafe(const std::string name) const;
+	void connectRefreshCachedSettingsSafe(const std::string& name) const;
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 public:
