@@ -1322,6 +1322,7 @@ LLViewerOctreePartition::LLViewerOctreePartition() :
 	mRegionp(NULL), 
 	mOcclusionEnabled(TRUE), 
 	mDrawableType(0),
+	mPartitionType(0),
 	mLODSeed(0),
 	mLODPeriod(1)
 {
