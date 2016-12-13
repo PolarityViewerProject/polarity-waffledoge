@@ -1276,7 +1276,7 @@ void LLPanelRequestTools::onClickRequest()
 	if(dest == SELECTION)
 	{
 		std::string req =getChild<LLUICtrl>("request")->getValue();
-		req = req.substr(0, req.find_first_of(" "));
+		req = req.substr(0, req.find_first_of(' '));
 		std::string param = getChild<LLUICtrl>("parameter")->getValue();
 		LLSelectMgr::getInstance()->sendGodlikeRequest(req, param);
 	}
@@ -1327,7 +1327,7 @@ void LLPanelRequestTools::sendRequest(const LLHost& host)
 	}
 	else
 	{
-		req = req.substr(0, req.find_first_of(" "));
+		req = req.substr(0, req.find_first_of(' '));
 		sendRequest(req, getChild<LLUICtrl>("parameter")->getValue().asString(), host);
 	}
 }

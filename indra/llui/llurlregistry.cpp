@@ -178,7 +178,7 @@ static bool stringHasUrl(const std::string &text)
 			text.find(".com") != std::string::npos ||
 			text.find("<nolink>") != std::string::npos ||
 			text.find("<icon") != std::string::npos ||
-			text.find("@") != std::string::npos);
+			text.find('@') != std::string::npos);
 }
 
 static bool stringHasJira(const std::string &text)

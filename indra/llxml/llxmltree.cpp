@@ -489,7 +489,7 @@ std::string LLXmlTreeNode::getTextContents()
 				// mContents[m] == '"'
 				num_lines++;
 				msg += mContents.substr(n,m-n) + "\n";
-				n = mContents.find_first_of("\"", m+1);
+				n = mContents.find_first_of('\"', m+1);
 				if (n == std::string::npos)
 				{
 					if (num_lines == 1)

@@ -134,7 +134,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		}
 		
 		// the name and value are separated by the first equals sign
-		std::string::size_type name_value_sep = mCookie.find_first_of("=", name_start);
+		std::string::size_type name_value_sep = mCookie.find_first_of('=', name_start);
 		if(name_value_sep == std::string::npos || name_value_sep > field_end)
 		{
 			// No separator found, so this is a field without an = 
@@ -270,7 +270,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 		}
 		
 		// Figure out whether this cookie ended with a ";" or not...
-		std::string::size_type last_char = mCookie.find_last_not_of(" ");
+		std::string::size_type last_char = mCookie.find_last_not_of(' ');
 		if((last_char != std::string::npos) && (mCookie[last_char] != ';'))
 		{
 			mCookie += ";";
@@ -288,7 +288,7 @@ bool LLPluginCookieStore::Cookie::parse(const std::string &host)
 	if(mPathEnd <= mPathStart)
 	{
 		// Figure out whether this cookie ended with a ";" or not...
-		std::string::size_type last_char = mCookie.find_last_not_of(" ");
+		std::string::size_type last_char = mCookie.find_last_not_of(' ');
 		if((last_char != std::string::npos) && (mCookie[last_char] != ';'))
 		{
 			mCookie += ";";

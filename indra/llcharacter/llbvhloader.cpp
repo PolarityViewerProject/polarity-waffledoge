@@ -610,7 +610,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		//----------------------------------------------------------------
 		// consume }
 		//----------------------------------------------------------------
-		if ( strstr(line.c_str(), "}") )
+		if ( strstr(line.c_str(), '}') )
 		{
 			if (parent_joints.size() > 0)
 			{
@@ -718,7 +718,7 @@ ELoadStatus LLBVHLoader::loadBVHFile(const char *buffer, char* error_text, S32 &
 		//----------------------------------------------------------------
 		// it must be {
 		//----------------------------------------------------------------
-		if ( !strstr(line.c_str(), "{") )
+		if ( !strstr(line.c_str(), '{') )
 		{
 			strncpy(error_text, line.c_str(), 127);		/*Flawfinder: ignore*/
 			return E_ST_NO_OFFSET;
