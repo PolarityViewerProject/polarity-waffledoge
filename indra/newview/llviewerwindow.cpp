@@ -2636,7 +2636,7 @@ void LLViewerWindow::draw()
 }
 
 // <polarity> Dynamic window title
-void LLViewerWindow::setTitle(const std::string win_title)
+void LLViewerWindow::setTitle(const std::string& win_title)
 {
 	mWindow->setTitle(win_title);
 }

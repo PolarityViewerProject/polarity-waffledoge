@@ -428,7 +428,7 @@ public:
 	void			calcDisplayScale();
 	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
 
-	void			setTitle(const std::string win_title);	// <polarity/> Dynamic window title
+	void			setTitle(const std::string& win_title);	// <polarity/> Dynamic window title
 
 	LLWindow*		mWindow;						// graphical window object
 

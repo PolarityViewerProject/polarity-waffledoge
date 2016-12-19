@@ -413,7 +413,7 @@ static int x11_detect_VRAM_kb()
 }
 #endif // LL_X11
 
-void LLWindowSDL::setTitle(const std::string &title)
+void LLWindowSDL::setTitle(const std::string& title)
 {
 	SDL_WM_SetCaption(title.c_str(), title.c_str());
 }

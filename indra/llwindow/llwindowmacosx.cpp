@@ -1667,7 +1667,7 @@ void LLWindowMacOSX::hideCursorUntilMouseMove()
 	}
 }
 
-void LLWindowMacOSX::setTitle(const std::string &title)
+void LLWindowMacOSX::setTitle(const std::string& title)
 {
 	setTitleCocoa(mWindow, title);
 }
