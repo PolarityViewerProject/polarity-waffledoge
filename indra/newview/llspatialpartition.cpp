@@ -2454,7 +2454,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 					index_offset += face.mNumVertices;
 				}
 
-				if (!pos.empty() && !index.empty())
+				if (!pos.empty() && !index.empty() && LLConvexDecomposition::getInstance() ) // ND: FIRE-3427
 				{
 					LLCDMeshData mesh;
 					mesh.mIndexBase = &index[0];
@@ -2511,7 +2511,10 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 				}
 			}
 
-			if (phys_volume->mHullPoints)
+			// <FS:Ansariel> Crash fix due to invalid calls to drawElements by Drake Arconis
+			//if (phys_volume->mHullPoints)
+			if (phys_volume->mHullPoints && phys_volume->mHullIndices && phys_volume->mNumHullPoints > 0 && phys_volume->mNumHullIndices > 0)
+			// </FS:Ansariel>
 			{
 				//render hull
 			
@@ -3766,6 +3769,88 @@ BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 	return TRUE;
 }
 
+// <FS:ND> Class to watch for any octree changes while iterating. Will catch child insertion/removal as well as data insertion/removal.
+// Template so it can be used for than LLOctreeNode< LLDrawable > if needed
+
+template< typename T > class ndOctreeListener: public LLOctreeListener< T >
+{
+	typedef LLOctreeNode< T > tNode;
+	typedef std::vector< LLPointer< LLTreeListener< T > > > tListener;
+
+	tNode *mNode;
+	bool mNodeIsDead;
+	bool mNodeChildrenChanged;
+	bool mNodeDataChanged;
+
+	virtual void handleInsertion(const LLTreeNode<T>* node, T* data)
+	{ mNodeDataChanged = true; }
+	
+	virtual void handleRemoval(const LLTreeNode<T>* node, T* data)
+	{ mNodeDataChanged = true; }
+
+	virtual void handleDestruction(const LLTreeNode<T>* node)
+	{ mNodeIsDead = true; }
+
+	virtual void handleStateChange(const LLTreeNode<T>* node)
+	{ }
+
+	virtual void handleChildAddition(const tNode* parent, tNode* child)
+	{ mNodeChildrenChanged = true; }
+
+	virtual void handleChildRemoval(const tNode* parent, const tNode* child)
+	{ mNodeChildrenChanged = true; }
+
+public:
+	ndOctreeListener( OctreeNode *aNode )
+		: mNode( aNode )
+		, mNodeIsDead( false )
+		, mNodeChildrenChanged( false )
+		, mNodeDataChanged( false )
+	{
+		if( mNode )
+			mNode->addListener( this );
+		else
+			mNodeIsDead = true;
+	}
+
+	~ndOctreeListener()
+	{ removeObserver();	}
+
+	bool getNodeIsDead() const
+	{ return mNodeIsDead; }
+
+	bool getNodeChildrenChanged() const
+	{ return mNodeChildrenChanged; }
+
+	bool getNodeDataChanged() const
+	{ return mNodeDataChanged; }
+
+	// FS:ND This is kind of hackery, poking into the internals of mNode like that. But there's no removeListener function.
+	// To keep change locality for merges I decided to put the implemention here.
+	// This is what you get for making your member public/protected.
+	void removeObserver()
+	{
+		if( mNode && !getNodeIsDead() )
+		{
+			for( typename tListener::iterator itr = mNode->mListeners.begin(); itr != mNode->mListeners.end(); ++itr )
+			{
+				if( (*itr).get() == this )
+				{
+					mNode->mListeners.erase( itr );
+					break;
+				}
+			}
+		}
+		mNode = 0;
+		mNodeIsDead = true;
+	}
+};
+
+typedef ndOctreeListener< LLViewerOctreeEntry > ndDrawableOctreeListener;
+typedef LLPointer< ndDrawableOctreeListener > ndDrawableOctreeListenerPtr;
+
+// </FS:ND>
+
 LL_ALIGN_PREFIX(16)
 class LLOctreeIntersect : public LLOctreeTraveler<LLViewerOctreeEntry>
 {
@@ -3799,19 +3884,52 @@ public:
 	
 	virtual void visit(const OctreeNode* branch) 
 	{	
-		for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
+		// <FS:ND> Make sure we catch any changes to this node while we iterate over it
+		ndDrawableOctreeListenerPtr nodeObserver = new ndDrawableOctreeListener ( const_cast<OctreeNode*>(branch) );
+
+		// for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
+		for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); )
+		// </FS:ND>
 		{
-			check(*i);
+		 	check(*i);
+
+			// <FS:ND> Check for any change that happened during check, it is possible the tree changes due to calling it.
+			// If it does, we need to restart again as pointers might be invalidated.
+
+			if( !nodeObserver->getNodeDataChanged() )
+				++i;
+			else
+			{
+				i = branch->getDataBegin();
+				LL_WARNS() << "Warning, resetting data iterator to branch->getDataBegin due to tree change." << LL_ENDL;
+			}
+
+			// FS:ND Can this really happen? I seriously hope not.
+			if( nodeObserver->getNodeIsDead() )
+			{
+				LL_WARNS() << "Warning, node died. Exiting iteration" << LL_ENDL;
+				break;
+			}
+
+			// </FS:ND>
 		}
+
+		nodeObserver->removeObserver();
 	}
 
 	virtual LLDrawable* check(const OctreeNode* node)
 	{
 		node->accept(this);
-	
-		for (U32 i = 0; i < node->getChildCount(); i++)
+
+		// <FS:ND> Make sure we catch any changes to this node while we iterate over it
+		ndDrawableOctreeListenerPtr nodeObserver = new ndDrawableOctreeListener ( const_cast<OctreeNode*>(node) );
+
+		// for (U32 i = 0; i < node->getChildCount(); i++)
+		for (U32 i = 0; i < node->getChildCount(); )
+		// </FS:ND>
 		{
 			const OctreeNode* child = node->getChild(i);
+
 			LLVector3 res;
 
 			LLSpatialGroup* group = (LLSpatialGroup*) child->getListener(0);
@@ -3842,8 +3960,30 @@ public:
 			{
 				check(child);
 			}
+
+			// <FS:ND> Check for any change that happened during check, it is possible the tree changes due to calling it.
+			// If it does, do we need to restart again as pointers might be invalidated? Child insertion/removal happens it seems, but restarting
+			// iteration leads into endless recursion.
+
+			if( !nodeObserver->getNodeChildrenChanged() )
+				++i;
+			else
+			{
+				++i;
+			 	LL_WARNS() << "Warning, child nodes changed during tree iteration." << LL_ENDL;
+			}
+
+			// FS:ND Can this really happen? I seriously hope not.
+			if( nodeObserver->getNodeIsDead() )
+			{
+				LL_WARNS() << "Warning, node died. Exiting iteration" << LL_ENDL;
+				break;
+			}
+
+			// </FS:ND>
 		}	
 
+		nodeObserver->removeObserver();
 		return mHit;
 	}
 
@@ -4028,6 +4168,8 @@ LLCullResult::LLCullResult()
 		mRenderMapAllocated[i] = 0;
 	}
 
+	memset( mRenderMapSize, 0, sizeof(mRenderMapSize) ); // <FS:ND> Initialize with 0.
+	
 	clear();
 }
 

@@ -647,11 +647,11 @@ class LLVolumeGeometryManager: public LLGeometryManager
 	virtual void rebuildMesh(LLSpatialGroup* group);
 	virtual void getGeometry(LLSpatialGroup* group);
 	void genDrawInfo(LLSpatialGroup* group, U32 mask, LLFace** faces, U32 face_count, BOOL distance_sort = FALSE, BOOL batch_textures = FALSE, BOOL no_materials = FALSE);
-	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type) const;
+	void registerFace(LLSpatialGroup* group, LLFace* facep, U32 type);
 
 private:
-	void allocateFaces(U32 pMaxFaceCount) const;
-	void freeFaces() const;
+	void allocateFaces(U32 pMaxFaceCount);
+	void freeFaces();
 
 	static int32_t sInstanceCount;
 	static LLFace** sFullbrightFaces;

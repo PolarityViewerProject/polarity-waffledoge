@@ -4409,7 +4409,7 @@ LLVolumeGeometryManager::~LLVolumeGeometryManager()
 	}
 }
 
-void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount) const
+void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount)
 {
 	sFullbrightFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
 	sBumpFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
@@ -4420,7 +4420,7 @@ void LLVolumeGeometryManager::allocateFaces(U32 pMaxFaceCount) const
 	sAlphaFaces = static_cast<LLFace**>(ll_aligned_malloc<64>(pMaxFaceCount*sizeof(LLFace*)));
 }
 
-void LLVolumeGeometryManager::freeFaces() const
+void LLVolumeGeometryManager::freeFaces()
 {
 	ll_aligned_free<64>(sFullbrightFaces);
 	ll_aligned_free<64>(sBumpFaces);
@@ -4441,7 +4441,7 @@ void LLVolumeGeometryManager::freeFaces() const
 
 static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
 
-void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type) const
+void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
 #if HEAVY_LOG
