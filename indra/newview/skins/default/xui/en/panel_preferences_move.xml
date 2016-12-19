@@ -56,7 +56,7 @@
       height="25"
       label="Joystick and Flycam"
       left="355"
-      width="150"
+      width="135"
       name="joystick_setup_button"
       top_delta="30">
       <button.commit_callback
