@@ -1512,11 +1512,6 @@ bool PVDataUtil::moveTranscriptsAndLog(std::string userid) const
 std::string PVDataAuth::getToken()
 {
 #if INTERNAL_BUILD
-	std::string token = gSavedSettings.getString("PVAuth_TesterToken");
-	if (token.length() != 32 || token == "00000000000000000000000000000000")
-	{
-		gSavedSettings.setString("PVAuth_TesterToken", ""); // stupid LLSD defaults empty strings to '0'
-	}
 	return gSavedSettings.getString("PVAuth_TesterToken");
 #else
 	return "";
