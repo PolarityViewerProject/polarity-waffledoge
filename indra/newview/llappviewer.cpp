@@ -2965,6 +2965,7 @@ namespace {
 		 * it can be any of these, which are included here for the sake of grep:
 		 *   RequiredUpdateDownloadedDialog
 		 *   RequiredUpdateDownloadedVerboseDialog
+		 *   RequiredUpdateDownloadedVerboseDialogNoChangenotes
 		 *   OtherChannelRequiredUpdateDownloadedDialog
 		 *   OtherChannelRequiredUpdateDownloadedVerbose
 		 *   DownloadBackgroundTip
@@ -3032,6 +3033,7 @@ namespace {
 		{
 			// <polarity> remove link when release notes url was not supplied
 			// LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
+			apply_callback = &apply_update_ok_callback;
 			notification_name = "RequiredUpdateDownloadedVerboseDialogNoChangenotes";
 			LL_WARNS("UpdaterService") << "no info url supplied - not showing release notes url" << LL_ENDL;
 		}
