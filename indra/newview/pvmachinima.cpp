@@ -47,7 +47,7 @@ void PVCinematicMode::enter_cinematic_mode()
 	// save user-configured value to restore it later.
 	previous_voice_dot_setting_ = gSavedSettings.getU32("PVUI_VoiceIndicatorBehavior");
 	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
-	previous_hovertips_setting_ = gSavedSettings.getS32("ShowHoverTips");
+	previous_hovertips_setting_ = gSavedSettings.getBOOL("ShowHoverTips");
 	// Hide stuff
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
 	gSavedSettings.setS32("AvatarNameTagMode", 0);
