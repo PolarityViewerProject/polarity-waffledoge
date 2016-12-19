@@ -185,6 +185,8 @@ class ViewerManifest(LLManifest):
                     self.path("*.j2c")
                     self.path("*.jpg")
                     self.path("*.png")
+                    # <polarity> url icons subfolder
+                    self.path("icons/*/*.png")
                     self.path("textures.xml")
                     self.end_prefix("*/textures")
                 self.path("*/xui/*/*.xml")
