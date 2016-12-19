@@ -3996,7 +3996,7 @@ We must restart [APP_NAME] to install the update.
   <notification
    icon="alertmodal.tga"
    name="RequiredUpdateDownloadedVerboseDialogNoChangenotes"
-   type="alertmodal"
+   type="notify"
    force_urls_external="true">
 We have downloaded a required software update.
 Version [VERSION]
