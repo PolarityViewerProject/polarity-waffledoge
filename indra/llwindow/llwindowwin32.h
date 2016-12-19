@@ -233,6 +233,11 @@ protected:
 	WINDOWPLACEMENT mRestoredPlacement;				// Only valid when the window is "fullscreen" sized (see setFullscreenWindow)
 // [/SL:KB];
 
+// <FS:ND> Allow to query for window chrome sizes.
+public:
+	virtual void getWindowChrome( U32 &aChromeW, U32 &aChromeH );
+// </FS:ND>
+
 	friend class LLWindowManager;
 };
 

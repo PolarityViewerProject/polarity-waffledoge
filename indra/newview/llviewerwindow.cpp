@@ -2358,35 +2358,36 @@ void LLViewerWindow::reshape(S32 width, S32 height)
 		if (!gViewerWindow->getFullscreenWindow())
 #endif // LL_WINDOWS
 		{
-			U32 min_window_width=gSavedSettings.getU32("MinWindowWidth");
-			U32 min_window_height=gSavedSettings.getU32("MinWindowHeight");
-			// tell the OS specific window code about min window size
-			mWindow->setMinSize(min_window_width, min_window_height);
+			//U32 min_window_width=gSavedSettings.getS32("MinWindowWidth");
+			//U32 min_window_height=gSavedSettings.getS32("MinWindowHeight");
+			//// tell the OS specific window code about min window size
+			//mWindow->setMinSize(min_window_width, min_window_height);
 
 			LLCoordScreen window_rect;
 			if (mWindow->getSize(&window_rect))
 			{
-// [/SL:KB]
+				// [/SL:KB]
 				BOOL maximized = mWindow->getMaximized();
 				gSavedSettings.setBOOL("WindowMaximized", maximized);
 
 				LLCoordScreen window_size;
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
+				// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
 #ifndef LL_WINDOWS
 				if (!maximized
 					&& mWindow->getSize(&window_size))
 #else
 				if (mWindow->getRestoredSize(&window_size))
 #endif // LL_WINDOWS
-// [/SL:KB]
+					// [/SL:KB]
 				{
-					//BD - Fudge Factor
-					gSavedSettings.setU32("WindowWidth", (width + 16));
-					gSavedSettings.setU32("WindowHeight", (height + 38));
+					//BD - Fix for Window resizing with an offset.
+					gSavedSettings.setS32("WindowWidth", (width + 16));
+					gSavedSettings.setS32("WindowHeight", (height + 38));
 				}
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Modified: Catznip-2.1.2a
-				}
-// [/SL:KB]
+				// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Modified: Catznip-2.1.2a
+			}
+
+			// [/SL:KB]
 		}
 
 		sample(LLStatViewer::WINDOW_WIDTH, width);
@@ -4495,13 +4496,26 @@ void LLViewerWindow::resetSnapshotLoc()
 // static
 void LLViewerWindow::movieSize(S32 new_width, S32 new_height)
 {
-	LLCoordWindow size;
-	LLCoordWindow new_size(new_width, new_height);
-	gViewerWindow->getWindow()->getSize(&size);
-	if ( size != new_size )
-	{
-		gViewerWindow->getWindow()->setSize(new_size);
-	}
+	// FS:TS FIRE-6182: Set Window Size sets random size each time
+	// Don't use LLCoordWindow, since the chosen resolution winds up
+	// with position dependent numbers added each time. Instead, we use
+	// LLCoordScreen, which avoids this. Fix from Niran's Viewer.
+	// LLCoordWindow size;
+	// LLCoordWindow new_size(new_width, new_height);
+	// gViewerWindow->getWindow()->getSize(&size);
+	// if ( size != new_size )
+	// {
+	//	gViewerWindow->getWindow()->setSize(new_size.convert());
+	// }
+	U32 nChromeW(0), nChromeH(0);
+	gViewerWindow->getWindow()->getWindowChrome( nChromeW, nChromeH );
+
+	LLCoordScreen new_size;
+	new_size.mX = new_width + nChromeW;
+	new_size.mY = new_height + nChromeH;
+	gViewerWindow->getWindow()->setSize(new_size);
+	// FS:TS FIRE-6182 end
+
 }
 
 BOOL LLViewerWindow::saveSnapshot(const std::string& filepath, S32 image_width, S32 image_height, BOOL show_ui, BOOL do_rebuild, LLSnapshotModel::ESnapshotLayerType type)
