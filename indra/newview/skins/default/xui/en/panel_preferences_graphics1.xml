@@ -1851,7 +1851,7 @@
             width="515">
           </panel>
           <check_box
-            control_name="PVRender_GodRays"
+            control_name="PVRender_EnableGodRays"
             height="16"
             initial_value="false"
             label="God Rays"
