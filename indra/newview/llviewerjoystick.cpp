@@ -1247,6 +1247,10 @@ void LLViewerJoystick::setSNDefaults()
 	gSavedSettings.setF32("AvatarFeathering", 6.f);
 	gSavedSettings.setF32("BuildFeathering", 12.f);
 	gSavedSettings.setF32("FlycamFeathering", 5.f);
+
+	gSavedSettings.setBOOL("JoystickAvatarEnabled", FALSE);
+	gSavedSettings.setBOOL("JoystickBuildEnabled", FALSE);
+	gSavedSettings.setBOOL("JoystickFlycamEnabled", TRUE);
 }
 // PLVR TODO: Move to settings.
 void LLViewerJoystick::setXbox360Defaults()
@@ -1314,4 +1318,8 @@ void LLViewerJoystick::setXbox360Defaults()
 	gSavedSettings.setF32("AvatarFeathering", 7.150f);
 	gSavedSettings.setF32("BuildFeathering", 3.f);
 	gSavedSettings.setF32("FlycamFeathering", 2.3f);
+
+	gSavedSettings.setBOOL("JoystickAvatarEnabled", TRUE);
+	gSavedSettings.setBOOL("JoystickBuildEnabled", FALSE);
+	gSavedSettings.setBOOL("JoystickFlycamEnabled", TRUE);
 }
