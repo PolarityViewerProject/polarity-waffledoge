@@ -231,9 +231,9 @@ BOOL LLPolyMeshSharedData::allocateVertexData( U32 numVertices )
         mBaseCoords = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
         mBaseNormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
         mBaseBinormals = (LLVector4a*) ll_aligned_malloc_16(numVertices*sizeof(LLVector4a));
-        mTexCoords = (LLVector2*) ll_aligned_malloc_16((numVertices*sizeof(LLVector2) + 0xF) & ~0xF);
+        mTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
         mDetailTexCoords = (LLVector2*) ll_aligned_malloc_16(numVertices*sizeof(LLVector2));
-        mWeights = (F32*) ll_aligned_malloc_16((numVertices*sizeof(F32) + 0xF) & ~0xF);
+        mWeights = (F32*) ll_aligned_malloc_16(numVertices*sizeof(F32));
         for (i = 0; i < numVertices; i++)
         {
 			mBaseCoords[i].clear();
@@ -609,7 +609,7 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
                         //-------------------------------------------------------------------------
                         char morphName[64+1];
                         morphName[sizeof(morphName)-1] = '\0'; // ensure nul-termination
-                        while(fread(&morphName, sizeof(char), 64, fp) == 64)
+                        while(fread(morphName, sizeof(char), 64, fp) == 64)
                         {
                                 if (!strcmp(morphName, "End Morphs"))
                                 {
