@@ -126,6 +126,12 @@
          label="Interface"
          layout="topleft"
          name="polarity" />
+         <panel
+         class="panel_preference"
+         filename="panel_preferences_rlva.xml"
+         label="Restrained Love"
+         layout="topleft"
+         name="rlva" />
 <!--        <panel
          class="panel_preference_skins"
          filename="panel_preferences_skins.xml"
@@ -133,12 +139,6 @@
          layout="topleft"
          help_topic="preferences_skins_tab"
          name="skins" />
-    <panel
-         class="panel_preference"
-         filename="panel_preferences_rlva.xml"
-         label="Restrained Love"
-         layout="topleft"
-         name="rlva" />
         <panel
          class="panel_preference_backup"
          filename="panel_preferences_backup.xml"
