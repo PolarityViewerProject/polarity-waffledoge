@@ -47,6 +47,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>LastReleaseNotesURL</key>
+    <map>
+      <key>Comment</key>
+      <string>Last release notes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string></string>
+    </map>
+    
     <key>PVCamera_DisableSimConstraint</key>
     <map>
       <key>Comment</key>

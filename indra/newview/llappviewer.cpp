@@ -3026,29 +3026,14 @@ namespace {
 		if ( !info_url.empty() )
 		{
 			substitutions["INFO_URL"] = info_url;
+			gSavedSettings.setString("LastReleaseNotesURL", info_url);
 		}
 		else
 		{
-			LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
-
-		// truncate version at the rightmost '.' 
-		std::string version_short(data["version"]);
-		size_t short_length = version_short.rfind('.');
-		if (short_length != std::string::npos)
-		{
-			version_short.resize(short_length);
-		}
-
-		LLUIString relnotes_url("[RELEASE_NOTES_BASE_URL][CHANNEL_URL]/[VERSION_SHORT]");
-		relnotes_url.setArg("[VERSION_SHORT]", version_short);
-
-		// *TODO thread the update service's response through to this point
-		std::string const & channel = LLVersionInfo::getChannel();
-		boost::shared_ptr<char> channel_escaped(curl_escape(channel.c_str(), channel.size()), &curl_free);
-
-		relnotes_url.setArg("[CHANNEL_URL]", channel_escaped.get());
-		relnotes_url.setArg("[RELEASE_NOTES_BASE_URL]", LLTrans::getString("RELEASE_NOTES_BASE_URL"));
-			substitutions["INFO_URL"] = relnotes_url.getString();
+			// <polarity> remove link when release notes url was not supplied
+			// LL_WARNS("UpdaterService") << "no info url supplied - defaulting to hard coded release notes pattern" << LL_ENDL;
+			notification_name = "RequiredUpdateDownloadedVerboseDialogNoChangenotes";
+			LL_WARNS("UpdaterService") << "no info url supplied - not showing release notes url" << LL_ENDL;
 		}
 
 		LLNotificationsUtil::add(notification_name, substitutions, LLSD(), apply_callback);
@@ -3338,19 +3323,12 @@ LLSD LLAppViewer::getViewerInfo() const
         info["BUILD_CONFIG"] = build_config;
     }
 
-	// return a URL to the release notes for this viewer, such as:
-	// http://wiki.secondlife.com/wiki/Release_Notes/Second Life Beta Viewer/2.1.0.123456
-#if 0
-	std::string url = LLTrans::getString("RELEASE_NOTES_BASE_URL");
-	if (! LLStringUtil::endsWith(url, "/"))
-		url += "/";
-	url += LLURI::escape(LLVersionInfo::getChannel()) + "/";
-	url += LLURI::escape(LLVersionInfo::getVersion());
-#else
-	// Temporary static release notes url
-	std::string url = "https://www.polarityviewer.org/category/release/";
-#endif
-	info["VIEWER_RELEASE_NOTES_URL"] = url;
+	std::string rel_notes = gSavedSettings.getString("LastReleaseNotesURL");
+	if (!rel_notes.empty())
+	{
+		info["VIEWER_RELEASE_NOTES_URL"] = rel_notes;
+	}
+	
 
 	info["LATEST_MERGED_VERSION"] = LLVersionInfo::getLastLindenRelease();
 
@@ -5978,10 +5956,15 @@ void LLAppViewer::showReleaseNotesIfRequired()
 {
 	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
 		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-		&& gSavedSettings.getBOOL("FirstLoginThisInstall"))
+		&& !gSavedSettings.getBOOL("FirstLoginThisInstall")
+		)
 	{
 		LLSD info(getViewerInfo());
-		LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
+		if (rel_notes != "0")
+		{
+			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+		}
 	}
 }
 
