@@ -3992,6 +3992,21 @@ We must restart [APP_NAME] to install the update.
      name="okbutton"
      yestext="OK"/>
   </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RequiredUpdateDownloadedVerboseDialogNoChangenotes"
+   type="alertmodal"
+   force_urls_external="true">
+We have downloaded a required software update.
+Version [VERSION]
+
+We must restart [APP_NAME] to install the update.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
   
   <notification
    icon="alertmodal.tga"
