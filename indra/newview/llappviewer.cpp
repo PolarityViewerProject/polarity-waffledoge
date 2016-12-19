@@ -3307,17 +3307,25 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	LLSD version;
-	version.append(LLVersionInfo::getMajor());
-	version.append(LLVersionInfo::getMinor());
-	version.append(LLVersionInfo::getPatch());
-	version.append(LLVersionInfo::getBuild());
-	info["VIEWER_VERSION"] = version;
-	info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
+	// <polarity> Save a few calls...
+	//LLSD version;
+	//version.append(LLVersionInfo::getMajor());
+	//version.append(LLVersionInfo::getMinor());
+	//version.append(LLVersionInfo::getPatch());
+	//version.append(LLVersionInfo::getBuild());
+	// info["VIEWER_VERSION"] = version;
+	// info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
+	//info["VIEWER_VERSION"] = LLVersionInfo::getVersion();
+	//info["BUILD_DATE"] = __DATE__;
+	//info["BUILD_TIME"] = __TIME__;
+	//info["CHANNEL"] = LLVersionInfo::getChannel();
+	info["VIEWER_VERSION"] = LLVersionInfo::getChannelAndVersionStatic();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
-	info["CHANNEL"] = LLVersionInfo::getChannel();
-    std::string build_config = LLVersionInfo::getBuildConfig();
+	// </polarity>
+
+
+	std::string build_config = LLVersionInfo::getBuildConfig();
     if (build_config != "Release")
     {
         info["BUILD_CONFIG"] = build_config;
@@ -3346,10 +3354,11 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["COMPILER_VERSION"] = GCC_VERSION;
 #endif
 
-#ifdef LL_X86_64
-	info["BUILD_ARCH"] = "x86_64";
+// <polarity> Don't show "x86_64", this is the normal build type.
+#if !LL_X86_64
+	info["BUILD_ARCH"] = " (x86)";
 #else
-	info["BUILD_ARCH"] = "x86";
+	info["BUILD_ARCH"] = "";
 #endif
 
 	// Position
@@ -3623,6 +3632,7 @@ void LLAppViewer::writeSystemInfo()
     gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,APP_NAME + ".old");  //LLError::logFileName();
 #endif
 
+	// Do we really need to create all these variables and make all those calls? - Xenhat 2016.12.16
 	gDebugInfo["ClientInfo"]["Name"] = LLVersionInfo::getChannel();
 	gDebugInfo["ClientInfo"]["MajorVersion"] = LLVersionInfo::getMajor();
 	gDebugInfo["ClientInfo"]["MinorVersion"] = LLVersionInfo::getMinor();

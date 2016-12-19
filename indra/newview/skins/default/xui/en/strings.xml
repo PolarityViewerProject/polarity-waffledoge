@@ -21,8 +21,13 @@
 	<string name="StartupRequireDriverUpdate">Graphics initialization failed. Please update your graphics driver!</string>
 
 	<!-- about dialog/support string-->
-	<string name="AboutHeader">
+<!-- 	<string name="AboutHeader">
 [APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2] ([VIEWER_VERSION_3]) ([BUILD_ARCH]) [BUILD_DATE] [BUILD_TIME] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
+	</string> -->
+	<string name="AboutHeader">
+[VIEWER_VERSION][BUILD_ARCH], built on [BUILD_DATE], [BUILD_TIME]
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
