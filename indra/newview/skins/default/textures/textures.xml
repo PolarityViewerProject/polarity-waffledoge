@@ -246,7 +246,7 @@ Additional notes:
 <texture name="Icon_Gear_Background" file_name="windows/Icon_Gear_Background.png" preload="false" />
 <texture name="Icon_Gear_Foreground" file_name="windows/Icon_Gear_Foreground.png" preload="false" />
 <texture name="Icon_Gear_Press" file_name="windows/Icon_Gear_Press.png" preload="false" />
-<texture name="icon_group.png" file_name="icons/Generic_Group.png" preload="false" />
+<texture name="icon_group" file_name="icons/Generic_Group.png" preload="false" />
 <texture name="Icon_Help_Foreground" file_name="windows/Icon_Help_Foreground.png" preload="true" />
 <texture name="Icon_Help_Press" file_name="windows/Icon_Help_Press.png" preload="true" />
 <texture name="Icon_Minimize_Foreground" file_name="windows/Icon_Minimize_Foreground.png" preload="true" />
