@@ -1937,6 +1937,12 @@ void LLViewerWindow::initBase()
 	main_view->setShape(full_window);
 	getRootView()->addChild(main_view);
 
+	// <FS:Zi> Moved this from the end of this function up here, so all context menus
+	//         created right after this get the correct parent assigned.
+	gMenuHolder = getRootView()->getChild<LLViewerMenuHolderGL>("Menu Holder");
+	LLMenuGL::sMenuContainer = gMenuHolder;
+	// </FS:Zi>
+
 	// placeholder widget that controls where "world" is rendered
 	mWorldViewPlaceholder = main_view->getChildView("world_view_rect")->getHandle();
 	mPopupView = main_view->getChild<LLPopupView>("popup_holder");
@@ -2000,8 +2006,12 @@ void LLViewerWindow::initBase()
 	setShowProgress(FALSE);
 	setProgressCancelButtonVisible(FALSE);
 
-	gMenuHolder = getRootView()->getChild<LLViewerMenuHolderGL>("Menu Holder");
-	LLMenuGL::sMenuContainer = gMenuHolder;
+	// <FS:Zi> Moved this to the top right after creation of main_view.xml, so all context menus
+	//         created right after that get the correct parent assigned.
+	// gMenuHolder = getRootView()->getChild<LLViewerMenuHolderGL>("Menu Holder");
+	// LLMenuGL::sMenuContainer = gMenuHolder;
+	// </FS:Zi>
+
 }
 
 void LLViewerWindow::initWorldUI()
