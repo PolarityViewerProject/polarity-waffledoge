@@ -1508,13 +1508,13 @@
     <key>PVRender_ToneMappingTech</key>
     <map>
       <key>Comment</key>
-      <string>Tone mapping technique to use. 0 applies Filmic, 1 applies Linear, and 2 applies Reinhard. Defaults to Reinhard.</string>
+      <string>Tone mapping technique to use. 0 applies Filmic, 1 applies Linear, 2 applies Reinhard and 3 applies custom.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>2</integer>
+      <integer>3</integer>
     </map>
     <key>PVRender_Vignette</key>
     <map>
