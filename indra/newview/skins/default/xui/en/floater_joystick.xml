@@ -1287,16 +1287,16 @@
 	 left="3"
      name="SpaceNavigatorDefaults"
 	 top_pad="2"
-	 width="120" />
+	 width="110" />
     <button
 	 follows="left|top"
 	 height="22"
-	 label="Xbox360"
+	 label="Xbox One/360"
 	 layout="topleft"
 	 left_pad="2"
 	 name="Xbox360Defaults"
 	 bottom_delta="0"
-	 width="75" />
+	 width="100" />
 	<button
      follows="right|bottom"
 	 height="22"
