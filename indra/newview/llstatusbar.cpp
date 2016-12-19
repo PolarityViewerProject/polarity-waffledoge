@@ -333,8 +333,7 @@ void LLStatusBar::refresh()
 	mTextTime->setToolTip(dtStr);
 
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
-	static LLCachedControl<bool> show_fps_meter(gSavedSettings, "PVUI_StatusBarShowFPSCounter", true);
-	if (mFPSCount == NULL || !show_fps_meter)
+	if (mFPSCount == NULL)
 	{
 		return;
 	}
@@ -447,14 +446,6 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mBtnQuickSettings->setVisible(visible);
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
-
-	// <polarity> FPS Meter in status bar.
-	static LLCachedControl<bool> show_fps_counter(gSavedSettings, "PVUI_StatusBarShowFPSCounter",true);
-	if(show_fps_counter)
-	{
-		mFPSCount->setVisible(visible);
-	}
-
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
