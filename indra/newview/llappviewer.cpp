@@ -3388,7 +3388,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));
 	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
 
-#if LL_WINDOWS
+#if LL_WINDOWS && defined(MAKE_ABOUT_FLOATER_HANG)
 	LLSD driver_info = gDXHardware.getDisplayInfo();
 	if (driver_info.has("DriverVersion"))
 	{
@@ -3521,11 +3521,13 @@ std::string LLAppViewer::getViewerInfoString() const
 //		support << "\n\n" << LLTrans::getString("AboutPosition", args);
 	}
 	support << "\n\n" << LLTrans::getString("AboutSystem", args);
+#if MAKE_ABOUT_FLOATER_HANG
 	support << "\n";
 	if (info.has("GRAPHICS_DRIVER_VERSION"))
 	{
 		support << "\n" << LLTrans::getString("AboutDriver", args);
 	}
+#endif
 	support << "\n" << LLTrans::getString("AboutLibs", args);
 	if (info.has("COMPILER"))
 	{
