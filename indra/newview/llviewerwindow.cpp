@@ -2242,6 +2242,11 @@ void LLViewerWindow::shutdownGL()
 	stop_glerror();
 
 	gGL.shutdown();
+	
+	// <FS:Ansariel> Exodus vignette
+	// This must die before LLVertexBuffer does
+	exoPostProcess::deleteSingleton();
+	// </FS:Ansariel> Exodus vignette
 
 	LLVertexBuffer::cleanupClass();
 
