@@ -2,7 +2,6 @@
 <llsd xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:noNamespaceSchemaLocation="llsd.xsd">
   <map>
-
     <key>_NACL_LogLevel</key>
     <map>
       <key>Comment</key>
@@ -58,7 +57,6 @@
       <key>Value</key>
       <string></string>
     </map>
-    
     <key>PVCamera_DisableSimConstraint</key>
     <map>
       <key>Comment</key>
@@ -272,7 +270,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
     <key>PVDebug_DisableWMIProbing</key>
     <map>
       <key>Comment</key>
@@ -1674,7 +1671,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    
     <key>PVUI_HovertipShowGroupTitle</key>
     <map>
       <key>Comment</key>
@@ -1840,7 +1836,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    
     <key>PVUI_NameTagRenderWeightShowUnderThreshold</key>
     <map>
       <key>Comment</key>
@@ -2109,7 +2104,6 @@
       <key>Value</key>
       <string></string>
     </map>
-
     <!-- RLVa settings -->
     <key>PVRLVa_IgnoreHUDLock</key>
     <map>
