@@ -63,6 +63,16 @@
 
    <menu_item_separator />
    <menu_item_call
+     label="Object Profile"
+     name="Object Inspect">
+     <menu_item_call.on_click
+      function="Object.Inspect">
+    </menu_item_call.on_click>
+    <menu_item_call.on_visible
+      function="Object.EnableInspect">
+    </menu_item_call.on_visible>
+  </menu_item_call>
+   <menu_item_call
     label="Zoom In"
     name="Zoom In">
     <menu_item_call.on_click
