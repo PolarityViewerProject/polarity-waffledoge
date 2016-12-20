@@ -8,7 +8,7 @@
       name="Object Touch">
     <menu_item_call.on_click
         function="Object.Touch" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableTouch"
         name="EnableTouch"
         parameter="Touch" />
@@ -19,14 +19,14 @@
     <menu_item_call.on_click
         function="Object.Edit" />
     <menu_item_call.on_enable
-        function="EnableEdit"/>
+        function="EnableEdit"/> <!-- Kept visible for informational purpose -->
   </menu_item_call>
   <menu_item_call
       label="Build"
       name="Build">
     <menu_item_call.on_click
         function="Object.Build" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="EnableEdit"/>
   </menu_item_call>
   <menu_item_call
@@ -35,7 +35,7 @@
       name="Open">
     <menu_item_call.on_click
         function="Object.Open" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableOpen" />
   </menu_item_call>
   <menu_item_call
@@ -44,7 +44,7 @@
       name="Object Sit">
     <menu_item_call.on_click
         function="Object.SitOrStand" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableSit" />
   </menu_item_call>
   <menu_item_call
@@ -53,15 +53,16 @@
       name="Object Stand Up">
     <menu_item_call.on_click
         function="Object.SitOrStand" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableStandUp" />
   </menu_item_call>
+  <menu_item_separator layout="topleft" />
   <menu_item_call
       label="Object Profile"
       name="Object Inspect">
     <menu_item_call.on_click
         function="Object.Inspect" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableInspect" />
   </menu_item_call>
   <menu_item_call
@@ -75,7 +76,7 @@
       name="show_in_linksets">
     <menu_item_call.on_click
         function="Pathfinding.Linksets.Select" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="EnableSelectInPathfindingLinksets"/>
     <menu_item_call.on_visible
         function="VisibleSelectInPathfindingLinksets"/>
@@ -85,12 +86,11 @@
       name="show_in_characters">
     <menu_item_call.on_click
         function="Pathfinding.Characters.Select" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="EnableSelectInPathfindingCharacters"/>
     <menu_item_call.on_visible
         function="EnableSelectInPathfindingCharacters"/>
   </menu_item_call>
-  <menu_item_separator layout="topleft" />
   <context_menu
       label="Put On"
       name="Put On" >
@@ -100,7 +100,7 @@
         name="Wear">
       <menu_item_call.on_click
           function="Object.AttachToAvatar" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
           function="Object.EnableWear" />
     </menu_item_call>
     <menu_item_call
@@ -109,7 +109,7 @@
         name="Add">
       <menu_item_call.on_click
           function="Object.AttachAddToAvatar" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
           function="Object.EnableWear" />
     </menu_item_call>
     <context_menu
@@ -160,13 +160,16 @@
   <context_menu
    label="Scripts"
    name="Scripts">
+   <context_menu.on_visible
+    function="EditableSelected"> <!-- Hopefully this works -->
+  </context_menu.on_visible>
     <menu_item_call
        label="Recompile Scripts (Mono)"
        name="Mono">
       <menu_item_call.on_click
        function="Tools.SelectedScriptAction"
        parameter="compile mono" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
        function="EditableSelectedMono" />
     </menu_item_call>
     <menu_item_call
@@ -175,7 +178,7 @@
       <menu_item_call.on_click
        function="Tools.SelectedScriptAction"
        parameter="compile lsl" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
        function="EditableSelected" />
     </menu_item_call>
     <menu_item_call
@@ -184,7 +187,7 @@
       <menu_item_call.on_click
        function="Tools.SelectedScriptAction"
        parameter="reset" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
        function="EditableSelected" />
     </menu_item_call>
     <menu_item_call
@@ -193,7 +196,7 @@
       <menu_item_call.on_click
        function="Tools.SelectedScriptAction"
        parameter="start" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
        function="EditableSelected" />
     </menu_item_call>
     <menu_item_call
@@ -202,7 +205,7 @@
       <menu_item_call.on_click
        function="Tools.SelectedScriptAction"
        parameter="stop" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
        function="EditableSelected" />
     </menu_item_call>
     <menu_item_call
@@ -211,7 +214,7 @@
       <menu_item_call.on_click
         function="Tools.SelectedScriptAction"
         parameter="delete" />
-      <menu_item_call.on_enable
+      <menu_item_call.on_visible
         function="EditableSelected" />
     </menu_item_call>
   </context_menu>
@@ -222,7 +225,7 @@
       name="Pie Object Take">
     <menu_item_call.on_click
         function="Object.Take"/>
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.VisibleTake"/>
   </menu_item_call>
   <menu_item_call
@@ -231,7 +234,7 @@
       name="Take Copy">
     <menu_item_call.on_click
         function="Tools.TakeCopy" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Tools.EnableTakeCopy" />
   </menu_item_call>
   <menu_item_call
@@ -240,7 +243,7 @@
       name="Pay...">
     <menu_item_call.on_click
         function="PayObject" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="EnablePayObject" />
   </menu_item_call>
   <menu_item_call
@@ -249,7 +252,7 @@
       name="Buy...">
     <menu_item_call.on_click
         function="Object.Buy" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableBuy" />
   </menu_item_call>
   <menu_item_call
@@ -258,7 +261,7 @@
       name="Delete">
     <menu_item_call.on_click
         function="Object.Delete" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
         function="Object.EnableDelete" />
   </menu_item_call>
   <menu_item_separator
@@ -269,7 +272,7 @@
      name="Mute Particle">
     <menu_item_call.on_click
      function="Particle.Mute" />
-    <menu_item_call.on_enable
+    <menu_item_call.on_visible
      function="EnableMuteParticle" />
   </menu_item_call>
 
