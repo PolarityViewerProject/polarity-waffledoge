@@ -116,8 +116,20 @@
         layout="topleft"
         left="2"
         name="FullScreen"
-        top="22"
-        width="180">
+        top="25"
+        width="85">
+        <text
+          invisibility_control="RenderDeferred"
+          type="string"
+          length="1"
+          follows="left|top"
+          height="12"
+          layout="topleft"
+          left_pad="5"
+          name="antialiasing restart"
+          top_delta="17">
+          (requires relog)
+        </text>
       </check_box>
       <check_box
         control_name="FullScreenWindow"
