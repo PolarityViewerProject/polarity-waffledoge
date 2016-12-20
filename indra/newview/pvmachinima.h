@@ -48,6 +48,7 @@ protected:
 	bool previous_chat_anim_setting_ = false;
 	// Hover tips
 	bool previous_hovertips_setting_ = false;
+	bool previous_typing_for_all_setting_ = false;
 public:
 	bool previous_hud_visibility = false;
 	// Keeps track of the Cinematic Mode status.

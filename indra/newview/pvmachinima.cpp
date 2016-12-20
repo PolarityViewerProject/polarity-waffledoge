@@ -47,6 +47,7 @@ void PVCinematicMode::enter_cinematic_mode()
 	// save user-configured value to restore it later.
 	previous_voice_dot_setting_ = gSavedSettings.getU32("PVUI_VoiceIndicatorBehavior");
 	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
+	previous_typing_for_all_setting_ = gSavedSettings.getBOOL("PVChat_HideTypingForAll");
 	previous_hovertips_setting_ = gSavedSettings.getBOOL("ShowHoverTips");
 	// Hide stuff
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
@@ -72,7 +73,7 @@ void PVCinematicMode::exit_cinematic_mode()
 	// restore user-configured values
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", previous_voice_dot_setting_);
 	gSavedSettings.setS32("AvatarNameTagMode", previous_name_tag_setting_);
-	gSavedSettings.setBOOL("PVChat_HideTypingForAll", previous_name_tag_setting_);
+	gSavedSettings.setBOOL("PVChat_HideTypingForAll", previous_typing_for_all_setting_);
 	gSavedSettings.setBOOL("ShowHoverTips", previous_hovertips_setting_);
 	// Sanity Check
 	cinematic_mode_ = false;
