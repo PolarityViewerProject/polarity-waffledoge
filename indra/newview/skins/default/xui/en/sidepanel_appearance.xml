@@ -10,7 +10,7 @@ min_width="240"
 name="appearance panel"
 top="0"
 left="0"
-width="340">
+width="320">
    <string
    name="No Outfit"
    value="No Outfit" />
@@ -130,11 +130,11 @@ width="340">
    <panel
    class="panel_outfit_edit"
    filename="panel_outfit_edit.xml"
-   height="565"
+   height="552"
    follows="all"
    layout="topleft"
    left="5"
-   min_height="410"
+   min_height="420"
    name="panel_outfit_edit"
    top="2"
    visible="false" 
