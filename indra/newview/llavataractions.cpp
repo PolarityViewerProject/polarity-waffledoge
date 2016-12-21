@@ -1158,6 +1158,10 @@ void LLAvatarActions::refreshAppearance(const LLUUID& id)
 	std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
 
 	LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
+	if(!avatar)
+	{
+		return;
+	}
 	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
 	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
 	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
@@ -1199,6 +1203,10 @@ void LLAvatarActions::refreshAppearances(const uuid_vec_t& ids)
 	for (LLUUID id : ids)
 	{
 		LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
+		if (!avatar)
+		{
+			continue;
+		}
 		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
 		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
 		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
