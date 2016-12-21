@@ -31,6 +31,8 @@
 #include "llselectmgr.h"
 #include "llmaterialmgr.h"
 
+#include <unordered_set>
+
 // library includes
 #include "llcachename.h"
 #include "lldbstrings.h"
@@ -74,6 +76,7 @@
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
+#include "lltexturecache.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "lltool.h"
 #include "lltooldraganddrop.h"
 #include "lltoolmgr.h"
@@ -4815,6 +4818,76 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 	
 	mSavedSelectionBBox = getBBoxOfSelection();
 }
+
+// <polarity> PLVR-32 Refresh texture on objects and avatars
+void LLSelectMgr::refreshSelectionTextures(std::unordered_set<LLUUID>& textures_to_refresh)
+{
+	for (LLSelectNode* node : *this->getSelection().get())
+	{
+		LLViewerObject* objectp = node->getObject();
+		U8 texture_entry_count = objectp->getNumTEs();
+		for (U8 index = 0; index < texture_entry_count; ++index)
+		{
+			// LLTextureEntry* texture_entry = objectp->getTE(index);
+			LLViewerTexture* diffuse_map = objectp->getTEImage(index);
+			LLViewerTexture* normal_map = objectp->getTENormalMap(index);
+			LLViewerTexture* specular_map = objectp->getTESpecularMap(index);
+			LLViewerTexture* default_image = (LLViewerTexture*)LLViewerFetchedTexture::sDefaultImagep;
+
+			if (diffuse_map != default_image)
+			{
+				textures_to_refresh.insert(diffuse_map->getID());
+			}
+
+			if (normal_map != default_image)
+			{
+				textures_to_refresh.insert(normal_map->getID());
+			}
+
+			if (specular_map != default_image)
+			{
+				textures_to_refresh.insert(specular_map->getID());
+			}
+		}
+
+		if (objectp->isSculpted())
+		{
+			LLSculptParams* sculpt_params = (LLSculptParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
+			if (sculpt_params)
+			{
+				textures_to_refresh.insert(sculpt_params->getSculptTexture());
+			}
+		}
+	}
+
+	for (LLUUID texture_id : textures_to_refresh)
+	{
+		LLViewerFetchedTexture* texture = LLViewerTextureManager::getFetchedTexture(texture_id);
+		if (texture->getFTType() == FTT_LOCAL_FILE)
+		{
+			// Skip reloading local textures
+			continue;
+		}
+
+		texture->clearFetchedResults();
+		LLAppViewer::getTextureCache()->removeFromCache(texture_id);
+
+		S32 num_volumes = texture->getNumVolumes();
+		if (num_volumes > 0)
+		{
+			const LLViewerTexture::ll_volume_list_t* volumes = texture->getVolumeList();
+			for (S32 volume_index = 0; volume_index < num_volumes; ++volume_index)
+			{
+				LLVOVolume* volume = volumes->at(volume_index);
+				if (volume)
+				{
+					volume->notifyMeshLoaded();
+				}
+			}
+		}
+	}
+}
+// </polarity> PLVR-32 Refresh texture on objects and avatars
 
 struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 {

@@ -239,6 +239,11 @@ public:
 	 */
 	static void viewChatHistory(const LLUUID& id);
 
+	// <polarity> PLVR-32 Refresh texture on objects and avatars
+	static void refreshAppearance(const LLUUID& id);
+	static void refreshAppearances(const uuid_vec_t& ids);
+	// </polarity> PLVR-32 Refresh texture on objects and avatars
+
 	static std::set<LLUUID> getInventorySelectedUUIDs();
 
 	/**

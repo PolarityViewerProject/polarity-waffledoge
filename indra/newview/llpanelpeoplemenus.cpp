@@ -88,6 +88,7 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		registrar.add("Avatar.Freeze",			boost::bind(&LLAvatarActions::freezeAvatar,					id));
 		registrar.add("Avatar.Eject",			boost::bind(&PeopleContextMenu::eject,					this));
 
+		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearance, id)); // <polarity> PLVR-32 Refresh texture on objects and avatars
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem,	this, _2));
@@ -109,6 +110,8 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		// registrar.add("Avatar.Share",		boost::bind(&LLAvatarActions::startIM,					mUUIDs)); // *TODO: unimplemented
 		// registrar.add("Avatar.Pay",			boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
 		
+		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearances, mUUIDs)); // <polarity> PLVR-32 Refresh texture on objects and avatars
+
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 
 		// create the context menu from the XUI
@@ -412,6 +415,7 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		if (flags & ITEM_IN_MULTI_SELECTION)
 		{
 			items.push_back(std::string("offer_teleport"));
+			items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
 		}
 		else
 		{
@@ -420,6 +424,7 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 			items.push_back(std::string("separator_invite_to_group"));
 			items.push_back(std::string("zoom_in"));
 			items.push_back(std::string("block_unblock"));
+			items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
 		}
 	}
 	else if (flags & ITEM_IN_MULTI_SELECTION)
@@ -433,6 +438,7 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("share"));
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("offer_teleport"));
+		items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
 	}
 	else 
 	{
@@ -454,6 +460,7 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 		items.push_back(std::string("block_unblock"));
 		items.push_back(std::string("freeze"));
 		items.push_back(std::string("eject"));
+		items.push_back(std::string("refresh")); // <polarity> PLVR-32 Refresh texture on objects and avatars
 	}
 
     hide_context_entries(menu, items, disabled_items);

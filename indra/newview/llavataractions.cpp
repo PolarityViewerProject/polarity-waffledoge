@@ -67,6 +67,7 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
+#include "llvoavatar.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 #include "lltrans.h"
@@ -1157,6 +1158,99 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
 		LLFloaterReg::showInstance("preview_conversation", extended_id, true);
 	}
 }
+
+// <polarity> PLVR-32 Refresh texture on objects and avatars
+// static
+void LLAvatarActions::refreshAppearance(const LLUUID& id)
+{
+	std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
+
+	LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
+	if(!avatar)
+	{
+		return;
+	}
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_UPPER_BAKED)->getID());
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_LOWER_BAKED)->getID());
+	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_SKIRT_BAKED)->getID());
+
+	std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
+	avatar->addThisAndAllChildren(objects);
+
+	LLSelectMgr::getInstance()->setForceSelection(TRUE);
+
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	if (objects.size() > 0)
+	{
+		for (LLViewerObject* viewer_object : objects)
+		{
+			if (viewer_object != avatar)
+			{
+				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
+			}
+		}
+	}
+
+	LLSelectMgr::getInstance()->refreshSelectionTextures(textures_to_refresh);
+
+	LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(avatar->getID());
+
+	LLSelectMgr::getInstance()->setForceSelection(FALSE);
+}
+
+// static
+void LLAvatarActions::refreshAppearances(const uuid_vec_t& ids)
+{
+	std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
+	std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
+
+	// Collect LL avatar mesh textures and LLViewerObjects for all avatars and their attachments.
+	for (LLUUID id : ids)
+	{
+		LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
+		if (!avatar)
+		{
+			continue;
+		}
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_UPPER_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_LOWER_BAKED)->getID());
+		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_SKIRT_BAKED)->getID());
+
+		avatar->addThisAndAllChildren(objects);
+	}
+
+	// For all collected LLViewerObjects that aren't avatars, select them and refresh the selection's
+	// textures (and also the LL avatar textures we collected).
+	LLSelectMgr::getInstance()->setForceSelection(TRUE);
+	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
+	if (objects.size() > 0)
+	{
+		for (LLViewerObject* viewer_object : objects)
+		{
+			if (!viewer_object->isAvatar())
+			{
+				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
+			}
+		}
+	}
+
+	LLSelectMgr::getInstance()->refreshSelectionTextures(textures_to_refresh);
+
+	// Loop through the avatar ids and request their textures.
+	for (LLUUID id : ids)
+	{
+		LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(id);
+	}
+
+	LLSelectMgr::getInstance()->setForceSelection(FALSE);
+}
+// </polarity> PLVR-32 Refresh texture on objects and avatars
 
 //== private methods ========================================================================================
 
