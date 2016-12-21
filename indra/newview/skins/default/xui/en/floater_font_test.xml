@@ -337,6 +337,19 @@
      left="16">
         Helvetica size=Large style=BOLD|ITALIC
     </text>
+
+    <text
+     type="string"
+     length="1"
+     bottom_delta="20"
+     follows="left|top|right"
+     height="16"
+     layout="topleft"
+     left="16"
+     name="unicode_test">
+        I 💗 🐟, 🍕, and 🍔! Do you not ಠ_ಠ?
+    </text>
+
 <!--
     <text
      type="string"
