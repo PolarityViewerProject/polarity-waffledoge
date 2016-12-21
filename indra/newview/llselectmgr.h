@@ -46,6 +46,7 @@
 #include "llmaterial.h"
 
 #include <deque>
+#include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
 #include <boost/make_shared.hpp>	// boost::make_shared
@@ -552,6 +553,8 @@ public:
 	void saveSelectedObjectColors();
 	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
+
+	void refreshSelectionTextures(std::unordered_set<LLUUID>& additional_textures = std::unordered_set<LLUUID>()); // <polarity> PLVR-32 Refresh texture on objects and avatars
 
 	// Sets which texture channel to query for scale and rot of display
 	// and depends on UI state of LLPanelFace when editing
