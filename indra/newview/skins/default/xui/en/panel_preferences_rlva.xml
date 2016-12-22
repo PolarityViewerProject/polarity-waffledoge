@@ -286,7 +286,7 @@ width="510">
     left="10"
     height="12"
     width="50">
-     Add:
+     Replace:
     </text>
     <line_editor
     control_name="RestrainedLoveReplaceWhenFolderBeginsWith"
@@ -308,7 +308,7 @@ width="510">
     left="270"
     height="12"
     width="50">
-     Replace:
+     Add:
     </text>
     <line_editor
     control_name="RestrainedLoveStackWhenFolderBeginsWith"
@@ -318,7 +318,7 @@ width="510">
     layout="topleft"
     left_pad="10"
     name="RestrainedLoveReplacebegins"
-    tool_tip="If a folder name begins with this string, its attach behavior will always be 'stack', never 'replace'. Default is '+'."
+    tool_tip="If a folder name begins with this string, its attach behavior will always be 'stack' (or add), never 'replace'. Default is '+'."
     top_delta="-3"
     width="150" />
 </panel>
