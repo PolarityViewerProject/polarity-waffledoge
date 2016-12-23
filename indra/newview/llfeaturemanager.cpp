@@ -56,10 +56,6 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 
-#if LL_WINDOWS
-#include "lldxhardware.h"
-#endif
-
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
 #ifdef VERSIONED_FEATURETABLE

@@ -39,7 +39,6 @@
 #include "llfile.h"
 #include "lltimer.h"
 #include "llstring.h"
-#include "lldxhardware.h"
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
@@ -451,7 +450,6 @@ void LLCrashLoggerWindows::gatherPlatformSpecificFiles()
 	SetCursor(gCursorWait);
 	// At this point we're responsive enough the user could click the close button
 	SetCursor(gCursorArrow);
-	//mDebugLog["DisplayDeviceInfo"] = gDXHardware.getDisplayInfo();  //Not initialized.
 }
 
 bool LLCrashLoggerWindows::frame()

@@ -45,7 +45,6 @@
 #include <tchar.h>		// For TCHAR support
 
 #include "llviewercontrol.h"
-#include "lldxhardware.h"
 
 #ifdef USE_NVAPI
 #include "nvapi/nvapi.h"
@@ -483,8 +482,6 @@ bool LLAppViewerWin32::cleanup()
 {
 	bool result = LLAppViewer::cleanup();
 
-	gDXHardware.cleanup();
-
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLWinDebug::instance().cleanup();
 #endif
@@ -520,88 +517,6 @@ void write_debug_dx(const char* str)
 void write_debug_dx(const std::string& str)
 {
 	write_debug_dx(str.c_str());
-}
-
-bool LLAppViewerWin32::initHardwareTest()
-{
-	//
-	// Do driver verification and initialization based on DirectX
-	// hardware polling and driver versions
-	//
-	// @todo figure out if we even need this on anything else than Intel
-	if (TRUE == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
-	{
-		// per DEV-11631 - disable hardware probing for everything
-		// but vram.
-		BOOL vram_only = TRUE;
-
-		LL_DEBUGS("AppInit") << "Attempting to poll DirectX for hardware info" << LL_ENDL;
-		gDXHardware.setWriteDebugFunc(write_debug_dx);
-		// <FS:Ansariel> FIRE-15891: Add option to disable WMI check in case of problems
-		//BOOL probe_ok = gDXHardware.getInfo(vram_only);
-		BOOL probe_ok = gDXHardware.getInfo(vram_only, gSavedSettings.getBOOL("PVDebug_DisableWMIProbing"));
-		// </FS:Ansariel>
-
-		if (!probe_ok
-			&& gWarningSettings.getBOOL("AboutDirectX9"))
-		{
-			LL_WARNS("AppInit") << "DirectX probe failed, alerting user." << LL_ENDL;
-
-			// Warn them that runnin without DirectX 9 will
-			// not allow us to tell them about driver issues
-			std::ostringstream msg;
-			msg << LLTrans::getString ("MBNoDirectX");
-			S32 button = OSMessageBox(
-				msg.str(),
-				LLTrans::getString("MBWarning"),
-				OSMB_YESNO);
-			if (OSBTN_NO== button)
-			{
-				LL_INFOS("AppInit") << "User quitting after failed DirectX 9 detection" << LL_ENDL;
-				LLWeb::loadURLExternal("http://secondlife.com/support/", false);
-				return false;
-			}
-			gWarningSettings.setBOOL("AboutDirectX9", FALSE);
-		}
-		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
-
-
-
-		// Disable so debugger can work
-		std::string splash_msg;
-		LLStringUtil::format_map_t args;
-		args["[APP_NAME]"] = APP_NAME;
-		splash_msg = LLTrans::getString("StartupLoading", args);
-	}
-
-	// Only probe once after installation
-	gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
-
-	if (!restoreErrorTrap())
-	{
-		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
-	}
-
-
-	// <polarity> on NVIDIA and ATI cards, the value will be over-written later on
-	// so we can probably safely ignore this here.
-	if (gGLManager.mVRAM == 0)
-	{
-		// <polarity> This value doesn't appear to have much importance since we call Nvidia and ATI api
-		// to get the actual VRAM amount.
-		gGLManager.mVRAM = gDXHardware.getVRAM();
-		// Avoid infinite loop when vram detection fails
-		if(gGLManager.mVRAM == 0)
-		{
-			LL_DEBUGS("AppInit") << "VRAM detection failed! Assuming the card has 1337MB of memory." << LL_ENDL;
-			gGLManager.mVRAM = 1337;
-		}
-	}
-
-	LL_INFOS("AppInit") << "OS-Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
-	LL_DEBUGS("AppInit") << "Note: OS-based VRAM detection at this point is inaccurate on 64-bit binaries. Runtime value should be accurate on Nvidia at least" << LL_ENDL;
-
-	return true;
 }
 
 bool LLAppViewerWin32::initParseCommandLine(LLCommandLineParser& clp)

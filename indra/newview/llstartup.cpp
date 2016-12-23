@@ -201,10 +201,6 @@
 
 #include "llstacktrace.h"
 
-#if LL_WINDOWS
-#include "lldxhardware.h"
-#endif
-
 // <polarity> Polarity Includes
 #include "pvdata.h"
 #include "pvcommon.h"
