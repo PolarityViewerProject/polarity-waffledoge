@@ -472,19 +472,22 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
 #if INTERNAL_BUILD
+bool show_token_box = true;
+#else
+bool show_token_box = false;
+#endif
 	auto auth_box = getChild<LLTextEditor>("auth_token_editor");
 	if(auth_box)
 	{
-		auth_box->setEnabled(TRUE);
-		auth_box->setVisible(TRUE);
+		auth_box->setEnabled(show_token_box);
+		auth_box->setVisible(show_token_box);
 	}
 	auto auth_text = getChild<LLTextBox>("auth_token_text");
 	if(auth_text)
 	{
-		auth_text->setVisible(TRUE);
+		auth_text->setVisible(show_token_box);
 	}
 	
-#endif
 
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
