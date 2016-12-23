@@ -1343,13 +1343,7 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 // Returns min setting for TextureMemory (in MB)
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
-#ifdef LL_VRAM_CODE
-	S32Megabytes system_ram = gSysMemory.getPhysicalMemoryClamped();
-	//min texture mem sets to 64M if total physical mem is more than 1.5GB
-	return (system_ram > S32Megabytes(1500)) ? S32Megabytes(64) : gMinVideoRam ;
-#else
-	return S32Megabytes(32); // There doesn't seem to be any real reason to raise minimum allocation.
-#endif
+	return S32Megabytes(32); // <polarity />
 }
 
 //static

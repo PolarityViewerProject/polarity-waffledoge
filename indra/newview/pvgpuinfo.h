@@ -71,8 +71,8 @@ public:
 	static bool hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y);
 
 	/**
-	 * \brief Wrapper around gGLManager.mVRAM
-	 * \return S32
+	 * \briefproprietary API-provided replacement for GLManager::mVRAM
+	 * \return S32Megabytes
 	 */
 	static S32Megabytes getTotalVRAM();
 

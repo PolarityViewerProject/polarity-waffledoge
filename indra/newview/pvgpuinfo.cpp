@@ -60,7 +60,6 @@ void PVGPUInfo::updateValues()
 		// and the driver. If no memory info available, let's assume there is no reserved vram.
 		// glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfoAMD);
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &memInfo);
-		vram_available_mb = S32Kilobytes(memInfo);
 	}
 	vram_available_mb = S32Kilobytes(memInfo);
 

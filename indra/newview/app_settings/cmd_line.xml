@@ -407,15 +407,5 @@
       <integer>1</integer>
       <!-- Special case. Mapped to settings procedurally. -->
     </map>
-    <!-- Settings added by Polarity Viewer Project -->
-    <key>forcevideomemory</key>
-    <map>
-      <key>desc</key>
-      <string>Overrides the video memory detection on Windows if a value greater 0 is passed</string>
-      <key>count</key>
-      <integer>1</integer>
-      <key>map-to</key>
-      <string>PVDebug_ForcedVideoMemory</string>
-    </map>
   </map>
 </llsd>

@@ -695,15 +695,18 @@ bool LLGLManager::initGL()
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-		LL_WARNS() << "Raw VRAM from GL_TEXTURE_FREE_MEMORY_ATI:" << meminfo << LL_ENDL;
+		LL_INFOS() << "Raw VRAM from GL_TEXTURE_FREE_MEMORY_ATI:" << meminfo << LL_ENDL;
 		mVRAM = meminfo[0]/1024;
 	}
 	else if (mHasNVXMemInfo)
 	{
 		S32 dedicated_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
+		LL_INFOS() << "Raw VRAM from GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX:" << dedicated_memory << LL_ENDL;
 		mVRAM = dedicated_memory/1024;
 	}
+
+	LL_WARNS() << "VRAM detection should be accurate beyond this point; vram amount = " << mVRAM << LL_ENDL;
 
 	if (mVRAM < 256)
 	{ //something likely went wrong using the above extensions, fall back to old method

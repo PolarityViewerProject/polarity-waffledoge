@@ -528,6 +528,7 @@ bool LLAppViewerWin32::initHardwareTest()
 	// Do driver verification and initialization based on DirectX
 	// hardware polling and driver versions
 	//
+	// @todo figure out if we even need this on anything else than Intel
 	if (TRUE == gSavedSettings.getBOOL("ProbeHardwareOnStartup") && FALSE == gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		// per DEV-11631 - disable hardware probing for everything
@@ -564,8 +565,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		}
 		LL_DEBUGS("AppInit") << "Done polling DirectX for hardware info" << LL_ENDL;
 
-		// Only probe once after installation
-		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+
 
 		// Disable so debugger can work
 		std::string splash_msg;
@@ -574,36 +574,32 @@ bool LLAppViewerWin32::initHardwareTest()
 		splash_msg = LLTrans::getString("StartupLoading", args);
 	}
 
+	// Only probe once after installation
+	gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
+
 	if (!restoreErrorTrap())
 	{
 		LL_WARNS("AppInit") << " Someone took over my exception handler (post hardware probe)!" << LL_ENDL;
 	}
 
+
+	// <polarity> on NVIDIA and ATI cards, the value will be over-written later on
+	// so we can probably safely ignore this here.
 	if (gGLManager.mVRAM == 0)
 	{
-		// <FS:Ansariel> FIRE-12671: Force VRAM if DirectX detection is broken
-		S32 forced_video_memory;
-		if ((forced_video_memory = gSavedSettings.getS32("PVDebug_ForcedVideoMemory")) > 0)
+		// <polarity> This value doesn't appear to have much importance since we call Nvidia and ATI api
+		// to get the actual VRAM amount.
+		gGLManager.mVRAM = gDXHardware.getVRAM();
+		// Avoid infinite loop when vram detection fails
+		if(gGLManager.mVRAM == 0)
 		{
-			LL_INFOS("AppInit") << "Forcing VRAM to " << forced_video_memory << " MB" << LL_ENDL;
-			gGLManager.mVRAM = forced_video_memory;
-		}
-		else
-		{
-		// </FS:Ansariel>
-			LL_WARNS("AppInit") << "GL Manager reported empty VRAM, falling back to DirectX query!" << LL_ENDL;
-			gGLManager.mVRAM = gDXHardware.getVRAM();
-			LL_INFOS("AppInit") << "DirectX VRAM query reported: " << gGLManager.mVRAM << LL_ENDL;
-			// Avoid infinite loop when vram detection fails
-			if(gGLManager.mVRAM == 0)
-			{
-				LL_WARNS("AppInit") << "VRAM detection failed! Assuming the card has 1024MB of memory." << LL_ENDL;
-				gGLManager.mVRAM = 1024;
-			}
+			LL_DEBUGS("AppInit") << "VRAM detection failed! Assuming the card has 1337MB of memory." << LL_ENDL;
+			gGLManager.mVRAM = 1337;
 		}
 	}
 
-	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
+	LL_INFOS("AppInit") << "OS-Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
+	LL_DEBUGS("AppInit") << "Note: OS-based VRAM detection at this point is inaccurate on 64-bit binaries. Runtime value should be accurate on Nvidia at least" << LL_ENDL;
 
 	return true;
 }

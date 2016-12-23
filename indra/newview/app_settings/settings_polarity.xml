@@ -307,7 +307,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVDebug_ForcedVideoMemory</key>
+<!--     <key>PVDebug_ForcedVideoMemory</key>
     <map>
       <key>Comment</key>
       <string>Overrides the video memory detection on Windows if a value greater 0 is passed (in case DirectX memory detection fails or is wrong)</string>
@@ -319,7 +319,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
+    </map> -->
     <key>PVDebug_LogMissingAssets</key>
     <map>
       <key>Comment</key>
