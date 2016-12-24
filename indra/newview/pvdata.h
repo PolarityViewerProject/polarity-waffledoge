@@ -569,10 +569,9 @@ private:
 
 				if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
 				{
-					PVData::PV_DEBUG("Setting MOTD to " + name, LLError::LEVEL_DEBUG);
-					PVData::PV_DEBUG("Setting MOTD to " + name, LLError::LEVEL_DEBUG);
+					PVData::PV_DEBUG("Setting EVENTS MOTD to " + name, LLError::LEVEL_INFO);
 					// TODO: Shove into notification well.
-					return name;
+					return content["EventMOTD"].asString();
 				}
 			}
 			return "";
@@ -586,11 +585,8 @@ private:
 		 */
 		bool isVersionAtOrAboveMinimum();
 
-		// Force getting a new progress tip, regardless of the timer
-		std::string getNewProgressTipForced();
-
 		// Get a new progress tip (throttled)
-		std::string getNewProgressTip(const std::string msg_in);
+		std::string getNewProgressTip(bool forced = false);
 
 		static std::string getRandomWindowTitle();
 

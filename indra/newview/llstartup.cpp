@@ -263,7 +263,7 @@ void login_show();
 void login_callback(S32 option, void* userdata);
 void show_first_run_dialog();
 bool first_run_dialog_callback(const LLSD& notification, const LLSD& response);
-void set_startup_status(const F32 frac, const std::string& string, const std::string& msg);
+void set_startup_status(const F32 frac, const std::string& string);
 bool login_alert_status(const LLSD& notification, const LLSD& response);
 void login_packet_failed(void**, S32 result);
 void use_circuit_callback(void**, S32 result);
@@ -767,7 +767,7 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
-		set_startup_status(0.03f, msg.c_str(), gAgent.mMOTD.c_str());
+		set_startup_status(0.03f, msg.c_str());
 		display_startup();
 		LLGridManager::getInstance()->initialize(std::string());
 		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
@@ -1120,7 +1120,7 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
-		gAgent.mMOTD = gPVDataViewerInfo->getNewProgressTipForced();
+		gAgent.mMOTD = gPVDataViewerInfo->getNewProgressTip(true);
 
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
@@ -1130,7 +1130,7 @@ bool idle_startup()
 
 		// Poke the VFS, which could potentially block for a while if
 		// Windows XP is acting up
-		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache"), LLStringUtil::null);
+		set_startup_status(0.07f, LLTrans::getString("LoginVerifyingCache"));
 		display_startup();
 
 		gVFS->pokeFiles();
@@ -1146,7 +1146,7 @@ bool idle_startup()
 
 		// Update progress status and the display loop.
 		auth_desc = LLTrans::getString("LoginInProgress");
-		set_startup_status(progress, auth_desc, auth_message);
+		set_startup_status(progress, auth_desc);
 		progress += 0.02f;
 		display_startup();
 
@@ -1172,7 +1172,7 @@ bool idle_startup()
 		// If we get here we have gotten past the potential stall
 		// in curl, so take "may appear frozen" out of progress bar. JC
 		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
-		set_startup_status(progress, auth_desc, auth_message);
+		set_startup_status(progress, auth_desc);
 
 		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
 		return FALSE;
@@ -1332,7 +1332,7 @@ bool idle_startup()
 		if (agents_time > MAX_AGENTS_TIME || gPVDataDownloader->getAgentsDone())
 		{
 			LL_WARNS("PVData") << "Parsing agents sucess or timeout, moving on..." << LL_ENDL;
-			set_startup_status(0.099f, LLStringUtil::null, gAgent.mMOTD.c_str());
+			set_startup_status(0.099f, LLStringUtil::null);
 			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
 			if (!(gPVDataAuth->isAllowedToLogin(gAgentID)))
 			{
@@ -1384,7 +1384,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_WORLD_INIT == LLStartUp::getStartupState())
 	{
-		set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"), gAgent.mMOTD);
+		set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"));
 		display_startup();
 // [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-07-09 (Catznip-2.1.2a) | Added: Catznip-2.1.1a
 		if ((gSavedSettings.getBOOL("FullScreenWindow")) && (gViewerWindow->canFullscreenWindow()))
@@ -1529,11 +1529,11 @@ bool idle_startup()
 			{
 				LLStringUtil::format_map_t args;
 				args["[NUMBER]"] = llformat("%d", num_retries + 1);
-				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args), gAgent.mMOTD.c_str());
+				set_startup_status(0.4f, LLTrans::getString("LoginRetrySeedCapGrant", args));
 			}
 			else
 			{
-				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"), gAgent.mMOTD.c_str());
+				set_startup_status(0.4f, LLTrans::getString("LoginRequestSeedCapGrant"));
 			}
 		}
 		display_startup();
@@ -1669,7 +1669,7 @@ bool idle_startup()
 		for (int i = 0; i < DECODE_TIME_SEC; i++)
 		{
 			F32 frac = (F32)i / (F32)DECODE_TIME_SEC;
-			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"), gAgent.mMOTD);
+			set_startup_status(0.45f + frac*0.1f, LLTrans::getString("LoginDecodingImages"));
 			display_startup();
 			gTextureList.decodeAllImages(1.f);
 		}
@@ -1715,7 +1715,7 @@ bool idle_startup()
 	if(STATE_WORLD_WAIT == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Waiting for simulator ack...." << LL_ENDL;
-		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake"), gAgent.mMOTD);
+		set_startup_status(0.59f, LLTrans::getString("LoginWaitingForRegionHandshake"));
 		if(gGotUseCircuitCodeAck)
 		{
 			LLStartUp::setStartupState( STATE_AGENT_SEND );
@@ -1736,7 +1736,7 @@ bool idle_startup()
 	if (STATE_AGENT_SEND == LLStartUp::getStartupState())
 	{
 		LL_DEBUGS("AppInit") << "Connecting to region..." << LL_ENDL;
-		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion"), gAgent.mMOTD);
+		set_startup_status(0.60f, LLTrans::getString("LoginConnectingToRegion"));
 		display_startup();
 		// register with the message system so it knows we're
 		// expecting this message
@@ -2288,8 +2288,7 @@ bool idle_startup()
 		{
 			update_texture_fetch();
 			set_startup_status(0.60f + 0.30f * timeout_frac,
-				LLTrans::getString("LoginPrecaching"),
-					gAgent.mMOTD.c_str());
+			                   LLTrans::getString("LoginPrecaching"));
 			display_startup();
 		}
 		
@@ -2355,7 +2354,7 @@ bool idle_startup()
 
 	if (STATE_CLEANUP == LLStartUp::getStartupState())
 	{
-		set_startup_status(1.0, "", "");
+		set_startup_status(1.0, "");
 		display_startup();
 
 		// Let the map know about the inventory.
@@ -2516,13 +2515,13 @@ bool first_run_dialog_callback(const LLSD& notification, const LLSD& response)
 
 
 
-void set_startup_status(const F32 frac, const std::string& string, const std::string& msg)
+void set_startup_status(const F32 frac, const std::string& string)
 {
 	gViewerWindow->setProgressPercent(frac*100);
 	gViewerWindow->setProgressString(string);
 	if(LLStartUp::getStartupState() >= STATE_LOGIN_CURL_UNSTUCK)
 	{
-		gViewerWindow->setProgressMessage(msg);
+		gViewerWindow->setProgressMessage();
 	}
 }
 
@@ -3024,7 +3023,7 @@ void LLStartUp::multimediaInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing Multimedia...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingMultimedia");
-	set_startup_status(0.42f, msg.c_str(), gAgent.mMOTD.c_str());
+	set_startup_status(0.42f, msg.c_str());
 	display_startup();
 
 	// LLViewerMedia::initClass();
@@ -3035,7 +3034,7 @@ void LLStartUp::fontInit()
 {
 	LL_DEBUGS("AppInit") << "Initializing fonts...." << LL_ENDL;
 	std::string msg = LLTrans::getString("LoginInitializingFonts");
-	set_startup_status(0.45f, msg.c_str(), gAgent.mMOTD.c_str());
+	set_startup_status(0.45f, msg.c_str());
 	display_startup();
 
 	LLFontGL::loadDefaultFonts();

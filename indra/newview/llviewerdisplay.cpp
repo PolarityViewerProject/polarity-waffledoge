@@ -434,7 +434,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gTeleportDisplayTimer.reset();
 			pProgFloater->setVisible(TRUE);
 			// <polarity> Add missing call to put new message in TP screen
-			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["requesting"]);
@@ -445,7 +444,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Waiting for source simulator to respond
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 37.5f));
 			// <polarity> Add missing call to put new message in TP screen
-			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			pProgFloater->setProgressText(message);
 			break;
 
@@ -453,7 +451,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Viewer has received destination location from source simulator
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 75.f));
 			// <polarity> Add missing call to put new message in TP screen
-			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			pProgFloater->setProgressText(message);
 			break;
 
@@ -464,7 +461,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			pProgFloater->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			// <polarity> Add missing call to put new message in TP screen
-			//gViewerWindow->setProgressMessage(gAgent.mMOTD);
 			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
@@ -484,7 +480,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				pProgFloater->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 				pProgFloater->setProgressPercent(arrival_fraction * 25.f + 75.f);
 				// <polarity> Add missing call to put new message in TP screen
-				//gViewerWindow->setProgressMessage(gAgent.mMOTD);
 				pProgFloater->setProgressText(message);
 			}
 			break;

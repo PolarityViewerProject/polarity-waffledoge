@@ -5081,12 +5081,12 @@ void LLViewerWindow::setProgressString(const std::string& string)
 	}
 }
 
-void LLViewerWindow::setProgressMessage(const std::string& msg)
+void LLViewerWindow::setProgressMessage()
 {
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);
-		mProgressView->setMessage(gPVDataViewerInfo->getNewProgressTip(msg));
+		mProgressView->setMessage(gPVDataViewerInfo->getNewProgressTip());
 	}
 }
 

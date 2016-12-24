@@ -402,10 +402,10 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 		gPVData->Dump(section, blob);
 		gPVDataViewerInfo->setMotdEventsList(blob);
 		auto event_motd = gPVDataViewerInfo->getEventMotdIfAny();
-		if (event_motd != "")
-		{
-			gAgent.mMOTD.assign(event_motd);
-		}
+		//if (event_motd != "")
+		//{
+		//	gAgent.mMOTD = event_motd;
+		//}
 	}
 	else
 	{
@@ -429,6 +429,7 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	{
 		gPVData->PV_DEBUG("No " + section + " found!", LLError::LEVEL_WARN);
 	}
+	
 #endif // PVDATA_PROGRESS_TIPS
 
 	section = pv_data_sections_.at(WindowTitles);
@@ -549,34 +550,16 @@ bool PVDataDownloader::getAgentsDone()
 	return false;
 }
 
-std::string PVDataViewerInfo::getNewProgressTipForced()
-{
-	// This assigns a random entry as the MOTD / Progress Tip message.
-	LLSD::array_const_iterator tip_iter = progress_tips_list_.beginArray();
-	if (tip_iter == progress_tips_list_.endArray())
-		return "";
-	std::string random_tip = (tip_iter + (ll_rand(static_cast<S32>(progress_tips_list_.size()))))->asString();
-	LL_INFOS() << "Setting Progress tip to '" << random_tip << "'" << LL_ENDL;
-	return random_tip;
-}
-
-std::string PVDataViewerInfo
-	::getNewProgressTip(const std::string msg_in)
+std::string PVDataViewerInfo::getNewProgressTip(bool forced)
 {
 	LL_DEBUGS() << "Entering function" << LL_ENDL;
-	// Pass the existing message right through
-	if (!msg_in.empty())
-	{
-		LL_DEBUGS() << "returning '" << msg_in << "' in passthrough mode" << LL_ENDL;
-		return msg_in;
-	}
 	// Use the last tip if available
 	std::string return_tip = "";
 	if (last_login_tip != "")
 	{
 		return_tip = last_login_tip;
 	}
-	if (mTipCycleTimer.getStarted())
+	if (forced || mTipCycleTimer.getStarted())
 	{
 		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
 		if (mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout)
@@ -586,8 +569,13 @@ std::string PVDataViewerInfo
 
 			// Most likely a teleport screen; let's add something.
 
-			return_tip = progress_tips_list_.getRandom();
-			LL_DEBUGS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
+			// Check for events MOTD first...
+			return_tip = gPVDataViewerInfo->getEventMotdIfAny();
+			if (return_tip == "")
+			{
+				return_tip = progress_tips_list_.getRandom();
+				LL_INFOS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
+			}
 
 			if (!return_tip.empty() && return_tip != last_login_tip)
 			{
