@@ -44,7 +44,6 @@
 #include "llfloatertools.h"
 #include "llselectmgr.h"
 #include "llviewercamera.h"
-#include "llviewercontrol.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
 

@@ -41,7 +41,6 @@
 #include "llstring.h"
 #include "lldir.h"
 #include "llsdserialize.h"
-#include "llsdutil.h"
 #include "stringize.h"
 
 #if LL_WINDOWS
@@ -233,7 +232,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 }
 
 
-LLCrashLoggerWindows::LLCrashLoggerWindows(void)
+LLCrashLoggerWindows::LLCrashLoggerWindows()
 {
 	if (LLCrashLoggerWindows::sInstance==NULL)
 	{
@@ -241,7 +240,7 @@ LLCrashLoggerWindows::LLCrashLoggerWindows(void)
 	}
 }
 
-LLCrashLoggerWindows::~LLCrashLoggerWindows(void)
+LLCrashLoggerWindows::~LLCrashLoggerWindows()
 {
 	sInstance = NULL;
 }
@@ -409,7 +408,7 @@ bool LLCrashLoggerWindows::initCrashServer()
 	return true;
 }
 
-bool LLCrashLoggerWindows::init(void)
+bool LLCrashLoggerWindows::init()
 {	
 	bool ok = LLCrashLogger::init();
 	if(!ok) return false;

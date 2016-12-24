@@ -32,7 +32,7 @@
 #include "llnotificationsutil.h"
 #include "llcallbacklist.h"
 #include "llinventory.h"
-#include "llviewerinventory.h"
+//#include "llviewerinventory.h"
 #include "llinventorymodel.h"
 
 const F32 MAX_NAME_WAIT_TIME = 5.0f;

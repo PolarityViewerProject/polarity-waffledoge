@@ -29,7 +29,6 @@
 #include "llfloaterreg.h"
 #include "llprogressbar.h"
 #include "lltextbase.h"
-#include "lltrans.h"
 
 #include "llagent.h"
 

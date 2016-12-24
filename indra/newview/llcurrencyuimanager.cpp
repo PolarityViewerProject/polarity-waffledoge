@@ -26,12 +26,12 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lluictrlfactory.h"
-#include "lltextbox.h"
+//#include "lluictrlfactory.h"
+#//include "lltextbox.h"
 #include "lllineeditor.h"
 #include "llresmgr.h" // for LLLocale
 #include "lltrans.h"
-#include "llviewercontrol.h"
+//#include "llviewercontrol.h"
 #include "llversioninfo.h"
 
 #include "llcurrencyuimanager.h"
@@ -40,8 +40,8 @@
 #include "llagent.h"
 #include "llconfirmationmanager.h"
 #include "llframetimer.h"
-#include "lllineeditor.h"
-#include "llviewchildren.h"
+//#include "lllineeditor.h"
+//#include "llviewchildren.h"
 #include "llxmlrpctransaction.h"
 #include "llviewernetwork.h"
 #include "llpanel.h"

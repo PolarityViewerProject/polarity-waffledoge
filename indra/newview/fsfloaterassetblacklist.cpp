@@ -33,7 +33,6 @@
 #include "fsscrolllistctrl.h"
 #include "llfiltereditor.h"
 #include "llfloaterreg.h"
-#include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
 
 

@@ -27,6 +27,9 @@
 #ifndef LL_LLTABLE_H
 #define LL_LLTABLE_H
 
+
+#include "stdtypes.h"
+
 template<class T> class LLTable
 {
 private:
