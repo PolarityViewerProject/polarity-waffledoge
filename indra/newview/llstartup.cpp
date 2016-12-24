@@ -1120,12 +1120,9 @@ bool idle_startup()
 
 		init_start_screen(agent_location_id);
 
-		gAgent.mMOTD = gPVDataViewerInfo->getNewProgressTip(true);
-
 		// Display the startup progress bar.
 		gViewerWindow->setShowProgress(TRUE);
 		gViewerWindow->setProgressCancelButtonVisible(TRUE, LLTrans::getString("Quit"));
-
 		gViewerWindow->revealIntroPanel();
 
 		// Poke the VFS, which could potentially block for a while if
@@ -1134,11 +1131,34 @@ bool idle_startup()
 		display_startup();
 
 		gVFS->pokeFiles();
-
-		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
+		// just to be sure
+		if(!gAgent.mMOTD.empty())
+		{
+			gAgent.mMOTD = "";
+		}
+		gPVDataViewerInfo->getNewProgressTip(true);
+		LLStartUp::setStartupState(STATE_PROGRESS_TIP);
 		return FALSE;
 	}
 
+	if (STATE_PROGRESS_TIP == LLStartUp::getStartupState())
+	{
+		progress += 0.02f;
+		set_startup_status(progress, "Fetching MOTD");
+		static LLFrameTimer timer;
+		const F32 current_time = timer.getElapsedTimeF32();
+		const F32 MAX_WAIT_TIME = 15.f;
+		if (current_time > MAX_WAIT_TIME || !gAgent.mMOTD.empty())
+		{
+			LL_INFOS("PVData") << "Got progress tip or timeout, moving on..." << LL_ENDL;
+			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
 	{

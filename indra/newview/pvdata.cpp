@@ -559,37 +559,35 @@ std::string PVDataViewerInfo::getNewProgressTip(bool forced)
 	{
 		return_tip = last_login_tip;
 	}
-	if (forced || mTipCycleTimer.getStarted())
+	static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
+	if (forced || (mTipCycleTimer.getStarted() && mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout))
 	{
-		static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
-		if (mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout)
+		LL_DEBUGS() << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
+		LL_DEBUGS() << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
+
+		// Most likely a teleport screen; let's add something.
+
+		// Check for events MOTD first...
+		return_tip = gPVDataViewerInfo->getEventMotdIfAny();
+		if (return_tip == "")
 		{
-			LL_DEBUGS() << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
-			LL_DEBUGS() << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
-
-			// Most likely a teleport screen; let's add something.
-
-			// Check for events MOTD first...
-			return_tip = gPVDataViewerInfo->getEventMotdIfAny();
-			if (return_tip == "")
-			{
-				return_tip = progress_tips_list_.getRandom();
-				LL_INFOS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
-			}
-
-			if (!return_tip.empty() && return_tip != last_login_tip)
-			{
-				LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
-				last_login_tip = return_tip;
-			}
-			mTipCycleTimer.reset();
+			return_tip = progress_tips_list_.getRandom();
+			LL_INFOS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
 		}
+
+		if (!return_tip.empty() && return_tip != last_login_tip)
+		{
+			LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
+			last_login_tip = return_tip;
+		}
+		mTipCycleTimer.reset();
 	}
 	else
 	{
 		LL_WARNS() << "mTipCycleTimer not started!" << LL_ENDL;
 	}
 
+	gAgent.mMOTD = return_tip;
 	return return_tip;
 }
 
