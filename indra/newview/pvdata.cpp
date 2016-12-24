@@ -334,7 +334,9 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (data_input.has(section))
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
-		gPVDataViewerInfo->setMinimumVersion(data_input[section]);
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		gPVDataViewerInfo->setMinimumVersion(blob);
 		//gPVData->PV_DEBUG("Minimum Version is " + gPVDataViewerInfo->getMinimumVersion(), LLError::LEVEL_INFO);
 	}
 	else
@@ -348,7 +350,9 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
 		gPVData->PV_DEBUG("Populating Blocked Releases list...", LLError::LEVEL_DEBUG);
-		gPVDataViewerInfo->setBlockedVersionsList(data_input[section]);
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		gPVDataViewerInfo->setBlockedVersionsList(blob);
 	}
 	else
 	{
@@ -362,7 +366,9 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (data_input.has(section))
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
-		gAgent.mMOTD.assign(data_input[section]);
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		gAgent.mMOTD.assign(blob);
 	}
 	else
 	{
@@ -375,9 +381,10 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (data_input.has(section))
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
-		auto motd = data_input[section];
-		LLSD::array_const_iterator iter = motd.beginArray();
-		gAgent.mChatMOTD.assign((iter + (ll_rand(static_cast<S32>(motd.size()))))->asString());
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		LLSD::array_const_iterator iter = blob.beginArray();
+		gAgent.mChatMOTD.assign((iter + (ll_rand(static_cast<S32>(blob.size()))))->asString());
 	}
 	else
 	{
@@ -391,7 +398,9 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (data_input.has(section))
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
-		gPVDataViewerInfo->setMotdEventsList(data_input[section]);
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		gPVDataViewerInfo->setMotdEventsList(blob);
 		auto event_motd = gPVDataViewerInfo->getEventMotdIfAny();
 		if (event_motd != "")
 		{
@@ -412,8 +421,9 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	if (data_input.has(section))
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
-		// Store list for later use
-		gPVDataViewerInfo->setProgressTipsList(data_input[section]);
+		auto blob = data_input[section];
+		gPVData->Dump(section, blob);
+		gPVDataViewerInfo->setProgressTipsList(blob);
 	}
 	else
 	{
@@ -427,9 +437,7 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	{
 		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
 		auto blob = data_input[section];
-		gPVData->Dump("Window Titles raw", blob);
-		// Store list for later use
-		// FIXME: This sets an empty map?!
+		gPVData->Dump(section, blob);
 		gPVDataViewerInfo->setWindowTitlesList(blob);
 	}
 	else
