@@ -597,10 +597,18 @@ void LLGLTexMemBar::draw()
 	{
 		max_vram_f32 = F32(PVGPUInfo::getTotalVRAM().value());
 	}
+
 	if(gGLManager.mIsNVIDIA)
 	{
 		data_progress = ((F32)PVGPUInfo::geComputedNonFreeVRAM().value() - (F32)total_mem.value() - (F32)bound_mem.value() - (F32)fbo) / max_vram_f32;
-
+	}
+	else
+	{
+		data_progress = ((F32)total_mem.value() - (F32)bound_mem.value() - (F32)fbo) / max_vram_f32;
+	}
+	
+	if (data_progress > 0.0f)
+	{
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
@@ -608,11 +616,6 @@ void LLGLTexMemBar::draw()
 			gGL.color4f(0.2f, 0.2f, 0.2f, 1.0f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
-	}
-	else
-	{
-		right = left + (data_progress * (F32)bar_width);
-	}
 		data_progress = ((F32)fbo) / max_vram_f32;
 		left = right;
 		right = left + (data_progress * (F32)bar_width);
@@ -642,7 +645,7 @@ void LLGLTexMemBar::draw()
 			gGL.color4f(0.f, 0.75f, 0.75f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
-	//}
+	}
 
 	//----------------------------------------------------------------------------
 	//BD - Total System (Viewer) Memory
