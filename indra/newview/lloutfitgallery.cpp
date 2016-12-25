@@ -198,9 +198,9 @@ void LLOutfitGallery::reArrangeRows(S32 row_diff)
     
     for (std::vector<LLOutfitGalleryItem*>::const_iterator it = buf_items.begin(); it != buf_items.end(); ++it)
     {
-    	(*it)->setHidden(false);
-    	applyFilter(*it,sFilterSubString);
-    	addToGallery(*it);
+        (*it)->setHidden(false);
+        applyFilter(*it,sFilterSubString);
+        addToGallery(*it);
     }
     updateMessageVisibility();
 }
@@ -733,11 +733,11 @@ void LLOutfitGalleryItem::setDefaultImage()
 {
     mTexturep = NULL;
     mImageAssetId.setNull();
-	auto preview_outfit = getChildView("preview_outfit");
-	if (preview_outfit)
-	{
-		preview_outfit->setVisible(TRUE);
-	}
+    auto preview_outfit = getChildView("preview_outfit");
+    if (preview_outfit)
+    {
+        preview_outfit->setVisible(TRUE);
+    }
     mDefaultImage = true;
 }
 
@@ -778,13 +778,12 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
 
 void LLOutfitGalleryContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
 {
-	LLOutfitContextMenu::renameOutfit(outfit_cat_id);
+    LLOutfitContextMenu::renameOutfit(outfit_cat_id);
     LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
     if (gallery)
     {
-		gallery->refreshOutfit(outfit_cat_id);
+        gallery->refreshOutfit(outfit_cat_id);
         gallery->reArrangeRows();
-		
     }
 }
 
