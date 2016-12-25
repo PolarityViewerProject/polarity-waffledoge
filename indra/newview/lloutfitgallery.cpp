@@ -754,7 +754,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.TakeOff",
                   boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
-    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
+    registrar.add("Outfit.Rename", boost::bind(&LLOutfitGalleryContextMenu::renameOutfit, this, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitGalleryContextMenu::onRemoveOutfit, this, selected_id));
     registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
     registrar.add("Outfit.UploadPhoto", boost::bind(&LLOutfitGalleryContextMenu::onUploadPhoto, this, selected_id));
@@ -774,6 +774,18 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     }
     return menu;
     // </FS:Ansariel>
+}
+
+void LLOutfitGalleryContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
+{
+	LLOutfitContextMenu::renameOutfit(outfit_cat_id);
+    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
+    if (gallery)
+    {
+		gallery->refreshOutfit(outfit_cat_id);
+        gallery->reArrangeRows();
+		
+    }
 }
 
 void LLOutfitGalleryContextMenu::onUploadPhoto(const LLUUID& outfit_cat_id)

@@ -208,7 +208,8 @@ public:
     mOutfitList(outfit_list){}
 protected:
     /* virtual */ LLContextMenu* createMenu();
-    bool onEnable(LLSD::String param);
+	void renameOutfit(const LLUUID& outfit_cat_id);
+	bool onEnable(LLSD::String param);
     bool onVisible(LLSD::String param);
     void onUploadPhoto(const LLUUID& outfit_cat_id);
     void onSelectPhoto(const LLUUID& outfit_cat_id);
