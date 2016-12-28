@@ -5071,7 +5071,7 @@ void LLAppViewer::idle()
 
 	// <polarity>
 	gPVDataDownloader->refreshDataFromServer();
-	PVGetDynamicWindowTitle();
+	//PVGetDynamicWindowTitle();
 	// </polarity>
 
 	gViewerWindow->updateUI();
