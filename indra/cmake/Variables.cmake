@@ -206,7 +206,13 @@ option(USE_AUTO_PARALLELIZER "Use MSVC's Auto-Parallelizer" OFF)
 
 # Libraries
 # option(USE_VLC_PLUGIN "Link VLC plugin. Option exists because it breaks." ON)
+
+# Mallocs
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
+option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
+if (USE_TCMALLOC AND USE_TBBMALLOC)
+  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
+endif (USE_TCMALLOC AND USE_TBBMALLOC)
 
 option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)
 option(INTERNAL_BUILD "Nya" OFF)

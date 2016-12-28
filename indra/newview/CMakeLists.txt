@@ -16,6 +16,7 @@ include(GLOD)
 include(GooglePerfTools)
 include(Hunspell)
 include(JsonCpp)
+include(IntelTBB)
 include(LLAppearance)
 include(LLAudio)
 include(LLCharacter)
@@ -1799,7 +1800,7 @@ if(WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         # *TODO -reenable this once we get server usage sorted out
-        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINKER_FLAGS} ${LAA}"
+        LINK_FLAGS "/debug /NODEFAULTLIB:LIBCMT /SUBSYSTEM:WINDOWS ${TCMALLOC_LINKER_FLAGS} ${TBBMALLOC_LINK_FLAGS} ${LAA}"
         LINK_FLAGS_DEBUG "/NODEFAULTLIB:\"LIBCMT;LIBCMTD;MSVCRT\" ${LAA}"
         #LINK_FLAGS_RELEASE "/FORCE:MULTIPLE /MAP\"secondlife-bin.MAP\" /OPT:REF /LARGEADDRESSAWARE"
         LINK_FLAGS_RELEASE "/MAP\"secondlife-bin.MAP\" ${LAA}"
@@ -2084,6 +2085,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${TCMALLOC_LIBRARIES}
+    ${TBBMALLOC_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
@@ -2467,6 +2469,19 @@ if(LL_TESTS)
       llviewernetwork.cpp
   )
 
+    if(USE_TBBMALLOC)
+      # Configure a var for tbbmalloc location, if used.
+      # Note the need to specify multiple names explicitly.
+      MESSAGE("Adding TBBMalloc DLLs...")
+      list(APPEND COPY_INPUT_DEPENDENCIES
+        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
+        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
+        )
+    endif(USE_TBBMALLOC)
 
   ll_add_integration_test(llslurl
     "${llslurl_test_sources}"

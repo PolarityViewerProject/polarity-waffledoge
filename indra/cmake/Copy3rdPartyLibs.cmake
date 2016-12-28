@@ -59,6 +59,11 @@ if(WINDOWS)
       set(release_files ${release_files} libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
+    if(USE_TBBMALLOC)
+      list(APPEND debug_files tbbmalloc_debug.dll tbbmalloc_proxy_debug.dll)
+      list(APPEND release_files tbbmalloc.dll tbbmalloc_proxy.dll)
+    endif(USE_TBBMALLOC)
+
     if (FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)
         set(debug_files ${debug_files} fmodL64.dll)

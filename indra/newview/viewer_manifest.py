@@ -471,6 +471,17 @@ class WindowsManifest(ViewerManifest):
             except:
                 print "Skipping libtcmalloc_minimal.dll"
 
+            # For Intel threading building blocks
+            try:
+                if self.args['configuration'].lower() == 'debug':
+                    self.path('tbbmalloc_proxy_debug.dll')
+                    self.path('tbbmalloc_debug.dll')
+                else:
+                    self.path('tbbmalloc_proxy.dll')
+                    self.path('tbbmalloc.dll')
+            except:
+                print "Skipping tbbmalloc dlls"
+
             self.end_prefix()
 
         self.path(src="licenses-win32.txt", dst="licenses.txt")

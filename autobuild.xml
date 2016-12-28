@@ -1095,6 +1095,38 @@
         <key>version</key>
         <string>2012.1</string>
       </map>
+      <key>inteltbb</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright © 2005-2016 Intel Corporation. All Rights Reserved.</string>
+        <key>description</key>
+        <string>Intel Threaded Building Blocks Library</string>
+        <key>license</key>
+        <string>Apache 2.0</string>
+        <key>license_file</key>
+        <string>LICENSES/inteltbb.txt</string>
+        <key>name</key>
+        <string>inteltbb</string>
+        <key>platforms</key>
+        <map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>48d059c310058bc7a227a0e2282cbea3</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://lib.polarityviewer.net/windows64/msvc-14/inteltbb-2017-windows64-201612280546.rar</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>2017</string>
+      </map>
       <key>jpeglib</key>
       <map>
         <key>copyright</key>

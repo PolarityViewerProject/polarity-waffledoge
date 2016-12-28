@@ -27,7 +27,11 @@
 #ifndef LL_LLOCTREE_H
 #define LL_LLOCTREE_H
 
+#ifdef USE_TBBMALLOC
+#define LL_OCTREE_POOLS 1
+#else
 #define LL_OCTREE_POOLS 0
+#endif
 
 #include "lltreenode.h"
 #include "v3math.h"
