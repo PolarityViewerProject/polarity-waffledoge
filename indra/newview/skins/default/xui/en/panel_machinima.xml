@@ -434,7 +434,7 @@
 				┣
 			</text>
 			<radio_group
-				control_name="PVOverride_RenderShadowDetail"
+				control_name="RenderShadowDetail"
 				height="38"
 				layout="topleft"
 				left_pad="0"
@@ -981,7 +981,7 @@
 				Shadows:
 			</text>
 			<slider
-				control_name="PVOverride_RenderShadowBlurSize"
+				control_name="RenderShadowBlurSize"
 				decimal_digits="1"
 				follows="left|top"
 				height="15"
@@ -994,7 +994,7 @@
 				left_delta="0"
 				max_val="3"
 				min_val="0.0"
-				name="PVOverride_RenderShadowBlurSize"
+				name="RenderShadowBlurSize"
 				top_pad="3"
 				text_width="40"
 				width="310">
@@ -1127,7 +1127,7 @@
 				top_pad="0"
 				width="300">
 				<slider
-					control_name="PVOverride_RenderSSAOEffect"
+					control_name="RenderSSAOEffect"
 					enabled_control="RenderDeferredSSAO"
 					decimal_digits="2"
 					can_edit_text="true"
@@ -1146,7 +1146,7 @@
 					width="310">
 				</slider>
 				<slider
-					control_name="PVOverride_RenderSSAOScale"
+					control_name="RenderSSAOScale"
 					enabled_control="RenderDeferredSSAO"
 					decimal_digits="0"
 					can_edit_text="true"
@@ -1165,7 +1165,7 @@
 					width="310">
 				</slider>
 				<slider
-					control_name="PVOverride_RenderSSAOMaxScale"
+					control_name="RenderSSAOMaxScale"
 					enabled_control="RenderDeferredSSAO"
 					decimal_digits="0"
 					follows="left|top"
@@ -1184,7 +1184,7 @@
 					width="310">
 				</slider>
 				<slider
-					control_name="PVOverride_RenderSSAOFactor"
+					control_name="RenderSSAOFactor"
 					enabled_control="RenderDeferredSSAO"
 					decimal_digits="1"
 					can_edit_text="true"
