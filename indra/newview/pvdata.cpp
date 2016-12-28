@@ -584,7 +584,7 @@ std::string PVDataViewerInfo::getNewProgressTip(bool forced)
 	}
 	else
 	{
-		LL_WARNS() << "mTipCycleTimer not started!" << LL_ENDL;
+		LL_DEBUGS() << "mTipCycleTimer not started!" << LL_ENDL;
 	}
 
 	gAgent.mMOTD = return_tip;
