@@ -773,9 +773,11 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("MapBufferRange");
 	}
-	if (gGLManager.mVRAM > 2048)
+	llassert_always(gGLManager.mVRAM > 0);
+	if (gGLManager.mVRAM > 1024)
 	{
-		maskFeatures("VRAMGT2GB");
+		maskFeatures("VRAMGT1GB");
+		LL_WARNS() << "VRAM DETECTED IS GREATER THAN 1GB" << LL_ENDL;
 	}
 
 #if LL_DARWIN

@@ -1,4 +1,4 @@
-version 33
+version 35
 // The version number above should be incremented IF AND ONLY IF some
 // change has been made that is sufficiently important to justify
 // resetting the graphics preferences of all users to the recommended
@@ -63,7 +63,7 @@ WLSkyDetail					1	1024
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
 RenderTextureMemoryMultiple		1	1.0
-RenderCompressTextures		1	0
+RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	3
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
@@ -431,9 +431,9 @@ list Class5
 RenderVBOEnable				1	1
 
 //
-// VRAM > 2048MB
+// VRAM > 1024MB
 //
-list VRAMGT2GB
+list VRAMGT1GB
 RenderCompressTextures		1	0
 
 //

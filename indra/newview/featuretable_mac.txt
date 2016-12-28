@@ -385,9 +385,9 @@ RenderDeferredSSAO			0	0
 RenderShadowDetail			0	0
 
 //
-// VRAM > 512MB
+// VRAM > 1024MB
 //
-list VRAMGT512
+list VRAMGT1GB
 RenderCompressTextures		1	0
 
 //
