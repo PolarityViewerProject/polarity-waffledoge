@@ -29,6 +29,8 @@
 #include "llmoveview.h"
 #include "llagentcamera.h"
 #include <llnotificationsutil.h>
+#include "llchiclet.h"
+#include "llchicletbar.h"
 
 /////////////////////////////
 // Polarity Cinematic Mode //
@@ -49,6 +51,8 @@ void PVCinematicMode::enter_cinematic_mode()
 	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
 	previous_typing_for_all_setting_ = gSavedSettings.getBOOL("PVChat_HideTypingForAll");
 	previous_hovertips_setting_ = gSavedSettings.getBOOL("ShowHoverTips");
+	LLChicletBar::getInstance()->showWellButton("notification_well", false);
+	
 	// Hide stuff
 	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
 	gSavedSettings.setS32("AvatarNameTagMode", 0);
@@ -75,6 +79,7 @@ void PVCinematicMode::exit_cinematic_mode()
 	gSavedSettings.setS32("AvatarNameTagMode", previous_name_tag_setting_);
 	gSavedSettings.setBOOL("PVChat_HideTypingForAll", previous_typing_for_all_setting_);
 	gSavedSettings.setBOOL("ShowHoverTips", previous_hovertips_setting_);
+	LLChicletBar::getInstance()->showWellButton("notification_well", true);
 	// Sanity Check
 	cinematic_mode_ = false;
 	LL_DEBUGS() << "cinematic_mode_=" << cinematic_mode_ << LL_ENDL;
