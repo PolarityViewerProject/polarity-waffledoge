@@ -990,7 +990,9 @@ void LLVFS::renameFile(const LLUUID &file_id, const LLAssetType::EType file_type
 			{
 				if(dest_block->mLocks[i])
 				{
-					LL_ERRS() << "Renaming VFS block to a locked file: " << dest_block->mFileID << " - Lock type: " << i << LL_ENDL;
+					// Try not to crash for this shit...
+					//LL_ERRS() << "Renaming VFS block to a locked file: " << dest_block->mFileID << " - Lock type: " << i << LL_ENDL;
+					LL_WARNS() << "Renaming VFS block to a locked file: " << dest_block->mFileID << " - Lock type: " << i << LL_ENDL;
 				}
 				dest_block->mLocks[i] = src_block->mLocks[i];
 			}
