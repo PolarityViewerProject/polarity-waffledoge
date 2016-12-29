@@ -488,6 +488,13 @@ void LLAvatarNameCache::cleanupClass()
     sCache.clear();
 }
 
+// <FS:Ansariel> Clear name cache
+void LLAvatarNameCache::clearCache()
+{
+	sCache.clear();
+}
+// </FS:Ansariel>
+
 bool LLAvatarNameCache::importFile(std::istream& istr)
 {
 	LLSD data;

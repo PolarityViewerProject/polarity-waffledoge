@@ -3844,7 +3844,6 @@
              function="Advanced.SendTestIMs" />
           </menu_item_call>
           <menu_item_call
-           enabled="false"
            label="Flush Names Caches"
            name="Flush Names Caches">
             <menu_item_call.on_click

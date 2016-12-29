@@ -9373,11 +9373,8 @@ class PLVRCopKey : public view_listener_t
 
 void handle_flush_name_caches()
 {
-	// Do nothing, this is crashy for now
-#if FIXED_NAME_CACHE
-	LLAvatarNameCache::cleanupClass();
+	LLAvatarNameCache::clearCache(); // <polarity> Crash fix; use proper call. Found by Ansariel
 	if (gCacheName) gCacheName->clear();
-#endif
 }
 
 class LLUploadCostCalculator : public view_listener_t

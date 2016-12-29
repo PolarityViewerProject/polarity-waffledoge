@@ -44,6 +44,8 @@ namespace LLAvatarNameCache
 	void initClass(bool running, bool usePeopleAPI);
 	void cleanupClass();
 
+	void clearCache(); // <FS:Ansariel/> Clear name cache
+
 	// Import/export the name cache to file.
 	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
