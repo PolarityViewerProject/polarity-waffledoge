@@ -56,6 +56,8 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 
+#include "pvgpuinfo.h" // to update vram immediately
+
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
 #ifdef VERSIONED_FEATURETABLE
@@ -773,11 +775,19 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("MapBufferRange");
 	}
-	llassert_always(gGLManager.mVRAM > 0);
+	llassert(gGLManager.mVRAM > 0);
+	if(gGLManager.mVRAM == 0)
+	{
+		// Most probable reason why we hit this: card does not support GL_*MEM* extensions, in which case
+		// no VRAM detection can be performed via OpenGL.
+		// We removed DirectX support, so let's give it a sane default.
+		maskFeatures("ATIVRAMFALLBACK");
+	}
 	if (gGLManager.mVRAM > 1024)
 	{
+
 		maskFeatures("VRAMGT1GB");
-		LL_WARNS() << "VRAM DETECTED IS GREATER THAN 1GB" << LL_ENDL;
+		LL_INFOS() << "VRAM DETECTED IS GREATER THAN 1GB" << LL_ENDL;
 	}
 
 #if LL_DARWIN
@@ -822,6 +832,8 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("safe");
 	}
+	// <polarity> Hack! poke the vram fetching function to update VRAM immediately after applying features
+	PVGPUInfo::getTotalVRAM();
 }
 
 LLSD LLFeatureManager::getRecommendedSettingsMap()

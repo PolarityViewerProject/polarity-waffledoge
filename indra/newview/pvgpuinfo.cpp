@@ -27,6 +27,7 @@
 #include "llrendertarget.h"
 #include "llviewertexture.h"
 #include "llmemory.h"
+#include "llviewercontrol.h"
 
 #define INTEL_GPU_MAX_VRAM 2048
 
@@ -76,9 +77,17 @@ void PVGPUInfo::updateValues()
 
 S32Megabytes PVGPUInfo::getTotalVRAM()
 {
-
 	if (!gGLManager.mIsIntel)
 	{
+		// set internal vram value to forced one if present
+		static LLCachedControl<S32> forced_vram(gSavedSettings, "PVDebug_ForcedVideoMemory");
+		if (forced_vram > 0)
+		{
+			if (gGLManager.mVRAM == 0)
+			{
+				gGLManager.mVRAM = forced_vram;
+			}
+		}
 		// return existing variable to avoid memory bloat
 		return S32Megabytes(gGLManager.mVRAM);
 	}
