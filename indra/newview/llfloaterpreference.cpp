@@ -320,7 +320,11 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.LogPath",				boost::bind(&LLFloaterPreference::onClickLogPath, this));
 	mCommitCallbackRegistrar.add("Pref.HardwareDefaults",		boost::bind(&LLFloaterPreference::setHardwareDefaults, this));
 	mCommitCallbackRegistrar.add("Pref.AvatarImpostorsEnable",	boost::bind(&LLFloaterPreference::onAvatarImpostorsEnable, this));
+	// <polarity> Moved to main preferences floater
 	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxComplexity",	boost::bind(&LLFloaterPreference::updateMaxComplexity, this));
+	mCommitCallbackRegistrar.add("Pref.UpdateIndirectMaxNonImpostors", boost::bind(&LLFloaterPreference::updateMaxNonImpostors,this));
+	// </polarity>
+	
 	mCommitCallbackRegistrar.add("Pref.VertexShaderEnable",		boost::bind(&LLFloaterPreference::onVertexShaderEnable, this));
 	//mCommitCallbackRegistrar.add("Pref.WindowedMod",			boost::bind(&LLFloaterPreference::onCommitWindowedMode, this)); // <polarity> unused
 	mCommitCallbackRegistrar.add("Pref.UpdateSliderText",		boost::bind(&LLFloaterPreference::refreshUI,this));
@@ -660,6 +664,25 @@ void LLFloaterPreference::refreshGraphicControls()
 	getChild<LLUICtrl>("PVRender_Vignette_X")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VX]);
 	getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
 	getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
+
+	// <polarity> set initial value for avatar complexity stuff.
+	//@todo re-write this. what the hell. Q_Q
+	LLAvatarComplexityControls::setIndirectControls();
+	auto nonimpostorText = getChild<LLTextBox>("IndirectMaxNonImpostorsText", true);
+	auto maxcomplexityText = getChild<LLTextBox>("IndirectMaxComplexityText", true);
+	if (nonimpostorText)
+	{
+		setMaxNonImpostorsText(gSavedSettings.getU32("RenderAvatarMaxNonImpostors"), nonimpostorText);
+	}
+	if (maxcomplexityText)
+	{
+    	LLAvatarComplexityControls::setText(gSavedSettings.getU32("RenderAvatarMaxComplexity"), maxcomplexityText);
+    }
+	
+	updateMaxComplexity();
+	updateMaxNonImpostors();
+	// </polarity>
+
 }
 // </Black Dragon:NiranV>
 void LLFloaterPreference::draw()
@@ -2035,8 +2058,10 @@ void LLFloaterPreferenceGraphicsAdvanced::updateSliderText(LLSliderCtrl* ctrl, L
 		text_box->setText(LLTrans::getString("GraphicsQualityHigh"));
 	}
 }
-
-void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
+#endif
+// <polarity> moved to LLFloaterPreference
+//@todo fix this horror. Whoever coded that... Sigh. SHAME ON YOU.
+void LLFloaterPreference::updateMaxNonImpostors()
 {
 	// Called when the IndirectMaxNonImpostors control changes
 	// Responsible for fixing the slider label (IndirectMaxNonImpostorsText) and setting RenderAvatarMaxNonImpostors
@@ -2051,8 +2076,7 @@ void LLFloaterPreferenceGraphicsAdvanced::updateMaxNonImpostors()
 	LLVOAvatar::updateImpostorRendering(value); // make it effective immediately
 	setMaxNonImpostorsText(value, getChild<LLTextBox>("IndirectMaxNonImpostorsText"));
 }
-
-void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
+void LLFloaterPreference::setMaxNonImpostorsText(U32 value, LLTextBox* text_box)
 {
 	if (0 == value)
 	{
@@ -2063,8 +2087,7 @@ void LLFloaterPreferenceGraphicsAdvanced::setMaxNonImpostorsText(U32 value, LLTe
 		text_box->setText(llformat("%d", value));
 	}
 }
-#endif
-
+// </polarity>
 void LLAvatarComplexityControls::updateMax(LLSliderCtrl* slider, LLTextBox* value_label)
 {
 	// Called when the IndirectMaxComplexity control changes

@@ -10085,19 +10085,6 @@
     <key>Value</key>
     <integer>1</integer>
   </map>
-  <key>RenderUseImpostors</key>
-  <map>
-    <key>Comment</key>
-    <string>OBSOLETE and UNUSED. See RenderAvatarMaxNonImpostors and RenderAvatarMaxComplexity.</string>
-    <key>Persist</key>
-    <integer>0</integer>
-    <key>HideFromEditor</key>
-    <integer>1</integer>
-    <key>Type</key>
-    <string>Boolean</string>
-    <key>Value</key>
-    <integer>0</integer>
-  </map>
   <key>RenderAutoMuteByteLimit</key>
   <map>
     <key>Comment</key>

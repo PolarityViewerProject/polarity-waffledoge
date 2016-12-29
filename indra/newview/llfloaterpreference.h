@@ -176,6 +176,8 @@ private:
 	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
+	void updateMaxNonImpostors();
+	void setMaxNonImpostorsText(U32 value, LLTextBox* text_box);
 public:
 	// <Black Dragon:NiranV> Debug Arrays
 	static void onCommitX(LLUICtrl* ctrl, const LLSD& param);
