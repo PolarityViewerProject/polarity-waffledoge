@@ -697,16 +697,16 @@ BOOL LLWindowSDL::createContext(int x, int y, int width, int height, int bits, B
 		close();
 		setupFailure(
 #if LL_SOLARIS && defined(__sparc)
-			"Second Life requires at least 24-bit color on SPARC to run in a window.\n"
+			"Polarity requires at least 24-bit color on SPARC to run in a window.\n"
 			"Please use fbconfig to set your default color depth to 24 bits.\n"
 			"You may also need to adjust the X11 setting in SMF.  To do so use\n"
 			"  'svccfg -s svc:/application/x11/x11-server setprop options/default_depth=24'\n"
 #else
-			"Second Life requires True Color (32-bit) to run in a window.\n"
+			"Polarity requires True Color (32-bit) to run in a window.\n"
 			"Please go to Control Panels -> Display -> Settings and\n"
 			"set the screen to 32-bit color.\n"
 #endif
-			"Alternately, if you choose to run fullscreen, Second Life\n"
+			"Alternately, if you choose to run fullscreen, Polarity\n"
 			"will automatically adjust the screen each time it runs.",
 			"Error",
 			OSMB_OK);

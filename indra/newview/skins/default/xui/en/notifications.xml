@@ -3941,14 +3941,14 @@ http://secondlife.com/download.
    icon="alertmodal.tga"
    name="UpdaterServiceNotRunning"
    type="alertmodal">
-There is a required update for your Second Life Installation.
+There is a required update for your [APP_NAME] Installation.
 
 You may download this update from http://www.secondlife.com/downloads
 or you can install it now.
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="Quit Second Life"
+     notext="Close [APP_NAME]"
      yestext="Download and install now"/>
   </notification>
 
