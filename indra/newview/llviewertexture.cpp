@@ -579,6 +579,7 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
+		// This effectively shrinks by 25% every time - Xenhat
 		// <FS:Ansariel> Texture memory management
 		//sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, F32Bytes(gMaxVideoRam));
 		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75, F64Bytes(gMaxVideoRam));

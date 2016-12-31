@@ -153,7 +153,7 @@ public:
 	std::string mDriverVersionVendorString;
 	std::string mGLVersionString;
 
-	S32 mVRAM; // VRAM in MB
+	S32 mVRAM; // <polarity> DEPRECATED, get value using PVGPUInfo::getTotalVRAM() instead
 	S32 mGLMaxVertexRange;
 	S32 mGLMaxIndexRange;
 	S32 mGLMaxTextureSize;

@@ -562,14 +562,14 @@ void LLGLTexMemBar::draw()
 	//----------------------------------------------------------------------------
 	//BD - GPU Memory
 
-	text = llformat("Consumed VRAM:  %dMB", PVGPUInfo::getLocalUsedVRAM());
+	text = llformat("VRAM usage:     %dMB", PVGPUInfo::geComputedNonFreeVRAM());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	if (!gGLManager.mIsIntel)
 	{
-		text = llformat("%dMB on-board, %dMB Used by OS/others, %dMB free", PVGPUInfo::getTotalVRAM().value(), PVGPUInfo::getReservedVRAM(), PVGPUInfo::getAvailableVRAM());
+		text = llformat("%dMB on-board, %d/%dMB Polarity/Others, %dMB free", PVGPUInfo::getTotalVRAM().value(), PVGPUInfo::getLocalUsedVRAM(), PVGPUInfo::getReservedVRAM(), PVGPUInfo::getAvailableVRAM());
 	}
 	else
 	{

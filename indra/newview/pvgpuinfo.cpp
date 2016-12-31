@@ -71,22 +71,28 @@ void PVGPUInfo::updateValues()
 	{
 		// yes, there's a reason to buy real GPUs; WORKING API.
 		vram_in_use_mb = getTotalVRAM() - vram_available_mb;
+		//@todo make sure this is more or less accurate
 		vram_used_by_others_mb = vram_in_use_mb - vram_used_by_us_mb;
 	}
 }
 
 S32Megabytes PVGPUInfo::getTotalVRAM()
 {
+	const U32 MINIMUM_VRAM_AMOUNT = 1024; // fallback for cases where video memory is not detected properly
 	if (!gGLManager.mIsIntel)
 	{
+		// Global catch-all in case shit goes left still...
+		if (gGLManager.mVRAM < MINIMUM_VRAM_AMOUNT)
+		{
+			LL_WARNS() << "VRAM amount not detected or less than " << MINIMUM_VRAM_AMOUNT << ", defaulting to " << MINIMUM_VRAM_AMOUNT << LL_ENDL;
+			gGLManager.mVRAM = MINIMUM_VRAM_AMOUNT;
+			LL_DEBUGS() << "VRAM SUCESSFULLY OVERRIDED" << LL_ENDL;
+		}
 		// set internal vram value to forced one if present
 		static LLCachedControl<S32> forced_vram(gSavedSettings, "PVDebug_ForcedVideoMemory");
 		if (forced_vram > 0)
 		{
-			if (gGLManager.mVRAM == 0)
-			{
-				gGLManager.mVRAM = forced_vram;
-			}
+			gGLManager.mVRAM = forced_vram;
 		}
 		// return existing variable to avoid memory bloat
 		return S32Megabytes(gGLManager.mVRAM);

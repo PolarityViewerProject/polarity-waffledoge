@@ -1333,14 +1333,15 @@ void LLFloaterPreference::updateMemorySlider(const bool& set_default)
 		auto memorySlider = getChild<LLSliderCtrl>("GraphicsCardTextureMemory");
 		if(memorySlider)
 		{
-			static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
+			
 			S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-			S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier).value();
+			//@todo either rename the function to reflect what it does, or get/set a different value. I think we got this mixed up.
+			S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false).value();
 			memorySlider->setMinValue(min_tex_mem);
 			memorySlider->setMaxValue(max_tex_mem);
 			if(set_default)
 			{
-				gSavedSettings.setS32("TextureMemory", LLViewerTextureList::getMaxVideoRamSetting(true, mem_multiplier).value());
+				gSavedSettings.setS32("TextureMemory", LLViewerTextureList::getMaxVideoRamSetting(true).value());
 			}
 			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
 		}
