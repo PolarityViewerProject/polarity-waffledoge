@@ -109,7 +109,7 @@ void LLViewerTextureList::init()
 	mMaxTotalTextureMemInMegaBytes = (U32Bytes)0;
 	
 	// Update how much texture RAM we're allowed to use.
-	updateMaxResidentTexMem(S32Megabytes(0)); // 0 = use current
+	updateMaxResidentTexMem(0); // 0 = use current
 	
 	doPreloadImages();
 }
@@ -1433,9 +1433,8 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 // <polarity> TODO: Make this dynamic based on the snapshot texture size
 const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
 const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(512);
-void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
+void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 {
-	auto mem_val = mem.value();
 	// Initialize the image pipeline VRAM settings
 	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
 	S32 cur_mem = gSavedSettings.getS32("TextureMemory");
@@ -1443,13 +1442,13 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	if (forced_mem > 0)
 	{
-		mem_val = forced_mem;
+		mem = forced_mem;
 		LL_WARNS() << "Using forced memory of value " << forced_mem << LL_ENDL;
 	}
 	else
 	{
 		LL_DEBUGS() << "SHENANIGANS" << LL_ENDL;
-		if (mem_val <= 0) // convention for "use current"
+		if (mem <= 0) // convention for "use current"
 		{
 			if(cur_mem == 0)
 			{
@@ -1457,16 +1456,16 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 				LL_DEBUGS() << "TextureMemory was 0, auto-detecting..." << LL_ENDL;
 				cur_mem = getMaxVideoRamSetting(true, mem_multiplier).value(); // recommended default
 			}
-			mem_val = cur_mem;
+			mem = cur_mem;
 		}
 	}
 	
 	// disable clamping for now as it breaks on some systems, causing infinite loop.
 	//LL_WARNS() << "CLAMPING CRAP" << LL_ENDL;
 	//mem_val = llclamp(mem_val, getMinVideoRamSetting().value(), getMaxVideoRamSetting(false, mem_multiplier).value());
-	if (mem_val != cur_mem)
+	if (mem != cur_mem)
 	{
-		gSavedSettings.setS32("TextureMemory", mem_val);
+		gSavedSettings.setS32("TextureMemory", mem);
 		LL_DEBUGS() << "TEXTURE MEMORY SET" << LL_ENDL;
 		return; //listener will re-enter this function
 	}
@@ -1474,7 +1473,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	// TODO: set available resident texture mem based on use by other subsystems
 	// currently max(12MB, VRAM/4) assumed...
 	
-	S32 vb_mem = mem_val;
+	S32 vb_mem = mem;
 	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), S32(vb_mem * 0.25f));
 	mMaxResidentTexMemInMegaBytes = S32Megabytes(vb_mem - fb_mem) ; //in MB
 	

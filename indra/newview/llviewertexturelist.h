@@ -130,7 +130,7 @@ public:
 	S32Megabytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32Megabytes mem);
+	void updateMaxResidentTexMem(S32 mem);
 	
 	void doPreloadImages();
 	void doPrefetchImages();
