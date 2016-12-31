@@ -1508,7 +1508,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 		mMaxTotalTextureMemInMegaBytes = system_ram - min_non_texture_mem ;
 	}
 	
-	LL_INFOS() << "Total Video Memory set to: " << mem << LL_ENDL;
+	LL_INFOS() << "Total Video Memory set to: " << mem << "MB" << LL_ENDL;
 	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;
 	LL_INFOS() << "Maximum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
 	LL_DEBUGS() << "EXITING FUNCTION" << LL_ENDL;
