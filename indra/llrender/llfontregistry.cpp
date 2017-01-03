@@ -37,8 +37,6 @@
 #include "llxmlnode.h"
 #include "llstring.h"
 
-extern LLControlGroup gSavedSettings;
-
 using std::string;
 using std::map;
 
