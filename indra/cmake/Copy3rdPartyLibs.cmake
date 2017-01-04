@@ -73,6 +73,35 @@ if(WINDOWS)
         set(release_files ${release_files} fmod.dll)
       endif(WORD_SIZE STREQUAL 64)
     endif (FMODSTUDIO)
+
+    # <FS:ND> Copy pdb files for symbol generation too
+    if( NOT WORD_SIZE STREQUAL 64 )
+
+        list(APPEND debug_files
+            ssleay32.pdb
+            libeay32.pdb
+            apr-1.pdb
+            aprutil-1.pdb
+            )
+        list(APPEND release_files
+            ssleay32.pdb
+            libeay32.pdb
+            apr-1.pdb
+            aprutil-1.pdb
+            )
+
+        if(USE_TBBMALLOC)
+            list(APPEND debug_files
+                tbbmalloc_debug.pdb
+                tbbmalloc_proxy_debug.pdb
+                )
+            list(APPEND release_files
+                tbbmalloc.pdb
+                tbbmalloc_proxy.pdb
+                )
+        endif(USE_TBBMALLOC)
+    endif( NOT WORD_SIZE STREQUAL 64 )
+    # </FS:ND>
 elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
@@ -109,7 +138,6 @@ elseif(DARWIN)
       set(debug_files ${debug_files} libfmodL.dylib)
       set(release_files ${release_files} libfmod.dylib)
     endif (FMODSTUDIO)
-
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...
