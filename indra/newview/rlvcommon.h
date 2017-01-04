@@ -32,6 +32,8 @@
 	#pragma warning (pop)
 #endif
 
+#include "llerror.h" // for LOG_CLASS
+
 // ============================================================================
 // Forward declarations
 //
@@ -135,6 +137,8 @@ protected:
 class RlvStrings
 {
 public:
+	LOG_CLASS(RlvStrings);
+
 	static void initClass();
 	static void loadFromFile(const std::string& strFilePath, bool fDefault);
 	static void saveToFile(const std::string& strFilePath);

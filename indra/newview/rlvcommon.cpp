@@ -339,7 +339,14 @@ const std::string& RlvStrings::getString(const std::string& strStringName)
 {
 	static const std::string strMissing = "(Missing RLVa string)";
 	string_map_t::const_iterator itString = m_StringMap.find(strStringName);
-	return (itString != m_StringMap.end()) ? itString->second.back() : strMissing;
+	// <polarity> warn when RLVA string is missing
+	// return (itString != m_StringMap.end()) ? itString->second.back() : strMissing;
+	if (itString == m_StringMap.end())
+	{
+		LL_WARNS() << "RLVa string '" << strStringName << "' not found!" << LL_ENDL;
+		return strMissing;
+	}
+	return itString->second.back();
 }
 
 // Checked: 2009-11-25 (RLVa-1.1.0f) | Added: RLVa-1.1.0f
