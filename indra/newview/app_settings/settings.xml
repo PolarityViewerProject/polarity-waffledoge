@@ -1384,13 +1384,13 @@
     <key>CacheSize</key>
     <map>
       <key>Comment</key>
-      <string>Controls amount of hard drive space reserved for local file caching in MB</string>
+      <string>Controls amount of hard drive space reserved for local file caching in MB. Warning: using a cache size greater than 3 GB will lead to corruption.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>4096</integer>
+      <integer>2048</integer>
     </map>
     <key>CacheValidateCounter</key>
     <map>
