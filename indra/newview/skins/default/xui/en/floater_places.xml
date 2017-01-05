@@ -11,7 +11,7 @@
   help_topic="floater_places"
   save_rect="true"
   reuse_instance="true"
-  title="PLACES"
+  title="Places"
   min_height="440"
   min_width="333"
   width="333">

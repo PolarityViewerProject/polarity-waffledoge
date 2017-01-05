@@ -7,7 +7,7 @@
          help_topic="statistics"
          save_rect="true"
          save_visibility="true"
-         title="STATISTICS"
+         title="Statistics"
          width="260">
   <scroll_container follows="all"
                     height="380"

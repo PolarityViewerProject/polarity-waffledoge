@@ -1,6 +1,6 @@
 <panel
   name="script_experience"
-  title="EXPERIENCE"
+  title="Experience"
   width="400"
   follows="top|left|right"
   top="0"

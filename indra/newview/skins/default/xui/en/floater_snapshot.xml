@@ -13,7 +13,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="SNAPSHOT"
+ title="Snapshot"
  width="624"
  min_height="455">
     <floater.string
