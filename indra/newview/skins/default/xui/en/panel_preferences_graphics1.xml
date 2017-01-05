@@ -1535,7 +1535,7 @@
             </slider>
             <button
               follows="right"
-              name="RenderGlowIterationsDefault"
+              control_name="RenderGlowIterations"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1552,7 +1552,7 @@
             </button>
             <button
               follows="right"
-              name="RenderGlowStrengthDefault"
+              control_name="RenderGlowStrength"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1569,7 +1569,7 @@
             </button>
             <button
               follows="right"
-              name="RenderGlowMinLuminanceDefault"
+              control_name="RenderGlowMinLuminance"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1586,7 +1586,7 @@
             </button>
             <button
               follows="right"
-              name="RenderGlowWarmthAmountDefault"
+              control_name="RenderGlowWarmthAmount"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1603,7 +1603,7 @@
             </button>
             <button
               follows="right"
-              name="RenderGlowWidthDefault"
+              control_name="RenderGlowWidth"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1620,7 +1620,7 @@
             </button>
             <button
               follows="right"
-              name="RenderGlowMaxExtractAlphaDefault"
+              control_name="RenderGlowMaxExtractAlpha"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1807,6 +1807,7 @@
               width="385">
             </slider>
             <button
+              control_name="CameraFNumber"
               follows="left|top"
               height="16"
               label="⌊Reset⌉"
@@ -1814,7 +1815,6 @@
               image_unselected="transparent.j2c"
               layout="topleft"
               left_pad="5"
-              name="CameraFNumberDefault"
               top="3"
               width="60">
               <button.commit_callback
@@ -1824,7 +1824,7 @@
             </button>
             <button
               follows="right"
-              name="CameraFocalLengthDefault"
+              control_name="CameraFocalLength"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1841,7 +1841,7 @@
             </button>
             <button
               follows="right"
-              name="CameraMaxCoFDefault"
+              control_name="CameraMaxCoF"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1858,7 +1858,7 @@
             </button>
             <button
               follows="right"
-              name="CameraFieldOfViewDefault"
+              control_name="CameraFieldOfView"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1875,7 +1875,7 @@
             </button>
             <button
               follows="right"
-              name="CameraFocusTransitionTimeDefault"
+              control_name="CameraFocusTransitionTime"
               height="16"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1892,7 +1892,7 @@
             </button>
             <button
               follows="right"
-              name="CameraDoFResScaleDefault"
+              control_name="CameraDoFResScale"
               is_toggle="false"
               height="16"
               label="⌊Reset⌉"
@@ -1946,7 +1946,7 @@
             width="115">
           </check_box>
           <slider
-            control_name="PVRender_GodraysFalloffMultiplier"
+            control_name="PVRender_GodRaysFalloffMultiplier"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -1967,7 +1967,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodraysFalloffMultiplier"
+            control_name="PVRender_GodRaysFalloffMultiplier"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -1980,11 +1980,11 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodraysFalloffMultiplier">
+              parameter="PVRender_GodRaysFalloffMultiplier">
             </button.commit_callback>
           </button>
           <slider
-            control_name="PVRender_GodraysMultiplier"
+            control_name="PVRender_GodRaysMultiplier"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -2005,7 +2005,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodraysMultiplier"
+            control_name="PVRender_GodRaysMultiplier"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2018,11 +2018,11 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodraysMultiplier">
+              parameter="PVRender_GodRaysMultiplier">
             </button.commit_callback>
           </button>
           <slider
-            control_name="PVRender_GodraysResolution"
+            control_name="PVRender_GodRaysResolution"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -2043,7 +2043,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodraysResolution"
+            control_name="PVRender_GodRaysResolution"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2056,7 +2056,7 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodraysResolution">
+              parameter="PVRender_GodRaysResolution">
             </button.commit_callback>
           </button>
           <panel
