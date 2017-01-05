@@ -204,16 +204,16 @@ void LLFloaterMap::draw()
 	setDirectionPos( mTextBoxSouthEast, rotation + F_PI + F_PI_BY_TWO + F_PI_BY_TWO / 2);
 
 	// Note: we can't just gAgent.check cameraMouselook() because the transition states are wrong.
-	if(gAgentCamera.cameraMouselook())
-	{
-		setMouseOpaque(FALSE);
-		getDragHandle()->setMouseOpaque(FALSE);
-	}
-	else
-	{
-		setMouseOpaque(TRUE);
-		getDragHandle()->setMouseOpaque(TRUE);
-	}
+	//if(!isMinimized() || gAgentCamera.cameraMouselook()) // <polarity/> PLVR-70 Mini-map minimized state looks wrong
+//	{
+//		setMouseOpaque(FALSE);
+//		getDragHandle()->setMouseOpaque(FALSE);
+//	}
+//	else
+//	{
+//		setMouseOpaque(TRUE);
+//		//getDragHandle()->setMouseOpaque(TRUE);
+//	}
 	
 	LLFloater::draw();
 }
