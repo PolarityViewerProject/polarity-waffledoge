@@ -177,6 +177,38 @@ void LLSaveFilePickerThread::run()
 		sDeadQ.push(this);
 	}
 }
+
+void LLLoadMultipleFilePickerThread::run()
+{
+	LLFilePicker picker;
+#if LL_WINDOWS
+	if (picker.getMultipleOpenFiles(mFilter, false))
+	{
+		std::string file = picker.getFirstFile();
+		while (!file.empty())
+		{
+			mFiles.push_back(file);
+			file = picker.getNextFile();
+		}
+	}
+#else
+	if (picker.getMultipleOpenFiles(mFilter, true))
+	{
+		std::string file = picker.getFirstFile();
+		while (!file.empty())
+		{
+			mFiles.push_back(file);
+			file = picker.getNextFile();
+		}
+	}
+#endif
+
+	{
+		LLMutexLock lock(sMutex);
+		sDeadQ.push(this);
+	}
+}
+
 //virtual
 void LLGenericLoadFilePicker::notify(const std::string& filename)
 {
@@ -186,6 +218,12 @@ void LLGenericLoadFilePicker::notify(const std::string& filename)
 void LLGenericSaveFilePicker::notify(const std::string& filename)
 {
 	mSignal(filename);
+}
+
+//virtual
+void LLGenericLoadMultipleFilePicker::notify(std::list<std::string> filenames)
+{
+	mSignal(filenames);
 }
 // </FS:CR Threaded Filepickers>
 //static
@@ -212,7 +250,17 @@ void LLFilePickerThread::clearDead()
 		while (!sDeadQ.empty())
 		{
 			LLFilePickerThread* thread = sDeadQ.front();
-			thread->notify(thread->mFile);
+			// <FS:Ansariel> Threaded file pickers
+			//thread->notify(thread->mFile);
+			if (thread->mMultiple)
+			{
+				thread->notify(thread->mFiles);
+			}
+			else
+			{
+				thread->notify(thread->mFile);
+			}
+			// </FS:Ansariel>
 			delete thread;
 			sDeadQ.pop();
 		}
@@ -492,7 +540,7 @@ class LLFileUploadImage : public view_listener_t
 		//{
 		//	LLFloaterReg::showInstance("upload_image", LLSD(filename));
 		//}
-		(new LLGenericLoadFilePicker(LLFilePicker::FFLOAD_IMAGE, boost::bind(&show_floater_callback, "upload_image", _1, LLFilePicker::FFLOAD_IMAGE)))->getFile();
+		LLGenericLoadFilePicker::open(LLFilePicker::FFLOAD_IMAGE, boost::bind(&show_floater_callback, "upload_image", _1, LLFilePicker::FFLOAD_IMAGE));
 // </FS:CR Threaded Filepickers>
 		return TRUE;
 	}
@@ -522,7 +570,7 @@ class LLFileUploadSound : public view_listener_t
 		//{
 		//	LLFloaterReg::showInstance("upload_sound", LLSD(filename));
 		//}
-		(new LLGenericLoadFilePicker(LLFilePicker::FFLOAD_WAV, boost::bind(&show_floater_callback, "upload_sound", _1, LLFilePicker::FFLOAD_WAV)))->getFile();
+		LLGenericLoadFilePicker::open(LLFilePicker::FFLOAD_WAV, boost::bind(&show_floater_callback, "upload_sound", _1, LLFilePicker::FFLOAD_WAV));
 // </FS:CR Threaded Filepickers>
 		return true;
 	}
@@ -548,11 +596,43 @@ class LLFileUploadAnim : public view_listener_t
 		//		LLFloaterReg::showInstance("upload_anim_bvh", LLSD(filename));
 		//	}
 		//}
-		(new LLGenericLoadFilePicker(LLFilePicker::FFLOAD_ANIM, boost::bind(&show_floater_anim_callback,_1)))->getFile();
+		LLGenericLoadFilePicker::open(LLFilePicker::FFLOAD_ANIM, boost::bind(&show_floater_anim_callback, _1));
 // </FS:CR Threaded Filepickers>
 		return true;
 	}
 };
+
+// <FS:Ansariel> Threaded file pickers
+void upload_bulk_callback(std::list<std::string> filenames)
+{
+	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+
+	for (std::list<std::string>::iterator it = filenames.begin(); it != filenames.end(); ++it)
+	{
+		std::string filename = *it;
+
+		std::string name = gDirUtilp->getBaseFileName(filename, true);
+
+		std::string asset_name = name;
+		LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
+		LLStringUtil::replaceChar(asset_name, '|', '?');
+		LLStringUtil::stripNonprintable(asset_name);
+		LLStringUtil::trim(asset_name);
+
+		LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
+			filename,
+			asset_name,
+			asset_name, 0,
+			LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
+			LLFloaterPerms::getNextOwnerPerms("Uploads"),
+			LLFloaterPerms::getGroupPerms("Uploads"),
+			LLFloaterPerms::getEveryonePerms("Uploads"),
+			expected_upload_cost));
+
+		upload_new_resource(uploadInfo, NULL, NULL);
+	}
+}
+// </FS:Ansariel>
 
 class LLFileUploadBulk : public view_listener_t
 {
@@ -562,51 +642,7 @@ class LLFileUploadBulk : public view_listener_t
 		{
 			gAgentCamera.changeCameraToDefault();
 		}
-
-		// TODO:
-		// Check extensions for uploadability, cost
-		// Check user balance for entire cost
-		// Charge user entire cost
-		// Loop, uploading
-		// If an upload fails, refund the user for that one
-		//
-		// Also fix single upload to charge first, then refund
-
-		LLFilePicker& picker = LLFilePicker::instance();
-		if (picker.getMultipleOpenFiles())
-		{
-            std::string filename = picker.getFirstFile();
-            S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
-
-            while (!filename.empty())
-            {
-                std::string name = gDirUtilp->getBaseFileName(filename, true);
-
-                std::string asset_name = name;
-                LLStringUtil::replaceNonstandardASCII( asset_name, '?' );
-                LLStringUtil::replaceChar(asset_name, '|', '?');
-                LLStringUtil::stripNonprintable(asset_name);
-                LLStringUtil::trim(asset_name);
-
-                LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
-                    filename,
-                    asset_name,
-                    asset_name, 0,
-                    LLFolderType::FT_NONE, LLInventoryType::IT_NONE,
-                    LLFloaterPerms::getNextOwnerPerms("Uploads"),
-                    LLFloaterPerms::getGroupPerms("Uploads"),
-                    LLFloaterPerms::getEveryonePerms("Uploads"),
-                    expected_upload_cost));
-
-                upload_new_resource(uploadInfo, NULL, NULL);
-
-                filename = picker.getNextFile();
-            }
-		}
-		else
-		{
-			LL_INFOS() << "Couldn't import objects from file" << LL_ENDL;
-		}
+		LLGenericLoadMultipleFilePicker::open(LLFilePicker::FFLOAD_ALL, boost::bind(&upload_bulk_callback, _1));
 		return true;
 	}
 };
