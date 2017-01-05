@@ -2237,6 +2237,10 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 // <Black Dragon:NiranV> Revert to Default
 void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl)
 {
+	if(!ctrl)
+	{
+		return;
+	}
 	ctrl->getControlVariable()->resetToDefault(true);
 	refreshGraphicControls();
 }

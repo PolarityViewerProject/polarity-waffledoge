@@ -301,6 +301,12 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 {
 	//The first setting is always the default
 	//Pop to it and fire off the listener
+	
+	if (this == NULL) // crash fix
+	{
+		LL_WARNS() << "Pointer to LLControlVariable is null!" << LL_ENDL;
+		return;
+	}
 	LLSD originalValue = mValues.back();
 
 	while(mValues.size() > 1)
