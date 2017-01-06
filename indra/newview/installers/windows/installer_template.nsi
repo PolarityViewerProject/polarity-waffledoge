@@ -134,6 +134,11 @@ Var STARTMENUFOLDER
 
   ; Finish Page
   !define MUI_PAGE_CUSTOMFUNCTION_PRE check_skip_finish
+  ; hack the "Show readme" existing variable because modifying MUI templates is incredibly hard
+  !define MUI_FINISHPAGE_SHOWREADME
+  !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+  !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
+  !define MUI_FINISHPAGE_SHOWREADME_FUNCTION CreateDesktopShortcut
   !define MUI_FINISHPAGE_RUN
   !define MUI_FINISHPAGE_RUN_FUNCTION launch_viewer
   !define MUI_FINISHPAGE_NOREBOOTSUPPORT
@@ -447,7 +452,8 @@ Section "Viewer"
 
   ;Other shortcuts
   SetOutPath "$INSTDIR"
-  CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
+  ; moved to a function hooked to a checkbox
+  ;CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
   CreateShortCut "$INSTDIR\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
   CreateShortCut "$INSTDIR\Uninstall $INSTSHORTCUT.lnk" "$INSTDIR\uninst.exe" ""
 
@@ -557,6 +563,11 @@ lbl_configure_default_lang:
 lbl_return:
     Pop $0
     Return
+FunctionEnd
+
+Function CreateDesktopShortcut
+  SetOutPath "$INSTDIR"
+  CreateShortCut "$DESKTOP\$INSTSHORTCUT.lnk" "$INSTDIR\$INSTEXE" "$SHORTCUT_LANG_PARAM"
 FunctionEnd
 
 ;--------------------------------
