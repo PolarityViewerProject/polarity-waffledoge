@@ -12,7 +12,7 @@
   positioning="centered"
   save_rect="true"
   single_instance="true"
-  title="TOOLBAR BUTTONS"
+  title="Toolbar Buttons"
   width="550">
   <text
     follows="left|top"

@@ -6,7 +6,7 @@
  layout="topleft"
  name="script search"
  help_topic="script_search"
- title="SCRIPT SEARCH"
+ title="Script Search"
  width="300">
     <check_box
      control_name="LSLFindCaseInsensitivity"
