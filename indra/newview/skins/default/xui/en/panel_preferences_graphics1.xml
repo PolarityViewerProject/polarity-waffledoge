@@ -577,7 +577,7 @@
         label=" Objects:"
         label_width="110"
         layout="topleft"
-        left_delta="5"
+        left_delta="25"
         max_val="10"
         name="ObjectMeshDetail"
         show_text="true"
@@ -708,9 +708,9 @@
         follows="left|top"
         height="16"
         layout="topleft"
-        left_delta="-9"
+        left_delta="0"
         name="AvatarRenderingText"
-        top_pad="15"
+        top_pad="20"
         width="128">
         Avatar Rendering:
       </text>
