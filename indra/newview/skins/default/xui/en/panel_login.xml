@@ -66,13 +66,13 @@ Viewer
 	combo_editor.prevalidate_callback="ascii"
 	tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 	name="username_combo"
-	width="258">
+	width="233">
 	<combo_box.combo_editor
 	text_pad_left="8" />
 	<combo_box.combo_button
-	visible="false" />
+	visible="true" />
 	<combo_box.drop_down_button
-	visible="false" />
+	visible="true" />
  </combo_box>
  <line_editor
 	follows="left|top"
