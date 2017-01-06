@@ -158,6 +158,7 @@ set(polarity_HEADER_FILES
     pvfloaterprogressview.h
     pvgpuinfo.h
     pvmachinima.h
+    pvpanellogin.h
     pvperformancemaid.h
     pvrandom.h
     pvtypes.h
@@ -169,6 +170,7 @@ set(polarity_SOURCE_FILES
     pvfloaterprogressview.cpp
     pvgpuinfo.cpp
     pvmachinima.cpp
+    pvpanellogin.cpp
     pvperformancemaid.cpp
     pvrandom.cpp
     )
@@ -541,7 +543,7 @@ set(viewer_SOURCE_FILES
     llpanellandmarkinfo.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
-    llpanellogin.cpp
+    #llpanellogin.cpp // <polarity> unused
     llpanelloginlistener.cpp
     llpanelmaininventory.cpp
     llpanelmarketplaceinbox.cpp

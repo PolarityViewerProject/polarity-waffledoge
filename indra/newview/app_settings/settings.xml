@@ -13680,9 +13680,20 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>LLSD</string>
+      <string>String</string>
       <key>Value</key>
       <string/>
+    </map>
+    <key>UserLoginInfoCmdLine</key>
+    <map>
+      <key>Comment</key>
+      <string>Command line supplied user login data.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>LLSD</string>
+      <key>Value</key>
+      <array/>
     </map>
     <key>VFSOldSize</key>
     <map>

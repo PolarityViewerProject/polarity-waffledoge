@@ -123,7 +123,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 	mGridFile = grid_file;
 	// as we don't want an attacker to override our grid list
 	// to point the default grid to an invalid grid
-  	addSystemGrid(LLTrans::getString("AgniGridLabel"),
+  	addSystemGrid(SECOND_LIFE_MAIN_LABEL,
 				  MAINGRID,
 				  MAIN_GRID_LOGIN_URI,
 				  "https://secondlife.com/helpers/",
@@ -131,7 +131,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  SL_UPDATE_QUERY_URL,
 				  MAIN_GRID_WEB_PROFILE_URL,
 				  "Agni");
-	addSystemGrid(LLTrans::getString("AditiGridLabel"),
+	addSystemGrid(SECOND_LIFE_BETA_LABEL,
 				  "util.aditi.lindenlab.com",
 				  "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",
 				  "http://aditi-secondlife.webdev.lindenlab.com/helpers/",

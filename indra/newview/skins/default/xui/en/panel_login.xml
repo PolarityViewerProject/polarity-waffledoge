@@ -138,7 +138,7 @@ Viewer
     label_color="White"
     font="SansSerif"
     name="connect_btn"
-    enabled="true"
+    enabled="false"
     left="1"
     top_pad="10"
     width="90"

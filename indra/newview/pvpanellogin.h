@@ -1,42 +1,39 @@
 /** 
- * @file llpanellogin.h
- * @brief Login username entry fields.
+ * @file pvpanellogin.h
+ * @brief Login dialog and logo display
  *
- * $LicenseInfo:firstyear=2002&license=viewerlgpl$
- * Second Life Viewer Source Code
- * Copyright (C) 2010, Linden Research, Inc.
- * 
+ * Based on FSPanelLogin used in Firestorm Viewer
+ *
+ * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * Polarity Viewer Source Code
+ * Copyright (C) 2015 Xenhat Liamano
+ * Portions Copyright (C)
+ *  2002-2016 Phoenix-Firestorm Viewer
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- * 
- * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
+ *
+ * The Polarity Viewer Project
+ * http://www.polarityviewer.org
  * $/LicenseInfo$
  */
+// Original file: llpanellogin.h
 
-#include "pvpanellogin.h"
-#if 0
-#ifndef LL_LLPANELLOGIN_H
-#define LL_LLPANELLOGIN_H
+#ifndef LL_PANELLOGIN_H
+#define LL_PANELLOGIN_H
 
 #include "llpanel.h"
 #include "llpointer.h"			// LLPointer<>
 #include "llmediactrl.h"	// LLMediaCtrlObserver
-#include <boost/scoped_ptr.hpp>
 
 class LLLineEditor;
-class LLUIImage;
-class LLPanelLoginListener;
 class LLSLURL;
 class LLCredential;
 
@@ -57,7 +54,7 @@ public:
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
+	static void setFields(LLPointer<LLCredential> credential, bool from_startup = false);
 
 	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
 
@@ -88,24 +85,40 @@ public:
 	// called from prefs when initializing panel
 	static bool getShowFavorites();
 
+	static void clearPassword() { sPassword.clear(); }
+
 private:
-	friend class LLPanelLoginListener;
 	void addFavoritesToStartLocation();
-	void addUsersWithFavoritesToUsername();
+	void addUsersToCombo(BOOL show_server);
+	void onSelectUser();
+#if SETTINGS_PRESETS
+	void onModeChange(const LLSD& original_value, const LLSD& new_value);
+	void onModeChangeConfirm(const LLSD& original_value, const LLSD& new_value, const LLSD& notification, const LLSD& response);
+#endif
 	void onSelectServer();
 	void onLocationSLURL();
+	void onUsernameTextChanged();
 
+public:
+	static void setLoginButtonEnabled(bool enabled);
 	static void onClickConnect(void*);
+private:
+	bool mLoginButtonEnabled;
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
 	static void onClickHelp(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
 	static void updateServerCombo();
+	static void onClickRemove(void*);
+	static void onRemoveCallback(const LLSD& notification, const LLSD& response);
+#if LOGIN_MGR_HELP
+	static void onClickGridMgrHelp(void*);
+#endif
+	static void gridListChanged(bool success);
+	static std::string credentialName();
 
 private:
-	boost::scoped_ptr<LLPanelLoginListener> mListener;
-
 	void updateLoginButtons();
 
 	void			(*mCallback)(S32 option, void *userdata);
@@ -116,12 +129,13 @@ private:
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
-	bool			mFirstLoginThisInstall;
 
 	unsigned int mUsernameLength;
 	unsigned int mPasswordLength;
 	unsigned int mLocationLength;
+
+	std::string		mPreviousUsername;
+	static std::string	sPassword;
 };
 
-#endif
-#endif
+#endif //LL_PANELLOGIN_H

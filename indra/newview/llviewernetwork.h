@@ -28,6 +28,10 @@
 #ifndef LL_LLVIEWERNETWORK_H
 #define LL_LLVIEWERNETWORK_H
 
+// <polarity> for credential manager to avoid creating non-unique strings of the same value
+const std::string SECOND_LIFE_MAIN_LABEL = "Second Life";
+const std::string SECOND_LIFE_BETA_LABEL = "Second Life Beta";
+
 // @TODO this really should be private, but is used in llslurl
 #define MAINGRID "util.agni.lindenlab.com"
 
