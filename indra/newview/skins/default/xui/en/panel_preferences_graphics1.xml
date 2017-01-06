@@ -409,7 +409,7 @@
         label="Draw distance (meters):"
         label_width="135"
         layout="topleft"
-        left="220"
+        left="210"
         max_val="512"
         min_val="0"
         name="DrawDistance"
@@ -530,13 +530,13 @@
         label="Post process quality:"
         label_width="135"
         layout="topleft"
-        left="220"
+        left_delta="-245"
         max_val="10"
         min_val="7"
         name="RenderPostProcess"
         show_text="false"
         top_pad="2"
-        width="260">
+        width="240">
         <slider.commit_callback
           function="Pref.UpdateSliderText"
           parameter="PostProcessText">
@@ -561,7 +561,7 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left_delta="-260"
+        left_delta="-245"
         name="MeshDetailText"
         top_pad="5"
         width="128">
@@ -1301,9 +1301,9 @@
         mouse_opaque="false"
         height="960"
         left="0"
+        right="-1"
         name="gfx_scroll"
         opaque="true"
-        width="509"
         top="0">
         <panel
           layout="topleft"
