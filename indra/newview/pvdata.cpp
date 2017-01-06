@@ -67,6 +67,20 @@ PVSearchUtil*		gPVSearchUtil = NULL;
 std::string PVDataDownloader::pvdata_url_full_ = "";
 std::string PVDataDownloader::pvdata_agents_url_full_ = "";
 
+// Boolean To String
+inline const std::string bts(bool b)
+{
+	return b ? "true" : "false";
+}
+
+template <typename T>
+std::string pvitoa(T Number)
+{
+	std::stringstream ss;
+	ss << Number;
+	return ss.str();
+}
+
 #if LL_DARWIN
 size_t strnlen(const char *s, size_t n)
 {
@@ -333,11 +347,17 @@ void PVDataDownloader::parsePVData(const LLSD& data_input)
 	gPVData->PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
 	if (data_input.has(section))
 	{
-		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_DEBUG);
+		gPVData->PV_DEBUG("Found " + section + "!", LLError::LEVEL_INFO);
 		auto blob = data_input[section];
 		gPVData->Dump(section, blob);
-		gPVDataViewerInfo->setMinimumVersion(blob);
-		//gPVData->PV_DEBUG("Minimum Version is " + gPVDataViewerInfo->getMinimumVersion(), LLError::LEVEL_INFO);
+		for (LLSD::map_const_iterator iter = blob.beginMap(); iter != blob.endMap(); ++iter)
+		{
+			auto version = iter->first;
+			auto reason = iter->second;
+			blob[version] = reason;
+			gPVDataViewerInfo->minimum_version_[version] = reason;
+			PVData::PV_DEBUG("Minimum Version is " + version, LLError::LEVEL_INFO);
+		}
 	}
 	else
 	{
@@ -475,62 +495,45 @@ void PVDataDownloader::handleAgentsFailure()
 	pv_agents_status_ = DOWNLOAD_FAILURE;
 }
 
-#if 0 // v7
-std::string PVDataInfo::getMinimumVersion()
+bool PVDataViewerInfo::isVersionUnderMinimum()
 {
-	auto version = minimum_version_.beginMap()->second;
-	// TODO: QA THIS
-	PV_DEBUG("Minimum version is: " + version.asString(), LLError::LEVEL_INFO);
-	return version.asString();
-}
-#endif
-
-bool PVDataViewerInfo::isVersionAtOrAboveMinimum()
-{
-	/* TODO: Implement in v7.
-	* What we need:
-	<key>MinimumVersion</key>
-	<map>
-	<key>VERSION</key>
-	<string>5.12.3</string>
-	<key>REASON</key>
-	<string>This version of Polarity Viewer is too old. Please wait for an updated build to arrive your way or download a new one.</string>
-	</map>
-	*/
-#if VERSION_7
-	std::string min_version_str = getMinimumVersion();
-	std::istringstream iss(min_version_str);
-	std::vector<std::string> tokens;
-	std::string token;
-	while (std::getline(iss, token, '.')) {
-		if (!token.empty())
-			tokens.push_back(token);
-	}
-	// yay implicit conversions!
-	if (token[0] >= LLVersionInfo::getMajor() &&
-		token[1] >= LLVersionInfo::getMinor() &&
-		token[2] >= LLVersionInfo::getPatch())
+	if (minimum_version_.size() == NULL) // empty!
 	{
+		// this will only happen if data download failed, so let's just thwart that.
 		return true;
 	}
-	else
-	{
-		// TODO: Write tests. omg.
-		// TODO: Finish this once we have v7 deployed.
-		auto version_str = minimum_version_[version_str];
-		if (minimum_version_.has("REASON") && minimum_version_["REASON"].type() == LLSD::TypeString)
-		{
 
-			version_str.beginMap()->first;
-
-		}
-
-		auto version_data = version_map["REASON"];
-		setErrorMessage(version_data->second)
-#else
-	return true;
-#endif
+	std::string min_version_str = minimum_version_.begin()->first;
+	std::istringstream iss(min_version_str);
+	std::vector<S32> min_ver_tokens;
+	std::string min_version;
+	gPVData->PV_DEBUG("Parsing version...", LLError::LEVEL_DEBUG);
+	while (std::getline(iss, min_version, '.')) {
+		if (!min_version.empty())
+			gPVData->PV_DEBUG(min_version,LLError::LEVEL_DEBUG);
+			min_ver_tokens.push_back(atoi(min_version.c_str()));
 	}
+	gPVData->PV_DEBUG("Done.", LLError::LEVEL_DEBUG);
+
+	auto major_pass = LLVersionInfo::getMajor() >= (min_ver_tokens[0]);
+	auto minor_pass = LLVersionInfo::getMinor() >= (min_ver_tokens[1]);
+	auto patch_pass = LLVersionInfo::getPatch() >= (min_ver_tokens[2]);
+	auto build_pass = LLVersionInfo::getBuild() >= (min_ver_tokens[3]);
+	gPVData->PV_DEBUG("Major " + bts(major_pass) + " (" + pvitoa(LLVersionInfo::getMajor())+ " >= " + pvitoa(min_ver_tokens[0]) + ")", LLError::LEVEL_DEBUG);
+	gPVData->PV_DEBUG("Minor " + bts(minor_pass) + " (" + pvitoa(LLVersionInfo::getMinor())+ " >= " + pvitoa(min_ver_tokens[1]) + ")", LLError::LEVEL_DEBUG);
+	gPVData->PV_DEBUG("Patch " + bts(patch_pass) + " (" + pvitoa(LLVersionInfo::getPatch())+ " >= " + pvitoa(min_ver_tokens[2]) + ")", LLError::LEVEL_DEBUG);
+	gPVData->PV_DEBUG("Build " + bts(build_pass) + " (" + pvitoa(LLVersionInfo::getBuild())+ " >= " + pvitoa(min_ver_tokens[3]) + ")", LLError::LEVEL_DEBUG);
+
+	if (major_pass && minor_pass && patch_pass && build_pass)
+	{
+		// allow
+		return false;
+	}
+
+	gPVData->setErrorMessage(minimum_version_.begin()->second["REASON"]);
+	LLFloaterAboutUtil::checkUpdatesAndNotify();
+	return true;
+}
 
 bool PVDataDownloader::getDataDone()
 {
@@ -794,49 +797,53 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 	return false;
 }
 
+std::vector<int> split_version(const char *str, char separator = '.')
+{
+	std::vector<int> result;
+
+	do
+	{
+		auto *begin = str;
+
+		while (*str != separator && *str)
+			str++;
+
+		result.push_back(atoi(std::string(begin, str).c_str()));
+	} while (0 != *str++);
+
+	return result;
+}
+
 /**
  * \brief Determines if the current binary is a known, and blocked release.
  * \return true if the release is blocked, false if allowed.
  */
 bool PVDataViewerInfo::isBlockedRelease()
 {
-	// This little bit of code here does a few things. First it grabs the viewer's current version. Then it attempts to find that specific version
-	// in the list of blocked versions (blocked_versions_).
-	// If the version is found, it assigns the version's index to the iterator 'iter', otherwise assigns map::find's retun value which is 'map::end'
 	const std::string& sCurrentVersion = LLVersionInfo::getChannelAndVersionStatic();
-	const std::string& sCurrentVersionShort = LLVersionInfo::getShortVersion();
-	// Blocked Versions
 	auto blockedver_iterator = blocked_versions_.find(sCurrentVersion);
-	// Minimum Version
-	auto minver_iterator = minimum_version_.begin();
-	gPVData->setErrorMessage("Quit living in the past!");
-
-	// TODO v7: Check if isVersionAtOrAboveMinimum is more suitable
 	
-	// Check if version is lower than the minimum version
-	if (minver_iterator != minimum_version_.end() // Otherwise crashes if data is missing due to network failures
-		&& sCurrentVersionShort < minver_iterator->first)
+	gPVData->setErrorMessage("Quit living in the past!");
+	
+	if (isVersionUnderMinimum())
 	{
-		const LLSD& reason_llsd = minver_iterator->second;
-		gPVData->setErrorMessage(reason_llsd["REASON"]);
-		LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
-		LLFloaterAboutUtil::checkUpdatesAndNotify();
 		return true;
 	}
-	// Check if version is explicitly blocked
-	if (blockedver_iterator != blocked_versions_.end()) // if the iterator's value is map::end, it is not in the array.
-	{
-		// assign the iterator's associated value (the reason message) to the LLSD that will be returned to the calling function
-		const LLSD& reason_llsd = blockedver_iterator->second;
-		gPVData->setErrorMessage(reason_llsd["REASON"]);
-		LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
-		LLFloaterAboutUtil::checkUpdatesAndNotify();
-		return true;
-	}
-	gPVData->PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
 
-	// default
-	return false;
+	// Check if version is explicitly blocked
+	if (blockedver_iterator == blocked_versions_.end()) // if the iterator's value is map::end, it is not in the array.
+	{
+		gPVData->PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
+		gPVData->setErrorMessage("");
+		return false;
+	}
+
+	// assign the iterator's associated value (the reason message) to the LLSD that will be returned to the calling function
+	const LLSD& reason_llsd = blockedver_iterator->second;
+	gPVData->setErrorMessage(reason_llsd["REASON"]);
+	LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
+	LLFloaterAboutUtil::checkUpdatesAndNotify();
+	return true;
 }
 
 inline S32 PVDataAuth::getSpecialAgentFlags(const LLUUID& avatar_id)

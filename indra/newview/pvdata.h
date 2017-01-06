@@ -576,14 +576,12 @@ private:
 			}
 			return "";
 		}
-#if 0 // v7
-		std::string getMinimumVersion();
-#endif
+
 		/**
 		 * \brief Check if current viewer is recent enough. Need to be called before showing login screen and disable login button + show error dialog if not the case.
 		 * \return bool
 		 */
-		bool isVersionAtOrAboveMinimum();
+		bool isVersionUnderMinimum();
 
 		// Get a new progress tip (throttled)
 		std::string getNewProgressTip(bool forced = false);
@@ -618,18 +616,6 @@ private:
 				PVData::PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
 			}
 		}
-		void setMinimumVersion(const LLSD& blob)
-		{
-			//minimum_version_ = blob; // v7?
-			auto min_version = blob["MinimumVersion"];
-			for (LLSD::map_const_iterator iter = min_version.beginMap(); iter != min_version.endMap(); ++iter)
-			{
-				auto version = iter->first;
-				auto reason = iter->second;
-				minimum_version_[version] = reason;
-				LL_DEBUGS("PVData") << "Minimum Version is " << version << LL_ENDL;
-			}
-		}
 
 	private:
 
@@ -652,10 +638,11 @@ private:
 		//LLSD blocked_versions_; // v7?
 		pv_pair_string_llsd blocked_versions_;
 
+	public:
 		// Minimum viewer version allowed to be used
 		//LLSD minimum_version_; // v7?
 		pv_pair_string_llsd minimum_version_;
-
+	private:
 		LLFrameTimer mTipCycleTimer;
 
 		std::string last_login_tip;

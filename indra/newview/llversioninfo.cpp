@@ -73,30 +73,34 @@ S32 LLVersionInfo::getBuild()
 //static
 const std::string &LLVersionInfo::getVersion()
 {
+	
 	static std::string version("");
-	if (version.empty())
-	{
+	// <polarity> disallow version overriding. This effectively ignores the command line setting.
+	//if (version.empty())
+	//{
 		std::ostringstream stream;
 		stream << LLVersionInfo::getShortVersion() << "." << LLVersionInfo::getBuild();
 		// cache the version string
 		version = stream.str();
-	}
+	//}
 	return version;
 }
 
 //static
 const std::string &LLVersionInfo::getShortVersion()
 {
+
 	static std::string short_version("");
-	if(short_version.empty())
-	{
+	// <polarity> disallow version overriding. This effectively ignores the command line setting.
+	//if(short_version.empty())
+	//{
 		// cache the version string
 		std::ostringstream stream;
 		stream << LL_VIEWER_VERSION_MAJOR << "."
 		       << LL_VIEWER_VERSION_MINOR << "."
 		       << LL_VIEWER_VERSION_PATCH;
 		short_version = stream.str();
-	}
+	//}
 	return short_version;
 }
 
