@@ -5,6 +5,7 @@ native = LF
 path:indra/lscript/lscript_compile/windows/unistd.h = CRLF
 path:indra/newview/installers/windows/FILES_ARE_UNICODE_UTF-16LE.txt = CRLF
 path:indra/tools/vstool/README.txt = CRLF
+**.nsi = CRLF
 **.h = native
 **.cpp = native
 **.py = native
