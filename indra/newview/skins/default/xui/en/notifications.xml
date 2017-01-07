@@ -11474,6 +11474,13 @@ Color: [PV_COLOR]
   [MESSAGE]
  </notification>
 
+ <notification
+  icon="notifytip.png"
+  name="GenericNotify"
+  type="notify">
+  [MESSAGE]
+ </notification>
+
 <!-- Resurrected from Firestorm -->
   <notification
    icon="alertmodal.tga"
