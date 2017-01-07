@@ -2233,7 +2233,12 @@ S32 LLVOVolume::setTEMaterialParams(const U8 te, const LLMaterialPtr pMaterialPa
 		LLViewerTexture *img_normal = getTENormalMap(te);
 		LLViewerTexture *img_specular = getTESpecularMap(te);
 
-		llassert(NULL != img_diffuse);
+		//llassert(NULL != img_diffuse); // What am I supposed to do with this, though? - Xenhat
+		if(NULL == img_diffuse)
+		{
+			//@note to give a proper warning, we would need to store the object name and retrieve it here, but I don't really want to right now. - Xenhat 2017.01.07
+			LL_DEBUGS() << "Diffuse Map not found!! What?!" << LL_ENDL;
+		}
 
 		LLMaterialPtr new_material = NULL;
 
