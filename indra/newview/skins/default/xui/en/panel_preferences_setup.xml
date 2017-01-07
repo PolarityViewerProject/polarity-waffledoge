@@ -107,7 +107,6 @@
   </text>
   <radio_group
    control_name="PreferredBrowserBehavior"
-   draw_border="false"
    follows="left|top"
    height="60"
    layout="topleft"
@@ -239,7 +238,6 @@
      label="Tester Token"
      layout="topleft"
      left_pad="2"
-     max_length_chars="32"
      name="auth_token_editor"
      use_ellipses="false"
      top_delta="-2"

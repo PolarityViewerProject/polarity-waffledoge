@@ -6,13 +6,5 @@
  keep_one_selected="false"
  multi_select="false"
  opaque="true">
-  <flat_list_view
-    color="FloaterDefaultBackgroundColor"
-    follows="all"
-    layout="topleft"
-    name="notification_list"
-    left="1"
-    top="20"
-    height="0"
-    width="318"/>
+  <flat_list_view/> <!-- Does this still need to exist? -->
 </notification_list_view>

@@ -33,13 +33,10 @@
     Searching...
   </text> 
   <scroll_container
-   border="false"
-   bevel_style="none"
    follows="all"
    height="400"
    layout="topleft"
    left="4"
-   min_width="312"
    name="gallery_scroll_panel"
    opaque="false"
    right="-1"
@@ -47,7 +44,7 @@
    top_pad="0">
   </scroll_container> 
   <panel
-     background_visible="true"
+    background_visible="true"
 	 follows="bottom|left|right"
 	 height="28"
 	 layout="topleft"

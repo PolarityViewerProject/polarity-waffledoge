@@ -512,7 +512,6 @@
         height="23"
         layout="topleft"
         left_pad="55"
-        max_length="4096"
         name="log_path_string"
         top_delta="-5"
         width="185">

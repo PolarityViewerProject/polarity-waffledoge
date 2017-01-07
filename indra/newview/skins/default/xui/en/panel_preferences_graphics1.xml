@@ -296,7 +296,7 @@
         layout="topleft"
         left_delta="-1"
         name="rigmeshshadow_dropdown"
-        tooltip="Examples: Mesh bodies, Kemono, Solarian..."
+        tool_tip="Examples: Mesh bodies, Kemono, Solarian..."
         top_pad="5"
         width="168">
         <combo_box.item
@@ -798,7 +798,7 @@
         layout="topleft"
         left_pad="3"
         name="Defaults"
-        tooltip="Resets the graphical preferences to the defaults for your hardware"
+        tool_tip="Resets the graphical preferences to the defaults for your hardware"
         top_delta="0"
         width="115">
         <button.commit_callback

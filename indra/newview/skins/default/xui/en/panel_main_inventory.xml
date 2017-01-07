@@ -92,7 +92,6 @@
 	 left="2"
 	 name="inventory filter tabs"
 	 tab_group="1"
-	 tab_drag_commit="true"
 	 open_tabs_on_drag_and_drop="true"
 	 tab_position="top"
 	 tab_min_width="60"

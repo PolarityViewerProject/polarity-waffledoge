@@ -24,12 +24,10 @@
      top="0"
      width="309">
      <accordion_tab
-     background_visible="false"
      layout="topleft"
      name="tab_wearables"
      title="Wearables">
     <wearable_items_list
-     background_visible="false"
      follows="all"
      height="400"
      layout="topleft"
@@ -42,7 +40,6 @@
      worn_indication_enabled="false" />
      </accordion_tab>
      <accordion_tab
-     background_visible="false"
      layout="topleft"
      name="tab_temp_attachments"
      title="Temporary attachments">
