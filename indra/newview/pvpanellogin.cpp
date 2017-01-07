@@ -217,7 +217,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 
 	// change z sort of clickable text to be behind buttons
-	sendChildToBack(getChildView("forgot_password_text"));
+	// sendChildToBack(getChildView("forgot_password_text"));
 
 	LLComboBox* favorites_combo = getChild<LLComboBox>("start_location_combo");
 	updateLocationSelectorsVisibility(); // separate so that it can be called from preferences
@@ -233,8 +233,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		LLStartUp::setStartSLURL(slurl);
 	}
 
-	LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
-	create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
+	// LLTextBox* create_new_account_text = getChild<LLTextBox>("create_new_account_text");
+	// create_new_account_text->setClickedCallback(onClickNewAccount, NULL);
 
 #if LOGIN_MGR_HELP
 	LLTextBox* grid_mgr_help_text = getChild<LLTextBox>("grid_login_text");
@@ -267,16 +267,18 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	childSetAction("remove_user_btn", onClickRemove, this);
 	childSetAction("connect_btn", onClickConnect, this);
 
-	getChild<LLPanel>("login")->setDefaultBtn(findChild<LLButton>("connect_btn"));
-	getChild<LLPanel>("start_location_panel")->setDefaultBtn(findChild<LLButton>("connect_btn"));
+	//@todo add conditional focus on connect button when credentials are filled
+	// so that "enter to login" works again
+	// getChild<LLPanel>("login")->setDefaultBtn(findChild<LLButton>("connect_btn"));
+	// getChild<LLPanel>("start_location_panel")->setDefaultBtn(findChild<LLButton>("connect_btn"));
 
 	std::string channel = LLVersionInfo::getChannel();
 	std::string version = llformat("%s (%d)",
 								   LLVersionInfo::getShortVersion().c_str(),
 								   LLVersionInfo::getBuild());
 	
-	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
-	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
+	// LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
+	// forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
 	
 	loadLoginPage();
 
