@@ -267,20 +267,20 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 
 	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
 	auto limit = gGLManager.mGLMaxTextureSize;
-	
+
 	LLTextBox* gpu_limit = floater->getChild<LLTextBox>("gpu_texture_size_limit");
+	LLTextBox* gpu_suggest = floater->getChild<LLTextBox>("gpu_texture_size_suggested");
 	
-	if(gpu_limit)
+	if(gpu_limit && gpu_suggest) // I'm lazy.
 	{
 		// Ugh. Not efficient but it works.
-		std::string text; LLSD args;
+		LLSD args;
 		args["RESOLUTION"] = limit;
-		text = LLTrans::getString("gpu_max_texture_size_side", args);
-		gpu_limit->setToolTip(text);
+		gpu_limit->setValue(LLTrans::getString("gpu_absolute_texture_size", args));
+		gpu_limit->setToolTip(LLTrans::getString("gpu_max_texture_size_side", args));
 		// Recommend half the texture maximum to prevent TDR
-		args["RESOLUTION"] = (limit / 2);
-		text = LLTrans::getString("gpu_recommended_texture_size", args); 
-		gpu_limit->setValue(text);
+		args["RESOLUTION"] = (limit * 3 / 4);
+		gpu_suggest->setValue(LLTrans::getString("gpu_recommended_texture_size", args));
 	}
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(snapshot_format);
 

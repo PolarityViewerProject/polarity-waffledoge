@@ -4390,7 +4390,10 @@ Try enclosing path to the editor with double quotes.
     Based on your system's hardware limit of [RESOLUTION] x [RESOLUTION]
   </string>
   <string name="gpu_recommended_texture_size">
-    Suggested max:   [RESOLUTION] x [RESOLUTION]
+  	Suggested max:   [RESOLUTION] x [RESOLUTION]
+  </string>
+  <string name="gpu_absolute_texture_size">
+    Absolute max:  [RESOLUTION] x [RESOLUTION]
   </string>
 
   <string name="SnapshotSavedToDisk">Snapshot saved: [FILENAME]</string>

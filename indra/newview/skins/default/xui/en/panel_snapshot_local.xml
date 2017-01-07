@@ -129,15 +129,31 @@
       type="string"
       length="1"
       follows="left|top"
+      font="Monospace"
+      height="13"
+      layout="topleft"
+      left_delta="0"
+      name="gpu_texture_size_suggested"
+      top_pad="5"
+      text_color="EmphasisColor"
+      tool_tip="Based on your system's hardware limit of 8192 x 8192"
+      width="250">
+         Suggested max: 16384 x 16384
+     </text>
+    <text
+      type="string"
+      length="1"
+      follows="left|top"
+      font="Monospace"
       height="13"
       layout="topleft"
       left_delta="0"
       name="gpu_texture_size_limit"
       top_pad="5"
       text_color="EmphasisColor"
-      tool_tip="Based on your system's hardware limit of 8192 x 8192"
+      tool_tip="Based on your system's hardware limit of ugu x kawaii"
       width="250">
-         Suggested max: 4096 x 4096
+         Absolute max:  16384 x 16384
      </text>
     <spinner
      allow_text_entry="false"
