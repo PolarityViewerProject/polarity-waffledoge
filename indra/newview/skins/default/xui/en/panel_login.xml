@@ -98,6 +98,19 @@ Viewer
     check_button.bottom="3"
     name="remember_check"
     width="145" />
+ <button
+    follows="left|top"
+    image_unselected="PushButton_Off"
+    image_pressed="PushButton_Selected_Press"
+    label="Log In"
+    label_color="White"
+    font="SansSerif"
+    name="connect_btn"
+    enabled="false"
+    left="1"
+    top_pad="10"
+    width="90"
+    height="26"/>
  <combo_box
     allow_text_entry="true"
 	control_name="NextLoginLocation"
@@ -120,19 +133,6 @@ Viewer
 	name="MyHome"
 	value="home" />
  </combo_box>
- <button
-    follows="left|top"
-    image_unselected="PushButton_Off"
-    image_pressed="PushButton_Selected_Press"
-    label="Log In"
-    label_color="White"
-    font="SansSerif"
-    name="connect_btn"
-    enabled="false"
-    left="1"
-    top_pad="10"
-    width="90"
-    height="26"/>
  <combo_box
     allow_text_entry="false"
     follows="left|top"
