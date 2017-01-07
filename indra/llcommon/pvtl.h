@@ -6,7 +6,7 @@
 *
 * $LicenseInfo:firstyear=2015&license=viewerlgpl$
 * Polarity Viewer Source Code
-* Copyright (C) 2016 Xenhat Liamano
+* Copyright (C) 2017 Xenhat Liamano
 *
 * This library is free software; you can redistribute it and/or
 * modify it under the terms of the GNU Lesser General Public
