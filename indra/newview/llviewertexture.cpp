@@ -1524,7 +1524,16 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		// An inappropriately-sized image was uploaded (through a non standard client)
 		// We treat these images as missing assets which causes them to
 		// be renderd as 'missing image' and to stop requesting data
-		LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
+
+		// <polarity> Make it more verbose, but don't spam the log
+		// LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
+		// I can't seem to be able to get the object this image is attached to, but dumping the ID should help whoever tries to correct the problem. - Xenhat
+		//@todo Try to handle this asset instead of displaying a broken blob
+		static LLCachedControl<bool> warn_invalid_texture(gSavedSettings, "PVDebug_WarnIfInvalidTexture", false);
+		if (warn_invalid_texture)
+		{
+			LL_WARNS("InvalidAsset") << "Invalid image size for texture '" << mID << "' (!size_ok, probably uploaded with old and/or broken OpenJPEG), setting as missing and ignoring future requests" << LL_ENDL;
+		}
 		setIsMissingAsset();
 		destroyRawImage();
 		return FALSE;
