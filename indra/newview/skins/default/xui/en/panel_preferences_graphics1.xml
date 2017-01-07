@@ -996,7 +996,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default"
+            name="default_fpslimiter_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -1043,7 +1043,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default"
+            name="default_textmem_btn"
             width="60">
             <button.commit_callback
               function="Pref.getRecommendedtextMem">
@@ -1117,7 +1117,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default"
+            name="default_ssr_res_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -1261,7 +1261,7 @@
               layout="topleft"
               left_pad="0"
               top_delta="-68"
-              name="default"
+              name="default_shadowres_btn"
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
@@ -1279,7 +1279,7 @@
               layout="topleft"
               left_delta="0"
               top_pad="2"
-              name="default"
+              name="default_shadowblur_btn"
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
@@ -1976,7 +1976,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default"
+            name="default_godray_fo_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2014,7 +2014,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-0"
-            name="default"
+            name="default_godray_mult_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2052,7 +2052,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-0"
-            name="default"
+            name="default_godray_res_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2160,7 +2160,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default"
+            name="default_tm_expo_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2247,7 +2247,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_tm_ctrla_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2334,7 +2334,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_tm_ctrlb_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2398,7 +2398,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-15"
-            name="default"
+            name="default_tm_ctrlc_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2515,7 +2515,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_expo_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2599,7 +2599,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_hdr_br_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2683,7 +2683,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_gamma_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
@@ -2789,7 +2789,7 @@
             layout="topleft"
             left_pad="0"
             top_delta="-30"
-            name="default"
+            name="default_vign_btn"
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
