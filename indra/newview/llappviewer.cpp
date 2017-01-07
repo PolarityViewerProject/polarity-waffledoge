@@ -3175,13 +3175,6 @@ bool LLAppViewer::initWindow()
 
 	LL_INFOS("AppInit") << "gViewerwindow created." << LL_ENDL;
 
-#if LL_WINDOWS
-		if ((gSavedSettings.getBOOL("FullScreenWindow")) && (gViewerWindow->canFullscreenWindow()))
-		{
-			gViewerWindow->setFullscreenWindow(TRUE);
-		}
-#endif
-
 	// Need to load feature table before cheking to start watchdog.
 	bool use_watchdog = false;
 	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
