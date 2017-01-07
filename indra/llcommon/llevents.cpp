@@ -284,7 +284,7 @@ LLEventPump::LLEventPump(const std::string& name, bool tweak):
 LLEventPump::~LLEventPump()
 {
     // Unregister this doomed instance from LLEventPumps
-	if (LLEventPumps::instanceExists())
+	if (this && LLEventPumps::instanceExists())
 	{
 		LLEventPumps::instance().unregister(*this);
 	}
