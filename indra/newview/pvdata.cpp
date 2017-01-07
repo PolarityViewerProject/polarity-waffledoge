@@ -32,29 +32,26 @@
  */
 
 #include "llviewerprecompiledheaders.h"
+#include "pvtl.h" // for commatize()
+#include <stdlib.h> // for setenv
 #include "pvdata.h"
-
-/* boost: will not compile unless equivalent is undef'd, beware. */
-#include "fix_macros.h"
-#include <boost/spirit/include/karma.hpp>
+#include "pvcommon.h"
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "llfloaterabout.h"
+#include "llfloaterpreference.h"
 #include "llmutelist.h"
+#include "llnotificationsutil.h"
 #include "llprogressview.h"
 #include "llsdserialize.h"
 #include "llstartup.h"
+#include "lltrans.h" // for getString
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "noise.h"
 
-#include <stdlib.h> // for setenv
-#include "llfloaterpreference.h"
-#include "lltrans.h" // for getString
-#include "llnotificationsutil.h"
-#include "pvcommon.h"
 
 // This one needs to stay in the global scope, I think
 PVData*				gPVData = NULL;
@@ -963,20 +960,20 @@ bool PVDataAuth::isLinden(const LLUUID& avatar_id, S32& av_flags) const
 #endif
 }
 
-bool PVDataAuth::getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::string& new_title)
+bool PVDataAuth::getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostringstream& new_title)
 {
 	if(pv_special_agent_title_.find(avatar_id) != pv_special_agent_title_.end())
 	{
-		new_title = pv_special_agent_title_[avatar_id];
+		new_title << pv_special_agent_title_[avatar_id];
 	}
-	return (!new_title.empty());
+	return (!new_title.str().empty());
 }
 // Checks on the agent using the viewer
 
 std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 {
 	// Check for agents flagged through PVData
-	std::string agent_title = "";
+	std::ostringstream agent_title;
 	std::vector<std::string> flags_list;
 	S32 av_flags = getSpecialAgentFlags(avatar_id);
 	if (isLinden(avatar_id, av_flags))
@@ -986,13 +983,13 @@ std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 	if (av_flags != 0 || !flags_list.empty())
 	{
 		// LL_WARNS() << "Agent Flags for " << avatar_id << " = " << av_flags << LL_ENDL;
-		std::string custom_title;
+		std::ostringstream custom_title;
 		//auto title_ptr *
 		if (getSpecialAgentCustomTitle(avatar_id, custom_title))
 		{
 			// Custom tag present, drop previous title to use that one instead.
 			flags_list.clear();
-			flags_list.push_back(custom_title);
+			flags_list.push_back(custom_title.str());
 		}
 		else
 		{
@@ -1027,13 +1024,14 @@ std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 				flags_list.push_back("Tester");
 			}
 		}
-
+#if BOOST_SPIRIT_EW
 		using namespace boost::spirit::karma;
 		std::ostringstream string_stream;
 		string_stream << format(string % ',', flags_list);
 		agent_title = string_stream.str();
+#endif
 	}
-	return agent_title;
+	return vector_to_string(agent_title, flags_list.begin(), flags_list.end()).str();
 }
 
 bool PVDataAuth::isSpecialAgentColored(const LLUUID& avatar_id)

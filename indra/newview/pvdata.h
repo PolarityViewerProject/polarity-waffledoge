@@ -43,12 +43,6 @@
  // total_hours_wasted_here = 128
  //
 
-
-// Tell Compiler to leave us alone.
-// boost::spirit::terminal<boost::spirit::tag::oct>::result_helper': redefinition of default parameter: parameter 3
-#pragma warning (disable : 4348)
-
-#include "boost/container/flat_set.hpp"
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
@@ -433,7 +427,7 @@ private:
 		std::string getAgentFlagsAsString(const LLUUID& avatar_id);
 
 		
-		bool getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::string& new_title);
+		bool getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostringstream& new_title);
 
 		/**
 		 * \brief Same as getAgentFlagsAsString, without the custom title

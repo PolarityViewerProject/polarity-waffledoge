@@ -1120,7 +1120,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			|| existing_inspector->getKey()["avatar_id"].asUUID() != hover_object->getID())
 		{
 			// Try to get display name + username
-			std::string final_name;
+			std::ostringstream final_name;
 			LLAvatarName av_name;
 			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
@@ -1143,29 +1143,29 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 							{
 								// this SHOULD evaluate false if empty, because LLNameValue's ::string is a char*.
 								// which *should* return a null character when empty.
-								 final_name = group_title_data_nv->getString() + std::string(" ");
+								 final_name << group_title_data_nv->getString() + std::string(" ");
 							}
 						}
 					}
-					final_name += av_name.getCompleteName();
+					final_name << av_name.getCompleteName();
 				 }
 				else
 				{
 					// If names cannot be shown, it does not make sense to keep the group title.
-					final_name = RlvStrings::getAnonym(av_name);
+					final_name << RlvStrings::getAnonym(av_name);
 				}
 // [/RLVa:KB]
 			}
 			else
 			{
-				final_name = LLTrans::getString("TooltipPerson");;
+				final_name << LLTrans::getString("TooltipPerson");;
 			}
 
 			// <polarity> Add PVData title to hover tip
-			std::string pv_title;
+			std::ostringstream pv_title;
 			if (gPVDataAuth->getSpecialAgentCustomTitle(hover_object->getID(), pv_title))
 			{
-				final_name += ", " + pv_title;
+				final_name << ", " << pv_title.str();
 			}
 
 			// *HACK: We may select this object, so pretend it was clicked
@@ -1177,7 +1177,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 // [/RLVa:KB]
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
-				p.message(final_name);
+				p.message(final_name.str());
 				// <polarity> No inspector icon.
 				//p.image.name("Inspector_I");
 				p.click_callback(boost::bind(showAvatarInspector, hover_object->getID()));
@@ -1191,7 +1191,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			}
 			else
 			{
-				LLToolTipMgr::instance().show(final_name);
+				LLToolTipMgr::instance().show(final_name.str());
 			}
 // [/RLVa:KB]
 		}
