@@ -948,8 +948,12 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshotBase* view,
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
-			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-			previewp->updateSnapshot(TRUE);
+			static LLCachedControl<bool> auto_update(gSavedSettings, "PVUI_SnapshotAutoRefreshOnResChange", false);
+			if(auto_update)
+			{
+				LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
+				previewp->updateSnapshot(TRUE);
+			}
 		}
 	}
 }

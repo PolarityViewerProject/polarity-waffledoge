@@ -1916,6 +1916,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_SnapshotAutoRefreshOnResChange</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically create a new snapshot when the target resolution changes</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_StatusBarShowFPSCounter</key>
     <map>
       <key>Comment</key>
