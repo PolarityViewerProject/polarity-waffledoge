@@ -252,7 +252,8 @@
       height="20"
       layout="topleft"
       left_pad="0"
-      top_delta="0" 
+      top_delta="0"
+      width="380"
       name="Name_Tag_Preference">
       <radio_item
        label="Off"
