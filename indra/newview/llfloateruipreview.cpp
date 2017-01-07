@@ -354,6 +354,10 @@ LLFadeEventTimer::LLFadeEventTimer(F32 refresh, LLGUIPreviewLiveFile* parent)
 // Single tick of fade event timer: increment the color
 BOOL LLFadeEventTimer::tick()
 {
+	if (LLApp::isQuitting())
+	{
+		return TRUE;
+	}
 	float diff = 0.04f;
 	if(TRUE == mFadingOut)	// set fade for in/out color direction
 	{
