@@ -40,3 +40,14 @@ template <typename Stream, typename Iter>
 inline Stream& vector_to_string(Stream &os, Iter from, Iter to) {
 	return infix(os, from, to, ", ");
 }
+
+inline long version_string_as_long(const std::string& version_in)
+{
+	// do not modify the incoming string as the rest of the program may
+	// expect it to be intact.
+	std::string string_copy = version_in;
+	string_copy.erase(std::remove(string_copy.begin(), string_copy.end(), '.'), string_copy.end());
+	long version_int = strtoul(string_copy.c_str(), nullptr, 0);
+	llassert(version_int != 0);
+	return version_int;
+}

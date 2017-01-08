@@ -500,35 +500,13 @@ bool PVDataViewerInfo::isVersionUnderMinimum()
 		return true;
 	}
 
-	std::string min_version_str = minimum_version_.begin()->first;
-	std::istringstream iss(min_version_str);
-	std::vector<S32> min_ver_tokens;
-	std::string min_version;
 	gPVData->PV_DEBUG("Parsing version...", LLError::LEVEL_DEBUG);
-	while (std::getline(iss, min_version, '.')) {
-		if (!min_version.empty())
-			gPVData->PV_DEBUG(min_version,LLError::LEVEL_DEBUG);
-			min_ver_tokens.push_back(atoi(min_version.c_str()));
-	}
-	gPVData->PV_DEBUG("Done.", LLError::LEVEL_DEBUG);
-
-	auto major_pass = LLVersionInfo::getMajor() >= (min_ver_tokens[0]);
-	auto minor_pass = LLVersionInfo::getMinor() >= (min_ver_tokens[1]);
-	auto patch_pass = LLVersionInfo::getPatch() >= (min_ver_tokens[2]);
-	auto build_pass = LLVersionInfo::getBuild() >= (min_ver_tokens[3]);
-	gPVData->PV_DEBUG("Major " + bts(major_pass) + " (" + pvitoa(LLVersionInfo::getMajor())+ " >= " + pvitoa(min_ver_tokens[0]) + ")", LLError::LEVEL_DEBUG);
-	gPVData->PV_DEBUG("Minor " + bts(minor_pass) + " (" + pvitoa(LLVersionInfo::getMinor())+ " >= " + pvitoa(min_ver_tokens[1]) + ")", LLError::LEVEL_DEBUG);
-	gPVData->PV_DEBUG("Patch " + bts(patch_pass) + " (" + pvitoa(LLVersionInfo::getPatch())+ " >= " + pvitoa(min_ver_tokens[2]) + ")", LLError::LEVEL_DEBUG);
-	gPVData->PV_DEBUG("Build " + bts(build_pass) + " (" + pvitoa(LLVersionInfo::getBuild())+ " >= " + pvitoa(min_ver_tokens[3]) + ")", LLError::LEVEL_DEBUG);
-
-	if (major_pass && minor_pass && patch_pass && build_pass)
+	if (version_string_as_long(LLVersionInfo::getVersion()) >= version_string_as_long(minimum_version_.begin()->first))
 	{
-		// allow
 		return false;
 	}
 
 	gPVData->setErrorMessage(minimum_version_.begin()->second["REASON"]);
-	LLFloaterAboutUtil::checkUpdatesAndNotify();
 	return true;
 }
 
@@ -817,6 +795,12 @@ std::vector<int> split_version(const char *str, char separator = '.')
  */
 bool PVDataViewerInfo::isBlockedRelease()
 {
+	static S32 blocked = -1;
+	if (blocked >= 0)
+	{
+		return blocked;
+	}
+
 	const std::string& sCurrentVersion = LLVersionInfo::getChannelAndVersionStatic();
 	auto blockedver_iterator = blocked_versions_.find(sCurrentVersion);
 	
@@ -824,6 +808,7 @@ bool PVDataViewerInfo::isBlockedRelease()
 	
 	if (isVersionUnderMinimum())
 	{
+		blocked = TRUE;
 		return true;
 	}
 
@@ -832,6 +817,7 @@ bool PVDataViewerInfo::isBlockedRelease()
 	{
 		gPVData->PV_DEBUG(sCurrentVersion + " not found in the blocked releases list", LLError::LEVEL_DEBUG);
 		gPVData->setErrorMessage("");
+		blocked = FALSE;
 		return false;
 	}
 
@@ -840,6 +826,7 @@ bool PVDataViewerInfo::isBlockedRelease()
 	gPVData->setErrorMessage(reason_llsd["REASON"]);
 	LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << gPVData->getErrorMessage() << ")" << LL_ENDL;
 	LLFloaterAboutUtil::checkUpdatesAndNotify();
+	blocked = TRUE;
 	return true;
 }
 
