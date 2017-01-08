@@ -287,6 +287,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	username_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onSelectUser, this));
 	mPreviousUsername = username_combo->getValue().asString();
 
+	updateLoginButtons();
+
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
@@ -1047,22 +1049,36 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
-		LLButton* login_btn = getChild<LLButton>("connect_btn");
-		bool enable_button = false;
-		if (gPVDataDownloader->getDataDone())
+	LLButton* login_btn = getChild<LLButton>("connect_btn");
+
+	bool enable_button = false;
+	if (gPVDataDownloader->getDataDone())
+	{
+		if (!gPVDataViewerInfo->isBlockedRelease())
 		{
-			if (!gPVDataViewerInfo->isBlockedRelease())
-			{
-				enable_button = true;
-			}
-			else
-			{
-				LLSD args;
-				args["REASON"] = gPVData->getErrorMessage();
-				LLNotificationsUtil::add("BlockedReleaseReason", args);
-			}
+			enable_button = true;
+			login_btn->setLabel(LLTrans::getString("Login"));
 		}
-		login_btn->setEnabled(enable_button && (mUsernameLength != 0 && mPasswordLength != 0));
+		else
+		{
+			enable_button = false;
+			login_btn->setLabel(LLTrans::getString("Outdated"));
+			LLSD args;
+			args["REASON"] = gPVData->getErrorMessage();
+			LLNotificationsUtil::add("BlockedReleaseReason", args);
+		}
+	}
+	else
+	{
+		login_btn->setLabel(llformat("Uuhh..."));
+	}
+	bool has_credentials = (mUsernameLength != 0 && mPasswordLength != 0);
+	if (enable_button && !has_credentials)
+	{
+		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
+	}
+
+	login_btn->setEnabled(enable_button && has_credentials);
 }
 
 void LLPanelLogin::onSelectServer()
