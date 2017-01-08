@@ -87,30 +87,30 @@ Viewer
 	text_pad_left="8"
 	top_pad="10"
 	width="232" />
- <check_box
-    control_name="RememberPassword"
-    follows="left|top"
-    font="SansSerif"
-    left="1"
-    top_pad="10"
-    height="25"
-    label="Remember me"
-    check_button.bottom="3"
-    name="remember_check"
-    width="145" />
  <button
     follows="left|top"
     image_unselected="PushButton_Off"
     image_pressed="PushButton_Selected_Press"
-    label="Log In"
+    label="Credentials&#63;"
     label_color="White"
     font="SansSerif"
     name="connect_btn"
     enabled="false"
     left="1"
     top_pad="10"
-    width="90"
+    width="110"
     height="26"/>
+ <check_box
+    control_name="RememberPassword"
+    follows="left|top"
+    font="SansSerif"
+    left_pad="5"
+    top_delta="-1"
+    height="25"
+    label="Remember me"
+    check_button.bottom="3"
+    name="remember_check"
+    width="145" />
  <combo_box
     allow_text_entry="true"
 	control_name="NextLoginLocation"
@@ -137,7 +137,7 @@ Viewer
     allow_text_entry="false"
     follows="left|top"
     font="SansSerifTiny"
-    height="26"
+    height="23"
     label="Grid selection"
     layout="topleft"
     left="1"
