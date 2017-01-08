@@ -100,10 +100,8 @@ private:
 	void onUsernameTextChanged();
 
 public:
-	static void setLoginButtonEnabled(bool enabled);
 	static void onClickConnect(void*);
 private:
-	bool mLoginButtonEnabled;
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);

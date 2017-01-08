@@ -183,8 +183,7 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	mUsernameLength(0),
 	mPasswordLength(0),
 	mLocationLength(0),
-	mShowFavorites(false),
-	mLoginButtonEnabled(false)
+	mShowFavorites(false)
 {
 	setBackgroundVisible(FALSE);
 	setBackgroundOpaque(TRUE);
@@ -288,18 +287,6 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	username_combo->setFocusLostCallback(boost::bind(&LLPanelLogin::onSelectUser, this));
 	mPreviousUsername = username_combo->getValue().asString();
 
-	if (gPVDataViewerInfo->isBlockedRelease())
-	{
-		setLoginButtonEnabled(false);
-		LLSD args;
-		args["REASON"] = gPVData->getErrorMessage();
-		LLNotificationsUtil::add("BlockedReleaseReason", args);
-	}
-	else
-	{
-		setLoginButtonEnabled(true);
-		LL_INFOS("PVData") << "Viewer version is allowed to be used, moving on..." << LL_ENDL;
-	}
 }
 
 void LLPanelLogin::addFavoritesToStartLocation()
@@ -884,11 +871,6 @@ void LLPanelLogin::handleMediaEvent(LLPluginClassMedia* /*self*/, EMediaEvent ev
 // Protected methods
 //---------------------------------------------------------------------------
 
-void LLPanelLogin::setLoginButtonEnabled(bool enabled)
-{
-	sInstance->mLoginButtonEnabled = enabled;
-}
-
 // static
 void LLPanelLogin::onClickConnect(void *)
 {
@@ -1065,12 +1047,22 @@ void LLPanelLogin::updateServer()
 
 void LLPanelLogin::updateLoginButtons()
 {
-	if (mLoginButtonEnabled)
-	{
 		LLButton* login_btn = getChild<LLButton>("connect_btn");
-
-		login_btn->setEnabled((mUsernameLength != 0 && mPasswordLength != 0));
-	}
+		bool enable_button = false;
+		if (gPVDataDownloader->getDataDone())
+		{
+			if (!gPVDataViewerInfo->isBlockedRelease())
+			{
+				enable_button = true;
+			}
+			else
+			{
+				LLSD args;
+				args["REASON"] = gPVData->getErrorMessage();
+				LLNotificationsUtil::add("BlockedReleaseReason", args);
+			}
+		}
+		login_btn->setEnabled(enable_button && (mUsernameLength != 0 && mPasswordLength != 0));
 }
 
 void LLPanelLogin::onSelectServer()
