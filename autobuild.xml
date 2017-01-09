@@ -2655,6 +2655,27 @@
               <key>name</key>
               <string>Coverity</string>
             </map>
+            <key>DebugOS</key>
+            <map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>../indra</string>
+                </array>
+                <key>command</key>
+                <string>cmake</string>
+                <key>options</key>
+                <array>
+                  <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
+                  <string>-DWORD_SIZE:STRING=32</string>
+                  <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>DebugOS</string>
+            </map>
             <key>RelWithDebInfo</key>
             <map>
               <key>build</key>
@@ -3244,6 +3265,52 @@
               </map>
               <key>name</key>
               <string>Coverity</string>
+            </map>
+            <key>DebugOS</key>
+            <map>
+              <key>build</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>Polarity.sln</string>
+                </array>
+                <key>command</key>
+                <string>msbuild.exe</string>
+                <key>options</key>
+                <array>
+                  <string>/p:Configuration=Debug</string>
+                  <string>/p:Platform=x64</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:normal</string>
+                </array>
+              </map>
+              <key>configure</key>
+              <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
+                <key>options</key>
+                <array>
+                  <string>-G</string>
+                  <string>"Visual Studio 14 2015 Win64"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
+                  <string>-DWORD_SIZE:STRING=64</string>
+                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DUSE_KDU=FALSE</string>
+                </array>
+              </map>
+              <key>name</key>
+              <string>DebugOS</string>
             </map>
             <key>RelWithDebInfo</key>
             <map>
