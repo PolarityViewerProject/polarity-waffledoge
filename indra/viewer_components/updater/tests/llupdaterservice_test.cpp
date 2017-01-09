@@ -44,16 +44,24 @@
 *****************************************************************************/
 LLUpdateChecker::LLUpdateChecker(LLUpdateChecker::Client & client)
 {}
-void LLUpdateChecker::checkVersion(std::string const & urlBase, 
-								   std::string const & channel,
-								   std::string const & version,
-								   std::string const & platform,
-								   std::string const & platform_version,
-								   unsigned char       uniqueid[MD5HEX_STR_SIZE],
-								   bool                willing_to_test)
+void LLUpdateChecker::checkVersion(const std::string & urlBase, 
+								   const std::string & channel,
+								   const std::string & version,
+								   const std::string & platform,
+								   const std::string & platform_version,
+								   const bool&         willing_to_test,
+								   const unsigned char       uniqueid[MD5HEX_STR_SIZE],
+								   const std::string & auth_token
+) const
 {}
 LLUpdateDownloader::LLUpdateDownloader(Client & ) {}
-void LLUpdateDownloader::download(LLURI const & , std::string const &, std::string const &, std::string const &, std::string const &, bool){}
+void LLUpdateDownloader::download(LLURI const & uri,
+	std::string const & hash,
+	std::string const &	updateChannel,
+	std::string const & updateVersion,
+	std::string const & info_url,
+	bool required) const
+{}
 
 class LLDir_Mock : public LLDir
 {
@@ -116,9 +124,9 @@ std::string LLUpdateDownloader::downloadMarkerPath(void)
 	return "";
 }
 
-void LLUpdateDownloader::resume(void) {}
-void LLUpdateDownloader::cancel(void) {}
-void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) {}
+void LLUpdateDownloader::resume(void) const {}
+void LLUpdateDownloader::cancel(void) const {}
+void LLUpdateDownloader::setBandwidthLimit(U64 bytesPerSecond) const {}
 
 int ll_install_update(std::string const &, std::string const &, bool, LLInstallScriptMode)
 {
@@ -193,10 +201,11 @@ namespace tut
 		try
 		{
 			unsigned char id1[MD5HEX_STR_SIZE] = "11111111111111111111111111111111";
-			updater.initialize(test_channel, test_version, "win", "1.2.3", id1, true);
+			std::string tok1n = "abcd1ef2-abc1-1a23-av1c-12345678a901";
+			updater.initialize(test_channel, test_version, "win", "1.2.3", true, id1, tok1n);
 			updater.startChecking();
 			unsigned char id2[MD5HEX_STR_SIZE] = "22222222222222222222222222222222";
-			updater.initialize(test_channel, test_version, "win", "4.5.6", id2, true);
+			updater.initialize(test_channel, test_version, "win", "4.5.6", true, id2, tok1n);
 		}
 		catch(LLUpdaterService::UsageError)
 		{
@@ -211,7 +220,8 @@ namespace tut
         DEBUG;
 		LLUpdaterService updater;
 		unsigned char id[MD5HEX_STR_SIZE] = "33333333333333333333333333333333";
-		updater.initialize(test_channel, test_version, "win", "7.8.9", id, true);
+		std::string tok1n = "abcd1ef2-abc1-1a23-av1c-12345678a901";
+		updater.initialize(test_channel, test_version, "win", "7.8.9", true, id, tok1n);
 		updater.startChecking();
 		ensure(updater.isChecking());
 		updater.stopChecking();

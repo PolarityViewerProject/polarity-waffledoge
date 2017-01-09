@@ -474,7 +474,7 @@ public:
 	
 	virtual LLPointer<LLCredential> loadCredential(const std::string& name)=0;
 	
-	virtual std::vector<std::string> listCredentials()=0;
+	//virtual std::vector<std::string> listCredentials();
 	
 	virtual void saveCredential(LLPointer<LLCredential> cred, bool save_authenticator)=0;
 	

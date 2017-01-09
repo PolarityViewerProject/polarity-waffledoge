@@ -57,7 +57,7 @@ BOOL LLControlGroup::getBOOL(const std::string& name)
 	return false;
 }
 
-LLUIColor LLUIColorTable::getColor(const std::string& name, const LLColor4& default_color) const
+LLUIColor LLUIColorTable::getColor(char const *name, const LLColor4& default_color) const
 {
 	return LLUIColor();
 }

@@ -29,7 +29,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include "llmd5.h"
-//#include "llhasheduniqueid.h"
+#include "llhasheduniqueid.h"
 #include "llexception.h"
 
 class LLUpdaterServiceImpl;

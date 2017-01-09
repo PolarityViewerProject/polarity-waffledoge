@@ -206,18 +206,19 @@ void LLUpdaterService::initialize(const std::string& channel,
 								  const std::string& version,
 								  const std::string& platform,
 								  const std::string& platform_version,
+								  const bool&         willing_to_test,
 								  const unsigned char uniqueid[MD5HEX_STR_SIZE],
-								  const bool&         willing_to_test
+								  const std::string& auth_token
 								  ) {}
 
-void LLUpdaterService::setCheckPeriod(unsigned int seconds) {}
-void LLUpdaterService::startChecking(bool install_if_ready) {}
-void LLUpdaterService::stopChecking() {}
-bool LLUpdaterService::isChecking() { return false; }
-LLUpdaterService::eUpdaterState LLUpdaterService::getState() { return INITIAL; }
-std::string LLUpdaterService::updatedVersion() { return ""; }
+void LLUpdaterService::setCheckPeriod(unsigned int seconds) const {}
+void LLUpdaterService::startChecking(bool install_if_ready) const {}
+void LLUpdaterService::stopChecking() const {}
+bool LLUpdaterService::isChecking() const { return false; }
+LLUpdaterService::eUpdaterState LLUpdaterService::getState() const { return INITIAL; }
+std::string LLUpdaterService::updatedVersion() const { return ""; }
 
-bool llHashedUniqueID(unsigned char* id) 
+bool llHashedUniqueID(unsigned char id[MD5HEX_STR_SIZE]) 
 {
 	memcpy( id, "66666666666666666666666666666666", MD5HEX_STR_SIZE );
 	return true;
