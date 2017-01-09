@@ -1114,11 +1114,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>48d059c310058bc7a227a0e2282cbea3</string>
+              <string>1008983b883cf8163dfcae4b39220a8b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/inteltbb-2017-windows64-201612280546.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/inteltbb-2017-windows64-201701082229.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
