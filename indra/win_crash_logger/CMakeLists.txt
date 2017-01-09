@@ -89,6 +89,7 @@ target_link_libraries(windows-crash-logger
     ${LLCOMMON_LIBRARIES}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
+    ${TBBMALLOC_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     dxguid

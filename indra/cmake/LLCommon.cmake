@@ -5,6 +5,7 @@ include(Boost)
 include(EXPAT)
 include(ZLIB)
 include(GooglePerfTools)
+include(IntelTBB)
 
 set(LLCOMMON_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llcommon
@@ -28,6 +29,7 @@ if (LINUX)
         )
 else (LINUX)
     set(LLCOMMON_LIBRARIES llcommon
+		${TBBMALLOC_LIBRARIES}
         ${BOOST_COROUTINE_LIBRARY} 
         ${BOOST_CONTEXT_LIBRARY} 
         ${BOOST_THREAD_LIBRARY} 
