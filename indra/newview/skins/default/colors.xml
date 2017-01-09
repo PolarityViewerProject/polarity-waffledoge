@@ -143,13 +143,13 @@
     value="0.8274509803921569 0.7607843137254902 0.196078431372549 1"/>
    <color
     name="ChannelProjectColor"
-    value="0.46667 0.10980 0.51373 1"/>
+    value="0.4588235294117647 0.2588235294117647 0.5215686274509804 1"/>
    <color
     name="ChannelReleaseColor"
     value="0.3176470588235294 0.5137254901960784 0.1098039215686275 1"/>
    <color
     name="ChannelTestColor"
-    value="0.51373 0.10980 0.10980 1"/>
+    value="0.6392156862745098 0.2117647058823529 0.192156862745098 1"/>
    <color
     name="ChatHeaderAlphaBackground"
     reference="DkGray2"/>
