@@ -664,6 +664,7 @@ class WindowsManifest(ViewerManifest):
             'final_exe' : self.final_exe(),
             'flags':'',
             'app_name':self.app_name(),
+            'channel':self.channel_type(),
             'app_name_oneword':self.app_name_oneword()
             }
 
@@ -687,6 +688,7 @@ class WindowsManifest(ViewerManifest):
                 !define INSTEXE "%(final_exe)s"
                 !define APPNAME   "%(app_name)s"
                 !define APPNAMEONEWORD   "%(app_name_oneword)s"
+                !define CHANNEL "%(channel)s"
                 !define VERSION "%(version_short)s"
                 !define VERSION_LONG "%(version)s"
                 !define VERSION_DASHES "%(version_dashes)s"

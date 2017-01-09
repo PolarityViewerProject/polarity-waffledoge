@@ -91,7 +91,7 @@ Var STARTMENUFOLDER
 
   !define MUI_ICON "%%SOURCE%%\res\ll_icon.ico"
   !define MUI_UNICON "%%SOURCE%%\installers\windows\uninstall_icon.ico"
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\install_welcome.bmp"
+  !define MUI_WELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\install_welcome_${CHANNEL}.bmp"
   !define MUI_UNWELCOMEFINISHPAGE_BITMAP "%%SOURCE%%\installers\windows\uninstall_welcome.bmp"
   !define MUI_ABORTWARNING
 
