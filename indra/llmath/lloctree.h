@@ -28,16 +28,16 @@
 #define LL_LLOCTREE_H
 
 #ifdef USE_TBBMALLOC
-#define LL_OCTREE_POOLS 1
+#define TBB_MEMORY_POOLS 1
 #else
-#define LL_OCTREE_POOLS 0
+#define TBB_MEMORY_POOLS 0
 #endif
 
 #include "lltreenode.h"
 #include "v3math.h"
 #include "llvector4a.h"
 #include <vector>
-#if LL_OCTREE_POOLS
+#if TBB_MEMORY_POOLS
 #include "fix_macros.h"
 #define TBB_PREVIEW_MEMORY_POOL 1
 #include <tbb/memory_pool.h>
@@ -107,7 +107,7 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-#if LL_OCTREE_POOLS
+#if TBB_MEMORY_POOLS
 	static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> >& getPool()
 	{
 		static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> > my_pool;
@@ -723,7 +723,7 @@ public:
 	{
 	}
 
-#if LL_OCTREE_POOLS
+#if TBB_MEMORY_POOLS
 	void* operator new(size_t size)
 	{
 		return LLOctreeNode<T>::getPool().malloc(size);
