@@ -29,20 +29,21 @@
 
 ;-------------------------------
 ;Global Variables
+  
   ; These will be replaced by manifest scripts
-%%INST_VARS%%
+  %%INST_VARS%%
   %%WIN64_BIN_BUILD%%
 
-Var INSTPROG
-Var INSTEXE
-Var INSTSHORTCUT
-Var AUTOSTART
-Var COMMANDLINE         ; command line passed to this installer, set in .onInit
-Var SHORTCUT_LANG_PARAM ; "--set InstallLanguage de", passes language to viewer
-Var SKIP_DIALOGS        ; set from command line in  .onInit. autoinstall 
-                        ; GUI and the defaults.
-Var SKIP_AUTORUN		; skip automatic launch of viewer after install
-Var STARTMENUFOLDER
+  Var INSTPROG
+  Var INSTEXE
+  Var INSTSHORTCUT
+  Var AUTOSTART
+  Var COMMANDLINE         ; command line passed to this installer, set in .onInit
+  Var SHORTCUT_LANG_PARAM ; "--set InstallLanguage de", passes language to viewer
+  Var SKIP_DIALOGS        ; set from command line in  .onInit. autoinstall 
+                          ; GUI and the defaults.
+  Var SKIP_AUTORUN		    ; skip automatic launch of viewer after install
+  Var STARTMENUFOLDER
 
 ;--------------------------------
 ;General
