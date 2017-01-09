@@ -53,7 +53,7 @@ if (WINDOWS)
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /ASSEMBLYDEBUG /OPT:NOREF /OPT:NOICF")
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
   set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /OPT:REF /OPT:ICF") # DEBUG changes /OPT so need to put them back
 
@@ -140,6 +140,13 @@ if (WINDOWS)
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
   endif (NOT VS_DISABLE_FATAL_WARNINGS)
+
+  if(USE_TBBMALLOC)
+    add_compile_options(
+      /Oi- # allow overriding malloc and such 
+      )
+  endif(USE_TBBMALLOC)
+
 
   # configure win32 API for windows 7+ compatibility.
   set(WINVER "0x0601" CACHE STRING "Win32 API Target version (see http://msdn.microsoft.com/en-us/library/aa383745%28v=VS.85%29.aspx)")
