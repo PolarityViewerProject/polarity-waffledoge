@@ -2442,6 +2442,20 @@ if(LL_TESTS)
       )
   endif()
 
+  if(USE_TBBMALLOC)
+  # Configure a var for tbbmalloc location, if used.
+  # Note the need to specify multiple names explicitly.
+  MESSAGE("Adding TBBMalloc DLLs...")
+  list(APPEND COPY_INPUT_DEPENDENCIES
+    ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
+    ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
+    ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
+    ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
+    ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
+    ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
+    )
+  endif(USE_TBBMALLOC)
+
   set(test_libs
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}
@@ -2455,40 +2469,30 @@ if(LL_TESTS)
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
   )
-
+if(LL_SECHANDLER_TESTS)
   ll_add_integration_test(llsechandler_basic
     llsechandler_basic.cpp
     "${test_libs}"
     )
+endif()
 
   ll_add_integration_test(llsecapi
     llsecapi.cpp
     "${test_libs}"
     )
 
+if(LL_SLURL_TESTS)
   set(llslurl_test_sources
       llslurl.cpp
       llviewernetwork.cpp
   )
 
-    if(USE_TBBMALLOC)
-      # Configure a var for tbbmalloc location, if used.
-      # Note the need to specify multiple names explicitly.
-      MESSAGE("Adding TBBMalloc DLLs...")
-      list(APPEND COPY_INPUT_DEPENDENCIES
-        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
-        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
-        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
-        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
-        )
-    endif(USE_TBBMALLOC)
 
   ll_add_integration_test(llslurl
     "${llslurl_test_sources}"
     "${test_libs}"
     )
+endif()
 
   ll_add_integration_test(llviewernetwork
     llviewernetwork.cpp

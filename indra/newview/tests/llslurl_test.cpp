@@ -25,6 +25,7 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
+#if LL_SLURL_TESTS
 #include "../llviewerprecompiledheaders.h"
 #include "../llviewernetwork.h"
 #include "../test/lltut.h"
@@ -360,3 +361,4 @@ namespace tut
 
 	}
 }
+#endif // LL_SLURL_TESTS
