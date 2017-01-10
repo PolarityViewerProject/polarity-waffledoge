@@ -7554,6 +7554,18 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
+<!-- <polarity> Teleport request confirmation -->
+  <notification
+   icon="notify.tga"
+   name="TeleportRequestSent"
+   log_to_im="true"
+   log_to_chat="false"
+   show_toast="false"
+   type="notify">
+  Teleport request &apos;[MESSAGE]&apos; sent to [TO_NAME]
+  </notification>
+<!-- </polarity> -->
+
   <notification
    icon="notify.tga"
    name="TeleportRequest"

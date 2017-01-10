@@ -504,6 +504,21 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 				EMPTY_BINARY_BUCKET_SIZE);
 
 		gAgent.sendReliableMessage();
+
+		// <polarity> Confirmation for Teleport Request
+		LLSD args, payload;
+		args["MESSAGE"] = strMessage;
+		LLAvatarName avatar_name;
+		LLAvatarNameCache::get(idRecipient, &avatar_name);
+		// RLVa
+		//@todo check restrictions?
+		bool fRlvCanShowName = (!notification["payload"].has("rlv_shownames")) ? true : !notification["payload"]["rlv_shownames"].asBoolean();
+		args["TO_NAME"] = LLSLURL("agent", idRecipient, (fRlvCanShowName) ? "displayname" : "rlvanonym").getSLURLString();
+
+		payload["from_id"] = idRecipient;
+		payload["SUPPRESS_TOAST"] = true;
+		LLNotificationsUtil::add("TeleportRequestSent", args, payload);
+		// </polarity>
 	}
 }
 
