@@ -57,6 +57,29 @@
       <key>Value</key>
       <string></string>
     </map>
+    <!-- Auto Mute -->
+    <key>PVAutoMute_AlwaysRenderFriends</key>
+    <map>
+      <key>Comment</key>
+      <string>Exclude avatars in your friend list from automute logic</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>PVAutoMute_AlwaysRenderSelf</key>
+    <map>
+      <key>Comment</key>
+      <string>Disable to allow automuting yourself when reaching threshold</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVCamera_DisableSimConstraint</key>
     <map>
       <key>Comment</key>

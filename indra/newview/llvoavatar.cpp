@@ -7452,7 +7452,11 @@ BOOL LLVOAvatar::isFullyLoaded() const
 bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
-	if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	// <polarity> PLVR-74 - Render Whitelisting
+	static LLCachedControl<bool> always_render_friends(gSavedSettings, "PVAutoMute_AlwaysRenderFriends", true);
+	static LLCachedControl<bool> always_render_self(gSavedSettings, "PVAutoMute_AlwaysRenderSelf", true);
+	// if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	if ((isSelf() && always_render_self) || (!isSelf() && LLAvatarTracker::instance().isBuddy(getID()) && always_render_friends)  || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
