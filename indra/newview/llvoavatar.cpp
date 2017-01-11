@@ -3088,7 +3088,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 		if (show_arw_tag &&
 							((isSelf() && show_own_arw_tag) ||
-							((!isSelf() && show_others_arw_tag) && (show_under_threshold_arw_tag || isVisuallyMuted()))))
+							((!isSelf() && show_others_arw_tag) && (show_under_threshold_arw_tag || isTooComplex()))))
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
@@ -3250,7 +3250,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		
 		if (show_arw_tag &&
 			((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
-			&& (show_under_threshold_arw_tag || isVisuallyMuted()))
+			&& (show_under_threshold_arw_tag || isTooComplex()))
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -3534,6 +3534,7 @@ bool LLVOAvatar::isVisuallyMuted()
 	// * if on the "always visually mute" list, mute them
 	// * check against the render cost and attachment limits
 	// <polarity> PLVR-74 - Render Whitelisting
+	// copied from isTooComplex for our own use.
 	static LLCachedControl<bool> always_render_friends(gSavedSettings, "PVAutoMute_AlwaysRenderFriends", true);
 	static LLCachedControl<bool> always_render_self(gSavedSettings, "PVAutoMute_AlwaysRenderSelf", true);
 	if ((isSelf() && !always_render_self) || (!isSelf() && !always_render_friends && LLAvatarTracker::instance().isBuddy(getID())))
@@ -7461,6 +7462,30 @@ BOOL LLVOAvatar::isFullyLoaded() const
 //	return (mRenderUnloadedAvatar || mFullyLoaded);
 }
 
+bool LLVOAvatar::isTooComplex() const // Only used in sim stats and ARC calculation right now, do not modify
+{
+	bool too_complex;
+	if (isSelf() || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	{
+		too_complex = false;
+	}
+	else
+	{
+		// Determine if visually muted or not
+		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0U);
+		static LLCachedControl<F32> max_attachment_area(gSavedSettings, "RenderAutoMuteSurfaceAreaLimit", 1000.0f);
+		// If the user has chosen unlimited max complexity, we also disregard max attachment area
+        // so that unlimited will completely disable the overly complex impostor rendering
+        // yes, this leaves them vulnerable to griefing objects... their choice
+        too_complex = (   max_render_cost > 0
+                       && (   mVisualComplexity > max_render_cost
+                           || (max_attachment_area > 0.0f && mAttachmentSurfaceArea > max_attachment_area)
+                           ));
+	}
+
+	return too_complex;
+}
+
 //-----------------------------------------------------------------------------
 // findMotion()
 //-----------------------------------------------------------------------------
@@ -9316,7 +9341,7 @@ void LLVOAvatar::idleUpdateRenderComplexity()
 
 		/*
 		 * NOTE: the logic for whether or not each of the values below
-		 * controls muting MUST match that in the isVisuallyMuted method.
+		 * controls muting MUST match that in the isVisuallyMuted and isTooComplex methods.
 		 */
 
 		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
