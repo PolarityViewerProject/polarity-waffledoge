@@ -36,7 +36,7 @@
 
 #include "linden_common.h"
 #include "llerrorcontrol.h"
-#include "lltut.h"
+//#include "lltut.h"
 #include "tests/wrapllerrs.h"             // RecorderProxy
 #include "stringize.h"
 #include "namedtempfile.h"
@@ -64,8 +64,8 @@
 #endif
 
 #include <boost/scoped_ptr.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
+//#include <boost/shared_ptr.hpp>
+//#include <boost/make_shared.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -580,7 +580,7 @@ int main(int argc, char **argv)
 			case 'h':
 				stream_usage(std::cout, argv[0]);
 				return 0;
-				break;
+				//break;
 			case 'l':
 				stream_groups(std::cout, argv[0]);
 				return 0;
@@ -611,7 +611,7 @@ int main(int argc, char **argv)
 			default:
 				stream_usage(std::cerr, argv[0]);
 				return 1;
-				break;
+				//break;
 		}
 	}
 
