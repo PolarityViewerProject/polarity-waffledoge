@@ -6169,7 +6169,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 			LLDrawable* drawable = light->drawable;
             const LLViewerObject *vobj = light->drawable->getVObj();
             if(vobj && vobj->getAvatar() 
-               && (vobj->getAvatar()->isTooComplex() || vobj->getAvatar()->isInMuteList())
+               && (vobj->getAvatar()->isVisuallyMuted() || vobj->getAvatar()->isInMuteList())
                )
             {
                 drawable->clearState(LLDrawable::NEARBY_LIGHT);
@@ -11455,7 +11455,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( visually_muted ? "" : "not ") << "visually muted"
                               << LL_ENDL;
-	bool too_complex = avatar->isTooComplex();		
+	bool too_complex = avatar->isVisuallyMuted();		
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( too_complex ? "" : "not ") << "too complex"
                               << LL_ENDL;
