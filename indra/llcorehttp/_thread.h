@@ -44,8 +44,8 @@ namespace LLCoreInt
 class HttpThread : public RefCounted
 {
 private:
-	HttpThread();							// Not defined
-	void operator=(const HttpThread &);		// Not defined
+	HttpThread() = delete;							// Not defined
+	void operator=(const HttpThread &) = delete;	// Not defined
 
 	void at_exit()
 		{
@@ -69,6 +69,32 @@ private:
 protected:
 	virtual ~HttpThread()
 		{
+			if(joinable())
+			{
+				bool joined = false;
+				S32 counter = 0;
+				const S32 MAX_WAIT = 600;
+				while (counter < MAX_WAIT)
+				{
+					// Try to join for a tenth of a second
+					if (timedJoin(100))
+					{
+						joined = true;
+						break;
+					}
+					yield();
+					counter++;
+				}
+
+				if (!joined)
+				{
+					// Failed to join, expect problems ahead so do a hard termination.
+					cancel();
+
+					LL_WARNS() << "Destroying HttpThread with running thread.  Expect problems."
+									   << LL_ENDL;
+				}
+			}
 			delete mThread;
 		}
 
@@ -101,6 +127,11 @@ public:
 	inline bool joinable() const
 		{
 			return mThread->joinable();
+		}
+
+	inline void yield()
+		{
+			boost::this_thread::yield();
 		}
 
 	// A very hostile method to force a thread to quit

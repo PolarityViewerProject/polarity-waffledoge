@@ -28,6 +28,8 @@
 #ifndef LL_LLTHREADLOCALSTORAGE_H
 #define LL_LLTHREADLOCALSTORAGE_H
 
+#include "llpreprocessor.h"
+
 #include "llinstancetracker.h"
 
 template <typename T>
@@ -88,8 +90,8 @@ private:
 	static LL_THREAD_LOCAL T* sThreadLocalPointer;
 };
 
-template<typename T>
-LL_THREAD_LOCAL T* LLThreadLocalPointer<T>::sThreadLocalPointer = NULL;
+template<typename DERIVED_TYPE>
+LL_THREAD_LOCAL DERIVED_TYPE* LLThreadLocalPointer<DERIVED_TYPE>::sThreadLocalPointer = NULL;
 
 template<typename DERIVED_TYPE>
 class LLThreadLocalSingletonPointer

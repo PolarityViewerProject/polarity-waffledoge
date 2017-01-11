@@ -48,7 +48,7 @@ ThreadRecorder::ThreadRecorder()
 void ThreadRecorder::init()
 {
 #if LL_TRACE_ENABLED
-	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(&mBlockTimerStackRecord);
+	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(new BlockTimerStackRecord());
 	//NB: the ordering of initialization in this function is very fragile due to a large number of implicit dependencies
 	set_thread_recorder(this);
 	BlockTimerStatHandle& root_time_block = BlockTimer::getRootTimeBlock();
@@ -99,8 +99,6 @@ ThreadRecorder::ThreadRecorder( ThreadRecorder& parent )
 ThreadRecorder::~ThreadRecorder()
 {
 #if LL_TRACE_ENABLED
-	LLThreadLocalSingletonPointer<BlockTimerStackRecord>::setInstance(NULL);
-
 	disclaim_alloc(gTraceMemStat, this);
 	disclaim_alloc(gTraceMemStat, sizeof(BlockTimer));
 	disclaim_alloc(gTraceMemStat, sizeof(TimeBlockTreeNode) * mNumTimeBlockTreeNodes);
@@ -282,14 +280,14 @@ void ThreadRecorder::pullFromChildren()
 	LL_RECORD_BLOCK_TIME(FTM_PULL_TRACE_DATA_FROM_CHILDREN);
 	if (mActiveRecordings.empty()) return;
 
-	{ LLMutexLock lock(&mChildListMutex);
+	{ LLMutexLock child_list_lock(&mChildListMutex);
 
 		AccumulatorBufferGroup& target_recording_buffers = mActiveRecordings.back()->mPartialRecording;
 		target_recording_buffers.sync();
 		for (child_thread_recorder_list_t::iterator it = mChildThreadRecorders.begin(), end_it = mChildThreadRecorders.end();
 			it != end_it;
 			++it)
-		{ LLMutexLock lock(&(*it)->mSharedRecordingMutex);
+		{ LLMutexLock shared_recording_lock(&(*it)->mSharedRecordingMutex);
 
 			target_recording_buffers.merge((*it)->mSharedRecordingBuffers);
 			(*it)->mSharedRecordingBuffers.reset();

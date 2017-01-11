@@ -90,14 +90,13 @@ private:
 	void runWrapper();
 
 protected:
-	std::string			mName;
-	boost::thread       mThread;
-	class LLCondition*	mRunCondition;
-	LLMutex*			mDataLock;
+	std::string						mName;
+	std::unique_ptr<LLCondition>	mRunCondition;
+	std::unique_ptr<LLMutex>		mDataLock;
 
-
-	EThreadStatus		mStatus;
-	LLTrace::ThreadRecorder* mRecorder;
+	boost::thread	mThread;
+	EThreadStatus	mStatus;
+	std::unique_ptr<LLTrace::ThreadRecorder> mRecorder;
 
 	void setQuitting();
 	

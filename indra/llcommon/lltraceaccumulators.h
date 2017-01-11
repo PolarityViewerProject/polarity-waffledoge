@@ -57,14 +57,14 @@ namespace LLTrace
 		struct StaticAllocationMarker { };
 
 		AccumulatorBuffer(StaticAllocationMarker m)
-		:	mStorageSize(0),
-			mStorage(NULL)
+		:	mStorage(NULL),
+			mStorageSize(0)
 		{}
 
 	public:
 		AccumulatorBuffer()
-			: mStorageSize(0),
-			mStorage(NULL)
+			: mStorage(NULL),
+              mStorageSize(0)
 		{
 			const AccumulatorBuffer& other = *getDefaultBuffer();
 			resize(sNextStorageSlot);
@@ -95,8 +95,8 @@ namespace LLTrace
 
 
 		AccumulatorBuffer(const AccumulatorBuffer& other)
-			: mStorageSize(0),
-			mStorage(NULL)
+			: mStorage(NULL),
+              mStorageSize(0)
 		{
 			resize(sNextStorageSlot);
 			for (S32 i = 0; i < sNextStorageSlot; i++)
@@ -242,12 +242,12 @@ namespace LLTrace
 
 		EventAccumulator()
 		:	mSum(0),
-			mMin(NaN),
-			mMax(NaN),
+			mLastValue(NaN),
 			mMean(NaN),
 			mSumOfSquares(0),
-			mNumSamples(0),
-			mLastValue(NaN)
+			mMin(NaN),
+			mMax(NaN),
+			mNumSamples(0)
 		{}
 
 		void record(F64 value)
@@ -313,14 +313,14 @@ namespace LLTrace
 
 		SampleAccumulator()
 		:	mSum(0),
-			mMin(NaN),
-			mMax(NaN),
+			mLastValue(NaN),
 			mMean(NaN),
 			mSumOfSquares(0),
 			mLastSampleTimeStamp(0),
 			mTotalSamplingTime(0),
+			mMin(NaN),
+			mMax(NaN),
 			mNumSamples(0),
-			mLastValue(NaN),
 			mHasValue(false)
 		{}
 
@@ -483,11 +483,11 @@ namespace LLTrace
 		//
 		// members
 		//
+		class BlockTimerStatHandle*	mParent;		// last acknowledged parent of this time block
+		class BlockTimerStatHandle*	mLastCaller;	// used to bootstrap tree construction
 		U64							mTotalTimeCounter,
 									mSelfTimeCounter;
 		S32							mCalls;
-		class BlockTimerStatHandle*	mParent;		// last acknowledged parent of this time block
-		class BlockTimerStatHandle*	mLastCaller;	// used to bootstrap tree construction
 		U16							mActiveCount;	// number of timers with this ID active on stack
 		bool						mMoveUpTree;	// needs to be moved up the tree of timers at the end of frame
 

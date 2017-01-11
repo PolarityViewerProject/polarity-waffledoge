@@ -261,7 +261,7 @@ F64Kilobytes Recording::getMean(const StatType<MemAccumulator>& stat)
         S32 div = accumulator.mSize.getSampleCount() + active_accumulator->mSize.getSampleCount();
         if (div > 0)
         {
-            t = active_accumulator->mSize.getSampleCount() / div;
+            t = (F32) active_accumulator->mSize.getSampleCount() / (F32) div;
         }
 		return F64Bytes(lerp(accumulator.mSize.getMean(), active_accumulator->mSize.getMean(), t));
 	}
@@ -436,7 +436,7 @@ F64 Recording::getMean( const StatType<SampleAccumulator>& stat )
         S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
         if (div > 0)
         {
-            t = active_accumulator->getSampleCount() / div;
+            t = (F32) active_accumulator->getSampleCount() / (F32) div;
         }
 		return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
 	}
@@ -522,7 +522,7 @@ F64 Recording::getMean( const StatType<EventAccumulator>& stat )
         S32 div = accumulator.getSampleCount() + active_accumulator->getSampleCount();
         if (div > 0)
         {
-            t = active_accumulator->getSampleCount() / div;
+            t = (F32) active_accumulator->getSampleCount() / (F32) div;
         }
 		return lerp(accumulator.getMean(), active_accumulator->getMean(), t);
 	}
@@ -570,10 +570,10 @@ S32 Recording::getSampleCount( const StatType<EventAccumulator>& stat )
 ///////////////////////////////////////////////////////////////////////
 
 PeriodicRecording::PeriodicRecording( S32 num_periods, EPlayState state) 
-:	mAutoResize(num_periods == 0),
-	mCurPeriod(0),
-	mNumRecordedPeriods(0),
-	mRecordingPeriods(num_periods ? num_periods : 1)
+:	mRecordingPeriods(num_periods ? num_periods : 1),
+    mAutoResize(num_periods == 0),
+    mCurPeriod(0),
+    mNumRecordedPeriods(0)
 {
 	setPlayState(state);
 	claim_alloc(gTraceMemStat, this);
@@ -626,7 +626,6 @@ void PeriodicRecording::appendPeriodicRecording( PeriodicRecording& other )
 	if (mAutoResize)
 	{
 		// push back recordings for everything in the middle
-		S32 other_index = (other_oldest_recording_index + 1) % other_recording_slots;
 		while (other_index != other_current_recording_index)
 		{
 			mRecordingPeriods.push_back(other.mRecordingPeriods[other_index]);
