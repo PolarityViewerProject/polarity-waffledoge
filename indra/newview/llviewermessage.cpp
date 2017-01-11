@@ -7704,7 +7704,7 @@ void send_lures(const LLSD& notification, const LLSD& response)
 			gCacheName->getFullName(target_id, target_name);  // for im log filenames
 			LLSD args;
 // [RLVa:KB] - Checked: RLVa-2.0.1
-			args["TO_NAME"] = LLSLURL("agent", target_id, (fRlvCanShowName) ? "displayname" : "rlvanonym").getSLURLString();;
+			args["TO_NAME"] = LLSLURL("agent", target_id, (fRlvCanShowName) ? "displayname" : "rlvanonym").getSLURLString();
 // [/RLVa:KB]
 //			args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
 	
