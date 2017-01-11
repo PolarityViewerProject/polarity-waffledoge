@@ -57,7 +57,8 @@ void ll_cleanup_apr()
 {
 	gAPRInitialized = false;
 
-	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
+	//FIXME: chance of read access violation on _Tree_comp_alloc - Xenhat
+	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL; 
 
 	if (gAPRPoolp)
 	{
