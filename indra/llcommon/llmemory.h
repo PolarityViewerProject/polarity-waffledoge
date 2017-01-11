@@ -276,7 +276,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 	ll_assert_aligned(dst,16);
 
 	assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
-	assert(bytes%16==0);
+	assert(bytes%16==0); // FIXME: This doesn't actually pass under DebugOS
 
 	char* end = dst + bytes;
 
