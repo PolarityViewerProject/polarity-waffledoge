@@ -2331,7 +2331,7 @@ if(PACKAGE)
   endif(RELEASE_CRASH_REPORTING OR NON_RELEASE_CRASH_REPORTING)
 endif (PACKAGE)
 
-if(LL_TESTS)
+if(LL_TESTS AND LL_VIEWER_NETWORK_TESTS)
   # To add a viewer unit test, just add the test .cpp file below
   # This creates a separate test project per file listed.
   include(LLAddBuildTest)

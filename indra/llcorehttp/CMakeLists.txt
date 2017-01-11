@@ -97,7 +97,7 @@ target_link_libraries(
   )
 
 # tests
-if (LL_TESTS)
+if (LL_TESTS AND FIXED_HTTP_TESTS) # <polarity> HTTP tests are currently wrong, BUG-2295
   SET(llcorehttp_TEST_SOURCE_FILES
       tests/test_allocator.cpp
       )
@@ -183,5 +183,5 @@ if (LL_TESTS)
 
   target_link_libraries(http_texture_load ${example_libs})
 
-endif (LL_TESTS)
+endif ()
 
