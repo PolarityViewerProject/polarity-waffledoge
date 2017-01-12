@@ -47,12 +47,12 @@ public:
 	Implementation(Client & client);
 	~Implementation();
 	void cancel(void);
-	void download(LLURI const & uri,
-				  std::string const & hash,
-				  std::string const & updateChannel,
-				  std::string const & updateVersion,
-				  std::string const & info_url,
-				  bool required);
+	void download(LLURI const& uri,
+	              std::string const& hash,
+	              std::string const& updateChannel,
+	              std::string const& updateVersion,
+	              std::string const& info_url,
+	              bool required);
 	bool isDownloading(void) const;
 	size_t onHeader(void * header, size_t size);
 	size_t onBody(void * header, size_t size);
@@ -71,10 +71,10 @@ private:
 	std::string mDownloadRecordPath;
 	curl_slist * mHeaderList;
 
-	void initializeCurlGet(std::string const & url, bool processHeader);
+	void initializeCurlGet(const std::string& url, bool processHeader);
 	void resumeDownloading(size_t startByte);
 	void run(void) override;
-	void startDownloading(LLURI const & uri, std::string const & hash);
+	void startDownloading(const LLURI& uri, const std::string& hash);
 	static void throwOnCurlError(CURLcode code);
 	bool validateDownload(const std::string& filePath);
 	bool validateOrRemove(const std::string& filePath);
@@ -125,11 +125,11 @@ void LLUpdateDownloader::cancel(void) const
 }
 
 
-void LLUpdateDownloader::download(LLURI const & uri,
-								  std::string const & hash,
-								  std::string const & updateChannel,
-								  std::string const & updateVersion,
-								  std::string const & info_url,
+void LLUpdateDownloader::download(const LLURI& uri,
+								  const std::string& hash,
+								  const std::string& updateChannel,
+								  const std::string& updateVersion,
+								  const std::string& info_url,
 								  bool required) const
 {
 	mImplementation->download(uri, hash, updateChannel, updateVersion, info_url, required);
@@ -221,11 +221,11 @@ void LLUpdateDownloader::Implementation::cancel(void)
 }
 
 
-void LLUpdateDownloader::Implementation::download(LLURI const & uri,
-												  std::string const & hash,
-												  std::string const & updateChannel,
-												  std::string const & updateVersion,
-												  std::string const & info_url,
+void LLUpdateDownloader::Implementation::download(const LLURI& uri,
+												  const std::string& hash,
+												  const std::string& updateChannel,
+												  const std::string& updateVersion,
+												  const std::string& info_url,
 												  bool required)
 { 
 	if(isDownloading()) mClient.downloadError("download in progress");
@@ -246,7 +246,7 @@ void LLUpdateDownloader::Implementation::download(LLURI const & uri,
 	{
 		startDownloading(uri, hash);
 	}
-	catch(DownloadError const & e)
+	catch(const DownloadError& e)
 	{
 		mClient.downloadError(e.what());
 	}
@@ -298,11 +298,11 @@ void LLUpdateDownloader::Implementation::resume(void)
 			else if(!validateOrRemove(filePath))
 			{
 				download(LLURI(mDownloadData["url"].asString()),
-						 mDownloadData["hash"].asString(),
-						 mDownloadData["update_channel"].asString(),
-						 mDownloadData["update_version"].asString(),
-						 mDownloadData["info_url"].asString(),
-						 mDownloadData["required"].asBoolean());
+				         mDownloadData["hash"].asString(),
+				         mDownloadData["update_channel"].asString(),
+				         mDownloadData["update_version"].asString(),
+				         mDownloadData["info_url"].asString(),
+				         mDownloadData["required"].asBoolean());
 			}
 			else
 			{
@@ -312,11 +312,11 @@ void LLUpdateDownloader::Implementation::resume(void)
 		else
 		{
 			download(LLURI(mDownloadData["url"].asString()),
-					 mDownloadData["hash"].asString(),
-					 mDownloadData["update_channel"].asString(),
-					 mDownloadData["update_version"].asString(),
-					 mDownloadData["info_url"].asString(),
-					 mDownloadData["required"].asBoolean());
+			         mDownloadData["hash"].asString(),
+			         mDownloadData["update_channel"].asString(),
+			         mDownloadData["update_version"].asString(),
+			         mDownloadData["info_url"].asString(),
+			         mDownloadData["required"].asBoolean());
 		}
 	}
 	catch(DownloadError & e)
@@ -457,7 +457,7 @@ void LLUpdateDownloader::Implementation::run(void)
 }
 
 
-void LLUpdateDownloader::Implementation::initializeCurlGet(std::string const & url, bool processHeader)
+void LLUpdateDownloader::Implementation::initializeCurlGet(const std::string& url, bool processHeader)
 {
 	if(!mCurl)
 	{
@@ -521,7 +521,7 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 }
 
 
-void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std::string const & hash)
+void LLUpdateDownloader::Implementation::startDownloading(const LLURI& uri, const std::string& hash)
 {
 	// sanity check/cycle waste management
 	if (uri.asString().empty())
