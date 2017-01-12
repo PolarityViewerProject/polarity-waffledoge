@@ -6140,6 +6140,14 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	args["REASON"] = reason; // could be empty
 	args["AMOUNT"] = llformat("%d", amount);
 	
+	// <polarity> PLVR-73 Implement L$ transaction notification thresholds
+	static LLCachedControl<S32> notification_threshold(gSavedPerAccountSettings, "PVUI_BalanceNotificationThreshold");
+	if(abs(amount) < notification_threshold)
+	{
+		return;
+	}
+	// </polarity>
+
 	// Need to delay until name looked up, so need to know whether or not
 	// is group
 	bool is_name_group = false;
