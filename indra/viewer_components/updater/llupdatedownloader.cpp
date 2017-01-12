@@ -229,7 +229,10 @@ void LLUpdateDownloader::Implementation::download(LLURI const & uri,
 												  bool required)
 { 
 	if(isDownloading()) mClient.downloadError("download in progress");
-
+	if (uri.asString().empty())
+	{
+		return;
+	}
 	mDownloadRecordPath = downloadMarkerPath();
 	mDownloadData = LLSD();
 	mDownloadData["required"] = required;
@@ -520,6 +523,11 @@ void LLUpdateDownloader::Implementation::resumeDownloading(size_t startByte)
 
 void LLUpdateDownloader::Implementation::startDownloading(LLURI const & uri, std::string const & hash)
 {
+	// sanity check/cycle waste management
+	if (uri.asString().empty())
+	{
+		return;
+	}
 	mDownloadData["url"] = uri.asString();
 	mDownloadData["hash"] = hash;
 	mDownloadData["current_version"] = ll_get_version();
