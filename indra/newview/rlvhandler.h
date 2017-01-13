@@ -1,9 +1,17 @@
+/**
  *
  * Copyright (c) 2009-2016, Kitty Barnett
+ *
+ * The source code in this file is provided to you under the terms of the
  * GNU Lesser General Public License, version 2.1, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. Terms of the LGPL can be found in doc/LGPL-licence.txt
  * in this distribution, or online at http://www.gnu.org/licenses/lgpl-2.1.txt
+ *
  * By copying, modifying or distributing this software, you acknowledge that
+ * you have read and understood your obligations described above, and agree to
  * abide by those obligations.
+ *
  */
 
 #ifndef RLV_HANDLER_H
@@ -55,6 +63,7 @@ public:
 	// Adds or removes an exception for the specified behaviour
 	void addException(const LLUUID& idObj, ERlvBehaviour eBhvr, const RlvExceptionOption& varOption);
 	void removeException(const LLUUID& idObj, ERlvBehaviour eBhvr, const RlvExceptionOption& varOption);
+	// Returns TRUE if the specified behaviour has an added exception
 	bool hasException(ERlvBehaviour eBhvr) const;
 	// Returns TRUE if the specified option was added as an exception for the specified behaviour
 	bool isException(ERlvBehaviour eBhvr, const RlvExceptionOption& varOption, ERlvExceptionCheck typeCheck = RLV_CHECK_DEFAULT) const;
@@ -81,6 +90,7 @@ public:
 	// --------------------------------
 
 	/*
+	 * Helper functions
 	 */
 public:
 	// Accessors
@@ -210,10 +220,10 @@ protected:
 	// --------------------------------
 
 	/*
+	 * Internal access functions
 	 */
 public:
 	const rlv_object_map_t& getObjectMap() const { return m_Objects; }
-	//const rlv_exception_map_t* getExceptionMap() const	{ return &m_Exceptions; }
 };
 
 typedef RlvHandler rlv_handler_t;

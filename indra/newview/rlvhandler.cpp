@@ -1,9 +1,17 @@
+/**
  *
  * Copyright (c) 2009-2016, Kitty Barnett
+ *
+ * The source code in this file is provided to you under the terms of the
  * GNU Lesser General Public License, version 2.1, but WITHOUT ANY WARRANTY;
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE. Terms of the LGPL can be found in doc/LGPL-licence.txt
  * in this distribution, or online at http://www.gnu.org/licenses/lgpl-2.1.txt
+ *
  * By copying, modifying or distributing this software, you acknowledge that
+ * you have read and understood your obligations described above, and agree to
  * abide by those obligations.
+ *
  */
 
 // Generic includes
@@ -753,10 +761,10 @@ void RlvHandler::onIdleStartup(void* pParam)
 		// We don't want to run this *too* often
 		if ( (LLStartUp::getStartupState() >= STATE_MISC) && (pTimer->getElapsedTimeF32() >= 2.0) )
 		{
-			auto inst = RlvHandler::instance(); // Calm down, kitty.
-			inst->processRetainedCommands(RLV_BHVR_VERSION, RLV_TYPE_REPLY);
-			inst->processRetainedCommands(RLV_BHVR_VERSIONNEW, RLV_TYPE_REPLY);
-			inst->processRetainedCommands(RLV_BHVR_VERSIONNUM, RLV_TYPE_REPLY);
+			llassert(&gRlvHandler != nullptr);
+			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSION, RLV_TYPE_REPLY);
+			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSIONNEW, RLV_TYPE_REPLY);
+			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSIONNUM, RLV_TYPE_REPLY);
 			pTimer->reset();
 		}
 	}
@@ -1151,7 +1159,6 @@ bool RlvHandler::canEnable()
 
 bool RlvHandler::setEnabled(bool fEnable)
 {
-	// TODO-RLVa: [RLVa-1.2.1] Allow toggling at runtime if we haven't seen any llOwnerSay("@....");
 	if (m_fEnabled == fEnable)
 		return fEnable;
 
@@ -1181,51 +1188,6 @@ bool RlvHandler::setEnabled(bool fEnable)
 	}
 
 	return m_fEnabled;
-}
-
-BOOL RlvHandler::canDisable()
-{
-	return FALSE;
-}
-
-void RlvHandler::clearState()
-{
-/*
-	// TODO-RLVa: should restore all RLV controlled debug variables to their defaults
-
-	// Issue @clear on behalf of every object that has a currently active RLV restriction (even if it's just an exception)
-	LLUUID idObj; LLViewerObject* pObj; bool fDetachable;
-	while (m_Objects.size())
-	{
-		idObj = m_Objects.begin()->first; // Need a copy since after @clear the data it points to will no longer exist
-		fDetachable = ((pObj = gObjectList.findObject(idObj)) != NULL) ? isLockedAttachment(pObj, RLV_LOCK_REMOVE) : true;
-
-		processCommand(idObj, "clear", false);
-		if (!fDetachable)
-			processCommand(idObj, "detachme=force", false);
-	}
-
-	// Sanity check - these should all be empty after we issue @clear on the last object
-	if ( (!m_Objects.empty()) || !(m_Exceptions.empty()) || (!m_AttachAdd.empty()) || (!m_AttachRem.empty()) )
-	{
-		RLV_ERRS << "Object, exception or attachment map not empty after clearing state!" << LL_ENDL;
-		m_Objects.clear();
-		m_Exceptions.clear();
-		m_AttachAdd.clear();
-		m_AttachRem.clear();
-	}
-
-	// These all need manual clearing
-	memset(m_LayersAdd, 0, sizeof(S16) * WT_COUNT);
-	memset(m_LayersRem, 0, sizeof(S16) * WT_COUNT);
-	memset(m_Behaviours, 0, sizeof(S16) * RLV_BHVR_COUNT);
-	m_Retained.clear();
-	clearCommandHandlers(); // <- calls delete on all registered command handlers
-
-	// Clear dynamically allocated memory
-	delete m_pGCTimer;
-	m_pGCTimer = NULL;
-*/
 }
 
 // ============================================================================
@@ -1563,7 +1525,7 @@ ERlvCmdRet RlvBehaviourAddRemAttachHandler::onCommand(const RlvCommand& rlvCmd, 
 }
 
 // Handles: @detach[:<attachpt>]=n|y
-template<> template<> 
+template<> template<>
 ERlvCmdRet RlvBehaviourHandler<RLV_BHVR_DETACH>::onCommand(const RlvCommand& rlvCmd, bool& fRefCount)
 {
 	// We need to flush any queued force-wear commands before changing the restrictions
@@ -2594,8 +2556,8 @@ ERlvCmdRet RlvForceHandler<RLV_BHVR_SIT>::onCommand(const RlvCommand& rlvCmd)
 	}
 	else if ( ((pObj = gObjectList.findObject(idTarget)) != NULL) && (LL_PCODE_VOLUME == pObj->getPCode()))
 	{
-	if (!RlvActions::canSit(pObj))
-		return RLV_RET_FAILED_LOCK;
+		if (!RlvActions::canSit(pObj))
+			return RLV_RET_FAILED_LOCK;
 
 		if ((gRlvHandler.hasBehaviour(RLV_BHVR_STANDTP)) && (isAgentAvatarValid()))
 		{
@@ -2604,14 +2566,15 @@ ERlvCmdRet RlvForceHandler<RLV_BHVR_SIT>::onCommand(const RlvCommand& rlvCmd)
 			gRlvHandler.m_posSitSource = gAgent.getPositionGlobal();
 		}
 
-	gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
-	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
-	gMessageSystem->addUUIDFast(_PREHASH_TargetID, pObj->mID);
-	gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3::zero);
-	pObj->getRegion()->sendReliableMessage();
+		// Copy/paste from handle_sit_or_stand()
+		gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
+		gMessageSystem->nextBlockFast(_PREHASH_AgentData);
+		gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+		gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+		gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
+		gMessageSystem->addUUIDFast(_PREHASH_TargetID, pObj->mID);
+		gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3::zero);
+		pObj->getRegion()->sendReliableMessage();
 	}
 	else
 	{

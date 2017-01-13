@@ -3046,10 +3046,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 // [RLVa:KB] - Checked: RLVa-2.0.1
 	bool fRlvShowAvName = RlvActions::canShowName(RlvActions::SNC_DEFAULT, getID());
 // [/RLVa:KB]
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-	bool fRlvShowAvName = RlvActions::canShowName(RlvActions::SNC_DEFAULT, getID());
-// [/RLVa:KB]
 	bool is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
 	bool is_do_not_disturb = mSignaledAnimations.find(ANIM_AGENT_DO_NOT_DISTURB) != mSignaledAnimations.end();
 	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();

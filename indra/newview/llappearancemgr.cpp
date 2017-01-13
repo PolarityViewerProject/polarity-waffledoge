@@ -1320,25 +1320,6 @@ static void removeDuplicateItems(LLInventoryModel::item_array_t& items)
 	items = new_items;
 }
 
-// [SL:KB] - Patch: Appearance-WearableDuplicateAssets | Checked: 2015-06-30 (Catznip-3.7)
-static void removeDuplicateWearableItemsByAssetID(LLInventoryModel::item_array_t& items)
-{
-	std::set<LLUUID> idsAsset;
-	items.erase(std::remove_if(items.begin(), items.end(), 
-		[&idsAsset](const LLViewerInventoryItem* pItem)
-		{
-			if (pItem->isWearableType())
-			{
-				const LLUUID& idAsset = pItem->getAssetUUID();
-				if ( (idAsset.notNull()) &&  (idsAsset.end() != idsAsset.find(idAsset)) )
-					return true;
-				idsAsset.insert(idAsset);
-			}
-			return false;
-		}), items.end());
-}
-// [/SL:KB]
-
 //=========================================================================
 
 // [SL:KB] - Patch: Appearance-WearableDuplicateAssets | Checked: 2015-06-30 (Catznip-3.7)

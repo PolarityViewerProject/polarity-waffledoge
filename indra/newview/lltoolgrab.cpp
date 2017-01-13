@@ -59,6 +59,7 @@
 #include "llmenugl.h"
 // [RLVa:KB] - Checked: RLVa-2.1.0
 #include "rlvactions.h"
+#include "rlvhandler.h"
 // [/RLVa:KB]
 
 const S32 SLOP_DIST_SQ = 4;
@@ -438,7 +439,9 @@ BOOL LLToolGrab::handleHover(S32 x, S32 y, MASK mask)
 		return TRUE;
 	}
 
-		 (gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH)) && (!gRlvHandler.canTouch(mGrabPick.getObject(), mGrabPick.mObjectOffset)) )
+// [RLVa:KB] - Checked: RLVa-1.1.0
+	// Block dragging an object beyond touch range
+	if ( (RlvActions::isRlvEnabled()) && (GRAB_INACTIVE != mMode) && (GRAB_NOOBJECT != mMode) && (hasMouseCapture()) && (!RlvActions::canTouch(mGrabPick.getObject(), mGrabPick.mObjectOffset)) )
 	{
 		if (gGrabTransientTool)
 		{

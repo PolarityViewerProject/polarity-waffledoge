@@ -3012,6 +3012,8 @@ void LLVOAvatarSelf::dumpWearableInfo(llofstream& outfile)
 	outfile << "\n</wearable_info>\n";
 }
 
+//// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
+#if 0
 void LLVOAvatarSelf::addPendingDetach(const LLUUID& idObject)
 {
 	if (mPendingObjectDetach.end() == std::find(mPendingObjectDetach.begin(), mPendingObjectDetach.end(), idObject))
@@ -3056,3 +3058,4 @@ void LLVOAvatarSelf::checkPendingDetach()
 	}
 	mPendingObjectDetach.clear();
 }
+#endif
