@@ -20,66 +20,80 @@
         Tell me:
     </text>
     <check_box
+     control_name="ChatOnlineNotification"
+     height="22"
+     label="When my friends log in or out"
+     layout="topleft"
+     left="10"
+     top_pad="2"
+     name="friends_online_notify_checkbox"     
+     width="85" />
+    <check_box
      control_name="NotifyMoneySpend"
      height="22"
-     label="When I spend L$"
+     label="When I spend more than"
      layout="topleft"
-     left_delta="5"
+     left_delta="0"
      name="notify_money_spend_checkbox"
-     top_pad="4"
+     top_pad="5"
      valign="center"
-     width="110" />
+     width="160" />
     <check_box
      control_name="NotifyMoneyReceived"
      height="22"
-     label="When I get L$"
+     label="When I get more than"
      layout="topleft"
-     left_pad="5"
-     top_delta="0"  
-     name="notify_money_received_checkbox"     
+     left_delta="0"
+     top_pad="2"  
+     name="notify_money_recv_spinner"     
      valign="center"
-     width="95" />
-    <text
-     height="22"
-     layout="topleft"
-     left="250"
-     top_delta="0"  
-     label=""
-     name="threshold_text"
-     valign="center"
-     width="65">
-     Threshold
-    </text>
+     width="165" />
     <spinner
-     control_name="PVUI_BalanceNotificationThreshold"
-     height="22"
+     control_name="PVUI_BalanceNotificationThresholdSend"
      decimal_digits="0"
+     follows="top|left|right"
+     height="22"
      layout="topleft"
      left_pad="5"
-     top_delta="0"  
+     name="notify_money_send_spinner"     
+     top_delta="-22"
+     valign="center"
+     width="70" />  
+    <spinner
+     control_name="PVUI_BalanceNotificationThresholdReceive"
+     decimal_digits="0"
+     follows="top|left|right"
+     height="22"
+     layout="topleft"
+     left_delta="0"
      name="notify_money_received_checkbox"     
+     top_pad="2"  
      valign="center"
      width="70" />  
     <text
      height="22"
+     follows="top|left|right"
+     label=""
      layout="topleft"
      left_pad="2"
-     top_delta="0"  
-     label=""
-     name="threshold_text"
+     name="threshold_text_send"
+     top_delta="-24"  
      valign="center"
      width="65">
      L$
     </text> 
-    <check_box
-     control_name="ChatOnlineNotification"
-     height="16"
-     label="When my friends log in or out"
+    <text
+     height="22"
+     label=""
+     follows="top|left|right"
      layout="topleft"
-     left="15"
-     top_pad="5"
-     name="friends_online_notify_checkbox"     
-     width="85" />
+     left_delta="0"
+     name="threshold_text"
+     top_pad="2"  
+     valign="center"
+     width="65">
+     L$
+    </text> 
     <text
      type="string"
      length="1"
@@ -88,13 +102,13 @@
      layout="topleft"
      left="10"
      name="show_label"
-     top_pad="8"
+     top_pad="15"
      width="450">
         Always show:
     </text>
     <scroll_list
      follows="top|left|right"
-     height="140"
+     height="135"
      layout="topleft"
      left="10"
      multi_select="true"
@@ -144,7 +158,7 @@
     </text>
     <scroll_list
      follows="top|left|right"
-     height="140"
+     height="135"
      layout="topleft"
      left="10"
      sort_column="0"
