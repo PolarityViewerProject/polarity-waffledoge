@@ -3589,7 +3589,8 @@ void LLFolderBridge::perform_pasteFromClipboard()
                 }
 
 // [RLVa:KB] - Checked: RLVa-2.1.0
-				if ( ((item) && (!RlvActions::canPaste(item, dest_folder))) || ((cat) && (!RlvActions::canPaste(cat, dest_folder))) )
+				// <polarity> PLVR-71 bandaid until merge with upstream RLVa
+				if (rlv_handler_t::isEnabled() && ((item) && (!RlvActions::canPaste(item, dest_folder))) || ((cat) && (!RlvActions::canPaste(cat, dest_folder))) )
 				{
 					RlvActions::notifyBlocked(RLV_STRING_BLOCKED_INVFOLDER);
 					return;
