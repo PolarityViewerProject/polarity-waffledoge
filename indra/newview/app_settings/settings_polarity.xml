@@ -2164,17 +2164,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRLVa_ShowVersionRequestsRaw</key>
-    <map>
-      <key>Comment</key>
-      <string>Show received @version queries sent in IM as-is</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>PVRLVa_ShowVersionRequestsReply</key>
     <map>
       <key>Comment</key>

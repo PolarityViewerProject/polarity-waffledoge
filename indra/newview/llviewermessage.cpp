@@ -2584,55 +2584,11 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-		else if (((RlvActions::isRlvEnabled()) && (offline == IM_ONLINE) && ("@version" == message) && (!is_muted) && ((!accept_im_from_only_friend) || is_friend)))
+// [RLVa:KB] - Checked: RLVa-2.1.0
+		else if ( (RlvActions::isRlvEnabled()) && (offline == IM_ONLINE) && (!is_muted) && ((!accept_im_from_only_friend) || (is_friend)) &&
+		          (message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, session_id, offline, name, message)) )
 		{
-			static LLCachedControl<bool> show_at_rlv_requests_raw(gSavedSettings, "PVRLVa_ShowVersionRequestsRaw", false);
-			static LLCachedControl<bool> show_at_rlv_requests_reply(gSavedSettings, "PVRLVa_ShowVersionRequestsReply", true);
-			std::string reply_string;
-			if (RlvSettings::getEnableIMQuery())
-			{
-				reply_string = RlvStrings::getVersion(LLUUID::null);
-			}
-			else
-			{
-				auto at_version_custom_string = RlvStrings::getString(RLV_STRING_AT_VERSION_REPLY);
-				if (!at_version_custom_string.empty())
-				{
-					reply_string = at_version_custom_string;
-				}
-			}
-
-			if(show_at_rlv_requests_raw)
-			{
-				gIMMgr->addMessage(
-					session_id,
-					from_id,
-					name,
-					message,
-					IM_OFFLINE == offline,
-					LLStringUtil::null,
-					dialog,
-					parent_estate_id,
-					region_id,
-					position,
-					true);
-			}
-			if(show_at_rlv_requests_reply)
-			{
-				gIMMgr->addMessage(
-					session_id,
-					LLUUID::null,
-					"",
-					"Sent " + message + " reply '" + reply_string + "'",
-					IM_OFFLINE == offline,
-					LLStringUtil::null,
-					dialog,
-					parent_estate_id,
-					region_id,
-					position,
-					false);
-			}
-			RlvUtil::sendBusyMessage(from_id, reply_string, session_id);
+			// Eat the message and do nothing
 		}
 // [/RLVa:KB]
 //		else if (offline == IM_ONLINE 

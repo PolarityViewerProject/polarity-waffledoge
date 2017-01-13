@@ -63,6 +63,7 @@
 
 // Boost includes
 #include <boost/algorithm/string.hpp>
+#include "llfloaterimcontainer.h"
 
 // ============================================================================
 // Static variable initialization
@@ -472,7 +473,7 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 	return RLV_RET_SUCCESS; // Don't fail clear commands even if the object didn't exist since it confuses people
 }
 
-bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMessage)
+bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const bool& offline, const std::string& name, const std::string& strMessage)
 {
 	if ("@stopim" == strMessage)
 	{
@@ -491,15 +492,18 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMe
 		RlvUtil::sendBusyMessage(idSender, RlvStrings::getString(RLV_STRING_STOPIM_NOSESSION));
 		return true;
 	}
-	else if (RlvSettings::getEnableIMQuery())
+	// <polarity> custom @version reply
+	// else if (RlvSettings::getEnableIMQuery())
+	else if (RlvSettings::getEnableIMQuery() && ("@list" == strMessage))
 	{
-		if ("@version" == strMessage)
-		{
-			RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
-			return true;
-		}
-		else if ("@list" == strMessage)
-		{
+		// <polarity> custom @version reply
+		//if ("@version" == strMessage)
+		//{
+		//	RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
+		//	return true;
+		//}
+		//else if ("@list" == strMessage)
+		//{
 			LLNotification::Params params;
 			params.name = "RLVaListRequested";
 			params.functor.function(boost::bind(&RlvHandler::onIMQueryListResponse, this, _1, _2));
@@ -518,7 +522,42 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMe
 			};
 			LLPostponedNotification::add<RlvPostponedOfferNotification>(params, idSender, false);
 			return true;
+		//}
+	}
+	// <polarity> custom @version response when disabled
+	else if("@version" == strMessage)
+	{
+		static LLCachedControl<bool> show_at_rlv_requests_reply(gSavedSettings, "PVRLVa_ShowVersionRequestsReply", true);
+		std::string reply_string;
+		if (RlvSettings::getEnableIMQuery())
+		{
+			reply_string = RlvStrings::getVersion(LLUUID::null);
 		}
+		else
+		{
+			auto at_version_custom_string = RlvStrings::getString(RLV_STRING_AT_VERSION_REPLY);
+			if (!at_version_custom_string.empty())
+			{
+				reply_string = at_version_custom_string;
+			}
+		}
+		if(show_at_rlv_requests_reply)
+		{
+			gIMMgr->addMessage(
+				sessionID,
+				LLUUID::null, // will fallback to CHAT_SOURCE_SYSTEM, hopefully
+				"",
+				"Sent " + reply_string + " reply '" + reply_string + "'",
+				false,
+				LLStringUtil::null,
+				IM_NOTHING_SPECIAL,
+				0,
+				LLUUID::null,
+				LLVector3::zero,
+				false);
+		}
+		RlvUtil::sendBusyMessage(idSender, reply_string, sessionID);
+		return true; // eat message
 	}
 	return false;
 }
@@ -804,46 +843,6 @@ void RlvHandler::onTeleportFinished(const LLVector3d& posArrival)
 // ============================================================================
 // String/chat censoring functions
 //
-
-// Checked: 2010-04-11 (RLVa-1.3.0h) | Modified: RLVa-1.3.0h
-bool RlvHandler::canTouch(const LLViewerObject* pObj, const LLVector3& posOffset /*=LLVector3::zero*/) const
-{
-	const LLUUID& idRoot = (pObj) ? pObj->getRootEdit()->getID() : LLUUID::null;
-	bool fCanTouch = (idRoot.notNull()) && ((pObj->isHUDAttachment()) || (!hasBehaviour(RLV_BHVR_TOUCHALL))) &&
-		((!hasBehaviour(RLV_BHVR_TOUCHTHIS)) || (!isException(RLV_BHVR_TOUCHTHIS, idRoot, RLV_CHECK_PERMISSIVE)));
-
-	static RlvCachedBehaviourModifier<float> s_nFartouchDist(RLV_MODIFIER_FARTOUCHDIST);
-	if (fCanTouch)
-	{
-		if ( (!pObj->isAttachment()) || (!pObj->permYouOwner()) )
-		{
-			// User can touch an object (that's isn't one of their own attachments) if:
-			//   - it's an in-world object and they're not prevented from touching it (or the object is an exception)
-			//   - it's an attachment and they're not prevented from touching (another avatar's) attachments (or the attachment is an exception)
-			//   - not fartouch restricted (or the object is within the currently enforced fartouch distance)
-			fCanTouch =
-				( (!pObj->isAttachment()) ? (!hasBehaviour(RLV_BHVR_TOUCHWORLD)) || (isException(RLV_BHVR_TOUCHWORLD, idRoot, RLV_CHECK_PERMISSIVE))
-				                          : ((!hasBehaviour(RLV_BHVR_TOUCHATTACH)) && (!hasBehaviour(RLV_BHVR_TOUCHATTACHOTHER))) || (isException(RLV_BHVR_TOUCHATTACH, idRoot, RLV_CHECK_PERMISSIVE)) ) &&
-				( (!hasBehaviour(RLV_BHVR_FARTOUCH)) || (dist_vec_squared(gAgent.getPositionGlobal(), pObj->getPositionGlobal() + LLVector3d(posOffset)) <= s_nFartouchDist * s_nFartouchDist) );
-		}
-		else if (!pObj->isHUDAttachment())
-		{
-			// Regular attachment worn by this avie
-			fCanTouch =
-				((!hasBehaviour(RLV_BHVR_TOUCHATTACH)) || (isException(RLV_BHVR_TOUCHATTACH, idRoot, RLV_CHECK_PERMISSIVE))) &&
-				((!hasBehaviour(RLV_BHVR_TOUCHATTACHSELF)) || (isException(RLV_BHVR_TOUCHATTACH, idRoot, RLV_CHECK_PERMISSIVE)));
-		}
-		else
-		{
-			// HUD attachment
-			fCanTouch = (!hasBehaviour(RLV_BHVR_TOUCHHUD)) || (isException(RLV_BHVR_TOUCHHUD, idRoot, RLV_CHECK_PERMISSIVE));
-		}
-	}
-	if ( (!fCanTouch) && (hasBehaviour(RLV_BHVR_TOUCHME)) )
-		fCanTouch = hasBehaviourRoot(idRoot, RLV_BHVR_TOUCHME);
-	return fCanTouch;
-}
-
 size_t utf8str_strlen(const std::string& utf8)
 {
 	const char* pUTF8 = utf8.c_str(); size_t length = 0;
