@@ -734,6 +734,7 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 		gPVData->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
 		return false;
 	}
+#if INTERNAL_BUILD
 	auto compiled_channel = LLVersionInfo::getCompiledChannel();
 	if (compiled_channel == APP_NAME + " Release"
 		// Allow beta builds as well.
@@ -770,6 +771,9 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 		gPVData->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 	}
 	return false;
+#else
+	return true
+#endif
 }
 
 std::vector<int> split_version(const char *str, char separator = '.')
