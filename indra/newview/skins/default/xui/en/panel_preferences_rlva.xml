@@ -68,6 +68,18 @@ width="510">
     name="RestrainedLoveEllipsis"
     top_pad="0"
     width="256" />
+    <check_box
+    control_name="RLVaEnableIMQuery"
+    height="16"
+    initial_value="true"
+    label="Reply to @version with RLVa version"
+    layout="topleft"
+    left_delta="0"
+    tool_tip="Otherwise will use a custom string"
+    follows="left|top"
+    name="RestrainedLoveEllipsis"
+    top_pad="0"
+    width="256" />
 
     <panel
  follows="left|top|right"
