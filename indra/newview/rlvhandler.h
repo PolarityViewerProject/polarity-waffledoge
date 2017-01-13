@@ -1,17 +1,9 @@
-/** 
  *
  * Copyright (c) 2009-2016, Kitty Barnett
- * 
- * The source code in this file is provided to you under the terms of the 
  * GNU Lesser General Public License, version 2.1, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. Terms of the LGPL can be found in doc/LGPL-licence.txt 
  * in this distribution, or online at http://www.gnu.org/licenses/lgpl-2.1.txt
- * 
  * By copying, modifying or distributing this software, you acknowledge that
- * you have read and understood your obligations described above, and agree to 
  * abide by those obligations.
- * 
  */
 
 #ifndef RLV_HANDLER_H
@@ -26,6 +18,11 @@
 
 class RlvHandler : public LLOldEvents::LLSimpleListener
 {
+	// Temporary LLSingleton look-alike
+public:
+	static RlvHandler& instance();
+	static RlvHandler* getInstance();
+
 public:
 	RlvHandler();
 	~RlvHandler();
@@ -58,7 +55,6 @@ public:
 	// Adds or removes an exception for the specified behaviour
 	void addException(const LLUUID& idObj, ERlvBehaviour eBhvr, const RlvExceptionOption& varOption);
 	void removeException(const LLUUID& idObj, ERlvBehaviour eBhvr, const RlvExceptionOption& varOption);
-	// Returns TRUE if the specified behaviour has an added exception 
 	bool hasException(ERlvBehaviour eBhvr) const;
 	// Returns TRUE if the specified option was added as an exception for the specified behaviour
 	bool isException(ERlvBehaviour eBhvr, const RlvExceptionOption& varOption, ERlvExceptionCheck typeCheck = RLV_CHECK_DEFAULT) const;
@@ -85,7 +81,6 @@ public:
 	// --------------------------------
 
 	/*
-	 * Helper functions 
 	 */
 public:
 	// Accessors
@@ -104,6 +99,7 @@ public:
 	// Command processing helper functions
 	ERlvCmdRet processCommand(const LLUUID& idObj, const std::string& strCommand, bool fFromObj);
 	void       processRetainedCommands(ERlvBehaviour eBhvrFilter = RLV_BHVR_UNKNOWN, ERlvParamType eTypeFilter = RLV_TYPE_UNKNOWN);
+	bool       processIMQuery(const LLUUID& idSender, const std::string& strCommand);
 
 	// Returns a pointer to the currently executing command (do *not* save this pointer)
 	const RlvCommand* getCurrentCommand() const { return (!m_CurCommandStack.empty()) ? m_CurCommandStack.top() : NULL; }
@@ -111,11 +107,11 @@ public:
 	const LLUUID&     getCurrentObject() const	{ return (!m_CurObjectStack.empty()) ? m_CurObjectStack.top() : LLUUID::null; }
 
 	// Initialization
-	static BOOL canDisable();
-	static BOOL isEnabled()	{ return m_fEnabled; }
-	static BOOL setEnabled(BOOL fEnable);
+	static bool canEnable();
+	static bool isEnabled()	{ return m_fEnabled; }
+	static bool setEnabled(bool fEnable);
 protected:
-	void clearState();
+	void onIMQueryListResponse(const LLSD& sdNotification, const LLSD sdResponse);
 
 	// --------------------------------
 
@@ -199,7 +195,7 @@ protected:
 	rlv_command_signal_t   m_OnCommand;
 	mutable std::list<RlvExtCommandHandler*> m_CommandHandlers;
 
-	static BOOL			  m_fEnabled;				// Use setEnabled() to toggle this
+	static bool         m_fEnabled;					// Use setEnabled() to toggle this
 
 	bool				m_fCanCancelTp;				// @accepttp=n and @tpto=force
 	mutable LLVector3d	m_posSitSource;				// @standtp=n (mutable because onForceXXX handles are all declared as const)
@@ -214,10 +210,9 @@ protected:
 	// --------------------------------
 
 	/*
-	 * Internal access functions used by unit tests
 	 */
 public:
-	const rlv_object_map_t*    getObjectMap() const		{ return &m_Objects; }
+	const rlv_object_map_t& getObjectMap() const { return m_Objects; }
 	//const rlv_exception_map_t* getExceptionMap() const	{ return &m_Exceptions; }
 };
 
@@ -228,14 +223,14 @@ extern rlv_handler_t gRlvHandler;
 // Inlined member functions
 //
 
-// Checked: 2010-03-27 (RLVa-1.4.0a) | Modified: RLVa-1.0.0f
-inline bool RlvHandler::canShowHoverText(const LLViewerObject *pObj) const
+inline RlvHandler& RlvHandler::instance()
 {
-	return ( (!pObj) || (LL_PCODE_VOLUME != pObj->getPCode()) ||
-		    !( (hasBehaviour(RLV_BHVR_SHOWHOVERTEXTALL)) ||
-			   ( (hasBehaviour(RLV_BHVR_SHOWHOVERTEXTWORLD)) && (!pObj->isHUDAttachment()) ) ||
-			   ( (hasBehaviour(RLV_BHVR_SHOWHOVERTEXTHUD)) && (pObj->isHUDAttachment()) ) ||
-			   (isException(RLV_BHVR_SHOWHOVERTEXT, pObj->getID(), RLV_CHECK_PERMISSIVE)) ) );
+	return gRlvHandler;
+}
+
+inline RlvHandler* RlvHandler::getInstance()
+{
+	return &gRlvHandler;
 }
 
 inline bool RlvHandler::hasBehaviour(ERlvBehaviour eBhvr, const std::string& strOption) const

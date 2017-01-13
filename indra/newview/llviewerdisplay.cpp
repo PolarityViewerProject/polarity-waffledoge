@@ -72,7 +72,6 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llscenemonitor.h"
-
 //#include "llprogressview.h"
 #include "pvfloaterprogressview.h"
 #include "llfloaterreg.h"

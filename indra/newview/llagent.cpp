@@ -1204,14 +1204,12 @@ LLVector3d LLAgent::getPosGlobalFromAgent(const LLVector3 &pos_agent) const
 
 void LLAgent::sitDown()
 {
-//	setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
-// [RLVa:KB] - Checked: 2010-08-28 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	// RELEASE-RLVa: [SL-2.0.0] Check this function's callers since usually they require explicit blocking
-	if ( (!rlv_handler_t::isEnabled()) || ((RlvActions::canStand()) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SIT))) )
-	{
-		setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
-	}
+// [RLVa:KB] - Checked: RLVa-1.2.1
+	if (!RlvActions::canGroundSit())
+		return;
 // [/RLVa:KB]
+
+	setControlFlags(AGENT_CONTROL_SIT_ON_GROUND);
 }
 
 
@@ -4325,6 +4323,21 @@ void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global, const LL
 	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
 	teleportRequest(region_handle, pos_local, look_at);
 }
+// [/RLVa:KB]
+//void LLAgent::doTeleportViaLocationLookAt(const LLVector3d& pos_global, const LLVector3& look_at)
+//{
+//	mbTeleportKeepsLookAt = true;
+//
+//	if(!gAgentCamera.isfollowCamLocked())
+//	{
+//		gAgentCamera.setFocusOnAvatar(FALSE, ANIMATE);	// detach camera form avatar, so it keeps direction
+//	}
+//
+//	U64 region_handle = to_region_handle(pos_global);
+//	LLVector3 pos_local = (LLVector3)(pos_global - from_region_handle(region_handle));
+//	teleportRequest(region_handle, pos_local, look_at);
+//	teleportRequest(region_handle, pos_local, getTeleportKeepsLookAt());
+//}
 
 LLAgent::ETeleportState	LLAgent::getTeleportState() const
 {

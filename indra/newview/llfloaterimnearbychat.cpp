@@ -67,13 +67,14 @@
 #include "llviewerchat.h"
 #include "lltranslate.h"
 #include "llautoreplace.h"
+// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0b)
+#include "rlvactions.h"
+#include "rlvcommon.h"
+#include "rlvhandler.h"
+// [/RLVa:KB]
+
 #include "oschatcommand.h"
 #include "pvcommon.h" // for MuPose and AutoCloseOOC
-
-// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0b)
-#include "rlvhandler.h"
-#include "rlvactions.h"
-// [/RLVa:KB]
 
 S32 LLFloaterIMNearbyChat::sLastSpecialChatChannel = 0;
 
@@ -883,6 +884,47 @@ LLWString LLFloaterIMNearbyChat::stripChannelNumber(const LLWString &mesg, S32* 
 void send_chat_from_viewer(std::string utf8_out_text, EChatType type, S32 channel)
 // [/RLVa:KB]
 {
+// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0b) | Modified: RLVa-1.2.0a
+	// Only process chat messages (ie not CHAT_TYPE_START, CHAT_TYPE_STOP, etc)
+	if ( (RlvActions::isRlvEnabled()) && ( (CHAT_TYPE_WHISPER == type) || (CHAT_TYPE_NORMAL == type) || (CHAT_TYPE_SHOUT == type) ) )
+	{
+		if (0 == channel)
+		{
+			// Clamp the volume of the chat if needed
+			type = RlvActions::checkChatVolume(type);
+
+			// Redirect chat if needed
+			if ( ( (gRlvHandler.hasBehaviour(RLV_BHVR_REDIRCHAT) || (gRlvHandler.hasBehaviour(RLV_BHVR_REDIREMOTE)) ) && 
+				 (gRlvHandler.redirectChatOrEmote(utf8_out_text)) ) )
+			{
+				return;
+			}
+
+			// Filter public chat if sendchat restricted
+			if (gRlvHandler.hasBehaviour(RLV_BHVR_SENDCHAT))
+				gRlvHandler.filterChat(utf8_out_text, true);
+		}
+		else
+		{
+			// Don't allow chat on a non-public channel if sendchannel restricted (unless the channel is an exception)
+			if (!RlvActions::canSendChannel(channel))
+				return;
+
+			// Don't allow chat on debug channel if @sendchat, @redirchat or @rediremote restricted (shows as public chat on viewers)
+			if (CHAT_CHANNEL_DEBUG == channel)
+			{
+				bool fIsEmote = RlvUtil::isEmote(utf8_out_text);
+				if ( (gRlvHandler.hasBehaviour(RLV_BHVR_SENDCHAT)) || 
+					 ((!fIsEmote) && (gRlvHandler.hasBehaviour(RLV_BHVR_REDIRCHAT))) || 
+					 ((fIsEmote) && (gRlvHandler.hasBehaviour(RLV_BHVR_REDIREMOTE))) )
+				{
+					return;
+				}
+			}
+		}
+	}
+// [/RLVa:KB]
+
 	LLMessageSystem* msg = gMessageSystem;
 	// NaCl - Allow negative channels
 	if (channel < 0)

@@ -837,9 +837,7 @@ void settings_setup_listeners()
 	// <Alchemy:Drake> Adaptive V-Sync
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
-	// [RLVa:KB] - Checked: 2015-12-27 (RLVa-1.5.0)
 	gSavedSettings.getControl("RestrainedLove")->getSignal()->connect(boost::bind(&RlvSettings::onChangedSettingMain, _2));
-	// [/RLVa:KB]
 }
 
 #if TEST_CACHED_CONTROL

@@ -175,6 +175,10 @@
 #include "llviewerwindowlistener.h"
 #include "llviewermenufile.h" // For threaded filepicker
 
+// [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c)
+#include "rlvhandler.h"
+// [/RLVa:KB]
+
 #if LL_WINDOWS
 #include <tchar.h> // For Unicode conversion methods
 #endif
@@ -4153,7 +4157,7 @@ LLViewerObject* LLViewerWindow::cursorIntersect(S32 mouse_x, S32 mouse_y, F32 de
 		}
 
 // [RLVa:KB] - Checked: RLVa-1.2.0
-		if ( (found) && ((gTeleportDisplay) || ((rlv_handler_t::isEnabled()) && (found) && (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT)))) )
+		if (found && (gTeleportDisplay || (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT)))) // C++ supports short-circuiting - Xenhat 2017.01.12
 		{
 			// Allow picking if:
 			//   - the drag-and-drop tool is active (allows inventory offers)

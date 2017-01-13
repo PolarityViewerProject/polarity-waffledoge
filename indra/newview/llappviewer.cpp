@@ -495,11 +495,11 @@ void idle_afk_check()
 {
 	// check idle timers
 	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-	//static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout"); // <polarity>
-	F32 afk_timeout = static_cast<F32>(gSavedSettings.getS32("AFKTimeout"));
-// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
 	// Enforce an idle time of 30 minutes if @allowidle=n restricted
-	afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? afk_timeout : 60 * 30;
+	F32 afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? gSavedSettings.getS32("AFKTimeout") : 60 * 30;
+// [/RLVa:KB]
+//	F32 afk_timeout  = gSavedSettings.getS32("AFKTimeout");
+// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g) | Modified: RLVa-1.2.0g
 // [/RLVa:KB]
 	//static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout");
 	if (afk_timeout && (current_idle > afk_timeout) && ! gAgent.getAFK())
@@ -2876,6 +2876,21 @@ bool LLAppViewer::initConfiguration()
 		// we've initialized an LLControlGroup instance by that name.
 		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
 	}
+
+// [RLVa:KB] - Patch: RLVa-2.1.0
+	if (LLControlVariable* pControl = gSavedSettings.getControl(RLV_SETTING_MAIN))
+	{
+		if ( (pControl->getValue().asBoolean()) && (pControl->hasUnsavedValue()) )
+		{
+			pControl->resetToDefault();
+			pControl->setValue(false);
+
+			std::ostringstream msg;
+			msg << LLTrans::getString("RLVaToggleMessageLogin", LLSD().with("[STATE]", LLTrans::getString("RLVaToggleDisabled")));
+			OSMessageBox(msg.str(), LLStringUtil::null, OSMB_OK);
+		}
+	}
+// [/RLVa:KB]
 
 	return true; // Config was successful.
 }
@@ -5634,6 +5649,11 @@ void LLAppViewer::disconnectViewer()
 
 	// close inventory interface, close all windows
 	LLFloaterInventory::cleanup();
+
+// [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
+	// Destroying all objects below will trigger attachment detaching code and attempt to remove the COF links for them
+	LLAppearanceMgr::instance().setAttachmentInvLinkEnable(false);
+// [/SL:KB]
 
 // [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
 	// Destroying all objects below will trigger attachment detaching code and attempt to remove the COF links for them

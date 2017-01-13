@@ -1,17 +1,9 @@
-/** 
  *
  * Copyright (c) 2009-2016, Kitty Barnett
- * 
- * The source code in this file is provided to you under the terms of the 
  * GNU Lesser General Public License, version 2.1, but WITHOUT ANY WARRANTY;
- * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A 
- * PARTICULAR PURPOSE. Terms of the LGPL can be found in doc/LGPL-licence.txt 
  * in this distribution, or online at http://www.gnu.org/licenses/lgpl-2.1.txt
- * 
  * By copying, modifying or distributing this software, you acknowledge that
- * you have read and understood your obligations described above, and agree to 
  * abide by those obligations.
- * 
  */
 
 // Generic includes
@@ -22,6 +14,7 @@
 #include "llgroupactions.h"
 #include "llhudtext.h"
 #include "llmoveview.h"
+#include "llslurl.h"
 #include "llstartup.h"
 #include "llviewermessage.h"
 #include "llviewermenu.h"
@@ -31,10 +24,13 @@
 
 // Command specific includes
 #include "llagentcamera.h"				// @setcam and related
+#include "llavataractions.h"            // @stopim IM query
 #include "llavatarnamecache.h"			// @shownames
 #include "llavatarlist.h"				// @shownames
 #include "llenvmanager.h"				// @setenv
 #include "llfloatersidepanelcontainer.h"// @shownames
+#include "llnotifications.h"			// @list IM query
+#include "llnotificationsutil.h"
 #include "lloutfitslist.h"				// @showinv - "Appearance / My Outfits" panel
 #include "llpaneloutfitsinventory.h"	// @showinv - "Appearance" floater
 #include "llpanelpeople.h"				// @shownames
@@ -64,7 +60,7 @@
 // Static variable initialization
 //
 
-BOOL RlvHandler::m_fEnabled = FALSE;
+bool RlvHandler::m_fEnabled = false;
 
 rlv_handler_t gRlvHandler;
 
@@ -468,6 +464,70 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 	return RLV_RET_SUCCESS; // Don't fail clear commands even if the object didn't exist since it confuses people
 }
 
+bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMessage)
+{
+	if ("@stopim" == strMessage)
+	{
+		// If the user can't start an IM session and one is open terminate it - always notify the sender in this case
+		if ( (!RlvActions::canStartIM(idSender)) && (RlvActions::hasOpenP2PSession(idSender)) )
+		{
+			RlvUtil::sendBusyMessage(idSender, RlvStrings::getString(RLV_STRING_STOPIM_ENDSESSION_REMOTE));
+			LLAvatarActions::endIM(idSender);
+			RlvUtil::notifyBlocked(RLV_STRING_STOPIM_ENDSESSION_LOCAL, LLSD().with("NAME", LLSLURL("agent", idSender, "about").getSLURLString()));
+			return true;
+		}
+
+		// User can start an IM session (or one isn't open) so we do nothing - notify and hide it from the user only if IM queries are enabled
+		if (!RlvSettings::getEnableIMQuery())
+			return false;
+		RlvUtil::sendBusyMessage(idSender, RlvStrings::getString(RLV_STRING_STOPIM_NOSESSION));
+		return true;
+	}
+	else if (RlvSettings::getEnableIMQuery())
+	{
+		if ("@version" == strMessage)
+		{
+			RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
+			return true;
+		}
+		else if ("@list" == strMessage)
+		{
+			LLNotification::Params params;
+			params.name = "RLVaListRequested";
+			params.functor.function(boost::bind(&RlvHandler::onIMQueryListResponse, this, _1, _2));
+			params.substitutions = LLSD().with("NAME_LABEL", LLSLURL("agent", idSender, "completename").getSLURLString()).with("NAME_SLURL", LLSLURL("agent", idSender, "about").getSLURLString());
+			params.payload = LLSD().with("from_id", idSender);
+
+			class RlvPostponedOfferNotification : public LLPostponedNotification
+			{
+			protected:
+				void modifyNotificationParams() override
+				{
+					LLSD substitutions = mParams.substitutions;
+					substitutions["NAME"] = mName;
+					mParams.substitutions = substitutions;
+				}
+			};
+			LLPostponedNotification::add<RlvPostponedOfferNotification>(params, idSender, false);
+			return true;
+		}
+	}
+	return false;
+}
+
+void RlvHandler::onIMQueryListResponse(const LLSD& sdNotification, const LLSD sdResponse)
+{
+	const LLUUID idRequester = sdNotification["payload"]["from_id"].asUUID();
+	if (LLNotificationsUtil::getSelectedOption(sdNotification, sdResponse) == 0)
+	{
+		RlvUtil::sendIMMessage(idRequester, RlvFloaterBehaviours::getFormattedBehaviourString(), '\n');
+	}
+	else
+	{
+		RlvUtil::sendBusyMessage(idRequester, RlvStrings::getString("imquery_list_deny"));
+	}
+}
+
 // ============================================================================
 // Externally invoked event handlers
 //
@@ -693,9 +753,10 @@ void RlvHandler::onIdleStartup(void* pParam)
 		// We don't want to run this *too* often
 		if ( (LLStartUp::getStartupState() >= STATE_MISC) && (pTimer->getElapsedTimeF32() >= 2.0) )
 		{
-			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSION, RLV_TYPE_REPLY);
-			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSIONNEW, RLV_TYPE_REPLY);
-			gRlvHandler.processRetainedCommands(RLV_BHVR_VERSIONNUM, RLV_TYPE_REPLY);
+			auto inst = RlvHandler::instance(); // Calm down, kitty.
+			inst->processRetainedCommands(RLV_BHVR_VERSION, RLV_TYPE_REPLY);
+			inst->processRetainedCommands(RLV_BHVR_VERSIONNEW, RLV_TYPE_REPLY);
+			inst->processRetainedCommands(RLV_BHVR_VERSIONNUM, RLV_TYPE_REPLY);
 			pTimer->reset();
 		}
 	}
@@ -1083,29 +1144,33 @@ bool RlvHandler::redirectChatOrEmote(const std::string& strUTF8Text) const
 // Initialization helper functions
 //
 
-// Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-1.2.0a
-BOOL RlvHandler::setEnabled(BOOL fEnable)
+bool RlvHandler::canEnable()
+{
+	return LLStartUp::getStartupState() <= STATE_LOGIN_CLEANUP;
+}
+
+bool RlvHandler::setEnabled(bool fEnable)
 {
 	// TODO-RLVa: [RLVa-1.2.1] Allow toggling at runtime if we haven't seen any llOwnerSay("@....");
 	if (m_fEnabled == fEnable)
 		return fEnable;
 
-	if (fEnable)
+	if ( (fEnable) && (canEnable()) )
 	{
 		RLV_INFOS << "Enabling Restrained Love API support - " << RlvStrings::getVersionAbout() << RLV_ENDL;
-		m_fEnabled = TRUE;
+		m_fEnabled = true;
 
 		// Initialize static classes
 		RlvSettings::initClass();
 		RlvStrings::initClass();
 
-		gRlvHandler.addCommandHandler(new RlvExtGetSet());
+		RlvHandler::instance().addCommandHandler(new RlvExtGetSet());
 
 		// Make sure we get notified when login is successful
 		if (LLStartUp::getStartupState() < STATE_STARTED)
-			LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&RlvHandler::onLoginComplete, &gRlvHandler));
+			LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&RlvHandler::onLoginComplete, RlvHandler::getInstance()));
 		else
-			gRlvHandler.onLoginComplete();
+			RlvHandler::instance().onLoginComplete();
 
 		// Set up RlvUIEnabler
 		RlvUIEnabler::getInstance();
@@ -2516,21 +2581,29 @@ ERlvCmdRet RlvForceHandler<RLV_BHVR_SETGROUP>::onCommand(const RlvCommand& rlvCm
 template<> template<>
 ERlvCmdRet RlvForceHandler<RLV_BHVR_SIT>::onCommand(const RlvCommand& rlvCmd)
 {
-	LLViewerObject* pObj = NULL; LLUUID idTarget(rlvCmd.getOption());
-	// Sanity checking - we need to know about the object and it should identify a prim/linkset
-	if ( (idTarget.isNull()) || ((pObj = gObjectList.findObject(idTarget)) == NULL) || (LL_PCODE_VOLUME != pObj->getPCode()) )
+	LLUUID idTarget;
+	if (!RlvCommandOptionHelper::parseOption(rlvCmd.getOption(), idTarget))
 		return RLV_RET_FAILED_OPTION;
 
+	LLViewerObject* pObj = NULL;
+	if (idTarget.isNull())
+	{
+		if (!RlvActions::canGroundSit())
+			return RLV_RET_FAILED_LOCK;
+		gAgent.sitDown();
+	}
+	else if ( ((pObj = gObjectList.findObject(idTarget)) != NULL) && (LL_PCODE_VOLUME == pObj->getPCode()))
+	{
 	if (!RlvActions::canSit(pObj))
 		return RLV_RET_FAILED_LOCK;
-	else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_STANDTP)) && (isAgentAvatarValid()) )
-	{
-		if (gAgentAvatarp->isSitting())
-			return RLV_RET_FAILED_LOCK;
-		gRlvHandler.m_posSitSource = gAgent.getPositionGlobal();
-	}
 
-	// Copy/paste from handle_sit_or_stand()
+		if ((gRlvHandler.hasBehaviour(RLV_BHVR_STANDTP)) && (isAgentAvatarValid()))
+		{
+			if (gAgentAvatarp->isSitting())
+				return RLV_RET_FAILED_LOCK;
+			gRlvHandler.m_posSitSource = gAgent.getPositionGlobal();
+		}
+
 	gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -2539,7 +2612,11 @@ ERlvCmdRet RlvForceHandler<RLV_BHVR_SIT>::onCommand(const RlvCommand& rlvCmd)
 	gMessageSystem->addUUIDFast(_PREHASH_TargetID, pObj->mID);
 	gMessageSystem->addVector3Fast(_PREHASH_Offset, LLVector3::zero);
 	pObj->getRegion()->sendReliableMessage();
-
+	}
+	else
+	{
+		return RLV_RET_FAILED_OPTION;
+	}
 	return RLV_RET_SUCCESS;
 }
 

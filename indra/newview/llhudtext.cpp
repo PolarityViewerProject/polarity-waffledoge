@@ -46,6 +46,10 @@
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"
+// [RLVa:KB] - Checked: RLVa-1.4.0
+#include "rlvactions.h"
+#include "rlvcommon.h"
+// [/RLVa:KB]
 #include <boost/tokenizer.hpp>
 
 // [RLVa:KB] - Checked: RLVa-1.4.0
@@ -256,7 +260,7 @@ void LLHUDText::setString(const std::string &text_utf8)
 	if (RlvActions::isRlvEnabled())
 	{
 		std::string text(text_utf8);
-		if (gRlvHandler.canShowHoverText(mSourceObject))
+		if (RlvActions::canShowHoverText(mSourceObject))
 		{
 			if (!RlvActions::canShowLocation())
 				RlvUtil::filterLocation(text);

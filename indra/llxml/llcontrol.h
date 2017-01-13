@@ -144,10 +144,14 @@ public:
 	validate_signal_t* getValidateSignal() { return &mValidateSignal; }
 	// Settings Sanity check
 	sanity_signal_t* getSanitySignal() { return &mSanitySignal; }
-
-	bool isDefault() { return (mValues.size() == 1); }
 	// Settings Sanity check
 	bool isSane();
+
+// [RLVa:KB] - Patch: RLVa-2.1.0
+	bool hasUnsavedValue() { return mValues.size() > 2; }
+// [/RLVa:KB]
+	bool isDefault() { return (mValues.size() == 1); }
+
 	bool shouldSave(bool nondefault_only);
 	bool isPersisted() { return mPersist != PERSIST_NO; }
 	bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }

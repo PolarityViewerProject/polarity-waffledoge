@@ -62,7 +62,6 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "lltrans.h"
-
 // [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0a)
 #include "rlvhandler.h"
 // [/RLVa:KB]

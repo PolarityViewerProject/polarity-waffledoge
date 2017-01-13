@@ -36,7 +36,7 @@
 #include "llviewerregion.h"
 #include "message.h"
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
+#include "rlvactions.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
@@ -104,7 +104,7 @@ void LLAttachmentsMgr::addAttachmentRequest(const LLUUID& item_id,
 	attachment.mAdd = add;
 
 // [RLVa:KB] - Checked: 2010-09-23 (RLVa-1.2.1)
-	if ( (rlv_handler_t::isEnabled()) && (!fRlvForce) && (gRlvAttachmentLocks.hasLockedAttachmentPoint(RLV_LOCK_ANY)) && (gAgentWearables.areInitialAttachmentsRequested()) )
+	if ( (RlvActions::isRlvEnabled()) && (!fRlvForce) && (gRlvAttachmentLocks.hasLockedAttachmentPoint(RLV_LOCK_ANY)) && (gAgentWearables.areInitialAttachmentsRequested()) )
 	{
 		const LLInventoryItem* pItem = gInventory.getItem(item_id); 
 		if (!pItem)
@@ -323,7 +323,7 @@ void LLAttachmentsMgr::linkRecentlyArrivedAttachments()
         if (ids_to_link.size())
         {
 // [SL:KB] - Patch: Appearance-SyncAttach | Checked: Catznip-3.7
-			LLPointer<LLInventoryCallback> cb = NULL;
+			LLPointer<LLInventoryCallback> cb = new LLRegisterAttachmentCallback();
 			for (const LLUUID& idAttach : ids_to_link)
 			{
 				if (std::find(mPendingAttachLinks.begin(), mPendingAttachLinks.end(), idAttach) == mPendingAttachLinks.end())
@@ -653,3 +653,28 @@ void LLAttachmentsMgr::spamStatusInfo()
     }
 #endif
 }
+
+// [SL:KB] - Patch: Appearance-PhantomAttach | Checked: Catznip-5.0
+void LLAttachmentsMgr::refreshAttachments()
+{
+	if (!isAgentAvatarValid())
+		return;
+
+	for (const auto& kvpAttachPt : gAgentAvatarp->mAttachmentPoints)
+	{
+		for (const LLViewerObject* pAttachObj : kvpAttachPt.second->mAttachedObjects)
+		{
+			const LLUUID& idItem = pAttachObj->getAttachmentItemID();
+			if ( (mAttachmentRequests.wasRequestedRecently(idItem)) || (pAttachObj->isTempAttachment()) )
+				continue;
+
+			AttachmentsInfo attachment;
+			attachment.mItemID = idItem;
+			attachment.mAttachmentPt = kvpAttachPt.first;
+			attachment.mAdd = true;
+			mPendingAttachments.push_back(attachment);
+			mAttachmentRequests.addTime(idItem);
+		}
+	}
+}
+// [/SL:KB]

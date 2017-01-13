@@ -98,7 +98,10 @@
 #include "llanimstatelabels.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
-//#include "osavatarcolormgr.h"
+// [RLVa:KB] - Checked: RLVa-2.0.1
+#include "rlvactions.h"
+#include "rlvhandler.h"
+// [/RLVa:KB]
 
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
@@ -2915,12 +2918,12 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	BOOL visible_typing = (use_bubble_chat && !typing_in_status) && mTyping;
 	BOOL render_name =	visible_chat ||
 		visible_typing ||
-			(visible_avatar &&
+		(visible_avatar &&
 // [RLVa:KB] - Checked: RLVa-2.0.1
 			(fRlvShowAvTag) &&
 // [/RLVa:KB]
-		 ((sRenderName == RENDER_NAME_ALWAYS) ||
-		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
+		                ((sRenderName == RENDER_NAME_ALWAYS) ||
+		                 (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
@@ -3044,6 +3047,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	bool fRlvShowAvName = RlvActions::canShowName(RlvActions::SNC_DEFAULT, getID());
 // [/RLVa:KB]
 
+// [RLVa:KB] - Checked: RLVa-2.0.1
+	bool fRlvShowAvName = RlvActions::canShowName(RlvActions::SNC_DEFAULT, getID());
+// [/RLVa:KB]
 	bool is_away = mSignaledAnimations.find(ANIM_AGENT_AWAY)  != mSignaledAnimations.end();
 	bool is_do_not_disturb = mSignaledAnimations.find(ANIM_AGENT_DO_NOT_DISTURB) != mSignaledAnimations.end();
 	bool is_appearance = mSignaledAnimations.find(ANIM_AGENT_CUSTOMIZE) != mSignaledAnimations.end();
@@ -3211,7 +3217,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				// Might be blank if name not available yet, that's OK
 				if (show_display_names)
 				{
-				addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL, // This needs to be DisplayName - Xenhat 2015.09.04
+				addNameTagLine(av_name.getDisplayName(), name_tag_color, LLFontGL::NORMAL,
 						LLFontGL::getFontSansSerif(), (!av_name.getDisplayName().empty()) );
 				}
 				// Suppress SLID display if display name matches exactly (ugh)
@@ -3226,7 +3232,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			else
 			{
-				addNameTagLine(RlvStrings::getAnonym(av_name), name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif(), (!av_name.getDisplayName().empty()) );
+				addNameTagLine(RlvStrings::getAnonym(av_name), name_tag_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerif());
 			}
 // [/RLVa:KB]
 		}

@@ -2068,6 +2068,7 @@ void inventory_offer_handler(LLOfferInfo* info)
 			args["NAME_SLURL"] = LLSLURL("agent", info->mFromID, "rlvanonym").getSLURLString();
 		}
 // [/RLVa:KB]
+
 		// Inventory Slurls don't currently work for non agent transfers, so only display the object name.
 		args["ITEM_SLURL"] = msg;
 		// Note: sets inventory_task_offer_callback as the callback
@@ -2583,7 +2584,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// do nothing -- don't distract newbies in
 			// Prelude with global IMs
 		}
-// [RLVa:KB] - Checked: RLVa-2.0.3
 		else if (((RlvActions::isRlvEnabled()) && (offline == IM_ONLINE) && ("@version" == message) && (!is_muted) && ((!accept_im_from_only_friend) || is_friend)))
 		{
 			static LLCachedControl<bool> show_at_rlv_requests_raw(gSavedSettings, "PVRLVa_ShowVersionRequestsRaw", false);
@@ -2632,7 +2632,6 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 					position,
 					false);
 			}
-
 			RlvUtil::sendBusyMessage(from_id, reply_string, session_id);
 		}
 // [/RLVa:KB]
@@ -3902,9 +3901,7 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 		chat.mPosAgent = chatter->getPositionAgent();
 		static LLCachedControl<bool> effect_script_chat_particles(gSavedSettings, "EffectScriptChatParticles");
 		// Make swirly things only for talking objects. (not script debug messages, though)
-//		if (chat.mSourceType == CHAT_SOURCE_OBJECT 
-//			&& chat.mChatType != CHAT_TYPE_DEBUG_MSG
-//			&& gSavedSettings.getBOOL("EffectScriptChatParticles") )
+		// Clean up tag mess, jesus christ
 // [RLVa:KB] - Checked: 2010-03-09 (RLVa-1.2.0b) | Modified: RLVa-1.0.0g
 		if ( ((chat.mSourceType == CHAT_SOURCE_OBJECT) && (chat.mChatType != CHAT_TYPE_DEBUG_MSG)) &&
 			((!rlv_handler_t::isEnabled()) || (CHAT_TYPE_OWNER != chat.mChatType))
@@ -3938,6 +3935,75 @@ void process_chat_from_simulator(LLMessageSystem *msg, void **user_data)
 
 		color.setVec(1.f,1.f,1.f,1.f);
 		msg->getStringFast(_PREHASH_ChatData, _PREHASH_Message, mesg);
+
+// [RLVa:KB] - Checked: 2010-04-23 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
+		if ( (rlv_handler_t::isEnabled()) && (CHAT_TYPE_START != chat.mChatType) && (CHAT_TYPE_STOP != chat.mChatType) )
+		{
+			// NOTE: chatter can be NULL (may not have rezzed yet, or could be another avie's HUD attachment)
+			BOOL is_attachment = (chatter) ? chatter->isAttachment() : FALSE;
+			BOOL is_owned_by_me = (chatter) ? chatter->permYouOwner() : FALSE;
+
+			// Filtering "rules":
+			//   avatar  => filter all avie text (unless it's this avie or they're an exemption)
+			//   objects => filter everything except attachments this avie owns (never filter llOwnerSay or llRegionSayTo chat)
+			if ( ( (CHAT_SOURCE_AGENT == chat.mSourceType) && (from_id != gAgent.getID()) ) || 
+				 ( (CHAT_SOURCE_OBJECT == chat.mSourceType) && ((!is_owned_by_me) || (!is_attachment)) && 
+				   (CHAT_TYPE_OWNER != chat.mChatType) && (CHAT_TYPE_DIRECT != chat.mChatType) ) )
+			{
+				bool fIsEmote = RlvUtil::isEmote(mesg);
+				if ((!fIsEmote) &&
+					(((gRlvHandler.hasBehaviour(RLV_BHVR_RECVCHAT)) && (!gRlvHandler.isException(RLV_BHVR_RECVCHAT, from_id))) ||
+					 ((gRlvHandler.hasBehaviour(RLV_BHVR_RECVCHATFROM)) && (gRlvHandler.isException(RLV_BHVR_RECVCHATFROM, from_id))) ))
+				{
+					if ( (gRlvHandler.filterChat(mesg, false)) && (!gSavedSettings.getBOOL("RestrainedLoveShowEllipsis")) )
+						return;
+				}
+				else if ((fIsEmote) &&
+					     (((gRlvHandler.hasBehaviour(RLV_BHVR_RECVEMOTE)) && (!gRlvHandler.isException(RLV_BHVR_RECVEMOTE, from_id))) ||
+					      ((gRlvHandler.hasBehaviour(RLV_BHVR_RECVEMOTEFROM)) && (gRlvHandler.isException(RLV_BHVR_RECVEMOTEFROM, from_id))) ))
+ 				{
+					if (!gSavedSettings.getBOOL("RestrainedLoveShowEllipsis"))
+						return;
+					mesg = "/me ...";
+				}
+			}
+
+			// Filtering "rules":
+			//   avatar => filter only their name (unless it's this avie)
+			//   other  => filter everything
+			if (!RlvActions::canShowName(RlvActions::SNC_DEFAULT))
+			{
+				if (CHAT_SOURCE_AGENT != chat.mSourceType)
+				{
+					RlvUtil::filterNames(chat.mFromName);
+				}
+				else if (chat.mFromID != gAgent.getID())
+				{
+					chat.mFromName = RlvStrings::getAnonym(chat.mFromName);
+					chat.mRlvNamesFiltered = TRUE;
+				}
+			}
+
+			// Create an "objectim" URL for objects if we're either @shownames or @showloc restricted
+			// (we need to do this now because we won't be have enough information to do it later on)
+			if ( (CHAT_SOURCE_OBJECT == chat.mSourceType) &&
+			     ( (!RlvActions::canShowName(RlvActions::SNC_DEFAULT)) || (!RlvActions::canShowLocation()) ) )
+			{
+				LLSD sdQuery;
+				sdQuery["name"] = chat.mFromName;
+				sdQuery["owner"] = owner_id;
+
+				if ( (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, owner_id)) && (!is_owned_by_me) )
+					sdQuery["rlv_shownames"] = true;
+
+				const LLViewerRegion* pRegion = LLWorld::getInstance()->getRegionFromPosAgent(chat.mPosAgent);
+				if (pRegion)
+					sdQuery["slurl"] = LLSLURL(pRegion->getName(), chat.mPosAgent).getLocationString();
+
+				chat.mURL = LLSLURL("objectim", from_id, LLURI::mapToQueryString(sdQuery)).getSLURLString();
+			}
+		}
+// [/RLVa:KB]
 
 // [RLVa:KB] - Checked: 2010-04-23 (RLVa-1.2.0f) | Modified: RLVa-1.2.0f
 		if ( (rlv_handler_t::isEnabled()) && (CHAT_TYPE_START != chat.mChatType) && (CHAT_TYPE_STOP != chat.mChatType) )
@@ -5180,13 +5246,11 @@ void process_kill_object(LLMessageSystem *mesgsys, void **user_data)
 			LLViewerObject *objectp = gObjectList.findObject(id);
 			if (objectp)
 			{
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
 				if ( (objectp->isAttachment()) && (gAgentAvatarp) && (gAgent.getTeleportState() != LLAgent::TELEPORT_NONE) && (objectp->permYouOwner()) )
 				{
 					gAgentAvatarp->addPendingDetach(objectp->getRootEdit()->getID());
 					continue;
 				}
-// [/SL:KB]
 
 				// Display green bubble on kill
 				if ( gShowObjectUpdates )
@@ -7311,6 +7375,38 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			}
 // [/RLVa:KB]
 
+// [RLVa:KB] - Checked: 2012-07-28 (RLVa-1.4.7)
+			if (rlv_handler_t::isEnabled())
+			{
+				RlvUtil::filterScriptQuestions(questions, payload);
+
+				if ( (questions) && (gRlvHandler.hasBehaviour(RLV_BHVR_ACCEPTPERMISSION)) )
+				{
+					const LLViewerObject* pObj = gObjectList.findObject(taskid);
+					if (pObj)
+					{
+						if ( (pObj->permYouOwner()) && (!pObj->isAttachment()) )
+						{
+ 							questions &= ~(SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TAKE_CONTROLS].permbit | 
+ 								SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_ATTACH].permbit);
+						}
+						else
+						{
+							questions &= ~(SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TAKE_CONTROLS].permbit);
+						}
+						payload["rlv_notify"] = !pObj->permYouOwner();
+					}
+				}
+			}
+
+			if ( (!caution) && (!questions) )
+			{
+				LLNotifications::instance().forceResponse(
+					LLNotification::Params("ScriptQuestion").substitutions(args).payload(payload), 0/*YES*/);
+				return;
+			}
+// [/RLVa:KB]
+
 			// check whether cautions are even enabled or not
 			const char* notification = "ScriptQuestion";
 
@@ -7711,7 +7807,7 @@ void send_lures(const LLSD& notification, const LLSD& response)
 			gCacheName->getFullName(target_id, target_name);  // for im log filenames
 			LLSD args;
 // [RLVa:KB] - Checked: RLVa-2.0.1
-			args["TO_NAME"] = LLSLURL("agent", target_id, (fRlvCanShowName) ? "displayname" : "rlvanonym").getSLURLString();
+			args["TO_NAME"] = LLSLURL("agent", target_id, (fRlvCanShowName) ? "displayname" : "rlvanonym").getSLURLString();;
 // [/RLVa:KB]
 //			args["TO_NAME"] = LLSLURL("agent", target_id, "displayname").getSLURLString();;
 	

@@ -18,6 +18,8 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llavatarnamecache.h"
+#include "llcallingcard.h"
+#include "llimview.h"
 #include "llinstantmessage.h"
 #include "llnotificationsutil.h"
 #include "llregionhandle.h"
@@ -27,6 +29,7 @@
 #include "llversioninfo.h"
 #include "llviewerparcelmgr.h"
 #include "llviewermenu.h"
+#include "llviewermessage.h"
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "llworld.h"
@@ -155,14 +158,12 @@ bool RlvSettings::onChangedSettingBOOL(const LLSD& sdValue, bool* pfSetting)
 // Checked: 2015-05-25 (RLVa-1.5.0)
 void RlvSettings::onChangedSettingMain(const LLSD& sdValue)
 {
-	if (sdValue.asBoolean() != (bool)rlv_handler_t::isEnabled())
-	{
-		LLNotificationsUtil::add(
-			"GenericAlert",
-			LLSD().with("MESSAGE", llformat(LLTrans::getString("RLVaToggleMessage").c_str(), 
-				(sdValue.asBoolean()) ? LLTrans::getString("RLVaToggleEnabled").c_str()
-				                      : LLTrans::getString("RLVaToggleDisabled").c_str())));
-	}
+	LLStringUtil::format_map_t args;
+	args["[STATE]"] = LLTrans::getString( (sdValue.asBoolean()) ? "RLVaToggleEnabled" : "RLVaToggleDisabled");
+
+	// As long as RLVa hasn't been enabled but >can< be enabled all toggles are instant (everything else will require a restart)
+	bool fQuickToggle = (!RlvHandler::isEnabled()) && (RlvHandler::canEnable());
+	LLNotificationsUtil::add("GenericAlert", LLSD().with("MESSAGE", LLTrans::getString((fQuickToggle) ? "RLVaToggleMessageLogin" : "RLVaToggleMessageRestart", args)));
 }
 
 void RlvSettings::initCompatibilityMode(std::string strCompatList)
@@ -339,7 +340,7 @@ const std::string& RlvStrings::getString(const std::string& strStringName)
 {
 	static const std::string strMissing = "(Missing RLVa string)";
 	string_map_t::const_iterator itString = m_StringMap.find(strStringName);
-	// <polarity> warn when RLVA string is missing
+	// <polarity> warn when RLVA string is missing / fix notification not working when RLV is disabled
 	// return (itString != m_StringMap.end()) ? itString->second.back() : strMissing;
 	if (itString == m_StringMap.end())
 	{
@@ -613,6 +614,32 @@ bool RlvUtil::sendChatReply(S32 nChannel, const std::string& strUTF8Text)
 	return true;
 }
 
+void RlvUtil::sendIMMessage(const LLUUID& idRecipient, const std::string& strMsg, char chSplit)
+{
+	const LLUUID idSession = gIMMgr->computeSessionID(IM_NOTHING_SPECIAL, idRecipient);
+	const LLRelationship* pBuddyInfo = LLAvatarTracker::instance().getBuddyInfo(idRecipient);
+	std::string strAgentName;
+	LLAgentUI::buildFullname(strAgentName);
+
+	std::list<std::string> msgList;
+	utf8str_split(msgList, strMsg, MAX_MSG_STR_LEN, chSplit);
+	for (const std::string& strMsg : msgList)
+	{
+		pack_instant_message(
+			gMessageSystem,
+			gAgent.getID(),
+			false,
+			gAgent.getSessionID(),
+			idRecipient,
+			strAgentName.c_str(),
+			strMsg.c_str(),
+			((!pBuddyInfo) || (pBuddyInfo->isOnline())) ? IM_ONLINE : IM_OFFLINE,
+			IM_NOTHING_SPECIAL,
+			idSession);
+		gAgent.sendReliableMessage();
+	}
+}
+
 void RlvUtil::teleportCallback(U64 hRegion, const LLVector3& posRegion, const LLVector3& vecLookAt)
 {
 	if (hRegion)
@@ -636,7 +663,7 @@ bool rlvMenuMainToggleVisible(LLUICtrl* pMenuCtrl)
 	if (pMenuItem)
 	{
 		static std::string strLabel = pMenuItem->getLabel();
-		if (gSavedSettings.getBOOL(RLV_SETTING_MAIN) == rlv_handler_t::isEnabled())
+		if ((bool)gSavedSettings.getBOOL(RLV_SETTING_MAIN) == rlv_handler_t::isEnabled())
 			pMenuItem->setLabel(strLabel);
 		else
 			pMenuItem->setLabel(strLabel + " " + LLTrans::getString("RLVaPendingRestart"));
@@ -804,6 +831,10 @@ bool rlvPredCanRemoveItem(const LLViewerInventoryItem* pItem)
 			case LLAssetType::AT_OBJECT:
 				return gRlvAttachmentLocks.canDetach(pItem);
 			case LLAssetType::AT_GESTURE:
+				return true;
+			case LLAssetType::AT_LINK:
+			case LLAssetType::AT_LINK_FOLDER:
+				// Broken links can always be removed since they don't represent a worn item
 				return true;
 			default:
 				RLV_ASSERT(!RlvForceWear::isWearableItem(pItem));
