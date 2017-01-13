@@ -1298,9 +1298,9 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>-0.07</real>
-        <real>-0.07</real>
-        <real>-0.07</real>
+        <real>-0.035</real>
+        <real>-0.035</real>
+        <real>-0.035</real>
       </array>
     </map>
     <key>PVRender_HideAllHoverText</key>
@@ -1548,7 +1548,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>3</integer>
+      <integer>2</integer>
     </map>
     <key>PVRender_Vignette</key>
     <map>
