@@ -352,7 +352,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 #endif
 
 	}
-	delete viewer_app_ptr;
+	delete viewer_app_ptr; //@todo ensure we call the right delete() (TBBMalloc or else)
 	viewer_app_ptr = NULL;
 
 	//start updater

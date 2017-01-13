@@ -621,7 +621,7 @@ class LL_COMMON_API LLEventStream: public LLEventPump
 {
 public:
     LLEventStream(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
-    virtual ~LLEventStream() {}
+    virtual ~LLEventStream() {} // FIXME: Shutdown crash here
 
     /// Post an event to all listeners
     virtual bool post(const LLSD& event);

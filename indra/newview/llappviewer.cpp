@@ -1877,9 +1877,11 @@ bool LLAppViewer::cleanup()
 		// Destroy window, and make sure we're not fullscreen
 		// This may generate window reshape and activation events.
 		// Therefore must do this before destroying the message system.
-		delete gViewerWindow;
+
+		// FIXME: This crashes on shutdown right now - Xenhat 2017-01-12
+		//delete gViewerWindow;
 		gViewerWindow = NULL;
-		LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
+		//LL_INFOS() << "ViewerWindow deleted" << LL_ENDL;
 	}
 
 	LL_INFOS() << "Cleaning up Keyboard & Joystick" << LL_ENDL;

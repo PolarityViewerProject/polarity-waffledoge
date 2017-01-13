@@ -284,10 +284,11 @@ LLEventPump::LLEventPump(const std::string& name, bool tweak):
 LLEventPump::~LLEventPump()
 {
     // Unregister this doomed instance from LLEventPumps
-	if (this && LLEventPumps::instanceExists())
+	if (LLEventPumps::instanceExists())
 	{
 		LLEventPumps::instance().unregister(*this);
 	}
+	// FIXME: Shutdown crash here
 }
 
 // static data member
