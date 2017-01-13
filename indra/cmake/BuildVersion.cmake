@@ -60,13 +60,13 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
 		message("cut not found in path. Please make sure you added Cygwin to your path.")
 	else ()
 	execute_process(
-		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -l1 --template {latesttag} -k release
+		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -k release -l1 --template {latesttag}
 		COMMAND ${CUT} -d "-" -f 1
 		OUTPUT_VARIABLE BASE_TAG
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
 	execute_process(
-		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -l1 --template "{node|short}" -k release
+		COMMAND ${MERCURIAL} log --user oz@lindenlab.com -k release -l1 --template "{node|short}"
 		COMMAND ${CUT} -d "-" -f 3
 		OUTPUT_VARIABLE LL_SOURCE_HASH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -85,9 +85,9 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         "LL_VIEWER_VERSION_MINOR=${VIEWER_VERSION_MINOR}"
         "LL_VIEWER_VERSION_PATCH=${VIEWER_VERSION_PATCH}"
         "LL_VIEWER_VERSION_BUILD=${VIEWER_VERSION_REVISION}"
-	"LINDEN_SOURCE_MAJOR=${LL_SOURCE_MAJOR}"
-	"LINDEN_SOURCE_MINOR=${LL_SOURCE_MINOR}"
-	"LINDEN_SOURCE_PATCH=${LL_SOURCE_PATCH}"
+        "LINDEN_SOURCE_MAJOR=${LL_SOURCE_MAJOR}"
+        "LINDEN_SOURCE_MINOR=${LL_SOURCE_MINOR}"
+        "LINDEN_SOURCE_PATCH=${LL_SOURCE_PATCH}"
         "LLBUILD_CONFIG=\"${CMAKE_BUILD_TYPE}\""
         )
 endif (NOT DEFINED VIEWER_SHORT_VERSION)
