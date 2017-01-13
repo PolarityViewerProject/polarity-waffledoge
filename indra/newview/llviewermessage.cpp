@@ -6155,7 +6155,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	{
 		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
 		static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
-		if(!gSavedSettings.getBOOL("NotifyMoneySpend") || amount < notification_threshold_send)
+		static LLCachedControl<bool> notify_money_send(gSavedSettings, "NotifyMoneySpend");
+		if(!notify_money_send || amount < notification_threshold_send)
 		{
 			return;
 		}
@@ -6198,7 +6199,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		// ...someone paid you
 		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
 		static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
-		if(!gSavedSettings.getBOOL("NotifyMoneyReceived") || amount < notification_threshold_recv)
+		static LLCachedControl<bool> notify_money_recv(gSavedSettings, "NotifyMoneyReceived");
+		if(!notify_money_recv || amount < notification_threshold_recv)
 		{
 			return;
 		}
