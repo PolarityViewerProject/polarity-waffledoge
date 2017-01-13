@@ -535,6 +535,7 @@ void LLAgent::cleanup()
 	{
 		mTeleportFailedSlot.disconnect();
 	}
+	sTeleportProgressMessages.clear(); // tentative
 }
 
 //-----------------------------------------------------------------------------
@@ -4551,6 +4552,10 @@ void LLAgent::observeFriends()
 
 void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 {
+	if (LLApp::isQuitting())
+	{
+		return;
+	}
 	LLXMLNodePtr root;
 	BOOL success = LLUICtrlFactory::getLayeredXMLNode(xml_filename, root);
 

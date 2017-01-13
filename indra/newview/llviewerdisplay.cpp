@@ -393,7 +393,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Display start screen if we're teleporting, and skip render
 	//
 
-	if (gTeleportDisplay)
+	if (gTeleportDisplay && !LLApp::isQuitting())
 	{
 		LL_RECORD_BLOCK_TIME(FTM_TELEPORT_DISPLAY);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Teleport");
