@@ -772,7 +772,7 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 	}
 	return false;
 #else
-	return true
+	return true;
 #endif
 }
 
