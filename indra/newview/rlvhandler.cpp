@@ -473,7 +473,7 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 	return RLV_RET_SUCCESS; // Don't fail clear commands even if the object didn't exist since it confuses people
 }
 
-bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const bool& offline, const std::string& name, const std::string& strMessage)
+bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage)
 {
 	if ("@stopim" == strMessage)
 	{
@@ -547,7 +547,7 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 				sessionID,
 				LLUUID::null, // will fallback to CHAT_SOURCE_SYSTEM, hopefully
 				"",
-				"Sent " + reply_string + " reply '" + reply_string + "'",
+				"Responding to @version with '" + reply_string + "'",
 				false,
 				LLStringUtil::null,
 				IM_NOTHING_SPECIAL,
