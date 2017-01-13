@@ -2031,6 +2031,7 @@ void RlvBehaviourToggleHandler<RLV_BHVR_SHOWINV>::onCommandToggle(ERlvBehaviour 
 			// TODO-RLVa: we should really just be collapsing the "Add more..." inventory panel (and disable the button)
 			pCOFPanel->showOutfitsInventoryPanel();
 		}
+		// TODO-RLVa: Outfit gallery
 	}
 
 	//
