@@ -11,9 +11,9 @@ if(USE_TBBMALLOC)
           optimized tbbmalloc_proxy
           )
       if(WORD_SIZE EQUAL 64)
-         set(TBBMALLOC_LINK_FLAGS  "/INCLUDE:__TBB_malloc_proxy")
+         set(TBBMALLOC_LINK_FLAGS  "/FORCE:MULTIPLE /INCLUDE:__TBB_malloc_proxy")
       else(WORD_SIZE EQUAL 64) 
-         set(TBBMALLOC_LINK_FLAGS  "/INCLUDE:___TBB_malloc_proxy")
+         set(TBBMALLOC_LINK_FLAGS  "/FORCE:MULTIPLE /INCLUDE:___TBB_malloc_proxy")
       endif(WORD_SIZE EQUAL 64)
     elseif(LINUX)
       set(TBBMALLOC_LIBRARIES 
