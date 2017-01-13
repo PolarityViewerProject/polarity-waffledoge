@@ -6096,6 +6096,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
     msg->getUUID("TransactionInfo", "DestID", dest_id);
 	msg->getBOOL("TransactionInfo", "IsDestGroup", is_dest_group);
     msg->getS32("TransactionInfo", "Amount", amount);
+	llassert(amount >= 0); // <polarity> sanity check because S32...
     msg->getString("TransactionInfo", "ItemDescription", item_description);
 	msg->getBOOL("MoneyData", "TransactionSuccess", success);
     LL_INFOS("Money") << "MoneyBalanceReply source " << source_id 
@@ -6139,14 +6140,6 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	LLStringUtil::format_map_t args;
 	args["REASON"] = reason; // could be empty
 	args["AMOUNT"] = llformat("%d", amount);
-	
-	// <polarity> PLVR-73 Implement L$ transaction notification thresholds
-	static LLCachedControl<S32> notification_threshold(gSavedPerAccountSettings, "PVUI_BalanceNotificationThreshold");
-	if(abs(amount) < notification_threshold)
-	{
-		return;
-	}
-	// </polarity>
 
 	// Need to delay until name looked up, so need to know whether or not
 	// is group
@@ -6160,7 +6153,9 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	bool you_paid_someone = (source_id == gAgentID);
 	if (you_paid_someone)
 	{
-		if(!gSavedSettings.getBOOL("NotifyMoneySpend"))
+		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
+		static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
+		if(!gSavedSettings.getBOOL("NotifyMoneySpend") || amount < notification_threshold_send)
 		{
 			return;
 		}
@@ -6201,7 +6196,9 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	}
 	else {
 		// ...someone paid you
-		if(!gSavedSettings.getBOOL("NotifyMoneyReceived"))
+		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
+		static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
+		if(!gSavedSettings.getBOOL("NotifyMoneyReceived") || amount < notification_threshold_recv)
 		{
 			return;
 		}
