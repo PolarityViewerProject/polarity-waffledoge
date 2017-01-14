@@ -109,6 +109,7 @@ if (WINDOWS)
       #/DGLM_MESSAGES=1 # Enable GLM Messages during compilation
       /DGLM_FORCE_SWIZZLE=1
       /wd4099 # Missing PDB warning
+      /std:c++14 # Since VS2015U3
       )
 
   add_compile_options(
