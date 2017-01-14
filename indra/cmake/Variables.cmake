@@ -205,7 +205,7 @@ set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
 option(USE_AUTO_PARALLELIZER "Use MSVC's Auto-Parallelizer" OFF)
 
 # Libraries
-# option(USE_VLC_PLUGIN "Link VLC plugin. Option exists because it breaks." ON)
+option(USE_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
 
 # Mallocs
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)

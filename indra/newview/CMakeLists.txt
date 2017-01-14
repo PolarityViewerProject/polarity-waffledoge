@@ -1871,9 +1871,14 @@ if(WINDOWS)
       SLPlugin
       media_plugin_quicktime
       media_plugin_cef
-      media_plugin_libvlc
       windows-crash-logger
       )
+
+    if(LINK_VLC_PLUGIN)
+        list(APPEND COPY_INPUT_DEPENDENCIES
+            media_plugin_libvlc
+        )
+    endif(LINK_VLC_PLUGIN)
 
     if(FMODSTUDIO)
       if(WORD_SIZE EQUAL 64)
@@ -2102,7 +2107,6 @@ if(LINUX)
     linux-crash-logger
     SLPlugin
     media_plugin_gstreamer010
-    media_plugin_libvlc
     llcommon
         )
 
@@ -2214,9 +2218,8 @@ if(DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
 
-  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_libvlc media_plugin_cef mac-crash-logger)
+  add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_quicktime media_plugin_cef mac-crash-logger)
 
-    
   add_dependencies(${VIEWER_BINARY_NAME} mac-crash-logger)
 
   if(ENABLE_SIGNING)
