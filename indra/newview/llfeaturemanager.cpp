@@ -833,7 +833,7 @@ void LLFeatureManager::applyBaseMasks()
 		maskFeatures("safe");
 	}
 	// <polarity> Hack! poke the vram fetching function to update VRAM immediately after applying features
-	PVGPUInfo::getTotalVRAM();
+	PVGPUInfo::vRAMGetTotalOnboard();
 }
 
 LLSD LLFeatureManager::getRecommendedSettingsMap()

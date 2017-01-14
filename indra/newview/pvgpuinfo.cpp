@@ -69,13 +69,13 @@ void PVGPUInfo::updateValues()
 	if (!gGLManager.mIsIntel)
 	{
 		// yes, there's a reason to buy real GPUs; WORKING API.
-		vram_in_use_mb = getTotalVRAM() - vram_free_mb;
+		vram_in_use_mb = vRAMGetTotalOnboard() - vram_free_mb;
 		//@todo make sure this is more or less accurate
-		vram_used_by_others_mb = getTotalVRAM() - vram_free_mb - vram_used_by_us_mb;
+		vram_used_by_others_mb = vRAMGetTotalOnboard() - vram_free_mb - vram_used_by_us_mb;
 	}
 }
 
-S32Megabytes PVGPUInfo::getTotalVRAM()
+S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()
 {
 	const U32 MINIMUM_VRAM_AMOUNT = 1024; // fallback for cases where video memory is not detected properly
 	if (!gGLManager.mIsIntel)
@@ -110,7 +110,7 @@ S32Megabytes PVGPUInfo::getTotalVRAM()
 bool PVGPUInfo::hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y)
 {
 	S32 tentative_pixel_count = tentative_x * tentative_y;
-	if (tentative_pixel_count > (gGLManager.mGLMaxTextureSize * 2) || tentative_pixel_count > getAvailableVRAM().value())
+	if (tentative_pixel_count > (gGLManager.mGLMaxTextureSize * 2) || tentative_pixel_count > vRAMGetFree().value())
 	{
 		// fallback to something
 		LL_WARNS() << "Available VRAM is smaller than the requested texture size ( " << tentative_x << " x " << tentative_y << ")!" << LL_ENDL;

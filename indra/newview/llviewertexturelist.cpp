@@ -1352,7 +1352,7 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended)
 {
 	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
-	S32 Hardware_VRAM_MB = PVGPUInfo::getTotalVRAM().value();
+	S32 Hardware_VRAM_MB = PVGPUInfo::vRAMGetTotalOnboard().value();
 	S32 adjusted_max_vram = Hardware_VRAM_MB;
 	LL_DEBUGS() << "MADE NEW VARIABLES" << LL_ENDL;
 

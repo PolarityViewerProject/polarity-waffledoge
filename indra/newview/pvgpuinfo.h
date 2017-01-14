@@ -38,7 +38,7 @@ public:
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
 	*/
-	static S32Megabytes getAvailableVRAM()
+	static S32Megabytes vRAMGetFree()
 	{
 		return vram_free_mb;
 	}
@@ -47,7 +47,7 @@ public:
 	 * \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars, included grey.
 	 *  otherwise said, what's not free.
 	 */
-	static S32Megabytes geComputedNonFreeVRAM()
+	static S32Megabytes vRAMGetUsedTotal()
 	{
 		return vram_in_use_mb;
 	}
@@ -55,7 +55,7 @@ public:
 	/*
 	* \brief Computed "Our Own" memory. Should be the sum of the red, yellow and blue bars.
 	*/
-	static S32Megabytes getLocalUsedVRAM()
+	static S32Megabytes vRAMGetUsedViewer()
 	{
 		return vram_used_by_us_mb;
 	}
@@ -63,7 +63,7 @@ public:
 	/*
 	* \brief Computed "Other Programs" memory. Should be the grey bar.
 	*/
-	static S32Megabytes getReservedVRAM()
+	static S32Megabytes vRAMGetUsedOthers()
 	{
 		return vram_used_by_others_mb;
 	}
@@ -74,7 +74,7 @@ public:
 	 * \briefproprietary API-provided replacement for GLManager::mVRAM
 	 * \return S32Megabytes
 	 */
-	static S32Megabytes getTotalVRAM();
+	static S32Megabytes vRAMGetTotalOnboard();
 
 	
 	static void updateValues();

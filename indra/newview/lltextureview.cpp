@@ -558,22 +558,28 @@ void LLGLTexMemBar::draw()
 											 text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	PVGPUInfo::updateValues();
+	// Create local copies to perform math with to avoid unbalanced equation issues
+	auto total_onboard_vram = PVGPUInfo::vRAMGetTotalOnboard().valueInUnits<LLUnits::Megabytes>();
+	auto total_used_vram = PVGPUInfo::vRAMGetUsedTotal().valueInUnits<LLUnits::Megabytes>();
+	auto viewr_used_vram = PVGPUInfo::vRAMGetUsedViewer().valueInUnits<LLUnits::Megabytes>();
+	auto other_used_vram = PVGPUInfo::vRAMGetUsedOthers().valueInUnits<LLUnits::Megabytes>();
+	auto free_vram       = PVGPUInfo::vRAMGetFree().valueInUnits<LLUnits::Megabytes>();
 
 	//----------------------------------------------------------------------------
 	//BD - GPU Memory
 
-	text = llformat("VRAM usage:     %dMB", PVGPUInfo::geComputedNonFreeVRAM());
+	text = llformat("VRAM usage:     %dMB", PVGPUInfo::vRAMGetUsedTotal());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
 	if (!gGLManager.mIsIntel)
 	{
-		text = llformat("%dMB on-board, %d/%dMB Polarity/Others, %dMB free", PVGPUInfo::getTotalVRAM().value(), PVGPUInfo::getLocalUsedVRAM(), PVGPUInfo::getReservedVRAM(), PVGPUInfo::getAvailableVRAM());
+		text = llformat("%dMB on-board, %d/%dMB Polarity/Others, %dMB free", total_onboard_vram, viewr_used_vram, other_used_vram, free_vram);
 	}
 	else
 	{
-		text = llformat("%dMB Max (Shared Memory)", PVGPUInfo::getTotalVRAM().value());
+		text = llformat("%dMB Max (Shared Memory)", total_onboard_vram);
 	}
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
@@ -595,12 +601,12 @@ void LLGLTexMemBar::draw()
 	}
 	else
 	{
-		max_vram_f32 = F32(PVGPUInfo::getTotalVRAM().value());
+		max_vram_f32 = F32(total_onboard_vram);
 	}
 
 	if(gGLManager.mIsNVIDIA)
 	{
-		data_progress = ((F32)PVGPUInfo::geComputedNonFreeVRAM().value() - (F32)total_mem.value() - (F32)bound_mem.value() - (F32)fbo) / max_vram_f32;
+		data_progress = ((F32)total_used_vram - (F32)total_mem.value() - (F32)bound_mem.value() - (F32)fbo) / max_vram_f32;
 	}
 	else
 	{
@@ -621,7 +627,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
-			// [Red] Frame Buffer
+			// [Red] Frame Buffer (fbo)
 			gGL.color4f(0.75f, 0.f, 0.f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
@@ -631,7 +637,7 @@ void LLGLTexMemBar::draw()
 		right = left + (data_progress * (F32)bar_width);
 		if (right > left)
 		{
-			// [Yellow] Total of memory used
+			// [Yellow] Total Texture memory used
 			gGL.color4f(0.75f, 0.75f, 0.f, 1.f);
 			gl_rect_2d(left, top - 9, right, top - 3);
 		}
@@ -657,8 +663,8 @@ void LLGLTexMemBar::draw()
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 0, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
 
-	text = llformat("%dMB Texture Memory Limit",
-		max_total_mem.value());
+	text = llformat("%dMB Texture Memory Limit (%d/%d)",
+		max_total_mem.value(), total_mem.value(), bound_mem.value());
 
 	LLFontGL::getFontMonospace()->renderUTF8(text, 0, 480, top,
 		text_color, LLFontGL::LEFT, LLFontGL::TOP);
