@@ -31,7 +31,7 @@
 
 #define INTEL_GPU_MAX_VRAM 2048
 
-S32Megabytes PVGPUInfo::vram_available_mb = S32Megabytes(0);
+S32Megabytes PVGPUInfo::vram_free_mb = S32Megabytes(0);
 S32Megabytes PVGPUInfo::vram_in_use_mb = S32Megabytes(0);
 S32Megabytes PVGPUInfo::vram_used_by_us_mb = S32Megabytes(0);
 S32Megabytes PVGPUInfo::vram_used_by_others_mb = S32Megabytes(0);
@@ -43,26 +43,25 @@ void PVGPUInfo::updateValues()
 	LLMemory::updateMemoryInfo();
 	auto total_texture_mem = LLViewerTexture::sTotalTextureMemory.valueInUnits<LLUnits::Megabytes>();
 	auto fbo = U32Bytes(LLRenderTarget::sBytesAllocated).valueInUnits<LLUnits::Megabytes>();
-	S32Megabytes bound_mem = LLViewerTexture::sBoundTextureMemory;
-	vram_used_by_us_mb = S32Megabytes(bound_mem.value() + total_texture_mem + fbo);
+	vram_used_by_us_mb = S32Megabytes(total_texture_mem) + S32Megabytes(fbo);
 	
-	GLint memInfo = 0; // in KB
+	GLint free_memory = 0; // in KB
 	// Note: glGet* calls are slow. Instead consider using something like:
 	//     INT  wglGetGPUInfoAMD(UINT id, INT property, GLenum dataType, UINT size, void *data);
 	
 	if (gGLManager.mIsNVIDIA)
 	{
 		// Only the NVIDIA driver can reliably know how much memory is in use,
-		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &memInfo);
+		glGetIntegerv(GL_GPU_MEMORY_INFO_CURRENT_AVAILABLE_VIDMEM_NVX, &free_memory);
 	}
 	else if (gGLManager.mIsATI /* && gGLManager.mHasATIMemInfo */) // still testing
 	{
 		// The AMD/ATI driver does not always report memory info, this appear to depend on both the hardware
 		// and the driver. If no memory info available, let's assume there is no reserved vram.
 		// glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfoAMD);
-		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &memInfo);
+		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &free_memory);
 	}
-	vram_available_mb = S32Kilobytes(memInfo);
+	vram_free_mb = S32Kilobytes(free_memory);
 
 	// we really need these unit tests...
 	// @note If someone manages to make better math, please contribute.
@@ -70,9 +69,9 @@ void PVGPUInfo::updateValues()
 	if (!gGLManager.mIsIntel)
 	{
 		// yes, there's a reason to buy real GPUs; WORKING API.
-		vram_in_use_mb = getTotalVRAM() - vram_available_mb;
+		vram_in_use_mb = getTotalVRAM() - vram_free_mb;
 		//@todo make sure this is more or less accurate
-		vram_used_by_others_mb = vram_in_use_mb - vram_used_by_us_mb;
+		vram_used_by_others_mb = getTotalVRAM() - vram_free_mb - vram_used_by_us_mb;
 	}
 }
 

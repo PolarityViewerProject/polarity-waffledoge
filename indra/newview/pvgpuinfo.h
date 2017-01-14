@@ -40,7 +40,7 @@ public:
 	*/
 	static S32Megabytes getAvailableVRAM()
 	{
-		return vram_available_mb;
+		return vram_free_mb;
 	}
 
 	/*
@@ -86,7 +86,7 @@ private:
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
 	*/
-	static S32Megabytes vram_available_mb;
+	static S32Megabytes vram_free_mb;
 	/*
 	* \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars.
 	*/
