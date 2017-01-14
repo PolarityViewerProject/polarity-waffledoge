@@ -119,7 +119,7 @@ std::string LLBasicCertificate::getPem() const
 		return std::string();
 	}
 	PEM_write_bio_X509(pem_bio, mCert);
-	int length = BIO_get_mem_data(pem_bio, &pem_bio_chars);
+	size_t length = BIO_get_mem_data(pem_bio, &pem_bio_chars);
 	std::string result = std::string(pem_bio_chars, length);
 	BIO_free(pem_bio);
 	return result;
@@ -138,7 +138,7 @@ std::vector<U8> LLBasicCertificate::getBinary() const
 		return std::vector<U8>();
 	}
 	i2d_X509_bio(der_bio, mCert);
-	int length = BIO_get_mem_data(der_bio, &der_bio_data);
+	size_t length = BIO_get_mem_data(der_bio, &der_bio_data);
 	std::vector<U8> result(length);
 	// vectors are guranteed to be a contiguous chunk of memory.
 	memcpy(&result[0], der_bio_data,  length);
@@ -336,7 +336,7 @@ std::string cert_string_name_from_X509_NAME(X509_NAME* name)
 	BIO *name_bio = BIO_new(BIO_s_mem());
 	// stream the name into the bio.  The name will be in the 'short name' format
 	X509_NAME_print_ex(name_bio, name, 0, XN_FLAG_RFC2253);
-	int length = BIO_get_mem_data(name_bio, &name_bio_chars);
+	size_t length = BIO_get_mem_data(name_bio, &name_bio_chars);
 	std::string result = std::string(name_bio_chars, length);
 	BIO_free(name_bio);
 	return result;
@@ -348,7 +348,7 @@ LLSD cert_name_from_X509_NAME(X509_NAME* name)
 {
 	LLSD result = LLSD::emptyMap();
 	int name_entries = X509_NAME_entry_count(name);
-	for (int entry_index=0; entry_index < name_entries; entry_index++) 
+	for (int entry_index=0; entry_index < name_entries; entry_index++)
 	{
 		char buffer[32];
 		X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, entry_index);
@@ -747,7 +747,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 {
 	// split wildcard into the portion before the *, and the portion after
 
-	int wildcard_pos = wildcard.find_first_of('*');	
+	size_t wildcard_pos = wildcard.find_first_of('*');	
 	// check the case where there is no wildcard.
 	if(wildcard_pos == wildcard.npos)
 	{
@@ -779,7 +779,7 @@ bool _cert_subdomain_wildcard_match(const std::string& subdomain,
 	std::string new_subdomain = subdomain.substr(wildcard_pos, subdomain.npos);
 	
 	// iterate through the current subdomain, finding instances of the match string.
-	int sub_pos = new_subdomain.find_first_of(new_wildcard_match_string);
+	size_t sub_pos = new_subdomain.find_first_of(new_wildcard_match_string);
 	while(sub_pos != std::string::npos)
 	{
 		new_subdomain = new_subdomain.substr(sub_pos, std::string::npos);
@@ -811,8 +811,8 @@ bool _cert_hostname_wildcard_match(const std::string& hostname, const std::strin
 	std::string new_cn = common_name;
 	
 	// find the last '.' in the hostname and the match name.
-	int subdomain_pos = new_hostname.find_last_of('.');
-	int subcn_pos = new_cn.find_last_of('.');
+	size_t subdomain_pos = new_hostname.find_last_of('.');
+	size_t subcn_pos = new_cn.find_last_of('.');
 	
 	// if the last char is a '.', strip it
 	if(subdomain_pos == (new_hostname.length()-1))
