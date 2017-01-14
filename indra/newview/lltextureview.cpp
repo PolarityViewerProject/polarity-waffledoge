@@ -612,8 +612,12 @@ void LLGLTexMemBar::draw()
 	{
 		vram_bar_data_progress = ((F32)vram_bar_total_mem.value() - (F32)vram_bar_bound_mem.value() - (F32)vram_bar_fbo) / vram_var_max_vram_f32;
 	}
-	
-	if (vram_bar_data_progress > 0.0f)
+	if(vram_bar_data_progress < 0.0f)
+	{
+		LL_DEBUGS() << "Bar is wrong! (Really this only exists to put a breakpoint on it, lol" << LL_ENDL;
+	}
+	// The bar will fail drawing when the vram_bar_data_progress value is not zero. it can have values such as -0.000976562500 or 1.121e-44.
+	//if (vram_bar_data_progress > 0.0f)
 	{
 		right = left + (vram_bar_data_progress * (F32)bar_width);
 		if (right > left)
