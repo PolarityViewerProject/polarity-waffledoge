@@ -1352,8 +1352,8 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended)
 {
 	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
-	S32 Hardware_VRAM_MB = PVGPUInfo::vRAMGetTotalOnboard().value();
-	S32 adjusted_max_vram = Hardware_VRAM_MB;
+	S64Megabytes Hardware_VRAM_MB = PVGPUInfo::vRAMGetTotalOnboard();
+	S64Megabytes adjusted_max_vram = Hardware_VRAM_MB;
 	LL_DEBUGS() << "MADE NEW VARIABLES" << LL_ENDL;
 
 	// We don't really need to cache this one, but it's not currently stored in the settings file so we use this call
@@ -1368,43 +1368,45 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		{
 			LL_DEBUGS() << "I AM ATI" << LL_ENDL;
 		}
-		if (Hardware_VRAM_MB * 0.25f > 3072) // we have a lot of VRAM
+		if ((Hardware_VRAM_MB / 4 ) > S64Megabytes(3072)) // we have a lot of VRAM
 		{
 			LL_DEBUGS() << "I HAVE MUCH VRAM WOW" << LL_ENDL;
 			// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
-			adjusted_max_vram = Hardware_VRAM_MB - 3072;
+			adjusted_max_vram = Hardware_VRAM_MB - S64Megabytes(3072);
 		}
 		// handle special case when card has 2GB or less
-		else if (Hardware_VRAM_MB <= 2048)
+		else if (Hardware_VRAM_MB <= S64Megabytes(2048))
 		{
 			LL_DEBUGS() << "I HAVE TINY VRAM WHEW" << LL_ENDL;
 			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
 			// For this special case, limit VRAM to half the adjusted maximum to prevent brutal swapping due to fragmentation.
-			adjusted_max_vram = Hardware_VRAM_MB * 0.5f;
+			adjusted_max_vram = Hardware_VRAM_MB / 2;
 		}
 		else
 		{
 			LL_DEBUGS() << "I SHRINK VRAM TO 75%" << LL_ENDL;
 			// shrink the available VRAM to avoid starving the rest of the system
-			adjusted_max_vram = Hardware_VRAM_MB * 0.75f;
+			adjusted_max_vram = Hardware_VRAM_MB * 3 / 4;
 
 		}
 		LL_DEBUGS() << "EXITING ATI BLOCK" << LL_ENDL;
 	}
 
+/* dead code
 	static LLCachedControl<F32> mem_multiplier(gSavedSettings, "RenderTextureMemoryMultiple", 1.0f);
 	// limit the texture memory to a multiple of the default if we've found some cards to behave poorly otherwise
-	if (mem_multiplier != 1.0)
+	if (mem_multiplier != 1.0f)
 	{
 		LL_DEBUGS() << "ADJUSTING MULTIPLIER" << LL_ENDL;
 		adjusted_max_vram = (mem_multiplier * adjusted_max_vram);
 	}
+*/
 
 	// reminder: this is the texture memory, it must not take all the VRAM because we have more data to store as well.
 	if (get_recommended)
 	{
 		LL_DEBUGS() << "GETTING RECOMMENDED" << LL_ENDL;
-		adjusted_max_vram = (adjusted_max_vram * 0.50f);
+		adjusted_max_vram = (adjusted_max_vram / 2);
 	}
 	//else
 	//{
@@ -1413,7 +1415,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	//	LL_DEBUGS() << "SHRINKING AGAIN BECAUSE WHY NOT" << LL_ENDL;
 	//}
 
-	if (gMaxVideoRam.value() != adjusted_max_vram) // be nice on memory writes
+	if (S64Megabytes(gMaxVideoRam) != adjusted_max_vram) // be nice on memory writes
 	{
 		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
 		LL_DEBUGS() << "Texture memory allocation updated" << LL_ENDL;
@@ -1431,17 +1433,20 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 {
 	// Initialize the image pipeline VRAM settings
 	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
-	S32 cur_mem = gSavedSettings.getS32("TextureMemory");
+	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 
-	if (mem <= 0 && cur_mem <= 0) // convention for "use current"
+// ------------------------------------------------------------------
+// DirectX-less minimum VRAM fix
+//
+	if (mem <= 0 && cur_mem.value() <= 0) // convention for "use current"
 	{
 		LL_INFOS() << "TextureMemory was 0, auto-detecting..." << LL_ENDL;
 		mem = getMaxVideoRamSetting(true).value(); // recommended default
 	}
-	
+
 	// disable clamping for now as it breaks on some systems, causing infinite loop.
 	//mem = llclamp(mem, getMinVideoRamSetting().value(), getMaxVideoRamSetting(false, mem_multiplier).value());
-	if (mem != cur_mem)
+	if (mem != cur_mem.value())
 	{
 		if (mem < getMinVideoRamSetting().valueInUnits<LLUnits::Megabytes>())
 		{
@@ -1452,16 +1457,18 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 
 		return; //listener will re-enter this function
 	}
-
+//
+// ------------------------------------------------------------------
+#if LL_VRAM_CODE
 	//@todo Document this for maintainability and future improvement. I don't even know why this code does what it does...
 	S32 vb_mem = mem;
-	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), S32(vb_mem * 0.25f));
+	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), S32(vb_mem / 4));
 	mMaxResidentTexMemInMegaBytes = S32Megabytes(vb_mem - fb_mem) ; //in MB
 	
 #ifdef LL_X86_64
-	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam * 0.75f) // 75%, also removed division.
+	if (mMaxResidentTexMemInMegaBytes > gMaxVideoRam * 3 / 4) // 75%
 	{
-		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + S32Megabytes((mMaxResidentTexMemInMegaBytes * 0.25f));
+		mMaxTotalTextureMemInMegaBytes = gMaxVideoRam + S32Megabytes((mMaxResidentTexMemInMegaBytes / 4));
 	}
 	else
 	{
@@ -1492,6 +1499,13 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 	LL_INFOS() << "Total Video Memory set to: " << mem << "MB" << LL_ENDL;
 	LL_INFOS() << "Total Texture Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;
 	LL_INFOS() << "Maximum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
+#else
+	mMaxResidentTexMemInMegaBytes = cur_mem;
+	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 1.75f;
+
+	LL_INFOS() << "Available Video Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;
+	LL_INFOS() << "Available Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
+#endif
 	LL_DEBUGS() << "EXITING FUNCTION" << LL_ENDL;
 }
 

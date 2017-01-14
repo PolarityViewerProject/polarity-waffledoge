@@ -29,21 +29,31 @@
 #include "llmemory.h"
 #include "llviewercontrol.h"
 
-#define INTEL_GPU_MAX_VRAM 2048
+static const S64Megabytes INTEL_GPU_MAX_VRAM = S64Megabytes(2048);
 
-S32Megabytes PVGPUInfo::vram_free_mb = S32Megabytes(0);
-S32Megabytes PVGPUInfo::vram_in_use_mb = S32Megabytes(0);
-S32Megabytes PVGPUInfo::vram_used_by_us_mb = S32Megabytes(0);
-S32Megabytes PVGPUInfo::vram_used_by_others_mb = S32Megabytes(0);
+S64Bytes PVGPUInfo::vram_free_ = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_used_total_ = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_used_by_others_ = S64Bytes(0);
+
+S64Bytes PVGPUInfo::vram_bound_mem = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_max_bound_mem = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_total_mem = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_max_total_texture_mem = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_bar_fbo = S64Bytes(0);
 
 void PVGPUInfo::updateValues()
 {
 	// @todo deduplicate calls to this and use value from this class across the rest of the viewer
 
-	LLMemory::updateMemoryInfo();
-	auto total_texture_mem = LLViewerTexture::sTotalTextureMemory.valueInUnits<LLUnits::Megabytes>();
-	auto fbo = U32Bytes(LLRenderTarget::sBytesAllocated).valueInUnits<LLUnits::Megabytes>();
-	vram_used_by_us_mb = S32Megabytes(total_texture_mem) + S32Megabytes(fbo);
+	//LLMemory::updateMemoryInfo();
+	vram_bar_fbo				= S64Bytes(LLRenderTarget::sBytesAllocated);
+	vram_bound_mem 				= LLViewerTexture::sBoundTextureMemory;
+	vram_max_bound_mem 			= S64Megabytes(LLViewerTexture::sMaxBoundTextureMemory.valueInUnits<LLUnits::Megabytes>());
+	vram_max_total_texture_mem 	= LLViewerTexture::sMaxTotalTextureMem;
+	vram_total_mem 				= LLViewerTexture::sTotalTextureMemory;
+
+	vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bar_fbo + vram_bound_mem);
 	
 	GLint free_memory = 0; // in KB
 	// Note: glGet* calls are slow. Instead consider using something like:
@@ -61,50 +71,56 @@ void PVGPUInfo::updateValues()
 		// glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfoAMD);
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &free_memory);
 	}
-	vram_free_mb = S32Kilobytes(free_memory);
+	vram_free_ = S64Kilobytes(free_memory);
 
 	// we really need these unit tests...
 	// @note If someone manages to make better math, please contribute.
 	
 	if (!gGLManager.mIsIntel)
 	{
+		auto on_board = vRAMGetTotalOnboard();
 		// yes, there's a reason to buy real GPUs; WORKING API.
-		vram_in_use_mb = vRAMGetTotalOnboard() - vram_free_mb;
+		vram_used_total_ = on_board - vram_free_;
 		//@todo make sure this is more or less accurate
-		vram_used_by_others_mb = vRAMGetTotalOnboard() - vram_free_mb - vram_used_by_us_mb;
+		vram_used_by_others_ = on_board - vram_free_ - vram_used_by_viewer_;
 	}
 }
 
-S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()
+S64Bytes PVGPUInfo::vRAMGetTotalOnboard()
 {
-	const U32 MINIMUM_VRAM_AMOUNT = 1024; // fallback for cases where video memory is not detected properly
+	static const S64Megabytes MINIMUM_VRAM_AMOUNT = S64Megabytes(1024); // fallback for cases where video memory is not detected properly
+	static S64Megabytes vram_s64_megabytes = S64Megabytes(gGLManager.mVRAM);
 	if (!gGLManager.mIsIntel)
 	{
 		// Global catch-all in case shit goes left still...
-		if (gGLManager.mVRAM < MINIMUM_VRAM_AMOUNT)
+		if (vram_s64_megabytes < MINIMUM_VRAM_AMOUNT)
 		{
 			LL_WARNS() << "VRAM amount not detected or less than " << MINIMUM_VRAM_AMOUNT << ", defaulting to " << MINIMUM_VRAM_AMOUNT << LL_ENDL;
-			gGLManager.mVRAM = MINIMUM_VRAM_AMOUNT;
+			vram_s64_megabytes = MINIMUM_VRAM_AMOUNT;
 			LL_DEBUGS() << "VRAM SUCESSFULLY OVERRIDED" << LL_ENDL;
 		}
 		// set internal vram value to forced one if present
 		static LLCachedControl<S32> forced_vram(gSavedSettings, "PVDebug_ForcedVideoMemory");
 		if (forced_vram > 0)
 		{
-			gGLManager.mVRAM = forced_vram;
+			vram_s64_megabytes = S64Megabytes(forced_vram);
 		}
 		// return existing variable to avoid memory bloat
-		return S32Megabytes(gGLManager.mVRAM);
+		if (gGLManager.mVRAM != (S32)vram_s64_megabytes.value())
+		{
+			gGLManager.mVRAM = S32(vram_s64_megabytes.value());
+		}
+		return vram_s64_megabytes;
 	}
 
 	// Intel driver seriously lacks any reporting capability aside "in use", in DirectX.
 	// Method to obtain in use memory from OpenGL does not appear to exist or work right now.
 	// Hotwiring max VRAM on Intel gpus to half the system memory.
 	LLMemoryInfo gSysMemory;
-	const S32 phys_mem_mb = gSysMemory.getPhysicalMemoryKB().valueInUnits<LLUnits::Megabytes>();
-	const S32 intel_half_sysram_clamped = llmin(phys_mem_mb / 2, INTEL_GPU_MAX_VRAM); // Raise me when Intel iGPU is usable above 2GB
+	const S64Bytes phys_mem_mb = S64Bytes(gSysMemory.getPhysicalMemoryKB());
+	const S64Bytes intel_half_sysram_clamped = llmin(S64Bytes(phys_mem_mb.value() / 2), S64Bytes(INTEL_GPU_MAX_VRAM)); // Raise me when Intel iGPU is usable above 2GB
 
-	return S32Megabytes(intel_half_sysram_clamped);
+	return S64Megabytes(intel_half_sysram_clamped);
 }
 
 bool PVGPUInfo::hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y)

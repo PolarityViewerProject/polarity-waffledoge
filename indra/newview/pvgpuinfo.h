@@ -35,46 +35,52 @@ class PVGPUInfo : public LLSingleton<PVGPUInfo>
 	// @todo Write unit tests
 public:
 
+	static S64Bytes vram_bound_mem;
+	static S64Bytes vram_max_bound_mem;
+	static S64Bytes vram_total_mem;
+	static S64Bytes vram_max_total_texture_mem;
+	static S64Bytes vram_bar_fbo;
+
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
 	*/
-	static S32Megabytes vRAMGetFree()
+	static S64Bytes vRAMGetFree()
 	{
-		return vram_free_mb;
+		return vram_free_;
 	}
 
 	/*
 	 * \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars, included grey.
 	 *  otherwise said, what's not free.
 	 */
-	static S32Megabytes vRAMGetUsedTotal()
+	static S64Bytes vRAMGetUsedTotal()
 	{
-		return vram_in_use_mb;
+		return vram_used_total_;
 	}
 
 	/*
 	* \brief Computed "Our Own" memory. Should be the sum of the red, yellow and blue bars.
 	*/
-	static S32Megabytes vRAMGetUsedViewer()
+	static S64Bytes vRAMGetUsedViewer()
 	{
-		return vram_used_by_us_mb;
+		return vram_used_by_viewer_;
 	}
 
 	/*
 	* \brief Computed "Other Programs" memory. Should be the grey bar.
 	*/
-	static S32Megabytes vRAMGetUsedOthers()
+	static S64Bytes vRAMGetUsedOthers()
 	{
-		return vram_used_by_others_mb;
+		return vram_used_by_others_;
 	}
 
 	static bool hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y);
 
 	/**
-	 * \briefproprietary API-provided replacement for GLManager::mVRAM
+	 * \brief proprietary API-provided replacement for GLManager::mVRAM
 	 * \return S32Megabytes
 	 */
-	static S32Megabytes vRAMGetTotalOnboard();
+	static S64Bytes vRAMGetTotalOnboard();
 
 	
 	static void updateValues();
@@ -86,19 +92,19 @@ private:
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
 	*/
-	static S32Megabytes vram_free_mb;
+	static S64Bytes vram_free_;
 	/*
 	* \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars.
 	*/
-	static S32Megabytes vram_in_use_mb;
+	static S64Bytes vram_used_total_;
 	/*
 	* \brief Computed "Our Own" memory. Should be the sum of the red, yellow and blue bars.
 	*/
-	static S32Megabytes vram_used_by_us_mb;
+	static S64Bytes vram_used_by_viewer_;
 	/*
 	* \brief Computed "Other Programs" memory. Should be the grey bar.
 	*/
-	static S32Megabytes vram_used_by_others_mb;
+	static S64Bytes vram_used_by_others_;
 };
 
 #endif // PV_GPUINFO_H

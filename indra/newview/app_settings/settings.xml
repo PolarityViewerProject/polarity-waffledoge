@@ -9986,7 +9986,7 @@
       <key>Value</key>
       <real>12.0</real>
     </map>
-    <key>RenderTextureMemoryMultiple</key>
+<!--     <key>RenderTextureMemoryMultiple</key>
     <map>
       <key>Comment</key>
       <string>Multiple of texture memory value to use (should fit: 0 &lt; value &lt;= 1.0)</string>
@@ -9996,7 +9996,7 @@
       <string>F32</string>
       <key>Value</key>
       <real>1.0</real>
-    </map>
+    </map> -->
     <key>RenderTrackerBeacon</key>
     <map>
       <key>Comment</key>
