@@ -4918,7 +4918,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	
 	gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
-	blah blah set shadow rigged detail previous blah
 	return ret;
 }
 
