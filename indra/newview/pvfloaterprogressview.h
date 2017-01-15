@@ -2,7 +2,7 @@
  * @file pvfloaterprogressview.h
  * @brief custom progress view implementation based on Alchemy Viewer's llfloaterprogressview
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2016 Xenhat Liamano
  * Portions Copyright (C)

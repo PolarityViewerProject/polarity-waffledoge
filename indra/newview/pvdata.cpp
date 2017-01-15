@@ -4,7 +4,7 @@
  * Inspired by FSData by Techwolf Lupindo
  * Re-implented by Xenhat Liamano
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  * Portions Copyright (C)

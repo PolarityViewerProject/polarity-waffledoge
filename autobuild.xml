@@ -2619,7 +2619,7 @@
     <key>package_description</key>
     <map>
       <key>copyright</key>
-      <string>Copyright (c) 2014-2016, Polarity Viewer Project</string>
+      <string>Copyright (c) 2014-2017, Polarity Viewer Project</string>
       <key>description</key>
       <string>Second Life Third-party client</string>
       <key>license</key>

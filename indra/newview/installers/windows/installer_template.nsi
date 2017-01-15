@@ -1,8 +1,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; secondlife setup.nsi
-;; Copyright 2004-2011, Linden Research, Inc.
-;; Copyright 2013-2015 Alchemy Viewer Project
-;; Copyright 2014-2016 Polarity Viewer Project
+;; Copyright 2004-2017, Linden Research, Inc.
+;; Copyright 2013-2017 Alchemy Viewer Project
+;; Copyright 2014-2017 Polarity Viewer Project
 ;;
 ;; This library is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU Lesser General Public
@@ -79,7 +79,7 @@
   VIAddVersionKey "ProductName" "Polarity Viewer"
   VIAddVersionKey "Comments" "A Second Life protocol-compatible client"
   VIAddVersionKey "CompanyName" "Polarity Viewer Project"
-  VIAddVersionKey "LegalCopyright" "Copyright © 2014-2016, Polarity Viewer Project"
+  VIAddVersionKey "LegalCopyright" "Copyright © 2014-2017, Polarity Viewer Project"
   VIAddVersionKey "FileDescription" "${APPNAME} Installer"
   VIAddVersionKey "ProductVersion" "${VERSION_LONG}"
 

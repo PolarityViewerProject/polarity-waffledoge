@@ -3,7 +3,7 @@
  * @brief Common function overrides and utilities
  * Based on FSCommon used in Firestorm Viewer
 
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  * Portions Copyright (C)

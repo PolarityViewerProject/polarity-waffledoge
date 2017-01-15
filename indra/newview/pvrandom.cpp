@@ -2,7 +2,7 @@
  * @file pvrandom.cpp
  * @brief functions related to getting random things
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  *

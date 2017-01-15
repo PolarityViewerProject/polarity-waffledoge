@@ -2,7 +2,7 @@
  * @file pvconstants.h
  * @brief Vendor-specific constants.
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  *

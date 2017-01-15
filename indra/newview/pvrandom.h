@@ -3,7 +3,7 @@
  * @brief functions related to getting random things
  * Based on FSData by Techwolf Lupindo
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2015 Xenhat Liamano
  *

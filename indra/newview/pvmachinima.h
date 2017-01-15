@@ -2,7 +2,7 @@
  * @file pvmachinima.h
  * @brief Machinima-related utilities
  *
- * $LicenseInfo:firstyear=2015&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
  * Polarity Viewer Source Code
  * Copyright (C) 2016 Xenhat Liamano
  *
