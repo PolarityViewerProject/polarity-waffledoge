@@ -1361,7 +1361,10 @@ static LLTrace::BlockTimerStatHandle FTM_REMOVE_DRAWABLE("Remove Drawable");
 
 void LLViewerObjectList::removeDrawable(LLDrawable* drawablep)
 {
-	LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
+	if (!LLApp::isQuitting())
+	{
+		LL_RECORD_BLOCK_TIME(FTM_REMOVE_DRAWABLE);
+	}
 
 	if (!drawablep)
 	{
