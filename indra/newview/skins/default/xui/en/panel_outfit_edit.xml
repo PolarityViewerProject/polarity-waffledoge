@@ -362,13 +362,13 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 	 background_visible="false"
 	 bevel_style="none"
 	 follows="bottom|left|right"
-	 height="0"
+	 height="25"
 	 layout="topleft"
 	 left="5"
+	 right="-1"
 	 name="no_add_wearables_button_bar"
-	 top_pad="0"
-	 width="31">
-		<menu_button
+	 top_pad="0">
+<!-- 		<menu_button
 		 follows="bottom|left"
 		 height="23"
 		 image_hover_unselected="Toolbar_Left_Over"
@@ -379,7 +379,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		 left="0"
 		 name="gear_menu_btn"
 		 top_delta="0"
-		 width="32" />
+		 width="32" /> -->
 <!-- 		<icon
 		 follows="bottom|left|right"
 		 height="25"
@@ -401,7 +401,7 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 		 top="1"
 		 tool_tip="Visit the SL Marketplace. You can also select something you are wearing, then click here to see more things like it"
 		 width="31" /> -->
-	</panel>
+	<!-- </panel> -->
 
 	<!-- BUTTON BAR - WEARABLES ADDING MODE -->
 <!--
@@ -479,21 +479,33 @@ It is calculated as border_size + 2*UIResizeBarOverlap
 	</panel> -->
 
 	<!-- SAVE AND REVERT BUTTONS -->
-	<panel
+<!-- 	<panel
 	 follows="left|right|bottom"
 	 height="0"
 	 layout="topleft"
 	 left_pad="0"
 	 top_delta="0"
 	 right="-1"
-	 name="save_revert_button_bar">
+	 name="save_revert_button_bar"> -->
+	 	<menu_button
+		 follows="bottom|left"
+		 height="25"
+		 image_hover_unselected="Toolbar_Left_Over"
+		 image_overlay="OptionsMenu_Off"
+		 image_selected="Toolbar_Left_Selected"
+		 image_unselected="Toolbar_Left_Off"
+		 layout="topleft"
+		 left="0"
+		 name="wearables_gear_menu_btn"
+		 top="1"
+		 width="31" />
 		<layout_stack
 						 follows="bottom|left|right"
 					 height="23"
 					 layout="topleft"
 					 mouse_opaque="false"
 					 name="button_bar_ls"
-					 left="0"
+					 left_pad="0"
 					 right="-1"
 					 orientation="horizontal"
 					 top="0">
