@@ -587,21 +587,30 @@
    <color
     name="InventoryFocusOutlineColor"
     reference="EmphasisColor_13"/>
+<!--     <color
+    name="InventoryFolderNameColor"
+    reference="LabelTextColor"/> -->
+    <color
+    name="InventoryFolderNameColor"
+    value="0.66016 0.66016 0.66016 1.0"/>
    <color
     name="InventoryItemLibraryColor"
-    reference="LtGray"/>
+    value="0.31885 0.61865 0.40926 1.0"/>
    <color
     name="InventoryItemLinkColor"
     reference="LtGray"/>
+<!--    <color
+    name="InventoryItemNameColor"
+    reference="LabelTextColor"/> -->
    <color
     name="InventoryItemNameColor"
-    reference="LabelTextColor"/>
+    value="0.87500 0.87500 0.87500 1.0"/>
    <color
     name="InventoryItemOutfitContentColor"
     reference="TextFgColor"/>
    <color
     name="InventoryItemSuffixColor"
-    value="0.15 0.15 0.15 0.75"/>
+    value="0.60784 0.75294 0.16863 1.0"/>
    <color
     name="InventoryItemWornColor"
     reference="EmphasisColor_35"/>
@@ -625,7 +634,7 @@
     reference="White_25"/>
    <color
     name="LabelTextColor"
-    reference="LtGray" />
+    value="0.72157 0.72157 0.72157 1.0" />
    <color
     name="Lime"
     value=".8 1 .73 1"/>

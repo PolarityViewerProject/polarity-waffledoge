@@ -301,9 +301,10 @@ protected:
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
-	static LLUIColor			sDefaultColor;
+	static LLUIColor			sFolderColor;
 	static LLUIColor			sDefaultHighlightColor;
 	static LLUIColor			sLibraryColor;
+	static LLUIColor			sItemColor; // <polarity>
 	static LLUIColor			sLinkColor;
 	
 	LLFolderViewItem*	buildNewViews(const LLUUID& id);
