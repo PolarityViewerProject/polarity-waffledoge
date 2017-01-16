@@ -53,7 +53,9 @@ void PVGPUInfo::updateValues()
 	vram_max_total_texture_mem 	= LLViewerTexture::sMaxTotalTextureMem;
 	vram_total_mem 				= LLViewerTexture::sTotalTextureMemory;
 
-	vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bar_fbo + vram_bound_mem);
+	// Don't count the FBO to see if this fixes the texture bar
+	//vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bar_fbo + vram_bound_mem);
+	vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bound_mem);
 	
 	GLint free_memory = 0; // in KB
 	// Note: glGet* calls are slow. Instead consider using something like:
