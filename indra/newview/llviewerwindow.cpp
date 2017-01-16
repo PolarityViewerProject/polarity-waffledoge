@@ -4632,7 +4632,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	
 	static LLCachedControl<bool> show_currency_setting(gSavedSettings, "PVUI_ShowCurrencyBalanceInSnapshots");
 	static LLCachedControl<bool> show_currency_topbar(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
-	
 	// Note: Scaling of the UI is currently *not* supported so we limit the output size if UI is requested
 	if (show_ui)
 	{
@@ -4642,6 +4641,14 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		// <polarity> PLVR-7 Hide currency balance in snapshots
 		gStatusBar->showBalance((bool)show_currency_setting);
 	}
+
+	// <polarity> set rigged shadow detail to maximum when taking screenshots
+	U32 previous_rigged_shadow_detail = gSavedSettings.getU32("PVRender_ShadowDetailRigged");
+	if (previous_rigged_shadow_detail > 0)
+	{
+		gSavedSettings.setU32("PVRender_ShadowDetailRigged", 3);
+	}
+	// </polarity>
 
 	S32 original_width = 0;
 	S32 original_height = 0;
@@ -4918,6 +4925,12 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	
 	gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
+	// <polarity> set rigged shadow detail to maximum when taking screenshots
+	if (previous_rigged_shadow_detail > 0)
+	{
+		gSavedSettings.setU32("PVRender_ShadowDetailRigged", previous_rigged_shadow_detail); 
+	}
+	// </polarity>
 	return ret;
 }
 
