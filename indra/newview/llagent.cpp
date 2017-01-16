@@ -535,7 +535,6 @@ void LLAgent::cleanup()
 	{
 		mTeleportFailedSlot.disconnect();
 	}
-	sTeleportProgressMessages.clear(); // tentative
 }
 
 //-----------------------------------------------------------------------------
