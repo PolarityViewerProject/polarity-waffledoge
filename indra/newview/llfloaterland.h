@@ -333,6 +333,7 @@ private:
 	LLCheckBoxCtrl*	mCheckEditGroupObjects;
 	LLCheckBoxCtrl*	mCheckAllObjectEntry;
 	LLCheckBoxCtrl*	mCheckGroupObjectEntry;
+	LLCheckBoxCtrl* mCheckPublicTerraform;// <polarity> PLVR-76 Add the public terrorism checkbox back into the "About Land" floater
 	LLCheckBoxCtrl*	mCheckSafe;
 	LLCheckBoxCtrl*	mCheckFly;
 	LLCheckBoxCtrl*	mCheckGroupScripts;
