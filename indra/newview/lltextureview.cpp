@@ -609,11 +609,11 @@ void LLGLTexMemBar::draw()
 
 	if(gGLManager.mIsNVIDIA)
 	{
-		vram_bar_data_progress_f = (vram_bar_total_used_f - vram_bar_total_mem_f - vram_bar_bound_mem_f - vram_bar_fbo_f) / vram_bar_onboard_total_f;
+		vram_bar_data_progress_f = (vram_bar_total_used_f - vram_bar_total_mem_f - vram_bar_bound_mem_f) / vram_bar_onboard_total_f;
 	}
 	else
 	{
-		vram_bar_data_progress_f = (vram_bar_total_mem_f - vram_bar_bound_mem_f - vram_bar_fbo_f) / vram_bar_onboard_total_f;
+		vram_bar_data_progress_f = (vram_bar_total_mem_f - vram_bar_bound_mem_f) / vram_bar_onboard_total_f;
 	}
 	if(vram_bar_data_progress_f < 0.f)
 	{
