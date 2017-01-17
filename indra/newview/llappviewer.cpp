@@ -1903,11 +1903,6 @@ bool LLAppViewer::cleanup()
 
 	LLTracker::cleanupInstance();
 	
-	if (LLTracker::instanceExists())
-	{
-		LLTracker::deleteSingleton();
-	}
-
 	// *FIX: This is handled in LLAppViewerWin32::cleanup().
 	// I'm keeping the comment to remember its order in cleanup,
 	// in case of unforseen dependency.
