@@ -1760,7 +1760,6 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 			if (!dp.unpackVector3(constraintp->mSourceConstraintOffset, "source_offset"))
 			{
 				LL_WARNS() << "can't read constraint source offset" << LL_ENDL;
-				delete constraintp;
 				delete mJointMotionList;
 				return FALSE;
 			}
