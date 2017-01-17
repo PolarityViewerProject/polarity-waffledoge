@@ -63,7 +63,6 @@ if (WINDOWS)
       mswsock
       psapi
       winmm
-      netapi32
       wldap32
       gdi32
       user32

@@ -466,36 +466,70 @@ S32	LLUUID::getNodeID(unsigned char	*node_id)
 {
 	S32 retval = 0;
 
+	PIP_ADAPTER_ADDRESSES pAddresses = nullptr;
+	ULONG outBufLen = 0U;
+	DWORD dwRetVal = 0U;
+
+	ULONG family = AF_INET;
 	ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_INCLUDE_GATEWAYS;
-	DWORD dwAdaptersSize = 0;
-	if (GetAdaptersAddresses(AF_INET, flags, NULL, NULL, &dwAdaptersSize) == ERROR_BUFFER_OVERFLOW)
+
+	GetAdaptersAddresses(
+		AF_INET,
+		flags,
+		NULL,
+		NULL,
+		&outBufLen);
+
+	constexpr U32 MAX_TRIES = 3U;
+	U32 iteration = 0U;
+	do {
+
+		pAddresses = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(malloc(outBufLen));
+		if (pAddresses == nullptr) {
+			return 0;
+		}
+
+		dwRetVal =
+			GetAdaptersAddresses(family, flags, NULL, pAddresses, &outBufLen);
+
+		if (dwRetVal == ERROR_BUFFER_OVERFLOW) {
+			free(pAddresses);
+			pAddresses = nullptr;
+		}
+		else {
+			break;
+		}
+
+		++iteration;
+
+	} while ((dwRetVal == ERROR_BUFFER_OVERFLOW) && (iteration < MAX_TRIES));
+
+	if (dwRetVal == NO_ERROR)
 	{
-		PIP_ADAPTER_ADDRESSES adapterAddrs = reinterpret_cast<PIP_ADAPTER_ADDRESSES>(malloc(dwAdaptersSize));
-		if (adapterAddrs)
-		{
-			if (GetAdaptersAddresses(AF_INET, flags, NULL, adapterAddrs, &dwAdaptersSize) == ERROR_SUCCESS)
+		PIP_ADAPTER_ADDRESSES pCurrAddresses = pAddresses;
+		PIP_ADAPTER_GATEWAY_ADDRESS pFirstGateway = nullptr;
+		do {
+			pFirstGateway = pCurrAddresses->FirstGatewayAddress;
+			if (pFirstGateway)
 			{
-				if (adapterAddrs->PhysicalAddressLength != 0) {
-					LL_DEBUGS() << "Physical Address: ";
-					for (S32 i = 0; i < adapterAddrs->PhysicalAddressLength; ++i)
-					{
-						if (i == (adapterAddrs->PhysicalAddressLength - 1))
-							LL_CONT << llformat("%.2X", (int) adapterAddrs->PhysicalAddress[i]).c_str();
-						else
-							LL_CONT << llformat("%.2X-", (int) adapterAddrs->PhysicalAddress[i]).c_str();
-					}
-					LL_CONT << LL_ENDL;
-					memcpy(node_id, adapterAddrs->PhysicalAddress, 6);
-					retval = 1;
-				}
-				else
+				if ((pCurrAddresses->IfType == IF_TYPE_ETHERNET_CSMACD || pCurrAddresses->IfType == IF_TYPE_IEEE80211) && pCurrAddresses->ConnectionType == NET_IF_CONNECTION_DEDICATED
+					&& pCurrAddresses->OperStatus == IfOperStatusUp)
 				{
-					LL_WARNS() << "Physical address empty" << LL_ENDL;
+					if (pCurrAddresses->PhysicalAddressLength == 6) 
+					{
+							memcpy(node_id, pCurrAddresses->PhysicalAddress, 6);
+							retval = 1;
+							break;
+					}
 				}
 			}
-			free(adapterAddrs);
-		}
+			pCurrAddresses = pCurrAddresses->Next;
+		} while (pCurrAddresses);                    // Terminate if last adapter
 	}
+
+	free(pAddresses);
+	pAddresses = nullptr;
+
 	return retval;
 }
 
