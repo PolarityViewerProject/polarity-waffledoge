@@ -426,15 +426,14 @@ private:
 		 */
 		std::string getAgentFlagsAsString(const LLUUID& avatar_id);
 
-		
-		bool getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostringstream& new_title);
-
 		/**
-		 * \brief Same as getAgentFlagsAsString, without the custom title
+		 * \brief get the agent's custom title
 		 * \param avatar_id agent UUID
+		 * param
 		 * \return flags as string
 		 */
-		//std::string getAgentFlagsAsStringRaw(const LLUUID& avatar_id);
+		bool getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostringstream& new_title);
+
 
 
 		// Returns the lockdown UUID constant as a string
