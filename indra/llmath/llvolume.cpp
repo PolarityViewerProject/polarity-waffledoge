@@ -2136,7 +2136,7 @@ LLVolume::~LLVolume()
 BOOL LLVolume::generate()
 {
 	LL_CHECK_MEMORY
-	llassert(mProfilep); // <polarity> This appears to still work when using third-party malloc
+	llassert_always(mProfilep);
 	
 	//Added 10.03.05 Dave Parks
 	// Split is a parameter to LLProfile::generate that tesselates edges on the profile 
