@@ -948,30 +948,30 @@ bool PVDataAuth::getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostrin
 }
 // Checks on the agent using the viewer
 
-std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
+std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id, const bool& get_custom_title)
 {
 	// Check for agents flagged through PVData
 	std::ostringstream agent_title;
 	std::vector<std::string> flags_list;
 	S32 av_flags = getSpecialAgentFlags(avatar_id);
-	if (isLinden(avatar_id, av_flags))
+	if (get_custom_title)
 	{
-		flags_list.push_back("Linden Lab Employee");
-	}
-	if (av_flags != 0 || !flags_list.empty())
-	{
-		// LL_WARNS() << "Agent Flags for " << avatar_id << " = " << av_flags << LL_ENDL;
 		std::ostringstream custom_title;
-		//auto title_ptr *
 		if (getSpecialAgentCustomTitle(avatar_id, custom_title))
 		{
 			// Custom tag present, drop previous title to use that one instead.
 			flags_list.clear();
 			flags_list.push_back(custom_title.str());
 		}
+	}
+	if (av_flags != 0 && flags_list.empty())
+	{
+		if (isLinden(avatar_id, av_flags))
+		{
+			flags_list.push_back("Linden Lab Employee");
+		}
 		else
 		{
-			// here are the bad flags
 			if (isUserAutoMuted(avatar_id))
 			{
 				flags_list.push_back("Nuisance");
@@ -1002,12 +1002,6 @@ std::string PVDataAuth::getAgentFlagsAsString(const LLUUID& avatar_id)
 				flags_list.push_back("Tester");
 			}
 		}
-#if BOOST_SPIRIT_EW
-		using namespace boost::spirit::karma;
-		std::ostringstream string_stream;
-		string_stream << format(string % ',', flags_list);
-		agent_title = string_stream.str();
-#endif
 	}
 	return vector_to_string(agent_title, flags_list.begin(), flags_list.end()).str();
 }

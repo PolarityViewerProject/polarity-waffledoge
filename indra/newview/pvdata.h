@@ -420,11 +420,11 @@ private:
 		static S32 getSpecialAgentFlags(const LLUUID& avatar_id);
 
 		/**
-		 * \brief Returns ALL the agent's flags as a comma-separated string.
+		 * \brief Returns ALL the agent's flags as a comma-separated string, or the custom title.
 		 * \param avatar_id agent UUID
 		 * \return flags as string.
 		 */
-		std::string getAgentFlagsAsString(const LLUUID& avatar_id);
+		std::string getAgentFlagsAsString(const LLUUID& avatar_id, const bool& get_custom_title = true);
 
 		/**
 		 * \brief get the agent's custom title
