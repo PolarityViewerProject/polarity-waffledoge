@@ -2045,8 +2045,7 @@ void LLPathParams::copyParams(const LLPathParams &params)
 	setSkew(params.getSkew());
 }
 
-//@note make thread-safe with Boost::atomic
-S32 profile_delete_lock = 1 ; 
+LLAtomicBool profile_delete_lock(false);
 LLProfile::~LLProfile()
 {
 	if(profile_delete_lock)
@@ -2118,9 +2117,9 @@ LLVolume::~LLVolume()
 	sNumMeshPoints -= mMesh.size();
 	delete mPathp;
 
-	profile_delete_lock = 0 ;
+	profile_delete_lock = false;
 	delete mProfilep;
-	profile_delete_lock = 1 ;
+	profile_delete_lock = true;
 
 	mPathp = NULL;
 	mProfilep = NULL;
