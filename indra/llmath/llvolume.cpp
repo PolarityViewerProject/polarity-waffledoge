@@ -2045,6 +2045,7 @@ void LLPathParams::copyParams(const LLPathParams &params)
 	setSkew(params.getSkew());
 }
 
+//@note make thread-safe with Boost::atomic
 S32 profile_delete_lock = 1 ; 
 LLProfile::~LLProfile()
 {
