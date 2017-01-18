@@ -33,7 +33,7 @@ F32 exoPostProcess::sExodusRenderToneExposure;
 BOOL exoPostProcess::sExodusRenderToneMapping;
 LLVector3 exoPostProcess::sExodusRenderVignette;
 S32 exoPostProcess::sExodusRenderToneMappingTech;
-S32 exoPostProcess::sExodusRenderColorGradeTech;
+bool exoPostProcess::sExodusRenderColorGradeTech;
 LLVector3 exoPostProcess::sExodusRenderToneAdvOptA;
 LLVector3 exoPostProcess::sExodusRenderToneAdvOptB;
 LLVector3 exoPostProcess::sExodusRenderToneAdvOptC;
@@ -68,7 +68,7 @@ exoPostProcess::exoPostProcess()
 	sExodusRenderToneMapping = FALSE;
 	sExodusRenderVignette = LLVector3(0.f, 0.f, 0.f);
 	sExodusRenderToneMappingTech = 0;
-	sExodusRenderColorGradeTech = 0;
+	sExodusRenderColorGradeTech = false;
 	sExodusRenderToneAdvOptA = LLVector3(1.f,1.f,1.f);
 	sExodusRenderToneAdvOptB = LLVector3(1.f, 1.f, 1.f);
 	sExodusRenderToneAdvOptC = LLVector3(1.f,1.f,1.f);
@@ -99,15 +99,11 @@ void exoPostProcess::ExodusRenderPostStack(LLRenderTarget *src, LLRenderTarget *
 				ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_FILMIC_ADV);
 		}
 
-		if (sExodusRenderColorGradeTech > -1 && LLPipeline::sRenderDeferred)
+		if (sExodusRenderColorGradeTech && LLPipeline::sRenderDeferred)
 		{
-			if (sExodusRenderColorGradeTech == 0)
-				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY);
-			else if (sExodusRenderColorGradeTech == 1)
-				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE);
+			ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE);
 		} else {
-			if (sExodusRenderColorGradeTech > -1)
-				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY); // Temporary work around: only render legacy color correction in non-deferred.
+			ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY); // Temporary work around: only render legacy color correction in non-deferred.
 		}
 
 		if (sExodusRenderVignette.mV[0] > 0 && gPipeline.sRenderDeferred)
@@ -144,7 +140,7 @@ void exoPostProcess::ExodusRenderPostSettingsUpdate()
 		LLViewerFetchedTexture::sExodusColorGradeTexp = LLViewerTextureManager::getFetchedTexture(LLUUID(gSavedSettings.getString("PVRender_ColorGradeTexture")), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 		LLViewerFetchedTexture::sExodusColorGradeTexp->setAddressMode(LLTexUnit::TAM_CLAMP);
 	}
-	sExodusRenderColorGradeTech = gSavedSettings.getS32("PVRender_ColorGradeTech");
+	sExodusRenderColorGradeTech = (bool)gSavedSettings.getBOOL("PVRender_ColorGradeTech");
 	sExodusRenderToneAdvOptA = gSavedSettings.getVector3("PVRender_ToneMappingControlA");
 	sExodusRenderToneAdvOptB = gSavedSettings.getVector3("PVRender_ToneMappingControlB");
 	sExodusRenderToneAdvOptC = gSavedSettings.getVector3("PVRender_ToneMappingControlC");
