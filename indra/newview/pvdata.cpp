@@ -728,42 +728,36 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 		gPVData->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
 		return false;
 	}
-#if INTERNAL_BUILD
 	auto compiled_channel = LLVersionInfo::getCompiledChannel();
-	if (compiled_channel == APP_NAME + " Release"
-		// Allow beta builds as well.
-		|| compiled_channel == APP_NAME + " Beta")
+	if (compiled_channel == APP_NAME + " Development" && (av_flags & STAFF_DEVELOPER) == false)
 	{
+		gPVData->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
+		return false;
+	}
+#if INTERNAL_BUILD
+	LL_WARNS() << "Internal build, evaluating access for " << avatar_id << "'..." << LL_ENDL;
+	if (av_flags & STAFF_DEVELOPER)
+	{
+		LL_WARNS() << "Access level: DEVELOPER" << LL_ENDL;
 		return true;
 	}
-	//else
+	if (av_flags & STAFF_SUPPORT)
 	{
-		// prevent non-release builds to fall in the wrong hands
-		LL_WARNS() << "Not a Release build; evaluating access level..." << LL_ENDL;
-		LL_WARNS() << "RAW Access level for '" << avatar_id << "' : '" << av_flags << "'" << LL_ENDL;
-		if (av_flags & STAFF_DEVELOPER)
-		{
-			LL_WARNS() << "Access level: DEVELOPER" << LL_ENDL;
-			return true;
-		}
-		if (av_flags & STAFF_SUPPORT)
-		{
-			LL_WARNS() << "Access level: SUPPORT" << LL_ENDL;
-			return true;
-		}
-		if (av_flags & STAFF_QA)
-		{
-			LL_WARNS() << "Access level: QA" << LL_ENDL;
-			return true;
-		}
-		if (av_flags & USER_TESTER)
-		{
-			LL_WARNS() << "Access level: TESTER" << LL_ENDL;
-			return true;
-		}
-		LL_WARNS() << "Access level: NONE" << LL_ENDL;
-		gPVData->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
+		LL_WARNS() << "Access level: SUPPORT" << LL_ENDL;
+		return true;
 	}
+	if (av_flags & STAFF_QA)
+	{
+		LL_WARNS() << "Access level: QA" << LL_ENDL;
+		return true;
+	}
+	if (av_flags & USER_TESTER)
+	{
+		LL_WARNS() << "Access level: TESTER" << LL_ENDL;
+		return true;
+	}
+	LL_WARNS() << "Access level: NONE" << LL_ENDL;
+	gPVData->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 	return false;
 #else
 	return true;
