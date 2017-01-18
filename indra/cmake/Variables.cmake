@@ -214,7 +214,6 @@ if (USE_TCMALLOC AND USE_TBBMALLOC)
   message(FATAL_ERROR "Only one malloc may be enabled at a time.")
 endif (USE_TCMALLOC AND USE_TBBMALLOC)
 
-option(DEVEL_BUILD "Development build. May include slow debugging code" OFF)
 option(INTERNAL_BUILD "Nya" OFF)
 
 # Add these CMake flags to the C++ preprocessor to toggle code that way
@@ -239,10 +238,6 @@ MESSAGE("    PVDATA_MOTD_CHAT               ${PVDATA_MOTD_CHAT}")
 MESSAGE("    PVDATA_PROGRESS_TIPS           ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("USE_LTO                            ${USE_LTO}")
 
-if(DEVEL_BUILD)
-  add_definitions(/DDEVEL_BUILD=TRUE)
-  MESSAGE("THIS IS A DEVELOPMENT BUILD: ONLY DEVELOPERS CAN USE IT")
-endif()
 if(INTERNAL_BUILD)
   add_definitions(/DINTERNAL_BUILD=TRUE)
 endif()

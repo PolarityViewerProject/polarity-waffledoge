@@ -719,12 +719,6 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 	{
 		gPVData->setErrorMessage("Something went wrong, and the authentication checks have failed.");
 	}
-#elif DEVEL_BUILD
-	if (gPVDataAuth->getSpecialAgentFlags(avatar_id) & STAFF_DEVELOPER)
-	{
-		return true;
-	}
-	gPVData->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
 #endif
 	// NOTE: We make an exception here and cache the agent flags due to the amount of find() calls that would be generated otherwise.
 	// We should probably make a new class for each agent or something... - Xenhat
