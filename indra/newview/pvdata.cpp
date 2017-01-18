@@ -728,8 +728,7 @@ bool PVDataAuth::isAllowedToLogin(const LLUUID& avatar_id)
 		gPVData->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
 		return false;
 	}
-	auto compiled_channel = LLVersionInfo::getCompiledChannel();
-	if (compiled_channel == APP_NAME + " Development" && (av_flags & STAFF_DEVELOPER) == false)
+	if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Development" && (av_flags & STAFF_DEVELOPER) == false)
 	{
 		gPVData->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
 		return false;
