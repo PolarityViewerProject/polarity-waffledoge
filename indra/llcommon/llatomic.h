@@ -42,3 +42,4 @@ using LLAtomic32 = std::atomic<Type>;
 
 typedef LLAtomic32<U32> LLAtomicU32;
 typedef LLAtomic32<S32> LLAtomicS32;
+typedef LLAtomic32<bool> LLAtomicBool;
