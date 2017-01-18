@@ -74,9 +74,9 @@ private:
 	LLPointer<LLVertexBuffer> mExoPostBuffer;
 
 protected:
-	LLRenderTarget mTex2DTargetBuffer; // Need this for texture2Dlod functionality.
+LLRenderTarget mTex2DTargetBuffer; // Need this for texture2Dlod functionality.
 public:
-	// Cached settings.
+// Cached settings.
 	static LLVector3 sExodusRenderGamma;
 	static LLVector3 sExodusRenderExposure;
 	static LLVector3 sExodusRenderOffset;

@@ -90,39 +90,39 @@ void exoPostProcess::ExodusRenderPostStack(LLRenderTarget *src, LLRenderTarget *
 		if (sExodusRenderToneMapping)
 		{
 			if (sExodusRenderToneMappingTech == 1)
-			ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_LINEAR);
+				ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_LINEAR);
 			else if (sExodusRenderToneMappingTech == 2)
-			ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_REINHARD);
+				ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_REINHARD);
 			else if (sExodusRenderToneMappingTech == 0 && LLPipeline::sRenderDeferred)
-			ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_FILMIC);
+				ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_FILMIC);
 			else if (sExodusRenderToneMappingTech == 3 && LLPipeline::sRenderDeferred)
-			ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_FILMIC_ADV);
-}
+				ExodusRenderToneMapping(src, dst, exoPostProcess::EXODUS_RENDER_TONE_FILMIC_ADV);
+		}
 
-if (sExodusRenderColorGradeTech > -1 && LLPipeline::sRenderDeferred)
-{
-	if (sExodusRenderColorGradeTech == 0)
-	ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY);
-	else if (sExodusRenderColorGradeTech == 1)
-	ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE);
-} else {
-	if (sExodusRenderColorGradeTech > -1)
-	ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY); // Temporary work around: only render legacy color correction in non-deferred.
-}
+		if (sExodusRenderColorGradeTech > -1 && LLPipeline::sRenderDeferred)
+		{
+			if (sExodusRenderColorGradeTech == 0)
+				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY);
+			else if (sExodusRenderColorGradeTech == 1)
+				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE);
+		} else {
+			if (sExodusRenderColorGradeTech > -1)
+				ExodusRenderColorGrade(src, dst, exoPostProcess::EXODUS_RENDER_COLOR_GRADE_LEGACY); // Temporary work around: only render legacy color correction in non-deferred.
+		}
 
-if (sExodusRenderVignette.mV[0] > 0 && gPipeline.sRenderDeferred)
-ExodusRenderVignette(src, dst); // Don't render vignette here in non-deferred. Do it in the glow combine shader.
+		if (sExodusRenderVignette.mV[0] > 0 && gPipeline.sRenderDeferred)
+			ExodusRenderVignette(src, dst); // Don't render vignette here in non-deferred. Do it in the glow combine shader.
 
-if(gPipeline.sRenderDeferred)
-{
-	if (sRenderLensFlare)
-	ExodusRenderLensFlare(src, dst);
+		if(gPipeline.sRenderDeferred)
+		{
+			if (sRenderLensFlare)
+				ExodusRenderLensFlare(src, dst);
 
-	if (sGreyscaleStrength > 0.0f || sNumColors > 2
-		|| sSepiaStrength > 0.0f)
-	ExodusRenderSpecial(src, dst);
-}
-}
+			if (sGreyscaleStrength > 0.0f || sNumColors > 2
+				|| sSepiaStrength > 0.0f)
+				ExodusRenderSpecial(src, dst);
+		}
+	}
 }
 void exoPostProcess::ExodusRenderPostSettingsUpdate()
 {
@@ -143,28 +143,28 @@ void exoPostProcess::ExodusRenderPostSettingsUpdate()
 	{
 		LLViewerFetchedTexture::sExodusColorGradeTexp = LLViewerTextureManager::getFetchedTexture(LLUUID(gSavedSettings.getString("PVRender_ColorGradeTexture")), FTT_DEFAULT, TRUE, LLGLTexture::BOOST_UI);
 		LLViewerFetchedTexture::sExodusColorGradeTexp->setAddressMode(LLTexUnit::TAM_CLAMP);
-}
-sExodusRenderColorGradeTech = gSavedSettings.getS32("PVRender_ColorGradeTech");
-sExodusRenderToneAdvOptA = gSavedSettings.getVector3("PVRender_ToneMappingControlA");
-sExodusRenderToneAdvOptB = gSavedSettings.getVector3("PVRender_ToneMappingControlB");
-sExodusRenderToneAdvOptC = gSavedSettings.getVector3("PVRender_ToneMappingControlC");
+	}
+	sExodusRenderColorGradeTech = gSavedSettings.getS32("PVRender_ColorGradeTech");
+	sExodusRenderToneAdvOptA = gSavedSettings.getVector3("PVRender_ToneMappingControlA");
+	sExodusRenderToneAdvOptB = gSavedSettings.getVector3("PVRender_ToneMappingControlB");
+	sExodusRenderToneAdvOptC = gSavedSettings.getVector3("PVRender_ToneMappingControlC");
 
-if (sExodusRenderToneMapping)
-{
-	if (!gPipeline.RenderDeferred)
+	if (sExodusRenderToneMapping)
 	{
-		sExodusRenderToneMapping = FALSE;
-}
-}
+		if (!gPipeline.RenderDeferred)
+		{
+			sExodusRenderToneMapping = FALSE;
+		}
+	}
 }
 void exoPostProcess::ExodusRenderPostUpdate()
 {
 	etc1.setVec(0,0);
 	etc2.setVec((F32) gPipeline.mScreen.getWidth(),
-	(F32) gPipeline.mScreen.getHeight());
+		(F32) gPipeline.mScreen.getHeight());
 	if (!gPipeline.sRenderDeferred)
 	{
-		// Destroy our old buffer, and create a new vertex buffer for the screen (shamelessly ganked from pipeline.cpp).
+// Destroy our old buffer, and create a new vertex buffer for the screen (shamelessly ganked from pipeline.cpp).
 		mExoPostBuffer = NULL;
 		mExoPostBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1, 0);
 		mExoPostBuffer->allocateBuffer(3,0,TRUE);
@@ -190,32 +190,32 @@ void exoPostProcess::ExodusRenderPostUpdate()
 		v[2] = LLVector3(3,-1,0);
 
 		mExoPostBuffer->flush();
-} else {
-	mExoPostBuffer = NULL;
-	mExoPostBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1, 0);
-	mExoPostBuffer->allocateBuffer(8, 0, true);
+	} else {
+		mExoPostBuffer = NULL;
+		mExoPostBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1, 0);
+		mExoPostBuffer->allocateBuffer(8, 0, true);
 
-	LLStrider<LLVector3> vert;
-	mExoPostBuffer->getVertexStrider(vert);
-	LLStrider<LLVector2> tc0;
-	LLStrider<LLVector2> tc1;
-	mExoPostBuffer->getTexCoord0Strider(tc0);
-	mExoPostBuffer->getTexCoord1Strider(tc1);
+		LLStrider<LLVector3> vert;
+		mExoPostBuffer->getVertexStrider(vert);
+		LLStrider<LLVector2> tc0;
+		LLStrider<LLVector2> tc1;
+		mExoPostBuffer->getTexCoord0Strider(tc0);
+		mExoPostBuffer->getTexCoord1Strider(tc1);
 
-	vert[0].set(-1,1,0);
-	vert[1].set(-1,-3,0);
-	vert[2].set(3,1,0);
-}
+		vert[0].set(-1,1,0);
+		vert[1].set(-1,-3,0);
+		vert[2].set(3,1,0);
+	}
 }
 
 void exoPostProcess::ExodusRenderPost(LLRenderTarget* src, LLRenderTarget* dst, S32 type)
 {
 	if (type == EXODUS_RENDER_TONE_LINEAR || type == EXODUS_RENDER_TONE_REINHARD || type == EXODUS_RENDER_TONE_FILMIC || type == EXODUS_RENDER_TONE_FILMIC_ADV)
-	ExodusRenderToneMapping(src, dst, type);
+		ExodusRenderToneMapping(src, dst, type);
 	else if (type == EXODUS_RENDER_COLOR_GRADE || type == EXODUS_RENDER_COLOR_GRADE_LEGACY)
-	ExodusRenderColorGrade(src, dst, type);
+		ExodusRenderColorGrade(src, dst, type);
 	else if (type == EXODUS_RENDER_VIGNETTE_POST)
-	ExodusRenderVignette(src, dst);
+		ExodusRenderVignette(src, dst);
 }
 
 void exoPostProcess::ExodusGenerateLUT()
@@ -228,33 +228,33 @@ void exoPostProcess::ExodusRenderToneMapping(LLRenderTarget *src, LLRenderTarget
 	LLGLSLShader *shader;
 
 	if (type == EXODUS_RENDER_TONE_LINEAR)
-	shader = &gLinearToneMapping;
+		shader = &gLinearToneMapping;
 	else if (type == EXODUS_RENDER_TONE_REINHARD)
-	shader = &gReinhardToneMapping;
+		shader = &gReinhardToneMapping;
 	else if (type == EXODUS_RENDER_TONE_FILMIC)
-	shader = &gFilmicToneMapping;
+		shader = &gFilmicToneMapping;
 	else if (type == EXODUS_RENDER_TONE_FILMIC_ADV)
-	shader = &gFilmicToneMappingAdv;
+		shader = &gFilmicToneMappingAdv;
 	else
 	{
 		return; // Not a valid tone mapping mode. Exit early.
-}
+	}
 
-shader->bind();
-mExoPostBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
-exoShader::BindRenderTarget(dst, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
-shader->uniform1f(LLShaderMgr::EXO_RENDER_EXPOSURE, sExodusRenderToneExposure);
-if (type == EXODUS_RENDER_TONE_FILMIC_ADV)
-{
-	shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UA, 1, sExodusRenderToneAdvOptA.mV);
-	shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UB, 1, sExodusRenderToneAdvOptB.mV);
-	shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UC, 1, sExodusRenderToneAdvOptC.mV);
-}
-mExoPostBuffer->drawArrays(LLRender::TRIANGLES, 0, 3);
-stop_glerror();
+	shader->bind();
+	mExoPostBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+	exoShader::BindRenderTarget(dst, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+	shader->uniform1f(LLShaderMgr::EXO_RENDER_EXPOSURE, sExodusRenderToneExposure);
+	if (type == EXODUS_RENDER_TONE_FILMIC_ADV)
+	{
+		shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UA, 1, sExodusRenderToneAdvOptA.mV);
+		shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UB, 1, sExodusRenderToneAdvOptB.mV);
+		shader->uniform3fv(LLShaderMgr::EXO_RENDER_ADV_TONE_UC, 1, sExodusRenderToneAdvOptC.mV);
+	}
+	mExoPostBuffer->drawArrays(LLRender::TRIANGLES, 0, 3);
+	stop_glerror();
 
-shader->unbind();
-src->flush();
+	shader->unbind();
+	src->flush();
 }
 
 void exoPostProcess::ExodusRenderColorGrade(LLRenderTarget *src, LLRenderTarget *dst, S32 type)
@@ -273,24 +273,24 @@ void exoPostProcess::ExodusRenderColorGrade(LLRenderTarget *src, LLRenderTarget 
 
 			gColorGradePost.unbind();
 			src->flush();
-}
+		}
 
-} else if (type == EXODUS_RENDER_COLOR_GRADE_LEGACY)
-{
-	src->bindTarget();
-	gColorGradePostLegacy.bind();
-	mExoPostBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
-	exoShader::BindRenderTarget(dst, &gColorGradePostLegacy, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+	} else if (type == EXODUS_RENDER_COLOR_GRADE_LEGACY)
+	{
+		src->bindTarget();
+		gColorGradePostLegacy.bind();
+		mExoPostBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
+		exoShader::BindRenderTarget(dst, &gColorGradePostLegacy, LLShaderMgr::EXO_RENDER_SCREEN, 0);
 
-	gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_GAMMA, 1, sExodusRenderGamma.mV);
-	gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_EXPOSURE, 1, sExodusRenderExposure.mV);
-	gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_OFFSET, 1, sExodusRenderOffset.mV);
-	mExoPostBuffer->drawArrays(LLRender::TRIANGLES, 0, 3);
-	stop_glerror();
+		gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_GAMMA, 1, sExodusRenderGamma.mV);
+		gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_EXPOSURE, 1, sExodusRenderExposure.mV);
+		gColorGradePostLegacy.uniform3fv(LLShaderMgr::EXO_RENDER_OFFSET, 1, sExodusRenderOffset.mV);
+		mExoPostBuffer->drawArrays(LLRender::TRIANGLES, 0, 3);
+		stop_glerror();
 
-	gColorGradePostLegacy.unbind();
-	src->flush();
-}
+		gColorGradePostLegacy.unbind();
+		src->flush();
+	}
 }
 
 void exoPostProcess::ExodusRenderVignette(LLRenderTarget* src, LLRenderTarget* dst)
@@ -360,10 +360,10 @@ void exoShader::BindTex2D(LLTexture *tex2D, LLGLSLShader *shader, S32 uniform, S
 			gGL.getTexUnit(channel)->bind(tex2D);
 			gGL.getTexUnit(channel)->setTextureFilteringOption(filterMode);
 			gGL.getTexUnit(channel)->setTextureAddressMode(addressMode);
-}
-} else {
-	gGL.getTexUnit(unit)->bind(tex2D);
-}
+		}
+	} else {
+		gGL.getTexUnit(unit)->bind(tex2D);
+	}
 }
 
 void exoShader::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader, S32 uniform, S32 unit, LLTexUnit::eTextureType mode)
@@ -376,16 +376,16 @@ void exoShader::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader, S32 
 		{
 			tgt->bindTexture(0,channel);
 			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-}
-} else {
-	S32 reftex = shader->enableTexture(uniform, tgt->getUsage());
-	if (reftex > -1)
-	{
-		gGL.getTexUnit(reftex)->activate();
-		gGL.getTexUnit(reftex)->bind(tgt);
-		gGL.getTexUnit(0)->activate();
-}
-}
-shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, tgt->getWidth(), tgt->getHeight());
+		}
+	} else {
+		S32 reftex = shader->enableTexture(uniform, tgt->getUsage());
+		if (reftex > -1)
+		{
+			gGL.getTexUnit(reftex)->activate();
+			gGL.getTexUnit(reftex)->bind(tgt);
+			gGL.getTexUnit(0)->activate();
+		}
+	}
+	shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, tgt->getWidth(), tgt->getHeight());
 }
 
