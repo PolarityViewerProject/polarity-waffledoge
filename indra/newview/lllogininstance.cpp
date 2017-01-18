@@ -471,6 +471,7 @@ bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
 // LLLoginInstance
 //-----------------------------------------------------------------------------
 
+LLAtomicBool login_failure_lock(false);
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
@@ -490,6 +491,8 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
 	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+
+	login_failure_lock = false;
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
@@ -646,8 +649,15 @@ bool LLLoginInstance::handleLoginEvent(const LLSD& event)
 
 void LLLoginInstance::handleLoginFailure(const LLSD& event)
 {
-	
-
+	// <polarity> Make sure we don't try to process login failure twice
+	if (login_failure_lock)
+	{
+		LL_ERRS() << "Login Failure attempted to be processed twice!" << LL_ENDL;
+	}
+	else
+	{
+		login_failure_lock = true;
+	}
 	// Login has failed. 
 	// Figure out why and respond...
 	LLSD response = event["data"];
@@ -715,7 +725,8 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 	{	
 		LL_INFOS() << "LLLoginInstance::handleLoginFailure attemptComplete" << LL_ENDL;
 		attemptComplete();
-	}	
+	}
+	login_failure_lock = false;
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)
