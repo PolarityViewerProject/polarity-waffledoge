@@ -403,7 +403,18 @@ void LLInspectAvatar::onAvatarNameCache(
 		{
 			agent_role->setValue(agent_role_text);
 			agent_role->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarID, LLColor4::white, false));
+			std::string raw_flags = gPVDataAuth->getAgentFlagsAsString(mAvatarID, false);
+			if (raw_flags.empty())
+			{
+				raw_flags = "Flags: None";
+			}
+			else
+			{
+				raw_flags = "Flags: [" + raw_flags + "]";
+			}
+			agent_role->setToolTip(raw_flags); // raw flag as hovertip
 		}
+		// </polarity>
 
 	}
 }
