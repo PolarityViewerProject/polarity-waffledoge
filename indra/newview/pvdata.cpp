@@ -1130,7 +1130,10 @@ LLColor4 PVDataAuth::getSpecialAgentColor(const LLUUID& avatar_id, const LLColor
 			LLNotificationsUtil::add("PVData_ColorBug", args);
 		}
 		// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
-		gPVDataAuth->setSpecialAgentColor(avatar_id, pvdata_color);
+		if(pvdata_color != default_color)
+		{
+			gPVDataAuth->setSpecialAgentColor(avatar_id, pvdata_color);
+		}
 	}
 
 	/*	Respect user preferences
