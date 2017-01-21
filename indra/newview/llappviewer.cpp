@@ -1427,6 +1427,14 @@ bool LLAppViewer::frame()
 			{
 				joystick->scanJoystick();
 				gKeyboard->scanKeyboard();
+				// Chalice Yao - crouch toggle
+				static LLCachedControl<bool> PVMovement_CrouchToggle(gSavedSettings, "PVMovement_CrouchToggle", FALSE);
+				static LLCachedControl<bool> PVMovement_CrouchToggleStatus(gSavedSettings, "PVMovement_CrouchToggleStatus", FALSE);
+				if (PVMovement_CrouchToggle && PVMovement_CrouchToggleStatus)
+				{
+					gAgent.moveUp(-1);
+				}
+				// CY
 			}
 
 			// Update state based on messages, user input, object idle.
