@@ -1,13 +1,19 @@
 [repository]
-native = LF
 
 [patterns]
+**.h = LF
+**.cpp = LF
+**.py = LF
+**.xml = LF
+**.txt = LF
+
 path:indra/lscript/lscript_compile/windows/unistd.h = CRLF
 path:indra/newview/installers/windows/FILES_ARE_UNICODE_UTF-16LE.txt = CRLF
 path:indra/tools/vstool/README.txt = CRLF
+
 **.nsi = CRLF
-**.h = native
-**.cpp = native
-**.py = native
-**.xml = native
-**.txt = native
+**.manifest = CRLF
+**.nsi = CRLF
+**.bat = CRLF
+**.exe = CRLF
+**.cs = CRLF
