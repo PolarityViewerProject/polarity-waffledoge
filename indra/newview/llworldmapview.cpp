@@ -1176,7 +1176,7 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 								F32 dot_radius,
 								bool unknown_relative_z)
 {
-	const F32 HEIGHT_THRESHOLD = 1.5f
+	const F32 HEIGHT_THRESHOLD = 1.5f;
 	LLUIImagePtr dot_image = sAvatarLevelImage;
 	if (unknown_relative_z)
 	{
