@@ -468,7 +468,7 @@ bool RlvExtGetSet::processCommand(const RlvCommand& rlvCmd, ERlvCmdRet& eRet)
 		{
 			nAngle = RLV_SETROT_OFFSET - nAngle;
 
-			gAgentCamera.startCameraAnimation();
+			//gAgentCamera.startCameraAnimation();
 
 			LLVector3 at(LLVector3::x_axis);
 			at.rotVec(nAngle, LLVector3::z_axis);
