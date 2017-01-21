@@ -1051,7 +1051,7 @@ void LLPanelLogin::updateLoginButtons()
 {
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
-	bool enable_button = false;
+	bool enable_button = true;
 	if (gPVDataDownloader->getDataDone())
 	{
 		if (!gPVDataViewerInfo->isBlockedRelease())
@@ -1070,11 +1070,13 @@ void LLPanelLogin::updateLoginButtons()
 	}
 	else
 	{
+		enable_button = false;
 		login_btn->setLabel(llformat("Uuhh..."));
 	}
 	bool has_credentials = (mUsernameLength != 0 && mPasswordLength != 0);
-	if (enable_button && !has_credentials)
+	if (!has_credentials)
 	{
+		enable_button = false;
 		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
 	}
 
@@ -1316,7 +1318,6 @@ void LLPanelLogin::onSelectUser()
 		sInstance->addFavoritesToStartLocation();
 		sInstance->mPreviousUsername = combo->getValue().asString();
 		sInstance->mUsernameLength = combo->getValue().asString().length();
-		sInstance->updateLoginButtons();
 		sInstance->getChild<LLButton>("remove_user_btn")->setEnabled(FALSE);
 		return;
 	}
@@ -1348,7 +1349,7 @@ void LLPanelLogin::onSelectUser()
 			updateServer();
 		}
 	}
-
+	sInstance->updateLoginButtons();
 	sInstance->addFavoritesToStartLocation();
 }
 
