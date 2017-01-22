@@ -140,7 +140,6 @@ class LLUUID;
 		static PVAgent& getInstance() { return mInstance; }
 		/**
 		* \brief Agent has a color (either custom or level default)
-		* \param uuid agent UUID
 		* \return bool
 		*/
 		bool isSpecialAgentColored() const;
