@@ -225,20 +225,24 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		return FALSE;
 	}
 	
-	// Can't mute self.
-	if (mute.mType == LLMute::AGENT
-		&& mute.mID == gAgent.getID())
+	
+	if (mute.mType == LLMute::AGENT)
 	{
-		return FALSE;
-	}
+		// Can't mute self.
+		if (mute.mID == gAgent.getID())
+		{
+			return FALSE;
+		}
 
-	// Can't mute our developers
-	if(mute.mType == LLMute::AGENT && PVAgent::getDataFor(mute.mID)->isUserDevStaff())
-	{
-		LLSD args;
-		args[APP_NAME] = APP_NAME;
-		LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
-		return FALSE;
+		// Can't mute our developers
+		auto pv_agent = PVAgent::getDataFor(mute.mID);
+		if (pv_agent && pv_agent->isUserDevStaff())
+		{
+			LLSD args;
+			args[APP_NAME] = APP_NAME;
+			LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
+			return FALSE;
+		}
 	}
 
 	if (mute.mType == LLMute::BY_NAME)

@@ -399,21 +399,24 @@ void LLInspectAvatar::onAvatarNameCache(
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
 		auto pv_agent = PVAgent::getDataFor(mAvatarID);
-		std::string agent_role_text = pv_agent->getTitle(true);
-		if (!agent_role_text.empty())
+		if (pv_agent)
 		{
-			agent_role->setValue(agent_role_text);
-			agent_role->setColor(PVDataOldAPI::getInstance()->getColor(mAvatarID, LLColor4::white, false));
-			std::string raw_flags = pv_agent->getTitle(false);
-			if (raw_flags.empty())
+			std::string agent_role_text = pv_agent->getTitle(true);
+			if (!agent_role_text.empty())
 			{
-				raw_flags = "Flags: None";
+				agent_role->setValue(agent_role_text);
+				agent_role->setColor(PVDataOldAPI::getInstance()->getColor(mAvatarID, LLColor4::white, false));
+				std::string raw_flags = pv_agent->getTitle(false);
+				if (raw_flags.empty())
+				{
+					raw_flags = "Flags: None";
+				}
+				else
+				{
+					raw_flags = "Flags: [" + raw_flags + "]";
+				}
+				agent_role->setToolTip(raw_flags); // raw flag as hovertip
 			}
-			else
-			{
-				raw_flags = "Flags: [" + raw_flags + "]";
-			}
-			agent_role->setToolTip(raw_flags); // raw flag as hovertip
 		}
 		// </polarity>
 

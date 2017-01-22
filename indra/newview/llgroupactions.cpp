@@ -244,10 +244,15 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-	if (PVDataOldAPI::getInstance()->isSupportGroup(group_id) && PVAgent::getDataFor(gAgentID)->isUserUnsupported())
+	if (PVDataOldAPI::getInstance()->isSupportGroup(group_id))
 	{
-		// PLVR TODO: Show notification or something.
-		return;
+		auto pv_agent = PVAgent::getDataFor(gAgentID);
+		if (pv_agent && pv_agent->isUserUnsupported())
+		{
+			// PLVR TODO: Show notification or something.
+			return; // abort, do not join
+		}
+
 	}
 
 	LLGroupMgrGroupData* gdatap = 

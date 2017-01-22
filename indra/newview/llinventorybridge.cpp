@@ -3282,9 +3282,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         }
 		return;
 	}
-	else if (PVAgent::getDataFor(gAgent.getID())->isUserPolarized() && "delete_system_folder" == action)
+	else if ("delete_system_folder" == action)
 	{
-		removeSystemFolder();
+		auto pv_agent = PVAgent::getDataFor(gAgent.getID());
+		if (pv_agent && pv_agent->isUserPolarized())
+		{
+			removeSystemFolder();
+		}
 		return;
 	}
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
@@ -4011,9 +4015,13 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		}
 	}
 
-	if (PVAgent::getDataFor(gAgent.getID())->isUserPolarized() && LLFolderType::lookupIsProtectedType(type))
+	if (LLFolderType::lookupIsProtectedType(type))
 	{
-		items.push_back(std::string("Delete System Folder"));
+		auto pv_agent = PVAgent::getDataFor(gAgent.getID());
+		if (pv_agent && pv_agent->isUserPolarized())
+		{
+			items.push_back(std::string("Delete System Folder"));
+		}
 	}
 
 	// wearables related functionality for folders.
