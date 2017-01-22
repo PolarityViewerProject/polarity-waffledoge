@@ -421,9 +421,9 @@ bool OSChatCommand::parseCommand(std::string data)
 	}
 	case CMD_PVDATA_REFRESH:
 	{
-		if (gPVDataAuth->isUserPolarized(gAgentID))
+		if (PVAgent::getDataFor(gAgentID)->isUserPolarized())
 		{
-			gPVDataDownloader->refreshDataFromServer(true);
+			PVDataOldAPI::getInstance()->refreshDataFromServer(true);
 		}
 		return true;
 		break;
@@ -431,8 +431,8 @@ bool OSChatCommand::parseCommand(std::string data)
 		/* Fix later
 	case CMD_PVDATA_DUMP:
 	{
-		gPVData::getInstance()->Dump("Runtime",PVDataAuth->mPVData_llsd);
-		gPVData::getInstance()->Dump("Runtime", PVDataAuth->mPVAgents_llsd);
+		gPVData::getInstance()->Dump("Runtime",PVDataOldAPI->mPVData_llsd);
+		gPVData::getInstance()->Dump("Runtime", PVDataOldAPI->mPVAgents_llsd);
 		return true;
 	}
 		*/

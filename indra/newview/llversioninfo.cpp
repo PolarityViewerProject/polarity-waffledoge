@@ -127,7 +127,7 @@ const std::string &LLVersionInfo::getChannelAndVersionStatic()
 		 		<< LL_VIEWER_VERSION_PATCH << " ("
 		 		<< LL_VIEWER_VERSION_BUILD << ")";
 		sVersionChannelForPVData = stream.str();
-		LL_INFOS("PVData") << " Full viewer version = \"" << sVersionChannelForPVData << "\"" << LL_ENDL;
+		LL_INFOS("PVDataOldAPI") << " Full viewer version = \"" << sVersionChannelForPVData << "\"" << LL_ENDL;
 	}
 	return sVersionChannelForPVData;
 }

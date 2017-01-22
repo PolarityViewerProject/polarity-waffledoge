@@ -5102,7 +5102,7 @@ void LLViewerWindow::setProgressMessage()
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);
-		mProgressView->setMessage(gPVDataViewerInfo->getNewProgressTip());
+		mProgressView->setMessage(PVDataOldAPI::getInstance()->getNewProgressTip());
 	}
 }
 

@@ -1052,9 +1052,10 @@ void LLPanelLogin::updateLoginButtons()
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
 	bool enable_button = true;
-	if (gPVDataDownloader->getDataDone())
+	auto gPVDataOldAPI = PVDataOldAPI::getInstance();
+	if (gPVDataOldAPI->getDataDone())
 	{
-		if (!gPVDataViewerInfo->isBlockedRelease())
+		if (!gPVDataOldAPI->isBlockedRelease())
 		{
 			enable_button = true;
 			login_btn->setLabel(LLTrans::getString("Login"));
@@ -1064,7 +1065,7 @@ void LLPanelLogin::updateLoginButtons()
 			enable_button = false;
 			login_btn->setLabel(LLTrans::getString("Outdated"));
 			LLSD args;
-			args["REASON"] = gPVData->getErrorMessage();
+			args["REASON"] = gPVDataOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 		}
 	}

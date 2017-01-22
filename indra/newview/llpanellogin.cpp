@@ -842,16 +842,16 @@ void LLPanelLogin::onClickConnect(void *)
 
 		// The start location SLURL has already been sent to LLStartUp::setStartSLURL
 
-		if (gPVDataViewerInfo->isBlockedRelease())
+		if (PVDataOldAPI::getInstance()->isBlockedRelease())
 		{
 			LLSD args;
-			args["REASON"] = gPVData->getErrorMessage();
+			args["REASON"] = PVDataOldAPI::getInstance()->getErrorMessage();
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 			return;
 		}
 		else
 		{
-			LL_INFOS("PVData") << "Viewer version is allowed to be used, moving on..." << LL_ENDL;
+			LL_INFOS("PVDataOldAPI") << "Viewer version is allowed to be used, moving on..." << LL_ENDL;
 		}
 
 		std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();

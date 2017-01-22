@@ -398,12 +398,13 @@ void LLInspectAvatar::onAvatarNameCache(
 		}
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
-		std::string agent_role_text = gPVDataAuth->getAgentFlagsAsString(mAvatarID);
+		auto pv_agent = PVAgent::getDataFor(mAvatarID);
+		std::string agent_role_text = pv_agent->getTitle(true);
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);
-			agent_role->setColor(gPVDataAuth->getSpecialAgentColor(mAvatarID, LLColor4::white, false));
-			std::string raw_flags = gPVDataAuth->getAgentFlagsAsString(mAvatarID, false);
+			agent_role->setColor(PVDataOldAPI::getInstance()->getColor(mAvatarID,LLColor4::white, false));
+			std::string raw_flags = pv_agent->getTitle(false);
 			if (raw_flags.empty())
 			{
 				raw_flags = "Flags: None";

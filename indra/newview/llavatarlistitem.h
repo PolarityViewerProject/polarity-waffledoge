@@ -52,7 +52,8 @@ public:
 									voice_call_joined_style,
 									voice_call_left_style,
 									online_style,
-									offline_style;
+									offline_style,
+									color_style;
 
 		Optional<S32>				name_right_pad;
 
@@ -243,13 +244,6 @@ private:
 	 * @see initChildrenWidths()
 	 */
 	static S32 sChildrenWidths[ALIC_COUNT];
-
-
-	/**
-	 * \brief Contains the color of the currently processed agent. Usually goes to name field.
-	 */
-	LLColor4 mAgentColor;
-
 };
 
 #endif //LL_LLAVATARLISTITEM_H

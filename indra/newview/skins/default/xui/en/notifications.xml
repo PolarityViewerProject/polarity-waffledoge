@@ -11492,6 +11492,7 @@ Sorry, you cannot block [APP_NAME] developers.
   <notification
     icon="notifytip.png"
     name="PVData_ColorBug"
+    persist="true"
     type="notifytip">
     Color Manager caught a bug!
 Avatar: secondlife:///app/agent/[AVATAR_ID]/inspect

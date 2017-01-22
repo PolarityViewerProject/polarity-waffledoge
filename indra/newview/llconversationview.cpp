@@ -177,7 +177,7 @@ BOOL LLConversationViewSession::postBuild()
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
-				mSessionTitle->setColor(gPVDataAuth->getSpecialAgentColor(session->mOtherParticipantID, LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor")));
+				mSessionTitle->setColor(PVDataOldAPI::getInstance()->getColor(session->mOtherParticipantID, LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor")));
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
 				mHasArrow = false;
 			}

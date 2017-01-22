@@ -40,40 +40,223 @@
  // please increment the following counter as a warning
  // to the next guy:
  //
- // total_hours_wasted_here = 128
+ // total_hours_wasted_here = 132
+ // See also: https://xkcd.com/844/
  //
 
+/**
+ * Notes about the code and the methodologies employed here
+ * If you have a valid reason to disregard the information provided here, please update this documentation to reflect the new standard
+ * and change the code, or leave a note for the maintainer/code grunt.
+ * 
+ * Function parameter types:
+ * When should I use const int& instead of int?
+ *     The rule of thumb is, pass all data that is at most as large as the word size (32bit, 64bit) by value (generally simple data such as int), and everything else by reference to const.
+ *     Also pass templated arguments by reference to const; since the compiler has access to the definition of the template, it can always optimize the reference away.
+ *     see: http://stackoverflow.com/a/4705846/1570096
+ * 
+ * However, if passing by reference requires you to make a copy of the data in the function, please refrain from doing so and pass by value instead (ie 'int' instead of 'const& int')
+ * See: http://stackoverflow.com/a/7592741/1570096
+ *
+ */
+
+/*
+ 	Member ordering:
+ 	Please follow the following standard:
+ 	Class YourClass
+ 	{
+ 	public:
+ 		get stuff
+ 		set stuff
+ 	
+ 	private:
+ 		const var
+ 		static var
+ 		private var
+ 	
+ 		functions
+ 		in order
+ 		of execution or need
+ 	}
+ */
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
 #include "llsingleton.h" // for instance()
 #include "pvtypes.h"
+#include "lluicolortable.h"
 
 class LLColor4;
 class LLUUID;
 
-// TODO 1: Make sure this is respected
-/* Note about ordering:
-Please follow the following standard:
-Class YourClass
-{
-	public:
-	get stuff
-	set stuff
 
-private:
-	const var
-	static var
-	private var 
-	
-	functions
-	in order
-	of execution or need
-}
-*/
+// NEW API
+//namespace PVDataOldAPI
+//{
 
-	class PVData : public LLSingleton <PVData> // required for instance()
+	const LLColor3 no_color = LLColor3(0.99858654, 0.854683, 0.158468); // the odds of hitting that are extremely low.
+
+	/*static*/ const std::string LL_LINDEN = "Linden";
+	/*static*/ const std::string LL_MOLE = "Mole";
+	/*static*/ const std::string LL_PRODUCTENGINE = "ProductEngine";
+	/*static*/ const std::string LL_SCOUT = "Scout";
+	/*static*/ const std::string LL_TESTER = "Tester";
+
+	// Last updated 2016-09-26 1:23:12 PM
+	enum flags_t : S32
 	{
-		LOG_CLASS(PVData); // Required to enable the log messages prefix
+		// Those aren't numbers. They are bits and here we use them as an array of booleans.
+		// Every agent flag has its own bit and you can combine them should such need arise.
+		// REMINDER: Check against 0 for avatars not in the list, NOT -1
+		// TODO v7: MAKE -3
+		BAD_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */
+		// TODO v7: MAKE -1
+		BAD_USER_AUTOMUTED = (1 << 1),   /* [0000 0000 0010] Automatically muted on login.              */
+		// TODO v7: Make -2
+		BAD_USER_UNSUPPORTED = (1 << 2),  /* [0000 0000 0100] User voided their warranty.                */
+		// TODO v7: move under STAFF_QA
+		STAFF_DEVELOPER = (1 << 3),        /* [0000 0000 1000] They wrote the code you're looking at.     */
+		// TODO v7: move under STAFF_SUPPORT
+		STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
+		// TODO v7: move under USER_TESTER
+		STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
+		// TODO v7: move under DEPRECATED_TITLE_OVERRIDE
+		USER_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
+		//FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
+		// TODO v7: DEPRECATE, empty title falls back to level flag
+		DEPRECATED_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
+		//FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
+
+		// Last.
+		LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
+	};
+
+	class PVAgent
+	{
+		//@note I feel bad for having all these functions in this class. Can't we store the data in its own class? - Xenhat
+	private:
+		static PVAgent& mInstance;
+	public: // temporarily public
+
+		static PVAgent& getInstance() { return mInstance; }
+		/**
+		* \brief Agent has a color (either custom or level default)
+		* \param uuid agent UUID
+		* \return bool
+		*/
+		bool isSpecialAgentColored() const;
+
+		/**
+		 * \brief get Agent color
+		 * \return LLColor3
+		 */
+		LLColor3 getColorCustom() const;
+
+		LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
+
+		/**
+		 * \brief Get agent flags
+		 * @todo Convert to std::binary or std::bitset
+		 * \return S32 flag set
+		 */
+		S32 getFlags() const;
+
+		/**
+		 * \brief get the agent's custom title, if any.
+		 * \param new_title variable to store the custom title into.
+		 * \return true if custom title exists, false otherwise.
+		 */
+		bool getTitleCustom(std::string& new_title) const;
+
+		/**
+		* \brief Returns ALL the agent's flags as a comma-separated string, or the custom title
+		* \param avatar_id agent UUID
+		* \return flags as string.
+		*/
+		std::string getTitle(bool get_custom_title = true) const;
+
+		/**
+		* \brief Is the agent automatically muted on login?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserAutoMuted() const;
+
+		/**
+		* \brief Is the agent denied access to the viewer?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserBanned() const;
+
+		/**
+		* \brief Is the agent prevented from getting support?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserUnsupported() const;
+
+		/**
+		* \brief Determines if agent have more features/rights than regular users (for testing or security reasons)
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserPolarized() const;
+
+		/**
+		* \brief Is the agent a Viewer Developer?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserDevStaff() const;
+
+		// 
+		/**
+		* \briefIs the agent a QA Team Member?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserQAStaff() const;
+
+		/**
+		* \brief Is the agent a Support Team Member?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserSupportStaff() const;
+
+		/**
+		* \brief Is the agent a Tester?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		bool isUserTester() const;
+
+		/**
+		 * \brief get storage class for a specific agent
+		 * \param avatar_id agent to get data from
+		 * \return pointer to the agent's storage class
+		 */
+		static PVAgent* getDataFor(const LLUUID& avatar_id);
+
+		LLUUID uuid;
+		std::string title;
+		LLColor3 color;
+		S32 flags; //@todo move to bitset
+		std::string ban_reason;
+
+		PVAgent();
+	};
+
+	// list of created agent blobs, by address and uuid
+	typedef std::map<LLUUID, PVAgent*> pvagent_list;
+	static pvagent_list pvAgents;
+
+
+	// OLD API
+		// @todo get rid of singleton. This is bad. Very bad.
+	class PVDataOldAPI : public LLSingleton <PVDataOldAPI> // required for instance()
+	{
+		LOG_CLASS(PVDataOldAPI); // Required to enable the log messages prefix
 	public:
 
 		std::string getErrorMessage()
@@ -91,7 +274,7 @@ private:
 		* \param log_in_s message to display/log
 		* \param level severity level, defaults to debug
 		*/
-		static void PVData::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level = LLError::LEVEL_DEBUG, const bool& developer_only = false);
+		static void PVDataOldAPI::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level = LLError::LEVEL_DEBUG);
 
 		/**
 		* \brief LLSD dumper. Does not check authentication by itself.
@@ -102,15 +285,114 @@ private:
 
 	private:
 		/**
-		 * \brief Contains the error message to display to the user if something goes wrong with PVData.
+		 * \brief Contains the error message to display to the user if something goes wrong with PVDataOldAPI.
 		 */
 		std::string pvdata_error_message_ = "";
-	};
-	extern PVData* gPVData;
 
-	class PVDataUtil : public LLSingleton<PVDataUtil>
-	{
+		// Public Interface
 	public:
+		// old api below
+		/**
+		* \brief Create generic entries for agents who should always have access should data fails to be acquired
+		*/
+		void setFallbackAgentsData();
+
+		/**
+		* \brief get color of agent.
+		* \param avatar_id Agent to get the color of
+		* \param default_color Color to fall back to if the agent has no color
+		* \param show_buddy_status show buddy color if applicable
+		* \return
+		*/
+		LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status = true);
+
+		/**
+		* \brief Check if supplied group is one of/the vendor's support group
+		* \param id group UUID
+		* \return bool
+		*/
+		bool isSupportGroup(const LLUUID& group_id) const;
+
+		// Returns the lockdown UUID constant as a string
+		static LLUUID getLockDownUUID();
+
+		// Returns whether or not the user can use our viewer
+		bool isAllowedToLogin(const LLUUID& avatar_id) const;
+		
+		std::string getToken();
+		// setters
+
+		/**
+		* \brief Set flag to agent
+		* \param uuid agent uuid
+		* \param flags flags
+		*/
+		void setVendorSupportGroup(const LLUUID& uuid);
+
+		// NOTE: Maybe return success?
+		void autoMuteFlaggedAgents();
+
+	private:
+
+
+		/**
+		* \brief Special agents and their level for quick lookup
+		*/
+		pv_pair_uuid_sint pv_special_agent_flags_;
+
+		/**
+		* \brief Special agent and their titles for quick lookup
+		*/
+		pv_pair_uuid_llcolor4 pv_special_agent_color_;
+
+		// Agents Colors
+		pv_pair_uuid_string pv_special_agent_title_;
+
+		// Linden Lab employees and other God-like agents
+		std::vector<LLUUID> agents_linden_;
+
+		// Ban reason, if present
+		pv_pair_uuid_string pv_special_agent_ban_reason_;
+
+	public:
+		// This contains the UUID of our support group
+		std::set<LLUUID> support_group_;
+
+		/**
+		* \brief Is this a Linden Employee?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		static bool isLinden(const std::string& last_name);
+
+		/**
+		* \brief Is this a Mole?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		static bool isMole(const std::string& last_name);
+
+		/**
+		* \brief Is this a ProductEngine employee?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		static bool isProductEngine(const std::string& last_name);
+
+		/**
+		* \brief Is this a Linden Scout?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		static bool isScout(const std::string& last_name);
+
+		/**
+		* \brief Is this a Linden Tester?
+		* \param avatar_id agent UUID
+		* \return bool
+		*/
+		static bool isLLTester(const std::string& last_name);
+
 		/**
 		 * \brief This returns the agent's name in the format defined by the viewer settings.
 		 * \param av_name agent name
@@ -126,12 +408,7 @@ private:
 		static void getChatLogsDirOverride();
 		static void setChatLogsDirOverride();
 		bool moveTranscriptsAndLog(std::string userid) const;
-	};
-	extern PVDataUtil* gPVDataUtil;
 
-	class PVDataDownloader : public LLSingleton<PVDataDownloader>
-	{
-		// Public interface
 	public:
 
 		void setDataStatus(const S32& status) { pv_data_status_ = status; }
@@ -154,7 +431,7 @@ private:
 
 		// Temporary blob to store the hand-crafted HTTP header
 		LLSD headers_;
-		
+
 		/**
 		* \brief  This downloads the requested data file from the server.
 		*/
@@ -176,10 +453,9 @@ private:
 
 		void refreshDataFromServer(bool force_refresh_now = false);
 
-		// Enables logging for this class
-		typedef PVDataDownloader _LL_CLASS_TO_LOG;
 	private:
 
+		//@todo use a map instead
 		enum pv_data_sections_index
 		{
 			MinimumVersion,
@@ -281,7 +557,7 @@ private:
 		 * \brief Fallback when data can't be obtained
 		 */
 		void handleAgentsFailure();
-		
+
 		/**
 		 * \brief This handles the data received from the server after downloading the data
 		 * \param http_content downloaded blob
@@ -318,230 +594,11 @@ private:
 		* \brief PVData agents LLSD
 		*/
 		LLSD mPVAgents_llsd;
-		
 
 		// some color helpers
 		LLColor4 Hex2Color4(const std::string color) const;
 		static LLColor4 Hex2Color4(int hexValue);
 
-	};
-	extern PVDataDownloader* gPVDataDownloader;
-
-	/**
-	 * \brief Contains authentication and agents data
-	 */
-	class PVDataAuth : public LLSingleton<PVDataAuth>
-	{
-		typedef PVDataAuth _LL_CLASS_TO_LOG;
-
-		// Public Interface
-	public:
-
-		/**
-		 * \brief Create generic entries for agents who should always have access should data fails to be acquired
-		 */
-		void setFallbackAgentsData();
-
-		/**
-		 * \brief Is the agent automatically muted on login?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserAutoMuted(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Is the agent denied access to the viewer?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserBanned(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Is the agent prevented from getting support?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserUnsupported(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Determines if agent have more features/rights than regular users (for testing or security reasons)
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserPolarized(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Is the agent a Viewer Developer?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserDevStaff(const LLUUID& avatar_id);
-
-		// 
-		/**
-		 * \briefIs the agent a QA Team Member?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserQAStaff(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Is the agent a Support Team Member?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserSupportStaff(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Check if supplied group is one of/the vendor's support group
-		 * \param id group UUID
-		 * \return bool
-		 */
-		bool isSupportGroup(const LLUUID& id) const;
-		// 
-		/**
-		 * \brief Is the agent a Tester?
-		 * \param avatar_id agent UUID
-		 * \return bool
-		 */
-		static bool isUserTester(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Better version of isLinden that takes PVData into account
-		 * TODO: Make overload without flags to parse them if called in weird places
-		 * \param avatar_id agent UUID
-		 * \param av_flags Pass agents flag to avoid parsing again
-		 * \return bool
-		 */
-		bool isLinden(const LLUUID& avatar_id, S32& av_flags) const;
-
-		// Returns the agent flags as a decimal number
-		// TODO: Create versions with std::binary and such
-		static S32 getSpecialAgentFlags(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Returns ALL the agent's flags as a comma-separated string, or the custom title.
-		 * \param avatar_id agent UUID
-		 * \return flags as string.
-		 */
-		std::string getAgentFlagsAsString(const LLUUID& avatar_id, const bool& get_custom_title = true);
-
-		/**
-		 * \brief get the agent's custom title
-		 * \param avatar_id agent UUID
-		 * param
-		 * \return flags as string
-		 */
-		bool getSpecialAgentCustomTitle(const LLUUID& avatar_id, std::ostringstream& new_title);
-
-
-
-		// Returns the lockdown UUID constant as a string
-		static LLUUID getLockDownUUID();
-
-		// Returns whether or not the user can use our viewer
-		bool isAllowedToLogin(const LLUUID& avatar_id);
-
-		/**
-		 * \brief Agent has a color (either custom or level default)
-		 * \param uuid agent UUID
-		 * \return bool
-		 */
-		bool isSpecialAgentColored(const LLUUID& uuid);
-
-		LLColor4 getSpecialAgentColorDirectly(const LLUUID& avatar_id);
-
-		
-		/**
-		 * \brief 
-		 * \param avatar_id Agent to get the color of
-		 * \param default_color Color to fall back to if the agent has no color
-		 * \param show_buddy_status show buddy color if applicable
-		 * \return 
-		 */
-		static LLColor4 getSpecialAgentColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status = true);
-		std::string getToken();
-		// setters
-
-		/**
-		 * \brief Set flag to agent
-		 * \param uuid agent uuid
-		 * \param flags flags
-		 */
-		void setSpecialAgentFlags(const LLUUID& uuid, const S32& flags);
-		void setSpecialAgentTitle(const LLUUID& uuid, const std::string& title);
-		void setSpecialAgentColor(const LLUUID& uuid, const LLColor4& color4);
-		void setSpecialAgentBanReason(const LLUUID& uuid, const std::string& reason);
-		void setVendorSupportGroup(const LLUUID& uuid);
-
-		// NOTE: Maybe return success?
-		void autoMuteFlaggedAgents();
-
-	private:
-		/*static*/ const std::string LL_LINDEN = "Linden";
-		/*static*/ const std::string LL_MOLE = "Mole";
-		/*static*/ const std::string LL_PRODUCTENGINE = "ProductEngine";
-		/*static*/ const std::string LL_SCOUT = "Scout";
-		/*static*/ const std::string LL_TESTER = "Tester";
-
-		/**
-		 * \brief Special agents and their level for quick lookup
-		 */
-		pv_pair_uuid_sint pv_special_agent_flags_;
-
-		/**
-		 * \brief Special agent and their titles for quick lookup
-		 */
-		pv_pair_uuid_llcolor4 pv_special_agent_color_;
-
-		// Agents Colors
-		pv_pair_uuid_string pv_special_agent_title_;
-
-		// Linden Lab employees and other God-like agents
-		std::vector<LLUUID> agents_linden_;
-
-		// Ban reason, if present
-		pv_pair_uuid_string pv_special_agent_ban_reason_;
-
-		// Last updated 2016-09-26 1:23:12 PM
-		enum flags_t : S32
-		{
-			// Those aren't numbers. They are bits and here we use them as an array of booleans.
-			// Every agent flag has its own bit and you can combine them should such need arise.
-			// REMINDER: Check against 0 for avatars not in the list, NOT -1
-			// TODO v7: MAKE -3
-			BAD_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */
-			// TODO v7: MAKE -1
-			BAD_USER_AUTOMUTED = (1 << 1),   /* [0000 0000 0010] Automatically muted on login.              */
-			// TODO v7: Make -2
-			BAD_USER_UNSUPPORTED = (1 << 2),  /* [0000 0000 0100] User voided their warranty.                */
-			// TODO v7: move under STAFF_QA
-			STAFF_DEVELOPER = (1 << 3),        /* [0000 0000 1000] They wrote the code you're looking at.     */
-			// TODO v7: move under STAFF_SUPPORT
-			STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
-			// TODO v7: move under USER_TESTER
-			STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
-			// TODO v7: move under DEPRECATED_TITLE_OVERRIDE
-			USER_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
-			//FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
-			// TODO v7: DEPRECATE, empty title falls back to level flag
-			DEPRECATED_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
-			//FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
-
-			// Last.
-			LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
-		};
-
-		// This contains the UUID of our support group
-		std::set<LLUUID> support_group_;
-	};
-	extern PVDataAuth* gPVDataAuth;
-
-	/**
-	 * \brief Contains information about the viewer itself.
-	 */
-	class PVDataViewerInfo : public LLSingleton<PVDataViewerInfo>
-	{
 	public:
 		// getters
 
@@ -550,7 +607,7 @@ private:
 		bool isVersionBlocked(const std::string version) const
 		{
 			return blocked_versions_.has(version);
-		}
+	}
 #endif
 		std::string getEventMotdIfAny()
 		{
@@ -562,7 +619,7 @@ private:
 
 				if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
 				{
-					PVData::PV_DEBUG("Setting EVENTS MOTD to " + name, LLError::LEVEL_INFO);
+					PVDataOldAPI::PV_DEBUG("Setting EVENTS MOTD to " + name, LLError::LEVEL_INFO);
 					// TODO: Shove into notification well.
 					return content["EventMOTD"].asString();
 				}
@@ -606,7 +663,7 @@ private:
 				auto version = iter->first;
 				auto reason = iter->second;
 				blocked_versions_[version] = reason;
-				PVData::PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
+				PVDataOldAPI::PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
 			}
 		}
 
@@ -639,54 +696,54 @@ private:
 		LLFrameTimer mTipCycleTimer;
 
 		std::string last_login_tip;
-	};
-	extern PVDataViewerInfo* gPVDataViewerInfo;
+		};
+		extern PVDataOldAPI* gPVOldAPI;
 
-// TODO: Move to another file?
-class PVSearchUtil : public LLSingleton <PVSearchUtil>
-{
-	LOG_CLASS(PVSearchUtil);
-
-public:
-	// refresh from settings
-	static U32 getSearchSeparatorFromSettings();
-	static void setSearchSeparator(const U32 separator_in_u32);
-	// get separator
-	static std::string getSearchSeparator();
-	std::string getSearchSeparator(const U32 separator_to_get_u32) const;
-
-private:
-	enum PVSearchSeparators : U32
+	// TODO: Move to another file?
+	class PVSearchUtil : public LLSingleton <PVSearchUtil>
 	{
-		separator_space,
-		separator_plus,
-		separator_comma,
-		separator_pipe,
-		separator_semicolon,
-		separator_period,
-		separator_colon,
-	};
+		LOG_CLASS(PVSearchUtil);
 
-	/**
-	 * \brief Contains the possible search separators
-	 * TODO: Re-write as a map.
-	 */
-	const std::vector<std::string> PVSearchSeparatorAssociation
-	{
-		" ",
-		"+",
-		",",
-		"|",
-		";",
-		".",
-		":",
-	};
+	public:
+		// refresh from settings
+		static U32 getSearchSeparatorFromSettings();
+		static void setSearchSeparator(const U32 separator_in_u32);
+		// get separator
+		static std::string getSearchSeparator();
+		std::string getSearchSeparator(const U32 separator_to_get_u32) const;
 
-	/**
-	* \brief Currently selected search separator
-	*/
-	static U32 PVSearchSeparatorSelected;
-};
+	private:
+		enum PVSearchSeparators : U32
+		{
+			separator_space,
+			separator_plus,
+			separator_comma,
+			separator_pipe,
+			separator_semicolon,
+			separator_period,
+			separator_colon,
+		};
+
+		/**
+		 * \brief Contains the possible search separators
+		 * TODO: Re-write as a map.
+		 */
+		const std::vector<std::string> PVSearchSeparatorAssociation
+		{
+			" ",
+			"+",
+			",",
+			"|",
+			";",
+			".",
+			":",
+		};
+
+		/**
+		* \brief Currently selected search separator
+		*/
+		static U32 PVSearchSeparatorSelected;
+	};
 	extern PVSearchUtil* gPVSearchUtil;
-
+//}
 #endif // PV_DATA_H

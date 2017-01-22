@@ -63,6 +63,7 @@ LLAvatarListItem::Params::Params()
 	voice_call_left_style("voice_call_left_style"),
 	online_style("online_style"),
 	offline_style("offline_style"),
+	color_style("color_style"),
 	name_right_pad("name_right_pad", 0)
 {};
 
@@ -263,7 +264,6 @@ void LLAvatarListItem::setState(EItemState item_style, const bool& show_friend_c
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
 
 	auto static online_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-	mAgentColor = gPVDataAuth->getSpecialAgentColor(mAvatarId, online_color, show_friend_color_b);
 
 	switch(item_style)
 	{
@@ -282,7 +282,8 @@ void LLAvatarListItem::setState(EItemState item_style, const bool& show_friend_c
 		break;
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
-		mAvatarName->setColor(mAgentColor);
+		mAvatarNameStyle = params.color_style();
+		mAvatarNameStyle.color = PVDataOldAPI::getInstance()->getColor(mAvatarId, online_color, show_friend_color_b);
 		mAvatarNameStyle.override_link_style = true;
 		break;
 	case IS_OFFLINE:
