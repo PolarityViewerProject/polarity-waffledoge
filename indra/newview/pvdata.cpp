@@ -1192,12 +1192,31 @@ PVAgent::PVAgent()
 		}
 		else
 		{
-			// TODO: QA this
-			//if (isLinden(avatar_id, av_flags))
-			//{
-			//	setSpecialAgentColor(avatar_id, linden_color.get());
-			//	return linden_color.get();
-			//}
+			// Not special, could be a linden
+			if (av_flags == 0 || av_flags & LINDEN_EMPLOYEE)
+			{
+				//@todo Linden Color in a non-horrible way, without this duplicated code bullshit...
+				std::string first_name, last_name;
+				LLAvatarName av_name;
+				if (LLAvatarNameCache::get(uuid, &av_name))
+				{
+					std::istringstream full_name(av_name.getUserName());
+					full_name >> first_name >> last_name;
+				}
+				else
+				{
+					gCacheName->getFirstLastName(uuid, first_name, last_name);
+				}
+				if (gPVOldAPI->isLinden(last_name)
+					|| gPVOldAPI->isMole(last_name)
+					|| gPVOldAPI->isProductEngine(last_name)
+					|| gPVOldAPI->isScout(last_name)
+					|| gPVOldAPI->isLLTester(last_name))
+				{
+					static LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
+					pv_color = linden_color;
+				}
+			}
 			if (pv_agent->isUserDevStaff())
 			{
 				static LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
