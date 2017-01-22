@@ -257,7 +257,7 @@
   <menu_item_separator
   layout="topleft" />
   <menu_item_call
- enabled="false"
+ enabled="true"
  label="Drop"
  layout="topleft"
  name="Drop">
