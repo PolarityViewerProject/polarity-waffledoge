@@ -1258,6 +1258,15 @@ PVAgent::PVAgent()
 				args["MESSAGE"] = "Agent has deprecated or unhandled flags associated to it!";
 				LLNotificationsUtil::add("PVData_ColorBug", args);
 			}
+			if (av_flags & DEPRECATED_TITLE_OVERRIDE)
+			{
+				LLSD args;
+				args["AVATAR_ID"] = uuid;
+				args["PV_FLAGS"] = getTitle(false);
+				args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
+				args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
+				LLNotificationsUtil::add("PVData_ColorBug", args);
+			}
 			// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
 			// Temporarily disabled to investigate friend list color bug
 			//setSpecialAgentColor(avatar_id, pvdata_color);

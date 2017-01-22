@@ -11495,7 +11495,7 @@ Sorry, you cannot block [APP_NAME] developers.
     persist="true"
     type="notifytip">
     Color Manager caught a bug!
-Avatar: secondlife:///app/agent/[AVATAR_ID]/inspect
+Avatar: secondlife:///app/agent/[AVATAR_ID]/inspect (AVATAR_ID)
 Flags: [PV_FLAGS] 
 Color: [PV_COLOR] 
 [MESSAGE]
