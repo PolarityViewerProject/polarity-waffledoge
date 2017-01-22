@@ -1193,6 +1193,8 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 	LLGLDisable stencil(GL_STENCIL_TEST);
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
+		LLGLDisable stencil(GL_STENCIL_TEST);
+
 		//move mBounds to the agent space if necessary
 		LLVector4a bounds[2];
 		bounds[0] = mBounds[0];
