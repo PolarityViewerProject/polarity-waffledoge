@@ -93,7 +93,7 @@ class LLUUID;
 //namespace PVDataOldAPI
 //{
 
-	const LLColor3 no_color = LLColor3(0.99858654, 0.854683, 0.158468); // the odds of hitting that are extremely low.
+	const LLColor4 no_color = LLColor4::magenta;
 
 	/*static*/ const std::string LL_LINDEN = "Linden";
 	/*static*/ const std::string LL_MOLE = "Mole";
@@ -147,9 +147,9 @@ class LLUUID;
 
 		/**
 		 * \brief get Agent color
-		 * \return LLColor3
+		 * \return LLColor4
 		 */
-		LLColor3 getColorCustom() const;
+		LLColor4 getColorCustom() const;
 
 		LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
 

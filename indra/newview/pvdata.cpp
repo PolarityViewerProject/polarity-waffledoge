@@ -1174,17 +1174,17 @@ PVAgent::PVAgent()
 		return color != LLColor3::black;
 	}
 
-	LLColor3 PVAgent::getColorCustom() const
+	LLColor4 PVAgent::getColorCustom() const
 	{
 		//return pv_special_agent_color_[avatar_id];
-		return color;
+		return LLColor4(color);
 	}
 
 	// Do not call directly outside PVData functions; not finished yet
 	//@todo make this llcolor3
 	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
-		LLColor3 pv_color = no_color;
+		LLColor4 pv_color = no_color;
 		// Check if agent already has a special color
 		if (pv_agent->isSpecialAgentColored())
 		{
