@@ -950,9 +950,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 #if PVDATA_COLORIZER
 	// <polarity> Colored names for special users
 	LLColor4 name_color;
-	static LLCachedControl<bool> use_colorizer(gSavedSettings, "PVChat_ColorManager", true);
-	if (use_colorizer
-		&& (chat.mSourceType != CHAT_SOURCE_OBJECT)		// FROM: Not an object
+	if ((chat.mSourceType != CHAT_SOURCE_OBJECT)		// FROM: Not an object
 		&& (chat.mSourceType != CHAT_STYLE_HISTORY)		// and not replayed chat log
 		&& (chat.mFromName != SYSTEM_FROM)				// and not a system message
 		&& (chat.mFromID.notNull()))					// and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
@@ -1099,14 +1097,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				link_params.override_link_style = true;
 #if PVDATA_COLORIZER
-				if (use_colorizer)
-				{
-					// Colorize agent links.
-					static auto link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-					name_color = PVDataOldAPI::getInstance()->getColor(chat.mFromID, link_color);
-					link_params.color = name_color;
-					link_params.readonly_color = name_color;
-				}
+				// Colorize agent links.
+				static auto link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+				name_color = PVDataOldAPI::getInstance()->getColor(chat.mFromID, link_color);
+				link_params.color = name_color;
+				link_params.readonly_color = name_color;
 #endif
 
 

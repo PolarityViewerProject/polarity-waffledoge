@@ -1271,10 +1271,7 @@ PVAgent::PVAgent()
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
 
 		LLColor4 return_color = default_color; // color we end up with at the end of the logic
-		LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
-
-		static LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
-
+		
 		// Some flagged users CAN be muted.
 		if (LLMuteList::instance().isMuted(avatar_id))
 		{
@@ -1283,67 +1280,72 @@ PVAgent::PVAgent()
 			return return_color;
 		}
 
-		auto pv_agent = PVAgent::getDataFor(avatar_id);
-		S32 av_flags = (pv_agent) ? pv_agent->getFlags() : 0;
-		// if the agent isn't a special agent, nullptr is returned.
-		if (pv_agent)
-		{
-			pvdata_color = pv_agent->getColor(pv_agent, av_flags, uiCT);
-		}
-#if NEW_API_FINISHED
-		else if (isLinden(avatar_id, av_flags))
-		{
-			return linden_color; //@todo what do we do with lindens in friend lists? I'm not cool enough to be able to test this.
-		}
-#endif
-
-		/*	Respect user preferences
-		Expected behavior:
-		+Friend, +PVDATA, +lpf = show PVDATA
-		+Friend, +PVDATA, -lpl = show FRIEND
-		+Friend, -PVDATA, +lpl = show FRIEND
-		+Friend, -PVDATA, -lpl = show FRIEND
-		-Friend, +PVDATA, +lpl = show PVDATA
-		-Friend, +PVDATA, -lpl = show PVDATA
-		-Friend, -PVDATA, +lpl = show FALLBACK
-		-Friend, -PVDATA, -lpl = show FALLBACK
-		*/
 		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-		static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
 		bool show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
+		static auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
+		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
+		if (use_color_manager)
+		{
+			LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
-		// Lengthy but fool-proof.
-		if (show_f && av_flags && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
+			auto pv_agent = PVAgent::getDataFor(avatar_id);
+			S32 av_flags = (pv_agent) ? pv_agent->getFlags() : 0;
+			// if the agent isn't a special agent, nullptr is returned.
+			if (pv_agent)
+			{
+				pvdata_color = pv_agent->getColor(pv_agent, av_flags, uiCT);
+			}
+
+			/*	Respect user preferences
+				Expected behavior:
+				+Friend, +PVDATA, +lpf = show PVDATA
+				+Friend, +PVDATA, -lpl = show FRIEND
+				+Friend, -PVDATA, +lpl = show FRIEND
+				+Friend, -PVDATA, -lpl = show FRIEND
+				-Friend, +PVDATA, +lpl = show PVDATA
+				-Friend, +PVDATA, -lpl = show PVDATA
+				-Friend, -PVDATA, +lpl = show FALLBACK
+				-Friend, -PVDATA, -lpl = show FALLBACK
+			*/
+			
+			static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+			// Lengthy but fool-proof.
+			if (show_f && av_flags && low_priority_friend_status)
+			{
+				return_color = pvdata_color;
+			}
+			if (show_f && av_flags && !low_priority_friend_status)
+			{
+				return_color = friend_color;
+			}
+			if (show_f && !av_flags && low_priority_friend_status)
+			{
+				return_color = friend_color;
+			}
+			if (show_f && !av_flags && !low_priority_friend_status)
+			{
+				return_color = friend_color;
+			}
+			if (!show_f && av_flags && low_priority_friend_status)
+			{
+				return_color = pvdata_color;
+			}
+			if (!show_f && av_flags && !low_priority_friend_status)
+			{
+				return_color = pvdata_color;
+			}
+			if (!show_f && !av_flags && low_priority_friend_status)
+			{
+				return_color = default_color;
+			}
+			if (!show_f && !av_flags && !low_priority_friend_status)
+			{
+				return_color = default_color;
+			}
 		}
-		if (show_f && av_flags && !low_priority_friend_status)
+		else
 		{
-			return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
-		}
-		if (show_f && !av_flags && low_priority_friend_status)
-		{
-			return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
-		}
-		if (show_f && !av_flags && !low_priority_friend_status)
-		{
-			return_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
-		}
-		if (!show_f && av_flags && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && av_flags && !low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && !av_flags && low_priority_friend_status)
-		{
-			return_color = default_color;
-		}
-		if (!show_f && !av_flags && !low_priority_friend_status)
-		{
-			return_color = default_color;
+			return_color = show_f ? friend_color : default_color;
 		}
 		return return_color;
 	}

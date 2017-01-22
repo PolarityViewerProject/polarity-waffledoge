@@ -229,8 +229,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			static LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 #if PVDATA_COLORIZER
 			// <polarity> Colored names for special users
-			static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-			if (use_color_manager && (mSourceType != CHAT_SOURCE_OBJECT) && (mFromID.notNull()))
+			if (mSourceType != CHAT_SOURCE_OBJECT && (mFromID.notNull()))
 			{
 				user_name_color = PVDataOldAPI::getInstance()->getColor(mFromID, user_name_color);
 			}
