@@ -2792,8 +2792,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			else
 			{
 				// Get pvdata color, for fun.
-				LLUUID avatar_id = getID();
-				LLColor4 cloud_color = PVDataOldAPI::getInstance()->getColor(avatar_id, LLColor4(1, 1, 1, 0.5f));
+				LLColor4 cloud_color = PVDataOldAPI::getInstance()->getColor(getID(), LLColor4(1, 1, 1, 0.5f));
 				particle_parameters.mPartData.mStartColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.5f);
 				particle_parameters.mPartData.mEndColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.0f);
 			}

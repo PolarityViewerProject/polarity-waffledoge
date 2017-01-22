@@ -403,7 +403,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		if (!agent_role_text.empty())
 		{
 			agent_role->setValue(agent_role_text);
-			agent_role->setColor(PVDataOldAPI::getInstance()->getColor(mAvatarID,LLColor4::white, false));
+			agent_role->setColor(PVDataOldAPI::getInstance()->getColor(mAvatarID, LLColor4::white, false));
 			std::string raw_flags = pv_agent->getTitle(false);
 			if (raw_flags.empty())
 			{
