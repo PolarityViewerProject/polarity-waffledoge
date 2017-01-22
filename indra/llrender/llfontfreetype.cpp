@@ -98,23 +98,18 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 
 LLFontFreetype::LLFontFreetype()
 :	LLTrace::MemTrackable<LLFontFreetype>("LLFontFreetype"),
-	mStyle(0),
-	mPointSize(0),
+	mFontBitmapCachep(new LLFontBitmapCache),
 	mAscender(0.f),
 	mDescender(0.f),
 	mLineHeight(0.f),
-	mFTFace(NULL),
 	mIsFallback(FALSE),
-	mFontBitmapCachep(new LLFontBitmapCache),
+	mFTFace(NULL),
 	mRenderGlyphCount(0),
-	mAddGlyphCount(0)
+	mAddGlyphCount(0),
+	mStyle(0),
+	mPointSize(0)
 {
-	// <FS:ND> Set up kerning cache, size is 256x256, the initial cache lines are all null
-	mKerningCache = new F32*[ 256 ];
-
-	for( int i = 0; i < 256; ++i )
-		mKerningCache[i] = NULL;
-	// </FS:ND>
+	mCharGlyphInfoMap.reserve(500);
 }
 
 
@@ -131,13 +126,6 @@ LLFontFreetype::~LLFontFreetype()
 
 	delete mFontBitmapCachep;
 	// mFallbackFonts cleaned up by LLPointer destructor
-
-	// <FS:ND> Delete the kerning cache
-	for( int i = 0; i < 256; ++i )
-		delete[] mKerningCache[i];
-
-	delete[] mKerningCache;
-	// </FS:ND>
 }
 
 BOOL LLFontFreetype::loadFace(const std::string& filename, F32 point_size, F32 vert_dpi, F32 horz_dpi, S32 components, BOOL is_fallback)
@@ -300,33 +288,17 @@ F32 LLFontFreetype::getXKerning(llwchar char_left, llwchar char_right) const
 	LLFontGlyphInfo* right_glyph_info = getGlyphInfo(char_right);
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
-	// <FS:ND> Use cached kerning if possible, only do so for glyphs < 256 for now
-	if( right_glyph < 256 && left_glyph < 256 )
-	{
-		if( mKerningCache[ left_glyph ] && mKerningCache[ left_glyph ][ right_glyph ] < FLT_MAX )
-			return mKerningCache[ left_glyph ][ right_glyph ];
-	}
-	// </FS:ND>
+	F32 kerning = 0.0f;
+	if (getKerningCache(left_glyph,  right_glyph, kerning))
+		return kerning;
 
 	FT_Vector  delta;
 
 	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-	// <FS:ND> Cache kerning if possible, only do so for glyphs < 256 for now
-	if( right_glyph < 256 && left_glyph < 256 )
-	{
-		if( !mKerningCache[ left_glyph ] )
-		{
-			mKerningCache[ left_glyph ] = new F32[ 256 ];
-			for( int i = 0; i < 256; ++i )
-				mKerningCache[ left_glyph ][ i ] = FLT_MAX;
-		}
-		
-		mKerningCache[ left_glyph ][ right_glyph ] = delta.x*(1.f / 64.f);
-	}
-	// </FS:ND>
-
-	return delta.x*(1.f/64.f);
+	kerning = delta.x*(1.f/64.f);
+	setKerningCache(left_glyph, right_glyph, kerning);
+	return kerning;
 }
 
 F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LLFontGlyphInfo* right_glyph_info) const
@@ -337,32 +309,17 @@ F32 LLFontFreetype::getXKerning(const LLFontGlyphInfo* left_glyph_info, const LL
 	U32 left_glyph = left_glyph_info ? left_glyph_info->mGlyphIndex : 0;
 	U32 right_glyph = right_glyph_info ? right_glyph_info->mGlyphIndex : 0;
 
-	// <FS:ND> Use cached kerning if possible, only do so for glyphs < 256 for now
-	if( right_glyph < 256 && left_glyph < 256 )
-	{
-		if( mKerningCache[ left_glyph ] && mKerningCache[ left_glyph ][ right_glyph ] < FLT_MAX )
-			return mKerningCache[ left_glyph ][ right_glyph ];
-	}
-	// </FS:ND>
+	F32 kerning = 0.0f;
+	if (getKerningCache(left_glyph,  right_glyph, kerning))
+		return kerning;
 
 	FT_Vector  delta;
 
 	llverify(!FT_Get_Kerning(mFTFace, left_glyph, right_glyph, ft_kerning_unfitted, &delta));
 
-	// <FS:ND> Cache kerning if possible, only do so for glyphs < 256 for now
-	if( right_glyph < 256 && left_glyph < 256 )
-	{
-		if( !mKerningCache[ left_glyph ] )
-		{
-			mKerningCache[ left_glyph ] = new F32[ 256 ];
-			for( int i = 0; i < 256; ++i )
-				mKerningCache[ left_glyph ][ i ] = FLT_MAX;
-		}
-
-		mKerningCache[ left_glyph ][ right_glyph ] = delta.x*(1.f / 64.f);
-	}
-	// </FS:ND>
-	return delta.x*(1.f/64.f);
+	kerning = delta.x*(1.f/64.f);
+	setKerningCache(left_glyph, right_glyph, kerning);
+	return kerning;
 }
 
 BOOL LLFontFreetype::hasGlyph(llwchar wch) const
@@ -386,8 +343,7 @@ LLFontGlyphInfo* LLFontFreetype::addGlyph(llwchar wch) const
 	if (glyph_index == 0)
 	{
 		//LL_INFOS() << "Trying to add glyph from fallback font!" << LL_ENDL;
-		font_vector_t::const_iterator iter;
-		for(iter = mFallbackFonts.begin(); iter != mFallbackFonts.end(); iter++)
+		for(auto iter = mFallbackFonts.begin(); iter != mFallbackFonts.end(); ++iter)
 		{
 			glyph_index = FT_Get_Char_Index((*iter)->mFTFace, wch);
 			if (glyph_index)
@@ -541,16 +497,15 @@ void LLFontFreetype::renderGlyph(U32 glyph_index) const
 {
 	if (mFTFace == NULL)
 		return;
-
+	 // <polarity> Variant on Alchemy's glyph crash fix
 	if (FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_FORCE_AUTOHINT) != 0)
 	{
 		// if glyph fails to load and/or render, render a fallback character
 		llassert_always(!FT_Load_Char(mFTFace, L'?', FT_LOAD_FORCE_AUTOHINT));
 	}
-
 	// Attempt to autohint glyphs as well.
 	llassert_always(!FT_Render_Glyph(mFTFace->glyph, FT_RENDER_MODE_NORMAL));
-
+	// </polarity>
 	mRenderGlyphCount++;
 }
 
@@ -659,3 +614,20 @@ void LLFontFreetype::setSubImageLuminanceAlpha(U32 x, U32 y, U32 bitmap_num, U32
 	}
 }
 
+bool LLFontFreetype::getKerningCache(U32 left_glyph, U32 right_glyph, F32& kerning) const
+{
+	auto iter = mKerningCache.find(std::make_pair(left_glyph, right_glyph));
+	if (iter == mKerningCache.end())
+		return false;
+	kerning = iter->second;
+	return true;
+}
+
+void LLFontFreetype::setKerningCache(U32 left_glyph, U32 right_glyph, F32 kerning) const
+{
+	// reserve memory to prevent multiple allocations
+	// do this here instead of the constructor to save memory on unused fonts
+	if (mKerningCache.capacity() < 500)
+		mKerningCache.reserve(500);
+	mKerningCache.emplace(std::make_pair(left_glyph, right_glyph), kerning);
+}
