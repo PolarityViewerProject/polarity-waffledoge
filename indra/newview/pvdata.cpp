@@ -1253,7 +1253,7 @@ PVAgent::PVAgent()
 				// TODO: Use localizable strings
 				LLSD args;
 				args["AVATAR_ID"] = uuid;
-				args["PV_FLAGS"] = std::to_string(av_flags); // NOTE: Maybe use user friendly string instead?
+				args["PV_FLAGS"] = getTitle(false);
 				args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
 				args["MESSAGE"] = "Agent has deprecated or unhandled flags associated to it!";
 				LLNotificationsUtil::add("PVData_ColorBug", args);
