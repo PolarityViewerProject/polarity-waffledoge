@@ -31,6 +31,7 @@
 #include "pipeline.h"
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
+#include "llviewercontrol.h"
 
 F64 LLWLAnimator::INTERP_TOTAL_SECONDS = 3.f;
 
