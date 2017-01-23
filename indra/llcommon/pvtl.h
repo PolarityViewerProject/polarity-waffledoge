@@ -23,6 +23,10 @@
 * $/LicenseInfo$
 */
 
+#pragma once
+#if !LL_PVTL_H
+#define LL_PVTL_H 1
+
 // re-usable algorithm by Sebastian Mach (http://stackoverflow.com/a/6693128/1570096)
 // Follow the signature of std::getline. Allows us to stay completely
 // type agnostic.
@@ -51,3 +55,5 @@ inline long version_string_as_long(const std::string& version_in)
 	llassert(version_int != 0);
 	return version_int;
 }
+
+#endif // LL_PVTL_H
