@@ -1772,6 +1772,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_MapHeightThreshold</key>
+    <map>
+      <key>Comment</key>
+      <string>Height difference smaller than this value will be considered at the same altitude in minimap/radar</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>3.0</real>
+    </map>
     <key>PVUI_MapShowAgentCount</key>
     <map>
       <key>Comment</key>

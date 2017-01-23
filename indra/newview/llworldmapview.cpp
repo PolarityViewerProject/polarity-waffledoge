@@ -1176,7 +1176,9 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 								F32 dot_radius,
 								bool unknown_relative_z)
 {
-	const F32 HEIGHT_THRESHOLD = 1.5f;
+	// <polarity> Configurable height threshold
+	//const F32 HEIGHT_THRESHOLD = 1.5f;
+	static LLCachedControl<F32> HEIGHT_THRESHOLD(gSavedSettings, "PVUI_MapHeightThreshold");
 	LLUIImagePtr dot_image = sAvatarLevelImage;
 	if (unknown_relative_z)
 	{
