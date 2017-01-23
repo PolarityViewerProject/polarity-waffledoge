@@ -96,7 +96,7 @@ public:
 						std::vector<LLStaticHashedString> * uniforms,
 						U32 varying_count = 0,
 						const char** varyings = NULL);
-	BOOL attachObjectconst std::string& object);
+	BOOL attachObject(const std::string& object);
 	void attachObject(GLhandleARB object);
 	void attachObjects(GLhandleARB* objects = NULL, S32 count = 0);
 	BOOL mapAttributes(const std::vector<LLStaticHashedString> * attributes);
