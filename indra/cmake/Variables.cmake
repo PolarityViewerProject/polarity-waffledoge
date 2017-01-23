@@ -192,9 +192,6 @@ MESSAGE("======== *FEATURES* ========")
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 
-# Workarounds
-option(ENABLE_MESH_UPLOAD "Enable the Mesh Uploader menu items" OFF)
-
 # Experimental viewer features
 option(GL_TRANSFORM_FEEDBACK_BUFFER "Use OpenGL Transform Feedback Buffer" OFF)
 
@@ -218,7 +215,6 @@ option(INTERNAL_BUILD "Nya" OFF)
 
 # Add these CMake flags to the C++ preprocessor to toggle code that way
 add_definitions(
-  /DENABLE_MESH_UPLOAD=${ENABLE_MESH_UPLOAD}
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
   /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
   /DPVDATA_MOTD=${PVDATA_MOTD}
@@ -229,7 +225,6 @@ add_definitions(
   /DUSE_LTO=${USE_LTO}
   )
 
-MESSAGE("ENABLE_MESH_UPLOAD                 ${ENABLE_MESH_UPLOAD}")
 MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
 MESSAGE("PVDATA_SYSTEM                      ${PVDATA_COLORIZER}")
 MESSAGE("    PVDATA_COLORIZER               ${PVDATA_COLORIZER}")

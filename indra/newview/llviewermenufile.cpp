@@ -94,11 +94,7 @@ class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-#if ENABLE_MESH_UPLOAD
-		return true;
-#else
-		return false;
-#endif // ENABLE_MESH_UPLOAD
+		return true; //@todo check if lib is preset?
 	}
 };
 
