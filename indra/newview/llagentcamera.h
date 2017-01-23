@@ -114,10 +114,10 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void switchCameraPreset(ECameraPreset preset);
-private:
+//private:
 	/** Determines default camera offset depending on the current camera preset */
 	LLVector3 getCameraOffsetInitial();
-
+private:
 	/** Camera preset in Third Person Mode */
 	ECameraPreset mCameraPreset; 
 

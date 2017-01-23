@@ -60,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
+#include "llviewerjoystick.h"
 
 #if PVDATA_COLORIZER
 #include "pvdata.h"
@@ -68,6 +69,7 @@
 // [RLVa:KB] - Checked: RLVa-2.0.1
 #include "rlvactions.h"
 #include "rlvcommon.h"
+#include "llfloatercamera.h"
 // [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
@@ -384,8 +386,10 @@ void LLNetMap::draw()
 			bool unknown_relative_z;
 			LLColor4 color; // <polarity/>
 
-			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, gAgentCamera.getCameraPositionGlobal());
-
+			auto self_global_pos = gAgent.getPositionGlobal();
+			auto cam_pos_z = gAgentCamera.getCameraPositionGlobal();
+			LLWorld::getInstance()->getAvatars(&avatar_ids, &positions, cam_pos_z);
+			F32 fixed_z;
 			// Draw avatars
 			for (U32 i = 0; i < avatar_ids.size(); i++)
 			{
@@ -393,7 +397,9 @@ void LLNetMap::draw()
 				// Skip self, we'll draw it later
 				if (uuid == gAgent.getID()) continue;
 
-				pos_map = globalPosToView(positions[i]);
+				auto fixed_pos = positions[i];
+				pos_map = globalPosToView(fixed_pos);
+				
 
 #if PVDATA_COLORIZER
 				// <polarity> Colored names for special users.
@@ -406,20 +412,29 @@ void LLNetMap::draw()
 				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) && (RlvActions::canShowName(RlvActions::SNC_DEFAULT, uuid));
 #endif
 
-				unknown_relative_z = positions[i].mdV[VZ] == COARSEUPDATE_MAX_Z &&
+				unknown_relative_z = fixed_pos.mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
 
+				if (!LLViewerJoystick::getInstance()->getOverrideCamera() && !LLFloaterCamera::inFreeCameraMode() && gAgentCamera.getFocusOnAvatar())
+				{
+					// use global pos to rule out camera values.
+					fixed_z = fixed_pos.mdV[VZ] - self_global_pos.mdV[VZ];
+				}
+				else
+				{
+					fixed_z = pos_map.mV[VZ];
+				}
 				LLWorldMapView::drawAvatar(
 					pos_map.mV[VX], pos_map.mV[VY],
 					color,
-					pos_map.mV[VZ], mDotRadius,
+					fixed_z, mDotRadius,
 					unknown_relative_z);
 
 			if(uuid.notNull())
 			{
 				bool selected = false;
 				uuid_vec_t::iterator sel_iter = gmSelected.begin();
-				for (; sel_iter != gmSelected.end(); sel_iter++)
+				for (; sel_iter != gmSelected.end(); ++sel_iter)
 				{
 					if(*sel_iter == uuid)
 					{
@@ -473,7 +488,7 @@ void LLNetMap::draw()
 			}
 
 			// Draw dot for self avatar position
-			pos_map = globalPosToView(gAgent.getPositionGlobal());
+			pos_map = globalPosToView(self_global_pos);
 			S32 dot_width = ll_round(mDotRadius * 2.f);
 			LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
 			if (you)

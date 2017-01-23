@@ -61,6 +61,8 @@
 // [/RLVa:KB]
 
 #include "llglheaders.h"
+#include "llfloatercamera.h"
+#include "llviewerjoystick.h"
 
 // Basically a C++ implementation of the OCEAN_COLOR defined in mapstitcher.py 
 // Please ensure consistency between those 2 files (TODO: would be better to get that color from an asset source...)
@@ -1176,9 +1178,6 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 								F32 dot_radius,
 								bool unknown_relative_z)
 {
-	// <polarity> Configurable height threshold
-	//const F32 HEIGHT_THRESHOLD = 1.5f;
-	static LLCachedControl<F32> HEIGHT_THRESHOLD(gSavedSettings, "PVUI_MapHeightThreshold");
 	LLUIImagePtr dot_image = sAvatarLevelImage;
 	if (unknown_relative_z)
 	{
@@ -1186,11 +1185,13 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 	}
 	else
 	{
+		// <polarity> Configurable height threshold
+		static LLCachedControl<F32> HEIGHT_THRESHOLD(gSavedSettings, "PVUI_MapHeightThreshold");
 		if(relative_z < -HEIGHT_THRESHOLD)
 		{
 			dot_image = sAvatarBelowImage; 
 		}
-		else if(relative_z > HEIGHT_THRESHOLD) 
+		else if(relative_z > HEIGHT_THRESHOLD)
 		{ 
 			dot_image = sAvatarAboveImage;
 		}
