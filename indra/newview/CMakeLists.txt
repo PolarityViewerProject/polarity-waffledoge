@@ -56,10 +56,14 @@ if(MSVC)
     use_prebuilt_binary(vcredist)
 endif()
 
-if(NOT HAVOK_TPV)
-  # When using HAVOK_TPV, the library is precompiled, so no need for this
-  add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
-endif()
+# <alchemy> if using ndPhysicsstub this variable will be unset, we don't need to build any stub code viewer side in that case
+if( LLPHYSICSEXTENSIONS_SRC_DIR )
+if (NOT HAVOK_TPV)
+   # When using HAVOK_TPV, the library is precompiled, so no need for this
+   add_subdirectory(${LLPHYSICSEXTENSIONS_SRC_DIR} llphysicsextensions)
+endif (NOT HAVOK_TPV)
+endif( LLPHYSICSEXTENSIONS_SRC_DIR )
+# </alchemy>
 
 if(FMODSTUDIO)
   include_directories(${FMODSTUDIO_INCLUDE_DIR})
