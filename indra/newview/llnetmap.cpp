@@ -60,6 +60,7 @@
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
+#include "llfloatercamera.h"
 #include "llviewerjoystick.h"
 
 #if PVDATA_COLORIZER
@@ -69,7 +70,6 @@
 // [RLVa:KB] - Checked: RLVa-2.0.1
 #include "rlvactions.h"
 #include "rlvcommon.h"
-#include "llfloatercamera.h"
 // [/RLVa:KB]
 
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");

@@ -61,8 +61,6 @@
 // [/RLVa:KB]
 
 #include "llglheaders.h"
-#include "llfloatercamera.h"
-#include "llviewerjoystick.h"
 
 // Basically a C++ implementation of the OCEAN_COLOR defined in mapstitcher.py 
 // Please ensure consistency between those 2 files (TODO: would be better to get that color from an asset source...)
