@@ -11,7 +11,7 @@
   <default_style
    font="SansSerifSmall"
    font.style="NORMAL"
-   color="DkGray"/>
+   color="Magenta"/>
 
   <!-- styles for avatar item INVITED to voice call -->
   <voice_call_invited_style

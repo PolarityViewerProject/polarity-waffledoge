@@ -303,7 +303,7 @@ class LLUUID;
 		* \param show_buddy_status show buddy color if applicable
 		* \return
 		*/
-		LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status = true);
+		LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status = true);
 
 		/**
 		* \brief Check if supplied group is one of/the vendor's support group

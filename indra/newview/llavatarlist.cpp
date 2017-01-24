@@ -252,11 +252,11 @@ void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_i
 {
 	LL_DEBUGS("Avaline") << "Adding avaline item into the list: " << item_name << "|" << item_id << ", session: " << session_id << LL_ENDL;
 	LLAvalineListItem* item = new LLAvalineListItem(/*hide_number=*/false);
-	item->setAvatarId(item_id, session_id, true, false);
+	item->setAvatarId(item_id, session_id, false, false); // <polariry/>
 	item->setName(item_name);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 	item->showSpeakingIndicator(mShowSpeakingIndicator);
-	item->setOnline(false);
+	//item->setOnline(false);
 
 	addItem(item, item_id);
 	mIDs.push_back(item_id);

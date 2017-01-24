@@ -61,7 +61,6 @@ public:
 	};
 
 	typedef enum e_item_state_type {
-		IS_DEFAULT,
 		IS_VOICE_INVITED,
 		IS_VOICE_JOINED,
 		IS_VOICE_LEFT,
@@ -93,12 +92,12 @@ public:
 	virtual void setValue(const LLSD& value);
 	virtual void changed(U32 mask); // from LLFriendObserver
 
-	void setOnline(bool online, const bool& show_friend_color = true);
+	void setOnline(bool online, bool show_friend_color = true);
 	void updateAvatarName(); // re-query the name cache
 	void setAvatarName(const std::string& name);
 	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
-	void setState(EItemState item_style, const bool& show_friend_color_b = true);
+	void setState(EItemState item_style, bool show_friend_color_b = true);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
 	void setLastInteractionTime(U32 secs_since);
 	//Show/hide profile/info btn, translating speaker indicator and avatar name coordinates accordingly

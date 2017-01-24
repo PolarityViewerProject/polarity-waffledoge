@@ -1271,7 +1271,7 @@ PVAgent::PVAgent()
 		return pv_color;
 	}
 
-	LLColor4 PVDataOldAPI::getColor(const LLUUID& avatar_id, const LLColor4& default_color, const bool& show_buddy_status)
+	LLColor4 PVDataOldAPI::getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status)
 	{
 		// Try to operate in the same instance, reduce call overhead
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
@@ -1287,8 +1287,8 @@ PVAgent::PVAgent()
 		}
 
 		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-		bool show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
-		static auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
+		auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
+		auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
 		if (use_color_manager)
 		{
