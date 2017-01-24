@@ -92,17 +92,12 @@
 #include "lluictrlfactory.h"
 #include "llviewermedia.h"
 #include "llpluginclassmedia.h"
-#include "llteleporthistorystorage.h"
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
-
 #include "lllogininstance.h"        // to check if logged in yet
 #include "llsdserialize.h"
 //#include "llviewercontrol.h"
 //#include "llfeaturemanager.h"
 #include "llviewertexturelist.h"
+#include "llteleporthistorystorage.h"
 
 // [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
 #include "rlvactions.h"

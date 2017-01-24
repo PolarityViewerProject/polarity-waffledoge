@@ -71,17 +71,6 @@
 extern BOOL gTeleportDisplay;
 // [/SL:KB]
 
-// [RLVa:KB] - Checked: RLVa-2.0.2
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-#include "llviewerparcelmgr.h"
-#include "pvtl.h"
-extern BOOL gTeleportDisplay;
-// [/SL:KB]
-
 #include <boost/lexical_cast.hpp>
 
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;

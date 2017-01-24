@@ -46,10 +46,6 @@
 #include "llstatusbar.h"
 #include "llmenugl.h"
 #include "pipeline.h"
-// [RLVa:KB] - Checked: RLVa-1.4.0
-#include "rlvactions.h"
-#include "rlvcommon.h"
-// [/RLVa:KB]
 #include <boost/tokenizer.hpp>
 
 // [RLVa:KB] - Checked: RLVa-1.4.0

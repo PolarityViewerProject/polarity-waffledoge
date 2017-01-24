@@ -32,7 +32,6 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include "pvtl.h" // for commatize()
 #include <stdlib.h> // for setenv
 #include "pvdata.h"
 #include "pvcommon.h"

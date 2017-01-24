@@ -98,15 +98,9 @@
 #include "llanimstatelabels.h"
 #include "lltrans.h"
 #include "llappearancemgr.h"
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
-
 #include "llgesturemgr.h" //needed to trigger the voice gesticulations
 #include "llvoiceclient.h"
 #include "llvoicevisualizer.h" // Ventrella
-
 #include "lldebugmessagebox.h"
 //#include "llsdutil.h"
 #include "llscenemonitor.h"

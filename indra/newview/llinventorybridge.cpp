@@ -79,15 +79,9 @@
 #include "llwearableitemslist.h"
 #include "lllandmarkactions.h"
 #include "llpanellandmarks.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
-
-#include <boost/shared_ptr.hpp>
 #include "lltoolmgr.h"
 #include "lltoolcomp.h"
+#include <boost/shared_ptr.hpp>
 
 #include "pvdata.h"
 
