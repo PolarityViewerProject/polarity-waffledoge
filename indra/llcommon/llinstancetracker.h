@@ -57,7 +57,7 @@ protected:
 		void decrementDepth();
 		U32 getDepth();
 	private:
-		LLAtomic32<U32> sIterationNestDepth;
+		llatomic<U32> sIterationNestDepth;
     };
 };
 

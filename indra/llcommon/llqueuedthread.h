@@ -126,7 +126,7 @@ public:
 		};
 		
 	protected:
-		LLAtomic32<status_t> mStatus;
+		llatomic<status_t> mStatus;
 		U32 mPriority;
 		U32 mFlags;
 	};
@@ -196,7 +196,7 @@ public:
 protected:
 	BOOL mThreaded;  // if false, run on main thread and do updates during update()
 	BOOL mStarted;  // required when mThreaded is false to call startThread() from update()
-	LLAtomic32<bool> mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
+	llatomic<bool> mIdleThread; // request queue is empty (or we are quitting) and the thread is idle
 	
 	typedef std::set<QueuedRequest*, queued_request_less> request_queue_t;
 	request_queue_t mRequestQueue;

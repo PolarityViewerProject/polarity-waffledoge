@@ -86,7 +86,7 @@ protected:
 
 	BOOL mValid;
 	BOOL mDone;
-	LLAtomicS32 mBytesRead;
+	llatomic<S32> mBytesRead;
 	LLUUID mUUID;
 
 	std::vector<U8> mWAVBuffer;

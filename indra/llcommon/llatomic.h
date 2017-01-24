@@ -33,9 +33,9 @@
 #if LL_BOOST_ATOMICS
 #include <boost/atomic.hpp>
 template<typename Type>
-using LLAtomic32 = boost::atomic<Type>;
+using llatomic = boost::atomic<Type>;
 #elif LL_STD_ATOMICS
 #include <atomic>
 template<typename Type>
-using LLAtomic32 = std::atomic<Type>;
+using llatomic = std::atomic<Type>;
 #endif

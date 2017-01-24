@@ -2045,7 +2045,7 @@ void LLPathParams::copyParams(const LLPathParams &params)
 	setSkew(params.getSkew());
 }
 
-LLAtomic32<bool> profile_delete_lock(false);
+llatomic<bool> profile_delete_lock(false);
 LLProfile::~LLProfile()
 {
 	if(profile_delete_lock)

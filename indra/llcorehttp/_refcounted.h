@@ -66,7 +66,7 @@ protected:
 	virtual void destroySelf();
 
 private:
-	mutable LLAtomic32<S32>			mRefCount;
+	mutable llatomic<S32>			mRefCount;
 
 }; // end class RefCounted
 

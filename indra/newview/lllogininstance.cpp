@@ -471,7 +471,7 @@ bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
 // LLLoginInstance
 //-----------------------------------------------------------------------------
 
-LLAtomic<bool>login_failure_lock(false);
+llatomic<bool>login_failure_lock(false);
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
