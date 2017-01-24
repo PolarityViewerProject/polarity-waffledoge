@@ -164,9 +164,7 @@ void PVDataOldAPI::modularDownloader(const S8& pfile_name_in)
 	// Sets up the variables we need for each object. Avoids call bloat in the class constructor.
 	pvdata_user_agent_ = LLViewerMedia::getCurrentUserAgent();
 	pvdata_viewer_version_ = LLVersionInfo::getChannelAndVersionStatic();
-	LL_WARNS() << "Checking for testing data source" << LL_ENDL;
 	static LLCachedControl<bool> pvdata_testing_branch(gSavedSettings, "PVData_UseTestingDataSource", false);
-	LL_WARNS() << "Checking for testing data source part 2" << LL_ENDL;
 	if (pv_url_remote_base_string_ == "" || pvdata_testing_branch != pv_downloader_testing_branch)
 	{
 		pv_url_remote_base_string_ = "https://data.polarityviewer.org/" + (pvdata_testing_branch ? std::string("test/") : std::string("live/")) + std::to_string(pvdata_file_version) + "/";
