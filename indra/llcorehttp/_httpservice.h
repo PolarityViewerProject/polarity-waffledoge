@@ -226,7 +226,7 @@ protected:
 	// === shared data ===
 	static volatile EState				sState;
 	HttpRequestQueue *					mRequestQueue;	// Refcounted
-	LLAtomicU32							mExitRequested;
+	LLAtomic32<U32>							mExitRequested;
 	LLCoreInt::HttpThread *				mThread;
 	
 	// === working-thread-only data ===

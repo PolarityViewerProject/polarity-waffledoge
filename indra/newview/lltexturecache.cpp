@@ -153,7 +153,7 @@ protected:
 	LLPointer<LLTextureCache::Responder> mResponder;
 	LLLFSThread::handle_t mFileHandle;
 	S32 mBytesToRead;
-	LLAtomicS32 mBytesRead;
+	LLAtomic32<S32> mBytesRead;
 };
 
 class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker

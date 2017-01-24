@@ -373,7 +373,7 @@ private:
 	// Originally implemented as a traditional semaphore (heading towards
 	// zero), it now is an outstanding request count that is allowed to
 	// exceed the high water level (but not go below zero).
-	LLAtomicS32							mHttpSemaphore;					// Ttf
+	LLAtomic32<S32>							mHttpSemaphore;					// Ttf
 	
 	typedef std::set<LLUUID> wait_http_res_queue_t;
 	wait_http_res_queue_t				mHttpWaitResource;				// Mfnq
