@@ -1071,7 +1071,7 @@ void LLPanelLogin::updateLoginButtons()
 	}
 	else
 	{
-		enable_button = false;
+		//enable_button = false;
 		login_btn->setLabel(llformat("Uuhh..."));
 	}
 	bool has_credentials = (mUsernameLength != 0 && mPasswordLength != 0);
