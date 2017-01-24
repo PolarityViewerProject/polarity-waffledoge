@@ -19,14 +19,14 @@
 						</array>
 					<key>tags</key>
 						<array>
-							<string>AppInit</string>
-							<string>Capabilities</string>
+							<!-- <string>AppInit</string> -->
+							<!-- <string>Capabilities</string> -->
 							<string>SystemInfo</string>
-							<string>TextureCache</string>
-							<string>AppCache</string>
-							<string>Window</string>
-							<string>RenderInit</string>
-							<string>MediaAuth</string>
+							<!-- <string>TextureCache</string> -->
+							<!-- <string>AppCache</string> -->
+							<!-- <string>Window</string> -->
+							<!-- <string>RenderInit</string> -->
+							<!-- <string>MediaAuth</string> -->
 						</array>
 				</map>
 				<map>
