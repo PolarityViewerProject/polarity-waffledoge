@@ -43,11 +43,12 @@
      layout="topleft"
      name="Take Off &gt;">
         <context_menu
+         visible="false"
          label="Clothes"
          layout="topleft"
          name="Clothes &gt;">
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Shirt"
              layout="topleft"
              name="Shirt">
@@ -59,7 +60,7 @@
                  parameter="shirt" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Pants"
              layout="topleft"
              name="Pants">
@@ -71,7 +72,7 @@
                  parameter="pants" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Skirt"
              layout="topleft"
              name="Skirt">
@@ -83,7 +84,7 @@
                  parameter="skirt" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Shoes"
              layout="topleft"
              name="Shoes">
@@ -95,7 +96,7 @@
                  parameter="shoes" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Socks"
              layout="topleft"
              name="Socks">
@@ -107,7 +108,7 @@
                  parameter="socks" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Jacket"
              layout="topleft"
              name="Jacket">
@@ -119,7 +120,7 @@
                  parameter="jacket" />
             </menu_item_call>
             <menu_item_call
-             enabled="false"
+             visible="false"
              label="Gloves"
              layout="topleft"
              name="Gloves">
@@ -131,7 +132,7 @@
                  parameter="gloves" />
             </menu_item_call>
            <menu_item_call
-                 enabled="false"
+                 visible="false"
                  label="Undershirt"
                  layout="topleft"
                  name="Self Undershirt">
@@ -143,7 +144,7 @@
                      parameter="undershirt" />
                 </menu_item_call>
                <menu_item_call
-                 enabled="false"
+                 visible="false"
                  label="Underpants"
                  layout="topleft"
                  name="Self Underpants">
@@ -155,7 +156,7 @@
                      parameter="underpants" />
                 </menu_item_call>
                <menu_item_call
-                 enabled="false"
+                 visible="false"
                  label="Tattoo"
                  layout="topleft"
                  name="Self Tattoo">
@@ -167,7 +168,7 @@
                      parameter="tattoo" />
                 </menu_item_call>
                <menu_item_call
-                 enabled="false"
+                 visible="false"
                  label="Physics"
                  layout="topleft"
                  name="Self Physics">
@@ -179,7 +180,7 @@
                      parameter="physics" />
                 </menu_item_call>
                <menu_item_call
-                 enabled="false"
+                 visible="false"
                  label="Alpha"
                  layout="topleft"
                  name="Self Alpha">
@@ -193,6 +194,7 @@
                 <menu_item_separator
                  layout="topleft" />
                 <menu_item_call
+                 visible="false"
                  label="All Clothes"
                  layout="topleft"
                  name="All Clothes">
@@ -202,6 +204,7 @@
                 </menu_item_call>
         </context_menu>
         <context_menu
+         visible="false"
          label="HUD"
          layout="topleft"
          name="Object Detach HUD" />

@@ -505,6 +505,8 @@ BOOL LLVOAvatarSelf::buildMenus()
 					item_params.on_click.parameter = iter->first;
 					item_params.on_enable.function_name = "Attachment.PointFilled";
 					item_params.on_enable.parameter = iter->first;
+					item_params.on_visible.function_name = "Attachment.PointFilled";
+					item_params.on_visible.parameter = iter->first;
 					LLMenuItemCallGL* item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 
 					gDetachPieMenu->addChild(item);
@@ -546,6 +548,8 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.on_click.parameter = iter->first;
 			item_params.on_enable.function_name = "Attachment.PointFilled";
 			item_params.on_enable.parameter = iter->first;
+			item_params.on_visible.function_name = "Attachment.PointFilled";
+			item_params.on_visible.parameter = iter->first;
 			item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 			gDetachScreenPieMenu->addChild(item);
 		}
@@ -596,6 +600,8 @@ BOOL LLVOAvatarSelf::buildMenus()
 			item_params.on_click.parameter = iter->first;
 			item_params.on_enable.function_name = "Attachment.PointFilled";
 			item_params.on_enable.parameter = iter->first;
+			item_params.on_visible.function_name = "Attachment.PointFilled";
+			item_params.on_visible.parameter = iter->first;
 			//* TODO: Skinning: item->addEventHandler("on_enable", LLMenuItemCallGL::MenuCallback().function_name("Attachment.Label").parameter(params));
 
 			item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
@@ -658,6 +664,8 @@ BOOL LLVOAvatarSelf::buildMenus()
 				item_params.on_click.parameter = attach_index;
 				item_params.on_enable.function_name = "Attachment.PointFilled";
 				item_params.on_enable.parameter = attach_index;
+				item_params.on_visible.function_name = "Attachment.PointFilled";
+				item_params.on_visible.parameter = attach_index;
 				item = LLUICtrlFactory::create<LLMenuItemCallGL>(item_params);
 				gDetachBodyPartPieMenus[group]->addChild(item);
 			}
