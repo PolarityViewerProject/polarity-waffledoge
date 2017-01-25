@@ -54,14 +54,11 @@
 #include "lltoastnotifypanel.h"
 #include "lltooltip.h"
 #include "llviewerregion.h"
-#include "llviewertexteditor.h"
 #include "llworld.h"
-#include "lluiconstants.h"
 #include "llstring.h"
 #include "llurlaction.h"
 #include "llviewercontrol.h"
 #include "llviewerobjectlist.h"
-#include "llmutelist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
 #include "pvdata.h"

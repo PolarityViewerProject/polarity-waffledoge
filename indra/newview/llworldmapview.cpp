@@ -32,7 +32,6 @@
 #include "llui.h"
 #include "llmath.h"		// clampf()
 #include "llregionhandle.h"
-#include "lleventflags.h"
 #include "llfloaterreg.h"
 #include "llrender.h"
 #include "lltooltip.h"
