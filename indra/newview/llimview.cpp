@@ -2670,6 +2670,7 @@ void LLIMMgr::addMessage(
 		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
 	}
 	
+	auto im_model_instance = LLIMModel::getInstance();
 	if(!hasSession(new_session_id))
 	{
 		LLAvatarName av_name;
@@ -2677,9 +2678,26 @@ void LLIMMgr::addMessage(
 		{
 			fixed_session_name = av_name.getDisplayName();
 		}
-		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
-		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
+		//im_model_instance->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
+		LLIMModel::LLIMSession* session = nullptr;
+
+		for (auto tries = 0; tries < 5 && !session; tries++)
+		{
+			// cannot find session still, generate a new one.
+			//new_session_id = computeSessionID(dialog, other_participant_id);
+			im_model_instance->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
+			session = im_model_instance->findIMSession(new_session_id);
+		}
+		
+		if(!session)
+		{
+			// still can't find session? Bail. This is a problem.
+			LL_WARNS() << "Failed to create IM session with " << other_participant_id << "(" << fixed_session_name << ")" << LL_ENDL;
+			return;
+		}
+		llassert(session != nullptr);
+		
 		skip_message &= !session->isGroupSessionType();			// Do not skip group chats...
 		if(skip_message)
 		{
@@ -2703,7 +2721,7 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
+			im_model_instance->addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
 		// Logically it would make more sense to reject the session sooner, in another area of the
@@ -2727,7 +2745,7 @@ void LLIMMgr::addMessage(
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
-		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
+		im_model_instance->addMessage(new_session_id, from, other_participant_id, msg);
 	}
 
 	// Open conversation floater if offline messages are present
