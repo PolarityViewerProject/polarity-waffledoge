@@ -2669,9 +2669,8 @@ void LLIMMgr::addMessage(
 		skip_message = !LLAvatarTracker::instance().isBuddy(other_participant_id);	// Skip non friends...
 		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
 	}
-
-	bool new_session = !hasSession(new_session_id);
-	if (new_session)
+	
+	if(!hasSession(new_session_id))
 	{
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
