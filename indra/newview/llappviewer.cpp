@@ -3146,7 +3146,7 @@ void LLAppViewer::initUpdater()
 						 getOSInfo().getOSVersionString(),
 						 willing_to_test,
 						 hardware_id,
-						 PVDataOldAPI::getInstance()->getToken()
+						 gPVOldAPI->getToken()
 						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
@@ -5097,7 +5097,7 @@ void LLAppViewer::idle()
     }
 
 	// <polarity>
-	PVDataOldAPI::getInstance()->refreshDataFromServer();
+	gPVOldAPI->refreshDataFromServer();
 	//PVGetDynamicWindowTitle();
 	// </polarity>
 

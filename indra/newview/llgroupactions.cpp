@@ -244,7 +244,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-	if (PVDataOldAPI::getInstance()->isSupportGroup(group_id))
+	if (gPVOldAPI->isSupportGroup(group_id))
 	{
 		auto pv_agent = PVAgent::getDataFor(gAgentID);
 		if (pv_agent && pv_agent->isUserUnsupported())

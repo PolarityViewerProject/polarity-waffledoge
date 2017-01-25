@@ -1819,7 +1819,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
 	static auto white = LLUIColorTable::getInstance()->getColor("White");
-	params.font_color = PVDataOldAPI::getInstance()->getColor(item->getUUID(), white);
+	params.font_color = gPVOldAPI->getColor(item->getUUID(), white);
     params.folder_indentation = 27;
 
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);

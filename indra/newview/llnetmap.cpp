@@ -404,7 +404,7 @@ void LLNetMap::draw()
 #if PVDATA_COLORIZER
 				// <polarity> Colored names for special users.
 				// Note: RLVa handled in getColor, do not put here.
-				color = PVDataOldAPI::getInstance()->getColor(uuid, map_avatar_color);
+				color = gPVOldAPI->getColor(uuid, map_avatar_color);
 				// </polarity>
 #else
 				// but put rlva here

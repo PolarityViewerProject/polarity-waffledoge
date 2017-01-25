@@ -776,9 +776,9 @@ bool idle_startup()
 	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
 	{
 		// <polarity> PVData support
+		gPVOldAPI = PVDataOldAPI::getInstance();
 		gPVSearchUtil = PVSearchUtil::getInstance();
-		
-		PVDataOldAPI::getInstance()->downloadData();
+		gPVOldAPI->downloadData();
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
 	}
 
@@ -792,7 +792,7 @@ bool idle_startup()
 		static LLFrameTimer pvdata_timer;
 		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
 		const F32 MAX_PVDATA_TIME = 15.f;
-		gPVOldAPI = PVDataOldAPI::getInstance();
+		
 		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getDataDone())
 		{
 			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
@@ -871,7 +871,7 @@ bool idle_startup()
 				}
 			}
 			// <polarity> download agents data
-			PVDataOldAPI::getInstance()->downloadAgents();
+			gPVOldAPI->downloadAgents();
 
 			display_startup();
 			if (gViewerWindow->getSystemUIScaleFactorChanged())
@@ -912,7 +912,7 @@ bool idle_startup()
 	{
 		/* Minecraft-like endless title spam
 		llassert(!PVDataOldAPI::instance()->getDataDone());
-		std::string new_title = PVDataOldAPI::getInstance()->getRandomWindowTitle();
+		std::string new_title = gPVOldAPI->getRandomWindowTitle();
 		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
 		{
 			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
@@ -961,8 +961,8 @@ bool idle_startup()
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
 
-		llassert(PVDataOldAPI::getInstance()->getDataDone());
-		std::string new_title = PVDataOldAPI::getInstance()->getRandomWindowTitle();
+		llassert(gPVOldAPI->getDataDone());
+		std::string new_title = gPVOldAPI->getRandomWindowTitle();
 		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
 		{
 			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
@@ -1042,15 +1042,15 @@ bool idle_startup()
 		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		//}
 
-		PVDataOldAPI::getInstance()->getChatLogsDirOverride();
+		gPVOldAPI->getChatLogsDirOverride();
 
 		gDirUtilp->setPerAccountChatLogsDir(userid);  
 		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//PVDataOldAPI::getInstance()->moveTranscriptsAndLog(userid);
-		//PVDataOldAPI::getInstance()->setChatLogsDirOverride();
+		//gPVOldAPI->moveTranscriptsAndLog(userid);
+		//gPVOldAPI->setChatLogsDirOverride();
 
 		// NaCl - Store Log Level
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(gSavedSettings.getU32("_NACL_LogLevel")));
@@ -1138,7 +1138,7 @@ bool idle_startup()
 		{
 			gAgent.mMOTD = "";
 		}
-		PVDataOldAPI::getInstance()->getNewProgressTip(true);
+		gPVOldAPI->getNewProgressTip(true);
 		LLStartUp::setStartupState(STATE_PROGRESS_TIP);
 		return FALSE;
 	}
@@ -1361,12 +1361,12 @@ bool idle_startup()
 			show_connect_box = true;
 			return FALSE;
 		}
-		else if (PVDataOldAPI::getInstance()->getAgentsDone())
+		else if (gPVOldAPI->getAgentsDone())
 		{
 			LL_WARNS("PVDataOldAPI") << "Parsing agents sucess, moving on..." << LL_ENDL;
 			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
 			set_startup_status(0.099f, "Wheeee~");
-			if (!(PVDataOldAPI::getInstance()->isAllowedToLogin(gAgentID)))
+			if (!(gPVOldAPI->isAllowedToLogin(gAgentID)))
 			{
 				//LLLoginInstance::getInstance()->disconnect();
 				gAgentID.setNull();
@@ -1396,12 +1396,12 @@ bool idle_startup()
 		display_startup();
 		gViewerWindow->getProgressView()->setVisible(FALSE);
 		// <polarity> Custom error message related to PVDataOldAPI
-		if (!PVDataOldAPI::getInstance()->getErrorMessage().empty())
+		if (!gPVOldAPI->getErrorMessage().empty())
 		{
 			LLSD args;
-			args["ERROR_MESSAGE"] = PVDataOldAPI::getInstance()->getErrorMessage();
+			args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-			transition_back_to_login_panel(PVDataOldAPI::getInstance()->getErrorMessage());
+			transition_back_to_login_panel(gPVOldAPI->getErrorMessage());
 			show_connect_box = true;
 			return FALSE;
 		}
@@ -2463,7 +2463,7 @@ bool idle_startup()
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
 
 		// start pvdata refresh timer
-		PVDataOldAPI::getInstance()->startRefreshTimer();
+		gPVOldAPI->startRefreshTimer();
 		// </polarity>
 
 		gAgentAvatarp->sendHoverHeight();

@@ -395,7 +395,7 @@ void LLFloaterAbout::showCheckUpdateNotification(S32 state)
 	{
 	case LLUpdaterService::UP_TO_DATE:
 #if INTERNAL_BUILD
-		if (PVDataOldAPI::getInstance()->getToken() == "")
+		if (gPVOldAPI->getToken() == "")
 		{
 			LLSD arguments;
 			arguments["MESSAGE"] = LLTrans::getString("MissingTesterToken");
@@ -440,7 +440,7 @@ void LLFloaterAbout::setUpdateListener()
 	LLUpdaterService update_service;
 	S32 service_state = update_service.getState();
 	// Note: Do not set state listener before forceCheck() since it set's new state
-	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest"), PVDataOldAPI::getInstance()->getToken()) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
+	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest"), gPVOldAPI->getToken()) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)
 	{
 		LLEventPump& mainloop(LLEventPumps::instance().obtain("mainlooprepeater"));
 		if (mainloop.getListener(sCheckUpdateListenerName) == LLBoundListener()) // dummy listener

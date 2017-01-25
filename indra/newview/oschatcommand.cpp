@@ -424,7 +424,7 @@ bool OSChatCommand::parseCommand(std::string data)
 		auto pv_agent = PVAgent::getDataFor(gAgentID);
 		if (pv_agent && pv_agent->isUserPolarized())
 		{
-			PVDataOldAPI::getInstance()->refreshDataFromServer(true);
+			gPVOldAPI->refreshDataFromServer(true);
 		}
 		return true;
 		break;
