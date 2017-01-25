@@ -263,7 +263,8 @@ std::string LLUrlEntryHTTP::getUrl(const std::string &string) const
 
 std::string LLUrlEntryHTTP::getTooltip(const std::string &url) const
 {
-	return unescapeUrl(url);
+	
+	return mTooltip; // <polarity/> Get actual URL tooltip
 }
 
 //
@@ -316,7 +317,7 @@ std::string LLUrlEntryInvalidSLURL::getUrl(const std::string &string) const
 
 std::string LLUrlEntryInvalidSLURL::getTooltip(const std::string &url) const
 {
-	return unescapeUrl(url);
+	return mTooltip; // <polarity/> Get actual URL tooltip
 }
 
 bool LLUrlEntryInvalidSLURL::isSLURLvalid(const std::string &url) const
