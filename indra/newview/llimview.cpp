@@ -2662,7 +2662,8 @@ void LLIMMgr::addMessage(
 	}
 	bool skip_message = false;
 	bool from_linden = LLMuteList::getInstance()->isLinden(from);
-	if (gSavedSettings.getBOOL("VoiceCallsFriendsOnly") && !from_linden)
+	static LLCachedControl<bool> voice_call_friends_only(gSavedSettings, "VoiceCallsFriendsOnly");
+	if (voice_call_friends_only && !from_linden)
 	{
 		// Evaluate if we need to skip this message when that setting is true (default is false)
 		skip_message = !LLAvatarTracker::instance().isBuddy(other_participant_id);	// Skip non friends...
