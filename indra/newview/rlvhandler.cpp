@@ -475,6 +475,11 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 
 bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage)
 {
+	//@todo create a new session instead
+	if (sessionID.isNull())
+	{
+		return false;
+	}
 	if ("@stopim" == strMessage)
 	{
 		// If the user can't start an IM session and one is open terminate it - always notify the sender in this case
