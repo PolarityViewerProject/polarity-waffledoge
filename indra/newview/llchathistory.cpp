@@ -1056,6 +1056,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// names showing
 		if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size() != 0)
 		{
+			static LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
 			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
@@ -1075,8 +1076,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
-				link_params.color.control = "HTMLLinkColor";
-				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+				//link_params.color.control = "HTMLLinkColor";
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
 				link_params.is_link = true;
@@ -1095,7 +1095,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				link_params.override_link_style = true;
 #if PVDATA_COLORIZER
 				// Colorize agent links.
-				static auto link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 				name_color = gPVOldAPI->getColor(chat.mFromID, link_color);
 				link_params.color = name_color;
 				link_params.readonly_color = name_color;

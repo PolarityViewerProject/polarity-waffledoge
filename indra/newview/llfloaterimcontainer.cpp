@@ -1818,7 +1818,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.rect = LLRect (0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
-	static auto white = LLUIColorTable::getInstance()->getColor("White");
+	static LLColor4 white = LLUIColorTable::getInstance()->getColor("White");
 	params.font_color = gPVOldAPI->getColor(item->getUUID(), white);
     params.folder_indentation = 27;
 

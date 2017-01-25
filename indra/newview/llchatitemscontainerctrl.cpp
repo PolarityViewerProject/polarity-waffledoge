@@ -219,16 +219,21 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 		{
 			LLStyle::Params style_params_name;
 
-			static LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+			static LLColor4 html_link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+			LLColor4 name_color;
 #if PVDATA_COLORIZER
 			// <polarity> Colored names for special users
 			if (mSourceType != CHAT_SOURCE_OBJECT && (mFromID.notNull()))
 			{
-				user_name_color = gPVOldAPI->getColor(mFromID, user_name_color);
+				name_color = gPVOldAPI->getColor(mFromID, html_link_color);
+			}
+			else
+			{
+				name_color = html_link_color;
 			}
 			// </polarity>
 #endif // PVDATA_COLORIZER
-			style_params_name.color(user_name_color);
+			style_params_name.color(name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
 			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
