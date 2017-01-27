@@ -619,7 +619,7 @@ class LLUUID;
 				if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
 				{
 					PVDataOldAPI::PV_DEBUG("Setting EVENTS MOTD to " + name, LLError::LEVEL_INFO);
-					// TODO: Shove into notification well.
+					//@todo: Shove into notification well.
 					return content["EventMOTD"].asString();
 				}
 			}
@@ -637,7 +637,10 @@ class LLUUID;
 
 		static std::string getRandomWindowTitle();
 
-
+		/**
+		* \brief Determines if the current binary is a known, and blocked release.
+		* \return true if the release is blocked, false if allowed.
+		*/
 		bool isBlockedRelease();
 
 		// setters
@@ -698,7 +701,7 @@ class LLUUID;
 		};
 		extern PVDataOldAPI* gPVOldAPI;
 
-	// TODO: Move to another file?
+	//@todo: Move to another file?
 	class PVSearchUtil : public LLSingleton <PVSearchUtil>
 	{
 		LOG_CLASS(PVSearchUtil);

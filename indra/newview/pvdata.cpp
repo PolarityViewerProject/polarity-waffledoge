@@ -156,7 +156,7 @@ void PVDataOldAPI::downloadAgents()
 
 void PVDataOldAPI::modularDownloader(const S8& pfile_name_in)
 {
-	// TODO: Move some place that won't get run twice
+	//@todo: Move some place that won't get run twice
 
 	pv_file_name_data_string_ = pv_file_names.find(data_file)->second;
 	pv_file_name_agents_string_ = pv_file_names.find(agents_file)->second;
@@ -174,8 +174,6 @@ void PVDataOldAPI::modularDownloader(const S8& pfile_name_in)
 	// construct download url from file name
 	headers_.insert("User-Agent", pvdata_user_agent_);
 	headers_.insert("viewer-version", pvdata_viewer_version_);
-	// FIXME: This is ugly
-	//pvdata_modular_remote_url_full_ = pv_url_remote_base_string_ + pfile_name_in;
 	auto iterator = pv_file_names.find(pfile_name_in);
 	std::string requested_file = iterator->second;
 
@@ -189,8 +187,7 @@ void PVDataOldAPI::modularDownloader(const S8& pfile_name_in)
 	}
 
 	PV_DEBUG("Downloading " + requested_file + " from " + pv_url_remote_base_string_ + requested_file, LLError::LEVEL_INFO);
-	// TODO: HTTP eTag support
-	//LLHTTPClient::get(pvdata_modular_remote_url_full_, new PVDataOldAPI(pvdata_modular_remote_url_full_, pfile_name_in), headers_, HTTP_TIMEOUT);
+	//@todo: HTTP eTag support
 	LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(pv_url_remote_base_string_ + requested_file,
 		boost::bind(downloadComplete, _1, pv_url_remote_base_string_ + requested_file),
 		boost::bind(downloadError, _1, pv_url_remote_base_string_ + requested_file));
@@ -291,7 +288,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 
 	std::string section = pv_data_sections_.at(MinimumVersion);
 
-	// TODO: Loop through sections and check section type to determine validity?
+	//@todo: Loop through sections and check section type to determine validity?
 	PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
 	if (data_input.has(section))
 	{
@@ -370,10 +367,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		Dump(section, blob);
 		setMotdEventsList(blob);
 		auto event_motd = getEventMotdIfAny();
-		//if (event_motd != "")
-		//{
-		//	gAgent.mMOTD = event_motd;
-		//}
 	}
 	else
 	{
@@ -383,8 +376,8 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 
 #if PVDATA_PROGRESS_TIPS
 	section = pv_data_sections_.at(ProgressTip);
-	// TODO: Split tips files
-	// <polarity> Load the progress screen tips
+	//@todo: Split tips files
+	// Load the progress screen tips
 	PV_DEBUG("Attempting to find " + section, LLError::LEVEL_DEBUG);
 	if (data_input.has(section))
 	{
@@ -672,8 +665,7 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 		setErrorMessage("Something went wrong, and the authentication checks have failed.");	
 	}
 #endif
-	// NOTE: We make an exception here and cache the agent flags due to the amount of find() calls that would be generated otherwise.
-	// We should probably make a new class for each agent or something... - Xenhat
+	//@todo replace with member functions
 	auto av_flags = PVAgent::getDataFor(avatar_id)->getFlags();
 	LL_WARNS() << "HERE ARE YOUR FLAGS: " << av_flags << LL_ENDL;
 	if (av_flags & BAD_USER_BANNED)
@@ -737,10 +729,6 @@ std::vector<int> split_version(const char *str, char separator = '.')
 	return result;
 }
 
-/**
- * \brief Determines if the current binary is a known, and blocked release.
- * \return true if the release is blocked, false if allowed.
- */
 bool PVDataOldAPI::isBlockedRelease()
 {
 	static S32 blocked = -1;
@@ -882,7 +870,7 @@ std::string PVSearchUtil::getSearchSeparator(const U32 separator_to_get_u32) con
 	return getSearchSeparator();
 }
 
-// <polarity> The Linden Lab viewer's logic is somewhat spaghetti and confusing to me, so I wrote my own.
+//@todo replace with proper code fixes
 std::string PVDataOldAPI::getPreferredName(const LLAvatarName& av_name)
 {
 	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
@@ -912,59 +900,6 @@ std::string PVDataOldAPI::getPreferredName(const LLAvatarName& av_name)
 
 	return preferred_name;
 }
-void PVDataOldAPI::setChatLogsDirOverride()
-{
-#ifdef FINISHED_CHAT_LOG_WRITE
-	/*
-	// ReSharper disable CppDeprecatedEntity // we are cross-platform.
-	auto override_location = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
-	// ReSharper restore CppDeprecatedEntity
-	if (override_location && override_location != gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str())
-	{
-
-	LL_WARNS() << "Would set logs location to: " << override_location << LL_ENDL;
-	//gSavedPerAccountSettings.setString("InstantMessageLogPath", override_location);
-	//LLFloaterPreference::moveTranscriptsAndLog();
-	}
-
-	LPCWSTR name_ = L"PV_CHATLOGS_LOCATION_OVERRIDE";
-	std::string value_ = log_location_from_settings;
-
-	HKEY        key;
-	HKEY        subKey;
-	char const *subKeyName;
-
-	if (es_invalid == scope_) {
-	return;
-	}
-
-	switch (scope_) {
-	case es_system:
-	key = HKEY_LOCAL_MACHINE;
-	subKeyName = systemEnvSubKey;
-	break;
-
-	case es_user:
-	key = HKEY_CURRENT_USER;
-	subKeyName = userEnvSubKey;
-	break;
-	}
-
-	// Assign the new value.
-	value_ = text;
-
-	// Write the new value to the registry.
-	RegOpenKeyEx(key, subKeyName, 0, KEY_SET_VALUE, &subKey);
-	RegSetValueEx(subKey,
-	name_.c_str(),
-	0,
-	REG_EXPAND_SZ,
-	reinterpret_cast<const BYTE *>(value_.c_str()),
-	value_.length() + 1);
-	RegCloseKey(key);
-	*/
-#endif
-}
 
 #if LL_WINDOWS
 // Microsoft's runtime library doesn't support the standard setenv() function.
@@ -983,7 +918,7 @@ int setenv(const char *name, const char *value, int overwrite)
 #endif // LL_WINDOWS
 
 std::string getRegKey(const std::string& name_) {
-	//LL_WARNS() << "Would set logs location to: " << log_location_from_settings << LL_ENDL;
+	//@todo implement failsafe
 	// README: This assumes the variable is set.
 	//setenv("PV_CHATLOGS_LOCATION_OVERRIDE", gSavedPerAccountSettings.getString("InstantMessageLogPath").c_str(), 1);
 	// Borrowed from editenv.dll by Dan Moulding (Visual Leak Detector's author)
@@ -1019,15 +954,14 @@ std::string getRegKey(const std::string& name_) {
 
 	LL_WARNS() << "Key [" << value << "] = exist!" << LL_ENDL;
 	RegCloseKey(key);
-	//auto nya = RegCreateKeyEx(HKEY_CURRENT_USER, ,0,NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE,);
-	// TODO: Linux and OSX support
+	//@todo: Linux and OSX support
 	return value;
 }
 
 void PVDataOldAPI::getChatLogsDirOverride()
 {
 	std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
-	std::string registry_key = "PV_CHATLOGS_LOCATION_OVERRIDE"; // TODO: Move to global
+	std::string registry_key = "PV_CHATLOGS_LOCATION_OVERRIDE"; //@todo: Move to global
 																// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
 	char* log_location_from_registry = getenv(registry_key.c_str());
 
@@ -1167,18 +1101,15 @@ PVAgent::PVAgent()
 
 	bool PVAgent::isSpecialAgentColored() const
 	{
-		//return pv_special_agent_color_.find(avatar_id) != pv_special_agent_color_.end();
 		return color != LLColor3::black;
 	}
 
 	LLColor4 PVAgent::getColorCustom() const
 	{
-		//return pv_special_agent_color_[avatar_id];
 		return LLColor4(color);
 	}
 
-	// Do not call directly outside PVData functions; not finished yet
-	//@todo make this llcolor3
+	// Do not call directly!
 	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
 		LLColor4 pv_color = no_color;
@@ -1247,7 +1178,7 @@ PVAgent::PVAgent()
 			// Unsupported users have no color.
 			else
 			{
-				// TODO: Use localizable strings
+				//@todo: Use localizable strings
 				LLSD args;
 				args["AVATAR_ID"] = uuid;
 				args["PV_FLAGS"] = getTitle(false);
@@ -1264,9 +1195,6 @@ PVAgent::PVAgent()
 				args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
 				LLNotificationsUtil::add("PVData_ColorBug", args);
 			}
-			// Speedup: Put fetched agent color into cached list to speed up subsequent function calls
-			// Temporarily disabled to investigate friend list color bug
-			//setSpecialAgentColor(avatar_id, pvdata_color);
 		}
 		return pv_color;
 	}
@@ -1367,7 +1295,7 @@ PVAgent::PVAgent()
 		return (!new_title.empty());
 	}
 
-	std::string PVAgent::getTitle(bool get_custom_title) const // fixme
+	std::string PVAgent::getTitle(bool get_custom_title) const
 	{
 		// Check for agents flagged through PVDataOldAPI
 		std::vector<std::string> flags_list;
@@ -1498,9 +1426,8 @@ PVAgent::PVAgent()
 
 	bool PVAgent::isUserPolarized() const
 	{
-		// TODO: Re-order flags by hierarchy again and make this nicer
+		//@todo: Re-order flags by hierarchy again and make this nicer
 		//auto flags = getAgentFlags(avatar_id);
-
 		//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
 		return (getFlags() != 0 &&
 			!isUserAutoMuted() &&
