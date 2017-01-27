@@ -64,6 +64,7 @@
 // Boost includes
 #include <boost/algorithm/string.hpp>
 #include "llfloaterimcontainer.h"
+#include "pvcommon.h"
 
 // ============================================================================
 // Static variable initialization
@@ -475,11 +476,6 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 
 bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage)
 {
-	//@todo create a new session instead
-	if (sessionID.isNull())
-	{
-		return false;
-	}
 	if ("@stopim" == strMessage)
 	{
 		// If the user can't start an IM session and one is open terminate it - always notify the sender in this case
@@ -548,18 +544,27 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 		}
 		if(show_at_rlv_requests_reply)
 		{
-			gIMMgr->addMessage(
-				sessionID,
-				LLUUID::null, // will fallback to CHAT_SOURCE_SYSTEM, hopefully
-				"",
-				"Responding to @version with '" + reply_string + "'",
-				false,
-				LLStringUtil::null,
-				IM_NOTHING_SPECIAL,
-				0,
-				LLUUID::null,
-				LLVector3::zero,
-				false);
+			//@todo create a new session instead
+			auto message = "Responding to @version from secondlife:///app/agent/" + idSender.asString() + "/inspect with '" + reply_string + "'";
+			//if (sessionID.isNull())
+			//{
+				PVCommon::getInstance()->reportToNearbyChat(message);
+			//}
+			//else
+			//{
+			//	gIMMgr->addMessage(
+			//		sessionID,
+			//		LLUUID::null, // will fallback to CHAT_SOURCE_SYSTEM, hopefully
+			//		"",
+			//		message,
+			//		false,
+			//		LLStringUtil::null,
+			//		IM_NOTHING_SPECIAL,
+			//		0,
+			//		LLUUID::null,
+			//		LLVector3::zero,
+			//		false);
+			//}
 		}
 		RlvUtil::sendBusyMessage(idSender, reply_string, sessionID);
 		return true; // eat message
