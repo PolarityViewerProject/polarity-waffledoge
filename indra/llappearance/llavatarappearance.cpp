@@ -246,7 +246,7 @@ void LLAvatarAppearance::initInstance()
 					break;
 				case MESH_ID_EYEBALL_LEFT:
 				case MESH_ID_EYEBALL_RIGHT:
-					mesh->setSpecular( LLColor4( 1.0f, 1.0f, 1.0f, 1.0f ), 1.f );
+				mesh->setSpecular(LLColor4::white, 1.f);
 				default:
 					mesh->setIsTransparent(FALSE);
 					break;
