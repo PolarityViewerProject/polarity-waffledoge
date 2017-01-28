@@ -1440,7 +1440,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 //
 	if (mem <= 0 || cur_mem.value() <= 0) // convention for "use current"
 	{
-		LL_INFOS() << "TextureMemory was 0, auto-detecting..." << LL_ENDL;
+		LL_INFOS() << "Auto-detecting TextureMemory allocation..." << LL_ENDL;
 		mem = getMaxVideoRamSetting(true).value(); // recommended default
 	}
 
