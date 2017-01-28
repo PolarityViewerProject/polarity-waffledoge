@@ -14,7 +14,6 @@
 
 #include "lleventapi.h"
 #include <map>
-#include <string>
 #include <boost/function.hpp>
 #include <boost/ptr_container/ptr_map.hpp>
 

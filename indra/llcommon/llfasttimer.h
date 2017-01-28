@@ -27,7 +27,6 @@
 #ifndef LL_FASTTIMER_H
 #define LL_FASTTIMER_H
 
-#include "llinstancetracker.h"
 #include "lltrace.h"
 #include "lltreeiterators.h"
 

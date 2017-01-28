@@ -29,11 +29,8 @@
 #if ! defined(LL_LLEVENTCORO_H)
 #define LL_LLEVENTCORO_H
 
-#include <boost/optional.hpp>
-#include <string>
 #include <utility>                  // std::pair
 #include "llevents.h"
-#include "llerror.h"
 #include "llexception.h"
 
 /**

@@ -35,8 +35,6 @@
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/function.hpp>
 #include <boost/thread/tss.hpp>
-#include <string>
-#include <stdexcept>
 
 // forward-declare helper class
 namespace llcoro

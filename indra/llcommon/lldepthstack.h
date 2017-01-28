@@ -27,7 +27,7 @@
 #ifndef LL_LLDEPTHSTACK_H
 #define LL_LLDEPTHSTACK_H
 
-#include "llstl.h"
+#include "lldefs.h"
 
 template <class DATA_TYPE> class LLDepthStack
 {
