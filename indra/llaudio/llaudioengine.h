@@ -28,7 +28,6 @@
 #ifndef LL_AUDIOENGINE_H
 #define LL_AUDIOENGINE_H
 
-#include <list>
 #include <map>
 
 #include "v3math.h"

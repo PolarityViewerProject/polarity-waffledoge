@@ -28,6 +28,7 @@
 #define LL_INDRA_CONSTANTS_H
 
 #include "stdtypes.h"
+#include "lluuid.h"
 
 class LLUUID;
 

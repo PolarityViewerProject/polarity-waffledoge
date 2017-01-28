@@ -27,12 +27,11 @@
 #ifndef LL_LLALLOCATOR_H
 #define LL_LLALLOCATOR_H
 
-#include <string>
-
+#include "llpreprocessor.h" // for LL_COMMON_API
 #include "llallocator_heap_profile.h"
 
 class LL_COMMON_API LLAllocator {
-    friend class LLMemoryView;
+    //friend class LLMemoryView;
 
 public:
     void setProfilingEnabled(bool should_enable);

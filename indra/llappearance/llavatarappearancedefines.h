@@ -33,6 +33,7 @@
 #include "lldictionary.h"
 #include "llwearabletype.h"
 #include "lluuid.h"
+#include "llsingleton.h"
 
 namespace LLAvatarAppearanceDefines
 {

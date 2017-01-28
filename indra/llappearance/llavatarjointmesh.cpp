@@ -35,10 +35,6 @@
 #include "llavatarappearance.h"
 #include "lltexlayer.h"
 #include "llmath.h"
-#include "v4math.h"
-#include "m3math.h"
-#include "m4math.h"
-#include "llmatrix4a.h"
 
 
 // Utility functions added with Bento to simplify handling of extra

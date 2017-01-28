@@ -24,8 +24,6 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
-
 #include "lllistener.h"
 
 const LLVector3 DEFAULT_AT(0.0f, 0.0f, -1.0f);
