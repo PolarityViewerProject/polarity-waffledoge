@@ -35,7 +35,7 @@
  *
  * -- Leviathan 20060113
 */
-
+#if LL_LINUX
 #include <cctype>
 
 __const unsigned short int *__ctype_b;
@@ -49,6 +49,6 @@ void ctype_workaround()
 	__ctype_toupper = *(__ctype_toupper_loc());
 	__ctype_tolower = *(__ctype_tolower_loc());
 }
-
+#endif // LL_LINUX
 #endif
 
