@@ -189,7 +189,7 @@ BOOL LLMuteList::isLinden(const std::string& name) const
 	tokenizer::iterator token_iter = tokens.begin();
 	
 	if (token_iter == tokens.end()) return FALSE;
-	token_iter++;
+	++token_iter;
 	if (token_iter == tokens.end()) return FALSE;
 	
 	std::string last_name = *token_iter;
@@ -679,7 +679,7 @@ BOOL LLMuteList::isMuted(const std::string& username, U32 flags) const
 		{
 			return TRUE;
 		}
-		mute_iter++;
+		++mute_iter;
 	}
 	return FALSE;
 }

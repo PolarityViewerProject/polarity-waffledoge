@@ -302,7 +302,7 @@ void LLFloaterInspect::refresh()
 	//List all transient objects, then all linked objects
 
 	for (LLObjectSelection::valid_iterator iter = mObjectSelection->valid_begin();
-		 iter != mObjectSelection->valid_end(); iter++)
+		 iter != mObjectSelection->valid_end(); ++iter)
 	{
 		LLSelectNode* obj = *iter;
 		LLSD row;

@@ -456,7 +456,7 @@ void LLPanelLandmarkInfo::populateFoldersList()
 	sort(folders.begin(), folders.end(), cmp_folders);
 
 	// Finally, populate the combobox.
-	for (folder_vec_t::const_iterator it = folders.begin(); it != folders.end(); it++)
+	for (folder_vec_t::const_iterator it = folders.begin(); it != folders.end(); ++it)
 		mFolderCombo->add(it->second, LLSD(it->first));
 }
 

@@ -651,7 +651,7 @@ void LLPanelMainInventory::updateFilterDropdown(const LLInventoryFilter* filter)
 	else
 	{
 		// find the name of the current filter in our filter map, if exists
-		for(std::map<std::string,U64>::iterator i=mFilterMap.begin();i!=mFilterMap.end();i++)
+		for(std::map<std::string,U64>::iterator i=mFilterMap.begin();i!=mFilterMap.end(); ++i)
 		{
 			if((*i).second==filterTypes)
 			{

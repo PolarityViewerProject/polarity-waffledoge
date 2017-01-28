@@ -754,7 +754,7 @@ void LLFavoritesBarCtrl::updateButtons()
 
 	if(mGetPrevItems)
 	{
-	    for (LLInventoryModel::item_array_t::iterator it = mItems.begin(); it != mItems.end(); it++)
+	    for (LLInventoryModel::item_array_t::iterator it = mItems.begin(); it != mItems.end(); ++it)
 	    {
 	        LLFavoritesOrderStorage::instance().mFavoriteNames[(*it)->getUUID()]= (*it)->getName();
 	    }
@@ -795,7 +795,7 @@ void LLFavoritesBarCtrl::updateButtons()
 			}
 			first_changed_item_index++;
 		}
-		child_it++;
+		++child_it;
 	}
 	// now first_changed_item_index should contains a number of button that need to change
 
@@ -1793,7 +1793,7 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 	std::sort(items.begin(), items.end(), LLFavoritesSort());
 	bool name_changed = false;
 
-	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
+	for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 	{
 	    if(mFavoriteNames[(*it)->getUUID()] != ((*it)->getName()))
 	    {
@@ -1802,7 +1802,7 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 	    }
 	}
 
-	for (std::set<LLUUID>::iterator it = mMissingSLURLs.begin(); it != mMissingSLURLs.end(); it++)
+	for (std::set<LLUUID>::iterator it = mMissingSLURLs.begin(); it != mMissingSLURLs.end(); ++it)
 	{
 		slurls_map_t::iterator slurl_iter = mSLURLs.find(*it);
 		if (slurl_iter != mSLURLs.end())
@@ -1833,7 +1833,7 @@ BOOL LLFavoritesOrderStorage::saveFavoritesRecord(bool pref_changed)
 			LLSD user_llsd;
 			S32 fav_iter = 0;
 			mMissingSLURLs.clear();
-			for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); it++)
+			for (LLInventoryModel::item_array_t::iterator it = items.begin(); it != items.end(); ++it)
 			{
 				LLSD value;
 				if (gSavedPerAccountSettings.getBOOL("ShowFavoritesOnLogin"))

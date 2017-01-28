@@ -592,7 +592,7 @@ void LLPanelWearing::copyToClipboard()
 		LLSD uuid = (*iter);
 		LLViewerInventoryItem* item = gInventory.getItem(uuid);
 
-		iter++;
+		++iter;
 		if (item != NULL)
 		{
 			// Append a newline to all but the last line

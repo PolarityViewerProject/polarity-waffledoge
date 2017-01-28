@@ -253,7 +253,7 @@ void LLFloaterIMNearbyChat::loadHistory()
 
 		addMessage(chat, true, do_not_log);
 
-		it++;
+		++it;
 	}
 }
 

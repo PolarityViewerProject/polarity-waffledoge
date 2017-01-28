@@ -805,7 +805,7 @@ void LLManipScale::drag( S32 x, S32 y )
 
 	// store changes to override updates
 	for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
@@ -924,7 +924,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 
 	// find max and min scale factors that will make biggest object hit max absolute scale and smallest object hit min absolute scale
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+		 iter != mObjectSelection->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* cur = selectNode->getObject();
@@ -949,7 +949,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 
 	// do the root objects i.e. (TRUE == cur->isRootEdit())
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+		 iter != mObjectSelection->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* cur = selectNode->getObject();
@@ -978,7 +978,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 				// counter-translate child objects if we are moving the root as an individual
 				LLViewerObject::const_child_list_t& child_list = cur->getChildren();
 				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					 iter != child_list.end(); iter++)
+					 iter != child_list.end(); ++iter)
 				{
 					LLViewerObject* childp = *iter;
 
@@ -1000,7 +1000,7 @@ void LLManipScale::dragCorner( S32 x, S32 y )
 	}
 	// do the child objects i.e. (FALSE == cur->isRootEdit())
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+		 iter != mObjectSelection->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
@@ -1201,7 +1201,7 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 	LLVector3 drag_start_center_agent = gAgent.getPosAgentFromGlobal(mDragStartCenterGlobal);
 
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+		 iter != mObjectSelection->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();
@@ -1274,7 +1274,7 @@ void LLManipScale::stretchFace( const LLVector3& drag_start_agent, const LLVecto
 				// counter-translate child objects if we are moving the root as an individual
 				LLViewerObject::const_child_list_t& child_list = cur->getChildren();
 				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					 iter != child_list.end(); iter++)
+					 iter != child_list.end(); ++iter)
 				{
 					LLViewerObject* childp = *iter;
 					if (!getUniform())

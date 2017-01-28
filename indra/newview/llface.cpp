@@ -704,7 +704,7 @@ void LLFace::printDebugInfo() const
 
 		S32 pool_references = 0;
 		for (std::vector<LLFace*>::iterator iter = poolp->mReferences.begin();
-			 iter != poolp->mReferences.end(); iter++)
+			 iter != poolp->mReferences.end(); ++iter)
 		{
 			LLFace *facep = *iter;
 			if (facep == this)

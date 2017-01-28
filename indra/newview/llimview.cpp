@@ -824,7 +824,7 @@ void LLIMModel::LLIMSession::addMessagesFromHistory(const std::list<LLSD>& histo
 
 		addMessage(from, from_id, text, timestamp, true);
 
-		it++;
+		++it;
 	}
 }
 
@@ -985,7 +985,7 @@ LLUUID LLIMModel::LLIMSession::generateHash(const std::set<LLUUID>& sorted_uuids
 	while (it != sorted_uuids.end())
 	{
 		md5_uuid.update((unsigned char*)(*it).mData, 16);
-		it++;
+		++it;
 	}
 	md5_uuid.finalize();
 
@@ -1117,7 +1117,7 @@ void LLIMModel::getMessagesSilently(const LLUUID& session_id, std::list<LLSD>& m
 
 	for (std::list<LLSD>::iterator iter = session->mMsgs.begin();
 		iter != session->mMsgs.end() && i > 0;
-		iter++)
+	     ++iter)
 	{
 		LLSD msg;
 		msg = *iter;
@@ -1524,7 +1524,7 @@ void LLIMModel::addSpeakersToRecent(const LLUUID& im_session_id)
 	{
 		speaker_mgr->getSpeakerList(&speaker_list, true);
 	}
-	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); ++it)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
 		LLRecentPeople::instance().add(speakerp->mID);
@@ -3249,7 +3249,7 @@ void LLIMMgr::clearPendingAgentListUpdates(const LLUUID& session_id)
 
 void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg)
 {
-	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); ++it)
 	{
 		(*it)->sessionAdded(session_id, name, other_participant_id, has_offline_msg);
 	}
@@ -3257,7 +3257,7 @@ void LLIMMgr::notifyObserverSessionAdded(const LLUUID& session_id, const std::st
 
 void LLIMMgr::notifyObserverSessionActivated(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id)
 {
-    for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+    for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); ++it)
     {
         (*it)->sessionActivated(session_id, name, other_participant_id);
     }
@@ -3265,7 +3265,7 @@ void LLIMMgr::notifyObserverSessionActivated(const LLUUID& session_id, const std
 
 void LLIMMgr::notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id)
 {
-	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); ++it)
 	{
 		(*it)->sessionVoiceOrIMStarted(session_id);
 	}
@@ -3273,7 +3273,7 @@ void LLIMMgr::notifyObserverSessionVoiceOrIMStarted(const LLUUID& session_id)
 
 void LLIMMgr::notifyObserverSessionRemoved(const LLUUID& session_id)
 {
-	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); ++it)
 	{
 		(*it)->sessionRemoved(session_id);
 	}
@@ -3281,7 +3281,7 @@ void LLIMMgr::notifyObserverSessionRemoved(const LLUUID& session_id)
 
 void LLIMMgr::notifyObserverSessionIDUpdated( const LLUUID& old_session_id, const LLUUID& new_session_id )
 {
-	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); it++)
+	for (session_observers_list_t::iterator it = mSessionObservers.begin(); it != mSessionObservers.end(); ++it)
 	{
 		(*it)->sessionIDUpdated(old_session_id, new_session_id);
 	}

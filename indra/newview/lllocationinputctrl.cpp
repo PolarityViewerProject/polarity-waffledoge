@@ -1029,7 +1029,7 @@ void LLLocationInputCtrl::rebuildLocationHistory(const std::string& filter)
 	}
 	
 	removeall();
-	for (LLLocationHistory::location_list_t::const_reverse_iterator it = itemsp->rbegin(); it != itemsp->rend(); it++)
+	for (LLLocationHistory::location_list_t::const_reverse_iterator it = itemsp->rbegin(); it != itemsp->rend(); ++it)
 	{
 		LLSD value;
 		value["tooltip"] = it->getToolTip();

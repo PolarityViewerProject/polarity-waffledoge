@@ -365,7 +365,7 @@ bool LLGiveInventory::handleCopyProtectedItem(const LLSD& notification, const LL
 	switch(option)
 	{
 	case 0:  // "Yes"
-		for (LLSD::array_iterator it = itmes.beginArray(); it != itmes.endArray(); it++)
+		for (LLSD::array_iterator it = itmes.beginArray(); it != itmes.endArray(); ++it)
 		{
 			item = gInventory.getItem((*it).asUUID());
 			if (item)

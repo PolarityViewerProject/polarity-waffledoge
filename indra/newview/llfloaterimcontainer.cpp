@@ -399,7 +399,7 @@ LLFloaterIMContainer* LLFloaterIMContainer::getInstance()
 void LLFloaterIMContainer::processParticipantsStyleUpdate()
 {
 	// On each session in mConversationsItems
-	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); ++it_session)
 	{
 		// Get the current session descriptors
 		LLConversationItem* session_model = it_session->second;
@@ -412,7 +412,7 @@ void LLFloaterIMContainer::processParticipantsStyleUpdate()
 			// Get the avatar name for this participant id from the cache and update the model
 			participant_model->updateName();
 			// Next participant
-			current_participant_model++;
+			++current_participant_model;
 		}
 	}
 }
@@ -546,7 +546,7 @@ void LLFloaterIMContainer::draw()
 			participant_model->setModeratorOptionsVisible(isGroupModerator() && participant_model->getUUID() != gAgentID);
 			participant_model->setGroupBanVisible(haveAbilityToBan() && participant_model->getUUID() != gAgentID);
 
-			current_participant_model++;
+			++current_participant_model;
 		}
 		// Update floater's title as required by the currently selected session or use the default title
 		LLFloaterIMSession * conversation_floaterp = LLFloaterIMSession::findInstance(current_session->getUUID());
@@ -1015,7 +1015,7 @@ void LLFloaterIMContainer::setSortOrder(const LLConversationSort& order)
 	
 	// Notify all conversation (torn off or not) of the change to the sort order
 	// Note: For the moment, the sort order is *unique* across all conversations. That might change in the future.
-	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); ++it_session)
 	{
 		LLUUID session_id = it_session->first;
 		LLFloaterIMSessionTab *conversation_floater = (session_id.isNull() ? (LLFloaterIMSessionTab*)(LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat")) : (LLFloaterIMSessionTab*)(LLFloaterIMSession::findInstance(session_id)));
@@ -1708,7 +1708,7 @@ LLConversationItem* LLFloaterIMContainer::addConversationListItem(const LLUUID& 
 			LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
 			LLConversationViewParticipant* participant_view = createConversationViewParticipant(participant_model);
 			participant_view->addToFolder(widget);
-			current_participant_model++;
+			++current_participant_model;
 		}
 	}
 
@@ -2297,7 +2297,7 @@ void LLFloaterIMContainer::closeHostedFloater()
 void LLFloaterIMContainer::closeAllConversations()
 {
 	std::vector<LLUUID> ids;
-	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); it_session++)
+	for (conversations_items_map::iterator it_session = mConversationsItems.begin(); it_session != mConversationsItems.end(); ++it_session)
 	{
 		LLUUID session_id = it_session->first;
 		if (session_id != LLUUID())

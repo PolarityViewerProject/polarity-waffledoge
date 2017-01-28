@@ -1625,7 +1625,7 @@ LLUUID LLMarketplaceData::getListingFolder(S32 listing_id)
         {
             return (it->second).mListingFolderId;
         }
-        it++;
+	    ++it;
     }
     return LLUUID::null;
 }

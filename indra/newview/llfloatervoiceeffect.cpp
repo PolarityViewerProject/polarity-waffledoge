@@ -114,7 +114,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 	S32 scroll_pos = mVoiceEffectList->getScrollPos();
 	uuid_vec_t selected_items;
 	std::vector<LLScrollListItem*> items = mVoiceEffectList->getAllSelected();
-	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); it++)
+	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
 		selected_items.push_back((*it)->getUUID());
 	}
@@ -206,7 +206,7 @@ void LLFloaterVoiceEffect::refreshEffectList()
 	}
 
 	// Re-select items that were selected before, and restore the scroll position
-	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); it++)
+	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); ++it)
 	{
 		mVoiceEffectList->selectByID(*it);
 	}

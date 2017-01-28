@@ -246,7 +246,7 @@ void FindModel(LLModelLoader::scene& scene, const std::string& name_to_match, LL
                 return;
             }
         }
-        base_iter++;
+	    ++base_iter;
     }
 }
 

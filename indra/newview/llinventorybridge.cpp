@@ -2270,7 +2270,7 @@ BOOL LLFolderBridge::isItemCopyable() const
 
 	// Check the items
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
-	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); ++iter)
 	{
 		LLInventoryItem* item = *iter;
 		LLItemBridge item_br(mInventoryPanel.get(), mRoot, item->getUUID());
@@ -2280,7 +2280,7 @@ BOOL LLFolderBridge::isItemCopyable() const
 
 	// Check the folders
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
 {
 		LLViewerInventoryCategory* category = *iter;
 		LLFolderBridge cat_br(mInventoryPanel.get(), mRoot, category->getUUID());

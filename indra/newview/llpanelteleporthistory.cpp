@@ -468,7 +468,7 @@ BOOL LLTeleportHistoryPanel::postBuild()
 
 	if (mHistoryAccordion)
 	{
-		for (child_list_const_iter_t iter = mHistoryAccordion->beginChild(); iter != mHistoryAccordion->endChild(); iter++)
+		for (child_list_const_iter_t iter = mHistoryAccordion->beginChild(); iter != mHistoryAccordion->endChild(); ++iter)
 		{
 			if (dynamic_cast<LLAccordionCtrlTab*>(*iter))
 			{
@@ -1069,7 +1069,7 @@ bool LLTeleportHistoryPanel::onClearTeleportHistoryDialog(const LLSD& notificati
 
 LLFlatListView* LLTeleportHistoryPanel::getFlatListViewFromTab(LLAccordionCtrlTab *tab)
 {
-	for (child_list_const_iter_t iter = tab->beginChild(); iter != tab->endChild(); iter++)
+	for (child_list_const_iter_t iter = tab->beginChild(); iter != tab->endChild(); ++iter)
 	{
 		if (dynamic_cast<LLFlatListView*>(*iter))
 		{

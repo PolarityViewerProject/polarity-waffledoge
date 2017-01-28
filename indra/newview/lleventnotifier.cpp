@@ -102,7 +102,7 @@ LLEventNotifier::~LLEventNotifier()
 
 	for (iter = mEventNotifications.begin();
 		 iter != mEventNotifications.end();
-		 iter++)
+	     ++iter)
 	{
 		delete iter->second;
 	}
@@ -123,7 +123,7 @@ void LLEventNotifier::update()
 		{
 			LLEventNotification *np = iter->second;
 
-			iter++;
+			++iter;
 			if (np->getEventDateEpoch() < alert_time)
 			{
 				LLSD args;

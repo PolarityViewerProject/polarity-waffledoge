@@ -411,7 +411,7 @@ std::vector<LLViewerObject*> LLLocalBitmap::prepUpdateObjects(LLUUID old_id, U32
 
 				// begin looking for duplicates
 				std::vector<LLViewerObject*>::iterator objlist_iter = obj_list.begin();
-				for(; (objlist_iter != obj_list.end()) && add_object; objlist_iter++)
+				for(; (objlist_iter != obj_list.end()) && add_object; ++objlist_iter)
 				{
 					LLViewerObject* obj = *objlist_iter;
 					if (obj->getID() == mainlist_obj_id)
@@ -440,7 +440,7 @@ void LLLocalBitmap::updateUserPrims(LLUUID old_id, LLUUID new_id, U32 channel)
 	std::vector<LLViewerObject*> objectlist = prepUpdateObjects(old_id, channel);
 
 	for(std::vector<LLViewerObject*>::iterator object_iterator = objectlist.begin();
-		object_iterator != objectlist.end(); object_iterator++)
+		object_iterator != objectlist.end(); ++object_iterator)
 	{
 		LLViewerObject* object = *object_iterator;
 
@@ -543,7 +543,7 @@ void LLLocalBitmap::updateUserLayers(LLUUID old_id, LLUUID new_id, LLWearableTyp
 		{
 			std::vector<LLLocalTextureObject*> texture_list = wearable->getLocalTextureListSeq();
 			for(std::vector<LLLocalTextureObject*>::iterator texture_iter = texture_list.begin();
-				texture_iter != texture_list.end(); texture_iter++)
+				texture_iter != texture_list.end(); ++texture_iter)
 			{
 				LLLocalTextureObject* lto = *texture_iter;
 
@@ -932,7 +932,7 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 	if (!sBitmapList.empty())
 	{	
 		std::vector<LLLocalBitmap*> to_delete;
-		for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+		for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); ++iter)
 		{   /* finding which ones we want deleted and making a separate list */
 			LLLocalBitmap* unit = *iter;
 			if (unit->getTrackingID() == tracking_id)
@@ -942,7 +942,7 @@ void LLLocalBitmapMgr::delUnit(LLUUID tracking_id)
 		}
 
 		for(std::vector<LLLocalBitmap*>::iterator del_iter = to_delete.begin();
-			del_iter != to_delete.end(); del_iter++)
+			del_iter != to_delete.end(); ++del_iter)
 		{   /* iterating over a temporary list, hence preserving the iterator validity while deleting. */
 			LLLocalBitmap* unit = *del_iter;
 			sBitmapList.remove(unit);
@@ -956,7 +956,7 @@ LLUUID LLLocalBitmapMgr::getWorldID(LLUUID tracking_id)
 {
 	LLUUID world_id = LLUUID::null;
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); ++iter)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -972,7 +972,7 @@ std::string LLLocalBitmapMgr::getFilename(LLUUID tracking_id)
 {
 	std::string filename = "";
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); ++iter)
 	{
 		LLLocalBitmap* unit = *iter;
 		if (unit->getTrackingID() == tracking_id)
@@ -993,7 +993,7 @@ void LLLocalBitmapMgr::feedScrollList(LLScrollListCtrl* ctrl)
 		if (!sBitmapList.empty())
 		{
 			for (local_list_iter iter = sBitmapList.begin();
-				 iter != sBitmapList.end(); iter++)
+				 iter != sBitmapList.end(); ++iter)
 			{
 				LLSD element;
 				element["columns"][0]["column"] = "unit_name";
@@ -1017,7 +1017,7 @@ void LLLocalBitmapMgr::doUpdates()
 	sTimer.stopTimer();
 	sNeedsRebake = false;
 
-	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); iter++)
+	for (local_list_iter iter = sBitmapList.begin(); iter != sBitmapList.end(); ++iter)
 	{
 		(*iter)->updateSelf();
 	}
