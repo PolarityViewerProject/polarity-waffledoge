@@ -149,7 +149,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 
 		// add placeholders for each of the variables
 		for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
-			 iter != template_data->mMemberVariables.end(); iter++)
+			 iter != template_data->mMemberVariables.end(); ++iter)
 		{
 			LLMessageVariable& ci = **iter;
 			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
@@ -210,7 +210,7 @@ void LLTemplateMessageBuilder::nextBlock(const char* blockname)
 		for (LLMessageBlock::message_variable_map_t::const_iterator
 				 iter = template_data->mMemberVariables.begin(),
 				 end = template_data->mMemberVariables.end();
-			 iter != end; iter++)
+			 iter != end; ++iter)
 		{
 			LLMessageVariable& ci = **iter;
 			mCurrentSDataBlock->addVariable(ci.getName(), ci.getType());
@@ -240,7 +240,7 @@ BOOL LLTemplateMessageBuilder::removeLastBlock()
 				const LLMessageBlock* template_data = mCurrentSMessageTemplate->getBlock(mCurrentSBlockName);
 				
 				for (LLMessageBlock::message_variable_map_t::const_iterator iter = template_data->mMemberVariables.begin();
-					 iter != template_data->mMemberVariables.end(); iter++)
+					 iter != template_data->mMemberVariables.end(); ++iter)
 				{
 					LLMessageVariable& ci = **iter;
 					mCurrentSendTotal -= ci.getSize();
@@ -663,7 +663,7 @@ static S32 buildBlock(U8* buffer, S32 buffer_size, const LLMessageBlock* templat
 	{
 		// now loop through the variables
 		for (LLMsgBlkData::msg_var_data_map_t::const_iterator iter = mbci->mMemberVarData.begin();
-			 iter != mbci->mMemberVarData.end(); iter++)
+			 iter != mbci->mMemberVarData.end(); ++iter)
 		{
 			const LLMsgVarData& mvci = *iter;
 			if (mvci.getSize() == -1)

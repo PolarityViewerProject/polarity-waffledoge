@@ -235,7 +235,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 		// we bubble up the tree to release focus, and back down to add
 		for (view_handle_list_t::iterator old_focus_iter = old_focus_list.begin();
 			 old_focus_iter != old_focus_list.end() && !focus_dirty;
-			 old_focus_iter++)
+		     ++old_focus_iter)
 		{			
 			LLView* old_focus_view = old_focus_iter->get();
 			if (old_focus_view)
@@ -248,7 +248,7 @@ void LLFocusMgr::setKeyboardFocus(LLFocusableElement* new_focus, BOOL lock, BOOL
 		// walk down the new focus branch calling onFocusReceived
 		for (view_handle_list_t::reverse_iterator new_focus_riter = new_focus_list.rbegin();
 			 new_focus_riter != new_focus_list.rend() && !focus_dirty;
-			 new_focus_riter++)
+		     ++new_focus_riter)
 		{			
 			LLView* new_focus_view = new_focus_riter->get();
 			if (new_focus_view)

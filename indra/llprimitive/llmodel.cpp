@@ -187,7 +187,7 @@ void LLModel::normalizeModels(std::vector<LLPointer<LLModel > > model_list)
     LLVector4a min, max;
     while (iter != model_list.end() && (*iter)->mVolumeFaces.empty())
     {
-        iter++;
+	    ++iter;
     }
     if (iter == model_list.end())
     {

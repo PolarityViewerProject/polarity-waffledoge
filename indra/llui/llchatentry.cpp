@@ -217,7 +217,7 @@ BOOL LLChatEntry::handleSpecialKey(const KEY key, const MASK mask)
 			}
 			else if (!mLineHistory.empty() && mCurrentHistoryLine == (mLineHistory.end() - 1) )
 			{
-				mCurrentHistoryLine++;
+				++mCurrentHistoryLine;
 				std::string empty("");
 				setText(empty);
 				needsReflow();

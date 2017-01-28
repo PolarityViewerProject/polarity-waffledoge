@@ -363,7 +363,7 @@ std::string LLPluginCookieStore::getAllCookies()
 void LLPluginCookieStore::writeAllCookies(std::ostream& s)
 {
 	cookie_map_t::iterator iter;
-	for(iter = mCookies.begin(); iter != mCookies.end(); iter++)
+	for(iter = mCookies.begin(); iter != mCookies.end(); ++iter)
 	{
 		// Don't return expired cookies
 		if(!iter->second->isDead())
@@ -384,7 +384,7 @@ std::string LLPluginCookieStore::getPersistentCookies()
 void LLPluginCookieStore::writePersistentCookies(std::ostream& s)
 {
 	cookie_map_t::iterator iter;
-	for(iter = mCookies.begin(); iter != mCookies.end(); iter++)
+	for(iter = mCookies.begin(); iter != mCookies.end(); ++iter)
 	{
 		// Don't return expired cookies or session cookies
 		if(!iter->second->isDead() && !iter->second->isSessionCookie())
@@ -411,7 +411,7 @@ void LLPluginCookieStore::writeChangedCookies(std::ostream& s, bool clear_change
 		for(iter = mCookies.begin(); iter != mCookies.end(); )
 		{
 			cookie_map_t::iterator next = iter;
-			next++;
+			++next;
 			
 			// Only return cookies marked as "changed"
 			if(iter->second->isChanged())
@@ -677,13 +677,13 @@ void LLPluginCookieStore::removeCookiesByDomain(const std::string &domain)
 		if(iter->second->getDomain() == domain)
 		{
             cookie_map_t::iterator doErase = iter;
-            iter++;
+			++iter;
 			delete doErase->second;
 			mCookies.erase(doErase);
 		}
         else
         {
-            iter++;
+	        ++iter;
         }
 	}
 }

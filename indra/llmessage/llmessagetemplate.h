@@ -83,7 +83,7 @@ public:
 	~LLMsgBlkData()
 	{
 		for (msg_var_data_map_t::iterator iter = mMemberVarData.begin();
-			 iter != mMemberVarData.end(); iter++)
+			 iter != mMemberVarData.end(); ++iter)
 		{
 			iter->deleteData();
 		}

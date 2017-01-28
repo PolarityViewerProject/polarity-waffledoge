@@ -750,7 +750,7 @@ void LLCacheName::dump()
 {
 	for (Cache::iterator iter = impl.mCache.begin(),
 			 end = impl.mCache.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		LLCacheNameEntry* entry = iter->second;
 		if (entry->mIsGroup)

@@ -243,7 +243,7 @@ public:
 	S32 getVisualParamID(LLVisualParam *id)
 	{
 		visual_param_index_map_t::iterator iter;
-		for (iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); iter++)
+		for (iter = mVisualParamIndexMap.begin(); iter != mVisualParamIndexMap.end(); ++iter)
 		{
 			if (iter->second == id)
 				return iter->first;

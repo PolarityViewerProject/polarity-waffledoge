@@ -143,7 +143,7 @@ void LLMultiSlider::setSliderValue(const std::string& name, F32 value, BOOL from
 		// look at the current spot
 		// and see if anything is there
 		LLSD::map_iterator mIt = mValue.beginMap();
-		for(;mIt != mValue.endMap(); mIt++) {
+		for(;mIt != mValue.endMap(); ++mIt) {
 			
 			F32 testVal = (F32)mIt->second.asReal() - newValue;
 			if(testVal > -FLOAT_THRESHOLD && testVal < FLOAT_THRESHOLD &&
@@ -188,7 +188,7 @@ void LLMultiSlider::setValue(const LLSD& value)
 		LLSD::map_const_iterator mIt = value.beginMap();
 		mCurSlider = mIt->first;
 
-		for(; mIt != value.endMap(); mIt++) {
+		for(; mIt != value.endMap(); ++mIt) {
 			setSliderValue(mIt->first, (F32)mIt->second.asReal(), TRUE);
 		}
 	}
@@ -279,7 +279,7 @@ bool LLMultiSlider::findUnusedValue(F32& initVal)
 		// look at the current spot
 		// and see if anything is there
 		LLSD::map_iterator mIt = mValue.beginMap();
-		for(;mIt != mValue.endMap(); mIt++) {
+		for(;mIt != mValue.endMap(); ++mIt) {
 			
 			F32 testVal = (F32)mIt->second.asReal() - initVal;
 			if(testVal > -FLOAT_THRESHOLD && testVal < FLOAT_THRESHOLD) {
@@ -327,7 +327,7 @@ void LLMultiSlider::deleteSlider(const std::string& name)
 	// set to the last created
 	if(mValue.size() > 0) {
 		std::map<std::string, LLRect>::iterator mIt = mThumbRects.end();
-		mIt--;
+		--mIt;
 		mCurSlider = mIt->first;
 	}
 }
@@ -407,7 +407,7 @@ BOOL LLMultiSlider::handleMouseDown(S32 x, S32 y, MASK mask)
 	{
 		// scroll through thumbs to see if we have a new one selected and select that one
 		std::map<std::string, LLRect>::iterator mIt = mThumbRects.begin();
-		for(; mIt != mThumbRects.end(); mIt++) {
+		for(; mIt != mThumbRects.end(); ++mIt) {
 			
 			// check if inside.  If so, set current slider and continue
 			if(mIt->second.pointInRect(x,y)) {
@@ -498,7 +498,7 @@ void LLMultiSlider::draw()
 	// simple gl call for the triangle
 	if(mUseTriangle) {
 
-		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++)
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); ++mIt)
 		{
 			auto thumb_rects = mIt->second;
 			gl_triangle_2d(
@@ -515,7 +515,7 @@ void LLMultiSlider::draw()
 	{
 		// draw all the thumbs
 		curSldrIt = mThumbRects.end();
-		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) {
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); ++mIt) {
 			
 			// choose the color
 			curThumbColor = mThumbCenterColor.get();
@@ -554,7 +554,7 @@ void LLMultiSlider::draw()
 
 		// draw the thumbs
 		curSldrIt = mThumbRects.end();
-		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); ++mIt) 
 		{
 			// choose the color
 			curThumbColor = mThumbCenterColor.get();
@@ -586,7 +586,7 @@ void LLMultiSlider::draw()
 
 		// draw thumbs
 		curSldrIt = mThumbRects.end();
-		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); mIt++) 
+		for(mIt = mThumbRects.begin(); mIt != mThumbRects.end(); ++mIt) 
 		{
 			
 			// choose the color

@@ -768,7 +768,7 @@ bool LLNotification::matchesTag(const std::string& tag)
 	if(mTemplatep)
 	{
 		std::list<std::string>::iterator it;
-		for(it = mTemplatep->mTags.begin(); it != mTemplatep->mTags.end(); it++)
+		for(it = mTemplatep->mTags.begin(); it != mTemplatep->mTags.end(); ++it)
 		{
 			if((*it) == tag)
 			{
@@ -1820,7 +1820,7 @@ bool LLNotifications::isVisibleByRules(LLNotificationPtr n)
 	
 	VisibilityRuleList::iterator it;
 	
-	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); it++)
+	for(it = mVisibilityRules.begin(); it != mVisibilityRules.end(); ++it)
 	{
 		// An empty type/tag/name string will match any notification, so only do the comparison when the string is non-empty in the rule.
 		LL_DEBUGS() 

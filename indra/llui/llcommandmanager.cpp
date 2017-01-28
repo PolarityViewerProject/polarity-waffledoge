@@ -144,7 +144,7 @@ LLCommand * LLCommandManager::getCommand(const std::string& name)
             command_match = *it;
             break;
         }
-        it++;
+		++it;
 	}
     
 	return command_match;

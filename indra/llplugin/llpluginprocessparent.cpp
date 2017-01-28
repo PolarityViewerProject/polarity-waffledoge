@@ -747,7 +747,7 @@ void LLPluginProcessParent::updatePollset()
 	int count = 0;
 	
 	// Count the number of instances that want to be in the pollset
-	for(iter = sInstances.begin(); iter != sInstances.end(); iter++)
+	for(iter = sInstances.begin(); iter != sInstances.end(); ++iter)
 	{
 		(*iter).second->mPolledInput = false;
         if ((*iter).second->wantsPolling())
@@ -776,7 +776,7 @@ void LLPluginProcessParent::updatePollset()
 				LL_DEBUGS("PluginPoll") << "created pollset " << sPollSet << LL_ENDL;
 				
 				// Pollset was created, add all instances to it.
-				for(iter = sInstances.begin(); iter != sInstances.end(); iter++)
+				for(iter = sInstances.begin(); iter != sInstances.end(); ++iter)
 				{
                     if ((*iter).second->wantsPolling())
 					{
@@ -1006,7 +1006,7 @@ void LLPluginProcessParent::receiveMessage(const LLPluginMessage &message)
 				// TODO: kill plugin on major mismatches?
 				mMessageClassVersions = message.getValueLLSD("versions");
 				LLSD::map_iterator iter;
-				for(iter = mMessageClassVersions.beginMap(); iter != mMessageClassVersions.endMap(); iter++)
+				for(iter = mMessageClassVersions.beginMap(); iter != mMessageClassVersions.endMap(); ++iter)
 				{
 					LL_INFOS("Plugin") << "message class: " << iter->first << " -> version: " << iter->second.asString() << LL_ENDL;
 				}

@@ -296,7 +296,7 @@ void LLTemplateTokenizer::dec()
 	}
 	else
 	{
-		mCurrent--;
+		--mCurrent;
 	}
 }
 

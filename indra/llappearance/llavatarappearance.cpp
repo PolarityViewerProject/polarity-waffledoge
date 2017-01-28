@@ -238,10 +238,18 @@ void LLAvatarAppearance::initInstance()
 			mesh->setName(mesh_name);
 			mesh->setMeshID(mesh_index);
 			mesh->setPickName(mesh_dict->mPickName);
-			mesh->setIsTransparent(MESH_ID_HAIR == mesh_index || MESH_ID_SKIRT == mesh_index);
-			if (MESH_ID_EYEBALL_RIGHT == mesh_index || MESH_ID_EYEBALL_LEFT == mesh_index)
+			switch((S32)mesh_index)
 			{
-				mesh->setSpecular(LLColor4::white, 1.0f);
+				case MESH_ID_HAIR:
+				case MESH_ID_SKIRT:
+					mesh->setIsTransparent(TRUE);
+					break;
+				case MESH_ID_EYEBALL_LEFT:
+				case MESH_ID_EYEBALL_RIGHT:
+				mesh->setSpecular(LLColor4::white, 1.f);
+				default:
+					mesh->setIsTransparent(FALSE);
+					break;
 			}
 			
 			joint->mMeshParts.push_back(mesh);

@@ -1942,7 +1942,7 @@ bool LLMenuGL::scrollItems(EScrollingDirection direction)
 	{
 		item_list_t::iterator cur_item_iter;
 		item_list_t::iterator prev_item_iter;
-		for (cur_item_iter = mItems.begin(), prev_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
+		for (cur_item_iter = mItems.begin(), prev_item_iter = mItems.begin(); cur_item_iter != mItems.end(); ++cur_item_iter)
 		{
 			if( (*cur_item_iter) == mFirstVisibleItem)
 			{
@@ -1969,7 +1969,7 @@ bool LLMenuGL::scrollItems(EScrollingDirection direction)
 
 		item_list_t::iterator cur_item_iter;
 
-		for (cur_item_iter = mItems.begin(); cur_item_iter != mItems.end(); cur_item_iter++)
+		for (cur_item_iter = mItems.begin(); cur_item_iter != mItems.end(); ++cur_item_iter)
 		{
 			if( (*cur_item_iter) == mFirstVisibleItem)
 			{
@@ -1981,7 +1981,7 @@ bool LLMenuGL::scrollItems(EScrollingDirection direction)
 
 		if (cur_item_iter != mItems.end())
 		{
-			for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); next_item_iter++)
+			for (next_item_iter = ++cur_item_iter; next_item_iter != mItems.end(); ++next_item_iter)
 			{
 				if( (*next_item_iter)->getVisible())
 				{
@@ -2207,7 +2207,7 @@ void LLMenuGL::arrange( void )
 							tmp_iter = first_visible_item_iter;
 						}
 
-						first_visible_item_iter--;
+						--first_visible_item_iter;
 
 						if ((*first_visible_item_iter)->getVisible())
 						{
@@ -2539,7 +2539,7 @@ void LLMenuGL::erase( S32 begin, S32 end, bool arrange/* = true*/)
 	item_list_t::iterator end_position = mItems.begin();
 	std::advance(end_position, end);
 
-	for (item_list_t::iterator position_iter = start_position; position_iter != end_position; position_iter++)
+	for (item_list_t::iterator position_iter = start_position; position_iter != end_position; ++position_iter)
 	{
 		LLUICtrl::removeChild(*position_iter);
 	}
@@ -2794,7 +2794,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	else
 	{
 		next_item_iter = cur_item_iter;
-		next_item_iter++;
+		++next_item_iter;
 
 		// First visible item position in the items list
 		item_list_t::iterator first_visible_item_iter = std::find(mItems.begin(), mItems.end(), mFirstVisibleItem);
@@ -2834,7 +2834,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	{
 		// we know the first item is the tear off menu item
 		cur_item_iter = mItems.begin();
-		next_item_iter++;
+		++next_item_iter;
 		if (next_item_iter == mItems.end())
 		{
 			next_item_iter = mItems.begin();
@@ -2860,7 +2860,7 @@ LLMenuItemGL* LLMenuGL::highlightNextItem(LLMenuItemGL* cur_item, BOOL skip_disa
 			break;
 		}
 
-		next_item_iter++;
+		++next_item_iter;
 		if (next_item_iter == mItems.end())
 		{
 			if (cur_item_iter == mItems.end())
@@ -2900,7 +2900,7 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 	else
 	{
 		prev_item_iter = cur_item_iter;
-		prev_item_iter++;
+		++prev_item_iter;
 
 		// First visible item reverse position in the items list
 		item_list_t::reverse_iterator first_visible_item_iter = std::find(mItems.rbegin(), mItems.rend(), mFirstVisibleItem);
@@ -2949,7 +2949,7 @@ LLMenuItemGL* LLMenuGL::highlightPrevItem(LLMenuItemGL* cur_item, BOOL skip_disa
 			break;
 		}
 
-		prev_item_iter++;
+		++prev_item_iter;
 		if (prev_item_iter == mItems.rend())
 		{
 			if (cur_item_iter == mItems.rend())

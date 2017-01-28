@@ -91,7 +91,7 @@ void LLTransferManager::cleanup()
 	mValid = FALSE;
 
 	host_tc_map::iterator iter;
-	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); iter++)
+	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); ++iter)
 	{
 		delete iter->second;
 	}
@@ -108,7 +108,7 @@ void LLTransferManager::updateTransfers()
 	while (iter !=mTransferConnections.end())
 	{
 		cur = iter;
-		iter++;
+		++iter;
 		cur->second->updateTransfers();
 	}
 }
@@ -178,11 +178,11 @@ LLTransferSource *LLTransferManager::findTransferSource(const LLUUID &transfer_i
 	// searches for sources.  However, this ONLY happens right now
 	// in asset transfer callbacks, so this should be relatively quick.
 	host_tc_map::iterator iter;
-	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); iter++)
+	for (iter = mTransferConnections.begin(); iter != mTransferConnections.end(); ++iter)
 	{
 		LLTransferConnection *tcp = iter->second;
 		LLTransferConnection::tsc_iter sc_iter;
-		for (sc_iter = tcp->mTransferSourceChannels.begin(); sc_iter != tcp->mTransferSourceChannels.end(); sc_iter++)
+		for (sc_iter = tcp->mTransferSourceChannels.begin(); sc_iter != tcp->mTransferSourceChannels.end(); ++sc_iter)
 		{
 			LLTransferSourceChannel *scp = *sc_iter;
 			LLTransferSource *sourcep = scp->findTransferSource(transfer_id);
@@ -637,14 +637,14 @@ LLTransferConnection::LLTransferConnection(const LLHost &host)
 LLTransferConnection::~LLTransferConnection()
 {
 	tsc_iter itersc;
-	for (itersc = mTransferSourceChannels.begin(); itersc != mTransferSourceChannels.end(); itersc++)
+	for (itersc = mTransferSourceChannels.begin(); itersc != mTransferSourceChannels.end(); ++itersc)
 	{
 		delete *itersc;
 	}
 	mTransferSourceChannels.clear();
 
 	ttc_iter itertc;
-	for (itertc = mTransferTargetChannels.begin(); itertc != mTransferTargetChannels.end(); itertc++)
+	for (itertc = mTransferTargetChannels.begin(); itertc != mTransferTargetChannels.end(); ++itertc)
 	{
 		delete *itertc;
 	}
@@ -661,7 +661,7 @@ void LLTransferConnection::updateTransfers()
 	while (iter !=mTransferSourceChannels.end())
 	{
 		cur = iter;
-		iter++;
+		++iter;
 		(*cur)->updateTransfers();
 	}
 
@@ -676,7 +676,7 @@ void LLTransferConnection::updateTransfers()
 LLTransferSourceChannel *LLTransferConnection::getSourceChannel(const LLTransferChannelType channel_type)
 {
 	tsc_iter iter;
-	for (iter = mTransferSourceChannels.begin(); iter != mTransferSourceChannels.end(); iter++)
+	for (iter = mTransferSourceChannels.begin(); iter != mTransferSourceChannels.end(); ++iter)
 	{
 		if ((*iter)->getChannelType() == channel_type)
 		{
@@ -693,7 +693,7 @@ LLTransferSourceChannel *LLTransferConnection::getSourceChannel(const LLTransfer
 LLTransferTargetChannel *LLTransferConnection::getTargetChannel(const LLTransferChannelType channel_type)
 {
 	ttc_iter iter;
-	for (iter = mTransferTargetChannels.begin(); iter != mTransferTargetChannels.end(); iter++)
+	for (iter = mTransferTargetChannels.begin(); iter != mTransferTargetChannels.end(); ++iter)
 	{
 		if ((*iter)->getChannelType() == channel_type)
 		{
@@ -784,7 +784,7 @@ void LLTransferSourceChannel::updateTransfers()
 		//LL_INFOS() << "LLTransferSourceChannel::updateTransfers()" << LL_ENDL;
 		// Do stuff. 
 		next = iter;
-		next++;
+		++next;
 
 		LLTransferSource *tsp = iter->second;
 		U8 *datap = NULL;
@@ -885,7 +885,7 @@ void LLTransferSourceChannel::addTransferSource(LLTransferSource *sourcep)
 LLTransferSource *LLTransferSourceChannel::findTransferSource(const LLUUID &transfer_id)
 {
 	LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
-	for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
+	for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); ++iter)
 	{
 		LLTransferSource *tsp = iter->second;
 		if (tsp->getID() == transfer_id)
@@ -902,7 +902,7 @@ void LLTransferSourceChannel::deleteTransfer(LLTransferSource *tsp)
 	if (tsp)
 	{
 		LLPriQueueMap<LLTransferSource *>::pqm_iter iter;
-		for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); iter++)
+		for (iter = mTransferSources.mMap.begin(); iter != mTransferSources.mMap.end(); ++iter)
 		{
 			if (iter->second == tsp)
 			{
@@ -933,7 +933,7 @@ LLTransferTargetChannel::LLTransferTargetChannel(const LLTransferChannelType cha
 LLTransferTargetChannel::~LLTransferTargetChannel()
 {
 	tt_iter iter;
-	for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); iter++)
+	for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); ++iter)
 	{
 		// Abort all of the current transfers
 		(*iter)->abortTransfer();
@@ -1005,7 +1005,7 @@ void LLTransferTargetChannel::addTransferTarget(LLTransferTarget *targetp)
 LLTransferTarget *LLTransferTargetChannel::findTransferTarget(const LLUUID &transfer_id)
 {
 	tt_iter iter;
-	for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); iter++)
+	for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); ++iter)
 	{
 		LLTransferTarget *ttp = *iter;
 		if (ttp->getID() == transfer_id)
@@ -1022,7 +1022,7 @@ void LLTransferTargetChannel::deleteTransfer(LLTransferTarget *ttp)
 	if (ttp)
 	{
 		tt_iter iter;
-		for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); iter++)
+		for (iter = mTransferTargets.begin(); iter != mTransferTargets.end(); ++iter)
 		{
 			if (*iter == ttp)
 			{
@@ -1217,7 +1217,7 @@ LLTransferTarget::~LLTransferTarget()
 	// memory cleanup.  The completionCallback is guaranteed to get called
 	// before this happens.
 	tpm_iter iter;
-	for (iter = mDelayedPacketMap.begin(); iter != mDelayedPacketMap.end(); iter++)
+	for (iter = mDelayedPacketMap.begin(); iter != mDelayedPacketMap.end(); ++iter)
 	{
 		delete iter->second;
 	}
