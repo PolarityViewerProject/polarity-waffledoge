@@ -182,12 +182,13 @@ struct LLScriptQueueData
 ///----------------------------------------------------------------------------
 
 // Default constructor
-LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
+LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key)
+	:
 	LLFloater(key),
+	mMessages(nullptr),
 	mDone(false),
 	mMono(false)
 {
-	
 }
 
 // Destroys the object

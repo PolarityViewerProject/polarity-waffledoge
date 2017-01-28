@@ -593,10 +593,14 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
 
 struct LLFoundData
 {
-	LLFoundData() :
+	LLFoundData()
+		:
 		mAssetType(LLAssetType::AT_NONE),
 		mWearableType(LLWearableType::WT_INVALID),
-		mWearable(NULL) {}
+		mWearable(NULL),
+		mIsReplacement(false)
+	{
+	}
 
 	LLFoundData(const LLUUID& item_id,
 				const LLUUID& asset_id,

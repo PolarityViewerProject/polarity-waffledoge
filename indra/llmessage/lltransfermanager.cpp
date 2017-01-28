@@ -206,8 +206,8 @@ void LLTransferManager::processTransferRequest(LLMessageSystem *msgp, void **)
 	//LL_INFOS() << "LLTransferManager::processTransferRequest" << LL_ENDL;
 
 	LLUUID transfer_id;
-	LLTransferSourceType source_type;
-	LLTransferChannelType channel_type;
+	LLTransferSourceType source_type = {};
+	LLTransferChannelType channel_type = {};
 	F32 priority;
 
 	msgp->getUUID("TransferInfo", "TransferID", transfer_id);
@@ -275,9 +275,9 @@ void LLTransferManager::processTransferInfo(LLMessageSystem *msgp, void **)
 	//LL_INFOS() << "LLTransferManager::processTransferInfo" << LL_ENDL;
 
 	LLUUID transfer_id;
-	LLTransferTargetType target_type;
-	LLTransferChannelType channel_type;
-	LLTSCode status;
+	LLTransferTargetType target_type = {};
+	LLTransferChannelType channel_type = {};
+	LLTSCode status = {};
 	S32 size;
 
 	msgp->getUUID("TransferInfo", "TransferID", transfer_id);
@@ -413,9 +413,9 @@ void LLTransferManager::processTransferPacket(LLMessageSystem *msgp, void **)
 	//LL_INFOS() << "LLTransferManager::processTransferPacket" << LL_ENDL;
 
 	LLUUID transfer_id;
-	LLTransferChannelType channel_type;
+	LLTransferChannelType channel_type = {};
 	S32 packet_id;
-	LLTSCode status;
+	LLTSCode status = {};
 	S32 size;
 	msgp->getUUID("TransferData", "TransferID", transfer_id);
 	msgp->getS32("TransferData", "ChannelType", (S32 &)channel_type);
@@ -567,7 +567,7 @@ void LLTransferManager::processTransferAbort(LLMessageSystem *msgp, void **)
 	//LL_INFOS() << "LLTransferManager::processTransferPacket" << LL_ENDL;
 
 	LLUUID transfer_id;
-	LLTransferChannelType channel_type;
+	LLTransferChannelType channel_type = {};
 	msgp->getUUID("TransferInfo", "TransferID", transfer_id);
 	msgp->getS32("TransferInfo", "ChannelType", (S32 &)channel_type);
 

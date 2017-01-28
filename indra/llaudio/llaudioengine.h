@@ -463,6 +463,13 @@ protected:
 class LLAudioBuffer
 {
 public:
+	LLAudioBuffer(bool in_use, LLAudioData* audio_datap, const LLFrameTimer& last_use_timer)
+		: mInUse(in_use),
+		  mAudioDatap(audio_datap),
+		  mLastUseTimer(last_use_timer)
+	{
+	}
+
 	virtual ~LLAudioBuffer() {};
 	virtual bool loadWAV(const std::string& filename) = 0;
 	virtual U32 getLength() = 0;

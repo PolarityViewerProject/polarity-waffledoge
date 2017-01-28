@@ -948,15 +948,17 @@ bool LLFolderViewItem::isInSelection() const
 /// Class LLFolderViewFolder
 ///----------------------------------------------------------------------------
 
-LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p ): 
-	LLFolderViewItem( p ),
+LLFolderViewFolder::LLFolderViewFolder( const LLFolderViewItem::Params& p )
+	:
+	LLFolderViewItem(p),
 	mIsOpen(FALSE),
 	mExpanderHighlighted(FALSE),
 	mCurHeight(0.f),
 	mTargetHeight(0.f),
 	mAutoOpenCountdown(0.f),
-	mLastArrangeGeneration( -1 ),
-	mLastCalculatedWidth(0)
+	mLastArrangeGeneration(-1),
+	mLastCalculatedWidth(0),
+	mNeedsSort(false)
 {
 	// folder might have children that are not loaded yet. Mark it as incomplete until chance to check it.
 	mIsFolderComplete = false;

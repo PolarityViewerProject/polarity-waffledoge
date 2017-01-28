@@ -88,6 +88,11 @@ template <typename Type>
 class LLInterpLinear : public LLInterp<Type>
 {
 public:
+	explicit LLInterpLinear(F32 cur_frac)
+		: mCurFrac(cur_frac)
+	{
+	}
+
 	/*virtual*/ void start();
 	void update(const F32 time);
 	F32 getCurFrac() const;

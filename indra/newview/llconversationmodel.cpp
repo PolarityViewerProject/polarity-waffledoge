@@ -230,8 +230,10 @@ LLConversationItemSession::LLConversationItemSession(std::string display_name, c
 	mConvType = CONV_SESSION_UNKNOWN;
 }
 
-LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(uuid,root_view_model)
+LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model)
+	:
+	LLConversationItem(uuid, root_view_model),
+	mIsLoaded(false)
 {
 	mConvType = CONV_SESSION_UNKNOWN;
 }

@@ -66,8 +66,10 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 	mNumIndices(rhs.mNumIndices),
 	mTotalDistortion(rhs.mTotalDistortion),
 	mAvgDistortion(rhs.mAvgDistortion),
+    mMesh(nullptr),
 	mMaxDistortion(rhs.mMaxDistortion),
 	mVertexIndices(NULL),
+	mCurrentIndex(0),
 	mCoords(NULL),
 	mNormals(NULL),
 	mBinormals(NULL),
@@ -75,15 +77,15 @@ LLPolyMorphData::LLPolyMorphData(const LLPolyMorphData &rhs) :
 {
 	const S32 numVertices = mNumIndices;
 
-	U32 size = sizeof(LLVector4a)*numVertices;
+	U32 size = sizeof(LLVector4a) * numVertices;
 
-	mCoords = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
-	mNormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
-	mBinormals = static_cast<LLVector4a*>( ll_aligned_malloc_16(size) );
+	mCoords = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
+	mNormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
+	mBinormals = static_cast<LLVector4a*>(ll_aligned_malloc_16(size));
 	mTexCoords = new LLVector2[numVertices];
 	mVertexIndices = new U32[numVertices];
-	
-	for (S32 v=0; v < numVertices; v++)
+
+	for (S32 v = 0; v < numVertices; v++)
 	{
 		mCoords[v] = rhs.mCoords[v];
 		mNormals[v] = rhs.mNormals[v];

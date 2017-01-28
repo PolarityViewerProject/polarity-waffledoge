@@ -305,18 +305,23 @@ void LLGLSLShader::readProfileQuery(U32 count, U32 mode)
 
 
 LLGLSLShader::LLGLSLShader()
-    : mProgramObject(0), 
-      mAttributeMask(0),
-      mTotalUniformSize(0),
-      mActiveTextureChannels(0), 
-      mShaderLevel(0), 
-      mShaderGroup(SG_DEFAULT), 
-      mUniformsDirty(FALSE),
-      mTimerQuery(0),
-      mSamplesQuery(0)
+	: mLightHash(0),
+	  mProgramObject(0),
+	  mAttributeMask(0),
+	  mTotalUniformSize(0),
+	  mActiveTextureChannels(0),
+	  mShaderLevel(0),
+	  mShaderGroup(SG_DEFAULT),
+	  mUniformsDirty(FALSE),
+	  mTimerQuery(0),
+	  mSamplesQuery(0),
+	  mTimeElapsed(0),
+	  mTrianglesDrawn(0),
+	  mSamplesDrawn(0),
+	  mDrawCalls(0),
+	  mTextureStateFetched(false)
 
 {
-    
 }
 
 LLGLSLShader::~LLGLSLShader()

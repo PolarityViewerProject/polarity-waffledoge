@@ -82,7 +82,13 @@ class LLDriverParam : public LLViewerVisualParam
 {
 private:
 	// Hide the default constructor.  Force construction with LLAvatarAppearance.
-	LLDriverParam() {}
+	LLDriverParam():
+		mCurrentDistortionParam(nullptr),
+		mAvatarAppearance(nullptr),
+		mWearablep(nullptr)
+	{
+	}
+
 public:
 	LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearable = NULL);
 	~LLDriverParam();
