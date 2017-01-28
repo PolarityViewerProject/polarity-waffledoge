@@ -476,7 +476,7 @@ void LLChicletPanel::objectChicletCallback(const LLSD& data)
 
 	std::list<LLChiclet*> chiclets = LLIMChiclet::sFindChicletsSignal(notification_id);
 	std::list<LLChiclet *>::iterator iter;
-	for (iter = chiclets.begin(); iter != chiclets.end(); iter++)
+	for (iter = chiclets.begin(); iter != chiclets.end(); ++iter)
 	{
 		LLIMChiclet* chiclet = dynamic_cast<LLIMChiclet*>(*iter);
 		if (chiclet != NULL)
@@ -999,7 +999,7 @@ bool LLChicletPanel::isAnyIMFloaterDoked()
 {
 	bool res = false;
 	for (chiclet_list_t::iterator it = mChicletList.begin(); it
-			!= mChicletList.end(); it++)
+			!= mChicletList.end(); ++it)
 	{
 		LLFloaterIMSession* im_floater = LLFloaterReg::findTypedInstance<LLFloaterIMSession>(
 				"impanel", (*it)->getSessionId());

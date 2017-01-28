@@ -289,7 +289,7 @@ void LLDrawPoolTerrain::drawLoop()
 	if (!mDrawFace.empty())
 	{
 		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
+			 iter != mDrawFace.end(); ++iter)
 		{
 			LLFace *facep = *iter;
 
@@ -957,7 +957,7 @@ void LLDrawPoolTerrain::renderOwnership()
 	const F32 TEXTURE_FUDGE = 257.f / 256.f;
 	gGL.scalef( TEXTURE_FUDGE, TEXTURE_FUDGE, 1.f );
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
+		 iter != mDrawFace.end(); ++iter)
 	{
 		LLFace *facep = *iter;
 		facep->renderIndexed(LLVertexBuffer::MAP_VERTEX |
@@ -976,7 +976,7 @@ void LLDrawPoolTerrain::dirtyTextures(const std::set<LLViewerFetchedTexture*>& t
 	if (tex && textures.find(tex) != textures.end())
 	{
 		for (std::vector<LLFace*>::iterator iter = mReferences.begin();
-			 iter != mReferences.end(); iter++)
+			 iter != mReferences.end(); ++iter)
 		{
 			LLFace *facep = *iter;
 			gPipeline.markTextured(facep->getDrawable());

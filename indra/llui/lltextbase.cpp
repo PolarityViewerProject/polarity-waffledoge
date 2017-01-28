@@ -685,7 +685,7 @@ void LLTextBase::drawText()
 		{
 			while( cur_segment->getEnd() <= seg_start )
 			{
-				seg_iter++;
+				++seg_iter;
 				if (seg_iter == mSegments.end())
 				{
 					LL_WARNS() << "Ran off the segmentation end!" << LL_ENDL;
@@ -1824,7 +1824,7 @@ LLTextBase::segment_set_t::iterator LLTextBase::getEditableSegIterContaining(S32
 		&& index == (*it)->getStart() 
 		&& it != mSegments.begin())
 	{
-		it--;
+		--it;
 		if ((*it)->canEdit())
 		{
 			return it;
@@ -1843,7 +1843,7 @@ LLTextBase::segment_set_t::const_iterator LLTextBase::getEditableSegIterContaini
 		&& index == (*it)->getStart() 
 		&& it != mSegments.begin())
 	{
-		it--;
+		--it;
 		if ((*it)->canEdit())
 		{
 			return it;

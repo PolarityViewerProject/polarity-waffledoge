@@ -1374,7 +1374,7 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 									is_category);
 	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
 		 iter != item_array.end();
-		 iter++)
+	     ++iter)
 	{
 		const LLViewerInventoryItem *item = (*iter);
 		const LLViewerInventoryCategory *cat = item->getLinkedCategory();

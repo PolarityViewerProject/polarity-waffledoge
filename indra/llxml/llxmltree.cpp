@@ -109,10 +109,10 @@ LLXmlTreeNode::LLXmlTreeNode( const std::string& name, LLXmlTreeNode* parent, LL
 LLXmlTreeNode::~LLXmlTreeNode()
 {
 	attribute_map_t::iterator iter;
-	for (iter=mAttributes.begin(); iter != mAttributes.end(); iter++)
+	for (iter=mAttributes.begin(); iter != mAttributes.end(); ++iter)
 		delete iter->second;
 	child_list_t::iterator child_iter;
-	for (child_iter=mChildList.begin(); child_iter != mChildList.end(); child_iter++)
+	for (child_iter=mChildList.begin(); child_iter != mChildList.end(); ++child_iter)
 		delete *child_iter;
 }
  
@@ -124,7 +124,7 @@ void LLXmlTreeNode::dump( const std::string& prefix )
 		LL_CONT << " contents = \"" << mContents << "\"";
 	}
 	attribute_map_t::iterator iter;
-	for (iter=mAttributes.begin(); iter != mAttributes.end(); iter++)
+	for (iter=mAttributes.begin(); iter != mAttributes.end(); ++iter)
 	{
 		LLStdStringHandle key = iter->first;
 		const std::string* value = iter->second;

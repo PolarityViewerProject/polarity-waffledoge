@@ -518,7 +518,7 @@ void LLDrawable::makeActive()
 		
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			 iter != child_list.end(); iter++)
+			 iter != child_list.end(); ++iter)
 		{
 			LLViewerObject* child = *iter;
 			LLDrawable* drawable = child->mDrawable;
@@ -559,7 +559,7 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 
 		LLViewerObject::const_child_list_t& child_list = mVObjp->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			 iter != child_list.end(); iter++)
+			 iter != child_list.end(); ++iter)
 		{
 			LLViewerObject* child = *iter;
 			LLDrawable* child_drawable = child->mDrawable;
@@ -1445,7 +1445,7 @@ void LLSpatialBridge::setVisible(LLCamera& camera_in, std::vector<LLDrawable*>* 
 			{
 				LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
 				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					 iter != child_list.end(); iter++)
+					 iter != child_list.end(); ++iter)
 				{
 					LLViewerObject* child = *iter;
 					LLDrawable* drawable = child->mDrawable;					
@@ -1496,7 +1496,7 @@ void LLSpatialBridge::updateDistance(LLCamera& camera_in, bool force_update)
 	
 		LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			 iter != child_list.end(); iter++)
+			 iter != child_list.end(); ++iter)
 		{
 			LLViewerObject* child = *iter;
 			LLDrawable* drawable = child->mDrawable;					
@@ -1556,7 +1556,7 @@ void LLSpatialBridge::cleanupReferences()
 		{
 			LLViewerObject::const_child_list_t& child_list = mDrawable->getVObj()->getChildren();
 			for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-				 iter != child_list.end(); iter++)
+				 iter != child_list.end(); ++iter)
 			{
 				LLViewerObject* child = *iter;
 				LLDrawable* drawable = child->mDrawable;					

@@ -4409,7 +4409,7 @@ void LLAgent::stopCurrentAnimations()
 		for ( LLVOAvatar::AnimIterator anim_it =
 			      gAgentAvatarp->mPlayingAnimations.begin();
 		      anim_it != gAgentAvatarp->mPlayingAnimations.end();
-		      anim_it++)
+		      ++anim_it)
 		{
 			if ((anim_it->first == ANIM_AGENT_DO_NOT_DISTURB)||
 				(anim_it->first == ANIM_AGENT_SIT_GROUND_CONSTRAINED))

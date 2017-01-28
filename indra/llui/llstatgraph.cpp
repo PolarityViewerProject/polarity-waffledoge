@@ -99,7 +99,7 @@ void LLStatGraph::draw()
 
 	if (it != mThresholds.begin())
 	{
-		it--;
+		--it;
 	}
 
 	color = LLUIColorTable::instance().getColor( "MenuDefaultBgColor" );

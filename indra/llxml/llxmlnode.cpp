@@ -1198,7 +1198,7 @@ void LLXMLNode::getChildren(const LLStringTableEntry* name, LLXMLNodeList &child
 					break;
 				}
 				children.insert(std::make_pair(child->mName->mString, child));
-				child_itr++;
+				++child_itr;
 			}
 		}
 	}

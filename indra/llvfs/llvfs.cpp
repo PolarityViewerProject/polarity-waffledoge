@@ -1692,7 +1692,7 @@ void LLVFS::dumpMap()
 	LL_INFOS() << "Free Blocks:" << LL_ENDL;
 	for (blocks_location_map_t::iterator iter = mFreeBlocksByLocation.begin(),
 			 end = mFreeBlocksByLocation.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		LLVFSBlock *free_block = iter->second;
 		LL_INFOS() << "Location: " << free_block->mLocation << "\tLength: " << free_block->mLength << LL_ENDL;
@@ -1827,7 +1827,7 @@ void LLVFS::audit()
 		}
     
 		for (std::map<LLVFSFileSpecifier, LLVFSFileBlock*>::iterator iter = found_files.begin();
-			 iter != found_files.end(); iter++)
+			 iter != found_files.end(); ++iter)
 		{
 			LLVFSFileBlock* block = iter->second;
 			LL_WARNS() << "VFile " << block->mFileID << ":" << block->mFileType << " szie:" << block->mSize << " leftover" << LL_ENDL;
@@ -1938,7 +1938,7 @@ void LLVFS::dumpStatistics()
 	std::map<S32, S32> free_length_counts;
 	for (blocks_location_map_t::iterator iter = mFreeBlocksByLocation.begin(),
 			 end = mFreeBlocksByLocation.end();
-		 iter != end; iter++)
+		 iter != end; ++iter)
 	{
 		LLVFSBlock *free_block = iter->second;
 		if (free_block->mLength <= 0)

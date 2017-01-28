@@ -497,7 +497,7 @@ void LLAvatarTracker::notifyObservers()
 		(*it)->changed(mModifyMask);
 	}
 
-	for (changed_buddy_t::iterator it = mChangedBuddyIDs.begin(); it != mChangedBuddyIDs.end(); it++)
+	for (changed_buddy_t::iterator it = mChangedBuddyIDs.begin(); it != mChangedBuddyIDs.end(); ++it)
 	{
 		notifyParticularFriendObservers(*it);
 	}
@@ -537,7 +537,7 @@ void LLAvatarTracker::notifyParticularFriendObservers(const LLUUID& buddy_id)
 
     // Notify observers interested in buddy_id.
     observer_set_t& obs = obs_it->second;
-    for (observer_set_t::iterator ob_it = obs.begin(); ob_it != obs.end(); ob_it++)
+    for (observer_set_t::iterator ob_it = obs.begin(); ob_it != obs.end(); ++ob_it)
     {
         (*ob_it)->changed(mModifyMask);
     }

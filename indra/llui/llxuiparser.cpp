@@ -429,7 +429,7 @@ void LLXSDWriter::writeAttribute(const std::string& type, const Parser::name_sta
 
 		// traverse all but last element, leaving that as an attribute name
 		name_stack_t::const_iterator end_it = non_empty_names.end();
-		end_it--;
+		--end_it;
 
 		for (name_stack_t::const_iterator it = non_empty_names.begin();
 			it != end_it;
