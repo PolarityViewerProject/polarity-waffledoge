@@ -1446,9 +1446,9 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 
 	// disable clamping for now as it breaks on some systems, causing infinite loop.
 	//mem = llclamp(mem, getMinVideoRamSetting().value(), getMaxVideoRamSetting(false, mem_multiplier).value());
-	if (mem != cur_mem.value())
+	if (S32Megabytes(mem) != cur_mem)
 	{
-		if (mem < getMinVideoRamSetting().valueInUnits<LLUnits::Megabytes>())
+		if (S32Megabytes(mem) < getMinVideoRamSetting())
 		{
 			LL_WARNS() << "assigned memory value is lower than minimum value!" << LL_ENDL;
 		}
