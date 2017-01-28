@@ -1073,7 +1073,7 @@ void LLBVHLoader::optimize()
 			}
 
 			LLVector3 first_frame_pos(first_key->mPos);
-			LLQuaternion first_frame_rot = mayaQ( first_key->mRot[0], first_key->mRot[1], first_key->mRot[2], order);
+			LLQuaternion first_frame_rot = LLQuaternion::mayaQ( first_key->mRot[0], first_key->mRot[1], first_key->mRot[2], order);
 	
 			// skip first key
 			KeyVector::iterator ki = joint->mKeys.begin();
@@ -1140,7 +1140,7 @@ void LLBVHLoader::optimize()
 				if (ki_prev == ki_last_good_rot)
 				{
 					joint->mNumRotKeys++;
-					LLQuaternion test_rot = mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
+					LLQuaternion test_rot = LLQuaternion::mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
 					F32 x_delta = dist_vec(LLVector3::x_axis * first_frame_rot, LLVector3::x_axis * test_rot);
 					F32 y_delta = dist_vec(LLVector3::y_axis * first_frame_rot, LLVector3::y_axis * test_rot);
 					F32 rot_test = x_delta + y_delta;
@@ -1153,9 +1153,9 @@ void LLBVHLoader::optimize()
 				else
 				{
 					//check rotation for noticeable effect
-					LLQuaternion test_rot = mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
-					LLQuaternion last_good_rot = mayaQ( ki_last_good_rot->mRot[0], ki_last_good_rot->mRot[1], ki_last_good_rot->mRot[2], order);
-					LLQuaternion current_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
+					LLQuaternion test_rot = LLQuaternion::mayaQ( ki_prev->mRot[0], ki_prev->mRot[1], ki_prev->mRot[2], order);
+					LLQuaternion last_good_rot = LLQuaternion::mayaQ( ki_last_good_rot->mRot[0], ki_last_good_rot->mRot[1], ki_last_good_rot->mRot[2], order);
+					LLQuaternion current_rot = LLQuaternion::mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
 					LLQuaternion interp_rot = lerp(1.f / (F32)numRotFramesConsidered, current_rot, last_good_rot);
 
 					F32 x_delta;
@@ -1352,7 +1352,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 		{
 			if ((frame == 1) && joint->mRelativeRotationKey)
 			{
-				first_frame_rot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
+				first_frame_rot = LLQuaternion::mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
 				
 				fixup_rot.shortestArc(LLVector3::z_axis * first_frame_rot * frameRot, LLVector3::z_axis);
 			}
@@ -1367,7 +1367,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 
 			if (mergeParent)
 			{
-				mergeParentRot = mayaQ(	mergeParent->mKeys[frame-1].mRot[0], 
+				mergeParentRot = LLQuaternion::mayaQ(	mergeParent->mKeys[frame-1].mRot[0], 
 										mergeParent->mKeys[frame-1].mRot[1],
 										mergeParent->mKeys[frame-1].mRot[2],
 										bvhStringToOrder(mergeParent->mOrder) );
@@ -1382,7 +1382,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 
 			if (mergeChild)
 			{
-				mergeChildRot = mayaQ(	mergeChild->mKeys[frame-1].mRot[0], 
+				mergeChildRot = LLQuaternion::mayaQ(	mergeChild->mKeys[frame-1].mRot[0], 
 										mergeChild->mKeys[frame-1].mRot[1],
 										mergeChild->mKeys[frame-1].mRot[2],
 										bvhStringToOrder(mergeChild->mOrder) );
@@ -1396,7 +1396,7 @@ BOOL LLBVHLoader::serialize(LLDataPacker& dp)
 				mergeChildRot.loadIdentity();
 			}
 
-			LLQuaternion inRot = mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
+			LLQuaternion inRot = LLQuaternion::mayaQ( ki->mRot[0], ki->mRot[1], ki->mRot[2], order);
 
 			LLQuaternion outRot =  frameRotInv* mergeChildRot * inRot * mergeParentRot * ~first_frame_rot * frameRot * offsetRot;
 
