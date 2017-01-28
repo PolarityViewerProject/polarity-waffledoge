@@ -33,7 +33,6 @@
 #include "llmemory.h"
 
 //#include "llviewercontrol.h"
-#include "llxmltree.h"
 #include "llavatarappearance.h"
 #include "llwearable.h"
 #include "lldir.h"
