@@ -583,7 +583,7 @@ void LLAvatarList::updateLastInteractionTimes()
 	std::vector<LLPanel*> items;
 	getItems(items);
 
-	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
 		// *TODO: error handling
 		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
