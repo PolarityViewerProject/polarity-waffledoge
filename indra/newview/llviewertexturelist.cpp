@@ -1438,7 +1438,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 // ------------------------------------------------------------------
 // DirectX-less minimum VRAM fix
 //
-	if (mem <= 0 && cur_mem.value() <= 0) // convention for "use current"
+	if (mem <= 0 || cur_mem.value() <= 0) // convention for "use current"
 	{
 		LL_INFOS() << "TextureMemory was 0, auto-detecting..." << LL_ENDL;
 		mem = getMaxVideoRamSetting(true).value(); // recommended default
