@@ -65,8 +65,6 @@ public:
 	void setDiscard(S32 new_discard);
 	void setBakedReady(BOOL ready);
 
-protected:
-
 private:
 
 	LLPointer<LLGLTexture>			mImage;
