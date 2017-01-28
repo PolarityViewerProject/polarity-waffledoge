@@ -1,5 +1,5 @@
 /** 
- * @file llatmomic.h
+ * @file llatomic.h
  * @brief Base classes for atomics.
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
