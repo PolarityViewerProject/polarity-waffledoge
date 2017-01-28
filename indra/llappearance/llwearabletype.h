@@ -87,4 +87,28 @@ protected:
 	~LLWearableType() {}
 };
 
+
+struct WearableEntry : public LLDictionaryEntry
+{
+	WearableEntry(const std::string& name,
+	              const std::string& default_new_name,
+	              LLAssetType::EType assetType,
+	              LLInventoryType::EIconName iconName,
+	              BOOL disable_camera_switch = FALSE,
+	              BOOL allow_multiwear = TRUE);
+	const LLAssetType::EType mAssetType;
+	const std::string mLabel;
+	const std::string mDefaultNewName; //keep mLabel for backward compatibility
+	LLInventoryType::EIconName mIconName;
+	BOOL mDisableCameraSwitch;
+	BOOL mAllowMultiwear;
+};
+
+class LLWearableDictionary : public LLSingleton<LLWearableDictionary>,
+	public LLDictionary<LLWearableType::EType, WearableEntry>
+{
+public:
+	LLWearableDictionary();
+};
+
 #endif  // LL_LLWEARABLETYPE_H
