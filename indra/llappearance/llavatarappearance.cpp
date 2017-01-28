@@ -241,7 +241,7 @@ void LLAvatarAppearance::initInstance()
 			mesh->setIsTransparent(MESH_ID_HAIR == mesh_index || MESH_ID_SKIRT == mesh_index);
 			if (MESH_ID_EYEBALL_RIGHT == mesh_index || MESH_ID_EYEBALL_LEFT == mesh_index)
 			{
-				mesh->setSpecular(LLColor3::white, 1.0f);
+				mesh->setSpecular(LLColor4::white, 1.0f);
 			}
 			
 			joint->mMeshParts.push_back(mesh);
