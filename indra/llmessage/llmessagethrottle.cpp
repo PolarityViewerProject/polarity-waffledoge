@@ -83,7 +83,7 @@ void LLMessageThrottle::pruneEntries()
 			}
 			else
 			{
-				r_iterator++;
+				++r_iterator;
 			}
 		}
 

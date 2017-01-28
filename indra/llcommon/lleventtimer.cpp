@@ -76,8 +76,8 @@ void LLEventTimer::updateClass()
 	if ( completed_timers.size() > 0 )
 	{
 		for (std::list<LLEventTimer*>::iterator completed_iter = completed_timers.begin(); 
-			 completed_iter != completed_timers.end(); 
-			 completed_iter++ ) 
+			 completed_iter != completed_timers.end();
+		     ++completed_iter ) 
 		{
 			delete *completed_iter;
 		}

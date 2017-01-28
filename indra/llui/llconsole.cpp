@@ -93,7 +93,7 @@ void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
 	
 	LLUICtrl::reshape(new_width, new_height, called_from_parent);
 	
-	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
+	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); ++paragraph_it)
 	{
 		(*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);
 	}
@@ -123,7 +123,7 @@ void LLConsole::setFontSize(S32 size_index)
 		mFont = LLFontGL::getFontDefault();
 	}
 	
-	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
+	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); ++paragraph_it)
 	{
 		(*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);
 	}
@@ -167,7 +167,7 @@ void LLConsole::draw()
 			break;
 		}
 		paragraph_num--;
-		paragraph_it++;
+		++paragraph_it;
 	}
 
 	if (mParagraphs.empty())
@@ -186,7 +186,7 @@ void LLConsole::draw()
 
 	F32 line_height = mFont->getLineHeight();
 
-	for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); paragraph_it++)
+	for(paragraph_it = mParagraphs.rbegin(); paragraph_it != mParagraphs.rend(); ++paragraph_it)
 	{
 		S32 target_height = llfloor( (*paragraph_it).mLines.size() * line_height + padding_vertical);
 		S32 target_width =  llfloor( (*paragraph_it).mMaxWidth + padding_horizontal);
@@ -211,11 +211,11 @@ void LLConsole::draw()
 		{
 			for (lines_t::iterator line_it=(*paragraph_it).mLines.begin(); 
 					line_it != (*paragraph_it).mLines.end();
-					line_it ++)
+			     ++line_it)
 			{
 				for (line_color_segments_t::iterator seg_it = (*line_it).mLineColorSegments.begin();
 						seg_it != (*line_it).mLineColorSegments.end();
-						seg_it++)
+				     ++seg_it)
 				{
 					mFont->render((*seg_it).mText, 0, (*seg_it).mXPosition - 8, y_pos -  y_off,
 						LLColor4(
@@ -332,8 +332,8 @@ void LLConsole::Paragraph::updateLines(F32 screen_width, const LLFontGL* font, b
 				
 				drawn += current_color_length;
 				left_to_draw -= current_color_length;
-				
-				current_color++;							//Goto next paragraph color record.
+
+				++current_color;							//Goto next paragraph color record.
 				
 				if (current_color != mParagraphColorSegments.end())
 				{

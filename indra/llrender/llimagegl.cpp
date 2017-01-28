@@ -93,7 +93,7 @@ BOOL LLImageGL::sSkipAnalyzeAlpha;
 void check_all_images()
 {
 	for (std::set<LLImageGL*>::iterator iter = LLImageGL::sImageList.begin();
-		 iter != LLImageGL::sImageList.end(); iter++)
+		 iter != LLImageGL::sImageList.end(); ++iter)
 	{
 		LLImageGL* glimage = *iter;
 		if (glimage->getTexName() && glimage->isGLTextureCreated())
@@ -279,7 +279,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 	
 	sAllowReadBackRaw = true ;
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-		 iter != sImageList.end(); iter++)
+		 iter != sImageList.end(); ++iter)
 	{
 		LLImageGL* glimage = *iter;
 		if (glimage->mTexName)
@@ -306,7 +306,7 @@ void LLImageGL::destroyGL(BOOL save_state)
 void LLImageGL::restoreGL()
 {
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-		 iter != sImageList.end(); iter++)
+		 iter != sImageList.end(); ++iter)
 	{
 		LLImageGL* glimage = *iter;
 		if(glimage->getTexName())
@@ -329,7 +329,7 @@ void LLImageGL::restoreGL()
 void LLImageGL::dirtyTexOptions()
 {
 	for (std::set<LLImageGL*>::iterator iter = sImageList.begin();
-		 iter != sImageList.end(); iter++)
+		 iter != sImageList.end(); ++iter)
 	{
 		LLImageGL* glimage = *iter;
 		glimage->mTexOptionsDirty = true;

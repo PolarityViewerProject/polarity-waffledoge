@@ -107,7 +107,7 @@ public:
 	private:
 		friend class boost::iterator_core_access;
 
-		void increment() { mIterator++; }
+		void increment() { ++mIterator; }
 		bool equal(instance_iter const& other) const
 		{
 			return mIterator == other.mIterator;
@@ -147,7 +147,7 @@ public:
 	private:
 		friend class boost::iterator_core_access;
 
-		void increment() { mIterator++; }
+		void increment() { ++mIterator; }
 		bool equal(key_iter const& other) const
 		{
 			return mIterator == other.mIterator;
@@ -312,7 +312,7 @@ public:
 	private:
 		friend class boost::iterator_core_access;
 
-		void increment() { mIterator++; }
+		void increment() { ++mIterator; }
 		bool equal(instance_iter const& other) const
 		{
 			return mIterator == other.mIterator;

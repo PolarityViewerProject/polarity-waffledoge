@@ -308,7 +308,7 @@ void LLMessageSystem::loadTemplateFile(const std::string& filename, bool failure
 	mMessageFileVersionNumber = parsed.getVersion();
 	for(LLTemplateParser::message_iterator iter = parsed.getMessagesBegin();
 		iter != parsed.getMessagesEnd();
-		iter++)
+	    ++iter)
 	{
 		addTemplate(*iter);
 	}
