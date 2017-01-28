@@ -620,7 +620,10 @@ bool LLAudioChannelFMODSTUDIO::isPlaying()
 //
 
 
-LLAudioBufferFMODSTUDIO::LLAudioBufferFMODSTUDIO(FMOD::System *system) : mSystemp(system), mSoundp(NULL)
+LLAudioBufferFMODSTUDIO::LLAudioBufferFMODSTUDIO(FMOD::System *system)
+	: LLAudioBuffer(),
+	  mSystemp(system),
+	  mSoundp(NULL)
 {
 }
 
