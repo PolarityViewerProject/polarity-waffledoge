@@ -66,7 +66,7 @@ public:
 	/*virtual*/ bool initWind();
 	/*virtual*/ void cleanupWind();
 
-	/*virtual*/void updateWind(LLVector3 direction, F32 camera_height_above_water);
+	/*virtual*/void updateWind(LLVector3 direction);
 
 	typedef F32 MIXBUFFERFORMAT;
 

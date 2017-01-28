@@ -360,7 +360,7 @@ void LLAudioEngine_FMODSTUDIO::cleanupWind()
 
 
 //-----------------------------------------------------------------------
-void LLAudioEngine_FMODSTUDIO::updateWind(LLVector3 wind_vec, F32 camera_height_above_water)
+void LLAudioEngine_FMODSTUDIO::updateWind(LLVector3 wind_vec)
 {
 	LLVector3 wind_pos;
 	F64 pitch;
