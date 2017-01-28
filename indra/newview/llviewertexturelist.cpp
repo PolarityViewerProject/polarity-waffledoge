@@ -26,24 +26,17 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <sys/stat.h>
-
 #include "llviewertexturelist.h"
 
 #include "llgl.h" // fot gathering stats from GL
 #include "llimagegl.h"
 #include "llimagebmp.h"
 #include "llimagej2c.h"
-#include "llimagetga.h"
 #include "llimagejpeg.h"
-#include "llimagepng.h"
 #include "llimageworker.h"
 
 #include "llsdserialize.h"
-#include "llsys.h"
 #include "llvfs.h"
-#include "llvfile.h"
-#include "llvfsthread.h"
 #include "llxmltree.h"
 #include "message.h"
 
