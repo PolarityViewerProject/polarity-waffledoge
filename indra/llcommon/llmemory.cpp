@@ -43,7 +43,6 @@
 #include "llmemory.h"
 
 #include "llsys.h"
-#include "llframetimer.h"
 #include "lltrace.h"
 //----------------------------------------------------------------------------
 

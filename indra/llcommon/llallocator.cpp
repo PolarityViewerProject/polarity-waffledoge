@@ -24,7 +24,6 @@
  * $/LicenseInfo$
  */
 
-#include "linden_common.h"
 #include "llallocator.h"
 
 #if (LL_USE_TCMALLOC && LL_USE_HEAP_PROFILER)

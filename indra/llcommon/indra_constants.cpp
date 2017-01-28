@@ -23,11 +23,9 @@
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
-#include "linden_common.h"
+//#include "linden_common.h"
 
 #include "indra_constants.h"
-
-#include "lluuid.h"
 
 // "agent id" for things that should be done to ALL agents
 const LLUUID LL_UUID_ALL_AGENTS("44e87126-e794-4ded-05b3-7c42da3d5cdb");

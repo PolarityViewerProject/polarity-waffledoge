@@ -26,7 +26,6 @@
 #ifndef WINDGEN_H
 #define WINDGEN_H
 
-#include "llcommon.h"
 #include "llrand.h"
 
 template <class MIXBUFFERFORMAT_T>

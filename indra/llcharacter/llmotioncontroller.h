@@ -30,14 +30,10 @@
 //-----------------------------------------------------------------------------
 // Header files
 //-----------------------------------------------------------------------------
-#include <string>
-#include <map>
-#include <deque>
 
 #include "llmotion.h"
 #include "llpose.h"
 #include "llframetimer.h"
-#include "llstring.h"
 
 //-----------------------------------------------------------------------------
 // Class predeclaration

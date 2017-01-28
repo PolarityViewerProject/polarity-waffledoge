@@ -31,7 +31,6 @@
 
 #include "llhandmotion.h"
 #include "llcharacter.h"
-#include "m3math.h"
 
 //-----------------------------------------------------------------------------
 // Constants

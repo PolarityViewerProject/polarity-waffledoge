@@ -28,7 +28,6 @@
 #include "indra_constants.h"
 
 #include "llgesture.h"
-#include "llendianswizzle.h"
 #include "message.h"
 #include <boost/tokenizer.hpp>
 

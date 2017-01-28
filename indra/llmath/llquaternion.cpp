@@ -753,7 +753,7 @@ LLQuaternion slerp(F32 t, const LLQuaternion &q)
 	return r;
 }
 
-LLQuaternion mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order)
+LLQuaternion LLQuaternion::mayaQ(F32 xRot, F32 yRot, F32 zRot, LLQuaternion::Order order)
 {
 	LLQuaternion xQ( xRot*DEG_TO_RAD, LLVector3(1.0f, 0.0f, 0.0f) );
 	LLQuaternion yQ( yRot*DEG_TO_RAD, LLVector3(0.0f, 1.0f, 0.0f) );

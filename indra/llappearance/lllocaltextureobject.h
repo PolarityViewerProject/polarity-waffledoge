@@ -27,8 +27,6 @@
 #ifndef LL_LOCALTEXTUREOBJECT_H
 #define LL_LOCALTEXTUREOBJECT_H
 
-#include <boost/shared_ptr.hpp>
-
 #include "llpointer.h"
 #include "llgltexture.h"
 
@@ -64,8 +62,6 @@ public:
 	void setID(const LLUUID& new_id);
 	void setDiscard(S32 new_discard);
 	void setBakedReady(BOOL ready);
-
-protected:
 
 private:
 

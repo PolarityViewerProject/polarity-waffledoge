@@ -36,11 +36,9 @@
 #include "llcharacter.h"
 #include "llcriticaldamp.h"
 #include "lldir.h"
-#include "llendianswizzle.h"
 #include "llkeyframemotion.h"
 #include "llquantize.h"
 #include "llvfile.h"
-#include "m3math.h"
 #include "message.h"
 
 //-----------------------------------------------------------------------------
@@ -1559,7 +1557,7 @@ BOOL LLKeyframeMotion::deserialize(LLDataPacker& dp)
 				success = dp.unpackVector3(rot_angles, "rot_angles") && rot_angles.isFinite();
 
 				LLQuaternion::Order ro = StringToOrder("ZYX");
-				rot_key.mRotation = mayaQ(rot_angles.mV[VX], rot_angles.mV[VY], rot_angles.mV[VZ], ro);
+				rot_key.mRotation = LLQuaternion::mayaQ(rot_angles.mV[VX], rot_angles.mV[VY], rot_angles.mV[VZ], ro);
 			}
 			else
 			{

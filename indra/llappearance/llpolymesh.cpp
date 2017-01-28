@@ -33,7 +33,6 @@
 #include "llmemory.h"
 
 //#include "llviewercontrol.h"
-#include "llxmltree.h"
 #include "llavatarappearance.h"
 #include "llwearable.h"
 #include "lldir.h"
@@ -373,10 +372,10 @@ BOOL LLPolyMeshSharedData::loadMesh( const std::string& fileName )
 
                 rotationOrder = 0;
 
-                setRotation( mayaQ(     rotationAngles.mV[0],
-                                        rotationAngles.mV[1],
-                                        rotationAngles.mV[2],
-                                        (LLQuaternion::Order)rotationOrder ) );
+                setRotation(LLQuaternion::mayaQ(rotationAngles.mV[0],
+					rotationAngles.mV[1],
+					rotationAngles.mV[2],
+					(LLQuaternion::Order)rotationOrder));
 
                 //----------------------------------------------------------------
                 // Scale

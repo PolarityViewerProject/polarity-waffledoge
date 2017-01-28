@@ -920,8 +920,7 @@ namespace LLInitParam
 			static BlockDescriptor sBlockDescriptor;
 			return sBlockDescriptor;
 		}
-
-	protected:
+	//protected:
 		void init(BlockDescriptor& descriptor, BlockDescriptor& base_descriptor, size_t block_size);
 
 

@@ -28,6 +28,7 @@
 #include "llwearabletype.h"
 #include "llinventorytype.h"
 #include "llinventorydefines.h"
+#include "lldictionary.h"
 
 static LLTranslationBridge* sTrans = NULL;
 
@@ -41,39 +42,6 @@ void LLWearableType::cleanupClass()
 {
 	delete sTrans;
 }
-
-struct WearableEntry : public LLDictionaryEntry
-{
-	WearableEntry(const std::string &name,
-				  const std::string& default_new_name,
-				  LLAssetType::EType assetType,
-				  LLInventoryType::EIconName iconName,
-				  BOOL disable_camera_switch = FALSE,
-				  BOOL allow_multiwear = TRUE) :
-		LLDictionaryEntry(name),
-		mAssetType(assetType),
-		mDefaultNewName(default_new_name),
-		mLabel(sTrans->getString(name)),
-		mIconName(iconName),
-		mDisableCameraSwitch(disable_camera_switch),
-		mAllowMultiwear(allow_multiwear)
-	{
-		
-	}
-	const LLAssetType::EType mAssetType;
-	const std::string mLabel;
-	const std::string mDefaultNewName; //keep mLabel for backward compatibility
-	LLInventoryType::EIconName mIconName;
-	BOOL mDisableCameraSwitch;
-	BOOL mAllowMultiwear;
-};
-
-class LLWearableDictionary : public LLSingleton<LLWearableDictionary>,
-							 public LLDictionary<LLWearableType::EType, WearableEntry>
-{
-public:
-	LLWearableDictionary();
-};
 
 LLWearableDictionary::LLWearableDictionary()
 {
@@ -174,5 +142,16 @@ BOOL LLWearableType::getAllowMultiwear(LLWearableType::EType type)
 LLWearableType::EType LLWearableType::inventoryFlagsToWearableType(U32 flags)
 {
     return  (LLWearableType::EType)(flags & LLInventoryItemFlags::II_FLAGS_WEARABLES_MASK);
+}
+
+WearableEntry::WearableEntry(const std::string& name, const std::string& default_new_name, LLAssetType::EType assetType, LLInventoryType::EIconName iconName, BOOL disable_camera_switch, BOOL allow_multiwear):
+	LLDictionaryEntry(name),
+	mAssetType(assetType),
+	mDefaultNewName(default_new_name),
+	mLabel(sTrans->getString(name)),
+	mIconName(iconName),
+	mDisableCameraSwitch(disable_camera_switch),
+	mAllowMultiwear(allow_multiwear)
+{
 }
 

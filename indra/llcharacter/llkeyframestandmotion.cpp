@@ -31,6 +31,8 @@
 
 #include "llkeyframestandmotion.h"
 #include "llcharacter.h"
+#include "v4color.h"
+#include "v4math.h"
 
 //-----------------------------------------------------------------------------
 // Macros and consts

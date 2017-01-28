@@ -32,7 +32,6 @@
 //-----------------------------------------------------------------------------
 #include "llmotion.h"
 #include "lljointsolverrp3.h"
-#include "v3dmath.h"
 
 #define EDITING_EASEIN_DURATION	0.0f
 #define EDITING_EASEOUT_DURATION 0.5f

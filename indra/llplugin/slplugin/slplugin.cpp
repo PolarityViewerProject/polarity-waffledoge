@@ -32,13 +32,10 @@
 #include "linden_common.h"
 
 #include "llpluginprocesschild.h"
-#include "llpluginmessage.h"
 #include "llerrorcontrol.h"
 #include "llapr.h"
 #include "llstring.h"
 
-#include <iostream>
-#include <fstream>
 using namespace std;
 
 

@@ -31,7 +31,6 @@
 // associated header
 #include "lleventcoro.h"
 // STL headers
-#include <map>
 // std headers
 // external library headers
 // other Linden headers
