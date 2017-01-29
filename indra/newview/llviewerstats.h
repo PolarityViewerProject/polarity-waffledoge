@@ -1,5 +1,5 @@
 /** 
- * @file llviewerim_peningtats.h
+ * @file llviewerstats.h
  * @brief LLViewerStats class header file
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
