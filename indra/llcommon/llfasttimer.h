@@ -27,7 +27,6 @@
 #ifndef LL_FASTTIMER_H
 #define LL_FASTTIMER_H
 
-#include "llinstancetracker.h"
 #include "lltrace.h"
 #include "lltreeiterators.h"
 
@@ -219,7 +218,9 @@ private:
 public:
 #endif
 	// no-copy
-	BlockTimer(const BlockTimer& other) {};
+	BlockTimer(const BlockTimer& other): mStartTime(0)
+	{
+	} ;
 
 private:
 	U64						mStartTime;

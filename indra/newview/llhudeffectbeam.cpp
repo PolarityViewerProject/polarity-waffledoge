@@ -33,14 +33,9 @@
 
 #include "llagent.h"
 #include "lldrawable.h"
-#include "llfontgl.h"
 #include "llgl.h"
-#include "llglheaders.h"
-#include "llhudrender.h"
 #include "llrendersphere.h"
-#include "llviewercamera.h"
 #include "llvoavatar.h"
-#include "llviewercontrol.h"
 
 const F32 BEAM_SPACING = 0.075f;
 

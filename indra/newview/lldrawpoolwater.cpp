@@ -160,7 +160,7 @@ void LLDrawPoolWater::render(S32 pass)
 
 	//do a quick 'n dirty depth sort
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
+			 iter != mDrawFace.end(); ++iter)
 	{
 		LLFace* facep = *iter;
 		facep->mDistance = -facep->mCenterLocal.mV[2];
@@ -249,7 +249,7 @@ void LLDrawPoolWater::render(S32 pass)
 	glStencilFunc(GL_ALWAYS, 0, 0xFFFFFFFF);
 
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
+		 iter != mDrawFace.end(); ++iter)
 	{
 		LLFace *face = *iter;
 		if (voskyp->isReflFace(face))
@@ -292,7 +292,7 @@ void LLDrawPoolWater::render(S32 pass)
 		gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 
 		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			 iter != mDrawFace.end(); iter++)
+			 iter != mDrawFace.end(); ++iter)
 		{
 			LLFace *face = *iter;
 			if (voskyp->isReflFace(face))
@@ -415,7 +415,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 	gGL.diffuseColor3f(1.f, 1.f, 1.f);
 
 	for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
+		 iter != mDrawFace.end(); ++iter)
 	{
 		LLFace *face = *iter;
 		if (voskyp->isReflFace(face))
@@ -667,7 +667,7 @@ void LLDrawPoolWater::shade()
 		LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
 		LLGLDisable cullface(GL_CULL_FACE);
 		for (std::vector<LLFace*>::iterator iter = mDrawFace.begin();
-			iter != mDrawFace.end(); iter++)
+			iter != mDrawFace.end(); ++iter)
 		{
 			LLFace *face = *iter;
 

@@ -45,7 +45,7 @@ bool LLCrossParcelFunctor::apply(LLViewerObject* obj)
 	// Extend the bounding box across all the children.
 	LLViewerObject::const_child_list_t children = obj->getChildren();
 	for (LLViewerObject::const_child_list_t::const_iterator iter = children.begin();
-		 iter != children.end(); iter++)
+		 iter != children.end(); ++iter)
 	{
 		LLViewerObject* child = *iter;
 		mBoundingBox.addBBoxAgent(LLBBox(child->getPositionRegion(), child->getRotationRegion(), child->getScale() * -0.5f, child->getScale() * 0.5f).getAxisAligned());

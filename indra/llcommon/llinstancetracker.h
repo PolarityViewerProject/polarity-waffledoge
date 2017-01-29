@@ -29,7 +29,6 @@
 #define LL_LLINSTANCETRACKER_H
 
 #include <map>
-#include <typeinfo>
 
 #include "llatomic.h"
 #include "llstringtable.h"

@@ -324,7 +324,7 @@ BOOL LLFacePool::verify() const
 	BOOL ok = TRUE;
 	
 	for (std::vector<LLFace*>::const_iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); iter++)
+		 iter != mDrawFace.end(); ++iter)
 	{
 		const LLFace* facep = *iter;
 		if (facep->getPool() != this)

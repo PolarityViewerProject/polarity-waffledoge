@@ -67,7 +67,7 @@ void LLPopupView::draw()
 		}
 		else
 		{
-			popup_it++;
+			++popup_it;
 		}
 	}
 

@@ -29,6 +29,8 @@
 #define LL_LAZY_VALUE_H
 
 #include <boost/function.hpp>
+#include <boost/type_traits/add_reference.hpp>
+#include <boost/type_traits/add_const.hpp>
 
 // Holds on to a value of type T *or* calls a functor to generate a value of type T
 template<typename T>

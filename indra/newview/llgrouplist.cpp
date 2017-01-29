@@ -212,7 +212,7 @@ void LLGroupList::toggleIcons()
 	// Show/hide icons for all existing items.
 	std::vector<LLPanel*> items;
 	getItems(items);
-	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
 		static_cast<LLGroupListItem*>(*it)->setGroupIconVisible(mShowIcons);
 	}

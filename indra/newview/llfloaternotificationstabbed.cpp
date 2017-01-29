@@ -461,7 +461,7 @@ void LLNotificationSeparator::initTaggedList(const std::string& tag, LLNotificat
 void LLNotificationSeparator::initTaggedList(const std::set<std::string>& tags, LLNotificationListView* list)
 {
     std::set<std::string>::const_iterator it = tags.begin();
-    for(;it != tags.end();it++)
+    for(;it != tags.end(); ++it)
     {
         initTaggedList(*it, list);
     }
@@ -508,7 +508,7 @@ U32 LLNotificationSeparator::size() const
 {
     U32 size = 0;
     notification_list_list_t::const_iterator it = mNotificationLists.begin();
-    for (; it != mNotificationLists.end(); it++)
+    for (; it != mNotificationLists.end(); ++it)
     {
         size = size + (*it)->size();
     }
@@ -555,7 +555,7 @@ void LLNotificationSeparator::getItems(std::vector<LLNotificationListItem*>& ite
 {
     items.clear();
     notification_list_list_t::const_iterator lists_it = mNotificationLists.begin();
-    for (; lists_it != mNotificationLists.end(); lists_it++)
+    for (; lists_it != mNotificationLists.end(); ++lists_it)
     {
         getItemsFromList(items, *lists_it);
     }

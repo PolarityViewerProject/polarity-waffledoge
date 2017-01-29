@@ -108,7 +108,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoGetCoro(std::string url, U64 
         {
             for (LLSD::map_const_iterator agent_iter = agents.beginMap();
                  agent_iter != agents.endMap();
-                 agent_iter++
+                 ++agent_iter
                  )
             {
                 LLUUID target_agent_id = LLUUID(agent_iter->first);
@@ -220,7 +220,7 @@ void LLAvatarRenderInfoAccountant::avatarRenderInfoReportCoro(std::string url, U
                 num_avs++;
             }
         }
-        iter++;
+	    ++iter;
     }
 
     // Reset this regions timer, moving to longer intervals if there are lots of avatars around

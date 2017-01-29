@@ -65,11 +65,13 @@ const F32 EYE_BLINK_TIME_DELTA = 0.005f; // time between one eye starting a blin
 // LLHeadRotMotion()
 // Class Constructor
 //-----------------------------------------------------------------------------
-LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) : 
+LLHeadRotMotion::LLHeadRotMotion(const LLUUID &id) :
 	LLMotion(id),
 	mCharacter(NULL),
 	mTorsoJoint(NULL),
-	mHeadJoint(NULL)
+	mHeadJoint(NULL),
+	mRootJoint(nullptr),
+	mPelvisJoint(nullptr)
 {
 	mName = "head_rot";
 

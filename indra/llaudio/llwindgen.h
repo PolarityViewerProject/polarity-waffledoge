@@ -168,6 +168,7 @@ private:
 template<class T> inline const F32 LLWindGen<T>::getNextSample() { return (F32)rand() * (1.0f / (F32)(RAND_MAX / (U16_MAX / 8))) + (F32)(S16_MIN / 8); }
 template<> inline const F32 LLWindGen<F32>::getNextSample() { return ll_frand()-.5f; }
 template<class T> inline const F32 LLWindGen<T>::getClampedSample(bool clamp, F32 sample) { return clamp ? (F32)llclamp((S32)sample,(S32)S16_MIN,(S32)S16_MAX) : sample; }
+// ReSharper disable once CppParameterNeverUsed
 template<> inline const F32 LLWindGen<F32>::getClampedSample(bool clamp, F32 sample) { return sample; }
 
 #endif

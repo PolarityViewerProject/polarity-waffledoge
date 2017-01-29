@@ -230,7 +230,7 @@ void LLToolSelectRect::handleRectangleSelection(S32 x, S32 y, MASK mask)
 		}
 		
 		for (std::vector<LLDrawable*>::iterator iter = potentials.begin();
-			 iter != potentials.end(); iter++)
+			 iter != potentials.end(); ++iter)
 		{
 			LLDrawable* drawable = *iter;
 			// <FS:Ansariel> FIRE-15206: Crash fixing

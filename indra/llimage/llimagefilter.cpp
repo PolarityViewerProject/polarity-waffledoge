@@ -41,19 +41,30 @@
 //---------------------------------------------------------------------------
 
 LLImageFilter::LLImageFilter(const std::string& file_path) :
-    mFilterData(LLSD::emptyArray()),
-    mImage(NULL),
-    mHistoRed(NULL),
-    mHistoGreen(NULL),
-    mHistoBlue(NULL),
-    mHistoBrightness(NULL),
-    mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
-    mStencilShape(STENCIL_SHAPE_UNIFORM),
-    mStencilGamma(1.0),
-    mStencilMin(0.0),
-    mStencilMax(1.0)
+	mFilterData(LLSD::emptyArray()),
+	mImage(NULL),
+	mHistoRed(NULL),
+	mHistoGreen(NULL),
+	mHistoBlue(NULL),
+	mHistoBrightness(NULL),
+	mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
+	mStencilShape(STENCIL_SHAPE_UNIFORM),
+	mStencilGamma(1.0),
+	mStencilWavelength(0),
+	mStencilSine(0),
+	mStencilCosine(0),
+	mStencilStartX(0),
+	mStencilStartY(0),
+	mStencilGradX(0),
+	mStencilGradY(0),
+	mStencilGradN(0),
+	mStencilMin(0.0),
+	mStencilMax(1.0),
+	mStencilCenterX(0),
+	mStencilCenterY(0),
+	mStencilWidth(0)
 {
-    // Load filter description from file
+	// Load filter description from file
 	llifstream filter_xml(file_path.c_str());
 	if (filter_xml.is_open())
 	{

@@ -115,7 +115,7 @@ LLKeyboardWin32::LLKeyboardWin32()
 
 	// Build inverse map
 	std::map<U16, KEY>::iterator iter;
-	for (iter = mTranslateKeyMap.begin(); iter != mTranslateKeyMap.end(); iter++)
+	for (iter = mTranslateKeyMap.begin(); iter != mTranslateKeyMap.end(); ++iter)
 	{
 		mInvTranslateKeyMap[iter->second] = iter->first;
 	}
@@ -137,7 +137,7 @@ LLKeyboardWin32::LLKeyboardWin32()
 	mTranslateNumpadMap[0x6E] = KEY_PAD_DEL;	// keypad .
 	mTranslateNumpadMap[0x6F] = KEY_PAD_DIVIDE;	// keypad /
 
-	for (iter = mTranslateNumpadMap.begin(); iter != mTranslateNumpadMap.end(); iter++)
+	for (iter = mTranslateNumpadMap.begin(); iter != mTranslateNumpadMap.end(); ++iter)
 	{
 		mInvTranslateNumpadMap[iter->second] = iter->first;
 	}

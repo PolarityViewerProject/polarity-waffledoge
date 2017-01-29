@@ -3812,7 +3812,7 @@ void LLWindowWin32::handleCompositionMessage(const U32 indexes)
 
 		if (result_string.length() > 0)
 		{
-			for (LLWString::const_iterator i = result_string.begin(); i != result_string.end(); i++)
+			for (LLWString::const_iterator i = result_string.begin(); i != result_string.end(); ++i)
 			{
 				mPreeditor->handleUnicodeCharHere(*i);
 			}

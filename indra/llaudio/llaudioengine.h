@@ -105,7 +105,7 @@ public:
 	// Used by the mechanics of the engine
 	//virtual void processQueue(const LLUUID &sound_guid);
 	virtual void setListener(const LLVector3& pos, const LLVector3& vel, const LLVector3& up, const LLVector3& at);
-	virtual void updateWind(LLVector3 direction, F32 camera_height_above_water) = 0;
+	virtual void updateWind(LLVector3 direction) = 0;
 	virtual void idle(F32 max_decode_time = 0.f);
 	virtual void updateChannels();
 
@@ -463,6 +463,7 @@ protected:
 class LLAudioBuffer
 {
 public:
+
 	virtual ~LLAudioBuffer() {};
 	virtual bool loadWAV(const std::string& filename) = 0;
 	virtual U32 getLength() = 0;

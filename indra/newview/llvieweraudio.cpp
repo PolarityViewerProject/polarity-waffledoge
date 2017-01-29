@@ -589,7 +589,7 @@ void audio_update_wind(bool force_update)
 			gAudiop->mMaxWindGain = llmax(gAudiop->mMaxWindGain - volume_delta, 0.f);
 		}
 		
-		gAudiop->updateWind(gRelativeWindVec, gAgentCamera.getCameraPositionAgent()[VZ] - gAgent.getRegion()->getWaterHeight());
+		gAudiop->updateWind(gRelativeWindVec);
 	}
 #endif
 }

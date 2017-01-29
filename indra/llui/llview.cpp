@@ -1691,7 +1691,7 @@ LLView* LLView::findNextSibling(LLView* child)
 	child_list_t::iterator next_it = std::find(mChildList.begin(), mChildList.end(), child);
 	if (next_it != mChildList.end())
 	{
-		next_it++;
+		++next_it;
 	}
 
 	return (next_it != mChildList.end()) ? *next_it : NULL;

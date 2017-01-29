@@ -114,7 +114,7 @@ void LLViewQuery::filterChildren(LLView* parent_view, viewList_t & filtered_chil
 	}
 	for(LLView::child_list_iter_t iter = views.begin();
 		iter != views.end();
-		iter++)
+	    ++iter)
 	{
 		viewList_t indiv_children = this->run(*iter);
 		filtered_children.splice(filtered_children.end(), indiv_children);
@@ -126,7 +126,7 @@ filterResult_t LLViewQuery::runFilters(LLView * view, const viewList_t children,
 	filterResult_t result = filterResult_t(TRUE, TRUE);
 	for(filterList_const_iter_t iter = filters.begin();
 		iter != filters.end();
-		iter++)
+	    ++iter)
 	{
 		filterResult_t filtered = (**iter)(view, children);
 		result.first = result.first && filtered.first;

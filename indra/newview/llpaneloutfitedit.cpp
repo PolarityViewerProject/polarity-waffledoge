@@ -765,7 +765,7 @@ void LLPanelOutfitEdit::onPlusBtnClicked(void)
 
 	LLPointer<LLInventoryCallback> link_waiter = new LLUpdateAppearanceOnDestroy;
 	
-	for(uuid_vec_t::iterator iter = selected_items.begin(); iter != selected_items.end(); iter++)
+	for(uuid_vec_t::iterator iter = selected_items.begin(); iter != selected_items.end(); ++iter)
 	{
 		LLUUID selected_id = *iter;
 		if (!selected_id.isNull())

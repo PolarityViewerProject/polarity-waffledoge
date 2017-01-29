@@ -50,12 +50,13 @@ std::string model_names[] =
 const int MODEL_NAMES_LENGTH = sizeof(model_names) / sizeof(std::string);
 
 LLModel::LLModel(LLVolumeParams& params, F32 detail)
-	: LLVolume(params, detail), 
-      mNormalizedScale(1,1,1), 
-      mNormalizedTranslation(0,0,0), 
-      mPelvisOffset( 0.0f ), 
-      mStatus(NO_ERRORS), 
-      mSubmodelID(0)
+	: LLVolume(params, detail),
+	  mNormalizedScale(1, 1, 1),
+	  mNormalizedTranslation(0, 0, 0),
+	  mPelvisOffset(0.0f),
+	  mHullPoints(0),
+	  mStatus(NO_ERRORS),
+	  mSubmodelID(0)
 {
 	mDecompID = -1;
 	mLocalID = -1;
@@ -2149,7 +2150,7 @@ LLImportMaterial::~LLImportMaterial()
 {
 }
 
-LLImportMaterial::LLImportMaterial(LLSD& data)
+LLImportMaterial::LLImportMaterial(LLSD& data): mOpaqueData(nullptr)
 {
 	mDiffuseMapFilename = data["diffuse"]["filename"].asString();
 	mDiffuseMapLabel = data["diffuse"]["label"].asString();

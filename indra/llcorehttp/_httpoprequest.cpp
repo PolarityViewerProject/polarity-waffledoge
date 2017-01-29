@@ -116,36 +116,36 @@ namespace LLCore
 
 
 HttpOpRequest::HttpOpRequest()
-	: HttpOperation(),
-	  mProcFlags(0U),
-	  mReqMethod(HOR_GET),
-	  mReqBody(NULL),
-	  mReqOffset(0),
-	  mReqLength(0),
-	  mReqHeaders(),
-	  mReqOptions(),
-	  mCurlActive(false),
-	  mCurlHandle(NULL),
-	  mCurlService(NULL),
-	  mCurlHeaders(NULL),
-	  mCurlBodyPos(0),
-	  mCurlTemp(NULL),
-	  mCurlTempLen(0),
-	  mReplyBody(NULL),
-	  mReplyOffset(0),
-	  mReplyLength(0),
-	  mReplyFullLength(0),
-	  mReplyHeaders(),
-	  mPolicyRetries(0),
-	  mPolicy503Retries(0),
-	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
-	  mCallbackSSLVerify(NULL)
-{
-	// *NOTE:  As members are added, retry initialization/cleanup
-	// may need to be extended in @see prepareRequest().
-}
-
+		: HttpOperation(),
+		  mProcFlags(0U),
+		  mReqMethod(HOR_GET),
+		  mReqBody(NULL),
+		  mReqOffset(0),
+		  mReqLength(0),
+		  mReqHeaders(),
+		  mReqOptions(),
+		  mCurlActive(false),
+		  mCurlHandle(NULL),
+		  mCurlService(NULL),
+		  mCurlHeaders(NULL),
+		  mCurlBodyPos(0),
+		  mCurlTemp(NULL),
+		  mCurlTempLen(0),
+		  mReplyBody(NULL),
+		  mReplyOffset(0),
+		  mReplyLength(0),
+		  mReplyFullLength(0),
+		  mReplyHeaders(),
+		  mReplyRetryAfter(0),
+		  mPolicyRetries(0),
+		  mPolicy503Retries(0),
+		  mPolicyRetryAt(HttpTime(0)),
+		  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
+		  mCallbackSSLVerify(NULL)
+	{
+		// *NOTE:  As members are added, retry initialization/cleanup
+		// may need to be extended in @see prepareRequest().
+	}
 
 
 HttpOpRequest::~HttpOpRequest()

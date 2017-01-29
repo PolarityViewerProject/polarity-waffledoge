@@ -324,11 +324,11 @@ public:
     
     bool operator<(const LLImportMaterial &params) const;
     
-    LLImportMaterial() : LLModelMaterialBase()
-    {
-        mDiffuseColor.set(1,1,1,1);
-    }
-    
+    LLImportMaterial() : LLModelMaterialBase(), mOpaqueData(nullptr)
+	{
+		mDiffuseColor.set(1, 1, 1, 1);
+	}
+
     LLImportMaterial(LLSD& data);
     virtual ~LLImportMaterial();
     

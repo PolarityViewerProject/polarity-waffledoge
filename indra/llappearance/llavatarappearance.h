@@ -60,7 +60,38 @@ protected:
  **/
 private:
 	// Hide default constructor.
-	LLAvatarAppearance() {}
+	LLAvatarAppearance():
+		mRoot(nullptr),
+		mIsBuilt(0),
+		mPelvisToFoot(0),
+		mPelvisp(nullptr),
+		mTorsop(nullptr),
+		mChestp(nullptr),
+		mNeckp(nullptr),
+		mHeadp(nullptr),
+		mSkullp(nullptr),
+		mEyeLeftp(nullptr),
+		mEyeRightp(nullptr),
+		mHipLeftp(nullptr),
+		mHipRightp(),
+		mKneeLeftp(nullptr),
+		mKneeRightp(nullptr),
+		mAnkleLeftp(nullptr),
+		mAnkleRightp(nullptr),
+		mFootLeftp(nullptr),
+		mFootRightp(nullptr),
+		mWristLeftp(nullptr),
+		mWristRightp(nullptr),
+		mIsDummy(0),
+		mTexSkinColor(nullptr),
+		mTexHairColor(nullptr),
+		mTexEyeColor(nullptr),
+		mWearableData(nullptr),
+		mNumBones(0),
+		mNumCollisionVolumes(0),
+		mCollisionVolumes(nullptr)
+	{
+	}
 
 public:
 	LLAvatarAppearance(LLWearableData* wearable_data);

@@ -369,11 +369,11 @@ void LLFloaterAvatarPicker::populateFriend()
 	LLAvatarTracker::instance().applyFunctor(collector);
 	LLCollectAllBuddies::buddy_map_t::iterator it;
 	
-	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
+	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); ++it)
 	{
 		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}
-	for(it = collector.mOffline.begin(); it!=collector.mOffline.end(); it++)
+	for(it = collector.mOffline.begin(); it!=collector.mOffline.end(); ++it)
 	{
 		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}

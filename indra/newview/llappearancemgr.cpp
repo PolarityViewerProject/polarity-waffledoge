@@ -593,10 +593,14 @@ LLUpdateAppearanceAndEditWearableOnDestroy::~LLUpdateAppearanceAndEditWearableOn
 
 struct LLFoundData
 {
-	LLFoundData() :
+	LLFoundData()
+		:
 		mAssetType(LLAssetType::AT_NONE),
 		mWearableType(LLWearableType::WT_INVALID),
-		mWearable(NULL) {}
+		mWearable(NULL),
+		mIsReplacement(false)
+	{
+	}
 
 	LLFoundData(const LLUUID& item_id,
 				const LLUUID& asset_id,
@@ -1374,7 +1378,7 @@ const LLViewerInventoryItem* LLAppearanceMgr::getBaseOutfitLink()
 									is_category);
 	for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
 		 iter != item_array.end();
-		 iter++)
+	     ++iter)
 	{
 		const LLViewerInventoryItem *item = (*iter);
 		const LLViewerInventoryCategory *cat = item->getLinkedCategory();

@@ -393,7 +393,7 @@ std::ostream& operator<<(std::ostream &s, const LLMediaDataClient::request_queue
 	while (iter != end)
 	{
 		s << "\t" << i << "]: " << (*iter)->getID().asString() << "(" << (*iter)->getObject()->getMediaInterest() << ")";
-		iter++;
+		++iter;
 		i++;
 	}
 	return s;
@@ -678,7 +678,7 @@ void LLObjectMediaDataClient::sortQueue()
 	if(!mQueue.empty())
 	{
 		// score all elements in the sorted queue.
-		for(request_queue_t::iterator iter = mQueue.begin(); iter != mQueue.end(); iter++)
+		for(request_queue_t::iterator iter = mQueue.begin(); iter != mQueue.end(); ++iter)
 		{
 			(*iter)->updateScore();
 		}

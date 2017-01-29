@@ -230,8 +230,10 @@ LLConversationItemSession::LLConversationItemSession(std::string display_name, c
 	mConvType = CONV_SESSION_UNKNOWN;
 }
 
-LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model) :
-	LLConversationItem(uuid,root_view_model)
+LLConversationItemSession::LLConversationItemSession(const LLUUID& uuid, LLFolderViewModelInterface& root_view_model)
+	:
+	LLConversationItem(uuid, root_view_model),
+	mIsLoaded(false)
 {
 	mConvType = CONV_SESSION_UNKNOWN;
 }
@@ -335,7 +337,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 	// items (LLConversationItemParticipant) that have themselve no children.
 	LLConversationItemParticipant* participant = NULL;
 	child_list_t::iterator iter;
-	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	for (iter = mChildren.begin(); iter != mChildren.end(); ++iter)
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
 		if (participant->hasSameValue(participant_id))
@@ -445,7 +447,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 	bool has_time = (most_recent_time > 0.1);
 	LLConversationItemParticipant* participant = NULL;
 	child_list_t::const_iterator iter;
-	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
+	for (iter = mChildren.begin(); iter != mChildren.end(); ++iter)
 	{
 		participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
 		F64 participant_time;
@@ -469,7 +471,7 @@ void LLConversationItemSession::dumpDebugData(bool dump_children)
 	// Children info
 	if (dump_children)
 	{
-		for (child_list_t::iterator iter = mChildren.begin(); iter != mChildren.end(); iter++)
+		for (child_list_t::iterator iter = mChildren.begin(); iter != mChildren.end(); ++iter)
 		{
 			LLConversationItemParticipant* participant = dynamic_cast<LLConversationItemParticipant*>(*iter);
 			if (participant)

@@ -395,7 +395,7 @@ void LLNameListCtrl::removeNameItem(const LLUUID& agent_id)
 {
 	// Find the item specified with agent_id.
 	S32 idx = -1;
-	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); it++)
+	for (item_list::iterator it = getItemList().begin(); it != getItemList().end(); ++it)
 	{
 		LLScrollListItem* item = *it;
 		if (item->getUUID() == agent_id)

@@ -160,7 +160,7 @@ S32 count_descendants_items(const LLUUID& cat_id)
     S32 count = item_array->size();
     
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
     {
 		LLViewerInventoryCategory* category = *iter;
         count += count_descendants_items(category->getUUID());
@@ -182,7 +182,7 @@ bool contains_nocopy_items(const LLUUID& id)
         gInventory.getDirectDescendentsOf(id,cat_array,item_array);
         
         // Check all the items: returns true upon encountering a nocopy item
-        for (LLInventoryModel::item_array_t::iterator iter = item_array->begin(); iter != item_array->end(); iter++)
+        for (LLInventoryModel::item_array_t::iterator iter = item_array->begin(); iter != item_array->end(); ++iter)
         {
             LLInventoryItem* item = *iter;
             LLViewerInventoryItem * inv_item = (LLViewerInventoryItem *) item;
@@ -193,7 +193,7 @@ bool contains_nocopy_items(const LLUUID& id)
         }
         
         // Check all the sub folders recursively
-        for (LLInventoryModel::cat_array_t::iterator iter = cat_array->begin(); iter != cat_array->end(); iter++)
+        for (LLInventoryModel::cat_array_t::iterator iter = cat_array->begin(); iter != cat_array->end(); ++iter)
         {
             LLViewerInventoryCategory* cat = *iter;
             if (contains_nocopy_items(cat->getUUID()))
@@ -250,7 +250,7 @@ void update_marketplace_folder_hierarchy(const LLUUID cat_id)
 	gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
     
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
     {
         LLInventoryCategory* category = *iter;
         update_marketplace_folder_hierarchy(category->getUUID());
@@ -346,7 +346,7 @@ void update_all_marketplace_count(const LLUUID& cat_id)
 	gInventory.getDirectDescendentsOf(cat_id,cat_array,item_array);
     
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
     {
         LLInventoryCategory* category = *iter;
         if (category->getPreferredType() == LLFolderType::FT_MARKETPLACE_STOCK)
@@ -417,7 +417,7 @@ void copy_inventory_category(LLInventoryModel* model,
 
 	// Copy all the items
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
-	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); ++iter)
 	{
 		LLInventoryItem* item = *iter;
         LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(update_folder_cb, new_cat_uuid));
@@ -448,7 +448,7 @@ void copy_inventory_category(LLInventoryModel* model,
 	
 	// Copy all the folders
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
 	{
 		LLViewerInventoryCategory* category = *iter;
 		if (category->getUUID() != root_id)
@@ -970,7 +970,7 @@ S32 compute_stock_count(LLUUID cat_uuid, bool force_count /* false */)
 
     // Note: marketplace listings have a maximum depth nesting of 4
     LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+    for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
     {
         LLInventoryCategory* category = *iter;
         S32 count = compute_stock_count(category->getUUID(), true);
@@ -1101,7 +1101,7 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat, std::string& err
     
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
     
-	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); ++iter)
 	{
 		LLInventoryItem* item = *iter;
         if (!can_move_to_marketplace(item, error_msg, false))
@@ -1112,7 +1112,7 @@ bool has_correct_permissions_for_sale(LLInventoryCategory* cat, std::string& err
     
 	LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
     
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
 	{
 		LLInventoryCategory* category = *iter;
 		if (!has_correct_permissions_for_sale(category, error_msg))
@@ -1584,7 +1584,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // Parse the items and create vectors of item UUIDs sorting copyable items and stock items of various types
     bool has_bad_items = false;
 	LLInventoryModel::item_array_t item_array_copy = *item_array;
-	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+	for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); ++iter)
 	{
 		LLInventoryItem* item = *iter;
         LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
@@ -1725,7 +1725,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                     update_marketplace_category(parent_uuid);
                     update_marketplace_category(folder_uuid);
                     gInventory.notifyObservers();
-                    items_vector_it++;
+	                ++items_vector_it;
                 }
             }
             // Stock folder should have no sub folder so reparent those up
@@ -1734,7 +1734,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
                 LLUUID parent_uuid = cat->getParentUUID();
                 gInventory.getDirectDescendentsOf(cat->getUUID(),cat_array,item_array);
                 LLInventoryModel::cat_array_t cat_array_copy = *cat_array;
-                for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+                for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
                 {
                     LLViewerInventoryCategory * viewer_cat = (LLViewerInventoryCategory *) (*iter);
                     gInventory.changeCategoryParent(viewer_cat, parent_uuid, false);
@@ -1771,7 +1771,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
             }
             // Scan each item and report if there's a problem
             LLInventoryModel::item_array_t item_array_copy = *item_array;
-            for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); iter++)
+            for (LLInventoryModel::item_array_t::iterator iter = item_array_copy.begin(); iter != item_array_copy.end(); ++iter)
             {
                 LLInventoryItem* item = *iter;
                 LLViewerInventoryItem * viewer_inv_item = (LLViewerInventoryItem *) item;
@@ -1821,7 +1821,7 @@ bool validate_marketplacelistings(LLInventoryCategory* cat, validation_callback_
     // Sort the folders in alphabetical order first
     std::sort(cat_array_copy.begin(), cat_array_copy.end(), sort_alpha);
    
-	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); iter++)
+	for (LLInventoryModel::cat_array_t::iterator iter = cat_array_copy.begin(); iter != cat_array_copy.end(); ++iter)
 	{
 		LLInventoryCategory* category = *iter;
 		result &= validate_marketplacelistings(category, cb, fix_hierarchy, depth + 1);

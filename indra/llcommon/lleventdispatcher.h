@@ -56,12 +56,9 @@ static const int nil_(nil);
 static const int& nil(nil_);
 #endif
 
-#include <string>
-#include <boost/shared_ptr.hpp>
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <boost/iterator/transform_iterator.hpp>
-#include <boost/utility/enable_if.hpp>
 #include <boost/function_types/is_nonmember_callable_builtin.hpp>
 #include <boost/function_types/parameter_types.hpp>
 #include <boost/function_types/function_arity.hpp>
@@ -70,9 +67,6 @@ static const int& nil(nil_);
 #include <boost/fusion/include/push_back.hpp>
 #include <boost/fusion/include/cons.hpp>
 #include <boost/fusion/include/invoke.hpp>
-#include <boost/mpl/begin.hpp>
-#include <boost/mpl/end.hpp>
-#include <boost/mpl/next.hpp>
 #include <boost/mpl/deref.hpp>
 #include <typeinfo>
 #include "llevents.h"

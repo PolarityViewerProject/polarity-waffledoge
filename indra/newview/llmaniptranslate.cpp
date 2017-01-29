@@ -660,7 +660,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 	LLVector3 clamped_relative_move_f = (F32)axis_magnitude * axis_f; // scalar multiply
 	
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); iter++)
+		 iter != mObjectSelection->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();

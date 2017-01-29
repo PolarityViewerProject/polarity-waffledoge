@@ -1663,7 +1663,7 @@ BOOL LLPanelFace::onDragTexture(LLUICtrl*, LLInventoryItem* item)
 {
 	BOOL accept = TRUE;
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* obj = node->getObject();

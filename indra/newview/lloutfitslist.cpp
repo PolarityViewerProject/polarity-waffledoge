@@ -742,7 +742,7 @@ void LLOutfitsList::getCurrentCategories(uuid_vec_t& vcur)
     // Creating a vector of currently displayed sub-categories UUIDs.
     for (outfits_map_t::const_iterator iter = mOutfitsMap.begin();
         iter != mOutfitsMap.end();
-        iter++)
+         ++iter)
     {
         vcur.push_back((*iter).first);
     }
@@ -950,7 +950,7 @@ void LLOutfitListBase::computeDifference(
     // Creating a vector of newly collected sub-categories UUIDs.
     for (LLInventoryModel::cat_array_t::const_iterator iter = vcats.begin();
         iter != vcats.end();
-        iter++)
+         ++iter)
     {
         vnew.push_back((*iter)->getUUID());
     }

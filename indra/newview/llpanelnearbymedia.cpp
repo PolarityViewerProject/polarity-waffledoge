@@ -657,7 +657,7 @@ void LLPanelNearByMedia::refreshList()
 	U32 disabled_count = 0;
 	
 	// iterate over the impl list, creating rows as necessary.
-	for(priority_iter = impls.begin(); priority_iter != impls.end(); priority_iter++)
+	for(priority_iter = impls.begin(); priority_iter != impls.end(); ++priority_iter)
 	{
 		LLViewerMediaImpl *impl = *priority_iter;
 		

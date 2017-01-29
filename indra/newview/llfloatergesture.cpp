@@ -148,7 +148,7 @@ void LLFloaterGesture::done()
 			return;
 		}
 		LL_DEBUGS("Gesture")<< "There are " << categories->size() << " Folders "<< LL_ENDL;
-		for (LLInventoryModel::cat_array_t::iterator it = categories->begin(); it != categories->end(); it++)
+		for (LLInventoryModel::cat_array_t::iterator it = categories->begin(); it != categories->end(); ++it)
 		{
 			if (!gInventory.isCategoryComplete(it->get()->getUUID()))
 			{
@@ -293,7 +293,7 @@ void LLFloaterGesture::buildGestureList()
 
 	// attempt to preserve scroll position through re-builds
 	// since we do re-build whenever something gets dirty
-	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); it++)
+	for(uuid_vec_t::iterator it = selected_items.begin(); it != selected_items.end(); ++it)
 	{
 		mGestureList->selectByID(*it);
 	}
@@ -398,7 +398,7 @@ void LLFloaterGesture::addGesture(const LLUUID& item_id , LLMultiGesture* gestur
 void LLFloaterGesture::getSelectedIds(uuid_vec_t& ids)
 {
 	std::vector<LLScrollListItem*> items = mGestureList->getAllSelected();
-	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); it++)
+	for(std::vector<LLScrollListItem*>::const_iterator it = items.begin(); it != items.end(); ++it)
 	{
 		ids.push_back((*it)->getUUID());
 	}
@@ -415,7 +415,7 @@ bool LLFloaterGesture::isActionEnabled(const LLSD& command)
 
 		std::vector<LLUUID> ids;
 		LLClipboard::instance().pasteFromClipboard(ids);
-		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); ++it)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			
@@ -494,7 +494,7 @@ void LLFloaterGesture::onActivateBtnClick()
 			break;
 		}
 	}
-	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		if(is_mixed)
 		{
@@ -524,7 +524,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		getSelectedIds(ids);
 		// Make sure the clipboard is empty
 		LLClipboard::instance().reset();
-		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); it++)
+		for(uuid_vec_t::iterator it = ids.begin(); it != ids.end(); ++it)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(item  && item->getInventoryType() == LLInventoryType::IT_GESTURE)
@@ -544,7 +544,7 @@ void LLFloaterGesture::onCopyPasteAction(const LLSD& command)
 		llassert(gesture_dir);
 		LLPointer<GestureCopiedCallback> cb = new GestureCopiedCallback(this);
 
-		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); it++)
+		for(std::vector<LLUUID>::iterator it = ids.begin(); it != ids.end(); ++it)
 		{
 			LLInventoryItem* item = gInventory.getItem(*it);
 			if(gesture_dir && item && item->getInventoryType() == LLInventoryType::IT_GESTURE)
@@ -605,7 +605,7 @@ void LLFloaterGesture::onDeleteSelected()
 
 	const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 	LLGestureMgr* gm = LLGestureMgr::getInstance();
-	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		const LLUUID& selected_item = *it;
 		LLInventoryItem* inv_item = gInventory.getItem(selected_item);
@@ -640,7 +640,7 @@ void LLFloaterGesture::addToCurrentOutFit()
 	getSelectedIds(ids);
 	LLAppearanceMgr* am = LLAppearanceMgr::getInstance();
 	LLPointer<LLInventoryCallback> cb = new LLUpdateAppearanceOnDestroy;
-	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); it++)
+	for(uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
 		am->addCOFItemLink(*it, cb);
 	}

@@ -204,7 +204,7 @@ LLParticipantList::LLParticipantList(LLSpeakerMgr* data_source, LLFolderViewMode
 	//Lets fill avatarList with existing speakers
 	LLSpeakerMgr::speaker_list_t speaker_list;
 	mSpeakerMgr->getSpeakerList(&speaker_list, true);
-	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); it++)
+	for(LLSpeakerMgr::speaker_list_t::iterator it = speaker_list.begin(); it != speaker_list.end(); ++it)
 	{
 		const LLPointer<LLSpeaker>& speakerp = *it;
 
