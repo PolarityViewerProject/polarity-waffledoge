@@ -28,6 +28,8 @@
 #define LL_LLAPPEARANCE_H
 
 #include "lluuid.h"
+#include "llstl.h"
+#include "llavatarappearance.h"
 
 class LLAppearance
 {
