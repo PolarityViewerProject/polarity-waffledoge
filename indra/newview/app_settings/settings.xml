@@ -14122,6 +14122,19 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
+      <integer>-1</integer>
+    </map>
+    <key>WatchdogDisabled</key>
+    <map>
+      <key>Comment</key>
+      <string> </string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>HideFromEditor</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
       <integer>0</integer>
     </map>
     <key>WaterGLFogDensityScale</key>

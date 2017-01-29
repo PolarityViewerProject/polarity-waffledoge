@@ -526,7 +526,7 @@ list ATI_Mobility_Radeon_9600
 Disregard96DefaultDrawDistance	1	0
 
 list NVIDIA_GeForce_8600
-RenderTextureMemoryMultiple			1	1	
+//RenderTextureMemoryMultiple			1	1	
 UseOcclusion				0	0
 
 /// tweaked ATI to 96 Draw distance
