@@ -32,12 +32,23 @@
         halign="right"
         height="12"
         layout="topleft"
-        left="175"
+        left="190"
         name="FasterText"
-        top_delta="22"
-        width="80">
-        Render Quality
+        top_delta="28"
+        width="35">
+        Preset
       </text>
+      <panel
+        follows="left|top"
+        halign="right"
+        height="35"
+        layout="topleft"
+        left_delta="5"
+        name="quality_slider_panel_ultra"
+        right="-1"
+        top="15"
+        visibility_control="PVRender_EnableUltraPreset"
+        visible="false">
       <slider
         control_name="RenderQualityPerformance"
         decimal_digits="0"
@@ -46,11 +57,12 @@
         increment="1"
         initial_value="0"
         layout="topleft"
-        left="260"
+        left_delta="35"
         max_val="6"
-        name="QualityPerformanceSelection"
+        name="QualityPerformanceSelectionUltra"
         show_text="false"
-        top_delta="-1"
+        top="0"
+        visible="true"
         width="220">
         <slider.commit_callback
           function="Pref.QualityPerformance">
@@ -63,10 +75,10 @@
         halign="center"
         height="12"
         layout="topleft"
-        left="225"
+        left="5"
         name="ShadersPrefText"
         top_delta="20"
-        width="80">
+        width="75">
         Low
       </text>
       <text
@@ -76,10 +88,10 @@
         halign="center"
         height="12"
         layout="topleft"
-        left_delta="70"
+        left_pad="0"
         name="ShadersPrefText2"
         top_delta="0"
-        width="80">
+        width="65">
         Mid
       </text>
       <text
@@ -89,10 +101,10 @@
         halign="center"
         height="12"
         layout="topleft"
-        left_delta="70"
+        left_pad="0"
         name="ShadersPrefText3"
         top_delta="0"
-        width="80">
+        width="75">
         High
       </text>
       <text
@@ -102,12 +114,96 @@
         halign="center"
         height="12"
         layout="topleft"
-        left_delta="70"
+        left_pad="0"
+        name="ShadersPrefText4"
+        top_delta="0"
+        width="70">
+        Ultra
+      </text>
+    </panel>
+    <panel
+      follows="left|top"
+      halign="right"
+      height="35"
+      invisibility_control="PVRender_EnableUltraPreset"
+      layout="topleft"
+      left_delta="0"
+      name="quality_slider_panel_normal"
+      right="-1"
+      top="15"
+      visible="true">
+      <slider
+        control_name="RenderQualityPerformance"
+        decimal_digits="0"
+        follows="left|top"
+        height="16"
+        increment="1"
+        initial_value="0"
+        layout="topleft"
+        left_delta="35"
+        max_val="5"
+        name="QualityPerformanceSelection"
+        show_text="false"
+        top="0"
+        width="220">
+        <slider.commit_callback
+          function="Pref.QualityPerformance">
+        </slider.commit_callback>
+      </slider>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="center"
+        height="12"
+        layout="topleft"
+        left="0"
+        name="ShadersPrefText"
+        top_delta="20"
+        width="85">
+        Low
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="center"
+        height="12"
+        layout="topleft"
+        left_pad="0"
+        name="ShadersPrefText2"
+        top_delta="0"
+        width="83">
+        Mid
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="center"
+        height="12"
+        layout="topleft"
+        left_pad="0"
+        name="ShadersPrefText3"
+        top_delta="0"
+        width="80">
+        High
+      </text>
+        <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="left"
+        height="12"
+        layout="topleft"
+        left_pad="-15"
         name="ShadersPrefText4"
         top_delta="0"
         width="80">
-        Ultra
+        V. High
       </text>
+    </panel> 
+      name=""
       <check_box
         control_name="FullScreen"
         height="16"
@@ -1074,6 +1170,17 @@
             word_wrap="true">
             These settings can be dangerous and will crash your viewer if used incorrectly.
           </text>
+          <check_box
+            control_name="PVRender_EnableUltraPreset"
+            height="16"
+            initial_value="true"
+            label="Enable &quot;Ultra&quot; preset"
+            layout="topleft"
+            left="5"
+            name="ultra_preset_checkbox"
+            top_pad="5"
+            width="110">
+          </check_box>
           <check_box
             control_name="TextureLoadFullRes"
             height="16"
