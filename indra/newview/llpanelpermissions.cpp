@@ -33,8 +33,6 @@
 // library includes
 #include "lluuid.h"
 #include "llpermissions.h"
-#include "llcategory.h"
-#include "llclickaction.h"
 #include "llfocusmgr.h"
 #include "llnotificationsutil.h"
 #include "llstring.h"
@@ -51,17 +49,12 @@
 #include "llstatusbar.h"		// for getBalance()
 #include "lllineeditor.h"
 #include "llcombobox.h"
-#include "lluiconstants.h"
-#include "lldbstrings.h"
 #include "llfloatergroups.h"
 #include "llfloaterreg.h"
-#include "llavataractions.h"
 #include "llnamebox.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llspinctrl.h"
 #include "roles_constants.h"
-#include "llgroupactions.h"
 #include "lltrans.h"
 // [RLVa:KB] - Checked: 2010-08-25 (RLVa-1.2.2a)
 #include "llslurl.h"

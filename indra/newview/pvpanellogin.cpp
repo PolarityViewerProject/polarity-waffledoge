@@ -39,7 +39,6 @@
 
 #include "llappviewer.h"
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llcommandhandler.h"		// for secondlife:///app/login/
 #include "llcombobox.h"
 #include "llviewercontrol.h"
@@ -49,7 +48,6 @@
 #include "llnotificationsutil.h"
 #include "llsecapi.h"
 #include "llstartup.h"
-#include "lltextbox.h"
 #include "llui.h"
 //#include "lluiconstants.h"
 #include "llslurl.h"
@@ -61,14 +59,12 @@
 #endif
 #include "llviewernetwork.h"
 #include "llviewerwindow.h"			// to link into child list
-#include "lluictrlfactory.h"
 #include "llweb.h"
 #include "llmediactrl.h"
 #include "llrootview.h"
 
 #include "llfloatertos.h"
 #include "lltrans.h"
-#include "llglheaders.h"
 #include "llpanelloginlistener.h"
 
 #include "pvdata.h"

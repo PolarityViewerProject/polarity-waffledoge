@@ -33,6 +33,7 @@
 #include <boost/functional/hash.hpp>
 #include "stdtypes.h"
 #include "llpreprocessor.h"
+#include "llerror.h"
 
 class LLMutex;
 
@@ -61,6 +62,7 @@ public:
 	LLUUID &operator=(const LLUUID &rhs);
 
 	~LLUUID();
+	LOG_CLASS(LLUUID);
 
 	//
 	// MANIPULATORS

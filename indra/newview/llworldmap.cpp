@@ -30,7 +30,6 @@
 
 #include "llworldmapmessage.h"
 #include "message.h"
-#include "lltracker.h"
 #include "lluistring.h"
 #include "llviewertexturelist.h"
 #include "lltrans.h"

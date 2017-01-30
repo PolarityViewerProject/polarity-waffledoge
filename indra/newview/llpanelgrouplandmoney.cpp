@@ -29,7 +29,6 @@
 #include "llpanelgrouplandmoney.h"
 
 #include "lluiconstants.h"
-#include "roles_constants.h"
 
 #include "llparcel.h"
 #include "llqueryflags.h"
@@ -48,8 +47,6 @@
 #include "lltexteditor.h"
 #include "lltrans.h"
 #include "lltransactiontypes.h"
-#include "lltrans.h"
-#include "lluictrlfactory.h"
 
 #include "llstatusbar.h"
 #include "llfloaterworldmap.h"

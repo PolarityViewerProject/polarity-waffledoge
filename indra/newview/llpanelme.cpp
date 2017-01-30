@@ -31,20 +31,9 @@
 // Viewer includes
 #include "llpanelprofile.h"
 #include "llagent.h"
-#include "llagentcamera.h"
-#include "llagentwearables.h"
-#include "llfirstuse.h"
-#include "llfloaterreg.h"
 #include "llhints.h"
-#include "llviewercontrol.h"
 
 // Linden libraries
-#include "llavatarnamecache.h"		// IDEVO
-#include "lliconctrl.h"
-#include "llnotifications.h"
-#include "llnotificationsutil.h"	// IDEVO
-#include "lltabcontainer.h"
-#include "lltexturectrl.h"
 
 static LLPanelInjector<LLPanelMe> t_panel_me_profile("panel_me");
 

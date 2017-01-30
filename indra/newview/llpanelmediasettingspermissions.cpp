@@ -34,17 +34,10 @@
 #include "llpanelcontents.h"
 #include "llcombobox.h"
 #include "llcheckboxctrl.h"
-#include "llspinctrl.h"
-#include "llurlhistory.h"
-#include "lluictrlfactory.h"
-#include "llwindow.h"
 #include "llviewerwindow.h"
-#include "llsdutil.h"
 #include "llselectmgr.h"
 #include "llmediaentry.h"
 #include "llnamebox.h"
-#include "lltrans.h"
-#include "llfloatermediasettings.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 //

@@ -30,52 +30,32 @@
 #include "llpanelvolume.h"
 
 // linden library includes
-#include "llclickaction.h"
 #include "lleconomy.h"
 #include "llerror.h"
-#include "llfontgl.h"
-#include "llflexibleobject.h"
 #include "llmaterialtable.h"
-#include "llpermissionsflags.h"
-#include "llstring.h"
 #include "llvolume.h"
-#include "m3math.h"
 #include "material_codes.h"
 
 // project includes
 #include "llbutton.h"
-#include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "lltexturectrl.h"
 #include "llcombobox.h"
 //#include "llfirstuse.h"
 #include "llfocusmgr.h"
-#include "llmanipscale.h"
-#include "llpreviewscript.h"
-#include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llspinctrl.h"
-#include "lltextbox.h"
-#include "lltool.h"
-#include "lltoolcomp.h"
-#include "lltoolmgr.h"
 #include "lltrans.h"
-#include "llui.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llvovolume.h"
-#include "llworld.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llnotificationsutil.h"
 
-#include "lldrawpool.h"
-#include "lluictrlfactory.h"
-
 // For mesh physics
 #include "llagent.h"
-#include "llviewercontrol.h"
 #include "llmeshrepository.h"
 
 #include <boost/bind.hpp>

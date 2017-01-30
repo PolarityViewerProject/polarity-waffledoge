@@ -41,7 +41,6 @@
 #include "llrootview.h"
 #include "llsdutil.h"
 #include "stringize.h"
-#include <typeinfo>
 #include <map>
 #include <boost/scoped_ptr.hpp>
 #include <boost/bind.hpp>

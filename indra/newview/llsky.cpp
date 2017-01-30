@@ -37,19 +37,14 @@
 #include "llsky.h"
 
 // linden library includes
-#include "llerror.h"
 #include "llmath.h"
-#include "math.h"
 #include "v4color.h"
 
 #include "llviewerobjectlist.h"
 #include "llviewerobject.h"
-#include "llviewercamera.h"
 #include "pipeline.h"
-#include "lldrawpool.h"
 
 #include "llvosky.h"
-#include "llcubemap.h"
 #include "llviewercontrol.h"
 
 #include "llvowlsky.h"
