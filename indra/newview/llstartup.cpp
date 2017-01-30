@@ -3331,7 +3331,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 	// the cert alert dialog xml.                                                          
 	for(LLSD::map_iterator iter = cert_info.beginMap();
 		iter != cert_info.endMap();
-		iter++)
+	    ++iter)
 	{
 		// key usage and extended key usage                                            
 		// are actually arrays, and we want to format them as comma separated          
@@ -3344,7 +3344,7 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 			LLSD usage = cert_info[iter->first];
 			for (LLSD::array_iterator usage_iter = usage.beginArray();
 				 usage_iter != usage.endArray();
-				 usage_iter++)
+			     ++usage_iter)
 			{
 				
 				if(usage_iter != usage.beginArray())
