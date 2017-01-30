@@ -641,7 +641,7 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 {
 	bool allowed = false;
 	LL_INFOS() << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
-	
+
 	gPVOldAPI->setErrorMessage("Generic clearance failure.");
 #if PVDATA_UUID_LOCKDOWN
 	LLUUID lockdown_uuid = getLockDownUUID();
@@ -1202,7 +1202,7 @@ PVAgent::PVAgent()
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
 
 		LLColor4 return_color = default_color; // color we end up with at the end of the logic
-		
+
 		// Some flagged users CAN be muted.
 		if (LLMuteList::instance().isMuted(avatar_id))
 		{
@@ -1238,7 +1238,7 @@ PVAgent::PVAgent()
 				-Friend, -PVDATA, +lpl = show FALLBACK
 				-Friend, -PVDATA, -lpl = show FALLBACK
 			*/
-			
+
 			static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
 			// Lengthy but fool-proof.
 			if (show_f && av_flags && low_priority_friend_status)
