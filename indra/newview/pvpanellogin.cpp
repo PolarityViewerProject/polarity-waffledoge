@@ -926,7 +926,7 @@ void LLPanelLogin::onClickConnect(void *)
 			// check the typed in credential type against the credential types expected by the server.
 			for(LLSD::array_iterator i = allowed_credential_types.beginArray();
 				i != allowed_credential_types.endArray();
-				i++)
+			    ++i)
 			{
 				
 				if(i->asString() == identifier_type)
@@ -1193,7 +1193,7 @@ void LLPanelLogin::addUsersToCombo(BOOL show_server)
 	LLStringUtil::trim(current_creds);
 	for (std::vector<std::string>::iterator login_choice = logins.begin();
 		 login_choice != logins.end();
-		 login_choice++)
+	     ++login_choice)
 	{
 		std::string name = *login_choice;
 		LLStringUtil::trim(name);
@@ -1368,7 +1368,7 @@ void LLPanelLogin::updateServerCombo()
 	
 	for (std::map<std::string, std::string>::iterator grid_choice = known_grids.begin();
 		 grid_choice != known_grids.end();
-		 grid_choice++)
+	     ++grid_choice)
 	{
 		if (!grid_choice->first.empty() && current_grid != grid_choice->first)
 		{
