@@ -662,53 +662,50 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 	if (lockdown_uuid != LLUUID::null)
 	{
 		allowed = false;
-		setErrorMessage("Something went wrong, and the authentication checks have failed.");	
+		setErrorMessage("Something went wrong, and the authentication checks have failed.");
 	}
 #endif
-	//@todo replace with member functions
-	auto av_flags = PVAgent::getDataFor(avatar_id)->getFlags();
-	LL_WARNS() << "HERE ARE YOUR FLAGS: " << av_flags << LL_ENDL;
-	if (av_flags & BAD_USER_BANNED)
+	auto pv_agent = PVAgent::getDataFor(avatar_id);
+	S32 av_flags = 0;
+	if (pv_agent)
 	{
-		gPVOldAPI->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
-		allowed = false;
-	}
-	if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Development" && (av_flags & STAFF_DEVELOPER) == false)
-	{
-		gPVOldAPI->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
-		allowed = false;
-	}
+		if (pv_agent->isUserBanned())
+		{
+			gPVOldAPI->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
+			allowed = false;
+		}
+		if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Development" && (pv_agent->isUserDevStaff()) == false)
+		{
+			gPVOldAPI->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
+			allowed = false;
+		}
+		LL_WARNS() << "HERE ARE YOUR FLAGS: " << pv_agent->getTitle(false) << LL_ENDL;
 #if INTERNAL_BUILD
-	LL_WARNS() << "Internal build, evaluating access for " << avatar_id << "'..." << LL_ENDL;
-	if (av_flags & STAFF_DEVELOPER)
-	{
-		LL_WARNS() << "Access level: DEVELOPER" << LL_ENDL;
-		allowed = true;
-	}
-	else if (av_flags & STAFF_SUPPORT)
-	{
-		LL_WARNS() << "Access level: SUPPORT" << LL_ENDL;
-		allowed = true;
-	}
-	else if (av_flags & STAFF_QA)
-	{
-		LL_WARNS() << "Access level: QA" << LL_ENDL;
-		allowed = true;
-	}
-	else if (av_flags & USER_TESTER)
-	{
-		LL_WARNS() << "Access level: TESTER" << LL_ENDL;
-		allowed = true;
+		LL_WARNS() << "Internal build, evaluating access for " << avatar_id << "'..." << LL_ENDL;
+		if (pv_agent->isUserDevStaff()
+			|| pv_agent->isUserSupportStaff()
+			|| pv_agent->isUserQAStaff()
+			|| pv_agent->isUserTester())
+		{
+			allowed = true;
+		}
+		else
+		{
+			allowed = false; // safety never hurt anyone
+		}
+#endif
 	}
 	else
 	{
+#if INTERNAL_BUILD
 		LL_WARNS() << "Access level: NONE" << LL_ENDL;
 		gPVOldAPI->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 		allowed = false;
-	}
 #else
-	allowed = true;
+		allowed = true;
 #endif
+	}
+
 	return allowed;
 }
 

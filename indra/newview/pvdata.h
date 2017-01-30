@@ -233,9 +233,9 @@ class LLUUID;
 		/**
 		 * \brief get storage class for a specific agent
 		 * \param avatar_id agent to get data from
-		 * \return pointer to the agent's storage class
+		 * \return pointer to the agent's storage class, or nullptr if agent not special.
 		 */
-		static PVAgent* getDataFor(const LLUUID& avatar_id);
+		[CanBeNull] static PVAgent* getDataFor(const LLUUID& avatar_id);
 
 		LLUUID uuid;
 		std::string title;
