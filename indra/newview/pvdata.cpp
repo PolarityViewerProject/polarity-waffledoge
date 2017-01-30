@@ -1219,10 +1219,11 @@ PVAgent::PVAgent()
 			LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
 			auto pv_agent = PVAgent::getDataFor(avatar_id);
-			S32 av_flags = (pv_agent) ? pv_agent->getFlags() : 0;
+			S32 av_flags = 0;
 			// if the agent isn't a special agent, nullptr is returned.
 			if (pv_agent)
 			{
+				av_flags = pv_agent->getFlags();
 				pvdata_color = pv_agent->getColor(pv_agent, av_flags, uiCT);
 			}
 
