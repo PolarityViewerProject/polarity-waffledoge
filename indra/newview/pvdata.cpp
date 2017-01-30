@@ -666,7 +666,6 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 	}
 #endif
 	auto pv_agent = PVAgent::getDataFor(avatar_id);
-	S32 av_flags = 0;
 	if (pv_agent)
 	{
 		if (pv_agent->isUserBanned())
