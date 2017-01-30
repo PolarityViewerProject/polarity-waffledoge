@@ -138,7 +138,7 @@ if (WINDOWS)
   endif(USE_AVX)
 
   if(USE_AUTO_PARALLELIZER)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Qpar")
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Qpar")
   endif(USE_AUTO_PARALLELIZER)
 
   if (WORD_SIZE EQUAL 32) # Do not use AVX on 32bit builds because those are reserved for old hardware
