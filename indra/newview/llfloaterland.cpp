@@ -531,58 +531,13 @@ LLPanelLandGeneral::~LLPanelLandGeneral()
 // public
 void LLPanelLandGeneral::refresh()
 {
-	mEditName->setEnabled(FALSE);
-	mEditName->setText(LLStringUtil::null);
-
-	mEditDesc->setEnabled(FALSE);
-	mEditDesc->setText(getString("no_selection_text"));
-
-	mTextSalePending->setText(LLStringUtil::null);
-	mTextSalePending->setEnabled(FALSE);
-
-	mBtnDeedToGroup->setEnabled(FALSE);
-	mBtnSetGroup->setEnabled(FALSE);
-	mBtnStartAuction->setEnabled(FALSE);
-
-	mCheckDeedToGroup	->set(FALSE);
-	mCheckDeedToGroup	->setEnabled(FALSE);
-	mCheckContributeWithDeed->set(FALSE);
-	mCheckContributeWithDeed->setEnabled(FALSE);
-
-	mTextOwner->setText(LLStringUtil::null);
-	mContentRating->setText(LLStringUtil::null);
-	mLandType->setText(LLStringUtil::null);
-	mBtnProfile->setLabel(getString("profile_text"));
-	mBtnProfile->setEnabled(FALSE);
-
-	mTextClaimDate->setText(LLStringUtil::null);
-	mTextGroup->setText(LLStringUtil::null);
-	mTextPrice->setText(LLStringUtil::null);
-
-	mSaleInfoForSale1->setVisible(FALSE);
-	mSaleInfoForSale2->setVisible(FALSE);
-	mSaleInfoForSaleObjects->setVisible(FALSE);
-	mSaleInfoForSaleNoObjects->setVisible(FALSE);
-	mSaleInfoNotForSale->setVisible(FALSE);
-	mBtnSellLand->setVisible(FALSE);
-	mBtnStopSellLand->setVisible(FALSE);
-
-	mTextPriceLabel->setText(LLStringUtil::null);
-	mTextDwell->setText(LLStringUtil::null);
-
-	mBtnBuyLand->setEnabled(FALSE);
-	mBtnScriptLimits->setEnabled(FALSE);
-	mBtnBuyGroupLand->setEnabled(FALSE);
-	mBtnReleaseLand->setEnabled(FALSE);
-	mBtnReclaimLand->setEnabled(FALSE);
-	mBtnBuyPass->setEnabled(FALSE);
-
 	if(gDisconnected)
 	{
 		return;
 	}
 
 	mBtnStartAuction->setVisible(gAgent.isGodlike());
+	LLParcel *parcel = mParcel->getParcel();
 	bool region_owner = false;
 	LLViewerRegion* regionp = LLViewerParcelMgr::getInstance()->getSelectionRegion();
 	if(regionp && (regionp->getOwner() == gAgent.getID()))
@@ -596,10 +551,14 @@ void LLPanelLandGeneral::refresh()
 		mBtnReleaseLand->setVisible(TRUE);
 		mBtnReclaimLand->setVisible(FALSE);
 	}
-	LLParcel *parcel = mParcel->getParcel();
-	if (parcel)
+	if (!parcel)
 	{
-		// something selected, hooray!
+		// nothing selected, fallback to the parcel the agent is standing in
+		parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+	}
+	if(parcel)
+	{
+		// parcel is valid, hooray!
 		BOOL is_leased = (LLParcel::OS_LEASED == parcel->getOwnershipStatus());
 		BOOL region_xfer = FALSE;
 		if(regionp
@@ -832,6 +791,55 @@ void LLPanelLandGeneral::refresh()
 		BOOL use_pass = parcel->getOwnerID()!= gAgent.getID() && parcel->getParcelFlag(PF_USE_PASS_LIST) && !LLViewerParcelMgr::getInstance()->isCollisionBanned();;
 		mBtnBuyPass->setEnabled(use_pass);
 
+	}
+	else
+	{
+		// no valid parcel found, disable and clear out the fields
+		mEditName->setEnabled(FALSE);
+		mEditName->setText(LLStringUtil::null);
+
+		mEditDesc->setEnabled(FALSE);
+		mEditDesc->setText(getString("no_selection_text"));
+
+		mTextSalePending->setText(LLStringUtil::null);
+		mTextSalePending->setEnabled(FALSE);
+
+		mBtnDeedToGroup->setEnabled(FALSE);
+		mBtnSetGroup->setEnabled(FALSE);
+		mBtnStartAuction->setEnabled(FALSE);
+
+		mCheckDeedToGroup->set(FALSE);
+		mCheckDeedToGroup->setEnabled(FALSE);
+		mCheckContributeWithDeed->set(FALSE);
+		mCheckContributeWithDeed->setEnabled(FALSE);
+
+		mTextOwner->setText(LLStringUtil::null);
+		mContentRating->setText(LLStringUtil::null);
+		mLandType->setText(LLStringUtil::null);
+		mBtnProfile->setLabel(getString("profile_text"));
+		mBtnProfile->setEnabled(FALSE);
+
+		mTextClaimDate->setText(LLStringUtil::null);
+		mTextGroup->setText(LLStringUtil::null);
+		mTextPrice->setText(LLStringUtil::null);
+
+		mSaleInfoForSale1->setVisible(FALSE);
+		mSaleInfoForSale2->setVisible(FALSE);
+		mSaleInfoForSaleObjects->setVisible(FALSE);
+		mSaleInfoForSaleNoObjects->setVisible(FALSE);
+		mSaleInfoNotForSale->setVisible(FALSE);
+		mBtnSellLand->setVisible(FALSE);
+		mBtnStopSellLand->setVisible(FALSE);
+
+		mTextPriceLabel->setText(LLStringUtil::null);
+		mTextDwell->setText(LLStringUtil::null);
+
+		mBtnBuyLand->setEnabled(FALSE);
+		mBtnScriptLimits->setEnabled(FALSE);
+		mBtnBuyGroupLand->setEnabled(FALSE);
+		mBtnReleaseLand->setEnabled(FALSE);
+		mBtnReclaimLand->setEnabled(FALSE);
+		mBtnBuyPass->setEnabled(FALSE);
 	}
 }
 
