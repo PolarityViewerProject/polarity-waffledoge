@@ -32,12 +32,8 @@
 #pragma comment(lib, "IPHLPAPI.lib")
 #include <iphlpapi.h>
 #endif
-
-#include "lldefs.h"
-#include "llerror.h"
-
 #include "lluuid.h"
-#include "llerror.h"
+
 #include "llrand.h"
 #include "llmd5.h"
 #include "llstring.h"
