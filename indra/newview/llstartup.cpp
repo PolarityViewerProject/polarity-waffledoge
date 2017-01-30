@@ -28,7 +28,6 @@
 
 #include "llappviewer.h"
 #include "llstartup.h"
-#include "llcallstack.h"
 
 #if LL_WINDOWS
 #	include <process.h>		// _spawnl()
@@ -60,11 +59,8 @@
 #include "lllocationhistory.h"
 #include "llimageworker.h"
 
-#include "llloginflags.h"
-#include "llmd5.h"
 #include "llmemorystream.h"
 #include "llmessageconfig.h"
-#include "llmoveview.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterimnearbychat.h"
 #include "llnotifications.h"
@@ -81,7 +77,6 @@
 #include "llviewercontrol.h"
 #include "llviewerhelp.h"
 #include "llvfs.h"
-#include "llxorcipher.h"	// saved password, MAC address
 #include "llwindow.h"
 #include "message.h"
 #include "v3math.h"
@@ -94,6 +89,7 @@
 #include "llfloateravatarpicker.h"
 #include "llcallbacklist.h"
 #include "llcallingcard.h"
+// ReSharper disable once CppUnusedIncludeDirective
 #include "llconsole.h"
 #include "llcontainerview.h"
 #include "llconversationlog.h"
@@ -103,9 +99,7 @@
 #include "llface.h"
 #include "llfeaturemanager.h"
 //#include "llfirstuse.h"
-#include "llfloaterhud.h"
 #include "llfloaterland.h"
-#include "llfloaterpreference.h"
 #include "llfloatertopobjects.h"
 #include "llfloaterworldmap.h"
 #include "llgesturemgr.h"
@@ -126,13 +120,11 @@
 #include "llpanelpick.h"
 #include "llpanelgrouplandmoney.h"
 #include "llpanelgroupnotices.h"
-#include "llpreview.h"
 #include "llpreviewscript.h"
 #include "llproxy.h"
 #include "llproductinforequest.h"
 #include "llselectmgr.h"
 #include "llsky.h"
-#include "llstatview.h"
 #include "llstatusbar.h"		// sendMoneyBalanceRequest(), owns L$ balance
 #include "llsurface.h"
 #include "lltexturecache.h"
@@ -144,13 +136,11 @@
 #include "llurlentry.h"
 #include "llslurl.h"
 #include "llurlhistory.h"
-#include "llurlwhitelist.h"
 #include "llvieweraudio.h"
 #include "llviewerassetstorage.h"
 #include "llviewercamera.h"
 #include "llviewerdisplay.h"
 #include "llviewergenericmessage.h"
-#include "llviewergesture.h"
 #include "llviewertexturelist.h"
 #include "llviewermedia.h"
 #include "llviewermenu.h"
@@ -169,21 +159,12 @@
 #include "llworld.h"
 #include "llworldmapmessage.h"
 #include "llxfermanager.h"
-#include "pipeline.h"
-#include "llappviewer.h"
 #include "llfasttimerview.h"
-#include "llfloatermap.h"
-#include "llweb.h"
 #include "llvoiceclient.h"
-#include "llnamelistctrl.h"
 #include "llnamebox.h"
 #include "llnameeditor.h"
 #include "llpostprocess.h"
-#include "llwlparammanager.h"
-#include "llwaterparammanager.h"
 #include "llagentlanguage.h"
-#include "llwearable.h"
-#include "llinventorybridge.h"
 #include "llappearancemgr.h"
 #include "llavatariconctrl.h"
 #include "llvoicechannel.h"
@@ -192,18 +173,14 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
-#include "lllogin.h"
 #include "llevents.h"
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
 #include "llexperiencelog.h"
 
-#include "llstacktrace.h"
-
 // <polarity> Polarity Includes
 #include "pvdata.h"
 #include "pvcommon.h"
-#include "pvrandom.h"
 #include "fsassetblacklist.h"
 #include "llprogressview.h"
 //

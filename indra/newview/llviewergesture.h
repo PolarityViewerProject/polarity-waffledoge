@@ -27,9 +27,7 @@
 #ifndef LL_LLVIEWERGESTURE_H
 #define LL_LLVIEWERGESTURE_H
 
-#include "llanimationstates.h"
 #include "lluuid.h"
-#include "llstring.h"
 #include "llgesture.h"
 
 class LLMessageSystem;

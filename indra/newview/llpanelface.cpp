@@ -32,10 +32,6 @@
 // library includes
 #include "llcalc.h"
 #include "llerror.h"
-#include "llfocusmgr.h"
-#include "llrect.h"
-#include "llstring.h"
-#include "llfontgl.h"
 
 // project includes
 #include "llagentdata.h"
@@ -43,9 +39,7 @@
 #include "llcheckboxctrl.h"
 #include "llcolorswatch.h"
 #include "llcombobox.h"
-#include "lldrawpoolbump.h"
 #include "llface.h"
-#include "lllineeditor.h"
 #include "llmaterialmgr.h"
 #include "llmediaentry.h"
 #include "llnotificationsutil.h"
@@ -61,10 +55,7 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "llviewerobject.h"
-#include "llviewerregion.h"
 #include "llviewerstats.h"
-#include "llvovolume.h"
-#include "lluictrlfactory.h"
 #include "llpluginclassmedia.h"
 #include "llviewertexturelist.h"// Update sel manager as to which channel we're editing so it can reflect the correct overlay UI
 

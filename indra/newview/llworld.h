@@ -34,7 +34,6 @@
 
 #include "llpatchvertexarray.h"
 
-#include "llmath.h"
 #include "v3math.h"
 #include "llsingleton.h"
 #include "llstring.h"

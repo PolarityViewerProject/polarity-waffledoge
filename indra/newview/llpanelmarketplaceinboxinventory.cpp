@@ -28,14 +28,10 @@
 
 #include "llpanelmarketplaceinboxinventory.h"
 
-#include "llfolderview.h"
 #include "llfolderviewitem.h"
-#include "llfolderviewmodel.h"
 #include "llinventorybridge.h"
 #include "llinventoryfunctions.h"
 #include "llpanellandmarks.h"
-#include "llplacesinventorybridge.h"
-#include "llviewerfoldertype.h"
 
 
 #define DEBUGGING_FRESHNESS	0

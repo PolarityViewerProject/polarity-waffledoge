@@ -31,14 +31,11 @@
 
 // Library includes
 #include "llfloaterreg.h"
-#include "v3math.h"
 
 // Viewer includes
-#include "llviewercontrol.h"
 #include "llselectmgr.h"
 #include "llviewerobject.h"
 #include "llviewerwindow.h"
-#include "llfloatertools.h"
 // [RLVa:KB] - Checked: RLVa-2.1.0
 #include "rlvactions.h"
 // [/RLVa:KB]

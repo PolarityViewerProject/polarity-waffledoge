@@ -26,7 +26,6 @@
 #include "pvgpuinfo.h"
 #include "llrendertarget.h"
 #include "llviewertexture.h"
-#include "llmemory.h"
 #include "llviewercontrol.h"
 
 static const S64Megabytes INTEL_GPU_MAX_VRAM = S64Megabytes(2048);

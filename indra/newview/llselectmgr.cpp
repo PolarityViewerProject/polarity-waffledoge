@@ -35,7 +35,6 @@
 
 // library includes
 #include "llcachename.h"
-#include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
 #include "llmediaentry.h"
@@ -44,7 +43,6 @@
 #include "llpermissions.h"
 #include "llpermissionsflags.h"
 #include "lltrans.h"
-#include "llundo.h"
 #include "lluuid.h"
 #include "llvolume.h"
 #include "message.h"
@@ -74,7 +72,6 @@
 #include "llparcel.h" // <FS:KC> Rez under Land Group
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
-#include "llstatusbar.h"
 #include "llsurface.h"
 #include "lltexturecache.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "lltool.h"
@@ -84,7 +81,6 @@
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
-#include "llviewertexturelist.h"
 #include "llviewermedia.h"
 #include "llviewermediafocus.h"
 #include "llviewermenu.h"

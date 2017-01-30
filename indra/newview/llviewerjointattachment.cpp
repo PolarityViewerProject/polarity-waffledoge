@@ -31,15 +31,12 @@
 // [SL:KB] - Patch: Appearance-PhantomAttach | Checked: Catznip-5.0
 #include "llagent.h"
 // [/SL:KB]
-#include "llviewercontrol.h"
 #include "lldrawable.h"
 #include "llgl.h"
 #include "llhudtext.h"
 #include "llrender.h"
 #include "llvoavatarself.h"
-#include "llvolume.h"
 #include "pipeline.h"
-#include "llspatialpartition.h"
 #include "llinventorymodel.h"
 #include "llviewerobjectlist.h"
 #include "llface.h"

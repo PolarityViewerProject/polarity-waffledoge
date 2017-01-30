@@ -31,11 +31,9 @@
 #include "llrender.h"
 
 // Library includes
-#include "llaudioengine.h"
 #include "llviewercontrol.h"
 #include "llfontgl.h"
 #include "llwearable.h"
-#include "sound_ids.h"
 #include "v3math.h"
 #include "v3color.h"
 
@@ -44,12 +42,10 @@
 #include "lldrawable.h"
 #include "lldrawpoolavatar.h"
 #include "llface.h"
-#include "llmorphview.h"
 #include "llresmgr.h"
 #include "llselectmgr.h"
 #include "llsky.h"
 #include "lltexlayer.h"
-#include "lltoolmgr.h"
 #include "llui.h"
 #include "llviewercamera.h"
 #include "llviewertexturelist.h"

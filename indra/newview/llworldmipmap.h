@@ -29,7 +29,6 @@
 
 #include <map>
 
-#include "llmemory.h"			// LLPointer
 #include "indra_constants.h"	// REGION_WIDTH_UNITS
 #include "llregionhandle.h"		// to_region_handle()
 
