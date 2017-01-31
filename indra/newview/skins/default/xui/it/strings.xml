@@ -25,10 +25,7 @@
 	<string name="StartupRequireDriverUpdate">
 		Inizializzazione grafica non riuscita. Aggiorna il driver della scheda grafica!
 	</string>
-	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
+
 	<string name="BuildConfig">
 		Configurazione struttura [BUILD_CONFIG]
 	</string>

@@ -25,10 +25,7 @@
 	<string name="StartupRequireDriverUpdate">
 		Falha na inicialização dos gráficos. Atualize seu driver gráfico!
 	</string>
-	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-	</string>
+
 	<string name="BuildConfig">
 		Configuração do corpo [BUILD_CONFIG]
 	</string>
