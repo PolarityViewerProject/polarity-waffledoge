@@ -668,7 +668,7 @@ void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 		if (gGLManager.mGLVersion < 2.1f)
 #else
 		// only use fixed function by default if GL version < 3.0 or this is an intel graphics chip
-		if (gGLManager.mGLVersion < 3.f || gGLManager.mIsIntel)
+		if (gGLManager.mGLVersion < 3.f)
 #endif
 		{
             // same as Low, but with "Basic Shaders" disabled
@@ -754,10 +754,6 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("GeForceFX");
 	}
-	if (gGLManager.mIsIntel)
-	{
-		maskFeatures("Intel");
-	}
 	if (gGLManager.mGLVersion < 1.5f)
 	{
 		maskFeatures("OpenGLPre15");
@@ -765,6 +761,17 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mGLVersion < 3.f)
 	{
 		maskFeatures("OpenGLPre30");
+	}
+	if (gGLManager.mIsIntel)
+	{
+		if (gGLManager.mGLVersion < 3.f)
+		{
+			maskFeatures("Intel");
+		}
+		else
+		{
+			maskFeatures("IntelRecent");
+		}
 	}
 	if (gGLManager.mNumTextureImageUnits <= 8)
 	{
