@@ -146,7 +146,7 @@ class LLUUID;
 		*/
 		bool isSpecialAgentColored(LLUIColor& color_out) const;
 
-		LLUIColor PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
+		LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
 
 		/**
 		 * \brief Get agent flags
@@ -299,7 +299,7 @@ class LLUUID;
 		* \param show_buddy_status show buddy color if applicable
 		* \return
 		*/
-		LLUIColor getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status = true);
+		LLColor4 getColor(LLUUID avatar_id, LLColor4 default_color, bool show_buddy_status = true);
 
 		/**
 		* \brief Check if supplied group is one of/the vendor's support group

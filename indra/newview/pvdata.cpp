@@ -1107,9 +1107,9 @@ PVAgent::PVAgent()
 	}
 
 	// Do not call directly! no agent pointer validity checks are performed here!
-	LLUIColor PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
+	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
-		LLUIColor pv_color = no_color;
+		auto pv_color = no_color;
 		// Check if agent already has a special color
 		if (!pv_agent->isSpecialAgentColored(pv_color))
 		{
@@ -1134,38 +1134,38 @@ PVAgent::PVAgent()
 					|| gPVOldAPI->isScout(last_name)
 					|| gPVOldAPI->isLLTester(last_name))
 				{
-					static LLUIColor linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
+					static auto linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
 					pv_color = linden_color;
 				}
 			}
 			if (pv_agent->isUserDevStaff())
 			{
-				static LLUIColor dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
+				static auto dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
 				pv_color = dev_color.get();
 			}
 			else if (pv_agent->isUserQAStaff())
 			{
-				static LLUIColor qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
+				static auto qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
 				pv_color = qa_color.get();
 			}
 			else if (pv_agent->isUserSupportStaff())
 			{
-				static LLUIColor support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
+				static auto support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
 				pv_color = support_color.get();
 			}
 			else if (pv_agent->isUserTester())
 			{
-				static LLUIColor tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
+				static auto tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
 				pv_color = tester_color.get();
 			}
 			else if (pv_agent->isUserBanned())
 			{
-				static LLUIColor banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
+				static auto banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
 				pv_color = banned_color.get();
 			}
 			else if (pv_agent->isUserAutoMuted())
 			{
-				static LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
+				static auto muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
 				pv_color = muted_color.get();
 			}
 			// Unsupported users have no color.
@@ -1188,32 +1188,32 @@ PVAgent::PVAgent()
 				args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
 				LLNotificationsUtil::add("PVData_ColorBug", args);
 			}
-		}
+		}	
 		return pv_color;
 	}
 
-	LLUIColor PVDataOldAPI::getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status)
+	LLColor4 PVDataOldAPI::getColor(LLUUID avatar_id,  LLColor4 default_color, bool show_buddy_status)
 	{
 		// Try to operate in the same instance, reduce call overhead
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
 
-		LLUIColor return_color = default_color; // color we end up with at the end of the logic
+		auto return_color = default_color; // color we end up with at the end of the logic
 
 		// Some flagged users CAN be muted.
 		if (LLMuteList::instance().isMuted(avatar_id))
 		{
-			static LLUIColor muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
+			static auto muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
 			return_color = muted_color.get();
 			return return_color;
 		}
 
 		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
 		auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
-		static LLUIColor friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
+		static auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
 		if (use_color_manager)
 		{
-			LLUIColor pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
+			auto pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
 			auto pv_agent = PVAgent::getDataFor(avatar_id);
 			S32 av_flags = 0;
