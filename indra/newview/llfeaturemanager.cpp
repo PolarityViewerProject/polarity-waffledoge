@@ -724,6 +724,41 @@ void LLFeatureManager::applyBaseMasks()
 	}
 
 	// now all those wacky ones
+	if (gGLManager.mIsNVIDIA)
+	{
+		maskFeatures("NVIDIA");
+		if (gGLManager.mIsGF2or4MX)
+		{
+			maskFeatures("GeForce2");
+		}
+		else if (gGLManager.mIsGFFX)
+		{
+			maskFeatures("GeForceFX");
+		}
+	}
+	else if (gGLManager.mIsATI)
+	{
+		maskFeatures("ATI");
+		if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
+		{
+			maskFeatures("ATIVramLT256");
+		}
+		if (gGLManager.mATIOldDriver)
+		{
+			maskFeatures("ATIOldDriver");
+		}
+	}
+	else if (gGLManager.mIsIntel)
+	{
+		if (gGLManager.mGLVersion < 3.f)
+		{
+			maskFeatures("Intel");
+		}
+		else
+		{
+			maskFeatures("IntelRecent");
+		}
+	}
 	if (!gGLManager.mHasFragmentShader)
 	{
 		maskFeatures("NoPixelShaders");
@@ -736,47 +771,15 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("NoVertexShaders");
 	}
-	if (gGLManager.mIsNVIDIA)
-	{
-		maskFeatures("NVIDIA");
-	}
-	if (gGLManager.mIsGF2or4MX)
-	{
-		maskFeatures("GeForce2");
-	}
-	if (gGLManager.mIsATI)
-	{
-		maskFeatures("ATI");
-	}
-	if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
-	{
-		maskFeatures("ATIVramLT256");
-	}
-	if (gGLManager.mATIOldDriver)
-	{
-		maskFeatures("ATIOldDriver");
-	}
-	if (gGLManager.mIsGFFX)
-	{
-		maskFeatures("GeForceFX");
-	}
-	if (gGLManager.mGLVersion < 1.5f)
-	{
-		maskFeatures("OpenGLPre15");
-	}
 	if (gGLManager.mGLVersion < 3.f)
 	{
-		maskFeatures("OpenGLPre30");
-	}
-	if (gGLManager.mIsIntel)
-	{
-		if (gGLManager.mGLVersion < 3.f)
+		if (gGLManager.mGLVersion < 1.5f)
 		{
-			maskFeatures("Intel");
+			maskFeatures("OpenGLPre15");
 		}
 		else
 		{
-			maskFeatures("IntelRecent");
+			maskFeatures("OpenGLPre30");
 		}
 	}
 	if (gGLManager.mNumTextureImageUnits <= 8)
@@ -795,7 +798,7 @@ void LLFeatureManager::applyBaseMasks()
 		// We removed DirectX support, so let's give it a sane default.
 		maskFeatures("ATIVRAMFALLBACK");
 	}
-	if (gGLManager.mVRAM > 1024)
+	else if (gGLManager.mVRAM > 1024)
 	{
 
 		maskFeatures("VRAMGT1GB");
