@@ -673,10 +673,15 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 			gPVOldAPI->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
 			allowed = false;
 		}
+		else
 		if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Development" && (pv_agent->isUserDevStaff()) == false)
 		{
 			gPVOldAPI->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
 			allowed = false;
+		}
+		else
+		{
+			allowed = true;
 		}
 		LL_WARNS() << "HERE ARE YOUR FLAGS: " << pv_agent->getTitle(false) << LL_ENDL;
 #if INTERNAL_BUILD
