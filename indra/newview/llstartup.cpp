@@ -1345,7 +1345,7 @@ bool idle_startup()
 			set_startup_status(0.099f, "Wheeee~");
 			if (!(gPVOldAPI->isAllowedToLogin(gAgentID)))
 			{
-				//LLLoginInstance::getInstance()->disconnect();
+				LLLoginInstance::getInstance()->disconnect();
 				gAgentID.setNull();
 				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
 				show_connect_box = true;
