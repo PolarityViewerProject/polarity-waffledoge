@@ -58,7 +58,7 @@
         initial_value="0"
         layout="topleft"
         left_delta="35"
-        max_val="6"
+        max_val="8"
         name="QualityPerformanceSelectionUltra"
         show_text="false"
         top="0"
@@ -75,10 +75,23 @@
         halign="center"
         height="12"
         layout="topleft"
-        left="5"
+        left="10"
         name="ShadersPrefText"
         top_delta="20"
-        width="75">
+        width="40">
+        Potato
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="center"
+        height="12"
+        layout="topleft"
+        left_pad="0"
+        name="ShadersPrefText2"
+        top_delta="0"
+        width="40">
         Low
       </text>
       <text
@@ -91,7 +104,7 @@
         left_pad="0"
         name="ShadersPrefText2"
         top_delta="0"
-        width="65">
+        width="50">
         Mid
       </text>
       <text
@@ -104,7 +117,7 @@
         left_pad="0"
         name="ShadersPrefText3"
         top_delta="0"
-        width="75">
+        width="55">
         High
       </text>
       <text
@@ -117,8 +130,21 @@
         left_pad="0"
         name="ShadersPrefText4"
         top_delta="0"
-        width="70">
+        width="45">
         Ultra
+      </text>
+      <text
+        type="string"
+        length="1"
+        follows="left|top"
+        halign="center"
+        height="12"
+        layout="topleft"
+        left_pad="0"
+        name="ShadersPrefText4"
+        top_delta="0"
+        width="70">
+        Molten Core
       </text>
     </panel>
     <panel
@@ -203,7 +229,6 @@
         V. High
       </text>
     </panel> 
-      name=""
       <check_box
         control_name="FullScreen"
         height="16"
@@ -506,7 +531,7 @@
         label_width="135"
         layout="topleft"
         left="210"
-        max_val="512"
+        max_val="2048"
         min_val="0"
         name="DrawDistance"
         top="60"
@@ -518,7 +543,7 @@
         follows="left|top"
         height="16"
         increment="64"
-        initial_value="4096"
+        initial_value="8192"
         label="Maximum particle count:"
         label_width="135"
         layout="topleft"
@@ -627,29 +652,13 @@
         label_width="135"
         layout="topleft"
         left_delta="-245"
-        max_val="10"
+        max_val="11"
         min_val="7"
         name="RenderPostProcess"
-        show_text="false"
+        show_text="true"
         top_pad="2"
-        width="240">
-        <slider.commit_callback
-          function="Pref.UpdateSliderText"
-          parameter="PostProcessText">
-        </slider.commit_callback>
+        width="265">
       </slider>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        height="12"
-        layout="topleft"
-        left_pad="5"
-        name="PostProcessText"
-        top_delta="0"
-        width="40">
-        Low
-      </text>
       <text
         text_color="LtGray"
         type="string"
@@ -657,7 +666,7 @@
         follows="left|top"
         height="12"
         layout="topleft"
-        left_delta="-245"
+        left_delta="0"
         name="MeshDetailText"
         top_pad="5"
         width="128">
@@ -1174,7 +1183,7 @@
             control_name="PVRender_EnableUltraPreset"
             height="16"
             initial_value="true"
-            label="Enable &quot;Ultra&quot; preset"
+            label="Enable additional quality presets"
             layout="topleft"
             left="5"
             name="ultra_preset_checkbox"
