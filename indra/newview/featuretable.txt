@@ -113,15 +113,14 @@ RenderGamma					1	0
 RenderGlowResolutionPow		1	6
 RenderGround				1	1
 RenderMaxPartCount			1	64
-RenderObjectBump			1	1
-RenderLocalLights			1	1
+RenderObjectBump			1	0
+RenderLocalLights			1	0
 RenderReflectionDetail		1	0
 RenderTerrainDetail			1	1
 RenderTerrainLODFactor		1	0.25
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0.25
-RenderVBOEnable				1	0
-RenderVBOMappingDisable		1	1
+RenderVBOEnable				1	1
 RenderVolumeLODFactor		1	0.25
 UseStartScreen				1	1
 UseOcclusion				1	0
@@ -130,7 +129,6 @@ WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	32
 Disregard128DefaultDrawDistance	1	1
 Disregard96DefaultDrawDistance	1	1
-//RenderTextureMemoryMultiple		1	1.0
 RenderCompressTextures		1	1
 RenderShaderLightingMaxLevel	1	1
 RenderDeferred				1	0
