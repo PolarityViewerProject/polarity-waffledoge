@@ -84,6 +84,7 @@
 #include "llsingleton.h" // for instance()
 #include "pvtypes.h"
 #include "lluicolortable.h"
+#include "lluicolor.h"
 
 class LLColor4;
 class LLUUID;
@@ -93,7 +94,7 @@ class LLUUID;
 //namespace PVDataOldAPI
 //{
 
-	const LLColor4 no_color = LLColor4::magenta;
+	const LLUIColor no_color = LLColor4::black;
 
 	/*static*/ const std::string LL_LINDEN = "Linden";
 	/*static*/ const std::string LL_MOLE = "Mole";
@@ -140,17 +141,12 @@ class LLUUID;
 		static PVAgent& getInstance() { return mInstance; }
 		/**
 		* \brief Agent has a color (either custom or level default)
+		* param color_out custom agent color, or LLColor4::black if none
 		* \return bool
 		*/
-		bool isSpecialAgentColored() const;
+		bool isSpecialAgentColored(LLUIColor& color_out) const;
 
-		/**
-		 * \brief get Agent color
-		 * \return LLColor4
-		 */
-		LLColor4 getColorCustom() const;
-
-		LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
+		LLUIColor PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
 
 		/**
 		 * \brief Get agent flags
@@ -239,7 +235,7 @@ class LLUUID;
 
 		LLUUID uuid;
 		std::string title;
-		LLColor3 color;
+		LLUIColor color = no_color;
 		S32 flags; //@todo move to bitset
 		std::string ban_reason;
 
@@ -303,7 +299,7 @@ class LLUUID;
 		* \param show_buddy_status show buddy color if applicable
 		* \return
 		*/
-		LLColor4 getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status = true);
+		LLUIColor getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status = true);
 
 		/**
 		* \brief Check if supplied group is one of/the vendor's support group

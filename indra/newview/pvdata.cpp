@@ -1100,26 +1100,18 @@ PVAgent::PVAgent()
 		return it->second;
 	}
 
-	bool PVAgent::isSpecialAgentColored() const
+	bool PVAgent::isSpecialAgentColored(LLUIColor& color_out) const
 	{
-		return color != LLColor3::black;
+		color_out = color;
+		return color != no_color;
 	}
 
-	LLColor4 PVAgent::getColorCustom() const
+	// Do not call directly! no agent pointer validity checks are performed here!
+	LLUIColor PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
-		return LLColor4(color);
-	}
-
-	// Do not call directly!
-	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
-	{
-		LLColor4 pv_color = no_color;
+		LLUIColor pv_color = no_color;
 		// Check if agent already has a special color
-		if (pv_agent->isSpecialAgentColored())
-		{
-			pv_color = pv_agent->getColorCustom();
-		}
-		else
+		if (!pv_agent->isSpecialAgentColored(pv_color))
 		{
 			// Not special, could be a linden
 			if (av_flags == 0 || av_flags & LINDEN_EMPLOYEE)
@@ -1200,12 +1192,12 @@ PVAgent::PVAgent()
 		return pv_color;
 	}
 
-	LLColor4 PVDataOldAPI::getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status)
+	LLUIColor PVDataOldAPI::getColor(const LLUUID& avatar_id, const LLColor4& default_color, bool show_buddy_status)
 	{
 		// Try to operate in the same instance, reduce call overhead
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
 
-		LLColor4 return_color = default_color; // color we end up with at the end of the logic
+		LLUIColor return_color = default_color; // color we end up with at the end of the logic
 
 		// Some flagged users CAN be muted.
 		if (LLMuteList::instance().isMuted(avatar_id))
@@ -1217,11 +1209,11 @@ PVAgent::PVAgent()
 
 		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
 		auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
-		auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
+		static LLUIColor friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
 		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
 		if (use_color_manager)
 		{
-			LLColor4 pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
+			LLUIColor pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
 
 			auto pv_agent = PVAgent::getDataFor(avatar_id);
 			S32 av_flags = 0;
