@@ -190,7 +190,6 @@ PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	0
 PVRender_ShadowDetailRigged	1	0
-PVRender_DeferredFXAAQuality	0	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
@@ -234,7 +233,6 @@ PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	0
 PVRender_ShadowDetailRigged	1	0
-PVRender_DeferredFXAAQuality	0	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
@@ -277,7 +275,6 @@ PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	0
 PVRender_ShadowDetailRigged	1	0
-PVRender_DeferredFXAAQuality	0	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
@@ -320,7 +317,6 @@ PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	0
 PVRender_ShadowDetailRigged	1	1
-PVRender_DeferredFXAAQuality	0	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
