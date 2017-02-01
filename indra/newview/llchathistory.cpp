@@ -943,7 +943,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	static LLColor4 txt_color = LLUIColorTable::instance().getColor("White"); //@todo sync with colors.xml text color for chat
 #if PVDATA_COLORIZER
 	// <polarity> Colored names for special users
 	LLColor4 name_color;
