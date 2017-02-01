@@ -381,7 +381,7 @@ void LLStatusBar::refresh()
 		/*static*/ LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
 		/*static*/ LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
 
-		static LLCachedControl<bool> fps_limited(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
+		static LLCachedControl<bool> fps_limiter(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
 		static LLCachedControl<F32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget", 60.f);
 
 		// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
@@ -398,7 +398,7 @@ void LLStatusBar::refresh()
 
 		//U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
 		static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
-		if (fps_limited && (current_fps_normalized <= (fps_limit_target + 1) && current_fps_normalized >= (fps_limit_target - 1)))
+		if (fps_limiter && (current_fps_normalized <= (fps_limit_target + 1) && current_fps_normalized >= (fps_limit_target - 1)))
 		{
 			gFPSColor = color_limited;
 		}

@@ -1582,17 +1582,17 @@ bool LLAppViewer::frame()
 				gFrameStalls++;
 			}
 			// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
-			static LLCachedControl<F32> max_fps(gSavedSettings, "PVRender_FPSLimiterTarget");
-			static LLCachedControl<bool> frameLimiter(gSavedSettings, "PVRender_FPSLimiterEnabled", FALSE);
+			static LLCachedControl<F32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+			static LLCachedControl<bool> fps_limiter(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
 			// Only limit FPS when we are actually rendering something. Otherwise
 			// logins, logouts and teleports take much longer to complete.
 			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& frameLimiter && (max_fps > F_APPROXIMATELY_ZERO)
+					&& fps_limiter && (fps_limit_target > F_APPROXIMATELY_ZERO)
 					&& !gTeleportDisplay
 					&& !logoutRequestSent())
 			{
 				// Sleep a while to limit frame rate.
-				F32 min_frame_time = 1.000f / max_fps;
+				F32 min_frame_time = 1.000f / fps_limit_target;
 				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
 				if (milliseconds_to_sleep > 0)
 				{
