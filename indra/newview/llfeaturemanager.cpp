@@ -678,6 +678,8 @@ void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 		}
 	}
 
+	LL_WARNS() << "Loading graphic preset '" << features << "'" << LL_ENDL;
+
 	maskFeatures(features);
 
 	applyFeatures(skipFeatures);
