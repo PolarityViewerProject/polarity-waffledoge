@@ -204,7 +204,7 @@ static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_
 
 U32 LLFeatureManager::getMaxGraphicsLevel() const
 {
-	return sGraphicsLevelNames.size() - 1;
+	return sGraphicsLevelNames.size() - 2;
 }
 
 bool LLFeatureManager::isValidGraphicsLevel(U32 level) const
