@@ -1255,8 +1255,9 @@
             Objects &amp; Avatars Shadows
           </text>
           <slider
-            enabled_control="RenderShadowDetail"
+            control_name="RenderShadowResolutionClosest"
             decimal_digits="0"
+            enabled_control="RenderShadowDetail"
             follows="left|top"
             height="15"
             increment="64"
@@ -1273,13 +1274,11 @@
             top_pad="5"
             text_width="40"
             width="385">
-            <slider.commit_callback
-              function="Pref.ArrayVec4X"
-              parameter="RenderShadowResolution"/>
             </slider>
             <slider
-              enabled_control="RenderShadowDetail"
+              control_name="RenderShadowResolutionMid"
               decimal_digits="0"
+              enabled_control="RenderShadowDetail"
               follows="left|top"
               height="15"
               increment="64"
@@ -1295,14 +1294,11 @@
               top_pad="02"
               text_width="40"
               width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4Y"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
             </slider>
             <slider
-              enabled_control="RenderShadowDetail"
+              control_name="RenderShadowResolutionFar"
               decimal_digits="0"
+              enabled_control="RenderShadowDetail"
               follows="left|top"
               height="15"
               increment="64"
@@ -1318,14 +1314,11 @@
               top_pad="2"
               text_width="40"
               width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4Z"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
             </slider>
             <slider
-              enabled_control="RenderShadowDetail"
+              control_name="RenderShadowResolutionFurthest"
               decimal_digits="0"
+              enabled_control="RenderShadowDetail"
               follows="left|top"
               height="15"
               increment="64"
@@ -1341,10 +1334,6 @@
               top_pad="2"
               text_width="40"
               width="385">
-              <slider.commit_callback
-                function="Pref.ArrayVec4W"
-                parameter="RenderShadowResolution">
-              </slider.commit_callback>
             </slider>
             <!-- TODO: Add projector shadows sliders -->
             <slider
@@ -1368,8 +1357,8 @@
             </slider>
             <button
               follows="left|top"
-              control_name="RenderShadowResolution"
-              height="66"
+              control_name="RenderShadowResolutionClosest"
+              height="15"
               is_toggle="false"
               label="⌊Reset⌉"
               image_selected="transparent.j2c"
@@ -1377,11 +1366,61 @@
               layout="topleft"
               left_pad="0"
               top_delta="-68"
-              name="default_shadowres_btn"
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="RenderShadowResolution">
+                parameter="RenderShadowResolutionClosest">
+              </button.commit_callback>
+            </button>
+            <button
+              follows="left|top"
+              control_name="RenderShadowResolutionMid"
+              height="15"
+              is_toggle="false"
+              label="⌊Reset⌉"
+              image_selected="transparent.j2c"
+              image_unselected="transparent.j2c"
+              layout="topleft"
+              left_delta="0"
+              top_pad="2"
+              width="60">
+              <button.commit_callback
+                function="Pref.ResetToDefault"
+                parameter="RenderShadowResolutionMid">
+              </button.commit_callback>
+            </button>
+            <button
+              follows="left|top"
+              control_name="RenderShadowResolutionFar"
+              height="15"
+              is_toggle="false"
+              label="⌊Reset⌉"
+              image_selected="transparent.j2c"
+              image_unselected="transparent.j2c"
+              layout="topleft"
+              left_delta="0"
+              top_pad="2"
+              width="60">
+              <button.commit_callback
+                function="Pref.ResetToDefault"
+                parameter="RenderShadowResolutionFar">
+              </button.commit_callback>
+            </button>
+            <button
+              follows="left|top"
+              control_name="RenderShadowResolutionFurthest"
+              height="15"
+              is_toggle="false"
+              label="⌊Reset⌉"
+              image_selected="transparent.j2c"
+              image_unselected="transparent.j2c"
+              layout="topleft"
+              left_delta="0"
+              top_pad="2"
+              width="60">
+              <button.commit_callback
+                function="Pref.ResetToDefault"
+                parameter="RenderShadowResolutionFurthest">
               </button.commit_callback>
             </button>
             <button
@@ -1395,7 +1434,6 @@
               layout="topleft"
               left_delta="0"
               top_pad="2"
-              name="default_shadowblur_btn"
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"

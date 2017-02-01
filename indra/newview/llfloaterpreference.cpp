@@ -632,10 +632,10 @@ void LLFloaterPreference::refreshGraphicControls()
 	// getChild<LLUICtrl>("RenderGlowWarmthWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VX]);
 	// getChild<LLUICtrl>("RenderGlowWarmthWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VY]);
 	// getChild<LLUICtrl>("RenderGlowWarmthWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VZ]);
-	getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VX]);
-	getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VY]);
-	getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VZ]);
-	getChild<LLUICtrl>("RenderShadowResolution_W")->setValue(gSavedSettings.getVector4("RenderShadowResolution").mV[VW]);
+	// getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getControl("RenderShadowResolutionClosest").get());
+	// getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getControl("RenderShadowResolutionMid").get());
+	// getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getControl("RenderShadowResolutionFar").get());
+	// getChild<LLUICtrl>("RenderShadowResolution_W")->setValue(gSavedSettings.getControl("RenderShadowResolutionFurthest").get());
 
 	// getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_X")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VX]);
 	// getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VY]);

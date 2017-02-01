@@ -904,21 +904,49 @@
         <real>24.0</real>
       </array>
     </map>
-    <key>RenderShadowResolution</key>
+    <key>RenderShadowResolutionClosest</key>
     <map>
       <key>Comment</key>
-      <string>Raw shadow width and height of each of the four shadow maps, closest (X), mid (Y), far (Z) furthest. (W)</string>
+      <string>Raw shadow width and height of the closest shadow map.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Vector4</string>
+      <string>U32</string>
       <key>Value</key>
-      <array>
-        <real>2048</real>
-        <real>2048</real>
-        <real>1024</real>
-        <real>512</real>
-      </array>
+      <real>2048</real>
+    </map>
+    <key>RenderShadowResolutionMid</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw shadow width and height of the mid-range shadow map.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+       <string>U32</string>
+      <key>Value</key>
+      <real>2048</real>
+    </map>
+    <key>RenderShadowResolutionFar</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw shadow width and height of the far shadow map.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>1024</real>
+    </map>
+      <key>RenderShadowResolutionFurthest</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw shadow width and height of the furthest shadow map.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <real>512</real>
     </map>
     <key>RenderShadowSplitExponent</key>
     <map>

@@ -210,7 +210,10 @@ BOOL PVRender_DepthOfFieldAlphas;
 BOOL PVDebug_RenderDepthOfFieldAlphasBackup;
 
 // <Black Dragon:NiranV> Shadow Map Allocation
-LLVector4 LLPipeline::RenderShadowResolution;
+U32 LLPipeline::RenderShadowResolutionClosest;
+U32 LLPipeline::RenderShadowResolutionMid;
+U32 LLPipeline::RenderShadowResolutionFar;
+U32 LLPipeline::RenderShadowResolutionFurthest;
 LLVector3 LLPipeline::PVRender_ProjectorShadowResolution;
 // </Black Dragon:NiranV>
 
@@ -680,7 +683,10 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
 
 //	//BD - Shadow Map Allocation
-	connectRefreshCachedSettingsSafe("RenderShadowResolution");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionClosest");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionMid");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionFar");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionFurthest");
 	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
 
 	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
@@ -1085,7 +1091,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 //BD - Shadow Map Allocation
 void LLPipeline::allocateShadowMaps(bool force_allocate)
 {
-	LLVector4 scale = RenderShadowResolution;
+	LLVector4 scale(RenderShadowResolutionClosest, RenderShadowResolutionMid, RenderShadowResolutionFar, RenderShadowResolutionFurthest);
 	LLVector3 proj_scale = PVRender_ProjectorShadowResolution;
 	U32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
 
@@ -1271,7 +1277,10 @@ void LLPipeline::refreshCachedSettings()
 	PVRender_ChromaStrength = gSavedSettings.getF32("PVRender_ChromaStrength");
 //	//BD - Shadow Map Allocation
 	PVRender_ProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
-	RenderShadowResolution = gSavedSettings.getVector4("RenderShadowResolution");
+	RenderShadowResolutionClosest = gSavedSettings.getU32("RenderShadowResolutionClosest");
+	RenderShadowResolutionMid = gSavedSettings.getU32("RenderShadowResolutionMid");
+	RenderShadowResolutionFar = gSavedSettings.getU32("RenderShadowResolutionFar");
+	RenderShadowResolutionFurthest = gSavedSettings.getU32("RenderShadowResolutionFurthest");
 
 	exoPostProcess::instance().ExodusRenderPostSettingsUpdate();
 	// </Black Dragon:NiranV>

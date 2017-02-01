@@ -960,7 +960,10 @@ public:
 	static F32 RenderAutoHideSurfaceAreaLimit;
 
 	// <Black Dragon:NiranV> Shadow Map Allocation
-	static LLVector4 RenderShadowResolution;
+	static U32 RenderShadowResolutionClosest;
+	static U32 RenderShadowResolutionMid;
+	static U32 RenderShadowResolutionFar;
+	static U32 RenderShadowResolutionFurthest;
 	static LLVector3 PVRender_ProjectorShadowResolution;
 	// </Black Dragon:NiranV>
 
