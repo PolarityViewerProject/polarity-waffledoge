@@ -3540,6 +3540,9 @@ std::string LLAppViewer::getViewerInfoString() const
 	if (info.has("BUILD_CONFIG"))
 	{
 		support << "\n" << LLTrans::getString("BuildConfig", args);
+#if INTERNAL_BUILD
+		support << "\n" << LLTrans::getString("InternalBuild", args);
+#endif
 	}
 	if (info.has("REGION"))
 	{
