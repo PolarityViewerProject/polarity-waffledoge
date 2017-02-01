@@ -642,7 +642,7 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 	bool allowed = false;
 	LL_INFOS() << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
 
-	gPVOldAPI->setErrorMessage("Generic clearance failure.");
+	gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the [APP_NAME] developers).");
 #if PVDATA_UUID_LOCKDOWN
 	LLUUID lockdown_uuid = getLockDownUUID();
 	if (lockdown_uuid != LLUUID::null)
@@ -698,7 +698,7 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 	{
 #if INTERNAL_BUILD
 		LL_WARNS() << "Access level: NONE" << LL_ENDL;
-		gPVOldAPI->setErrorMessage("You do not have clearance to use this build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
+		gPVOldAPI->setErrorMessage("You do not have clearance to use this internal build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n" + LLTrans::getString("ViewerDownloadURL") + ".");
 		allowed = false;
 #else
 		allowed = true;
