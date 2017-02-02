@@ -943,21 +943,21 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-	static LLColor4 txt_color = LLUIColorTable::instance().getColor("White"); //@todo sync with colors.xml text color for chat
+	/*static*/ LLColor4 txt_color = LLUIColorTable::instance().getColor("White"); //@todo sync with colors.xml text color for chat
 #if PVDATA_COLORIZER
 	// <polarity> Colored names for special users
-	LLColor4 name_color;
+	LLColor4 name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor").get();
 	if ((chat.mSourceType != CHAT_SOURCE_OBJECT)		// FROM: Not an object
 		&& (chat.mSourceType != CHAT_STYLE_HISTORY)		// and not replayed chat log
 		&& (chat.mFromName != SYSTEM_FROM)				// and not a system message
 		&& (chat.mFromID.notNull()))					// and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
 	{
 		
-		name_color = gPVOldAPI->getColor(chat.mFromID, txt_color);
+		name_color = gPVOldAPI->getColor(chat.mFromID, name_color);
 	}
 	else
 	{
-		name_color = txt_color;
+		name_color = name_color;
 	}
 	// </polarity>
 #else
