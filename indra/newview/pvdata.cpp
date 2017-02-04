@@ -841,6 +841,15 @@ LLColor4 PVDataOldAPI::Hex2Color4(int hexValue)
 	return LLColor4(r, g, b, 1.0f);
 }
 
+void PVDataOldAPI::cleanup()
+{
+	if(!pvdata_refresh_timer_.getStarted())
+	{
+		return;
+	}
+	pvdata_refresh_timer_.stop();
+}
+
 U32 PVSearchUtil::PVSearchSeparatorSelected = gPVSearchUtil->separator_space;
 
 U32 PVSearchUtil::getSearchSeparatorFromSettings()

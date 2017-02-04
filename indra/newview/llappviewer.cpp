@@ -1712,6 +1712,9 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
+	// stop PVData refresh timer
+	gPVOldAPI->cleanup();
+
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 

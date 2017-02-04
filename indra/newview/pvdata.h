@@ -447,6 +447,7 @@ class LLUUID;
 		void startRefreshTimer();
 
 		void refreshDataFromServer(bool force_refresh_now = false);
+		void cleanup();
 
 	private:
 
