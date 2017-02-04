@@ -4416,5 +4416,5 @@ Try enclosing path to the editor with double quotes.
 <string name="Outdated">Outdated</string>
 <string name="EnterCredentials">Credentials&#63;</string>
 <string name="InternalBuild">Internal Build</string>
-
+<string name="FullResEnabledReminder">Reminder: Full resolution textures are enabled. You may experience degraded performance.</string>
 </strings>

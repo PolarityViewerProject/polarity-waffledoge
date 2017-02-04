@@ -2443,6 +2443,12 @@ bool idle_startup()
 		gPVOldAPI->startRefreshTimer();
 		// </polarity>
 
+		// Reminder
+		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
+		{
+			PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
+		}
+
 		gAgentAvatarp->sendHoverHeight();
 
 
