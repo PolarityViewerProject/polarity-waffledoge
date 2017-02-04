@@ -54,8 +54,6 @@
 	 parse_highlights="true"
 	 parse_urls="true"
 	 right_widget_pad="5"
-	 text_color="ChatHistoryTextColor"
-	 text_readonly_color="ChatHistoryTextColor"
 	 top="0"
 	 width="237" />
 	</layout_panel>

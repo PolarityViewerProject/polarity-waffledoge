@@ -155,7 +155,7 @@
     reference="DkGray2"/>
    <color
     name="ChatHeaderDisplayNameColor"
-    reference="TextDefaultColor"/>
+    value="0.87 0.87 0.87 1"/>
    <color
     name="ChatHeaderOpaqueBackground"
     reference="DkGray2"/>
@@ -170,7 +170,7 @@
     value="0.1372549019607843 0.1372549019607843 0.1372549019607843 1"/>
    <color
     name="ChatHistoryTextColor"
-    reference="PlvrWhite"/>
+    value="0.33000 0.33000 0.33000 1.0"/>
    <color
     name="ChatNameColor"
     reference="TextDefaultColor"/>
@@ -1190,7 +1190,7 @@
     reference="EmphasisColor"/>
    <color
     name="TextEmbeddedItemReadOnlyColor"
-    reference="Unused?"/>
+    reference="EmphasisColorDark"/>
    <color
     name="TextFgColor"
     value="0.72 0.72 0.72 1"/>
@@ -1238,7 +1238,7 @@
     value="1 0 0.5 1"/>
    <color
     name="UserChatColor"
-    value="0.427 0.427 0.427 1"/>
+    value="0.45000 0.45000 0.45000 1.0"/>
    <color
     name="WarningRed"
     value="0.85 0.35 0.33 0.97"/>

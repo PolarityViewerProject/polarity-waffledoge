@@ -943,28 +943,47 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-	/*static*/ LLColor4 txt_color = LLUIColorTable::instance().getColor("White"); //@todo sync with colors.xml text color for chat
+
+	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
+	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
+	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
+	LLColor4 name_color;
+	LLColor4 txt_color;
 #if PVDATA_COLORIZER
-	// <polarity> Colored names for special users
-	LLColor4 name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor").get();
-	if ((chat.mSourceType != CHAT_SOURCE_OBJECT)		// FROM: Not an object
-		&& (chat.mSourceType != CHAT_STYLE_HISTORY)		// and not replayed chat log
-		&& (chat.mFromName != SYSTEM_FROM)				// and not a system message
-		&& (chat.mFromID.notNull()))					// and not from a NULL_KEY (Either fetch fail or else). Should probably handle this better.
+	// <polarity> Colored names for special users, short-circuit getChatColor for agents
+	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{
-		
-		name_color = gPVOldAPI->getColor(chat.mFromID, name_color);
+		switch (chat.mSourceType)
+		{
+		case CHAT_SOURCE_AGENT:
+			if (chat.mFromID.notNull())
+			{
+				name_color = gPVOldAPI->getColor(chat.mFromID, default_name_color);
+				if (!color_pvagent_chat)
+				{
+					LLViewerChat::getChatColor(chat, txt_color);
+				}
+				else
+				{
+					txt_color = name_color;
+				}
+				break;
+			}
+		default:
+			LLViewerChat::getChatColor(chat, name_color);
+			LLViewerChat::getChatColor(chat, txt_color);
+			break;
+		}
 	}
-	else
-	{
-		name_color = name_color;
-	}
+	// else
+	// skip, processed down below
 	// </polarity>
 #else
-	LLColor4 name_color(txt_color);
+	// untested!
+	LLColor4 name_color(default_name_color);
+	LLViewerChat::getChatColor(chat, txt_color);
 #endif
 
-	LLViewerChat::getChatColor(chat,txt_color);
 	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
 	std::string font_size = LLFontGL::sizeFromFont(fontp);	
@@ -1017,11 +1036,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	// We graying out chat history by graying out messages that contains full date in a time string
 	if (message_from_log)
 	{
-		txt_color = LLColor4::grey;
-		body_message_params.color(txt_color);
-		body_message_params.readonly_color(txt_color);
-		name_params.color(txt_color);
-		name_params.readonly_color(txt_color);
+		static LLColor4 history_color = LLUIColorTable::getInstance()->getColor("ChatHistoryTextColor");
+		body_message_params.color(history_color);
+		body_message_params.readonly_color(history_color);
+		name_params.color(history_color);
+		name_params.readonly_color(history_color);
 	}
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
@@ -1093,13 +1112,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
 				link_params.override_link_style = true;
-#if PVDATA_COLORIZER
-				// Colorize agent links.
-				name_color = gPVOldAPI->getColor(chat.mFromID, link_color);
 				link_params.color = name_color;
 				link_params.readonly_color = name_color;
-#endif
-
 
 				// Add link to avatar's inspector and delimiter to message.
 				mEditor->appendText(std::string(link_params.link_href) + delimiter,
