@@ -68,6 +68,8 @@
 #include "llwindowwin32.h" // for refresh rate and such
 #include "llfloaterreg.h"
 
+#include "pvfpsmeter.h"
+
 //
 // Globals
 //
@@ -85,13 +87,10 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 
 static void onClickVolume(void* data);
 
-// initialize static member to avoid unresolved external symbols. Ah, C++...
-LLColor4 LLStatusBar::gFPSColor = LLUIColorTable::instance().getColor("EmphasisColor", LLColor4::green); // is that even legal?
-
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
 	mTextTime(nullptr),
-	mFPSCount(nullptr), // <polarity> FPS Counter in the status bar
+	mStatusBarFPSCounter(nullptr), // <polarity> FPS Counter in the status bar
 	mSGBandwidth(nullptr),
 	mSGPacketLoss(nullptr),
 	mBandwidthButton(NULL), // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
@@ -151,7 +150,7 @@ BOOL LLStatusBar::postBuild()
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
-	mFPSCount = getChild<LLTextBox>("FPS_count");
+	mStatusBarFPSCounter = getChild<LLTextBox>("FPS_count");
 
 	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, "https://secondlife.com/my/lindex/buy.php"));
 
@@ -251,7 +250,6 @@ BOOL LLStatusBar::postBuild()
 
 	mScriptOut = getChildView("scriptout");
 
-	mRefreshRate = LLWindowWin32::getRefreshRate();
 	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
 	if (!show_net_stats)
 	{
@@ -332,110 +330,13 @@ void LLStatusBar::refresh()
 	LLStringUtil::format(dtStr, substitution);
 	mTextTime->setToolTip(dtStr);
 
-	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's work
-	if (mFPSCount == NULL)
+	if (!mStatusBarFPSCounter)
 	{
 		return;
 	}
-	// Throttle a bit to avoid making faster FPS heavier to process
-	if (mFPSCountTimer.getElapsedTimeF32() > 0.1)
-	{
-		mFPSCountTimer.reset(); // Reset the FPS timer so that we can count again
-
-	// Update the FPS count value from the statistics system (This is the normalized value, like in the statitics floater)
-		LLTrace::PeriodicRecording& frame_recording = LLTrace::get_frame_recording(); // capture sample of the frame recording, I think.
-		auto current_fps_normalized = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS); // current fps showed to the user
-
-		F32 current_fps_sampled = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 2);
-
-		// Cap the amount of decimals we return
-		if (current_fps_normalized > 100.f)
-		{
-			mFPSCount->setValue(llformat("%.0f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
-		}
-		else if (current_fps_normalized > 10.f)
-		{
-			mFPSCount->setValue(llformat("%.1f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
-		}
-		else
-		{
-			mFPSCount->setValue(llformat("%.2f", current_fps_normalized) + "/" + std::to_string(mRefreshRate));
-		}
-		// </polarity>
-
-		static LLUIColor color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
-
-		// Quick and Dirty FPS counter colors. Idea is from NiranV, which never got finished.
-		static LLUIColor color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
-		static LLUIColor color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
-		static LLUIColor color_medium = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Medium", LLColor4::yellow);
-		static LLUIColor color_high = LLUIColorTable::instance().getColor("PVUI_FPSCounter_High", LLColor4::green);
-		static LLUIColor color_outstanding = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Outstanding", LLColor4::cyan);
-
-		static LLUIColor color_vsync = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Vsync", LLColor4::blue2);
-		static LLUIColor color_limited = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Limited", LLColor4::purple);
-
-		/*static*/ LLCachedControl<U32> fps_critical(gSavedSettings, "PVUI_FPSCounter_Critical", 10);
-		/*static*/ LLCachedControl<U32> fps_low(gSavedSettings, "PVUI_FPSCounter_Low", 20);
-		/*static*/ LLCachedControl<U32> fps_medium(gSavedSettings, "PVUI_FPSCounter_Medium", 40);
-		/*static*/ LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
-		/*static*/ LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
-
-		static LLCachedControl<bool> fps_limiter(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
-		static LLCachedControl<F32> fps_limit_target(gSavedSettings, "PVRender_FPSLimiterTarget", 60.f);
-
-		// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
-		// to show vsync'd and limited statuses.
-		// e.g.
-		//_______________________________
-		// FPS Limited Vsync          72 |
-		//-------------------------------|
-		// FPS BAR HERE .    | .        ||
-		// FPS BAR HERE  .   |     .    ||
-		// FPS BAR HERE    . |  .       ||
-		//нннннн-------------------------------|
-		// ~/~
-
-		//U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
-		static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
-		if (fps_limiter && (current_fps_normalized <= (fps_limit_target + 1) && current_fps_normalized >= (fps_limit_target - 1)))
-		{
-			gFPSColor = color_limited;
-		}
-		else if ((vsync_mode == 1 || vsync_mode == 2) && (current_fps_normalized <= (mRefreshRate + 1) && current_fps_normalized >= (mRefreshRate - 1)))
-		{
-			gFPSColor = color_vsync;
-		}
-		else if (current_fps_sampled <= fps_critical)
-		{
-			gFPSColor = color_critical;
-		}
-		else if (current_fps_sampled >= fps_critical && (current_fps_sampled < fps_medium))
-		{
-			gFPSColor = color_low;
-		}
-		else if (current_fps_sampled >= fps_low && (current_fps_sampled < fps_high))
-		{
-			gFPSColor = color_medium;
-		}
-		else if (current_fps_sampled >= fps_medium && (current_fps_sampled < fps_outstanding))
-		{
-			gFPSColor = color_high;
-		}
-		else if (current_fps_sampled >= fps_outstanding)
-		{
-			gFPSColor = color_outstanding;
-		}
-		else
-		{
-			// all else fails, fallback to default color to prevent blackness
-			gFPSColor = color_fps_default;
-		}
-
-		// Note: We can't/shouldn't use the color table because we do alpha math on that color in the stats floater later. The lookups are probably pretty costy.
-		mFPSCount->setColor(gFPSColor);
-	}
-	// </polarity>
+	refresh();
+	mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
+	mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)
@@ -706,9 +607,7 @@ void LLStatusBar::updateNetstatVisibility(const LLSD& data)
 	mSGPacketLoss->setVisible(showNetStat);
 	mBandwidthButton->setVisible(showNetStat); // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 
-	//LLRect rect = mFPSCount->getRect();
 	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
-	//mFPSCount->setRect(rect);
 
 	//rect = mBalancePanel->getRect();
 	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);

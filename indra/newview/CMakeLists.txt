@@ -160,6 +160,7 @@ set(polarity_HEADER_FILES
     pvcommon.h
     pvdata.h
     pvfloaterprogressview.h
+    pvfpsmeter.h
     pvgpuinfo.h
     pvmachinima.h
     pvpanellogin.h
@@ -172,6 +173,7 @@ set(polarity_SOURCE_FILES
     pvcommon.cpp
     pvdata.cpp
     pvfloaterprogressview.cpp
+    pvfpsmeter.cpp
     pvgpuinfo.cpp
     pvmachinima.cpp
     pvpanellogin.cpp

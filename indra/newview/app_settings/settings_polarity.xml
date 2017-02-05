@@ -1194,7 +1194,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <integer>60</integer>
+      <real>-1.0</real>
     </map>
     <key>PVRender_EnableFilmGrain</key>
     <map>

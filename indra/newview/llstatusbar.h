@@ -110,9 +110,7 @@ private:
 	void updateNetstatVisibility(const LLSD& data);
 	LLTextBox	*mTextTime;
 
-	LLTextBox	*mFPSCount; // <polarity/>
-public:
-	static LLColor4    gFPSColor; // <polarity/>
+	LLTextBox	*mStatusBarFPSCounter; // <polarity/>
 private:
 	U32			mRefreshRate;
 	LLStatGraph *mSGBandwidth;
@@ -126,7 +124,6 @@ private:
 	LLButton	*mBandwidthButton; // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
-	LLFrameTimer	mFPSCountTimer; // <polarity/>
 
 	S32				mBalance;
 	S32				mHealth;

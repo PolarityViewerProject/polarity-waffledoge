@@ -1085,7 +1085,7 @@
           layout="topleft"
           left_pad="5"
           max_val="144"
-          min_val="1"
+          min_val="-1.0"
           name="fps_limiter_slider"
           top_delta="0"
           width="185">

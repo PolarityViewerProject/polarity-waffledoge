@@ -181,6 +181,7 @@
 // <polarity> Polarity Includes
 #include "pvdata.h"
 #include "pvcommon.h"
+#include "pvfpsmeter.h"
 #include "fsassetblacklist.h"
 #include "llprogressview.h"
 //
@@ -2442,6 +2443,7 @@ bool idle_startup()
 		// start pvdata refresh timer
 		gPVOldAPI->startRefreshTimer();
 		// </polarity>
+		PVFPSMeter::start();
 
 		// Reminder
 		if(gSavedSettings.getBOOL("TextureLoadFullRes"))

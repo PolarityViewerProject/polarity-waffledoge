@@ -192,7 +192,7 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 
 //
 // Low Graphics Settings
@@ -235,7 +235,7 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium Low Graphics Settings
@@ -277,7 +277,7 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium Graphics Settings (standard)
@@ -319,7 +319,7 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -362,7 +362,7 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 RenderShadowResolutionClosest	1	1024
 RenderShadowResolutionMid	1	512
 RenderShadowResolutionFar	1	256
@@ -409,7 +409,7 @@ RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 RenderShadowResolutionClosest	1	2048
 RenderShadowResolutionMid	1	1024
 RenderShadowResolutionFar	1	512
@@ -456,7 +456,7 @@ RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 RenderShadowResolutionClosest	1	4096
 RenderShadowResolutionMid	1	2048
 RenderShadowResolutionFar	1	1024
@@ -502,7 +502,7 @@ RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	60
+PVRender_FPSLimiterTarget	1	-1
 RenderShadowResolutionClosest	1	8192
 RenderShadowResolutionMid	1	4096
 RenderShadowResolutionFar	1	2048

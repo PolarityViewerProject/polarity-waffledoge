@@ -40,7 +40,7 @@
 #include "lltooltip.h"
 #include "lllocalcliprect.h"
 #include <iostream>
-#include "../newview/llstatusbar.h"
+#include "../newview/pvfpsmeter.h"
 
 // rate at which to update display of value that is rapidly changing
 const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
@@ -448,7 +448,8 @@ void LLStatBar::draw()
 
 			S32 end = (S32) ((max - mCurMinBar) * value_scale);
 			// The range color is too bright when displayed on the stats bar, darken it a little
-			auto range_bar_fixed = LLColor4(LLStatusBar::gFPSColor.mV[0] - 0.13, LLStatusBar::gFPSColor.mV[1] - 0.13, LLStatusBar::gFPSColor.mV[2] - 0.13, 0.45f);
+			auto fps_color = PVFPSMeter::getColor();
+			auto range_bar_fixed = LLColor4(fps_color.mV[0] - 0.13, fps_color.mV[1] - 0.13, fps_color.mV[2] - 0.13, 0.45f);
 			if (mOrientation == HORIZONTAL)
 			{
 				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, range_bar_fixed); // <polarity/>

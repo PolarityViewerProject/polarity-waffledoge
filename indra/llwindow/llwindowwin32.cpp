@@ -395,7 +395,7 @@ LLWinImm::~LLWinImm()
 	}
 }
 
-U32 LLWindowWin32::getRefreshRate()
+F32 LLWindowWin32::getRefreshRate()
 {
 	// Gross, duplicate code. I can't seem to be able to do this otherwise, however.
 	//-----------------------------------------------------------------------
@@ -409,11 +409,11 @@ U32 LLWindowWin32::getRefreshRate()
 	DWORD current_refresh_2;
 	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
 	{
-		current_refresh_2 = dev_mode.dmDisplayFrequency;
+		current_refresh_2 = (F32)dev_mode.dmDisplayFrequency;
 	}
 	else
 	{
-		current_refresh_2 = 60;
+		current_refresh_2 = 60.f;
 	}
 	return current_refresh_2;
 }
