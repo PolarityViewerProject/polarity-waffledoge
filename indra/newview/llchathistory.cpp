@@ -1111,6 +1111,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			{
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
+				// use url color if no special color was set
+				if (name_color == default_name_color)
+				{
+					name_color = link_color;
+				}
 				link_params.override_link_style = true;
 				link_params.color = name_color;
 				link_params.readonly_color = name_color;
