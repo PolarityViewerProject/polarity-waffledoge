@@ -1158,14 +1158,8 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
 //			//BD - Only allow fullbrights if we wish to see them.
-			if(!gSavedSettings.getBOOL("RenderEnableFullbright"))
-			{
-				bump[face_index] = te->getBumpShiny();
-			}
-			else
-			{
-				bump[face_index] = te->getBumpShinyFullbright();
-			}
+			static LLCachedControl<bool> enable_fullbright(gSavedSettings, "RenderEnableFullbright");
+			bump[face_index] = enable_fullbright ? te->getBumpShinyFullbright() : te->getBumpShiny();
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1251,14 +1245,8 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
 //			//BD - Only allow fullbrights if we wish to see them.
-			if(!gSavedSettings.getBOOL("RenderEnableFullbright"))
-			{
-				bump[face_index] = te->getBumpShiny();
-			}
-			else
-			{
-				bump[face_index] = te->getBumpShinyFullbright();
-			}
+			static LLCachedControl<bool> enable_fullbright(gSavedSettings, "RenderEnableFullbright");
+			bump[face_index] = enable_fullbright ? te->getBumpShinyFullbright() : te->getBumpShiny();
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1380,14 +1368,8 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEOffset(i, (F32)tec.offset_s[i] / (F32)0x7FFF, (F32) tec.offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)tec.image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
 //		//BD - Only allow fullbrights if we wish to see them.
-		if(!gSavedSettings.getBOOL("RenderEnableFullbright"))
-		{
-			retval |= setTEBumpShiny(i, tec.bump[i]);
-		}
-		else
-		{
-			retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
-		}
+		static LLCachedControl<bool> enable_fullbright(gSavedSettings, "RenderEnableFullbright");
+		retval |= (enable_fullbright ? setTEBumpShinyFullbright(i, tec.bump[i]) : setTEBumpShiny(i, tec.bump[i]));
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, tec.material_ids[i]);
@@ -1506,14 +1488,8 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
 //		//BD - Only allow fullbrights if we wish to see them.
-		if(!gSavedSettings.getBOOL("RenderEnableFullbright"))
-		{
-			retval |= setTEBumpShiny(i, bump[i]);
-		}
-		else
-		{
-			retval |= setTEBumpShinyFullbright(i, bump[i]);
-		}
+		static LLCachedControl<bool> enable_fullbright(gSavedSettings, "RenderEnableFullbright");
+		retval |= (enable_fullbright ? setTEBumpShinyFullbright(i, bump[i]) : setTEBumpShiny(i, bump[i]));
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, material_ids[i]);
