@@ -1377,7 +1377,7 @@ void LLPipeline::createGLBuffers()
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
 		// <polarity/> Speed up
-		static LLCachedControl<S32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
+		static LLCachedControl<U32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
 		auto res = llmax((U32)render_water_ref_res, (U32)512);
 			
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
