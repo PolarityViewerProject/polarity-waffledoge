@@ -49,6 +49,13 @@ public:
 		TEXTURE_MATRIX3,
 		OBJECT_PLANE_S,
 		OBJECT_PLANE_T,
+//		//BD - Motion Blur
+		CURRENT_MODELVIEW_MATRIX,
+		LAST_MODELVIEW_MATRIX,
+		LAST_MODELVIEW_MATRIX_INVERSE,
+		CURRENT_OBJECT_MATRIX,
+		LAST_OBJECT_MATRIX,
+
 		VIEWPORT,
 		LIGHT_POSITION,
 		LIGHT_DIRECTION,
@@ -123,10 +130,7 @@ public:
 		DEFERRED_SSAO_MAX_RADIUS,
 		DEFERRED_SSAO_FACTOR,
 		DEFERRED_SSAO_FACTOR_INV,
-		// <Black Dragon:NiranV> SSAO
-		//DEFERRED_SSAO_EFFECT_MAT,
-		DEFERRED_SSAO_EFFECT,
-		// </Black Dragon:NiranV>
+		DEFERRED_SSAO_EFFECT, // <Black Dragon:NiranV> SSAO
 		DEFERRED_SCREEN_RES,
 		DEFERRED_NEAR_CLIP,
 		DEFERRED_SHADOW_OFFSET,
@@ -192,20 +196,25 @@ public:
 		
 		AVATAR_MATRIX,
 		AVATAR_TRANSLATION,
+//		//BD - Motion Blur
+		AVATAR_LAST_MATRIX,
 
-		// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-		GODRAY_RES,
-		GODRAY_MULTIPLIER,
-		FALLOFF_MULTIPLIER,
-		// </Black Dragon:NiranV> God Rays/Volumetric Lighting
-		// <Black Dragon:NiranV> Tofu's SSR
-		SSR_RES,
-		// <Black Dragon:NiranV> Post-Process Effects
+//		//BD - Post Effects
 		DEFERRED_NUM_COLORS,
 		DEFERRED_GREYSCALE_STRENGTH,
 		DEFERRED_SEPIA_STRENGTH,
 		DEFERRED_CHROMA_STRENGTH,
-		// </Black Dragon:NiranV>
+
+//		//BD - Special Options
+		DEFERRED_SSAO_SAMPLES,
+		TIME_STEP,
+		MBLUR_STRENGTH,
+		SSR_RES,
+		SSR_BRIGHTNESS,
+		GODRAY_RES,
+		GODRAY_MULTIPLIER,
+		FALLOFF_MULTIPLIER,
+		SECONDS60,
 
 		WATER_SCREENTEX,
 		WATER_SCREENDEPTH,
@@ -244,10 +253,6 @@ public:
 		TERRAIN_ALPHARAMP,
 		
 		SHINY_ORIGIN,
-		// <Black Dragon:NiranV>
-		SECONDS60,
-		// </Black Dragon:NiranV>
-		
 		// <polarity> Gaussian blur shader
 		PLVR_BLUR_DIRECTION,
 		// </polarity>

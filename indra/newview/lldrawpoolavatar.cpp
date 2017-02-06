@@ -400,6 +400,122 @@ void LLDrawPoolAvatar::renderPostDeferred(S32 pass)
 	is_post_deferred_render = false;
 }
 
+//BD - Motion Blur
+void LLDrawPoolAvatar::beginMotionBlurPass(S32 pass)
+{
+	glh::matrix4f last(gGLLastModelView);
+
+	if (pass == 0)
+	{
+		gAvatarVelocityProgram.bind();
+		sVertexProgram = &gAvatarVelocityProgram;
+
+		glh::matrix4f last_inv = last.inverse();
+		sVertexProgram->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX_INVERSE, 1, GL_FALSE, last_inv.m);
+
+	}
+	else if (pass == 1)
+	{
+		gSkinnedVelocityProgram.bind();
+		sVertexProgram = &gSkinnedVelocityProgram;
+	}
+	else if (pass == 2)
+	{
+		gSkinnedVelocityAlphaProgram.bind();
+		sVertexProgram = &gSkinnedVelocityAlphaProgram;
+	}
+
+	sVertexProgram->uniform4f(LLShaderMgr::VIEWPORT, (F32) gGLViewport[0],
+										(F32) gGLViewport[1],
+										(F32) gGLViewport[2],
+										(F32) gGLViewport[3]);
+		
+
+	sVertexProgram->uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
+	sVertexProgram->uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
+
+}
+
+void LLDrawPoolAvatar::endMotionBlurPass(S32 pass)
+{
+	sVertexProgram->unbind();
+	sVertexProgram = NULL;
+}
+
+S32 LLDrawPoolAvatar::getNumMotionBlurPasses()
+{
+	return 3;
+}
+
+void LLDrawPoolAvatar::renderMotionBlur(S32 pass)
+{
+	S32 motion_blur_quality = gSavedSettings.getS32("RenderRiggedMotionBlurQuality");
+	//BD - Don't render any avatars or rigged meshes if we don't want to.
+	if (motion_blur_quality < 1)
+	{
+		return;
+	}
+
+	if (pass == 0)
+	{
+		render(2);
+	}
+	else if (!mDrawFace.empty())
+	{
+		const LLFace *facep = mDrawFace[0];
+		if (!facep->getDrawable())
+		{
+			return;
+		}
+
+		LLVOAvatar* avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
+
+		//BD - Don't render other avatars or rigged meshes if we don't want to.
+		if ((!avatarp->isSelf() && motion_blur_quality < 2))
+		{
+			return;
+		}
+
+		//BD - Don't include impostored or visually muted avatars in Motion Blur.
+		//     This alone massively increases the performance with many avatars
+		//     in the scene.
+		if (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings()
+			|| avatarp->isVisuallyMuted()
+			|| avatarp->isImpostor())
+		{
+			return;
+		}
+
+		//BD - Motion Blur quality options to set what we want to be included in Motion Blur.
+		S32 motion_blur_quality = gSavedSettings.getS32("RenderRiggedMotionBlurQuality");
+		if ((!avatarp->isSelf() && motion_blur_quality < 2)
+			|| motion_blur_quality < 1)
+		{
+			return;
+		}
+
+		if (pass == 1)
+		{
+			renderDeferredRiggedSimple(avatarp);
+			renderDeferredRiggedBump(avatarp);
+			//BD - We really need some sort of avatar flag system to do a quick check which
+			//     rigged render types the avatar and all its attachments have, it would save
+			//     a lot of unnecessary renders.
+			for (S32 CurCount = 0; CurCount < 16; CurCount++)
+			{
+				renderDeferredRiggedMaterial(avatarp, CurCount);
+			}
+			renderRiggedFullbright(avatarp);
+			renderRiggedFullbrightShiny(avatarp);
+			renderRiggedShinySimple(avatarp);
+		}
+		else
+		{
+			renderRiggedAlpha(avatarp);
+			renderRiggedFullbrightAlpha(avatarp);
+		}
+	}
+}
 
 S32 LLDrawPoolAvatar::getNumShadowPasses()
 {
@@ -1767,6 +1883,22 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 					FALSE,
 					(GLfloat*) mp);
 
+//				//BD - Motion Blur
+				if (LLDrawPoolAvatar::sVertexProgram == &gSkinnedVelocityProgram ||
+					LLDrawPoolAvatar::sVertexProgram == &gSkinnedVelocityAlphaProgram)
+				{
+					if (face->mLastMatrixPalette)
+					{
+						LLDrawPoolAvatar::sVertexProgram->uniformMatrix4fv(LLShaderMgr::AVATAR_LAST_MATRIX, skin->mJointNames.size(),
+							FALSE, (GLfloat*)face->mLastMatrixPalette[0].mMatrix);
+					}
+					else
+					{
+						face->mLastMatrixPalette = new LLMatrix4[LL_MAX_JOINTS_PER_MESH_OBJECT];
+					}
+
+					memcpy(face->mLastMatrixPalette->mMatrix, mat[0].mMatrix, sizeof(LLMatrix4)*skin->mJointNames.size());
+				}
 				stop_glerror();
 			}
 			else

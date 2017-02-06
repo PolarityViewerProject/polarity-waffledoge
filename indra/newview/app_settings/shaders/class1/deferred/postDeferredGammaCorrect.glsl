@@ -37,6 +37,7 @@ uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
 
 uniform float display_gamma;
+
 vec3 linear_to_srgb(vec3 cl)
 {
 	cl = clamp(cl, vec3(0), vec3(1));

@@ -226,6 +226,7 @@ void LLViewerCamera::updateFrustumPlanes(LLCamera& camera, BOOL ortho, BOOL zfli
 	F64 model[16];
 	F64 proj[16];
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		model[i] = (F64) gGLModelView[i];
@@ -403,6 +404,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 
 	gGL.loadMatrix(proj_mat.m);
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		gGLProjection[i] = proj_mat.m[i];
@@ -436,6 +438,7 @@ void LLViewerCamera::setPerspective(BOOL for_selection,
 	if (!for_selection && mZoomFactor == 1.f)
 	{
 		// Save GL matrices for access elsewhere in code, especially project_world_to_screen
+		//@todo PLVR: use memcpy
 		for (U32 i = 0; i < 16; i++)
 		{
 			gGLModelView[i] = modelview.m[i];
@@ -455,6 +458,7 @@ void LLViewerCamera::projectScreenToPosAgent(const S32 screen_x, const S32 scree
 	F64 mdlv[16];
 	F64 proj[16];
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		mdlv[i] = (F64) gGLModelView[i];
@@ -503,6 +507,7 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 	F64 mdlv[16];
 	F64 proj[16];
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		mdlv[i] = (F64) gGLModelView[i];
@@ -616,6 +621,7 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 	F64 mdlv[16];
 	F64 proj[16];
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		mdlv[i] = (F64) gGLModelView[i];

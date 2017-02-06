@@ -162,6 +162,8 @@ void LLFace::init(LLDrawable* drawablep, LLViewerObject* objp)
 
 	mTextureMatrix = NULL;
 	mDrawInfo = NULL;
+//	//BD - Motion Blur
+	mLastMatrixPalette = NULL;
 
 	mFaceColor = LLColor4(1,0,0,1);
 
@@ -224,6 +226,13 @@ void LLFace::destroy()
 				gPipeline.markRebuild(group, TRUE);
 			}
 		}
+	}
+
+//	//BD - Motion Blur
+	if (mLastMatrixPalette)
+	{
+		delete [] mLastMatrixPalette;
+		mLastMatrixPalette = NULL;
 	}
 	
 	setDrawInfo(NULL);
@@ -2035,12 +2044,8 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			LL_RECORD_BLOCK_TIME(FTM_FACE_GEOM_WEIGHTS);
 			mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
-
-			for (S32 i = 0; i < num_vertices; ++i)
-			{
-				*(wght++) = vf.mWeights[i];
-			}
-
+			F32* weights = (F32*) wght.get();
+			LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
 			if (map_range)
 			{
 				mVertexBuffer->flush();

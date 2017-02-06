@@ -626,22 +626,6 @@ void LLFloaterPreference::applyGraphicsOptions()
 // <Black Dragon:NiranV> Refresh all controls
 void LLFloaterPreference::refreshGraphicControls()
 {
-	// getChild<LLUICtrl>("RenderGlowLumWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VX]);
-	// getChild<LLUICtrl>("RenderGlowLumWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VY]);
-	// getChild<LLUICtrl>("RenderGlowLumWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowLumWeights").mV[VZ]);
-	// getChild<LLUICtrl>("RenderGlowWarmthWeights_X")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VX]);
-	// getChild<LLUICtrl>("RenderGlowWarmthWeights_Y")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VY]);
-	// getChild<LLUICtrl>("RenderGlowWarmthWeights_Z")->setValue(gSavedSettings.getVector3("RenderGlowWarmthWeights").mV[VZ]);
-	// getChild<LLUICtrl>("RenderShadowResolution_X")->setValue(gSavedSettings.getControl("RenderShadowResolutionClosest").get());
-	// getChild<LLUICtrl>("RenderShadowResolution_Y")->setValue(gSavedSettings.getControl("RenderShadowResolutionMid").get());
-	// getChild<LLUICtrl>("RenderShadowResolution_Z")->setValue(gSavedSettings.getControl("RenderShadowResolutionFar").get());
-	// getChild<LLUICtrl>("RenderShadowResolution_W")->setValue(gSavedSettings.getControl("RenderShadowResolutionFurthest").get());
-
-	// getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_X")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VX]);
-	// getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Y")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VY]);
-	// getChild<LLUICtrl>("PVRender_ProjectorShadowResolution_Z")->setValue(gSavedSettings.getVector3("PVRender_ProjectorShadowResolution").mV[VZ]);	
-
-	// getChild<LLUICtrl>("RenderShadowGaussian_Y")->setValue(gSavedSettings.getVector3("RenderShadowGaussian").mV[VY]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
 	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);

@@ -102,7 +102,7 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 
 	vec2 pos_screen = vary_fragcoord.xy;
 	vec3 pos_world = pos.xyz;
-	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
+	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/64.0).xy;
 		
 	float angle_hidden = 0.0;
 	float points = 0;
@@ -149,7 +149,11 @@ void main()
 	norm = decode_normal(norm.xy); // unpack norm
 		
 	frag_color[0] = 1.0;
+#if USE_SSAO
 	frag_color[1] = calcAmbientOcclusion(pos, norm);
+#else
+	frag_color[1] = 1.0;
+#endif
 	frag_color[2] = 1.0; 
 	frag_color[3] = 1.0;
 }

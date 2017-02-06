@@ -62,7 +62,7 @@ public:
 	void ExodusRenderColorGrade(LLRenderTarget* src, LLRenderTarget* dst, S32 type);
 	void ExodusRenderVignette(LLRenderTarget* src, LLRenderTarget* dst);
 	void ExodusRenderSpecial(LLRenderTarget* src, LLRenderTarget* dst);
-	void ExodusRenderLensFlare(LLRenderTarget* src, LLRenderTarget* dst);
+	void ExodusRenderLens(LLRenderTarget* src, LLRenderTarget* dst);
 	void ExodusRenderPostUpdate();
 	void ExodusRenderPostSettingsUpdate();
 	void ExodusGenerateLUT();

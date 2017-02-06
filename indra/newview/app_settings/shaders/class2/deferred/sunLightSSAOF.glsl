@@ -58,7 +58,7 @@ uniform vec2 screen_res;
 uniform vec2 proj_shadow_res;
 uniform vec3 sun_dir;
 
-uniform vec2 shadow_res;
+uniform vec4 shadow_res;
 
 uniform float shadow_bias;
 uniform float shadow_offset;
@@ -116,37 +116,37 @@ vec2 getKern(int i)
 float calcAmbientOcclusion(vec4 pos, vec3 norm)
 {
 	float ret = 1.0;
+
 	vec2 pos_screen = vary_fragcoord.xy;
 	vec3 pos_world = pos.xyz;
-	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/128.0).xy;
-
+	vec2 noise_reflect = texture2D(noiseMap, vary_fragcoord.xy/64.0).xy;
+		
 	float angle_hidden = 0.0;
 	float points = 0;
 		
 	float scale = min(ssao_radius / -pos_world.z, ssao_max_radius);
-
+	
 	// it was found that keeping # of samples a constant was the fastest, probably due to compiler optimizations (unrolling?)
 	for (int i = 0; i < 8; i++)
 	{
 		vec2 samppos_screen = pos_screen + scale * reflect(getKern(i), noise_reflect);
-
-
 		vec3 samppos_world = getPosition(samppos_screen).xyz; 
 		
 		vec3 diff = pos_world - samppos_world;
 		float dist2 = dot(diff, diff);
+			
 		// assume each sample corresponds to an occluding sphere with constant radius, constant x-sectional area
 		// --> solid angle shrinking by the square of distance
 		//radius is somewhat arbitrary, can approx with just some constant k * 1 / dist^2
 		//(k should vary inversely with # of samples, but this is taken care of later)
-
+		
 		float funky_val = (dot((samppos_world - 0.05*norm - pos_world), norm) > 0.0) ? 1.0 : 0.0;
 		angle_hidden = angle_hidden + funky_val * min(1.0/dist2, ssao_factor_inv);
-
+			
 		// 'blocked' samples (significantly closer to camera relative to pos_world) are "no data", not "no occlusion" 
 		float diffz_val = (diff.z > -1.0) ? 1.0 : 0.0;
 		points = points + diffz_val;
-      }
+	}
 		
 	angle_hidden = min(ssao_factor*angle_hidden/points, 1.0);
 	
@@ -157,23 +157,23 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 	return min(ret, 1.0);
 }
 
-float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
+float pcfShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen, float shad_res)
 {
-        vec2 recip_shadow_res = 1.0 / shadow_res.xy;
+	float recip_shadow_res = 1.0 / shad_res;
 	stc.xyz /= stc.w;
 	stc.z += shadow_bias;
-
-	stc.x = floor(stc.x*shadow_res.x + fract(pos_screen.y*0.5)) * recip_shadow_res.x;
+	
+	stc.x = floor(stc.x*shad_res + fract(pos_screen.y*0.5)) * recip_shadow_res;
 	float cs = shadow2D(shadowMap, stc.xyz).x;
 	
 	float shadow = cs;
 	
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.60*recip_shadow_res.x, 0.55*recip_shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.72*recip_shadow_res.x, -0.65*recip_shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.60*recip_shadow_res.x, 0.55*recip_shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.72*recip_shadow_res.x, -0.65*recip_shadow_res.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.60*recip_shadow_res, 0.55*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.72*recip_shadow_res, -0.65*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.60*recip_shadow_res, 0.55*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.72*recip_shadow_res, -0.65*recip_shadow_res, 0.0)).x;
 	         
-        return shadow*0.2;
+    return shadow*0.2;
 }
 
 float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_screen)
@@ -184,32 +184,22 @@ float pcfSpotShadow(sampler2DShadow shadowMap, vec4 stc, float scl, vec2 pos_scr
 		
 	float cs = shadow2D(shadowMap, stc.xyz).x;
 	float shadow = cs;
-
 	
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.45/proj_shadow_res.x, 0.45/shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.65/proj_shadow_res.x, -0.65/shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.45/proj_shadow_res.x, 0.45/shadow_res.y, 0.0)).x;
-	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.65/proj_shadow_res.x, -0.65/shadow_res.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.45/proj_shadow_res.x, 0.45/proj_shadow_res.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.65/proj_shadow_res.x, -0.65/proj_shadow_res.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.45/proj_shadow_res.x, 0.45/proj_shadow_res.y, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.65/proj_shadow_res.x, -0.65/proj_shadow_res.y, 0.0)).x;
 
-        return shadow*0.2;
+	return shadow*0.2;
 }
 
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	
-	//try doing an unproject here
-	
 	vec4 pos = getPosition(pos_screen);
-	
 	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
+	
 	norm = decode_normal(norm.xy); // unpack norm
-		
-	/*if (pos.z == 0.0) // do nothing for sky *FIX: REMOVE THIS IF/WHEN THE POSITION MAP IS BEING USED AS A STENCIL
-	{
-		frag_color = vec4(0.0); // doesn't matter
-		return;
-	}*/
 	
 	float shadow = 0.0;
 	float dp_directional_light = max(0.0, dot(norm, sun_dir.xyz));
@@ -241,7 +231,7 @@ void main()
 				
 				float w = 1.0;
 				w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-				shadow += pcfShadow(shadowMap3, lpos, 0.25, pos_screen)*w;
+				shadow += pcfShadow(shadowMap3, lpos, 0.25, pos_screen, shadow_res.w)*w;
 				weight += w;
 				shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
 			}
@@ -253,7 +243,7 @@ void main()
 				float w = 1.0;
 				w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
 				w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-				shadow += pcfShadow(shadowMap2, lpos, 0.5, pos_screen)*w;
+				shadow += pcfShadow(shadowMap2, lpos, 0.5, pos_screen, shadow_res.z)*w;
 				weight += w;
 			}
 
@@ -264,7 +254,7 @@ void main()
 				float w = 1.0;
 				w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
 				w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
-				shadow += pcfShadow(shadowMap1, lpos, 0.75, pos_screen)*w;
+				shadow += pcfShadow(shadowMap1, lpos, 0.75, pos_screen, shadow_res.y)*w;
 				weight += w;
 			}
 
@@ -275,7 +265,7 @@ void main()
 				float w = 1.0;
 				w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
 				
-				shadow += pcfShadow(shadowMap0, lpos, 1.0, pos_screen)*w;
+				shadow += pcfShadow(shadowMap0, lpos, 1.0, pos_screen, shadow_res.x)*w;
 				weight += w;
 			}
 		
@@ -303,7 +293,11 @@ void main()
 	}
 	
 	frag_color[0] = shadow;
+#if USE_SSAO
 	frag_color[1] = calcAmbientOcclusion(pos, norm);
+#else
+	frag_color[1] = 1.0;
+#endif
 	
 	spos = vec4(shadow_pos+norm*spot_shadow_offset, 1.0);
 	

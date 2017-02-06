@@ -232,6 +232,7 @@ void LLWaterParamManager::update(LLViewerCamera * cam)
 		glh::vec3f p(0.f, 0.f, gAgent.getRegion()->getWaterHeight()+0.1f);
 		
 		F32 modelView[16];
+		//@todo PLVR: use memcpy
 		for (U32 i = 0; i < 16; i++)
 		{
 			modelView[i] = (F32) gGLModelView[i];

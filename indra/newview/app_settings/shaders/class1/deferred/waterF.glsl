@@ -184,7 +184,11 @@ void main()
 	
 	//mix with reflection
 	// Note we actually want to use just df1, but multiplying by 0.999999 gets around an nvidia compiler bug
+#ifdef MATERIALS_IN_WATER
+	color.rgb = mix(linear_to_srgb(fb.rgb), refcol.rgb, df1 * 0.99999);
+#else
 	color.rgb = mix(fb.rgb, refcol.rgb, df1 * 0.99999);
+#endif
 	
 	vec4 pos = vary_position;
 	
@@ -197,6 +201,6 @@ void main()
 	vec3 screenspacewavef = normalize((norm_mat*vec4(wavef, 1.0)).xyz);
 	
 	frag_data[0] = vec4(color.rgb, color); // diffuse
-	frag_data[1] = vec4(0.5, 0.5, 0.5, 0.75);		// speccolor, spec
+	frag_data[1] = vec4(0.5,0.5,0.5,0.95);		// speccolor, spec
 	frag_data[2] = vec4(encode_normal(screenspacewavef.xyz), 0.05, 0);// normalxy, 0, 0
 }

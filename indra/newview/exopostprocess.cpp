@@ -1,18 +1,19 @@
-/**
- * @file exopostprocess.h
- * @brief exoPostProcess class definition
+/** 
+ * @file exopostprocess.cpp
+ *
+ * @brief This implements the Exodus post processing chain.
  *
  * $LicenseInfo:firstyear=2011&license=viewerlgpl$
  * Copyright (C) 2011 Geenz Spad
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  * $/LicenseInfo$
  */
@@ -112,7 +113,7 @@ void exoPostProcess::ExodusRenderPostStack(LLRenderTarget *src, LLRenderTarget *
 		if(gPipeline.sRenderDeferred)
 		{
 			if (sRenderLensFlare)
-				ExodusRenderLensFlare(src, dst);
+				ExodusRenderLens(src, dst);
 
 			if (sGreyscaleStrength > 0.0f || sNumColors > 2
 				|| sSepiaStrength > 0.0f)
@@ -326,7 +327,7 @@ void exoPostProcess::ExodusRenderSpecial(LLRenderTarget* src, LLRenderTarget* ds
 	dst->flush();
 }
 
-void exoPostProcess::ExodusRenderLensFlare(LLRenderTarget* src, LLRenderTarget* dst)
+void exoPostProcess::ExodusRenderLens(LLRenderTarget* src, LLRenderTarget* dst)
 {
 	dst->bindTarget();
 	LLGLSLShader *shader = &gLensFlare;

@@ -28,8 +28,93 @@
 #define DIFFUSE_ALPHA_MODE_MASK		2
 #define DIFFUSE_ALPHA_MODE_EMISSIVE 3
 
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_data[3];
+#else
+#define frag_data gl_FragData
+#endif
+
+#ifdef DEFINE_GL_FRAGCOLOR
+out vec4 frag_color;
+#else
+#define frag_color gl_FragColor
+#endif
+
+uniform samplerCube environmentMap;
+uniform sampler2D lightFunc;
+uniform sampler2D diffuseMap;
+uniform sampler2D bumpMap;
+uniform sampler2D specularMap;
+uniform sampler2DShadow shadowMap0;
+uniform sampler2DShadow shadowMap1;
+uniform sampler2DShadow shadowMap2;
+uniform sampler2DShadow shadowMap3;
+
+VARYING vec4 vertex_color;
+
+VARYING vec3 vary_mat0;
+VARYING vec3 vary_mat1;
+VARYING vec3 vary_mat2;
+VARYING vec3 vary_normal;
+VARYING vec3 vary_position;
+
+VARYING vec2 vary_texcoord0;
+VARYING vec2 vary_texcoord1;
+VARYING vec2 vary_texcoord2;
+VARYING vec2 vary_fragcoord;
+
+vec3 vary_PositionEye;
+
+vec3 vary_SunlitColor;
+vec3 vary_AmblitColor;
+vec3 vary_AdditiveColor;
+vec3 vary_AtmosAttenuation;
+
+// Inputs
+uniform vec4 morphFactor;
+uniform vec3 camPosLocal;
+uniform vec4 gamma;
+uniform vec4 lightnorm;
+uniform vec4 sunlight_color;
+uniform vec4 ambient;
+uniform vec4 blue_horizon;
+uniform vec4 blue_density;
+uniform float haze_horizon;
+uniform float haze_density;
+uniform float cloud_shadow;
+uniform float density_multiplier;
+uniform float distance_multiplier;
+uniform float max_y;
+uniform float minimum_alpha;
+uniform float env_intensity;
+uniform float shadow_bias;
+uniform float scene_light_strength;
 uniform float emissive_brightness;
 uniform float display_gamma;
+uniform float waterFogDensity;
+uniform float waterFogKS;
+
+uniform vec4 waterPlane;
+uniform vec4 waterFogColor;
+uniform vec4 specular_color;  // specular color RGB and specular exponent (glossiness) in alpha
+uniform vec4 glow;
+uniform vec4 shadow_clip;
+uniform vec4 shadow_res;
+uniform vec4 light_position[8];
+
+uniform vec3 light_direction[8];
+uniform vec3 light_attenuation[8]; 
+uniform vec3 light_diffuse[8];
+uniform vec3 sun_dir;
+
+uniform vec2 screen_res;
+
+uniform mat4 shadow_matrix[6];
+uniform mat4 inv_proj;
+
+uniform mat3 env_mat;
+uniform float ssao_effect;
+
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -46,7 +131,6 @@ vec3 srgb_to_linear(vec3 cs)
 #else
 	return mix(high_range, low_range, lte);
 #endif
-
 }
 
 vec3 linear_to_srgb(vec3 cl)
@@ -67,96 +151,6 @@ vec3 linear_to_srgb(vec3 cl)
 #endif
 
 }
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_BLEND)
-
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_color;
-#else
-#define frag_color gl_FragColor
-#endif
-
-#if HAS_SUN_SHADOW
-
-uniform sampler2DShadow shadowMap0;
-uniform sampler2DShadow shadowMap1;
-uniform sampler2DShadow shadowMap2;
-uniform sampler2DShadow shadowMap3;
-
-uniform mat4 shadow_matrix[6];
-uniform vec4 shadow_clip;
-uniform vec2 shadow_res;
-uniform float shadow_bias;
-
-float pcfShadow(sampler2DShadow shadowMap, vec4 stc)
-{
-	stc.xyz /= stc.w;
-	stc.z += shadow_bias;
-		
-	stc.x = floor(stc.x*shadow_res.x + fract(stc.y*shadow_res.y*12345))/shadow_res.x; // add some chaotic jitter to X sample pos according to Y to disguise the snapping going on here
-	
-	float cs = shadow2D(shadowMap, stc.xyz).x;
-	float shadow = cs;
-	
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(2.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(1.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-1.0/shadow_res.x, 1.5/shadow_res.y, 0.0)).x;
-    shadow += shadow2D(shadowMap, stc.xyz+vec3(-2.0/shadow_res.x, -1.5/shadow_res.y, 0.0)).x;
-                       
-    return shadow*0.2;
-}
-
-#endif
-
-uniform samplerCube environmentMap;
-uniform sampler2D	  lightFunc;
-
-// Inputs
-uniform vec4 morphFactor;
-uniform vec3 camPosLocal;
-//uniform vec4 camPosWorld;
-uniform vec4 gamma;
-uniform vec4 lightnorm;
-uniform vec4 sunlight_color;
-uniform vec4 ambient;
-uniform vec4 blue_horizon;
-uniform vec4 blue_density;
-uniform float haze_horizon;
-uniform float haze_density;
-uniform float cloud_shadow;
-uniform float density_multiplier;
-uniform float distance_multiplier;
-uniform float max_y;
-uniform vec4 glow;
-uniform float scene_light_strength;
-uniform mat3 env_mat;
-uniform mat3 ssao_effect_mat;
-
-uniform vec3 sun_dir;
-VARYING vec2 vary_fragcoord;
-
-VARYING vec3 vary_position;
-
-vec3 vary_PositionEye;
-
-vec3 vary_SunlitColor;
-vec3 vary_AmblitColor;
-vec3 vary_AdditiveColor;
-vec3 vary_AtmosAttenuation;
-
-uniform mat4 inv_proj;
-uniform vec2 screen_res;
-
-uniform vec4 light_position[8];
-uniform vec3 light_direction[8];
-uniform vec3 light_attenuation[8]; 
-uniform vec3 light_diffuse[8];
-
-#ifdef WATER_FOG
-uniform vec4 waterPlane;
-uniform vec4 waterFogColor;
-uniform float waterFogDensity;
-uniform float waterFogKS;
 
 vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 {
@@ -196,14 +190,12 @@ vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 	
 	return color;
 }
-#endif
 
 vec3 calcDirectionalLight(vec3 n, vec3 l)
 {
 	float a = max(dot(n,l),0.0);
 	return vec3(a,a,a);
 }
-
 
 vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spec, vec3 v, vec3 n, vec4 lp, vec3 ln, float la, float fa, float is_pointlight, inout float glare)
 {
@@ -268,7 +260,6 @@ vec3 calcPointLightOrSpotLight(vec3 light_col, vec3 npos, vec3 diffuse, vec4 spe
 	}
 
 	return max(col, vec3(0.0,0.0,0.0));	
-
 }
 
 vec4 getPosition_d(vec2 pos_screen, float depth)
@@ -283,25 +274,26 @@ vec4 getPosition_d(vec2 pos_screen, float depth)
 	return pos;
 }
 
-#ifndef WATER_FOG
 vec3 getPositionEye()
 {
 	return vary_PositionEye;
 }
-#endif
 
 vec3 getSunlitColor()
 {
 	return vary_SunlitColor;
 }
+
 vec3 getAmblitColor()
 {
 	return vary_AmblitColor;
 }
+
 vec3 getAdditiveColor()
 {
 	return vary_AdditiveColor;
 }
+
 vec3 getAtmosAttenuation()
 {
 	return vary_AtmosAttenuation;
@@ -393,23 +385,20 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	//increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
 	
-	/*  decrease value and saturation (that in HSV, not HSL) for occluded areas
-	 * // for HSV color/geometry used here, see http://gimp-savvy.com/BOOK/index.html?node52.html
-	 * // The following line of code performs the equivalent of:
-	 * float ambAlpha = tmpAmbient.a;
-	 * float ambValue = dot(vec3(tmpAmbient), vec3(0.577)); // projection onto <1/rt(3), 1/rt(3), 1/rt(3)>, the neutral white-black axis
-	 * vec3 ambHueSat = vec3(tmpAmbient) - vec3(ambValue);
-	 * tmpAmbient = vec4(RenderSSAOEffect.valueFactor * vec3(ambValue) + RenderSSAOEffect.saturationFactor *(1.0 - ambFactor) * ambHueSat, ambAlpha);
-	 */
-	tmpAmbient = vec4(mix(ssao_effect_mat * tmpAmbient.rgb, tmpAmbient.rgb, ambFactor), tmpAmbient.a);
-
 	//haze color
 	setAdditiveColor(
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
+		  
+	// decrease ambient value for occluded areas
+	tmpAmbient *= mix(ssao_effect, 1.0, ambFactor);
 
 	//brightness of surface both sunlight and ambient
+	/*setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
+	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
+	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);*/
+
 	setSunlitColor(vec3(sunlight * .5));
 	setAmblitColor(vec3(tmpAmbient * .25));
 	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
@@ -427,6 +416,7 @@ vec3 atmosTransport(vec3 light) {
 	light += getAdditiveColor() * 2.0;
 	return light;
 }
+
 vec3 atmosGetDiffuseSunlightColor()
 {
 	return getSunlitColor();
@@ -476,45 +466,6 @@ vec3 fullbrightScaleSoftClip(vec3 light)
 	return light;
 }
 
-#else
-#ifdef DEFINE_GL_FRAGCOLOR
-out vec4 frag_data[3];
-#else
-#define frag_data gl_FragData
-#endif
-#endif
-
-uniform sampler2D diffuseMap;
-
-#if HAS_NORMAL_MAP
-uniform sampler2D bumpMap;
-#endif
-
-#if HAS_SPECULAR_MAP
-uniform sampler2D specularMap;
-
-VARYING vec2 vary_texcoord2;
-#endif
-
-uniform float env_intensity;
-uniform vec4 specular_color;  // specular color RGB and specular exponent (glossiness) in alpha
-
-#if (DIFFUSE_ALPHA_MODE == DIFFUSE_ALPHA_MODE_MASK)
-uniform float minimum_alpha;
-#endif
-
-#if HAS_NORMAL_MAP
-VARYING vec3 vary_mat0;
-VARYING vec3 vary_mat1;
-VARYING vec3 vary_mat2;
-VARYING vec2 vary_texcoord1;
-#else
-VARYING vec3 vary_normal;
-#endif
-
-VARYING vec4 vertex_color;
-VARYING vec2 vary_texcoord0;
-
 vec2 encode_normal(vec3 n)
 {
 	float f = sqrt(8 * n.z + 8);
@@ -532,8 +483,28 @@ vec3 decode_normal (vec2 enc)
     return n;
 }
 
+float pcfShadow(sampler2DShadow shadowMap, vec4 stc, vec2 pos_screen, float shad_res)
+{
+	float recip_shadow_res = 1.0 / shad_res;
+	stc.xyz /= stc.w;
+	stc.z += shadow_bias;
+	
+	stc.x = floor(stc.x*shad_res + fract(pos_screen.y*0.5)) * recip_shadow_res;
+	float cs = shadow2D(shadowMap, stc.xyz).x;
+	
+	float shadow = cs;
+	
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.60*recip_shadow_res, 0.55*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(0.72*recip_shadow_res, -0.65*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.60*recip_shadow_res, 0.55*recip_shadow_res, 0.0)).x;
+	shadow += shadow2D(shadowMap, stc.xyz+vec3(-0.72*recip_shadow_res, -0.65*recip_shadow_res, 0.0)).x;
+	         
+    return shadow*0.2;
+}
+
 void main() 
 {
+	vec2 pos_screen = vary_fragcoord.xy;
 	vec4 diffcol = texture2D(diffuseMap, vary_texcoord0.xy);
 	diffcol.rgb *= vertex_color.rgb;
 
@@ -617,7 +588,7 @@ void main()
 			
 			float w = 1.0;
 			w -= max(spos.z-far_split.z, 0.0)/transition_domain.z;
-			shadow += pcfShadow(shadowMap3, lpos)*w;
+			shadow += pcfShadow(shadowMap3, lpos, pos_screen, shadow_res.w)*w;
 			weight += w;
 			shadow += max((pos.z+shadow_clip.z)/(shadow_clip.z-shadow_clip.w)*2.0-1.0, 0.0);
 		}
@@ -629,7 +600,7 @@ void main()
 			float w = 1.0;
 			w -= max(spos.z-far_split.y, 0.0)/transition_domain.y;
 			w -= max(near_split.z-spos.z, 0.0)/transition_domain.z;
-			shadow += pcfShadow(shadowMap2, lpos)*w;
+			shadow += pcfShadow(shadowMap2, lpos, pos_screen, shadow_res.z)*w;
 			weight += w;
 		}
 
@@ -640,7 +611,7 @@ void main()
 			float w = 1.0;
 			w -= max(spos.z-far_split.x, 0.0)/transition_domain.x;
 			w -= max(near_split.y-spos.z, 0.0)/transition_domain.y;
-			shadow += pcfShadow(shadowMap1, lpos)*w;
+			shadow += pcfShadow(shadowMap1, lpos, pos_screen, shadow_res.y)*w;
 			weight += w;
 		}
 
@@ -651,7 +622,7 @@ void main()
 			float w = 1.0;
 			w -= max(near_split.x-spos.z, 0.0)/transition_domain.x;
 				
-			shadow += pcfShadow(shadowMap0, lpos)*w;
+			shadow += pcfShadow(shadowMap0, lpos, pos_screen, shadow_res.x)*w;
 			weight += w;
 		}
 		

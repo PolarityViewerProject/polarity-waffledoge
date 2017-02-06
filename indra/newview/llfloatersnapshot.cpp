@@ -513,6 +513,20 @@ void LLFloaterSnapshotBase::ImplBase::onClickFilter(LLUICtrl *ctrl, void* data)
 	}
 }
 
+//BD
+// static
+void LLFloaterSnapshotBase::ImplBase::onClickMultiplierCheck(LLUICtrl *ctrl, void* data)
+{
+	LLCheckBoxCtrl *check = (LLCheckBoxCtrl *)ctrl;
+	gSavedSettings.setBOOL("RenderSnapshotAutoAdjustMultiplier", check->get());
+
+	LLFloaterSnapshot *view = (LLFloaterSnapshot *)data;
+	if (view)
+	{
+		view->impl->updateControls(view);
+	}
+}
+
 // static
 void LLFloaterSnapshotBase::ImplBase::onClickUICheck(LLUICtrl *ctrl, void* data)
 {
@@ -780,6 +794,13 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 
 		previewp->getSize(width, height);
 
+		//BD
+		if (gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier"))
+		{
+			F32 multiplier = (F32)height / (F32)gViewerWindow->getWindowHeightRaw();
+			gSavedSettings.setF32("RenderSnapshotMultiplier", multiplier);
+		}
+
 		// We use the height spinner here because we come here via the aspect ratio
 		// checkbox as well and we want height always changing to width by default.
 		// If we use the width spinner we would change width according to height by
@@ -802,7 +823,6 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			previewp->setSize(width, height);
 
 			// hide old preview as the aspect ratio could be wrong
-			checkAutoSnapshot(previewp, FALSE);
 			LL_DEBUGS() << "updating thumbnail" << LL_ENDL;
 			getPreviewView()->updateSnapshot(TRUE);
 			if(do_update)
@@ -828,7 +848,6 @@ void LLFloaterSnapshot::Impl::onCommitLayerTypes(LLUICtrl* ctrl, void*data)
 		{
 			previewp->setSnapshotBufferType((LLSnapshotModel::ESnapshotLayerType)combobox->getCurrentIndex());
 		}
-		view->impl->checkAutoSnapshot(previewp, TRUE);
 	}
 }
 
@@ -845,7 +864,6 @@ void LLFloaterSnapshot::Impl::onImageFormatChange(LLFloaterSnapshotBase* view)
 {
 	if (view)
 	{
-		gSavedSettings.setS32("SnapshotFormat", getImageFormat(view));
 		LL_DEBUGS() << "image format changed, updating snapshot" << LL_ENDL;
 		getPreviewView()->updateSnapshot(TRUE);
 		updateControls(view);
@@ -943,17 +961,12 @@ void LLFloaterSnapshot::Impl::applyCustomResolution(LLFloaterSnapshotBase* view,
 			previewp->setMaxImageSize((S32) getWidthSpinner(view)->getMaxValue()) ;
 
 			previewp->setSize(w,h);
-			checkAutoSnapshot(previewp, FALSE);
 			comboSetCustom(view, "profile_size_combo");
 			comboSetCustom(view, "postcard_size_combo");
 			comboSetCustom(view, "texture_size_combo");
 			comboSetCustom(view, "local_size_combo");
-			static LLCachedControl<bool> auto_update(gSavedSettings, "PVUI_SnapshotAutoRefreshOnResChange", false);
-			if(auto_update)
-			{
-				LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
-				previewp->updateSnapshot(TRUE);
-			}
+			LL_DEBUGS() << "applied custom resolution, updating thumbnail" << LL_ENDL;
+			previewp->updateSnapshot(TRUE);
 		}
 	}
 }
@@ -1037,9 +1050,8 @@ BOOL LLFloaterSnapshot::postBuild()
 
 	getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
 	childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
-
-	getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
-	childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
+	childSetCommitCallback("autoscale_check", ImplBase::onClickMultiplierCheck, this);
+	getChild<LLUICtrl>("autoscale_check")->setValue(gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier"));
 
     getChild<LLButton>("retract_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));
     getChild<LLButton>("extend_btn")->setCommitCallback(boost::bind(&LLFloaterSnapshot::onExtendFloater, this));

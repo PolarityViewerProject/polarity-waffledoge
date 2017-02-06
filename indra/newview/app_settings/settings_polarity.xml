@@ -80,6 +80,28 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>CameraFreeDoFFocus</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable using flycam mode like Depth of Field focus point selection via mouse cursor in normal camera mode.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>CameraDoFLocked</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable using flycam mode like Depth of Field focus point selection via mouse cursor in normal camera mode.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVCamera_DisableSimConstraint</key>
     <map>
       <key>Comment</key>
@@ -915,7 +937,106 @@
         <real>24.0</real>
       </array>
     </map>
-    <key>RenderShadowResolutionClosest</key>
+    <key>RenderBlurPerformanceMode</key>
+    <map>
+      <key>Comment</key>
+      <string>Use a static amount of blur passes to gain a performance boost for the cost of customizability.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>CloudNoiseImageName</key>
+    <map>
+      <key>Comment</key>
+      <string>Cloud Noise image name that should be used for windlight cloud generation</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>clouds2.tga</string>
+    </map>
+    <key>RenderDepthOfFieldHighQuality</key>
+    <map>
+      <key>Comment</key>
+      <string>Enable the old, slow, high quality Depth of Field.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderForceHighShaderLevel</key>
+    <map>
+      <key>Comment</key>
+      <string>Test</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderMotionBlur</key>
+    <map>
+      <key>Comment</key>
+      <string>Whether to use motion blur effect</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
+    <key>RenderRiggedMotionBlurQuality</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls what should be included into Motion Blur rendering. 0 = Objects only, 1 = Objects and self, 2 = Everything.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>2</integer>
+    </map>
+    <key>RenderMotionBlurStrength</key>
+    <map>
+        <key>Comment</key>
+        <string>Test</string>
+        <key>Persist</key>
+        <integer>1</integer>
+        <key>Type</key>
+        <string>U32</string>
+        <key>Value</key>
+        <integer>120</integer>
+    </map>
+    <key>RenderSnapshotAutoAdjustMultiplier</key>
+    <map>
+      <key>Comment</key>
+      <string>Test.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>RenderSnapshotMultiplier</key>
+    <map>
+      <key>Comment</key>
+      <string>Test.</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
+    <key>PVRender_ShadowResolutionClosest</key>
     <map>
       <key>Comment</key>
       <string>Raw shadow width and height of the closest shadow map.</string>
@@ -926,7 +1047,7 @@
       <key>Value</key>
       <real>2048</real>
     </map>
-    <key>RenderShadowResolutionMid</key>
+    <key>PVRender_ShadowResolutionMid</key>
     <map>
       <key>Comment</key>
       <string>Raw shadow width and height of the mid-range shadow map.</string>
@@ -937,7 +1058,7 @@
       <key>Value</key>
       <real>2048</real>
     </map>
-    <key>RenderShadowResolutionFar</key>
+    <key>PVRender_ShadowResolutionFar</key>
     <map>
       <key>Comment</key>
       <string>Raw shadow width and height of the far shadow map.</string>
@@ -948,7 +1069,7 @@
       <key>Value</key>
       <real>1024</real>
     </map>
-      <key>RenderShadowResolutionFurthest</key>
+      <key>PVRender_ShadowResolutionFurthest</key>
     <map>
       <key>Comment</key>
       <string>Raw shadow width and height of the furthest shadow map.</string>
@@ -974,6 +1095,28 @@
         <real>5.0</real>
       </array>
     </map>
+    <key>SlowMotionTimeFactor</key>
+    <map>
+      <key>Comment</key>
+      <string>Controls time factor for Slow Motion animations</string>
+      <key>Persist</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0.2</real>
+    </map>
+    <key>RenderSSAOBlurSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Scale of ssao softening kernel.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
+    </map>
     <key>RenderSSAOEffect</key>
     <map>
       <key>Comment</key>
@@ -994,7 +1137,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.3</real>
+      <real>0.075</real>
     </map>
     <key>RenderSSAOMaxScale</key>
     <map>
@@ -1005,7 +1148,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>200</integer>
+      <integer>150</integer>
     </map>
     <key>RenderSSAOScale</key>
     <map>
@@ -1016,7 +1159,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>100.0</real>
+      <real>3000.0</real>
     </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>
@@ -1108,6 +1251,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>RenderEnableAlpha</key>
+    <map>
+      <key>Comment</key>
+      <string>Test</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
+    </map>
     <key>PVRender_ChromaStrength</key>
     <map>
       <key>Comment</key>
@@ -1173,6 +1327,17 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+    </map>
+    <key>RenderEnableFullbright</key>
+    <map>
+      <key>Comment</key>
+      <string>Test</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <real>1</real>
     </map>
     <key>PVRender_FPSLimiterEnabled</key>
     <map>
@@ -1314,7 +1479,7 @@
         <real>1.00</real>
       </array>
     </map>
-    <key>PVRender_GodRaysDirectional</key>
+    <key>PVRender_GodraysDirectional</key>
     <map>
       <key>Comment</key>
       <string>Fade out volumetric lighting if we don't face the sun.</string>
@@ -1325,7 +1490,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVRender_GodRaysFalloffMultiplier</key>
+    <key>PVRender_GodraysFalloffMultiplier</key>
     <map>
       <key>Comment</key>
       <string>Bigger number causes the God Rays to start fading sooner</string>
@@ -1336,7 +1501,7 @@
       <key>Value</key>
       <real>24.0</real>
     </map>
-    <key>PVRender_GodRaysMultiplier</key>
+    <key>PVRender_GodraysMultiplier</key>
     <map>
       <key>Comment</key>
       <string>God Rays intensity multiplier</string>
@@ -1347,7 +1512,7 @@
       <key>Value</key>
       <real>2.0</real>
     </map>
-    <key>PVRender_GodRaysResolution</key>
+    <key>PVRender_GodraysResolution</key>
     <map>
       <key>Comment</key>
       <string>God Rays resolution (values above 128 are usually useless)</string>
@@ -1541,6 +1706,17 @@
       <string>U32</string>
       <key>Value</key>
       <integer>2</integer>
+    </map>
+    <key>RenderSSRBrightness</key>
+    <map>
+      <key>Comment</key>
+      <string>Test</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>1.0</real>
     </map>
     <key>PVRender_SSRResolution</key>
     <map>

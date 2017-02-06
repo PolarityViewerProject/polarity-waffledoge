@@ -836,7 +836,7 @@
 				┗
 			</text>
 			<check_box
-				control_name="PVRender_GodRaysDirectional"
+				control_name="PVRender_GodraysDirectional"
 				height="16"
 				initial_value="false"
 				label="Directional Volumetric Lighting"
@@ -1667,7 +1667,7 @@
 				God Rays:
 			</text>
 			<slider
-				control_name="PVRender_GodRaysResolution"
+				control_name="PVRender_GodraysResolution"
 				enabled_control="RenderDeferred"
 				decimal_digits="0"
 				follows="left|top"
@@ -1687,7 +1687,7 @@
 				width="310">
 			</slider>
 			<slider
-				control_name="PVRender_GodRaysMultiplier"
+				control_name="PVRender_GodraysMultiplier"
 				enabled_control="RenderDeferred"
 				decimal_digits="2"
 				follows="left|top"
@@ -1707,7 +1707,7 @@
 				width="310">
 			</slider>
 			<slider
-				control_name="PVRender_GodRaysFalloffMultiplier"
+				control_name="PVRender_GodraysFalloffMultiplier"
 				enabled_control="RenderDeferred"
 				decimal_digits="1"
 				follows="left|top"

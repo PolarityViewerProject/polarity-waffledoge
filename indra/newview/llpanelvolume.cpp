@@ -30,6 +30,7 @@
 #include "llpanelvolume.h"
 
 // linden library includes
+#include "llclickaction.h"
 #include "lleconomy.h"
 #include "llerror.h"
 #include "llmaterialtable.h"

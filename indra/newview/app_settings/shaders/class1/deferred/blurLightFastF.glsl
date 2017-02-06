@@ -23,7 +23,7 @@
  * $/LicenseInfo$
  */
 
-//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
+#extension GL_ARB_texture_rectangle : enable
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
@@ -40,7 +40,6 @@ uniform sampler2DRect lightMap;
 uniform vec2 delta;
 uniform float kern_scale;
 uniform vec2 gaussian;
-uniform int blur_passes;
 
 VARYING vec2 vary_fragcoord;
 
@@ -62,11 +61,6 @@ vec4 getPosition(vec2 pos_screen)
 	return pos;
 }
 
-vec2 encode_normal(vec3 n)
-{
-	float f = sqrt(8 * n.z + 8);
-	return n.xy / f + 0.5;
-}
 
 vec3 decode_normal (vec2 enc)
 {
@@ -88,6 +82,7 @@ vec3 xxsrgb_to_linear(vec3 cl)
   return cl;
 #endif
 }
+
 vec3 xxlinear_to_srgb(vec3 cl)
 {
 #ifdef LINEAR
@@ -97,6 +92,7 @@ vec3 xxlinear_to_srgb(vec3 cl)
   return cl;
 #endif
 }
+
 void main() 
 {
     vec2 tc = vary_fragcoord.xy;
@@ -130,7 +126,7 @@ void main()
 	  * 0.0001;
 
 	const float mindp = 0.70;
-	for (int i = blur_passes-1; i > 0; i--)
+	for (int i = 8-1; i > 0; i--)
 	{
 	  vec2 w = kern[i].xy;
 	  w.y = gaussian.y;
@@ -152,7 +148,7 @@ void main()
 	}
 	
 	
-	for (int i = blur_passes-1; i > 0; i--)
+	for (int i = 8-1; i > 0; i--)
 	{
 	  vec2 w = kern[i].xy;
 	  w.y = gaussian.y;

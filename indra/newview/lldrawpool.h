@@ -52,9 +52,9 @@ public:
 		POOL_BUMP,
 		POOL_MATERIALS,
 		POOL_TERRAIN,	
-		POOL_TREE,
 		POOL_SKY,
 		POOL_WL_SKY,
+		POOL_TREE,
 		POOL_ALPHA_MASK,
 		POOL_FULLBRIGHT_ALPHA_MASK,
 		POOL_GRASS,
@@ -91,6 +91,12 @@ public:
 	virtual void endPostDeferredPass(S32 pass);
 	virtual S32 getNumPostDeferredPasses();
 	virtual void renderPostDeferred(S32 pass = 0);
+
+//	//BD - Motion Blur
+	virtual void beginMotionBlurPass(S32 pass);
+	virtual void endMotionBlurPass(S32 pass);
+	virtual S32 getNumMotionBlurPasses();
+	virtual void renderMotionBlur(S32 pass = 0);
 
 	virtual void beginShadowPass(S32 pass);
 	virtual void endShadowPass(S32 pass);

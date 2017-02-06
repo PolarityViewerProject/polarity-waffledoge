@@ -174,6 +174,11 @@ public:
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	static void		markOccluder(LLSpatialGroup* group);
 
+	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
+	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
+	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
+
+	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, BOOL damped_motion = FALSE);
@@ -217,7 +222,7 @@ public:
 
 	U32         addObject(LLViewerObject *obj);
 
-//	void		enableShadows(const BOOL enable_shadows);
+	void		enableShadows(const BOOL enable_shadows);
 
 // 	void		setLocalLighting(const BOOL local_lighting);
 // 	BOOL		isLocalLightingEnabled() const;
@@ -266,6 +271,10 @@ public:
 	void postSort(LLCamera& camera);
 	void forAllVisibleDrawables(void (*func)(LLDrawable*));
 
+//	//BD - Motion Blur
+	void renderMotionBlur(U32 type);
+	void renderMotionBlurWithTexture(U32 type);
+
 	void renderObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
 	void renderMaskedObjects(U32 type, U32 mask, BOOL texture = TRUE, BOOL batch_texture = FALSE);
 
@@ -285,6 +294,10 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(); // <polarity/>
+
+//	//BD - Motion Blur
+	void renderGeomMotionBlur();
+
 	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
@@ -599,11 +612,9 @@ public:
 	static bool				sRenderTextures;
 // [/SL:KB]
 
-
-	// <Black Dragon:NiranV>
-	static BOOL			 sPVRender_ShaderGamma;
-	static BOOL			 sPVRender_ToneMapping;
-	// </Black Dragon:NiranV>
+//	//BD - Exodus Post Process
+	static BOOL             sExodusRenderShaderGamma;
+	static BOOL             sExodusRenderToneMapping;
 
 	static bool			sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
 
@@ -617,10 +628,15 @@ public:
 	LLRenderTarget			mUIScreen;
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
+	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
+	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
+
+//	//BD - Motion Blur
+	LLRenderTarget			mVelocityMap;
 
 	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
 	LLPointer<LLVertexBuffer> mDeferredVB;
@@ -630,6 +646,7 @@ public:
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
+	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 	LLVector4				mShadowError;
 	LLVector4				mShadowFOV;
@@ -830,6 +847,7 @@ protected:
 	LLRenderPass*				mAlphaMaskPool;
 	LLRenderPass*				mFullbrightAlphaMaskPool;
 	LLRenderPass*				mFullbrightPool;
+	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;
 	LLDrawPool*					mMaterialsPool;
@@ -880,6 +898,9 @@ public:
 	//debug use
 	static U32              sCurRenderPoolType ;
 
+	//BD
+	LLVector3 PrevDoFFocusPoint;
+
 	//cached settings
 	static BOOL WindLightUseAtmosShaders;
 	static BOOL VertexShaderEnable;
@@ -920,7 +941,6 @@ public:
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
 	static BOOL RenderDepthOfField;
-	static BOOL RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
@@ -930,10 +950,6 @@ public:
 	static F32 RenderSSAOScale;
 	static U32 RenderSSAOMaxScale;
 	static F32 RenderSSAOFactor;
-	// <Black Dragon:NiranV> SSAO
-	//static LLVector3 RenderSSAOEffect;
-	static F32 RenderSSAOEffect;
-	// </Black Dragon:NiranV>
 	static F32 RenderShadowOffsetError;
 	static F32 RenderShadowBiasError;
 	static F32 RenderShadowOffset;
@@ -942,14 +958,12 @@ public:
 	static F32 RenderSpotShadowBias;
 	static F32 RenderEdgeDepthCutoff;
 	static F32 RenderEdgeNormCutoff;
-	static LLVector3 RenderShadowGaussian;
 	static F32 RenderShadowBlurDistFactor;
 	static BOOL RenderDeferredAtmospheric;
 	static S32 RenderReflectionDetail;
 	static F32 RenderHighlightFadeTime;
 	static LLVector3 RenderShadowClipPlanes;
 	static LLVector3 RenderShadowOrthoClipPlanes;
-	static LLVector3 RenderShadowNearDist;
 	static F32 RenderFarClip;
 	static LLVector3 RenderShadowSplitExponent;
 	static F32 RenderShadowErrorCutoff;
@@ -959,26 +973,33 @@ public:
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
 
-	// <Black Dragon:NiranV> Shadow Map Allocation
-	static U32 RenderShadowResolutionClosest;
-	static U32 RenderShadowResolutionMid;
-	static U32 RenderShadowResolutionFar;
-	static U32 RenderShadowResolutionFurthest;
-	static LLVector3 PVRender_ProjectorShadowResolution;
-	// </Black Dragon:NiranV>
+//	//BD - Special Options
+	static BOOL CameraFreeDoFFocus;
+	static BOOL RenderDepthOfFieldInEditMode;
+	static BOOL RenderDeferredBlurLight;
+	static BOOL RenderSnapshotAutoAdjustMultiplier;
+	static U32 RenderShadowBlurSamples;
+	static U32 RenderSSRResolution;
+	static F32 RenderSSRBrightness;
+	static F32 RenderSSAOEffect;
+	static F32 RenderSSAOBlurSize;
+	static F32 RenderChromaStrength;
+	static F32 RenderSnapshotMultiplier;
 
-	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-	static BOOL PVRender_EnableGodRays;
-	static U32 PVRender_GodRaysResolution;
-	static F32 PVRender_GodRaysMultiplier;
-	static F32 PVRender_GodRaysFalloffMultiplier;
-	// </Black Dragon:NiranV>
+//	//BD - Shadow Map Allocation
+	static LLVector4 RenderShadowResolution;
+	static LLVector3 RenderProjectorShadowResolution;
 
-	// <Black Dragon:NiranV> Tofu's SSR
-	static U32 PVRender_SSRResolution;
-	static F32 PVRender_ChromaStrength;
-	// </Black Dragon:NiranV>
-	
+//	//BD - Volumetric Lighting
+	static BOOL RenderGodrays;
+	static U32 RenderGodraysResolution;
+	static F32 RenderGodraysMultiplier;
+	static F32 RenderGodraysFalloffMultiplier;
+
+//	//BD - Motion Blur
+	static BOOL RenderMotionBlur;
+	static U32 RenderMotionBlurStrength;
+
 	static F32 RenderShadowFarClip; // </polarity>
 };
 

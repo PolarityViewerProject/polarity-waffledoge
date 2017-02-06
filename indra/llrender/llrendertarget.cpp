@@ -135,8 +135,6 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 
 	if ((sUseFBO || use_fbo) && gGLManager.mHasFramebufferObject)
 	{
-		glGenFramebuffers(1, (GLuint *) &mFBO);
-
 		if (depth)
 		{
 			if (!allocateDepth())
@@ -145,6 +143,8 @@ bool LLRenderTarget::allocate(U32 resx, U32 resy, U32 color_fmt, bool depth, boo
 				return false;
 			}
 		}
+
+		glGenFramebuffers(1, (GLuint *) &mFBO);
 
 		if (mDepth)
 		{
@@ -491,7 +491,9 @@ U32 LLRenderTarget::getTexture(U32 attachment) const
 {
 	if (attachment > mTex.size()-1)
 	{
-		LL_ERRS() << "Invalid attachment index." << LL_ENDL;
+		//BD
+		LL_WARNS() << "Invalid attachment index." << LL_ENDL;
+		return 0;
 	}
 	if (mTex.empty())
 	{

@@ -4016,7 +4016,8 @@ public:
 				if (vobj->isAvatar())
 				{
 					LLVOAvatar* avatar = (LLVOAvatar*) vobj;
-					if ((mPickRigged) || ((avatar->isSelf()) && (LLFloater::isVisible(gFloaterTools))))
+					//BD - Allow selecting other rigged mesh on other avatars.
+					if ((mPickRigged) || (LLFloater::isVisible(gFloaterTools)))
 					{
 						LLViewerObject* hit = avatar->lineSegmentIntersectRiggedAttachments(mStart, mEnd, -1, mPickTransparent, mPickRigged, mFaceHit, &intersection, mTexCoord, mNormal, mTangent);
 						if (hit)
@@ -4097,7 +4098,9 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mHasGlow(FALSE),
 	mEnvIntensity(0.0f),
 	mAlphaMaskCutoff(0.5f),
-	mDiffuseAlphaMode(0)
+	mDiffuseAlphaMode(0),
+//	//BD - Motion Blur
+	mLastModelMatrix(NULL)
 {
 	mVertexBuffer->validateRange(mStart, mEnd, mCount, mOffset);
 	

@@ -35,14 +35,14 @@ uniform sampler2DRect diffuseRect;
 uniform sampler2DRect normalMap;
 
 uniform float time_step;
-uniform float mblur_strength;
+uniform int mblur_strength;
 
 VARYING vec4 vary_fragcoord;
 uniform vec2 screen_res;
 
 void main() 
 {
-	vec2 frag = (vary_fragcoord.xy*0.5+0.5)*screen_res; // This is the offset value for the motion blur frames
+	vec2 frag = (vary_fragcoord.xy*0.5+0.5)*screen_res;
 	
 	vec3 v = texture2DRect(normalMap, frag.xy).rgb;
 	
@@ -54,11 +54,7 @@ void main()
 	//unpack to [-1, 1]
 	vec3 velocity = v*2.0-1.0;
 	
-        //float target_step = 1.0/mblur_strength; //180 degree shutter at 24fps (film)
-        // <polarity> Fix slider logic and make sure the maximum exposed value doesn't exceed what qualifies as "blur"
-        float target_step = 0.001 * mblur_strength;
-        // <polarity>
-
+	float target_step = 1.0/mblur_strength; //180 degree shutter at 24fps (film)
 	float ratio = target_step/time_step;
 
 	velocity *= ratio;

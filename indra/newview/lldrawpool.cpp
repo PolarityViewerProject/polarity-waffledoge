@@ -196,6 +196,31 @@ void LLDrawPool::renderPostDeferred(S32 pass)
 
 }
 
+//BD - Motion Blur
+//virtual 
+void LLDrawPool::beginMotionBlurPass(S32 pass)
+{
+
+}
+
+//virtual 
+void LLDrawPool::endMotionBlurPass(S32 pass)
+{
+
+}
+
+//virtual 
+S32 LLDrawPool::getNumMotionBlurPasses()
+{
+	return 0;
+}
+
+//virtual 
+void LLDrawPool::renderMotionBlur(S32 pass)
+{
+
+}
+
 //virtual
 void LLDrawPool::endRenderPass( S32 pass )
 {
@@ -324,7 +349,7 @@ BOOL LLFacePool::verify() const
 	BOOL ok = TRUE;
 	
 	for (std::vector<LLFace*>::const_iterator iter = mDrawFace.begin();
-		 iter != mDrawFace.end(); ++iter)
+		 iter != mDrawFace.end(); iter++)
 	{
 		const LLFace* facep = *iter;
 		if (facep->getPool() != this)

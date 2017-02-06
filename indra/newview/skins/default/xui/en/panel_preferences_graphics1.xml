@@ -1255,7 +1255,7 @@
             Objects &amp; Avatars Shadows
           </text>
           <slider
-            control_name="RenderShadowResolutionClosest"
+            control_name="PVRender_ShadowResolutionClosest"
             decimal_digits="0"
             enabled_control="RenderShadowDetail"
             follows="left|top"
@@ -1270,13 +1270,13 @@
             left="10"
             max_val="8192"
             min_val="256"
-            name="RenderShadowResolution_X"
+            name="PVRender_ShadowResolution_X"
             top_pad="5"
             text_width="40"
             width="385">
             </slider>
             <slider
-              control_name="RenderShadowResolutionMid"
+              control_name="PVRender_ShadowResolutionMid"
               decimal_digits="0"
               enabled_control="RenderShadowDetail"
               follows="left|top"
@@ -1296,7 +1296,7 @@
               width="385">
             </slider>
             <slider
-              control_name="RenderShadowResolutionFar"
+              control_name="PVRender_ShadowResolutionFar"
               decimal_digits="0"
               enabled_control="RenderShadowDetail"
               follows="left|top"
@@ -1316,7 +1316,7 @@
               width="385">
             </slider>
             <slider
-              control_name="RenderShadowResolutionFurthest"
+              control_name="PVRender_ShadowResolutionFurthest"
               decimal_digits="0"
               enabled_control="RenderShadowDetail"
               follows="left|top"
@@ -1357,7 +1357,7 @@
             </slider>
             <button
               follows="left|top"
-              control_name="RenderShadowResolutionClosest"
+              control_name="PVRender_ShadowResolutionClosest"
               height="15"
               is_toggle="false"
               label="⌊Reset⌉"
@@ -1369,12 +1369,12 @@
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="RenderShadowResolutionClosest">
+                parameter="PVRender_ShadowResolutionClosest">
               </button.commit_callback>
             </button>
             <button
               follows="left|top"
-              control_name="RenderShadowResolutionMid"
+              control_name="PVRender_ShadowResolutionMid"
               height="15"
               is_toggle="false"
               label="⌊Reset⌉"
@@ -1386,12 +1386,12 @@
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="RenderShadowResolutionMid">
+                parameter="PVRender_ShadowResolutionMid">
               </button.commit_callback>
             </button>
             <button
               follows="left|top"
-              control_name="RenderShadowResolutionFar"
+              control_name="PVRender_ShadowResolutionFar"
               height="15"
               is_toggle="false"
               label="⌊Reset⌉"
@@ -1403,12 +1403,12 @@
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="RenderShadowResolutionFar">
+                parameter="PVRender_ShadowResolutionFar">
               </button.commit_callback>
             </button>
             <button
               follows="left|top"
-              control_name="RenderShadowResolutionFurthest"
+              control_name="PVRender_ShadowResolutionFurthest"
               height="15"
               is_toggle="false"
               label="⌊Reset⌉"
@@ -1420,7 +1420,7 @@
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
-                parameter="RenderShadowResolutionFurthest">
+                parameter="PVRender_ShadowResolutionFurthest">
               </button.commit_callback>
             </button>
             <button
@@ -2088,7 +2088,7 @@
             width="120">
           </check_box>
           <check_box
-            control_name="PVRender_GodRaysDirectional"
+            control_name="PVRender_GodraysDirectional"
             height="16"
             initial_value="false"
             label="Directional God Rays"
@@ -2100,7 +2100,7 @@
             width="115">
           </check_box>
           <slider
-            control_name="PVRender_GodRaysFalloffMultiplier"
+            control_name="PVRender_GodraysFalloffMultiplier"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -2121,7 +2121,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodRaysFalloffMultiplier"
+            control_name="PVRender_GodraysFalloffMultiplier"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2134,11 +2134,11 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodRaysFalloffMultiplier">
+              parameter="PVRender_GodraysFalloffMultiplier">
             </button.commit_callback>
           </button>
           <slider
-            control_name="PVRender_GodRaysMultiplier"
+            control_name="PVRender_GodraysMultiplier"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -2159,7 +2159,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodRaysMultiplier"
+            control_name="PVRender_GodraysMultiplier"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2172,11 +2172,11 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodRaysMultiplier">
+              parameter="PVRender_GodraysMultiplier">
             </button.commit_callback>
           </button>
           <slider
-            control_name="PVRender_GodRaysResolution"
+            control_name="PVRender_GodraysResolution"
             can_edit_text="true"
             decimal_digits="2"
             follows="left|top"
@@ -2197,7 +2197,7 @@
           </slider>
           <button
             follows="left|top"
-            control_name="PVRender_GodRaysResolution"
+            control_name="PVRender_GodraysResolution"
             height="16"
             is_toggle="false"
             label="⌊Reset⌉"
@@ -2210,7 +2210,7 @@
             width="60">
             <button.commit_callback
               function="Pref.ResetToDefault"
-              parameter="PVRender_GodRaysResolution">
+              parameter="PVRender_GodraysResolution">
             </button.commit_callback>
           </button>
           <panel

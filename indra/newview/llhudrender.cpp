@@ -111,6 +111,7 @@ void hud_render_text(const LLWString &wstr, const LLVector3 &pos_agent,
 	F64 mdlv[16];
 	F64 proj[16];
 
+	//@todo PLVR: use memcpy
 	for (U32 i = 0; i < 16; i++)
 	{
 		mdlv[i] = (F64) gGLModelView[i];

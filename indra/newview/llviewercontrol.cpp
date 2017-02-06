@@ -75,9 +75,17 @@
 #include "rlvcommon.h"
 // [/RLVa:KB]
 
+
 // Third party library includes
 #include <boost/algorithm/string.hpp>
+
+//BD - Includes we need for special features
+#include "llappviewer.h"
+#include "lldrawpoolwlsky.h"
 #include "llenvmanager.h"
+#include "llfloatersnapshot.h"
+#include "lltoolfocus.h"
+#include "llviewerobjectlist.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -90,7 +98,6 @@ LLControlGroup gSavedSettings("Global");	// saved at end of session
 LLControlGroup gSavedPerAccountSettings("PerAccount"); // saved at end of session
 LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
-LLControlGroup gControlSettings("Controls"); // <Black Dragon:NiranV> Customizable Controls
 
 std::string gLastRunVersion;
 
@@ -650,6 +657,55 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 	return true;
 }
 // </Black Dragon:NiranV>
+
+static bool handleDepthOfFieldChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	return LLViewerShaderMgr::instance()->loadShadersDOF(success);
+}
+
+static bool handleSSAOChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	return LLViewerShaderMgr::instance()->loadShadersSSAO(success);
+}
+
+static bool handleBlurLightChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	success = LLViewerShaderMgr::instance()->loadShadersBlurLight(success);
+	return LLViewerShaderMgr::instance()->loadShadersSSAO(success);
+}
+
+static bool handleSSRChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	return LLViewerShaderMgr::instance()->loadShadersSSR(success);
+}
+
+static bool handleGodraysChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	return LLViewerShaderMgr::instance()->loadShadersGodrays(success);
+}
+
+static bool handleShadowsChanged(const LLSD& newvalue)
+{
+	BOOL success = gPipeline.sRenderDeferred;
+	if (success)
+	{
+		success = LLViewerShaderMgr::instance()->resetDeferredShaders();
+	}
+	success = LLViewerShaderMgr::instance()->loadShadersMaterials(success);
+	success = LLViewerShaderMgr::instance()->loadShadersSSAO(success);
+	success = LLViewerShaderMgr::instance()->loadShadersShadows(success);
+	if (success)
+	{
+		gPipeline.allocateShadowMaps(true);
+	}
+	return success;
+}
+
 static bool handleTimeFactorChanged(const LLSD& newvalue)
 {
 	if (gSavedSettings.getBOOL("SlowMotionAnimation"))
@@ -658,6 +714,32 @@ static bool handleTimeFactorChanged(const LLSD& newvalue)
 	}
 	return true;
 }
+
+static bool handleFullbrightChanged(const LLSD& newvalue)
+{
+	if (!gSavedSettings.getBOOL("RenderEnableFullbright"))
+	{
+		gObjectList.killAllFullbrights();
+	}
+	return true;
+}
+
+static bool handleAlphaChanged(const LLSD& newvalue)
+{
+	if (!gSavedSettings.getBOOL("RenderEnableAlpha"))
+	{
+		gObjectList.killAllAlphas();
+	}
+	return true;
+}
+
+static bool handleCloudNoiseChanged(const LLSD& newvalue)
+{
+	LLDrawPoolWLSky::loadCloudNoise();
+	return true;
+}
+//BD
+
 ////////////////////////////////////////////////////////////////////////////
 
 void settings_setup_listeners()
@@ -815,32 +897,50 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("SpellCheckDictionary")->getSignal()->connect(boost::bind(&handleSpellCheckChanged));
 	gSavedSettings.getControl("LoginLocation")->getSignal()->connect(boost::bind(&handleLoginLocationChanged));
 	gSavedSettings.getControl("DebugAvatarJoints")->getCommitSignal()->connect(boost::bind(&handleDebugAvatarJointsChanged, _2));
+// [RLVa:KB] - Checked: 2015-12-27 (RLVa-1.5.0)
+	gSavedSettings.getControl("RestrainedLove")->getSignal()->connect(boost::bind(&RlvSettings::onChangedSettingMain, _2));
+// [/RLVa:KB]
+
 	gSavedSettings.getControl("ObsidianNavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
 	
 
-	// </Black Dragon:NiranV> SSR
-	gSavedSettings.getControl("PVRender_EnableSSR")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	// <Black Dragon:NiranV> Expose Attached Lights and Particles
+	//BD - Special Debugs and handles
+	gSavedSettings.getControl("UseEnvironmentFromRegion")->getSignal()->connect(boost::bind(&handleUseRegioLight, _2));
+	gSavedSettings.getControl("RenderTerrainScale")->getSignal()->connect(boost::bind(&handleTerrainScaleChanged, _2));
+	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));	// <Black Dragon:NiranV> Expose Attached Lights and Particles
 	gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
 	gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
-	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-	gSavedSettings.getControl("PVRender_EnableGodRays")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
-	gSavedSettings.getControl("PVRender_GodRaysDirectional")->getSignal()->connect(boost::bind(&handleSetShaderChanged, _2));
-	// <Black Dragon:NiranV> change controls at runtime
-	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
+	gSavedSettings.getControl("PVRender_EnableSSR")->getSignal()->connect(boost::bind(&handleSSRChanged, _2));
+	gSavedSettings.getControl("PVRender_EnableGodRays")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
+	gSavedSettings.getControl("PVRender_GodraysDirectional")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
+	//gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
 	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	// <Black Dragon:NiranV> Shadow Map Allocation
 	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionClosest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionMid")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionFar")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionFurthest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// <polarity> Split controls for feature table integration
+	gSavedSettings.getControl("PVRender_ShadowResolutionClosest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	gSavedSettings.getControl("PVRender_ShadowResolutionMid")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	gSavedSettings.getControl("PVRender_ShadowResolutionFar")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	gSavedSettings.getControl("PVRender_ShadowResolutionFurthest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// <polarity>
+	gSavedSettings.getControl("RenderDeferredBlurLight")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
+	gSavedSettings.getControl("RenderBlurPerformanceMode")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
+	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
+	gSavedSettings.getControl("RenderEnableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
+	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
+	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
+	gSavedSettings.getControl("RenderDepthOfFieldHighQuality")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
+	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleShadowsChanged, _2));
+	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSSAOChanged, _2));
+	gSavedSettings.getControl("CloudNoiseImageName")->getSignal()->connect(boost::bind(&handleCloudNoiseChanged, _2));
+
+//	//BD - Motion Blur
+	gSavedSettings.getControl("RenderMotionBlur")->getSignal()->connect(boost::bind(&handleReleaseGLBufferChanged, _2));
+//	//BD
 	// </Black Dragon:NiranV>
-	
+
 	// <Alchemy:Drake> Adaptive V-Sync
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
-	gSavedSettings.getControl("RestrainedLove")->getSignal()->connect(boost::bind(&RlvSettings::onChangedSettingMain, _2));
 }
 
 #if TEST_CACHED_CONTROL

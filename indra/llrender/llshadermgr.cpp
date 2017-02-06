@@ -485,6 +485,15 @@ BOOL LLShaderMgr::attachShaderFeatures(LLGLSLShader * shader)
 		}
 	}
 
+//	//BD - Motion Blur
+	if (features->hasMotionBlur)
+	{
+		if (!shader->attachObject("deferred/velocityFuncV.glsl"))
+		{
+			return FALSE;
+		}
+	}
+
 	return TRUE;
 }
 
@@ -523,9 +532,6 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 {
 	std::string log = get_object_log(ret);
 
-
-
-
 	if (log.length() > 0 || warns)
 	{
         LL_DEBUGS("ShaderLoading") << "Shader loading ";
@@ -536,7 +542,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 		}
         LL_CONT << log << LL_ENDL;
 	}
-}
+ }
 
 GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines, S32 texture_index_channels)
 {
@@ -1027,7 +1033,13 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("texture_matrix3");
 	mReservedUniforms.push_back("object_plane_s");
 	mReservedUniforms.push_back("object_plane_t");
-	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
+//	//BD - Motion Blur
+	mReservedUniforms.push_back("current_modelview_matrix");
+	mReservedUniforms.push_back("last_modelview_matrix");
+	mReservedUniforms.push_back("last_modelview_matrix_inverse");
+	mReservedUniforms.push_back("current_object_matrix");
+	mReservedUniforms.push_back("last_object_matrix");
+	llassert(mReservedUniforms.size() == LLShaderMgr::LAST_OBJECT_MATRIX+1);
 
 	mReservedUniforms.push_back("viewport");
 
@@ -1196,18 +1208,22 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("matrixPalette");
 	mReservedUniforms.push_back("translationPalette");
 
-	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
-	mReservedUniforms.push_back("godray_res");
-	mReservedUniforms.push_back("godray_multiplier");
-	mReservedUniforms.push_back("falloff_multiplier");
-	// <Black Dragon:NiranV> Tofu's SSR
-	mReservedUniforms.push_back("ssr_res");
-	// </Black Dragon:NiranV> SSR
 	// <Black Dragon:NiranV> Post-Process Effects
+	mReservedUniforms.push_back("lastMatrixPalette");
 	mReservedUniforms.push_back("num_colors");
 	mReservedUniforms.push_back("greyscale_str");
 	mReservedUniforms.push_back("sepia_str");
 	mReservedUniforms.push_back("chroma_str");
+
+	mReservedUniforms.push_back("blur_passes");
+	mReservedUniforms.push_back("time_step");
+	mReservedUniforms.push_back("mblur_strength");
+	mReservedUniforms.push_back("ssr_res");
+	mReservedUniforms.push_back("ssr_brightness");
+	mReservedUniforms.push_back("godray_res");
+	mReservedUniforms.push_back("godray_multiplier");
+	mReservedUniforms.push_back("falloff_multiplier");
+	mReservedUniforms.push_back("seconds60");
 	// </Black Dragon:NiranV>
 	
 	mReservedUniforms.push_back("screenTex");
@@ -1247,10 +1263,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("alpha_ramp");
 
 	mReservedUniforms.push_back("origin"); 
-	// <Black Dragon:NiranV> Tofu's SSR
-	mReservedUniforms.push_back("seconds60");
-	// </Black Dragon:NiranV>
-	
+
+		// <Black Dragon:NiranV> Post-Process Effects
 	// <polarity> Gaussian blur shader
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>

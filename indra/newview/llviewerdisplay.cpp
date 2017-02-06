@@ -973,12 +973,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 			
 			gGL.setColorMask(true, true);
-
-			//store this frame's modelview matrix for use
-			//when rendering next frame's occlusion queries
-			memcpy(gGLLastModelView, gGLModelView, sizeof(F32) * 16);
-			memcpy(gGLLastProjection, gGLProjection, sizeof(F32) * 16);
-			stop_glerror();
 		}
 
 		{
@@ -1027,6 +1021,14 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			gPipeline.renderDeferredLighting();
 		}
+
+//		//BD - Motion Blur
+
+			//store this frame's modelview matrix for use
+			//when rendering next frame's occlusion queries
+			memcpy(gGLLastModelView, gGLModelView, sizeof(F32) * 16);
+			memcpy(gGLLastProjection, gGLProjection, sizeof(F32) * 16);
+			stop_glerror();
 
 		LLPipeline::sUnderWaterRender = FALSE;
 

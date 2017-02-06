@@ -39,8 +39,8 @@ VARYING vec3 vary_position;
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
-//vec3 fullbrightAtmosTransport(vec3 light);
-//vec3 fullbrightScaleSoftClip(vec3 light);
+vec3 fullbrightAtmosTransport(vec3 light);
+vec3 fullbrightScaleSoftClip(vec3 light);
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -76,8 +76,6 @@ vec3 linear_to_srgb(vec3 cl)
 #else
 	return mix(high_range, low_range, lt);
 #endif
-
-
 
 }
 
@@ -149,8 +147,8 @@ void main()
 #endif
 
 	color.rgb *= vertex_color.rgb;
-	//color.rgb = fullbrightAtmosTransport(color.rgb);
-	//color.rgb = fullbrightScaleSoftClip(color.rgb);
+	color.rgb = fullbrightAtmosTransport(color.rgb);
+	color.rgb = fullbrightScaleSoftClip(color.rgb);
 
 #ifdef WATER_FOG
 	vec3 pos = vary_position;
