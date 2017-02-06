@@ -364,8 +364,8 @@ RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
-PVRender_ShadowResolutionClosest	1	1024
-PVRender_ShadowResolutionMid	1	512
+PVRender_ShadowResolutionClosest	1	512
+PVRender_ShadowResolutionMid	1	256
 PVRender_ShadowResolutionFar	1	256
 PVRender_ShadowResolutionFurthest	1	128
 
@@ -411,9 +411,9 @@ RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
-PVRender_ShadowResolutionClosest	1	2048
-PVRender_ShadowResolutionMid	1	1024
-PVRender_ShadowResolutionFar	1	512
+PVRender_ShadowResolutionClosest	1	1024
+PVRender_ShadowResolutionMid	1	512
+PVRender_ShadowResolutionFar	1	256
 PVRender_ShadowResolutionFurthest	1	256
 
 //
