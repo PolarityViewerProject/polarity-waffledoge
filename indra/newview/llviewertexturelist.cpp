@@ -1350,8 +1350,6 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 	S64Megabytes adjusted_max_vram = Hardware_VRAM_MB;
 	LL_DEBUGS() << "MADE NEW VARIABLES" << LL_ENDL;
 
-	// We don't really need to cache this one, but it's not currently stored in the settings file so we use this call
-	// to initialize it fully
 	bool leave_vram_for_os = (bool)gSavedSettings.getBOOL("PVDebug_ReserveVRAMForSystem");
 
 	LL_DEBUGS() << "MADE CACHED CONTROL" << LL_ENDL;
@@ -1367,11 +1365,9 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		{
 			LL_DEBUGS() << "I HAVE TINY VRAM WHEW" << LL_ENDL;
 			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
-			// For this special case, limit VRAM to half the adjusted maximum to prevent brutal swapping due to fragmentation
-			// unless the user explicitely disables the nice logic (for testing or what not)
 			if (leave_vram_for_os)
 			{
-				adjusted_max_vram = Hardware_VRAM_MB / 2;
+				adjusted_max_vram = Hardware_VRAM_MB * 3 / 4;
 				// VRAM is too small for this logic to work anyway, force off after this adjustment
 				leave_vram_for_os = false;
 			}
@@ -1385,13 +1381,10 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 				adjusted_max_vram = Hardware_VRAM_MB - (VRAM_BIG_THRESHOLD * 3 / 4);
 			}
 		}
-		else
-		{
-			LL_DEBUGS() << "I SHRINK VRAM TO 75%" << LL_ENDL;
-			// Set texture memory to 75% of available VRAM
-			adjusted_max_vram = Hardware_VRAM_MB * 3 / 4;
-		}
-
+		auto previous_adjusted_max = adjusted_max_vram;
+		// Set texture memory to 75% of available VRAM
+		adjusted_max_vram = Hardware_VRAM_MB * 3 / 4 - ((int)leave_vram_for_os * (VRAM_BIG_THRESHOLD * 0.25));
+		LL_DEBUGS() << "FINAL VRAM SHRINK FROM " << previous_adjusted_max << " TO " << adjusted_max_vram << LL_ENDL;
 		LL_DEBUGS() << "EXITING ATI BLOCK" << LL_ENDL;
 	}
 
