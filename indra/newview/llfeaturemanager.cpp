@@ -577,7 +577,11 @@ void LLFeatureManager::applyRecommendedSettings()
 	loadGPUClass();
 	// apply saved settings
 	// cap the level at 2 (high)
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	// <polarity/> Bump level up by one since we added a lower setting that would
+	// equal Class-1, but this is not allowed. We therefore need to "fake" a higher
+	// GPU class to get the correct one.
+	// U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5)) + 1;
 
 	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
