@@ -726,7 +726,7 @@ void LLFeatureManager::applyBaseMasks()
 	else
 	{
 		LL_INFOS("RenderInit") << "Setting GPU Class to Unknown" << LL_ENDL;
-		maskFeatures("Potato");
+		maskFeatures("Unknown");
 	}
 
 	// now all those wacky ones
