@@ -249,8 +249,9 @@ class LLUUID;
 
 	// OLD API
 		// @todo get rid of singleton. This is bad. Very bad.
-	class PVDataOldAPI : public LLSingleton <PVDataOldAPI> // required for instance()
+	class PVDataOldAPI : public LLSingleton<PVDataOldAPI> // required for instance()
 	{
+		LLSINGLETON(PVDataOldAPI);
 		LOG_CLASS(PVDataOldAPI); // Required to enable the log messages prefix
 	public:
 

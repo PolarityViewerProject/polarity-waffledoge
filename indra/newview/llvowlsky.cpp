@@ -811,10 +811,10 @@ BOOL LLVOWLSky::updateStarGeometry(LLDrawable *drawable)
 		left *= sc;
 		up *= sc;
 
-		*(verticesp++) = mStarVertices[vtx];
+		*(verticesp++)  = mStarVertices[vtx];
 		*(verticesp++) = mStarVertices[vtx]+up;
 		*(verticesp++) = mStarVertices[vtx]+left+up;
-		*(verticesp++) = mStarVertices[vtx];
+		*(verticesp++)  = mStarVertices[vtx];
 		*(verticesp++) = mStarVertices[vtx]+left+up;
 		*(verticesp++) = mStarVertices[vtx]+left;
 

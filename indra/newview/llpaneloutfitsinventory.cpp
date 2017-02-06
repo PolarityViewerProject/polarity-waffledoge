@@ -68,6 +68,10 @@ LLPanelOutfitsInventory::LLPanelOutfitsInventory() :
 
 LLPanelOutfitsInventory::~LLPanelOutfitsInventory()
 {
+	if (mAppearanceTabs)
+	{
+		gSavedSettings.setS32("LastAppearanceTab", mAppearanceTabs->getCurrentPanelIndex());
+	}
 }
 
 // virtual

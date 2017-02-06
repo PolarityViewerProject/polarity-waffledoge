@@ -76,6 +76,7 @@ private:
 	blacklist_data_t		mBlacklistData;
 
 	blacklist_changed_callback_t mBlacklistChangedCallback;
+	LLSINGLETON(FSAssetBlacklist);
 };
 
 #endif // FS_ASSETBLACKLIST_H

@@ -141,6 +141,7 @@ extern RlvAttachmentLocks gRlvAttachmentLocks;
 class RlvAttachmentLockWatchdog : public LLSingleton<RlvAttachmentLockWatchdog>
 {
 	friend class LLSingleton<RlvAttachmentLockWatchdog>;
+	LLSINGLETON(RlvAttachmentLockWatchdog);
 protected:
 	RlvAttachmentLockWatchdog() : m_pTimer(NULL) {}
 	~RlvAttachmentLockWatchdog() { delete m_pTimer; }
@@ -383,6 +384,7 @@ protected:
 	mutable uuid_vec_t       m_LockedWearableRem;
 private:
 	friend class LLSingleton<RlvFolderLocks>;
+	LLSINGLETON(RlvFolderLocks);
 };
 
 // ============================================================================

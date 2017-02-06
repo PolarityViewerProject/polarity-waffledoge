@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llbutton.h"
 #include "llfirstuse.h"
+#include "llfloaterreg.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -699,4 +700,17 @@ std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList()
 	}
 	
 	return inventory_selected_uuids;
+}
+
+void LLSidepanelInventory::cleanup()
+{
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end();)
+	{
+		LLFloaterSidePanelContainer* iv = dynamic_cast<LLFloaterSidePanelContainer*>(*iter++);
+		if (iv)
+		{
+			iv->cleanup();
+		}
+	}
 }

@@ -37,6 +37,7 @@
 class PVCinematicMode : public view_listener_t,
                         public LLSingleton<PVCinematicMode> // This enables the use of ::instance() to call this function/class without a boost bind. - Xenhat 2015.09.22
 {
+	LLSINGLETON(PVCinematicMode);
 	bool handleEvent(const LLSD& userdata) override;
 	void confirm(const LLSD& notification, const LLSD& response);
 protected:
@@ -63,6 +64,7 @@ public:
 class PVMachinimaSidebar : public view_listener_t,
                            public LLSingleton<PVCinematicMode>
 {
+	LLSINGLETON(PVCinematicMode); // Needed? D:
 	bool handleEvent(const LLSD& userdata) override;
 public:
 	static bool isVisible(const LLSD& userdata);

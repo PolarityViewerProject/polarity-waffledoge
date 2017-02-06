@@ -14,6 +14,8 @@
  *
  */
 
+#pragma once
+
 #ifndef RLV_HELPER_H
 #define RLV_HELPER_H
 
@@ -90,6 +92,7 @@ protected:
 
 class RlvBehaviourDictionary : public LLSingleton<RlvBehaviourDictionary>
 {
+	LLSINGLETON(RlvBehaviourDictionary);
 	friend class LLSingleton<RlvBehaviourDictionary>;
 	friend class RlvFloaterBehaviours;
 protected:
@@ -666,6 +669,7 @@ protected:
 
 private:
 	friend class LLSingleton<RlvForceWear>;
+	LLSINGLETON(RlvForceWear);
 };
 
 // ============================================================================
@@ -675,6 +679,7 @@ private:
 class RlvBehaviourNotifyHandler : public LLSingleton<RlvBehaviourNotifyHandler>
 {
 	friend class LLSingleton<RlvBehaviourNotifyHandler>;
+	LLSINGLETON(RlvBehaviourNotifyHandler);
 protected:
 	RlvBehaviourNotifyHandler();
 	virtual ~RlvBehaviourNotifyHandler() { if (m_ConnCommand.connected()) m_ConnCommand.disconnect(); }

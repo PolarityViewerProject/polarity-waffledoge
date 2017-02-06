@@ -131,20 +131,9 @@ void append_to_last_message(std::list<LLSD>& messages, const std::string& line)
 
 class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 {
-public:
-	LLLogChatTimeScanner()
-	{
-		// Note, date/time facets will be destroyed by string streams
-		mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
-		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
-		mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
+	LLSINGLETON(LLLogChatTimeScanner);
 
-		// <FS:Ansariel> Seconds in timestamps
-		mDateSecStream.imbue(std::locale(mDateSecStream.getloc(), new date_input_facet(DATE_FORMAT_SEC)));
-		mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_facet(TIME_FORMAT_SEC)));
-		mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_input_facet(DATE_FORMAT_SEC)));
-		// </FS:Ansariel>
-	}
+public:
 
 	date getTodayPacificDate()
 	{
@@ -260,6 +249,21 @@ private:
 	std::stringstream mTimeSecStream;
 	// </FS:Ansariel>
 };
+
+inline
+LLLogChatTimeScanner::LLLogChatTimeScanner()
+{
+	// Note, date/time facets will be destroyed by string streams
+	mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
+	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
+	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
+	
+	// <FS:Ansariel> Seconds in timestamps
+	mDateSecStream.imbue(std::locale(mDateSecStream.getloc(), new date_input_facet(DATE_FORMAT_SEC)));
+	mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_facet(TIME_FORMAT_SEC)));
+	mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_input_facet(DATE_FORMAT_SEC)));
+	// </FS:Ansariel>
+}
 
 LLLogChat::save_history_signal_t * LLLogChat::sSaveHistorySignal = NULL;
 

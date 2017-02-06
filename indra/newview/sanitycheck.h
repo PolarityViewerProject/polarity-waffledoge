@@ -29,6 +29,7 @@ class SanityCheck
 	: public LLSingleton<SanityCheck>
 {
 	friend class LLSingleton<SanityCheck>;
+	LLSINGLETON(SanityCheck);
 
 private:
 	SanityCheck();

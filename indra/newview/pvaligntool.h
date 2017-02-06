@@ -40,6 +40,7 @@ class LLToolSelectRect;
 class QToolAlign
 :	public LLTool, public LLSingleton<QToolAlign>
 {
+	LLSINGLETON(QToolAlign);
 public:
 	QToolAlign();
 	virtual ~QToolAlign();

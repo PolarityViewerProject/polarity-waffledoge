@@ -405,7 +405,9 @@ void LLDrawPoolAlpha::renderAlpha(U32 mask, S32 pass)
 				if ((params.mVertexBuffer->getTypeMask() & mask) != mask)
 				{
 					// <polarity> No point spamming this.
-					LL_DEBUGS() << "Missing required components, skipping render batch." << LL_ENDL;
+					LL_DEBUGS() << "Missing required components, expected mask: " << mask
+									<< " present: " << (params.mVertexBuffer->getTypeMask() & mask)
+									<< ". Skipping render batch." << LL_ENDL;
 					continue;
 				}
 

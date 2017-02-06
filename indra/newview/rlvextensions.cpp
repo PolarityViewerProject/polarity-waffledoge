@@ -157,6 +157,7 @@ bool RlvWindLightControl::setFloat(F32 nValue)
 
 class RlvWindLight : public LLSingleton<RlvWindLight>
 {
+	LLSINGLETON(RlvWindLight);
 	friend class LLSingleton<RlvWindLight>;
 public:
 	RlvWindLight();

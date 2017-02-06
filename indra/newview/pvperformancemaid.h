@@ -33,6 +33,7 @@
 ///////////////////////////////
 class PVPerformanceMaid : public LLSingleton<PVPerformanceMaid>
 {
+	LLSINGLETON(PVPerformanceMaid);
 	bool in_panic_mode_;
 	// settings backup.
 	// TODO PLVR Use a class maybe?
@@ -53,6 +54,7 @@ public:
 class PVPerformanceMaidPanicButton : public view_listener_t,
                                      public PVPerformanceMaid
 {
+	LLSINGLETON(PVPerformanceMaid); // Needed? D:
 	bool handleEvent(const LLSD& userdata) override;
 };
 

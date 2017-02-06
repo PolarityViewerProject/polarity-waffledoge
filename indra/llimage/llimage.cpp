@@ -728,7 +728,6 @@ U8* LLImageBase::allocateData(S32 size)
 	if (!mBadBufferAllocation && (!mData || size != mDataSize))
 	{
 		deleteData(); // virtual
-		mBadBufferAllocation = false ;
 		mData = (U8*) ll_aligned_malloc_16(size);
 		if (!mData)
 		{
@@ -794,7 +793,7 @@ U8* LLImageBase::getData()
 	return mData; 
 }
 
-bool LLImageBase::isBufferInvalid()
+bool LLImageBase::isBufferInvalid() const
 {
 	return mBadBufferAllocation || mData == NULL ;
 }
