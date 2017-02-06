@@ -570,25 +570,30 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	S32 try_gpu_class = shader_level;
 	S32 gpu_class;
 
+#if LL_WINDOWS
+	const auto SEPARATOR('\\');
+#else
+	const auto SEPARATOR('/');
+#endif
 	//find the most relevant file
 	for (gpu_class = try_gpu_class; gpu_class > 0; gpu_class--)
 	{	//search from the current gpu class down to class 1 to find the most relevant shader
 		std::stringstream fname;
 		fname << getShaderDirPrefix();
-		fname << gpu_class << "/" << filename;
+		fname << gpu_class << SEPARATOR << filename;
 		
- 		LL_DEBUGS("ShaderLoading") << "Looking in " << fname.str() << LL_ENDL;
+ 		LL_INFOS("ShaderLoading") << "Looking in " << fname.str() << LL_ENDL;
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
-			LL_DEBUGS("ShaderLoading") << "Loading file: shaders/class" << gpu_class << "/" << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
+			LL_INFOS("ShaderLoading") << "Loading file: shaders" << SEPARATOR << "class" << gpu_class << SEPARATOR << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
 			break; // done
 		}
 	}
 	
 	if (file == NULL)
 	{
-		LL_WARNS("ShaderLoading") << "GLSL Shader file not found: " << filename << LL_ENDL;
+		LL_WARNS("ShaderLoading") << "GLSL Shader file not found: shaders" << SEPARATOR << "class" << gpu_class << SEPARATOR << filename << LL_ENDL; // <polarity>
 		return 0;
 	}
 
