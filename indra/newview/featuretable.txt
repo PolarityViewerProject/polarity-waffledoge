@@ -458,9 +458,9 @@ RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
-PVRender_ShadowResolutionClosest	1	4096
-PVRender_ShadowResolutionMid	1	2048
-PVRender_ShadowResolutionFar	1	1024
+PVRender_ShadowResolutionClosest	1	2048
+PVRender_ShadowResolutionMid	1	1024
+PVRender_ShadowResolutionFar	1	768
 PVRender_ShadowResolutionFurthest	1	512
 
 //
@@ -504,10 +504,10 @@ RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
-PVRender_ShadowResolutionClosest	1	8192
-PVRender_ShadowResolutionMid	1	4096
-PVRender_ShadowResolutionFar	1	2048
-PVRender_ShadowResolutionFurthest	1	1024
+PVRender_ShadowResolutionClosest	1	3072
+PVRender_ShadowResolutionMid	1	2048
+PVRender_ShadowResolutionFar	1	1024
+PVRender_ShadowResolutionFurthest	1	768
 
 // Molten Core (Melt my shit!)
 list MoltenCore
