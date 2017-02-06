@@ -1976,6 +1976,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_LoadAvatarIcons</key>
+    <map>
+      <key>Comment</key>
+      <string>Load avatar icons into memory. Can be disabled to save video memory.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_LogSnapshotToLocal</key>
     <map>
       <key>Comment</key>

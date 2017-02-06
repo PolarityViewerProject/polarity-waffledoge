@@ -189,10 +189,16 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
     mMaxHeight = llmax((S32)p.min_height, rect.getHeight());
     mMaxWidth = llmax((S32)p.min_width, rect.getWidth());
 
+	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
+	if (!load_av_icons)
+	{
+		LLIconCtrl::setValue(IMG_TRANSPARENT);
+		return;
+	}
 	if (p.avatar_id.isProvided())
 	{
 		LLSD value(p.avatar_id);
-		setValue(value);
+		LLIconCtrl::setValue(value);
 	}
 	else
 	{
@@ -217,41 +223,49 @@ LLAvatarIconCtrl::~LLAvatarIconCtrl()
 //virtual
 void LLAvatarIconCtrl::setValue(const LLSD& value)
 {
-	if (value.isUUID())
+	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
+	if (!load_av_icons)
 	{
-		LLAvatarPropertiesProcessor* app =
-			LLAvatarPropertiesProcessor::getInstance();
-		if (mAvatarId.notNull())
-		{
-			app->removeObserver(mAvatarId, this);
-		}
-
-		if (mAvatarId != value.asUUID())
-		{
-			mAvatarId = value.asUUID();
-
-			// *BUG: This will return stale icons if a user changes their
-			// profile picture. However, otherwise we send too many upstream
-			// AvatarPropertiesRequest messages.
-
-			// to get fresh avatar icon use
-			// LLAvatarIconIDCache::getInstance()->remove(avatar_id);
-
-			// Check if cache already contains image_id for that avatar
-			if (!updateFromCache())
-			{
-				// *TODO: Consider getting avatar icon/badge directly from 
-				// People API, rather than sending AvatarPropertyRequest
-				// messages.  People API already hits the user table.
-				LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
-				app->addObserver(mAvatarId, this);
-				app->sendAvatarPropertiesRequest(mAvatarId);
-			}
-		}
+		LLIconCtrl::setValue(IMG_TRANSPARENT);
 	}
 	else
 	{
-		LLIconCtrl::setValue(value);
+		if (value.isUUID())
+		{
+			LLAvatarPropertiesProcessor* app =
+				LLAvatarPropertiesProcessor::getInstance();
+			if (mAvatarId.notNull())
+			{
+				app->removeObserver(mAvatarId, this);
+			}
+
+			if (mAvatarId != value.asUUID())
+			{
+				mAvatarId = value.asUUID();
+
+				// *BUG: This will return stale icons if a user changes their
+				// profile picture. However, otherwise we send too many upstream
+				// AvatarPropertiesRequest messages.
+
+				// to get fresh avatar icon use
+				// LLAvatarIconIDCache::getInstance()->remove(avatar_id);
+
+				// Check if cache already contains image_id for that avatar
+				if (!updateFromCache())
+				{
+					// *TODO: Consider getting avatar icon/badge directly from 
+					// People API, rather than sending AvatarPropertyRequest
+					// messages.  People API already hits the user table.
+					LLIconCtrl::setValue(mDefaultIconName, LLViewerFetchedTexture::BOOST_UI);
+					app->addObserver(mAvatarId, this);
+					app->sendAvatarPropertiesRequest(mAvatarId);
+				}
+			}
+		}
+		else
+		{
+			LLIconCtrl::setValue(value);
+		}
 	}
 
 	fetchAvatarName();
@@ -271,6 +285,13 @@ void LLAvatarIconCtrl::fetchAvatarName()
 
 bool LLAvatarIconCtrl::updateFromCache()
 {
+	static LLCachedControl<bool> load_av_icons(gSavedSettings, "PVUI_LoadAvatarIcons", false);
+	if (!load_av_icons)
+	{
+		LLIconCtrl::setValue(IMG_TRANSPARENT);
+		return true;
+	}
+
 	LLUUID* icon_id_ptr = LLAvatarIconIDCache::getInstance()->get(mAvatarId);
 	if(!icon_id_ptr)
 		return false;
