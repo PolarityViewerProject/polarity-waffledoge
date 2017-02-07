@@ -74,10 +74,10 @@ if (WINDOWS)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:REF /OPT:ICF /LTCG")
     set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /OPT:REF /OPT:ICF /LTCG")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /LTCG")
-  else (NOT LTO AND INCREMENTAL_LINK) # Dev build, default.
+  else (NOT USE_LTO AND INCREMENTAL_LINK) # Dev build, default.
 	set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS} /DEBUG /INCREMENTAL /OPT:NOICF")
 	set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS} /DEBUG /INCREMENTAL /OPT:NOICF")
-  else(LTO AND INCREMENTAL_LINK)
+  else(USE_LTO AND INCREMENTAL_LINK)
 	# Not sure when this would be hit, we only make fully optimized or dev builds (or treat unoptimized builds as such)
 	MESSAGE("Warning: LTO and INCREMENTAL were specified, disabling INCREMENTAL.")
 	# Fix 'LINK : fatal error LNK1210: exceeded internal ILK size limit; link with /INCREMENTAL:NO'
