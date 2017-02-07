@@ -90,7 +90,7 @@ UseStartScreen				1	1
 VertexShaderEnable			1	1
 WatchdogDisabled				1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	1024
+WLSkyDetail					1	64
 
 //
 // Potato
@@ -181,7 +181,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	128
+WLSkyDetail					1	64
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -224,7 +224,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	128
+WLSkyDetail					1	64
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -266,7 +266,7 @@ WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	128
+WLSkyDetail					1	64
 RenderFSAASamples			1	0
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -308,7 +308,7 @@ WindLightUseAtmosShaders	1	1
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
-WLSkyDetail					1	128
+WLSkyDetail					1	64
 RenderFSAASamples			1	2
 PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
@@ -406,9 +406,9 @@ PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	2
 PVRender_DeferredFXAAQuality	1	15
-RenderDepthOfField			1	1
+RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	1
+PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	1024
@@ -453,9 +453,9 @@ PVRender_EnableSSR			1	0
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	2
 PVRender_DeferredFXAAQuality	1	20
-RenderDepthOfField			1	1
+RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	1
+PVRender_DepthOfFieldAlphas	1	0
 PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	2048
@@ -487,7 +487,7 @@ RenderTreeLODFactor			1	1.0
 RenderVolumeLODFactor		1	2.0
 VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	1024
+WLSkyDetail					1	512
 RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
