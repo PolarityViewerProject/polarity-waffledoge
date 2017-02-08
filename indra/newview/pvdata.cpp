@@ -1115,7 +1115,7 @@ PVAgent::PVAgent()
 		return it->second;
 	}
 
-	bool PVAgent::isSpecialAgentColored(LLUIColor& color_out) const
+	bool PVAgent::isSpecialAgentColored(LLColor4& color_out) const
 	{
 		color_out = color;
 		return color != no_color;
@@ -1124,7 +1124,7 @@ PVAgent::PVAgent()
 	// Do not call directly! no agent pointer validity checks are performed here!
 	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
-		auto pv_color = no_color;
+		LLColor4 pv_color = no_color;
 		// Check if agent already has a special color
 		if (!pv_agent->isSpecialAgentColored(pv_color))
 		{
@@ -1184,25 +1184,31 @@ PVAgent::PVAgent()
 				pv_color = muted_color.get();
 			}
 			// Unsupported users have no color.
+			// This will trigger an error for agents who only have a title, so work around that.
+			else if (pv_agent->title[0] != '\0')
+			{
+				// no-op
+			}
 			else
 			{
 				//@todo: Use localizable strings
 				LLSD args;
 				args["AVATAR_ID"] = uuid;
-				args["PV_FLAGS"] = getTitle(false);
-				args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
-				args["MESSAGE"] = "Agent has deprecated or unhandled flags associated to it!";
+				args["PV_FLAGS"] = getTitleHumanReadable(false).at(0);
+				//@todo remove this duplicated code and make reusable function in pvtl
+				args["PV_COLOR"] = llformat("<%.5f,%.5f,%.5f>", pv_color.mV[VX], pv_color.mV[VY], pv_color.mV[VZ]);
+				args["MESSAGE"] = "Agent has invalid data set!";
 				LLNotificationsUtil::add("PVData_ColorBug", args);
 			}
-			if (av_flags & DEPRECATED_TITLE_OVERRIDE)
-			{
-				LLSD args;
-				args["AVATAR_ID"] = uuid;
-				args["PV_FLAGS"] = getTitle(false);
-				args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
-				args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
-				LLNotificationsUtil::add("PVData_ColorBug", args);
-			}
+			//if (av_flags & DEPRECATED_TITLE_OVERRIDE)
+			//{
+			//	LLSD args;
+			//	args["AVATAR_ID"] = uuid;
+			//	args["PV_FLAGS"] = getTitle(false);
+			//	args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
+			//	args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
+			//	LLNotificationsUtil::add("PVData_ColorBug", args);
+			//}
 		}	
 		return pv_color;
 	}
@@ -1298,12 +1304,31 @@ PVAgent::PVAgent()
 		return flags;
 	}
 
+	std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title) const
+	{
+		// contents: { raw_flags, custom_title_or_empty }
+		std::vector<std::string> title_v; title_v.reserve(3);
+		std::string raw_flags = getTitle(false);
+		if (raw_flags.empty())
+		{
+			raw_flags = "None";
+		}
+		else
+		{
+			raw_flags = "[" + raw_flags + "]";
+		}
+		title_v.push_back(raw_flags);
+		//@todo highest non-custom title, see comment in getTitle()
+		title_v.push_back(getTitle(true));
+		return title_v;
+	}
+
 	bool PVAgent::getTitleCustom(std::string& new_title) const
 	{
 		new_title = title;
 		return (!new_title.empty());
 	}
-
+	
 	std::string PVAgent::getTitle(bool get_custom_title) const
 	{
 		// Check for agents flagged through PVDataOldAPI
@@ -1357,6 +1382,7 @@ PVAgent::PVAgent()
 		}
 		else if (pv_flags != 0 && flags_list.empty())
 		{
+			//@todo add a way to only get the highest flag instead of a list.
 			// here are the bad flags
 			if (pv_agent->isUserAutoMuted())
 			{

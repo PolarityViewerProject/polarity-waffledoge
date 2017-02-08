@@ -403,25 +403,14 @@ void LLInspectAvatar::onAvatarNameCache(
 		auto pv_agent = PVAgent::getDataFor(mAvatarID);
 		if (pv_agent)
 		{
-			std::string agent_role_text = pv_agent->getTitle(true);
-			if (!agent_role_text.empty())
-			{
-				agent_role->setValue(agent_role_text);
-				agent_role->setColor(gPVOldAPI->getColor(mAvatarID, LLColor4::white, false));
-				std::string raw_flags = pv_agent->getTitle(false);
-				if (raw_flags.empty())
-				{
-					raw_flags = "Flags: None";
-				}
-				else
-				{
-					raw_flags = "Flags: [" + raw_flags + "]";
-				}
-				agent_role->setToolTip(raw_flags); // raw flag as hovertip
-			}
+			std::vector<std::string> agent_role_text = pv_agent->getTitleHumanReadable(false);
+			const std::string flags_string = LLTrans::getString("Flags") + ":";
+			agent_role->setValue(flags_string + agent_role_text.at(1));
+			agent_role->setToolTip(agent_role_text.at(0)); // raw flag as hovertip
+			agent_role_text.clear();
+			agent_role->setColor(gPVOldAPI->getColor(mAvatarID, LLColor4::white, false));
 		}
 		// </polarity>
-
 	}
 }
 

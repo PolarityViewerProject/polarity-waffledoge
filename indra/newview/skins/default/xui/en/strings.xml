@@ -4405,6 +4405,9 @@ Try enclosing path to the editor with double quotes.
   <string name="SessionTimeString">Session uptime: [UPTIME]</string>
   <string name="MissingTesterToken">I-it's not like I need a token to enable updates or anything... &gt;////&lt; Set it in Preferences-&gt;Setup, okay?</string>
 
+  <!-- Generic strings  -->
+  <string name="Flags">Flags</string>
+
   <!-- Satisfy something -->
   <string name="[Linden Homes / Full Region]">[Linden Homes / Full Region]</string>
 

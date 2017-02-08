@@ -144,7 +144,7 @@ class LLUUID;
 		* param color_out custom agent color, or LLColor4::black if none
 		* \return bool
 		*/
-		bool isSpecialAgentColored(LLUIColor& color_out) const;
+		bool isSpecialAgentColored(LLColor4& color_out) const;
 
 		LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const;
 
@@ -154,6 +154,13 @@ class LLUUID;
 		 * \return S32 flag set
 		 */
 		S32 getFlags() const;
+
+		/**
+		 * \brief get human-readable list of flags
+		 * \param get custom title instead of raw flags?
+		 * \return string
+		*/
+		std::vector<std::string> getTitleHumanReadable(bool get_custom_title) const;
 
 		/**
 		 * \brief get the agent's custom title, if any.
