@@ -447,6 +447,10 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 				const LLSD& data_map = uuid_iterator->second;
 				if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
 				{
+					if (this_agent->flags & DEPRECATED_TITLE_OVERRIDE)
+					{
+						this_agent->flags &= (~DEPRECATED_TITLE_OVERRIDE);
+					}
 					this_agent->flags = data_map["Access"].asInteger();
 				}
 				if (data_map.has("HexColor") && data_map["HexColor"].type() == LLSD::TypeString)
