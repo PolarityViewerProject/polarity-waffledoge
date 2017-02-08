@@ -3,12 +3,7 @@
 # cmake_minimum_required should appear before any
 # other commands to guarantee full compatibility
 # with the version specified
-## prior to 2.8, the add_custom_target commands used in setting the version did not work correctly
-if(WIN32)
-  cmake_minimum_required(VERSION 3.4 FATAL_ERROR)
-else()
-  cmake_minimum_required(VERSION 2.8.8 FATAL_ERROR)
-endif()
+  cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "Polarity" CACHE STRING
     "The root project/makefile/solution name. Defaults to SecondLife.")
@@ -18,6 +13,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 include(Variables)
 include(BuildVersion)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
