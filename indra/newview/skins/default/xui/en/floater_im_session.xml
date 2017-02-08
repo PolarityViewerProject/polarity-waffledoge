@@ -234,6 +234,20 @@
                                  width="230" />
                             </layout_panel>
                             <layout_panel
+                             auto_resize="false"
+                             height="15"
+                             visible="false"
+                             animate="true"
+                             name="support_group_ribbon">
+                                <text
+                                 top_pad="2"
+                                 enabled="true"
+                                 left="5"
+                                 width="230">
+                                 This is the [APP_NAME] support group.
+                             </text>
+                            </layout_panel>
+                            <layout_panel
                              name="chat_holder">
                                 <chat_history
                                  font="SansSerifSmall"
