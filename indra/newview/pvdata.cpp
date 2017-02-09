@@ -51,6 +51,7 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "noise.h"
+#include "pvpanellogin.h"
 
 PVSearchUtil*		gPVSearchUtil = NULL;
 PVDataOldAPI*		gPVOldAPI = nullptr;
@@ -145,6 +146,7 @@ void PVDataOldAPI::downloadData()
 		pv_data_status_ = DOWNLOAD_IN_PROGRESS;
 		modularDownloader(data_file);
 	}
+	downloadAgents(); // chain-load
 }
 
 void PVDataOldAPI::downloadAgents()
@@ -266,6 +268,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 	{
 		PV_DEBUG("Got SOMETHING we weren't expecting. what do?", LLError::LEVEL_WARN);
 	}
+	LLPanelLogin::doLoginButtonLockUnlock();
 }
 
 // ########     ###    ########   ######  ######## ########   ######
@@ -447,10 +450,10 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 				const LLSD& data_map = uuid_iterator->second;
 				if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
 				{
-					if (this_agent->flags & DEPRECATED_TITLE_OVERRIDE)
-					{
-						this_agent->flags &= (~DEPRECATED_TITLE_OVERRIDE);
-					}
+					//if (this_agent->flags & DEPRECATED_TITLE_OVERRIDE)
+					//{
+					//	this_agent->flags &= (~DEPRECATED_TITLE_OVERRIDE);
+					//}
 					this_agent->flags = data_map["Access"].asInteger();
 				}
 				if (data_map.has("HexColor") && data_map["HexColor"].type() == LLSD::TypeString)
@@ -824,8 +827,8 @@ void PVDataOldAPI::refreshDataFromServer(bool force_refresh_now)
 		LL_INFOS() << "Attempting to live-refresh PVDataOldAPI" << LL_ENDL;
 		downloadData();
 
-		PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
-		downloadAgents();
+		//PV_DEBUG("Attempting to live-refresh Agents data", LLError::LEVEL_DEBUG);
+		//downloadAgents();
 		if (!force_refresh_now)
 		{
 			PV_DEBUG("Resetting timer", LLError::LEVEL_DEBUG);

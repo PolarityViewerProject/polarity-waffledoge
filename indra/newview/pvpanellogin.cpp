@@ -84,6 +84,8 @@ LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 std::string LLPanelLogin::sPassword = "";
 
+bool LLPanelLogin::sLoginButtonEnabled = false;
+
 // Helper for converting a user name into the canonical "Firstname Lastname" form.
 // For new accounts without a last name "Resident" is added as a last name.
 static std::string canonicalize_username(const std::string& name);
@@ -876,6 +878,11 @@ void LLPanelLogin::onClickConnect(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
+		// login button disabled
+		if (!sLoginButtonEnabled)
+		{
+			return;
+		}
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
@@ -1049,19 +1056,21 @@ void LLPanelLogin::updateLoginButtons()
 {
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
-	bool enable_button = true;
+	sLoginButtonEnabled = false;
 	auto gPVDataOldAPI = PVDataOldAPI::getInstance();
 	if (gPVDataOldAPI->getDataDone())
 	{
 		if (!gPVDataOldAPI->isBlockedRelease())
 		{
-			enable_button = true;
-			login_btn->setLabel(LLTrans::getString("Login"));
+			sLoginButtonEnabled = true;
+			static const std::string loginString = LLTrans::getString("Login");
+			login_btn->setLabel(loginString);
 		}
 		else
 		{
-			enable_button = false;
-			login_btn->setLabel(LLTrans::getString("Outdated"));
+			//enable_button = false;
+			static const std::string outdatedString = LLTrans::getString("Outdated");
+			login_btn->setLabel(outdatedString);
 			LLSD args;
 			args["REASON"] = gPVDataOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
@@ -1070,16 +1079,24 @@ void LLPanelLogin::updateLoginButtons()
 	else
 	{
 		//enable_button = false;
-		login_btn->setLabel(llformat("Uuhh..."));
+		static const std::string plzHoldString = LLTrans::getString("PleaseHold");
+		login_btn->setLabel(plzHoldString);
 	}
-	bool has_credentials = (mUsernameLength != 0 && mPasswordLength != 0);
-	if (!has_credentials)
+	if (mUsernameLength == 0 || mPasswordLength == 0)
 	{
-		enable_button = false;
+		sLoginButtonEnabled = false;
 		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
 	}
+	login_btn->setEnabled(sLoginButtonEnabled);
+}
 
-	login_btn->setEnabled(enable_button && has_credentials);
+//static
+void LLPanelLogin::doLoginButtonLockUnlock()
+{
+	if (sInstance)
+	{
+		sInstance->updateLoginButtons();
+	}
 }
 
 void LLPanelLogin::onSelectServer()

@@ -628,14 +628,9 @@ bool idle_startup()
 		}
 
 		LL_INFOS("AppInit") << "Message System Initialized." << LL_ENDL;
+		// Initialize grid manager
+		LLGridManager::getInstance()->initialize(std::string());
 
-		LLStartUp::setStartupState(STATE_AUDIO_INIT);
-	}
-
-
-	if (STATE_AUDIO_INIT == LLStartUp::getStartupState())
-	{
-		// </polarity>
 		//-------------------------------------------------
 		// Init audio, which may be needed for prefs dialog
 		// or audio cues in connection UI.
@@ -746,44 +741,13 @@ bool idle_startup()
 	{
 		LL_DEBUGS("AppInit") << "STATE_BROWSER_INIT" << LL_ENDL;
 		std::string msg = LLTrans::getString("LoginInitializingBrowser");
-		set_startup_status(0.03f, msg);
+		set_startup_status(0.03f, msg.c_str());
 		display_startup();
-		LLGridManager::getInstance()->initialize(std::string());
-		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
+		// LLViewerMedia::initBrowser();
+		LLStartUp::setStartupState( STATE_LOGIN_SHOW );
 		return FALSE;
 	}
 
-	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
-	{
-		// <polarity> PVData support
-		gPVOldAPI = PVDataOldAPI::getInstance();
-		gPVSearchUtil = PVSearchUtil::getInstance();
-		gPVOldAPI->downloadData();
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
-	}
-
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
-		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
-		// then enable the login button again. this will reduce the apparent startup time.
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		
-		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getDataDone())
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
 
 	if (STATE_LOGIN_SHOW == LLStartUp::getStartupState())
 	{
@@ -810,11 +774,7 @@ bool idle_startup()
 			initialize_spellcheck_menu();
 			init_menus();
 		}
-		LLStartUp::setStartupState(STATE_LOGIN_CONTINUE);
-	}
 
-	if (STATE_LOGIN_CONTINUE == LLStartUp::getStartupState())
-	{
 		if (show_connect_box)
 		{
 			LL_DEBUGS("AppInit") << "show_connect_box on" << LL_ENDL;
@@ -850,22 +810,20 @@ bool idle_startup()
 					LL_DEBUGS("AppInit") << "FirstLoginThisInstall off" << LL_ENDL;
 				}
 			}
-			// <polarity> download agents data
-			gPVOldAPI->downloadAgents();
-
 			display_startup();
 			if (gViewerWindow->getSystemUIScaleFactorChanged())
 			{
 				LLViewerWindow::showSystemUIScaleFactorChanged();
 			}
-			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+			//LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
-		else
-		{
-			LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
-			// skip directly to message template verification
-			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		}
+		//else
+		//{
+		//	LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
+		//	// skip directly to message template verification
+		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+		//}
+		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
@@ -874,7 +832,6 @@ bool idle_startup()
 
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
-		display_startup();
 
 		// DEV-16927.  The following code removes errant keystrokes that happen while the window is being 
 		// first made visible.
@@ -888,6 +845,47 @@ bool idle_startup()
 		return FALSE;
 	}
 
+	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
+	{
+		// <polarity> PVData support
+		gPVOldAPI = PVDataOldAPI::getInstance();
+		gPVSearchUtil = PVSearchUtil::getInstance();
+		gPVOldAPI->downloadData();
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
+	}
+
+	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
+	{
+		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
+		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
+		// then enable the login button again. this will reduce the apparent startup time.
+		// TODO: Move to debug
+		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
+		static LLFrameTimer pvdata_timer;
+		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
+		const F32 MAX_PVDATA_TIME = 15.f;
+		
+		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getDataDone())
+		{
+			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
+			//@todo run login button toggle
+			//LLStartUp::setStartupState(STATE_LOGIN_SHOW);
+			std::string new_title = gPVOldAPI->getRandomWindowTitle();
+			if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
+			{
+					new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
+			}
+			gViewerWindow->getWindow()->setTitle(new_title);
+			//LLPanelLogin::doLoginButtonLockUnlock();
+			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+		}
+		else
+		{
+			ms_sleep(1);
+			return FALSE;
+		}
+	}
+	
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
 		/* Minecraft-like endless title spam
@@ -940,14 +938,6 @@ bool idle_startup()
 		// DEV-42215: Make sure they're not empty -- gUserCredential
 		// might already have been set from gSavedSettings, and it's too bad
 		// to overwrite valid values with empty strings.
-
-		llassert(gPVOldAPI->getDataDone());
-		std::string new_title = gPVOldAPI->getRandomWindowTitle();
-		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
-		{
-			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
-		}
-		gViewerWindow->getWindow()->setTitle(new_title);
 
 		if (show_connect_box)
 		{
@@ -1368,7 +1358,6 @@ bool idle_startup()
 			return FALSE;
 		}
 	}
-
 
 	// <FS:Ansariel> Wait for notification confirmation
 	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
@@ -2964,10 +2953,11 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_BROWSER_INIT );
 		RTNENUM( STATE_LOGIN_SHOW );
 		RTNENUM( STATE_LOGIN_WAIT );
-		RTNENUM( STATE_PVDATA_DOWNLOAD);
-		RTNENUM( STATE_PVDATA_WAIT);
-		RTNENUM( STATE_PVAGENTS_WAIT);
-		RTNENUM( STATE_LOGIN_CONTINUE);
+		RTNENUM( STATE_PVDATA_DOWNLOAD );
+		RTNENUM( STATE_PVDATA_WAIT );
+		RTNENUM( STATE_PVAGENTS_WAIT );
+		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
+		RTNENUM( STATE_LOGIN_CONTINUE );
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
 		RTNENUM( STATE_LOGIN_CURL_UNSTUCK );

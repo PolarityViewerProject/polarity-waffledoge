@@ -4415,6 +4415,7 @@ Try enclosing path to the editor with double quotes.
   <string name="free">Free</string>
 
 <!-- translatable Login button -->
+<string name="PleaseHold">Please Hold</string>
 <string name="Login">Log In</string>
 <string name="Outdated">Outdated</string>
 <string name="EnterCredentials">Credentials&#63;</string>

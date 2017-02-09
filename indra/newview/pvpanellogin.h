@@ -101,6 +101,7 @@ private:
 
 public:
 	static void onClickConnect(void*);
+	static void doLoginButtonLockUnlock();
 private:
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
@@ -110,6 +111,7 @@ private:
 	static void updateServerCombo();
 	static void onClickRemove(void*);
 	static void onRemoveCallback(const LLSD& notification, const LLSD& response);
+	static bool sLoginButtonEnabled;
 #if LOGIN_MGR_HELP
 	static void onClickGridMgrHelp(void*);
 #endif
