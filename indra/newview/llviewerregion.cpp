@@ -1579,8 +1579,18 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 {
 	//kill the object.
 	LLDrawable* drawablep = (LLDrawable*)entry->getEntry()->getDrawable();
-	llassert(drawablep);
-	llassert(drawablep->getRegion() == this);
+	//llassert(drawablep);
+	if (!drawablep)
+	{
+		LL_WARNS() << "Attempted to kill a non-existent drawable!" << LL_ENDL;
+		return;
+	}
+	//llassert(drawablep->getRegion() == this);
+	if (drawablep->getRegion() != this)
+	{
+		LL_WARNS() << "Attempted to kill a drawable from another region!" << LL_ENDL;
+		return;
+	}
 
 	if(drawablep && !drawablep->getParent())
 	{
