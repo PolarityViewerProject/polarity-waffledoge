@@ -119,18 +119,18 @@ source_group("Third Party/Exodus" FILES
 set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
+    fsassetblacklist.h
     fsfloaterassetblacklist.h
     fsscrolllistctrl.h
-    fsassetblacklist.h
     kcwlinterface.h
     sanitycheck.h
     )
 set(firestorm_SOURCE_FILES
     fsareasearch.cpp
     fsareasearchmenu.cpp
+    fsassetblacklist.cpp
     fsfloaterassetblacklist.cpp
     fsscrolllistctrl.cpp
-    fsassetblacklist.cpp
     kcwlinterface.cpp
     sanitycheck.cpp
     )
