@@ -53,7 +53,7 @@ if (WINDOWS)
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /ASSEMBLYDEBUG /OPT:NOREF /OPT:NOICF")
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Zi /Zo /MD ${CXX_JOBS} /Qpar /Ob2 -D_SECURE_STL=0 -D_HAS_ITERATOR_DEBUGGING=0"
       CACHE STRING "C++ compiler release options" FORCE)
   set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /OPT:REF /OPT:ICF") # DEBUG changes /OPT so need to put them back
 
@@ -143,10 +143,6 @@ if (WINDOWS)
   if(USE_AVX)
     add_compile_options(/arch:AVX)
   endif(USE_AVX)
-
-  if(USE_AUTO_PARALLELIZER)
-    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Qpar")
-  endif(USE_AUTO_PARALLELIZER)
 
   if (WORD_SIZE EQUAL 32) # Do not use AVX on 32bit builds because those are reserved for old hardware
     add_compile_options(/arch:SSE2)

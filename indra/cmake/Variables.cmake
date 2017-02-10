@@ -197,14 +197,8 @@ MESSAGE("======== *FEATURES* ========")
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 
-# Experimental viewer features
-option(GL_TRANSFORM_FEEDBACK_BUFFER "Use OpenGL Transform Feedback Buffer" OFF)
-
 # Build process tweaks
 set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
-
-# Optimizations
-option(USE_AUTO_PARALLELIZER "Use MSVC's Auto-Parallelizer" ON)
 
 # Libraries
 option(USE_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
