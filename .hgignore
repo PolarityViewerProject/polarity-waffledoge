@@ -84,3 +84,4 @@ indra/newview/pilot.xml
 *.rej
 *.sublime-workspace
 *build*.bat
+./*.exe
