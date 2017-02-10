@@ -4782,8 +4782,10 @@ void LLAppViewer::saveFinalSnapshot()
 		gAgentCamera.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
 		// <polarity> Gaussian blur shader
+		auto motion_blur_prev = LLPipeline::RenderMotionBlur;
 		if (LLPipeline::sRenderDeferred)
 		{
+			LLPipeline::RenderMotionBlur = FALSE;
 			LLPipeline::sRenderGaussian = TRUE;
 		}
 		// </polarity>
@@ -4796,6 +4798,10 @@ void LLAppViewer::saveFinalSnapshot()
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
 		mSavedFinalSnapshot = TRUE;
 		LLPipeline::sRenderGaussian = FALSE; // <polarity> Gaussian blur shader
+		if (LLPipeline::sRenderDeferred)
+		{
+			LLPipeline::RenderMotionBlur = motion_blur_prev; // Not sure if needed since shutting down
+		}
 	}
 }
 
