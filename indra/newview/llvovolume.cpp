@@ -5330,7 +5330,7 @@ void LLVolumeGeometryManager::rebuildGeom(LLSpatialGroup* group)
 		group->setState(LLSpatialGroup::MESH_DIRTY | LLSpatialGroup::NEW_DRAWINFO);
 	}
 
-	mFaceList.clear();
+	//mFaceList.clear();
 
 	if (pAvatarVO)
 	{

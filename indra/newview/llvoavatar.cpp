@@ -3716,7 +3716,6 @@ void LLVOAvatar::updateDebugText()
 	{
 		setDebugText(mDebugText);
 	}
-	mDebugText.clear();
 
 }
 
