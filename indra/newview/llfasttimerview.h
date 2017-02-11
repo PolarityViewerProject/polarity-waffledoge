@@ -82,6 +82,8 @@ private:
 		TimerBar()
 		:	mTotalTime(0),
 			mSelfTime(0),
+			mTimeBlock(nullptr),
+			mVisible(false),
 			mStartFraction(0.f),
 			mEndFraction(1.f),
 			mFirstChild(false),

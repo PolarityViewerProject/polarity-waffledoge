@@ -37,9 +37,9 @@
 
 F64 LLWLAnimator::INTERP_TOTAL_SECONDS = 3.f;
 
-LLWLAnimator::LLWLAnimator() : mStartTime(0.f), mDayRate(1.f), mDayTime(0.f),
-							mIsRunning(FALSE), mIsInterpolating(FALSE), mIsInterpolatingSky(FALSE),
-							mTimeType(TIME_LINDEN), mInterpStartTime(), mInterpEndTime()
+LLWLAnimator::LLWLAnimator() : mStartTime(0.f), mDayRate(1.f), mDayTime(0.f), mFirstIt(),
+							mTimeType(TIME_LINDEN), mIsRunning(FALSE), mIsInterpolating(FALSE),
+							mIsInterpolatingSky(FALSE), mInterpStartTime(), mInterpEndTime()
 {
 	mInterpBeginWL = new LLWLParamSet();
 	mInterpEndWL = new LLWLParamSet();

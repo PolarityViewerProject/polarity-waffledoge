@@ -47,6 +47,8 @@ U32 exoPostProcess::sNumColors;
 BOOL exoPostProcess::sRenderLensFlare;
 
 exoPostProcess::exoPostProcess()
+	: multisample(0),
+	  mVertexShaderLevel(0)
 {
 
 	mExoPostBuffer = new LLVertexBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0 | LLVertexBuffer::MAP_TEXCOORD1, 0);

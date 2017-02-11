@@ -480,6 +480,9 @@ private:
 			mFetchedSize(f_size),
 			mDecodedSize(d_size),
 			mNeedsAux(false),
+			mCacheHandle(0),
+			mCurlState(),
+			mCurlReceivedSize(0),
 			mHttpHandle(LLCORE_HTTP_HANDLE_INVALID)
 			{}
 	};

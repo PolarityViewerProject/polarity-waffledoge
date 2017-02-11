@@ -176,7 +176,11 @@ class LLPanelRegionGeneralInfo : public LLPanelRegionInfo
 	
 public:
 	LLPanelRegionGeneralInfo()
-		:	LLPanelRegionInfo()	{}
+		: LLPanelRegionInfo(),
+		  mObjBonusFactor(0)
+	{
+	}
+
 	~LLPanelRegionGeneralInfo() {}
 	
 	virtual bool refreshFromRegion(LLViewerRegion* region);

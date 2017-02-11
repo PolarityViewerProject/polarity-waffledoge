@@ -83,13 +83,17 @@ public:
 		STATUS_FINISHED
 	} EStatus;
 
-	ImplBase(LLFloaterSnapshotBase* floater) : mAvatarPauseHandles(),
+	explicit ImplBase(LLFloaterSnapshotBase* floater) :
+		mAvatarPauseHandles(),
 		mLastToolset(NULL),
 		mAspectRatioCheckOff(false),
 		mNeedRefresh(false),
+		mAdvanced(false),
 		mStatus(STATUS_READY),
 		mFloater(floater)
-	{}
+	{
+	}
+
 	virtual ~ImplBase()
 	{
 		//unpause avatars

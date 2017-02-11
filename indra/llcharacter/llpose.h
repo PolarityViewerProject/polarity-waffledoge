@@ -60,7 +60,7 @@ public:
 	LLJointState* findJointState(const std::string &name);
 public:
 	// Constructor
-	LLPose() : mWeight(0.f) {}
+	LLPose() : mWeight(0.f), mListIter() {}
 	// Destructor
 	~LLPose();
 	// add a joint state in this pose

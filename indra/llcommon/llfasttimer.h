@@ -218,7 +218,7 @@ private:
 public:
 #endif
 	// no-copy
-	BlockTimer(const BlockTimer& other): mStartTime(0)
+	BlockTimer(const BlockTimer& other): mStartTime(0), mParentTimerData()
 	{
 	} ;
 

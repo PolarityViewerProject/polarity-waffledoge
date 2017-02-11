@@ -90,13 +90,20 @@ class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemote
 	
 public:
 	LLPanelScriptLimitsRegionMemory()
-		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
+	:	LLPanelScriptLimitsInfo(),
+		LLRemoteParcelInfoObserver(),
 
 		mParcelId(LLUUID()),
 		mGotParcelMemoryUsed(false),
 		mGotParcelMemoryMax(false),
 		mParcelMemoryMax(0),
-		mParcelMemoryUsed(0) {};
+		mParcelMemoryUsed(0),
+		mGotParcelURLsUsed(false),
+		mGotParcelURLsMax(false),
+		mParcelURLsMax(0),
+		mParcelURLsUsed(0)
+	{
+	};
 
 	~LLPanelScriptLimitsRegionMemory();
 	

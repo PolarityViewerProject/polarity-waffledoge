@@ -233,9 +233,12 @@ struct LLAppearanceMessageContents: public LLRefCount
 	LLAppearanceMessageContents():
 		mAppearanceVersion(-1),
 		mParamAppearanceVersion(-1),
-		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN)
+		mCOFVersion(LLViewerInventoryCategory::VERSION_UNKNOWN),
+		mHoverOffsetWasSet(false),
+		mTEContents()
 	{
 	}
+
 	LLTEContents mTEContents;
 	S32 mAppearanceVersion;
 	S32 mParamAppearanceVersion;
