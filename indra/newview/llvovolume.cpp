@@ -403,7 +403,10 @@ U32 LLVOVolume::processUpdateMessage(LLMessageSystem *mesgsys,
 			if (!res)
 			{
 				LL_WARNS() << "Bogus volume parameters in object " << getID() << LL_ENDL;
-				LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
+				if (getRegion())
+				{
+					LL_WARNS() << getRegion()->getOriginGlobal() << LL_ENDL;
+				}
 			}
 
 			volume_params.setSculptID(sculpt_id, sculpt_type);
@@ -4038,92 +4041,93 @@ BOOL LLVOVolume::lineSegmentIntersect(const LLVector4a& start, const LLVector4a&
 				LLFace* ll_face = mDrawable->getFace(face_hit);				
 
 				bool ignore_alpha = false;
-
-				const LLTextureEntry* te = ll_face->getTextureEntry();
-				if (te)
+				if (ll_face)
 				{
-					LLMaterial* mat = te->getMaterialParams();
-					if (mat)
+					const LLTextureEntry* te = ll_face->getTextureEntry();
+					if (te)
 					{
-						U8 mode = mat->getDiffuseAlphaMode();
-
-						if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
-							mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+						LLMaterial* mat = te->getMaterialParams();
+						if (mat)
 						{
-							ignore_alpha = true;
-						}
-					}
-				}
+							U8 mode = mat->getDiffuseAlphaMode();
 
-				if (ll_face &&
-					(ignore_alpha ||
-					pick_transparent || 
-					!ll_face->getTexture() || 
-					!ll_face->getTexture()->hasGLTexture() || 
-					ll_face->getTexture()->getMask(ll_face->surfaceToTexture(tc, p, n))))
-				{
-					local_end = p;
-					if (face_hitp != NULL)
-					{
-						*face_hitp = face_hit;
-					}
-					
-					if (intersection != NULL)
-					{
-						if (transform)
-						{
-							LLVector3 v_p(p.getF32ptr());
-
-							intersection->load3(volumePositionToAgent(v_p).mV);  // must map back to agent space
-						}
-						else
-						{
-							*intersection = p;
+							if (mode == LLMaterial::DIFFUSE_ALPHA_MODE_EMISSIVE ||
+								mode == LLMaterial::DIFFUSE_ALPHA_MODE_NONE)
+							{
+								ignore_alpha = true;
+							}
 						}
 					}
 
-					if (normal != NULL)
+					if ((ignore_alpha ||
+							pick_transparent ||
+							!ll_face->getTexture() ||
+							!ll_face->getTexture()->hasGLTexture() ||
+							ll_face->getTexture()->getMask(ll_face->surfaceToTexture(tc, p, n))))
 					{
-						if (transform)
+						local_end = p;
+						if (face_hitp != NULL)
 						{
-							LLVector3 v_n(n.getF32ptr());
-							normal->load3(volumeDirectionToAgent(v_n).mV);
+							*face_hitp = face_hit;
 						}
-						else
+
+						if (intersection != NULL)
 						{
-							*normal = n;
+							if (transform)
+							{
+								LLVector3 v_p(p.getF32ptr());
+
+								intersection->load3(volumePositionToAgent(v_p).mV);  // must map back to agent space
+							}
+							else
+							{
+								*intersection = p;
+							}
 						}
-						(*normal).normalize3fast();
+
+						if (normal != NULL)
+						{
+							if (transform)
+							{
+								LLVector3 v_n(n.getF32ptr());
+								normal->load3(volumeDirectionToAgent(v_n).mV);
+							}
+							else
+							{
+								*normal = n;
+							}
+							(*normal).normalize3fast();
+						}
+
+						if (tangent != NULL)
+						{
+							if (transform)
+							{
+								LLVector3 v_tn(tn.getF32ptr());
+
+								LLVector4a trans_tangent;
+								trans_tangent.load3(volumeDirectionToAgent(v_tn).mV);
+
+								LLVector4Logical mask;
+								mask.clear();
+								mask.setElement<3>();
+
+								tangent->setSelectWithMask(mask, tn, trans_tangent);
+							}
+							else
+							{
+								*tangent = tn;
+							}
+							(*tangent).normalize3fast();
+						}
+
+						if (tex_coord != NULL)
+						{
+							*tex_coord = tc;
+						}
+
+						ret = TRUE;
 					}
-
-					if (tangent != NULL)
-					{
-						if (transform)
-						{
-							LLVector3 v_tn(tn.getF32ptr());
-
-							LLVector4a trans_tangent;
-							trans_tangent.load3(volumeDirectionToAgent(v_tn).mV);
-
-							LLVector4Logical mask;
-							mask.clear();
-							mask.setElement<3>();
-
-							tangent->setSelectWithMask(mask, tn, trans_tangent);
-						}
-						else
-						{
-							*tangent = tn;
-						}
-						(*tangent).normalize3fast();
-					}
-
-					if (tex_coord != NULL)
-					{
-						*tex_coord = tc;
-					}
-					
-					ret = TRUE;
 				}
 			}
 		}

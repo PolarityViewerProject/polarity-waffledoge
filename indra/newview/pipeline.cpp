@@ -5362,7 +5362,11 @@ void LLPipeline::renderDebug()
 
 	if (mRenderDebugMask & RENDER_DEBUG_WIND_VECTORS)
 	{
-		gAgent.getRegion()->mWind.renderVectors();
+		auto regionp = gAgent.getRegion();
+		if (regionp)
+		{
+			regionp->mWind.renderVectors();
+		}
 	}
 	
 	if (mRenderDebugMask & RENDER_DEBUG_COMPOSITION)
