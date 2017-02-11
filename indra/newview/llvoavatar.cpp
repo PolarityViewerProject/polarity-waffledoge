@@ -2776,7 +2776,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartData.mMaxAge            = 4.f;
 			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
 			particle_parameters.mPartData.mStartScale.mV[VY] = 0.8f;
-			particle_parameters.mPartData.mStartScale.mV[VZ] = 1.0f;
+			//particle_parameters.mPartData.mStartScale.mV[VZ] = 1.0f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
 #ifndef PVDATA_COLORIZER
