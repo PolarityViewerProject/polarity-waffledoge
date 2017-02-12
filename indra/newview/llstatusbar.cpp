@@ -629,7 +629,7 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 void LLStatusBar::onBandwidthGraphButtonClicked()
 {
-	if (gSavedSettings.getBOOL("FSUseStatsInsteadOfLagMeter"))
+	if (gSavedSettings.getBOOL("PVUI_UseStatsInsteadOfLagMeter"))
 	{
 		LLFloaterReg::toggleInstance("stats");
 	}
