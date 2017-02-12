@@ -2543,7 +2543,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
-    <string name="Attachments remain">Attachments ([COUNT]/37)</string>
+    <string name="Attachments remain">Attachments ([COUNT] free, 37 total)</string>
 
 	<!-- inventory FVBridge -->
 	<!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
