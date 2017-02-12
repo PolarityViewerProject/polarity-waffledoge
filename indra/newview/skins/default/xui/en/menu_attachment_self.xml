@@ -39,6 +39,7 @@
     <menu_item_call
      label="Sit Down"
      layout="topleft"
+     visible="true"
      name="Sit Down Here">
         <menu_item_call.on_click
          function="Self.SitDown"
@@ -50,6 +51,7 @@
   <menu_item_call
      label="Stand Up"
      layout="topleft"
+     visible="true"
      name="Stand Up">
     <menu_item_call.on_click
      function="Self.StandUp"
