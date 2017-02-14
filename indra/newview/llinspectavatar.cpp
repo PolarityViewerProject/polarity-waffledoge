@@ -404,7 +404,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		if (pv_agent)
 		{
 			std::vector<std::string> agent_role_text = pv_agent->getTitleHumanReadable(false);
-			const std::string flags_string = LLTrans::getString("Flags") + ":";
+			const static std::string flags_string = LLTrans::getString("Flags") + ":";
 			agent_role->setValue(agent_role_text.at(1));
 			agent_role->setToolTip(flags_string + agent_role_text.at(0)); // raw flag as tooltip
 			agent_role_text.clear();
