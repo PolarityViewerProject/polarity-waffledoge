@@ -30,6 +30,13 @@
 //#include "vmath.h"
 #include "v3math.h"
 #include "v3dmath.h"
+#include "v4math.h"
+#include "m3math.h"
+#include "m4math.h"
+#include "llquaternion.h"
+
+#include "v4coloru.h"
+#include "v4color.h"
 
 #include "llvowater.h"
 #include "llpatchvertexarray.h"

@@ -34,7 +34,9 @@
 #include "llappviewer.h"
 #include "llavataractions.h"
 #include "llbutton.h"
+#include "lldate.h"
 #include "llfirstuse.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -50,9 +52,12 @@
 #include "llselectmgr.h"
 #include "llsidepaneliteminfo.h"
 #include "llsidepaneltaskinfo.h"
+#include "llstring.h"
 #include "lltabcontainer.h"
+#include "lltextbox.h"
 #include "lltrans.h"
 #include "llviewermedia.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 
 static LLPanelInjector<LLSidepanelInventory> t_inventory("sidepanel_inventory");

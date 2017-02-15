@@ -30,7 +30,10 @@
 
 #include "llpanelgroupgeneral.h"
 
+#include "llavatarnamecache.h"
 #include "llagent.h"
+#include "llsdparam.h"
+#include "lluictrlfactory.h"
 #include "roles_constants.h"
 
 // UI elements
@@ -43,6 +46,7 @@
 #include "lllineeditor.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
+#include "llscrolllistitem.h"
 #include "llspinctrl.h"
 #include "llslurl.h"
 #include "lltextbox.h"

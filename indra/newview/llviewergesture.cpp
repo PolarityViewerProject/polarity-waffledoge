@@ -30,13 +30,18 @@
 
 #include "llviewergesture.h"
 
+#include "llaudioengine.h"
+#include "lldir.h"
 #include "llviewerinventory.h"
+#include "sound_ids.h"		// for testing
 
 #include "llfloaterreg.h"
+#include "llkeyboard.h"		// for key shortcuts for testing
 #include "llinventorymodel.h"
 #include "llvoavatar.h"
 #include "llxfermanager.h"
 #include "llviewermessage.h" // send_guid_sound_trigger
+#include "llviewernetwork.h"
 #include "llagent.h"
 #include "llfloaterimnearbychat.h"
 #include "oschatcommand.h"

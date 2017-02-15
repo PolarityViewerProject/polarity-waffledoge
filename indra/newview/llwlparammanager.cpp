@@ -35,13 +35,20 @@
 
 #include "lldiriterator.h"
 #include "llfloaterreg.h"
+#include "llsliderctrl.h"
+#include "llspinctrl.h"
 #include "llcheckboxctrl.h"
 #include "lluictrlfactory.h"
 #include "llviewercamera.h"
+#include "llcombobox.h"
+#include "lllineeditor.h"
 #include "llsdserialize.h"
 
 #include "v4math.h"
+#include "llviewerdisplay.h"
+#include "llviewercontrol.h"
 #include "llviewerwindow.h"
+#include "lldrawpoolwater.h"
 #include "llagent.h"
 #include "llviewerregion.h"
 

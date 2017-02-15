@@ -27,7 +27,6 @@
 #ifndef LL_LLDEPTHSTACK_H
 #define LL_LLDEPTHSTACK_H
 
-// ReSharper disable once CppUnusedIncludeDirective
 #include "lldefs.h"
 
 template <class DATA_TYPE> class LLDepthStack

@@ -29,6 +29,7 @@
 #include "linden_common.h"
 #include "llsdserialize_xml.h"
 
+#include <iostream>
 #include <deque>
 
 #include "apr_base64.h"

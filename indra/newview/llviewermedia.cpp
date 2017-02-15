@@ -37,6 +37,7 @@
 #include "llcallbacklist.h"
 #include "lldir.h"
 #include "lldiriterator.h"
+#include "llevent.h"		// LLSimpleListener
 #include "llfilepicker.h"
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 #include "llfocusmgr.h"
@@ -57,6 +58,7 @@
 #include "llversioninfo.h"
 #include "llviewermediafocus.h"
 #include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llviewerparcelmedia.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
@@ -71,6 +73,8 @@
 #include "llwindow.h"
 #include "llvieweraudio.h"
 #include "llcorehttputil.h"
+
+#include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
 #include <boost/bind.hpp>	// for SkinFolder listener
 #include <boost/signals2.hpp>

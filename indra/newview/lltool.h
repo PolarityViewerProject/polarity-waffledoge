@@ -27,7 +27,10 @@
 #ifndef LL_LLTOOL_H
 #define LL_LLTOOL_H
 
+#include "llkeyboard.h"
 #include "llmousehandler.h"
+#include "llcoord.h"
+#include "v3math.h"
 #include "v3dmath.h"
 
 class LLViewerObject;

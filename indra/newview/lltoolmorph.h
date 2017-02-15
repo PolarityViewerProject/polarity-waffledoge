@@ -27,9 +27,15 @@
 #ifndef LL_LLTOOLMORPH_H
 #define LL_LLTOOLMORPH_H
 
+#include "lltool.h"
+#include "m4math.h"
+#include "v2math.h"
 #include "lldynamictexture.h"
+#include "llundo.h"
 #include "lltextbox.h"
+#include "llstrider.h"
 #include "llviewervisualparam.h"
+#include "llframetimer.h"
 #include "llviewertexture.h"
 
 class LLViewerJointMesh;

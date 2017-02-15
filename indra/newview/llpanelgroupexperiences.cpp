@@ -30,7 +30,11 @@
 
 #include "llpanelgroupexperiences.h"
 
+#include "lluictrlfactory.h"
+#include "roles_constants.h"
 #include "llappviewer.h"
+#include "llagent.h"
+#include "llviewerregion.h"
 #include "llflatlistview.h"
 #include "llpanelexperiences.h"
 #include "llsd.h"

@@ -29,6 +29,7 @@
 
 #include "llcharacter.h"
 #include "lleditmenuhandler.h"
+#include "llundo.h"
 #include "lluuid.h"
 #include "llpointer.h"
 #include "llsafehandle.h"
@@ -36,6 +37,7 @@
 #include "llcategory.h"
 #include "v3dmath.h"
 #include "llquaternion.h"
+#include "llcoord.h"
 #include "llframetimer.h"
 #include "llbbox.h"
 #include "llpermissions.h"
@@ -43,9 +45,11 @@
 #include "llviewerobject.h"	// LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
 
+#include <deque>
 #include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/signals2.hpp>
+#include <boost/make_shared.hpp>	// boost::make_shared
 
 class LLMessageSystem;
 class LLViewerTexture;

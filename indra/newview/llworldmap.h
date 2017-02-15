@@ -28,6 +28,7 @@
 #define LL_LLWORLDMAP_H
 
 #include "llworldmipmap.h"
+#include <boost/function.hpp>
 
 #include "v3dmath.h"
 #include "lluuid.h"

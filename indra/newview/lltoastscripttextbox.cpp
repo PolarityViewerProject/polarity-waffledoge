@@ -30,14 +30,20 @@
 
 #include "lltoastscripttextbox.h"
 
+#include "llfocusmgr.h"
+
 #include "llbutton.h"
 #include "llnotifications.h"
 #include "llviewertexteditor.h"
 
+#include "llavatarnamecache.h"
+#include "lluiconstants.h"
 #include "llui.h"
 #include "llviewercontrol.h"
+#include "lltrans.h"
 #include "llstyle.h"
 
+#include "llglheaders.h"
 #include "llagent.h"
 
 const S32 LLToastScriptTextbox::DEFAULT_MESSAGE_MAX_LINE_COUNT= 7;

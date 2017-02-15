@@ -34,8 +34,10 @@
 #include "indra_constants.h"		// for agent control flags
 #include "llviewercontrol.h"
 #include "llquaternion.h"
+#include "llbox.h"
 #include "message.h"
 #include "llview.h"
+#include "llfontgl.h"
 #include "llui.h"
 
 // newview headers
@@ -44,17 +46,22 @@
 #include "lldrawable.h"
 #include "llfloatertools.h"
 #include "llhudeffect.h"
+#include "llhudmanager.h"
+#include "llregionposition.h"
 #include "llselectmgr.h"
+#include "llstatusbar.h"
 #include "lltoolmgr.h"
 #include "lltoolpie.h"
 #include "llviewercamera.h"
 #include "llviewerobject.h"
+#include "llviewerobjectlist.h" 
 #include "llviewerregion.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
 #include "llmenugl.h"
 // [RLVa:KB] - Checked: RLVa-2.1.0
 #include "rlvactions.h"
+#include "rlvhandler.h"
 // [/RLVa:KB]
 
 const S32 SLOP_DIST_SQ = 4;

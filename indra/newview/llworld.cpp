@@ -36,6 +36,8 @@
 
 #include "llagent.h"
 #include "llviewercontrol.h"
+#include "lldrawpool.h"
+#include "llglheaders.h"
 #include "llhttpnode.h"
 #include "llregionhandle.h"
 #include "llsurface.h"
@@ -43,9 +45,12 @@
 #include "llviewercamera.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
+#include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparceloverlay.h"
 #include "llviewerregion.h"
 #include "llviewerstats.h"
+#include "llvlcomposition.h"
 #include "llvoavatar.h"
 #include "llvocache.h"
 #include "llvowater.h"
@@ -53,6 +58,10 @@
 #include "pipeline.h"
 #include "llappviewer.h"		// for do_disconnect()
 #include "llscenemonitor.h"
+#include <deque>
+#include <queue>
+#include <map>
+#include <cstring>
 
 
 //

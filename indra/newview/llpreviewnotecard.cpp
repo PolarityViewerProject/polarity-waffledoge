@@ -35,12 +35,15 @@
 #include "llagent.h"
 #include "lldraghandle.h"
 #include "llviewerwindow.h"
+#include "llbutton.h"
 #include "llfloaterreg.h"
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
 #include "llnotificationsutil.h"
+#include "llresmgr.h"
 #include "roles_constants.h"
+#include "llscrollbar.h"
 #include "llselectmgr.h"
 #include "llviewertexteditor.h"
 #include "llvfile.h"
@@ -49,7 +52,11 @@
 #include "llviewerobjectlist.h"
 #include "llviewerregion.h"
 #include "lldir.h"
+#include "llviewerstats.h"
+#include "llviewercontrol.h"		// gSavedSettings
 #include "llappviewer.h"		// app_abort_quit()
+#include "lllineeditor.h"
+#include "lluictrlfactory.h"
 #include "llviewerassetupload.h"
 
 ///----------------------------------------------------------------------------

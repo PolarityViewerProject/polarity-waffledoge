@@ -34,18 +34,25 @@
 // viewer includes
 #include "llmimetypes.h"
 #include "llviewerparcelmgr.h"
+#include "llviewerregion.h"
 #include "llviewermedia.h"
+#include "llviewerparcelmedia.h"
+#include "lluictrlfactory.h"
 
 // library includes
 #include "llcheckboxctrl.h"
 #include "llcombobox.h"
 #include "llfloaterurlentry.h"
+#include "llfocusmgr.h"
 #include "lllineeditor.h"
 #include "llparcel.h"
 #include "lltextbox.h"
+#include "llradiogroup.h"
 #include "llspinctrl.h"
+#include "llsdutil.h"
 #include "lltexturectrl.h"
 #include "roles_constants.h"
+#include "llscrolllistctrl.h"
 
 //---------------------------------------------------------------------------
 // LLPanelLandMedia

@@ -33,6 +33,7 @@
 #include "llconversationview.h"
 #include "llfloaterimcontainer.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llmenubutton.h"
 #include "llmenugl.h"
 #include "llnotificationsutil.h"
@@ -51,7 +52,9 @@
 #include "llavataractions.h"
 #include "llavatarlist.h"
 #include "llavatarlistitem.h"
+#include "llavatarnamecache.h"
 #include "llcallingcard.h"			// for LLAvatarTracker
+#include "llcallbacklist.h"
 #include "llerror.h"
 #include "llfacebookconnect.h"
 #include "llfloateravatarpicker.h"
@@ -61,14 +64,18 @@
 #include "llinventoryobserver.h"
 #include "llnetmap.h"
 #include "llpanelpeoplemenus.h"
+#include "llparticipantlist.h"
 #include "llsidetraypanelcontainer.h"
 #include "llrecentpeople.h"
 #include "llviewercontrol.h"		// for gSavedSettings
+#include "llviewermenu.h"			// for gMenuHolder
 #include "llvoiceclient.h"
 #include "llworld.h"
 #include "llspeakers.h"
 #include "llfloaterwebcontent.h"
 
+#include "llagentui.h"
+#include "llslurl.h"
 // [RLVa:KB] - Checked: RLVa-1.2.2
 #include "rlvactions.h"
 // [/RLVa:KB]

@@ -38,11 +38,17 @@
 #include "llbutton.h"
 #include "llcallingcard.h"
 #include "llcombobox.h"
+#include "llgroupactions.h"
 #include "llgroupmgr.h"
 #include "llnamelistctrl.h"
 #include "llnotificationsutil.h"
 #include "llscrolllistitem.h"
+#include "llslurl.h"
+#include "llspinctrl.h"
 #include "lltextbox.h"
+#include "llviewerobject.h"
+#include "llviewerobjectlist.h"
+#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 
 #include <boost/foreach.hpp>
