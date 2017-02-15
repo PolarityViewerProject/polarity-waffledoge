@@ -89,6 +89,8 @@
 #include "lltoolfocus.h"
 #include "llviewerobjectlist.h"
 
+#include "pvfpsmeter.h"
+
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
 #endif
@@ -623,6 +625,12 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
+static bool handleFPSLimiterTargetChanged(const LLSD& newvalue)
+{
+	PVFPSMeter::validateFPSLimiterTarget();
+	return true;
+}
+
 // <Black Dragon:NiranV> Expose Attached Lights and Particles
 static bool handleRenderAttachedLightsChanged(const LLSD& newvalue)
 {
@@ -926,7 +934,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_ShadowResolutionMid")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	gSavedSettings.getControl("PVRender_ShadowResolutionFar")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	gSavedSettings.getControl("PVRender_ShadowResolutionFurthest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	// <polarity>
+	// </polarity>
 	gSavedSettings.getControl("RenderDeferredBlurLight")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
 	gSavedSettings.getControl("RenderBlurPerformanceMode")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
 	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
@@ -946,6 +954,8 @@ void settings_setup_listeners()
 	// <Alchemy:Drake> Adaptive V-Sync
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
+	// <polarity> FPS Meter class and FPS Limiter
+	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(handleFPSLimiterTargetChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

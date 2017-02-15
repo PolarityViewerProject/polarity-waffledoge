@@ -121,7 +121,10 @@ public:
 	/*virtual*/ void spawnWebBrowser(const std::string& escaped_url, bool async);
 
 	/*virtual*/ void setTitle(const std::string& win_title); // <polarity/> Dynamic window title
-	static F32 getRefreshRate();
+	static DEVMODE mDisplayInfo;
+	static U32 mRefreshRate;
+	static U32 probeRefreshRate();
+	static U32 getRefreshRate() { return mRefreshRate; };
 
 	/*virtual*/ F32 getSystemUISize();
 

@@ -332,13 +332,13 @@ void LLStatusBar::refresh()
 	LLStringUtil::format(dtStr, substitution);
 	mTextTime->setToolTip(dtStr);
 
-	if (!mStatusBarFPSCounter)
+	if (mStatusBarFPSCounter && mStatusBarFPSCounter->getVisible())
 	{
-		return;
+		mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
+		mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
 	}
+
 	refresh();
-	mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
-	mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)

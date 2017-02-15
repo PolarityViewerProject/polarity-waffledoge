@@ -28,54 +28,46 @@
 #include "v4color.h"
 #include "llframetimer.h"
 
+static const U32 MINIMUM_FPS_LIMIT = 15;
+
 class PVFPSMeter
 {
 public:
-	static bool start();
-	static bool stop();
+	PVFPSMeter();
+	static void setLimit(const F32& new_limit_f32);
+	static void refresh();
+
+	static std::string getValueWithRefreshRate();
+
 	static F32 getValue()
 	{
 		return mFPSMeterValue;
 	}
+
 	static F32 getLimit()
 	{
 		return mFPSLimiterTarget;
 	}
-	static bool getLimiterEnabled()
-	{
-		return mFPSLimiterEnabled;
-	}
-	static F32 getMonitorRefreshRate()
-	{
-		return mMonitorRefreshRate;
-	}
-	static void setLimit(const F32 new_limit_f32)
-	{
-		if (mFPSLimiterTarget != new_limit_f32)
-		{
-			mFPSLimiterTarget = new_limit_f32;
-		}
-	}
+
 	static LLColor4 getColor()
 	{
 		return mFPSMeterColor;
 	}
-	static std::string getValueWithRefreshRate();
+
+	static bool start();
+	static bool stop();
 	static bool validateFPSLimiterTarget();
-	static void refresh();
-	static void setMonitorRefreshRate(const F32& new_refresh_f32)
+	static bool getLimiterEnabled()
 	{
-		if (mMonitorRefreshRate != new_refresh_f32)
-		{
-			mMonitorRefreshRate = new_refresh_f32;
-		}
+		return mFPSLimiterTarget > MINIMUM_FPS_LIMIT && mFPSLimiterEnabled;
 	}
+
 private:
-	static bool				mFPSLimiterEnabled;
-	static U32				mMonitorRefreshRate;
-	static F32				mFPSMeterValue;
-	static F32				mFPSLimiterTarget;
 	static LLColor4			mFPSMeterColor;
 	static LLFrameTimer		mStatusBarFPSCounterTimer;
+	//static U32				mMonitorRefreshRate;
+	static U32				mFPSLimiterTarget;
+	static F32				mFPSMeterValue;
+	static bool				mFPSLimiterEnabled;
 };
 #endif // PV_FPS_METER_H

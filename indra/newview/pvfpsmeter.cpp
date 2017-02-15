@@ -33,13 +33,12 @@
 #include "llviewercontrol.h"
 #include "llwindowwin32.h"
 
-const F32 FRAME_NULL_ZONE = 1.f;
+const U32 FRAME_NULL_ZONE = 1;
 
 // Default values, because static and shenanigans
 bool PVFPSMeter::mFPSLimiterEnabled(false);
-U32 PVFPSMeter::mMonitorRefreshRate(0);
-F32 PVFPSMeter::mFPSMeterValue(0);
-F32 PVFPSMeter::mFPSLimiterTarget(0.f);
+F32 PVFPSMeter::mFPSMeterValue(0.f);
+U32 PVFPSMeter::mFPSLimiterTarget(0);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
 
@@ -49,7 +48,7 @@ bool PVFPSMeter::start()
 	{
 		return false;
 	}
-	// kick-start initial FPS limiter values
+	
 	mStatusBarFPSCounterTimer.start();
 	return true;
 }
@@ -68,7 +67,7 @@ void PVFPSMeter::refresh()
 {
 	if (!mStatusBarFPSCounterTimer.getStarted())
 	{
-		llassert(mStatusBarFPSCounterTimer.getStarted());
+		//llassert(mStatusBarFPSCounterTimer.getStarted());
 		return;
 	}
 	// Throttle a bit to avoid making faster FPS heavier to process
@@ -119,7 +118,7 @@ void PVFPSMeter::refresh()
 		{
 			mFPSMeterColor = color_limited;
 		}
-		else if ((vsync_mode == 1 || vsync_mode == 2) && (mFPSMeterValue <= (mMonitorRefreshRate + FRAME_NULL_ZONE) && mFPSMeterValue >= (mMonitorRefreshRate - FRAME_NULL_ZONE))
+		else if ((vsync_mode == 1 || vsync_mode == 2) && (mFPSMeterValue <= (LLWindowWin32::getRefreshRate() + FRAME_NULL_ZONE) && mFPSMeterValue >= (LLWindowWin32::getRefreshRate() - FRAME_NULL_ZONE))
 			//&& mFPSMeterColor != color_vsync
 			)
 		{
@@ -177,29 +176,38 @@ std::string PVFPSMeter::getValueWithRefreshRate()
 		decimal_precision = "%.1f";
 	}
 	// else
-	return (llformat(decimal_precision, mFPSMeterValue) + "/" + std::to_string(mMonitorRefreshRate));
+	return (llformat(decimal_precision, mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
+}
+
+void PVFPSMeter::setLimit(const F32& new_limit_f32)
+{
+	if (mFPSLimiterTarget != new_limit_f32)
+	{
+		mFPSLimiterTarget = new_limit_f32;
+	}
 }
 
 bool PVFPSMeter::validateFPSLimiterTarget()
 {
-	static LLCachedControl<F32> cached_fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-	auto new_fal_f32 = (F32)cached_fps_target;
-	bool is_target_Safe = true;
-	if (new_fal_f32 == -1.00f)
+	static LLCachedControl<S32> cached_fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+	bool is_target_safe = true;
+	if (cached_fps_target < 0)
 	{
-		// This call is quite heavy, only run it when setting new FPS limit
-		PVFPSMeter::setMonitorRefreshRate(LLWindowWin32::getRefreshRate());
-		new_fal_f32 = PVFPSMeter::getMonitorRefreshRate();
+		auto refresh_rate = LLWindowWin32::getRefreshRate();
+		llassert(refresh_rate);
+		PVFPSMeter::setLimit(refresh_rate);
 	}
 	else
 	{
-		new_fal_f32 = (F32)cached_fps_target;
+		if (cached_fps_target >= MINIMUM_FPS_LIMIT) // Do not apply limiter for less than this value; prevents sudden lockup
+		{
+			PVFPSMeter::setLimit(cached_fps_target);
+		}
+		else
+		{
+			is_target_safe = false;
+			gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", FALSE);
+		}
 	}
-	if (new_fal_f32 <= 15.0f) // Do not apply limiter for less than this value; prevents sudden lockup
-	{
-		new_fal_f32 = 0.0f;
-		is_target_Safe = false;
-	}
-	PVFPSMeter::setLimit(new_fal_f32);
-	return is_target_Safe;
+	return is_target_safe;
 }

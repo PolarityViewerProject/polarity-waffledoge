@@ -94,6 +94,9 @@ typedef enum MONITOR_DPI_TYPE {
 
 #endif
 
+U32 LLWindowWin32::mRefreshRate(0);
+DEVMODE LLWindowWin32::mDisplayInfo = {};
+
 typedef HRESULT(STDAPICALLTYPE *SetProcessDpiAwarenessType)(_In_ PROCESS_DPI_AWARENESS value);
 
 typedef HRESULT(STDAPICALLTYPE *GetProcessDpiAwarenessType)(
@@ -397,27 +400,26 @@ LLWinImm::~LLWinImm()
 	}
 }
 
-F32 LLWindowWin32::getRefreshRate()
+U32 LLWindowWin32::probeRefreshRate()
 {
-	// Gross, duplicate code. I can't seem to be able to do this otherwise, however.
+	//@todo call when something about the screen change (RDP, else)
+
 	//-----------------------------------------------------------------------
 	// Get the current refresh rate
 	//-----------------------------------------------------------------------
-
-	DEVMODE dev_mode;
-	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
-	dev_mode.dmSize = sizeof(DEVMODE);
-	// Moved to header to allow use outside this file
-	DWORD current_refresh_2;
-	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+	auto dev_size = sizeof(DEVMODE);
+	::ZeroMemory(&mDisplayInfo, dev_size);
+	mDisplayInfo.dmSize = dev_size;
+	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &mDisplayInfo))
 	{
-		current_refresh_2 = (F32)dev_mode.dmDisplayFrequency;
+		mRefreshRate = mDisplayInfo.dmDisplayFrequency;
 	}
 	else
 	{
-		current_refresh_2 = 60.f;
+		mRefreshRate = 60;
 	}
-	return current_refresh_2;
+	llassert_always(mRefreshRate != 0); // That's impossible!
+	return mRefreshRate;
 }
 LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 							 const std::string& title, const std::string& name, S32 x, S32 y, S32 width,
@@ -430,7 +432,8 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 {
 	
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
-	LoadLibrary(L"opengl32.dll");
+	auto ogl_lib = LoadLibrary(L"opengl32.dll");
+	llassert(ogl_lib);
 
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
@@ -560,29 +563,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 		}
 		sIsClassRegistered = TRUE;
 	}
-
-	//-----------------------------------------------------------------------
-	// Get the current refresh rate
-	//-----------------------------------------------------------------------
-
-	DEVMODE dev_mode;
-	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
-	dev_mode.dmSize = sizeof(DEVMODE);
-	// Moved to header to allow use outside this file
-	DWORD current_refresh;
-#if 0
-	if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
-	{
-		current_refresh = dev_mode.dmDisplayFrequency;
-		mNativeAspectRatio = ((F32)dev_mode.dmPelsWidth) / ((F32)dev_mode.dmPelsHeight);
-	}
-	else
-	{
-		current_refresh = 60;
-	}
-#else
-	current_refresh = getRefreshRate();
-#endif
+	probeRefreshRate();
 
 	//-----------------------------------------------------------------------
 	// Drop resolution and go fullscreen
@@ -596,20 +577,20 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 		for (S32 mode_num = 0;; mode_num++)
 		{
-			if (!EnumDisplaySettings(NULL, mode_num, &dev_mode))
+			if (!EnumDisplaySettings(NULL, mode_num, &mDisplayInfo))
 			{
 				break;
 			}
 
-			if (dev_mode.dmPelsWidth == width &&
-				dev_mode.dmPelsHeight == height &&
-				dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
+			if (mDisplayInfo.dmPelsWidth == width &&
+				mDisplayInfo.dmPelsHeight == height &&
+				mDisplayInfo.dmBitsPerPel == BITS_PER_PIXEL)
 			{
 				success = TRUE;
-				if ((dev_mode.dmDisplayFrequency - current_refresh)
-					< (closest_refresh - current_refresh))
+				if ((mDisplayInfo.dmDisplayFrequency - mRefreshRate)
+					< (closest_refresh - mRefreshRate))
 				{
-					closest_refresh = dev_mode.dmDisplayFrequency;
+					closest_refresh = mDisplayInfo.dmDisplayFrequency;
 				}
 			}
 		}
@@ -619,17 +600,17 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 			LL_WARNS("Window") << "Couldn't find display mode " << width << " by " << height << " at " << BITS_PER_PIXEL << " bits per pixel" << LL_ENDL;
 			//success = FALSE;
 
-			if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+			if (!EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &mDisplayInfo))
 			{
 				success = FALSE;
 			}
 			else
 			{
-				if (dev_mode.dmBitsPerPel == BITS_PER_PIXEL)
+				if (mDisplayInfo.dmBitsPerPel == BITS_PER_PIXEL)
 				{
 					LL_WARNS("Window") << "Current BBP is OK falling back to that" << LL_ENDL;
-					window_rect.right=width=dev_mode.dmPelsWidth;
-					window_rect.bottom=height=dev_mode.dmPelsHeight;
+					window_rect.right=width=mDisplayInfo.dmPelsWidth;
+					window_rect.bottom=height=mDisplayInfo.dmPelsHeight;
 					success = TRUE;
 				}
 				else
@@ -648,21 +629,21 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 
 		// Keep a copy of the actual current device mode in case we minimize 
 		// and change the screen resolution.   JC
-		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode);
+		EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &mDisplayInfo);
 
 		// If it failed, we don't want to run fullscreen
 		if (success)
 		{
 			mFullscreen = TRUE;
-			mFullscreenWidth   = dev_mode.dmPelsWidth;
-			mFullscreenHeight  = dev_mode.dmPelsHeight;
-			mFullscreenBits    = dev_mode.dmBitsPerPel;
-			mFullscreenRefresh = dev_mode.dmDisplayFrequency;
+			mFullscreenWidth   = mDisplayInfo.dmPelsWidth;
+			mFullscreenHeight  = mDisplayInfo.dmPelsHeight;
+			mFullscreenBits    = mDisplayInfo.dmBitsPerPel;
+			mFullscreenRefresh = mDisplayInfo.dmDisplayFrequency;
 
-			LL_INFOS("Window") << "Running at " << dev_mode.dmPelsWidth
-				<< "x"   << dev_mode.dmPelsHeight
-				<< "x"   << dev_mode.dmBitsPerPel
-				<< " @ " << dev_mode.dmDisplayFrequency
+			LL_INFOS("Window") << "Running at " << mDisplayInfo.dmPelsWidth
+				<< "x"   << mDisplayInfo.dmPelsHeight
+				<< "x"   << mDisplayInfo.dmBitsPerPel
+				<< " @ " << mDisplayInfo.dmDisplayFrequency
 				<< LL_ENDL;
 		}
 		else
