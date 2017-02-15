@@ -433,7 +433,10 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	
 	//MAINT-516 -- force a load of opengl32.dll just in case windows went sideways 
 	auto ogl_lib = LoadLibrary(L"opengl32.dll");
-	llassert(ogl_lib);
+	if(!ogl_lib)
+	{
+		LL_ERRS() << "OpenGL DLL failed to load!" << LL_ENDL;
+	}
 
 	mFSAASamples = fsaa_samples;
 	mIconResource = gIconResource;
