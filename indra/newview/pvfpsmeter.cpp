@@ -190,6 +190,7 @@ void PVFPSMeter::setLimit(const F32& new_limit_f32)
 bool PVFPSMeter::validateFPSLimiterTarget()
 {
 	static LLCachedControl<S32> cached_fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+	static LLCachedControl<bool> cached_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
 	bool is_target_safe = true;
 	if (cached_fps_target < 0)
 	{
@@ -208,6 +209,6 @@ bool PVFPSMeter::validateFPSLimiterTarget()
 			is_target_safe = false;
 		}
 	}
-	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", (BOOL)is_target_safe);
+	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", static_cast<BOOL>((bool)cached_limiter_enabled && is_target_safe));
 	return is_target_safe;
 }
