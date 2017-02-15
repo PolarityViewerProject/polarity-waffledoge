@@ -1705,7 +1705,8 @@ BOOL LLImageGL::getBoundRecently() const
 
 BOOL LLImageGL::getIsAlphaMask() const
 {
-	llassert_always(!sSkipAnalyzeAlpha);
+	//llassert_always(!sSkipAnalyzeAlpha);
+	if (sSkipAnalyzeAlpha) return false;
 	return mIsMask;
 }
 
