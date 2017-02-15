@@ -749,6 +749,8 @@ class WindowsManifest(ViewerManifest):
             print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
+        # Darl wanted this.
+        self.path(self.dst_path_of(installer_file), "Polarity_Latest.exe")
 
 
 class Windows_i686_Manifest(WindowsManifest):
