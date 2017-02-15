@@ -33,7 +33,6 @@ Disregard96DefaultDrawDistance	1	1
 PVDebug_ForcedVideoMemory	1	0
 PVRender_DeferredFXAAQuality	1	39
 PVRender_DepthOfFieldAlphas	1	1
-PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	1
 PVRender_EnableLensFlare	1	1
 PVRender_EnableSSR			1	1
@@ -139,7 +138,6 @@ WatchdogDisabled				1	1
 RenderUseStreamVBO			1	0
 RenderFSAASamples			1	1
 RenderMaxTextureIndex		1	1
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -183,7 +181,6 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -226,7 +223,6 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -268,7 +264,6 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	0
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -310,7 +305,6 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	64
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -352,7 +346,6 @@ RenderDeferredSSAO			1	0
 RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	0
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -399,7 +392,6 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	0
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -446,7 +438,6 @@ RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 WLSkyDetail					1	128
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
@@ -492,7 +483,6 @@ RenderDeferred				1	1
 RenderDeferredSSAO			1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	1
 PVRender_EnableLensFlare	1	1
 PVRender_EnableSSR			1	1
@@ -540,7 +530,6 @@ RenderDepthOfFieldInEditMode	1	1
 PVRender_DepthOfFieldAlphas	1	1
 RenderShadowDetail			1	2
 RenderFSAASamples			1	2
-PVRender_EnableFilmGrain	1	1
 PVRender_EnableGodRays		1	1
 PVRender_GodraysDirectional	1	0
 PVRender_EnableLensFlare	1	1

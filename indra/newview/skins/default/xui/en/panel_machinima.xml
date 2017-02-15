@@ -655,7 +655,7 @@
 				width="10">
 				┃
 			</text>
-			<text
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -680,7 +680,7 @@
 				name="PVRender_EnableFilmGrain"
 				top_delta="0"
 				width="115">
-			</check_box>
+			</check_box> -->
 			<text
 				font="SansSerif"
 				font.style="BOLD"

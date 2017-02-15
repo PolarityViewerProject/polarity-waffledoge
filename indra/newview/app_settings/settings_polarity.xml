@@ -1361,7 +1361,7 @@
       <key>Value</key>
       <real>-1</real>
     </map>
-    <key>PVRender_EnableFilmGrain</key>
+<!--     <key>PVRender_EnableFilmGrain</key>
     <map>
       <key>Comment</key>
       <string>Add a filmic grain to the depth of field shader</string>
@@ -1371,7 +1371,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map>
+    </map> -->
     <key>PVRender_EnableGodRays</key>
     <map>
       <key>Comment</key>
