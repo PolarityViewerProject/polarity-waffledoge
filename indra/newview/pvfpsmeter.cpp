@@ -206,8 +206,8 @@ bool PVFPSMeter::validateFPSLimiterTarget()
 		else
 		{
 			is_target_safe = false;
-			gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", FALSE);
 		}
 	}
+	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", (BOOL)is_target_safe);
 	return is_target_safe;
 }
