@@ -75,7 +75,7 @@ void PVLoadingAnim::draw()
 {
 	static LLTimer timer;
 	// <polarity> C++ Port of Prismata's public domain loading animation
-	F32 half_height = (getRect().getHeight() - mSpriteDiameter) / 2;
+	F32 half_height = (getRect().getHeight() - mSpriteDiameter) / 2; //TODO: V636 http://www.viva64.com/en/w/V636 The expression was implicitly cast from 'int' type to 'float' type. Consider utilizing an explicit type cast to avoid the loss of a fractional part. An example: double A = (double)(X) / Y;.
 	U64 time_step = floor(timer.getElapsedTimeF64() * 60);
 	F32 sprite_y;
 	for (size_t i = 0; i < mNumSprites; i++)
