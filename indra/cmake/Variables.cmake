@@ -192,7 +192,6 @@ set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Lin
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
 # <polarity> Our feature list.
-MESSAGE("======== *FEATURES* ========")
 
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
@@ -210,12 +209,22 @@ if (USE_TCMALLOC AND USE_TBBMALLOC)
   message(FATAL_ERROR "Only one malloc may be enabled at a time.")
 endif (USE_TCMALLOC AND USE_TBBMALLOC)
 
-option(INTERNAL_BUILD "Nya" OFF)
+option(INTERNAL_BUILD "Build reserved for internal testing" OFF)
 
 if(NOT DEFINED INTERNAL_BUILD)
   set(INTERNAL_BUILD OFF)
 endif()
 
+MESSAGE("")
+MESSAGE("======== *Configuration* ========")
+MESSAGE("Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
+MESSAGE("Incremental Link       ${INCREMENTAL_LINK}")
+MESSAGE("Link-Time CodeGen      ${USE_LTO}")
+MESSAGE("Internal Build         ${INTERNAL_BUILD}")
+MESSAGE("========== *Libraries* ==========")
+MESSAGE("NVIDIA API             ${NVAPI}")
+MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
+MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
 # Add these CMake flags to the C++ preprocessor to toggle code that way
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
@@ -228,19 +237,9 @@ add_definitions(
   /DUSE_LTO=${USE_LTO}
   /DINTERNAL_BUILD=${INTERNAL_BUILD}
   )
-
-MESSAGE("INCREMENTAL_LINK                   ${INCREMENTAL_LINK}")
-MESSAGE("PVDATA_SYSTEM                      ${PVDATA_COLORIZER}")
-MESSAGE("    PVDATA_COLORIZER               ${PVDATA_COLORIZER}")
-MESSAGE("    PVDATA_MOTD                    ${PVDATA_MOTD}")
-MESSAGE("    PVDATA_MOTD_CHAT               ${PVDATA_MOTD_CHAT}")
-MESSAGE("    PVDATA_PROGRESS_TIPS           ${PVDATA_PROGRESS_TIPS}")
-MESSAGE("USE_LTO                            ${USE_LTO}")
-
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
 endif(PVDATA_UUID_LOCKDOWN)
-MESSAGE("============================")
 # </polarity>
 
 source_group("CMake Rules" FILES CMakeLists.txt)
