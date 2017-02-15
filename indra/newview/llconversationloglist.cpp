@@ -30,7 +30,7 @@
 #include "llavataractions.h"
 #include "llagent.h"
 #include "llfloaterreg.h"
-//#include "llfloaterconversationpreview.h"
+#include "llfloaterconversationpreview.h"
 #include "llgroupactions.h"
 #include "llconversationloglist.h"
 #include "llconversationloglistitem.h"

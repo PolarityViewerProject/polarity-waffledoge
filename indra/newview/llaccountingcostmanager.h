@@ -33,9 +33,9 @@
 #include "httpcommon.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
-//#include "httprequest.h"
-//#include "httpheaders.h"
-//#include "httpoptions.h"
+#include "httprequest.h"
+#include "httpheaders.h"
+#include "httpoptions.h"
 
 //===============================================================================
 // An interface class for panels which display the parcel accounting information.

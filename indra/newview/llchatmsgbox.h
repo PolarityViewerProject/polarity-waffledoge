@@ -29,8 +29,8 @@
 #define LL_LLCHATMSGBOX_H
 
 #include "lltextbox.h"
-//#include "lluictrl.h"
-//#include "v4color.h"
+#include "lluictrl.h"
+#include "v4color.h"
 #include "llstring.h"
 
 ///

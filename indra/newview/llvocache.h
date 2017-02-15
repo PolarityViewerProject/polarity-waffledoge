@@ -27,6 +27,7 @@
 #ifndef LL_LLVOCACHE_H
 #define LL_LLVOCACHE_H
 
+#include "lluuid.h"
 #include "lldatapacker.h"
 #include "lldir.h"
 #include "llvieweroctree.h"

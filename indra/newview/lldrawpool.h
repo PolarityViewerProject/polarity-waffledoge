@@ -28,8 +28,8 @@
 #define LL_LLDRAWPOOL_H
 
 #include "v4coloru.h"
-//#include "v2math.h"
-//#include "v3math.h"
+#include "v2math.h"
+#include "v3math.h"
 #include "llvertexbuffer.h"
 
 class LLFace;

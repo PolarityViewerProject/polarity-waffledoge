@@ -27,7 +27,7 @@
 #ifndef LL_LLAVATARACTIONS_H
 #define LL_LLAVATARACTIONS_H
 
-//#include "llsd.h"
+#include "llsd.h"
 #include "lluuid.h"
 
 #include <string>

@@ -28,18 +28,18 @@
 #define LL_DRAWABLE_H
 
 #include <vector>
-//#include <map>
+#include <map>
 
-//#include "v2math.h"
+#include "v2math.h"
 #include "v3math.h"
-//#include "v4math.h"
+#include "v4math.h"
 #include "m4math.h"
-//#include "v4coloru.h"
+#include "v4coloru.h"
 #include "llvector4a.h"
 #include "llquaternion.h"
 #include "xform.h"
 #include "llviewerobject.h"
-//#include "llrect.h"
+#include "llrect.h"
 #include "llappviewer.h" // for gFrameTimeSeconds
 #include "llvieweroctree.h"
 

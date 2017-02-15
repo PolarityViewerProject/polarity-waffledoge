@@ -27,7 +27,7 @@
 #ifndef LL_LLCOMMANDLINEPARSER_H
 #define LL_LLCOMMANDLINEPARSER_H
 
-//#include <boost/function/function1.hpp>
+#include <boost/function/function1.hpp>
 
 // *NOTE:Mani The following is a forward decl of 
 // boost::program_options::command_line_parser

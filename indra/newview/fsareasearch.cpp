@@ -42,6 +42,8 @@
 #include <boost/algorithm/string/find.hpp> //for boost::ifind_first
 #include "llviewerregion.h"
 #include "llselectmgr.h"
+#include "llcallbacklist.h"
+#include "lltoolpie.h"
 #include "llsaleinfo.h"
 #include "llcheckboxctrl.h"
 #include "llviewermenu.h" // handle_object_touch(), handle_buy()
@@ -59,8 +61,6 @@
 #include "fsscrolllistctrl.h"
 #include "llviewermediafocus.h"
 #include "llmoveview.h"
-
-#include "llcallbacklist.h"
 
 // max number of objects that can be (de-)selected in a single packet.
 const S32 MAX_OBJECTS_PER_PACKET = 255;

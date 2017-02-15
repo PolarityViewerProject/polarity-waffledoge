@@ -29,7 +29,7 @@
 
 #include "lldrawpool.h"
 #include "llrender.h"
-//#include "llframetimer.h"
+#include "llframetimer.h"
 
 class LLFace;
 class LLColor4;

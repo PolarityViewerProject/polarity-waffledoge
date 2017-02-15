@@ -31,8 +31,8 @@
 #include "llchatmsgbox.h"
 #include "llpanel.h"
 #include "llscrollbar.h"
-//#include "llviewerchat.h"
-//#include "lltoastpanel.h"
+#include "llviewerchat.h"
+#include "lltoastpanel.h"
 
 typedef enum e_show_item_header
 {

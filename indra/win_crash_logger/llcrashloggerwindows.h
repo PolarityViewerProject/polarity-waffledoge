@@ -41,8 +41,8 @@ namespace google_breakpad {
 class LLCrashLoggerWindows : public LLCrashLogger
 {
 public:
-	LLCrashLoggerWindows();
-	~LLCrashLoggerWindows();
+	LLCrashLoggerWindows(void);
+	~LLCrashLoggerWindows(void);
 	static LLCrashLoggerWindows* sInstance; 
 
 	virtual bool init();

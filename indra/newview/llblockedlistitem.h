@@ -28,9 +28,9 @@
 
 #include "llmutelist.h"
 #include "llpanel.h"
-//#include "llstyle.h"
+#include "llstyle.h"
 #include "lltextbox.h"
-//#include "lliconctrl.h"
+#include "lliconctrl.h"
 
 /**
  * This class represents items of LLBlockList, which represents

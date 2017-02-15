@@ -32,8 +32,8 @@
 #include "v3math.h"
 #include "lltextbox.h"
 #include "llstring.h"
-//#include "llframetimer.h"
-//1#include <vector>
+#include "llframetimer.h"
+#include <vector>
 #include <map>
 
 class LLSliderCtrl;

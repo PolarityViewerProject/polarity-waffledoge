@@ -29,8 +29,8 @@
 
 #include <map>
 
-//#include "v3dmath.h"
-//#include "lluuid.h"
+#include "v3dmath.h"
+#include "lluuid.h"
 
 class LLMessageSystem;
 

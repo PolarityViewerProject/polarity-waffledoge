@@ -40,7 +40,7 @@
 #include "llgl.h"
 #include "res/resource.h" // *FIX: for setting gIconResource.
 
-//#include <fcntl.h>		//_O_APPEND
+#include <fcntl.h>		//_O_APPEND
 #include <io.h>			//_open_osfhandle()
 #include <WERAPI.H>		// for WerAddExcludedApplication()
 #include <process.h>	// _spawnl()
@@ -55,14 +55,14 @@
 
 #include <stdlib.h>
 
-//#include "llweb.h"
+#include "llweb.h"
 
-//#include "llviewernetwork.h"
+#include "llviewernetwork.h"
 #include "llmd5.h"
 #include "llfindlocale.h"
 
 #include "llcommandlineparser.h"
-//#include "lltrans.h"
+#include "lltrans.h"
 
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 #include "llwindebug.h"
@@ -70,7 +70,7 @@
 
 #include "stringize.h"
 
-//#include <exception>
+#include <exception>
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -227,7 +227,7 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 	
 #if WINDOWS_CRT_MEM_CHECKS && !INCLUDE_VLD
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF ); // dump memory leaks on exit
-#else
+#elif 0
 	// Experimental - enable the low fragmentation heap
 	// This results in a 2-3x improvement in opening a new Inventory window (which uses a large numebr of allocations)
 	// Note: This won't work when running from the debugger unless the _NO_DEBUG_HEAP environment variable is set to 1

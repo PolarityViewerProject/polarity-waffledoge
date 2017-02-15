@@ -30,14 +30,14 @@
 
 #include "llcylinder.h"
 
-//#include "llerror.h"
+#include "llerror.h"
 #include "math.h"
 #include "llmath.h"
-//#include "noise.h"
-//#include "v3math.h"
+#include "noise.h"
+#include "v3math.h"
 #include "llvertexbuffer.h"
-//#include "llgl.h"
-//#include "llglheaders.h"
+#include "llgl.h"
+#include "llglheaders.h"
 
 LLCone		gCone;
 

@@ -26,7 +26,7 @@
 #ifndef LLCONVERSATIONLOGLISTITEM_H_
 #define LLCONVERSATIONLOGLISTITEM_H_
 
-//#include "llfloaterimsession.h"
+#include "llfloaterimsession.h"
 #include "llpanel.h"
 
 class LLTextBox;

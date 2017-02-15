@@ -31,11 +31,11 @@
 #include "lldirpicker.h"
 #include "llworld.h"
 #include "llviewerwindow.h"
-//#include "llkeyboard.h"
-//#include "lldir.h"
+#include "llkeyboard.h"
+#include "lldir.h"
 #include "llframetimer.h"
-//#include "lltrans.h"
-//#include "llwindow.h"	// beforeDialog()
+#include "lltrans.h"
+#include "llwindow.h"	// beforeDialog()
 #include "llviewercontrol.h"
 #include "llwin32headerslean.h"
 

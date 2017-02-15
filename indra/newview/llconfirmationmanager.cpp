@@ -30,12 +30,12 @@
 
 #include "llconfirmationmanager.h"
 
-//#include "lluictrlfactory.h"
+#include "lluictrlfactory.h"
 
 // viewer includes
 #include "llnotificationsutil.h"
-//#include "llstring.h"
-// "llxmlnode.h"
+#include "llstring.h"
+#include "llxmlnode.h"
 
 LLConfirmationManager::ListenerBase::~ListenerBase()
 {

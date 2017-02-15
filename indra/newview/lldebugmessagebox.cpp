@@ -30,14 +30,14 @@
 
 #include "lldebugmessagebox.h"
 
-//#include "llresmgr.h"
-//#include "llfontgl.h"
+#include "llresmgr.h"
+#include "llfontgl.h"
 #include "llbutton.h"
 #include "llsliderctrl.h"
-//#include "llcheckboxctrl.h"
+#include "llcheckboxctrl.h"
 #include "lltextbox.h"
 #include "lllineeditor.h"
-//#include "llfocusmgr.h"
+#include "llfocusmgr.h"
 
 ///----------------------------------------------------------------------------
 /// Class LLDebugVarMessageBox

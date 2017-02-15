@@ -39,7 +39,7 @@
 #include "llconversationloglistitem.h"
 #include "llgroupactions.h"
 #include "llgroupiconctrl.h"
-//#include "llinventoryicon.h"
+#include "llinventoryicon.h"
 
 LLConversationLogListItem::LLConversationLogListItem(const LLConversation* conversation)
 :	LLPanel(),

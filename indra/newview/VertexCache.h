@@ -29,8 +29,6 @@
 
 #define VERTEX_CACHE_H
 
-#include <memory.h>  // for memset
-
 class VertexCache
 {
 	

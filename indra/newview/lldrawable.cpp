@@ -31,21 +31,21 @@
 #include "lldrawable.h"
 
 // library includes
-//#include "material_codes.h"
+#include "material_codes.h"
 
 // viewer includes
 #include "llcriticaldamp.h"
 #include "llface.h"
-//#include "lllightconstants.h"
+#include "lllightconstants.h"
 #include "llmatrix4a.h"
 #include "llsky.h"
-//#include "llsurfacepatch.h"
+#include "llsurfacepatch.h"
 #include "llviewercamera.h"
 #include "llviewerregion.h"
 #include "llvolume.h"
 #include "llvoavatar.h"
 #include "llvovolume.h"
-//#include "llvosurfacepatch.h" // for debugging
+#include "llvosurfacepatch.h" // for debugging
 #include "llworld.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"

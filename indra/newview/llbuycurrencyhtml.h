@@ -27,7 +27,7 @@
 #ifndef LL_LLBUYCURRENCYHTML_H
 #define LL_LLBUYCURRENCYHTML_H
 
-//#include "llsingleton.h"
+#include "llsingleton.h"
 
 class LLFloaterBuyCurrencyHTML;
 

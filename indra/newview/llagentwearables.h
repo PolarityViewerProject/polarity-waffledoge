@@ -28,7 +28,7 @@
 #define LL_LLAGENTWEARABLES_H
 
 // libraries
-//#include "llmemory.h"
+#include "llmemory.h"
 #include "llui.h"
 #include "lluuid.h"
 #include "llinventory.h"

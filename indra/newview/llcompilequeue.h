@@ -29,7 +29,7 @@
 
 #include "llinventory.h"
 #include "llviewerobject.h"
-//#include "llvoinventorylistener.h"
+#include "llvoinventorylistener.h"
 #include "lluuid.h"
 
 #include "llfloater.h"
