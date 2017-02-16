@@ -680,7 +680,7 @@
 				name="PVRender_EnableFilmGrain"
 				top_delta="0"
 				width="115">
-			</check_box> -->
+			</check_box>
 			<text
 				font="SansSerif"
 				font.style="BOLD"
@@ -694,7 +694,7 @@
 				top_pad="0"
 				width="10">
 				┣
-			</text>
+			</text>-->
 			<check_box
 				control_name="PVRender_EnableToneMapping"
 				enabled_control="RenderDeferred"
