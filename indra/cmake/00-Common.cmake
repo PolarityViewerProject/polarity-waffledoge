@@ -115,7 +115,6 @@ if (WINDOWS)
       /DGLM_FORCE_SSE3 # Can be: /DGLM_FORCE_AVX, /DGLM_FORCE_SSE3, /DGLM_FORCE_SSE3,  /DGLM_FORCE_PURE
       #/DGLM_MESSAGES=1 # Enable GLM Messages during compilation
       /DGLM_FORCE_SWIZZLE=1
-      /wd4099 # Missing PDB warning
       /std:c++14 # Since VS2015U3
       )
 
