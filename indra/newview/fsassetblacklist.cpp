@@ -7,6 +7,7 @@
  * $LicenseInfo:firstyear=2012&license=fsviewerlgpl$
  * Phoenix Firestorm Viewer Source Code
  * Copyright (C) 2012, Wolfspirit Magic
+ * Copyright (C) 2016, Ansariel Hiller
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
