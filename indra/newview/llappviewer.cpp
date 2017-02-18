@@ -2491,7 +2491,7 @@ bool LLAppViewer::initConfiguration()
 #endif
 
 	// <polarity> automatically show build number in title bar for early pipeline builds
-	if (LLVersionInfo::getCompiledChannel() != APP_NAME + " Beta" && LLVersionInfo::getCompiledChannel() != APP_NAME + " Release")
+	if (LLVersionInfo::getViewerMaturity() != LLVersionInfo::BETA_VIEWER && LLVersionInfo::getViewerMaturity() != LLVersionInfo::RELEASE_VIEWER)
 	{
 		LLControlVariable* c = gSavedSettings.getControl("PVWindow_TitleShowVersionNumber");
 		if (c)
