@@ -306,7 +306,8 @@ void LLControlVariable::resetToDefault(bool fire_signal)
 	
 	if (this == NULL) // crash fix
 	{
-		LL_WARNS() << "Pointer to LLControlVariable is null!" << LL_ENDL;
+		LL_WARNS() << "Pointer to LLControlVariable is null! Invalid control?" << LL_ENDL;
+		llassert(false);
 		return;
 	}
 	LLSD originalValue = mValues.back();
