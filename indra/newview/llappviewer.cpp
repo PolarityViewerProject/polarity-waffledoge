@@ -2489,7 +2489,22 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
-	
+
+	// <polarity> automatically show build number in title bar for early pipeline builds
+	if (LLVersionInfo::getCompiledChannel() != APP_NAME + " Beta" && LLVersionInfo::getCompiledChannel() != APP_NAME + " Release")
+	{
+		LLControlVariable* c = gSavedSettings.getControl("PVWindow_TitleShowVersionNumber");
+		if (c)
+		{
+			c->setValue(true, false);
+		}
+		c = gSavedSettings.getControl("PVWindow_TitleAnonymize");
+		if (c)
+		{
+			c->setValue(false, false);
+		}
+	}
+
 	// These are warnings that appear on the first experience of that condition.
 	// They are already set in the settings_default.xml file, but still need to be added to LLFirstUse
 	// for disable/reset ability
