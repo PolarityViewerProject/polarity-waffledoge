@@ -42,7 +42,7 @@
 #include "lltooltip.h"
 #include "lllocalcliprect.h"
 #include <iostream>
-#include "../newview/pvfpsmeter.h"
+//#include "../newview/pvfpsmeter.h"
 
 // rate at which to update display of value that is rapidly changing
 const F32 MEAN_VALUE_UPDATE_TIME = 1.f / 4.f; 
@@ -194,12 +194,7 @@ LLStatBar::LLStatBar(const Params& p)
 	mAutoScaleMin(!p.bar_min.isProvided()),
 	mTickSpacing(p.tick_spacing),
 	mLastDisplayValue(0.f),
-	mStatType(STAT_NONE),
-	// <polarity> Theme-able graphs
-	mBarDotColor(LLUIColorTable::instance().getColor("EmphasisColor")),
-	mBarMeanColor(LLUIColorTable::instance().getColor("StatBarMeanBarColor")),
-	mBarBGColor(LLUIColorTable::instance().getColor("StatBarFPSBGColor"))
-	// </polarity>
+	mStatType(STAT_NONE)
 {
 	mFloatingTargetMinBar = mTargetMinBar;
 	mFloatingTargetMaxBar = mTargetMaxBar;
@@ -434,8 +429,11 @@ void LLStatBar::draw()
 
 		drawTicks(min, max, value_scale, bar_rect);
 
+		auto uiCT = LLUIColorTable::getInstance();
+		static LLColor4 bar_bg(uiCT->getColor("StatBarFPSBGColor"));
+
 		// draw background bar.
-		gl_rect_2d(bar_rect.mLeft, bar_rect.mTop, bar_rect.mRight, bar_rect.mBottom, mBarBGColor.get());
+		gl_rect_2d(bar_rect.mLeft, bar_rect.mTop, bar_rect.mRight, bar_rect.mBottom, bar_bg);
 
 		// draw values
 		if (!llisnan(display_value) && frame_recording.getNumRecordedPeriods() != 0)
@@ -450,8 +448,9 @@ void LLStatBar::draw()
 
 			S32 end = (S32) ((max - mCurMinBar) * value_scale);
 			// The range color is too bright when displayed on the stats bar, darken it a little
-			auto fps_color = PVFPSMeter::getColor();
-			auto range_bar_fixed = LLColor4(fps_color.mV[0] - 0.13, fps_color.mV[1] - 0.13, fps_color.mV[2] - 0.13, 0.45f);
+			//auto fps_color = PVFPSMeter::getColor();
+			//auto range_bar_fixed = LLColor4(fps_color.mV[0] - 0.13, fps_color.mV[1] - 0.13, fps_color.mV[2] - 0.13, 0.45f);
+			static LLColor4 range_bar_fixed = LLColor4(bar_bg.mV[0] - 0.13, bar_bg.mV[1] - 0.13, bar_bg.mV[2] - 0.13, 0.45f);
 			if (mOrientation == HORIZONTAL)
 			{
 				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, range_bar_fixed); // <polarity/>
@@ -465,6 +464,7 @@ void LLStatBar::draw()
 					? (bar_rect.getWidth())
 					: (bar_rect.getHeight());
 
+			static LLColor4 bar_dot(uiCT->getColor("EmphasisColor"));
 			if (mDisplayHistory && mStat.valid)
 			{
 				const S32 num_values = frame_recording.getNumRecordedPeriods() - 1;
@@ -472,8 +472,7 @@ void LLStatBar::draw()
 					max_value = 0.f;
 
 				// We set alpha here because this color depends on the channel
-				LLColor4 bar_dots_alpha = LLColor4(mBarDotColor.get().mV[0], mBarDotColor.get().mV[1], mBarDotColor.get().mV[2], 0.75f);
-				gGL.color4fv(bar_dots_alpha.mV); // <polarity/>
+				gGL.color4fv(LLColor4(bar_dot.mV[0], bar_dot.mV[1], bar_dot.mV[2], 0.75f).mV); // <polarity/>
 				gGL.begin( LLRender::QUADS );
 				const S32 max_frame = llmin(num_frames, num_values);
 				U32 num_samples = 0;
@@ -536,11 +535,11 @@ void LLStatBar::draw()
 				// draw current
 				if (mOrientation == HORIZONTAL)
 				{
-                    gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, mBarDotColor.get()); // <polarity/>
+                    gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, bar_dot); // <polarity/>
 				}
 				else
 				{
-                    gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, mBarDotColor.get()); // <polarity/>
+                    gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, bar_dot); // <polarity/>
 				}
 			}
 
@@ -548,13 +547,14 @@ void LLStatBar::draw()
 			{
 				const S32 begin = (S32) ((mean - mCurMinBar) * value_scale) - 1;
 				const S32 end = (S32) ((mean - mCurMinBar) * value_scale) + 1;
+				static LLColor4 bar_mean_line(uiCT->getColor("StatBarMeanBarColor"));
 				if (mOrientation == HORIZONTAL)
 				{
-					gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, mBarMeanColor); // <polarity/>
+					gl_rect_2d(bar_rect.mLeft - 2, begin, bar_rect.mRight + 2, end, bar_mean_line); // <polarity/>
 				}
 				else
 				{
-					gl_rect_2d(begin, bar_rect.mTop + 2, end, bar_rect.mBottom - 2, mBarMeanColor); // <polarity/>
+					gl_rect_2d(begin, bar_rect.mTop + 2, end, bar_rect.mBottom - 2, bar_mean_line); // <polarity/>
 				}
 			}
 		}

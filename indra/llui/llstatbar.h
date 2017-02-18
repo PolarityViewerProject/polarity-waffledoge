@@ -88,12 +88,6 @@ private:
 	EOrientation mOrientation;
 	F32			 mLastDisplayValue;
 	LLFrameTimer mLastDisplayValueTimer;
-	// <polarity> Theme-able graphs
-	LLUIColor mBarDotColor;
-	LLUIColor mBarRangeColor;
-	LLUIColor mBarMeanColor;
-	LLUIColor mBarBGColor;
-	// </polarity>
 
 	enum
 	{
