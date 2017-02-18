@@ -37,8 +37,8 @@ PVRender_EnableGodRays		1	1
 PVRender_EnableLensFlare	1	1
 PVRender_EnableSSR			1	1
 PVRender_EnableToneMapping	1	1
-PVRender_FPSLimiterEnabled	1	1
-PVRender_FPSLimiterTarget	1	165
+PVRender_FPSLimiterEnabled	1	0
+PVRender_FPSLimiterTarget	1	-1
 PVRender_GodraysDirectional	1	1
 PVRender_ShadowDetailRigged	1	3
 PVRender_ShadowResolutionClosest	1	8192
@@ -189,8 +189,6 @@ PVRender_ShadowDetailRigged	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 
 //
 // Low Graphics Settings
@@ -231,8 +229,6 @@ PVRender_ShadowDetailRigged	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium Low Graphics Settings
@@ -272,8 +268,6 @@ PVRender_ShadowDetailRigged	1	0
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium Graphics Settings (standard)
@@ -313,8 +307,6 @@ PVRender_ShadowDetailRigged	1	1
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 
 //
 // Medium High Graphics Settings (deferred enabled)
@@ -355,8 +347,6 @@ PVRender_DeferredFXAAQuality	1	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	512
 PVRender_ShadowResolutionMid	1	256
 PVRender_ShadowResolutionFar	1	256
@@ -401,8 +391,6 @@ PVRender_DeferredFXAAQuality	1	15
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	1024
 PVRender_ShadowResolutionMid	1	512
 PVRender_ShadowResolutionFar	1	256
@@ -447,8 +435,6 @@ PVRender_DeferredFXAAQuality	1	20
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	2048
 PVRender_ShadowResolutionMid	1	1024
 PVRender_ShadowResolutionFar	1	768
@@ -492,8 +478,6 @@ PVRender_DeferredFXAAQuality	1	39
 RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
 PVRender_ShadowResolutionClosest	1	3072
 PVRender_ShadowResolutionMid	1	2048
 PVRender_ShadowResolutionFar	1	1024
@@ -537,8 +521,6 @@ PVRender_EnableSSR			1	1
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	3
 PVRender_DeferredFXAAQuality	1	39
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	165
 
 //
 // Class Unknown Hardware (unknown)
