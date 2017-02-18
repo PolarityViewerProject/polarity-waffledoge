@@ -450,14 +450,13 @@ void LLStatBar::draw()
 			// The range color is too bright when displayed on the stats bar, darken it a little
 			//auto fps_color = PVFPSMeter::getColor();
 			//auto range_bar_fixed = LLColor4(fps_color.mV[0] - 0.13, fps_color.mV[1] - 0.13, fps_color.mV[2] - 0.13, 0.45f);
-			static LLColor4 range_bar_fixed = LLColor4(bar_bg.mV[0] - 0.13, bar_bg.mV[1] - 0.13, bar_bg.mV[2] - 0.13, 0.45f);
 			if (mOrientation == HORIZONTAL)
 			{
-				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, range_bar_fixed); // <polarity/>
+				gl_rect_2d(bar_rect.mLeft, end, bar_rect.mRight, begin, bar_bg); // <polarity/>
 			}
 			else // VERTICAL
 			{
-				gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, range_bar_fixed); // <polarity/>
+				gl_rect_2d(begin, bar_rect.mTop, end, bar_rect.mBottom, bar_bg); // <polarity/>
 			}
 
 			F32 span = (mOrientation == HORIZONTAL)

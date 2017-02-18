@@ -1124,7 +1124,7 @@
     reference="EmphasisColor"/>
    <color
     name="StatBarFPSBGColor"
-    value="0.12157 0.12157 0.12157 0.25"/>
+    value="0.12157 0.12157 0.12157 0.45"/>
    <color
     name="StatBarMeanBarColor"
     reference="White_25"/>
