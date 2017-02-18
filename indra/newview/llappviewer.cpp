@@ -1588,7 +1588,7 @@ bool LLAppViewer::frame()
 			// Only limit FPS when we are actually rendering something. Otherwise
 			// logins, logouts and teleports take much longer to complete.
 			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& PVFPSMeter::getLimiterEnabled()
+					&& PVFPSMeter::validateFPSLimiterEnabled()
 					&& !gTeleportDisplay
 					&& !logoutRequestSent())
 			{
@@ -5115,7 +5115,6 @@ void LLAppViewer::idle()
 	// <polarity>
 	gPVOldAPI->refreshDataFromServer();
 	//PVGetDynamicWindowTitle();
-	PVFPSMeter::refresh();
 	// </polarity>
 
 	gViewerWindow->updateUI();

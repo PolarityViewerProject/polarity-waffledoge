@@ -193,7 +193,7 @@ public:
 	static void onCommitVec4W(LLUICtrl* ctrl, const LLSD& param);
 
 	// <Black Dragon:NiranV> Revert to Default
-	void resetToDefault(LLUICtrl* ctrl);
+	void resetToDefault(LLUICtrl* ctrl, const LLSD& param);
 private:
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	void toggleFullscreenWindow();
@@ -218,6 +218,9 @@ private:
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void onLogChatHistorySaved();	
 	void buildPopupLists();
+
+	// FPS Limiter
+	void onCommitFPSLimiterTarget(LLUICtrl* ctrl, const LLSD& param);
 
 public:
 	static void refreshSkin(void* data);

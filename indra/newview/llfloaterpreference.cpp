@@ -106,6 +106,8 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#include "pvfpsmeter.h"
+
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -302,7 +304,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 		LLFloaterReg::add("voice_set_key", "floater_select_key.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLVoiceSetKeyDialog>);
 		registered_dialog = true;
 	}
-	
+
+	// note: non-static functions need 'this', static functions do not.
 	mCommitCallbackRegistrar.add("Pref.Cancel",				boost::bind(&LLFloaterPreference::onBtnCancel, this, _2));
 	mCommitCallbackRegistrar.add("Pref.OK",					boost::bind(&LLFloaterPreference::onBtnOK, this, _2));
 	
@@ -373,7 +376,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ArrayVec4W", boost::bind(&LLFloaterPreference::onCommitVec4W, _1, _2));
 
 	// <Black Dragon:NiranV> Revert to Default
-	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1));
+	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1, _2));
 
 	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 
@@ -381,6 +384,10 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
 	// reset texture memory slider
 	mCommitCallbackRegistrar.add("Pref.getRecommendedtextMem", boost::bind(&LLFloaterPreference::resetTextureMemorySlider, this));
+
+	// validate FPS Limiter slider value
+	mCommitCallbackRegistrar.add("Pref.validateFPSLimiterTarget",	boost::bind(&LLFloaterPreference::onCommitFPSLimiterTarget, this, _1, _2));
+
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -667,6 +674,12 @@ void LLFloaterPreference::refreshGraphicControls()
 	updateMaxNonImpostors();
 	// </polarity>
 
+	// FPS Limiter
+	auto fpsSlider = getChild<LLSliderCtrl>("fps_limiter_slider");
+	if (fpsSlider)
+	{
+		fpsSlider->setValue(PVFPSMeter::getLimit());
+	}
 }
 // </Black Dragon:NiranV>
 void LLFloaterPreference::draw()
@@ -2203,14 +2216,23 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 }
 
 // <Black Dragon:NiranV> Revert to Default
-void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl)
+void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl, const LLSD& param)
 {
-	if(!ctrl)
+	auto controlp = ctrl->getControlVariable();
+	if (!controlp)
 	{
-		return;
+		controlp = gSavedSettings.getControl(param.asString());
 	}
-	ctrl->getControlVariable()->resetToDefault(true);
-	refreshGraphicControls();
+	llassert(controlp);
+	controlp->resetToDefault(true);
+	// hack to fix slider value on reset
+	const auto fps_control = gSavedSettings.getControl("PVRender_FPSLimiterTarget");
+	if (controlp == fps_control)
+	{
+		PVFPSMeter::setLimit(controlp->getValue());
+	}
+
+	LLFloaterPreference::refreshGraphicControls();
 }
 void LLFloaterPreference::onLogChatHistorySaved()
 {
@@ -3002,3 +3024,10 @@ bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response)
 }
 // </polarity>
 
+// FPS Limiter
+void LLFloaterPreference::onCommitFPSLimiterTarget(LLUICtrl* ctrl, const LLSD& param)
+{
+	LL_DEBUGS() << "Sending FPS Target of " << param.asString() << " for validation" << LL_ENDL;
+	S32 param_s32 = param.asInteger();
+	PVFPSMeter::validateFPSLimiterTarget(param_s32);
+}

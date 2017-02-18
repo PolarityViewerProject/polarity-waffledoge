@@ -627,7 +627,7 @@ void toggle_updater_service_active(const LLSD& new_value)
 
 static bool handleFPSLimiterTargetChanged(const LLSD& newvalue)
 {
-	PVFPSMeter::validateFPSLimiterTarget();
+	PVFPSMeter::validateFPSLimiterTarget(newvalue.asInteger());
 	return true;
 }
 

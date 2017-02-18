@@ -32,13 +32,14 @@
 #include "lluicolortable.h"
 #include "llviewercontrol.h"
 #include "llwindowwin32.h"
+#include "llstatbar.h"
 
-const U32 FRAME_NULL_ZONE = 1;
+const S32 FRAME_NULL_ZONE = 1;
 
 // Default values, because static and shenanigans
 bool PVFPSMeter::mFPSLimiterEnabled(false);
 F32 PVFPSMeter::mFPSMeterValue(0.f);
-U32 PVFPSMeter::mFPSLimiterTarget(0);
+S32 PVFPSMeter::mFPSLimiterTarget(-1);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
 
@@ -48,7 +49,8 @@ bool PVFPSMeter::start()
 	{
 		return false;
 	}
-	
+	mFPSLimiterTarget = gSavedSettings.getS32("PVRender_FPSLimiterTarget");
+	mFPSLimiterEnabled = gSavedSettings.getBOOL("PVRender_FPSLimiterEnabled");
 	mStatusBarFPSCounterTimer.start();
 	return true;
 }
@@ -60,20 +62,28 @@ bool PVFPSMeter::stop()
 		return false;
 	}
 	mStatusBarFPSCounterTimer.stop();
+	gSavedSettings.setS32("PVRender_FPSLimiterTarget", mFPSLimiterTarget);
+	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", mFPSLimiterEnabled);
 	return true;
 }
 
-void PVFPSMeter::refresh()
+void PVFPSMeter::update()
 {
 	if (!mStatusBarFPSCounterTimer.getStarted())
 	{
 		//llassert(mStatusBarFPSCounterTimer.getStarted());
 		return;
 	}
+
+	static LLCachedControl<bool> fps_counter_visible(gSavedSettings, "PVUI_StatusBarShowFPSCounter");
+	if (!fps_counter_visible)
+	{
+		return;
+	}
+
 	// Throttle a bit to avoid making faster FPS heavier to process
 	if (mStatusBarFPSCounterTimer.getElapsedTimeF32() > 0.25)
-	{
-		// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
+	{// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
 		static auto color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
 		static auto color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
 		static auto color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
@@ -87,18 +97,14 @@ void PVFPSMeter::refresh()
 		static LLCachedControl<U32> fps_medium(gSavedSettings, "PVUI_FPSCounter_Medium", 40);
 		static LLCachedControl<U32> fps_high(gSavedSettings, "PVUI_FPSCounter_High", 50);
 		static LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
-		static LLCachedControl<bool> fps_limiter(gSavedSettings, "PVRender_FPSLimiterEnabled", false);
-		
+
 		// Update the FPS count value from the statistics system (This is the normalized value, like in the statisics floater)
 		auto frame_recording = LLTrace::get_frame_recording();  // capture sample of the frame recording, I think.
-		F32 current_fps_sampled = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 2);
+		static F32 current_fps_sampled;
+		current_fps_sampled = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 2);
 
 		// Update the values
 		mFPSMeterValue = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS); // current fps showed to the user
-		if(mFPSLimiterEnabled != fps_limiter)
-		{
-			mFPSLimiterEnabled = fps_limiter;
-		}
 
 		// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
 		// to show vsync'd and limited statuses.
@@ -179,36 +185,38 @@ std::string PVFPSMeter::getValueWithRefreshRate()
 	return (llformat(decimal_precision, mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
 }
 
-void PVFPSMeter::setLimit(const F32& new_limit_f32)
+bool PVFPSMeter::setLimit(const S32& new_limit)
 {
-	if (mFPSLimiterTarget != new_limit_f32)
+	if (mFPSLimiterTarget != new_limit)
 	{
-		mFPSLimiterTarget = new_limit_f32;
+		mFPSLimiterTarget = new_limit;
+		gSavedSettings.setS32("PVRender_FPSLimiterTarget", mFPSLimiterTarget);
+		return true;
 	}
+	return false;
 }
 
-bool PVFPSMeter::validateFPSLimiterTarget()
+bool PVFPSMeter::validateFPSLimiterTarget(const S32& new_limit)
 {
-	static LLCachedControl<S32> cached_fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-	static LLCachedControl<bool> cached_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
-	bool is_target_safe = true;
-	if (cached_fps_target < 0)
+	if (new_limit == -1)
 	{
-		auto refresh_rate = LLWindowWin32::getRefreshRate();
-		llassert(refresh_rate);
-		PVFPSMeter::setLimit(refresh_rate);
+		setLimit(LLWindowWin32::getRefreshRate());
 	}
 	else
 	{
-		if (cached_fps_target >= MINIMUM_FPS_LIMIT) // Do not apply limiter for less than this value; prevents sudden lockup
-		{
-			PVFPSMeter::setLimit(cached_fps_target);
-		}
-		else
-		{
-			is_target_safe = false;
-		}
+		setLimit(new_limit);
 	}
-	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", static_cast<BOOL>((bool)cached_limiter_enabled && is_target_safe));
-	return is_target_safe;
+	return (mFPSLimiterTarget >= MINIMUM_FPS_LIMIT);
+}
+
+bool PVFPSMeter::validateFPSLimiterEnabled()
+{
+	// update fps limiter enabled state
+	static LLCachedControl<bool> fpslimiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
+	if (mFPSLimiterEnabled != fpslimiter_enabled)
+	{
+		mFPSLimiterEnabled = fpslimiter_enabled;
+	}
+	update();
+	return mFPSLimiterEnabled && (mFPSLimiterTarget >= MINIMUM_FPS_LIMIT);
 }

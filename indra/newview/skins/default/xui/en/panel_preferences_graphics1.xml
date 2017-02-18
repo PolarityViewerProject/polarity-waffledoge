@@ -1077,18 +1077,21 @@
         </check_box>
         <slider
           can_edit_text="true"
-          control_name="PVRender_FPSLimiterTarget"
-          decimal_digits="2"
-          increment="0.25"
+          decimal_digits="0"
+          increment="1"
           follows="left|top"
+          initial_value="15"
           height="16"
           layout="topleft"
           left_pad="5"
           max_val="144"
-          min_val="-1.0"
+          min_val="-1"
           name="fps_limiter_slider"
           top_delta="0"
           width="185">
+          <slider.commit_callback
+            function="Pref.validateFPSLimiterTarget">
+          </slider.commit_callback>
           </slider>
           <button
             follows="left|top"
