@@ -85,7 +85,7 @@ public:
 	static BOOL sExodusRenderToneMapping;
 	static LLVector3 sExodusRenderVignette;
 	static S32 sExodusRenderToneMappingTech;
-	static bool sExodusRenderColorGradeTech;
+	static S32 sExodusRenderColorGradeTech;
 	static LLVector3 sExodusRenderToneAdvOptA;
 	static LLVector3 sExodusRenderToneAdvOptB;
 	static LLVector3 sExodusRenderToneAdvOptC;
