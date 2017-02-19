@@ -2591,6 +2591,11 @@
               name="0"
               value="0">
             </combo_box.item>
+            <combo_box.item
+              label="1D Gammut"
+              name="1"
+              value="1">
+            </combo_box.item>
           </combo_box>
           <slider
             can_edit_text="true"
