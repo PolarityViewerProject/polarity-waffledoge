@@ -2583,13 +2583,13 @@
             width="100">
             <combo_box.item
               label="Disabled"
-              name="0"
-              value="0">
+              name="-1"
+              value="-1">
             </combo_box.item>
             <combo_box.item
               label="Linear"
-              name="1"
-              value="1">
+              name="0"
+              value="0">
             </combo_box.item>
           </combo_box>
           <slider
