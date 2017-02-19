@@ -219,9 +219,6 @@ private:
 	void onLogChatHistorySaved();	
 	void buildPopupLists();
 
-	// FPS Limiter
-	void onCommitFPSLimiterTarget(LLUICtrl* ctrl, const LLSD& param);
-
 public:
 	static void refreshSkin(void* data);
 private:

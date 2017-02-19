@@ -2450,22 +2450,16 @@ bool idle_startup()
 
 		llassert(LLPathfindingManager::getInstance() != NULL);
 		LLPathfindingManager::getInstance()->initSystem();
-		// <polarity> Report web-served MOTD to chat
+
+		gAgentAvatarp->sendHoverHeight();
+
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
-
-		// start pvdata refresh timer
 		gPVOldAPI->startRefreshTimer();
-		// </polarity>
 		PVFPSMeter::start();
-
-		// Reminder
 		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
 		{
 			PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
 		}
-
-		gAgentAvatarp->sendHoverHeight();
-
 
 		return TRUE;
 	}

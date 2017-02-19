@@ -34,8 +34,12 @@ class PVFPSMeter
 {
 public:
 	PVFPSMeter();
-	static bool setLimit(const S32& new_limit_f32);
-	static void update();
+	static void enableLimiter(const bool& enabled)
+	{
+		mFPSLimiterEnabled = enabled;
+	}
+	static void setLimit(const S32& new_limit_f32);
+	static bool update();
 
 	static std::string getValueWithRefreshRate();
 
@@ -56,12 +60,6 @@ public:
 
 	static bool start();
 	static bool stop();
-	static bool validateFPSLimiterTarget(const S32& new_limit = -1);
-	static bool validateFPSLimiterEnabled();
-	static bool getLimiterEnabled()
-	{
-		return mFPSLimiterTarget > MINIMUM_FPS_LIMIT && mFPSLimiterEnabled;
-	}
 
 private:
 	static LLColor4			mFPSMeterColor;

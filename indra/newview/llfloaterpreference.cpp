@@ -106,8 +106,6 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
-#include "pvfpsmeter.h"
-
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -384,10 +382,6 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
 	// reset texture memory slider
 	mCommitCallbackRegistrar.add("Pref.getRecommendedtextMem", boost::bind(&LLFloaterPreference::resetTextureMemorySlider, this));
-
-	// validate FPS Limiter slider value
-	mCommitCallbackRegistrar.add("Pref.validateFPSLimiterTarget",	boost::bind(&LLFloaterPreference::onCommitFPSLimiterTarget, this, _1, _2));
-
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -673,14 +667,8 @@ void LLFloaterPreference::refreshGraphicControls()
 	updateMaxComplexity();
 	updateMaxNonImpostors();
 	// </polarity>
-
-	// FPS Limiter
-	auto fpsSlider = getChild<LLSliderCtrl>("fps_limiter_slider");
-	if (fpsSlider)
-	{
-		fpsSlider->setValue(PVFPSMeter::getLimit());
-	}
 }
+
 // </Black Dragon:NiranV>
 void LLFloaterPreference::draw()
 {
@@ -2225,12 +2213,6 @@ void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl, const LLSD& param)
 	}
 	llassert(controlp);
 	controlp->resetToDefault(true);
-	// hack to fix slider value on reset
-	const auto fps_control = gSavedSettings.getControl("PVRender_FPSLimiterTarget");
-	if (controlp == fps_control)
-	{
-		PVFPSMeter::setLimit(controlp->getValue());
-	}
 
 	LLFloaterPreference::refreshGraphicControls();
 }
@@ -3023,11 +3005,3 @@ bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response)
 	return false;
 }
 // </polarity>
-
-// FPS Limiter
-void LLFloaterPreference::onCommitFPSLimiterTarget(LLUICtrl* ctrl, const LLSD& param)
-{
-	LL_DEBUGS() << "Sending FPS Target of " << param.asString() << " for validation" << LL_ENDL;
-	S32 param_s32 = param.asInteger();
-	PVFPSMeter::validateFPSLimiterTarget(param_s32);
-}

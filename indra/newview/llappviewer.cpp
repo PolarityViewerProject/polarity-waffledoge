@@ -1588,7 +1588,7 @@ bool LLAppViewer::frame()
 			// Only limit FPS when we are actually rendering something. Otherwise
 			// logins, logouts and teleports take much longer to complete.
 			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& PVFPSMeter::validateFPSLimiterEnabled()
+					&& PVFPSMeter::update()
 					&& !gTeleportDisplay
 					&& !logoutRequestSent())
 			{

@@ -625,12 +625,6 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
-static bool handleFPSLimiterTargetChanged(const LLSD& newvalue)
-{
-	PVFPSMeter::validateFPSLimiterTarget(newvalue.asInteger());
-	return true;
-}
-
 // <Black Dragon:NiranV> Expose Attached Lights and Particles
 static bool handleRenderAttachedLightsChanged(const LLSD& newvalue)
 {
@@ -754,6 +748,27 @@ static bool handleCloudNoiseChanged(const LLSD& newvalue)
 //BD
 
 ////////////////////////////////////////////////////////////////////////////
+
+// FPS Limiter
+static bool validateFPSLimiterTarget(const LLSD& val)
+{
+	const S32 fps_limit = val.asInteger();
+	return fps_limit == -1 || (fps_limit >= 15); // arbitrary limit
+}
+
+static bool handleFPSLimiterTargetChanged(const LLSD& val)
+{
+	const S32 fps_limit = val.asInteger();
+	PVFPSMeter::setLimit(fps_limit);
+	return true;
+}
+
+static bool handleFPSLimiterEnabledChanged(const LLSD& val)
+{
+	const bool want_enabled = val.asBoolean();
+	PVFPSMeter::enableLimiter(want_enabled);
+	return true;
+}
 
 void settings_setup_listeners()
 {
@@ -952,7 +967,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
 	// <polarity> FPS Meter class and FPS Limiter
-	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(handleFPSLimiterTargetChanged, _2));
+	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2));
+	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
+	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
