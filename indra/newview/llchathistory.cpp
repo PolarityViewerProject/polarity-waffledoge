@@ -1057,14 +1057,15 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// out of the timestamp
 		if (args["show_time"].asBoolean())
 		{
-		if (!message_from_log)
-		{
-			LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
-			timestamp_style.color(timestamp_color);
-			timestamp_style.readonly_color(timestamp_color);
-		}
-			mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
-			prependNewLineState = false;
+			if (!message_from_log)
+			{
+				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
+				timestamp_style.color(timestamp_color);
+				timestamp_style.readonly_color(timestamp_color);
+				
+				mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
+				prependNewLineState = false;
+			}
 		}
 
         // out the opening square bracket (if need)
