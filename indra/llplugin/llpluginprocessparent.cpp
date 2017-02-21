@@ -56,7 +56,7 @@ class LLPluginProcessParentPollThread: public LLThread
 {
 public:
 	LLPluginProcessParentPollThread() :
-		LLThread("LLPluginProcessParentPollThread")
+		LLThread("LLPluginProcessParentPollThread", gAPRPoolp)
 	{
 	}
 protected:

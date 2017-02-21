@@ -43,6 +43,7 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llallocator.h"
+#include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
@@ -255,7 +256,7 @@ private:
 	void writeSystemInfo(); // Write system info to "debug_info.log"
 
 	void processMarkerFiles(); 
-	static void recordMarkerVersion(LLFILE* marker_file);
+	static void recordMarkerVersion(LLAPRFile& marker_file);
 	bool markerIsSameVersion(const std::string& marker_name) const;
 	
     void idle(); 
@@ -276,10 +277,10 @@ private:
     bool mSecondInstance; // Is this a second instance of the app?
 
 	std::string mMarkerFileName;
-	LLFILE* mMarkerFile; // A file created to indicate the app is running.
+	LLAPRFile mMarkerFile; // A file created to indicate the app is running.
 
 	std::string mLogoutMarkerFileName;
-	LLFILE* mLogoutMarkerFile; // A file created to indicate the app is running.
+	LLAPRFile mLogoutMarkerFile; // A file created to indicate the app is running.
 
 	
 	LLOSInfo mSysOSInfo; 

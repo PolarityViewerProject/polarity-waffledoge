@@ -1,4 +1,4 @@
-// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+﻿// This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /** 
  * @File llvoavatar.cpp
@@ -55,6 +55,7 @@
 #include "llpolyskeletaldistortion.h"
 #include "lleditingmotion.h"
 #include "llemote.h"
+#include "llfilepicker.h"
 #include "llfloatertools.h"
 #include "llheadrotmotion.h"
 #include "llhudeffecttrail.h"
@@ -8076,7 +8077,7 @@ bool LLVOAvatar::visualParamWeightsAreDefault()
 	return rtn;
 }
 
-void dump_visual_param(llofstream& ofstream, LLVisualParam* viewer_param, F32 value)
+void dump_visual_param(apr_file_t* file, LLVisualParam* viewer_param, F32 value)
 {
 	std::string type_string = "unknown";
 	if (dynamic_cast<LLTexLayerParamAlpha*>(viewer_param))
@@ -8096,8 +8097,7 @@ void dump_visual_param(llofstream& ofstream, LLVisualParam* viewer_param, F32 va
 		wtype = vparam->getWearableType();
 	}
 	S32 u8_value = F32_to_U8(value,viewer_param->getMinWeight(),viewer_param->getMaxWeight());
-	//apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" display=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
-	ofstream << llformat("\t\t<param id=\"%d\" name=\"%s\" display=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
+	apr_file_printf(file, "\t\t<param id=\"%d\" name=\"%s\" display=\"%s\" value=\"%.3f\" u8=\"%d\" type=\"%s\" wearable=\"%s\" group=\"%d\"/>\n",
 					viewer_param->getID(), viewer_param->getName().c_str(), viewer_param->getDisplayName().c_str(), value, u8_value, type_string.c_str(),
 					LLWearableType::getTypeName(LLWearableType::EType(wtype)).c_str(),
 					viewer_param->getGroup());
@@ -8111,9 +8111,11 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 	const std::vector<F32>& params_for_dump = contents.mParamWeights;
 	const LLTEContents& tec = contents.mTEContents;
 
+	LLAPRFile outfile;
 	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	llofstream outstream(fullpath, std::ios::out | std::ios::binary | std::ios::trunc);
-	if (!outstream.is_open())
+	outfile.open(fullpath, LL_APR_WB );
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
 	{
 		return;
 	}
@@ -8122,12 +8124,12 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 		LL_DEBUGS("Avatar") << "dumping appearance message to " << fullpath << LL_ENDL;
 	}
 
-	outstream << "<header>\n";
-	outstream << llformat("\t\t<cof_version %i />\n", contents.mCOFVersion);
-	outstream << llformat("\t\t<appearance_version %i />\n", contents.mAppearanceVersion);
-	outstream << "</header>\n";
+	apr_file_printf(file, "<header>\n");
+	apr_file_printf(file, "\t\t<cof_version %i />\n", contents.mCOFVersion);
+	apr_file_printf(file, "\t\t<appearance_version %i />\n", contents.mAppearanceVersion);
+	apr_file_printf(file, "</header>\n");
 
-	outstream << "\n<params>\n";
+	apr_file_printf(file, "\n<params>\n");
 	LLVisualParam* param = getFirstVisualParam();
 	for (S32 i = 0; i < params_for_dump.size(); i++)
 	{
@@ -8138,19 +8140,19 @@ void LLVOAvatar::dumpAppearanceMsgParams( const std::string& dump_prefix,
 		}
 		LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
 		F32 value = params_for_dump[i];
-		dump_visual_param(outstream, viewer_param, value);
+		dump_visual_param(file, viewer_param, value);
 		param = getNextVisualParam();
 	}
-	outstream << "</params>\n";
+	apr_file_printf(file, "</params>\n");
 
-	outstream << "\n<textures>\n";
+	apr_file_printf(file, "\n<textures>\n");
 	for (U32 i = 0; i < tec.face_count; i++)
 	{
 		std::string uuid_str;
 		((LLUUID*)tec.image_data)[i].toString(uuid_str);
-		outstream << llformat("\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", i, uuid_str.c_str());
+		apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", i, uuid_str.c_str());
 	}
-	outstream << "</textures>\n";
+	apr_file_printf(file, "</textures>\n");
 }
 
 void LLVOAvatar::parseAppearanceMessage(LLMessageSystem* mesgsys, LLAppearanceMessageContents& contents)
@@ -8842,23 +8844,37 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 	}
 	std::string outfilename = get_sequential_numbered_file_name(outprefix,".xml");
 	
-
-	std::string fullpath = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,outfilename);
-	llofstream outstream(fullpath, std::ios::out | std::ios::binary | std::ios::trunc);
-	if (outstream.is_open())
+	LLFilePicker& file_picker = LLFilePicker::instance();
+	if (!file_picker.getSaveFile(LLFilePicker::FFSAVE_XML, outfilename))
 	{
-		LL_INFOS() << "xmlfile write handle obtained : " << fullpath << LL_ENDL;
+		LL_INFOS("DumpArchetypeXML") << "User closed the filepicker" << LL_ENDL;
+		return;
+	}
+	
+	LLAPRFile outfile;
+	std::string fullpath = file_picker.getFirstFile();
+	outfile.open(fullpath, LL_APR_WB);
+	apr_file_t* file = outfile.getFileHandle();
+	if (!file)
+	{
+		LL_WARNS("DumpArchetypeXML") << "No file to dump to!" << LL_ENDL;
+		return;
+	}
+	else
+	{
+		LL_INFOS("DumpArchetypeXML") << "xmlfile write handle obtained : " << fullpath << LL_ENDL;
+	}
 
-		outstream << "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n";
-		outstream << "<linden_genepool version=\"1.0\">\n";
-		outstream << "\n\t<archetype name=\"???\">\n";
+		apr_file_printf( file, "<?xml version=\"1.0\" encoding=\"US-ASCII\" standalone=\"yes\"?>\n" );
+		apr_file_printf( file, "<linden_genepool version=\"1.0\">\n" );
+		apr_file_printf( file, "\n\t<archetype name=\"???\">\n" );
 
 		if (group_by_wearables)
 		{
 			for (S32 type = LLWearableType::WT_SHAPE; type < LLWearableType::WT_COUNT; type++)
 			{
 				const std::string& wearable_name = LLWearableType::getTypeName((LLWearableType::EType)type);
-				outstream << llformat("\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str());
+				apr_file_printf( file, "\n\t\t<!-- wearable: %s -->\n", wearable_name.c_str() );
 
 				for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 				{
@@ -8866,7 +8882,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 					if( (viewer_param->getWearableType() == type) && 
 					   (viewer_param->isTweakable() ) )
 					{
-						dump_visual_param(outstream, viewer_param, viewer_param->getWeight());
+						dump_visual_param(file, viewer_param, viewer_param->getWeight());
 					}
 				}
 
@@ -8880,7 +8896,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 						{
 							std::string uuid_str;
 							te_image->getID().toString( uuid_str );
-							outstream << llformat("\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+							apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 						}
 					}
 				}
@@ -8892,7 +8908,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			for (LLVisualParam* param = getFirstVisualParam(); param; param = getNextVisualParam())
 			{
 				LLViewerVisualParam* viewer_param = (LLViewerVisualParam*)param;
-				dump_visual_param(outstream, viewer_param, viewer_param->getWeight());
+				dump_visual_param(file, viewer_param, viewer_param->getWeight());
 			}
 
 			for (U8 te = 0; te < TEX_NUM_INDICES; te++)
@@ -8903,7 +8919,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 				{
 					std::string uuid_str;
 					te_image->getID().toString( uuid_str );
-					outstream << llformat("\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
+					apr_file_printf( file, "\t\t<texture te=\"%i\" uuid=\"%s\"/>\n", te, uuid_str.c_str());
 				}
 			}
 		}
@@ -8911,7 +8927,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
         // Root joint
         const LLVector3& pos = mRoot->getPosition();
         const LLVector3& scale = mRoot->getScale();
-		outstream << llformat("\t\t<root name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
+        apr_file_printf( file, "\t\t<root name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
                          mRoot->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
 
         // Bones
@@ -8929,7 +8945,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
             LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			outstream << llformat("\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
+			apr_file_printf( file, "\t\t<bone name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
         }
 
@@ -8940,7 +8956,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
             LLJoint *pJoint = getJoint(*name_iter);
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			outstream << llformat("\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n",
+			apr_file_printf( file, "\t\t<collision_volume name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
         }
 
@@ -8952,8 +8968,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 			if (!pJoint) continue;
 			const LLVector3& pos = pJoint->getPosition();
 			const LLVector3& scale = pJoint->getScale();
-			//apr_file_printf( file, "\t\t<attachment_point name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
-			outstream << llformat("\t\t<attachment_point name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
+			apr_file_printf( file, "\t\t<attachment_point name=\"%s\" position=\"%f %f %f\" scale=\"%f %f %f\"/>\n", 
 							 pJoint->getName().c_str(), pos[0], pos[1], pos[2], scale[0], scale[1], scale[2]);
         }
         
@@ -8971,7 +8986,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
                 S32 num_pos_overrides;
                 std::set<LLVector3> distinct_pos_overrides;
                 pJoint->getAllAttachmentPosOverrides(num_pos_overrides, distinct_pos_overrides);
-				outstream << llformat("\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\"/>\n", 
+				apr_file_printf( file, "\t\t<joint_offset name=\"%s\" position=\"%f %f %f\" mesh_id=\"%s\" count=\"%d\" distinct=\"%d\"/>\n", 
 								 pJoint->getName().c_str(), pos[0], pos[1], pos[2], mesh_id.asString().c_str(),
                                  num_pos_overrides, (S32) distinct_pos_overrides.size());
 			}
@@ -8990,7 +9005,7 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
                 S32 num_scale_overrides;
                 std::set<LLVector3> distinct_scale_overrides;
                 pJoint->getAllAttachmentPosOverrides(num_scale_overrides, distinct_scale_overrides);
-				outstream << llformat("\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\" count=\"%d\" distinct=\"%d\"/>\n",
+				apr_file_printf( file, "\t\t<joint_scale name=\"%s\" scale=\"%f %f %f\" mesh_id=\"%s\" count=\"%d\" distinct=\"%d\"/>\n",
 								 pJoint->getName().c_str(), scale[0], scale[1], scale[2], mesh_id.asString().c_str(),
                                  num_scale_overrides, (S32) distinct_scale_overrides.size());
 			}
@@ -8999,28 +9014,23 @@ void LLVOAvatar::dumpArchetypeXML(const std::string& prefix, bool group_by_weara
 		LLUUID mesh_id;
 		if (hasPelvisFixup(pelvis_fixup, mesh_id))
 		{
-			outstream << llformat("\t\t<pelvis_fixup z=\"%f\" mesh_id=\"%s\"/>\n",
+			apr_file_printf( file, "\t\t<pelvis_fixup z=\"%f\" mesh_id=\"%s\"/>\n", 
 							 pelvis_fixup, mesh_id.asString().c_str());
 		}
 
-		outstream << "\t</archetype>\n";
-		outstream << "\n</linden_genepool>\n";
+		apr_file_printf( file, "\t</archetype>\n" );
+		apr_file_printf( file, "\n</linden_genepool>\n" );
 
-		bool ultra_verbose = false;
-		if (isSelf() && ultra_verbose)
-		{
-			// show the cloned params inside the wearables as well.
-			gAgentAvatarp->dumpWearableInfo(outstream);
-		}
-		LLSD args;
-		args["PATH"] = fullpath;
-		LLNotificationsUtil::add("AppearanceToXMLSaved", args);
-	}
-	else
+	bool ultra_verbose = false;
+	if (isSelf() && ultra_verbose)
 	{
-		LLNotificationsUtil::add("AppearanceToXMLFailed");
+		// show the cloned params inside the wearables as well.
+		gAgentAvatarp->dumpWearableInfo(outfile);
 	}
+	outfile.close();
 	// File will close when handle goes out of scope
+	LL_INFOS("DumpArchetypeXML") << "Archetype xml written successfully!" << LL_ENDL;
+	LLNotificationsUtil::add("DumpArchetypeSuccess", LLSD().with("FILE_PATH", fullpath));
 }
 
 
