@@ -1276,7 +1276,7 @@
     <key>PVRender_ColorGradeTech</key>
     <map>
       <key>Comment</key>
-      <string>Color grading technique to use. 0 applies linear color correction, 1 applies a 1D color gammut LUT, 2 does nothing (yet), -1 disables color grading altogether. Defaults to linear.</string>
+      <string>Color grading technique to use. 0 applies linear color correction, 1 applies a 1D color gammut LUT, -1 disables color grading altogether.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
