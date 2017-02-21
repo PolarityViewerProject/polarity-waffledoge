@@ -301,44 +301,55 @@ void LLStatusBar::refresh()
 							  LLViewerMedia::isParcelAudioPlaying());
 	mMediaToggle->setValue(!any_media_playing);
 
-	if (mClockUpdateTimer.getElapsedTimeF32() < 0.25f)
+	if (mClockUpdateTimer.getElapsedTimeF32() >= 0.25f)
 	{
-		return;
-	}
+		mClockUpdateTimer.reset();
+		// Get current UTC time, adjusted for the user's clock being off.
+		time_t utc_time;
+		utc_time = time_corrected();
+		std::string timeStr;
+		// <polarity> PLVR-4 24-hour clock mode
+		static LLCachedControl<bool> show_seconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
+		static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
 
-	mClockUpdateTimer.reset();
-	// Get current UTC time, adjusted for the user's clock being off.
-	time_t utc_time;
-	utc_time = time_corrected();
-	std::string timeStr;
-	// <polarity> PLVR-4 24-hour clock mode
-	static LLCachedControl<bool> mShowSeconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
-	static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
-	if (use_24h_clock)
-	{
-		timeStr = getString(mShowSeconds ? "time24Precise" : "time24");
+		if (use_24h_clock && show_seconds)
+		{
+			const static auto time24Precise = getString("time24Precise");
+			timeStr = time24Precise;
+		}
+		else if (use_24h_clock && !show_seconds)
+		{
+			const static auto time24 = getString("time24");
+			timeStr = time24;
+		}
+		else if (!use_24h_clock && show_seconds)
+		{
+			const static auto timePrecise = getString("timePrecise");
+			timeStr = timePrecise;
+		}
+		else
+		{
+			const static auto time = getString("time");
+			timeStr = time;
+		}
+		// </polarity>
+		LLSD substitution;
+		substitution["datetime"] = static_cast<S32>(utc_time);
+		LLStringUtil::format(timeStr, substitution);
+		mTextTime->setText(timeStr);
+			// set the tooltip to have the date
+			std::string dtStr = getString("timeTooltip");
+			LLStringUtil::format(dtStr, substitution);
+			mTextTime->setToolTip(dtStr);
 	}
-	else
-	{
-		timeStr = getString(mShowSeconds ? "timePrecise" : "time");
-	}
-	// </polarity>
-	LLSD substitution;
-	substitution["datetime"] = static_cast<S32>(utc_time);
-	LLStringUtil::format(timeStr, substitution);
-	mTextTime->setText(timeStr);
-	// set the tooltip to have the date
-	std::string dtStr = getString("timeTooltip");
-	LLStringUtil::format(dtStr, substitution);
-	mTextTime->setToolTip(dtStr);
-
 	if (mStatusBarFPSCounter && mStatusBarFPSCounter->getVisible())
 	{
-		mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
-		mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
+		if (PVFPSMeter::canRefresh())
+		{
+			mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
+			mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
+		}
 	}
-
-	refresh();
 }
 
 void LLStatusBar::setVisibleForMouselook(bool visible)

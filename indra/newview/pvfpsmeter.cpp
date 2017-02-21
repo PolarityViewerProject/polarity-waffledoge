@@ -71,6 +71,11 @@ bool PVFPSMeter::stop()
 	return true;
 }
 
+bool PVFPSMeter::canRefresh()
+{
+	return mStatusBarFPSCounterTimer.getElapsedTimeF32() >= 0.125f; // arbitrary
+}
+
 bool PVFPSMeter::update()
 {
 	if (!mStatusBarFPSCounterTimer.getStarted())

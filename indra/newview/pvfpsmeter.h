@@ -33,7 +33,7 @@ static const S32 MINIMUM_FPS_LIMIT = 15;
 class PVFPSMeter
 {
 public:
-	PVFPSMeter();
+	//PVFPSMeter();
 	static void enableLimiter(const bool& enabled)
 	{
 		mFPSLimiterEnabled = enabled;
@@ -60,6 +60,8 @@ public:
 
 	static bool start();
 	static bool stop();
+
+	static bool canRefresh();
 
 private:
 	static LLColor4			mFPSMeterColor;
