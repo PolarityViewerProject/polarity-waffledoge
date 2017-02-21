@@ -2152,6 +2152,20 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVUI_NotificationStampZone</key>
+    <map>
+      <key>Comment</key>
+      <string>Time zone to display notifications in.
+      3: UTC
+      2: Local (computer)
+      1/other: SLT (PST)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>U32</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVUI_ProgressTipTimer</key>
     <map>
       <key>Comment</key>

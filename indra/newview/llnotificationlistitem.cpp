@@ -41,6 +41,7 @@
 #include "message.h"
 #include "llnotificationsutil.h"
 #include <boost/regex.hpp>
+#include "llviewercontrol.h"
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
@@ -111,49 +112,25 @@ LLNotificationListItem::~LLNotificationListItem()
 }
 
 //static
-std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp, ETimeType time_type)
+std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp)
 {
-    std::string timeStr;
-	switch(time_type)
+	std::string timeStr;
+	static LLCachedControl<U32> notification_zone(gSavedSettings, "PVUI_NotificationStampZone", SLT);
+	switch (notification_zone)
 	{
-		// <FS:Ansariel> FIRE-17649: Localizable date formats for group notices
-		//case Local:
-		//	timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
-        //		+LLTrans::getString("LTimeDay")+"]/["
-		//		+LLTrans::getString("LTimeYear")+"] ["
-		//		+LLTrans::getString("LTimeHour")+"]:["
-		//		+LLTrans::getString("LTimeMin")+ "]";
-		//	break;
-		//case UTC:
-		//	timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
-		//      	+LLTrans::getString("UTCTimeDay")+"]/["
-		//		+LLTrans::getString("UTCTimeYr")+"] ["
-		//		+LLTrans::getString("UTCTimeHr")+"]:["
-		//		+LLTrans::getString("UTCTimeMin")+"] ["
-		//		+LLTrans::getString("UTCTimeTimezone")+"]";
-		//	break;
-		//case SLT:
-		//default:
-		//	timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
-		//	   	+LLTrans::getString("TimeDay")+"]/["
-		//		+LLTrans::getString("TimeYear")+"] ["
-		//		+LLTrans::getString("TimeHour")+"]:["
-		//		+LLTrans::getString("TimeMin")+"]";
-		//	break;
-		case Local:
-			timeStr = LLTrans::getString("NotificationItemDateStringLocal");
-			break;
-		case UTC:
-			timeStr = LLTrans::getString("NotificationItemDateStringUTC");
-			break;
-		case SLT:
-		default:
-			timeStr = LLTrans::getString("NotificationItemDateStringSLT");
-			break;
-		// </FS:Ansariel>
+	case UTC: //3
+		timeStr = LLTrans::getString("NotificationItemDateStringUTC");
+		break;
+	case Local: // 2
+		timeStr = LLTrans::getString("NotificationItemDateStringLocal");
+		break;
+	default:
+		// @todo offset, need code in formatDatetime::@if (code == "%Z") {
+	case SLT: // 1
+		timeStr = LLTrans::getString("NotificationItemDateStringSLT");
+		break;
 	}
-    LLSD substitution;
-    substitution["datetime"] = time_stamp;
+	LLSD substitution; substitution["datetime"] = time_stamp;
     LLStringUtil::format(timeStr, substitution);
     return timeStr;
 }
@@ -424,13 +401,13 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
     //    mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
     //    mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
     //}
-    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, SLT));
-    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, SLT));
+    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
+    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
     //Workaround: in case server timestamp is 0 - we use the time when notification was actually received
     if (mParams.time_stamp.isNull())
     {
-        mTimeBox->setValue(buildNotificationDate(mParams.received_time, SLT));
-        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, SLT));
+        mTimeBox->setValue(buildNotificationDate(mParams.received_time));
+        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time));
     }
 	// </FS:Ansariel>
     setSender(mParams.sender);
