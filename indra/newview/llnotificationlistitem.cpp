@@ -116,29 +116,41 @@ std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_sta
     std::string timeStr;
 	switch(time_type)
 	{
+		// <FS:Ansariel> FIRE-17649: Localizable date formats for group notices
+		//case Local:
+		//	timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
+        //		+LLTrans::getString("LTimeDay")+"]/["
+		//		+LLTrans::getString("LTimeYear")+"] ["
+		//		+LLTrans::getString("LTimeHour")+"]:["
+		//		+LLTrans::getString("LTimeMin")+ "]";
+		//	break;
+		//case UTC:
+		//	timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
+		//      	+LLTrans::getString("UTCTimeDay")+"]/["
+		//		+LLTrans::getString("UTCTimeYr")+"] ["
+		//		+LLTrans::getString("UTCTimeHr")+"]:["
+		//		+LLTrans::getString("UTCTimeMin")+"] ["
+		//		+LLTrans::getString("UTCTimeTimezone")+"]";
+		//	break;
+		//case SLT:
+		//default:
+		//	timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
+		//	   	+LLTrans::getString("TimeDay")+"]/["
+		//		+LLTrans::getString("TimeYear")+"] ["
+		//		+LLTrans::getString("TimeHour")+"]:["
+		//		+LLTrans::getString("TimeMin")+"]";
+		//	break;
 		case Local:
-			timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
-        		+LLTrans::getString("LTimeDay")+"]/["
-				+LLTrans::getString("LTimeYear")+"] ["
-				+LLTrans::getString("LTimeHour")+"]:["
-				+LLTrans::getString("LTimeMin")+ "]";
+			timeStr = LLTrans::getString("NotificationItemDateStringLocal");
 			break;
 		case UTC:
-			timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
-		      	+LLTrans::getString("UTCTimeDay")+"]/["
-				+LLTrans::getString("UTCTimeYr")+"] ["
-				+LLTrans::getString("UTCTimeHr")+"]:["
-				+LLTrans::getString("UTCTimeMin")+"] ["
-				+LLTrans::getString("UTCTimeTimezone")+"]";
+			timeStr = LLTrans::getString("NotificationItemDateStringUTC");
 			break;
 		case SLT:
 		default:
-			timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
-			   	+LLTrans::getString("TimeDay")+"]/["
-				+LLTrans::getString("TimeYear")+"] ["
-				+LLTrans::getString("TimeHour")+"]:["
-				+LLTrans::getString("TimeMin")+"]";
+			timeStr = LLTrans::getString("NotificationItemDateStringSLT");
 			break;
+		// </FS:Ansariel>
 	}
     LLSD substitution;
     substitution["datetime"] = time_stamp;
@@ -403,14 +415,24 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
     mTitleBoxExp->setValue(mParams.subject);
     mNoticeTextExp->setValue(mParams.message);
 
-    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, UTC));
-    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, UTC));
+	// <FS:Ansariel> FIRE-17313: Display group notices in SLT
+    //mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, UTC));
+    //mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, UTC));
+    ////Workaround: in case server timestamp is 0 - we use the time when notification was actually received
+    //if (mParams.time_stamp.isNull())
+    //{
+    //    mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
+    //    mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
+    //}
+    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, SLT));
+    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, SLT));
     //Workaround: in case server timestamp is 0 - we use the time when notification was actually received
     if (mParams.time_stamp.isNull())
     {
-        mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
-        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
+        mTimeBox->setValue(buildNotificationDate(mParams.received_time, SLT));
+        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, SLT));
     }
+	// </FS:Ansariel>
     setSender(mParams.sender);
 
     if (mInventoryOffer != NULL)

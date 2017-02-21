@@ -4420,5 +4420,16 @@ Try enclosing path to the editor with double quotes.
 <string name="Outdated">Outdated</string>
 <string name="EnterCredentials">Credentials&#63;</string>
 <string name="InternalBuild">Internal Build</string>
+<!-- /buttons -->
+
 <string name="FullResEnabledReminder">Reminder: Full resolution textures are enabled. You may experience degraded performance.</string>
+
+<!-- Date format strings for  FIRE-17649: Localizable date formats for group notices -->
+  <string name="GroupNoticesPanelDateString">[year,datetime,local]/[mthnum,datetime,local]/[day,datetime,local] [hour,datetime,local]:[min,datetime,local]:[second,datetime,local]</string>
+  <string name="GroupNoticesToastDateString">[wkday,datetime,slt], [mth,datetime,slt] [day,datetime,slt] [year,datetime,slt] [hour12,datetime,slt]:[min,datetime,slt]:[second,datetime,slt] [ampm,datetime,slt] [timezone,datetime,slt]</string>
+  <string name="NotificationItemDateStringLocal">[mthnum,datetime,local]/[day,datetime,local]/[year,datetime,local] [hour,datetime,local]:[min,datetime,local]</string>
+  <string name="NotificationItemDateStringUTC">[mth,datetime,utc]/[day,datetime,utc]/[year,datetime,utc] [hour,datetime,utc]:[min,datetime,utc] [timezone,datetime,utc]</string>
+  <string name="NotificationItemDateStringSLT">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]</string>
+  <!-- /date format strings -->
+
 </strings>

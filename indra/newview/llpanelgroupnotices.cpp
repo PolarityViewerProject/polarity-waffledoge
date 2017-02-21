@@ -203,9 +203,16 @@ std::string build_notice_date(const U32& the_time)
 		time(&t);
 	}
 	
-	std::string dateStr = "["+LLTrans::getString("LTimeMthNum")+"]/["
-								+LLTrans::getString("LTimeDay")+"]/["
-								+LLTrans::getString("LTimeYear")+"]";
+		// <FS:Ansariel> FIRE-17649: Localizable date formats for group notices
+        //std::string dateStr = "["+LLTrans::getString("LTimeYear")+"]/["
+        //                                                        +LLTrans::getString("LTimeMthNum")+"]/["
+        //                                                        +LLTrans::getString("LTimeDay")+"] ["
+        //                                                        +LLTrans::getString("LTimeHour")+"]:["
+        //                                                        +LLTrans::getString("LTimeMin")+"]:["
+        //                                                        +LLTrans::getString("LTimeSec")+"]";
+		std::string dateStr = LLTrans::getString("GroupNoticesPanelDateString");
+		// </FS:Ansariel>
+
 	LLSD substitution;
 	substitution["datetime"] = (S32) t;
 	LLStringUtil::format (dateStr, substitution);
@@ -264,8 +271,9 @@ BOOL LLPanelGroupNotices::postBuild()
 	mCreateInventoryName->setTabStop(FALSE);
 	mCreateInventoryName->setEnabled(FALSE);
 
-	mCreateInventoryIcon = getChild<LLIconCtrl>("create_inv_icon",recurse);
-	mCreateInventoryIcon->setVisible(FALSE);
+	// <FS:Ansariel> Doesn't exist as of 2015-11-27
+	//mCreateInventoryIcon = getChild<LLIconCtrl>("create_inv_icon",recurse);
+	//mCreateInventoryIcon->setVisible(FALSE);
 
 	mBtnSendMessage = getChild<LLButton>("send_notice",recurse);
 	mBtnSendMessage->setClickedCallback(onClickSendMessage, this);
@@ -282,8 +290,9 @@ BOOL LLPanelGroupNotices::postBuild()
 	mViewInventoryName->setTabStop(FALSE);
 	mViewInventoryName->setEnabled(FALSE);
 
-	mViewInventoryIcon = getChild<LLIconCtrl>("view_inv_icon",recurse);
-	mViewInventoryIcon->setVisible(FALSE);
+	// <FS:Ansariel> Doesn't exist as of 2015-11-27
+	//mViewInventoryIcon = getChild<LLIconCtrl>("view_inv_icon",recurse);
+	//mViewInventoryIcon->setVisible(FALSE);
 
 	mBtnOpenAttachment = getChild<LLButton>("open_attachment",recurse);
 	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment, this);
@@ -339,8 +348,9 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 										inv_item->getFlags(),
 										item_is_multi );
 
-	mCreateInventoryIcon->setValue(icon_name);
-	mCreateInventoryIcon->setVisible(TRUE);
+	// <FS:Ansariel> Doesn't exist as of 2015-11-27
+	//mCreateInventoryIcon->setValue(icon_name);
+	//mCreateInventoryIcon->setVisible(TRUE);
 
 	std::stringstream ss;
 	ss << "        " << mInventoryItem->getName();
@@ -354,7 +364,7 @@ void LLPanelGroupNotices::onClickRemoveAttachment(void* data)
 	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 	self->mInventoryItem = NULL;
 	self->mCreateInventoryName->clear();
-	self->mCreateInventoryIcon->setVisible(FALSE);
+	//self->mCreateInventoryIcon->setVisible(FALSE); // <FS:Ansariel> Doesn't exist as of 2015-11-27
 	self->mBtnRemoveAttachment->setEnabled(FALSE);
 }
 
@@ -625,8 +635,9 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 		std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE);
 
-		mViewInventoryIcon->setValue(icon_name);
-		mViewInventoryIcon->setVisible(TRUE);
+		// <FS:Ansariel> Doesn't exist as of 2015-11-27
+		//mViewInventoryIcon->setValue(icon_name);
+		//mViewInventoryIcon->setVisible(TRUE);
 
 		std::stringstream ss;
 		ss << "        " << inventory_name;
@@ -637,7 +648,7 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	else
 	{
 		mViewInventoryName->clear();
-		mViewInventoryIcon->setVisible(FALSE);
+		//mViewInventoryIcon->setVisible(FALSE); // <FS:Ansariel> Doesn't exist as of 2015-11-27
 		mBtnOpenAttachment->setEnabled(FALSE);
 	}
 }
