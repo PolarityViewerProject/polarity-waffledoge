@@ -59,6 +59,8 @@
 #include "llnotificationsutil.h"
 #include "llgiveinventory.h"
 
+#include "llnotificationlistitem.h"
+
 static LLPanelInjector<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
 
@@ -192,32 +194,6 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 //-----------------------------------------------------------------------------
 // LLPanelGroupNotices
 //-----------------------------------------------------------------------------
-std::string build_notice_date(const U32& the_time)
-{
-	// ISO 8601 date format
-
-	time_t t = (time_t)the_time;
-	
-	if (!t)
-	{
-		time(&t);
-	}
-	
-		// <FS:Ansariel> FIRE-17649: Localizable date formats for group notices
-        //std::string dateStr = "["+LLTrans::getString("LTimeYear")+"]/["
-        //                                                        +LLTrans::getString("LTimeMthNum")+"]/["
-        //                                                        +LLTrans::getString("LTimeDay")+"] ["
-        //                                                        +LLTrans::getString("LTimeHour")+"]:["
-        //                                                        +LLTrans::getString("LTimeMin")+"]:["
-        //                                                        +LLTrans::getString("LTimeSec")+"]";
-		std::string dateStr = LLTrans::getString("GroupNoticesPanelDateString");
-		// </FS:Ansariel>
-
-	LLSD substitution;
-	substitution["datetime"] = (S32) t;
-	LLStringUtil::format (dateStr, substitution);
-	return dateStr;
-}
 
 LLPanelGroupNotices::LLPanelGroupNotices() :
 	LLPanelGroupTab(),
@@ -400,7 +376,8 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	std::string subj = self->mCreateSubject->getText();
 	std::string name ;
 	LLAgentUI::buildFullname(name);
-	U32 timestamp = 0;
+	//U32 timestamp = 0;
+	LLDate timestamp = LLDate::now();
 
 	LLSD row;
 	row["id"] = id;
@@ -414,7 +391,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	row["columns"][2]["value"] = name;
 
 	row["columns"][3]["column"] = "date";
-	row["columns"][3]["value"] = build_notice_date(timestamp);
+	row["columns"][3]["value"] = LLNotificationListItem::buildNotificationDate(timestamp);
 
 	row["columns"][4]["column"] = "sort";
 	row["columns"][4]["value"] = llformat( "%u", timestamp);
@@ -517,7 +494,8 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 	LLUUID id;
 	std::string subj;
 	std::string name;
-	U32 timestamp;
+	//U32 timestamp;
+	LLDate timestamp;
 	BOOL has_attachment;
 	U8 asset_type;
 
@@ -553,7 +531,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getString("Data","FromName",name,i);
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
 		msg->getU8("Data","AssetType",asset_type,i);
-		msg->getU32("Data","Timestamp",timestamp,i);
+		U32 temp_stamp;
+		msg->getU32("Data","Timestamp", temp_stamp,i);
+		timestamp = (LLDate)temp_stamp; // Let's hope this works
 
 		// we only have the legacy name here, convert it to a username
 		name = LLCacheName::buildUsername(name);
@@ -578,7 +558,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["value"] = name;
 
 		row["columns"][3]["column"] = "date";
-		row["columns"][3]["value"] = build_notice_date(timestamp);
+		row["columns"][3]["value"] = LLNotificationListItem::buildNotificationDate(timestamp);
 
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = llformat( "%u", timestamp);

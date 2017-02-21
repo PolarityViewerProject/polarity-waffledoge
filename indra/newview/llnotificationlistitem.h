@@ -106,7 +106,9 @@ protected:
     LLNotificationListItem(const Params& p);
     virtual ~LLNotificationListItem();
 
+public: // <polarity>
     static std::string buildNotificationDate(const LLDate& time_stamp, ETimeType time_type = SLT);
+protected:
     void onClickExpandBtn();
     void onClickCondenseBtn();
     void onClickCloseBtn();
