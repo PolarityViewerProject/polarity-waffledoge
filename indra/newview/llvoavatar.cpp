@@ -4002,12 +4002,14 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			LLVector3 pelvisDir( mRoot->getWorldMatrix().getFwdRow4().mV );
 
-			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0);
-			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0);
+			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0f);
+			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0f);
+			static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "PVCamera_RealisticMouseLook", false);
 
-			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
+			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, self_in_mouselook && useRealisticMouselook 
+				? s_pelvis_rot_threshold_slow * 2.f : s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
 						
-			if (self_in_mouselook)
+			if (self_in_mouselook && !useRealisticMouselook)
 			{
 				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
 			}

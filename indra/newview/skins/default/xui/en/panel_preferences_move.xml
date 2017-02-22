@@ -231,13 +231,13 @@
              width="242" />
              <check_box
               control_name="PVCamera_RealisticMouseLook"
-              enabled="false"
               follows="left|top"
               height="20"
               label="Realistic first-person camera movement"
               layout="topleft"
               left="5"
               name="realistic_mouselook"
+              tool_tip="Make the camera follow avatar body movements and animations while in mouselook"
               top_pad="0"
               width="237">
             </check_box>

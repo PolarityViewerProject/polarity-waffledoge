@@ -113,6 +113,17 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVCamera_RealisticMouseLook</key>
+    <map>
+      <key>Comment</key>
+      <string>Make the mouselook camera follow your head movement (mostly)</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>PVCamera_ResetOnSelfClick</key>
     <map>
       <key>Comment</key>
