@@ -2832,8 +2832,6 @@ bool LLAppViewer::initConfiguration()
 	// Set the name of the window
 	//
 
-	PVGetDynamicWindowTitle();
-
 	//RN: if we received a URL, hand it off to the existing instance.
 	// don't call anotherInstanceRunning() when doing URL handoff, as
 	// it relies on checking a marker file which will not work when running
@@ -3205,7 +3203,7 @@ bool LLAppViewer::initWindow()
 	// always start windowed
 	BOOL ignorePixelDepth = gSavedSettings.getBOOL("IgnorePixelDepth");
 
-	gWindowTitle = PVGetDynamicWindowTitle();
+	PVGetDynamicWindowTitle();
 	LLViewerWindow::Params window_params;
 	window_params
 		.title(gWindowTitle)
@@ -5129,7 +5127,6 @@ void LLAppViewer::idle()
 
 	// <polarity>
 	gPVOldAPI->refreshDataFromServer();
-	//PVGetDynamicWindowTitle();
 	// </polarity>
 
 	gViewerWindow->updateUI();
@@ -5882,8 +5879,6 @@ void LLAppViewer::handleLoginComplete()
 
 	mOnLoginCompleted();
 
-	// TODO PLVR: Use callbacks
-	PVGetDynamicWindowTitle();
 	writeDebugInfo();
 
 	// we logged in successfully, so save settings on logout
@@ -6146,21 +6141,25 @@ private:
 
 // PLVR TODO: use callbacks instead to set the new string
 // PLVR TODO: set username at login and keep values somewhere for re-use if setting changes.
-std::string LLAppViewer::PVGetDynamicWindowTitle()
+void LLAppViewer::PVGetDynamicWindowTitle()
 {
 	// Limit updates after login
 	if (!gViewerWindow
 		|| isQuitting()
-		|| LLStartUp::getStartupState() <= STATE_PRECACHE
 		|| (mTitleBarUpdateTimer.getStarted() && mTitleBarUpdateTimer.getElapsedTimeF32() < 1.f)
 		)
 	{
-		return gWindowTitle;
+		return;
+	}
+	if (LLStartUp::getStartupState() < STATE_WORLD_INIT)
+	{
+		llassert(false); // too soon!
+		return;
 	}
 	if (!mTitleBarUpdateTimer.getStarted())
 	{
 		mTitleBarUpdateTimer.start();
-		return gWindowTitle;
+		return;
 	}
 	std::string last_title = gWindowTitle;
 	std::string new_title;
@@ -6172,7 +6171,8 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 	{
 		// We use "Second Life" because emptying the string is harder, bugs out with Aero Glass
 		// and the consequences of removing the initial "OpenGL Window" title are unknown.
-		new_title = std::string("Second Life");
+		const std::string title_second_life = "Second Life";
+		new_title = title_second_life;
 	}
 	else
 	{
@@ -6183,102 +6183,83 @@ std::string LLAppViewer::PVGetDynamicWindowTitle()
 
 		// Ideally we would use a callback here, but I'm tired and I'm not too familiar with boost::bind
 
-		std::string first_name;
-		std::string last_name;
+		static std::string first_name;
+		static std::string last_name;
 		std::string prefix_string;
-		bool has_last_name = false; // string comparison speedup
+		static bool has_last_name = false; // string comparison speedup
 		static LLCachedControl<bool> title_showusername(gSavedSettings, "PVWindow_TitleShowUserName", FALSE);
 		if (title_showusername)
 		{
-			LLSD login_response = LLLoginInstance::getInstance()->getResponse();
-			if (login_response.has("first_name"))
+			static LLSD login_response = LLLoginInstance::getInstance()->getResponse();
+			if (first_name.empty() || last_name.empty())
 			{
-				first_name = login_response["first_name"].asString();
-				first_name.erase(std::remove_if(first_name.begin(), first_name.end(), IsChars("\" ")), first_name.end());
-#if HEAVY_LOG
-				LL_DEBUGS("") << "first name = '" << first_name << "'" << LL_ENDL;
-#endif
-				if (login_response.has("last_name"))
+				if (login_response.has("first_name"))
 				{
-					last_name = login_response["last_name"].asString();
-					last_name.erase(std::remove_if(last_name.begin(), last_name.end(), IsChars("\" ")), last_name.end());
+					first_name = login_response["first_name"].asString();
+					first_name.erase(std::remove_if(first_name.begin(), first_name.end(), IsChars("\" ")), first_name.end());
 #if HEAVY_LOG
-					LL_DEBUGS("") << "last name = '" << last_name << "'" << LL_ENDL;
+					LL_DEBUGS("") << "first name = '" << first_name << "'" << LL_ENDL;
 #endif
-					if (boost::iequals(last_name, "resident"))
+					if (login_response.has("last_name"))
 					{
-						last_name = "";
-						has_last_name = false;
-					}
-					else
-					{
-						has_last_name = true;
+						last_name = login_response["last_name"].asString();
+						last_name.erase(std::remove_if(last_name.begin(), last_name.end(), IsChars("\" ")), last_name.end());
+#if HEAVY_LOG
+						LL_DEBUGS("") << "last name = '" << last_name << "'" << LL_ENDL;
+#endif
+						if (boost::iequals(last_name, "resident"))
+						{
+							last_name = "";
+							has_last_name = false;
+						}
+						else
+						{
+							has_last_name = true;
+						}
 					}
 				}
-				static LLCachedControl<bool> force_short_name(gSavedSettings, "PVWindow_TitleForceShortName", false);
-				bool show_short_name ((first_name.length() + last_name.length() + window_title_appname_string.length()) > 25);  // This number makes no sense, but whatever.
-				if (!show_short_name && !force_short_name)
+			}
+			static LLCachedControl<bool> force_short_name(gSavedSettings, "PVWindow_TitleForceShortName", false);
+			bool show_short_name((first_name.length() + last_name.length() + window_title_appname_string.length()) > 25);  // This number makes no sense, but whatever.
+			if (!show_short_name && !force_short_name)
+			{
+				prefix_string.append(first_name);
+				if (has_last_name)
 				{
-					prefix_string.append(first_name);
-					if (has_last_name)
-					{
-						prefix_string.append(" " + last_name);
-					}
+					prefix_string.append(" " + last_name);
+				}
+			}
+			else
+			{
+#if HEAVY_LOG
+				LL_DEBUGS("") << "Truncating username in title due to length limit or user preference" << LL_ENDL;
+#endif
+				// use the initials instead
+				prefix_string = first_name.substr(0, 1);
+				if (has_last_name)
+				{
+					prefix_string.append(last_name.substr(0, 1));
 				}
 				else
 				{
-#if HEAVY_LOG
-					LL_DEBUGS("") << "Truncating username in title due to length limit or user preference" << LL_ENDL;
-#endif
-					// use the initials instead
-					prefix_string = first_name.substr(0, 1);
-					if (has_last_name)
-					{
-						prefix_string.append(last_name.substr(0, 1));
-					}
-					else
-					{
-						prefix_string.append("R"); // resident
-					}
-					LLStringUtil::toUpper(prefix_string);
+					prefix_string.append("R"); // resident
 				}
+				LLStringUtil::toUpper(prefix_string);
 			}
 		}
-		if(!prefix_string.empty())
+		if (!prefix_string.empty())
 		{
 			prefix_string.append(std::string(" - "));
 		}
-		new_title.append((prefix_string) + window_title_appname_string);
+		new_title.append((prefix_string)+window_title_appname_string);
 	}
-#if HEAVY_LOG
 	LL_DEBUGS("") << "Using computed title '" << new_title << "'" << LL_ENDL;
-#endif
-// what is this stuff anyway?
-//
-//	std::string suffix;
-//	if (!gArgs.empty())
-//	{
-//		suffix = std::string(" ") + gArgs;
-//		LLStringUtil::trim(suffix);
-//	}
-//
-//#if LL_DEBUG
-//		gWindowTitle += std::string(" [DEBUG]");
-//#endif
-//
-//	gWindowTitle = new_title + suffix;
 	if (gWindowTitle != new_title)
 	{
-#if HEAVY_LOG
 		LL_DEBUGS() << "Title was different, updating!" << LL_ENDL;
-#endif
 		gWindowTitle = new_title;
 		gViewerWindow->getWindow()->setTitle(gWindowTitle);
 	}
-#if HEAVY_LOG
-	LL_DEBUGS() << "Title was NOT different (" + gWindowTitle << "), aborting!" << LL_ENDL;
-#endif
-	return gWindowTitle;
 }
 // </polarity>
 

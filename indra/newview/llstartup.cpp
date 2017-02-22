@@ -1407,6 +1407,7 @@ bool idle_startup()
 	//---------------------------------------------------------------------
 	if (STATE_WORLD_INIT == LLStartUp::getStartupState())
 	{
+		LLAppViewer::instance()->PVGetDynamicWindowTitle();
 		set_startup_status(0.30f, LLTrans::getString("LoginInitializingWorld"));
 		display_startup();
 // [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-07-09 (Catznip-2.1.2a) | Added: Catznip-2.1.1a
