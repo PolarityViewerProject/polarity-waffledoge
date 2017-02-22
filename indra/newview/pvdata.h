@@ -583,6 +583,8 @@ class LLUUID;
 		*/
 		void parsePVData(const LLSD& data_input);
 
+		void addAgents(const LLSD & agent_list);
+
 		/**
 		* \brief This processes the agents data
 		* \param data_input LLSD blob to parse

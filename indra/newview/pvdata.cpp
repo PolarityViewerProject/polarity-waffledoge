@@ -418,19 +418,8 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	LL_INFOS() << "Done parsing data" << LL_ENDL;
 }
 
-void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
+void PVDataOldAPI::addAgents(const LLSD& data_input)
 {
-	// Make sure we don't accidentally parse multiple times. Remember to reset pv_data_status_ when parsing is needed again.
-	if (!can_proceed(pv_agents_status_))
-	{
-		LL_WARNS() << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
-		return;
-	}
-
-	pv_agents_status_ = PARSING_IN_PROGRESS;
-	LL_INFOS() << "Beginning to parse Agents" << LL_ENDL;
-
-	PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
 	if (data_input.has("SpecialAgentsList"))
 	{
 		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
@@ -471,15 +460,25 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 					this_agent->ban_reason = data_map["BanReason"].asString();
 				}
 				pvAgents.insert(std::pair<LLUUID, PVAgent*>(uuid, this_agent));
-
-				LL_INFOS() << "flags for " << uuid << " is: " << this_agent->flags << LL_ENDL;
-				LL_INFOS() << "color for " << uuid << " is: " << this_agent->color << LL_ENDL;
-				LL_INFOS() << "title for " << uuid << " is: " << this_agent->title << LL_ENDL;
-				LL_INFOS() << "ban_reason for " << uuid << " is: " << this_agent->ban_reason << LL_ENDL;
-				LL_DEBUGS() << "Pointer to pvagent blob for " << uuid << " is " << this_agent << LL_ENDL;
 			}
 		}
 	}
+}
+
+void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
+{
+	// Make sure we don't accidentally parse multiple times. Remember to reset pv_data_status_ when parsing is needed again.
+	if (!can_proceed(pv_agents_status_))
+	{
+		LL_WARNS() << "AGENTS Parsing aborted due to parsing being unsafe at the moment" << LL_ENDL;
+		return;
+	}
+
+	pv_agents_status_ = PARSING_IN_PROGRESS;
+	LL_INFOS() << "Beginning to parse Agents" << LL_ENDL;
+
+	PV_DEBUG("Attempting to find Agents root nodes", LLError::LEVEL_DEBUG);
+	addAgents(data_input);
 	if (data_input.has("SupportGroups"))
 	{
 		const LLSD& support_groups = data_input["SupportGroups"];
