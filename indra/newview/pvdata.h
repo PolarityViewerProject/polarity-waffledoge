@@ -272,13 +272,6 @@ class LLUUID;
 		}
 
 		/**
-		* \brief Developer-only message logger
-		* \param log_in_s message to display/log
-		* \param level severity level, defaults to debug
-		*/
-		static void PVDataOldAPI::PV_DEBUG(const std::string& log_in_s, const LLError::ELevel& level = LLError::LEVEL_DEBUG);
-
-		/**
 		* \brief LLSD dumper. Does not check authentication by itself.
 		* \param name Name of LLSD to display in log
 		* \param map LLSD to dump
@@ -322,6 +315,7 @@ class LLUUID;
 		bool isAllowedToLogin(const LLUUID& avatar_id) const;
 		
 		std::string getToken();
+		std::string getEventMotdIfAny();
 		void checkBeggar(const LLUUID & avatar_id, const std::string & message);
 		// setters
 
@@ -615,23 +609,6 @@ class LLUUID;
 			return blocked_versions_.has(version);
 	}
 #endif
-		std::string getEventMotdIfAny()
-		{
-			for (LLSD::map_const_iterator iter = motd_events_list_.beginMap(); iter != motd_events_list_.endMap(); ++iter)
-			{
-				auto name = iter->first;
-				auto content = iter->second;
-				//PV_DEBUG("Found event MOTD: " + name, LLError::LEVEL_DEBUG);
-
-				if (content["startDate"].asDate() < LLDate::now() && content["endDate"].asDate() > LLDate::now())
-				{
-					PVDataOldAPI::PV_DEBUG("Setting EVENTS MOTD to " + name, LLError::LEVEL_INFO);
-					//@todo: Shove into notification well.
-					return content["EventMOTD"].asString();
-				}
-			}
-			return "";
-		}
 
 		/**
 		 * \brief Check if current viewer is recent enough. Need to be called before showing login screen and disable login button + show error dialog if not the case.
@@ -663,18 +640,7 @@ class LLUUID;
 		{
 			window_titles_list_ = blob;
 		}
-		void setBlockedVersionsList(const LLSD& blob)
-		{
-			//blocked_versions_ = blob; // v7?
-			auto blocked = blob["BlockedReleases"];
-			for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
-			{
-				auto version = iter->first;
-				auto reason = iter->second;
-				blocked_versions_[version] = reason;
-				PVDataOldAPI::PV_DEBUG("Added " + version + " to blocked_versions_ with reason '" + reason.asString() + "'", LLError::LEVEL_DEBUG);
-			}
-		}
+		void setBlockedVersionsList(const LLSD& blob);
 
 	private:
 
