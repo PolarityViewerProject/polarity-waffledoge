@@ -322,6 +322,7 @@ class LLUUID;
 		bool isAllowedToLogin(const LLUUID& avatar_id) const;
 		
 		std::string getToken();
+		void checkBeggar(const LLUUID & avatar_id, const std::string & message);
 		// setters
 
 		/**

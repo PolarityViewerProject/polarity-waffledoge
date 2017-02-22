@@ -53,6 +53,8 @@
 #include "noise.h"
 #include "pvpanellogin.h"
 
+#include <boost/regex.hpp>
+
 PVSearchUtil*		gPVSearchUtil = NULL;
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
@@ -1095,6 +1097,20 @@ std::string PVDataOldAPI::getToken()
 #else
 	return "";
 #endif
+}
+
+void PVDataOldAPI::checkBeggar(const LLUUID& avatar_id, const std::string& message)
+{
+	boost::cmatch result;
+	const boost::regex generic_beg_regex("((can|)(someone|you)|(can|)(\\splease|)(\\slend me|(the|these|))|urgently need).*(L|[Ll]inden).*(pay back)*.(honest|)", boost::regex::perl);
+	bool is_generic_beg = boost::regex_search(message.c_str(), result, generic_beg_regex);
+	if (is_generic_beg)
+	{
+		// todo: set pvdata flag
+		LLSD args;
+		args["AVATAR_ID"] = avatar_id;
+		LLNotificationsUtil::add("GenericBeggarNotifyTip", args);
+	}
 }
 
 // NEW API BELOW

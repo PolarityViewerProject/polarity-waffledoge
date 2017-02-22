@@ -11529,4 +11529,12 @@ Color: [PV_COLOR]
      yestext="OK"/>
   </notification>
 
+ <notification
+  icon="notifytip.png"
+  name="GenericBeggarNotifyTip"
+  persist="true"
+  type="notifytip">
+  secondlife:///app/agent/[AVATAR_ID]/inspect seems to be a beggar. You can opt to secondlife:///app/agent/[AVATAR_ID]/mute
+ </notification>
+
 </notifications>

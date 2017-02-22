@@ -945,7 +945,6 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-
 	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
 	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
 	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
@@ -960,6 +959,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		case CHAT_SOURCE_AGENT:
 			if (chat.mFromID.notNull())
 			{
+				// <polarity> Attempt to detect beggars and such
+				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
 				name_color = gPVOldAPI->getColor(chat.mFromID, default_name_color);
 				if (!color_pvagent_chat)
 				{
