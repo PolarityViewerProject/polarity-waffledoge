@@ -32,7 +32,7 @@ set(LL_TESTS ON CACHE BOOL "Build and run unit and integration tests (disable fo
 option(INCREMENTAL_LINK "Use incremental linking or incremental LTCG for LTO on win32 builds (enable for faster links on some machines)" ON)
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
 
-option(DISABLE_LTO "Override LTO setting" OFF)
+option(DISABLE_LTO "Override LTO setting" ON)
 if(DISABLE_LTO)
   set(USE_LTO OFF CACHE BOOL "" FORCE)
 endif()
