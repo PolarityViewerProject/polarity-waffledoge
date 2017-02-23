@@ -749,7 +749,7 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 		// created in WideCharToMultiByte().
 		char* pout = new char [len_out + 2];
 		memset(pout, 0, len_out + 2);
-		if(pout)
+		if(pout) //-V668
 		{
 			WideCharToMultiByte(
 				code_page,
