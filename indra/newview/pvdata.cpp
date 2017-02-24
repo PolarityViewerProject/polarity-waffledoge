@@ -1495,7 +1495,7 @@ PVAgent::PVAgent()
 			}
 			else
 			{
-				const std::string generic_ban_reason = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].";
+				static const std::string generic_ban_reason = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].";
 				gPVOldAPI->setErrorMessage(generic_ban_reason);
 			}
 		}
