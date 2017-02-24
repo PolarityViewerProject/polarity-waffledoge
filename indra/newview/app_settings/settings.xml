@@ -9931,6 +9931,7 @@
       <key>Value</key>
       <real>1.0</real>
     </map>
+    <!--
     <key>RenderShaderParticleThreshold</key>
     <map>
       <key>Comment</key>
@@ -9941,7 +9942,7 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.25</real>
-    </map>
+    </map> -->
     <key>RenderSunDynamicRange</key>
     <map>
       <key>Comment</key>
