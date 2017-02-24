@@ -71,6 +71,9 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
 		OUTPUT_VARIABLE LL_SOURCE_HASH
 		OUTPUT_STRIP_TRAILING_WHITESPACE
 		)
+  if (BASE_TAG STREQUAL "")
+    message(SEND_ERROR "Cannot obtain base tag for latest merge. Make sure mercurial and cygwin (or cut) is in your path.")
+  endif()
 		# <polarity> HACK: I'm pretty sure we can do it more straightforwardly
 		string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" LL_SOURCE_MAJOR ${BASE_TAG})
 		string(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" LL_SOURCE_MINOR ${BASE_TAG})
