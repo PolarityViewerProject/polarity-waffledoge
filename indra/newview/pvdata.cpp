@@ -1135,6 +1135,12 @@ void PVDataOldAPI::checkBeggar(const LLUUID& avatar_id, const std::string& messa
 
 // NEW API BELOW
 
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("getDataFor()");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("getColor()");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("old_getColor()");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("getTitleHumanReadable()");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("getTitle()");
+
 PVAgent::PVAgent()
 {
 	if (gPVOldAPI != PVDataOldAPI::getInstance())
@@ -1146,6 +1152,7 @@ PVAgent::PVAgent()
 //{
 	PVAgent* PVAgent::getDataFor(const LLUUID& avatar_id)
 	{
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
 		auto it = pvAgents.find(avatar_id);
 		if(it == pvAgents.end())
 		{
@@ -1163,6 +1170,7 @@ PVAgent::PVAgent()
 	// Do not call directly! no agent pointer validity checks are performed here!
 	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
 	{
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
 		LLColor4 pv_color = no_color;
 		// Check if agent already has a special color
 		if (!pv_agent->isSpecialAgentColored(pv_color))
@@ -1254,6 +1262,7 @@ PVAgent::PVAgent()
 
 	LLColor4 PVDataOldAPI::getColor(LLUUID avatar_id,  LLColor4 default_color, bool show_buddy_status)
 	{
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
 		// Try to operate in the same instance, reduce call overhead
 		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
 
@@ -1345,6 +1354,7 @@ PVAgent::PVAgent()
 
 	std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title) const
 	{
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
 		// contents: { raw_flags, custom_title_or_empty }
 		std::vector<std::string> title_v; title_v.reserve(3);
 		std::string raw_flags = getTitle(false);
@@ -1370,6 +1380,7 @@ PVAgent::PVAgent()
 	
 	std::string PVAgent::getTitle(bool get_custom_title) const
 	{
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLE);
 		// Check for agents flagged through PVDataOldAPI
 		std::vector<std::string> flags_list;
 		auto pv_agent = PVAgent::getDataFor(uuid);
