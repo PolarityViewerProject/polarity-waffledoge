@@ -28,7 +28,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
                             OUTPUT_VARIABLE VIEWER_VERSION_REVISION
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
             if (NOT ${hg_id_result} EQUAL 0)
-              message(SEND_ERROR "Revision number generation failed with output:\n${hg_id_error}")
+              message(FATAL_ERROR "Revision number generation failed with output:\n${hg_id_error}")
             else (NOT ${hg_id_result} EQUAL 0)
               string(REGEX REPLACE "[^0-9a-f]" "" VIEWER_VERSION_REVISION ${VIEWER_VERSION_REVISION})
             endif (NOT ${hg_id_result} EQUAL 0)
@@ -45,7 +45,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         endif (DEFINED ENV{revision})
         message("Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
-        message(SEND_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
+        message(FATAL_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
 
     if ("${VIEWER_VERSION_REVISION}" STREQUAL "")
