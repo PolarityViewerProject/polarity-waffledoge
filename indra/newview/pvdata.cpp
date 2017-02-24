@@ -1121,11 +1121,11 @@ void PVDataOldAPI::checkBeggar(const LLUUID& avatar_id, const std::string& messa
 
 // NEW API BELOW
 
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("getDataFor()");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("getColor()");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("old_getColor()");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("getTitleHumanReadable()");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("getTitle()");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("!PVAgent Get Agent");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("!PVAgent Get Color");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("!PVData Get Color");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("!PVAgent Get Title HR");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgent Get Title");
 
 PVAgent::PVAgent()
 {
