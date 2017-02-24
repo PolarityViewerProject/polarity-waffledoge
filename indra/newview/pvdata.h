@@ -188,7 +188,7 @@ class LLUUID;
 		* \param avatar_id agent UUID
 		* \return bool
 		*/
-		bool isUserBanned() const;
+		bool isUserBanned(bool set_error = false) const;
 
 		/**
 		* \brief Is the agent prevented from getting support?

@@ -668,21 +668,7 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 	auto pv_agent = PVAgent::getDataFor(avatar_id);
 	if (pv_agent)
 	{
-		if (pv_agent->isUserBanned())
-		{
-			gPVOldAPI->setErrorMessage("Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].");
-			allowed = false;
-		}
-		else
-		if (LLVersionInfo::getCompiledChannel() == APP_NAME + " Development" && (pv_agent->isUserDevStaff()) == false)
-		{
-			gPVOldAPI->setErrorMessage("Sorry, this build is reserved for [APP_NAME] developers. Please download a public build at " + LLTrans::getString("ViewerDownloadURL") + ".");
-			allowed = false;
-		}
-		else
-		{
-			allowed = true;
-		}
+		allowed = !pv_agent->isUserBanned(true);
 		LL_WARNS("PVData") << "HERE ARE YOUR FLAGS: " << pv_agent->getTitle(false) << LL_ENDL;
 #if INTERNAL_BUILD
 		LL_WARNS("PVData") << "Internal build, evaluating access for " << avatar_id << "'..." << LL_ENDL;
@@ -1499,8 +1485,20 @@ PVAgent::PVAgent()
 		return (flags & BAD_USER_AUTOMUTED);
 	}
 
-	bool PVAgent::isUserBanned() const
+	bool PVAgent::isUserBanned(bool set_error) const
 	{
+		if (set_error)
+		{
+			if (ban_reason != "")
+			{
+				setErrorMessage(ban_reason);
+			}
+			else
+			{
+				const std::string generic_ban_reason = "Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].";
+				gPVOldAPI->setErrorMessage(generic_ban_reason);
+			}
+		}
 		return (flags & BAD_USER_BANNED);
 	}
 
