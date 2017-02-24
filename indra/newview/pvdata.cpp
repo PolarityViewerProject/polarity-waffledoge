@@ -1491,7 +1491,7 @@ PVAgent::PVAgent()
 		{
 			if (ban_reason != "")
 			{
-				setErrorMessage(ban_reason);
+				gPVOldAPI->setErrorMessage(ban_reason);
 			}
 			else
 			{
