@@ -170,6 +170,7 @@ set(polarity_HEADER_FILES
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
+    pvchathistory.cpp
     pvcommon.cpp
     pvdata.cpp
     pvfloaterprogressview.cpp
@@ -251,7 +252,7 @@ set(viewer_SOURCE_FILES
     llcallingcard.cpp
     llchannelmanager.cpp
     llchatbar.cpp
-    llchathistory.cpp
+    #llchathistory.cpp # <polarity> Replaced with pvchathistory
     llchatitemscontainerctrl.cpp
     llchatmsgbox.cpp
     llchiclet.cpp
