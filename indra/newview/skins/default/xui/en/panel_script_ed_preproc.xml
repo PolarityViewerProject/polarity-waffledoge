@@ -169,7 +169,7 @@
         orientation="vertical"
         top_pad="0"
         width="497"
-    left="0"
+        left="0"
         height="20">
         <layout_panel
          auto_resize="false"
@@ -192,7 +192,7 @@
              top="2"
              width="18" />
             <button
-    follows="left|top"
+             follows="left|top"
              height="18"
              image_unselected="Script_Editor"
              image_selected="Script_Editor"
@@ -212,7 +212,7 @@
              image_pressed="Script_Disk_Load"
              tool_tip="Load a Script from your Hard Disk"
              label=""
-    layout="topleft"
+             layout="topleft"
              name="load_disk_btn"
              left_pad="14"
              width="18" />
@@ -230,7 +230,7 @@
              width="18" />
             
             <button
-    follows="left|top"
+             follows="left|top"
              height="18"
              image_unselected="Script_Cut"
              image_selected="Script_Cut"
@@ -249,7 +249,7 @@
              image_pressed="Script_Copy"
              tool_tip="Copy"
              label=""
-    layout="topleft"
+             layout="topleft"
              name="copy_btn"
              left_pad="3"
              width="18" />
@@ -337,38 +337,99 @@
              visible="true" />
         </layout_panel>
     </layout_stack>
-   <script_editor
-    left="0"
-    type="string"
-    length="1"
-    follows="left|top|right|bottom"
-    font="Scripting"
-     height="376"
-    ignore_tab="false"
-    layout="topleft"
-    max_length="262144"
-    name="Script Editor"
-    text_color="ScriptText"
-     default_color="ScriptText"
-     bg_writeable_color="ScriptBackground"
-     bg_focus_color="ScriptBackground"
-    text_readonly_color="ScriptText"
-     bg_readonly_color="ScriptBackground"
-     bg_selected_color="ScriptSelectedColor"
-     cursor_color="ScriptCursorColor"
-     width="487"
-    enable_tooltip_paste="true"
-     word_wrap="true"
-     show_context_menu="true">
-    Loading...
-  </script_editor>
-  <scroll_list
+    <tab_container
+     follows="all"
+     halign="left"
+     height="378"
+     left="0"
+	 top_pad="2"
+     name="Tabset"
+     tab_position="bottom"
+     tab_width="100"
+     tab_padding_right="0"
+	 tab_height="16"
+     width="487">
+	<panel
+	 bevel_style="none"
+	 border_style="line"
+	 follows="left|top|right|bottom"
+	 height="377"
+	 layout="topleft"
+	 left="0"
+	 top="0"
+	 name="Script"
+	 label="Script"
+	 width="487">
+		<script_editor
+		 left="0"
+		 top="0"
+		 type="string"
+		 length="1"
+		 follows="left|top|right|bottom"
+		 font="Scripting"
+		 height="376"
+		 ignore_tab="false"
+		 layout="topleft"
+		 max_length="262144"
+		 name="Script Editor"
+		 text_color="ScriptText"
+		 default_color="ScriptText"
+		 bg_writeable_color="ScriptBackground"
+		 bg_focus_color="ScriptBackground"
+		 text_readonly_color="ScriptText"
+		 bg_readonly_color="ScriptBackground"
+		 cursor_color="ScriptCursorColor"
+		 width="487"
+		 enable_tooltip_paste="true"
+		 word_wrap="true"
+		 show_context_menu="true">
+			Loading...
+		</script_editor>
+	</panel>
+	<panel
+	 bevel_style="none"
+	 border_style="line"
+	 follows="left|top|right|bottom"
+	 height="377"
+	 layout="topleft"
+	 left="0"
+	 name="Preprocessed"
+	 label="Preprocessed"
+	 width="487">
+		<fs_lsl_preproc_viewer
+		 left="0"
+		 top="0"
+		 type="string"
+		 length="1"
+		 follows="left|top|right|bottom"
+		 font="Scripting"
+		 height="376"
+		 ignore_tab="false"
+		 layout="topleft"
+		 max_length="262144"
+		 name="Post Editor"
+		 text_color="ScriptText"
+		 default_color="ScriptText"
+		 bg_writeable_color="ScriptBackground"
+		 bg_focus_color="ScriptBackground"
+		 text_readonly_color="ScriptText"
+		 bg_readonly_color="ScriptBackground"
+		 bg_selected_color="ScriptSelectedColor"
+		 cursor_color="ScriptCursorColor"
+		 width="487"
+		 word_wrap="true"
+		 show_context_menu="true">
+			Loading...
+		</fs_lsl_preproc_viewer>
+	</panel>
+	</tab_container>
+    <scroll_list
     top_pad="10"
     left="0"
-   follows="left|right|bottom"
-   height="60"
-   layout="topleft"
-   name="lsl errors"
+    follows="left|right|bottom"
+    height="60"
+    layout="topleft"
+    name="lsl errors"
      width="487" />
   <combo_box
     follows="left|bottom"
@@ -386,22 +447,22 @@
      name="line_col"
      value="Line 0, Column 0"
      width="128" />
- <button
-  enabled="false"
-  follows="right|bottom"
+  <button
+    enabled="false"
+    follows="right|bottom"
     height="23"
     label="Edit..."
-  layout="topleft"
+    layout="topleft"
      top_delta="-4"
      right="-104"
      name="edit_btn_2"
      width="90" />
- <button
-  follows="right|bottom"
+    <button
+     follows="right|bottom"
      height="23"
-  label="Save"
-  label_selected="Save"
-  layout="topleft"
+     label="Save"
+     label_selected="Save"
+     layout="topleft"
      left_pad="4"
      name="save_btn_2"
      width="90" />

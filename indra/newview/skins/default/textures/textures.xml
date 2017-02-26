@@ -686,6 +686,23 @@ Additional notes:
 <texture name="Url_Icon_Wikipedia"   file_name="icons/url_icons/wikipedia.png" preload="true" />
 <texture name="Url_Icon_Youtube"     file_name="icons/url_icons/youtube.png" preload="true" />
 
+<!-- LSL Preprocessor icons -->
+<texture name="Script_Save"         file_name="script_editor/script_save.png" preload="false" />
+<texture name="Script_Copy"         file_name="script_editor/script_copy.png" preload="false" />
+<texture name="Script_Cut"          file_name="script_editor/script_cut.png" preload="false" />
+<texture name="Script_Paste"        file_name="script_editor/script_paste.png" preload="false" />
+<texture name="Script_Disk_Save"    file_name="script_editor/script_disk_save.png" preload="false" />
+<texture name="Script_Disk_Load"    file_name="script_editor/script_disk_load.png" preload="false" />
+<texture name="Script_Undo"         file_name="script_editor/script_undo.png" preload="false" />
+<texture name="Script_Redo"         file_name="script_editor/script_redo.png" preload="false" />
+<texture name="Script_Search"       file_name="script_editor/script_search.png" preload="false" />
+<texture name="Script_Editor"       file_name="script_editor/script_editor.png" preload="false" />
+<texture name="Script_Config"       file_name="script_editor/script_config.png" preload="false" />
+<texture name="Script_Running"      file_name="script_editor/green_square.png" preload="false" />
+<texture name="Script_NotRunning"   file_name="script_editor/yellow_square.png" preload="false" />
+<texture name="Script_Error"        file_name="script_editor/red_square.png" preload="false" />
+
+
 <!--WARNING OLD ART BELOW *do not use*-->
 <texture name="arrow_down.tga" />
 <texture name="bevel_background" file_name="widgets/bevel_background.png" preload="true" scale.left="12" scale.top="15" scale.right="108" scale.bottom="2"/>

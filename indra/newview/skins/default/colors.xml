@@ -1049,7 +1049,7 @@
     value="0.231 0.231 0.231 1"/>
    <color
     name="ScriptBackground"
-    value="0.156342 0.164858 0.210846 1"/>
+    value="0.18599 0.20315 0.21245 1.0"/>
    <color
     name="ScriptBgReadOnlyColor"
     value="0.39 0.39 0.39 1" />
@@ -1151,7 +1151,7 @@
     value="0.9 0.0 0.66, 1"/>
    <color
     name="SyntaxLslEvent"
-    value="0.835294 0.937255 0.521569 1"/>
+    value="0.93256 0.40338 0.41578 1.0"/>
    <color
     name="SyntaxLslFunction"
     value="0.289917 0.686646 0.389099 1"/>
@@ -1161,6 +1161,26 @@
    <color
     name="SyntaxLslStringLiteral"
     value="0.51737 0.78851 0.78851 1"/>
+  <!-- <FS:CR> Script Editor Colors -->
+  <color
+   name="SyntaxLslSection"
+   value=".5 .1 .3 1" />
+  <color
+   name="SyntaxLslIntegerConstant"
+   value="0.89258 0.83719 0.24805 1.0" />
+  <color
+   name="SyntaxLslStringConstant"
+   value=".1 .3 .5 1" />
+  <color
+   name="SyntaxLslFloatConstant"
+   value="0.30127 0.64523 0.94873 1.0" />
+  <color
+   name="SyntaxLslCompoundConstant"
+   value=".4 .2 .4 1" />
+  <color
+   name="SyntaxLslPreprocessor"
+   value="0 0 .8 1" />
+  <!-- <FS:CR> END Script Editor Colors -->
    <color
     name="SystemChatColor"
     value="0.348127 0.408783 0.333405 1"/>

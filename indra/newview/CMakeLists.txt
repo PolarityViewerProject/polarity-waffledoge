@@ -121,6 +121,9 @@ set(firestorm_HEADER_FILES
     fsareasearchmenu.h
     fsassetblacklist.h
     fsfloaterassetblacklist.h
+    fslslpreproc.h
+    fslslpreprocviewer.h
+    fsscriptlibrary.h
     fsscrolllistctrl.h
     kcwlinterface.h
     sanitycheck.h
@@ -130,6 +133,9 @@ set(firestorm_SOURCE_FILES
     fsareasearchmenu.cpp
     fsassetblacklist.cpp
     fsfloaterassetblacklist.cpp
+    fslslpreproc.cpp
+    fslslpreprocviewer.cpp
+    fsscriptlibrary.cpp
     fsscrolllistctrl.cpp
     kcwlinterface.cpp
     sanitycheck.cpp
