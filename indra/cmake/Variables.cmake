@@ -225,15 +225,9 @@ MESSAGE("========== *Libraries* ==========")
 MESSAGE("NVIDIA API             ${NVAPI}")
 MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
 MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
-# Add these CMake flags to the C++ preprocessor to toggle code that way
+# Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DPVDATA_COLORIZER=${PVDATA_COLORIZER}
-  /DPVDATA_MOTD=${PVDATA_MOTD}
-  /DPVDATA_MOTD_CHAT=${PVDATA_MOTD_CHAT}
-  /DPVDATA_PROGRESS_TIPS=${PVDATA_PROGRESS_TIPS}
-  /DPVDATA_UUID_LOCKDOWN=${PVDATA_UUID_LOCKDOWN}
-  /DPVDATA_UUID_LOCKTO="${PVDATA_UUID_LOCKTO}"
   /DUSE_LTO=${USE_LTO}
   /DINTERNAL_BUILD=${INTERNAL_BUILD}
   )
