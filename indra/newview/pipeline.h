@@ -284,7 +284,7 @@ public:
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(); // <polarity/>
 
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader) const;
@@ -614,6 +614,7 @@ public:
 	
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
+	LLRenderTarget			mFinalScreen;
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mDeferredDepth;
