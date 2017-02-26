@@ -200,7 +200,7 @@ option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
 
 # Libraries
-option(USE_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
+option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
 
 # Mallocs
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
@@ -230,6 +230,7 @@ add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
   /DUSE_LTO=${USE_LTO}
   /DINTERNAL_BUILD=${INTERNAL_BUILD}
+  /DLINK_VLC_PLUGIN=${LINK_VLC_PLUGIN}
   )
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
