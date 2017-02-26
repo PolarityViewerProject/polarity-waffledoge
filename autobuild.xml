@@ -3148,6 +3148,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3181,6 +3193,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3202,15 +3226,30 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>"Release|Win32"</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=Win32</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:normal</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3242,6 +3281,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3322,6 +3373,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Debug</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3344,15 +3407,27 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>BuildConsole</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"/cfg=RelWithDebInfo|x64"</string>
+                  <string>"RelWithDebInfo|x64"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3387,6 +3462,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>RelWithDebInfo</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3409,16 +3496,30 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>BuildConsole</string>
+                <string>msbuild.exe</string>
                 <key>options</key>
                 <array>
-                  <string>/build</string>
-                  <string>"/cfg=Release|x64"</string>
-                  <string>"/CL_ADD=/m:1"</string>
+                  <string>/p:Configuration=Release</string>
+                  <string>/p:Platform=x64</string>
+                  <string>/t:Build</string>
+                  <string>/p:useenv=true</string>
+                  <string>/verbosity:normal</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
@@ -3451,6 +3552,18 @@
               </map>
               <key>configure</key>
               <map>
+                <key>arguments</key>
+                <array>
+                  <string>..\indra</string>
+                  <string>&amp;&amp;</string>
+                  <string>..\indra\tools\vstool\VSTool.exe</string>
+                  <string>--solution</string>
+                  <string>Polarity.sln</string>
+                  <string>--config</string>
+                  <string>Release</string>
+                  <string>--startup</string>
+                  <string>polarity-bin</string>
+                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
