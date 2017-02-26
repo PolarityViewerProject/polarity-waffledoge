@@ -3146,23 +3146,11 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
+                  <string>"Visual Studio 14"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                 </array>
               </map>
               <key>default</key>
@@ -3191,23 +3179,11 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
+                  <string>"Visual Studio 14"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -3224,37 +3200,20 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>devenv</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=Win32</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:normal</string>
+                  <string>/build</string>
+                  <string>"Release|Win32"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_KDU=FALSE</string>
+                  <string>"Visual Studio 14"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                 </array>
               </map>
               <key>name</key>
@@ -3281,23 +3240,11 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
+                  <string>"Visual Studio 14"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
@@ -3343,7 +3290,7 @@
                 <array>
                   <string>-G</string>
                   <string>"Visual Studio 14 Win64"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DUSE_KDU:BOOL=OFF</string>
                   <string>-DUNATTENDED:BOOL=ON</string>
@@ -3373,22 +3320,10 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>Debug</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015 Win64"</string>
+                  <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
@@ -3407,39 +3342,27 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>devenv</string>
+                <string>BuildConsole</string>
                 <key>options</key>
                 <array>
                   <string>/build</string>
-                  <string>"RelWithDebInfo|x64"</string>
+                  <string>"/cfg=RelWithDebInfo|x64"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015 Win64"</string>
-                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393"</string>
+                  <string>"Visual Studio 14 Win64"</string>
+                  <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>
               <key>default</key>
               <string>True</string>
               <key>name</key>
-              <string>ReleaseOS</string>
+              <string>RelWithDebInfo</string>
             </map>
             <key>RelWithDebInfoOS</key>
             <map>
@@ -3462,22 +3385,10 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>RelWithDebInfo</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015 Win64"</string>
+                  <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
@@ -3496,38 +3407,22 @@
                   <string>Polarity.sln</string>
                 </array>
                 <key>command</key>
-                <string>msbuild.exe</string>
+                <string>BuildConsole</string>
                 <key>options</key>
                 <array>
-                  <string>/p:Configuration=Release</string>
-                  <string>/p:Platform=x64</string>
-                  <string>/t:Build</string>
-                  <string>/p:useenv=true</string>
-                  <string>/verbosity:normal</string>
+                  <string>/build</string>
+                  <string>"/cfg=Release|x64"</string>
+                  <string>"/CL_ADD=/m:1"</string>
                 </array>
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015 Win64"</string>
+                  <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -3554,23 +3449,13 @@
               </map>
               <key>configure</key>
               <map>
-                <key>arguments</key>
-                <array>
-                  <string>..\indra</string>
-                  <string>&amp;&amp;</string>
-                  <string>..\indra\tools\vstool\VSTool.exe</string>
-                  <string>--solution</string>
-                  <string>Polarity.sln</string>
-                  <string>--config</string>
-                  <string>Release</string>
-                  <string>--startup</string>
-                  <string>polarity-bin</string>
-                </array>
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 2015 Win64"</string>
+                  <string>"Visual Studio 14 Win64"</string> <!-- 'Win64' Deprecated in favor of -T "vxxx,host=x64" -->
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
+                  <string>-T</string>
+                  <string>"v140,host=x64"</string> <!-- Doesn't appear to work yet, despite CMake documentation -->
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
