@@ -11537,4 +11537,17 @@ Color: [PV_COLOR]
   secondlife:///app/agent/[AVATAR_ID]/inspect seems to be a beggar. You can opt to secondlife:///app/agent/[AVATAR_ID]/mute
  </notification>
 
+  <notification
+     icon="alertmodal.tga"
+     name="ConfirmScriptModify"
+    type="alertmodal">
+    Are you sure you want to modify scripts in selected objects?
+    <tag>confirm</tag>
+    <usetemplate
+    ignoretext="Confirm before I modify scripts in selection"
+     name="okcancelignore"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
 </notifications>
