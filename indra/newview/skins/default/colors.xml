@@ -1179,7 +1179,7 @@
    value=".4 .2 .4 1" />
   <color
    name="SyntaxLslPreprocessor"
-   value="0 0 .8 1" />
+   value="0.60392 0.74902 0.16471 1.0" />
   <!-- <FS:CR> END Script Editor Colors -->
    <color
     name="SystemChatColor"
