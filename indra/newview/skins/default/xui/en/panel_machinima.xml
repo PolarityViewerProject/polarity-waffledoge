@@ -1386,6 +1386,24 @@
 				width="120">
 				FS Parcel Windlight
 			</text>
+			<button
+				label="⌊What is this?⌉"
+				follows="left|top"
+				label_color="Orange"
+				height="15"
+				image_selected="transparent.j2c"
+				image_unselected="transparent.j2c"
+				is_toggle="false"
+				layout="topleft"
+				left_pad="0"
+				top_delta="0"
+				width="85">
+				<button.commit_callback
+					function="PromptShowURL"
+					name="fs_windlight_url"
+					parameter="WebLaunchExternalTarget,http://wiki.phoenixviewer.com/phoenix:parcelwl">
+				</button.commit_callback>
+			</button>
 			<check_box
 				control_name="PVWindLight_Parcel_AlwaysUseRegion"
 				halign="center"
