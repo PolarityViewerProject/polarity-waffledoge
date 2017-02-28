@@ -177,7 +177,12 @@
      label="Debug"
      name="Debug"
      tear_off="true">
-        <menu_item_separator />
+        <menu_item_call
+           label="Reload Color Settings"
+           name="Reload Color Settings">
+          <menu_item_call.on_click
+           function="Advanced.ReloadColorSettings" />
+        </menu_item_call>
         <menu_item_call
          label="XUI Preview Tool"
          name="UI Preview Tool"
