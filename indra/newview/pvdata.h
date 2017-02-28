@@ -78,6 +78,21 @@
  		in order
  		of execution or need
  	}
+
+
+ * Concerning structure size optimization, the correct order according to viva64 is:
+
+	struct MyStructOpt
+	{
+		compound_type;
+		void *m_ptr;
+		size_t m_size_t;
+		int m_int; // equivalent for long, signed and unsigned
+		short m_short;
+		char m_char;
+	};
+	// Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
+
  */
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
