@@ -113,12 +113,7 @@ bool PVFPSMeter::update()
 			static LLCachedControl<U32> fps_outstanding(gSavedSettings, "PVUI_FPSCounter_Outstanding", 120);
 
 			// Update the FPS count value from the statistics system (This is the normalized value, like in the statisics floater)
-			auto frame_recording = LLTrace::get_frame_recording();  // capture sample of the frame recording, I think.
-			static F32 current_fps_sampled;
-			current_fps_sampled = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS, 2);
-
-			// Update the values
-			mFPSMeterValue = frame_recording.getPeriodMeanPerSec(LLStatViewer::FPS); // current fps showed to the user
+			mFPSMeterValue = LLTrace::get_frame_recording().getPeriodMeanPerSec(LLStatViewer::FPS);
 
 			// TODO: Add a "status indicator" textbox or two somewhere in the top bar AND the statistics floater
 			// to show vsync'd and limited statuses.
@@ -144,31 +139,31 @@ bool PVFPSMeter::update()
 			{
 				mFPSMeterColor = color_vsync;
 			}
-			else if (current_fps_sampled <= fps_critical
+			else if (mFPSMeterValue <= fps_critical
 				//&& mFPSMeterColor != color_critical
 				)
 			{
 				mFPSMeterColor = color_critical;
 			}
-			else if (current_fps_sampled >= fps_critical && current_fps_sampled < fps_medium
+			else if (mFPSMeterValue >= fps_critical && mFPSMeterValue < fps_medium
 				//&& mFPSMeterColor != color_low
 				)
 			{
 				mFPSMeterColor = color_low;
 			}
-			else if (current_fps_sampled >= fps_low && current_fps_sampled < fps_high
+			else if (mFPSMeterValue >= fps_low && mFPSMeterValue < fps_high
 				//&& mFPSMeterColor != color_medium
 				)
 			{
 				mFPSMeterColor = color_medium;
 			}
-			else if (current_fps_sampled >= fps_medium && current_fps_sampled < fps_outstanding
+			else if (mFPSMeterValue >= fps_medium && mFPSMeterValue < fps_outstanding
 				//&& mFPSMeterColor != color_high
 				)
 			{
 				mFPSMeterColor = color_high;
 			}
-			else if (current_fps_sampled >= fps_outstanding
+			else if (mFPSMeterValue >= fps_outstanding
 				//&& mFPSMeterColor != color_outstanding
 				)
 			{
