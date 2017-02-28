@@ -848,7 +848,7 @@
 
    <color
     name="Orange"
-    value="1.0, 0.5, 0.0, 1.0"/>
+    value="1.0 0.5 0.0 1.0"/>
    <color
     name="OutfitGalleryItemSelected"
     reference="EmphasisColor_65" />
@@ -1148,7 +1148,7 @@
     value="0.714279 0.449783 0.672952 1"/>
    <color
     name="SyntaxLslDeprecated"
-    value="0.9 0.0 0.66, 1"/>
+    value="0.9 0.0 0.66 1"/>
    <color
     name="SyntaxLslEvent"
     value="0.93256 0.40338 0.41578 1.0"/>
