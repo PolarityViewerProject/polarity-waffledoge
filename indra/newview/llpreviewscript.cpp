@@ -2332,9 +2332,9 @@ void LLPreviewLSL::saveIfNeeded(bool sync /*= true*/)
 	if(domono == FALSE)
 	{
 		LLSD row;
-		if(gSavedSettings.getBOOL("_NACL_SaveInventoryScriptsAsMono"))
+		if(gSavedSettings.getBOOL("PVInventory_SaveScriptsAsMono"))
 		{
-			row["columns"][0]["value"] = "Detected compile-as-LSL2 directive, but debug setting SaveInventoryScriptsAsMono overrided it.";
+			row["columns"][0]["value"] = "Detected compile-as-LSL2 directive, but debug setting PVInventory_SaveScriptsAsMono overrided it.";
 			domono = TRUE;
 		}else row["columns"][0]["value"] = "Detected compile-as-LSL2 directive";
 		//domono = FALSE;
