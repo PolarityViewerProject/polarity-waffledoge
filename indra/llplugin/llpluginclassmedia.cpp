@@ -358,12 +358,14 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = nextPowerOf2(mRequestedMediaWidth);
 		mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
 	}
-
+// High-resolution(HiDPI) media fix, courtesy of Sovereign Engineer
+#if 0
 	if(mRequestedMediaWidth > 2048)
 		mRequestedMediaWidth = 2048;
 
 	if(mRequestedMediaHeight > 2048)
 		mRequestedMediaHeight = 2048;
+#endif
 }
 
 void LLPluginClassMedia::setAutoScale(bool auto_scale)
