@@ -64,9 +64,9 @@
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
 #include "llsdutil.h" // for LLSDMap()
-// <FS:KC> [LSL PreProc]
-#include "fslslpreproc.h"
-// </FS:KC>
+// <polarity> LSL PreProc
+#include "pvscriptpreproc.h"
+// </polarity>
 
 namespace
 {
