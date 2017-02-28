@@ -474,7 +474,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 				else if (match[4].matched)
 				{
 					std::string preset(match[5]);
-					LL_DEBUGS("KCWindlightInterface") << "Got Water Preset: " << preset << LL_ENDL;
+					LL_INFOS("KCWindlightInterface") << "Got Water Preset: " << preset << LL_ENDL;
 					if(wwprammgr->hasParamSet(preset))
 					{
 						settings["water"] = preset;
@@ -483,7 +483,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 				}
 				else if (match[6].matched)
 				{
-					LL_DEBUGS("KCWindlightInterface") << "Got Region Override Flag" << LL_ENDL;
+					LL_INFOS("KCWindlightInterface") << "Got Region Override Flag" << LL_ENDL;
 					settings["region_override"] = true;
 				}
 				
