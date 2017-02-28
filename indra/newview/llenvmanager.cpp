@@ -37,6 +37,10 @@
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
+// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
+#include <boost/algorithm/string.hpp>
+#include "rlvhandler.h"
+// [/RLVa:KB]
 #include "kcwlinterface.h"
 
 std::string LLEnvPrefs::getWaterPresetName() const
@@ -159,11 +163,7 @@ void LLEnvManagerNew::setRegionSettings(const LLEnvironmentSettings& new_setting
 bool LLEnvManagerNew::usePrefs()
 {
 	LL_DEBUGS("Windlight") << "Displaying preferred environment" << LL_ENDL;
-	// updateManagersFromPrefs(false);
-	// TODO: make this setting more centralized to avoid creating copies all over the place
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-	updateManagersFromPrefs(interpolate);
-	// </polarity>
+	updateManagersFromPrefs(false);
 	return true;
 }
 
@@ -215,6 +215,8 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
 	}
 
 	LL_INFOS("Windlight") << "Displaying sky preset '" << name << "', interpolate : " << interpolate << LL_ENDL;
+	mUserPrefs.mUseRegionSettings = false;
+	mUserPrefs.mUseDayCycle = false;
 	sky_mgr.applySkyParams(param_set.getAll(), interpolate);
 	return true;
 }
@@ -222,6 +224,8 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
 bool LLEnvManagerNew::useSkyParams(const LLSD& params)
 {
 	LL_DEBUGS("Windlight") << "Displaying sky params" << LL_ENDL;
+	mUserPrefs.mUseRegionSettings = false;
+	mUserPrefs.mUseDayCycle = false;
 	// TODO: Make this a global or something
 	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
 	LLWLParamManager::instance().applySkyParams(params, interpolate);
@@ -259,7 +263,7 @@ bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope sco
 	return LLWLParamManager::instance().applyDayCycleParams(params, scope);
 }
 
-void LLEnvManagerNew::setUseRegionSettings(const bool val, const bool interpolate)
+void LLEnvManagerNew::setUseRegionSettings(bool val, bool interpolate)
 {
 	mUserPrefs.setUseRegionSettings(val);
 	saveUserPrefs();
@@ -275,6 +279,7 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolat
 		return;
 	}
 	mUserPrefs.mUseRegionSettings = false;
+	//mUserPrefs.mUseDayCycle = false; //?
 	mUserPrefs.mWaterPresetName = name;
 	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
@@ -636,6 +641,13 @@ void LLEnvManagerNew::updateWaterFromPrefs(bool interpolate)
 void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 {
 	LL_DEBUGS("Windlight")<<LL_ENDL;
+// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
+	if (gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
+	{
+		return;
+	}
+// [/RLVa:KB]
+
 	// Apply water settings.
 	updateWaterFromPrefs(interpolate);
 
@@ -655,10 +667,15 @@ bool LLEnvManagerNew::useRegionSky()
 		return true;
 	}
 
-	// *TODO: Support fixed sky from region.
-
 	// Otherwise apply region day cycle.
 	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+
+	// *TODO: Support fixed sky from region. Just do sky reset for now.
+	if (region_settings.getSkyMap().size() == 1)
+	{
+		// Region is set to fixed sky. Reset.
+		useSkyParams(region_settings.getSkyMap().beginMap()->second);
+	}
 	return useDayCycleParams(
 		region_settings.getWLDayCycle(),
 		LLEnvKey::SCOPE_REGION,
@@ -678,7 +695,7 @@ bool LLEnvManagerNew::useRegionWater()
 	}
 
 	// Otherwise apply region water.
-	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
+	LL_DEBUGS("Windlight") << "Applying region water" << LL_ENDL;
 	return useWaterParams(region_water);
 }
 

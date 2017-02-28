@@ -42,7 +42,6 @@ class KCWindlightInterface : public LLSingleton<KCWindlightInterface>, LLEventTi
 public:
 	KCWindlightInterface();
 	~KCWindlightInterface();
-
 	void parcelChange();
 	BOOL tick() override; // From LLEventTime
 
@@ -87,6 +86,7 @@ protected:
 	bool mHasRegionOverride;
 	bool mHaveRegionSettings;
 	bool mDisabled; // control bool to clear all states after being disabled
+	bool mUsingParcelWLSkyDefault;
 };
 
 #endif // KC_WLINTERFACE_H

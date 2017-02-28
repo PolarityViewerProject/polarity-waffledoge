@@ -31,6 +31,7 @@
 
 #include "llagent.h"
 #include "llcallingcard.h" // isBuddy
+#include "lldaycyclemanager.h"
 #include "llparcel.h"
 #include "llslurl.h"
 #include "llstartup.h"
@@ -40,8 +41,9 @@
 #include "llwaterparammanager.h"
 #include "llwlparammanager.h"
 #include <boost/regex.hpp>
+#include "rlvhandler.h"
 
-const F32 PARCEL_WL_CHECK_TIME = 2.f; // <polarity> Nobody ain't got time for this.
+const F32 PARCEL_WL_CHECK_TIME = 1.f; // <polarity> Nobody ain't got time for this.
 const S32 PARCEL_WL_MIN_ALT_CHANGE = 3;
 const std::string PARCEL_WL_DEFAULT = "Default";
 
@@ -57,10 +59,11 @@ KCWindlightInterface::KCWindlightInterface() :
 	mLastRegion(NULL),
 	mHasRegionOverride(false),
 	mHaveRegionSettings(false),
-	mDisabled(false)
+	mDisabled(false),
+	mUsingParcelWLSkyDefault(false)
 {
 	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled", true);
-	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
+	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", false);
 	if (!parcel_windlight || always_use_region)
 	{
 		mEventTimer.stop();
@@ -96,10 +99,12 @@ void KCWindlightInterface::parcelChange()
 	// will come in, we must check if the other has set something before this one for the current region.
 	if (gAgent.getRegion() != mLastRegion)
 	{
-		mHasRegionOverride = false;
 		mHaveRegionSettings = false;
 		mLastRegion = gAgent.getRegion();
+		mCurrentSpace = NO_SETTINGS;
 	}
+	mHasRegionOverride = false;
+	mUsingParcelWLSkyDefault = false;
 
 	if (parcel)
 	{
@@ -193,12 +198,19 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 		{
 			if (settings.has("water") && (!mHaveRegionSettings || mHasRegionOverride))
 			{
-				LL_INFOS("KCWindlightInterface") << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
-				// <polarity> Somebody forgot interpolation...
-				// TODO: use a global or something
-				static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-				LLEnvManagerNew::instance().setUseWaterPreset(settings["water"].asString(), interpolate);
+				LL_INFOS() << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
+				LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
+				LLEnvManagerNew::instance().setUseWaterPreset(settings["water"].asString());
 				setWL_Status(true);
+			}
+			else
+			{
+				LL_INFOS() << "Applying region default WL water set" << LL_ENDL;
+				// Not nice to not interpolate, but these 2836724 methods of changing a WL
+				// setting will nicely screw up each other and this will most likely happen
+				// if calling useRegionWater() because it doesn't even interpolate at all.
+				LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
+				LLEnvManagerNew::instance().useRegionWater();
 			}
 		}
 		else
@@ -230,7 +242,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 				if (lower != mCurrentSpace) //workaround: only apply once
 				{
 					mCurrentSpace = lower; //use lower as an id
-					LL_INFOS("KCWindlightInterface") << "Applying WL sky set: " << (*space_it)["preset"].asString() << LL_ENDL;
+					LL_INFOS("KCWindlightInterface") << "Applying WL sky set: " << (*space_it)["preset"].asString() << " (agent in zone " << lower << " to " << upper << ")" << LL_ENDL;
 					applyWindlightPreset((*space_it)["preset"].asString());
 				}
 				return true;
@@ -247,10 +259,12 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 		if (settings.has("sky_default") && (!mHaveRegionSettings || mHasRegionOverride))
 		{
 			LL_INFOS("KCWindlightInterface") << "Applying WL sky set: " << settings["sky_default"] << " (Parcel WL Default)" << LL_ENDL;
+			mUsingParcelWLSkyDefault = true;
 			applyWindlightPreset(settings["sky_default"].asString());
 		}
 		else //reset to default
 		{
+			mUsingParcelWLSkyDefault = false;
 			std::string reason;
 			if (!settings.has("sky_default"))
 			{
@@ -272,12 +286,17 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 
 void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 {
+	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
+	{
+		return;
+	}
+
+	LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
 	LLWLParamManager* wlprammgr = LLWLParamManager::getInstance();
 	LLWLParamKey key(preset, LLEnvKey::SCOPE_LOCAL);
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
 	if ( (preset != PARCEL_WL_DEFAULT) && (wlprammgr->hasParamSet(key)) )
 	{
-		LLEnvManagerNew::instance().setUseSkyPreset(preset, interpolate);
+		LLEnvManagerNew::instance().setUseSkyPreset(preset);
 		setWL_Status(true);
 		mWeChangedIt = true;
 	}
@@ -285,7 +304,7 @@ void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 	{
 		if (!LLEnvManagerNew::instance().getUseRegionSettings())
 		{
-			LLEnvManagerNew::instance().setUseRegionSettings(true, interpolate);
+			LLEnvManagerNew::instance().setUseRegionSettings(true);
 		}
 		setWL_Status(false);
 		mWeChangedIt = false;
@@ -294,6 +313,11 @@ void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 
 void KCWindlightInterface::resetToRegion(bool force)
 {
+	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
+	{
+		return;
+	}
+
 	//TODO: clear per parcel
 	if (mWeChangedIt || force) //dont reset anything if we didnt do it
 	{
@@ -347,7 +371,7 @@ bool KCWindlightInterface::chatCommand(std::string message, std::string from_nam
 
 				if (match2[1]=="Parcel")
 				{
-					LL_INFOS() << "Got Parcel WL : " << match[2] << LL_ENDL;
+					LL_INFOS("KCWindlightInterface") << "Got Parcel WL : " << match[2] << LL_ENDL;
 					
 					LLParcel *parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 					LLSD payload;
@@ -560,9 +584,9 @@ bool KCWindlightInterface::callbackParcelWLClear(const LLSD& notification, const
 
 bool KCWindlightInterface::allowedLandOwners(const LLUUID& owner_id)
 {
-	static LLCachedControl<bool> apply_from_all(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromAll", true);
-	static LLCachedControl<bool> apply_from_friends(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromFriends", true);
-	static LLCachedControl<bool> apply_from_groups(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromGroups", true);
+	static LLCachedControl<bool> apply_from_all(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromAll", false);
+	static LLCachedControl<bool> apply_from_friends(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromFriends", false);
+	static LLCachedControl<bool> apply_from_groups(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromGroups", false);
 	if (apply_from_all ||	// auto all
 		(owner_id == gAgent.getID()) ||						// land is owned by agent
 		(LLAvatarTracker::instance().isBuddy(owner_id) && apply_from_friends) || // is friend's land
@@ -607,20 +631,35 @@ bool KCWindlightInterface::haveParcelOverride(const LLEnvironmentSettings& new_s
 	if (gAgent.getRegion() != mLastRegion)
 	{
 		mHasRegionOverride = false;
+		mUsingParcelWLSkyDefault = false;
 		mCurrentSettings.clear();
 		mLastRegion = gAgent.getRegion();
+		mCurrentSpace = NO_SETTINGS;
 	}
 	
 	//*ASSUMPTION: if region day cycle is empty, its set to default
 	mHaveRegionSettings = new_settings.getWLDayCycle().size() > 0;
 	
-	bool has_override = mHasRegionOverride ||											// "RegionOverride" parameter set
-                                                (mCurrentSpace == NO_ZONES && !mHaveRegionSettings) ||			// Custom parcel WL default sky and region default WL (no custom region default WL!)
-                                                (mCurrentSpace != NO_SETTINGS && mCurrentSpace != NO_ZONES);	// Height-mapped parcel WL
+	// If no parcel WL default sky is defined, we are going to use region defaults
+	// (mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault == false).
+	// In that case, we do NOT override so we update the WL with what we received
+	// from the region.
+	bool has_override = (mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && mHasRegionOverride) ||	// Using a default parcel WL sky and "RegionOverride" parameter set
+						(mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && !mHaveRegionSettings) ||	// Custom parcel WL default sky and region default WL (no custom region default WL!)
+						(mCurrentSpace != NO_SETTINGS && mCurrentSpace != NO_ZONES);						// Height-mapped parcel WL (always override region WL)
+
+	LL_DEBUGS("KCWindlightInterface") << "mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && mHasRegionOverride = " << ((mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && mHasRegionOverride) ? "true" : "false") << " - "
+		<< "mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && !mHaveRegionSettings = " << ((mCurrentSpace == NO_ZONES && mUsingParcelWLSkyDefault && !mHaveRegionSettings) ? "true" : "false") << " - "
+		<< "mCurrentSpace != NO_SETTINGS && mCurrentSpace != NO_ZONES = " << ((mCurrentSpace != NO_SETTINGS && mCurrentSpace != NO_ZONES) ? "true" : "false")
+		<< LL_ENDL;
 
 	if (!has_override)
 	{
 		LL_INFOS("KCWindlightInterface") << "Region environment settings received. Parcel WL settings will be overridden. Reason: No \"RegionOverride\", region not using default WL and no zones defined or Parcel WL settings received - Region settings taking precedence" << LL_ENDL;
+	}
+	else
+	{
+		LL_INFOS("KCWindlightInterface") << "Parcel WL override active" << LL_ENDL;
 	}
 	return has_override;
 }
@@ -635,7 +674,8 @@ bool KCWindlightInterface::checkSettings()
 {
 	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled");
 	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
-	if (!parcel_windlight || always_use_region)
+	if (!parcel_windlight || !always_use_region ||
+		(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
 	{
 		// The setting changed, clear everything
 		if (!mDisabled)
@@ -650,6 +690,7 @@ bool KCWindlightInterface::checkSettings()
 			mEventTimer.stop();
 			setWL_Status(false);
 			mDisabled = true;
+			mUsingParcelWLSkyDefault = false;
 		}
 		return true;
 	}
