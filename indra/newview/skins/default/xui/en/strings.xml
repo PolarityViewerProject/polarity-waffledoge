@@ -4409,7 +4409,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Flags">Flags</string>
 
   <!-- Satisfy something -->
-  <string name="[Linden Homes / Full Region]">[Linden Homes / Full Region]</string>
+  <string name="Linden Homes / Full Region">Linden Homes / Full Region</string>
 
   <!-- Area Search -->
   <string name="free">Free</string>
