@@ -458,6 +458,9 @@
    <color
     name="FilterTextColor"
     reference="EmphasisColor_35"/>
+    <color
+    name="FirestormOrange"
+    value="1.0 0.6 0.0 1.0" />
    <color
     name="FloaterButtonImageColor"
     value="0.42 0.42 0.42 1"/>

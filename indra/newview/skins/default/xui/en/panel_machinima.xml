@@ -1355,7 +1355,7 @@
 				control_name="UseEnvironmentFromRegion"
 				halign="center"
 				height="15"
-				label="Region WL"
+				label="Auto-apply Windlight from Region"
 				layout="topleft"
 				left_delta="0"
 				name="UseRegioLight"
@@ -1374,11 +1374,10 @@
 			</check_box>
 			<text
 				font="SansSerif"
-				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
 				height="15"
-				text_color="EmphasisColor"
+				text_color="FirestormOrange"
 				layout="topleft"
 				left_pad="0"
 				name="windlight_section"
@@ -1389,7 +1388,7 @@
 			<button
 				label="⌊What is this?⌉"
 				follows="left|top"
-				label_color="Orange"
+				label_color="EmphasisColor"
 				height="15"
 				image_selected="transparent.j2c"
 				image_unselected="transparent.j2c"
@@ -1404,16 +1403,32 @@
 					parameter="WebLaunchExternalTarget,http://wiki.phoenixviewer.com/phoenix:parcelwl">
 				</button.commit_callback>
 			</button>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="0"
+				text_color="FirestormOrange"
+				layout="topleft"
+				left="10"
+				name="shaders"
+				top_pad="2"
+				width="10">
+				┣
+			</text>
 			<check_box
-				control_name="PVWindLight_Parcel_AlwaysUseRegion"
+				control_name="PVWindLight_Parcel_AutoApplyFromFriends"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				disabled_control="PVWindLight_Parcel_AutoApplyFromAll"
 				halign="center"
 				height="16"
-				label="Prefer Region"
+				label="Auto-apply from Friends"
 				layout="topleft"
 				left_pad="0"
-				name="WindlightInterpolation"
+				name="FSWLApplyFromFriends"
 				top_delta="0"
-				width="75">
+				width="60">
 			</check_box>
 			<text
 				font="SansSerif"
@@ -1421,7 +1436,60 @@
 				font_shadow="soft"
 				follows="left|top"
 				height="0"
-				text_color="EmphasisColor"
+				text_color="FirestormOrange"
+				layout="topleft"
+				left="10"
+				name="shaders"
+				top_pad="2"
+				width="10">
+				┣
+			</text>
+			<check_box
+				control_name="PVWindLight_Parcel_AutoApplyFromGroups"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				disabled_control="PVWindLight_Parcel_AutoApplyFromAll"
+				halign="center"
+				height="16"
+				label="Auto-apply from Groups"
+				layout="topleft"
+				left_pad="0"
+				name="FSWLApplyFromGroups"
+				top_delta="0"
+				width="60">
+			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="0"
+				text_color="FirestormOrange"
+				layout="topleft"
+				left="10"
+				name="shaders"
+				top_pad="2"
+				width="10">
+				┣
+			</text>
+			<check_box
+				control_name="PVWindLight_Parcel_AutoApplyFromAll"
+				enabled_control="PVWindLight_Parcel_Enabled"
+				halign="center"
+				height="16"
+				label="Auto-apply from All"
+				layout="topleft"
+				left_pad="0"
+				name="FSWLApplyFromAll"
+				top_delta="0"
+				width="60">
+			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="0"
+				text_color="FirestormOrange"
 				layout="topleft"
 				left="10"
 				name="shaders"
@@ -1429,54 +1497,16 @@
 				width="10">
 				┗
 			</text>
-			<text
-				font="SansSerif"
-				font.style="ITALIC"
-				font_shadow="soft"
-				follows="left|top"
-				height="15"
-				layout="topleft"
-				left_delta="10"
-				name="windlight_section"
-				top_pad="0"
-				width="95">
-				Auto apply from:
-			</text>
 			<check_box
-				control_name="PVWindLight_Parcel_AutoApplyFromFriends"
-				enabled_control="PVWindLight_Parcel_Enabled"
+				control_name="PVWindLight_Parcel_AlwaysUseRegion"
 				halign="center"
 				height="16"
-				label="Friends"
+				label="Prefer Region"
 				layout="topleft"
-				left_pad="30"
-				name="FSWLApplyFromFriends"
+				left_pad="0"
+				name="parcel_region_preference"
 				top_delta="0"
-				width="60">
-			</check_box>
-			<check_box
-				control_name="PVWindLight_Parcel_AutoApplyFromGroups"
-				enabled_control="PVWindLight_Parcel_Enabled"
-				halign="center"
-				height="16"
-				label="Groups"
-				layout="topleft"
-				left_pad="5"
-				name="FSWLApplyFromGroups"
-				top_delta="0"
-				width="60">
-			</check_box>
-			<check_box
-				control_name="PVWindLight_Parcel_AutoApplyFromAll"
-				enabled_control="PVWindLight_Parcel_Enabled"
-				halign="center"
-				height="16"
-				label="All"
-				layout="topleft"
-				left_pad="5"
-				name="FSWLApplyFromAll"
-				top_delta="0"
-				width="60">
+				width="75">
 			</check_box>
 			<check_box
 				control_name="PVWindlight_Interpolate"
