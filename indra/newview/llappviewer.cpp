@@ -2490,14 +2490,16 @@ bool LLAppViewer::initConfiguration()
 	gSavedSettings.setS32("WatchdogEnabled", 0);
 #endif
 
-	// <polarity> automatically show build number in title bar for early pipeline builds
+	// <polarity> enable some settings for early pipeline builds
 	if (LLVersionInfo::getViewerMaturity() != LLVersionInfo::BETA_VIEWER && LLVersionInfo::getViewerMaturity() != LLVersionInfo::RELEASE_VIEWER)
 	{
+		// Show build number in title bar
 		LLControlVariable* c = gSavedSettings.getControl("PVWindow_TitleShowVersionNumber");
 		if (c)
 		{
 			c->setValue(true, false);
 		}
+		// Force-disable anonym window title
 		c = gSavedSettings.getControl("PVWindow_TitleAnonymize");
 		if (c)
 		{
