@@ -154,7 +154,8 @@ BOOL LLStatusBar::postBuild()
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
 	mStatusBarFPSCounter = getChild<LLTextBox>("FPS_count");
 
-	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, "https://secondlife.com/my/lindex/buy.php"));
+	const std::string buy_currency_url = "https://secondlife.com/my/lindex/buy.php";
+	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, buy_currency_url, true));
 
 	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
 

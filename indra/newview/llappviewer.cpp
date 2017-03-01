@@ -268,6 +268,8 @@
 #include "pvfpsmeter.h"
 #include "llhasheduniqueid.h"
 
+ #include "llstring.h" // for boost::bind unknown override specifier
+
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
 static const std::string VIEWER_RELEASE_NOTES_URL_FALLBACK = "https://www.polarityviewer.org/";
@@ -949,7 +951,7 @@ bool LLAppViewer::init()
 	// Provide the text fields with callbacks for opening Urls
 	LLUrlAction::setOpenURLCallback(boost::bind(&LLWeb::loadURL, _1, LLStringUtil::null, LLStringUtil::null));
 	LLUrlAction::setOpenURLInternalCallback(boost::bind(&LLWeb::loadURLInternal, _1, LLStringUtil::null, LLStringUtil::null, false));
-	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true, LLStringUtil::null));
+	LLUrlAction::setOpenURLExternalCallback(boost::bind(&LLWeb::loadURLExternal, _1, true));
 	LLUrlAction::setExecuteSLURLCallback(&LLURLDispatcher::dispatchFromTextEditor);
 
 	// Let code in llui access the viewer help floater
