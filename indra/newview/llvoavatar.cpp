@@ -2892,7 +2892,6 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	static LLCachedControl<F32> tag_show_time(gSavedSettings, "RenderNameShowTime");
 	static LLCachedControl<F32> tag_fade_duration(gSavedSettings, "RenderNameFadeDuration");
 	static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
-	static LLCachedControl<S32> tag_mode(gSavedSettings, "AvatarNameTagMode");
 	static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
 	static LLCachedControl<bool> use_bubble_chat(gSavedSettings, "UseChatBubbles");
 	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
