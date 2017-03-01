@@ -2505,6 +2505,13 @@ bool LLAppViewer::initConfiguration()
 		{
 			c->setValue(false, false);
 		}
+		// enable verbose logs
+		c = gSavedSettings.getControl("VerboseLogs");
+		if (!c)
+		{
+			c->setValue(true, false);
+			LLError::setPrintLocation(true);
+		}
 	}
 
 	// These are warnings that appear on the first experience of that condition.
