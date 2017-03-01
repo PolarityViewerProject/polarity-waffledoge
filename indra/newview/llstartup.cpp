@@ -1430,7 +1430,7 @@ bool idle_startup()
 
 		// Since we connected, save off the settings so the user doesn't have to
 		// type the name/password again if we crash.
-		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);
+		gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"));
 		LLUIColorTable::instance().saveUserSettings();
 
 		display_startup();
@@ -2501,7 +2501,7 @@ void login_callback(S32 option, void *userdata)
 		if (!gSavedSettings.getBOOL("RememberPassword"))
 		{
 			// turn off the setting and write out to disk
-			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile") , TRUE );
+			gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
 			LLUIColorTable::instance().saveUserSettings();
 		}
 

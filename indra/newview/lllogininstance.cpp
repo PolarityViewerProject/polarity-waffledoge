@@ -813,7 +813,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	}
 	
 	// store off config state, as we might quit soon
-	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"), TRUE);	
+	gSavedSettings.saveToFile(gSavedSettings.getString("ClientSettingsFile"));
 	LLUIColorTable::instance().saveUserSettings();
 
 	std::string msg;

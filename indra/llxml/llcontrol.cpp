@@ -374,7 +374,7 @@ bool LLControlVariable::isSane()
 	return sanity;
 }
 
-bool LLControlVariable::shouldSave(bool nondefault_only)
+bool LLControlVariable::shouldSave()
 {
 	// This method is used to decide whether we should save a given
 	// variable. Two of the three values of mPersist are easy.
@@ -384,10 +384,11 @@ bool LLControlVariable::shouldSave(bool nondefault_only)
 	if (mPersist == PERSIST_ALWAYS)
 		return true;
 
+// Unused - Xenhat 2017.03.01
 	// PERSIST_NONDFT
 	// If caller doesn't need us to filter, just save.
-	if (! nondefault_only)
-		return true;
+//	if (! nondefault_only)
+//		return true;
 
 	// PERSIST_NONDFT: caller only wants us to save this variable if its value
 	// differs from default.
@@ -953,7 +954,7 @@ U32 LLControlGroup::loadFromFileLegacy(const std::string& filename, BOOL require
 	return validitems;
 }
 
-U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only)
+U32 LLControlGroup::saveToFile(const std::string& filename)
 {
 	LLSD settings;
 	int num_saved = 0;
@@ -965,7 +966,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename, BOOL nondefault_only
 		{
 			LL_WARNS("Settings") << "Tried to save invalid control: " << iter->first << LL_ENDL;
 		}
-		else if( control->shouldSave(nondefault_only) )
+		else if( control->shouldSave())
 		{
 			settings[iter->first]["Type"] = typeEnumToString(control->type());
 			settings[iter->first]["Comment"] = control->getComment();

@@ -917,7 +917,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	{
 		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
 		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
 	}
 
 	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
@@ -926,7 +926,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 	{
 		// don't disable shaders on next session
 		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
 	}
 	
 	if (ret == FBO_FAILURE)
