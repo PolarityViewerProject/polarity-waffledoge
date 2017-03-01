@@ -121,7 +121,7 @@ public:
 
 	//allocate the largest screen buffer possible up to resX, resY
 	//returns true if full size buffer allocated, false if some other size is allocated
-	bool allocateScreenBuffer(U32 resX, U32 resY);
+	bool allocateScreenBuffer(U32 resX, U32 resY, bool write_settings = true);
 
 	typedef enum {
 		FBO_SUCCESS_FULLRES = 0,

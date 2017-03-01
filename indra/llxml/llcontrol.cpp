@@ -974,19 +974,22 @@ U32 LLControlGroup::saveToFile(const std::string& filename)
 			++num_saved;
 		}
 	}
-	llofstream file;
-	file.open(filename.c_str());
-	if (file.is_open())
+	if (num_saved) // Don't save for no reason
 	{
-		LLSDSerialize::toPrettyXML(settings, file);
-		file.close();
-		LL_INFOS("Settings") << "Saved to " << filename << LL_ENDL;
-	}
-	else
-	{
-        // This is a warning because sometime we want to use settings files which can't be written...
-		LL_WARNS("Settings") << "Unable to open settings file: " << filename << LL_ENDL;
-		return 0;
+		llofstream file;
+		file.open(filename.c_str());
+		if (file.is_open())
+		{
+			LLSDSerialize::toPrettyXML(settings, file);
+			file.close();
+			LL_INFOS("Settings") << "Saved to " << filename << LL_ENDL;
+		}
+		else
+		{
+    	    // This is a warning because sometime we want to use settings files which can't be written...
+			LL_WARNS("Settings") << "Unable to open settings file: " << filename << LL_ENDL;
+			return 0;
+		}
 	}
 	return num_saved;
 }

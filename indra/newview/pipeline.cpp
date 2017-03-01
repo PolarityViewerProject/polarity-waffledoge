@@ -879,7 +879,7 @@ void LLPipeline::resizeScreenTexture()
 //		if ((resX != mScreen.getWidth()) || (resY != mScreen.getHeight()))
 		{
 			releaseScreenBuffers();
-		if (!allocateScreenBuffer(resX,resY))
+		if (!allocateScreenBuffer(resX,resY, false))
 			{
 #if PROBABLE_FALSE_DISABLES_OF_ALM_HERE
 				//FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
@@ -908,11 +908,11 @@ void LLPipeline::allocatePhysicsBuffer()
 	}
 }
 
-bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, bool write_settings)
 {
 	refreshCachedSettings();
 	
-	bool save_settings = sRenderDeferred;
+	bool save_settings = sRenderDeferred && write_settings;
 	if (save_settings)
 	{
 		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
