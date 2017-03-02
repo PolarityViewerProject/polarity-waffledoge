@@ -55,7 +55,6 @@ else (USESYSTEMLIBS)
 
   include_directories (
       ${LIBS_PREBUILT_DIR}/include
-      ${LIBS_PREBUILT_DIR}/include
       )
   foreach(include ${${LL_ARCH}_INCLUDES})
       include_directories(${LIBS_PREBUILT_DIR}/include/${include})

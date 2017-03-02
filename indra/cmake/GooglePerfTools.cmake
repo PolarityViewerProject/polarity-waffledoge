@@ -10,10 +10,10 @@ else (USESYSTEMLIBS)
        set(TCMALLOC_LIBRARIES 
          debug libtcmalloc_minimal-debug
          optimized libtcmalloc_minimal)
-       set(TCMALLOC_LINKER_FLAGS  "/INCLUDE:__tcmalloc")
+       set(TCMALLOC_LINK_FLAGS  "/INCLUDE:__tcmalloc")
     else (USE_TCMALLOC)
       set(TCMALLOC_LIBRARIES)
-      set(TCMALLOC_LINKER_FLAGS)
+      set(TCMALLOC_LINK_FLAGS)
     endif (USE_TCMALLOC)
     set(GOOGLE_PERFTOOLS_FOUND "YES")
   endif (WINDOWS)
@@ -33,7 +33,9 @@ else (USESYSTEMLIBS)
 endif (USESYSTEMLIBS)
 
 if (GOOGLE_PERFTOOLS_FOUND)
-  set(USE_GOOGLE_PERFTOOLS ON CACHE BOOL "Build with Google PerfTools support.")
+  # XXX Disable temporarily, until we have compilation issues on 64-bit
+  # Etch sorted.
+  set(USE_GOOGLE_PERFTOOLS OFF CACHE BOOL "Build with Google PerfTools support.")
 endif (GOOGLE_PERFTOOLS_FOUND)
 
 if (WINDOWS)

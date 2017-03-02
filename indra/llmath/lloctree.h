@@ -27,22 +27,12 @@
 #ifndef LL_LLOCTREE_H
 #define LL_LLOCTREE_H
 
-#ifdef USE_TBBMALLOC
-#define TBB_MEMORY_POOLS 1
-#else
-#define TBB_MEMORY_POOLS 0
-#endif
-
 #include "lltreenode.h"
 #include "v3math.h"
 #include "llvector4a.h"
 #include <vector>
-#if TBB_MEMORY_POOLS
 #include "fix_macros.h"
-#define TBB_PREVIEW_MEMORY_POOL 1
-#include <tbb/memory_pool.h>
-#include <boost/align.hpp>
-#endif
+#include <boost/pool/pool.hpp>
 
 #define OCT_ERRS LL_WARNS("OctreeErrors")
 
@@ -56,6 +46,8 @@ extern float gOctreeMinSize;
 #else
 #define LL_OCTREE_MAX_CAPACITY 128
 #endif*/
+
+#define LL_OCTREE_POOLS 1
 
 template <class T> class LLOctreeNode;
 
@@ -74,12 +66,9 @@ template <class T>
 class LLOctreeTraveler
 {
 public:
-	virtual ~LLOctreeTraveler()
-	{
-	}
-
 	virtual void traverse(const LLOctreeNode<T>* node);
 	virtual void visit(const LLOctreeNode<T>* branch) = 0;
+    virtual ~LLOctreeTraveler() {}
 };
 
 template <class T>
@@ -87,6 +76,7 @@ class LLOctreeTravelerDepthFirst : public LLOctreeTraveler<T>
 {
 public:
 	virtual void traverse(const LLOctreeNode<T>* node);
+    virtual ~LLOctreeTravelerDepthFirst() {}
 };
 
 template <class T>
@@ -107,19 +97,30 @@ public:
 	typedef LLOctreeNode<T>		oct_node;
 	typedef LLOctreeListener<T>	oct_listener;
 
-#if TBB_MEMORY_POOLS
-	static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> >& getPool()
+#if LL_OCTREE_POOLS
+	struct octree_pool_alloc
 	{
-		static tbb::memory_pool< boost::alignment::aligned_allocator<LLOctreeNode<T>, 16> > my_pool;
-		return my_pool;
+		typedef std::size_t size_type;
+		typedef std::ptrdiff_t difference_type;
+
+		static char * malloc(const size_type bytes)
+		{ return (char *)ll_aligned_malloc_16(bytes); }
+		static void free(char * const block)
+		{ ll_aligned_free_16(block); }
+	};
+	static boost::pool<octree_pool_alloc>& getPool(const std::size_t& size)
+	{
+		static boost::pool<octree_pool_alloc> sPool((std::size_t)LL_NEXT_ALIGNED_ADDRESS((char*)size),1200);
+		llassert_always((std::size_t)LL_NEXT_ALIGNED_ADDRESS((char*)size) == sPool.get_requested_size());
+		return sPool;
 	}
 	void* operator new(size_t size)
 	{
-		return getPool().malloc(size);
+		return getPool(size).malloc();
 	}
 	void operator delete(void* ptr)
 	{
-		getPool().free(ptr);
+		getPool(sizeof(LLOctreeNode<T>)).free(ptr);
 	}
 #else
 	void* operator new(size_t size)
@@ -173,7 +174,7 @@ public:
 		mData.push_back(NULL);
 		mDataEnd = &mData[0];
 
-		for (U32 i = 0; i < getChildCount(); i++)
+		for (U32 i = 0; i < getChildCount(); ++i)
 		{
 			delete getChild(i);
 		} 
@@ -291,7 +292,7 @@ public:
 	
 	void validateChildMap()
 	{
-		for (U32 i = 0; i < 8; i++)
+		for (U32 i = 0; i < 8; ++i)
 		{
 			U8 idx = mChildMap[i];
 			if (idx != 255)
@@ -369,7 +370,7 @@ public:
 			{ 	
 				//find a child to give it to
 				oct_node* child = NULL;
-				for (U32 i = 0; i < getChildCount(); i++)
+				for (U32 i = 0; i < getChildCount(); ++i)
 				{
 					child = getChild(i);
 					if (child->isInside(data->getPositionGroup()))
@@ -415,7 +416,7 @@ public:
 				}
 				
 				//make sure no existing node matches this position
-				for (U32 i = 0; i < getChildCount(); i++)
+				for (U32 i = 0; i < getChildCount(); ++i)
 				{
 					if (mChild[i]->getCenter().equals3(center))
 					{
@@ -432,21 +433,6 @@ public:
 								
 				child->insert(data);
 			}
-		}
-		else 
-		{
-			//it's not in here, give it to the root
-			OCT_ERRS << "Octree insertion failed, starting over from root!" << LL_ENDL;
-
-			oct_node* node = this;
-
-			while (parent)
-			{
-				node = parent;
-				parent = node->getOctParent();
-			}
-
-			node->insert(data);
 		}
 
 		return false;
@@ -477,8 +463,8 @@ public:
 			mDataEnd = &mData[0];
 		}
 
-		this->notifyRemoval(data);
-		this->checkAlive();
+		BaseType::notifyRemoval(data);
+		checkAlive();
 	}
 
 	bool remove(T* data)
@@ -538,7 +524,7 @@ public:
 			}
 		}
 		
-		for (U32 i = 0; i < getChildCount(); i++)
+		for (U32 i = 0; i < getChildCount(); ++i)
 		{	//we don't contain data, so pass this guy down
 			LLOctreeNode<T>* child = (LLOctreeNode<T>*) getChild(i);
 			child->removeByAddress(data);
@@ -556,7 +542,7 @@ public:
 	void validate()
 	{
 #if LL_OCTREE_PARANOIA_CHECK
-		for (U32 i = 0; i < getChildCount(); i++)
+		for (U32 i = 0; i < getChildCount(); ++i)
 		{
 			mChild[i]->validate();
 			if (mChild[i]->getParent() != this)
@@ -574,7 +560,7 @@ public:
 
 	void destroy()
 	{
-		for (U32 i = 0; i < getChildCount(); i++) 
+		for (U32 i = 0; i < getChildCount(); ++i) 
 		{	
 			mChild[i]->destroy();
 			delete mChild[i];
@@ -590,7 +576,7 @@ public:
 			OCT_ERRS << "Child size is same as parent size!" << LL_ENDL;
 		}
 
-		for (U32 i = 0; i < getChildCount(); i++)
+		for (U32 i = 0; i < getChildCount(); ++i)
 		{
 			if(!mChild[i]->getSize().equals3(child->getSize())) 
 			{
@@ -616,7 +602,7 @@ public:
 
 		if (!silent)
 		{
-			for (U32 i = 0; i < this->getListenerCount(); i++)
+			for (U32 i = 0; i < this->getListenerCount(); ++i)
 			{
 				oct_listener* listener = getOctListener(i);
 				listener->handleChildAddition(this, child);
@@ -626,7 +612,7 @@ public:
 
 	void removeChild(S32 index, BOOL destroy = FALSE)
 	{
-		for (U32 i = 0; i < this->getListenerCount(); i++)
+		for (U32 i = 0; i < this->getListenerCount(); ++i)
 		{
 			oct_listener* listener = getOctListener(i);
 			listener->handleChildRemoval(this, getChild(index));
@@ -652,7 +638,7 @@ public:
 			mChildMap[mChild[i]->getOctant()] = i;
 		}
 
-		this->checkAlive();
+		checkAlive();
 	}
 
 	void checkAlive()
@@ -669,7 +655,7 @@ public:
 
 	void deleteChild(oct_node* node)
 	{
-		for (U32 i = 0; i < getChildCount(); i++)
+		for (U32 i = 0; i < getChildCount(); ++i)
 		{
 			if (getChild(i) == node)
 			{
@@ -723,14 +709,14 @@ public:
 	{
 	}
 
-#if TBB_MEMORY_POOLS
+#if LL_OCTREE_POOLS
 	void* operator new(size_t size)
 	{
-		return LLOctreeNode<T>::getPool().malloc(size);
+		return LLOctreeNode<T>::getPool(size).malloc();
 	}
 	void operator delete(void* ptr)
 	{
-		LLOctreeNode<T>::getPool().free(ptr);
+		LLOctreeNode<T>::getPool(sizeof(LLOctreeNode<T>)).free(ptr);
 	}
 #else
 	void* operator new(size_t size)
@@ -761,7 +747,7 @@ public:
 
 			//copy the child's children into the root node silently 
 			//(don't notify listeners of addition)
-			for (U32 i = 0; i < child->getChildCount(); i++)
+			for (U32 i = 0; i < child->getChildCount(); ++i)
 			{
 				this->addChild(child->getChild(i), TRUE);
 			}
@@ -807,10 +793,10 @@ public:
 			return false;
 		}
 
-		if (this->getSize()[0] > data->getBinRadius() && this->isInside(data->getPositionGroup()))
+		if (this->getSize()[0] > data->getBinRadius() && oct_node::isInside(data->getPositionGroup()))
 		{
 			//we got it, just act like a branch
-			oct_node* node = this->getNodeAt(data);
+			oct_node* node = oct_node::getNodeAt(data);
 			if (node == this)
 			{
 				LLOctreeNode<T>::insert(data);
@@ -823,7 +809,7 @@ public:
 		else if (this->getChildCount() == 0)
 		{
 			//first object being added, just wrap it up
-			while (!(this->getSize()[0] > data->getBinRadius() && this->isInside(data->getPositionGroup())))
+			while (!(this->getSize()[0] > data->getBinRadius() && oct_node::isInside(data->getPositionGroup())))
 			{
 				LLVector4a center, size;
 				center = this->getCenter();
@@ -838,7 +824,7 @@ public:
 		}
 		else
 		{
-			while (!(this->getSize()[0] > data->getBinRadius() && this->isInside(data->getPositionGroup())))
+			while (!(this->getSize()[0] > data->getBinRadius() && oct_node::isInside(data->getPositionGroup())))
 			{
 				//the data is outside the root node, we need to grow
 				LLVector4a center(this->getCenter());
@@ -858,7 +844,7 @@ public:
 				//copy our children to a new branch
 				LLOctreeNode<T>* newnode = new LLOctreeNode<T>(center, size, this);
 				
-				for (U32 i = 0; i < this->getChildCount(); i++)
+				for (U32 i = 0; i < this->getChildCount(); ++i)
 				{
 					LLOctreeNode<T>* child = this->getChild(i);
 					newnode->addChild(child);
@@ -884,7 +870,7 @@ template <class T>
 void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
 {
 	node->accept(this);
-	for (U32 i = 0; i < node->getChildCount(); i++)
+	for (U32 i = 0; i < node->getChildCount(); ++i)
 	{
 		traverse(node->getChild(i));
 	}
@@ -893,7 +879,7 @@ void LLOctreeTraveler<T>::traverse(const LLOctreeNode<T>* node)
 template <class T>
 void LLOctreeTravelerDepthFirst<T>::traverse(const LLOctreeNode<T>* node)
 {
-	for (U32 i = 0; i < node->getChildCount(); i++)
+	for (U32 i = 0; i < node->getChildCount(); ++i)
 	{
 		traverse(node->getChild(i));
 	}

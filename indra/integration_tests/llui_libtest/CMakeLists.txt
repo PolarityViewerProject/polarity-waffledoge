@@ -7,7 +7,6 @@ if (VIEWER)
 project (llui_libtest)
 
 include(00-Common)
-include(IntelTBB)
 include(LLCommon)
 include(LLImage)
 include(LLImageJ2COJ)   # ugh, needed for images
@@ -86,7 +85,6 @@ target_link_libraries(llui_libtest
     ${LLIMAGEJ2COJ_LIBRARIES}
     ${OS_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${TBBMALLOC_LIBRARIES}
     ${HUNSPELL_LIBRARY}
     )
 

@@ -6,6 +6,8 @@
 
 include(CMakeCopyIfDifferent)
 include(Linking)
+include(Variables)
+include(LLCommon)
 
 ###################################################################
 # set up platform specific lists of files that need to be copied
@@ -55,8 +57,8 @@ if(WINDOWS)
         )
 
     if(USE_TCMALLOC)
-      set(debug_files ${debug_files} libtcmalloc_minimal-debug.dll)
-      set(release_files ${release_files} libtcmalloc_minimal.dll)
+      list(APPEND debug_files libtcmalloc_minimal-debug.dll)
+      list(APPEND release_files libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
     if(USE_TBBMALLOC)
@@ -75,32 +77,30 @@ if(WINDOWS)
     endif (FMODSTUDIO)
 
     # <FS:ND> Copy pdb files for symbol generation too
-    if( NOT WORD_SIZE STREQUAL 64 )
-
-        list(APPEND debug_files
-            ssleay32.pdb
-            libeay32.pdb
-            apr-1.pdb
-            aprutil-1.pdb
-            )
-        list(APPEND release_files
-            ssleay32.pdb
-            libeay32.pdb
-            apr-1.pdb
-            aprutil-1.pdb
-            )
-
-        if(USE_TBBMALLOC)
-            list(APPEND debug_files
-                tbbmalloc_debug.pdb
-                tbbmalloc_proxy_debug.pdb
-                )
-            list(APPEND release_files
-                tbbmalloc.pdb
-                tbbmalloc_proxy.pdb
-                )
-        endif(USE_TBBMALLOC)
-    endif( NOT WORD_SIZE STREQUAL 64 )
+#    if( NOT WORD_SIZE STREQUAL 64 )
+#        list(APPEND debug_files
+#            # ssleay32.pdb
+#            # libeay32.pdb
+#            apr-1.pdb
+#            aprutil-1.pdb
+#            )
+#        list(APPEND release_files
+#            # ssleay32.pdb
+#            # libeay32.pdb
+#            apr-1.pdb
+#            aprutil-1.pdb
+#            )
+#        if(USE_TBBMALLOC)
+#            list(APPEND debug_files
+#                tbbmalloc_debug.pdb
+#                tbbmalloc_proxy_debug.pdb
+#                )
+#            list(APPEND release_files
+#                tbbmalloc.pdb
+#                tbbmalloc_proxy.pdb
+#                )
+#        endif(USE_TBBMALLOC)
+#    endif( NOT WORD_SIZE STREQUAL 64 )
     # </FS:ND>
 elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
@@ -183,7 +183,7 @@ elseif(LINUX)
        )
 
     if (USE_TCMALLOC)
-      set(release_files ${release_files} "libtcmalloc_minimal.so")
+      list(APPEND release_files "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
     if (FMODSTUDIO)

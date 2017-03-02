@@ -29,8 +29,6 @@
 #include "linden_common.h"
 
 
-#include "llthread.h"
-
 #if defined(LL_WINDOWS)
 #include "llwin32headerslean.h"
 # include <psapi.h>
@@ -38,13 +36,16 @@
 # include <sys/types.h>
 # include <mach/task.h>
 # include <mach/mach_init.h>
-#elif LL_LINUX || LL_SOLARIS
+#elif LL_LINUX
 # include <unistd.h>
 #endif
 
 #include "llmemory.h"
 
+#include "llthread.h"
+
 #include "llsys.h"
+#include "llframetimer.h"
 #include "lltrace.h"
 //----------------------------------------------------------------------------
 
@@ -107,7 +108,7 @@ void LLMemory::initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_f
 }
 
 //static 
-void LLMemory::updateMemoryInfo() 
+void LLMemory::updateMemoryInfo(bool for_cache) 
 {
 #if LL_WINDOWS	
 	HANDLE self = GetCurrentProcess();
@@ -124,6 +125,8 @@ void LLMemory::updateMemoryInfo()
 	sAllocatedPageSizeInKB = (U32Bytes)(counters.PagefileUsage) ;
 	sample(sVirtualMem, sAllocatedPageSizeInKB);
 
+	if (!for_cache)
+	{
 	U32Kilobytes avail_phys, avail_virtual;
 	LLMemoryInfo::getAvailableMemoryKB(avail_phys, avail_virtual) ;
 	sMaxPhysicalMemInKB = llmin(avail_phys + sAllocatedMemInKB, sMaxHeapSizeInKB);
@@ -136,14 +139,13 @@ void LLMemory::updateMemoryInfo()
 	{
 		sAvailPhysicalMemInKB = U32Kilobytes(0);
 	}
+	}
 #else
 	//not valid for other systems for now.
 	sAllocatedMemInKB = (U32Bytes)LLMemory::getCurrentRSS();
 	sMaxPhysicalMemInKB = (U32Bytes)U32_MAX ;
 	sAvailPhysicalMemInKB = (U32Bytes)U32_MAX ;
 #endif
-
-	return ;
 }
 
 //
@@ -374,40 +376,6 @@ U32 LLMemory::getWorkingSetSize()
 	return 0 ;
 }
 
-#elif LL_SOLARIS
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#define _STRUCTURED_PROC 1
-#include <sys/procfs.h>
-
-U64 LLMemory::getCurrentRSS()
-{
-	char path [LL_MAX_PATH];	/* Flawfinder: ignore */ 
-
-	sprintf(path, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(path, O_RDONLY)) == -1){
-		LL_WARNS() << "LLmemory::getCurrentRSS() unable to open " << path << ". Returning 0 RSS!" << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "LLmemory::getCurrentRSS() Unable to read from " << path << ". Returning 0 RSS!" << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	return((U64)proc_psinfo.pr_rssize * 1024);
-}
-
-U32 LLMemory::getWorkingSetSize()
-{
-	return 0 ;
-}
-
 #else
 
 U64 LLMemory::getCurrentRSS()
@@ -421,9 +389,6 @@ U32 LLMemory::getWorkingSetSize()
 }
 
 #endif
-
-//--------------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------
 
 #if defined(LL_WINDOWS) && defined(LL_DEBUG_BUFFER_OVERRUN)
 

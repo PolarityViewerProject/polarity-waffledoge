@@ -274,7 +274,7 @@ if(LLCOMMON_LINK_SHARED)
   endif(NOT WORD_SIZE EQUAL 32)
   if(WINDOWS)
     # always generate llcommon.pdb, even for "Release" builds
-    set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG /INCREMENTAL:NO")
+    set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG")
     if (SANDY_FIX)
         set(manifest_file "compatibility_sandy.manifest")
     else (SANDY_FIX)
@@ -303,7 +303,6 @@ target_link_libraries(
     ${EXPAT_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${ZLIB_LIBRARIES}
-    ${TBBMALLOC_LIBRARIES}
     ${WINDOWS_LIBRARIES}
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
@@ -334,7 +333,6 @@ if (LL_TESTS)
   #set(TEST_DEBUG on)
   set(test_libs llcommon 
       ${LLCOMMON_LIBRARIES} 
-      ${TBBMALLOC_LIBRARIES}
       ${WINDOWS_LIBRARIES} 
       ${BOOST_COROUTINE_LIBRARY} 
       ${BOOST_CONTEXT_LIBRARY} 

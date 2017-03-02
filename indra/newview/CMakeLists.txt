@@ -15,8 +15,8 @@ include(FMODSTUDIO)
 include(GLOD)
 include(GooglePerfTools)
 include(Hunspell)
-include(JsonCpp)
 include(IntelTBB)
+include(JsonCpp)
 include(LLAppearance)
 include(LLAudio)
 include(LLCharacter)
@@ -1804,7 +1804,7 @@ if(WINDOWS)
     endif()
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
-        LINK_FLAGS "/SUBSYSTEM:WINDOWS /debug /MAP\"polarity-bin.MAP\" /NODEFAULTLIB:\"LIBCMTD,LIBCMT\" ${TCMALLOC_LINKER_FLAGS} ${TBBMALLOC_LINK_FLAGS} ${LAA}"
+        LINK_FLAGS "/SUBSYSTEM:WINDOWS /debug /MAP\"polarity-bin.MAP\" /NODEFAULTLIB:\"LIBCMTD,LIBCMT\" ${TCMALLOC_LINK_FLAGS} ${TBBMALLOC_LINK_FLAGS} ${LAA}"
         )
 
     if(USE_PRECOMPILED_HEADERS)
@@ -1815,34 +1815,24 @@ if(WINDOWS)
             )
     endif(USE_PRECOMPILED_HEADERS)
 
-    # If adding a file to viewer_manifest.py in the WindowsManifest.construct()
-    # method, be sure to add the dependency here.
-    # *NOTE:Mani - This is a crappy hack to have important dependencies for the
-    # viewer_manifest copy action be met. I'm looking forward to a source-code
-    # split-up project next year that will address this kind of thing.
-    # In the meantime, if you have any ideas on how to easily maintain one list,
-    # either here or in viewer_manifest.py and have the build deps get tracked
-    # *please* tell me about it.
-
-    if(USE_TCMALLOC)
-      # Configure a var for tcmalloc location, if used.
-      # Note the need to specify multiple names explicitly.
-      set(GOOGLE_PERF_TOOLS_SOURCE
-        ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
-        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
-        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+    # If adding a file to viewer_manifest.py in the WindowsManifest.construct() method, be sure to add the dependency
+    # here.
+    # *NOTE:Mani - This is a crappy hack to have important dependencies for the viewer_manifest copy action
+    # be met. I'm looking forward to a source-code split-up project next year that will address this kind of thing.
+    # In the meantime, if you have any ideas on how to easily maintain one list, either here or in viewer_manifest.py
+    # and have the build deps get tracked *please* tell me about it.
+    if(LLCOMMON_LINK_SHARED)
+      set(LLCOMMON_SOURCE
+        ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
         )
-    endif()
-
+    endif(LLCOMMON_LINK_SHARED)
 
     set(COPY_INPUT_DEPENDENCIES
-      # The following commented dependencies are determined at variably at
-      # build time. Can't do this here.
-      #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll \
-      # => None ... Skipping libtcmalloc_minimal.dll
+      # The following commented dependencies are determined at variably at build time. Can't do this here.
+      #${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libtcmalloc_minimal.dll => None ... Skipping libtcmalloc_minimal.dll
       ${CMAKE_SOURCE_DIR}/../etc/message.xml
       ${CMAKE_SOURCE_DIR}/../scripts/messages/message_template.msg
-      ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/llcommon.dll
+      ${LLCOMMON_SOURCE}
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapr-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libaprutil-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libapriconv-1.dll
@@ -1861,7 +1851,6 @@ if(WINDOWS)
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/libsndfile-1.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/vivoxoal.dll
       ${SHARED_LIB_STAGING_DIR}/${CMAKE_CFG_INTDIR}/ca-bundle.crt
-      ${GOOGLE_PERF_TOOLS_SOURCE}
       ${CMAKE_CURRENT_SOURCE_DIR}/licenses-win32.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable.txt
       ${CMAKE_CURRENT_SOURCE_DIR}/featuretable_xp.txt
@@ -1881,6 +1870,30 @@ if(WINDOWS)
         )
     endif(LINK_VLC_PLUGIN)
 
+    if(USE_TCMALLOC)
+      # Configure a var for tcmalloc location, if used.
+      # Note the need to specify multiple names explicitly.
+      list(APPEND COPY_INPUT_DEPENDENCIES
+        ${SHARED_LIB_STAGING_DIR}/Release/libtcmalloc_minimal.dll
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/libtcmalloc_minimal.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/libtcmalloc_minimal-debug.dll
+        )
+     endif(USE_TCMALLOC)
+
+    if(USE_TBBMALLOC)
+      # Configure a var for tbbmalloc location, if used.
+      # Note the need to specify multiple names explicitly.
+      MESSAGE("Adding TBBMalloc DLLs...")
+      list(APPEND COPY_INPUT_DEPENDENCIES
+        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
+        ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
+        ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
+        ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
+        )
+    endif(USE_TBBMALLOC)
+	  
     if(FMODSTUDIO)
       if(WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1922,17 +1935,13 @@ if(WINDOWS)
       COMMENT "Performing viewer_manifest copy"
       )
 
-    add_custom_target(
-        copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat
-                    )
+    add_custom_target(copy_w_viewer_manifest ALL DEPENDS ${CMAKE_CFG_INTDIR}/copy_touched.bat)
 
-    add_dependencies(
-        # FIXME: This violates CMake Standards (too long)
-        ${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
+    add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
 
     if(EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
-    endif()
+    endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
     add_dependencies(${VIEWER_BINARY_NAME}
       SLPlugin
@@ -2048,7 +2057,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${PNG_PRELOAD_ARCHIVES}
     ${ZLIB_PRELOAD_ARCHIVES}
     ${URIPARSER_PRELOAD_ARCHIVES}
-    ${TBBMALLOC_LIBRARIES}
     ${UPDATER_LIBRARIES}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
     ${LLAUDIO_LIBRARIES}
@@ -2069,6 +2077,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLCOMMON_LIBRARIES}
     ${NDOF_LIBRARY}
     ${NVAPI_LIBRARY}
+    ${URIPARSER_LIBRARY}
     ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
@@ -2095,6 +2104,7 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${LLPHYSICS_LIBRARIES}
     ${LLPHYSICSEXTENSIONS_LIBRARIES}
     ${TCMALLOC_LIBRARIES}
+    ${TBBMALLOC_LIBRARIES}
     ${LLAPPEARANCE_LIBRARIES}
     )
 
@@ -2446,21 +2456,6 @@ if(LL_TESTS AND LL_VIEWER_NETWORK_TESTS)
       rt
       )
   endif()
-
-  if(USE_TBBMALLOC)
-  # Configure a var for tbbmalloc location, if used.
-  # Note the need to specify multiple names explicitly.
-  MESSAGE("Adding TBBMalloc DLLs...")
-  list(APPEND COPY_INPUT_DEPENDENCIES
-    ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
-    ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
-    ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_debug.dll
-    ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc_proxy.dll
-    ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
-    ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
-    )
-  endif(USE_TBBMALLOC)
-
   set(test_libs
     ${WINDOWS_LIBRARIES}
     ${LLVFS_LIBRARIES}

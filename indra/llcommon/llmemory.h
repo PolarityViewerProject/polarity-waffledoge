@@ -35,7 +35,7 @@
 
 class LLMutex ;
 
-#if LL_WINDOWS && LL_DEBUG
+#if LL_WINDOWS && LL_DEBUG && LL_CHECK_MEM
 #define LL_CHECK_MEMORY llassert(_CrtCheckMemory());
 #else
 #define LL_CHECK_MEMORY 
@@ -146,7 +146,7 @@ inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed wi
 #elif defined(LL_DARWIN)
 	return malloc(size); // default osx malloc is 16 byte aligned.
 #else
-	void *rtn;
+	void *rtn = NULL;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 16, size)))
 		return rtn;
 	else // bad alignment requested, or out of memory
@@ -198,10 +198,8 @@ inline void* ll_aligned_malloc_32(size_t size) // returned hunk MUST be freed wi
 {
 #if defined(LL_WINDOWS)
 	return _aligned_malloc(size, 32);
-#elif defined(LL_DARWIN)
-	return ll_aligned_malloc_fallback( size, 32 );
 #else
-	void *rtn;
+	void *rtn = NULL;
 	if (LL_LIKELY(0 == posix_memalign(&rtn, 32, size)))
 		return rtn;
 	else // bad alignment requested, or out of memory
@@ -213,8 +211,28 @@ inline void ll_aligned_free_32(void *p)
 {
 #if defined(LL_WINDOWS)
 	_aligned_free(p);
-#elif defined(LL_DARWIN)
-	ll_aligned_free_fallback( p );
+#else
+	free(p); // posix_memalign() is compatible with heap deallocator
+#endif
+}
+
+inline void* ll_aligned_malloc_64(size_t size) // returned hunk MUST be freed with ll_aligned_free_64().
+{
+#if defined(LL_WINDOWS)
+	return _aligned_malloc(size, 64);
+#else
+	void *rtn = NULL;
+	if (LL_LIKELY(0 == posix_memalign(&rtn, 64, size)))
+		return rtn;
+	else // bad alignment requested, or out of memory
+		return NULL;
+#endif
+}
+
+inline void ll_aligned_free_64(void *p)
+{
+#if defined(LL_WINDOWS)
+	_aligned_free(p);
 #else
 	free(p); // posix_memalign() is compatible with heap deallocator
 #endif
@@ -235,6 +253,10 @@ LL_FORCE_INLINE void* ll_aligned_malloc(size_t size)
 	else if (ALIGNMENT == 32)
 	{
 		return ll_aligned_malloc_32(size);
+	}
+	else if (ALIGNMENT == 64)
+	{
+		return ll_aligned_malloc_64(size);
 	}
 	else
 	{
@@ -257,6 +279,10 @@ LL_FORCE_INLINE void ll_aligned_free(void* ptr)
 	{
 		return ll_aligned_free_32(ptr);
 	}
+	else if (ALIGNMENT == 64)
+	{
+		return ll_aligned_free_64(ptr);
+	}
 	else
 	{
 		return ll_aligned_free_fallback(ptr);
@@ -276,7 +302,7 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 	ll_assert_aligned(dst,16);
 
 	assert((src < dst) ? ((src + bytes) <= dst) : ((dst + bytes) <= src));
-	assert(bytes%16==0); // FIXME: This doesn't actually pass under DebugOS
+	assert(bytes%16==0);
 
 	char* end = dst + bytes;
 
@@ -335,10 +361,6 @@ inline void ll_memcpy_nonaliased_aligned_16(char* __restrict dst, const char* __
 	}
 }
 
-#ifndef __DEBUG_PRIVATE_MEM__
-#define __DEBUG_PRIVATE_MEM__  0
-#endif
-
 class LL_COMMON_API LLMemory
 {
 public:
@@ -351,7 +373,7 @@ public:
 	static U32 getWorkingSetSize();
 	static void* tryToAlloc(void* address, U32 size);
 	static void initMaxHeapSizeGB(F32Gigabytes max_heap_size, BOOL prevent_heap_failure);
-	static void updateMemoryInfo() ;
+	static void updateMemoryInfo(bool for_cache = false) ;
 	static void logMemoryInfo(BOOL update = FALSE);
 	static bool isMemoryPoolLow();
 
@@ -368,7 +390,6 @@ private:
 	static U32Kilobytes sMaxHeapSizeInKB;
 	static BOOL sEnableMemoryFailurePrevention;
 };
-
 
 // LLRefCount moved to llrefcount.h
 

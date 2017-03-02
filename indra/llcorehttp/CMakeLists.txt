@@ -177,7 +177,7 @@ if (LL_TESTS AND FIXED_HTTP_TESTS) # <polarity> HTTP tests are currently wrong, 
     # The following come from LLAddBuildTest.cmake's INTEGRATION_TEST_xxxx target.
     set_target_properties(http_texture_load
                           PROPERTIES
-                          LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE ${TCMALLOC_LINKER_FLAGS}"
+                          LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE ${TCMALLOC_LINK_FLAGS}"
                           )
   endif (WINDOWS)
 
