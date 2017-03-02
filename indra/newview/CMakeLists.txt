@@ -1940,6 +1940,7 @@ if(WINDOWS)
       )
 
     # sets the 'working directory' for debugging from visual studio.
+    if (NOT UNATTENDED)
     add_custom_command(
         TARGET ${VIEWER_BINARY_NAME} POST_BUILD
         COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
@@ -1949,9 +1950,9 @@ if(WINDOWS)
           --workingdir
           ${VIEWER_BINARY_NAME}
           "${CMAKE_CURRENT_SOURCE_DIR}"
-        COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory\
-                for debugging."
+            COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
         )
+    endif (NOT UNATTENDED)
 
     if(PACKAGE)
       add_custom_command(

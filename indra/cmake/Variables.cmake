@@ -191,6 +191,8 @@ set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Lin
 
 set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
 
+option(UNATTENDED "Disable use of uneeded tooling for automated builds" ON)
+
 # <polarity> Our feature list.
 
 # Audio Engine
