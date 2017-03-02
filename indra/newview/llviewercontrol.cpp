@@ -104,6 +104,8 @@ LLControlGroup gCrashSettings("CrashSettings");	// saved at end of session
 LLControlGroup gWarningSettings("Warnings"); // persists ignored dialogs/warnings
 
 std::string gLastRunVersion;
+//BD - Freeze World
+std::vector<LLAnimPauseRequest>	mAvatarPauseHandles;
 
 extern BOOL gResizeScreenTexture;
 extern BOOL gDebugGL;
@@ -625,6 +627,39 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
+//BD
+/////////////////////////////////////////////////////////////////////////////
+
+//BD - Freeze World
+bool toggle_freeze_world(const LLSD& newvalue)
+{
+	if (newvalue.asBoolean())
+	{
+		// freeze all avatars
+		LLCharacter* avatarp;
+		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+			iter != LLCharacter::sInstances.end(); ++iter)
+		{
+			avatarp = *iter;
+			mAvatarPauseHandles.push_back(avatarp->requestPause());
+		}
+
+
+
+		// freeze everything else
+		gSavedSettings.setBOOL("FreezeTime", TRUE);
+	}
+	else // turning off freeze world mode, either temporarily or not.
+	{
+		// thaw all avatars
+		mAvatarPauseHandles.clear();
+
+		// thaw everything else
+		gSavedSettings.setBOOL("FreezeTime", FALSE);
+	}
+	return true;
+}
+
 // <Black Dragon:NiranV> Expose Attached Lights and Particles
 static bool handleRenderAttachedLightsChanged(const LLSD& newvalue)
 {
@@ -954,6 +989,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfFieldHighQuality")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
+	// BD: Freeze World
+	gSavedSettings.getControl("UseFreezeWorld")->getSignal()->connect(boost::bind(&toggle_freeze_world, _2));
+
 	gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleShadowsChanged, _2));
 	gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSSAOChanged, _2));
 	gSavedSettings.getControl("CloudNoiseImageName")->getSignal()->connect(boost::bind(&handleCloudNoiseChanged, _2));
