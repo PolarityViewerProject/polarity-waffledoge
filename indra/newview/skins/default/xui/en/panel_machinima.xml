@@ -70,43 +70,6 @@
 				Shader Toggles:
 			</text>
 			<check_box
-				control_name="RenderTransparentWater"
-				disabled_control="VertexShaderEnable"
-				height="16"
-				label="Transparent Water"
-				tool_tip="Toggles transparent water, false renders water as opaque with a simple texture applied. Must be enabled for Vertex Shader water reflections in some cases"
-				layout="topleft"
-				left="10"
-				name="RenderTransparentWater"
-				top_pad="0"
-				width="115">
-			</check_box>
-			<check_box
-				control_name="VertexShaderEnable"
-				height="16"
-				label="Vertex Shader"
-				tool_tip="Toggles the Vertex Shader allowing ripple water, reflections on water and a much more realistic sky with clouds aswell as Post Process Glow. Known as 'Windlight'"
-				layout="topleft"
-				left_delta="0"
-				name="BasicShadersᒪ"
-				top_pad="0"
-				width="115">
-			</check_box>
-			<text
-				font="SansSerif"
-				font.style="BOLD"
-				font_shadow="soft"
-				follows="left|top"
-				height="20"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left_delta="7"
-				name="shaders"
-				top_pad="0"
-				width="10">
-				┗
-			</text>
-			<check_box
 				control_name="WindLightUseAtmosShaders"
 				enabled_control="VertexShaderEnable"
 				height="16"
@@ -114,9 +77,9 @@
 				label="Atmospheric Shader"
 				tool_tip="Toggles the Atmospheric Shader rendering the scene more realistic by adding additional light calculations. Needs Vertex Shader!"
 				layout="topleft"
-				left_pad="0"
+				left="0"
 				name="WindLightUseAtmosShaders"
-				top_delta="0"
+				top_pad="0"
 				width="115">
 			</check_box>
 			<text
@@ -128,58 +91,6 @@
 				text_color="EmphasisColor"
 				layout="topleft"
 				left_delta="7"
-				name="shaders"
-				top_pad="0"
-				width="10">
-				┣
-			</text>
-			<check_box
-				control_name="RenderObjectBump"
-				height="16"
-				label="Bumpmapping"
-				tool_tip="Toggles Bumpmapping and shiny surfaces which reflect lights of the environment"
-				layout="topleft"
-				left_pad="0"
-				name="BumpShiny"
-				top_delta="0"
-				width="115">
-			</check_box>
-			<text
-				font="SansSerif"
-				font.style="BOLD"
-				font_shadow="soft"
-				follows="left|top"
-				height="20"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left_delta="-10"
-				name="shaders"
-				top_pad="0"
-				width="10">
-				┣
-			</text>
-			<check_box
-				control_name="RenderAvatarVP"
-				disabled_control="RenderGlow"
-				height="16"
-				initial_value="true"
-				label="Hardware Skinning"
-				tool_tip="Enabling Hardware Skinning opens up the basic rendering needed for high end shaders like Deferred Rendering"
-				layout="topleft"
-				left_pad="0"
-				name="AvatarVertexProgram"
-				top_delta="0"
-				width="115">
-			</check_box>
-			<text
-				font="SansSerif"
-				font.style="BOLD"
-				font_shadow="soft"
-				follows="left|top"
-				height="20"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left_delta="-10"
 				name="shaders"
 				top_pad="0"
 				width="10">
@@ -197,7 +108,7 @@
 				name="shaders"
 				top_pad="-4"
 				width="10">
-				┣
+				┃
 			</text>
 			<radio_group
 				control_name="RenderReflectionDetail"
@@ -361,33 +272,7 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left_delta="-210"
-				name="shaders"
-				top_pad="0"
-				width="10">
-				┣
-			</text>
-			<check_box
-				control_name="RenderGlow"
-				disabled_control="RenderDeferred"
-				height="16"
-				label="Post Process Glow"
-				tool_tip="Toggles the glowing of Prims and environment in some circumstances. Glow appearance and strength can be manipulated in the 'Lighting Tab' - needs Vertex Shader to run and is needed for Deferred Rendering"
-				layout="topleft"
-				left_pad="0"
-				name="Glow"
-				top_delta="0"
-				width="115">
-			</check_box>
-			<text
-				font="SansSerif"
-				font.style="BOLD"
-				font_shadow="soft"
-				follows="left|top"
-				height="20"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left_delta="-10"
+				left="7"
 				name="shaders"
 				top_pad="0"
 				width="10">
@@ -431,7 +316,7 @@
 				name="shaders"
 				top_delta="16"
 				width="10">
-				┣
+				┃
 			</text>
 			<radio_group
 				control_name="RenderShadowDetail"
@@ -517,7 +402,7 @@
 				height="16"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="193"
+				left="140"
 				name="shaders"
 				top_delta="0"
 				width="10">
@@ -531,7 +416,7 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left_delta="-142"
+				left_delta="-116"
 				name="shaders"
 				top_pad="0"
 				width="10">
@@ -720,7 +605,7 @@
 				name="shaders"
 				top_pad="0"
 				width="10">
-				┣
+				┃
 			</text>
 			<text
 				font="SansSerif"
@@ -761,6 +646,20 @@
 						image_pressed_selected="Checkbox_On_Press">
 					</radio_item.check_button>
 				</radio_item>
+				<text
+					font="SansSerif"
+					font.style="BOLD"
+					font_shadow="soft"
+					follows="left|top"
+					height="16"
+					text_color="EmphasisColor"
+					layout="topleft"
+					left_pad="-88"
+					name="shaders"
+					top_delta="0"
+					width="10">
+					╸
+				</text>
 				<radio_item
 					height="16"
 					label="Linear"
@@ -859,7 +758,7 @@
 				name="shaders"
 				top_pad="0"
 				width="10">
-				┗
+				┣
 			</text>
 			<check_box
 				control_name="PVRender_EnableLensFlare"
@@ -882,54 +781,46 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="5"
-				name="misc"
-				top_pad="9"
-				width="295">
-				Misc:
+				left_delta="-10"
+				name="shaders"
+				top_pad="0"
+				width="10">
+				┣
 			</text>
 			<check_box
 				control_name="RenderLocalLights"
 				enabled_control="RenderDeferred"
 				height="16"
-				label="Deferred Lights"
+				label="Render Lights"
 				tool_tip="Toggles normal lights and projected lights in Deferred Rendering on or off altogether. Warning this might also disable lights in Windlight!"
 				layout="topleft"
-				left_delta="0"
+				left_pad="0"
 				name="UseLightShaders"
-				top_pad="0"
-				width="115">
+				top_delta="0"
+				width="125">
 			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left_delta="7"
+				name="shaders"
+				top_pad="0"
+				width="10">
+				┗
+			</text>
 			<check_box
 				control_name="RenderAttachedLights"
 				height="16"
-				label="Attached Lights"
+				label="...from attachments"
 				tool_tip="Toggles rendering of lights which are attached to your or other Avatars on or off. Usefull for annoying facelights"
 				layout="topleft"
-				left_delta="0"
+				left_pad="0"
 				name="attached_lights"
-				top_pad="0"
-				width="115">
-			</check_box>
-			<check_box
-				top_delta="16"
-				height="16"
-				control_name="JoystickEnabled"
-				halign="left"
-				label="Enable Flycam"
-				layout="topleft"
-				left="160"
-				name="enable_joystick"
-				width="60">
-			</check_box>
-			<check_box
-				control_name="RenderAttachedParticles"
-				height="16"
-				label="Attached Particles"
-				tool_tip="Toggles rendering of particles which are attached to your or other Avatars on or off. Usefull for particle spammers"
-				layout="topleft"
-				left="5"
-				name="attached_particles"
 				top_delta="0"
 				width="115">
 			</check_box>
@@ -941,402 +832,62 @@
 				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="5"
-				name="light"
-				top_pad="5"
-				width="295">
-				Rendering:
+				left_delta="-27"
+				name="shaders"
+				top_pad="-16"
+				width="10">
+				┃
 			</text>
-			<slider
-				control_name="PVRender_SSRResolution"
-				enabled_control="PVRender_EnableSSR"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="1"
-				initial_value="10"
-				label="SSR Resolution:"
-				label_width="130"
-				layout="topleft"
-				left_delta="5"
-				max_val="256"
-				min_val="2"
-				name="PVRender_SSRResolution"
-				top_pad="2"
-				width="310">
-			</slider>
 			<text
 				font="SansSerif"
-				font.style="ITALIC"
+				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
-				height="15"
+				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
 				left_delta="0"
-				name="shadows_section"
-				top_pad="2"
-				width="295">
-				Shadows:
+				name="shaders"
+				top_pad="-4"
+				width="10">
+				┣
 			</text>
-			<slider
-				control_name="RenderShadowBlurSize"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				can_edit_text="true"
-				label="Blur Size:"
-				label_width="130"
-				tool_tip="Set the strength of each blur pass of shadows"
+			<check_box
+				control_name="RenderAttachedParticles"
+				height="16"
+				label="Attached Particles"
+				tool_tip="Toggles rendering of particles which are attached to your or other Avatars on or off. Usefull for particle spammers"
 				layout="topleft"
-				left_delta="0"
-				max_val="3"
-				min_val="0.0"
-				name="RenderShadowBlurSize"
-				top_pad="3"
-				text_width="40"
-				width="310">
-			</slider>
-			<slider
-				enabled="true"
-				control_name="RenderShadowFarClip"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				can_edit_text="true"
-				label="Draw distance cap:"
-				label_width="130"
-				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
-				layout="topleft"
-				left_delta="0"
-				max_val="2048"
-				min_val="0.0"
-				name="RenderShadowFarClip"
-				top_pad="1"
-				text_width="40"
-				width="310">
-			</slider>
-			<!-- <slider
-				enabled_control="RenderShadowDetail"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="64"
-				initial_value="2048"
-				label="Resolution Closeup:"
-				label_width="110"
-				layout="topleft"
-				left="10"
-				max_val="6144"
-				min_val="256"
-				name="RenderShadowResolution_X_Sidebar"
-				top_pad="1"
-				width="310">
-				<slider.commit_callback
-					function="Pref.ArrayVec4X"
-					parameter="RenderShadowResolution">
-				</slider.commit_callback>
-			</slider>
-			<slider
-				enabled_control="RenderShadowDetail"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="64"
-				initial_value="2048"
-				label="Resolution Close:"
-				label_width="110"
-				layout="topleft"
-				left="10"
-				max_val="6144"
-				min_val="256"
-				name="RenderShadowResolution_Y_Sidebar"
-				top_pad="1"
-				width="310">
-				<slider.commit_callback
-					function="Pref.ArrayVec4Y"
-					parameter="RenderShadowResolution">
-				</slider.commit_callback>
-			</slider>
-			<slider
-				enabled_control="RenderShadowDetail"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="64"
-				initial_value="1024"
-				label="Resolution Far:"
-				label_width="110"
-				layout="topleft"
-				left="10"
-				max_val="6144"
-				min_val="256"
-				name="RenderShadowResolution_Z_Sidebar"
-				top_pad="1"
-				width="310">
-				<slider.commit_callback
-					function="Pref.ArrayVec4Z"
-					parameter="RenderShadowResolution">
-				</slider.commit_callback>
-			</slider>
-			<slider
-				enabled_control="RenderShadowDetail"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="64"
-				initial_value="512"
-				label="Resolution Very Far:"
-				label_width="110"
-				layout="topleft"
-				left="10"
-				max_val="6144"
-				min_val="256"
-				name="RenderShadowResolution_W_Sidebar"
-				top_pad="1"
-				width="310">
-				<slider.commit_callback
-					function="Pref.ArrayVec4W"
-					parameter="RenderShadowResolution">
-				</slider.commit_callback>
-			</slider> -->
+				left_pad="0"
+				name="attached_particles"
+				top_delta="1"
+				width="115">
+			</check_box>
 			<text
 				font="SansSerif"
-				font.style="ITALIC"
+				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
-				height="15"
+				height="20"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left_delta="-5"
-				name="ssao_section"
-				top_pad="2"
-				width="310">
-				Ambient Occlusion (SSAO):
-			</text>
-			<panel
-				enabled_control="RenderDeferred"
-				height="65"
+				left_delta="-10"
+				name="shaders"
 				top_pad="0"
-				width="300">
-				<slider
-					control_name="RenderSSAOEffect"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="2"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="0.01"
-					initial_value="0.7"
-					label="Effect:"
-					label_width="130"
-					layout="topleft"
-					left_delta="5"
-					max_val="4"
-					min_val="-1"
-					name="SSAOEffect"
-					top_pad="0"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOScale"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="0"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="1"
-					initial_value="100"
-					label="Scale:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="3000"
-					min_val="0"
-					name="SSAOScale"
-					top_pad="1"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOMaxScale"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="0"
-					follows="left|top"
-					can_edit_text="true"
-					height="15"
-					increment="1"
-					initial_value="200"
-					label="Max Scale:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="3000"
-					min_val="0"
-					name="SSAOMaxScale"
-					top_pad="1"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOFactor"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="1"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="0.10"
-					initial_value="100"
-					label="Factor:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="100"
-					min_val="0"
-					name="SSAOFactor"
-					top_pad="1"
-					width="310">
-				</slider>
-			</panel>
-			<text
-				font="SansSerif"
-				font.style="ITALIC"
-				font_shadow="soft"
-				follows="left|top"
-				height="15"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left="5"
-				name="light"
-				top_pad="1"
-				width="295">
-				Depth of Field (DoF)
+				width="10">
+				┣
 			</text>
-			<slider
-				control_name="CameraFieldOfView"
-				enabled_control="RenderDepthOfField"
-				can_edit_text="true"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="1"
-				initial_value="67"
-				label="Field of View(°):"
-				label_width="130"
+			<check_box
+				control_name="RenderEnableFullbright"
+				height="16"
+				label="Enable FullBright objects"
+				tool_tip="Unchecking this will prevent unsightly Full Bright objects from being rendered as such"
 				layout="topleft"
-				left_delta="5"
-				max_val="179"
-				min_val="0"
-				name="CameraFOV"
-				tool_tip="Vertical camera field of view for Depth of Field effect (in degrees)"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				control_name="CameraFNumber"
-				enabled_control="RenderDepthOfField"
-				can_edit_text="true"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				initial_value="28"
-				label="F-Number:"
-				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="128"
-				min_val="0.50"
-				name="CameraFNum"
-				tool_tip="Camera f-number value for Depth of Field effect"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				control_name="CameraFocalLength"
-				enabled_control="RenderDepthOfField"
-				can_edit_text="true"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="1"
-				initial_value="40"
-				label="Focal Length(mm):"
-				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="300"
-				min_val="0"
-				name="CameraFocal"
-				tool_tip="Camera focal length for Depth of Field effect (in millimeters)"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				control_name="CameraMaxCoF"
-				enabled_control="RenderDepthOfField"
-				can_edit_text="true"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				initial_value="11.9"
-				label="Circle of Confusion:"
-				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="100"
-				min_val="0"
-				name="CameraCoF"
-				tool_tip="Set the Camera circle of confusion"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				enabled_control="RenderDepthOfField"
-				control_name="CameraFocusTransitionTime"
-				can_edit_text="true"
-				decimal_digits="2"
-				follows="left|top"
-				height="15"
-				increment="0.01"
-				initial_value="0.4"
-				label="Transition Time(s):"
-				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="20"
-				min_val="0.01"
-				name="CameraFocusTrans"
-				tool_tip="Time taken to alter focus from one place to the next"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				control_name="CameraDoFResScale"
-				enabled_control="RenderDepthOfField"
-				can_edit_text="true"
-				decimal_digits="2"
-				follows="left|top"
-				height="15"
-				increment="0.01"
-				initial_value="0.5"
-				label="Resolution:"
-				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="1"
-				min_val="0.25"
-				name="CameraDoFRes"
-				tool_tip="Set the Resolution (Quality) of each DoF pixel"
-				top_pad="1"
-				width="310">
-			</slider>
+				left_pad="0"
+				name="attached_particles"
+				top_delta="0"
+				width="115">
+			</check_box>
 			<text
 				font="SansSerif"
 				font.style="BOLD"
@@ -1354,12 +905,12 @@
 			<check_box
 				control_name="UseEnvironmentFromRegion"
 				halign="center"
-				height="15"
+				height="16"
 				label="Auto-apply Windlight from Region"
 				layout="topleft"
 				left_delta="0"
 				name="UseRegioLight"
-				top_pad="5"
+				top_pad="0"
 				width="75">
 			</check_box>
 			<check_box
@@ -1556,8 +1107,310 @@
 				max_val="2048"
 				min_val="48"
 				name="RenderShadowFarClip"
-				top_pad="1"
+				top_pad="5"
 				text_width="40"
+				width="310">
+			</slider>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="15"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left="5"
+				name="light"
+				top_pad="1"
+				width="295">
+				Depth of Field:
+			</text>
+			<slider
+				control_name="CameraFieldOfView"
+				enabled_control="RenderDepthOfField"
+				can_edit_text="true"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="67"
+				label="Field of View(°):"
+				label_width="130"
+				layout="topleft"
+				left_delta="5"
+				max_val="179"
+				min_val="0"
+				name="CameraFOV"
+				tool_tip="Vertical camera field of view for Depth of Field effect (in degrees)"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="CameraFNumber"
+				enabled_control="RenderDepthOfField"
+				can_edit_text="true"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="0.1"
+				initial_value="28"
+				label="F-Number:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="128"
+				min_val="0.50"
+				name="CameraFNum"
+				tool_tip="Camera f-number value for Depth of Field effect"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="CameraFocalLength"
+				enabled_control="RenderDepthOfField"
+				can_edit_text="true"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="40"
+				label="Focal Length(mm):"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="300"
+				min_val="0"
+				name="CameraFocal"
+				tool_tip="Camera focal length for Depth of Field effect (in millimeters)"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="CameraMaxCoF"
+				enabled_control="RenderDepthOfField"
+				can_edit_text="true"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="0.1"
+				initial_value="11.9"
+				label="Circle of Confusion:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="100"
+				min_val="0"
+				name="CameraCoF"
+				tool_tip="Set the Camera circle of confusion"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				enabled_control="RenderDepthOfField"
+				control_name="CameraFocusTransitionTime"
+				can_edit_text="true"
+				decimal_digits="2"
+				follows="left|top"
+				height="15"
+				increment="0.01"
+				initial_value="0.4"
+				label="Transition Time(s):"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="20"
+				min_val="0.01"
+				name="CameraFocusTrans"
+				tool_tip="Time taken to alter focus from one place to the next"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="CameraDoFResScale"
+				enabled_control="RenderDepthOfField"
+				can_edit_text="true"
+				decimal_digits="2"
+				follows="left|top"
+				height="15"
+				increment="0.01"
+				initial_value="0.5"
+				label="Resolution:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="1"
+				min_val="0.25"
+				name="CameraDoFRes"
+				tool_tip="Set the Resolution (Quality) of each DoF pixel"
+				top_pad="1"
+				width="310">
+			</slider>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="16"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left="5"
+				name="camera"
+				top_pad="0"
+				width="295">
+				Camera:
+			</text>
+			<slider
+				can_edit_text="true"
+				control_name="CameraAngle"
+				decimal_digits="3"
+				follows="left|top"
+				height="15"
+				increment="0.001"
+				initial_value="1.10"
+				label="View Angle:"
+				label_width="130"
+				layout="topleft"
+				left_delta="5"
+				max_val="3.97"
+				min_val="0.17"
+				name="camera_fov"
+				show_text="true"
+				top_pad="0"
+				width="310">
+			</slider>
+			<slider
+				can_edit_text="true"
+				control_name="DynamicCameraStrength"
+				decimal_digits="2"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="2"
+				label="Camera Lag:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="60"
+				min_val="0"
+				name="camera_lag"
+				show_text="true"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				can_edit_text="true"
+				control_name="CameraOffsetScale"
+				decimal_digits="3"
+				follows="left|top"
+				height="15"
+				increment="0.001"
+				initial_value="1"
+				label="Distance:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="3"
+				min_val="0.5"
+				name="camera_offset_scale"
+				show_text="true"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				can_edit_text="true"
+				control_name="CameraPositionSmoothing"
+				decimal_digits="2"
+				follows="left|top"
+				height="15"
+				increment="0.025"
+				initial_value="1"
+				label="Smoothing:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="40"
+				min_val="0.5"
+				name="camera_position_smoothing"
+				show_text="true"
+				width="310"
+				top_pad="1">
+			</slider>
+			<slider
+				can_edit_text="true"
+				control_name="ZoomTime"
+				decimal_digits="3"
+				follows="left|top"
+				height="15"
+				increment="0.001"
+				initial_value="1"
+				label="Zoom Time:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="10"
+				min_val="0"
+				name="zoomtime"
+				show_text="true"
+				top_pad="1"
+				width="310">
+			</slider>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left="5"
+				name="misc"
+				top_pad="9"
+				width="295">
+				Misc:
+			</text>
+			<check_box
+				top_delta="16"
+				height="16"
+				control_name="JoystickEnabled"
+				halign="left"
+				label="Enable Flycam"
+				layout="topleft"
+				left="7"
+				top_pad="0"
+				name="enable_joystick"
+				width="60">
+			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left="5"
+				name="light"
+				top_pad="5"
+				width="295">
+				Rendering:
+			</text>
+			<slider
+				control_name="PVRender_SSRResolution"
+				enabled_control="PVRender_EnableSSR"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="10"
+				label="SSR Resolution:"
+				label_width="130"
+				layout="topleft"
+				left_delta="5"
+				max_val="256"
+				min_val="2"
+				name="PVRender_SSRResolution"
+				top_pad="2"
 				width="310">
 			</slider>
 			<text
@@ -1568,138 +1421,221 @@
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left="5"
-				name="light"
-				top_pad="8"
+				left_delta="0"
+				name="shadows_section"
+				top_pad="2"
 				width="295">
-				Glow Settings:
+				Shadows:
 			</text>
 			<slider
-				can_edit_text="true"
-				control_name="RenderGlowIterations"
-				decimal_digits="0"
-				enabled="true"
-				follows="left|top"
-				height="15"
-				increment="1"
-				initial_value="1"
-				label="Iterations:"
-				label_width="130"
-				left_delta="5"
-				max_val="5"
-				min_val="0"
-				mouse_opaque="true"
-				name="Iterations"
-				show_text="true"
-				top_pad="1"
-				visiblity_control="RenderGlow"
-				width="310">
-			</slider>
-			<slider
-				control_name="RenderGlowStrength"
-				visiblity_control="RenderGlow"
-				decimal_digits="3"
-				enabled="true"
-				follows="left|top"
-				height="15"
-				can_edit_text="true"
-				increment="0.001"
-				initial_value="0.210"
-				label="Strength:"
-				label_width="130"
-				left_delta="0"
-				max_val="1"
-				min_val="0.001"
-				mouse_opaque="true"
-				name="Strength"
-				show_text="true"
-				top_pad="1"
-				width="310">
-			</slider>
-			<slider
-				control_name="RenderGlowMinLuminance"
-				visiblity_control="RenderGlow"
+				control_name="RenderShadowBlurSize"
 				decimal_digits="1"
-				enabled="true"
 				follows="left|top"
 				height="15"
-				can_edit_text="true"
 				increment="0.1"
-				initial_value="0"
-				label="Min. Luminance:"
+				can_edit_text="true"
+				label="Blur Size:"
 				label_width="130"
+				tool_tip="Set the strength of each blur pass of shadows"
+				layout="topleft"
 				left_delta="0"
-				top_pad="1"
 				max_val="3"
-				min_val="0"
-				mouse_opaque="true"
-				name="MinLuminance"
-				show_text="true"
+				min_val="0.0"
+				name="RenderShadowBlurSize"
+				top_pad="3"
+				text_width="40"
 				width="310">
 			</slider>
 			<slider
-				control_name="RenderGlowWarmthAmount"
-				visiblity_control="RenderGlow"
-				decimal_digits="1"
 				enabled="true"
-				follows="left|top"
-				height="15"
-				can_edit_text="true"
-				increment="0.1"
-				initial_value="7"
-				label="Warmth:"
-				label_width="130"
-				left_delta="0"
-				top_pad="1"
-				max_val="20"
-				min_val="0"
-				mouse_opaque="true"
-				name="Warmth"
-				show_text="true"
-				width="310">
-			</slider>
-			<slider
-				control_name="RenderGlowWidth"
-				visiblity_control="RenderGlow"
+				control_name="RenderShadowFarClip"
 				decimal_digits="1"
-				enabled="true"
 				follows="left|top"
 				height="15"
 				increment="0.1"
 				can_edit_text="true"
-				initial_value="3"
-				label="Width:"
+				label="Draw distance cap:"
 				label_width="130"
+				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
+				layout="topleft"
 				left_delta="0"
+				max_val="2048"
+				min_val="0.0"
+				name="RenderShadowFarClip"
 				top_pad="1"
-				max_val="4"
-				min_val="0"
-				mouse_opaque="true"
-				name="Width"
-				show_text="true"
+				text_width="40"
 				width="310">
+			</slider>
+			<!-- <slider
+				enabled_control="RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="64"
+				initial_value="2048"
+				label="Resolution Closeup:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_X_Sidebar"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4X"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
 			</slider>
 			<slider
-				control_name="RenderGlowMaxExtractAlpha"
-				visiblity_control="RenderGlow"
-				decimal_digits="3"
-				enabled="true"
-				follows="left|top"
+				enabled_control="RenderShadowDetail"
+				decimal_digits="0"
 				can_edit_text="true"
+				follows="left|top"
 				height="15"
-				increment="0.001"
-				initial_value="0.020"
-				label="Max Alpha:"
-				label_width="130"
-				left_delta="0"
+				increment="64"
+				initial_value="2048"
+				label="Resolution Close:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_Y_Sidebar"
 				top_pad="1"
-				max_val="0.2"
-				min_val="0"
-				mouse_opaque="true"
-				name="MaxAlpha"
-				show_text="true"
 				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4Y"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
 			</slider>
+			<slider
+				enabled_control="RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="64"
+				initial_value="1024"
+				label="Resolution Far:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_Z_Sidebar"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4Z"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
+			</slider>
+			<slider
+				enabled_control="RenderShadowDetail"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="64"
+				initial_value="512"
+				label="Resolution Very Far:"
+				label_width="110"
+				layout="topleft"
+				left="10"
+				max_val="6144"
+				min_val="256"
+				name="RenderShadowResolution_W_Sidebar"
+				top_pad="1"
+				width="310">
+				<slider.commit_callback
+					function="Pref.ArrayVec4W"
+					parameter="RenderShadowResolution">
+				</slider.commit_callback>
+			</slider> -->
+			<panel
+				enabled_control="RenderDeferred"
+				height="65"
+				top_pad="0"
+				width="300">
+				<slider
+					control_name="RenderSSAOEffect"
+					enabled_control="RenderDeferredSSAO"
+					decimal_digits="2"
+					can_edit_text="true"
+					follows="left|top"
+					height="15"
+					increment="0.01"
+					initial_value="0.7"
+					label="SSAO Effect:"
+					label_width="130"
+					layout="topleft"
+					left_delta="0"
+					max_val="4"
+					min_val="-1"
+					name="SSAOEffect"
+					top_pad="0"
+					width="310">
+				</slider>
+				<slider
+					control_name="RenderSSAOScale"
+					enabled_control="RenderDeferredSSAO"
+					decimal_digits="0"
+					can_edit_text="true"
+					follows="left|top"
+					height="15"
+					increment="1"
+					initial_value="100"
+					label="SSAO Scale:"
+					label_width="130"
+					layout="topleft"
+					left_delta="0"
+					max_val="3000"
+					min_val="0"
+					name="SSAOScale"
+					top_pad="1"
+					width="310">
+				</slider>
+				<slider
+					control_name="RenderSSAOMaxScale"
+					enabled_control="RenderDeferredSSAO"
+					decimal_digits="0"
+					follows="left|top"
+					can_edit_text="true"
+					height="15"
+					increment="1"
+					initial_value="200"
+					label="SSAO Max Scale:"
+					label_width="130"
+					layout="topleft"
+					left_delta="0"
+					max_val="3000"
+					min_val="0"
+					name="SSAOMaxScale"
+					top_pad="1"
+					width="310">
+				</slider>
+				<slider
+					control_name="RenderSSAOFactor"
+					enabled_control="RenderDeferredSSAO"
+					decimal_digits="1"
+					can_edit_text="true"
+					follows="left|top"
+					height="15"
+					increment="0.10"
+					initial_value="100"
+					label="SSAO Factor:"
+					label_width="130"
+					layout="topleft"
+					left_delta="0"
+					max_val="100"
+					min_val="0"
+					name="SSAOFactor"
+					top_pad="1"
+					width="310">
+				</slider>
+			</panel>
 			<text
 				font="SansSerif"
 				font.style="ITALIC"
@@ -1870,111 +1806,142 @@
 			</slider>
 			<text
 				font="SansSerif"
-				font.style="BOLD"
+				font.style="ITALIC"
 				font_shadow="soft"
 				follows="left|top"
-				height="20"
+				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
 				left="5"
-				name="camera"
-				top_pad="10"
+				name="light"
+				top_pad="8"
 				width="295">
-				Camera:
+				Glow Settings:
 			</text>
 			<slider
 				can_edit_text="true"
-				control_name="CameraAngle"
-				decimal_digits="3"
-				follows="left|top"
-				height="15"
-				increment="0.001"
-				initial_value="1.10"
-				layout="topleft"
-				label_width="130"
-				label="View Angle:"
-				left_delta="5"
-				max_val="3.97"
-				min_val="0.17"
-				top_pad="1"
-				name="camera_fov"
-				show_text="true"
-				width="310">
-			</slider>
-			<slider
-				can_edit_text="true"
-				control_name="DynamicCameraStrength"
-				decimal_digits="2"
+				control_name="RenderGlowIterations"
+				decimal_digits="0"
+				enabled="true"
 				follows="left|top"
 				height="15"
 				increment="1"
-				initial_value="2"
-				label="Camera Lag:"
+				initial_value="1"
+				label="Iterations:"
 				label_width="130"
-				layout="topleft"
-				left_delta="0"
-				max_val="60"
+				left_delta="5"
+				max_val="5"
 				min_val="0"
-				name="camera_lag"
+				mouse_opaque="true"
+				name="Iterations"
+				show_text="true"
+				top_pad="1"
+				visiblity_control="RenderGlow"
+				width="310">
+			</slider>
+			<slider
+				control_name="RenderGlowStrength"
+				visiblity_control="RenderGlow"
+				decimal_digits="3"
+				enabled="true"
+				follows="left|top"
+				height="15"
+				can_edit_text="true"
+				increment="0.001"
+				initial_value="0.210"
+				label="Strength:"
+				label_width="130"
+				left_delta="0"
+				max_val="1"
+				min_val="0.001"
+				mouse_opaque="true"
+				name="Strength"
 				show_text="true"
 				top_pad="1"
 				width="310">
 			</slider>
 			<slider
-				can_edit_text="true"
-				control_name="CameraOffsetScale"
-				decimal_digits="3"
+				control_name="RenderGlowMinLuminance"
+				visiblity_control="RenderGlow"
+				decimal_digits="1"
+				enabled="true"
 				follows="left|top"
 				height="15"
-				increment="0.001"
-				initial_value="1"
-				label="Distance:"
+				can_edit_text="true"
+				increment="0.1"
+				initial_value="0"
+				label="Min. Luminance:"
 				label_width="130"
-				layout="topleft"
 				left_delta="0"
+				top_pad="1"
 				max_val="3"
-				min_val="0.5"
-				name="camera_offset_scale"
+				min_val="0"
+				mouse_opaque="true"
+				name="MinLuminance"
 				show_text="true"
-				top_pad="1"
 				width="310">
 			</slider>
 			<slider
-				can_edit_text="true"
-				control_name="CameraPositionSmoothing"
-				decimal_digits="2"
+				control_name="RenderGlowWarmthAmount"
+				visiblity_control="RenderGlow"
+				decimal_digits="1"
+				enabled="true"
 				follows="left|top"
 				height="15"
-				increment="0.025"
-				initial_value="1"
-				label="Smoothing:"
+				can_edit_text="true"
+				increment="0.1"
+				initial_value="7"
+				label="Warmth:"
 				label_width="130"
-				layout="topleft"
 				left_delta="0"
-				max_val="40"
-				min_val="0.5"
-				name="camera_position_smoothing"
+				top_pad="1"
+				max_val="20"
+				min_val="0"
+				mouse_opaque="true"
+				name="Warmth"
 				show_text="true"
-				width="310"
-				top_pad="1">
+				width="310">
 			</slider>
 			<slider
-				can_edit_text="true"
-				control_name="ZoomTime"
-				decimal_digits="3"
+				control_name="RenderGlowWidth"
+				visiblity_control="RenderGlow"
+				decimal_digits="1"
+				enabled="true"
 				follows="left|top"
 				height="15"
-				increment="0.001"
-				initial_value="1"
-				label="Zoom Time:"
+				increment="0.1"
+				can_edit_text="true"
+				initial_value="3"
+				label="Width:"
 				label_width="130"
-				layout="topleft"
 				left_delta="0"
-				max_val="10"
-				min_val="0"
-				name="zoomtime"
-				show_text="true"
 				top_pad="1"
+				max_val="4"
+				min_val="0"
+				mouse_opaque="true"
+				name="Width"
+				show_text="true"
+				width="310">
+			</slider>
+			<slider
+				control_name="RenderGlowMaxExtractAlpha"
+				visiblity_control="RenderGlow"
+				decimal_digits="3"
+				enabled="true"
+				follows="left|top"
+				can_edit_text="true"
+				height="15"
+				increment="0.001"
+				initial_value="0.020"
+				label="Max Alpha:"
+				label_width="130"
+				left_delta="0"
+				top_pad="1"
+				max_val="0.2"
+				min_val="0"
+				mouse_opaque="true"
+				name="MaxAlpha"
+				show_text="true"
 				width="310">
 			</slider>
 		</panel>
