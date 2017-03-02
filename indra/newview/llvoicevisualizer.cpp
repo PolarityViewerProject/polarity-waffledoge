@@ -344,18 +344,15 @@ void LLVoiceVisualizer::render()
 	}
 	
 	// <polarity> PLVR-3: Quantum voice dot
-	// 0 = LL behavior (dot always visible while voice chat is available, waves while talking)
-	// 1 = completely disable indicator
+	// 0 = completely disable indicator
+	// 1 = waves only when avatar talks.
 	// 2 = show dot while voice chat is available, no waves while talking
-	// 3 = waves only when avatar talks.
+	// 3 = LL behavior (show dot visible while voice chat is available, waves while talking)
 	static LLCachedControl<U32> voice_indicator_behavior(gSavedSettings, "PVUI_VoiceIndicatorBehavior", 0);
-	if ( voice_indicator_behavior == 1 )
+	if ( voice_indicator_behavior < 0  || voice_indicator_behavior > 3)
 	{
+		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 1);
 		return;
-	}
-	else if ( voice_indicator_behavior > 3 )
-	{
-		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 0 );
 	}
 	// </polarity>
 	
@@ -376,7 +373,7 @@ void LLVoiceVisualizer::render()
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
 		LLViewerCamera* camera = LLViewerCamera::getInstance();
-		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 2 ) // <polarity>
+		if ( voice_indicator_behavior  > 1 ) // <polarity>
 		{
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
@@ -440,7 +437,7 @@ void LLVoiceVisualizer::render()
 			
 		} // if currently speaking
 								
-		if ( voice_indicator_behavior == 0 || voice_indicator_behavior == 3 ) // <polarity>
+		if ( voice_indicator_behavior == 1 || voice_indicator_behavior == 3 ) // <polarity>
 		{
 		//---------------------------------------------------
 		// determine color

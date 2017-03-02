@@ -9835,7 +9835,7 @@ void initialize_menus()
 
 	// Polarity Menu
 	view_listener_t::addMenu(new PVPerformanceMaidPanicButton(), "Polarity.PanicButton");
-	view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
+	view_listener_t::addMenu(new PVMachinimaTools(), "Polarity.CinematicMode");
 	view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging

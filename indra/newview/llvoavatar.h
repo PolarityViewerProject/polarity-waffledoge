@@ -72,7 +72,6 @@ class LLTexGlobalColor;
 struct LLAppearanceMessageContents;
 class LLViewerJointMesh;
 
-
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // LLVOAvatar
 // 
@@ -288,6 +287,13 @@ public:
 	// Static preferences (controlled by user settings/menus)
 	//--------------------------------------------------------------------
 public:
+	enum ERenderName : S32
+		{
+		RENDER_NAME_NEVER,
+		RENDER_NAME_ALWAYS,
+		RENDER_NAME_FADE
+		};
+
 	static S32		sRenderName;
 	static BOOL		sRenderGroupTitles;
 	static const U32 IMPOSTORS_OFF; /* Must equal the maximum allowed the RenderAvatarMaxNonImpostors
@@ -306,7 +312,8 @@ public:
 	static F32		sLODFactor; // user-settable LOD factor
 	static F32		sPhysicsLODFactor; // user-settable physics LOD factor
 	static BOOL		sJointDebug; // output total number of joints being touched for each avatar
-	static BOOL		sDebugAvatarRotation;
+	//static BOOL		sDebugAvatarRotation; // unused - Xenhat 2017.03.01
+	static BOOL		sShowTyping; // Show typing animation
 
 	//--------------------------------------------------------------------
 	// Region state

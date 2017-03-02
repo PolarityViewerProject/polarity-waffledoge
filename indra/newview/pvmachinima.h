@@ -34,34 +34,38 @@
 // Fixme: cannot be accessed from another file.
 
 // This class can be used as a function to toggle Name Tags, User Interface, HUDs and voice dots as a whole
-class PVCinematicMode : public view_listener_t,
-                        public LLSingleton<PVCinematicMode> // This enables the use of ::instance() to call this function/class without a boost bind. - Xenhat 2015.09.22
+class PVMachinimaTools : public view_listener_t,
+                        public LLSingleton<PVMachinimaTools> // This enables the use of ::instance() to call this function/class without a boost bind. - Xenhat 2015.09.22
 {
 	bool handleEvent(const LLSD& userdata) override;
 	void confirm(const LLSD& notification, const LLSD& response);
 protected:
+	LLPointer<LLControlVariable> voice_indicator_variable_;
+	LLPointer<LLControlVariable> name_tag_mode_variable_;
+	LLPointer<LLControlVariable> hover_tips_variable_;
 	// 0=Show all, 1= Hide all, 2= Dots only, 3=Waves Only
-	U32 previous_voice_dot_setting_ = 0;
+	S32 previous_voice_dot_setting_ = 0;
 	// 0=Hidden, 1=Visible, 2=Auto-hide
-	S32 previous_name_tag_setting_ = 2;
+	S32 previous_render_name_ = 2;
 	// false=Show for all, true=Hide for all
 	bool previous_chat_anim_setting_ = false;
 	// Hover tips
 	bool previous_hovertips_setting_ = false;
-	bool previous_typing_for_all_setting_ = false;
+	bool previous_show_typing_ = false;
 public:
+	PVMachinimaTools();
+	void toggleCinematicMode();
+
 	bool previous_hud_visibility = false;
 	// Keeps track of the Cinematic Mode status.
-	bool cinematic_mode_ = false;
+	static bool cinematic_mode_enabled_;
 	// Wether or not we are in the Cinematic Mode.
-	bool is_in_cinematic_mode_() const;
-	void enter_cinematic_mode();
-	void exit_cinematic_mode();
+	static bool isEnabled();
 };
 
 
 class PVMachinimaSidebar : public view_listener_t,
-                           public LLSingleton<PVCinematicMode>
+                           public LLSingleton<PVMachinimaTools>
 {
 	bool handleEvent(const LLSD& userdata) override;
 public:

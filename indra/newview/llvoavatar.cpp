@@ -117,6 +117,7 @@
 // [RLVa:KB] - Checked: RLVa-2.0.1
 #include "rlvactions.h"
 #include "rlvhandler.h"
+#include "pvmachinima.h"
 // [/RLVa:KB]
 
 extern F32 SPEED_ADJUST_MAX;
@@ -199,13 +200,6 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
-
-enum ERenderName
-{
-	RENDER_NAME_NEVER,
-	RENDER_NAME_ALWAYS,	
-	RENDER_NAME_FADE
-};
 
 //-----------------------------------------------------------------------------
 // Callback data
@@ -611,6 +605,7 @@ F32 LLVOAvatar::sUnbakedTime = 0.f;
 F32 LLVOAvatar::sUnbakedUpdateTime = 0.f;
 F32 LLVOAvatar::sGreyTime = 0.f;
 F32 LLVOAvatar::sGreyUpdateTime = 0.f;
+BOOL LLVOAvatar::sShowTyping = TRUE;
 
 //-----------------------------------------------------------------------------
 // Helper functions
@@ -2889,15 +2884,16 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mChats.clear();
 	}
 	
+	// TODO: Use globals instead of these
 	static LLCachedControl<F32> tag_show_time(gSavedSettings, "RenderNameShowTime");
 	static LLCachedControl<F32> tag_fade_duration(gSavedSettings, "RenderNameFadeDuration");
-	static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
 	static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
 	static LLCachedControl<bool> use_bubble_chat(gSavedSettings, "UseChatBubbles");
 	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
 
-	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	// <polarity> Making these static or const will break nametag fading in our implementation.
+	// const F32 time_visible = mTimeVisible.getElapsedTimeF32();
+	F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	F32 NAME_SHOW_TIME = static_cast<F32>(tag_show_time); // seconds
 	F32 FADE_DURATION = static_cast<F32>(tag_fade_duration); // seconds
 
@@ -2913,14 +2909,14 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
 	BOOL visible_chat = use_bubble_chat && (mChats.size() || mTyping);
 	BOOL visible_typing = (use_bubble_chat && !typing_in_status) && mTyping;
-	BOOL render_name =	visible_chat ||
+	BOOL render_name =	!PVMachinimaTools::isEnabled() && (visible_chat ||
 		visible_typing ||
 		(visible_avatar &&
 // [RLVa:KB] - Checked: RLVa-2.0.1
 			(fRlvShowAvTag) &&
 // [/RLVa:KB]
 		                ((sRenderName == RENDER_NAME_ALWAYS) ||
-		                 (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
+		                 (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME))));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
@@ -2929,7 +2925,7 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		render_name = render_name
 			&& !gAgentCamera.cameraMouselook()
 			&& (visible_chat || (name_show_self
-			&& static_cast<S32>(name_tag_mode)));
+			&& sRenderName));
 	}
 
 	if ( !render_name )
@@ -5422,8 +5418,7 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 	{
 		if (anim_id == ANIM_AGENT_TYPE)
 		{
-			static LLCachedControl<bool> no_typing_sound(gSavedSettings, "PVChat_HideTypingForAll");
-			if (no_typing_sound)
+			if (!LLVOAvatar::sShowTyping)
 			{
 				// Do not play typing sounds if not desired
 				return result;

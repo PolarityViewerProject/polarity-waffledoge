@@ -21,7 +21,7 @@
         control_name="PlayTypingAnim"
         height="16"
         initial_value="true"
-        label="Play typing animation when chatting"
+        label="Send my typing status to others"
         layout="topleft"
         top="0"
         name="play_typing_animation"

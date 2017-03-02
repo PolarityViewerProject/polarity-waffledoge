@@ -33,101 +33,108 @@
 #include <llnotificationsutil.h>
 #include "llchiclet.h"
 #include "llchicletbar.h"
+#include "llfloaterpreference.h" // for extra slider controls
+#include "llvoavatar.h"
 
 /////////////////////////////
 // Polarity Cinematic Mode //
 /////////////////////////////
 
-// Wether or not we are in the Cinematic Mode.
-bool PVCinematicMode::is_in_cinematic_mode_() const
+bool PVMachinimaTools::cinematic_mode_enabled_ = false;
+
+PVMachinimaTools::PVMachinimaTools()
 {
-	LL_DEBUGS() << "returning cinematic_mode_=" << cinematic_mode_ << LL_ENDL;
-	return cinematic_mode_;
+	// TODO: Move to globals to avoid touching settings
+	voice_indicator_variable_ = gSavedSettings.getControl("PVUI_VoiceIndicatorBehavior");
+	hover_tips_variable_ = gSavedSettings.getControl("ShowHoverTips");
 }
 
-void PVCinematicMode::enter_cinematic_mode()
+//static
+bool PVMachinimaTools::isEnabled()
 {
+	LL_DEBUGS() << "returning cinematic_mode_enabled_=" << cinematic_mode_enabled_ << LL_ENDL;
+	return cinematic_mode_enabled_;
+}
+
+void PVMachinimaTools::toggleCinematicMode()
+{
+	if(cinematic_mode_enabled_)
+	{
+		cinematic_mode_enabled_ = false;
+		LL_INFOS() << "Exiting Cinematic Mode" << LL_ENDL;
+
+		 // TODO: use previous value instead of hard-coding these.
+		gViewerWindow->setUIVisibility(true);
+		LLChicletBar::getInstance()->showWellButton("notification_well", !cinematic_mode_enabled_);
+		LLPanelStandStopFlying::getInstance()->setVisible(!cinematic_mode_enabled_); // FIXME: that doesn't always work
+
+		LLPipeline::sShowHUDAttachments = previous_hud_visibility;
+		LLVOAvatar::sRenderName = previous_render_name_;
+		LLVOAvatar::sShowTyping = previous_show_typing_;
+		voice_indicator_variable_->setValue(previous_voice_dot_setting_, false);
+		hover_tips_variable_->setValue(previous_hovertips_setting_, false);
+
+		return;
+	}
 	LL_INFOS() << "Entering Cinematic Mode" << LL_ENDL;
 	// save user-configured value to restore it later.
-	previous_voice_dot_setting_ = gSavedSettings.getU32("PVUI_VoiceIndicatorBehavior");
-	previous_name_tag_setting_ = gSavedSettings.getS32("AvatarNameTagMode");
-	previous_typing_for_all_setting_ = gSavedSettings.getBOOL("PVChat_HideTypingForAll");
-	previous_hovertips_setting_ = gSavedSettings.getBOOL("ShowHoverTips");
-	LLChicletBar::getInstance()->showWellButton("notification_well", false);
-	
-	// Hide stuff
-	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", 1);
-	gSavedSettings.setS32("AvatarNameTagMode", 0);
-	gSavedSettings.setBOOL("PVChat_HideTypingForAll", true);
-	gSavedSettings.setBOOL("ShowHoverTips", false);
+	previous_voice_dot_setting_ = voice_indicator_variable_->getValue();
+	previous_render_name_ = LLVOAvatar::sRenderName;
+	previous_show_typing_ = LLVOAvatar::sShowTyping;
+	previous_hovertips_setting_ = hover_tips_variable_->getValue();
 	previous_hud_visibility = LLPipeline::sShowHUDAttachments;
-	// Cinematic HIDES elements, so we set elements to NOT VISIBLE when machinima mode is ON
-	gViewerWindow->setUIVisibility(false); // Show/hide Interface
-	LLPanelStandStopFlying::getInstance()->setVisible(false);
-	LLPipeline::sShowHUDAttachments = false;
-	// Sanity Check
-	cinematic_mode_ = true;
-	LL_DEBUGS() << "cinematic_mode_=" << cinematic_mode_ << LL_ENDL;
+
+	// ENABLE machinima mode:
+	cinematic_mode_enabled_ = true;
+
+	// Ordered to have a nice effect
+	hover_tips_variable_->setValue(!cinematic_mode_enabled_, false);
+	voice_indicator_variable_->setValue(static_cast<LLSD::Integer>(!cinematic_mode_enabled_), false);
+	LLVOAvatar::sShowTyping = !cinematic_mode_enabled_;
+	LLVOAvatar::sRenderName = LLVOAvatar::RENDER_NAME_NEVER;
+	LLPipeline::sShowHUDAttachments = !cinematic_mode_enabled_;
+	LLPanelStandStopFlying::getInstance()->setVisible(!cinematic_mode_enabled_); // FIXME: that doesn't always work
+	LLChicletBar::getInstance()->showWellButton("notification_well", !cinematic_mode_enabled_);
+	gViewerWindow->setUIVisibility(!cinematic_mode_enabled_);
+
+	LL_DEBUGS() << "cinematic_mode_enabled_=" << cinematic_mode_enabled_ << LL_ENDL;
 }
 
-void PVCinematicMode::exit_cinematic_mode()
+bool PVMachinimaTools::handleEvent(const LLSD& userdata)
 {
-	LL_INFOS() << "Exiting Cinematic Mode" << LL_ENDL;
-	gViewerWindow->setUIVisibility(true); // Show/hide Interface
-	LLPanelStandStopFlying::getInstance()->setVisible(true);
-	LLPipeline::sShowHUDAttachments = previous_hud_visibility;
-	// restore user-configured values
-	gSavedSettings.setU32("PVUI_VoiceIndicatorBehavior", previous_voice_dot_setting_);
-	gSavedSettings.setS32("AvatarNameTagMode", previous_name_tag_setting_);
-	gSavedSettings.setBOOL("PVChat_HideTypingForAll", previous_typing_for_all_setting_);
-	gSavedSettings.setBOOL("ShowHoverTips", previous_hovertips_setting_);
-	LLChicletBar::getInstance()->showWellButton("notification_well", true);
-	// Sanity Check
-	cinematic_mode_ = false;
-	LL_DEBUGS() << "cinematic_mode_=" << cinematic_mode_ << LL_ENDL;
-}
-
-bool PVCinematicMode::handleEvent(const LLSD& userdata)
-{
-	if (gAgentCamera.getCameraMode() != CAMERA_MODE_MOUSELOOK)
+	if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
 	{
-		LLNotification::Params params("CinematicConfirmHideUI");
-		params.functor.function(boost::bind(&PVCinematicMode::confirm, this, _1, _2));
-		LLSD substitutions;
+		// Do nothing
+		return false;
+	}
+	
+	LLNotification::Params params("CinematicConfirmHideUI");
+	params.functor.function(boost::bind(&PVMachinimaTools::confirm, this, _1, _2));
+	LLSD substitutions;
 #if LL_DARWIN
-		substitutions["SHORTCUT"] = "Ctrl+Alt+Shift+C";
+	substitutions["SHORTCUT"] = "Ctrl+Alt+Shift+C";
 #else
-		substitutions["SHORTCUT"] = "Alt+Shift+C";
+	substitutions["SHORTCUT"] = "Alt+Shift+C";
 #endif
-		params.substitutions = substitutions;
-		if (!is_in_cinematic_mode_())
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
-		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
+	params.substitutions = substitutions;
+	if (!isEnabled())
+	{
+		// hiding, so show notification
+		LLNotifications::instance().add(params);
+	}
+	else
+	{
+		LLNotifications::instance().forceResponse(params, 0);
 	}
 	return true;
 }
 
-void PVCinematicMode::confirm(const LLSD& notification, const LLSD& response)
+void PVMachinimaTools::confirm(const LLSD& notification, const LLSD& response)
 {
 	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
 	if (option == 0) // OK
 	{
-		if (!cinematic_mode_)
-		{
-			// Not in Cinematic mode already
-			enter_cinematic_mode();
-		}
-		else
-		{
-			// Is already in machinima mode, unhide stuff
-			exit_cinematic_mode();
-		}
+		toggleCinematicMode();
 	}
 }
 

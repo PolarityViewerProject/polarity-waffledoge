@@ -632,6 +632,9 @@ static void settings_to_globals()
 	gDebugWindowProc = gSavedSettings.getBOOL("DebugWindowProc");
 	gShowObjectUpdates = gSavedSettings.getBOOL("ShowObjectUpdates");
 	LLWorldMapView::sMapScale = gSavedSettings.getF32("MapScale");
+
+	// <polarity> Global for typing anim
+	LLVOAvatar::sShowTyping				= gSavedSettings.getBOOL("PVChat_ShowTypingAnimations");
 }
 
 static void settings_modify()
