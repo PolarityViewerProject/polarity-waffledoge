@@ -502,13 +502,22 @@ bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= f
 	}
 	if (interpolate)
 	{
-		if (!mAnimator.getIsRunning())
+		LL_WARNS("Windlight") << "DEBUG: APPLYSKYPARAMS WITH INTERPOLATION" << LL_ENDL;
+		if (mAnimator.getIsRunning())
+		{
+			LL_WARNS("Windlight") << "DEBUG: ANIMATOR IS RUNNING, RESETTING IT" << LL_ENDL;
 			resetAnimator(0.f, true);
+		}
+		
 		if (!params.has("mName") || mCurParams.mName != params["mName"])
+		{
+			LL_WARNS("Windlight") << "DEBUG: CALLING STARTINTERPOLATIONSKY" << LL_ENDL;
 			LLWLParamManager::getInstance()->mAnimator.startInterpolationSky(params);
+	}
 	}
 	else
 	{
+		LL_WARNS("Windlight") << "DEBUG: INTERPOLATION WAS OFF, DEACTIVATING ANIMATOR AND USING SETALL" << LL_ENDL;
 	mAnimator.deactivate();
 	mCurParams.setAll(params);
 	}

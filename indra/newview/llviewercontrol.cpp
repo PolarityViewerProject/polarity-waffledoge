@@ -677,6 +677,7 @@ static bool handleRenderAttachedParticlesChanged(const LLSD& newvalue)
 // <Black Dragon:NiranV> Give UseEnvironmentFromRegion a purpose and make it able to switch between Region/Fixed Windlight from everywhere via UI
 static bool handleUseRegioLight(const LLSD& newvalue)
 {
+	LL_WARNS() << "CHANGING UseEnvironmentFromRegion VIA CONTROL CHANGE LISTENER" << LL_ENDL;
 	LLEnvManagerNew& envmgr = LLEnvManagerNew::instance();
 	gSavedSettings.setBOOL("UseEnvironmentFromRegion" , newvalue.asBoolean());
 	static LLCachedControl<bool> fixed(gSavedSettings, "UseEnvironmentFromRegion");
