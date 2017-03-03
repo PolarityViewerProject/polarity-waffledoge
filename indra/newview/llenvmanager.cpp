@@ -226,9 +226,7 @@ bool LLEnvManagerNew::useSkyParams(const LLSD& params)
 	LL_DEBUGS("Windlight") << "Displaying sky params" << LL_ENDL;
 	mUserPrefs.mUseRegionSettings = false;
 	mUserPrefs.mUseDayCycle = false;
-	// TODO: Make this a global or something
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-	LLWLParamManager::instance().applySkyParams(params, interpolate);
+	LLWLParamManager::instance().applySkyParams(params);
 	return true;
 }
 
@@ -270,7 +268,7 @@ void LLEnvManagerNew::setUseRegionSettings(bool val, bool interpolate)
 	updateManagersFromPrefs(interpolate);
 }
 
-void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolate)
+void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolate /*= false*/)
 {
 	// *TODO: make sure the preset exists.
 	if (name.empty())
@@ -285,7 +283,7 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolat
 	updateManagersFromPrefs(interpolate);
 }
 
-void LLEnvManagerNew::setUseSkyPreset(const std::string& name, bool interpolate)
+void LLEnvManagerNew::setUseSkyPreset(const std::string& name, bool interpolate /*= false*/)
 {
 	// *TODO: make sure the preset exists.
 	if (name.empty())
@@ -302,7 +300,7 @@ void LLEnvManagerNew::setUseSkyPreset(const std::string& name, bool interpolate)
 	updateManagersFromPrefs(interpolate);
 }
 
-void LLEnvManagerNew::setUseDayCycle(const std::string& name, bool interpolate)
+void LLEnvManagerNew::setUseDayCycle(const std::string& name, bool interpolate /*= false*/)
 {
 	if (!LLDayCycleManager::instance().presetExists(name))
 	{
@@ -532,9 +530,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	mRegionSettingsChangeSignal();
 
 	// reset
-	// TODO: Make this a global or something
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-	mInterpNextChangeMessage = interpolate;
+	mInterpNextChangeMessage = false;
 }
 
 void LLEnvManagerNew::onRegionSettingsApplyResponse(bool ok)
@@ -557,7 +553,7 @@ void LLEnvManagerNew::initSingleton()
 	loadUserPrefs();
 }
 
-void LLEnvManagerNew::updateSkyFromPrefs(bool interpolate)
+void LLEnvManagerNew::updateSkyFromPrefs(bool interpolate /*= false*/)
 {
 	bool success = true;
 

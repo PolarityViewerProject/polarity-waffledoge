@@ -635,12 +635,8 @@ void LLFloaterEditDayCycle::onRegionSettingsChange()
 		// Change preference if requested.
 		if (mMakeDefaultCheckBox->getValue())
 		{
-			LL_DEBUGS("Windlight") << "Changed environment preference to region settings" << LL_ENDL;			// <polarity> Allow interpolation when switching to region windlight
-			// LLEnvManagerNew::instance().setUseRegionSettings(true);
-			// <polarity> Somebody forgot interpolation...
-			// TODO: use a global or something
-			static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-			LLEnvManagerNew::instance().setUseRegionSettings(true, interpolate);
+			LL_DEBUGS("Windlight") << "Changed environment preference to region settings" << LL_ENDL;
+			LLEnvManagerNew::instance().setUseRegionSettings(true);
 		}
 
 		closeFloater();

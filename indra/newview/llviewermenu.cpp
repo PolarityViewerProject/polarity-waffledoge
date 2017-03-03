@@ -9080,29 +9080,26 @@ class LLWorldEnvSettings : public view_listener_t
 			return true;
 		}
 
-		// <polarity> Fix Interpolation
-		static LLCachedControl<bool> interpolate(gSavedSettings,"PVWindlight_Interpolate");
 		if (tod == "sunrise")
 		{
-			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunrise",interpolate);
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunrise");
 		}
 		else if (tod == "noon")
 		{
-			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midday",interpolate);
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midday");
 		}
 		else if (tod == "sunset")
 		{
-			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunset",interpolate);
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Sunset");
 		}
 		else if (tod == "midnight")
 		{
-			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midnight",interpolate);
+			LLEnvManagerNew::instance().LLEnvManagerNew::setUseSkyPreset("Midnight");
 		}
 		else if (tod == "default")
 		{
-			LLEnvManagerNew::instance().setUseRegionSettings(interpolate);
+			LLEnvManagerNew::instance().setUseRegionSettings(true);
 		}
-		// </polarity>
 		else
 		{
 			LLEnvManagerNew &envmgr = LLEnvManagerNew::instance();
@@ -9112,7 +9109,7 @@ class LLWorldEnvSettings : public view_listener_t
 			envmgr.setUserPrefs(envmgr.getWaterPresetName(),
 					    envmgr.getSkyPresetName(),
 					    envmgr.getDayCycleName(),
-					    use_fixed_sky, use_region_settings, interpolate); // <polarity/>
+					    use_fixed_sky, use_region_settings);
 		}
 
 		return true;

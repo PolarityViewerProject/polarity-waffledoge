@@ -670,10 +670,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 	if (mMakeDefaultCheckBox->getEnabled() && mMakeDefaultCheckBox->getValue())
 	{
 		LL_DEBUGS("Windlight") << name << " is now the new preferred water preset" << LL_ENDL;
-		// <polarity> Somebody forgot interpolation...
-		// TODO: use a global or something
-		static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-		LLEnvManagerNew::instance().setUseWaterPreset(name, interpolate);
+		LLEnvManagerNew::instance().setUseWaterPreset(name);
 	}
 
 }

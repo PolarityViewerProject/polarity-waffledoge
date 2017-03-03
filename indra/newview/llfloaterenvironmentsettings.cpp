@@ -160,16 +160,13 @@ void LLFloaterEnvironmentSettings::applyWater()
 	bool use_region_settings = gSavedSettings.getBOOL("UseEnvironmentFromRegion");
 	std::string water_preset = mWaterPresetCombo->getValue().asString();
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
-	// <polarity> Somebody forgot interpolation...
-	// TODO: use a global or something
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
 	if (use_region_settings)
 	{
-		env_mgr.setUseRegionSettings(true, interpolate);
+		env_mgr.setUseRegionSettings(true);
 	}
 	else
 	{
-		env_mgr.setUseWaterPreset(water_preset, interpolate);
+		env_mgr.setUseWaterPreset(water_preset);
 	}
 }
 
@@ -181,22 +178,19 @@ void LLFloaterEnvironmentSettings::applySky()
 	std::string sky_preset = mSkyPresetCombo->getValue().asString();
 	std::string day_cycle = mDayCyclePresetCombo->getValue().asString();
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
-	// <polarity> Somebody forgot interpolation...
-	// TODO: use a global or something
-	static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
 	if (use_region_settings)
 	{
-		env_mgr.setUseRegionSettings(true, 	interpolate);
+		env_mgr.setUseRegionSettings(true);
 	}
 	else
 	{
 		if (use_fixed_sky)
 		{
-			env_mgr.setUseDayCycle(day_cycle, interpolate);
+			env_mgr.setUseDayCycle(day_cycle);
 		}
 		else
 		{
-			env_mgr.setUseSkyPreset(sky_preset, interpolate);
+			env_mgr.setUseSkyPreset(sky_preset);
 		}
 	}
 }
