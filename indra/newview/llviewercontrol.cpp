@@ -680,8 +680,7 @@ static bool handleUseRegioLight(const LLSD& newvalue)
 	LL_WARNS() << "CHANGING UseEnvironmentFromRegion VIA CONTROL CHANGE LISTENER" << LL_ENDL;
 	LLEnvManagerNew& envmgr = LLEnvManagerNew::instance();
 	gSavedSettings.setBOOL("UseEnvironmentFromRegion" , newvalue.asBoolean());
-	static LLCachedControl<bool> fixed(gSavedSettings, "UseEnvironmentFromRegion");
-	envmgr.setUseRegionSettings(fixed);
+	envmgr.setUseRegionSettings(newvalue.asBoolean());
 	return true;
 }
 static bool handleWaterResolutionChanged(const LLSD& newvalue)

@@ -62,9 +62,7 @@ KCWindlightInterface::KCWindlightInterface() :
 	mDisabled(false),
 	mUsingParcelWLSkyDefault(false)
 {
-	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled", true);
-	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", false);
-	if (!parcel_windlight || always_use_region)
+	if (!gSavedSettings.getBOOL("PVWindLight_Parcel_Enabled") || !gSavedSettings.getBOOL("PVWindlight_FromRegionAlways"))
 	{
 		mEventTimer.stop();
 		mDisabled = true;
@@ -189,6 +187,8 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 		
 		mHasRegionOverride = settings.has("region_override");
 
+		// <polarity> Fix a bug where applying water can interrupt parcel windlight application
+#if 0
 		bool non_region_default_applied = applySkySettings(settings);
 
 		// We can only apply a water preset if we didn't set region WL default previously
@@ -218,6 +218,26 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 		{
 			LL_WARNS("KCWindlightInterface") << "Cannot apply Parcel WL water preset because region WL default has been set due to invalid sky preset" << LL_ENDL;
 		}
+#else
+		if (settings.has("water") && (!mHaveRegionSettings || mHasRegionOverride))
+		{
+			LL_INFOS() << "Applying WL water set: " << settings["water"].asString() << LL_ENDL;
+			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
+			LLEnvManagerNew::instance().setUseWaterPreset(settings["water"].asString());
+			setWL_Status(true);
+		}
+		else
+		{
+			LL_INFOS() << "Applying region default WL water set" << LL_ENDL;
+			// Not nice to not interpolate, but these 2836724 methods of changing a WL
+			// setting will nicely screw up each other and this will most likely happen
+			// if calling useRegionWater() because it doesn't even interpolate at all.
+			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
+			LLEnvManagerNew::instance().useRegionWater();
+		}
+
+		KCWindlightInterface::applySkySettings(settings);
+#endif
 	}
 }
 
@@ -229,8 +249,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 		LL_DEBUGS("KCWindlightInterface") << "Checking if agent is in a defined zone" << LL_ENDL;
 
 		//TODO: there has to be a better way of doing this...
-		// mEventTimer.reset();
-		mEventTimer.stop();
+		mEventTimer.reset();
 		mEventTimer.start();
 
 		const LLVector3& agent_pos_region = gAgent.getPositionAgent();
@@ -609,14 +628,12 @@ bool KCWindlightInterface::callbackParcelWLClear(const LLSD& notification, const
 
 bool KCWindlightInterface::allowedLandOwners(const LLUUID& owner_id)
 {
-	static LLCachedControl<bool> apply_from_all(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromAll", false);
-	static LLCachedControl<bool> apply_from_friends(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromFriends", false);
-	static LLCachedControl<bool> apply_from_groups(gSavedSettings, "PVWindLight_Parcel_AutoApplyFromGroups", false);
-	if (apply_from_all ||	// auto all
+		if ( gSavedSettings.getBOOL("PVWindLight_Parcel_AutoApplyFromAll") ||	// auto all
 		(owner_id == gAgent.getID()) ||						// land is owned by agent
-		(LLAvatarTracker::instance().isBuddy(owner_id) && apply_from_friends) || // is friend's land
-		(gAgent.isInGroup(owner_id) && apply_from_groups) || // is member of land's group
+		(LLAvatarTracker::instance().isBuddy(owner_id) && gSavedSettings.getBOOL("PVWindLight_Parcel_AutoApplyFromFriends")) || // is friend's land
+		(gAgent.isInGroup(owner_id) && gSavedSettings.getBOOL("PVWindLight_Parcel_AutoApplyFromGroups")) || // is member of land's group
 		(mAllowedLand.find(owner_id) != mAllowedLand.end()) ) // already on whitelist
+
 	{
 		return true;
 	}
@@ -634,7 +651,7 @@ LLUUID KCWindlightInterface::getOwnerID(LLParcel* parcel)
 
 std::string KCWindlightInterface::getOwnerName(LLParcel* parcel) const
 {
-	std::string owner;
+	std::string owner = "";
 	if (parcel->getIsGroupOwned())
 	{
 		owner = LLSLURL("group", parcel->getGroupID(), "inspect").getSLURLString();
@@ -698,7 +715,7 @@ void KCWindlightInterface::setWL_Status(bool pwl_status)
 bool KCWindlightInterface::checkSettings()
 {
 	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled");
-	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion");
+	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindlight_FromRegionAlways");
 	if (!parcel_windlight || !always_use_region ||
 		(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
 	{

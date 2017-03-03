@@ -94,7 +94,7 @@ void LLFloaterEnvironmentSettings::onOpen(const LLSD& key)
 
 void LLFloaterEnvironmentSettings::onSwitchRegionSettings()
 {
-	getChild<LLView>("user_environment_settings")->setEnabled(!gSavedSettings.getBOOL("UseEnvironmentFromRegion"));
+	//getChild<LLView>("user_environment_settings")->setEnabled(!gSavedSettings.getBOOL("UseEnvironmentFromRegion"));
 
 	// <polarity> Fully separate Sky and Water windlight presets refresh and transitions.
 	// apply();
@@ -174,7 +174,7 @@ void LLFloaterEnvironmentSettings::applySky()
 {
 	// Update environment with the user choice.
 	bool use_region_settings = gSavedSettings.getBOOL("UseEnvironmentFromRegion");
-	bool use_fixed_sky = gSavedSettings.getBOOL("UseDayCycle"); // TODO: Shouldn't this be reversed?
+	bool use_day_cycle = gSavedSettings.getBOOL("UseDayCycle");
 	std::string sky_preset = mSkyPresetCombo->getValue().asString();
 	std::string day_cycle = mDayCyclePresetCombo->getValue().asString();
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
@@ -184,7 +184,8 @@ void LLFloaterEnvironmentSettings::applySky()
 	}
 	else
 	{
-		if (use_fixed_sky)
+		env_mgr.setUseRegionSettings(false);
+		if (use_day_cycle)
 		{
 			env_mgr.setUseDayCycle(day_cycle);
 		}

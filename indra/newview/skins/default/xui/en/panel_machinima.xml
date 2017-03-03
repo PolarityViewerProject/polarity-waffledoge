@@ -1075,12 +1075,13 @@
 				┗
 			</text>
 			<check_box
-				control_name="PVWindLight_Parcel_AlwaysUseRegion"
+				control_name="PVWindlight_FromRegionAlways"
 				halign="center"
 				height="16"
-				label="Prefer Region"
+				label="Override everything"
 				layout="topleft"
 				left_pad="0"
+				tool_tip="Choose whether to always use the region's environment settings when they are available or to allow the manual selections to remain unchanged."
 				name="parcel_region_preference"
 				top_delta="0"
 				width="75">

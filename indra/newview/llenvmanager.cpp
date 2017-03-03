@@ -78,7 +78,6 @@ void LLEnvPrefs::setUseRegionSettings(bool val)
 	mUseRegionSettings = val;
 }
 
-#if 0
 void LLEnvPrefs::setUseWaterPreset(const std::string& name)
 {
 	mUseRegionSettings = false;
@@ -91,7 +90,6 @@ void LLEnvPrefs::setUseSkyPreset(const std::string& name)
 	mUseDayCycle = false;
 	mSkyPresetName = name;
 }
-#endif
 
 void LLEnvPrefs::setUseDayCycle(const std::string& name)
 {
@@ -203,7 +201,7 @@ bool LLEnvManagerNew::useWaterParams(const LLSD& params)
 	return true;
 }
 
-bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
+bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate /*= false*/)
 {
 	LLWLParamManager& sky_mgr = LLWLParamManager::instance();
 	LLWLParamSet param_set;
@@ -215,10 +213,9 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate)
 	}
 
 	LL_INFOS("Windlight") << "Displaying sky preset '" << name << "', interpolate : " << interpolate << LL_ENDL;
-	mUserPrefs.mUseRegionSettings = false;
-	mUserPrefs.mUseDayCycle = false;
 	sky_mgr.applySkyParams(param_set.getAll(), interpolate);
 	return true;
+
 }
 
 bool LLEnvManagerNew::useSkyParams(const LLSD& params)
@@ -261,7 +258,7 @@ bool LLEnvManagerNew::useDayCycleParams(const LLSD& params, LLEnvKey::EScope sco
 	return LLWLParamManager::instance().applyDayCycleParams(params, scope);
 }
 
-void LLEnvManagerNew::setUseRegionSettings(bool val, bool interpolate)
+void LLEnvManagerNew::setUseRegionSettings(bool val, bool interpolate /*= false*/)
 {
 	mUserPrefs.setUseRegionSettings(val);
 	saveUserPrefs();
@@ -276,9 +273,8 @@ void LLEnvManagerNew::setUseWaterPreset(const std::string& name, bool interpolat
 		LL_WARNS("Windlight") << "Empty water preset name passed" << LL_ENDL;
 		return;
 	}
-	mUserPrefs.mUseRegionSettings = false;
-	//mUserPrefs.mUseDayCycle = false; //?
-	mUserPrefs.mWaterPresetName = name;
+
+	mUserPrefs.setUseWaterPreset(name);
 	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
 }
@@ -292,10 +288,7 @@ void LLEnvManagerNew::setUseSkyPreset(const std::string& name, bool interpolate 
 		return;
 	}
 
-	mUserPrefs.mUseRegionSettings = false;
-	mUserPrefs.mUseDayCycle = false;
-	mUserPrefs.mSkyPresetName = name;
-
+	mUserPrefs.setUseSkyPreset(name);
 	saveUserPrefs();
 	updateManagersFromPrefs(interpolate);
 }
@@ -370,19 +363,12 @@ void LLEnvManagerNew::setUserPrefs(
 
 void LLEnvManagerNew::dumpUserPrefs()
 {
-	// TODO: Maybe use globals or something
-	static LLCachedControl<std::string> WaterPresetName(gSavedSettings, "WaterPresetName");
-	static LLCachedControl<std::string> SkyPresetName(gSavedSettings, "SkyPresetName");
-	static LLCachedControl<std::string> DayCycleName(gSavedSettings, "DayCycleName");
-	static LLCachedControl<bool> UseEnvironmentFromRegion(gSavedSettings, "UseEnvironmentFromRegion");
-	static LLCachedControl<bool> UseDayCycle(gSavedSettings,"UseDayCycle") ;
-	
-	LL_DEBUGS("Windlight") << "WaterPresetName: "	<< static_cast<std::string>(WaterPresetName) << LL_ENDL;
-	LL_DEBUGS("Windlight") << "SkyPresetName: "		<< static_cast<std::string>(SkyPresetName) << LL_ENDL;
-	LL_DEBUGS("Windlight") << "DayCycleName: "		<< static_cast<std::string>(DayCycleName) << LL_ENDL;
+	LL_DEBUGS("Windlight") << "WaterPresetName: "	<< gSavedSettings.getString("WaterPresetName") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "SkyPresetName: "		<< gSavedSettings.getString("SkyPresetName") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "DayCycleName: "		<< gSavedSettings.getString("DayCycleName") << LL_ENDL;
 
-	LL_DEBUGS("Windlight") << "UseEnvironmentFromRegion: "	<< UseEnvironmentFromRegion << LL_ENDL;
-	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< UseDayCycle << LL_ENDL;
+	LL_DEBUGS("Windlight") << "UseEnvironmentFromRegion: "	<< gSavedSettings.getBOOL("UseEnvironmentFromRegion") << LL_ENDL;
+	LL_DEBUGS("Windlight") << "UseDayCycle: "				<< gSavedSettings.getBOOL("UseDayCycle") << LL_ENDL;
 }
 
 void LLEnvManagerNew::dumpPresets()
@@ -513,22 +499,31 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	if (!KCWindlightInterface::instance().haveParcelOverride(new_settings))
 	{
 		// If using server settings, update managers.
-		// TODO: Centralize in kcwlinterface
-		static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindLight_Parcel_AlwaysUseRegion", true);
-		if (getUseRegionSettings())
+//	if (getUseRegionSettings())
+// [RLVa:KB] - Checked: 2011-08-29 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
+	if ( (getUseRegionSettings()) && (LLWLParamManager::getInstance()->mAnimator.getIsRunning()) )
+// [/RLVa:KB]
 		{
+			LL_DEBUGS("Windlight") << "Updating WL managers from prefs" << LL_ENDL;
+			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
 			updateManagersFromPrefs(mInterpNextChangeMessage);
 		}
-		else if (always_use_region)
+		//bit of a hacky override since I've repurposed many of the settings and methods here -KC
+		//NOTE* It might not be a good idea to do this if under RLV_BHVR_SETENV -KC
+		else if (gSavedSettings.getBOOL("PVWindlight_FromRegionAlways") 
+			&& !(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
 		{
 			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
+			LL_DEBUGS("Windlight") << "Resetting user prefs" << LL_ENDL;
+			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
 			setUserPrefs(getWaterPresetName(), getSkyPresetName(), getDayCycleName(), false, true, mInterpNextChangeMessage);
 		}
 	}
+	//</FS:KC>
 
 	// Let interested parties know about the region settings update.
 	mRegionSettingsChangeSignal();
-
+	
 	// reset
 	mInterpNextChangeMessage = false;
 }
@@ -560,22 +555,17 @@ void LLEnvManagerNew::updateSkyFromPrefs(bool interpolate /*= false*/)
 	// Sync sky with user prefs.
 	if (getUseRegionSettings()) // apply region-wide settings
 	{
-		LL_INFOS("Windlight") << "Applying region windlight settings " << LL_ENDL;
 		success = useRegionSky();
 	}
 	else // apply user-specified settings
 	{
 		if (getUseDayCycle())
 		{
-			std::string day = getDayCycleName();
-			LL_INFOS("Windlight") << "Applying Day Cycle preset [" << day << "]" << LL_ENDL;
-			success = useDayCycle(day, LLEnvKey::SCOPE_LOCAL);
+			success = useDayCycle(getDayCycleName(), LLEnvKey::SCOPE_LOCAL);
 		}
 		else
 		{
-			std::string sky = getSkyPresetName();
-			LL_INFOS("Windlight") << "Applying sky preset [" << sky << "]" << LL_ENDL;
-			success = useSkyPreset(sky, interpolate);
+			success = useSkyPreset(getSkyPresetName(), interpolate);
 		}
 	}
 

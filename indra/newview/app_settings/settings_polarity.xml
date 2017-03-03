@@ -2419,16 +2419,16 @@
       <key>Value</key>
       <real>3.0</real>
     </map>
-    <key>PVWindLight_Parcel_AlwaysUseRegion</key>
+    <key>PVWindlight_FromRegionAlways</key>
     <map>
       <key>Comment</key>
-      <string>Choose whether to always use the region's environment settings when they are availabe or to allow the manual selections to remain unchanging. </string>
+      <string>Choose whether to always use the region's environment settings when they are available or to allow the manual selections to remain unchanged.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>1</integer>
     </map>
     <key>PVWindLight_Parcel_AutoApplyFromAll</key>
     <map>

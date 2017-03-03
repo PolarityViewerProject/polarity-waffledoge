@@ -129,10 +129,12 @@ void LLWLAnimator::update(LLWLParamSet& curParams)
 			}
 			// <FS:Ansariel> FIRE-11158: Set final merge for water WL on extreme values
 			LLWaterParamManager::getInstance()->mCurParams.setAll(mInterpEndWater->getAll());
+
 			mIsInterpolating = false;
 			mIsInterpolatingSky = false;
 			return;
 		}
+
 		// <FS:Ansariel> Custom Windlight interpolate time
 		static LLCachedControl<F32> interpolate_time(gSavedSettings, "PVWindlight_InterpolateTime");
 		if (mIsInterpolatingSky)
@@ -260,9 +262,11 @@ void LLWLAnimator::startInterpolation(const LLSD& targetWater)
 
 	mIsInterpolating = true;
 }
+
 void LLWLAnimator::startInterpolationSky(const LLSD& targetSky)
 {
 	mInterpEndWL->setAll(targetSky);
+
 	mIsInterpolatingSky = true;
 }
 

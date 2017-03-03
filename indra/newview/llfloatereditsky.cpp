@@ -842,10 +842,7 @@ void LLFloaterEditSky::onSaveConfirmed()
 	if (mMakeDefaultCheckBox->getValue())
 	{
 		LL_DEBUGS("Windlight") << key.name << " is now the new preferred sky preset" << LL_ENDL;
-		// <polarity> Somebody forgot interpolation...
-		// TODO: use a global or something
-		static LLCachedControl<bool> interpolate(gSavedSettings, "PVWindlight_Interpolate", true);
-		LLEnvManagerNew::instance().setUseSkyPreset(key.name, interpolate);
+		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
 	}
 
 }

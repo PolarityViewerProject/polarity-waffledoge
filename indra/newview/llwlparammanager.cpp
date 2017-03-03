@@ -500,6 +500,7 @@ bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= f
 		LL_WARNS() << "Undefined sky params" << LL_ENDL;
 		return false;
 	}
+
 	if (interpolate)
 	{
 		LL_WARNS("Windlight") << "DEBUG: APPLYSKYPARAMS WITH INTERPOLATION" << LL_ENDL;
@@ -513,7 +514,7 @@ bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= f
 		{
 			LL_WARNS("Windlight") << "DEBUG: CALLING STARTINTERPOLATIONSKY" << LL_ENDL;
 			LLWLParamManager::getInstance()->mAnimator.startInterpolationSky(params);
-	}
+		}
 	}
 	else
 	{
@@ -521,6 +522,7 @@ bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= f
 	mAnimator.deactivate();
 	mCurParams.setAll(params);
 	}
+
 	return true;
 }
 

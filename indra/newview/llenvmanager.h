@@ -144,10 +144,8 @@ public:
 	std::string getDayCycleName() const;
 
 	void setUseRegionSettings(bool val);
-#if 0
 	void setUseWaterPreset(const std::string& name);
 	void setUseSkyPreset(const std::string& name);
-#endif
 	void setUseDayCycle(const std::string& name);
 
 	bool			mUseRegionSettings;
