@@ -695,16 +695,16 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 	LLVector3 new_camera_pos = LLViewerCamera::getInstance()->getOrigin();
 	LLQuaternion new_camera_rot = LLViewerCamera::getInstance()->getQuaternion();
 	static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
+	static LLCachedControl<bool> auto_snapsnot(gSavedSettings, "AutoSnapshot", false);
 	if (previewp->mForceUpdateSnapshot ||
-		(((gSavedSettings.getBOOL("AutoSnapshot") && LLView::isAvailable(previewp->mViewContainer)) ||
+		(((auto_snapsnot && LLView::isAvailable(previewp->mViewContainer)) ||
 		(freeze_time && previewp->mAllowFullScreenPreview)) &&
 		(new_camera_pos != previewp->mCameraPos || dot(new_camera_rot, previewp->mCameraRot) < 0.995f)))
 	{
 		previewp->mCameraPos = new_camera_pos;
 		previewp->mCameraRot = new_camera_rot;
 		// request a new snapshot whenever the camera moves, with a time delay
-		static LLCachedControl<bool> auto_snapsnot(gSavedSettings, "FreezeTime", false);
-		BOOL new_snapshot = auto_snapsnot || previewp->mForceUpdateSnapshot;
+		BOOL new_snapshot = freeze_time || previewp->mForceUpdateSnapshot;
 		LL_DEBUGS() << "camera moved, updating thumbnail" << LL_ENDL;
 		previewp->updateSnapshot(
 			new_snapshot, // whether a new snapshot is needed or merely invalidate the existing one
@@ -821,8 +821,8 @@ void LLSnapshotLivePreview::prepareFreezeFrame()
         curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
         curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
 
-
-        if (gSavedSettings.getBOOL("UseFreezeFrame") && mAllowFullScreenPreview)
+        static LLCachedControl<bool> freeze_frame(gSavedSettings, "UseFreezeFrame", false);
+        if (freeze_frame && mAllowFullScreenPreview)
         {
             mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
         }
