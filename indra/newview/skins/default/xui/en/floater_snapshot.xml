@@ -201,7 +201,7 @@
         <check_box
          label="Freeze World"
          initial_value="false"
-         control_name="UseFreezeWorld"
+         control_name="PVRender_FreezeWorld"
          layout="topleft"
          height="16"
          left="10"

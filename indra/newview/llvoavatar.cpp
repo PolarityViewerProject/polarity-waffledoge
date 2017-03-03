@@ -4009,7 +4009,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
 			}
 //			//BD - Freeze World
-			static LLCachedControl<bool> freeze_frame(gSavedSettings, "UseFreezeWorld");
+			static LLCachedControl<bool> freeze_frame(gSavedSettings, "PVRender_FreezeWorld");
 			//BD - Stop Avatars from rotating while we are in Freeze World mode.
 			if (freeze_frame)
 			{
