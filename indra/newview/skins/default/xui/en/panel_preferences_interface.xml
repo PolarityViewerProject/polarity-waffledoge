@@ -544,7 +544,7 @@
 		<check_box
 			top_pad="10"
 			left="5"
-			label="Parcel Windlight overrides everything"
+			label="Always use Windlight from Parcel/Region"
 			control_name="PVWindlight_FromRegionAlways"
 			follows="left|top"
 			height="16"
