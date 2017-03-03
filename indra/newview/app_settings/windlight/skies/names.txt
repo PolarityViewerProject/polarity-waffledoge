@@ -9,6 +9,7 @@
 - Orac - gray
 - Orac - green
 AnaLu - outdoor city night
+AnaLutetia
 AnaLutetia - AvatarOpt(2)
 AnaLutetia - AvatarOpt2 whiter
 AnaLutetia - outdoor
@@ -17,7 +18,6 @@ AnaLutetia - STUDIO2
 AnaLutetia - STUDIO3
 AnaLutetia-default
 AnaLutetia-outdoor2(2)
-AnaLutetia
 B5-ShadowDancing
 CB's Rouge 1
 CB's Rouge 2
@@ -37,8 +37,8 @@ Places alirium
 Places Annamaria
 Places Astryls Wild
 Places Babbage
-Places Beach Cay Surreal
 Places Beach Cay
+Places Beach Cay Surreal
 Places Bentham
 Places Cornfield
 Places Cromac
@@ -59,8 +59,8 @@ Places Legacies
 Places Midian
 Places Mother
 Places Old New York
-Places Paris 2
 Places Paris
+Places Paris 2
 Places Pathfinder
 Places Sand
 Places Terre Des Mortes
