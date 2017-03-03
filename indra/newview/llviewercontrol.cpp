@@ -757,8 +757,8 @@ static bool handleTimeFactorChanged(const LLSD& newvalue)
 
 static bool handleFullbrightChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> render_fullbright(gSavedSettings, "RenderEnableFullbright");
-	if (!render_fullbright)
+	static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
+	if (disable_fullbright)
 	{
 		gObjectList.killAllFullbrights();
 	}
@@ -985,7 +985,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderDeferredBlurLight")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
 	gSavedSettings.getControl("RenderBlurPerformanceMode")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
 	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
-	gSavedSettings.getControl("RenderEnableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
+	gSavedSettings.getControl("PVRender_DisableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
 	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
 	gSavedSettings.getControl("RenderDepthOfFieldHighQuality")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));

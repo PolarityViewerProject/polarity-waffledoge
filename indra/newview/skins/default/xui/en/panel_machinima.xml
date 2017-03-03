@@ -875,18 +875,44 @@
 				name="shaders"
 				top_pad="0"
 				width="10">
-				┣
+				┗
 			</text>
 			<check_box
-				control_name="RenderEnableFullbright"
+				control_name="PVRender_DisableFullbright"
 				height="16"
-				label="Enable FullBright objects"
-				tool_tip="Unchecking this will prevent unsightly Full Bright objects from being rendered as such"
+				label="Disable Fullbright on objects"
+				tool_tip="Scrubs the Fullbright property from prims being rendered. WARNING: Due to the nature of this hack, please disable before editing objects"
 				layout="topleft"
 				left_pad="0"
-				name="attached_particles"
+				name="disable_fullbright"
 				top_delta="0"
 				width="115">
+			</check_box>
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left_delta="7"
+				name="shaders"
+				top_pad="0"
+				width="10">
+				┗
+			</text>
+			<check_box
+				control_name="PVRender_DisableFullBrightKeepOnGlow"
+				height="16"
+				initial_value="false"
+				label="Do not remove on Glowing objects"
+				tool_tip="Can be useful to avoid breaking content that requires glow and fullbright e.g. lights"
+				layout="topleft"
+				left_pad="0"
+				name="DisableFullBright"
+				top_delta="0"
+				width="170">
 			</check_box>
 			<text
 				font="SansSerif"

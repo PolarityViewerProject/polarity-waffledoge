@@ -1493,12 +1493,10 @@
             top_delta="0"
             width="110">
           </check_box>
-<!-- Unused yet
           <check_box
             control_name="PVRender_DisableFullBright"
-            enabled="false"
             height="16"
-            initial_value="true"
+            initial_value="false"
             label="Disable Full Bright"
             tool_tip="Disables rendering of full bright prims. Requires re-rezzing."
             layout="topleft"
@@ -1509,9 +1507,8 @@
           </check_box>
           <check_box
             control_name="PVRender_DisableFullBrightKeepOnGlow"
-            enabled="false"
             height="16"
-            initial_value="true"
+            initial_value="false"
             label="Keep Fullbright on Glow"
             tool_tip="Can be useful to avoid breaking content that requires glow and fullbright e.g. lights"
             layout="topleft"
@@ -1519,7 +1516,7 @@
             name="DisableFullBright"
             top_delta="0"
             width="170">
-          </check_box> -->
+          </check_box>
           <panel
             follows="left|top|right"
             height="20"
