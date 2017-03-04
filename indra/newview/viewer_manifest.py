@@ -509,6 +509,7 @@ class WindowsManifest(ViewerManifest):
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
@@ -522,6 +523,7 @@ class WindowsManifest(ViewerManifest):
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
