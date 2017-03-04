@@ -56,15 +56,11 @@ set(llplugin_HEADER_FILES
 set_source_files_properties(${llplugin_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if(NOT WORD_SIZE EQUAL 32)
-  if(NOT WINDOWS)
-    add_definitions(-fPIC)
-  endif(NOT WINDOWS)
-endif(NOT WORD_SIZE EQUAL 32)
-
 list(APPEND llplugin_SOURCE_FILES ${llplugin_HEADER_FILES})
 
 add_library (llplugin ${llplugin_SOURCE_FILES})
+
+set_target_properties(llplugin PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 add_subdirectory(slplugin)
 

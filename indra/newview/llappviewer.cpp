@@ -2074,6 +2074,8 @@ bool LLAppViewer::cleanup()
 	delete mFastTimerLogThread;
 	mFastTimerLogThread = NULL;
 
+	cleanupSecHandler();
+
 	if (LLFastTimerView::sAnalyzePerformance)
 	{
 		LL_INFOS() << "Analyzing performance" << LL_ENDL;

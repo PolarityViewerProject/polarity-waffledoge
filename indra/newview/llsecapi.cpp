@@ -30,6 +30,7 @@
 
 #include "llviewerprecompiledheaders.h"
 #include "llsecapi.h"
+
 #include "llsechandler_basic.h"
 #include "llexception.h"
 #include "stringize.h"
@@ -95,6 +96,13 @@ void initializeSecHandler()
 	}
 
 }
+
+void cleanupSecHandler()
+{
+	gSecAPIHandler = nullptr;
+	gHandlerMap.clear();
+}
+
 // start using a given security api handler.  If the string is empty
 // the default is used
 LLPointer<LLSecAPIHandler> getSecHandler(const std::string& handler_type)
@@ -144,7 +152,7 @@ LLSD LLCredential::getLoginParams()
 	catch (...)
 	{
 		// nat 2016-08-18: not clear what exceptions the above COULD throw?!
-		LOG_UNHANDLED_EXCEPTION(STRINGIZE("for '" << username << "'"));
+		LOG_UNHANDLED_EXCEPTION(std::string("for '" + username + "'"));
 		// we could have corrupt data, so simply return a null login param if so
 		LL_WARNS("AppInit") << "Invalid credential" << LL_ENDL;
 	}

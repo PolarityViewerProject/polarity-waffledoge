@@ -34,7 +34,7 @@
 #include "llsdjson.h"
 
 #include "llerror.h"
-#include "../llmath/llmath.h"
+
 
 //=========================================================================
 LLSD LlsdFromJson(const Json::Value &val)
@@ -72,7 +72,7 @@ LLSD LlsdFromJson(const Json::Value &val)
         result = LLSD::emptyMap();
         for (Json::ValueConstIterator it = val.begin(); it != val.end(); ++it)
         {
-            result[it.memberName()] = LlsdFromJson((*it));
+            result[it.name()] = LlsdFromJson((*it));
         }
         break;
     }

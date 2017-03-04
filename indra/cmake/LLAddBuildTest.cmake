@@ -210,6 +210,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
   # Any changes made here should be replicated there.
   if (WINDOWS)
+    LIST(APPEND libraries ole32)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
         PROPERTIES
         LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE"

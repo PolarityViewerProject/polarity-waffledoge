@@ -30,17 +30,14 @@
 
 #include "lltranslate.h"
 
-#include <curl/curl.h>
-
-#include "llbufferstream.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llversioninfo.h"
 #include "llviewercontrol.h"
 #include "llcoros.h"
-#include "reader.h"
 #include "llcorehttputil.h"
 
+#include <jsoncpp/reader.h>
 
 /**
 * Handler of an HTTP machine translation service.

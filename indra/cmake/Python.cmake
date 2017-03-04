@@ -28,6 +28,14 @@ elseif (EXISTS /etc/debian_version)
   if (PYTHON_EXECUTABLE)
     set(PYTHONINTERP_FOUND ON)
   endif (PYTHON_EXECUTABLE)
+elseif (EXISTS /etc/arch-release)
+  # On Arch python 2.7 is python2
+
+  find_program(PYTHON_EXECUTABLE python2 PATHS /usr/bin)
+
+  if (PYTHON_EXECUTABLE)
+    set(PYTHONINTERP_FOUND ON)
+  endif (PYTHON_EXECUTABLE)
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   # On MAC OS X be sure to search standard locations first
 
@@ -36,9 +44,9 @@ elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     NAMES python python25 python24 python23
     NO_DEFAULT_PATH # Avoid searching non-standard locations first
     PATHS
+    /usr/local/bin
     /bin
     /usr/bin
-    /usr/local/bin
     ${PATH_LIST}
     )
 

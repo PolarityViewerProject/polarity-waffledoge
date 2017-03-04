@@ -21,6 +21,7 @@ if (USESYSTEMLIBS)
         pangox
         pangoxft
         sdl
+        X11
         )
   endif (LINUX)
 
@@ -34,21 +35,24 @@ if (USESYSTEMLIBS)
 else (USESYSTEMLIBS)
   if (LINUX)
     use_prebuilt_binary(gtk-atk-pango-glib)
-
     set(UI_LIBRARIES
         atk-1.0
+        cairo
         gdk-x11-2.0
         gdk_pixbuf-2.0
         Xinerama
         glib-2.0
+        gio-2.0
         gmodule-2.0
         gobject-2.0
         gthread-2.0
         gtk-x11-2.0
         pango-1.0
         pangoft2-1.0
-        pangox-1.0
         pangoxft-1.0
+        pixman-1
+        pangocairo-1.0
+        X11
         ${FREETYPE_LIBRARIES}
         )
   endif (LINUX)

@@ -448,16 +448,18 @@ class WindowsManifest(ViewerManifest):
                 self.path("openjpeg.dll")
 
             # Vivox runtimes
-            self.path("SLVoice.exe")
-            self.path("vivoxsdk.dll")
-            self.path("ortp.dll")
-            self.path("libsndfile-1.dll")
-            self.path("vivoxoal.dll")
-            self.path("ca-bundle.crt")
+            if self.prefix(src="", dst="voice"):
+                self.path("SLVoice.exe")
+                self.path("vivoxsdk.dll")
+                self.path("ortp.dll")
+                self.path("libsndfile-1.dll")
+                self.path("vivoxoal.dll")
+                self.path("ca-bundle.crt")
+            self.end_prefix()
 
             # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
+            self.path("libcrypto-1_1-x64.dll")
+            self.path("libssl-1_1-x64.dll")
 
             # Hunspell
             self.path("libhunspell.dll")
@@ -474,11 +476,11 @@ class WindowsManifest(ViewerManifest):
             # For Intel threading building blocks
             try:
                 if self.args['configuration'].lower() == 'debug':
-                    self.path('tbbmalloc_proxy_debug.dll')
                     self.path('tbbmalloc_debug.dll')
+                    self.path('tbbmalloc_proxy_debug.dll')
                 else:
-                    self.path('tbbmalloc_proxy.dll')
                     self.path('tbbmalloc.dll')
+                    self.path('tbbmalloc_proxy.dll')
             except:
                 print "Skipping tbbmalloc dlls"
 

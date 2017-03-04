@@ -74,6 +74,8 @@
 #include "llvieweraudio.h"
 #include "llcorehttputil.h"
 
+#include "bufferstream.h"
+
 #include "llfloaterwebcontent.h"	// for handling window close requests and geometry change requests in media browser windows.
 
 #include <boost/bind.hpp>	// for SkinFolder listener
