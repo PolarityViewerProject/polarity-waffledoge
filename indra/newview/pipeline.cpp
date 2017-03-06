@@ -4807,7 +4807,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 						break;
 					}
 										
-					p->renderPostDeferred(i);
+					if (!p->getSkipRenderFlag()) { p->renderPostDeferred(i); }
 				}
 				poolp->endPostDeferredPass(i);
 				if (gDebugGL)check_blend_funcs();
@@ -4886,14 +4886,16 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 						break;
 					}
 										
-					p->renderShadow(i);
+					if (!p->getSkipRenderFlag()) { p->renderShadow(i); }
 				}
 				poolp->endShadowPass(i);
 				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
-
+				if (gDebugGL || gDebugPipeline)
+				{
 				LLGLState::checkStates();
 			}
+		}
 		}
 		else
 		{
@@ -5039,6 +5041,11 @@ void LLPipeline::renderDebug()
 		gGL.end();
 		gGL.flush();
 		glPointSize(1.f);
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 	}
 
 
@@ -5091,6 +5098,7 @@ void LLPipeline::renderDebug()
 			
 			drawBox(bounds[0], size);
 		}
+		gDebugProgram.unbind();
 	}
 
 	visible_selected_groups.clear();
@@ -7788,6 +7796,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 				gGL.end();
 
+				if (channel > -1)
+				{
+					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+				}
+
 				unbindDeferredShader(*shader);
 
 				if (multisample)
@@ -7897,6 +7910,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.end();
 
 			gGL.flush();
+
+			if (channel > -1)
+			{
+				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+			}
+
 			shader->unbind();
 		}
 	}
@@ -8792,8 +8811,7 @@ void LLPipeline::renderDeferredLighting()
 		// Apply gamma correction to the frame here.
 		gDeferredPostGammaCorrectProgram.bind();
 		//mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-		S32 channel;
-		channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+		S32 channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0,channel);
@@ -10056,6 +10074,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		{
 			gOcclusionProgram.unbind();
 		}
+		else
+		{
+			gDeferredShadowProgram.unbind();
+		}
 	}
 	
 	if (use_shader)
@@ -10086,6 +10108,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
 		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
+		gDeferredShadowAlphaMaskProgram.unbind();
 
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
@@ -10098,6 +10121,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
+		gDeferredTreeShadowProgram.unbind();
 	}
 
 	//glCullFace(GL_BACK);
