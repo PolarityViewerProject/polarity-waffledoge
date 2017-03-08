@@ -10788,11 +10788,11 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		gAgentAvatarp->updateAttachmentVisibility(CAMERA_MODE_THIRD_PERSON);
 	}
 
-	F64 last_modelview[16];
-	F64 last_projection[16];
+	F32 last_modelview[16];
+	F32 last_projection[16];
 
-	memcpy(last_modelview, gGLLastModelView, sizeof(F64) * 16);
-	memcpy(last_projection, gGLLastProjection, sizeof(F64) * 16);
+	memcpy(last_modelview, gGLLastModelView, sizeof(F32) * 16);
+	memcpy(last_projection, gGLLastProjection, sizeof(F32) * 16);
 
 	pushRenderTypeMask();
 	andRenderTypeMask(LLPipeline::RENDER_TYPE_SIMPLE,
@@ -11324,8 +11324,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			glh_set_current_modelview(view[j]);
 			glh_set_current_projection(proj[j]);
 
-			memcpy(gGLLastModelView, mShadowModelview[j].m, sizeof(F64) * 16);
-			memcpy(gGLLastProjection, mShadowProjection[j].m, sizeof(F64) * 16);
+			memcpy(gGLLastModelView, mShadowModelview[j].m, sizeof(F32) * 16);
+			memcpy(gGLLastProjection, mShadowProjection[j].m, sizeof(F32) * 16);
 
 			mShadowModelview[j] = view[j];
 			mShadowProjection[j] = proj[j];
@@ -11464,8 +11464,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 			mSunShadowMatrix[i+4] = trans*proj[i+4]*view[i+4]*inv_view;
 			
-			memcpy(gGLLastModelView, mShadowModelview[i + 4].m, sizeof(F64) * 16);
-			memcpy(gGLLastProjection, mShadowProjection[i + 4].m, sizeof(F64) * 16);
+			memcpy(gGLLastModelView, mShadowModelview[i + 4].m, sizeof(F32) * 16);
+			memcpy(gGLLastProjection, mShadowProjection[i + 4].m, sizeof(F32) * 16);
 
 			mShadowModelview[i+4] = view[i+4];
 			mShadowProjection[i+4] = proj[i+4];
@@ -11515,8 +11515,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	}
 	gGL.setColorMask(true, false);
 
-	memcpy(gGLLastModelView, last_modelview, sizeof(F64) * 16);
-	memcpy(gGLLastProjection, last_projection, sizeof(F64) * 16);
+	memcpy(gGLLastModelView, last_modelview, sizeof(F32) * 16);
+	memcpy(gGLLastProjection, last_projection, sizeof(F32) * 16);
 
 	popRenderTypeMask();
 
