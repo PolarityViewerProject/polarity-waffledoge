@@ -1,33 +1,33 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
 // PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /**
-* @file pvscriptpreproc.cpp
-* @brief Re-implementation of Modular System's LSL Preprocessor
-* No copyright infringement intended
-*
-* $LicenseInfo:firstyear=2014&license=viewerlgpl$
-* Polarity Viewer Source Code
-* Copyright (C) 2017 Xenhat Liamano
-* Portions Copyright (C)
-*  2010 Modular Systems
-*
-* This library is free software; you can redistribute it and/or
-* modify it under the terms of the GNU Lesser General Public
-* License as published by the Free Software Foundation;
-* version 2.1 of the License only.
-*
-* This library is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* Lesser General Public License for more details.
-*
-* You should have received a copy of the GNU Lesser General Public
-* License along with this library; if not, write to the Free Software
-* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-*
-* The Polarity Viewer Project
-* http://www.polarityviewer.org
-* $/LicenseInfo$
+ * @file pvscriptpreproc.cpp
+ * @brief Re-implementation of Modular System's LSL Preprocessor
+ * No copyright infringement intended
+ *
+ * $LicenseInfo:firstyear=2014&license=viewerlgpl$
+ * Polarity Viewer Source Code
+ * Copyright (C) 2017 Xenhat Liamano
+ * Portions Copyright (C)
+ *  2010 Modular Systems
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation;
+ * version 2.1 of the License only.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ *
+ * The Polarity Viewer Project
+ * http://www.polarityviewer.org
+ * $/LicenseInfo$
 */
 #include "llviewerprecompiledheaders.h"
 #include "pvscriptpreproc.h"
