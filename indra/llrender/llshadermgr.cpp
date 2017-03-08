@@ -605,6 +605,8 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	GLcharARB* text[4096];
 	GLuint count = 0;
 
+	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
+
 	S32 major_version = gGLManager.mGLSLVersionMajor;
 	S32 minor_version = gGLManager.mGLSLVersionMinor;
 	
