@@ -80,9 +80,7 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 		return 1;
 	}
 
-	static LLCachedControl<bool> render_dof(gSavedSettings, "RenderDepthOfField", false);
-	static LLCachedControl<bool> dof_alphas(gSavedSettings, "PVRender_DepthOfFieldAlphas", true); // <Black Dragon:NiranV> Depth of Field Alpha setting
-	if(render_dof && dof_alphas)//BD - Include Alphas In DoF
+	if(gSavedSettings.getBOOL("RenderDepthOfField") && gSavedSettings.getBOOL("PVRender_DepthOfFieldAlphas"))//BD - Include Alphas In DoF
 	{
 		return 2;
 	}
