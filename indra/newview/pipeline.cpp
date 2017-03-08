@@ -1437,29 +1437,27 @@ void LLPipeline::createGLBuffers()
 
 	updateRenderDeferred();
 
-	//BD
-	bool materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
-
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
 		// <polarity/> Speed up
+		// todo: move to class variable maybe
 		static LLCachedControl<U32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
 		auto res = llmax((U32)render_water_ref_res, (U32)512);
-			
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
 		//
+#if MATERIALS_IN_REFLECTIONS
+		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
 		if (LLPipeline::sRenderDeferred && materials_in_water)
 		{
 			mWaterRef.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE);
 			//always use FBO for mWaterDis so it can be used for avatar texture bakes
 			mWaterDis.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 		}
-		else
-		{
+#else
 		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
 		//always use FBO for mWaterDis so it can be used for avatar texture bakes
 		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
-	}
+#endif
 	}
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
@@ -7896,6 +7894,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (channel > -1)
 				{
 					mDeferredLight.bindTexture(0, channel);
+					//gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR); // scale fairly pleasantly
 				}
 
 				shader->uniform1f(LLShaderMgr::DOF_MAX_COF, CameraMaxCoF);
@@ -7940,7 +7939,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				if (channel > -1)
 				{
 					mScreen.bindTexture(0, channel);
-					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
+					//gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
 
 				if (!LLViewerCamera::getInstance()->cameraUnderWater())
@@ -8609,6 +8608,7 @@ void LLPipeline::renderDeferredLighting()
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
 
+#if 0 // wat
 				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
 
 				const U32 slice = 32;
@@ -8629,6 +8629,7 @@ void LLPipeline::renderDeferredLighting()
 				}
 
 				gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
+#endif
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
@@ -9219,7 +9220,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				glClearColor(1,1,1,1);
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
-
+#if 0 // wat
 				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
 
 				const U32 slice = 32;
@@ -9240,6 +9241,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				}
 
 				gDeferredSunProgram.uniform3fv(LLShaderMgr::DEFERRED_SHADOW_OFFSET, slice, offset);
+#endif
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
@@ -10029,12 +10031,12 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			water_clip = 1;
 		}
 
-		//BD
-		bool materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
-
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
 
+#if MATERIALS_IN_REFLECTIONS
+			static LLCachedControl<bool> materials_in_water(gSavedSettings.getS32("RenderWaterMaterials");
+#endif
 			//disable occlusion culling for reflection map for now
 			S32 occlusion = LLPipeline::sUseOcclusion;
 			LLPipeline::sUseOcclusion = 0;
@@ -10090,7 +10092,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					static LLCullResult result;
 					updateCull(camera, result);
 					stateSort(camera, result);
-
+#if MATERIALS_IN_REFLECTIONS
 					if (LLPipeline::sRenderDeferred && materials_in_water)
 					{
 						mWaterRef.flush();
@@ -10103,11 +10105,9 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 						renderGeomDeferred(camera);						
 					}
-					else
-					{
+#else
 					renderGeom(camera, TRUE);
-					}					
-
+#endif
 					gPipeline.popRenderTypeMask();
 				}
 
@@ -10149,24 +10149,24 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					{
 						gPipeline.grabReferences(ref_result);
 						LLGLUserClipPlane clip_plane(plane, mat, projection);
-
+#if MATERIALS_IN_REFLECTIONS
 						if (LLPipeline::sRenderDeferred && materials_in_water)
 						{							
 							renderGeomDeferred(camera);
 						}
-						else
-						{
+#else
 						renderGeom(camera);
-					}
+#endif
 				}	
 				}	
 
+#if MATERIALS_IN_REFLECTIONS
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{
 					gPipeline.mDeferredScreen.flush();
 					renderDeferredLightingToRT(&mWaterRef);
 				}
-
+#endif
 				gPipeline.popRenderTypeMask();
 			}	
 			glCullFace(GL_BACK);
@@ -10226,7 +10226,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 				gGL.setColorMask(true, false);
 
-				
+#if MATERIALS_IN_REFLECTIONS
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{										
 					mWaterDis.flush();
@@ -10237,16 +10237,17 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					gPipeline.grabReferences(result);
 					renderGeomDeferred(camera);					
 				}
-				else
-				{
+#else
 				renderGeom(camera);
-				}
-
+#endif
+				
+#if MATERIALS_IN_REFLECTIONS
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{
 					gPipeline.mDeferredScreen.flush();
 					renderDeferredLightingToRT(&mWaterDis);
 				}
+#endif
 			}
 
 			mWaterDis.flush();
