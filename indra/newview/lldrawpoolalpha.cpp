@@ -75,11 +75,15 @@ void LLDrawPoolAlpha::prerender()
 
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
+	if (LLPipeline::sImpostorRender)
+	{ 
+		return 1;
+	}
+
 	static LLCachedControl<bool> render_dof(gSavedSettings, "RenderDepthOfField", false);
 	static LLCachedControl<bool> dof_alphas(gSavedSettings, "PVRender_DepthOfFieldAlphas", true); // <Black Dragon:NiranV> Depth of Field Alpha setting
-	// <polarity> Reduce branching
-	if (!LLPipeline::sImpostorRender && render_dof && dof_alphas) //	//BD - Include Alphas In DoF
-	{ 
+	if(render_dof && dof_alphas)//BD - Include Alphas In DoF
+	{
 		return 2;
 	}
 	// don't render alphas
