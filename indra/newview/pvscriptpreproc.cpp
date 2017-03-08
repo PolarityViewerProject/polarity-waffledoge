@@ -45,6 +45,8 @@
 #include "llvoavatarself.h"
 #include "llerror.h"
 
+#define ENABLE_TEXT_COMPRESS false
+
 #ifdef __GNUC__
 // There is a sprintf( ... "%d", size_t_value) buried inside boost::wave. In order to not mess with system header, I rather disable that warning here.
 #pragma GCC diagnostic ignored "-Wformat"
@@ -519,7 +521,7 @@ std::string FSLSLPreprocessor::lslcomp(std::string script)
 	try
 	{
 		shredder(script);
-		script = boost::regex_replace(script, boost::regex("(\\s+)", boost::regex::perl), "\n");
+		script = boost::regex_replace(script, boost::regex("(\\s+)", boost::regex::perl), "\n"); // FIXME: Breaks
 	}
 	catch (boost::regex_error& e)
 	{
@@ -1283,7 +1285,7 @@ void FSLSLPreprocessor::start_process()
 	bool use_switch = gSavedSettings.getBOOL("_NACL_PreProcLSLSwitch");
 	bool use_optimizer = gSavedSettings.getBOOL("_NACL_PreProcLSLOptimizer");
 	bool enable_hdd_include = gSavedSettings.getBOOL("_NACL_PreProcEnableHDDInclude");
-	bool use_compression = gSavedSettings.getBOOL("_NACL_PreProcLSLTextCompress");
+	bool use_compression = ENABLE_TEXT_COMPRESS && gSavedSettings.getBOOL("_NACL_PreProcLSLTextCompress");
 	bool errored = false;
 	if (preprocessor_enabled)
 	{
