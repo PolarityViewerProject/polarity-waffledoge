@@ -973,7 +973,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_EnableSSR")->getSignal()->connect(boost::bind(&handleSSRChanged, _2));
 	gSavedSettings.getControl("PVRender_EnableGodRays")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
 	gSavedSettings.getControl("PVRender_GodraysDirectional")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
-	//gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
 	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
 	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	// <polarity> Split controls for feature table integration
