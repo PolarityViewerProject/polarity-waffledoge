@@ -1149,6 +1149,9 @@ void LLPipeline::allocateShadowMaps(bool force_allocate)
 	//     Only reallocate them if we have shadows enabled otherwise just clear them.
 	for (U32 i = 0; i < 6; i++)
 	{
+		//BD - Always clear the shadowmap.
+		mShadow[i].release();
+
 		if (i < 4)
 		{
 			//BD - Sun Shadows mismatched.
@@ -1157,7 +1160,7 @@ void LLPipeline::allocateShadowMaps(bool force_allocate)
 				|| U32(scale.mV[i]) != mShadow[i].getWidth()))
 			{
 				//BD - Always clear the shadowmap.
-				mShadow[i].release();
+				//mShadow[i].release();
 
 				//BD - Now reallocate the released map with the new resolution.
 				mShadow[i].allocate(U32(scale.mV[i]), U32(scale.mV[i]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE);
@@ -1166,7 +1169,7 @@ void LLPipeline::allocateShadowMaps(bool force_allocate)
 		else
 		{
 			//BD - Always clear the shadowmap.
-			mShadow[i].release();
+			//mShadow[i].release();
 
 			//BD - Projector Shadows mismatched.
 			if (shadow_detail > 1
