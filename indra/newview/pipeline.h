@@ -233,8 +233,8 @@ public:
 	void		setUseVertexShaders(BOOL use_shaders);
 	BOOL		getUseVertexShaders() const { return mVertexShadersEnabled; }
 	BOOL		canUseVertexShaders();
-	BOOL		canUseWindLightShaders() const;
-	BOOL		canUseWindLightShadersOnObjects() const;
+	static BOOL		canUseWindLightShaders();
+	static BOOL		canUseWindLightShadersOnObjects();
 #ifdef AA_CHECK_IS_FUNCTION
 	BOOL		canUseAntiAliasing() const;
 #endif // #ifdef AA_CHECK_IS_FUNCTION
