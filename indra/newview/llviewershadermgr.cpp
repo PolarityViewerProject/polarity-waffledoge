@@ -2224,11 +2224,19 @@ BOOL LLViewerShaderMgr::loadShadersBlurLight(bool success)
 	if (success)
 	{
 		//BD
-		string fragment = "deferred/blurLightF.glsl";
-		if (gSavedSettings.getBOOL("RenderBlurPerformanceMode"))
-		{
-			fragment = "deferred/blurLightFastF.glsl";
-		}
+		const std::string shader_fast = "deferred/blurLightFastF.glsl";
+		const std::string shader_slow = "deferred/blurLightF.glsl";
+		static std::string fragment = shader_fast;
+		static LLCachedControl<bool> blur_perf_mode(gSavedSettings, "RenderBlurPerformanceMode");
+		switch (blur_perf_mode)
+			{
+				case false:
+					fragment = shader_slow;
+					break;
+				default:
+					fragment = shader_fast;
+					break;
+			}
 		gDeferredBlurLightProgram.mName = "Deferred Blur Light Shader";
 		gDeferredBlurLightProgram.mShaderFiles.clear();
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER));
