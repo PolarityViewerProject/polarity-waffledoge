@@ -111,9 +111,6 @@ using namespace boost::regex_constants;
 #define encode_start std::string("//start_unprocessed_text\n/*")
 #define encode_end std::string("*/\n//end_unprocessed_text")
 
-////////////////////////////////////////////////////////////////////////////////////////
-/// Class-less functions that need to be classed later
-
 std::string FSLSLPreprocessor::shortfile(std::string in)
 {
 	return boost::filesystem::path(std::string(in)).filename().string();
@@ -498,7 +495,6 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 	}
 	return script;
 }
-////////////////////////////////////////////////////////////////////////////////////////
 
 LLUUID FSLSLPreprocessor::findInventoryByName(std::string name)
 {
