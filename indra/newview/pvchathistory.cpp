@@ -959,8 +959,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// <polarity> Colored names for special users, short-circuit getChatColor for agents
 		if (chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
 		{
-			// <polarity> Attempt to detect beggars and such
-			gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
+			// <polarity> Attempt to detect beggars and such for non-muted avatars
+			if(!LLMuteList::getInstance()->isMuted(chat.mFromID))
+			{
+				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
+			}
 			name_color = gPVOldAPI->getColor(chat.mFromID, default_name_color);
 			if (!color_pvagent_chat)
 			{
