@@ -2544,18 +2544,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5827de110a7ac978e1eb623236322033</string>
+              <string>6e075666f44ed92382684da9bdbfa3b9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/openjpeg-1.5.1-windows64-201701220828-1264d217c8acdeb3bfdd32724585a7e9.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/openjpeg-1.5.1-polarity-windows64-20170309172551-2d507291d4128531544135339465f3dd.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.5.1</string>
+        <string>1.5.1-polarity</string>
       </map>
       <key>openssl</key>
       <map>
