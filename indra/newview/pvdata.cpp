@@ -58,8 +58,10 @@
 PVSearchUtil*		gPVSearchUtil = NULL;
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
+// Static initialization
 std::string PVDataOldAPI::pvdata_url_full_ = "";
 std::string PVDataOldAPI::pvdata_agents_url_full_ = "";
+bool PVDataOldAPI::mBeggarCheckEnabled(true);
 
 inline const std::string bts(bool b)
 {
@@ -1107,6 +1109,10 @@ void PVDataOldAPI::setBlockedVersionsList(const LLSD& blob)
 
 void PVDataOldAPI::checkBeggar(const LLUUID& avatar_id, const std::string& message)
 {
+	if(!mBeggarCheckEnabled)
+	{
+		return;
+	}
 	boost::cmatch result;
 	const boost::regex generic_beg_regex("(((can|)(someone|you)|(can|)(\\splease|)(\\slend me|)|urgently need).*(\\d+L).*(pay back|honest))", boost::regex::perl);
 	bool is_generic_beg = boost::regex_search(message.c_str(), result, generic_beg_regex);
@@ -1117,6 +1123,11 @@ void PVDataOldAPI::checkBeggar(const LLUUID& avatar_id, const std::string& messa
 		args["AVATAR_ID"] = avatar_id;
 		LLNotificationsUtil::add("GenericBeggarNotifyTip", args);
 	}
+}
+
+void PVDataOldAPI::setBeggarCheck(const bool enabled)
+{
+	mBeggarCheckEnabled = enabled;
 }
 
 // NEW API BELOW

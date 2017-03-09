@@ -614,26 +614,16 @@ class LLUUID;
 		LLColor4 Hex2Color4(const std::string color) const;
 		static LLColor4 Hex2Color4(int hexValue);
 
-	public:
-		// getters
-
-		// ew, string.
-#if 0 // v7
-		bool isVersionBlocked(const std::string version) const
-		{
-			return blocked_versions_.has(version);
-	}
-#endif
-
+		static bool mBeggarCheckEnabled;
 		/**
 		 * \brief Check if current viewer is recent enough. Need to be called before showing login screen and disable login button + show error dialog if not the case.
 		 * \return bool
 		 */
 		bool isVersionUnderMinimum();
-
+public:
+		static void setBeggarCheck(const bool enabled);
 		// Get a new progress tip (throttled)
 		std::string getNewProgressTip(bool forced = false);
-
 		static std::string getRandomWindowTitle();
 
 		/**
@@ -657,7 +647,6 @@ class LLUUID;
 		}
 		void setBlockedVersionsList(const LLSD& blob);
 
-	private:
 
 		// This contains the re-usable LLSD data for login tips.
 		// It is easier (at least for me) to parse the LLSD over and over and get a new value,
