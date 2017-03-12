@@ -68,6 +68,9 @@ bool PVFPSMeter::stop()
 		return false;
 	}
 	mStatusBarFPSCounterTimer.stop();
+	// save settings to be sure
+	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", mFPSLimiterEnabled);
+	gSavedSettings.setS32("PVRender_FPSLimiterTarget", mFPSLimiterTarget);
 	return true;
 }
 
