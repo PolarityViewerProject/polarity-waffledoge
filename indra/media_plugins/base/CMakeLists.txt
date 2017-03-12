@@ -28,6 +28,15 @@ include_directories(SYSTEM
 
 ### media_plugin_base
 
+if(NOT WORD_SIZE EQUAL 32)
+  if(NOT WINDOWS)
+    add_definitions(
+    /FIXED:NO
+    )
+    add_definitions(-fPIC)
+  endif(NOT WINDOWS)
+endif(NOT WORD_SIZE EQUAL 32)
+
 set(media_plugin_base_SOURCE_FILES
     media_plugin_base.cpp
 )
@@ -42,4 +51,3 @@ add_library(media_plugin_base
     ${media_plugin_base_SOURCE_FILES}
 )
 
-set_target_properties(media_plugin_base PROPERTIES POSITION_INDEPENDENT_CODE TRUE)

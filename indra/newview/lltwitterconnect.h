@@ -28,6 +28,7 @@
 #ifndef LL_LLTWITTERCONNECT_H
 #define LL_LLTWITTERCONNECT_H
 
+#include "llsingleton.h"
 #include "llimage.h"
 #include "llcoros.h"
 #include "lleventcoro.h"

@@ -28,6 +28,8 @@
 #ifndef LL_LLCOREHTTPUTIL_H
 #define LL_LLCOREHTTPUTIL_H
 
+#include <string>
+
 #include "httpcommon.h"
 #include "httprequest.h"
 #include "httpresponse.h"
@@ -36,9 +38,11 @@
 #include "httphandler.h"
 #include "llhttpconstants.h" // *TODO: move to llcorehttp
 #include "bufferarray.h"
+#include "bufferstream.h"
 #include "llsd.h"
 #include "llevents.h"
 #include "llcoros.h"
+#include "lleventcoro.h"
 #include "llassettype.h"
 #include "lluuid.h"
 

@@ -27,15 +27,15 @@ endif (WINDOWS)
 # windows) and CMAKE_BUILD_TYPE on Makefile based generators (like linux).  The reason for this is
 # that CMAKE_BUILD_TYPE is essentially meaningless at configuration time for IDE generators and
 # CMAKE_CFG_INTDIR is meaningless at build time for Makefile generators
-if(WINDOWS OR CMAKE_GENERATOR STREQUAL "Xcode")
+if(WINDOWS OR DARWIN)
   # the cmake xcode and VS generators implicitly append ${CMAKE_CFG_INTDIR} to the library paths for us
   # fortunately both windows and darwin are case insensitive filesystems so this works.
   set(AUTOBUILD_LIBS_INSTALL_DIRS "${AUTOBUILD_INSTALL_DIR}/lib/")
-else(WINDOWS OR CMAKE_GENERATOR STREQUAL "Xcode")
+else(WINDOWS OR DARWIN)
   # else block is for linux and any other makefile based generators
   string(TOLOWER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_LOWER)
   set(AUTOBUILD_LIBS_INSTALL_DIRS ${AUTOBUILD_INSTALL_DIR}/lib/${CMAKE_BUILD_TYPE_LOWER})
-endif(WINDOWS OR CMAKE_GENERATOR STREQUAL "Xcode")
+endif(WINDOWS OR DARWIN)
 
 if (NOT "${CMAKE_BUILD_TYPE}" STREQUAL "Release")
   # When we're building something other than Release, append the
@@ -48,11 +48,9 @@ link_directories(${AUTOBUILD_LIBS_INSTALL_DIRS})
 
 if (LINUX)
   set(DL_LIBRARY dl)
-  set(RT_LIBRARY rt)
   set(PTHREAD_LIBRARY pthread)
 else (LINUX)
   set(DL_LIBRARY "")
-  set(RT_LIBRARY "")
   set(PTHREAD_LIBRARY "")
 endif (LINUX)
 
@@ -60,12 +58,11 @@ if (WINDOWS)
   set(WINDOWS_LIBRARIES
       advapi32
       shell32
+      ole32
       ws2_32
       mswsock
       psapi
       winmm
-      netapi32
-      ole32
       wldap32
       gdi32
       user32
@@ -75,6 +72,6 @@ else (WINDOWS)
   set(WINDOWS_LIBRARIES "")
 endif (WINDOWS)
     
-mark_as_advanced(DL_LIBRARY RT_LIBRARY PTHREAD_LIBRARY WINDOWS_LIBRARIES)
+mark_as_advanced(DL_LIBRARY PTHREAD_LIBRARY WINDOWS_LIBRARIES)
 
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

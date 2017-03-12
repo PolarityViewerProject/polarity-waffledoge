@@ -1894,20 +1894,20 @@ if(WINDOWS)
     endif(USE_TBBMALLOC)
 	  
     if(FMODSTUDIO)
-      if (WORD_SIZE EQUAL 32)
-        list(APPEND COPY_INPUT_DEPENDENCIES
-             ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
-             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
-             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
-            )
-      elseif (WORD_SIZE EQUAL 64)
+      if(WORD_SIZE EQUAL 64)
         list(APPEND COPY_INPUT_DEPENDENCIES
             ${SHARED_LIB_STAGING_DIR}/Release/fmod64.dll
             ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod64.dll
             ${SHARED_LIB_STAGING_DIR}/Debug/fmodL64.dll
             )
-      endif (WORD_SIZE EQUAL 32)
-    endif (FMODSTUDIO)
+      else()
+        list(APPEND COPY_INPUT_DEPENDENCIES
+            ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
+            ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/fmod.dll
+            ${SHARED_LIB_STAGING_DIR}/Debug/fmodL.dll
+            )
+      endif()
+    endif()
 
     add_custom_command(
       OUTPUT  ${CMAKE_CFG_INTDIR}/copy_touched.bat
@@ -2079,12 +2079,12 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${URIPARSER_LIBRARY}
     ${HUNSPELL_LIBRARY}
     ${viewer_LIBRARIES}
+    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
+    ${BOOST_REGEX_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_WAVE_LIBRARY} # Required for Firestorm code
     ${BOOST_THREAD_LIBRARY} # Required for Firestorm code
-    ${BOOST_PROGRAM_OPTIONS_LIBRARY}
-    ${BOOST_REGEX_LIBRARY}
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMOD_LIBRARY} # must come after LLAudio

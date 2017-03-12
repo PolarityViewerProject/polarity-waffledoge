@@ -6,7 +6,7 @@
       <key>SDL</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 2004, 2006-2013 Sam Lantinga</string>
+        <string>Copyright (C) 1997-2012 Sam Lantinga</string>
         <key>description</key>
         <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
         <key>license</key>
@@ -22,62 +22,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8da309d24fb0bad8eaaa667fb04c6dc7</string>
+              <string>459cdc8d7c19a8025f98f61db95622ff</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-sdl-update/rev/290561/arch/Linux/installer/SDL-1.2.15-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/sdl_3p-update-sdl/rev/297546/arch/Linux/installer/SDL-1.2.15-linux-297546.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>39f934f530676330eeab6e37ef468cbd</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/SDL-1.2.15-linux64-201609250149-bc252239e646840302db1b0ce598bc2b.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
         </map>
         <key>version</key>
         <string>1.2.15</string>
-      </map>
-      <key>SDL2</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (C) 1997-2016 Sam Lantinga slouken@libsdl.org</string>
-        <key>description</key>
-        <string>Simple DirectMedia Layer is a cross-platform multimedia library designed to provide low level access to audio, keyboard, mouse, joystick, 3D hardware via OpenGL, and 2D video framebuffer.</string>
-        <key>license</key>
-        <string>zlib</string>
-        <key>license_file</key>
-        <string>LICENSES/SDL2.txt</string>
-        <key>name</key>
-        <string>SDL2</string>
-        <key>platforms</key>
-        <map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>1388eb8fd5d2784b31316b625e2f3a49</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/SDL2-2.0.5-windows64-201701311913-7361ddfec2c4161d9339aacb5c09c907.rar</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>2.0.5</string>
       </map>
       <key>apr_suite</key>
       <map>
@@ -98,11 +52,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7f7970106892ddc5b30246553e23c390</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>0c53148aa00e51c06fa246c4130915be</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/apr_suite-1.5.2-darwin-201701112326-46cc3bbdaecbef4648dedb64bdb867aa.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/297252/arch/Darwin/installer/apr_suite-1.4.5.297252-darwin-297252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -112,37 +64,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f38c966a430012dc157fdc104f23a59b</string>
+              <string>402552cf158e2fe953b7224f4615a957</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-apr/rev/259951/arch/Linux/installer/apr_suite-1.4.5-linux-20120618.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/apr_3p-update-apr/rev/297252/arch/Linux/installer/apr_suite-1.4.5.297252-linux-297252.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>47964cb788d6c4506c4cee1d68a2a5f5</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/apr_suite-1.5.2-linux64-201609250304-eb459340baa20516097bf7897b5d85d1.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4e8fe1907e779df7fd4f1d449bbd2775</string>
+              <string>407ae48cd291a396954f2710158b4c45</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/apr_suite-1.5.2-windows-201603261507-76186b09770cab66dba6586cb1d2123f.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/apr_suite-1.5.2-windows-201603261507.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -152,11 +90,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>03dec180f63c7784d6ebdb70852040eb</string>
+              <string>749c1c91295e79847a5b3dcf0df70a9d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/apr_suite-1.5.2-windows64-201608212100-80a5ca32267e075115f0e40a04314aab.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/apr_suite-1.5.2-windows64-201603261452.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -184,11 +122,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>df477a3184d4063d9248a517f64c9891</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>c296845cad075250c1ae2620f175a957</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/boost-1.60.0-darwin-201701192014.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Darwin/installer/boost-1.57-darwin-297445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -198,37 +134,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2f076eae296600a1b810ce375dc4b42d</string>
+              <string>fb1537f7ad0b490fcb4f096c15dce9cd</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/Linux/installer/boost-1.55.0-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Linux/installer/boost-1.57-linux-297445.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6d60b345073073e8adedb5908bb35f66</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/boost-1.60.0-linux64-201609251526.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ade7cd3679162904c9e86bdf1d7a6540</string>
+              <string>b3799cac17a12344c7ae8a629b64e7de</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/boost-1.60.0-windows-20170303172401.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/boost-1.60.0-windows-201604091625.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -268,11 +190,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3da2eccc53a0ca956f9245cd3289e4b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>66849777a83cb69cec3c06b07da7cd3d</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/colladadom-2.3-darwin-201701192019-49888398e3acd869c643ba18b87a6493.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -282,23 +202,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bdec5fe5fd008da4328f84115128ee61</string>
+              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-colladadom-update/rev/290576/arch/Linux/installer/colladadom-2.3-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>94dc3275b13bff6ca0fe8667026ef0cc</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/colladadom-2.3-linux64-201609251916-5189bb4311e575c57ba2234dd3f08c81.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -308,11 +214,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>93edaaf240b7a7db588338e5db6e20d0</string>
+              <string>ba3e4e888eadbc80a7829f95c8c44a5b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/colladadom-2.3-windows-201604091641-add110cc9ed39761ff5b58d83d1074a4.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/colladadom-2.3-windows-201604091641.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -322,11 +228,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ac5f892a3ebc33a2c6a95f9bc6302150</string>
+              <string>0b68a6bcf46b6d4b13ae686b705e5835</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/colladadom-2.3-windows64-201701232158-912fa37da1d6c91e2ce8112c5c5cf039.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/colladadom-2.3-windows64-201604091741.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -354,11 +260,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>969d34ae72b3382f4e778c2cd6f79104</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>d1c5125650a339a5209f429c70f4d395</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/curl-7.53.1-darwin-201702250011-11f725e90dbfb87be79e830a8a533783.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Darwin/installer/curl-7.38.0.297172-darwin-297172.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -368,37 +272,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>06149da3d7a34adf40853f813ae55328</string>
+              <string>ee6c089ee193e551040d610befc5d1c1</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-curl-update/rev/295367/arch/Linux/installer/curl-7.38.0-linux-20141010.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/curl_3p-update-curl/rev/297172/arch/Linux/installer/curl-7.38.0.297172-linux-297172.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>52d9de1a9a266f283aab3552db50b058</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/curl-7.51.0-linux64-201611050852-ad5f52cdae24ae4b657f257d67fef3a8.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9e29d8053b850b638d2fde178c696821</string>
+              <string>a05eb8079a7d78e753f5fe29984acba5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/curl-7.48.0-windows-201603231720-f20491b59795d311cf8d730556cd141e.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/curl-7.48.0-windows-201603231720.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -408,11 +298,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a19940ba64a4aaa65421d46a13c43920</string>
+              <string>94342170a0bbc37aa177526c4f1ee37f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/curl-7.53.1-windows64-201702242256-2b187eafe4e2e8ecf2229008cb9f5860.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/curl-7.48.0-windows64-201603231658.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -421,7 +311,7 @@
         <key>version</key>
         <string>7.48.0</string>
       </map>
-      <key>dbus-glib</key>
+      <key>dbus_glib</key>
       <map>
         <key>copyright</key>
         <string>Copyright (C) Red Hat Inc.</string>
@@ -432,7 +322,7 @@
         <key>license_file</key>
         <string>LICENSES/dbus-glib.txt</string>
         <key>name</key>
-        <string>dbus-glib</string>
+        <string>dbus_glib</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -440,26 +330,12 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>94b058b9a81114dc4567bd78e4335425</string>
+              <string>c11ff7e2e0bd59e6e59628f24902bbcd</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/dbus_glib-0.76-linux-20110310.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/dbus-glib_3p-update-dbus-glib/rev/297768/arch/Linux/installer/dbus_glib-0.76-linux-297768.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>7f824c0acfb583e667530eef20d0ac2f</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/dbus_glib-0.76-linux64-201501030130-84e51f2e14db023be5419e74ab3b51d3.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
         </map>
         <key>version</key>
@@ -484,11 +360,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>70df58348cd66631ebc53ef8ec81bd61</string>
+              <string>60cdb3d29401f635e3a166bd6dd68811</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/common/dictionaries-1-common-201412301501-078604ad9373fe35081a7d3e4892ae41.rar</string>
+              <string>http://lib.polarityviewer.net/common/dictionaries-1-common-201412301501.rar</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -496,6 +372,30 @@
         </map>
         <key>version</key>
         <string>1</string>
+      </map>
+      <key>elfio</key>
+      <map>
+        <key>license</key>
+        <string>lgpl</string>
+        <key>license_file</key>
+        <string>LICENSES/elfio.txt</string>
+        <key>name</key>
+        <string>elfio</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>031e6315a5c0829c9b9a2ec18aeb7ae3</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-elfio/rev/222074/arch/Linux/installer/elfio-1.0.3-linux-20110225.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
       </map>
       <key>expat</key>
       <map>
@@ -516,11 +416,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5c6c0c14a6b175b7aae7ca351b5ed7ce</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>452d1910ef853329cd59858e6c5b2c48</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/expat-2.2.0-darwin-201701112303-fe7b9737e0b7242d5124d96a0c31c7f5.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/297014/arch/Darwin/installer/expat-2.0.1.297014-darwin-297014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -530,37 +428,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9bd79781b58e556ab1c36084ec4a1c0c</string>
+              <string>f546615d76bc0f9e8bc2b9ef89f0ca86</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-expat/rev/221695/arch/Linux/installer/expat-2.0.1-linux-20110219.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/expat_3p-update-expat/rev/297014/arch/Linux/installer/expat-2.0.1.297014-linux-297014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>cfbad8750f59ba1e990717a82730da44</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/expat-2.2.0-linux64-201609241339-ff3ecb893d879a380408db963aa0afea.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>38042712d18c5662d749c5752fb09ce0</string>
+              <string>a741971a6c23b2ded7397bfee4e433b7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/expat-2.1.1-windows-201603261409-454170939e4d1ba07060b73d6f81b9fc.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/expat-2.1.1-windows-201603261409.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -570,11 +454,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c629a94936fdafd56f88c7c5b918bb76</string>
+              <string>e5538ec3f8d4cf1c73ed3576c2da5638</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/expat-2.2.0-windows64-201608211952-e7fe6faffb2bec9405df6478c5458457.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/expat-2.1.1-windows64-201603261406.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -586,7 +470,7 @@
       <key>fmodstudio</key>
       <map>
         <key>copyright</key>
-        <string>FMOD Studio, copyright (c) Firelight Technologies Pty, Ltd., 2012-2016.</string>
+        <string>FMOD Studio, copyright © Firelight Technologies Pty, Ltd., 1994-2015.</string>
         <key>description</key>
         <string>FMOD Studio audio system library</string>
         <key>license</key>
@@ -602,11 +486,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1e5f45d099f62740d8346fcf8978517d</string>
+              <string>ef91e9966ffd6303a8805146c046c659</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/fmodstudio-1.09.01-darwin-201702250050-6df9362ef7df7d967f596ecc04702d52.rar</string>
+              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/fmodstudio-1.08.00-darwin-201603070723.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -616,11 +500,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>065a8226aa7346401f1de04374c5bf27</string>
+              <string>1331456a3df95294eaf44fab990f62cd</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux32/gcc-unknown/fmodstudio-1.06.07-linux-201507231333-1331456a3df95294eaf44fab990f62cd.rar</string>
+              <string>http://lib.polarityviewer.net/linux32/gcc-unknown/fmodstudio-1.06.07-linux-201507231333.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -630,11 +514,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1de99457183838b3e4478be61f0c859</string>
+              <string>47f5754929fed18fd5ffff8cda2d84e2</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/fmodstudio-1.08.12-linux64-201609240235-5ba05db0efc98db11557dff5cc835004.rar</string>
+              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/fmodstudio-1.08.00-linux64-201603232053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -644,11 +528,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9b059a920705f4a354fbe87cbe8279e4</string>
+              <string>2d542085dfb6da5aac4d6a719d4ca187</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/fmodstudio-1.08.15-windows-201701121229-c1b0bfa26321d368d4a5ad65de5b3169.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/fmodstudio-1.08.08-windows-201607172139.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -658,18 +542,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>120e65b57d5ee450efb6400a7e58d6cd</string>
+              <string>2218030a29edd4ad4f2a837cf3145bb4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/fmodstudio-1.09.01-windows64-201702242305-69a78a426b20dfc93ee06ab7238ab4ec.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/fmodstudio-1.08.08-windows64-201607172133.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.08.15</string>
+        <string>1.08.08</string>
       </map>
       <key>fontconfig</key>
       <map>
@@ -690,30 +574,62 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2843c48e6c84a51e3d6aa05dace4c8c0</string>
+              <string>864f9361661748ecf0e2cec7110d70b3</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-fontconfig-update/rev/290569/arch/Linux/installer/fontconfig-2.11.0-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/fontconfig_3p-update-fontconfig/rev/297551/arch/Linux/installer/fontconfig-2.11.0-linux-297551.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>linux64</key>
+        </map>
+        <key>version</key>
+        <string>2.11.0</string>
+      </map>
+      <key>freeglut</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 1999-2000 Pawel W. Olszta. All Rights Reserved.</string>
+        <key>description</key>
+        <string>freeglut is a completely OpenSourced alternative to the OpenGL Utility Toolkit (GLUT) library.</string>
+        <key>license</key>
+        <string>freeglut</string>
+        <key>license_file</key>
+        <string>LICENSES/freeglut.txt</string>
+        <key>name</key>
+        <string>freeglut</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d69db20df4d461f9159fc15255edc32c</string>
+              <string>4ef55d862db67256f66cb09b887ad52a</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/fontconfig-2.12.1-linux64-201609251356-47fe27b1ca4ce70dafba85185562199e.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/freeglut-3.0.0-windows-201601151006.rar</string>
             </map>
             <key>name</key>
-            <string>linux64</string>
+            <string>windows</string>
+          </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>7cf57695eaf0f5e1c010d66912250d79</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/freeglut-3.0.0-windows64-201512130218.rar</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.12.1</string>
+        <string>3.0.0</string>
       </map>
       <key>freetype</key>
       <map>
@@ -734,11 +650,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5d99ff220bcdd31c40b0fe60888d826c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>83618d16d974eb0af93926a10ac13297</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/freetype-2.7.1-darwin-201701192038-51a96a2f1688e870fea5feff6742ee82.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/297053/arch/Darwin/installer/freetype-2.4.4.297053-darwin-297053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -748,37 +662,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52f87a65cc61ec4b05721c079d015b19</string>
+              <string>1ac3152b440287c58509d8af0a50326d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-freetype-update/rev/290557/arch/Linux/installer/freetype-2.4.4-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/freetype_3p-update-freetype/rev/297053/arch/Linux/installer/freetype-2.4.4.297053-linux-297053.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a58c3cd6474cbb39adeafa71d71eb799</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/freetype-2.7.0-linux64-201609250521-70573b084a880ec7f6fb7cbfa20404a6.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9e474a358b594933cc55d85fda66e9a7</string>
+              <string>97e5825b33ee484a8fb305e047b4144e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/freetype-2.6.3-windows-201603011805-e5be5197f12f9ca8078ba9ce4f1bce10.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/freetype-2.6.3-windows-201603011805.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -788,11 +688,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>139c8df324ddf3afdfcdcab5d256245c</string>
+              <string>94d97ca04862742de032eaced228a8e0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/freetype-2.7.1-windows64-201701232117-d76b0489e9886e632453b5ed89d2cc81.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/freetype-2.6.3-windows64-201603011807.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -800,66 +700,6 @@
         </map>
         <key>version</key>
         <string>2.6.3</string>
-      </map>
-      <key>glew</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (C) 2002-2007, Milan Ikits, Copyright (C) 2002-2007, Marcelo E. Magallon, Copyright (C) 2002, Lev Povalahev</string>
-        <key>description</key>
-        <string>The OpenGL Extension Wrangler Library.</string>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/glew.txt</string>
-        <key>name</key>
-        <string>glew</string>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>58454cf492ae48c67fc9404e142524f5</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/glew-2.0.0-linux64-201609241431-c21f348f5d785ec52ac273b77c74a99c.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>85187543d177c65b74a8d55cf9710451</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/glew-1.13.0-windows-201601191519-aba7e388272a051dc2d3b39c68a6e60f.rar</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a1c3eb948cc6bfc15f062472b439127b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/glew-2.0.0-windows64-201608212108-ed450c2bcdbab14924d742cd496bd228.rar</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.13.0</string>
       </map>
       <key>glext</key>
       <map>
@@ -892,11 +732,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7d9a28651dd0b9049877f9cd359c389c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>6eb51c6f17e717a5617b112858d41c80</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/glext-68-windows-296893-6eb51c6f17e717a5617b112858d41c80.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/CYGWIN/installer/glext-68-windows-296893.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -924,11 +762,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2d76ba53fb0c7f938b989a5dc52f90d5</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>44c596c659d32a86972ac9c6f206cb68</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/common/glh_linear-0.0.0-common-303446-44c596c659d32a86972ac9c6f206cb68.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-glh-linear/rev/303446/arch/Linux/installer/glh_linear-0.0.0-common-303446.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -936,38 +772,6 @@
         </map>
         <key>version</key>
         <string>0.0.0</string>
-      </map>
-      <key>glm</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2005 - 2014 G-Truc Creation</string>
-        <key>description</key>
-        <string>A C++ mathematics library for graphics programming</string>
-        <key>license</key>
-        <string>MIT</string>
-        <key>license_file</key>
-        <string>LICENSES/glm.txt</string>
-        <key>name</key>
-        <string>glm</string>
-        <key>platforms</key>
-        <map>
-          <key>common</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2e7e00e5dc7dc4b08af59465a578c87f</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/common/glm-0.9.8.4-common-201701231537-d7ca464d8418fe76736ec99a7b725dbe.rar</string>
-            </map>
-            <key>name</key>
-            <string>common</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>0.9.8.4</string>
       </map>
       <key>glod</key>
       <map>
@@ -988,11 +792,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8ecddac234a6b2a08e1edabf902ed3c8</string>
+              <string>71e678d70e276fc42a56926fc28a7abd</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/glod-1.0pre4-darwin-201511222034-6c6b3b06a4305c2da0aad1de132e6a07.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/296895/arch/Darwin/installer/glod-1.0pre4.296895-darwin-296895.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1002,37 +806,25 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>176736c52b3cde6ca8e7d9e173d91731</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-glod/rev/268002/arch/Linux/installer/glod-1.0pre4-linux-20121212.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>3cc4da7422137488ec4c2de90401699a</string>
+              <string>fffd130f17cbbe2b93cc241b27262647</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/glod-1.0pre4-linux64-201609240327-72d9df7676a1238f6f59b308e49b4a6e.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glod_3p-update-glod/rev/296895/arch/Linux/installer/glod-1.0pre4.296895-linux-296895.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>linux64</string>
+            <string>linux</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e59fbfc39fbfc3bfeaed544d7224103d</string>
+              <string>6b3745c4333091473dfe8d2fe999aa78</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/glod-1.0pre4-windows-201601151027-05134ab3cf05fbfb4bed996b53a0d472.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/glod-1.0pre4-windows-201601151027.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1042,11 +834,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cd16d127ecf2d6ada0846a8161672dac</string>
+              <string>d3839e69eff3fb928cc3cd7725376ee8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/glod-1.0pre4-windows64-201608212117-286e91f4d90248c7fe7f3b04238ec6fa.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/glod-1.0pre4-windows64-201512092328.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1074,11 +866,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f963eb1728e6d5077d4feba805d4896</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>171b39db6d0702535b41fad5b476e39d</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/google_breakpad-9e60a27-darwin-201511222009.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Darwin/installer/google_breakpad-1413.298033-darwin-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1088,37 +878,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>52257e5eb166a0b69c9c0c38f6e1920e</string>
+              <string>0bf69fbc829d964820b798a0494278c9</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-breakpad/rev/273079/arch/Linux/installer/google_breakpad-0.0.0-rev1099-linux-20130329.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-breakpad_3p-update-google-breakpad/rev/298033/arch/Linux/installer/google_breakpad-1413.298033-linux-298033.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>391978a7620171fe85d310e069bbc778</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/google_breakpad-7398ce15b79da-linux64-201609260309-be9721099a72762ab87f98506b0d9201.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>efc0647c785e738155fba331899d7e54</string>
+              <string>e8688bc36a2fa4d6cde9aded90ac7709</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/google_breakpad-9e60a27-windows-201601151025-19147e19b5cfaaaeb83ff1d9025c06df.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/google_breakpad-9e60a27-windows-201601151025.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1128,11 +904,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f699cf8f0e47536207b79c61db454efc</string>
+              <string>553b6d42e62116fd1d9f67bb25e218ae</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/google_breakpad-7398ce15b79da-windows64-201610152047-c51a672a095b5d85f09798add202dee1.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/google_breakpad-9e60a27-windows64-201512101817.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1155,14 +931,26 @@
         <string>gperftools</string>
         <key>platforms</key>
         <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>0137e450bf24cff7e78634bb9a1c85e4</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-perftools_3p-update-google-perftools/rev/297263/arch/Darwin/installer/gperftools-2.0.297263-darwin-297263.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8aedfdcf670348c18a9991ae1b384a61</string>
+              <string>0c252bcaa1cb852f5c4e46a13ed459c5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-google-perftools/rev/262672/arch/Linux/installer/gperftools-2.0-linux-20120727.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-perftools_3p-update-google-perftools/rev/297263/arch/Linux/installer/gperftools-2.0.297263-linux-297263.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -1172,11 +960,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e81d9e4526ceac49f1532d6518085985</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>2946f9bbf227dee8881af43856ebb3a1</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/gperftools-2.1-windows-20140120.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/google-perftools_3p-update-google-perftools/rev/297263/arch/CYGWIN/installer/gperftools-2.0.297263-windows-297263.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1186,16 +972,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>da6ec7472ed69fe3231eb95432a789d9</string>
+              <string>942318d5af9b76003e2ac907ce8497e0</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/gperftools-2.2-windows64-20140605.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/gperftools-2.4.6627f92-windows64-201604300223.rar</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.1</string>
+        <string>2.4.6627f92</string>
       </map>
       <key>gstreamer</key>
       <map>
@@ -1209,36 +997,32 @@
         <string>gstreamer</string>
         <key>platforms</key>
         <map>
-          <key>common</key>
+          <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cf7620b99319f27da3a46bc6401a5808</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>fb1479533a7699b44d34e3a550037eb7</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/common/gstreamer-0.10.6.201501032013-common-201501032013-df57a59e832f9e3ca8ba31e37e383dfb.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/gstreamer_3p-update-gstreamer/rev/294903/arch/Linux/installer/gstreamer-0.10.6.294903-linux-294903.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>common</string>
+            <string>linux</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.10.6.201501032013</string>
+        <string>0.10.6.294903</string>
       </map>
-      <key>gtk</key>
+      <key>gtk-atk-pango-glib</key>
       <map>
         <key>copyright</key>
-        <string>Copyright various(See license file)</string>
-        <key>description</key>
-        <string>gtk-atk-pango-glib</string>
+        <string>Copyright (various, see sources)</string>
         <key>license</key>
         <string>lgpl</string>
         <key>license_file</key>
         <string>LICENSES/gtk-atk-pango-glib.txt</string>
         <key>name</key>
-        <string>gtk</string>
+        <string>gtk-atk-pango-glib</string>
         <key>platforms</key>
         <map>
           <key>linux</key>
@@ -1246,42 +1030,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>03694ade27f53199229c03cbbda89214</string>
+              <string>15af375116f5c943ea6f4190bc764224</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-linux-20101001.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/gtk_3p-gtk-atk-pango-glib/rev/294804/arch/Linux/installer/gtk_atk_pango_glib-0.1-linux-294804.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>26bd44a039961c24dfd62c8a27b19f14</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/gtk_atk_pango_glib-0.0.3-linux64-201609260230.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>c257d718abdde8cfe8a0af26175161a7</string>
-              <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/gtk-atk-pango-glib-windows-20101001a.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
         </map>
         <key>version</key>
-        <string>0.0.3</string>
+        <string>0.0</string>
       </map>
       <key>havok-source</key>
       <map>
@@ -1340,48 +1098,34 @@
       <key>inteltbb</key>
       <map>
         <key>copyright</key>
-        <string>Copyright © 2005-2015 Intel Corporation. All Rights Reserved.</string>
+        <string>Copyright © 2005-2016 Intel Corporation. All Rights Reserved.</string>
         <key>description</key>
         <string>Intel Threaded Building Blocks Library</string>
         <key>license</key>
-        <string>GPLv2 with Runtime Exception</string>
+        <string>Apache 2.0</string>
         <key>license_file</key>
         <string>LICENSES/inteltbb.txt</string>
         <key>name</key>
         <string>inteltbb</string>
         <key>platforms</key>
         <map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>91f112033f1cd67fa672dfc37b292503</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/inteltbb-4.3u5-windows-201505010050-8a2c78fe9f76dd3555b637261bc8f821.rar</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
           <key>windows64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7f968757f4c32450545dd799a9e4bdfb</string>
+              <string>1008983b883cf8163dfcae4b39220a8b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/inteltbb-4.3u5-windows64-201505010047-75a91e5e64ad9b2ca6752c8b826ad794.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/inteltbb-2017-windows64-201701082229.rar</string>
             </map>
             <key>name</key>
-            <string>windows</string>
+            <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.3u5</string>
+        <string>2017</string>
       </map>
       <key>jpeglib</key>
       <map>
@@ -1402,11 +1146,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bcc3b39e702d790a1ca7c97aa47c5b2d</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>4d7658997fd0f93a9c55e40e40b1b0e5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/jpeglib-1.5.1-darwin-201701112339-5fb19e03489b7e96db80b20a02ddee4c.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/296854/arch/Darwin/installer/jpeglib-8c.296854-darwin-296854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1416,37 +1158,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>dcca1db348831cdb7c6b26dc4076c597</string>
+              <string>0a6641f030e173a7bc0dc8a3087b6c7d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-jpeglib/rev/224895/arch/Linux/installer/jpeglib-8c-linux-20110323.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jpeglib_3p-update-jpeglib/rev/296854/arch/Linux/installer/jpeglib-8c.296854-linux-296854.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>d351f06cb0892343e7d23e02dc7e2562</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/jpeglib-1.5.1-linux64-201609241330-5e18b3b4421079d09a2759d870c06157.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6e40b458a823c64782b25548f565d488</string>
+              <string>46da963fc4b3b399f4dd95fe5d175c41</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/jpeglib-1.4.2-windows-201601151022-581db1bb70a7f6b9a6718121d22597a9.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/jpeglib-1.4.2-windows-201601151022.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1456,11 +1184,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c7c3fd79c39c8c72dde5684546ba9218</string>
+              <string>524d7b64a0f34e6660bb47ce356e4ea8</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/jpeglib-1.5.1-windows64-201610152035-d1314e4bad863d212ba2b57ea78ee02f.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/jpeglib-1.4.2-windows64-201512092307.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1488,11 +1216,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>e15e88fc226693b5a17d836f11d6543b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>b25a4f480e07c670ffef00c3da578f87</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/jsoncpp-1.8.0-darwin-201701121930-adfc58919993eae7c5d69416a643f88e.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/Darwin/installer/jsoncpp-0.5.0.297281-darwin-297281.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1502,37 +1228,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>840cd9455638c0ea52c613cfddd07d5b</string>
+              <string>5b3b5dbf0c82c1046482a74ce9e11c38</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/jsoncpp-0.5.0-linux-20110315.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/jsoncpp_3p-update-jsoncpp/rev/297281/arch/Linux/installer/jsoncpp-0.5.0.297281-linux-297281.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2ed88e56672d69eb398dca9ab8fe9844</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/jsoncpp-1.7.6-linux64-201609260525-0765adc88947e85e3b22cfa4f19b159b.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f3103b96d837bfbb43a137c7d464f881</string>
+              <string>1365546ef0a60c48b1d31e00721d1a63</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/jsoncpp-1.6.5-windows-201601151019-de7bd51771d3d45185c4977e6aec3a37.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/jsoncpp-1.6.5-windows-201601151019.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1542,11 +1254,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>cd8f7ac80393c5f45421d6b23294cad9</string>
+              <string>70dee040ff192f6c0e789a9a0c45c2af</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/jsoncpp-1.8.0-windows64-201701211422-d6300f5e51416776609cefcfb5d5ad62.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/jsoncpp-1.6.5-windows64-201512092309.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1554,6 +1266,60 @@
         </map>
         <key>version</key>
         <string>1.6.5</string>
+      </map>
+      <key>kdu</key>
+      <map>
+        <key>copyright</key>
+        <string>Kakadu software</string>
+        <key>description</key>
+        <string>JPEG2000 library by Kakadu</string>
+        <key>license</key>
+        <string>Kakadu</string>
+        <key>license_file</key>
+        <string>LICENSES/kdu.txt</string>
+        <key>name</key>
+        <string>kdu</string>
+        <key>platforms</key>
+        <map>
+          <key>darwin</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>e62f2fc1ee9ab791d603c5b717b46119</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Darwin/installer/kdu-7.2.296932-darwin-296932.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>darwin</string>
+          </map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>ed952c0cb86329e63a8db190953962d8</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Linux/installer/kdu-7.2.296932-linux-296932.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>a0e5c050a4975c81611d9f1862ac57fb</string>
+              <key>url</key>
+              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/CYGWIN/installer/kdu-7.2.296932-windows-296932.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>7.2.296932</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -1574,11 +1340,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>02da8504bcfccc5e217aa43d5af44593</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>05eda16106df26a211f8bdd874d1fca5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/libhunspell-1.6.0-darwin-201701251937-1494a35828c59fd9fa5146b3bff39439.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/hunspell_3p-update-hunspell/rev/296916/arch/Darwin/installer/libhunspell-1.3.2.296916-darwin-296916.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1588,37 +1352,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0c432d2626aea2e91a56335879c92965</string>
+              <string>988deae5c63ec638ad222b400a431f5b</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-hunspell/rev/259874/arch/Linux/installer/libhunspell-1.3.2-linux-20120616.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/hunspell_3p-update-hunspell/rev/296916/arch/Linux/installer/libhunspell-1.3.2.296916-linux-296916.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>76bb92d90305bb8374eecdbcf7fae495</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/libhunspell-1.4.1-linux64-201609241544-0b0473026e88bde51380f3ef5d890fbd.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>51dd8ef8cdc81cb6b88b2a1f1ca6c0b2</string>
+              <string>9c52e6963ea20782be97f0c8996d2963</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/libhunspell-1.3.3-windows-201601151018-440a81e502be320c789337653ad1af7c.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/libhunspell-1.3.3-windows-201601151018.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1628,11 +1378,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b8c1b75a469780277dd54c3ee1cdcb3c</string>
+              <string>b32dae425e1f60be956fd04974b813cc</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/libhunspell-1.6.0-windows64-201701211426-bb9bc38717aeeb4207c5fe80c1bdf71e.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/libhunspell-1.3.3-windows64-201512100002.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1660,11 +1410,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1d542606b146462cdfdc47a94f14eaf5</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>a01b411433dbf8a4b481de9e76d9a652</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/libndofdev-0.1-darwin-201504232110.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/297264/arch/Darwin/installer/libndofdev-0.1.297264-darwin-297264.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1674,11 +1422,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b3cec631030162a824f2e143808756a1</string>
+              <string>a05e2865fe8aba74d57287daea1b02e6</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/libndofdev-0.1-windows-201601151016-1bed832715f068e3363ba90a0415092f.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/libndofdev-0.1-windows-201601151016.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1688,11 +1436,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>420315c6974fc47461d05836ca6a05d3</string>
+              <string>a8926d34fb8c0a1b6e0ce9b8c78c8dcb</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/libndofdev-0.1-windows64-201608212115-112d169d9a7618255215353968420645.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/libndofdev-0.1-windows64-201512122040.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1700,38 +1448,6 @@
         </map>
         <key>version</key>
         <string>0.1</string>
-      </map>
-      <key>libndofdev-open</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
-        <key>description</key>
-        <string>3DConnection SDK</string>
-        <key>license</key>
-        <string>BSD</string>
-        <key>license_file</key>
-        <string>LICENSES/libndofdev.txt</string>
-        <key>name</key>
-        <string>libndofdev-open</string>
-        <key>platforms</key>
-        <map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4b1c23b53aecbff717361d1145cacc15</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/libndofdev_open-0.8-linux64-201609250211-70117b955d1a89e8ad97a0a010168f8c.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>0.8</string>
       </map>
       <key>libpng</key>
       <map>
@@ -1752,11 +1468,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>bbfdbf0664cf54563434bb47a6fd180d</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>14cb5c8686a472e9e60179e46cd196f7</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/libpng-1.6.28-darwin-201701192023-d009531c022d705fb654ef40598787b0.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297708/arch/Darwin/installer/libpng-1.6.8.297708-darwin-297708.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1766,37 +1480,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3368a25b361c22a03f7ec7e0f8d5ff9d</string>
+              <string>6dec32fc2527f8cafd616f9271ff3478</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libpng-update/rev/290558/arch/Linux/installer/libpng-1.6.8-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libpng_3p-update-libpng/rev/297051/arch/Linux/installer/libpng-1.6.8.297051-linux-297051.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6740be671d4b5011d6b58875410534a7</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/libpng-1.6.25-linux64-201609250045-d9cbaf3f5a3cc819d757f321db620c56.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>aab1f685fba82284a759f382d2601f7b</string>
+              <string>3f89fbb7a57b812a9abf63dae2b66344</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/libpng-1.6.21-windows-201603011800-5e7b3ea13fec60f6c9a8965a390cfbd5.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/libpng-1.6.21-windows-201603011800.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1806,11 +1506,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>de2897f7e24e1fb2a2d1827735831ffd</string>
+              <string>487bb9a0cfe8a6337eba1d239dd82381</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/libpng-1.6.28-windows64-201701232112-3e1eaf284c2e58ecb48f7d4a42aa0c0d.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/libpng-1.6.21-windows64-201603011809.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1838,11 +1538,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4f70cd2834f1fd1b618d868efda02959</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>9303f0dd174129e297eca6cc2eb1ab3f</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/libxml2-2.9.4-darwin-201701191953-764acfced5387808fe6fe8ef8f7365a7.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/297050/arch/Darwin/installer/libxml2-2.9.1.297050-darwin-297050.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -1852,37 +1550,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7eb90f075730f8d7d176f8fb7bad5ef5</string>
+              <string>b8b584853dc1344bb3571c13b06ec39e</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-libxml-update/rev/290562/arch/Linux/installer/libxml2-2.9.1-linux-20140602.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libxml_3p-update-libxml/rev/297050/arch/Linux/installer/libxml2-2.9.1.297050-linux-297050.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e535ac3e07cfdcd008b65771c63f1f2e</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/libxml2-2.9.4-linux64-201609250412-a9f4b1abb5895f2016c0dc8ba588895e.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c01623304860707934e764db8e903ee8</string>
+              <string>6f51601687db4be9e68591b22e571b43</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/libxml2-2.9.3-windows-201601151053-6f1e3fcceab669df5c3d1c66821b2f24.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/libxml2-2.9.3-windows-201601151053.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1892,11 +1576,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4d1840f32a76e57ccf18b6dfebae8152</string>
+              <string>b67d9a57e342e1ac9389c50e5434faaa</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/libxml2-2.9.4-windows64-201701232135-7eae3e3603e95222c2c748261851c390.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/libxml2-2.9.3-windows64-201512122133.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1954,39 +1638,25 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a91b37859bab94db736e9777af1fbc5</string>
+              <string>2845033912eb947a1401847ece1469ce</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/llceflib-3.2924.1566.ga6a3da2-darwin-201702102110-3cb80c11957a08806a5cd08ed4081919.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/321153/arch/Darwin/installer/llceflib-1.5.3.321153-darwin-321153.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6b341ea2682bfb1149acd67df9f61e93</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/llceflib-3.2526.1373.gb660893-linux64-201609260552-abbbc69f47a214535d3c5b4c90e059db.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>008b1cf672410aeafa5aea89666a40a7</string>
+              <string>0f5d7009ebaf784b5381cf253734ec83</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/llceflib-3.2883.1545.gd685d27-windows-201701152133-90a4b819719696dcecc8cad751b9f1e8.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows-201611132032.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1996,18 +1666,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>50b871342ef83473c69f785f4e038fa1</string>
+              <string>5007eda00364eb8a172fcf06dd15a117</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/llceflib-3.2924.1566.ga6a3da2-windows64-201702112051-079e81ae63d9d1e66e2337c5703337cb.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows64-201611120539.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.2883.1545.gd685d27</string>
+        <string>3.2526.1364.gf6bf57b</string>
       </map>
       <key>llphysicsextensions_source</key>
       <map>
@@ -2130,11 +1800,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d2d96a6a6113c74791ae3def87bfbf02</string>
+              <string>d5ed75ed190358e108313e789ad8087f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/llphysicsextensions_stub-1.0.298370-windows64-298370-50d7ea325063219a86d9439ce7458582.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/llphysicsextensions_stub-1.0.298370-windows64-298370.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2158,14 +1828,16 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1f600840463c7327ea17486821425750</string>
+              <string>22c50a5d362cad311b4f413cfcffbba2</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/mesa-7.0-linux-20100930.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/mesa_3p-update-mesa/rev/297294/arch/Linux/installer/mesa-7.11.1.297294-linux-297294.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
           </map>
         </map>
+        <key>version</key>
+        <string>7.11.1.297294</string>
       </map>
       <key>ndPhysicsStub</key>
       <map>
@@ -2186,11 +1858,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>189668e526829e845ddc431c9569249a</string>
+              <string>36979c4c3d008332425469d097e34ac9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/ndPhysicsStub-0.1.2-darwin-201701121901-f7a699e485a99700f3591a5da56cf754.rar</string>
+              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/ndPhysicsStub-0.1.2-darwin-201511222004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2202,7 +1874,7 @@
               <key>hash</key>
               <string>a77a8daf932e6f32f1511f528762ae81</string>
               <key>url</key>
-              <string>file:///C:\rebuild-me-lib-missing.oops</string>
+              <string>http://lib.polarityviewer.net/linux32/gcc-unknown/downloads/ndPhysicsStub-r65-linux32.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -2212,11 +1884,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1b571e19db2247e1addd4effdaec4413</string>
+              <string>8c022c23093dff32180598b8d1797110</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/ndPhysicsStub-0.1.2-linux64-201609250322-8c022c23093dff32180598b8d1797110.rar</string>
+              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/ndPhysicsStub-0.1.2-linux64-201609250322.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2226,11 +1898,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>781fcf61f66b60a53e7a65ead2108aef</string>
+              <string>8476c9c253b088fc678f14097e83778e</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/ndPhysicsStub-0.1.2-windows-201601191522-8476c9c253b088fc678f14097e83778e.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/ndPhysicsStub-0.1.2-windows-201601191522.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2316,11 +1988,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a6a5e8507e7223765786d8ab89481e5</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>07fca1531a27915f642a5c1d95008d54</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/ogg_vorbis-1.3.2-1.3.5-darwin-201701121907-716542450a737852995870b66c4e89ff.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/296878/arch/Darwin/installer/ogg_vorbis-1.2.2-1.3.2.296878-darwin-296878.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2330,37 +2000,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>71eaa462eb0bf8842277a3436483a354</string>
+              <string>b0cd31d5b07a9fc25c4d69ba2f95eace</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-ogvorbis/rev/229529/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2-linux-20110511.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/oggvorbis_3p-update-oggvorbis/rev/296878/arch/Linux/installer/ogg_vorbis-1.2.2-1.3.2.296878-linux-296878.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e85a6015146354f15dba423d4e96635b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/ogg_vorbis-1.3.2-1.3.5-linux64-201609241255-1c6258ddd8d3794402fefcd53e7a8ca0.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>3a6544b22350f0d9771cf115e274b8e7</string>
+              <string>cddabe025f4c136b46224efba2ff48b7</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows-201601151012-e8c42c8ee03d570fa5e7fb88e7e1bc92.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows-201601151012.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2370,11 +2026,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>17cfef951cb6862ef7f94768781f9195</string>
+              <string>92cf17d60e72a75a9154440aec488993</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows64-201608212110-f8d93c7eabeccfe301af813e0d733bc5.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/ogg_vorbis-1.3.2-1.3.5-windows64-201512122053.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2382,6 +2038,36 @@
         </map>
         <key>version</key>
         <string>1.3.2-1.3.5</string>
+      </map>
+      <key>open-libndofdev</key>
+      <map>
+        <key>copyright</key>
+        <string>Copyright (c) 2008, Jan Ciger (jan.ciger (at) gmail.com)</string>
+        <key>description</key>
+        <string>Open Source replacement for 3DConnection SDK</string>
+        <key>license</key>
+        <string>BSD</string>
+        <key>license_file</key>
+        <string>LICENSES/libndofdev.txt</string>
+        <key>name</key>
+        <string>open-libndofdev</string>
+        <key>platforms</key>
+        <map>
+          <key>linux</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>b1245d467d5914a266efa16afeb55406</string>
+              <key>url</key>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/libndofdev_3p-update-libndofdev/rev/297553/arch/Linux/installer/open_libndofdev-0.3-linux-297553.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>0.3</string>
       </map>
       <key>openal</key>
       <map>
@@ -2397,58 +2083,30 @@
         <string>openal</string>
         <key>platforms</key>
         <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>4c0dd5385dbd8787d134e5e91f82f04a</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/openal-1.16.0-1.1.0-darwin-201412160747.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
           <key>linux</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fccdca18a950ac9363c6fb39118b80e1</string>
+              <string>15ebe611213c9577691ffbade081549d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openal-3ad86a1c-linux-20110114.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openal_3p-update-openal/rev/297677/arch/Linux/installer/openal-1.12.854-1.1.0.297677-linux-297677.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>804fd7ec4f64edaa75e8192d4822b666</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/openal-1.17.2-1.1.0-linux64-201609241409-53ed6e94703e929fb7b0f51041f8347e.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a1287fb4c5a579e4e5bb5960f3ca49d5</string>
+              <string>84705e66822c8628ccfe1487243f77db</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/openal-1.16.0-1.1.0-windows-201504270536-fa39ac8fe3714599293563fb7f964fca.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/openal-1.16.0-1.1.0-windows-201504270536.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2458,11 +2116,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8f2c6ab24dabd87be0e3953f7252c91b</string>
+              <string>1b1a377c4e7767a505d1cd5aff639a49</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/openal-1.16.0-1.1.0-windows64-201504270534-fec29528320a2a67ffa7b3900135592d.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/openal-1.16.0-1.1.0-windows64-201504270534.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2490,11 +2148,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>35bae1f5b2ab64ea650f843e9aca6cdc</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>2adb5b8bd2493d576c5d02b992d8f819</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/openjpeg-1.5.1-darwin-201701121927-8e2d49ec9961b6348344c15d33dcfc2b.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/297018/arch/Darwin/installer/openjpeg-1.4.297018-darwin-297018.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2504,37 +2160,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fb2382014c79e0049746e4e29bd834f9</string>
+              <string>675c283030879d3d9c49082bfa2192eb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/openjpeg-1.4-linux-20110314.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openjpeg_3p-update-openjpeg/rev/297018/arch/Linux/installer/openjpeg-1.4.297018-linux-297018.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>9bcaff4c53f99d37975ec5cfa5b94d35</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/openjpeg-1.5.1-linux64-201609240352-2855cc01de820f3f9c1c43845aa8f308.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f9d255373709ed392f30b4f90b78f5b2</string>
+              <string>407388217bb5fd09b81b2316fd73448d</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/openjpeg-1.5.1-windows-201601150944-64e75a7e4d5f42406fc36c2a663b6537.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/openjpeg-1.5.1-windows-201611132041.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2576,11 +2218,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1dedf460c4e089dce9db068ccc3ddb6b</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>0a77d56769e6075957f614be6575423e</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/openssl-1.1.0e-darwin-201702242357-367e11f8e77e921a9a07fd6c19fca1be.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/297168/arch/Darwin/installer/openssl-1.0.1h.297168-darwin-297168.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2590,37 +2230,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0665c18f8cdbe2f90cb0a2f088cfe1a6</string>
+              <string>c310ba9971cbd796b303c3be67fb11c6</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-openssl-update/rev/290662/arch/Linux/installer/openssl-1.0.1h-linux-20140605.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/openssl_3p-update-openssl/rev/297168/arch/Linux/installer/openssl-1.0.1h.297168-linux-297168.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>51322877eec14a1440a81960de0069b4</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/openssl-1.1.0b-linux64-201609260506-5f0c53a92b8811b67e4a811c9c80160d.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0fdec88908fd20138de889449454fed6</string>
+              <string>1213a89a6a3ccca088ba043f17db211f</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/openssl-1.0.2g-windows-201603011823-91b9fa570258f627a9265452d9e65231.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/openssl-1.0.2g-windows-201603011823.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2630,11 +2256,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5be33d0118b7531fa09d8286d7201028</string>
+              <string>cad47bdc4eabe79da880e156f1123be5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/openssl-1.1.0e-windows64-201702202011-96fbbb53ae8099d98402a48d9d6fa551.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/openssl-1.0.2g-windows64-201603011842.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2642,6 +2268,38 @@
         </map>
         <key>version</key>
         <string>1.0.2g</string>
+      </map>
+      <key>quicktime</key>
+      <map>
+        <key>copyright</key>
+        <string>2010 Apple</string>
+        <key>description</key>
+        <string>QuickTime 7.3 SDK for Windows</string>
+        <key>license</key>
+        <string>unknown</string>
+        <key>license_file</key>
+        <string>LICENSES/quicktime.txt</string>
+        <key>name</key>
+        <string>quicktime</string>
+        <key>platforms</key>
+        <map>
+          <key>windows</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>60acfd5ab0980381dfb27cca7245969e</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/quicktime-7.3-windows-201504280653.rar</string>
+            </map>
+            <key>name</key>
+            <string>windows</string>
+          </map>
+        </map>
+        <key>version</key>
+        <string>7.3</string>
       </map>
       <key>slvoice</key>
       <map>
@@ -2663,8 +2321,6 @@
             <map>
               <key>hash</key>
               <string>3dd9bf4185bf2df413d890ca9eeab76c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
               <key>url</key>
               <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Darwin/installer/slvoice-4.6.0017.22050.302004-darwin-302004.tar.bz2</string>
             </map>
@@ -2676,46 +2332,28 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9f60e56aba35ec90b3045e9d049ac284</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>06c3a9b1005249f0c94a8b9f3775f3d3</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux32/gcc-unknown/slvoice-4.5.0009.17865-linux-20141214.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/Linux/installer/slvoice-3.2.0002.10426.302004-linux-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>b102734cdc53a939b5f584802ddf2a01</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/slvoice-4.6.0009.20030-linux64-201501031918-df43d3df49296bfe93996ec537b9eddf.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>09bc61ed24f38f2eb9077bf0872a22b2</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>47a3316dae47cc4e7c1ea7b74ba8dd1e</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/slvoice-4.6.0017.22050.302004-windows-302004-47a3316dae47cc4e7c1ea7b74ba8dd1e.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/vivox_3p-slvoice/rev/302004/arch/CYGWIN/installer/slvoice-4.6.0017.22050.302004-windows-302004.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
         </map>
         <key>version</key>
-        <string>4.6.0017.22050.302004</string>
+        <string>4.6.0017.21209.298329</string>
       </map>
       <key>tut</key>
       <map>
@@ -2736,11 +2374,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d7c3cf7db5885142b775b29f7262ef17</string>
+              <string>15d7dc7a2df495b8b89f93cee1b5d4c5</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/common/tut-2008.11.30-common-201504282317-56601f1217ccd206829e8834e5a1253b.rar</string>
+              <string>http://lib.polarityviewer.net/common/tut-2008.11.30-common-201504282317.rar</string>
             </map>
             <key>name</key>
             <string>common</string>
@@ -2768,11 +2406,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>364cbc9a049acb2a0d2cd6719a02adf0</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>22608adaf54e8ddc9182a719ba6e2b32</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/uriparser-0.8.4-darwin-201511221948.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/uriparser_3p-update-uriparser/rev/299435/arch/Darwin/installer/uriparser-0.8.0.1-darwin-299435.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2782,37 +2418,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>34306fb90364b182dc770375140d8557</string>
+              <string>dddfc8dea540801f93ba0382cb1e3685</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-uriparser/rev/294298/arch/Linux/installer/uriparser-0.8.0.1-linux-20140918.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/uriparser_3p-update-uriparser/rev/299435/arch/Linux/installer/uriparser-0.8.0.1-linux-299435.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>f49159c1df01abac05a6aead1942d010</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/uriparser-0.8.4-linux64-201609241428-cf21d9f7ed7949d2230413e8a391fb73.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>789f1cb497efb3663b1300e90167888c</string>
+              <string>cc7b29eeeb61e75b00325f4ec7ea3aa9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/uriparser-0.8.4-windows-201601151009-f9f82fbd29751a969e9ab55a1f33ac7b.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/uriparser-0.8.4-windows-201601151009.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2822,11 +2444,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c5301b232e070d417c8ff76c1dfef359</string>
+              <string>e025410791e258a5f02d7199d4bb6f75</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/uriparser-0.8.4-windows64-201608212114-1db805510ca6d897df02dd6b73387a79.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/uriparser-0.8.4-windows64-201512081840.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2854,11 +2476,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a7179946da2f890f1b5aa86cac5b122d</string>
+              <string>c20906e8c9438903323fc4f888ba86e2</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/vcredist-14.0.24215.1-windows-201610030726-be1a9e1c3a50c946f8a6c9be25934118.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/vcredist-14.0.24215.1-windows-201610210225.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2868,11 +2490,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>671d73c1b3e0e453762d4ef33761e393</string>
+              <string>e47d7697b805886c54ba916b89eb944c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/vcredist-14.0.24215.1-windows64-201610030725-5fa437821f9190c9267426fcf4a97a54.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/vcredist-14.0.24215.1-windows64-201610210225.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2910,9 +2532,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>04cff37070a5f65f3652b4ddcec7183f</string>
+              <string>6bb63f13fe4b143429347c7e8835e373</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/317935/arch/CYGWIN/installer/vlc_bin-2.2.4.317935-windows-317935.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/vlc_bin-2.2.4.201611251057-windows-201611251057.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2922,18 +2546,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>87865493cf21722d3d2e562044935d88</string>
+              <string>e8071a6b9d23576fbb5bf1774f09327c</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///C:\devel\secondlife\packages\windows64\vlc_bin-2.2.4.201610142105-windows64-201610142105.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/vlc_bin-2.2.4.201611250831-windows64-201611250831.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>2.2.4.201610142105</string>
+        <string>2.2.4.201611251057</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
@@ -2954,11 +2578,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>89da05d61d0636ecf1a6363c6e2d7062</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>ffd3aab8e0c0ff6dadbce49ca2809078</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/xmlrpc_epi-0.54.2-darwin-201701112323-51ee153092215056b6f6ace16ac7ad56.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/297075/arch/Darwin/installer/xmlrpc_epi-0.54.1.297075-darwin-297075.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2968,37 +2590,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>174ab797440157956eda7061dae37564</string>
+              <string>30bb26d6cc78c16047fc85a63f48fcdb</string>
               <key>url</key>
-              <string>http://s3.amazonaws.com/viewer-source-downloads/install_pkgs/xmlrpc_epi-0.54.1-linux-20110314.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/xmlrpc-emi_3p-update-xmlrpc-epi/rev/297075/arch/Linux/installer/xmlrpc_epi-0.54.1.297075-linux-297075.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>c6a5d21277d5ab29d37397ae3c855c41</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/xmlrpc_epi-0.54.2-linux64-201609250229-f711601f801e9321481ee0116a629a32.rar</string>
-            </map>
-            <key>name</key>
-            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>29a31a8ec848560756a90b7da4d7b7e6</string>
+              <string>19d70698ed258f1d46ea4bf969e6a1ad</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/xmlrpc_epi-0.54.2-windows-201603261505-7a619778a2ea5c3113549529dd4f7288.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/xmlrpc_epi-0.54.2-windows-201603261505.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3008,11 +2616,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>acc67dd8631ada62b80f5efedd7d8886</string>
+              <string>732231a039b1f6291137136fe4e9935b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/xmlrpc_epi-0.54.2-windows64-201608212107-f78d25685b34503d24940babf5117a64.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/xmlrpc_epi-0.54.2-windows64-201603261459.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3040,11 +2648,9 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c3b98a9de131fcc3f77c25c5bf5318f7</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>1a79eeac199c2d94e4ae4e5d0194e25f</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/darwin/xcode-unknown/zlib-1.2.11-darwin-201701191923-9996f361c2f7cae4749e0d60bb671ffa.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/296881/arch/Darwin/installer/zlib-1.2.8.296881-darwin-296881.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -3054,37 +2660,25 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>63a62bb3cbef2aad3cca49cb6f2d0aeb</string>
-              <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/290556/arch/Linux/installer/zlib-1.2.8-linux-20140602.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>linux64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ead74a6a50e287231525854e3b323d80</string>
+              <string>2eb8e59b6464222dcf4435016ad5f618</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/linux64/gcc-unknown/zlib-1.2.8-linux64-201609240212-9eb17b1c699c7de25f013b22c14583e3.rar</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/296881/arch/Linux/installer/zlib-1.2.8.296881-linux-296881.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>linux64</string>
+            <string>linux</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>8958bec7b7eb1c6bc835b78c62ba2eb4</string>
+              <string>9c23cfa6f13fd098148ecdcdeb93a616</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/zlib-1.2.8-windows-201601150945-a26a7a9d550dc6988528e2e70bb5e85b.rar</string>
+              <string>http://lib.polarityviewer.net/windows32/msvc-14/zlib-1.2.8-windows-201601150945.rar</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -3094,11 +2688,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6277d8ea873960682ace36f22a0aec03</string>
+              <string>18bc34cd7176721c2fca0e31580b3f57</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/zlib-1.2.11-windows64-201701211113-26ebfb3a9d4b3978d41e030da6f555ec.rar</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/zlib-1.2.8-windows64-201512071625.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -3973,7 +3567,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string>
+                  <string>"Visual Studio 14 Win64"</string> <!-- BUG: Removing 'Win64' breaks 64bit toolchain selection, despite being a compatibility flag, deprecated in favor of -T "vxxx,host=x64" -->
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-T</string>
                   <string>"v140,host=x64"</string>

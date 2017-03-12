@@ -31,10 +31,11 @@
 #include "llwebprofile.h"
 
 // libs
+#include "llbufferstream.h"
 #include "llimagepng.h"
 #include "llplugincookiestore.h"
+
 #include "llsdserialize.h"
-#include "bufferstream.h"
 
 // newview
 #include "llpanelprofile.h" // for getProfileURL(). FIXME: move the method to LLAvatarActions
@@ -43,7 +44,7 @@
 #include "llcorehttputil.h"
 
 // third-party
-#include <jsoncpp/reader.h> // JSON
+#include "reader.h" // JSON
 
 /*
  * Workflow:

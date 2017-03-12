@@ -26,11 +26,6 @@ include_directories(
     ${JSONCPP_INCLUDE_DIR}
     )
 
-include_directories(
-    SYSTEM
-    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
-    )
-
 set(llmessage_SOURCE_FILES
     llassetstorage.cpp
     llavatarname.cpp

@@ -32,18 +32,17 @@
 #include <sstream>
 #include <algorithm>
 #include <iterator>
-#include <jsoncpp/reader.h> // JSON
-#include <jsoncpp/writer.h> // JSON
 #include "llcorehttputil.h"
-#include "lleventcoro.h"
 #include "llhttpconstants.h"
 #include "llsd.h"
 #include "llsdjson.h"
 #include "llsdserialize.h"
+#include "reader.h" // JSON
+#include "writer.h" // JSON
 #include "llvfile.h"
 
-#include "bufferstream.h"
 #include "message.h" // for getting the port
+
 
 using namespace LLCore;
 
@@ -679,8 +678,8 @@ const std::string HttpCoroutineAdapter::HTTP_RESULTS_RAW("raw");
 HttpCoroutineAdapter::HttpCoroutineAdapter(const std::string &name,
     LLCore::HttpRequest::policy_t policyId, LLCore::HttpRequest::priority_t priority) :
     mAdapterName(name),
-    mPriority(priority),
     mPolicyId(policyId),
+    mPriority(priority),
     mYieldingHandle(LLCORE_HTTP_HANDLE_INVALID),
     mWeakRequest(),
     mWeakHandler()
@@ -815,12 +814,11 @@ LLSD HttpCoroutineAdapter::postJsonAndSuspend(LLCore::HttpRequest::ptr_t request
     {
         LLCore::BufferArrayStream outs(rawbody.get());
         Json::Value root = LlsdToJson(body);
-		Json::StreamWriterBuilder writer;
-		std::string value = Json::writeString(writer, root);
+        Json::FastWriter writer;
 
-        LL_WARNS("Http::post") << "JSON Generates: \"" << value << "\"" << LL_ENDL;
+        LL_WARNS("Http::post") << "JSON Generates: \"" << writer.write(root) << "\"" << LL_ENDL;
 
-        outs << value;
+        outs << writer.write(root);
     }
 
     return postAndSuspend_(request, url, rawbody, options, headers, httpHandler);
@@ -875,11 +873,10 @@ LLSD HttpCoroutineAdapter::putJsonAndSuspend(LLCore::HttpRequest::ptr_t request,
     {
         LLCore::BufferArrayStream outs(rawbody.get());
         Json::Value root = LlsdToJson(body);
-		Json::StreamWriterBuilder writer;
-		std::string value = Json::writeString(writer, root);
+        Json::FastWriter writer;
 
-        LL_WARNS("Http::put") << "JSON Generates: \"" << value << "\"" << LL_ENDL;
-        outs << value;
+        LL_WARNS("Http::put") << "JSON Generates: \"" << writer.write(root) << "\"" << LL_ENDL;
+        outs << writer.write(root);
     }
 
     return putAndSuspend_(request, url, rawbody, options, headers, httpHandler);

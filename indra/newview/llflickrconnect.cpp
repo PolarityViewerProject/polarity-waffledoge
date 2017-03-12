@@ -32,7 +32,10 @@
 #include "llflickrconnect.h"
 
 #include "llagent.h"
+#include "llcallingcard.h"			// for LLAvatarTracker
+#include "llcommandhandler.h"
 #include "llnotificationsutil.h"
+#include "llurlaction.h"
 #include "llimagepng.h"
 #include "llimagejpeg.h"
 #include "lltrans.h"
@@ -42,7 +45,6 @@
 #include "llfloaterwebcontent.h"
 #include "llfloaterreg.h"
 #include "llcorehttputil.h"
-#include "bufferstream.h"
 
 boost::scoped_ptr<LLEventPump> LLFlickrConnect::sStateWatcher(new LLEventStream("FlickrConnectState"));
 boost::scoped_ptr<LLEventPump> LLFlickrConnect::sInfoWatcher(new LLEventStream("FlickrConnectInfo"));

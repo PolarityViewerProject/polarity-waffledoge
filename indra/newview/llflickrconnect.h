@@ -28,6 +28,7 @@
 #ifndef LL_LLFLICKRCONNECT_H
 #define LL_LLFLICKRCONNECT_H
 
+#include "llsingleton.h"
 #include "llimage.h"
 #include "llcoros.h"
 #include "lleventcoro.h"
