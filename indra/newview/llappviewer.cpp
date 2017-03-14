@@ -275,8 +275,6 @@
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
-static const std::string VIEWER_RELEASE_NOTES_URL_FALLBACK = "https://www.polarityviewer.org/";
-
 ////// Windows-specific includes to the bottom - nasty defines in these pollute the preprocessor
 //
 //----------------------------------------------------------------------------
@@ -6093,21 +6091,6 @@ void LLAppViewer::launchUpdater()
 	// LLAppViewer::instance()->forceQuit();
 }
 
-void LLAppViewer::showReleaseNotesIfRequired()
-{
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-		&& !gSavedSettings.getBOOL("FirstLoginThisInstall")
-		)
-	{
-		LLSD info(getViewerInfo());
-		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
-		if (rel_notes != "0" && rel_notes != VIEWER_RELEASE_NOTES_URL_FALLBACK)
-		{
-			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-		}
-	}
-}
 //virtual
 void LLAppViewer::setMasterSystemAudioMute(bool mute)
 {

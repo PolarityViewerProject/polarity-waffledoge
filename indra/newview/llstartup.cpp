@@ -2535,14 +2535,19 @@ void login_callback(S32 option, void *userdata)
 */
 void show_release_notes_if_required()
 {
-    if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
-        && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-        && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
-    {
-        LLSD info(LLAppViewer::instance()->getViewerInfo());
-        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-    }
+	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+		&& LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+		&& !gSavedSettings.getBOOL("FirstLoginThisInstall")
+		)
+	{
+		LLSD info(LLAppViewer::instance()->getViewerInfo());
+		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
+		if (rel_notes != "0" && rel_notes != VIEWER_RELEASE_NOTES_URL_FALLBACK)
+		{
+			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+		}
+	}
 }
 
 void show_first_run_dialog()
