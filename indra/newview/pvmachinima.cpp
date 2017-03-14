@@ -42,13 +42,6 @@
 
 bool PVMachinimaTools::cinematic_mode_enabled_ = false;
 
-PVMachinimaTools::PVMachinimaTools()
-{
-	// TODO: Move to globals to avoid touching settings
-	voice_indicator_variable_ = gSavedSettings.getControl("PVUI_VoiceIndicatorBehavior");
-	hover_tips_variable_ = gSavedSettings.getControl("ShowHoverTips");
-}
-
 //static
 bool PVMachinimaTools::isEnabled()
 {
@@ -60,6 +53,10 @@ void PVMachinimaTools::toggleCinematicMode()
 {
 	if(cinematic_mode_enabled_)
 	{
+		// TODO: Move to globals to avoid touching settings
+		voice_indicator_variable_ = gSavedSettings.getControl("PVUI_VoiceIndicatorBehavior");
+		hover_tips_variable_ = gSavedSettings.getControl("ShowHoverTips");
+
 		cinematic_mode_enabled_ = false;
 		LL_INFOS() << "Exiting Cinematic Mode" << LL_ENDL;
 

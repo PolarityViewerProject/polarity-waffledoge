@@ -933,8 +933,15 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         ++items_iter)
     {
         LLViewerInventoryCategory *cat = gInventory.getCategory(*items_iter);
-        if (!cat) return;
-
+        if (!cat)
+        {
+            LLInventoryObject* obj = gInventory.getObject(*items_iter);
+            if(!obj || (obj->getType() != LLAssetType::AT_CATEGORY))
+            {
+                return;
+            }
+            cat = (LLViewerInventoryCategory*)obj;
+        }
         std::string name = cat->getName();
 
         updateChangedCategoryName(cat, name);
@@ -1178,7 +1185,7 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     LLMenuItemCallGL* upload_item = mMenu->findChild<LLMenuItemCallGL>("upload_photo");
     if (upload_item)
     {
-        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
+        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload()));
     }
     // </FS:Ansariel>
 }

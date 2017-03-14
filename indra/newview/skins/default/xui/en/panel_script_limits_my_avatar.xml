@@ -30,9 +30,9 @@
      left_delta="0"
      name="urls_used"
      top_delta="14"
+     top_pad="10"
      width="250">
-     URLs used: 18 out of 38, 20 available
-    </text>
+     Memory used: 9001 Ki
     <scroll_list
      draw_heading="true"
      follows="all"
@@ -67,8 +67,8 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="145"
-     name="loading_text"
+     text_color="TextDefaultColor"
+     top="60"
      top_delta="60"
      text_color="EmphasisColor"
      width="130">

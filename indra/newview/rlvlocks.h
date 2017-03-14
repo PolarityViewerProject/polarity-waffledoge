@@ -140,9 +140,7 @@ extern RlvAttachmentLocks gRlvAttachmentLocks;
 // TODO-RLVa: [RLVa-1.2.1] This class really looks rather cluttered so look into cleaning it up/simplifying it a bit
 class RlvAttachmentLockWatchdog : public LLSingleton<RlvAttachmentLockWatchdog>
 {
-	friend class LLSingleton<RlvAttachmentLockWatchdog>;
-protected:
-	RlvAttachmentLockWatchdog() : m_pTimer(NULL) {}
+	LLSINGLETON(RlvAttachmentLockWatchdog);
 	~RlvAttachmentLockWatchdog() { delete m_pTimer; }
 
 	/*
@@ -217,6 +215,7 @@ protected:
 	} *m_pTimer;
 };
 
+inline RlvAttachmentLockWatchdog::RlvAttachmentLockWatchdog() : m_pTimer(NULL) {}
 // ============================================================================
 // RlvWearableLocks class declaration - modelled on RlvAttachmentLocks (attach pt = wearable type - attachment = wearable)
 //
@@ -283,8 +282,8 @@ extern RlvWearableLocks gRlvWearableLocks;
 class RlvFolderLocks : public LLSingleton<RlvFolderLocks>
 {
 	friend class RlvLockedDescendentsCollector;
+	LLSINGLETON(RlvFolderLocks);
 public:
-	RlvFolderLocks();
 
 	// Specifies the source of a folder lock
 	enum ELockSourceType
@@ -326,7 +325,7 @@ public:
 	// Returns TRUE if the attachment (specified by item UUID) is non-detachable as a result of a RLV_LOCK_REMOVE folder PERM_DENY lock
 	bool isLockedAttachment(const LLUUID& idItem) const;
 	// Returns TRUE if the folder is locked as a result of a RLV_LOCK_REMOVE folder PERM_DENY lock
-	bool isLockedFolder(LLUUID idFolder, ERlvLockMask eLock, int eSourceTypeMask = ST_MASK_ANY, folderlock_source_t* plockSource = NULL) const;
+	bool isLockedFolder(LLUUID idFolder, ERlvLockMask eLock, int eSourceTypeMask = ST_MASK_ANY, std::list<folderlock_source_t>* pLockSourceList = nullptr) const;
 	// Returns TRUE if the wearable (specified by item UUID) is non-removable as a result of a RLV_LOCK_REMOVE folder PERM_DENY lock
 	bool isLockedWearable(const LLUUID& idItem) const;
 
@@ -381,8 +380,6 @@ protected:
 	mutable uuid_vec_t       m_LockedAttachmentRem;
 	mutable folderlock_map_t m_LockedFolderMap;
 	mutable uuid_vec_t       m_LockedWearableRem;
-private:
-	friend class LLSingleton<RlvFolderLocks>;
 };
 
 // ============================================================================
@@ -608,11 +605,11 @@ inline bool RlvFolderLocks::canMoveFolder(const LLUUID& idFolder, const LLUUID& 
 	//			* folder   locked + destination   locked => allow move only if both are subject to the same folder lock
 	//			* folder unlocked + destination unlocked => allow move (special case of above since both locks are equal when there is none)
 	//		=> so the above becomes (isLockedFolder(A) == isLockedFolder(B)) && (lockA == lockB)
-	folderlock_source_t lockSource(ST_NONE, 0), lockSourceDest(ST_NONE, 0);
+	std::list<folderlock_source_t> locksSource, locksSourceDest;
 	return 
 		(!hasLockedFolderDescendent(idFolder, ST_MASK_ANY, PERM_MASK_ANY, RLV_LOCK_ANY, true)) &&
-		( (isLockedFolder(idFolder, RLV_LOCK_ANY, ST_MASK_ANY, &lockSource) == isLockedFolder(idFolderDest, RLV_LOCK_ANY, ST_MASK_ANY, &lockSourceDest)) && 
-		  (lockSource == lockSourceDest) );
+		( (isLockedFolder(idFolder, RLV_LOCK_ANY, ST_MASK_ANY, &locksSource) == isLockedFolder(idFolderDest, RLV_LOCK_ANY, ST_MASK_ANY, &locksSourceDest)) &&
+		  (locksSource == locksSourceDest) );
 }
 
 // Checked: 2011-03-29 (RLVa-1.3.0g) | Added: RLVa-1.3.0g
@@ -644,11 +641,11 @@ inline bool RlvFolderLocks::canMoveItem(const LLUUID& idItem, const LLUUID& idFo
 	// Block moving the folder to destination if:
 	//   - folder and destination are subject to different locks [see canMoveFolder() for more details]
 	const LLViewerInventoryItem* pItem = gInventory.getItem(idItem); const LLUUID& idFolder = (pItem) ? pItem->getParentUUID() : LLUUID::null;
-	int maskSource = ST_MASK_ANY & ~ST_ROOTFOLDER; folderlock_source_t lockSource(ST_NONE, 0), lockSourceDest(ST_NONE, 0);
+	int maskSource = ST_MASK_ANY & ~ST_ROOTFOLDER; std::list<folderlock_source_t> locksSource, locksSourceDest;
 	return 
 		(idFolder.notNull()) && 
-		(isLockedFolder(idFolder, RLV_LOCK_ANY, maskSource, &lockSource) == isLockedFolder(idFolderDest, RLV_LOCK_ANY, maskSource, &lockSourceDest)) && 
-		(lockSource == lockSourceDest);
+		(isLockedFolder(idFolder, RLV_LOCK_ANY, maskSource, &locksSource) == isLockedFolder(idFolderDest, RLV_LOCK_ANY, maskSource, &locksSourceDest)) &&
+		(locksSource == locksSourceDest);
 }
 
 // Checked: 2011-03-30 (RLVa-1.3.0g) | Added: RLVa-1.3.0g

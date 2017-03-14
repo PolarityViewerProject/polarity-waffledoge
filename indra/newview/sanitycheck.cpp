@@ -29,14 +29,7 @@
 #include "llviewercontrol.h"
 #include "sanitycheck.h"
 
-SanityCheck::SanityCheck()
-	: LLSingleton<SanityCheck>()
-{
-}
 
-SanityCheck::~SanityCheck()
-{
-}
 
 void SanityCheck::init()
 {
@@ -44,9 +37,7 @@ void SanityCheck::init()
 	{
 		SanityCheck* chk;
 
-		f(SanityCheck* s) : chk(s)
-		{
-		};
+		f(SanityCheck* s) : chk(s) {};
 
 		virtual void apply(const std::string& name, LLControlVariable* control)
 		{

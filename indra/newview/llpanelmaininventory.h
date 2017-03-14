@@ -91,11 +91,12 @@ public:
 
 	void setFocusFilterEditor();
 
+	static void newWindow();
+
 	// ## Zi: Filter dropdown
 	void onFilterTypeSelected(const std::string& filter_type_name);
 	void updateFilterDropdown(const LLInventoryFilter* filter);
 	// ## Zi: Filter dropdown
-
 	void onSeparatorSelected(const std::string& separator_selected);
 protected:
 	//
@@ -123,7 +124,6 @@ protected:
 	// menu callbacks
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
-	void newWindow();
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);

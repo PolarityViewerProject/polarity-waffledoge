@@ -30,6 +30,7 @@
 
 #include "llapp.h"
 
+#include <cstdlib>
 #ifdef LL_DARWIN
 #include <sys/types.h>
 #include <unistd.h>
@@ -46,15 +47,9 @@
 #include "llstl.h" // for DeletePointer()
 #include "llstring.h"
 #include "lleventtimer.h"
-#if LL_WINDOWS
-#pragma warning (push)
-#pragma warning (disable : 4091) // 'typedef ': ignored on left of '' when no variable is declared
-#endif
 #include "google_breakpad/exception_handler.h"
-#if LL_WINDOWS
-#pragma warning (pop)
-#endif
 #include "stringize.h"
+#include "llcleanup.h"
 
 //
 // Signal handling
@@ -184,7 +179,7 @@ LLApp::~LLApp()
 	
 	if(mExceptionHandler != 0) delete mExceptionHandler;
 
-	LLCommon::cleanupClass();
+	SUBSYSTEM_CLEANUP(LLCommon);
 }
 
 // static

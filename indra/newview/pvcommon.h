@@ -44,8 +44,9 @@ std::string applyMuPose(const std::string& message);
 bool isValidWord(const std::string& message);
 std::string formatString(std::string text, const LLStringUtil::format_map_t& args);
 
-class PVCommon : public LLSingleton <PVCommon> // required for instance()
+class PVCommon : public LLSingleton<PVCommon> // required for instance()
 {
+	LLSINGLETON_EMPTY_CTOR(PVCommon);
 	typedef PVCommon _LL_CLASS_TO_LOG;
 public:
 

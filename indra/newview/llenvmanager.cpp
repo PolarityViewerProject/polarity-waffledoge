@@ -653,7 +653,7 @@ bool LLEnvManagerNew::useRegionSky()
 		return true;
 	}
 
-	// Otherwise apply region day cycle.
+	// Otherwise apply region day cycle/skies.
 	LL_DEBUGS("Windlight") << "Applying region sky" << LL_ENDL;
 
 	// *TODO: Support fixed sky from region. Just do sky reset for now.

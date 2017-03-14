@@ -63,6 +63,7 @@ Viewer
 	label="Username"
 	combo_editor.font="SansSerif"
 	max_chars="128"
+	combo_editor.commit_on_focus_lost="false"
 	combo_editor.prevalidate_callback="ascii"
 	tool_tip="The username you chose when you registered, like bobsmith12 or Steller Sunshine"
 	name="username_combo"
@@ -136,6 +137,9 @@ Viewer
  <combo_box
     allow_text_entry="false"
     follows="left|top"
+    image_pressed="PushButton_Press"
+    image_hover="PushButton_Over"
+    image_hover_unselected="PushButton_Off"
     font="SansSerifTiny"
     height="23"
     label="Grid selection"

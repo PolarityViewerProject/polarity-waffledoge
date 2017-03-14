@@ -33,15 +33,14 @@
 class LLParcel;
 class LLViewerRegion;
 class LLEnvironmentSettings;
-class LLParcelChangeObserver;
 
 class KCWindlightInterface : public LLSingleton<KCWindlightInterface>, LLEventTimer
 {
 	LOG_CLASS(KCWindlightInterface);
 
-public:
-	KCWindlightInterface();
+	LLSINGLETON(KCWindlightInterface);
 	~KCWindlightInterface();
+public:
 	void parcelChange();
 	BOOL tick() override; // From LLEventTime
 

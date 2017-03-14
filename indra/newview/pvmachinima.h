@@ -37,6 +37,7 @@
 class PVMachinimaTools : public view_listener_t,
                         public LLSingleton<PVMachinimaTools> // This enables the use of ::instance() to call this function/class without a boost bind. - Xenhat 2015.09.22
 {
+	LLSINGLETON(PVMachinimaTools);
 	bool handleEvent(const LLSD& userdata) override;
 	void confirm(const LLSD& notification, const LLSD& response);
 protected:
@@ -53,7 +54,6 @@ protected:
 	bool previous_hovertips_setting_ = false;
 	bool previous_show_typing_ = false;
 public:
-	PVMachinimaTools();
 	void toggleCinematicMode();
 
 	bool previous_hud_visibility = false;
@@ -67,6 +67,7 @@ public:
 class PVMachinimaSidebar : public view_listener_t,
                            public LLSingleton<PVMachinimaTools>
 {
+	LLSINGLETON(PVMachinimaSidebar);
 	bool handleEvent(const LLSD& userdata) override;
 public:
 	static bool isVisible(const LLSD& userdata);

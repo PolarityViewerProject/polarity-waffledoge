@@ -29,12 +29,11 @@
 
 #include "llsingleton.h"
 
-// get random string from a std::vector<std::string>
 class PVRandom: public LLSingleton<PVRandom>
 {
-	friend class LLSingleton<PVRandom>;
-	//LOG_CLASS(PVDataOldAPI); // unused yet
+	LLSINGLETON(PVRandom);
 public:
+	// get random string from a std::vector<std::string>
 	std::string getRandomElement(const std::vector<std::string>& vector) const;
 };
 

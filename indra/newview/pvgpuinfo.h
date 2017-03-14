@@ -32,6 +32,7 @@
 
 class PVGPUInfo : public LLSingleton<PVGPUInfo>
 {
+	LLSINGLETON(PVGPUInfo);
 	// @todo Write unit tests
 public:
 

@@ -1216,15 +1216,18 @@ ERlvCmdRet RlvHandler::processAddRemCommand(const RlvCommand& rlvCmd)
 	//            * removed from the RlvObject (which still exists at this point even if this is the last restriction)
 	//       - the object's UUID may or may not exist in gObjectList (see handling of @detach=n|y)
 
+	ERlvBehaviour eBhvr = rlvCmd.getBehaviourType(); ERlvParamType eType = rlvCmd.getParamType();
 	// Try a command processor first
 	ERlvCmdRet eRet = rlvCmd.processCommand();
 	if (RLV_RET_NO_PROCESSOR != eRet)
 	{
+		m_OnBehaviour(eBhvr, eType);
+		if ( ((RLV_TYPE_ADD == eType) && (1 == m_Behaviours[eBhvr])) || ((RLV_TYPE_REMOVE == eType) && (0 == m_Behaviours[eBhvr])) )
+			m_OnBehaviourToggle(eBhvr, eType);
 		return eRet;
 	}
 
 	// Process the command the legacy way
-	ERlvBehaviour eBhvr = rlvCmd.getBehaviourType(); ERlvParamType eType = rlvCmd.getParamType();
 	
 	eRet = RLV_RET_SUCCESS; bool fRefCount = false; const std::string& strOption = rlvCmd.getOption();
 	switch (eBhvr)
@@ -2013,6 +2016,9 @@ void RlvBehaviourToggleHandler<RLV_BHVR_SHOWINV>::onCommandToggle(ERlvBehaviour 
 		LLFloaterReg::const_instance_list_t invFloaters = LLFloaterReg::getFloaterList("inventory");
 		for (LLFloater* pFloater : invFloaters)
 			pFloater->closeFloater();
+		LLFloaterReg::const_instance_list_t lSecFloaters = LLFloaterReg::getFloaterList("secondary_inventory");
+		for (LLFloaterReg::const_instance_list_t::const_iterator itSecFloater = lSecFloaters.begin(); itSecFloater != lSecFloaters.end(); ++itSecFloater)
+			(*itSecFloater)->closeFloater();
 	}
 
 	//
@@ -2049,9 +2055,15 @@ void RlvBehaviourToggleHandler<RLV_BHVR_SHOWINV>::onCommandToggle(ERlvBehaviour 
 	// Filter (or stop filtering) opening new inventory floaters
 	//
 	if (fHasBhvr)
+	{
 		RlvUIEnabler::instance().addGenericFloaterFilter("inventory");
+		RlvUIEnabler::instance().addGenericFloaterFilter("secondary_inventory");
+	}
 	else
+	{
 		RlvUIEnabler::instance().removeGenericFloaterFilter("inventory");
+		RlvUIEnabler::instance().removeGenericFloaterFilter("secondary_inventory");
+	}
 }
 
 // Handles: @shownames[:<uuid>]=n|y toggles

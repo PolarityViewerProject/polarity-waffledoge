@@ -87,7 +87,7 @@ class LLFileEnableUpload : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
         return true;
-// 		bool new_value = gStatusBar && LLGlobalEconomy::Singleton::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::Singleton::getInstance()->getPriceUpload());
+// 		bool new_value = gStatusBar && LLGlobalEconomy::getInstance() && (gStatusBar->getBalance() >= LLGlobalEconomy::getInstance()->getPriceUpload());
 // 		return new_value;
 	}
 };
@@ -96,6 +96,12 @@ class LLFileEnableUploadModel : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
+		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::findInstance("upload_model");
+		if (fmp && fmp->isModelLoading())
+		{
+			return false;
+		}
+
 		return true; //@todo check if lib is preset?
 	}
 };
@@ -549,7 +555,7 @@ class LLFileUploadModel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		LLFloaterModelPreview* fmp = (LLFloaterModelPreview*) LLFloaterReg::getInstance("upload_model");
-		if (fmp)
+		if (fmp && !fmp->isModelLoading())
 		{
 			fmp->loadModel(3);
 		}
@@ -603,7 +609,7 @@ class LLFileUploadAnim : public view_listener_t
 // <FS:Ansariel> Threaded file pickers
 void upload_bulk_callback(std::list<std::string> filenames)
 {
-	S32 expected_upload_cost = LLGlobalEconomy::Singleton::getInstance()->getPriceUpload();
+	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload();
 
 	for (std::list<std::string>::iterator it = filenames.begin(); it != filenames.end(); ++it)
 	{
