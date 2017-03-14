@@ -10088,8 +10088,6 @@ Can't move object '[O]' to
 [P] in region [R] because of an unknown reason. ([F])
   </notification>
   
-<!-- ------------------------------ -->
-
   <notification
    icon="alertmodal.tga"
    name="NoPermModifyObject"
