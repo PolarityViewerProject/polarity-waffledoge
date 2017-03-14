@@ -22,8 +22,10 @@
      layout="topleft"
      left="0"
      name="appearance_tabs"
+     tab_min_width="100"
      tab_position="top"
      halign="center"
+     hide_scroll_arrows="true"
      top="0"
      width="315">
          <panel

@@ -356,64 +356,49 @@ BOOL LLToolPie::handleLeftClickPick()
 
 	// If left-click never selects or spawns a menu
 	// Eat the event.
-	if (!gSavedSettings.getBOOL("LeftClickShowMenu"))
-	{
-		// mouse already released
-		if (!mMouseButtonDown)
-		{
-			return true;
-		}
 
-		while( object && object->isAttachment() && !object->flagHandleTouch())
+	// mouse already released
+	if (!mMouseButtonDown)
+	{
+		return true;
+	}
+
+	while (object && object->isAttachment() && !object->flagHandleTouch())
+	{
+		// don't pick avatar through hud attachment
+		if (object->isHUDAttachment())
 		{
-			// don't pick avatar through hud attachment
-			if (object->isHUDAttachment())
-			{
-				break;
-			}
-			object = (LLViewerObject*)object->getParent();
+			break;
 		}
+		object = (LLViewerObject*)object->getParent();
+	}
 		// <polarity> Do not center the camera when clicking self
 		static LLCachedControl<bool> reset_on_self_click(gSavedSettings, "PVCamera_ResetOnSelfClick", false);
 		static LLCachedControl<bool> click_to_walk(gSavedSettings, "ClickToWalk", false);
 		if (object && object == gAgentAvatarp && !click_to_walk && reset_on_self_click)
-		{
-			// we left clicked on our avatar, switch to focus mode
-			mMouseButtonDown = false;
-			LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
-			gViewerWindow->hideCursor();
-			LLToolCamera::getInstance()->setMouseCapture(TRUE);
-			LLToolCamera::getInstance()->pickCallback(mPick);
+	{
+			// we left clicked on avatar, switch to focus mode
+		mMouseButtonDown = false;
+		LLToolMgr::getInstance()->setTransientTool(LLToolCamera::getInstance());
+		gViewerWindow->hideCursor();
+		LLToolCamera::getInstance()->setMouseCapture(TRUE);
+		LLToolCamera::getInstance()->pickCallback(mPick);
 			// <polarity> Do not rotate the avatar "away from the camera" when clicking self
 			static LLCachedControl<bool> rotate_on_self_click(gSavedSettings, "PVMovement_RotateOnSelfClick", false);
 			if (rotate_on_self_click)
 			{
-				gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
+			gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
 			}
 
-			return TRUE;
-		}
+		return TRUE;
+	}
 	//////////
 	//	// Could be first left-click on nothing
 	//	LLFirstUse::useLeftClickNoHit();
 	/////////
-		
-		// Eat the event
-		return LLTool::handleMouseDown(x, y, mask);
-	}
 
-	if (gAgent.leftButtonGrabbed())
-	{
-		// if the left button is grabbed, don't put up the pie menu
-		return LLTool::handleMouseDown(x, y, mask);
-	}
-
-	// Can't ignore children here.
-	LLToolSelect::handleObjectSelection(mPick, FALSE, TRUE);
-
-	// Spawn pie menu
-	LLTool::handleRightMouseDown(x, y, mask);
-	return TRUE;
+	// Eat the event
+	return LLTool::handleMouseDown(x, y, mask);
 }
 
 BOOL LLToolPie::useClickAction(MASK mask, 

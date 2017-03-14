@@ -331,7 +331,7 @@ void LLFloaterPathfindingObjects::handleUpdateObjectList(LLPathfindingManager::r
 	}
 }
 
-void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
+void LLFloaterPathfindingObjects::rebuildObjectsScrollList(bool update_if_needed)
 {
 	if (!mHasObjectsToBeSelected)
 	{
@@ -357,7 +357,14 @@ void LLFloaterPathfindingObjects::rebuildObjectsScrollList()
 	{
 		buildObjectsScrollList(mObjectList);
 
-		mObjectsScrollList->selectMultiple(mObjectsToBeSelected);
+		if(mObjectsScrollList->selectMultiple(mObjectsToBeSelected) == 0)
+		{
+			if(update_if_needed && mRefreshListButton->getEnabled())
+			{
+				requestGetObjects();
+				return;
+			}
+		}
 		if (mHasObjectsToBeSelected)
 		{
 			mObjectsScrollList->scrollToShowSelected();
@@ -486,7 +493,7 @@ void LLFloaterPathfindingObjects::showFloaterWithSelectionObjects()
 	}
 	else
 	{
-		rebuildObjectsScrollList();
+		rebuildObjectsScrollList(true);
 		if (isMinimized())
 		{
 			setMinimized(FALSE);
