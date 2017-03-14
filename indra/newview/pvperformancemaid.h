@@ -33,7 +33,7 @@
 ///////////////////////////////
 class PVPerformanceMaid : public LLSingleton<PVPerformanceMaid>
 {
-	LLSINGLETON(PVPerformanceMaid);
+	LLSINGLETON_EMPTY_CTOR(PVPerformanceMaid);
 	bool in_panic_mode_;
 	// settings backup.
 	// TODO PLVR Use a class maybe?
@@ -49,14 +49,8 @@ public:
 	}
 
 	static void TriggerPanicMode();
-};
 
-class PVPerformanceMaidPanicButton : public view_listener_t,
-                                     public PVPerformanceMaid
-{
-	LLSINGLETON(PVPerformanceMaidPanicButton);
-public:
-	bool handleEvent(const LLSD& userdata) override;
+	bool handleEvent(const LLSD& userdata);
 };
 
 #endif // PV_PERFORMANCEMAID_H

@@ -46,7 +46,7 @@ std::string formatString(std::string text, const LLStringUtil::format_map_t& arg
 
 class PVCommon : public LLSingleton<PVCommon> // required for instance()
 {
-	LLSINGLETON(PVCommon);
+	LLSINGLETON_EMPTY_CTOR(PVCommon);
 	typedef PVCommon _LL_CLASS_TO_LOG;
 public:
 

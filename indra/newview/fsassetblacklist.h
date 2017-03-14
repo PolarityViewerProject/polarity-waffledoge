@@ -43,6 +43,7 @@ typedef boost::unordered_map<LLUUID, LLSD> blacklist_data_t;
 
 class FSAssetBlacklist : public LLSingleton<FSAssetBlacklist>
 {
+	LLSINGLETON_EMPTY_CTOR(FSAssetBlacklist);
 public:
 	void init();
 	bool isBlacklisted(const LLUUID& id, LLAssetType::EType type);
@@ -76,7 +77,6 @@ private:
 	blacklist_data_t		mBlacklistData;
 
 	blacklist_changed_callback_t mBlacklistChangedCallback;
-	LLSINGLETON(FSAssetBlacklist);
 };
 
 #endif // FS_ASSETBLACKLIST_H

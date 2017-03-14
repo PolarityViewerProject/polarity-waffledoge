@@ -81,7 +81,6 @@
  */
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
-#include "llsingleton.h" // for instance()
 #include "pvtypes.h"
 #include "lluicolortable.h"
 #include "lluicolor.h"
@@ -251,7 +250,7 @@ class LLUUID;
 		// @todo get rid of singleton. This is bad. Very bad.
 	class PVDataOldAPI : public LLSingleton<PVDataOldAPI> // required for instance()
 	{
-		LLSINGLETON(PVDataOldAPI);
+		LLSINGLETON_EMPTY_CTOR(PVDataOldAPI);
 		LOG_CLASS(PVDataOldAPI); // Required to enable the log messages prefix
 	public:
 
@@ -696,14 +695,14 @@ class LLUUID;
 		LLFrameTimer mTipCycleTimer;
 
 		std::string last_login_tip;
-		};
-		extern PVDataOldAPI* gPVOldAPI;
+	};
+	extern PVDataOldAPI* gPVOldAPI;
 
 	//@todo: Move to another file?
 	class PVSearchUtil : public LLSingleton <PVSearchUtil>
 	{
 		LOG_CLASS(PVSearchUtil);
-		LLSINGLETON(PVSearchUtil);
+		LLSINGLETON_EMPTY_CTOR(PVSearchUtil);
 
 	public:
 		// refresh from settings
