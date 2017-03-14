@@ -8,7 +8,7 @@
  name="Event"
  save_rect="true"
  save_visibility="false"
- title="Event Details" 
+ title="EVENT DETAILS" 
  width="600">
 	<floater.string
 		name="loading_text">

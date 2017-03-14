@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+    border="true"
+    has_border="true"
     height="408"
     label="Text Chat"
     layout="topleft"
@@ -21,7 +23,7 @@
         control_name="PlayTypingAnim"
         height="16"
         initial_value="true"
-        label="Send my typing status to others"
+        label="Play typing animation when chatting"
         layout="topleft"
         top="0"
         name="play_typing_animation"
@@ -66,10 +68,6 @@
         name="chat_font_size"
         top_pad="5"
         width="100">
-      <item
-          label="Monospace"
-          name="Monospace"
-          value="3" />
       <item
           label="Small"
           name="Small"
@@ -124,19 +122,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>      
+          value="openconversations"/>      
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundFriendIM"
@@ -168,19 +166,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>
+          value="openconversations"/>
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundNonFriendIM"
@@ -212,19 +210,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>
+          value="openconversations"/>
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundConferenceIM"
@@ -256,19 +254,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>
+          value="openconversations"/>
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolbarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundGroupChatIM"
@@ -300,19 +298,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>
+          value="openconversations"/>
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolBarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundNearbyChatIM"
@@ -344,19 +342,19 @@
       <item
           label="Open Conversations window"
           name="OpenConversationsWindow"
-          value="3"/>
+          value="openconversations"/>
       <item
           label="Pop up the message"
           name="PopUpMessage"
-          value="2"/>
+          value="toast"/>
       <item
           label="Flash toolbar button"
           name="FlashToolBarButton"
-          value="1"/>
+          value="flash"/>
       <item
           label="No action"
           name="NoAction"
-          value="0"/>
+          value="noaction"/>
     </combo_box>
     <check_box
         control_name="PlaySoundObjectIM"
@@ -368,6 +366,18 @@
         top_delta="-3"
         width="28">
     </check_box>
+    <text
+        layout="topleft"
+        left="0"
+        height="13"
+        name="notifications_alert"
+        width="500"
+        top_pad="9"
+        visible="true"
+        text_color="DrYellow">
+      To temporarily stop all notifications, use Communicate &gt; Do Not Disturb.
+    </text>
+
   </panel>
 
   <panel
@@ -424,6 +434,15 @@
         width="150" />
 
   </panel>
+
+  <view_border
+      bevel_style="none"
+      height="0"
+      layout="topleft"
+      left="13"
+      name="cost_text_border"
+      top_pad="5"
+      width="495"/>
 
   <panel
       height="50"
@@ -512,6 +531,7 @@
         height="23"
         layout="topleft"
         left_pad="55"
+        max_length="4096"
         name="log_path_string"
         top_delta="-5"
         width="185">

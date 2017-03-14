@@ -17,7 +17,7 @@
          name="Preferences..."
          shortcut="control|P">
             <menu_item_call.on_click
-             function="Floater.ToggleOrBringToFront"
+             function="Floater.Toggle"
              parameter="preferences" />
         </menu_item_call>
         <menu_item_check
@@ -40,50 +40,6 @@
             <menu_item_call.on_click
              function="File.Quit" />
         </menu_item_call>
-    </menu>
-    <menu
-     create_jump_keys="true"
-     label="Polarity"
-     tear_off="true"
-     name="Polarity">
-      <menu_item_call
-        label="Toggle Borderless Window"
-        name="Toggle Borderless Window"
-        shortcut="alt|Enter">
-           <menu_item_call.on_click
-            function="View.Fullscreen" />
-           <menu_item_call.on_enable
-            function="View.EnableFullscreen" />
-      </menu_item_call>
-      <menu_item_call
-       label="Set Window Size..."
-       name="Set Window Size...">
-        <menu_item_call.on_click
-         function="Floater.Show"
-         parameter="window_size" />
-      </menu_item_call>
-      <menu_item_separator />
-      <menu_item_check
-         label="RestrainedLove API"
-         name="RLV API">
-            <menu_item_check.on_check
-             function="CheckControl"
-             parameter="RestrainedLove" />
-            <menu_item_check.on_click
-             function="ToggleControl"
-             parameter="RestrainedLove" />
-            <menu_item_check.on_visible
-             function="RLV.MainToggleVisible" />
-      </menu_item_check>
-      <menu_item_call
-       label="Show Debug Settings"
-       shortcut="control|shift|;"
-       name="Debug Settings">
-       <menu_item_call.on_click
-        function="Advanced.ShowDebugSettings"
-        parameter="all" >
-       </menu_item_call.on_click>
-      </menu_item_call>
     </menu>
     <menu
      create_jump_keys="true"
@@ -167,8 +123,8 @@
         <menu_item_call
          label="Check for Updates"
          name="Check for Updates">
-          <menu_item_call.on_click
-           function="Advanced.CheckViewerUpdates"/>
+            <menu_item_call.on_click
+             function="Advanced.CheckViewerUpdates"/>
         </menu_item_call>
     </menu>
     <menu_item_check
@@ -189,16 +145,18 @@
      label="Debug"
      name="Debug"
      tear_off="true">
-        <menu_item_call
-           label="Reload Color Settings"
-           name="Reload Color Settings">
-          <menu_item_call.on_click
-           function="Advanced.ReloadColorSettings" />
+      <menu_item_call
+         label="Show Debug Settings"
+         name="Debug Settings">
+            <menu_item_call.on_click
+             function="Advanced.ShowDebugSettings"
+             parameter="all" />
         </menu_item_call>
+        <menu_item_separator />
         <menu_item_call
          label="XUI Preview Tool"
          name="UI Preview Tool"
-         shortcut="control|shift|T">
+         shortcut="control|T">
             <menu_item_call.on_click
              function="Floater.Toggle"
              parameter="ui_preview" />
@@ -231,7 +189,7 @@
          label="Widgets"
          name="Widgets"
          translate="false"
-         shortcut="control|T">
+         shortcut="control|shift|T">
           <menu_item_call.on_click
            function="Floater.Show"
            parameter="test_widgets" />
@@ -257,6 +215,13 @@
       </menu_item_check>
 -->
       <menu_item_separator />
+      <menu_item_call
+       label="Set Window Size..."
+       name="Set Window Size...">
+        <menu_item_call.on_click
+         function="Floater.Show"
+         parameter="window_size" />
+      </menu_item_call>
         <menu_item_call
          label="Show TOS"
          name="TOS">

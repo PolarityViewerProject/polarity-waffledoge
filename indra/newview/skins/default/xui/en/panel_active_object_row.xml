@@ -18,7 +18,15 @@
     left="5"
     height="25"
     width="25"
-    visible="false">
+    visible="false"
+    speaker.name="speaker_p2p"
+    speaker.width="20"
+    speaker.height="25"
+    speaker.left="25"
+    speaker.top="25"
+    speaker.auto_update="true"
+    speaker.draw_border="false"
+    speaker.visible="false">
   </chiclet_script>
   <chiclet_offer
     name="inv_offer_chiclet"
@@ -28,7 +36,15 @@
     left="5"
     height="25"
     width="25"
-    visible="false">
+    visible="false"
+    speaker.name="speaker_p2p"
+    speaker.width="20"
+    speaker.height="25"
+    speaker.left="25"
+    speaker.top="25"
+    speaker.auto_update="true"
+    speaker.draw_border="false"
+    speaker.visible="false">
   </chiclet_offer>
 	<text
     type="string"

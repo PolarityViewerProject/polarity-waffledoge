@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  can_minimize="false"
@@ -6,7 +6,7 @@
  layout="topleft"
  name="associate listing"
  help_topic="associate_listing"
- title="Associate Listing"
+ title="ASSOCIATE LISTING"
  width="375">
     <text
      type="string"

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<floater
+ positioning="centered"
+ header_height="0"
+ background_visible="false"
+ height="120"
+ layout="topleft"
+ name="progress_view"
+ chrome="false"
+ can_resize="false"
+ can_close="false"
+ can_minimize="false"
+ single_instance="true"
+ width="420">
+  <floater.string
+   name="loc_fmt">
+Teleporting to [REGION]...
+  </floater.string>
+  <floater.string
+   name="teleporting">
+Teleporting...
+  </floater.string>
+  <panel
+    background_visible="true"
+    bg_opaque_color="LoginProgressSquarePanelColor"
+    bg_alpha_color="LoginProgressSquarePanelColor"
+    bg_opaque_image_overlay="Nametag_Rect"
+    bg_alpha_image_overlay="Nametag_Rect"
+    name="floater_background"
+    top="1"
+    bottom="-1"
+    />
+  <loading_anim
+    bottom="-45"
+    left="5"
+    right="-5"
+    follows="all"
+    name="teleport_floater_anim"
+    number_sprites="68"
+    top="25">
+  </loading_anim>
+  <progress_bar
+   height="8"
+   follows="bottom|left|right"
+   layout="topleft"
+   name="progress_bar"
+   left="5"
+   right="-5"
+   bottom="-5"
+   tool_tip="progress bar" 
+   color_bar="EmphasisColor"/>
+  <text
+   height="20"
+   use_ellipses="true"
+   type="string"
+   length="1"
+   follows="bottom|left|right"
+   layout="bottomright"
+   name="progress_text"
+   left_delta="0"
+   bottom="14"
+   right="-78">
+ </text>
+  <button
+   height="29"
+   label="Cancel"
+   left_pad="4"
+   name="cancel_btn"
+   top_delta="0"
+   width="70">
+ </button>
+
+</floater>

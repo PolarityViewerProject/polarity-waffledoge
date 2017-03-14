@@ -4,6 +4,15 @@
      For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="SECOND_LIFE">
+		Second Life
+	</string>
+	<string name="APP_NAME">
+		Second Life
+	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SECOND_LIFE_GRID">
 		Second Life Grid
 	</string>
@@ -28,7 +37,10 @@
 	<string name="StartupRequireDriverUpdate">
 		グラフィックを初期化できませんでした。グラフィックドライバを更新してください。
 	</string>
-
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+	</string>
 	<string name="BuildConfig">
 		ビルド構成 [BUILD_CONFIG]
 	</string>

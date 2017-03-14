@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
+   background_visible="true"
+   bg_alpha_color="DkGray"
    border="false"
    follows="all"
    height="430"
@@ -7,16 +9,19 @@
    layout="topleft"
    left="0"
    top="0"
-   width="320">
+   width="312">
     <accordion
      background_visible="true"
+     bg_alpha_color="DkGray2"
+     bg_opaque_color="DkGray2"
+
      follows="all"
      height="400"
      layout="topleft"
-     left="0"
+     left="3"
      name="outfits_accordion"
      top="0"
-     width="320">
+     width="309">
        <no_matched_tabs_text
          name="no_matched_outfits_msg"
          value="Didn't find what you're looking for? Try [secondlife:///app/search/all/[SEARCH_TERM] Search]."
@@ -25,15 +30,16 @@
          name="no_outfits_msg"
          value="You don't have any outfits yet. Try [secondlife:///app/search/all/ Search]"/>
     </accordion>
-  <panel
-   follows="bottom|left|right"
-   height="28"
-   layout="topleft"
-   left="4"
-   name="bottom_panel"
-   top_pad="0"
-   visible="true"
-   right="-1">
+    <panel
+     background_visible="true"
+	 follows="bottom|left|right"
+	 height="28"
+	 layout="topleft"
+	 left="4"
+	 top_pad="0"
+	 visible="true"
+	 name="bottom_panel"
+	 width="312">
      <menu_button
        follows="bottom|left"
        tool_tip="Show additional options"
@@ -50,11 +56,11 @@
      <icon
        follows="bottom|left|right"
        height="25"
-       image_name=""
+       image_name="Toolbar_Middle_Off"
        layout="topleft"
        left_pad="1"
        name="dummy_icon"
-       width="255"/>
+       width="243"/>
       <button
        follows="bottom|right"
        height="25"

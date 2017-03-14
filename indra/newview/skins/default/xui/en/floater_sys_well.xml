@@ -6,7 +6,7 @@
  name="sys_well_window"
  help_topic="notification_chiclet"
  save_rect="true"
- title="Notifications"
+ title="NOTIFICATIONS"
  width="320"
  min_width="320"
  height="23"

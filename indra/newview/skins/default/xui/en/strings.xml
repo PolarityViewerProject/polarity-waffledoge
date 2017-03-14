@@ -7,8 +7,8 @@
 
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">Second Life</string>
-	<string name="APP_NAME">Polarity</string>
-	<string name="CAPITALIZED_APP_NAME">POLARITY</string>
+	<string name="APP_NAME">Second Life</string>
+	<string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 
@@ -22,12 +22,10 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[VIEWER_VERSION][BUILD_ARCH], built on [BUILD_DATE], [BUILD_TIME]
+[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
-Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
-	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
-	<string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>
+    <string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>
 
 	<string name="AboutPosition">
 You are at [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
@@ -36,22 +34,18 @@ SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
 [SERVER_VERSION]
 [SERVER_RELEASE_NOTES_URL]
 	</string>
-	<string name="AboutPositionRLVShowLoc">
-You are in [REGION]
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
-	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
        and this info sometimes gets sent to support. -->
 	<string name="AboutSystem">
-Processor: [CPU]
+CPU: [CPU]
 Memory: [MEMORY_MB] MB
-OS: [OS_VERSION]
-Graphics: [GRAPHICS_CARD_VENDOR] [GRAPHICS_CARD]
+OS Version: [OS_VERSION]
+Graphics Card Vendor: [GRAPHICS_CARD_VENDOR]
+Graphics Card: [GRAPHICS_CARD]
 	</string>
-<!-- <string name="AboutDriver">Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]</string> -->
-<string name="AboutOGL">OpenGL Version: [OPENGL_VERSION]</string>
+	<string name="AboutDriver">Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]</string>
+	<string name="AboutOGL">OpenGL Version: [OPENGL_VERSION]</string>
 	<string name="AboutSettings">
 Window size: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
 Font Size Adjustment: [FONT_SIZE_ADJUSTMENT]pt
@@ -63,10 +57,8 @@ Render quality: [RENDER_QUALITY] / 7
 Advanced Lighting Model: [GPU_SHADERS]
 Texture memory: [TEXTURE_MEMORY]MB
 VFS (cache) creation time: [VFS_TIME]
-	</string>
+	</string> 
 	<string name="AboutLibs">
-RestrainedLove API: [RLV_VERSION]
-libcurl Version: [LIBCURL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
 Audio Driver Version: [AUDIO_DRIVER_VERSION]
 LLCEFLib/CEF Version: [LLCEFLIB_VERSION]
@@ -74,7 +66,7 @@ LibVLC Version: [LIBVLC_VERSION]
 Voice Server Version: [VOICE_VERSION]
 	</string>
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
-	<string name="AboutTime">Current date: [month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
+	<string name="AboutTime">[month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
 	<string name="BuildConfiguration">Build Configuration</string>
 	
@@ -91,7 +83,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="LoginAuthenticating">Authenticating</string>
 	<string name="LoginMaintenance">Performing account maintenance...</string>
 	<string name="LoginAttempt">Previous login attempt failed. Logging in, attempt [NUMBER]</string>
-	<string name="LoginPrecaching">Preloading world...</string>
+	<string name="LoginPrecaching">Loading world...</string>
 	<string name="LoginInitializingBrowser">Initializing embedded web browser...</string>
 	<string name="LoginInitializingMultimedia">Initializing multimedia...</string>
 	<string name="LoginInitializingFonts">Loading fonts...</string>
@@ -122,9 +114,13 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
-	<string name="ViewerDownloadURL">https://polarityviewer.org/download</string>
+	<string name="ViewerDownloadURL">http://secondlife.com/download</string>
 	<string name="LoginFailedViewerNotPermitted">
-	The viewer you are using can no longer access Second Life. [https://polarityviewer.org/download Upgrade], it's FREE!</string>
+The viewer you are using can no longer access Second Life. Please visit the following page to download a new viewer:
+http://secondlife.com/download
+
+For more information, see our FAQ below:
+http://secondlife.com/viewer-access-faq</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
@@ -239,92 +235,77 @@ Please try logging in again in a minute.</string>
     <string name="Toycamera">Toy Camera</string>
 	
     <!-- Tooltip -->
-	<string name="TooltipDistance">Distance: [DISTANCE] m</string>
-	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
-	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
-	<string name="TooltipFlagDropInventory">Drop Inventory</string>
+	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
+	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
+	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
+	<string name="TooltipPublic">Public</string> <!-- Public permissions on an object -->
+	<string name="TooltipIsGroup">(Group)</string> <!-- The name before this text is that of a group -->
+	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
 	<string name="TooltipFlagGroupBuild">Group Build</string>
-	<string name="TooltipFlagGroupScripts">Group Scripts</string>
-	<string name="TooltipFlagGroupScripts">Group Scripts</string>
-	<string name="TooltipFlagL$">L$</string>
 	<string name="TooltipFlagNoBuild">No Build</string>
-	<string name="TooltipFlagNoEdit">Group Build/No Edit</string>
+	<string name="TooltipFlagNoEdit">Group Build</string>
+	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
 	<string name="TooltipFlagNoFly">No Fly</string>
+	<string name="TooltipFlagGroupScripts">Group Scripts</string>
 	<string name="TooltipFlagNoScripts">No Scripts</string>
-	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
-	<string name="TooltipFlagNotSafe">Not Safe</string><!-- damage area -->
-	<string name="TooltipFlagPhantom">Phantom</string>
-	<string name="TooltipFlagPhysics">Physics</string>
-	<string name="TooltipFlagScript">Script</string>
-	<string name="TooltipFlagTemporary">Temporary</string>
-	<string name="TooltipFlagTouch">Touch</string>
-	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
-	<string name="TooltipForSaleL$">For Sale: L$[AMOUNT]</string> <!-- L$ version -->
-	<string name="TooltipIsGroup">(Group)</string> <!-- The name before this text is that of a group -->
-	<string name="TooltipIsGroup">(Group)</string> <!-- The name before this text is that of a group -->
 	<string name="TooltipLand">Land:</string>
 	<string name="TooltipMustSingleDrop">Only a single item can be dragged here</string>
-	<string name="TooltipNoName">(no name)</string> <!-- No name on an object -->
-	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
-	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
-	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
-	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
-	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
-	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
-	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
-	<string name="TooltipOwner">Owner:</string> <!-- Owner name follows -->
-	<string name="TooltipPerson">Person</string><!-- Object under mouse pointer is an avatar -->
-	<string name="TooltipPosition">Position: [POSITION]</string>
-	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
-	<string name="TooltipPrimCount">Prims: [COUNT]</string>
-	<string name="TooltipPrimEquivalent">, Land Impact: [PEWEIGHT] PE</string>
-	<string name="TooltipPrimEquivalentLoading">, loading Land Impact...</string>
-	<string name="TooltipPrimEquivalentUnavailable">, Land Impact unavailable</string>
-	<string name="TooltipPublic">Public</string> <!-- Public permissions on an object -->
-	<string name="TooltipSLIcon">This links to a page on the official SecondLife.com or LindenLab.com domain.</string>
 	<string name="TooltipTooManyWearables">You can't wear a folder containing more than [AMOUNT] items.  You can change this limit in Advanced > Show Debug Settings > WearFolderLimit.</string>
-	<string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL or UNASSOCIATED tabs. Please select one of those tabs and move your item(s) or folder(s) again.</string>
-	<string name="TooltipOutboxDragToWorld">You can't rez items from the Marketplace Listings folder</string>
-	<string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
-	<string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
-	<string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
-	<string name="TooltipOutboxTooManyStockItems">Stock items count exceeds [AMOUNT].</string>
-	<string name="TooltipOutboxWorn">You can't put items you are wearing in the Marketplace Listings folder</string>
+	<string name="TooltipPrice" value="L$[AMOUNT]: "/>
+	<string name="TooltipSLIcon">This links to a page on the official SecondLife.com or LindenLab.com domain.</string>
 
+    <string name="TooltipOutboxDragToWorld">You can't rez items from the Marketplace Listings folder</string>
+    <string name="TooltipOutboxWorn">You can't put items you are wearing in the Marketplace Listings folder</string>
+    <string name="TooltipOutboxFolderLevels">Depth of nested folders exceeds [AMOUNT]. Decrease the depth of folders-within-folders; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyFolders">Subfolder count exceeds [AMOUNT]. Decrease the number of folders in your listing; box items if necessary.</string>
+    <string name="TooltipOutboxTooManyObjects">Item count exceeds [AMOUNT]. In order to sell more than [AMOUNT] items in one listing, you must box some of them.</string>
+    <string name="TooltipOutboxTooManyStockItems">Stock items count exceeds [AMOUNT].</string>
+    <string name="TooltipOutboxCannotDropOnRoot">You can only drop items or folders in the ALL or UNASSOCIATED tabs. Please select one of those tabs and move your item(s) or folder(s) again.</string>
+	<string name="TooltipOutboxNoTransfer">One or more of these objects cannot be sold or transferred</string>
+	<string name="TooltipOutboxNotInInventory">You can only put items from your inventory on the marketplace</string>
+	<string name="TooltipOutboxLinked">You can't put linked items or folders on the marketplace</string>
+	<string name="TooltipOutboxCallingCard">You can't put calling cards on the marketplace</string>
+	<string name="TooltipOutboxDragActive">You can't move a listed listing</string>
+	<string name="TooltipOutboxCannotMoveRoot">You can't move the marketplace listings root folder</string>
+	<string name="TooltipOutboxMixedStock">All items in a stock folder must have the same type and permission</string>
+	
+	<string name="TooltipDragOntoOwnChild">You can't move a folder into its child</string>
+	<string name="TooltipDragOntoSelf">You can't move a folder into itself</string>
+	
 	<!-- tooltips for Urls -->
-	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
-	<string name="TooltipAgentIM">Click to IM this Resident</string>
+	<string name="TooltipHttpUrl">Click to view this web page</string>
+	<string name="TooltipSLURL">Click to view this location's information</string>
+	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
 	<string name="TooltipAgentInspect">Learn more about this Resident</string>
 	<string name="TooltipAgentMute">Click to mute this Resident</string>
-	<string name="TooltipAgentOfferTeleport">Click to offer a teleport request to this Resident</string>
-	<string name="TooltipAgentPay">Click to Pay this Resident</string>
-	<string name="TooltipAgentRequestFriend">Click to send a friend request to this Resident</string>
 	<string name="TooltipAgentUnmute">Click to unmute this Resident</string>
-	<string name="TooltipAgentUrl">Click to view this Resident's profile</string>
-	<string name="TooltipClassifiedUrl">Click to view this classified</string>
-	<string name="TooltipEmail">Click to compose an email</string>
-	<string name="TooltipEventUrl">Click to view this event's description</string>
+	<string name="TooltipAgentIM">Click to IM this Resident</string>
+	<string name="TooltipAgentPay">Click to Pay this Resident</string>
+	<string name="TooltipAgentOfferTeleport">Click to offer a teleport request to this Resident</string>
+	<string name="TooltipAgentRequestFriend">Click to send a friend request to this Resident</string>
 	<string name="TooltipGroupUrl">Click to view this group's description</string>
-	<string name="TooltipHttpUrl">Click to view this web page</string>
-	<string name="TooltipMapUrl">Click to view this location on a map</string>
-	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
+	<string name="TooltipEventUrl">Click to view this event's description</string>
+	<string name="TooltipClassifiedUrl">Click to view this classified</string>
 	<string name="TooltipParcelUrl">Click to view this parcel's description</string>
-	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
-	<string name="TooltipSLURL">Click to view this location's information</string>
 	<string name="TooltipTeleportUrl">Click to teleport to this location</string>
+	<string name="TooltipObjectIMUrl">Click to view this object's description</string>
+	<string name="TooltipMapUrl">Click to view this location on a map</string>
+	<string name="TooltipSLAPP">Click to run the secondlife:// command</string>
+	<string name="CurrentURL" value=" CurrentURL: [CurrentURL]" />
+	<string name="TooltipEmail">Click to compose an email</string>
 
 	<!-- text for SLURL labels -->
-	<string name="SLurlLabelShowOnMap">Show Map for</string>
 	<string name="SLurlLabelTeleport">Teleport to</string>
+	<string name="SLurlLabelShowOnMap">Show Map for</string>
 
 	<!-- label strings for secondlife:///app/agent SLapps -->
-	<string name="SLappAgentIM">IM</string>
 	<string name="SLappAgentMute">Mute</string>
-	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
-	<string name="SLappAgentPay">Pay</string>
-	<string name="SLappAgentRequestFriend">Friend Request</string>
 	<string name="SLappAgentUnmute">Unmute</string>
-	<string name="SLappAgentRemoveFriend">Friend Removal</string>
+	<string name="SLappAgentIM">IM</string>
+	<string name="SLappAgentPay">Pay</string>
+	<string name="SLappAgentOfferTeleport">Offer Teleport to </string>
+	<string name="SLappAgentRequestFriend">Friend Request</string>
+  <string name="SLappAgentRemoveFriend">Friend Removal</string>
 
 	<!-- ButtonToolTips, llfloater.cpp -->
 	<string name="BUTTON_CLOSE_DARWIN">Close (&#8984;W)</string>
@@ -2094,8 +2075,6 @@ integer llSetMemoryLimit(integer mem)
 	</string>
 	<string name="LSLTipText_llGetMemoryLimit" translate="false">
 integer llGetMemoryLimit()
-Get the maximum memory a script can use.
-Returns the integer amount of memory the script can use in bytes.
 	</string>
 	<string name="LSLTipText_llSetLinkMedia" translate="false">
 llSetLinkMedia(integer link, integer face, list params)
@@ -2111,8 +2090,6 @@ Clears (deletes) the media and all params from the given face on linked prim.
 	</string>
 	<string name="LSLTipText_llSetContentType" translate="false">
 llSetContentType(key id, integer content_type)
-Set the Internet media type of an LSL HTTP server response.
-content_type may be one of CONTENT_TYPE_TEXT (default) "text/plain", or CONTENT_TYPE_HTML "text/html", only valid for embedded browsers on content owned by the person viewing. Falls back to "text/plain" otherwise.
 	</string>
 	<string name="LSLTipText_llLinkSitTarget" translate="false">
 llLinkSitTarget(integer link, vector offset, rotation rot)
@@ -2124,8 +2101,6 @@ If an avatar is sitting on the sit target, return the avatar&apos;s key, NULL_KE
 	</string>
 	<string name="LSLTipText_llSetLinkCamera" translate="false">
 llSetLinkCamera(integer link, vector eye, vector at)
-Sets the camera eye offset, and the offset that camera is looking at, for avatars that sit on the linked prim.
-The two vector parameters are offsets relative to the object's center and expressed in local coordinates.
 	</string>
 	<string name="LSLTipText_llSetVelocity" translate="false">
 llSetVelocity(vector velocity, integer local)
@@ -2209,94 +2184,7 @@ For AI Character: Evade a specified target.
 list llGetClosestNavPoint(vector point, list options)
 For AI Character: Get the closest navigable point to the point provided.
 	</string>
-	<string name="LSLTipText_llGetStaticPath" translate="false">
-list llGetStaticPath(vector start, vector end, float radius, list params)
-Returns a list of position vectors indicating pathfinding waypoints between positions at start and end, for a character of a given radius. The waypoints this function returns are for the 'static' nav mesh, meaning that dynamic objects are ignored.
-	</string>
-	<string name="LSLTipText_llManageEstateAccess" translate="false">
-integer llManageEstateAccess(integer action, key id)
-To add or remove agents from the estate's agent access or ban lists or groups from the estate's group access list.
-Only works for objects owned by the Estate Owner or an Estate Manager.
-Returns TRUE if successful and FALSE if throttled, on invalid action, on invalid or null id, or if object owner is not allowed to manage the estate.
-'action' can be any of: ESTATE_ACCESS_ALLOWED_[AGENT/GROUP]_[ADD/REMOVE] or ESTATE_ACCESS_BANNED_AGENT_[ADD/REMOVE]
-	</string>
-	<string name="LSLTipText_llGetAgentList" translate="false">
-list llGetAgentList(integer scope, list options)
-Requests a list of agents currently in the region, limited by the scope parameter.
-	</string>
-	<string name="LSLTipText_llAttachToAvatarTemp" translate="false">
-llAttachToAvatarTemp(integer attach_point)
-Attaches the object to the avatar who has granted permission to the script, with the exception that the object will not create new inventory for the user, and will disappear on detach or disconnect.
-	</string>
-	<string name="LSLTipText_llTeleportAgent" translate="false">
-llTeleportAgent(key avatar, string landmark, vector position, vector look_at)
-Requests a teleport of avatar to a landmark stored in the object's inventory. If no landmark is provided (an empty string), the avatar is teleported to the location position in the current region. In either case, the avatar is turned to face the position given by look_at in local coordinates.
-	</string>
-	<string name="LSLTipText_llTeleportAgentGlobalCoords" translate="false">
-llTeleportAgentGlobalCoords(key agent, vector global_coordinates, vector region_coordinates, vector look_at)
-Teleports an agent to set of a region_coordinates within a region at the specified global_coordinates. The agent lands facing the position defined by look_at local coordinates.
-A region's global coordinates can be retrieved using llRequestSimulatorData(region_name, DATA_SIM_POS)
-	</string>
-	<string name="LSLTipText_llGetSimStats" translate="false">
-float llGetSimStats(integer stat_type)
-Returns the value of a particular simulator statistic.
-	</string>
-	<string name="LSLTipText_llSetAnimationOverride" translate="false">
-llSetAnimationOverride(string anim_state, string anim)
-Set the animation (anim) that will play for the given animation state (anim_state).
-	</string>
-	<string name="LSLTipText_llGetAnimationOverride" translate="false">
-string llGetAnimationOverride(string anim_state)
-Returns a string that is the name of the animation that is being used for the specified animation state (anim_state).
-	</string>
-	<string name="LSLTipText_llResetAnimationOverride" translate="false">
-llResetAnimationOverride(string anim_state)
-Resets the animation override of the specified animation state (anim_state) to the corresponding default value.
-	</string>
-	<string name="LSLTipText_llJson2List" translate="false">
-list llJson2List(string json)
-Converts the top level of the json string to a list.
-	</string>
-	<string name="LSLTipText_llList2Json" translate="false">
-string llList2Json(string type, list values)
-Converts either a strided list of key:value pairs to a JSON_OBJECT or a list of values to a JSON_ARRAY
-	</string>
-	<string name="LSLTipText_llJsonGetValue" translate="false">
-string llJsonGetValue(string json, list specifiers)
-Gets the value indicated by specifiers from the json string.
-	</string>
-	<string name="LSLTipText_llJsonSetValue" translate="false">
-string llJsonSetValue(string json, list specifiers, string value)
-Returns a new json string that is the json given with the value indicated by specifiers set to value.
-	</string>
- <string name="LSLTipText_llJsonValueType" translate="false">
-string llJsonValueType(string json, list specifiers)
-Returns the type constant for the value in json indicated by specifiers.
- </string>
-	<string name="LSLTipText_llReturnObjectsByID" translate="false">
-integer llReturnObjectsByID(list objects)
-Returns a list of objects by their IDs or an ERR_* flag.
- </string>
- <string name="LSLTipText_llReturnObjectsByOwner" translate="false">
-integer llReturnObjectsByOwner(key owner, integer scope)
-Returns all objects of a particular owner in the given scope or an ERR_* flag.
- </string>
- <string name="LSLTipText_llXorBase64" translate="false">
-string llXorBase64(string str1, string str2)
-Returns a string that is a Base64 XOR of Base64-formatted input strings.
- </string>
- <string name="LSLTipText_llScaleByFactor" translate="false">
-integer llScaleByFactor(float scaling_factor)
-Attempts to resize the entire object by scaling_factor, maintaining the size-position ratios of the prims.
- </string>
- <string name="LSLTipText_llGetMinScaleFactor" translate="false">
-float llGetMinScaleFactor()
-Returns a float that is the smallest scaling factor that can be used with llScaleByFactor to resize the object.
- </string>
- <string name="LSLTipText_llGetMaxScaleFactor" translate="false">
-float llGetMaxScaleFactor()
-Returns a float that is the largest scaling factor that can be used with llScaleByFactor to resize the object.
- </string>
+
 
 	<!-- Wearable Types -->
 	<string name="shape">Shape</string>
@@ -2512,7 +2400,6 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="Since Logoff"  value=" - Since Logoff" />
 
 	<!-- inventory folder -->
-	<string name="InvFolder Basic Root">Basic Root</string>
 	<string name="InvFolder My Inventory">My Inventory</string>
 	<string name="InvFolder Library">Library</string>
 	<string name="InvFolder Textures">Textures</string>
@@ -2553,7 +2440,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="InvFolder All">All</string>
 
 	<string name="no_attachments">No attachments worn</string>
-    <string name="Attachments remain">Attachments ([COUNT] free, 37 total)</string>
+    <string name="Attachments remain">Attachments ([COUNT] slots remain)</string>
 
 	<!-- inventory FVBridge -->
 	<!--  This is used in llpanelinventory.cpp when constructing a context menu for an item for Sale  -->
@@ -2710,10 +2597,6 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="RunQueueStart">set running</string>
 	<string name="NotRunQueueTitle">Set Not Running Progress</string>
 	<string name="NotRunQueueStart">set not running</string>
-	<string name="DeleteQueueTitle">Delete Progress</string>
-	<string name="DeleteQueueStart">deletion</string>
-
-	<string name="DeleteQueueDeleting">Deleting</string>
 
 	<!-- compile comment text-->
 	<string name="CompileSuccessful">Compile successful!</string>
@@ -2770,8 +2653,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<!-- script limits floater -->
 	<string name="ScriptLimitsParcelScriptMemory">Parcel Script Memory</string>
 	<string name="ScriptLimitsParcelsOwned">Parcels Listed: [PARCELS]</string>
-	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb</string>
-	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] KB</string>
+	<string name="ScriptLimitsMemoryUsed">Memory used: [COUNT] kb out of [MAX] kb; [AVAILABLE] kb available</string>
+	<string name="ScriptLimitsMemoryUsedSimple">Memory used: [COUNT] kb</string>
 	<string name="ScriptLimitsParcelScriptURLs">Parcel Script URLs</string>
 	<string name="ScriptLimitsURLsUsed">URLs used: [COUNT] out of [MAX]; [AVAILABLE] available</string>
 	<string name="ScriptLimitsURLsUsedSimple">URLs used: [COUNT]</string>
@@ -3004,12 +2887,12 @@ Expected .wav, .tga, .bmp, .jpg, .jpeg, or .bvh
 	<!-- media -->
 	<string name="Multiple Media">Multiple Media</string>
 	<string name="Play Media">Play/Pause Media</string>
-	<string name="StreamtitleNowPlaying">Now playing</string>
 
 	<!-- Drivers support/update pages -->
 	<string name="IntelDriverPage">http://www.intel.com/p/en_US/support/detect/graphics</string>
 	<string name="NvidiaDriverPage">http://www.nvidia.com/Download/index.aspx?lang=en-us</string>
 	<string name="AMDDriverPage">http://support.amd.com/us/Pages/AMDSupportHub.aspx</string>
+
 
 	<!-- OSMessageBox messages -->
 	<string name="MBCmdLineError">
@@ -3747,9 +3630,6 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
   <string name="inventory_item_offered-im">
     Inventory item offered
   </string>
-  <string name="inventory_item_offered_rlv">
-    Inventory item offered to [NAME]
-  </string>
   <string name="share_alert">
     Drag items from inventory here
   </string>
@@ -4179,95 +4059,73 @@ Try enclosing path to the editor with double quotes.
 
   <!-- commands -->
 
-  <string name="Command_AboutLand_Label">About Land</string>
+  <string name="Command_AboutLand_Label">About land</string>
   <string name="Command_Appearance_Label">Appearance</string>
-  <string name="Command_Areasearch_Label">Area search</string>
   <string name="Command_Avatar_Label">Avatar</string>
-  <string name="Command_Blacklist_Label">Asset blacklist</string>
   <string name="Command_Build_Label">Build</string>
   <string name="Command_Chat_Label">Chat</string>
-  <string name="Command_Cinematic_Label">Cinematic Mode</string>
-  <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Conversations_Label">Conversations</string>
-  <string name="Command_Debug_Label">Debug Settings</string>
+  <string name="Command_Compass_Label">Compass</string>
   <string name="Command_Destinations_Label">Destinations</string>
-  <string name="Command_Env_Settings_Label">Environment</string>
   <string name="Command_Facebook_Label">Facebook</string>
   <string name="Command_Flickr_Label">Flickr</string>
   <string name="Command_Gestures_Label">Gestures</string>
-  <string name="Command_HowTo_Label">How To</string>
+  <string name="Command_HowTo_Label">How to</string>
   <string name="Command_Inventory_Label">Inventory</string>
-  <string name="Command_Joystick_Label">Joystick</string>
   <string name="Command_Map_Label">Map</string>
   <string name="Command_Marketplace_Label">Marketplace</string>
   <string name="Command_MarketplaceListings_Label">Marketplace</string>
-  <string name="Command_MiniMap_Label">Mini-Map</string>
-  <string name="Command_Move_Label">Walk / Run / Fly</string>
-  <string name="Command_Outbox_Label">Merchant Outbox</string>
-  <string name="Command_Panic_Label">Panic!</string>
+  <string name="Command_MiniMap_Label">Mini-map</string>
+  <string name="Command_Move_Label">Walk / run / fly</string>
+  <string name="Command_Outbox_Label">Merchant outbox</string>
   <string name="Command_People_Label">People</string>
   <string name="Command_Picks_Label">Picks</string>
   <string name="Command_Places_Label">Places</string>
   <string name="Command_Preferences_Label">Preferences</string>
   <string name="Command_Profile_Label">Profile</string>
-  <string name="Command_Quick_Settings_Label">Quick Settings</string>
   <string name="Command_Report_Abuse_Label">Report Abuse</string>
-  <string name="Command_Scripts_Label">Scripts</string>
   <string name="Command_Search_Label">Search</string>
-  <string name="Command_Sidebar_Label">Sidebar</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
   <string name="Command_Speak_Label">Speak</string>
-  <string name="Command_Stats_Label">Statistics</string>
   <string name="Command_Twitter_Label">Twitter</string>
-  <string name="Command_View_Label">Camera Controls</string>
-  <string name="Command_Voice_Label">Voice Settings</string>
+  <string name="Command_View_Label">Camera controls</string>
+  <string name="Command_Voice_Label">Voice settings</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
-  <string name="Command_Areasearch_Tooltip">Search the area for objects</string>
   <string name="Command_Avatar_Tooltip">Choose a complete avatar</string>
-  <string name="Command_Blacklist_Tooltip">Opens the list of all the items you have blacklisted</string>
   <string name="Command_Build_Tooltip">Building objects and reshaping terrain</string>
   <string name="Command_Chat_Tooltip">Chat with people nearby using text</string>
-  <string name="Command_Cinematic_Tooltip">Hide most of the UI away</string>  
-  <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Conversations_Tooltip">Converse with everyone</string>
-  <string name="Command_Debug_Tooltip">Debug settings for advanced users</string>
+  <string name="Command_Compass_Tooltip">Compass</string>
   <string name="Command_Destinations_Tooltip">Destinations of interest</string>
-  <string name="Command_Env_Settings_Tooltip">Customize Environment Settings</string>
   <string name="Command_Facebook_Tooltip">Post to Facebook</string>
   <string name="Command_Flickr_Tooltip">Upload to Flickr</string>
   <string name="Command_Gestures_Tooltip">Gestures for your avatar</string>
   <string name="Command_HowTo_Tooltip">How to do common tasks</string>
   <string name="Command_Inventory_Tooltip">View and use your belongings</string>
-  <string name="Command_Joystick_Tooltip">Configure your joystick</string>
   <string name="Command_Map_Tooltip">Map of the world</string>
   <string name="Command_Marketplace_Tooltip">Go shopping</string>
   <string name="Command_MarketplaceListings_Tooltip">Sell your creation</string>
   <string name="Command_MiniMap_Tooltip">Show nearby people</string>
   <string name="Command_Move_Tooltip">Moving your avatar</string>
   <string name="Command_Outbox_Tooltip">Transfer items to your marketplace for sale</string>
-  <string name="Command_Panic_Tooltip">Press this if [APP_NAME] runs very slowly </string>
   <string name="Command_People_Tooltip">Friends, groups, and nearby people</string>
   <string name="Command_Picks_Tooltip">Places to show as favorites in your profile</string>
   <string name="Command_Places_Tooltip">Places you've saved</string>
   <string name="Command_Preferences_Tooltip">Preferences</string>
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
   <string name="Command_Report_Abuse_Tooltip">Report Abuse</string>
-  <string name="Command_Scripts_Tooltip">Scripts attached to your avatar</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
-  <string name="Command_Sidebar_Tooltip">Graphical settings</string>
   <string name="Command_Snapshot_Tooltip">Take a picture</string>
   <string name="Command_Speak_Tooltip">Speak with people nearby using your microphone</string>
-  <string name="Command_Stats_Tooltip">Statistics like FPS, network usage and sim performance</string>
   <string name="Command_Twitter_Tooltip">Twitter</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
-  <string name="Command_Webbrowser_Tooltip">Open a web browser inside [APP_NAME]</string>
+
   <string name="Toolbar_Bottom_Tooltip">currently in your bottom toolbar</string>
   <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
   <string name="Toolbar_Right_Tooltip" >currently in your right toolbar</string>
-  <string name="Toolbar_Top_Tooltip">currently in your top toolbar</string>
 
  <!-- Mesh UI terms -->
   <string name="Retain%">Retain%</string>
@@ -4298,13 +4156,6 @@ Try enclosing path to the editor with double quotes.
   <!-- Spell check settings floater -->
   <string name="UserDictionary">[User]</string>
   
-  <!-- RLVa -->
-  <string name="RLVaPendingRestart"> (pending restart)</string>
-  <string name="RLVaToggleMessageLogin">RLVa has been [STATE] (no restart required)</string>
-  <string name="RLVaToggleMessageRestart">RLVa will be [STATE] after you restart</string>
-  <string name="RLVaToggleEnabled">enabled</string>
-  <string name="RLVaToggleDisabled">disabled</string>
-   
   <!-- Experience Tools strings -->
   <string name="experience_tools_experience">Experience</string>
   <string name="ExperienceNameNull">(no experience)</string>
@@ -4361,6 +4212,14 @@ Try enclosing path to the editor with double quotes.
   <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
       The physics shape contains triangles which are too small. Try simplifying the physics model.
   </string>
+  <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+      The physics shape contains bad confirmation data. Try to correct the physics model.
+  </string>
+  <string name="Mav_Details_MAV_UNKNOWN_VERSION">
+      The physics shape does not have correct version. Set the correct version for the physics model.
+  </string>
+
+<!-- Polarity Viewer strings -->
 
 <!-- Double Click Teleport -->
   <string name="DoubleClickTeleportEnabled">
@@ -4487,5 +4346,6 @@ Try enclosing path to the editor with double quotes.
   <!-- </FS:Cron> -->
   <string name="recompile_script_verb">Recompile</string>
   <string name="preproc_toggle_warning">Toggling the preprocessor will not take full effect until you close and reopen this editor.</string>
+
 
 </strings>

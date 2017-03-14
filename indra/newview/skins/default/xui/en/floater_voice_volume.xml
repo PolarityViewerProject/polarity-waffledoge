@@ -14,7 +14,7 @@
  name="floater_voice_volume"
  single_instance="true"
  sound_flags="0"
- title="Voice Volume"
+ title="VOICE VOLUME"
  visible="true"
  width="245">
     <text

@@ -4,6 +4,15 @@
      For example, the strings used in avatar chat bubbles, and strings
      that are returned from one component and may appear in many places-->
 <strings>
+	<string name="SECOND_LIFE">
+		Second Life
+	</string>
+	<string name="APP_NAME">
+		Second Life
+	</string>
+	<string name="CAPITALIZED_APP_NAME">
+		SECOND LIFE
+	</string>
 	<string name="SECOND_LIFE_GRID">
 		Grille de Second Life
 	</string>
@@ -28,7 +37,10 @@
 	<string name="StartupRequireDriverUpdate">
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
-
+	<string name="AboutHeader">
+		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
+[[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
+	</string>
 	<string name="BuildConfig">
 		Configuration de la construction [BUILD_CONFIG]
 	</string>
@@ -5687,6 +5699,4 @@ Essayez avec le chemin d&apos;accès à l&apos;éditeur entre guillemets doubles
 	<string name="Mav_Details_MAV_UNKNOWN_VERSION">
 		La forme physique n’a pas la version correcte. Configurez la version correcte pour le modèle physique.
 	</string>
-	<!-- Area Search -->
-	<string name="free">Gratuit</string>
 </strings>

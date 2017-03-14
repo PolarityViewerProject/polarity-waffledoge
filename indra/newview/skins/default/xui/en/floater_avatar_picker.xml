@@ -9,7 +9,7 @@
  min_width="400"
  name="avatarpicker"
  help_topic="avatarpicker"
- title="Choose Resident"
+ title="CHOOSE RESIDENT"
  width="500">
     <floater.string
      name="not_found">

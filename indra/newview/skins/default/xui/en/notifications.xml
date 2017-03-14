@@ -1659,63 +1659,6 @@ Visit [_URL] for more information?
 
   <notification
    icon="alertmodal.tga"
-   name="IntelOldDriver"
-   type="alertmodal">
-     There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://www.intel.com/p/en_US/support/detect/graphics
-    </url>
-    <usetemplate
-     ignoretext="My Intel graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="AMDOldDriver"
-   type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://support.amd.com/us/Pages/AMDSupportHub.aspx
-    </url>
-    <usetemplate
-     ignoretext="My AMD graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
- icon="alertmodal.tga"
- name="NVIDIAOldDriver"
- type="alertmodal">
-    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
-
-    Visit [_URL] to check for driver updates?
-    <tag>confirm</tag>
-    <url option="0" name="url">
-      http://www.nvidia.com/Download/index.aspx?lang=en-us
-    </url>
-    <usetemplate
-     ignoretext="My NVIDIA graphics driver is out of date"
-     name="okcancelignore"
-     notext="No"
-     yestext="Yes"/>
-    <tag>fail</tag>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
    name="OldGPUDriver"
    type="alertmodal">
      There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
@@ -2249,16 +2192,6 @@ Not able to perform &apos;reset&apos;.
 Select objects with scripts.
   <tag>fail</tag>
   </notification>
-
- <notification
-  icon="alertmodal"
-  name="CannotDeleteSelectObjectsNoScripts"
-  type="alertmodal">
-    Not able to perform &apos;delete&apos;.
-
-    Select objects with scripts.
-    <tag>fail</tag>
- </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -3557,24 +3490,6 @@ Would you like to trust this authority?
 
   <notification
    icon="alertmodal.tga"
-   name="GrantedMapRights"
-   persist="true"
-   log_to_im="true"   
-   type="notify">
-[NAME] has given you permission to view their map location.
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="RevokedMapRights"
-   persist="true"
-   log_to_im="true"   
-   type="notify">
-Your privilege to view [NAME]&apos;s map location has been revoked
-  </notification>
- 
- <notification
-   icon="alertmodal.tga"
    name="GrantedModifyRights"
    persist="true"
    log_to_im="true"   
@@ -3963,14 +3878,14 @@ http://secondlife.com/download.
    icon="alertmodal.tga"
    name="UpdaterServiceNotRunning"
    type="alertmodal">
-There is a required update for your [APP_NAME] Installation.
+There is a required update for your Second Life Installation.
 
 You may download this update from http://www.secondlife.com/downloads
 or you can install it now.
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="Close [APP_NAME]"
+     notext="Quit Second Life"
      yestext="Download and install now"/>
   </notification>
 
@@ -4007,21 +3922,6 @@ We have downloaded an update to your [APP_NAME] installation.
    force_urls_external="true">
 We have downloaded a required software update.
 Version [VERSION] [[INFO_URL] Information about this update]
-
-We must restart [APP_NAME] to install the update.
-    <tag>confirm</tag>
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="RequiredUpdateDownloadedVerboseDialogNoChangenotes"
-   type="notify"
-   force_urls_external="true">
-We have downloaded a required software update.
-Version [VERSION]
 
 We must restart [APP_NAME] to install the update.
     <tag>confirm</tag>
@@ -4140,11 +4040,11 @@ Please try again later.
   </notification>
 
   <notification
- icon="notifytip.tga"
+ icon="alertmodal.tga"
  name="UpdateViewerUpToDate"
- type="notifytip">
+ type="alertmodal">
 Your viewer is up to date!
-If you can't wait to try out the latest features and fixes, go compile the [https://bitbucket.org/polarityviewer/ source code] yourself.
+If you can't wait to try out the latest features and fixes, check out the Alternate Viewers page. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"
@@ -4687,7 +4587,7 @@ Request a teleport to [NAME] with the following message
     <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
-May I join you?
+
       </input>
       <button
        default="true"
@@ -7445,7 +7345,6 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="UserGiveItem"
-   label="Inventory offer from [NAME_LABEL]"
    log_to_im ="true"
    type="offer"
    sound="UISndNewIncomingIMSession">
@@ -7503,7 +7402,6 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered"
-   label="Teleport offer from [NAME_LABEL]"
    log_to_im="true"
    log_to_chat="false"
    type="offer"
@@ -7577,18 +7475,6 @@ However, this region contains content accessible to adults only.
 	Teleport offer sent to [TO_NAME]
   </notification>
 
-<!-- <polarity> Teleport request confirmation -->
-  <notification
-   icon="notify.tga"
-   name="TeleportRequestSent"
-   log_to_im="true"
-   log_to_chat="false"
-   show_toast="false"
-   type="notify">
-  Teleport request &apos;[MESSAGE]&apos; sent to [TO_NAME]
-  </notification>
-<!-- </polarity> -->
-
   <notification
    icon="notify.tga"
    name="TeleportRequest"
@@ -7633,7 +7519,6 @@ Offer a teleport?
   <notification
    icon="notify.tga"
    name="OfferFriendship"
-   label="Friendship offer from [NAME_LABEL]"
    log_to_im="true"
    type="offer">
     <tag>friendship</tag>
@@ -7667,7 +7552,6 @@ Offer a teleport?
   <notification
    icon="notify.tga"
    name="OfferFriendshipNoMessage"
-   label="Friendship offer from [NAME_LABEL]"
    persist="true"
    type="notify">
     <tag>friendship</tag>
@@ -11266,36 +11150,7 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    <tag>fail</tag>
 Cannot create large prims that intersect other players.  Please re-try when other players have moved.
   </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="RLVChangeStrings"
-   type="alertmodal">
-Changes won't take effect until after you restart [APP_NAME].
-  </notification>
-
-
-  <notification
-   icon="notify.tga"
-   name="RLVaListRequested"
-   label="Restriction request from [NAME_LABEL]"
-   log_to_im="true"
-   log_to_chat="false"
-   type="offer">
-[NAME_SLURL] has requested to be sent a list of your currently active RLV restrictions.
-    <tag>confirm</tag>
-    <form name="form">
-      <button
-       index="0"
-       name="Allow"
-       text="Allow"/>
-      <button
-       index="1"
-       name="Deny"
-       text="Deny"/>
-    </form>
-  </notification>
-
+  
   <notification
    icon="alertmodal.tga"
    name="PreferenceChatClearLog"
@@ -11353,223 +11208,16 @@ Changes won't take effect until after you restart [APP_NAME].
      name="okbutton"
      yestext="OK"/>
   </notification>
- 
+  
+  
   <notification
    icon="alert.tga"
    name="OutfitPhotoLoadError"
    type="alertmodal">
- </notification>
-
-  <notification
-   icon="notifytip.tga"
-   name="ChatCommandCalc"
-   type="notifytip">
-   Calculation: [EXPRESSION] = [RESULT]
-  </notification>
-
- <notification
-  icon="notify"
-  name="NoseyLookAt"
-  type="alertmodal">
-The Polarity Viewer Project does not endorse hiding your own lookat while displaying those of other users, as it is a privacy concern to some people.
-
-We ask that you consider this carefully before choosing that route.
-  <usetemplate
-  name="okcancelbuttons"
-  yestext="I understand"
-  notext="Keep them hidden"/>
- </notification>
-
- <notification
-  icon="notifytip.png"
-  name="ServerVersionChanged"
-  type="notifytip">
-The simulator version or channel has changed
-Now: [NEWVERSION]
-Was: [OLDVERSION]
- </notification>
-
- <notification
-  icon="notify"
-  name="LSLColorCopiedToClipboard"
-  type="notifytip">
-Color vector copied to clipboard. Have fun!
-  <form name="form">
-    <ignore name="ignore"
-     text="An LSL color string was copied to my clipboard"/>
-    </form>
- </notification>
-
- <!-- Sanity Check -->
- <notification
-  icon="notify.png"
-  name="SanityCheck"
-  type="alertmodal">
-[APP_NAME] has detected a possible issue with your settings:
-
-[SANITY_MESSAGE]
-
-Reason: [SANITY_COMMENT]
-
-Current setting: [CURRENT_VALUE]
-  <form name="form">
-    <ignore name="ignore"
-     text="A settings control has failed the sanity check."/>
-    </form>
- </notification>
- <!-- Sanity Check -->
-
- <notification
-  icon="notify"
-  name="ControlNameCopiedToClipboard"
-  type="notifytip">
-Setting name copied to clipboard. Please don't break other people's viewer.
-  <form name="form">
-    <ignore name="ignore"
-     text="A debug setting's name was copied to my clipboard"/>
-    </form>
- </notification>
-
- <notification
-  icon="notify"
-  name="AskForDisplayPreferencesReset"
-  type="alertmodal">
-Your Graphic card seems to have changed
-
-from &apos;[LAST_GPU]&apos;
-to &apos;[THIS_GPU]&apos;
-
-Would you like to reset the graphic preferences?
-  <usetemplate
-  name="yesnocancelbuttons"
-  yestext="Reset now"
-  notext="Leave as-is"
-  canceltext="Never reset"/>
- </notification>
-
- <notification
-  icon="alertmodal.png"
-  name="BlockedReleaseReason"
-  type="alertmodal">
-  [REASON]
-  <usetemplate
-   name="okbutton"
-   yestext="OK"/>
- </notification>
-
- <notification
-  icon="notify"
-  label="Apply Windlight settings"
-  name="PVWindLight_Parcel_Ask"
-  type="notify">
-&apos;[PARCEL_NAME]&apos;, owned by [OWNER_NAME], would like to change your Windlight visual environment settings.
-    <form name="form">
-    <button
-     index="0"
-     name="Allow"
-     text="Allow"/>
-    <button
-     index="1"
-     name="Ignore"
-     text="Ignore"/>
-    </form>
- </notification>
-
- <notification
-  icon="notify"
-  label="Reset Windlight settings"
-  name="PVWindLight_Parcel_Clear"
-  type="notify">
-Reset WL settings for &apos;[PARCEL_NAME]&apos; to region default?
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="Yes"/>
- </notification>
-
-  <notification
-   icon="alertmodal.tga"
-   name="MuteDeveloper"
-   type="alertmodal">
-Sorry, you cannot block [APP_NAME] developers.
-  <tag>fail</tag>
+    [REASON]
+    <tag>fail</tag>
     <usetemplate
      name="okbutton"
-     yestext="OK"/>
-  </notification>
-
-  <notification
-   name="CinematicConfirmHideUI"
-   label=""
-   type="alertmodal">
-    <unique/>
-    <tag>confirm</tag>
-    Cinematic Mode hides most of the UI, the voice dots and your huds. To get them back, press [SHORTCUT].
-    <usetemplate
-    name="okcancelignore"
-    yestext="OK"
-    notext="Cancel"
-    ignoretext="Confirm before enabling Cinematic Mode"/>
-  </notification>
-
-  <notification
-    icon="notifytip.png"
-    name="PVData_ColorBug"
-    persist="true"
-    type="notifytip">
-    Color Manager caught a bug!
-Avatar: secondlife:///app/agent/[AVATAR_ID]/inspect (AVATAR_ID)
-Flags: [PV_FLAGS] 
-Color: [PV_COLOR] 
-[MESSAGE]
-    Please report this occurence and send the lines above to the Polarity Developers
-  </notification>
-
- <notification
-  icon="notifytip.png"
-  name="GenericNotifyTip"
-  type="notifytip">
-  [MESSAGE]
- </notification>
-
- <notification
-  icon="notifytip.png"
-  name="GenericNotify"
-  type="notify">
-  [MESSAGE]
- </notification>
-
-<!-- Resurrected from Firestorm -->
-  <notification
-   icon="alertmodal.tga"
-   name="DeleteOutfitsWithName"
-   type="alertmodal">
-    Delete outfit &quot;[NAME]&quot;?
-    <tag>confirm</tag>
-    <usetemplate
-     name="okcancelbuttons"
-     notext="Cancel"
-     yestext="OK"/>
-  </notification>
-
- <notification
-  icon="notifytip.png"
-  name="GenericBeggarNotifyTip"
-  persist="true"
-  type="notifytip">
-  secondlife:///app/agent/[AVATAR_ID]/inspect seems to be a beggar. You can opt to secondlife:///app/agent/[AVATAR_ID]/mute
- </notification>
-
-  <notification
-     icon="alertmodal.tga"
-     name="ConfirmScriptModify"
-    type="alertmodal">
-    Are you sure you want to modify scripts in selected objects?
-    <tag>confirm</tag>
-    <usetemplate
-    ignoretext="Confirm before I modify scripts in selection"
-     name="okcancelignore"
-     notext="Cancel"
      yestext="OK"/>
   </notification>
 
