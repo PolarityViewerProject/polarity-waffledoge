@@ -54,7 +54,7 @@
         function="Avatar.ResetSkeleton" />
      </menu_item_call>
 
-  <menu_item_call label="Local Undeform"
+  <menu_item_call label="Reset Anims"
        layout="topleft"
        name="Reset Skeleton And Animations">
        <menu_item_call.on_click
