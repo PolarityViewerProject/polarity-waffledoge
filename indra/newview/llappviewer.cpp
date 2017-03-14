@@ -3611,6 +3611,8 @@ std::string LLAppViewer::getViewerInfoString() const
 	{
 		support << "\n" << LLTrans::getString("AboutDriver", args);
 	}
+#endif
+
 	support << "\n" << LLTrans::getString("AboutOGL", args);
 	support << "\n\n" << LLTrans::getString("AboutSettings", args);
 	support << "\n\n" << LLTrans::getString("AboutLibs", args);

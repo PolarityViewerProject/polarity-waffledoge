@@ -41,10 +41,9 @@ class QToolAlign
 :	public LLTool, public LLSingleton<QToolAlign>
 {
 	LLSINGLETON(QToolAlign);
-public:
-	QToolAlign();
 	virtual ~QToolAlign();
 
+public:
 	virtual void	handleSelect();
 	virtual void	handleDeselect();
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);

@@ -801,7 +801,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     LLMenuItemCallGL* upload_item = menu->findChild<LLMenuItemCallGL>("upload_photo");
     if (upload_item)
     {
-        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::Singleton::getInstance()->getPriceUpload()));
+        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload()));
     }
     return menu;
     // </FS:Ansariel>

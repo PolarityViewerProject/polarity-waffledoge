@@ -158,9 +158,8 @@ bool RlvWindLightControl::setFloat(F32 nValue)
 class RlvWindLight : public LLSingleton<RlvWindLight>
 {
 	LLSINGLETON(RlvWindLight);
-	friend class LLSingleton<RlvWindLight>;
+
 public:
-	RlvWindLight();
 
 	std::string	getValue(const std::string& strSetting, bool& fError);
 	bool		setValue(const std::string& strRlvName, const std::string& strValue);

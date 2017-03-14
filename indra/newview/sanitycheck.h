@@ -20,20 +20,18 @@
  */
 
 #pragma once
+#ifndef SANITYCHECK_H
+#define SANITYCHECK_H
 
 #include "llsingleton.h"
 
 class LLControlVariable;
 
-class SanityCheck
-	: public LLSingleton<SanityCheck>
+class SanityCheck : public LLSingleton<SanityCheck>
 {
-	friend class LLSingleton<SanityCheck>;
-	LLSINGLETON(SanityCheck);
+	LLSINGLETON_EMPTY_CTOR(SanityCheck);
 
-private:
-	SanityCheck();
-	~SanityCheck();
+	~SanityCheck() { };
 
 public:
 	void init();
@@ -41,3 +39,4 @@ public:
 	static void onSanity(LLControlVariable* controlp);
 };
 
+#endif // SANITYCHECK_H

@@ -60,10 +60,8 @@
 #include "lldebugview.h"
 #include "llenvmanager.h"
 #include "llfacebookconnect.h"
-#if !LL_WINDOWS
 #include "llfilepicker.h"
 #include "llfirstuse.h"
-#endif
 #include "llfloaterabout.h"
 #include "llfloaterbuy.h"
 #include "llfloaterbuycontents.h"
@@ -77,22 +75,17 @@
 #include "llfloaterpay.h"
 #include "llfloaterreporter.h"
 #include "llfloatersearch.h"
-#if !LL_WINDOWS
 #include "llfloaterscriptdebug.h"
 #include "llfloatersnapshot.h"
-#endif // !LL_WINDOWS
 #include "llfloatertools.h"
 #include "llfloaterworldmap.h"
-#if !LL_WINDOWS
 #include "llfloaterbuildoptions.h"
-#endif // !LL_WINDOWS
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
-#if !LL_WINDOWS
+#include "lltoolface.h"
 #include "llhints.h"
-#endif // !LL_WINDOWS
 #include "llhudeffecttrail.h"
 #include "llhudmanager.h"
 #include "llimview.h"
@@ -137,16 +130,12 @@
 #include "pipeline.h"
 #include "llviewerjoystick.h"
 #include "llwaterparammanager.h"
-#if !LL_WINDOWS
 #include "llwlanimator.h"
-#endif
 #include "llwlparammanager.h"
 #include "llfloatercamera.h"
 #include "lluilistener.h"
 #include "llappearancemgr.h"
-#if !LL_WINDOWS
 #include "lltrans.h"
-#endif
 #include "lleconomy.h"
 #include "lltoolgrab.h"
 #include "llwindow.h"
@@ -154,16 +143,15 @@
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
 #include "llcleanup.h"
-
-#include "pvmachinima.h"
-#include "pvperformancemaid.h"
-#include "fsassetblacklist.h"
-
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
 #include "rlvlocks.h"
 // [/RLVa:KB]
+
+#include "pvmachinima.h"
+#include "pvperformancemaid.h"
+#include "fsassetblacklist.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -9914,9 +9902,10 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
 
 	// Polarity Menu
-	view_listener_t::addMenu(new PVPerformanceMaidPanicButton(), "Polarity.PanicButton");
-	view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
-	view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
+	// FIXME: inaccessible private member
+	// view_listener_t::addMenu(new PVPerformanceMaidPanicButton(), "Polarity.PanicButton");
+	// view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
+	// view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");

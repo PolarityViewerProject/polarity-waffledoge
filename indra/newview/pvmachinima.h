@@ -64,7 +64,7 @@ public:
 class PVMachinimaSidebar : public view_listener_t,
                            public LLSingleton<PVCinematicMode>
 {
-	LLSINGLETON(PVCinematicMode); // Needed? D:
+	LLSINGLETON(PVMachinimaSidebar);
 	bool handleEvent(const LLSD& userdata) override;
 public:
 	static bool isVisible(const LLSD& userdata);

@@ -34,6 +34,7 @@
 #include "llbutton.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
+#include "llfloatersidepanelcontainer.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"

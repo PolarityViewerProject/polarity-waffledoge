@@ -1138,7 +1138,7 @@ bool RlvFolderLocks::isLockedFolderEntry(const LLUUID& idFolder, int eSourceType
 }
 
 // Checked: 2011-03-27 (RLVa-1.3.0g) | Modified: RLVa-1.3.0g
-bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask, int eSourceTypeMask, folderlock_source_t* plockSource) const
+bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask, int eSourceTypeMask, std::list<folderlock_source_t>* pLockSourceList) const
 {
 	// Sanity check - if there are no folder locks then we don't have to actually do anything
 	if (!hasLockedFolder(eLockTypeMask))
@@ -1178,8 +1178,9 @@ bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask,
 
 			if (PERM_DENY == pLockDescr->eLockPermission)
 			{
-				if (plockSource)
-					*plockSource = pLockDescr->lockSource;
+				if (pLockSourceList)
+					pLockSourceList->push_back(pLockDescr->lockSource);
+				else
 				return true;									// Folder is explicitly denied, indicate locked folder to our caller
 			}
 			else if (PERM_ALLOW == pLockDescr->eLockPermission)
@@ -1191,6 +1192,11 @@ bool RlvFolderLocks::isLockedFolder(LLUUID idFolder, ERlvLockMask eLockTypeMask,
 		// Move up to the folder tree
 		const LLViewerInventoryCategory* pParent = gInventory.getCategory(idFolderCur);
 		idFolderCur = (pParent) ? pParent->getParentUUID() : idFolderRoot;
+	}
+	if ( (pLockSourceList) && (!pLockSourceList->empty()) )
+	{
+		pLockSourceList->sort([](const folderlock_source_t& lhs, const folderlock_source_t& rhs) { return lhs.first < rhs.first && lhs.second < rhs.second; });
+		return true;
 	}
 	// If we didn't encounter an explicit deny lock with no exception then the folder is locked if the entire inventory is locked down
 	return (m_RootLockType & eLockTypeMask) && (eSourceTypeMask & ST_ROOTFOLDER) && (idsRlvObjRem.empty()) && (idsRlvObjAdd.empty());

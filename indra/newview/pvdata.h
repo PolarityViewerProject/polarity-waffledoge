@@ -703,6 +703,7 @@ class LLUUID;
 	class PVSearchUtil : public LLSingleton <PVSearchUtil>
 	{
 		LOG_CLASS(PVSearchUtil);
+		LLSINGLETON(PVSearchUtil);
 
 	public:
 		// refresh from settings

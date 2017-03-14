@@ -54,7 +54,8 @@ public:
 class PVPerformanceMaidPanicButton : public view_listener_t,
                                      public PVPerformanceMaid
 {
-	LLSINGLETON(PVPerformanceMaid); // Needed? D:
+	LLSINGLETON(PVPerformanceMaidPanicButton);
+public:
 	bool handleEvent(const LLSD& userdata) override;
 };
 

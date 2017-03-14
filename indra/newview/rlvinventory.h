@@ -36,11 +36,10 @@ class LLOfferInfo;
 
 class RlvInventory : public LLSingleton<RlvInventory>, public LLInventoryObserver
 {
-protected:
-	RlvInventory();
-public:
+	LLSINGLETON(RlvInventory);
 	~RlvInventory();
 
+public:
 	// LLInventoryObserver override
 	/*virtual*/ void changed(U32 mask);
 
@@ -48,7 +47,7 @@ public:
 	 * #RLV Shared inventory
 	 */
 public:
-	typedef boost::signals2::signal<void ()> callback_signal_t;
+	typedef boost::signals2::signal<void (void)> callback_signal_t;
 	void						addSharedRootIDChangedCallback(const callback_signal_t::slot_type& cb) { m_OnSharedRootIDChanged.connect(cb); }
 	// Find all folders that match a supplied criteria (clears the output array)
 	bool						findSharedFolders(const std::string& strCriteria, LLInventoryModel::cat_array_t& folders) const;
@@ -103,8 +102,6 @@ protected:
 private:
 	static const std::string cstrSharedRoot;
 	friend class RlvSharedInventoryFetcher;
-	friend class LLSingleton<RlvInventory>;
-	LLSINGLETON(RlvInventory);
 };
 
 // ============================================================================

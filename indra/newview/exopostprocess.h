@@ -20,16 +20,15 @@
 #ifndef exopostprocess_h
 #define exopostprocess_h
 
+#include "pipeline.h"
 #include "llviewershadermgr.h"
-#include <llrendertarget.h>
 
 /**
  * exoShader is just a few helper functions for binding different things to shaders.
  * Not really enough functionality here yet to warrant its own file.
  */
 
-class exoShader
-{
+class exoShader {
 public:
 	static void BindTex2D(LLTexture* tex2D, LLGLSLShader* shader, S32 uniform, S32 unit = 0, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE, LLTexUnit::eTextureAddressMode addressMode = LLTexUnit::TAM_CLAMP, LLTexUnit::eTextureFilterOptions filterMode = LLTexUnit::TFO_BILINEAR);
 	static void BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader, S32 uniform, S32 unit = 0, LLTexUnit::eTextureType mode = LLTexUnit::TT_TEXTURE);
@@ -37,12 +36,13 @@ public:
 
 class exoPostProcess : public LLSingleton<exoPostProcess>
 {
-	friend class LLSingleton<exoPostProcess>;
+	LLSINGLETON(exoPostProcess);
+	~exoPostProcess();
+
 private:
 	static exoPostProcess* postProcess;
-	exoPostProcess();
+
 public:
-	~exoPostProcess();
 
 	enum ExodusRenderPostType
 	{

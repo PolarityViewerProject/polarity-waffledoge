@@ -51,8 +51,9 @@ class OSChatCommand : public LLSingleton<OSChatCommand>
 		CMD_UNKNOWN
 	} e_chat_commands;
 
+	LLSINGLETON(OSChatCommand);
+
 public:
-	OSChatCommand();
 	bool matchPrefix(const std::string& in_str, std::string* out_str);
 	bool parseCommand(std::string data);
 private:

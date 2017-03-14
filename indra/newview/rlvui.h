@@ -28,10 +28,8 @@
 
 class RlvUIEnabler : public LLSingleton<RlvUIEnabler>
 {
-protected:
-	RlvUIEnabler();
-	friend class LLSingleton<RlvUIEnabler>;
 	LLSINGLETON(RlvUIEnabler);
+protected:
 	friend class RlvHandler;
 
 	/*
