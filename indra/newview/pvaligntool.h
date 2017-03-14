@@ -49,6 +49,7 @@ public:
 	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
 	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
 	virtual void	render();
+	virtual BOOL	canAffectSelection();
 
 	static void pickCallback(const LLPickInfo& pick_info);
 
