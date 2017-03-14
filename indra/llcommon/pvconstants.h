@@ -33,6 +33,7 @@
 
 // <polarity> This contains the name of the viewer.
 const std::string APP_NAME = "Polarity";
+const std::string CAPITALIZED_APP_NAME = "POLARITY";
 
 #if (LL_WINDOWS)
 const std::wstring LAPP_NAME = L"Polarity";

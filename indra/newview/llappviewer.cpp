@@ -3008,6 +3008,8 @@ void LLAppViewer::initStrings()
 		// translation strings into this one.
 		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
 	}
+	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
+	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", CAPITALIZED_APP_NAME);
 }
 
 namespace {
