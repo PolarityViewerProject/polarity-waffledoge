@@ -712,7 +712,7 @@ bool LLGLManager::initGL()
 	}
 
 	//VRAM detection should be accurate beyond this point
-	LL_WARNS() << "Graphic Card Video Memory = " << mVRAM + "MB" << LL_ENDL;
+	LL_WARNS() << "Graphic Card Video Memory = " << mVRAM << "MB" << LL_ENDL;
 
 	if (mVRAM < 256)
 	{ //something likely went wrong using the above extensions, fall back to old method
