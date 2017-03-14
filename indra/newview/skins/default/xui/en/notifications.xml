@@ -1,16 +1,16 @@
 <?xml version="1.0" ?><notifications>
     <global name="skipnexttime">
 
-		Don&apos;t show me this again
+    Don&apos;t show me this again
   </global>
 
   <global name="alwayschoose">
 
-		Always choose this option
+    Always choose this option
   </global>
 
   <global name="implicitclosebutton">
-		Close
+    Close
   </global>
 
   <template name="okbutton">
@@ -202,7 +202,7 @@ No tutorial is currently available.
     Could not connect to the [SECOND_LIFE_GRID].
     &apos;[DIAGNOSTIC]&apos;
 Make sure your Internet connection is working properly.
-	<usetemplate
+  <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
@@ -213,7 +213,7 @@ Make sure your Internet connection is working properly.
    type="alertmodal">
 Message Template [PATH] not found.
    <tag>fail</tag>
-	<usetemplate
+  <usetemplate
      name="okbutton"
      yestext="OK"/>
   </notification>
@@ -1248,10 +1248,10 @@ You need to enter the Username name of your avatar.
 You need an account to enter [SECOND_LIFE]. Would you like to create one now?
     <tag>confirm</tag>
     <url
-	option="0"
-	name="url"
-	target = "_external">
-		[create_account_url]
+  option="0"
+  name="url"
+  target = "_external">
+    [create_account_url]
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -1367,7 +1367,7 @@ Go to the [SECOND_LIFE] events web page?
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			http://secondlife.com/events/
+      http://secondlife.com/events/
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -1465,7 +1465,7 @@ Changing language will take effect after you restart [APP_NAME].
     Go to the [SECOND_LIFE] web page to see auction details or make a bid?
     <tag>confirm</tag>
     <url option="0" name="url">
-			http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
+      http://secondlife.com/auctions/auction-detail.php?id=[AUCTION_ID]
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -1647,7 +1647,7 @@ Visit [_URL] for more information?
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			http://www.secondlife.com/corporate/sysreqs.php
+      http://www.secondlife.com/corporate/sysreqs.php
     </url>
     <usetemplate
      ignoretext="My computer hardware is not supported"
@@ -1655,6 +1655,63 @@ Visit [_URL] for more information?
      notext="No"
      yestext="Yes"/>
   <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="IntelOldDriver"
+   type="alertmodal">
+     There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://www.intel.com/p/en_US/support/detect/graphics
+    </url>
+    <usetemplate
+     ignoretext="My Intel graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="AMDOldDriver"
+   type="alertmodal">
+    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://support.amd.com/us/Pages/AMDSupportHub.aspx
+    </url>
+    <usetemplate
+     ignoretext="My AMD graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
+  </notification>
+
+  <notification
+ icon="alertmodal.tga"
+ name="NVIDIAOldDriver"
+ type="alertmodal">
+    There is likely a newer driver for your graphics chip.  Updating graphics drivers can substantially improve performance.
+
+    Visit [_URL] to check for driver updates?
+    <tag>confirm</tag>
+    <url option="0" name="url">
+      http://www.nvidia.com/Download/index.aspx?lang=en-us
+    </url>
+    <usetemplate
+     ignoretext="My NVIDIA graphics driver is out of date"
+     name="okcancelignore"
+     notext="No"
+     yestext="Yes"/>
+    <tag>fail</tag>
   </notification>
 
   <notification
@@ -1886,7 +1943,7 @@ Go to [_URL] for information on purchasing L$?
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			http://secondlife.com/app/currency/
+      http://secondlife.com/app/currency/
     </url>
     <usetemplate
      name="okcancelbuttons"
@@ -2192,6 +2249,16 @@ Not able to perform &apos;reset&apos;.
 Select objects with scripts.
   <tag>fail</tag>
   </notification>
+
+ <notification
+  icon="alertmodal"
+  name="CannotDeleteSelectObjectsNoScripts"
+  type="alertmodal">
+    Not able to perform &apos;delete&apos;.
+
+    Select objects with scripts.
+    <tag>fail</tag>
+ </notification>
 
   <notification
    icon="alertmodal.tga"
@@ -3391,7 +3458,7 @@ We&apos;re having trouble connecting. There may be a problem with your Internet 
 You can either check your Internet connection and try again in a few minutes, click Help to view the [SUPPORT_SITE], or click Teleport to attempt to teleport home.
     <url option="1" name="url">
 
-			http://secondlife.com/support/
+      http://secondlife.com/support/
     </url>
     <form name="form">
       <button
@@ -3425,8 +3492,8 @@ Please choose the male or female avatar. You can change your mind later.
      yestext="Male"/>
   </notification>
   <notification icon="alertmodal.tga"
-		name="CantTeleportToGrid"
-		type="alertmodal">
+    name="CantTeleportToGrid"
+    type="alertmodal">
 Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the current grid ([CURRENT_GRID]).  Please close your viewer and try again.
   <tag>fail</tag>
     <usetemplate
@@ -3435,8 +3502,8 @@ Could not teleport to [SLURL] as it's on a different grid ([GRID]) than the curr
   </notification>
 
   <notification icon="alertmodal.tga"
-		name="GeneralCertificateError"
-		type="alertmodal">
+    name="GeneralCertificateError"
+    type="alertmodal">
 Could not connect to the server.
 [REASON]
 
@@ -3456,8 +3523,8 @@ Subject Key Identifier: [SUBJECTKEYIDENTIFIER]
    </notification>
 
   <notification icon="alertmodal.tga"
-		name="TrustCertificateError"
-		type="alertmodal">
+    name="TrustCertificateError"
+    type="alertmodal">
 The certification authority for this server is not known.
 
 Certificate Information:
@@ -3489,6 +3556,24 @@ Would you like to trust this authority?
   </notification>
 
   <notification
+   icon="alertmodal.tga"
+   name="GrantedMapRights"
+   persist="true"
+   log_to_im="true"   
+   type="notify">
+[NAME] has given you permission to view their map location.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RevokedMapRights"
+   persist="true"
+   log_to_im="true"   
+   type="notify">
+Your privilege to view [NAME]&apos;s map location has been revoked
+  </notification>
+ 
+ <notification
    icon="alertmodal.tga"
    name="GrantedModifyRights"
    persist="true"
@@ -3878,14 +3963,14 @@ http://secondlife.com/download.
    icon="alertmodal.tga"
    name="UpdaterServiceNotRunning"
    type="alertmodal">
-There is a required update for your Second Life Installation.
+There is a required update for your [APP_NAME] Installation.
 
 You may download this update from http://www.secondlife.com/downloads
 or you can install it now.
     <tag>confirm</tag>
     <usetemplate
      name="okcancelbuttons"
-     notext="Quit Second Life"
+     notext="Close [APP_NAME]"
      yestext="Download and install now"/>
   </notification>
 
@@ -3922,6 +4007,21 @@ We have downloaded an update to your [APP_NAME] installation.
    force_urls_external="true">
 We have downloaded a required software update.
 Version [VERSION] [[INFO_URL] Information about this update]
+
+We must restart [APP_NAME] to install the update.
+    <tag>confirm</tag>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="RequiredUpdateDownloadedVerboseDialogNoChangenotes"
+   type="notify"
+   force_urls_external="true">
+We have downloaded a required software update.
+Version [VERSION]
 
 We must restart [APP_NAME] to install the update.
     <tag>confirm</tag>
@@ -4031,7 +4131,7 @@ An update was downloaded. It will be installed during restart.
  icon="alertmodal.tga"
  name="UpdateCheckError"
  type="alertmodal">
-An error occurred while checking for update.
+An error occured while checking for update.
 Please try again later.
     <tag>confirm</tag>
     <usetemplate
@@ -4040,11 +4140,11 @@ Please try again later.
   </notification>
 
   <notification
- icon="alertmodal.tga"
+ icon="notifytip.tga"
  name="UpdateViewerUpToDate"
- type="alertmodal">
+ type="notifytip">
 Your viewer is up to date!
-If you can't wait to try out the latest features and fixes, check out the Alternate Viewers page. http://wiki.secondlife.com/wiki/Linden_Lab_Official:Alternate_Viewers.
+If you can't wait to try out the latest features and fixes, go compile the [https://bitbucket.org/polarityviewer/ source code] yourself.
     <tag>confirm</tag>
     <usetemplate
      name="okbutton"
@@ -4587,7 +4687,7 @@ Request a teleport to [NAME] with the following message
     <tag>confirm</tag>
     <form name="form">
       <input name="message" type="text">
-
+May I join you?
       </input>
       <button
        default="true"
@@ -4659,7 +4759,7 @@ Are you sure you want to teleport to &lt;nolink&gt;[LOCATION]&lt;/nolink&gt;?
      name="okcancelignore"
      notext="Cancel"
      yestext="Teleport"/>
-  </notification>	
+  </notification> 
 
   <notification
    icon="alertmodal.tga"
@@ -5003,13 +5103,13 @@ Are you sure you want to change the Estate Covenant?
     <tag>confirm</tag>
     The region you're trying to visit contains [REGIONMATURITY] content, which is accessible to adults only.
     <url option="0" name="url">
-		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+    http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
      yestext="Go to Knowledge Base"
-	 notext="Close"
-	 ignoretext="Region crossing: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
+   notext="Close"
+   ignoretext="Region crossing: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -5091,8 +5191,8 @@ The region you're trying to visit contains [REGIONMATURITY] content, but your cu
     <usetemplate
      name="okcancelignore"
      yestext="Go to Knowledge Base"
-	 notext="Close"
-	 ignoretext="Teleport: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
+   notext="Close"
+   ignoretext="Teleport: The region you&apos;re trying to visit contains content which is accessible to adults only."/>
   </notification>
 
   <notification
@@ -5232,13 +5332,13 @@ You won't receive any more notifications that you're about to visit a region wit
     <tag>fail</tag>
     <tag>confirm</tag>
     <url option="0" name="url">
-		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+    http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
      yestext="Go to Knowledge Base"
-	 notext="Close"
-	 ignoretext="Only adults can claim this land."/>
+   notext="Close"
+   ignoretext="Only adults can claim this land."/>
   </notification>
 
   <notification
@@ -5301,13 +5401,13 @@ You won't receive any more notifications that you're about to visit a region wit
     <tag>confirm</tag>
   <tag>fail</tag>
     <url option="0" name="url">
-		http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
+    http://wiki.secondlife.com/wiki/Linden_Lab_Official:Maturity_ratings:_an_overview
     </url>
     <usetemplate
      name="okcancelignore"
      yestext="Go to Knowledge Base"
-	 notext="Close"
-	 ignoretext="Only adults can buy this land."/>
+   notext="Close"
+   ignoretext="Only adults can buy this land."/>
   </notification>
 
   <notification
@@ -5351,29 +5451,29 @@ You won't receive any more notifications that you're about to visit a region wit
     </form>
   </notification>
 
-	<notification
-	  icon="alertmodal.tga"
-	  name="TooManyPrimsSelected"
-	  type="alertmodal">
+  <notification
+    icon="alertmodal.tga"
+    name="TooManyPrimsSelected"
+    type="alertmodal">
 There are too many prims selected.  Please select [MAX_PRIM_COUNT] or fewer prims and try again
   <tag>fail</tag>
-		<usetemplate
-		 name="okbutton"
-		 yestext="OK"/>
-	</notification>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
-	<notification
-	  icon="alertmodal.tga"
-	  name="TooManyScriptsSelected"
-	  type="alertmodal">
+  <notification
+    icon="alertmodal.tga"
+    name="TooManyScriptsSelected"
+    type="alertmodal">
 Too many scripts in the objects selected.  Please select fewer objects and try again
   <tag>fail</tag>
-		<usetemplate
-		 name="okbutton"
-		 yestext="OK"/>
-	</notification>
+    <usetemplate
+     name="okbutton"
+     yestext="OK"/>
+  </notification>
 
-	<notification
+  <notification
    icon="alertmodal.tga"
    name="ProblemImportingEstateCovenant"
    type="alertmodal">
@@ -6344,7 +6444,7 @@ You must have payment information on file to visit this area.  Do you want to go
     <tag>confirm</tag>
     <url option="0" name="url">
 
-			https://secondlife.com/account/
+      https://secondlife.com/account/
     </url>
     <usetemplate
      ignoretext="I lack payment information on file"
@@ -7087,7 +7187,7 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
 
   <notification
-	icon="notify.tga"
+  icon="notify.tga"
    name="RegionAboutToShutdown"
    persist="false"
    type="notify">
@@ -7096,208 +7196,208 @@ You can only claim public land in the Region you&apos;re in.
   </notification>
   
   <notification
-	icon="notify.tga"
-	name="URBannedFromRegion"
+  icon="notify.tga"
+  name="URBannedFromRegion"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 You are banned from the region.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoTeenGridAccess"
+  icon="notify.tga"
+  name="NoTeenGridAccess"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Your account cannot connect to this teen grid region.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="ImproperPaymentStatus"
+  icon="notify.tga"
+  name="ImproperPaymentStatus"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 You do not have proper payment status to enter this region.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="MustGetAgeRegion"
+  icon="notify.tga"
+  name="MustGetAgeRegion"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 You must be age 18 or over to enter this region.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="MustGetAgeParcel"
+  icon="notify.tga"
+  name="MustGetAgeParcel"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
     You must be age 18 or over to enter this parcel.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoDestRegion"
+  icon="notify.tga"
+  name="NoDestRegion"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 No destination region found.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NotAllowedInDest"
+  icon="notify.tga"
+  name="NotAllowedInDest"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 You are not allowed into the destination.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="RegionParcelBan"
+  icon="notify.tga"
+  name="RegionParcelBan"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Cannot region cross into banned parcel. Try another way.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="TelehubRedirect"
+  icon="notify.tga"
+  name="TelehubRedirect"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 You have been redirected to a telehub.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="CouldntTPCloser"
+  icon="notify.tga"
+  name="CouldntTPCloser"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Could not teleport closer to destination.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="TPCancelled"
+  icon="notify.tga"
+  name="TPCancelled"
    persist="true"
-	type="notify">
+  type="notify">
 Teleport cancelled.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="FullRegionTryAgain"
+  icon="notify.tga"
+  name="FullRegionTryAgain"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 The region you are attempting to enter is currently full.
 Please try again in a few moments.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="GeneralFailure"
+  icon="notify.tga"
+  name="GeneralFailure"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 General failure.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="RoutedWrongRegion"
+  icon="notify.tga"
+  name="RoutedWrongRegion"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Routed to wrong region. Please try again.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoValidAgentID"
+  icon="notify.tga"
+  name="NoValidAgentID"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 No valid agent id.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoValidSession"
+  icon="notify.tga"
+  name="NoValidSession"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 No valid session id.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoValidCircuit"
+  icon="notify.tga"
+  name="NoValidCircuit"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 No valid circuit code.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoPendingConnection"
+  icon="notify.tga"
+  name="NoPendingConnection"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Unable to create pending connection.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="InternalUsherError"
+  icon="notify.tga"
+  name="InternalUsherError"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Internal error attempting to connect agent usher.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoGoodTPDestination"
+  icon="notify.tga"
+  name="NoGoodTPDestination"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Unable to find a good teleport destination in this region.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="InternalErrorRegionResolver"
+  icon="notify.tga"
+  name="InternalErrorRegionResolver"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 Internal error attempting to activate region resolver.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoValidLanding"
+  icon="notify.tga"
+  name="NoValidLanding"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 A valid landing point could not be found.
   </notification>
 
   <notification
-	icon="notify.tga"
-	name="NoValidParcel"
+  icon="notify.tga"
+  name="NoValidParcel"
    persist="true"
-	type="notify">
+  type="notify">
    <tag>fail</tag>
 No valid parcel could be found.
   </notification>
@@ -7345,6 +7445,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="UserGiveItem"
+   label="Inventory offer from [NAME_LABEL]"
    log_to_im ="true"
    type="offer"
    sound="UISndNewIncomingIMSession">
@@ -7402,6 +7503,7 @@ Your object named &lt;nolink&gt;[OBJECTFROMNAME]&lt;/nolink&gt; has given you th
   <notification
    icon="notify.tga"
    name="TeleportOffered"
+   label="Teleport offer from [NAME_LABEL]"
    log_to_im="true"
    log_to_chat="false"
    type="offer"
@@ -7472,8 +7574,20 @@ However, this region contains content accessible to adults only.
    log_to_chat="false"
    show_toast="false"
    type="notify">
-	Teleport offer sent to [TO_NAME]
+  Teleport offer sent to [TO_NAME]
   </notification>
+
+<!-- <polarity> Teleport request confirmation -->
+  <notification
+   icon="notify.tga"
+   name="TeleportRequestSent"
+   log_to_im="true"
+   log_to_chat="false"
+   show_toast="false"
+   type="notify">
+  Teleport request &apos;[MESSAGE]&apos; sent to [TO_NAME]
+  </notification>
+<!-- </polarity> -->
 
   <notification
    icon="notify.tga"
@@ -7519,6 +7633,7 @@ Offer a teleport?
   <notification
    icon="notify.tga"
    name="OfferFriendship"
+   label="Friendship offer from [NAME_LABEL]"
    log_to_im="true"
    type="offer">
     <tag>friendship</tag>
@@ -7546,12 +7661,13 @@ Offer a teleport?
    log_to_im="true"   
    type="notify">
     <tag>friendship</tag>
-	You have offered friendship to [TO_NAME]
+  You have offered friendship to [TO_NAME]
   </notification>
 
   <notification
    icon="notify.tga"
    name="OfferFriendshipNoMessage"
+   label="Friendship offer from [NAME_LABEL]"
    persist="true"
    type="notify">
     <tag>friendship</tag>
@@ -7656,7 +7772,7 @@ Load web page [URL] ?
 [MESSAGE]
 
 From object: &lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;, owner: [NAME_SLURL]
-	<tag>confirm</tag>
+  <tag>confirm</tag>
     <form name="form">
       <button
        index="0"
@@ -7899,27 +8015,27 @@ Do not allow access if you do not fully understand why it wants access to your a
 
   <notification
    icon="notify.tga"
-	 name="UnknownScriptQuestion"
-	 persist="false"
-	 type="notify">
+   name="UnknownScriptQuestion"
+   persist="false"
+   type="notify">
 The runtime script permission requested by &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, isn&apos;t recognized by the viewer and can&apos;t be granted.
 
 To grant this permission please update your viewer to the latest version from [DOWNLOADURL].
-		<tag>confirm</tag>
-		<form name="form">
-			<button
-			 default="true"
-			 index="1"
-			 name="Deny"
-			 text="Ok"/>
-			<button
-			 index="2"
-			 name="Mute"
-			 text="Block"/>
-		</form>
-	</notification>
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       default="true"
+       index="1"
+       name="Deny"
+       text="Ok"/>
+      <button
+       index="2"
+       name="Mute"
+       text="Block"/>
+    </form>
+  </notification>
 
-	<notification
+  <notification
    icon="notify.tga"
    name="ScriptDialog"
    show_toast="false"
@@ -8393,17 +8509,17 @@ Are you sure you want to close all IMs?
   </notification>
 
   <notification icon="notifytip.tga"
-		name="AttachmentSaved" type="notifytip">
+    name="AttachmentSaved" type="notifytip">
 Attachment has been saved.
   </notification>
   
   <notification icon="notify.tga" persist="true"
-		name="AppearanceToXMLSaved" type="notify">
+    name="AppearanceToXMLSaved" type="notify">
 Appearance has been saved to XML to [PATH]
   </notification>
   
     <notification icon="notifytip.tga"
-		name="AppearanceToXMLFailed" type="notifytip">
+    name="AppearanceToXMLFailed" type="notifytip">
 Failed to save appearance to XML.
   </notification>
 
@@ -8535,7 +8651,7 @@ With the following Residents:
 
 &lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
-	<usetemplate
+  <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
      yestext="OK"/>
@@ -8555,7 +8671,7 @@ With the following Residents:
 
 &lt;nolink&gt;[RESIDENTS]&lt;/nolink&gt;
   <tag>confirm</tag>
-	<usetemplate
+  <usetemplate
      name="okcancelbuttons"
      notext="Cancel"
      yestext="Ok"/>
@@ -8584,7 +8700,7 @@ Deed to group failed.
 The parcel [PARCEL_NAME] can not be abandoned at this time.
    <tag>fail</tag>
   </notification>
-	
+  
   <notification
    icon="notifytip.tga"
    name="ReleasedLandWithReclaim"
@@ -8594,7 +8710,7 @@ The [AREA] m² parcel &apos;[PARCEL_NAME]&apos; has been released.
 You will have [RECLAIM_PERIOD] hours to reclaim for L$0 before it is set for sale to anyone.
    <tag>fail</tag>
   </notification>
-	
+  
   <notification
    icon="notifytip.tga"
    name="ReleasedLandNoReclaim"
@@ -8722,7 +8838,7 @@ You uploaded a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] second
 ( [EXISTENCE] seconds alive )
 You locally updated a [RESOLUTION] baked texture for '[BODYREGION]' after [TIME] seconds.
   </notification>
-	
+  
   <notification
    icon="alertmodal.tga"
    name="CannotUploadTexture"
@@ -8898,8 +9014,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_NOT_PERMITTED"
    type="alertmodal">
-	The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, not allowed by rule set.
-	<tag>fail</tag>
+  The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, not allowed by rule set.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8909,19 +9025,19 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_CONNECT_ERROR"
    type="alertmodal">
-	The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, could not open TCP channel.
-	<tag>fail</tag>
+  The SOCKS 5 proxy "[HOST]:[PORT]" refused the connection, could not open TCP channel.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
-     yestext="OK"/>	 
+     yestext="OK"/>  
   </notification>
 
   <notification
    icon="alertmodal.tga"
    name="SOCKS_NOT_ACCEPTABLE"
    type="alertmodal">
-	The SOCKS 5 proxy "[HOST]:[PORT]" refused the selected authentication system.
-	<tag>fail</tag>
+  The SOCKS 5 proxy "[HOST]:[PORT]" refused the selected authentication system.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8931,8 +9047,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_AUTH_FAIL"
    type="alertmodal">
-	The SOCKS 5 proxy "[HOST]:[PORT]" reported your credentials are invalid.
-	<tag>fail</tag>
+  The SOCKS 5 proxy "[HOST]:[PORT]" reported your credentials are invalid.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8942,8 +9058,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_UDP_FWD_NOT_GRANTED"
    type="alertmodal">
-	The SOCKS 5 proxy "[HOST]:[PORT]" refused the UDP associate request.
-	<tag>fail</tag>
+  The SOCKS 5 proxy "[HOST]:[PORT]" refused the UDP associate request.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8953,8 +9069,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_HOST_CONNECT_FAILED"
    type="alertmodal">
-	Could not connect to SOCKS 5 proxy server "[HOST]:[PORT]".
-	<tag>fail</tag>
+  Could not connect to SOCKS 5 proxy server "[HOST]:[PORT]".
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8964,8 +9080,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_UNKNOWN_STATUS"
    type="alertmodal">
-	Unknown proxy error with server "[HOST]:[PORT]".
-	<tag>fail</tag>
+  Unknown proxy error with server "[HOST]:[PORT]".
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8975,8 +9091,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_INVALID_HOST"
    type="alertmodal">
-	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
-	<tag>fail</tag>
+  Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8986,8 +9102,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="SOCKS_BAD_CREDS"
    type="alertmodal">
-	Invalid SOCKS 5 username or password.
-	<tag>fail</tag>
+  Invalid SOCKS 5 username or password.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -8998,7 +9114,7 @@ Click and drag anywhere on the world to rotate your view
    name="PROXY_INVALID_HTTP_HOST"
    type="alertmodal">
     Invalid HTTP proxy address or port "[HOST]:[PORT]".
-	<tag>fail</tag>
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -9008,8 +9124,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="PROXY_INVALID_SOCKS_HOST"
    type="alertmodal">
-	Invalid SOCKS proxy address or port "[HOST]:[PORT]".
-	<tag>fail</tag>
+  Invalid SOCKS proxy address or port "[HOST]:[PORT]".
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -9019,8 +9135,8 @@ Click and drag anywhere on the world to rotate your view
    icon="alertmodal.tga"
    name="ChangeProxySettings"
    type="alert">
-	Proxy settings take effect after you restart [APP_NAME].
-	<tag>fail</tag>
+  Proxy settings take effect after you restart [APP_NAME].
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -9149,8 +9265,8 @@ The site at &apos;&lt;nolink&gt;[HOST_NAME]&lt;/nolink&gt;&apos; in realm &apos;
     <unique/>
     <tag>fail</tag>
     <tag>confirm</tag>
-	  Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
-	  <usetemplate
+    Paying other residents is only available in Advanced mode. Would you like to logout and change modes?
+    <usetemplate
    name="okcancelbuttons"
    yestext="Quit"
    notext="Don't Quit"/>
@@ -9363,7 +9479,7 @@ If you continue to have problems, please visit the [SUPPORT_SITE].
   </global>
 
 <!-- these are alert strings from server. the name needs to match entire the server string, and needs to be changed
-	whenever the server string changes -->
+  whenever the server string changes -->
    <global name="You can only set your 'Home Location' on your land or at a mainland Infohub.">
 If you own a piece of land, you can make it your home location.
 Otherwise, you can look at the Map and find places marked &quot;Infohub&quot;.
@@ -9849,6 +9965,69 @@ Eject failed because you don't have admin permission for that parcel.
 
   <notification
    icon="alertmodal.tga"
+   name="CantMoveObjectParcelFull"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because the parcel is full.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectParcelPerms"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because your objects are not allowed on this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectParcelResources"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because there are not enough resources for this object on this parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="NoParcelPermsNoObject"
+   type="notify">
+   <tag>fail</tag>
+Copy failed because you lack access to that parcel.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectRegionVersion"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because the other region is running an older version which does not support receiving this object via region crossing.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectNavMesh"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because you cannot modify the navmesh across region boundaries.
+  </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="CantMoveObjectWTF"
+   type="notify">
+   <tag>fail</tag>
+Can't move object '[OBJECT_NAME]' to
+[OBJ_POSITION] in region [REGION_NAME] because of an unknown reason. ([FAILURE_TYPE])
+  </notification>
+
+<!-- The LL viewer comes with these, did they rename the server notifications? -->
+  <notification
+   icon="alertmodal.tga"
    name="CMOParcelFull"
    type="notify">
    <tag>fail</tag>
@@ -9908,6 +10087,8 @@ Can't move object '[O]' to
 Can't move object '[O]' to
 [P] in region [R] because of an unknown reason. ([F])
   </notification>
+  
+<!-- ------------------------------ -->
 
   <notification
    icon="alertmodal.tga"
@@ -11150,7 +11331,36 @@ An internal error prevented us from properly updating your viewer.  The L$ balan
    <tag>fail</tag>
 Cannot create large prims that intersect other players.  Please re-try when other players have moved.
   </notification>
-  
+
+  <notification
+   icon="alertmodal.tga"
+   name="RLVChangeStrings"
+   type="alertmodal">
+Changes won't take effect until after you restart [APP_NAME].
+  </notification>
+
+
+  <notification
+   icon="notify.tga"
+   name="RLVaListRequested"
+   label="Restriction request from [NAME_LABEL]"
+   log_to_im="true"
+   log_to_chat="false"
+   type="offer">
+[NAME_SLURL] has requested to be sent a list of your currently active RLV restrictions.
+    <tag>confirm</tag>
+    <form name="form">
+      <button
+       index="0"
+       name="Allow"
+       text="Allow"/>
+      <button
+       index="1"
+       name="Deny"
+       text="Deny"/>
+    </form>
+  </notification>
+
   <notification
    icon="alertmodal.tga"
    name="PreferenceChatClearLog"
@@ -11192,8 +11402,8 @@ Cannot create large prims that intersect other players.  Please re-try when othe
    icon="alertmodal.tga"
    name="DefaultObjectPermissions"
    type="alert">
-	There was a problem saving the default object permissions: [REASON].  Please try setting the default permissions later.
-	<tag>fail</tag>
+  There was a problem saving the default object permissions: [REASON].  Please try setting the default permissions later.
+  <tag>fail</tag>
    <usetemplate
      name="okbutton"
      yestext="OK"/>
@@ -11208,16 +11418,223 @@ Cannot create large prims that intersect other players.  Please re-try when othe
      name="okbutton"
      yestext="OK"/>
   </notification>
-  
-  
+ 
   <notification
    icon="alert.tga"
    name="OutfitPhotoLoadError"
    type="alertmodal">
-    [REASON]
-    <tag>fail</tag>
+ </notification>
+
+  <notification
+   icon="notifytip.tga"
+   name="ChatCommandCalc"
+   type="notifytip">
+   Calculation: [EXPRESSION] = [RESULT]
+  </notification>
+
+ <notification
+  icon="notify"
+  name="NoseyLookAt"
+  type="alertmodal">
+The Polarity Viewer Project does not endorse hiding your own lookat while displaying those of other users, as it is a privacy concern to some people.
+
+We ask that you consider this carefully before choosing that route.
+  <usetemplate
+  name="okcancelbuttons"
+  yestext="I understand"
+  notext="Keep them hidden"/>
+ </notification>
+
+ <notification
+  icon="notifytip.png"
+  name="ServerVersionChanged"
+  type="notifytip">
+The simulator version or channel has changed
+Now: [NEWVERSION]
+Was: [OLDVERSION]
+ </notification>
+
+ <notification
+  icon="notify"
+  name="LSLColorCopiedToClipboard"
+  type="notifytip">
+Color vector copied to clipboard. Have fun!
+  <form name="form">
+    <ignore name="ignore"
+     text="An LSL color string was copied to my clipboard"/>
+    </form>
+ </notification>
+
+ <!-- Sanity Check -->
+ <notification
+  icon="notify.png"
+  name="SanityCheck"
+  type="alertmodal">
+[APP_NAME] has detected a possible issue with your settings:
+
+[SANITY_MESSAGE]
+
+Reason: [SANITY_COMMENT]
+
+Current setting: [CURRENT_VALUE]
+  <form name="form">
+    <ignore name="ignore"
+     text="A settings control has failed the sanity check."/>
+    </form>
+ </notification>
+ <!-- Sanity Check -->
+
+ <notification
+  icon="notify"
+  name="ControlNameCopiedToClipboard"
+  type="notifytip">
+Setting name copied to clipboard. Please don't break other people's viewer.
+  <form name="form">
+    <ignore name="ignore"
+     text="A debug setting's name was copied to my clipboard"/>
+    </form>
+ </notification>
+
+ <notification
+  icon="notify"
+  name="AskForDisplayPreferencesReset"
+  type="alertmodal">
+Your Graphic card seems to have changed
+
+from &apos;[LAST_GPU]&apos;
+to &apos;[THIS_GPU]&apos;
+
+Would you like to reset the graphic preferences?
+  <usetemplate
+  name="yesnocancelbuttons"
+  yestext="Reset now"
+  notext="Leave as-is"
+  canceltext="Never reset"/>
+ </notification>
+
+ <notification
+  icon="alertmodal.png"
+  name="BlockedReleaseReason"
+  type="alertmodal">
+  [REASON]
+  <usetemplate
+   name="okbutton"
+   yestext="OK"/>
+ </notification>
+
+ <notification
+  icon="notify"
+  label="Apply Windlight settings"
+  name="PVWindLight_Parcel_Ask"
+  type="notify">
+&apos;[PARCEL_NAME]&apos;, owned by [OWNER_NAME], would like to change your Windlight visual environment settings.
+    <form name="form">
+    <button
+     index="0"
+     name="Allow"
+     text="Allow"/>
+    <button
+     index="1"
+     name="Ignore"
+     text="Ignore"/>
+    </form>
+ </notification>
+
+ <notification
+  icon="notify"
+  label="Reset Windlight settings"
+  name="PVWindLight_Parcel_Clear"
+  type="notify">
+Reset WL settings for &apos;[PARCEL_NAME]&apos; to region default?
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="Yes"/>
+ </notification>
+
+  <notification
+   icon="alertmodal.tga"
+   name="MuteDeveloper"
+   type="alertmodal">
+Sorry, you cannot block [APP_NAME] developers.
+  <tag>fail</tag>
     <usetemplate
      name="okbutton"
+     yestext="OK"/>
+  </notification>
+
+  <notification
+   name="CinematicConfirmHideUI"
+   label=""
+   type="alertmodal">
+    <unique/>
+    <tag>confirm</tag>
+    Cinematic Mode hides most of the UI, the voice dots and your huds. To get them back, press [SHORTCUT].
+    <usetemplate
+    name="okcancelignore"
+    yestext="OK"
+    notext="Cancel"
+    ignoretext="Confirm before enabling Cinematic Mode"/>
+  </notification>
+
+  <notification
+    icon="notifytip.png"
+    name="PVData_ColorBug"
+    persist="true"
+    type="notifytip">
+    Color Manager caught a bug!
+Avatar: secondlife:///app/agent/[AVATAR_ID]/inspect (AVATAR_ID)
+Flags: [PV_FLAGS] 
+Color: [PV_COLOR] 
+[MESSAGE]
+    Please report this occurence and send the lines above to the Polarity Developers
+  </notification>
+
+ <notification
+  icon="notifytip.png"
+  name="GenericNotifyTip"
+  type="notifytip">
+  [MESSAGE]
+ </notification>
+
+ <notification
+  icon="notifytip.png"
+  name="GenericNotify"
+  type="notify">
+  [MESSAGE]
+ </notification>
+
+<!-- Resurrected from Firestorm -->
+  <notification
+   icon="alertmodal.tga"
+   name="DeleteOutfitsWithName"
+   type="alertmodal">
+    Delete outfit &quot;[NAME]&quot;?
+    <tag>confirm</tag>
+    <usetemplate
+     name="okcancelbuttons"
+     notext="Cancel"
+     yestext="OK"/>
+  </notification>
+
+ <notification
+  icon="notifytip.png"
+  name="GenericBeggarNotifyTip"
+  persist="true"
+  type="notifytip">
+  secondlife:///app/agent/[AVATAR_ID]/inspect seems to be a beggar. You can opt to secondlife:///app/agent/[AVATAR_ID]/mute
+ </notification>
+
+  <notification
+     icon="alertmodal.tga"
+     name="ConfirmScriptModify"
+    type="alertmodal">
+    Are you sure you want to modify scripts in selected objects?
+    <tag>confirm</tag>
+    <usetemplate
+    ignoretext="Confirm before I modify scripts in selection"
+     name="okcancelignore"
+     notext="Cancel"
      yestext="OK"/>
   </notification>
 
