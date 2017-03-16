@@ -1563,16 +1563,22 @@
         <real>0.275</real>
       </array>
     </map>
-    <key>PVRender_RiggedAttachmentLODForceToMaximum</key>
+    <key>PVRender_ForcedRiggedLOD</key>
     <map>
       <key>Comment</key>
-      <string>Force avatar attachments to be rendered at their maximum level of detail.</string>
+      <string>Force avatar attachments to be rendered at the specified level of detail.
+-1 = Auto
+0 = Lowest
+1 = Medium
+2 = High
+3 = Highest
+</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>Boolean</string>
+      <string>S32</string>
       <key>Value</key>
-      <integer>0</integer>
+      <integer>-1</integer>
     </map>
     <key>PVRender_RiggedAttachmentLODForceToMinimum</key>
     <map>

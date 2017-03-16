@@ -979,15 +979,10 @@ BOOL LLVOVolume::setVolume(const LLVolumeParams &params_in, const S32 detail, bo
 			if (isAttachment())
 			{
 				// TODO: Find how to optionally restrict to gAgent/self. I can't find how to get the attachment owner.
-				static LLCachedControl<bool> force_max_lod(gSavedSettings, "PVRender_RiggedAttachmentLODForceToMaximum", false);
-				static LLCachedControl<bool> force_min_lod(gSavedSettings, "PVRender_RiggedAttachmentLODForceToMinimum", false);
-				if (force_min_lod && !force_max_lod)
+				static LLCachedControl<S32> rigged_LOD(gSavedSettings, "PVRender_ForcedRiggedLOD", -1);
+				if (rigged_LOD != -1)
 				{
-					lod = 0;
-				}
-				else if (!force_min_lod && force_max_lod)
-				{
-					lod = 3;
+					lod = static_cast<S32>(rigged_LOD);
 				}
 			}
 		}
