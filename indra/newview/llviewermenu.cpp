@@ -2452,6 +2452,71 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 };
 #endif
 
+//
+////-------------------------------------------------------------------
+//// Polarity menu
+////-------------------------------------------------------------------
+
+class PVMenuPanicButton : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		PVPerformanceMaid::TriggerPanicMode();
+		return true;
+	}
+};
+
+class PVMenuCinematicMode : public view_listener_t
+{
+	bool handleEvent(const LLSD& userdata)
+	{
+		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
+		{
+			// Do nothing
+			return false;
+		}
+
+		LLNotification::Params params("CinematicConfirmHideUI");
+		params.functor.function(boost::bind(&PVMenuCinematicMode::confirm, this, _1, _2));
+		LLSD substitutions;
+#if LL_DARWIN
+		substitutions["SHORTCUT"] = "Ctrl+Alt+Shift+C";
+#else
+		substitutions["SHORTCUT"] = "Alt+Shift+C";
+#endif
+		params.substitutions = substitutions;
+		if (!PVMachinimaTools::isEnabled())
+		{
+			// hiding, so show notification
+			LLNotifications::instance().add(params);
+		}
+		else
+		{
+			LLNotifications::instance().forceResponse(params, 0);
+		}
+		return true;
+	}
+
+	void confirm(const LLSD& notification, const LLSD& response)
+	{
+		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
+		if (option == 0) // OK
+		{
+			PVMachinimaTools::toggleCinematicMode();
+		}
+	}
+};
+
+class PVMenuMachinimaSidebar : public view_listener_t
+{
+
+	bool handleEvent(const LLSD& userdata)
+	{
+		static LLCachedControl<bool> sidebar_visible(gSavedSettings, "PVUI_MachinimaSidebar", false);
+		gSavedSettings.setBOOL("PVUI_MachinimaSidebar", !sidebar_visible);
+		return true;
+	}
+};
 
 //
 ////-------------------------------------------------------------------
@@ -9902,9 +9967,9 @@ void initialize_menus()
 
 	// Polarity Menu
 	// FIXME: inaccessible private member
-	// view_listener_t::addMenu(new PVPerformanceMaidPanicButton(), "Polarity.PanicButton");
-	//view_listener_t::addMenu(new PVCinematicMode(), "Polarity.CinematicMode");
-	// view_listener_t::addMenu(new PVMachinimaSidebar(), "Polarity.MachinimaSidebar");
+	view_listener_t::addMenu(new PVMenuPanicButton(), "Polarity.PanicButton");
+	view_listener_t::addMenu(new PVMenuCinematicMode(), "Polarity.CinematicMode");
+	view_listener_t::addMenu(new PVMenuMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");

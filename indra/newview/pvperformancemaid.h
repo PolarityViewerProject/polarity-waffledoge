@@ -49,8 +49,6 @@ public:
 	}
 
 	static void TriggerPanicMode();
-
-	bool handleEvent(const LLSD& userdata);
 };
 
 #endif // PV_PERFORMANCEMAID_H

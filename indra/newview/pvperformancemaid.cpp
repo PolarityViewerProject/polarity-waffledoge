@@ -52,9 +52,3 @@ void PVPerformanceMaid::TriggerPanicMode()
 		PVPerformanceMaid::instance().in_panic_mode_ = false;
 	}
 }
-
-bool PVPerformanceMaid::handleEvent(const LLSD& userdata)
-{
-	TriggerPanicMode();
-	return true;
-}

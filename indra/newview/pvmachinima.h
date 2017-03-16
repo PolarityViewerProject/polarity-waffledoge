@@ -27,6 +27,7 @@
 #pragma once
 
 #include "llmenugl.h"
+#include "llfloaterpreference.h"
 
 /////////////////////////////
 // Polarity Cinematic Mode //
@@ -34,41 +35,31 @@
 // Fixme: cannot be accessed from another file.
 
 // This class can be used as a function to toggle Name Tags, User Interface, HUDs and voice dots as a whole
-class PVMachinimaTools : public view_listener_t,
-                        public LLSingleton<PVMachinimaTools> // This enables the use of ::instance() to call this function/class without a boost bind. - Xenhat 2015.09.22
+class PVMachinimaTools : public LLSingleton<PVMachinimaTools>
 {
-	LLSINGLETON(PVMachinimaTools);
-	bool handleEvent(const LLSD& userdata) override;
-	void confirm(const LLSD& notification, const LLSD& response);
-protected:
-	LLPointer<LLControlVariable> voice_indicator_variable_;
-	LLPointer<LLControlVariable> name_tag_mode_variable_;
-	LLPointer<LLControlVariable> hover_tips_variable_;
+	LLSINGLETON_EMPTY_CTOR(PVMachinimaTools);
 	// 0=Show all, 1= Hide all, 2= Dots only, 3=Waves Only
-	S32 previous_voice_dot_setting_ = 0;
+	static S32 previous_voice_dot_setting_;
 	// 0=Hidden, 1=Visible, 2=Auto-hide
-	S32 previous_render_name_ = 2;
+	static S32 previous_render_name_;
 	// false=Show for all, true=Hide for all
-	bool previous_chat_anim_setting_ = false;
+	static bool previous_chat_anim_setting_;
 	// Hover tips
-	bool previous_hovertips_setting_ = false;
-	bool previous_show_typing_ = false;
-public:
-	void toggleCinematicMode();
-
-	bool previous_hud_visibility = false;
+	static bool previous_hovertips_setting_;
+	static bool previous_show_typing_;
+	static bool previous_hud_visibility;
 	// Keeps track of the Cinematic Mode status.
 	static bool cinematic_mode_enabled_;
+public:
+	static void toggleCinematicMode();
 	// Wether or not we are in the Cinematic Mode.
 	static bool isEnabled();
 };
 
 
-class PVMachinimaSidebar : public view_listener_t,
-                           public LLSingleton<PVMachinimaTools>
+class PVMachinimaSidebar : public LLFloaterPreference, public LLSingleton<PVMachinimaTools>
 {
 	LLSINGLETON(PVMachinimaSidebar);
-	bool handleEvent(const LLSD& userdata) override;
 public:
 	static bool isVisible(const LLSD& userdata);
 };
