@@ -353,6 +353,8 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 				;
 			boost::smatch matches;
 			std::string::const_iterator bstart = buffer.begin();
+			// performance optimization
+			const auto len_hack = std::strlen("error; cannot find { or :");
 			while (boost::regex_search(bstart, std::string::const_iterator(buffer.end()), matches, findswitches, boost::match_default))
 			{
 				if (matches[1].matched)
@@ -418,7 +420,7 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 								LL_DEBUGS("FSLSLPreprocessor") << "error in regex case_end != -1" << LL_ENDL;
 								rstate.erase(case_start, caselen);
 								rstate.insert(case_start, "error; cannot find { or :");
-								rstart = rstate.begin() + (case_start + std::strlen("error; cannot find { or :"));
+								rstart = rstate.begin() + (case_start + len_hack);
 							}
 						}
 						else
