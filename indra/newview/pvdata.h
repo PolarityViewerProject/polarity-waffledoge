@@ -291,7 +291,7 @@ class LLUUID;
 		* \param name Name of LLSD to display in log
 		* \param map LLSD to dump
 		*/
-		static void Dump(const std::string name, const LLSD & map);
+		static void Dump(const std::string &name, const LLSD &map);
 
 	private:
 		/**
@@ -314,7 +314,7 @@ class LLUUID;
 		* \param show_buddy_status show buddy color if applicable
 		* \return
 		*/
-		LLColor4 getColor(LLUUID avatar_id, LLColor4 default_color, bool show_buddy_status = true);
+		LLColor4 getColor(LLUUID avatar_id, const LLColor4 &default_color, bool show_buddy_status = true);
 
 		/**
 		* \brief Check if supplied group is one of/the vendor's support group
@@ -419,7 +419,7 @@ class LLUUID;
 		 */
 		static void getChatLogsDirOverride();
 		static void setChatLogsDirOverride();
-		bool moveTranscriptsAndLog(std::string userid) const;
+		bool moveTranscriptsAndLog(const std::string &userid) const;
 
 	public:
 
@@ -611,7 +611,7 @@ class LLUUID;
 		LLSD mPVAgents_llsd;
 
 		// some color helpers
-		LLColor4 Hex2Color4(const std::string color) const;
+		LLColor4 Hex2Color4(const std::string &color) const;
 		static LLColor4 Hex2Color4(int hexValue);
 
 		static bool mBeggarCheckEnabled;

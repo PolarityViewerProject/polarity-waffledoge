@@ -84,7 +84,7 @@ size_t strnlen(const char *s, size_t n)
 }
 #endif // LL_DARWIN
 
-void PVDataOldAPI::Dump(const std::string name, const LLSD& map)
+void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 {
 	std::stringstream str;
 	LLSDSerialize::toPrettyXML(map, str);
@@ -816,7 +816,7 @@ void PVDataOldAPI::refreshDataFromServer(bool force_refresh_now)
 	}
 }
 
-LLColor4 PVDataOldAPI::Hex2Color4(const std::string color) const
+LLColor4 PVDataOldAPI::Hex2Color4(const std::string &color) const
 {
 	return Hex2Color4(stoul(color, nullptr, 16));
 }
@@ -1003,7 +1003,7 @@ void PVDataOldAPI::getChatLogsDirOverride()
 }
 
 // Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
-bool PVDataOldAPI::moveTranscriptsAndLog(std::string userid) const
+bool PVDataOldAPI::moveTranscriptsAndLog(const std::string &userid) const
 {
 	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
 	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);
@@ -1257,7 +1257,7 @@ PVAgent::PVAgent()
 		return pv_color;
 	}
 
-	LLColor4 PVDataOldAPI::getColor(LLUUID avatar_id,  LLColor4 default_color, bool show_buddy_status)
+	LLColor4 PVDataOldAPI::getColor(LLUUID avatar_id,  const LLColor4 &default_color, bool show_buddy_status)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
 		// Try to operate in the same instance, reduce call overhead
