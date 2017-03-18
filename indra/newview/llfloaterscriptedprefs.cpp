@@ -105,7 +105,7 @@ void LLFloaterScriptEdPrefs::setPreprocInclude()
 	std::string dir_name = picker.getDirName();
 	if (!dir_name.empty() && dir_name != cur_name)
 	{
-		std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));
+		//std::string new_top_folder(gDirUtilp->getBaseFileName(dir_name));
 		gSavedSettings.setString("_NACL_PreProcHDDIncludeLocation", dir_name);
 	}
 }

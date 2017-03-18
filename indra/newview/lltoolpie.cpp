@@ -1908,7 +1908,7 @@ BOOL LLToolPie::handleRightClickPick()
 
 			// Object is an avatar, so check for mute by id.
 			LLVOAvatar* avatar = (LLVOAvatar*)object;
-			std::string name = avatar->getFullname();
+			//std::string name = avatar->getFullname();
 			std::string mute_msg;
 			if (LLMuteList::getInstance()->isMuted(avatar->getID(), avatar->getFullname()))
 			{

@@ -1696,7 +1696,7 @@ void LLScriptEdCore::onBtnLoadFromFile( void* data )
 
 	std::string line;
 	std::string text;
-	std::string linetotal;
+	//std::string linetotal;
 	while (!fin.eof())
 	{ 
 		getline(fin,line);

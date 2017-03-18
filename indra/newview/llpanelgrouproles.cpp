@@ -3171,7 +3171,8 @@ void LLPanelGroupBanListSubTab::populateBanList()
 		// Baker TODO: MAINT-
 		// Check out utc_to_pacific_time()
 
-		std::string ban_date_str = bd.mBanDate.toHTTPDateString("%Y/%m/%d");
+		//std::string ban_date_str = 
+			bd.mBanDate.toHTTPDateString("%Y/%m/%d");
 // 		time_t utc_time;
 // 		utc_time = time_corrected();
 // 		LLSD substitution;

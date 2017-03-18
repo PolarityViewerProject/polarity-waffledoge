@@ -275,10 +275,10 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	// getChild<LLPanel>("login")->setDefaultBtn(findChild<LLButton>("connect_btn"));
 	// getChild<LLPanel>("start_location_panel")->setDefaultBtn(findChild<LLButton>("connect_btn"));
 
-	std::string channel = LLVersionInfo::getChannel();
-	std::string version = llformat("%s (%d)",
-								   LLVersionInfo::getShortVersion().c_str(),
-								   LLVersionInfo::getBuild());
+	//std::string channel = LLVersionInfo::getChannel();
+	//std::string version = llformat("%s (%d)",
+	//							   LLVersionInfo::getShortVersion().c_str(),
+	//							   LLVersionInfo::getBuild());
 	
 	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
 	if (forgot_password_text)

@@ -318,7 +318,8 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 		item_is_multi = TRUE;
 	};
 
-	std::string icon_name = LLInventoryIcon::getIconName(inv_item->getType(),
+	//std::string icon_name = 
+		LLInventoryIcon::getIconName(inv_item->getType(),
 										inv_item->getInventoryType(),
 										inv_item->getFlags(),
 										item_is_multi );
@@ -611,7 +612,8 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		std::string icon_name = LLInventoryIcon::getIconName(mInventoryOffer->mType,
+		//std::string icon_name = 
+			LLInventoryIcon::getIconName(mInventoryOffer->mType,
 												LLInventoryType::IT_TEXTURE);
 
 		// <FS:Ansariel> Doesn't exist as of 2015-11-27

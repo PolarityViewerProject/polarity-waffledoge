@@ -6213,7 +6213,7 @@ void LLAppViewer::PVGetDynamicWindowTitle()
 		mTitleBarUpdateTimer.start();
 		return;
 	}
-	std::string last_title = gWindowTitle;
+	//std::string last_title = gWindowTitle;
 	std::string new_title;
 
 	static LLCachedControl<bool> title_anonymize(gSavedSettings, "PVWindow_TitleAnonymize", FALSE);

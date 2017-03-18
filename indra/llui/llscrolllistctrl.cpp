@@ -1610,7 +1610,7 @@ void LLScrollListCtrl::drawItems()
 		{
 			return;
 		}
-		item_list::iterator iter;
+		//item_list::iterator iter;
 		// <FS:Ansariel> Fix for FS-specific people list (radar)
 		//for (S32 line = first_line; line <= last_line; line++)
 		//{

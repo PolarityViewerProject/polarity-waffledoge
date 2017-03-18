@@ -380,7 +380,7 @@ void PeopleContextMenu::eject()
 	if (!avatar) return;
 	LLSD payload;
 	payload["avatar_id"] = avatar->getID();
-	std::string fullname = avatar->getFullname();
+	//std::string fullname = avatar->getFullname();
 
 	const LLVector3d& pos = avatar->getPositionGlobal();
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->selectParcelAt(pos)->getParcel();

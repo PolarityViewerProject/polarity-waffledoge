@@ -356,7 +356,7 @@ bool idle_startup()
 	static F32 progress = 0.10f;
 
 	static std::string auth_desc;
-	static std::string auth_message;
+	//static std::string auth_message;
 
 	static LLVector3 initial_sun_direction(1.f, 0.f, 0.f);
 	static LLVector3 agent_start_position_region(10.f, 10.f, 10.f);		// default for when no space server
