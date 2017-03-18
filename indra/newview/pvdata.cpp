@@ -958,10 +958,9 @@ std::string getRegKey(const std::string& name_) {
 
 void PVDataOldAPI::getChatLogsDirOverride()
 {
-	std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
-	std::string registry_key = "PV_CHATLOGS_LOCATION_OVERRIDE"; //@todo: Move to global
-																// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
-	char* log_location_from_registry = getenv(registry_key.c_str());
+	const std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
+	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
+	char* log_location_from_registry = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
 
 	auto log_location_from_runtime = gDirUtilp->getChatLogsDir();
 	std::string new_chat_logs_dir = "";
