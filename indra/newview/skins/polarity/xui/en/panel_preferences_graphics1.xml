@@ -1104,8 +1104,7 @@
             name="default_fpslimiter_btn"
             width="60">
             <button.commit_callback
-              function="Pref.ResetToDefault"
-              parameter="PVRender_FPSLimiterTarget">
+              function="Pref.resetFpsLimiterTarget">
             </button.commit_callback>
           </button>
         <check_box

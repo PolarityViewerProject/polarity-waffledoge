@@ -84,6 +84,7 @@ public:
 	void updateAALabel();
 	void updateMemorySlider(const bool& set_default = false);
 	void resetTextureMemorySlider();
+	void resetFpsLimiterTarget();
 
 	// static data update, called from message handler
 	static void updateUserInfo(const std::string& visibility, bool im_via_email);

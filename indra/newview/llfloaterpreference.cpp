@@ -382,6 +382,8 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.Apply", boost::bind(&LLFloaterPreference::applyGraphicsOptions, this));
 	// reset texture memory slider
 	mCommitCallbackRegistrar.add("Pref.getRecommendedtextMem", boost::bind(&LLFloaterPreference::resetTextureMemorySlider, this));
+	// reset memory slider. We use this to work around a slider update bug when resetting the underlying control
+	mCommitCallbackRegistrar.add("Pref.resetFpsLimiterTarget", boost::bind(&LLFloaterPreference::resetFpsLimiterTarget, this));
 }
 
 void LLFloaterPreference::processProperties( void* pData, EAvatarProcessorType type )
@@ -1325,6 +1327,19 @@ void LLFloaterPreference::updateMemorySlider(const bool& set_default)
 			}
 			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));
 		}
+	}
+}
+
+void LLFloaterPreference::resetFpsLimiterTarget()
+{
+	// FPS Limiter slider
+	auto controlp = gSavedSettings.getControl("PVRender_FPSLimiterTarget");
+	controlp->resetToDefault(true);
+	auto fps_limiter_slider = getChild<LLSliderCtrl>("fps_limiter_slider");
+	if (fps_limiter_slider)
+	{
+		//fps_limiter_slider->setValue(controlp.getU32("PVRender_FPSLimiterTarget"));
+		fps_limiter_slider->setValue(controlp->get().asInteger());
 	}
 }
 

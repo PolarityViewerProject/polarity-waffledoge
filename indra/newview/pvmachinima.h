@@ -27,6 +27,7 @@
 #pragma once
 
 #include "llmenugl.h"
+#include "llfloaterpreference.h"
 
 /////////////////////////////
 // Polarity Cinematic Mode //
@@ -56,7 +57,7 @@ public:
 };
 
 
-class PVMachinimaSidebar : public LLSingleton<PVMachinimaTools>
+class PVMachinimaSidebar : public LLFloaterPreference, public LLSingleton<PVMachinimaTools>
 {
 	LLSINGLETON(PVMachinimaSidebar);
 public:

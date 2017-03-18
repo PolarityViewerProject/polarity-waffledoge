@@ -1478,9 +1478,9 @@
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>S32</string>
+      <string>U32</string>
       <key>Value</key>
-      <real>-1</real>
+      <real>0</real>
     </map>
 <!--     <key>PVRender_EnableFilmGrain</key>
     <map>

@@ -40,10 +40,8 @@ const S32 FRAME_NULL_ZONE = 1;
 
 // Default values, because static and shenanigans
 F32 PVFPSMeter::mFPSMeterValue(0.f);
-S32 PVFPSMeter::mFPSLimiterTarget(0);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
-bool PVFPSMeter::mFPSLimiterEnabled(0);
 
 bool PVFPSMeter::start()
 {
@@ -51,11 +49,6 @@ bool PVFPSMeter::start()
 	{
 		return false;
 	}
-
-	// Still doesn't appear to really work yet...
-	enableLimiter(gSavedSettings.getBOOL("PVRender_FPSLimiterEnabled"));
-	setLimit(gSavedSettings.getS32("PVRender_FPSLimiterTarget"));
-
 	mStatusBarFPSCounterTimer.start();
 
 	return true;
@@ -68,9 +61,6 @@ bool PVFPSMeter::stop()
 		return false;
 	}
 	mStatusBarFPSCounterTimer.stop();
-	// save settings to be sure
-	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", mFPSLimiterEnabled);
-	gSavedSettings.setS32("PVRender_FPSLimiterTarget", mFPSLimiterTarget);
 	return true;
 }
 
@@ -86,13 +76,9 @@ bool PVFPSMeter::update()
 		//llassert(mStatusBarFPSCounterTimer.getStarted());
 		return false;
 	}
-
-	// Temporary workaround until I figure out why settings are wrong at startup
-	//static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
-	//static LLCachedControl<S32> fps_limiter_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-	//enableLimiter(fps_limiter_enabled);
-	//setLimit(fps_limiter_target);
-	// </workaround>
+	
+	static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
+	static LLCachedControl<U32> fps_limiter_target(gSavedSettings, "PVRender_FPSLimiterTarget");
 
 	// TODO: boost callback instaid of cachedcontrol check?
 	static LLCachedControl<bool> fps_counter_visible(gSavedSettings, "PVUI_StatusBarShowFPSCounter");
@@ -130,7 +116,7 @@ bool PVFPSMeter::update()
 			//­­­­­­-------------------------------|
 			// ~/~
 			static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
-			if (mFPSLimiterEnabled && (mFPSMeterValue <= (mFPSLimiterTarget + FRAME_NULL_ZONE) && mFPSMeterValue >= (mFPSLimiterTarget - FRAME_NULL_ZONE))
+			if (fps_limiter_enabled && (mFPSMeterValue <= (fps_limiter_target + FRAME_NULL_ZONE) && mFPSMeterValue >= (fps_limiter_target - FRAME_NULL_ZONE))
 				//&& mFPSMeterColor != color_limited
 				)
 			{
@@ -180,7 +166,7 @@ bool PVFPSMeter::update()
 			mStatusBarFPSCounterTimer.reset(); // Reset the FPS timer so that we can count again
 		}
 	}
-	return mFPSLimiterEnabled && (mFPSLimiterTarget != 0);
+	return fps_limiter_enabled;
 }
 std::string PVFPSMeter::getValueWithRefreshRate()
 {
@@ -193,22 +179,8 @@ std::string PVFPSMeter::getValueWithRefreshRate()
 	// else
 	if (mFPSMeterValue > 10.f)
 	{
-		decimal_precision = "%.1f";
+		decimal_precision = "%.1f ";
 	}
 	// else
 	return (llformat(decimal_precision, mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
-}
-
-void PVFPSMeter::setLimit(const S32& new_limit)
-{
-	if (new_limit >= 0)
-	{
-		mFPSLimiterTarget = new_limit;
-	}
-	else
-	{
-		mFPSLimiterTarget = LLWindowWin32::getRefreshRate();
-		// fix up FPS setting to avoid looping here and also breaking the slider
-		gSavedSettings.setS32("PVRender_FPSLimiterTarget", mFPSLimiterTarget);
-	}
 }

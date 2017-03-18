@@ -38,7 +38,7 @@ PVRender_EnableLensFlare	1	1
 PVRender_EnableSSR			1	1
 PVRender_EnableToneMapping	1	1
 PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	-1
+PVRender_FPSLimiterTarget	1	0
 PVRender_GodraysDirectional	1	1
 PVRender_ShadowDetailRigged	1	3
 PVRender_ShadowResolutionClosest	1	8192

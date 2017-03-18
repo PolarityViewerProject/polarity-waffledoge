@@ -90,6 +90,7 @@
 #include "llviewerobjectlist.h"
 
 #include "pvfpsmeter.h"
+#include "llwindowwin32.h"
 
 #ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 BOOL 				gHackGodmode = FALSE;
@@ -785,23 +786,34 @@ static bool handleCloudNoiseChanged(const LLSD& newvalue)
 ////////////////////////////////////////////////////////////////////////////
 
 // FPS Limiter
-static bool validateFPSLimiterTarget(const LLSD& val)
+static bool validateFPSLimiterTarget(const LLSD& val, bool disable_limiter_if_fail)
 {
-	const S32 fps_limit = val.asInteger();
-	return fps_limit == -1 || (fps_limit >= 15); // arbitrary limit
+	const U32 fps_limit = val.asInteger();
+	bool valid =  fps_limit == 0 || (fps_limit >= 15); // arbitrary limit
+	if (disable_limiter_if_fail && !valid)
+	{
+		gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", false);
+	}
+	return valid;
 }
 
 static bool handleFPSLimiterTargetChanged(const LLSD& val)
 {
-	const S32 fps_limit = val.asInteger();
-	PVFPSMeter::setLimit(fps_limit);
+	U32 fps_limit = val.asInteger();
+	LL_WARNS() << "Got FPS Target of " << fps_limit << LL_ENDL;
+	if (fps_limit == 0)
+	{
+		fps_limit = LLWindowWin32::getRefreshRate();
+	}
+
+	gSavedSettings.setU32("PVRender_FPSLimiterTarget", fps_limit);
 	return true;
 }
 
 static bool handleFPSLimiterEnabledChanged(const LLSD& val)
 {
 	const bool want_enabled = val.asBoolean();
-	PVFPSMeter::enableLimiter(want_enabled);
+	gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", want_enabled);
 	return true;
 }
 
@@ -1004,8 +1016,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
 	// <polarity> FPS Meter class and FPS Limiter
-	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2));
+	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2, false));
 	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
+	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, gSavedSettings.getLLSD("PVRender_FPSLimiterTarget"), true));
 	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
 }
 

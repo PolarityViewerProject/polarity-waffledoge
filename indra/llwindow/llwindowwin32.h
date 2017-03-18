@@ -124,7 +124,17 @@ public:
 	static DEVMODE mDisplayInfo;
 	static U32 mRefreshRate;
 	static U32 probeRefreshRate();
-	static U32 getRefreshRate() { return mRefreshRate; };
+	static U32 getRefreshRate()
+	{
+		if (mRefreshRate != 0)
+		{
+			return mRefreshRate;
+		}
+		else
+		{
+			return probeRefreshRate();
+		}
+	};
 
 	/*virtual*/ F32 getSystemUISize();
 
