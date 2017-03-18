@@ -583,7 +583,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 
 	std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 	LLStringUtil::trim(username);
-	size_t arobase = username.find("@");
+	size_t arobase = username.find('@');
 	if (arobase != std::string::npos)
 	{
 		username = username.substr(0, arobase);
@@ -1172,7 +1172,7 @@ std::string canonicalize_username(const std::string& name)
 {
 	std::string cname = name;
 	
-	size_t arobase = cname.find("@");
+	size_t arobase = cname.find('@');
 	if (arobase > 0)
 	{
 		cname = cname.substr(0, arobase - 1);
@@ -1205,7 +1205,7 @@ void LLPanelLogin::addUsersToCombo(BOOL show_server)
 	
 	combo->removeall();
 	std::string current_creds=credentialName();
-	if(current_creds.find("@") < 1)
+	if(current_creds.find('@') < 1)
 	{
 		current_creds = gSavedSettings.getString("UserLoginInfo");
 	}
@@ -1222,7 +1222,7 @@ void LLPanelLogin::addUsersToCombo(BOOL show_server)
 		
 		std::string credname = name;
 		std::string gridname = name;
-		size_t arobase = gridname.find("@");
+		size_t arobase = gridname.find('@');
 		if (arobase != std::string::npos && arobase + 1 < gridname.length() && arobase > 1)
 		{
 			gridname = gridname.substr(arobase + 1, gridname.length() - arobase - 1);
@@ -1353,7 +1353,7 @@ void LLPanelLogin::onSelectUser()
 	sInstance->mPasswordModified = FALSE;
 	sInstance->getChild<LLButton>("remove_user_btn")->setEnabled(TRUE);
 
-	size_t arobase = cred_name.find("@");
+	size_t arobase = cred_name.find('@');
 	if (arobase != std::string::npos && arobase + 1 < cred_name.length())
 	{
 		const std::string grid_name = cred_name.substr(arobase + 1, cred_name.length() - arobase - 1);
@@ -1417,7 +1417,7 @@ std::string LLPanelLogin::credentialName()
 	std::string username = sInstance->getChild<LLUICtrl>("username_combo")->getValue().asString();
 	LLStringUtil::trim(username);
 	
-	size_t arobase = username.find("@");
+	size_t arobase = username.find('@');
 	if (arobase != std::string::npos && arobase + 1 < username.length())
 	{
 		username = username.substr(0, arobase);

@@ -372,8 +372,8 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 					// Call recursively to process nested switch statements (FIRE-10517)
 					rstate = reformat_switch_statements(rstate);
 					//rip off the scope edges
-					S32 slicestart = rstate.find("{") + 1;
-					rstate = rstate.substr(slicestart, (rstate.rfind("}") - slicestart) - 1);
+					S32 slicestart = rstate.find('{') + 1;
+					rstate = rstate.substr(slicestart, (rstate.rfind('}') - slicestart) - 1);
 					LL_DEBUGS("FSLSLPreprocessor") << "rstate=[" << rstate << "]" << LL_ENDL;
 					boost::regex findcases(rDOT_MATCHES_NEWLINE
 						rCMNT_OR_STR"|" rSPC
@@ -390,8 +390,8 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 						if (statematches[1].matched)
 						{
 							S32 case_start = const_iterator_to_pos(rstate.begin(), statematches[1].first);
-							S32 next_curl = rstate.find("{", case_start + 1);
-							S32 next_semi = rstate.find(":", case_start + 1);
+							S32 next_curl = rstate.find('{', case_start + 1);
+							S32 next_semi = rstate.find(':', case_start + 1);
 							S32 case_end = (next_semi == -1) ? next_curl :
 								(next_curl < next_semi && next_curl != -1) ? next_curl : next_semi;
 							S32 caselen = const_iterator_to_pos(statematches[1].first, statematches[1].second);

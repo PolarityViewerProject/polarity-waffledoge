@@ -84,7 +84,7 @@ const S32 RLVa_VERSION_PATCH = 0;
 #define RLV_FOLDER_FLAG_NOSTRIP			"nostrip"
 #define RLV_FOLDER_PREFIX_HIDDEN		'.'
 #define RLV_FOLDER_PREFIX_PUTINV		'~'
-#define RLV_FOLDER_INVALID_CHARS		"/"
+const char RLV_FOLDER_INVALID_CHARS =	'/';
 
 // ============================================================================
 // Enumeration declarations
