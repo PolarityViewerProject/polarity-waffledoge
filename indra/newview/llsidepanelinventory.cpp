@@ -121,6 +121,13 @@ LLSidepanelInventory::LLSidepanelInventory()
 	, mInboxEnabled(false)
 	, mCategoriesObserver(NULL)
 	, mInboxAddedObserver(NULL)
+	, mInfoBtn(NULL)
+	, mWearBtn(NULL)
+	, mShareBtn(NULL)
+	, mShopBtn(NULL)
+	, mTeleportBtn(NULL)
+	, mPlayBtn(NULL)
+	, mOverflowBtn(NULL)
 {
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -151,6 +158,7 @@ BOOL LLSidepanelInventory::postBuild()
 	{
 		mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
+		//@TODO reduce dummy elements creation by only creating buttons in relevant panels
 		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
 		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
 		
@@ -541,17 +549,17 @@ void LLSidepanelInventory::showInventoryPanel()
 void LLSidepanelInventory::updateVerbs()
 {
 	mInfoBtn->setEnabled(FALSE);
-	mShareBtn->setEnabled(FALSE);
+	if(mShareBtn)mShareBtn->setEnabled(FALSE);
 
-	mWearBtn->setVisible(FALSE);
-	mWearBtn->setEnabled(FALSE);
-	mPlayBtn->setVisible(FALSE);
-	mPlayBtn->setEnabled(FALSE);
- 	mTeleportBtn->setVisible(FALSE);
- 	mTeleportBtn->setEnabled(FALSE);
- 	mShopBtn->setVisible(TRUE);
+	if(mWearBtn)mWearBtn->setVisible(FALSE);
+	if(mWearBtn)mWearBtn->setEnabled(FALSE);
+	if(mPlayBtn)mPlayBtn->setVisible(FALSE);
+	if(mPlayBtn)mPlayBtn->setEnabled(FALSE);
+ 	if(mTeleportBtn)mTeleportBtn->setVisible(FALSE);
+ 	if(mTeleportBtn)mTeleportBtn->setEnabled(FALSE);
+ 	if(mShopBtn)mShopBtn->setVisible(TRUE);
 
-	mShareBtn->setEnabled(canShare());
+	if(mShareBtn)mShareBtn->setEnabled(canShare());
 
 	const LLInventoryItem *item = getSelectedItem();
 	if (!item)
@@ -566,21 +574,21 @@ void LLSidepanelInventory::updateVerbs()
 		case LLInventoryType::IT_WEARABLE:
 		case LLInventoryType::IT_OBJECT:
 		case LLInventoryType::IT_ATTACHMENT:
-			mWearBtn->setVisible(TRUE);
-			mWearBtn->setEnabled(canWearSelected());
-		 	mShopBtn->setVisible(FALSE);
+			if(mWearBtn)mWearBtn->setVisible(TRUE);
+			if(mWearBtn)mWearBtn->setEnabled(canWearSelected());
+		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_SOUND:
 		case LLInventoryType::IT_GESTURE:
 		case LLInventoryType::IT_ANIMATION:
-			mPlayBtn->setVisible(TRUE);
-			mPlayBtn->setEnabled(TRUE);
-		 	mShopBtn->setVisible(FALSE);
+			if(mPlayBtn)mPlayBtn->setVisible(TRUE);
+			if(mPlayBtn)mPlayBtn->setEnabled(TRUE);
+		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_LANDMARK:
-			mTeleportBtn->setVisible(TRUE);
-			mTeleportBtn->setEnabled(TRUE);
-		 	mShopBtn->setVisible(FALSE);
+			if(mTeleportBtn)mTeleportBtn->setVisible(TRUE);
+			if(mTeleportBtn)mTeleportBtn->setEnabled(TRUE);
+		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		default:
 			break;
