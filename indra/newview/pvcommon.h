@@ -56,7 +56,7 @@ public:
 	 * \param fromName string
 	 * \param CHAT_TYPE EChatSourceType
 	 */
-	void reportToNearbyChat(const std::string& message, std::string fromName = APP_NAME, EChatSourceType CHAT_TYPE = CHAT_SOURCE_SYSTEM);
+	void reportToNearbyChat(const std::string& message, const std::string &fromName = APP_NAME, EChatSourceType CHAT_TYPE = CHAT_SOURCE_SYSTEM);
 
 	/** \brief Convert a string to a char array and check for special characters presence.
 	 *

@@ -64,7 +64,7 @@ S32 PVCommon::sObjectAddMsg = 0;
 // Fancy little macro to output a variable's name
 #define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
 
-void PVCommon::reportToNearbyChat(const std::string& message, std::string fromName /* = APP_NAME */, EChatSourceType CHAT_TYPE /* = CHAT_SOURCE_SYSTEM */)
+void PVCommon::reportToNearbyChat(const std::string& message, const std::string &fromName /* = APP_NAME */, EChatSourceType CHAT_TYPE /* = CHAT_SOURCE_SYSTEM */)
 {
 	LLChat chat;
 	chat.mText = message;
