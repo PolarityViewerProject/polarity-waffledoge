@@ -94,6 +94,14 @@ S64Bytes PVGPUInfo::vRAMGetTotalOnboard()
 {
 	static const S64Megabytes MINIMUM_VRAM_AMOUNT = S64Megabytes(1024); // fallback for cases where video memory is not detected properly
 	static S64Megabytes vram_s64_megabytes = S64Megabytes(gGLManager.mVRAM);
+	if (gGLManager.mIsIntel)
+	{
+		// sometimes things can go wrong
+		if (gGLManager.mVRAM < 256)
+		{
+			gGLManager.mVRAM = 256;
+		}
+	}
 	if (!gGLManager.mIsIntel)
 	{
 		// Global catch-all in case shit goes left still...

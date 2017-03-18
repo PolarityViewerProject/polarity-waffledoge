@@ -694,7 +694,7 @@ bool LLGLManager::initGL()
 	initExtensions();
 	stop_glerror();
 
-	S32 old_vram = mVRAM;
+	S32 fallback_vram = 256;
 
 	if (mHasATIMemInfo)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
@@ -716,7 +716,7 @@ bool LLGLManager::initGL()
 
 	if (mVRAM < 256)
 	{ //something likely went wrong using the above extensions, fall back to old method
-		mVRAM = old_vram;
+		mVRAM = fallback_vram;
 	}
 
 	stop_glerror();
