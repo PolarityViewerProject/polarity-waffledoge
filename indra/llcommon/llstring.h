@@ -397,11 +397,11 @@ public:
 
 	// Case sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDict(const string_type& a, const string_type& b);
+	static size_t		compareDict(const string_type& a, const string_type& b);
 
 	// Case *in*sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static S32		compareDictInsensitive(const string_type& a, const string_type& b);
+	static size_t		compareDictInsensitive(const string_type& a, const string_type& b);
 
 	// Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 	static BOOL		precedesDict( const string_type& a, const string_type& b );
@@ -1098,13 +1098,12 @@ S32 LLStringUtilBase<T>::compareInsensitive(const string_type& lhs, const string
 
 //static 
 template<class T>
-S32 LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
+size_t LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
 	T ca, cb;
-	S32 ai, bi, cnt = 0;
-	S32 bias = 0;
+	size_t ai = 0, bi = 0, cnt = 0, bias = 0;
 
 	ca = *(a++);
 	cb = *(b++);
@@ -1139,12 +1138,12 @@ S32 LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type&
 
 // static
 template<class T>
-S32 LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
+size_t LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
 	T ca, cb;
-	S32 ai, bi, cnt = 0;
+	size_t ai, bi, cnt = 0;
 
 	ca = *(a++);
 	cb = *(b++);
@@ -1340,7 +1339,7 @@ template<class T>
 void LLStringUtilBase<T>::replaceNonstandardASCII( string_type& string, T replacement )
 {
 	const char LF = 10;
-	const S8 MIN = 32;
+	const S8 MIN = 32; //-V112
 //	const S8 MAX = 127;
 
 	size_type len = string.size();
@@ -1383,7 +1382,7 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spa
 template<class T> 
 BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
-	const char MIN = 32;
+	const char MIN = 32; //-V112
 	BOOL rv = FALSE;
 	for (size_type i = 0; i < string.size(); ++i)
 	{
@@ -1401,7 +1400,7 @@ BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 template<class T> 
 void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 {
-	const char MIN = 32;
+	const char MIN = 32; //-V112
 	size_type j = 0;
 	if (string.empty())
 	{

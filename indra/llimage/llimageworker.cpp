@@ -82,10 +82,10 @@ LLImageDecodeThread::handle_t LLImageDecodeThread::decodeImage(LLImageFormatted*
 
 // Used by unit test only
 // Returns the size of the mutex guarded list as an indication of sanity
-S32 LLImageDecodeThread::tut_size()
+size_t LLImageDecodeThread::tut_size()
 {
 	LLMutexLock lock(mCreationMutex);
-	S32 res = mCreationList.size();
+	size_t res = mCreationList.size();
 	return res;
 }
 

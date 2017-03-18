@@ -177,7 +177,7 @@ public:
 		return instance_iter(getMap_().end());
 	}
 
-	static S32 instanceCount() 
+	static size_t instanceCount() 
 	{ 
 		return getMap_().size(); 
 	}
@@ -286,7 +286,7 @@ public:
 		typename InstanceSet::const_iterator found = set.find(k);
 		return (found == set.end())? NULL : *found;
 	}
-	static S32 instanceCount() { return getSet_().size(); }
+	static size_t instanceCount() { return getSet_().size(); }
 
 	class instance_iter : public boost::iterator_facade<instance_iter, T, boost::forward_traversal_tag>
 	{
