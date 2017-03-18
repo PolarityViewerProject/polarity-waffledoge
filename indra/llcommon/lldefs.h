@@ -47,7 +47,7 @@ const U32	NORTH		= 1;
 const U32	WEST		= 2;
 const U32	SOUTH		= 3;
 
-const U32	NORTHEAST	= 4;
+const U32	NORTHEAST	= 4; //-V112
 const U32	NORTHWEST	= 5;
 const U32	SOUTHWEST	= 6;
 const U32	SOUTHEAST	= 7;
@@ -120,7 +120,7 @@ const U32 NO_SIDE 		= 0;
 const U32 FRONT_SIDE 	= 1;
 const U32 BACK_SIDE 	= 2;
 const U32 LEFT_SIDE 	= 3;
-const U32 RIGHT_SIDE 	= 4;
+const U32 RIGHT_SIDE 	= 4; //-V112
 const U32 TOP_SIDE 		= 5;
 const U32 BOTTOM_SIDE 	= 6;
 
