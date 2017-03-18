@@ -227,7 +227,7 @@ BOOL QToolAlign::handleHover(S32 x, S32 y, MASK mask)
 
 
 
-void setup_transforms_bbox(LLBBox bbox)
+void setup_transforms_bbox(const LLBBox &bbox)
 {
 	// translate to center
 	LLVector3 center = bbox.getCenterAgent();
@@ -246,7 +246,7 @@ void setup_transforms_bbox(LLBBox bbox)
 }
 
 
-void render_bbox(LLBBox bbox)
+void render_bbox(const LLBBox &bbox)
 {
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
@@ -259,7 +259,7 @@ void render_bbox(LLBBox bbox)
 	gGL.popMatrix();
 }
 
-void render_cone_bbox(LLBBox bbox)
+void render_cone_bbox(const LLBBox &bbox)
 {
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 	gGL.pushMatrix();
@@ -431,7 +431,7 @@ void QToolAlign::render()
 }
 
 // only works for our specialized (AABB, position centered) bboxes
-BOOL bbox_overlap(LLBBox bbox1, LLBBox bbox2)
+BOOL bbox_overlap(LLBBox bbox1, const LLBBox &bbox2)
 {
 
 	LLVector3 delta = bbox1.getCenterAgent() - bbox2.getCenterAgent();
@@ -499,7 +499,7 @@ void QToolAlign::align()
 				LLViewerObject::const_child_list_t& children = object->getChildren();
 
 				for (LLViewerObject::const_child_list_t::const_iterator it = children.begin();
-					 it != children.end(); it++)
+					 it != children.end(); ++it)
 				{
 					// add the child's bbox
 					LLViewerObject* child = *it;
