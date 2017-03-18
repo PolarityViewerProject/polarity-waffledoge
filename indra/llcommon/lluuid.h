@@ -126,12 +126,14 @@ public:
 	inline size_t hash() const
 	{
 		size_t seed = 0;
+		// I have a feeling that making this number memsize-type will break LLUUID
+		constexpr auto kMagicConstant = 0x9e3779b9; //-V104
 		for (U8 i = 0; i < 4; ++i)
 		{
-			seed ^= static_cast<size_t>(mData[i * 4]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 1]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 2]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-			seed ^= static_cast<size_t>(mData[i * 4 + 3]) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4]) + kMagicConstant + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 1]) + kMagicConstant + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 2]) + kMagicConstant + (seed << 6) + (seed >> 2);
+			seed ^= static_cast<size_t>(mData[i * 4 + 3]) + kMagicConstant + (seed << 6) + (seed >> 2);
 		}
 		return seed;
 	}
