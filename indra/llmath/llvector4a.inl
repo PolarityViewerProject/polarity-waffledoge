@@ -437,7 +437,7 @@ inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 	tol = _mm_mul_ss( tol, tol );
 	LLVector4a lenSquared; lenSquared.setAllDot3( *this, *this );
 	lenSquared.sub( *reinterpret_cast<const LLVector4a*>(ones) );
-	lenSquared.setAbs(lenSquared);
+	lenSquared.setAbs(lenSquared); //-V678
 	return _mm_comile_ss( lenSquared, tol );		
 }
 
@@ -449,7 +449,7 @@ inline LLBool32 LLVector4a::isNormalized4( F32 tolerance ) const
 	tol = _mm_mul_ss( tol, tol );
 	LLVector4a lenSquared; lenSquared.setAllDot4( *this, *this );
 	lenSquared.sub( *reinterpret_cast<const LLVector4a*>(ones) );
-	lenSquared.setAbs(lenSquared);
+	lenSquared.setAbs(lenSquared); //-V678
 	return _mm_comile_ss( lenSquared, tol );		
 }
 
@@ -572,7 +572,7 @@ inline LLVector4Logical LLVector4a::equal(const LLVector4a& rhs) const
 inline bool LLVector4a::equals4(const LLVector4a& rhs, F32 tolerance ) const
 {
 	LLVector4a diff; diff.setSub( *this, rhs );
-	diff.setAbs( diff );
+	diff.setAbs( diff ); //-V678
 	const LLQuad tol = _mm_set1_ps( tolerance );
 	const LLQuad cmp = _mm_cmplt_ps( diff, tol );
 	return (_mm_movemask_ps( cmp ) & LLVector4Logical::MASK_XYZW) == LLVector4Logical::MASK_XYZW;

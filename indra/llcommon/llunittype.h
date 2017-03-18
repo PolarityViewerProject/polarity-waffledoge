@@ -541,14 +541,14 @@ LL_FORCE_INLINE LLUnit<typename LLResultTypeSubtract<STORAGE_TYPE1, STORAGE_TYPE
 }
 
 template<typename STORAGE_TYPE, typename UNITS, typename UNITLESS>
-LLUnit<STORAGE_TYPE, UNITS> operator - (LLUnit<STORAGE_TYPE, UNITS> first, UNITLESS second)
+LLUnit<STORAGE_TYPE, UNITS> operator - (LLUnit<STORAGE_TYPE, UNITS> first, UNITLESS second) //-V524
 {
 	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNITS>(0);
 }
 
 template<typename STORAGE_TYPE, typename UNITS, typename UNITLESS>
-LLUnit<STORAGE_TYPE, UNITS> operator - (UNITLESS first, LLUnit<STORAGE_TYPE, UNITS> second)
+LLUnit<STORAGE_TYPE, UNITS> operator - (UNITLESS first, LLUnit<STORAGE_TYPE, UNITS> second) //-V524
 {
 	LL_BAD_TEMPLATE_INSTANTIATION(STORAGE_TYPE, "operator - requires compatible unit types");
 	return LLUnit<STORAGE_TYPE, UNITS>(0);

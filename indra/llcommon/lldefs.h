@@ -30,11 +30,11 @@
 #include "stdtypes.h"
 
 // Often used array indices
-const U32	VX			= 0;
-const U32	VY			= 1;
-const U32	VZ			= 2;
-const U32	VW			= 3;
-const U32	VS			= 3;
+const U32	VX			= 0; //-V707
+const U32	VY			= 1; //-V707
+const U32	VZ			= 2; //-V707
+const U32	VW			= 3; //-V707
+const U32	VS			= 3; //-V707
 
 const U32	VRED		= 0;
 const U32	VGREEN		= 1;
