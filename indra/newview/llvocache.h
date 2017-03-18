@@ -229,9 +229,9 @@ class LLVOCache : public LLSingleton<LLVOCache>
 private:
 	struct HeaderEntryInfo
 	{
+		U64 mHandle;
 		HeaderEntryInfo() : mIndex(0), mHandle(0), mTime(0) {}
 		S32 mIndex;
-		U64 mHandle ;
 		U32 mTime ;
 	};
 
