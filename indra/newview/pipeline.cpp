@@ -2308,7 +2308,7 @@ void LLPipeline::updateMove()
 /////////////////////////////////////////////////////////////////////////////
 
 //static
-F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera)
+F32 LLPipeline::calcPixelArea(LLVector3 center, const LLVector3 &size, LLCamera &camera)
 {
 	LLVector3 lookAt = center - camera.getOrigin();
 	F32 dist = lookAt.length();
@@ -6966,9 +6966,9 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 	LLVector4a position;
 
 	sPickAvatar = FALSE; //LLToolMgr::getInstance()->inBuildMode() ? FALSE : TRUE;
-	
-	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	auto region_list = LLWorld::getInstance()->getRegionList();
+	for (LLWorld::region_list_t::const_iterator iter = region_list.begin(); 
+			iter != region_list.end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 
@@ -7032,8 +7032,8 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInWorld(const LLVector4a& start,
 
 		//check against avatars
 		sPickAvatar = TRUE;
-		for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-				iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+		for (LLWorld::region_list_t::const_iterator iter = region_list.begin(); 
+				iter != region_list.end(); ++iter)
 		{
 			LLViewerRegion* region = *iter;
 
@@ -7113,8 +7113,9 @@ LLViewerObject* LLPipeline::lineSegmentIntersectInHUD(const LLVector4a& start, c
 {
 	LLDrawable* drawable = NULL;
 
-	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	auto region_list = LLWorld::getInstance()->getRegionList();
+	for (LLWorld::region_list_t::const_iterator iter = region_list.begin(); 
+			iter != region_list.end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 
@@ -7206,8 +7207,9 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 
 	mCubeVB = NULL;
 
-	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
-			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	auto region_list = LLWorld::getInstance()->getRegionList();
+	for (LLWorld::region_list_t::const_iterator iter = region_list.begin();
+			iter != region_list.end(); ++iter)
 	{
 		LLViewerRegion* region = *iter;
 		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
@@ -7680,11 +7682,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}*/
-
-	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
-	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
-	gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
-	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
+	auto world_view_rect_raw = gViewerWindow->getWorldViewRectRaw();
+	gGLViewport[0] = world_view_rect_raw.mLeft;
+	gGLViewport[1] = world_view_rect_raw.mBottom;
+	gGLViewport[2] = world_view_rect_raw.getWidth();
+	gGLViewport[3] = world_view_rect_raw.getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
 	tc2.setVec((F32) mScreen.getWidth(),
@@ -8836,13 +8838,14 @@ void LLPipeline::renderDeferredLighting()
 					}
 
 					sVisibleLightCount++;
-										
-					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
-						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
-						camera->getOrigin().mV[1] > c[1] + s + 0.2f ||
-						camera->getOrigin().mV[1] < c[1] - s - 0.2f ||
-						camera->getOrigin().mV[2] > c[2] + s + 0.2f ||
-						camera->getOrigin().mV[2] < c[2] - s - 0.2f)
+
+					auto camera_origin = camera->getOrigin();
+					if (camera_origin.mV[0] > c[0] + s + 0.2f ||
+						camera_origin.mV[0] < c[0] - s - 0.2f ||
+						camera_origin.mV[1] > c[1] + s + 0.2f ||
+						camera_origin.mV[1] < c[1] - s - 0.2f ||
+						camera_origin.mV[2] > c[2] + s + 0.2f ||
+						camera_origin.mV[2] < c[2] - s - 0.2f)
 					{ //draw box if camera is outside box
 						if (render_local)
 						{
@@ -9390,13 +9393,14 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					}
 
 					sVisibleLightCount++;
-										
-					if (camera->getOrigin().mV[0] > c[0] + s + 0.2f ||
-						camera->getOrigin().mV[0] < c[0] - s - 0.2f ||
-						camera->getOrigin().mV[1] > c[1] + s + 0.2f ||
-						camera->getOrigin().mV[1] < c[1] - s - 0.2f ||
-						camera->getOrigin().mV[2] > c[2] + s + 0.2f ||
-						camera->getOrigin().mV[2] < c[2] - s - 0.2f)
+
+					auto camera_origin = camera->getOrigin();
+					if (camera_origin.mV[0] > c[0] + s + 0.2f ||
+						camera_origin.mV[0] < c[0] - s - 0.2f ||
+						camera_origin.mV[1] > c[1] + s + 0.2f ||
+						camera_origin.mV[1] < c[1] - s - 0.2f ||
+						camera_origin.mV[2] > c[2] + s + 0.2f ||
+						camera_origin.mV[2] < c[2] - s - 0.2f)
 					{ //draw box if camera is outside box
 						if (render_local)
 						{
@@ -10282,7 +10286,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 	}
 }
 
-glh::matrix4f look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)
+glh::matrix4f look(const LLVector3 &pos, const LLVector3 &dir, const LLVector3 &up)
 {
 	glh::matrix4f ret;
 
@@ -10322,7 +10326,7 @@ glh::matrix4f look(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)
 	return ret;
 }
 
-glh::matrix4f scale_translate_to_fit(const LLVector3 min, const LLVector3 max)
+glh::matrix4f scale_translate_to_fit(const LLVector3 &min, const LLVector3 &max)
 {
 	glh::matrix4f ret;
 	ret.m[ 0] = 2/(max[0]-min[0]);
