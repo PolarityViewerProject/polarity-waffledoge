@@ -3798,7 +3798,7 @@ void LLAppViewer::writeSystemInfo()
 	// query some system information
 	LL_INFOS("SystemInfo") << "CPU info:\n" << gSysCPU << LL_ENDL;
 	LL_INFOS("SystemInfo") << "Memory info:\n" << gSysMemory << LL_ENDL;
-	LL_INFOS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
+	LL_DEBUGS("SystemInfo") << "OS: " << getOSInfo().getOSStringSimple() << LL_ENDL;
 	LL_INFOS("SystemInfo") << "OS info: " << getOSInfo() << LL_ENDL;
 
     gDebugInfo["SettingsFilename"] = gSavedSettings.getString("ClientSettingsFile");
