@@ -3574,7 +3574,7 @@
                 <key>options</key>
                 <array>
                   <string>-G</string>
-                  <string>"Visual Studio 14 Win64"</string> <!-- BUG: Removing 'Win64' breaks 64bit toolchain selection, despite being a compatibility flag, deprecated in favor of -T "vxxx,host=x64" -->
+                  <string>"Visual Studio 14 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-T</string>
                   <string>"v140,host=x64"</string>
