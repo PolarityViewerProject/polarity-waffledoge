@@ -59,14 +59,14 @@ namespace LLPredicate
 			return new_value;
 		}
 
-		Value operator &&(const Value other) const
+		Value operator &&(const Value other) const //-V801
 		{
 			Value new_value;
 			new_value.mPredicateFlags = mPredicateFlags & other.mPredicateFlags;
 			return new_value;
 		}
 
-		Value operator ||(const Value other) const
+		Value operator ||(const Value other) const //-V801
 		{
 			Value new_value;
 			new_value.mPredicateFlags = mPredicateFlags | other.mPredicateFlags;
@@ -132,7 +132,7 @@ namespace LLPredicate
 		:	mRule(value)
 		{}
 
-		Rule(const Value<ENUM> other)
+		Rule(const Value<ENUM> other) //-V801
 		:	mRule(other)
 		{}
 
@@ -149,17 +149,17 @@ namespace LLPredicate
 			mRule.forget(e);
 		}
 
-		bool check(const Value<ENUM> value) const
+		bool check(const Value<ENUM> value) const //-V801
 		{
 			return (mRule && value).someSet();
 		}
 
-		bool requires(const Value<ENUM> value) const
+		bool requires(const Value<ENUM> value) const //-V801
 		{
 			return (mRule && value).someSet() && (!mRule && value).noneSet();
 		}
 
-		bool isAmbivalent(const Value<ENUM> value) const
+		bool isAmbivalent(const Value<ENUM> value) const //-V801
 		{
 			return (mRule && value).someSet() && (!mRule && value).someSet();
 		}
@@ -181,14 +181,14 @@ namespace LLPredicate
 			return new_rule;
 		}
 
-		Rule operator &&(const Rule other) const
+		Rule operator &&(const Rule other) const //-V801
 		{
 			Rule new_rule;
 			new_rule.mRule = mRule && other.mRule;
 			return new_rule;
 		}
 
-		Rule operator ||(const Rule other) const
+		Rule operator ||(const Rule other) const //-V801
 		{
 			Rule new_rule;
 			new_rule.mRule = mRule || other.mRule;

@@ -1057,7 +1057,7 @@ namespace LLInitParam
 			return false;
 		}
 
-		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param) //-V801
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
@@ -1224,7 +1224,7 @@ namespace LLInitParam
 			return false;
 		}
 
-		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param) //-V801
 		{
 			const self_t& typed_param = static_cast<const self_t&>(param);
 
@@ -1427,7 +1427,7 @@ namespace LLInitParam
 			return false;
 		}
 
-		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param) //-V801
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
@@ -1683,7 +1683,7 @@ namespace LLInitParam
 			return false;
 		}
 
-		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param)
+		static bool serializeParam(const Param& param, Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const Param* diff_param) //-V801
 		{
 			bool serialized = false;
 			const self_t& typed_param = static_cast<const self_t&>(param);
@@ -2306,7 +2306,7 @@ namespace LLInitParam
 			return mValue.deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const //-V801
 		{
 			const BaseBlock* base_block = diff_block
 				? &(diff_block->mValue)
@@ -2425,7 +2425,7 @@ namespace LLInitParam
 			}
 		}
 
-		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const //-V801
 		{
 			const BaseBlock* base_block = diff_block
 				? &(diff_block->mValue)
@@ -2526,7 +2526,7 @@ namespace LLInitParam
 			return mValue.get().deserializeBlock(p, name_stack_range, new_name);
 		}
 
-		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const
+		bool serializeBlock(Parser& p, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const self_t* diff_block = NULL) const //-V801
 		{
 			if (mValue.empty()) return false;
 			
@@ -2689,7 +2689,7 @@ namespace LLInitParam
 			return typed_param.BaseBlock::deserializeBlock(parser, name_stack_range, new_name);
 		}
 
-		bool serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const
+		bool serializeBlock(Parser& parser, Parser::name_stack_t& name_stack, const predicate_rule_t predicate_rule, const BaseBlock* diff_block = NULL) const //-V801
 		{
 			const derived_t& typed_param = static_cast<const derived_t&>(*this);
 			const derived_t* diff_param = static_cast<const derived_t*>(diff_block);
