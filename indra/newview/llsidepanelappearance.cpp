@@ -532,8 +532,10 @@ void LLSidepanelAppearance::inventoryFetched()
 
 void LLSidepanelAppearance::setWearablesLoading(bool val)
 {
-	getChildView("wearables_loading_indicator")->setVisible( val);
-	getChildView("edit_outfit_btn")->setVisible( !val);
+	auto loading_indicator = getChildView("wearables_loading_indicator");
+	if (loading_indicator) loading_indicator->setVisible( val);
+	auto edit_outfit_btn = getChildView("edit_outfit_btn");
+	if(edit_outfit_btn) edit_outfit_btn->setVisible( !val);
 
 	if (!val)
 	{
