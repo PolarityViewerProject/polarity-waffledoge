@@ -54,7 +54,7 @@ public:
 	template<typename BLOCK>
 	void writeSD(LLSD& sd, 
 		const BLOCK& block, 
-		const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
+		const LLInitParam::predicate_rule_t &rules = LLInitParam::default_parse_rules(),
 		const LLInitParam::BaseBlock* diff_block = NULL)
 	{
 		if (!diff_block 

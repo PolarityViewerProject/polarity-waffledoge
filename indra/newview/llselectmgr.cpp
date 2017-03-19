@@ -552,7 +552,7 @@ BOOL LLSelectMgr::removeObjectFromSelections(const LLUUID &id)
 		for (LLObjectSelection::iterator iter = getSelection()->begin();
 			 iter != getSelection()->end(); )
 		{
-			LLObjectSelection::iterator curiter = iter++;
+			LLObjectSelection::iterator curiter = ++iter;
 			LLViewerObject* object = (*curiter)->getObject();
 			if (object->mID == id)
 			{
@@ -1057,7 +1057,7 @@ void LLSelectMgr::highlightObjectAndFamily(LLViewerObject* objectp)
 
 	LLViewerObject::const_child_list_t& child_list = root_obj->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); iter++)
+		 iter != child_list.end(); ++iter)
 	{
 		LLViewerObject* child = *iter;
 		highlightObjectOnly(child);
@@ -1087,7 +1087,7 @@ void LLSelectMgr::highlightObjectAndFamily(const std::vector<LLViewerObject*>& o
 
 		LLViewerObject::const_child_list_t& child_list = root->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter2 = child_list.begin();
-			 iter2 != child_list.end(); iter2++)
+			 iter2 != child_list.end(); ++iter2)
 		{
 			LLViewerObject* child = *iter2;
 			mRectSelectedObjects.insert(child);
@@ -1118,7 +1118,7 @@ void LLSelectMgr::unhighlightObjectAndFamily(LLViewerObject* objectp)
 
 	LLViewerObject::const_child_list_t& child_list = root_obj->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); iter++)
+		 iter != child_list.end(); ++iter)
 	{
 		LLViewerObject* child = *iter;
 		unhighlightObjectOnly(child);
@@ -1145,7 +1145,7 @@ LLObjectSelectionHandle LLSelectMgr::selectHighlightedObjects()
 	for (LLObjectSelection::iterator iter = getHighlightedObjects()->begin();
 		 iter != getHighlightedObjects()->end(); )
 	{
-		LLObjectSelection::iterator curiter = iter++;
+		LLObjectSelection::iterator curiter = ++iter;
 	
 		LLSelectNode *nodep = *curiter;
 		LLViewerObject* objectp = nodep->getObject();
@@ -1196,7 +1196,7 @@ void LLSelectMgr::deselectHighlightedObjects()
 {
 	BOOL select_linked_set = !gSavedSettings.getBOOL("EditLinkedParts");
 	for (std::set<LLPointer<LLViewerObject> >::iterator iter = mRectSelectedObjects.begin();
-		 iter != mRectSelectedObjects.end(); iter++)
+		 iter != mRectSelectedObjects.end(); ++iter)
 	{
 		LLViewerObject *objectp = *iter;
 		if (!select_linked_set)
@@ -1223,7 +1223,7 @@ void LLSelectMgr::addGridObject(LLViewerObject* objectp)
 
 	LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); iter++)
+		 iter != child_list.end(); ++iter)
 	{
 		LLViewerObject* child = *iter;
 		nodep = new LLSelectNode(child, FALSE);
@@ -1439,7 +1439,7 @@ void LLSelectMgr::remove(LLViewerObject *objectp, S32 te, BOOL undoable)
 void LLSelectMgr::removeAll()
 {
 	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
-		 iter != mSelectedObjects->end(); iter++ )
+		 iter != mSelectedObjects->end(); ++iter )
 	{
 		LLViewerObject *objectp = (*iter)->getObject();
 		objectp->setSelected( FALSE );
@@ -1463,7 +1463,7 @@ void LLSelectMgr::promoteSelectionToRoot()
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
 		 iter != getSelection()->end(); )
 	{
-		LLObjectSelection::iterator curiter = iter++;
+		LLObjectSelection::iterator curiter = ++iter;
 		LLSelectNode* nodep = *curiter;
 		LLViewerObject* object = nodep->getObject();
 
@@ -1501,7 +1501,7 @@ void LLSelectMgr::demoteSelectionToIndividuals()
 	std::vector<LLViewerObject*> objects;
 
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++)
+		 iter != getSelection()->root_end(); ++iter)
 	{
 		LLViewerObject* object = (*iter)->getObject();
 		object->addThisAndNonJointChildren(objects);
@@ -1530,7 +1530,7 @@ void LLSelectMgr::dump()
 
 	S32 count = 0;
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLViewerObject* objectp = (*iter)->getObject();
 		LL_INFOS() << "Object " << count << " type " << LLPrimitive::pCodeToString(objectp->getPCode()) << LL_ENDL;
@@ -1549,7 +1549,7 @@ void LLSelectMgr::dump()
 
 	// Face iterator
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* objectp = node->getObject();
@@ -2203,7 +2203,7 @@ void LLSelectMgr::selectionRemoveMaterial()
 LLPermissions* LLSelectMgr::findObjectPermissions(const LLViewerObject* object)
 {
 	for (LLObjectSelection::valid_iterator iter = getSelection()->valid_begin();
-		 iter != getSelection()->valid_end(); iter++ )
+		 iter != getSelection()->valid_end(); ++iter )
 	{
 		LLSelectNode* nodep = *iter;
 		if (nodep->getObject() == object)
@@ -2387,7 +2387,7 @@ bool LLSelectMgr::selectionGetIncludeInSearch(bool* include_in_search_out)
 	bool identical = true;
 
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++)
+		 iter != getSelection()->root_end(); ++iter)
 	{
 		LLViewerObject* object = (*iter)->getObject();
 
@@ -2406,7 +2406,7 @@ void LLSelectMgr::selectionSetIncludeInSearch(bool include_in_search)
 {
 	LLViewerObject* object = NULL;
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++)
+		 iter != getSelection()->root_end(); ++iter)
 	{
 		object = (*iter)->getObject();
 		object->setIncludeInSearch(include_in_search);
@@ -2600,7 +2600,7 @@ void LLSelectMgr::selectionTexScaleAutofit(F32 repeats_per_meter)
 void LLSelectMgr::adjustTexturesByScale(BOOL send_to_sim, BOOL stretch)
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++)
+		 iter != getSelection()->end(); ++iter)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
@@ -2754,7 +2754,7 @@ BOOL LLSelectMgr::selectGetAllValid()
 BOOL LLSelectMgr::selectGetAllValidAndObjectsFound()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2773,7 +2773,7 @@ BOOL LLSelectMgr::selectGetAllValidAndObjectsFound()
 BOOL LLSelectMgr::selectGetModify()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2796,7 +2796,7 @@ BOOL LLSelectMgr::selectGetModify()
 BOOL LLSelectMgr::selectGetRootsModify()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2821,7 +2821,7 @@ BOOL LLSelectMgr::selectGetRootsModify()
 BOOL LLSelectMgr::selectGetNonPermanentEnforced()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2844,7 +2844,7 @@ BOOL LLSelectMgr::selectGetNonPermanentEnforced()
 BOOL LLSelectMgr::selectGetRootsNonPermanentEnforced()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2867,7 +2867,7 @@ BOOL LLSelectMgr::selectGetRootsNonPermanentEnforced()
 BOOL LLSelectMgr::selectGetPermanent()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2890,7 +2890,7 @@ BOOL LLSelectMgr::selectGetPermanent()
 BOOL LLSelectMgr::selectGetRootsPermanent()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2913,7 +2913,7 @@ BOOL LLSelectMgr::selectGetRootsPermanent()
 BOOL LLSelectMgr::selectGetCharacter()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2936,7 +2936,7 @@ BOOL LLSelectMgr::selectGetCharacter()
 BOOL LLSelectMgr::selectGetRootsCharacter()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2959,7 +2959,7 @@ BOOL LLSelectMgr::selectGetRootsCharacter()
 BOOL LLSelectMgr::selectGetNonPathfinding()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -2982,7 +2982,7 @@ BOOL LLSelectMgr::selectGetNonPathfinding()
 BOOL LLSelectMgr::selectGetRootsNonPathfinding()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3005,7 +3005,7 @@ BOOL LLSelectMgr::selectGetRootsNonPathfinding()
 BOOL LLSelectMgr::selectGetNonPermanent()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3028,7 +3028,7 @@ BOOL LLSelectMgr::selectGetNonPermanent()
 BOOL LLSelectMgr::selectGetRootsNonPermanent()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3051,7 +3051,7 @@ BOOL LLSelectMgr::selectGetRootsNonPermanent()
 BOOL LLSelectMgr::selectGetNonCharacter()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3074,7 +3074,7 @@ BOOL LLSelectMgr::selectGetNonCharacter()
 BOOL LLSelectMgr::selectGetRootsNonCharacter()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3099,7 +3099,7 @@ BOOL LLSelectMgr::selectGetRootsNonCharacter()
 BOOL LLSelectMgr::selectGetEditableLinksets()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3131,7 +3131,7 @@ BOOL LLSelectMgr::selectGetEditableLinksets()
 BOOL LLSelectMgr::selectGetViewableCharacters()
 {
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++ )
+		 iter != getSelection()->end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3155,7 +3155,7 @@ BOOL LLSelectMgr::selectGetViewableCharacters()
 BOOL LLSelectMgr::selectGetRootsTransfer()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3178,7 +3178,7 @@ BOOL LLSelectMgr::selectGetRootsTransfer()
 BOOL LLSelectMgr::selectGetRootsCopy()
 {
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -3453,7 +3453,7 @@ BOOL LLSelectMgr::selectGetPerm(U8 which_perm, U32* mask_on, U32* mask_off)
 	BOOL all_valid	= FALSE;
 
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++)
+		 iter != getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 
@@ -3514,7 +3514,7 @@ BOOL LLSelectMgr::selectGetPermissions(LLPermissions& result_perm)
 	BOOL first = TRUE;
 	LLPermissions perm;
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -3558,7 +3558,7 @@ void LLSelectMgr::selectDelete()
 	BOOL all_owned_by_you = TRUE;
 
 	for (LLObjectSelection::iterator iter = getSelection()->begin();
-		 iter != getSelection()->end(); iter++)
+		 iter != getSelection()->end(); ++iter)
 	{
 		LLViewerObject* obj = (*iter)->getObject();
 
@@ -3731,7 +3731,7 @@ void LLSelectMgr::selectGetAggregateSaleInfo(U32 &num_for_sale,
 	const S32 first_node_sale_price = node->mSaleInfo.getSalePrice();
 	
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++)
+		 iter != getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		const BOOL node_for_sale = node->mSaleInfo.isForSale();
@@ -3765,7 +3765,7 @@ BOOL LLSelectMgr::selectGetSaleInfo(LLSaleInfo& result_sale_info)
 	BOOL first = TRUE;
 	LLSaleInfo sale_info;
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -3794,7 +3794,7 @@ BOOL LLSelectMgr::selectGetAggregatePermissions(LLAggregatePermissions& result_p
 	BOOL first = TRUE;
 	LLAggregatePermissions perm;
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -3823,7 +3823,7 @@ BOOL LLSelectMgr::selectGetAggregateTexturePermissions(LLAggregatePermissions& r
 	BOOL first = TRUE;
 	LLAggregatePermissions perm;
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mValid)
@@ -3915,7 +3915,7 @@ void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 	else
 	{
 		for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-			 iter != getSelection()->root_end(); iter++ )
+			 iter != getSelection()->root_end(); ++iter )
 		{
 			LLSelectNode* node = *iter;
 			node->mDuplicated = TRUE;
@@ -3937,7 +3937,7 @@ void LLSelectMgr::repeatDuplicate()
 	std::vector<LLViewerObject*> non_duplicated_objects;
 
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (!node->mDuplicated)
@@ -3964,21 +3964,22 @@ void LLSelectMgr::repeatDuplicate()
 
 	// move current selection based on delta from duplication position and update duplication position
 	for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
-		 iter != getSelection()->root_end(); iter++ )
+		 iter != getSelection()->root_end(); ++iter )
 	{
 		LLSelectNode* node = *iter;	
 		if (node->mDuplicated)
 		{
-			LLQuaternion cur_rot = node->getObject()->getRotation();
+			auto object = node->getObject();
+			LLQuaternion cur_rot = object->getRotation();
 			LLQuaternion rot_delta = (~node->mDuplicateRot * cur_rot);
 			LLQuaternion new_rot = cur_rot * rot_delta;
-			LLVector3d cur_pos = node->getObject()->getPositionGlobal();
+			LLVector3d cur_pos = object->getPositionGlobal();
 			LLVector3d new_pos = cur_pos + ((cur_pos - node->mDuplicatePos) * rot_delta);
 
-			node->mDuplicatePos = node->getObject()->getPositionGlobal();
-			node->mDuplicateRot = node->getObject()->getRotation();
-			node->getObject()->setPositionGlobal(new_pos);
-			node->getObject()->setRotation(new_rot);
+			node->mDuplicatePos = object->getPositionGlobal();
+			node->mDuplicateRot = object->getRotation();
+			object->setPositionGlobal(new_pos);
+			object->setRotation(new_rot);
 		}
 	}
 
@@ -4196,7 +4197,7 @@ struct LLBuyData
 // currently support sale info is used for verification only, if it
 // doesn't match region info then sale is canceled Need to get sale
 // info -as displayed in the UI- for every item.
-void LLSelectMgr::sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info)
+void LLSelectMgr::sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo& sale_info)
 {
 	LLBuyData buy;
 	buy.mCategoryID = category_id;
@@ -4277,7 +4278,7 @@ void LLSelectMgr::deselectAll()
 		
 	// Zap the angular velocity, as the sim will set it to zero
 	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
-		 iter != mSelectedObjects->end(); iter++ )
+		 iter != mSelectedObjects->end(); ++iter )
 	{
 		LLViewerObject *objectp = (*iter)->getObject();
 		objectp->setAngularVelocity( 0,0,0 );
@@ -4308,7 +4309,7 @@ void LLSelectMgr::deselectAllForStandingUp()
 
 	// Zap the angular velocity, as the sim will set it to zero
 	for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
-		 iter != mSelectedObjects->end(); iter++ )
+		 iter != mSelectedObjects->end(); ++iter )
 	{
 		LLViewerObject *objectp = (*iter)->getObject();
 		objectp->setAngularVelocity( 0,0,0 );
@@ -5706,7 +5707,7 @@ void LLSelectMgr::updateSilhouettes()
 
 		// generate list of roots from current object selection
 		for (std::set<LLPointer<LLViewerObject> >::iterator iter = mRectSelectedObjects.begin();
-			 iter != mRectSelectedObjects.end(); iter++)
+			 iter != mRectSelectedObjects.end(); ++iter)
 		{
 			LLViewerObject *objectp = *iter;
 			if (select_linked_set)
@@ -5725,7 +5726,7 @@ void LLSelectMgr::updateSilhouettes()
 		std::vector<LLViewerObject*> remove_these_roots;
 
 		for (LLObjectSelection::iterator iter = mHighlightedObjects->begin();
-			 iter != mHighlightedObjects->end(); iter++)
+			 iter != mHighlightedObjects->end(); ++iter)
 		{
 			LLSelectNode* node = *iter;
 			LLViewerObject* objectp = node->getObject();
@@ -5771,7 +5772,7 @@ void LLSelectMgr::updateSilhouettes()
 
 		// add all new objects in rectangle selection
 		for (std::set<LLViewerObject*>::iterator iter = roots.begin();
-			 iter != roots.end(); iter++)
+			 iter != roots.end(); ++iter)
 		{
 			LLViewerObject* objectp = *iter;
 			if (!canSelectObject(objectp))
@@ -5790,7 +5791,7 @@ void LLSelectMgr::updateSilhouettes()
 			{
 				LLViewerObject::const_child_list_t& child_list = objectp->getChildren();
 				for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-					 iter != child_list.end(); iter++)
+					 iter != child_list.end(); ++iter)
 				{
 					LLViewerObject* child_objectp = *iter;
 				
@@ -5816,7 +5817,7 @@ void LLSelectMgr::updateSilhouettes()
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mHighlightedObjects->begin();
-				 iter != mHighlightedObjects->end(); iter++)
+				 iter != mHighlightedObjects->end(); ++iter)
 			{
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
@@ -5894,7 +5895,7 @@ void LLSelectMgr::updateSelectionSilhouette(LLObjectSelectionHandle object_handl
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = object_handle->begin();
-				iter != object_handle->end(); iter++)
+				iter != object_handle->end(); ++iter)
 			{
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
@@ -5987,7 +5988,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
-				 iter != mSelectedObjects->end(); iter++)
+				 iter != mSelectedObjects->end(); ++iter)
 			{
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
@@ -6031,7 +6032,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mHighlightedObjects->begin();
-				 iter != mHighlightedObjects->end(); iter++)
+				 iter != mHighlightedObjects->end(); ++iter)
 			{
 				LLSelectNode* node = *iter;
 				LLViewerObject* objectp = node->getObject();
@@ -6759,7 +6760,7 @@ S32 get_family_count(LLViewerObject *parent)
 	S32 count = 1;	// for this object
 	LLViewerObject::const_child_list_t& child_list = parent->getChildren();
 	for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		 iter != child_list.end(); iter++)
+		 iter != child_list.end(); ++iter)
 	{
 		LLViewerObject* child = *iter;
 
@@ -6838,7 +6839,7 @@ void LLSelectMgr::updateSelectionCenter()
 		bbox.addBBoxAgent( (mSelectedObjects->getFirstRootObject(TRUE))->getBoundingBoxAgent() ); 
 	                 
 		for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
-			 iter != mSelectedObjects->end(); iter++)
+			 iter != mSelectedObjects->end(); ++iter)
 		{
 			LLSelectNode* node = *iter;
 			LLViewerObject* object = node->getObject();
@@ -7185,7 +7186,7 @@ void LLObjectSelection::cleanupNodes()
 {
 	for (list_t::iterator iter = mList.begin(); iter != mList.end(); )
 	{
-		list_t::iterator curiter = iter++;
+		list_t::iterator curiter = ++iter;
 		LLSelectNode* node = *curiter;
 		if (node->getObject() == NULL || node->getObject()->isDead())
 		{
@@ -7493,7 +7494,7 @@ S32 LLObjectSelection::getSelectedObjectRenderCost()
 S32 LLObjectSelection::getTECount()
 {
 	S32 count = 0;
-	for (LLObjectSelection::iterator iter = begin(); iter != end(); iter++)
+	for (LLObjectSelection::iterator iter = begin(); iter != end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -7517,7 +7518,7 @@ S32 LLObjectSelection::getTECount()
 S32 LLObjectSelection::getRootObjectCount()
 {
 	S32 count = 0;
-	for (LLObjectSelection::root_iterator iter = root_begin(); iter != root_end(); iter++)
+	for (LLObjectSelection::root_iterator iter = root_begin(); iter != root_end(); ++iter)
 	{
 		++count;
 	}
@@ -7529,7 +7530,7 @@ bool LLObjectSelection::applyToObjects(LLSelectedObjectFunctor* func)
 	bool result = true;
 	for (iterator iter = begin(); iter != end(); )
 	{
-		iterator nextiter = iter++;
+		iterator nextiter = ++iter;
 		LLViewerObject* object = (*nextiter)->getObject();
 		if (!object)
 			continue;
@@ -7544,7 +7545,7 @@ bool LLObjectSelection::applyToRootObjects(LLSelectedObjectFunctor* func, bool f
 	bool result = firstonly ? false : true;
 	for (root_iterator iter = root_begin(); iter != root_end(); )
 	{
-		root_iterator nextiter = iter++;
+		root_iterator nextiter = ++iter;
 		LLViewerObject* object = (*nextiter)->getObject();
 		if (!object)
 			continue;
@@ -7562,7 +7563,7 @@ bool LLObjectSelection::applyToTEs(LLSelectedTEFunctor* func, bool firstonly)
 	bool result = firstonly ? false : true;
 	for (iterator iter = begin(); iter != end(); )
 	{
-		iterator nextiter = iter++;
+		iterator nextiter = ++iter;
 		LLSelectNode* node = *nextiter;
 		LLViewerObject* object = (*nextiter)->getObject();
 		if (!object)
@@ -7588,7 +7589,7 @@ bool LLObjectSelection::applyToNodes(LLSelectedNodeFunctor *func, bool firstonly
 	bool result = firstonly ? false : true;
 	for (iterator iter = begin(); iter != end(); )
 	{
-		iterator nextiter = iter++;
+		iterator nextiter = ++iter;
 		LLSelectNode* node = *nextiter;
 		bool r = func->apply(node);
 		if (firstonly && r)
@@ -7604,7 +7605,7 @@ bool LLObjectSelection::applyToRootNodes(LLSelectedNodeFunctor *func, bool first
 	bool result = firstonly ? false : true;
 	for (root_iterator iter = root_begin(); iter != root_end(); )
 	{
-		root_iterator nextiter = iter++;
+		root_iterator nextiter = ++iter;
 		LLSelectNode* node = *nextiter;
 		bool r = func->apply(node);
 		if (firstonly && r)
@@ -7620,7 +7621,7 @@ BOOL LLObjectSelection::isMultipleTESelected()
 	BOOL te_selected = FALSE;
 	// ...all faces
 	for (LLObjectSelection::iterator iter = begin();
-		 iter != end(); iter++)
+		 iter != end(); ++iter)
 	{
 		LLSelectNode* nodep = *iter;
 		for (S32 i = 0; i < SELECT_MAX_TES; i++)
@@ -7656,7 +7657,7 @@ BOOL LLObjectSelection::contains(LLViewerObject* object, S32 te)
 	{
 		// ...all faces
 		for (LLObjectSelection::iterator iter = begin();
-			 iter != end(); iter++)
+			 iter != end(); ++iter)
 		{
 			LLSelectNode* nodep = *iter;
 			if (nodep->getObject() == object)
@@ -7680,7 +7681,7 @@ BOOL LLObjectSelection::contains(LLViewerObject* object, S32 te)
 	else
 	{
 		// ...one face
-		for (LLObjectSelection::iterator iter = begin(); iter != end(); iter++)
+		for (LLObjectSelection::iterator iter = begin(); iter != end(); ++iter)
 		{
 			LLSelectNode* nodep = *iter;
 			if (nodep->getObject() == object && nodep->isTESelected(te))

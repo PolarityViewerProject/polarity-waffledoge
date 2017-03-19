@@ -129,7 +129,7 @@ private:
 	std::string		mToolTipMsg;
 
 public:
-	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };
+	void			setSelected(const uuid_vec_t &uuids) { gmSelected=uuids; };
 
 private:
 	void handleZoom(const LLSD& userdata);

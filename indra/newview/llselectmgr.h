@@ -726,7 +726,7 @@ public:
 	// which UI does not currently support sale info is used for
 	// verification only, if it doesn't match region info then sale is
 	// canceled
-	void sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo sale_info);
+	void sendBuy(const LLUUID& buyer_id, const LLUUID& category_id, const LLSaleInfo& sale_info);
 	void sendAttach(U8 attachment_point, bool replace);
 	void sendDetach();
 	void sendDropAttachment();
@@ -869,7 +869,7 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
 
 	// Now iterate through all TEs to test for sameness
 	bool identical = TRUE;
-	for (iterator iter = begin(); iter != end(); iter++)
+	for (iterator iter = begin(); iter != end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -933,7 +933,7 @@ template <typename T> bool LLObjectSelection::isMultipleTEValue(LLSelectedTEGetF
 	
 	// Now iterate through all TEs to test for sameness
 	bool unique = TRUE;
-	for (iterator iter = begin(); iter != end(); iter++)
+	for (iterator iter = begin(); iter != end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();

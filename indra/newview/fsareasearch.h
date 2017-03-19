@@ -407,7 +407,7 @@ public:
 
 	void updateResultListColumns();
 
-	void setAgentLastPosition(LLVector3d d)
+	void setAgentLastPosition(const LLVector3d &d)
 	{
 		mAgentLastPosition = d;
 	}

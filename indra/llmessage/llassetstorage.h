@@ -127,7 +127,7 @@ public:
     LLAssetRequest(const LLUUID &uuid, const LLAssetType::EType at);
     virtual ~LLAssetRequest();
 
-    void setTimeout(F64Seconds timeout) { mTimeout = timeout; }
+    void setTimeout(const F64Seconds &timeout) { mTimeout = timeout; }
 
     virtual LLBaseDownloadRequest* getCopy();
 

@@ -139,7 +139,7 @@ inline void LLWaterParamSet::setAll(const LLSD& val)
 {
 	if(val.isMap()) {
 		LLSD::map_const_iterator mIt = val.beginMap();
-		for(; mIt != val.endMap(); mIt++)
+		for(; mIt != val.endMap(); ++mIt)
 		{
 			mParamValues[mIt->first] = mIt->second;
 		}
