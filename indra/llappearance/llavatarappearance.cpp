@@ -42,6 +42,7 @@
 #include "llpolymorph.h"
 #include "llpolymesh.h"
 #include "llpolyskeletaldistortion.h"
+#include "llstl.h"
 #include "lltexglobalcolor.h"
 #include "llwearabledata.h"
 #include "boost/bind.hpp"
