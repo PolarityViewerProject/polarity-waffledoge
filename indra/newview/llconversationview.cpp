@@ -415,7 +415,7 @@ LLConversationViewParticipant* LLConversationViewSession::findParticipant(const 
 	// sessions).
 	LLConversationViewParticipant* participant = NULL;
 	items_t::const_iterator iter;
-	for (iter = getItemsBegin(); iter != getItemsEnd(); ++iter)
+	for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
 	{
 		participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
 		if (participant->hasSameValue(participant_id))
@@ -455,7 +455,7 @@ void LLConversationViewSession::refresh()
 		}
 		LLConversationViewParticipant* participant = NULL;
 		items_t::const_iterator iter;
-		for (iter = getItemsBegin(); iter != getItemsEnd(); ++iter)
+		for (iter = getItemsBegin(); iter != getItemsEnd(); iter++)
 		{
 			participant = dynamic_cast<LLConversationViewParticipant*>(*iter);
 			if (participant)

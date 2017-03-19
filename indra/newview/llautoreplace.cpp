@@ -235,7 +235,7 @@ LLAutoReplaceSettings::LLAutoReplaceSettings(const LLAutoReplaceSettings& settin
 
 	for ( LLSD::array_const_iterator list = settings.mLists.beginArray(), listEnd = settings.mLists.endArray();
 		  list != listEnd;
-	      ++list
+		  list++
 		 )
 	{
 		if ( (*list).isMap() ) // can fail due to LLSD-30: ignore it
@@ -249,7 +249,7 @@ LLAutoReplaceSettings::LLAutoReplaceSettings(const LLAutoReplaceSettings& settin
 					  entry = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].beginMap(),
 					  entriesEnd = (*list)[AUTOREPLACE_LIST_REPLACEMENTS].endMap();
 				  entry != entriesEnd;
-			      ++entry
+				  entry++
 				 )
 			{
 				std::string keyword = entry->first;
@@ -277,7 +277,7 @@ bool LLAutoReplaceSettings::setFromLLSD(const LLSD& settingsFromLLSD)
 				  list = settingsFromLLSD.beginArray(),
 				  listEnd = settingsFromLLSD.endArray();
 			  settingsValid && list != listEnd;
-		      ++list
+			  list++
 			 )
 		{
 			if ( (*list).isDefined() ) // can be undef due to LLSD-30: ignore it
@@ -316,7 +316,7 @@ const LLSD* LLAutoReplaceSettings::getListEntries(std::string listName)
 	const LLSD* returnedEntries = NULL;
 	for( LLSD::array_const_iterator list = mLists.beginArray(), endList = mLists.endArray();
 		 returnedEntries == NULL && list != endList;
-	     ++list
+		 list++
 		)
 	{
 		const LLSD& thisList = *list;
@@ -334,7 +334,7 @@ std::string LLAutoReplaceSettings::replacementFor(std::string keyword, std::stri
 	bool foundList = false;
 	for( LLSD::array_const_iterator list = mLists.beginArray(), endList = mLists.endArray();
 		 ! foundList && list != endList;
-	     ++list
+		 list++
 		)
 	{
 		const LLSD& thisList = *list;
@@ -369,7 +369,7 @@ LLSD LLAutoReplaceSettings::getListNames()
 	S32 counter=0;
 	for( LLSD::array_const_iterator list = mLists.beginArray(), endList = mLists.endArray();
 		 list != endList;
-	     ++list
+		 list++
 		)
 	{
 		const LLSD& thisList = *list;
@@ -426,7 +426,7 @@ bool LLAutoReplaceSettings::listIsValid(const LLSD& list)
 				  entry = list[AUTOREPLACE_LIST_REPLACEMENTS].beginMap(),
 				  entriesEnd = list[AUTOREPLACE_LIST_REPLACEMENTS].endMap();
 			  listValid && entry != entriesEnd;
-		      ++entry
+			  entry++
 			 )
 		{
 			if ( ! entry->second.isString() )
@@ -448,7 +448,7 @@ const LLSD* LLAutoReplaceSettings::exportList(std::string listName)
 	const LLSD* exportedList = NULL;
 	for ( LLSD::array_const_iterator list = mLists.beginArray(), listEnd = mLists.endArray();
 		  exportedList == NULL && list != listEnd;
-	      ++list
+		  list++
 		 )
 	{
 		if ( listNameMatches(*list, listName) )
@@ -467,7 +467,7 @@ bool LLAutoReplaceSettings::listNameIsUnique(const LLSD& newList)
 	std::string newListName = newList[AUTOREPLACE_LIST_NAME].asString();
 	for ( LLSD::array_const_iterator list = mLists.beginArray(), listEnd = mLists.endArray();
 		  nameIsUnique && list != listEnd;
-	      ++list
+		  list++
 		 )
 	{
 		if ( listNameMatches(*list, newListName) )
@@ -688,7 +688,7 @@ std::string LLAutoReplaceSettings::replaceWord(const std::string currentWord)
 		bool found = false;
 		for( LLSD::array_const_iterator list = mLists.beginArray(), endLists = mLists.endArray();
 			 ! found && list != endLists;
-		     ++list
+			 list++
 			)
 		{
 			const LLSD& checkList = *list;
@@ -729,7 +729,7 @@ bool LLAutoReplaceSettings::addEntryToList(LLWString keyword, LLWString replacem
 			bool listFound = false;
 			for( LLSD::array_iterator list = mLists.beginArray(), endLists = mLists.endArray();
 				 ! listFound && list != endLists;
-			     ++list
+				 list++
 				)
 			{
 				if ( listNameMatches(*list, listName) )
@@ -757,7 +757,7 @@ bool LLAutoReplaceSettings::removeEntryFromList(std::string keyword, std::string
 	bool found = false;
 	for( LLSD::array_iterator list = mLists.beginArray(), endLists = mLists.endArray();
 		 ! found && list != endLists;
-	     ++list
+		 list++
 		)
 	{
 		if ( listNameMatches(*list, listName) )

@@ -959,7 +959,7 @@ U32 LLControlGroup::saveToFile(const std::string& filename)
 	LLSD settings;
 	int num_saved = 0;
 	for (ctrl_name_table_t::iterator iter = mNameTable.begin();
-		 iter != mNameTable.end(); ++iter)
+		 iter != mNameTable.end(); iter++)
 	{
 		LLControlVariable* control = iter->second;
 		if (!control)
@@ -1167,7 +1167,7 @@ void LLControlGroup::resetToDefaults()
 void LLControlGroup::applyToAll(ApplyFunctor* func)
 {
 	for (ctrl_name_table_t::iterator iter = mNameTable.begin();
-		 iter != mNameTable.end(); ++iter)
+		 iter != mNameTable.end(); iter++)
 	{
 		func->apply(iter->first, iter->second);
 	}

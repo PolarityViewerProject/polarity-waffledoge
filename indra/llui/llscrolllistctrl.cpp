@@ -406,7 +406,7 @@ S32 LLScrollListCtrl::getItemCount() const
 	{
 		S32 count(0);
 		item_list::const_iterator iter;
-		for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+		for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* item  = *iter;
 			std::string filterColumnValue = item->getColumn(mFilterColumn)->getValue().asString();
@@ -444,7 +444,7 @@ void LLScrollListCtrl::clearRows()
 LLScrollListItem* LLScrollListCtrl::getFirstSelected() const
 {
 	item_list::const_iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		if (item->getSelected())
@@ -459,7 +459,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllSelected() const
 {
 	std::vector<LLScrollListItem*> ret;
 	item_list::const_iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		if (item->getSelected())
@@ -494,7 +494,7 @@ S32 LLScrollListCtrl::getFirstSelectedIndex() const
 	updateSort();
 
 	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		// <FS:Ansariel> Fix for FS-specific people list (radar)
@@ -535,7 +535,7 @@ std::vector<LLScrollListItem*> LLScrollListCtrl::getAllData() const
 {
 	std::vector<LLScrollListItem*> ret;
 	item_list::const_iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		ret.push_back(item);
@@ -549,7 +549,7 @@ LLScrollListItem* LLScrollListCtrl::getItem(const LLSD& sd) const
 	std::string string_val = sd.asString();
 
 	item_list::const_iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		// assumes string representation is good enough for comparison
@@ -705,7 +705,7 @@ S32 LLScrollListCtrl::calcMaxContentWidth()
 			// update max content width for this column, by looking at all items
 			column->mMaxContentWidth = column->mHeader ? LLFontGL::getFontSansSerifSmall()->getWidth(column->mLabel) + mColumnPadding + HEADING_TEXT_PADDING : 0;
 			item_list::iterator iter;
-			for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+			for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 			{
 				LLScrollListCell* cellp = (*iter)->getColumn(column->mIndex);
 				if (!cellp) continue;
@@ -760,7 +760,7 @@ void LLScrollListCtrl::updateLineHeight()
 {
 	mLineHeight = 0;
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
 		S32 num_cols = itemp->getNumColumns();
@@ -845,7 +845,7 @@ void LLScrollListCtrl::updateColumns(bool force_update)
 	if (columns_changed_width || force_update)
 	{
 		item_list::iterator iter;
-		for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem *itemp = *iter;
 			S32 num_cols = itemp->getNumColumns();
@@ -882,7 +882,7 @@ BOOL LLScrollListCtrl::selectFirstItem()
 	BOOL first_item = TRUE;
 
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
 		if( first_item && itemp->getEnabled() )
@@ -964,7 +964,7 @@ BOOL LLScrollListCtrl::selectItemRange( S32 first_index, S32 last_index )
 			deselectItem(itemp);
 		}
 		index++;
-		++iter ;
+		iter++ ;
 	}
 
 	if (mCommitOnSelectionChange)
@@ -1044,7 +1044,7 @@ void LLScrollListCtrl::deleteItems(const LLSD& sd)
 		}
 		else
 		{
-			++iter;
+			iter++;
 		}
 	}
 
@@ -1064,7 +1064,7 @@ void LLScrollListCtrl::deleteSelectedItems()
 		}
 		else
 		{
-			++iter;
+			iter++;
 		}
 	}
 	mLastSelected = NULL;
@@ -1091,7 +1091,7 @@ S32	LLScrollListCtrl::selectMultiple( uuid_vec_t ids )
 {
 	item_list::iterator iter;
 	S32 count = 0;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
 		uuid_vec_t::iterator iditr;
@@ -1120,7 +1120,7 @@ S32 LLScrollListCtrl::getItemIndex( LLScrollListItem* target_item ) const
 
 	S32 index = 0;
 	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
 		// <FS:Ansariel> Fix for FS-specific people list (radar)
@@ -1144,7 +1144,7 @@ S32 LLScrollListCtrl::getItemIndex( const LLUUID& target_id ) const
 
 	S32 index = 0;
 	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
 		if (target_id == itemp->getUUID())
@@ -1170,7 +1170,7 @@ void LLScrollListCtrl::selectPrevItem( BOOL extend_selection)
 		updateSort();
 
 		item_list::iterator iter;
-		for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* cur_item = *iter;
 
@@ -1214,7 +1214,7 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 		updateSort();
 
 		item_list::reverse_iterator iter;
-		for (iter = mItemList.rbegin(); iter != mItemList.rend(); ++iter)
+		for (iter = mItemList.rbegin(); iter != mItemList.rend(); iter++)
 		{
 			LLScrollListItem* cur_item = *iter;
 
@@ -1249,7 +1249,7 @@ void LLScrollListCtrl::selectNextItem( BOOL extend_selection)
 void LLScrollListCtrl::deselectAllItems(BOOL no_commit_on_change)
 {
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
 		deselectItem(item);
@@ -1325,7 +1325,7 @@ LLScrollListItem* LLScrollListCtrl::getItemByLabel(const std::string& label, BOO
 	}
 
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
 		std::string item_text = item->getColumn(column)->getValue().asString();	// Only select enabled items with matching names
@@ -1366,7 +1366,7 @@ BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool pre
 	{
 		// Is "" a valid choice?
 		item_list::iterator iter;
-		for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+		for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* item = *iter;
 			// Only select enabled items with matching names
@@ -1388,7 +1388,7 @@ BOOL LLScrollListCtrl::selectItemByStringMatch(const LLWString& target, bool pre
 			LLWStringUtil::toLower(target_trimmed);
 		}
 
-		for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+		for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
 		{
 			LLScrollListItem* item = *iter;
 
@@ -1495,7 +1495,7 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 	if (selected && !mAllowMultipleSelection) deselectAllItems(TRUE);
 
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
 		if (item->getEnabled() && (item->getValue().asString() == value.asString()))
@@ -1524,7 +1524,7 @@ BOOL LLScrollListCtrl::setSelectedByValue(const LLSD& value, BOOL selected)
 BOOL LLScrollListCtrl::isSelected(const LLSD& value) const 
 {
 	item_list::const_iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item = *iter;
 		if (item->getValue().asString() == value.asString())
@@ -2126,7 +2126,7 @@ BOOL LLScrollListCtrl::handleClick(S32 x, S32 y, MASK mask)
 			// propagate value of this cell to other selected items
 			// and commit the respective widgets
 			LLSD item_value = hit_cell->getValue();
-			for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+			for (item_list::iterator iter = mItemList.begin(); iter != mItemList.end(); iter++)
 			{
 				LLScrollListItem* item = *iter;
 				if (item->getSelected())
@@ -2174,7 +2174,7 @@ LLScrollListItem* LLScrollListCtrl::hitItem( S32 x, S32 y )
 
 	S32 line = 0;
 	item_list::iterator iter;
-	for(iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for(iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem* item  = *iter;
 		// <FS:Ansariel> Fix for FS-specific people list (radar)
@@ -2819,7 +2819,7 @@ void	LLScrollListCtrl::selectAll()
 {
 	// Deselects all other items
 	item_list::iterator iter;
-	for (iter = mItemList.begin(); iter != mItemList.end(); ++iter)
+	for (iter = mItemList.begin(); iter != mItemList.end(); iter++)
 	{
 		LLScrollListItem *itemp = *iter;
 		if( itemp->getEnabled() )

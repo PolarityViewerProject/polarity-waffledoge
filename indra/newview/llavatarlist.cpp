@@ -74,7 +74,7 @@ void LLAvatarList::toggleIcons()
 	// Show/hide icons for all existing items.
 	std::vector<LLPanel*> items;
 	getItems(items);
-	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		static_cast<LLAvatarListItem*>(*it)->setAvatarIconVisible(mShowIcons);
 	}
@@ -88,7 +88,7 @@ void LLAvatarList::setSpeakingIndicatorsVisible(bool visible)
 	// Show/hide icons for all existing items.
 	std::vector<LLPanel*> items;
 	getItems(items);
-	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		static_cast<LLAvatarListItem*>(*it)->showSpeakingIndicator(mShowSpeakingIndicator);
 	}
@@ -288,7 +288,7 @@ void LLAvatarList::refresh()
 	unsigned nadded = 0;
 	const std::string waiting_str = LLTrans::getString("AvatarNameWaiting");
 
-	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); ++it)
+	for (uuid_vec_t::const_iterator it=added.begin(); it != added.end(); it++)
 	{
 		const LLUUID& buddy_id = *it;
 		LLAvatarName av_name;
@@ -325,7 +325,7 @@ void LLAvatarList::refresh()
 	}
 
 	// Handle removed items.
-	for (uuid_vec_t::const_iterator it=removed.begin(); it != removed.end(); ++it)
+	for (uuid_vec_t::const_iterator it=removed.begin(); it != removed.end(); it++)
 	{
 		removeItemByUUID(*it);
 		modified = true;
@@ -337,7 +337,7 @@ void LLAvatarList::refresh()
 		std::vector<LLSD> cur_values;
 		getValues(cur_values);
 
-		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); ++it)
+		for (std::vector<LLSD>::const_iterator it=cur_values.begin(); it != cur_values.end(); it++)
 		{
 			const LLUUID& buddy_id = it->asUUID();
 			LLAvatarName av_name;
@@ -374,7 +374,7 @@ void LLAvatarList::refresh()
 		// Highlight items matching the filter.
 		std::vector<LLPanel*> items;
 		getItems(items);
-		for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
+		for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 		{
 			static_cast<LLAvatarListItem*>(*it)->setHighlight(mNameFilter);
 		}
@@ -393,7 +393,7 @@ void LLAvatarList::updateAvatarNames()
 	std::vector<LLPanel*> items;
 	getItems(items);
 
-	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); ++it)
+	for( std::vector<LLPanel*>::const_iterator it = items.begin(); it != items.end(); it++)
 	{
 		LLAvatarListItem* item = static_cast<LLAvatarListItem*>(*it);
 		item->setShowCompleteName(mShowCompleteName);
@@ -407,7 +407,7 @@ bool LLAvatarList::filterHasMatches()
 {
 	uuid_vec_t values = getIDs();
 
-	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); ++it)
+	for (uuid_vec_t::const_iterator it=values.begin(); it != values.end(); it++)
 	{
 		const LLUUID& buddy_id = *it;
 		LLAvatarName av_name;
