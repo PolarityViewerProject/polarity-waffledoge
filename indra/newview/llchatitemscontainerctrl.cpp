@@ -34,7 +34,14 @@
 #include "llavatariconctrl.h"
 #include "llcommandhandler.h"
 #include "llfloaterreg.h"
+#include "lllocalcliprect.h"
+#include "lltrans.h"
 #include "llfloaterimnearbychat.h"
+
+#include "llviewercontrol.h"
+#include "llagentdata.h"
+
+#include "llslurl.h"
 
 #if PVDATA_COLORIZER
 #include "pvdata.h"
