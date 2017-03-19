@@ -2249,7 +2249,7 @@ void errorCallback(const std::string &error_string)
 	if (last_message != error_string)
 	{
 #ifndef LL_RELEASE_FOR_DOWNLOAD
-		U32 response = OSMessageBox(error_string, LLTrans::getString("MBFatalError"), OSMB_YESNO);
+		U32 response = OSMessageBox(error_string, LLTrans::getString("AssertDialogTitle"), OSMB_YESNO);
 		if (response == OSBTN_NO)
 		{
 			last_message = error_string;
