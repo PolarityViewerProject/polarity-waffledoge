@@ -73,7 +73,7 @@ public:
 				   ESource source,
 				   const LLUUID& source_id = LLUUID::null,
 				   const LLUUID& object_id = LLUUID::null);
-	void beginMultiDrag(const std::vector<EDragAndDropType> types,
+	void beginMultiDrag(const std::vector<EDragAndDropType>& types,
 						const uuid_vec_t& cargo_ids,
 						ESource source,
 						const LLUUID& source_id = LLUUID::null);
