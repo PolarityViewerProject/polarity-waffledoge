@@ -105,7 +105,7 @@ RenderAvatarVP				1	1
 RenderAutoMuteSurfaceAreaLimit	1	100.0
 RenderCubeMap				1	1
 RenderDelayVBUpdate			1	0
-RenderFarClip				1	10
+RenderFarClip				1	30
 RenderShadowFarClip			1	10
 RenderFlexTimeFactor		1	0.25
 RenderFogRatio				1	4.0
