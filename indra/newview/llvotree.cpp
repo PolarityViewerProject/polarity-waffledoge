@@ -797,7 +797,7 @@ BOOL LLVOTree::updateGeometry(LLDrawable *drawable)
 					// Generate the matching quads
 					*(indicesp) = j + (i*slices) + sLODVertexOffset[lod];
 					llassert(*(indicesp) < (U32)max_vertices);
-					indicesp++;
+					indicesp;
 					index_count++;
 					*(indicesp) = x1_offset + ((i+1)*slices) + sLODVertexOffset[lod];
 					llassert(*(indicesp) < (U32)max_vertices);

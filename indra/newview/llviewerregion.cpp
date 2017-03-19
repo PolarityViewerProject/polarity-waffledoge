@@ -1604,7 +1604,7 @@ void LLViewerRegion::killObject(LLVOCacheEntry* entry, std::vector<LLDrawable*>&
 		}
 		LLViewerObject::const_child_list_t& child_list = v_obj->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			iter != child_list.end(); iter++)
+			iter != child_list.end(); ++iter)
 		{
 			LLViewerObject* child = *iter;
 			if(child->mDrawable)
@@ -2027,7 +2027,7 @@ public:
 
 		for(int i=0; 
 			locs_it != locs.endArray(); 
-			i++, locs_it++)
+			i++, ++locs_it)
 		{
 			U8 
 				x = locs_it->get("X").asInteger(),
@@ -2061,7 +2061,7 @@ public:
 			}
 			if (has_agent_data)
 			{
-				agents_it++;
+				++agents_it;
 			}
 		}
 	}

@@ -2738,7 +2738,7 @@ void derenderObject(bool permanent)
 			{
 				bool next_object = false;
 				LLViewerObject::child_list_t object_children = objp->getChildren();
-				for (LLViewerObject::child_list_t::const_iterator it = object_children.begin(); it != object_children.end(); it++)
+				for (LLViewerObject::child_list_t::const_iterator it = object_children.begin(); it != object_children.end(); ++it)
 				{
 					LLViewerObject* child = *it;
 					if (child->isAvatar() && child->asAvatar()->isSelf())
@@ -3264,7 +3264,7 @@ class LLSelfEnableRemoveAllAttachments : public view_listener_t
 			for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
 				 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 			{
-				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+				LLVOAvatar::attachment_map_t::iterator curiter = ++iter;
 				LLViewerJointAttachment* attachment = curiter->second;
 //				if (attachment->getNumObjects() > 0)
 // [RLVa:KB] - Checked: 2010-03-04 (RLVa-1.2.0a) | Added: RLVa-1.2.0a
@@ -4801,7 +4801,7 @@ static bool get_derezzable_objects(
 	// Check conditions that we can't deal with, building a list of
 	// everything that we'll actually be derezzing.
 	for (LLObjectSelection::valid_root_iterator iter = selection->valid_root_begin();
-		 iter != selection->valid_root_end(); iter++)
+		 iter != selection->valid_root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -5125,7 +5125,7 @@ void handle_take()
 	LLUUID category_id;
 	
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -5271,7 +5271,7 @@ BOOL enable_take()
 	}
 
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -5388,7 +5388,7 @@ class LLToolsEnableBuyOrTake : public view_listener_t
 BOOL is_selection_buy_not_take()
 {
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* obj = node->getObject();
@@ -5406,7 +5406,7 @@ S32 selection_price()
 {
 	S32 total_price = 0;
 	for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* obj = node->getObject();
@@ -5589,7 +5589,7 @@ class LLToolsSnapObjectXY : public view_listener_t
 		F64 snap_size = (F64)gSavedSettings.getF32("GridResolution");
 
 		for (LLObjectSelection::root_iterator iter = LLSelectMgr::getInstance()->getSelection()->root_begin();
-			 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); iter++)
+			 iter != LLSelectMgr::getInstance()->getSelection()->root_end(); ++iter)
 		{
 			LLSelectNode* node = *iter;
 			LLViewerObject* obj = node->getObject();
@@ -6283,7 +6283,7 @@ void toggle_debug_menus(void*)
 // 	msg->addS16Fast(_PREHASH_VolumeDetail, 4);
 
 // 	for (LLObjectSelection::root_iterator iter = selection->root_begin();
-// 		 iter != selection->root_end(); iter++)
+// 		 iter != selection->root_end(); ++iter)
 // 	{
 // 		LLSelectNode* node = *iter;
 // 		LLViewerObject* object = node->getObject();
@@ -7352,7 +7352,7 @@ class LLAttachmentDetachFromPoint : public view_listener_t
 		{
 			for (LLViewerJointAttachment::attachedobjs_vec_t::const_iterator iter = attachment->mAttachedObjects.begin();
 				 iter != attachment->mAttachedObjects.end();
-				 iter++)
+				 ++iter)
 			{
 				LLViewerObject *attached_object = (*iter);
 // [RLVa:KB] - Checked: 2010-03-04 (RLVa-1.2.0a) | Added: RLVa-1.2.0a
@@ -7627,13 +7627,13 @@ BOOL object_selected_and_point_valid(const LLSD& sdParam)
 
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	for (LLObjectSelection::root_iterator iter = selection->root_begin();
-		 iter != selection->root_end(); iter++)
+		 iter != selection->root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
 		LLViewerObject::const_child_list_t& child_list = object->getChildren();
 		for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-			 iter != child_list.end(); iter++)
+			 iter != child_list.end(); ++iter)
 		{
 			LLViewerObject* child = *iter;
 			if (child->isAvatar())
@@ -7668,7 +7668,7 @@ BOOL object_is_wearable()
 	}
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	for (LLObjectSelection::valid_root_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_root_begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); iter++)
+		 iter != LLSelectMgr::getInstance()->getSelection()->valid_root_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;		
 		if (node->mPermissions->getOwner() == gAgent.getID())
@@ -7884,7 +7884,7 @@ class LLToolsSelectedScriptAction : public view_listener_t
 void handle_selected_texture_info(void*)
 {
 	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
-   		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+   		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 	   	
@@ -7932,7 +7932,7 @@ void handle_selected_texture_info(void*)
 void handle_selected_material_info()
 {
 	for (LLObjectSelection::valid_iterator iter = LLSelectMgr::getInstance()->getSelection()->valid_begin();
-		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); iter++)
+		iter != LLSelectMgr::getInstance()->getSelection()->valid_end(); ++iter)
 	{
 		LLSelectNode* node = *iter;
 		
@@ -8007,7 +8007,7 @@ void handle_dump_attachments(void*)
 	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
 		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 	{
-		LLVOAvatar::attachment_map_t::iterator curiter = iter++;
+		LLVOAvatar::attachment_map_t::iterator curiter = ++iter;
 		LLViewerJointAttachment* attachment = curiter->second;
 		S32 key = curiter->first;
 		for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
