@@ -252,7 +252,7 @@ class LLViewerStats : public LLSingleton<LLViewerStats>
 public:
 	void resetStats();
 
-	void updateFrameStats(const F64Seconds time_diff);
+	void updateFrameStats(const F64Seconds& time_diff);
 	
 	void addToMessage(LLSD &body);
 

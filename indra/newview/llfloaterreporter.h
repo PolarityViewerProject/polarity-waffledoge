@@ -91,7 +91,7 @@ public:
 	static void showFromMenu(EReportType report_type);
 
 	static void showFromObject(const LLUUID& object_id, const LLUUID& experience_id = LLUUID::null);
-	static void showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name);
+	static void showFromAvatar(const LLUUID& avatar_id, const std::string& avatar_name);
 	static void showFromExperience(const LLUUID& experience_id);
 
 	static void onClickSend			(void *userdata);
@@ -103,7 +103,7 @@ public:
 	static void addDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 	static void setDescription(const std::string& description, LLMeanCollisionData *mcd = NULL);
 
-	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id);
+	void setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID& owner_id);
 
 	void onLoadScreenshotDialog(const LLSD& notification, const LLSD& response);
 
@@ -124,7 +124,7 @@ private:
 	void enableControls(BOOL own_avatar);
 	void getExperienceInfo(const LLUUID& object_id);
 	void getObjectInfo(const LLUUID& object_id);
-	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
+	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName>& names);
 	void setFromAvatarID(const LLUUID& avatar_id);
 	void onAvatarNameCache(const LLUUID& avatar_id, const LLAvatarName& av_name);
 

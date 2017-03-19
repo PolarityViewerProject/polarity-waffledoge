@@ -2741,7 +2741,7 @@ void LLModelPreview::updateStatusMessages()
                     while (mat_iter != lod_model->mMaterialList.end())
                     {
                         LL_INFOS() << "Instance " << lod_model->mLabel << " LOD " << i << " Material " << *(mat_iter) << LL_ENDL;
-                        mat_iter++;
+                        ++mat_iter;
                     }
                 }
 
@@ -3303,7 +3303,7 @@ void LLModelPreview::genBuffers(S32 lod, bool include_skin_weights)
 		}
 
 		LLModel* base_mdl = *base_iter;
-		base_iter++;
+		++base_iter;
 
 		S32 num_faces = mdl->getNumVolumeFaces();
 		for (S32 i = 0; i < num_faces; ++i)
@@ -3468,7 +3468,7 @@ U32 LLModelPreview::countRootModels(LLModelLoader::model_list models)
 		{
 			root_models++;
 		}
-		model_iter++;
+		++model_iter;
 	}
 	return root_models;
 }

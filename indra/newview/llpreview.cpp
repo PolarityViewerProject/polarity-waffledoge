@@ -237,7 +237,7 @@ void LLPreview::refreshFromItem()
 }
 
 // static
-BOOL LLPreview::canModify(const LLUUID taskUUID, const LLInventoryItem* item)
+BOOL LLPreview::canModify(const LLUUID& taskUUID, const LLInventoryItem* item)
 {
 	if (taskUUID.notNull())
 	{

@@ -82,7 +82,7 @@ void LLItemPropertiesObserver::changed(U32 mask)
 
 	const LLUUID& item_id = mFloater->getItemID();
 
-	for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); it++)
+	for (it = mChangedItemIDs.begin(); it != mChangedItemIDs.end(); ++it)
 	{
 		// set dirty for 'item profile panel' only if changed item is the item for which 'item profile panel' is shown (STORM-288)
 		if (*it == item_id)

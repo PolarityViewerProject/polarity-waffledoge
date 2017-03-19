@@ -1105,7 +1105,7 @@ void create_inventory_item(const LLUUID& agent_id, const LLUUID& session_id,
 
 		for (dictionary_iter = LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.begin();
 			 dictionary_iter != LLLocalizedInventoryItemsDictionary::getInstance()->mInventoryItemsDict.end();
-			 dictionary_iter++)
+			 ++dictionary_iter)
 		{
 			const std::string& localized_name = dictionary_iter->second;
 			if(localized_name == name)
@@ -2209,7 +2209,7 @@ BOOL LLViewerInventoryItem::regenerateLink()
 									asset_id_matches);
 	for (LLViewerInventoryItem::item_array_t::iterator item_iter = items.begin();
 		 item_iter != items.end();
-		 item_iter++)
+		 ++item_iter)
 	{
 	    LLViewerInventoryItem *item = (*item_iter);
 		item->setAssetUUID(target_item_id);

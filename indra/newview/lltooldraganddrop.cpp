@@ -377,7 +377,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 }
 
 void LLToolDragAndDrop::beginMultiDrag(
-	const std::vector<EDragAndDropType> types,
+	const std::vector<EDragAndDropType>& types,
 	const uuid_vec_t& cargo_ids,
 	ESource source,
 	const LLUUID& source_id)
@@ -1593,7 +1593,7 @@ static void give_inventory_cb(const LLSD& notification, const LLSD& response)
 	}
 }
 
-static void show_object_sharing_confirmation(const std::string name,
+static void show_object_sharing_confirmation(const std::string& name,
 					   LLInventoryObject* inv_item,
 					   const LLSD& dest,
 					   const LLUUID& dest_agent,
