@@ -971,6 +971,12 @@ F32 gpu_benchmark()
       // and are likely to be correctly identified by the GPU table already.
 		return -1.f;
 	}
+	// <polarity> Don't run GPU benchmark on Intel graphics, they take too long to run (0.117834GB/sec / 11.225GB/sec )
+	//@todo Add setting to only run benchmark when gpu model changes
+	if(gGLManager.mIsIntel)
+	{
+		return -1.f;
+	}
 
 	bool old_fixed_func = LLGLSLShader::sNoFixedFunction;
 	
