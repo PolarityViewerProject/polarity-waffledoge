@@ -126,9 +126,9 @@ public:
 	//must be called when rendering is complete
 	//should be used 1:1 with bindTarget 
 	// call bindTarget once, do all your rendering, call flush once
-	// if fetch_depth is TRUE, every effort will be made to copy the depth buffer into 
+	// if fetch_depth is true, every effort will be made to copy the depth buffer into 
 	// the current depth texture.  A depth texture will be allocated if needed.
-	void flush(bool fetch_depth = FALSE);
+	void flush(bool fetch_depth = false);
 
 	void copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
 						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter);
