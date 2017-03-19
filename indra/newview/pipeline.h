@@ -261,7 +261,7 @@ public:
 	void clearRebuildDrawables();
 
 	//calculate pixel area of given box from vantage point of given camera
-	static F32 calcPixelArea(LLVector3 center, const LLVector3 &size, LLCamera& camera);
+	static F32 calcPixelArea(const LLVector3 &center, const LLVector3 &size, LLCamera& camera);
 	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);

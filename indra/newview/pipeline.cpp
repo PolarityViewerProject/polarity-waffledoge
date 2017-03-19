@@ -2308,7 +2308,7 @@ void LLPipeline::updateMove()
 /////////////////////////////////////////////////////////////////////////////
 
 //static
-F32 LLPipeline::calcPixelArea(LLVector3 center, const LLVector3 &size, LLCamera &camera)
+F32 LLPipeline::calcPixelArea(const LLVector3 &center, const LLVector3 &size, LLCamera &camera)
 {
 	LLVector3 lookAt = center - camera.getOrigin();
 	F32 dist = lookAt.length();
