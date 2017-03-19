@@ -1042,7 +1042,7 @@ LLViewerTexture* LLWorld::getDefaultWaterTexture()
 	return mDefaultWaterTexturep;
 }
 
-void LLWorld::setSpaceTimeUSec(const U64MicrosecondsImplicit& space_time_usec)
+void LLWorld::setSpaceTimeUSec(const U64MicrosecondsImplicit space_time_usec)
 {
 	mSpaceTimeUSec = space_time_usec;
 }

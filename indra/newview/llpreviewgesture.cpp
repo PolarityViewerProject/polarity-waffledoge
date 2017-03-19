@@ -1005,7 +1005,7 @@ void LLPreviewGesture::loadUIFromGesture(LLMultiGesture* gesture)
 struct LLSaveInfo
 {
 	LLSaveInfo(const LLUUID& item_id, const LLUUID& object_id, const std::string& desc,
-				const LLTransactionID& tid)
+				const LLTransactionID tid)
 		: mItemUUID(item_id), mObjectUUID(object_id), mDesc(desc), mTransactionID(tid)
 	{
 	}

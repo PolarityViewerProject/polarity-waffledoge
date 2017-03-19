@@ -224,7 +224,7 @@ void LLViewerStats::resetStats()
 	getRecording().reset();
 }
 
-void LLViewerStats::updateFrameStats(const F64Seconds& time_diff)
+void LLViewerStats::updateFrameStats(const F64Seconds time_diff)
 {
 	if (getRecording().getLastValue(LLStatViewer::PACKETS_LOST_PERCENT) > F32Percent(5.0))
 	{

@@ -2050,7 +2050,7 @@ bool LLAgentCamera::allowFocusOffsetChange(const LLVector3d& offsetFocus)
 	return true;
 }
 
-bool LLAgentCamera::clampCameraPosition(LLVector3d& posCamGlobal, const LLVector3d& posCamRefGlobal, float nDistMin, float nDistMax)
+bool LLAgentCamera::clampCameraPosition(LLVector3d& posCamGlobal, const LLVector3d posCamRefGlobal, float nDistMin, float nDistMax)
 {
 	const LLVector3d offsetCamera = posCamGlobal - posCamRefGlobal;
 

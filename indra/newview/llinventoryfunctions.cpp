@@ -238,7 +238,7 @@ void append_path(const LLUUID& id, std::string& path)
 	path.append(temp);
 }
 
-void update_marketplace_folder_hierarchy(const LLUUID& cat_id)
+void update_marketplace_folder_hierarchy(const LLUUID cat_id)
 {
     // When changing the marketplace status of a folder, the only thing that needs to happen is
     // for all observers of the folder to, possibly, change the display label of the folder

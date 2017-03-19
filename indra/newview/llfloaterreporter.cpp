@@ -364,7 +364,7 @@ void LLFloaterReporter::onClickSelectAbuser()
 	}
 }
 
-void LLFloaterReporter::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName>& names)
+void LLFloaterReporter::callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names)
 {
 	if (ids.empty() || names.empty()) return;
 
@@ -584,12 +584,12 @@ void LLFloaterReporter::showFromObject(const LLUUID& object_id, const LLUUID& ex
 }
 
 // static
-void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::string& avatar_name)
+void LLFloaterReporter::showFromAvatar(const LLUUID& avatar_id, const std::string avatar_name)
 {
 	show(avatar_id, avatar_name);
 }
 
-void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID& owner_id)
+void LLFloaterReporter::setPickedObjectProperties(const std::string& object_name, const std::string& owner_name, const LLUUID owner_id)
 {
 	getChild<LLUICtrl>("object_name")->setValue(object_name);
 	std::string owner_link =

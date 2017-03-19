@@ -434,7 +434,7 @@ static void teleport_started();
 void on_new_single_inventory_upload_complete(
     LLAssetType::EType asset_type,
     LLInventoryType::EType inventory_type,
-    const std::string& inventory_type_string,
+    const std::string inventory_type_string,
     const LLUUID& item_folder_id,
     const std::string& item_name,
     const std::string& item_description,
@@ -4834,7 +4834,7 @@ void teleport_started()
 void on_new_single_inventory_upload_complete(
     LLAssetType::EType asset_type,
     LLInventoryType::EType inventory_type,
-    const std::string& inventory_type_string,
+    const std::string inventory_type_string,
     const LLUUID& item_folder_id,
     const std::string& item_name,
     const std::string& item_description,

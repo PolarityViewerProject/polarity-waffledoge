@@ -311,7 +311,7 @@ public:
 	//--------------------------------------------------------------------
 protected:
 	bool allowFocusOffsetChange(const LLVector3d& offsetFocus);
-	bool clampCameraPosition(LLVector3d& posCamGlobal, const LLVector3d& posCamRefGlobal, float nDistMin, float nDistMax);
+	bool clampCameraPosition(LLVector3d& posCamGlobal, const LLVector3d posCamRefGlobal, float nDistMin, float nDistMax);
 
 	bool m_fRlvMaxDist;				// True if the camera is at max distance
 	bool m_fRlvMinDist;				// True if the camera is at min distance
