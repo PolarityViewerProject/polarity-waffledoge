@@ -106,7 +106,7 @@ private:
 	self_t& operator = (const self_t& other)
 	{
 		// don't do anything, derived class must implement logic
-	}
+	} //-V591
 
 	// atomically stop this object while starting the other
 	// no data can be missed in between stop and start
