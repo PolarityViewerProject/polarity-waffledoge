@@ -1214,7 +1214,7 @@ void LLTextureView::draw()
 		S32 count = 0;
 		mNumTextureBars = 0 ;
 		for (display_list_t::iterator iter = display_image_list.begin();
-			 iter != display_image_list.end(); ++iter)
+			 iter != display_image_list.end(); iter++)
 		{
 			LLViewerFetchedTexture* imagep = iter->second;
 			S32 hilite = 0;
