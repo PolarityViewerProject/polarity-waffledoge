@@ -722,37 +722,41 @@ bool LLGLManager::initGL()
 		mVRAM = fallback_vram;
 	}
 
-	stop_glerror();
-
+	LL_INFOS("GL_DEBUG") << "Checking for GL error " << LL_ENDL;
 	stop_glerror();
 
 	if (mHasFragmentShader)
 	{
 		GLint num_tex_image_units;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
+		LL_DEBUGS("GL_DEBUG") << "Setting texture image units" << LL_ENDL;
 		mNumTextureImageUnits = llmin(num_tex_image_units, 32);
 	}
 
 	if (LLRender::sGLCoreProfile)
 	{
+		LL_WARNS("GL_DEBUG") << "Running in OpenGL Core profile!" << LL_ENDL;
 		mNumTextureUnits = llmin(mNumTextureImageUnits, MAX_GL_TEXTURE_UNITS);
 	}
 	else if (mHasMultitexture)
 	{
+		LL_INFOS("GL_DEBUG") << "Multitexture = YES" << LL_ENDL;
 		GLint num_tex_units;		
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num_tex_units);
 		mNumTextureUnits = llmin(num_tex_units, (GLint)MAX_GL_TEXTURE_UNITS);
 		if (mIsIntel)
 		{
+			LL_INFOS("GL_DEBUG") << "Hello, Intel!" << LL_ENDL;
 			mNumTextureUnits = llmin(mNumTextureUnits, 2);
 		}
 	}
 	else
 	{
+		LL_INFOS("GL_DEBUG") << "Multitexture = NO" << LL_ENDL;
 		mHasRequirements = FALSE;
 
 		// We don't support cards that don't support the GL_ARB_multitexture extension
-		LL_WARNS("RenderInit") << "GL Drivers do not support GL_ARB_multitexture" << LL_ENDL;
+		LL_ERRS("RenderInit") << "GL Drivers do not support GL_ARB_multitexture" << LL_ENDL;
 		return false;
 	}
 	
@@ -760,6 +764,7 @@ bool LLGLManager::initGL()
 
 	if (mHasTextureMultisample)
 	{
+		LL_INFOS("GL_DEBUG") << "Doing slow OpenGL feature detection calls, please hold..." << LL_ENDL;
 		glGetIntegerv(GL_MAX_COLOR_TEXTURE_SAMPLES, &mMaxColorTextureSamples);
 		glGetIntegerv(GL_MAX_DEPTH_TEXTURE_SAMPLES, &mMaxDepthTextureSamples);
 		glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &mMaxIntegerSamples);
@@ -767,7 +772,7 @@ bool LLGLManager::initGL()
 	}
 
 	stop_glerror();
-
+	LL_INFOS("GL_DEBUG") << "It lives!" << LL_ENDL;
 #if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
@@ -779,22 +784,24 @@ bool LLGLManager::initGL()
 #endif
 
 	stop_glerror();
-
+	LL_INFOS("GL_DEBUG") << "It lives!" << LL_ENDL;
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
 	if (mIsATI)
 	{ //using multisample textures on ATI results in black screen for some reason
 		mHasTextureMultisample = FALSE;
+		LL_INFOS("GL_DEBUG") << "Hello ATI!" << LL_ENDL;
 	}
 
 
-#ifdef BLOCK_HD3000
+//#ifdef BLOCK_HD3000
 	if (mIsIntel && mGLVersion <= 3.f)
 	{ //never try to use framebuffer objects on older intel drivers (crashy)
+		LL_INFOS("GL_DEBUG") << "Hello Old OpenGL! (disabling FBO)" << LL_ENDL;
 		mHasFramebufferObject = FALSE;
 	}
-#endif
+//#endif
 #endif
 
 	if (mHasFramebufferObject)
@@ -812,6 +819,7 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 
+	LL_INFOS("GL_DEBUG") << "OpenGL Sucessfully Initialized." << LL_ENDL;
 	return true;
 }
 
