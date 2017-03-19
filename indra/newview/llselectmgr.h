@@ -869,7 +869,7 @@ template <typename T> bool LLObjectSelection::getSelectedTEValue(LLSelectedTEGet
 
 	// Now iterate through all TEs to test for sameness
 	bool identical = TRUE;
-	for (iterator iter = begin(); iter != end(); ++iter)
+	for (iterator iter = begin(); iter != end(); iter++)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
@@ -933,7 +933,7 @@ template <typename T> bool LLObjectSelection::isMultipleTEValue(LLSelectedTEGetF
 	
 	// Now iterate through all TEs to test for sameness
 	bool unique = TRUE;
-	for (iterator iter = begin(); iter != end(); ++iter)
+	for (iterator iter = begin(); iter != end(); iter++)
 	{
 		LLSelectNode* node = *iter;
 		LLViewerObject* object = node->getObject();
