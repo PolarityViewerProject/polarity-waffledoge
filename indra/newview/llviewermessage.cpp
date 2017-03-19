@@ -3730,7 +3730,7 @@ void process_decline_callingcard(LLMessageSystem* msg, void**)
 	LLNotificationsUtil::add("CallingCardDeclined");
 }
 
-void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std::string expectLang, std::string translation, const std::string& detected_language)
+void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std::string expectLang, std::string translation, const std::string detected_language)
 {
     // filter out non-interesting responses  
     if (!translation.empty()
@@ -3743,7 +3743,7 @@ void translateSuccess(LLChat chat, LLSD toastArgs, std::string originalMsg, std:
     LLNotificationsUI::LLNotificationManager::instance().onChat(chat, toastArgs);
 }
 
-void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string& err_msg)
+void translateFailure(LLChat chat, LLSD toastArgs, int status, const std::string err_msg)
 {
     std::string msg = LLTrans::getString("TranslationFailed", LLSD().with("[REASON]", err_msg));
     LLStringUtil::replaceString(msg, "\n", " "); // we want one-line error messages
@@ -6815,7 +6815,7 @@ void mean_name_callback(const LLUUID &id, const std::string& full_name, bool is_
 	if (gMeanCollisionList.size() > max_collision_list_size)
 	{
 		mean_collision_list_t::iterator iter = gMeanCollisionList.begin();
-		for (U32 i=0; i<max_collision_list_size; i++) ++iter;
+		for (U32 i=0; i<max_collision_list_size; i++) iter++;
 		for_each(iter, gMeanCollisionList.end(), DeletePointer());
 		gMeanCollisionList.erase(iter, gMeanCollisionList.end());
 	}

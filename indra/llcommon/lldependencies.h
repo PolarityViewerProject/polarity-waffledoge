@@ -286,15 +286,14 @@ public:
             // Regardless of inserted.second, inserted.first is the iterator
             // to the newly-inserted (or existing) map entry. Of course, that
             // entry's second is the DepNode of interest.
-			auto insert_first_second = inserted.first->second;
-            if (insert_first_second.after  != after_set ||
-				insert_first_second.before != before_set)
+            if (inserted.first->second.after  != after_set ||
+                inserted.first->second.before != before_set)
             {
                 // Dependencies have changed: clear the cached result.
                 mCache.clear();
                 // save the new dependencies
-				insert_first_second.after  = after_set;
-				insert_first_second.before = before_set;
+                inserted.first->second.after  = after_set;
+                inserted.first->second.before = before_set;
             }
         }
         else                        // this node is new
@@ -518,17 +517,15 @@ public:
                 for (typename DepNodeMap::const_iterator nmi = mNodes.begin(), nmend = mNodes.end();
                      nmi != nmend; ++nmi)
                 {
-					auto nmi_2nd_after = nmi->second.after;
                     vmap.insert(typename VertexMap::value_type(nmi->first, vmap.size()));
-                    for (typename DepNode::dep_set::const_iterator ai = nmi_2nd_after.begin(),
-                                                                   aend = nmi_2nd_after.end();
+                    for (typename DepNode::dep_set::const_iterator ai = nmi->second.after.begin(),
+                                                                   aend = nmi->second.after.end();
                          ai != aend; ++ai)
                     {
                         vmap.insert(typename VertexMap::value_type(*ai, vmap.size()));
                     }
-					auto nmi_2nd_before = nmi->second.before;
-                    for (typename DepNode::dep_set::const_iterator bi = nmi_2nd_before.begin(),
-                                                                   bend = nmi_2nd_before.end();
+                    for (typename DepNode::dep_set::const_iterator bi = nmi->second.before.begin(),
+                                                                   bend = nmi->second.before.end();
                          bi != bend; ++bi)
                     {
                         vmap.insert(typename VertexMap::value_type(*bi, vmap.size()));
@@ -544,18 +541,16 @@ public:
                 {
                     std::size_t thisnode = vmap[nmi->first];
                     // after dependencies: build edges from the named node to this one
-					auto nmi_2nd_after = nmi->second.after;
-                    for (typename DepNode::dep_set::const_iterator ai = nmi_2nd_after.begin(),
-                                                                   aend = nmi_2nd_after.end();
+                    for (typename DepNode::dep_set::const_iterator ai = nmi->second.after.begin(),
+                                                                   aend = nmi->second.after.end();
                          ai != aend; ++ai)
                     {
                         edges.push_back(EdgeList::value_type(vmap[*ai], thisnode));
                     }
                     // before dependencies: build edges from this node to the
                     // named one
-					auto nmi_2nd_before = nmi->second.before;
-                    for (typename DepNode::dep_set::const_iterator bi = nmi_2nd_before.begin(),
-                                                                   bend = nmi_2nd_before.end();
+                    for (typename DepNode::dep_set::const_iterator bi = nmi->second.before.begin(),
+                                                                   bend = nmi->second.before.end();
                          bi != bend; ++bi)
                     {
                         edges.push_back(EdgeList::value_type(thisnode, vmap[*bi]));

@@ -177,7 +177,7 @@ public:
 	{
 	public:
 		OrphanInfo();
-		OrphanInfo(const U64 parent_info, const LLUUID &child_info);
+		OrphanInfo(const U64 parent_info, const LLUUID child_info);
 		bool operator==(const OrphanInfo &rhs) const;
 		bool operator!=(const OrphanInfo &rhs) const;
 		U64 mParentInfo;

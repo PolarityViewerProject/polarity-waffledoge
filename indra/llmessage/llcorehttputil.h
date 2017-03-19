@@ -183,7 +183,7 @@ inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & reques
 	const LLSD & body,
 	const LLCore::HttpOptions::ptr_t & options,
 	const LLCore::HttpHeaders::ptr_t & headers,
-    const LLCore::HttpHandler::ptr_t &handler)
+    LLCore::HttpHandler::ptr_t handler)
 {
     return requestPutWithLLSD(request.get(), policy_id, priority,
         url, body, options, headers, handler);
@@ -194,7 +194,7 @@ inline LLCore::HttpHandle requestPutWithLLSD(LLCore::HttpRequest::ptr_t & reques
     LLCore::HttpRequest::priority_t priority,
     const std::string & url,
     const LLSD & body,
-    const LLCore::HttpHandler::ptr_t &handler)
+    LLCore::HttpHandler::ptr_t handler)
 {
     LLCore::HttpOptions::ptr_t options;
     LLCore::HttpHeaders::ptr_t headers;
@@ -382,7 +382,7 @@ public:
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     LLSD postFileAndSuspend(LLCore::HttpRequest::ptr_t &request,
-        const std::string & url,const std::string &fileName,
+        const std::string & url, std::string fileName,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postFileAndSuspend(request, url, fileName,
@@ -396,7 +396,7 @@ public:
         LLCore::HttpHeaders::ptr_t headers = LLCore::HttpHeaders::ptr_t(new LLCore::HttpHeaders()));
 
     LLSD postFileAndSuspend(LLCore::HttpRequest::ptr_t request,
-        const std::string & url, const LLUUID &assetId, LLAssetType::EType assetType,
+        const std::string & url, LLUUID assetId, LLAssetType::EType assetType,
         LLCore::HttpHeaders::ptr_t &headers)
     {
         return postFileAndSuspend(request, url, assetId, assetType,

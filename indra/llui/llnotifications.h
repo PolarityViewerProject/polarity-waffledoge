@@ -706,7 +706,7 @@ namespace LLNotificationComparators
 {
 	struct orderByUUID
 	{
-		bool operator()(const LLNotificationPtr &lhs, const LLNotificationPtr &rhs) const
+		bool operator()(LLNotificationPtr lhs, LLNotificationPtr rhs) const
 		{
 			return lhs->id() < rhs->id();
 		}
@@ -1107,7 +1107,7 @@ private:
 	}
 
 	// The channel gets all persistent notifications except those that have been canceled
-	static bool notificationFilter(const LLNotificationPtr &pNotification)
+	static bool notificationFilter(LLNotificationPtr pNotification)
 	{
 		bool handle_notification = false;
 

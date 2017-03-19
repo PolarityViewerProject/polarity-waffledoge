@@ -402,14 +402,13 @@ void FSAreaSearch::findObjects()
 	     object_it != mObjectDetails.end();
 	     ++object_it)
 	{
-		auto oit_second = object_it->second;
-		if (oit_second.request == FSObjectProperties::NEED || oit_second.request == FSObjectProperties::SENT)
+		if (object_it->second.request == FSObjectProperties::NEED || object_it->second.request == FSObjectProperties::SENT)
 		{
-			LLUUID id = oit_second.id;
+			LLUUID id = object_it->second.id;
 			LLViewerObject* objectp = gObjectList.findObject(id);
 			if (!objectp)
 			{
-				oit_second.request = FSObjectProperties::FAILED;
+				object_it->second.request = FSObjectProperties::FAILED;
 				mRequested--;
 			}
 			else
@@ -504,15 +503,14 @@ void FSAreaSearch::processRequestQueue()
 		     object_it != mObjectDetails.end();
 		     ++object_it)
 		{
-			auto oit_second = object_it->second;
-			if (oit_second.request == FSObjectProperties::SENT)
+			if (object_it->second.request == FSObjectProperties::SENT)
 			{
-				oit_second.request = FSObjectProperties::NEED;
+				object_it->second.request = FSObjectProperties::NEED;
 				mRequestNeedsSent = true;
 				request_count++;
 			}
 
-			if (oit_second.request == FSObjectProperties::FAILED)
+			if (object_it->second.request == FSObjectProperties::FAILED)
 			{
 				failed_count++;
 			}
@@ -557,11 +555,10 @@ void FSAreaSearch::processRequestQueue()
 		     object_it != mObjectDetails.end();
 		     ++object_it)
 		{
-			auto oit_second = object_it->second;
-			if (oit_second.request == FSObjectProperties::NEED && oit_second.region_handle == region_handle)
+			if (object_it->second.request == FSObjectProperties::NEED && object_it->second.region_handle == region_handle)
 			{
-				request_list.push_back(oit_second.local_id);
-				oit_second.request = FSObjectProperties::SENT;
+				request_list.push_back(object_it->second.local_id);
+				object_it->second.request = FSObjectProperties::SENT;
 				mRegionRequests[region_handle]++;
 				if (mRegionRequests[region_handle] >= ((MAX_OBJECTS_PER_PACKET * 3) - 3))
 				{

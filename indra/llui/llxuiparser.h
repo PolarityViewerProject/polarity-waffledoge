@@ -110,7 +110,7 @@ public:
 	template<typename BLOCK>
 	void writeXUI(LLXMLNodePtr node, 
 				const BLOCK& block, 
-				const LLInitParam::predicate_rule_t &rules = LLInitParam::default_parse_rules(),
+				const LLInitParam::predicate_rule_t rules = LLInitParam::default_parse_rules(),
 				const LLInitParam::BaseBlock* diff_block = NULL)
 	{
 		if (!diff_block 

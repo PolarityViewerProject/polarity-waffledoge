@@ -920,7 +920,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 		LL_RECORD_BLOCK_TIME(FTM_IDLE_COPY);
 
  		for (std::vector<LLPointer<LLViewerObject> >::iterator active_iter = mActiveObjects.begin();
-			active_iter != mActiveObjects.end(); ++active_iter)
+			active_iter != mActiveObjects.end(); active_iter++)
 		{
 			objectp = *active_iter;
 			if (objectp)
@@ -952,7 +952,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 	{
 		
 		for (std::vector<LLViewerObject*>::iterator iter = idle_list.begin();
-			iter != idle_end; ++iter)
+			iter != idle_end; iter++)
 		{
 			objectp = *iter;
 			if (objectp->isAvatar())
@@ -964,7 +964,7 @@ void LLViewerObjectList::update(LLAgent &agent)
 	else
 	{
 		for (std::vector<LLViewerObject*>::iterator idle_iter = idle_list.begin();
-			idle_iter != idle_end; ++idle_iter)
+			idle_iter != idle_end; idle_iter++)
 		{
 			objectp = *idle_iter;
 			llassert(objectp->isActive());
@@ -2019,7 +2019,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 		}
 
 		for (std::vector<LLDrawable*>::iterator iter = pick_drawables.begin();
-			iter != pick_drawables.end(); ++iter)
+			iter != pick_drawables.end(); iter++)
 		{
 			LLDrawable* drawablep = *iter;
 			if( !drawablep )
@@ -2078,7 +2078,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 							mSelectPickList.insert(attached_object);
 							LLViewerObject::const_child_list_t& child_list = attached_object->getChildren();
 							for (LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-								 iter != child_list.end(); ++iter)
+								 iter != child_list.end(); iter++)
 							{
 								LLViewerObject* childp = *iter;
 								if (childp)
@@ -2443,7 +2443,7 @@ LLViewerObjectList::OrphanInfo::OrphanInfo()
 {
 }
 
-LLViewerObjectList::OrphanInfo::OrphanInfo(const U64 parent_info, const LLUUID &child_info)
+LLViewerObjectList::OrphanInfo::OrphanInfo(const U64 parent_info, const LLUUID child_info)
 	: mParentInfo(parent_info), mChildInfo(child_info)
 {
 }
