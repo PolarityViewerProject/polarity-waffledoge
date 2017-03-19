@@ -499,7 +499,7 @@ void LLOutfitGallery::getCurrentCategories(uuid_vec_t& vcur)
 {
     for (outfit_map_t::const_iterator iter = mOutfitMap.begin();
         iter != mOutfitMap.end();
-         ++iter)
+        iter++)
     {
         if ((*iter).second != NULL)
         {

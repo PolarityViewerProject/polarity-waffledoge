@@ -478,7 +478,7 @@ BOOL LLManipRotate::handleMouseUp(S32 x, S32 y, MASK mask)
 	if( hasMouseCapture() )
 	{
 		for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); ++iter)
+		 iter != mObjectSelection->end(); iter++)
 		{
 			LLSelectNode* selectNode = *iter;
 			LLViewerObject* object = selectNode->getObject();
@@ -569,7 +569,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 	mSmoothRotate = FALSE;
 
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); ++iter)
+		 iter != mObjectSelection->end(); iter++)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
@@ -626,7 +626,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
 	// update positions
 	for (LLObjectSelection::iterator iter = mObjectSelection->begin();
-		 iter != mObjectSelection->end(); ++iter)
+		 iter != mObjectSelection->end(); iter++)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject* object = selectNode->getObject();
@@ -711,7 +711,7 @@ void LLManipRotate::drag( S32 x, S32 y )
 
 	// store changes to override updates
 	for (LLObjectSelection::iterator iter = LLSelectMgr::getInstance()->getSelection()->begin();
-		 iter != LLSelectMgr::getInstance()->getSelection()->end(); ++iter)
+		 iter != LLSelectMgr::getInstance()->getSelection()->end(); iter++)
 	{
 		LLSelectNode* selectNode = *iter;
 		LLViewerObject*cur = selectNode->getObject();

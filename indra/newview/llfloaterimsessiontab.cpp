@@ -496,7 +496,7 @@ void LLFloaterIMSessionTab::buildConversationViewParticipant()
 	{
 		LLConversationItem* participant_model = dynamic_cast<LLConversationItem*>(*current_participant_model);
 		addConversationViewParticipant(participant_model);
-		++current_participant_model;
+		current_participant_model++;
 	}
 }
 
@@ -599,7 +599,7 @@ void LLFloaterIMSessionTab::refreshConversation()
 						participant_model->setDisplayModeratorRole(agent_speaker->mIsModerator && participant_speaker->mIsModerator);
 					}
 				}
-				++current_participant_model;
+				current_participant_model++;
 			}
 		}
 	}

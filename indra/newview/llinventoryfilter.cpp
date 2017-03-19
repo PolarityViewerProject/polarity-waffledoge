@@ -155,7 +155,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 		}
 		U32 index = 0;
 		for (std::vector<std::string>::iterator it = mFilterSubStrings.begin();
-			it < mFilterSubStrings.end(); ++it, index++)
+			it < mFilterSubStrings.end(); it++, index++)
 		{
 			std::string::size_type sub_string_offset = searchLabel.find(*it);
 			mSubStringMatchOffsets[index] = sub_string_offset;
@@ -163,7 +163,7 @@ bool LLInventoryFilter::check(const LLFolderViewModelItem* item)
 			{
 				string_offset = std::string::npos;
 				for (std::vector<std::string::size_type>::iterator it = mSubStringMatchOffsets.begin();
-					it < mSubStringMatchOffsets.end(); ++it)
+					it < mSubStringMatchOffsets.end(); it++)
 				{
 					*it = std::string::npos;
 				}

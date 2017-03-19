@@ -643,7 +643,7 @@ BOOL LLPanelClassifiedEdit::postBuild()
 	LLClassifiedInfo::cat_map::iterator iter;
 	for (iter = LLClassifiedInfo::sCategories.begin();
 		iter != LLClassifiedInfo::sCategories.end();
-	     ++iter)
+		iter++)
 	{
 		combobox->add(LLTrans::getString(iter->second));
 	}

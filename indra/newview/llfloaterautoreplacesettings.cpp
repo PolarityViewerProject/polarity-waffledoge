@@ -247,7 +247,7 @@ void LLFloaterAutoReplaceSettings::updateReplacementsList()
 		const LLSD* mappings = mSettings.getListEntries(mSelectedListName);
 		for ( LLSD::map_const_iterator entry = mappings->beginMap(), end = mappings->endMap();
 			  entry != end;
-		      ++entry
+			  entry++
 			 )
 		{
 			LLSD row;
@@ -647,7 +647,7 @@ bool LLFloaterAutoReplaceSettings::selectedListIsLast()
 		LLSD lists = mSettings.getListNames(); // an Array of Strings
 		for ( LLSD::array_const_iterator list = lists.beginArray(), listEnd = lists.endArray();
 			  list != listEnd;
-		      ++list
+			  list++
 			 )
 		{
 			last = *list;

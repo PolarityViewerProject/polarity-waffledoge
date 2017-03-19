@@ -244,7 +244,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 
 			for(iter=LLVoiceClient::getInstance()->getCaptureDevices().begin(); 
 				iter != LLVoiceClient::getInstance()->getCaptureDevices().end();
-			    ++iter)
+				iter++)
 			{
 				mCtrlInputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
 			}
@@ -264,7 +264,7 @@ void LLPanelVoiceDeviceSettings::refresh()
 			mCtrlOutputDevices->add(getLocalizedDeviceName(DEFAULT_DEVICE), DEFAULT_DEVICE, ADD_BOTTOM);
 
 			for(iter= LLVoiceClient::getInstance()->getRenderDevices().begin(); 
-				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); ++iter)
+				iter !=  LLVoiceClient::getInstance()->getRenderDevices().end(); iter++)
 			{
 				mCtrlOutputDevices->add(getLocalizedDeviceName(*iter), *iter, ADD_BOTTOM);
 			}

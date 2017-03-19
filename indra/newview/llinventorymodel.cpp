@@ -378,7 +378,7 @@ LLMD5 LLInventoryModel::hashDirectDescendentNames(const LLUUID& cat_id) const
 	}
 	for (LLInventoryModel::item_array_t::const_iterator iter = item_array->begin();
 		 iter != item_array->end();
-	     ++iter)
+		 iter++)
 	{
 		const LLViewerInventoryItem *item = (*iter);
 		if (!item)
@@ -877,7 +877,7 @@ void LLInventoryModel::addChangedMaskForLinks(const LLUUID& object_id, U32 mask)
 	LLInventoryModel::item_array_t item_array = collectLinksTo(object_id);
 	for (LLInventoryModel::item_array_t::iterator iter = item_array.begin();
 		 iter != item_array.end();
-	     ++iter)
+		 iter++)
 	{
 		LLViewerInventoryItem *linked_item = (*iter);
 		addChangedMask(mask, linked_item->getUUID());
@@ -1583,7 +1583,7 @@ void LLInventoryModel::updateLinkedObjectsFromPurge(const LLUUID &baseobj_id)
 		notifyObservers();
 		for (LLInventoryModel::item_array_t::const_iterator iter = item_array.begin();
 			iter != item_array.end();
-		     ++iter)
+			iter++)
 		{
 			const LLViewerInventoryItem *linked_item = (*iter);
 			const LLUUID &item_id = linked_item->getUUID();
@@ -2243,7 +2243,7 @@ bool LLInventoryModel::loadSkeleton(
 		// reason (e.g. one of the descendents was a broken link).
 		for (cat_set_t::iterator invalid_cat_it = invalid_categories.begin();
 			 invalid_cat_it != invalid_categories.end();
-		     ++invalid_cat_it)
+			 invalid_cat_it++)
 		{
 			LLViewerInventoryCategory* cat = (*invalid_cat_it).get();
 			cat->setVersion(NO_VERSION);

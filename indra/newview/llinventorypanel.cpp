@@ -1145,7 +1145,7 @@ bool LLInventoryPanel::beginIMSession()
 // [/RLVa:KB]
 
 	std::set<LLFolderViewItem*>::const_iterator iter;
-	for (iter = selected_items.begin(); iter != selected_items.end(); ++iter)
+	for (iter = selected_items.begin(); iter != selected_items.end(); iter++)
 	{
 
 		LLFolderViewItem* folder_item = (*iter);

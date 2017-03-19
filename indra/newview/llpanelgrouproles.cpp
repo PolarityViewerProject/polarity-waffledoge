@@ -999,7 +999,7 @@ void LLPanelGroupMembersSubTab::handleMemberSelect()
 			//now see if there are any role changes for the selected
 			//members and remember to include them
 			uuid_vec_t::iterator sel_mem_iter = selected_members.begin();
-			for (; sel_mem_iter != selected_members.end(); ++sel_mem_iter)
+			for (; sel_mem_iter != selected_members.end(); sel_mem_iter++)
 			{
 				LLRoleMemberChangeType type;
 				if ( getRoleChangeType(*sel_mem_iter, role_id, type) )
@@ -3160,7 +3160,7 @@ void LLPanelGroupBanListSubTab::populateBanList()
 
 	mBanList->deleteAllItems();
 	std::map<LLUUID,LLGroupBanData>::const_iterator entry = gdatap->mBanList.begin();
-	for(; entry != gdatap->mBanList.end(); ++entry)
+	for(; entry != gdatap->mBanList.end(); entry++)
 	{
 		LLNameListCtrl::NameItem ban_entry;
 		ban_entry.value = entry->first;

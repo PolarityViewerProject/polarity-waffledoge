@@ -560,7 +560,7 @@ void LLLogChat::cleanupHistoryThreads()
 	LLMutexLock lock(historyThreadsMutex());
 	std::vector<LLUUID> uuids;
 	std::map<LLUUID,LLLoadHistoryThread *>::iterator lit = sLoadHistoryThreads.begin();
-	for (; lit != sLoadHistoryThreads.end(); ++lit)
+	for (; lit != sLoadHistoryThreads.end(); lit++)
 	{
 		if (lit->second->isFinished() && sDeleteHistoryThreads[lit->first]->isFinished())
 		{
@@ -570,7 +570,7 @@ void LLLogChat::cleanupHistoryThreads()
 		}
 	}
 	std::vector<LLUUID>::iterator uuid_it = uuids.begin();
-	for ( ;uuid_it != uuids.end(); ++uuid_it)
+	for ( ;uuid_it != uuids.end(); uuid_it++)
 	{
 		sLoadHistoryThreads.erase(*uuid_it);
 		sDeleteHistoryThreads.erase(*uuid_it);

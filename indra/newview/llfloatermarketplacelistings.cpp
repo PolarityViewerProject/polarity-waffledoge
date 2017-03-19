@@ -860,7 +860,7 @@ void LLFloaterMarketplaceValidation::onOpen(const LLSD& key)
                 style.font = new_font;
                 mEditor->appendText(mCurrentLine->mMessage, new_line, style);
                 new_line = true;
-	            ++mCurrentLine;
+                mCurrentLine++;
             }
         }
     }
@@ -903,7 +903,7 @@ void LLFloaterMarketplaceValidation::handleCurrentListing()
         while (mCurrentLine != mCurrentListingMessages.end())
         {
             mMessages.push_back(*mCurrentLine);
-	        ++mCurrentLine;
+            mCurrentLine++;
         }
     }
     

@@ -1972,7 +1972,7 @@ void LLPanelEstateInfo::accessRemoveCore(U32 operation_flag, const std::string& 
 	
 	for (std::vector<LLScrollListItem*>::const_iterator iter = list_vector.begin();
 	     iter != list_vector.end();
-	     ++iter)
+	     iter++)
 	{
 		LLScrollListItem *item = (*iter);
 		payload["allowed_ids"].append(item->getUUID());
@@ -2036,7 +2036,7 @@ bool LLPanelEstateInfo::accessCoreConfirm(const LLSD& notification, const LLSD& 
 
 	for (LLSD::array_const_iterator iter = notification["payload"]["allowed_ids"].beginArray();
 		iter != end_it;
-	     ++iter)
+	     iter++)
 	{
 		U32 flags = originalFlags;
 		if (iter + 1 != end_it)
