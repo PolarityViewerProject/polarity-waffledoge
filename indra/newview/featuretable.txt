@@ -89,7 +89,7 @@ UseStartScreen				1	1
 VertexShaderEnable			1	1
 WatchdogDisabled				1	1
 WindLightUseAtmosShaders	1	1
-WLSkyDetail					1	64
+WLSkyDetail					1	128
 
 //
 // Potato
@@ -664,7 +664,7 @@ RenderFSAASamples			1	0
 PVRender_DeferredFXAAQuality	1	10
 RenderFarClip				1	32
 RenderShadowFarClip			1	32
-WLSkyDetail					1	128
+WLSkyDetail					1	32
 RenderCompressTextures		1	1
 RenderDeferredSSAO			0	0
 
