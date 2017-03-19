@@ -406,11 +406,8 @@ public:
 		user_name->setReadOnlyColor(style_params.readonly_color());
 		user_name->setColor(style_params.color());
 
-		bool from_history = chat.mChatStyle == CHAT_STYLE_HISTORY;
-		bool from_agent = mSourceType == CHAT_SOURCE_AGENT;
-		//if (chat.mFromName.empty()
-		//	|| mSourceType == CHAT_SOURCE_SYSTEM)
-		if (mSourceType == CHAT_SOURCE_SYSTEM)
+		if (chat.mFromName.empty()
+			|| mSourceType == CHAT_SOURCE_SYSTEM)
 		{
 			mFrom = LLTrans::getString("SECOND_LIFE");
 			if(!chat.mFromName.empty() && (mFrom != chat.mFromName))
@@ -420,9 +417,7 @@ public:
 			user_name->setValue(mFrom);
 			updateMinUserNameWidth();
 		}
-		// Is this a bug? - Xenhat 2017.02.23
-		// else if (mSourceType == CHAT_SOURCE_AGENT && !mAvatarID.isNull() && chat.mChatStyle != CHAT_STYLE_HISTORY)
-		else if (!from_history && from_agent && chat.mFromName.empty() && !mAvatarID.isNull())
+		else if (chat.mChatStyle != CHAT_STYLE_HISTORY && (mSourceType == CHAT_SOURCE_AGENT && (!mAvatarID.isNull() || chat.mFromName.empty())))
 		{
 			// ...from a normal user, lookup the name and fill in later.
 			// *NOTE: Do not do this for chat history logs, otherwise the viewer
@@ -449,7 +444,8 @@ public:
 			}
 // [/RLVa:KB]
 		}
-		else if (from_history || from_agent)
+		else if (chat.mChatStyle == CHAT_STYLE_HISTORY ||
+				 mSourceType == CHAT_SOURCE_AGENT)
 		{
 			//if it's an avatar name with a username add formatting
 			size_t username_start = chat.mFromName.rfind(" (");
@@ -496,12 +492,12 @@ public:
 		// Set up the icon.
 		LLAvatarIconCtrl* icon = getChild<LLAvatarIconCtrl>("avatar_icon");
 
-		if(!from_agent ||	mAvatarID.isNull())
+		if(mSourceType != CHAT_SOURCE_AGENT ||	mAvatarID.isNull())
 			icon->setDrawTooltip(false);
 
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.2a) | Added: RLVa-1.2.0f
 		// Don't show the context menu, info control or avatar icon tooltip if this chat was subject to @shownames=n
-		if ( (chat.mRlvNamesFiltered) && ((from_agent) || (CHAT_SOURCE_OBJECT == mSourceType))  )
+		if ( (chat.mRlvNamesFiltered) && ((CHAT_SOURCE_AGENT == mSourceType) || (CHAT_SOURCE_OBJECT == mSourceType))  )
 		{
 			mShowInfoCtrl = mShowContextMenu = false;
 			icon->setDrawTooltip(false);
@@ -952,8 +948,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
 	LLColor4 name_color;
 	LLColor4 txt_color;
-	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
-	if (!message_from_log)
+	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{
 #if PVDATA_COLORIZER
 		// <polarity> Colored names for special users, short-circuit getChatColor for agents
@@ -995,7 +990,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	body_message_params.font.name(font_name);
 	body_message_params.font.size(font_size);
 	body_message_params.font.style(input_append_params.font.style);
-	if (message_from_log)
+	if (chat.mChatStyle == CHAT_STYLE_HISTORY)
 	{
 		// We graying out chat history by graying out messages that contains full date in a time string
 		static LLColor4 history_color = LLUIColorTable::getInstance()->getColor("ChatHistoryTextColor");
@@ -1016,15 +1011,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	//IRC styled /me messages.
 	bool irc_me = chat.mChatStyle == CHAT_STYLE_IRC || boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <polarity> case insensitive /ME and /ME'S
-
-	bool chat_shout = chat.mChatType == CHAT_TYPE_SHOUT;
-	bool chat_whisper = chat.mChatType == CHAT_TYPE_WHISPER;
 	// Delimiter after a name in header copy/past and in plain text mode
 	std::string delimiter = ": ";
 	static const std::string shout = LLTrans::getString("shout");
 	static const std::string whisper = LLTrans::getString("whisper");
-	if (chat_shout || 
-		chat_whisper ||
+	if (chat.mChatType == CHAT_TYPE_SHOUT || 
+		chat.mChatType == CHAT_TYPE_WHISPER ||
 		chat.mText.compare(0, shout.length(), shout) == 0 ||
 		chat.mText.compare(0, whisper.length(), whisper) == 0)
 	{
@@ -1037,11 +1029,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		delimiter = LLStringUtil::null;
 	}
 
-	if(irc_me || chat_whisper)
+	if(irc_me || chat.mChatType == CHAT_TYPE_WHISPER)
 	{
 		body_message_params.font.style = "ITALIC";
 	}
-	else if(chat_shout)
+	else if(chat.mChatType == CHAT_TYPE_SHOUT)
 	{
 		body_message_params.font.style = "BOLD";
 	}
@@ -1058,7 +1050,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// out of the timestamp
 		if (args["show_time"].asBoolean())
 		{
-			if (!message_from_log)
+			if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 			{
 				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
 				timestamp_style.color(timestamp_color);
@@ -1110,7 +1102,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			}
 //			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f) | Added: RLVa-1.2.0f
-			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log && !chat.mRlvNamesFiltered)
+			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && chat.mChatStyle != CHAT_STYLE_HISTORY && !chat.mRlvNamesFiltered)
 // [/RLVa:KB]
 			{
 				LLStyle::Params link_params(body_message_params);
@@ -1152,7 +1144,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			&& mLastFromID == chat.mFromID
 			&& mLastMessageTime.notNull() 
 			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
-			&& mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
+			&& mIsLastMessageFromLog == (chat.mChatStyle == CHAT_STYLE_HISTORY))  //distinguish between current and previous chat session's histories
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -1186,7 +1178,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
-		mIsLastMessageFromLog = message_from_log;
+		mIsLastMessageFromLog = (chat.mChatStyle == CHAT_STYLE_HISTORY);
 	}
 
 	// body of the message processing
