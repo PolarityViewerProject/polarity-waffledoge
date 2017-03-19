@@ -964,6 +964,7 @@ void LLViewerObjectList::renderObjectBeacons()
 
 F32 gpu_benchmark()
 {
+	LL_INFOS() << "Running GPU benchmark..." << LL_ENDL;
 	if (!gGLManager.mHasVertexBufferObject || !gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
 	{ // don't bother benchmarking the fixed function
       // or without vbos

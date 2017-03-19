@@ -764,7 +764,6 @@ bool LLGLManager::initGL()
 
 	if (mHasTextureMultisample)
 	{
-		LL_INFOS("GL_DEBUG") << "Doing slow OpenGL feature detection calls, please hold..." << LL_ENDL;
 		glGetIntegerv(GL_MAX_COLOR_TEXTURE_SAMPLES, &mMaxColorTextureSamples);
 		glGetIntegerv(GL_MAX_DEPTH_TEXTURE_SAMPLES, &mMaxDepthTextureSamples);
 		glGetIntegerv(GL_MAX_INTEGER_SAMPLES, &mMaxIntegerSamples);
@@ -772,7 +771,7 @@ bool LLGLManager::initGL()
 	}
 
 	stop_glerror();
-	LL_INFOS("GL_DEBUG") << "It lives!" << LL_ENDL;
+	LL_DEBUGS("GL_DEBUG") << "It lives!" << LL_ENDL;
 #if LL_WINDOWS
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
@@ -784,7 +783,7 @@ bool LLGLManager::initGL()
 #endif
 
 	stop_glerror();
-	LL_INFOS("GL_DEBUG") << "It lives!" << LL_ENDL;
+	LL_DEBUGS("GL_DEBUG") << "It lives!" << LL_ENDL;
 	//HACK always disable texture multisample, use FXAA instead
 	mHasTextureMultisample = FALSE;
 #if LL_WINDOWS
