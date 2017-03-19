@@ -4433,12 +4433,10 @@ static LLTrace::BlockTimerStatHandle FTM_REGISTER_FACE("Register Face");
 void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep, U32 type)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REGISTER_FACE);
-#if HEAVY_LOG
 	if (type == LLRenderPass::PASS_ALPHA && facep->getTextureEntry()->getMaterialParams().notNull() && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_TANGENT))
 	{
 		LL_WARNS_ONCE("RenderMaterials") << "Oh no! No binormals for this alpha blended face!" << LL_ENDL;
 	}
-#endif
 
 //	if (facep->getViewerObject()->isSelected() && LLSelectMgr::getInstance()->mHideSelectedObjects)
 // [RLVa:KB] - Checked: 2010-11-29 (RLVa-1.3.0c) | Modified: RLVa-1.3.0c
@@ -4464,9 +4462,7 @@ void LLVolumeGeometryManager::registerFace(LLSpatialGroup* group, LLFace* facep,
 	
 	if (!fullbright && type != LLRenderPass::PASS_GLOW && !facep->getVertexBuffer()->hasDataType(LLVertexBuffer::TYPE_NORMAL))
 	{
-#if HEAVY_LOG
 		LL_WARNS() << "Non fullbright face has no normals!" << LL_ENDL;
-#endif
 		return;
 	}
 

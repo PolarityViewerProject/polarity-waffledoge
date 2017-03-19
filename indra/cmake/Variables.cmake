@@ -204,7 +204,6 @@ option(INTERNAL_BUILD "Build reserved for internal testing" OFF)
 if(NOT DEFINED INTERNAL_BUILD)
   set(INTERNAL_BUILD OFF)
 endif()
-option(HEAVY_LOG "Spammy debug messages" OFF)
 
 # Libraries
 option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
@@ -233,14 +232,12 @@ MESSAGE("Color Manager          ${PVDATA_COLORIZER}")
 MESSAGE("MOTD                   ${PVDATA_MOTD}")
 MESSAGE("Chat MOTD              ${PVDATA_MOTD_CHAT}")
 MESSAGE("Progress Tips          ${PVDATA_PROGRESS_TIPS}")
-MESSAGE("Spammy debug messages  ${HEAVY_LOG}")
 # Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
   /DUSE_LTO=${USE_LTO}
   /DINTERNAL_BUILD=${INTERNAL_BUILD}
   /DLINK_VLC_PLUGIN=${LINK_VLC_PLUGIN}
-  /DHEAVY_LOG=${HEAVY_LOG}
   )
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")

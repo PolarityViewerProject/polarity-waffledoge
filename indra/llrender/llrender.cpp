@@ -1751,9 +1751,7 @@ LLTexUnit* LLRender::getTexUnit(U32 index)
 	}
 	else 
 	{
-#if HEAVY_LOG
 		LL_DEBUGS() << "Non-existing texture unit layer requested: " << index << LL_ENDL;
-#endif
 		return mDummyTexUnit;
 	}
 }

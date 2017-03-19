@@ -6249,16 +6249,12 @@ void LLAppViewer::PVGetDynamicWindowTitle()
 				{
 					first_name = login_response["first_name"].asString();
 					first_name.erase(std::remove_if(first_name.begin(), first_name.end(), IsChars("\" ")), first_name.end());
-#if HEAVY_LOG
 					LL_DEBUGS("") << "first name = '" << first_name << "'" << LL_ENDL;
-#endif
 					if (login_response.has("last_name"))
 					{
 						last_name = login_response["last_name"].asString();
 						last_name.erase(std::remove_if(last_name.begin(), last_name.end(), IsChars("\" ")), last_name.end());
-#if HEAVY_LOG
 						LL_DEBUGS("") << "last name = '" << last_name << "'" << LL_ENDL;
-#endif
 						if (boost::iequals(last_name, "resident"))
 						{
 							last_name = "";
@@ -6283,9 +6279,7 @@ void LLAppViewer::PVGetDynamicWindowTitle()
 			}
 			else
 			{
-#if HEAVY_LOG
 				LL_DEBUGS("") << "Truncating username in title due to length limit or user preference" << LL_ENDL;
-#endif
 				// use the initials instead
 				prefix_string = first_name.substr(0, 1);
 				if (has_last_name)
