@@ -156,7 +156,7 @@ protected:
 	LLPointer<LLTextureCache::Responder> mResponder;
 	LLLFSThread::handle_t mFileHandle;
 	S32 mBytesToRead;
-	llatomic<S32> mBytesRead;
+	LLAtomic32<S32> mBytesRead;
 };
 
 class LLTextureCacheLocalFileWorker : public LLTextureCacheWorker

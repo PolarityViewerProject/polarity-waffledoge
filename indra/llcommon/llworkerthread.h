@@ -191,7 +191,7 @@ protected:
 
 private:
 	LLMutex mMutex;
-	llatomic<U32> mWorkFlags;
+	LLAtomic32<U32> mWorkFlags;
 };
 
 //============================================================================

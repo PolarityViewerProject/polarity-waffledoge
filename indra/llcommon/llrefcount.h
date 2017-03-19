@@ -140,7 +140,7 @@ public:
 	}
 
 private: 
-	llatomic< S32	> mRef; 
+	LLAtomic32< S32	> mRef; 
 };
 
 /**
