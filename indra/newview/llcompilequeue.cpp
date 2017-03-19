@@ -644,7 +644,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         // </FS:Ansariel>
         floater->addStringMessage(buffer);
         for (LLSD::array_const_iterator line = compile_errors.beginArray();
-            line < compile_errors.endArray(); line++)
+            line < compile_errors.endArray(); ++line)
         {
             std::string str = line->asString();
             str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
@@ -1085,7 +1085,7 @@ void LLFloaterCompileQueue::finishLSLUpload(LLUUID itemId, LLUUID taskId, LLUUID
         {
             LLSD compile_errors = response["errors"];
             for (LLSD::array_const_iterator line = compile_errors.beginArray();
-                line < compile_errors.endArray(); line++)
+                line < compile_errors.endArray(); ++line)
             {
                 std::string str = line->asString();
                 str.erase(std::remove(str.begin(), str.end(), '\n'), str.end());
