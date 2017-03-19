@@ -650,7 +650,7 @@ public:
 					// Stuff into a sorted map so the display is ordered
 					sorted_avs[avatar->getFullname()] = avatar;
 				}
-				++sort_iter;
+				sort_iter++;
 			}
 
 			std::string trunc_name;

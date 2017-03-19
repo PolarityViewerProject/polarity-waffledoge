@@ -2132,7 +2132,7 @@ void LLPreviewLSL::callbackLSLCompileFailed(const LLSD& compile_errors)
 
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
-		++line)
+		line++)
 	{
 		LLSD row;
 		std::string error_message = line->asString();
@@ -2524,7 +2524,7 @@ void LLLiveLSLEditor::callbackLSLCompileFailed(const LLSD& compile_errors)
 	LL_DEBUGS() << "Compile failed!" << LL_ENDL;
 	for(LLSD::array_const_iterator line = compile_errors.beginArray();
 		line < compile_errors.endArray();
-		++line)
+		line++)
 	{
 		LLSD row;
 		std::string error_message = line->asString();
