@@ -1001,7 +1001,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 					mModelList.push_back(mdl);
 					mModelsMap[mesh].push_back(mdl);
 				}
-				++i;
+				i++;
 			}
 		}
 	}
@@ -1021,9 +1021,9 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 		while (mat_iter != end_iter)
 		{
 			LL_INFOS() << mdl->mLabel << " references " << (*mat_iter) << LL_ENDL;
-			++mat_iter;
+			mat_iter++;
 		}
-		++model_iter;
+		model_iter++;
 	}
 
 	count = db->getElementCount(NULL, COLLADA_TYPE_SKIN);
@@ -1046,7 +1046,7 @@ bool LLDAELoader::OpenFile(const std::string& filename)
 					{
 						LLPointer<LLModel> mdl = *i;
 						LLDAELoader::processDomModel(mdl, &dae, root, mesh, skin);
-						++i;
+						i++;
 					}
 				}
 			}
@@ -1103,7 +1103,7 @@ std::string LLDAELoader::preprocessDAE(std::string filename)
 			boost::replace_all(s, " ", "_");
 			LL_INFOS() << "Replacing with " << s << LL_ENDL;
 			boost::replace_all(buffer, match.str(), s);
-			++next;
+			next++;
 		}
 	}
 	catch (const boost::regex_error&)
@@ -2069,7 +2069,7 @@ void LLDAELoader::processElement( daeElement* element, bool& badElement, DAE* da
 
 					mScene[transformation].push_back(LLModelInstance(model, label, transformation, materials));
 					stretch_extents(model, transformation, mExtents[0], mExtents[1], mFirstTransform);
-					++i;
+					i++;
 				}
 			}
 		}
@@ -2223,7 +2223,7 @@ LLImportMaterial LLDAELoader::profileToMaterial(domProfile_COMMON* material, DAE
 						//
 						std::string::iterator i = image_path_value.begin();
 						while (*i == '\\')
-							++i;
+							i++;
 						mat.mDiffuseMapFilename.assign(i, image_path_value.end());
 #else
 						mat.mDiffuseMapFilename = image_path_value;

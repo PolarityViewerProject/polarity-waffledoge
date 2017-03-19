@@ -617,7 +617,7 @@ BOOL LLTemplateMessageReader::decodeData(const U8* buffer, const LLHost& sender 
 			// now read the variables
 			for (LLMessageBlock::message_variable_map_t::const_iterator iter = 
 					 mbci->mMemberVariables.begin();
-				 iter != mbci->mMemberVariables.end(); ++iter)
+				 iter != mbci->mMemberVariables.end(); iter++)
 			{
 				const LLMessageVariable& mvci = **iter;
 
