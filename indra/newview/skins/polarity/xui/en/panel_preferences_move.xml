@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
   follows="left|top|right|bottom"
-  height="500"
+  height="485"
   label="Move"
   layout="topleft"
   left="102"
@@ -11,22 +11,22 @@
   <scroll_container
     color="Transparent"
     follows="all"
-    height="500"
     layout="topleft"
     left="0"
     mouse_opaque="false"
     name="move_view_scroll"
     opaque="true"
     top="0"
+    bottom="-1"
     width="509">
     <panel
       follows="left|top|right"
-      height="465"
       layout="topleft"
       left="0"
       mouse_opaque="false"
       name="move_view_scroll_panel"
       top="0"
+      bottom="-1"
       width="495">
       <!-- Camera settings -->
       <panel
