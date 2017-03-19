@@ -1190,6 +1190,17 @@
       <key>Value</key>
       <real>512</real>
     </map>
+    <key>PVRender_SyncFarClip</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically set shadow far clip ("draw distance") to 110$ of the draw distance</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>1</integer>
+    </map>
     <key>RenderShadowSplitExponent</key>
     <map>
       <key>Comment</key>
