@@ -1296,6 +1296,15 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowClipPlanes = gSavedSettings.getVector3("RenderShadowClipPlanes");
 	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("RenderShadowOrthoClipPlanes");
 	RenderFarClip = gSavedSettings.getF32("RenderFarClip");
+	// <polarity>
+	static LLCachedControl<bool> sync_far_clip(gSavedSettings, "PVRender_SyncFarClip", true);
+	if(sync_far_clip)
+	{
+		// RenderShadowFarClip = (RenderFarClip * 1.10);
+		gSavedSettings.setF32("RenderShadowFarClip", RenderFarClip);
+	}
+	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
+	// </polarity>
 	RenderShadowSplitExponent = gSavedSettings.getVector3("RenderShadowSplitExponent");
 	RenderShadowErrorCutoff = gSavedSettings.getF32("RenderShadowErrorCutoff");
 	RenderShadowFOVCutoff = gSavedSettings.getF32("RenderShadowFOVCutoff");
@@ -1303,7 +1312,6 @@ void LLPipeline::refreshCachedSettings()
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
 	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");       	
-	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip"); // <polarity/>
 //	//BD - Special Options
 	CameraFreeDoFFocus = gSavedSettings.getBOOL("CameraFreeDoFFocus");
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
