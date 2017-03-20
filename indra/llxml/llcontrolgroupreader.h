@@ -75,7 +75,7 @@ public:
 	virtual void    	setLLSD(const std::string& name, const LLSD& val) {}
 
 	// <Black Dragon:NiranV> Vector4
-	virtual LLVector4	setVector4(const std::string& name, const LLVector4 &val) {}
+	virtual void	setVector4(const std::string& name, const LLVector4 &val) {}
 };
 
 #endif /* LL_LLCONTROLGROUPREADER_H */
