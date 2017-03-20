@@ -710,7 +710,7 @@ bool LLGLManager::initGL()
 		LL_INFOS() << "Raw VRAM from GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX:" << dedicated_memory << LL_ENDL;
 		mVRAM = dedicated_memory/1024;
 	}
-#define DEBUG_INF_LOOP_VRAM 1
+#define DEBUG_INF_LOOP_VRAM 0
 #ifdef DEBUG_INF_LOOP_VRAM
 	mVRAM = 0;
 #endif
