@@ -6,7 +6,7 @@
   cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
 set(ROOT_PROJECT_NAME "Polarity" CACHE STRING
-    "The root project/makefile/solution name. Defaults to SecondLife.")
+    "The root project/makefile/solution name. Defaults to Polarity.")
 project(${ROOT_PROJECT_NAME})
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -51,13 +51,15 @@ add_subdirectory(${LIBS_OPEN_PREFIX}llplugin)
 add_subdirectory(${LIBS_OPEN_PREFIX}llui)
 add_subdirectory(${LIBS_OPEN_PREFIX}viewer_components)
 
-# Legacy C++ tests. Build always, run if LL_TESTS is true.
+# Legacy C++ tests. Build and run if LL_TESTS is true.
 if (LL_TESTS)
   add_subdirectory(${VIEWER_PREFIX}test)
 endif (LL_TESTS)
 
+if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
+endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
