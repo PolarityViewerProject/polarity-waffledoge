@@ -124,7 +124,7 @@ RenderVBOEnable				1	1
 RenderVolumeLODFactor		1	0.25
 UseStartScreen				1	1
 UseOcclusion				1	0
-VertexShaderEnable			1	0
+VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 WLSkyDetail					1	32
 Disregard128DefaultDrawDistance	1	1
@@ -174,7 +174,7 @@ RenderTerrainLODFactor		1	1
 RenderTransparentWater		1	0
 RenderTreeLODFactor			1	0
 RenderVolumeLODFactor		1	1.125
-VertexShaderEnable			1	0
+VertexShaderEnable			1	1
 WindLightUseAtmosShaders	1	0
 RenderDeferred				1	0
 RenderDeferredSSAO			1	0
