@@ -164,7 +164,7 @@ std::string rlvFolderLockScopeToString(RlvFolderLocks::ELockScope eLockScope)
 }
 
 // Checked: 2012-07-29 (RLVa-1.4.7)
-std::string rlvFolderLockSourceToTarget(const RlvFolderLocks::folderlock_source_t &lockSource)
+std::string rlvFolderLockSourceToTarget(RlvFolderLocks::folderlock_source_t lockSource)
 {
 	switch (lockSource.first)
 	{

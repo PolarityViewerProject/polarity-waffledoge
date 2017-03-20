@@ -586,11 +586,10 @@ void RlvAttachmentLockWatchdog::onAttach(const LLViewerObject* pAttachObj, const
 			// Get the saved state of the attachment point (but do nothing if the item itself was already worn then)
 			std::map<S32, uuid_vec_t>::iterator itAttachPrev = itWear->second.attachPts.find(idxAttachPt);
 			RLV_ASSERT(itAttachPrev != itWear->second.attachPts.end());
-			auto prev_second = itAttachPrev->second;
-			if (std::find(prev_second.begin(), prev_second.end(), idAttachItem) == prev_second.end())
+			if (std::find(itAttachPrev->second.begin(), itAttachPrev->second.end(), idAttachItem) == itAttachPrev->second.end())
 			{
 				// If it was empty we need to detach everything on the attachment point; if it wasn't we need to restore it to what it was
-				if (prev_second.empty())
+				if (itAttachPrev->second.empty())
 				{
 					detach(idxAttachPt);
 				}
@@ -603,16 +602,16 @@ void RlvAttachmentLockWatchdog::onAttach(const LLViewerObject* pAttachObj, const
 						const LLViewerObject* pAttachObj = *itAttachObj;
 
 						uuid_vec_t::iterator itAttach = 
-							std::find(prev_second.begin(), prev_second.end(), pAttachObj->getAttachmentItemID());
-						if (itAttach == prev_second.end())
+							std::find(itAttachPrev->second.begin(), itAttachPrev->second.end(), pAttachObj->getAttachmentItemID());
+						if (itAttach == itAttachPrev->second.end())
 							detach(pAttachObj);
 						else
-							prev_second.erase(itAttach);
+							itAttachPrev->second.erase(itAttach);
 					}
 
 					// Whatever is left is something that needs to be reattached
-					for (uuid_vec_t::const_iterator itAttach = prev_second.begin(); 
-							itAttach != prev_second.end(); ++itAttach)
+					for (uuid_vec_t::const_iterator itAttach = itAttachPrev->second.begin(); 
+							itAttach != itAttachPrev->second.end(); ++itAttach)
 					{
 						m_PendingAttach.insert(std::pair<S32, RlvReattachInfo>(idxAttachPt, RlvReattachInfo(*itAttach)));
 					}
@@ -702,11 +701,10 @@ void RlvAttachmentLockWatchdog::onSavedAssetIntoInventory(const LLUUID& idItem)
 {
 	for (rlv_attach_map_t::iterator itAttach = m_PendingAttach.begin(); itAttach != m_PendingAttach.end(); ++itAttach)
 	{
-		auto second = itAttach->second;
-		if ( (!itAttach->second.fAssetSaved) && (idItem == second.idItem) )
+		if ( (!itAttach->second.fAssetSaved) && (idItem == itAttach->second.idItem) )
 		{
-			LLAttachmentsMgr::instance().addAttachmentRequest(second.idItem, itAttach->first, true, true);
-			second.tsAttach = LLFrameTimer::getElapsedSeconds();
+			LLAttachmentsMgr::instance().addAttachmentRequest(itAttach->second.idItem, itAttach->first, true, true);
+			itAttach->second.tsAttach = LLFrameTimer::getElapsedSeconds();
 		}
 	}
 }
@@ -731,9 +729,8 @@ BOOL RlvAttachmentLockWatchdog::onTimer()
 	rlv_attach_map_t::iterator itAttach = m_PendingAttach.begin();
 	while (itAttach != m_PendingAttach.end())
 	{
-		auto second = itAttach->second;
 		// Sanity check - make sure the item is still in the user's inventory
-		if (gInventory.getItem(second.idItem) == NULL)
+		if (gInventory.getItem(itAttach->second.idItem) == NULL)
 		{
 			m_PendingAttach.erase(itAttach++);
 			continue;
@@ -742,20 +739,20 @@ BOOL RlvAttachmentLockWatchdog::onTimer()
 		// Force an attach if we haven't gotten a SavedAssetIntoInventory message after 15 seconds
 		// (or if it's been 30 seconds since we last tried to reattach the item)
 		bool fAttach = false;
-		if ( (!second.fAssetSaved) && (second.tsDetach + 15 < tsCurrent) )
+		if ( (!itAttach->second.fAssetSaved) && (itAttach->second.tsDetach + 15 < tsCurrent) )
 		{
-			second.fAssetSaved = true;
+			itAttach->second.fAssetSaved = true;
 			fAttach = true;
 		}
-		else if ( (second.fAssetSaved) && (second.tsAttach + 30 < tsCurrent) )
+		else if ( (itAttach->second.fAssetSaved) && (itAttach->second.tsAttach + 30 < tsCurrent) )
 		{
 			fAttach = true;
 		}
 
 		if (fAttach)
 		{
-			LLAttachmentsMgr::instance().addAttachmentRequest(second.idItem, itAttach->first, true, true);
-			second.tsAttach = tsCurrent;
+			LLAttachmentsMgr::instance().addAttachmentRequest(itAttach->second.idItem, itAttach->first, true, true);
+			itAttach->second.tsAttach = tsCurrent;
 		}
 
 		++itAttach;

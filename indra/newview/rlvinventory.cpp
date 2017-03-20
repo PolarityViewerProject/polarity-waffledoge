@@ -498,7 +498,7 @@ void RlvRenameOnWearObserver::doneIdle()
 }
 
 // Checked: 2012-03-22 (RLVa-1.4.6) | Added: RLVa-1.4.6
-void RlvRenameOnWearObserver::onCategoryCreate(const LLUUID& idFolder, const LLUUID &idItem)
+void RlvRenameOnWearObserver::onCategoryCreate(const LLUUID& idFolder, const LLUUID idItem)
 {
 	if ( (idFolder.notNull()) && (idItem.notNull()) )
 		move_inventory_item(gAgent.getID(), gAgent.getSessionID(), idItem, idFolder, std::string(), NULL);

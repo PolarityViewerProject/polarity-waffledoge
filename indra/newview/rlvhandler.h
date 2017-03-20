@@ -120,7 +120,7 @@ public:
 	static bool isEnabled()	{ return m_fEnabled; }
 	static bool setEnabled(bool fEnable);
 protected:
-	void onIMQueryListResponse(const LLSD& sdNotification, const LLSD &sdResponse);
+	void onIMQueryListResponse(const LLSD& sdNotification, const LLSD sdResponse);
 
 	// --------------------------------
 

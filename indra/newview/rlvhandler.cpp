@@ -574,7 +574,7 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 	return false;
 }
 
-void RlvHandler::onIMQueryListResponse(const LLSD& sdNotification, const LLSD &sdResponse)
+void RlvHandler::onIMQueryListResponse(const LLSD& sdNotification, const LLSD sdResponse)
 {
 	const LLUUID idRequester = sdNotification["payload"]["from_id"].asUUID();
 	if (LLNotificationsUtil::getSelectedOption(sdNotification, sdResponse) == 0)
@@ -669,21 +669,20 @@ void RlvHandler::onAttach(const LLViewerObject* pAttachObj, const LLViewerJointA
 	// Check if we already have an RlvObject instance for this object or one of its child prims
 	for (rlv_object_map_t::iterator itObj = m_Objects.begin(); itObj != m_Objects.end(); ++itObj)
 	{
-		auto itObj_second = itObj->second;
 		// Only if we haven't been able to find this object (= attachment that rezzed in) or if it's a rezzed prim attached from in-world
-		if ( (!itObj_second.m_fLookup) || (!itObj_second.m_idxAttachPt) )
+		if ( (!itObj->second.m_fLookup) || (!itObj->second.m_idxAttachPt) )
 		{
 			const LLViewerObject* pObj = gObjectList.findObject(itObj->first);
 			if ( (pObj) && (pObj->getRootEdit()->getID() == pAttachObj->getID()) )
 			{
 				// Reset any lookup information we might have for this object
-				itObj_second.m_fLookup = true;
-				itObj_second.m_idxAttachPt = RlvAttachPtLookup::getAttachPointIndex(pAttachObj);
-				itObj_second.m_idRoot = pAttachObj->getID();
+				itObj->second.m_fLookup = true;
+				itObj->second.m_idxAttachPt = RlvAttachPtLookup::getAttachPointIndex(pAttachObj);
+				itObj->second.m_idRoot = pAttachObj->getID();
 
 				// We need to check this object for an active "@detach=n" and actually lock it down now that it's been attached somewhere
-				if (itObj_second.hasBehaviour(RLV_BHVR_DETACH, false))
-					gRlvAttachmentLocks.addAttachmentLock(pAttachObj->getID(), itObj_second.getObjectID());
+				if (itObj->second.hasBehaviour(RLV_BHVR_DETACH, false))
+					gRlvAttachmentLocks.addAttachmentLock(pAttachObj->getID(), itObj->second.getObjectID());
 			}
 		}
 	}
@@ -716,15 +715,14 @@ void RlvHandler::onDetach(const LLViewerObject* pAttachObj, const LLViewerJointA
 		// Check if we have any RlvObject instances for this object (or any of its child prims)
 		for (rlv_object_map_t::iterator itObj = m_Objects.begin(); itObj != m_Objects.end(); ++itObj)
 		{
-			auto itObj_second = itObj->second;
-			if ( (itObj_second.m_fLookup) && (itObj_second.m_idRoot == pAttachObj->getID()) )
+			if ( (itObj->second.m_fLookup) && (itObj->second.m_idRoot == pAttachObj->getID()) )
 			{
 				// Clear the attachment point lookup since it's now an in-world prim
-				itObj_second.m_idxAttachPt = false;
+				itObj->second.m_idxAttachPt = false;
 
 				// If this object has an active "@detach=n" then we need to release the attachment lock since it's no longer attached
-				if (itObj_second.hasBehaviour(RLV_BHVR_DETACH, false))
-					gRlvAttachmentLocks.removeAttachmentLock(pAttachObj->getID(), itObj_second.getObjectID());
+				if (itObj->second.hasBehaviour(RLV_BHVR_DETACH, false))
+					gRlvAttachmentLocks.removeAttachmentLock(pAttachObj->getID(), itObj->second.getObjectID());
 			}
 		}
 	}
@@ -3083,12 +3081,11 @@ ERlvCmdRet RlvHandler::onGetInvWorn(const RlvCommand& rlvCmd, std::string& strRe
 	mapFolders.insert(std::pair<LLUUID, rlv_wear_info>(pFolder->getUUID(), wi));
 	for (S32 idxFolder = 0, cntFolder = folders.size(); idxFolder < cntFolder; idxFolder++)
 		mapFolders.insert(std::pair<LLUUID, rlv_wear_info>(folders.at(idxFolder)->getUUID(), wi));
-	
+
 	// Iterate over all the found items
 	LLViewerInventoryItem* pItem; std::map<LLUUID, rlv_wear_info>::iterator itFolder;
 	for (S32 idxItem = 0, cntItem = items.size(); idxItem < cntItem; idxItem++)
 	{
-		auto itFolder_second = itFolder->second;
 		pItem = items.at(idxItem);
 		if (!RlvForceWear::isWearableItem(pItem))
 			continue;
@@ -3101,9 +3098,8 @@ ERlvCmdRet RlvHandler::onGetInvWorn(const RlvCommand& rlvCmd, std::string& strRe
 		while ( (itFolder = mapFolders.find(pParent->getUUID())) == mapFolders.end() )
 			pParent = gInventory.getCategory(pParent->getParentUUID());
 
-		
-		U32 &cntWorn  = (idParent == pParent->getUUID()) ? itFolder_second.cntWorn : itFolder_second.cntChildWorn, 
-			&cntTotal = (idParent == pParent->getUUID()) ? itFolder_second.cntTotal : itFolder_second.cntChildTotal;
+		U32 &cntWorn  = (idParent == pParent->getUUID()) ? itFolder->second.cntWorn : itFolder->second.cntChildWorn, 
+			&cntTotal = (idParent == pParent->getUUID()) ? itFolder->second.cntTotal : itFolder->second.cntChildTotal;
 
 		if (RlvForceWear::isWearingItem(pItem))
 			cntWorn++;
@@ -3112,9 +3108,8 @@ ERlvCmdRet RlvHandler::onGetInvWorn(const RlvCommand& rlvCmd, std::string& strRe
 
 	// Extract the result for the main folder
 	itFolder = mapFolders.find(pFolder->getUUID());
-	auto itFolder_second = itFolder->second;
-	wi.cntWorn = itFolder_second.cntWorn;
-	wi.cntTotal = itFolder_second.cntTotal;
+	wi.cntWorn = itFolder->second.cntWorn;
+	wi.cntTotal = itFolder->second.cntTotal;
 	mapFolders.erase(itFolder);
 
 	// Build the result for each child folder

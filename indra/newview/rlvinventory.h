@@ -116,7 +116,7 @@ public:
 	virtual void done();
 protected:
 	void doneIdle();
-	static void onCategoryCreate(const LLUUID& idFolder, const LLUUID &idItem);
+	static void onCategoryCreate(const LLUUID& idFolder, const LLUUID idItem);
 };
 
 // ============================================================================
