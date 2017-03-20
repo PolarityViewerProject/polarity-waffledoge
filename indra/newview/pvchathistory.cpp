@@ -959,7 +959,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			{
 				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
 			}
-			name_color = gPVOldAPI->getColor(chat.mFromID, default_name_color);
+			name_color = PVAgent::getColor(chat.mFromID, default_name_color);
 			if (!color_pvagent_chat)
 			{
 				LLViewerChat::getChatColor(chat, txt_color);

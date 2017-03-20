@@ -55,6 +55,12 @@
 
 #include <boost/regex.hpp>
 
+#define LL_LINDEN "Linden"
+#define LL_MOLE "Mole"
+#define LL_PRODUCTENGINE "ProductEngine"
+#define LL_SCOUT "Scout"
+#define LL_TESTER "Tester"
+
 PVSearchUtil*		gPVSearchUtil = NULL;
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
@@ -451,7 +457,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 				{
 					this_agent->ban_reason = data_map["BanReason"].asString();
 				}
-				pvAgents.insert(std::pair<LLUUID, PVAgent*>(uuid, this_agent));
+				pvAgents.emplace(uuid, this_agent);
 			}
 		}
 	}
@@ -639,7 +645,8 @@ LLUUID PVDataOldAPI::getLockDownUUID()
 	}
 	return static_cast<LLUUID>(temp);
 }
-bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
+
+bool PVAgent::isAllowedToLogin(const LLUUID& avatar_id)
 {
 	bool allowed = false;
 	LL_INFOS("PVData") << "Evaluating access for " << avatar_id << "..." << LL_ENDL;
@@ -667,17 +674,17 @@ bool PVDataOldAPI::isAllowedToLogin(const LLUUID& avatar_id) const
 		setErrorMessage("Something went wrong, and the authentication checks have failed.");
 	}
 #endif
-	auto pv_agent = PVAgent::getDataFor(avatar_id);
-	if (pv_agent)
+	auto agentPtr = find(avatar_id);
+	if (agentPtr)
 	{
-		allowed = !pv_agent->isUserBanned(true);
-		LL_WARNS("PVData") << "HERE ARE YOUR FLAGS: " << pv_agent->getTitle(false) << LL_ENDL;
+		allowed = !agentPtr->isProviderBanned(true);
+		LL_WARNS("PVData") << "HERE ARE YOUR FLAGS: " << agentPtr->getTitle(false) << LL_ENDL;
 #if INTERNAL_BUILD
 		LL_WARNS("PVData") << "Internal build, evaluating access for " << avatar_id << "'..." << LL_ENDL;
-		if (pv_agent->isUserDevStaff()
-			|| pv_agent->isUserSupportStaff()
-			|| pv_agent->isUserQAStaff()
-			|| pv_agent->isUserTester())
+		if (agentPtr->isProviderDeveloper()
+			|| agentPtr->isProviderSupportTeam()
+			|| agentPtr->isProviderQATeam()
+			|| agentPtr->isProviderTester())
 		{
 			allowed = true;
 		}
@@ -755,27 +762,27 @@ bool PVDataOldAPI::isBlockedRelease()
 	return true;
 }
 
-bool PVDataOldAPI::isLinden(const std::string& last_name)
+bool PVAgent::isLinden(const std::string& last_name)
 {
 	return last_name == LL_LINDEN;
 }
 
-bool PVDataOldAPI::isMole(const std::string& last_name)
+bool PVAgent::isMole(const std::string& last_name)
 {
 	return last_name == LL_MOLE;
 }
 
-bool PVDataOldAPI::isProductEngine(const std::string& last_name)
+bool PVAgent::isProductEngine(const std::string& last_name)
 {
 	return last_name == LL_PRODUCTENGINE;
 }
 
-bool PVDataOldAPI::isScout(const std::string& last_name)
+bool PVAgent::isScout(const std::string& last_name)
 {
 	return last_name == LL_SCOUT;
 }
 
-bool PVDataOldAPI::isLLTester(const std::string& last_name)
+bool PVAgent::isLLTester(const std::string& last_name)
 {
 	return last_name == LL_TESTER;
 }
@@ -1131,162 +1138,184 @@ void PVDataOldAPI::setBeggarCheck(const bool enabled)
 
 // NEW API BELOW
 
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("!PVAgent Get Agent");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("!PVAgent Get Color");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("!PVAgentData Get Agent");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("!PVAgentData Get Color");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("!PVData Get Color");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("!PVAgent Get Title HR");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgent Get Title");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("!PVAgentData Get Title HR");
+static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgentData Get Title");
 
-PVAgent::PVAgent()
+PVAgent* PVAgent::find(const LLUUID& avatar_id)
 {
-	if (gPVOldAPI != PVDataOldAPI::getInstance())
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
+#endif
+	PVAgent* agentPtr = nullptr;
+	auto it = pvAgents.find(avatar_id);
+	if (it != pvAgents.end())
 	{
-		gPVOldAPI = PVDataOldAPI::getInstance();
+		agentPtr = it->second;
 	}
+	return agentPtr;
 }
-//namespace PVDataOldAPI
-//{
-	PVAgent* PVAgent::getDataFor(const LLUUID& avatar_id)
-	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
-		auto it = pvAgents.find(avatar_id);
-		if(it == pvAgents.end())
-		{
-			return nullptr;
-		}
-		return it->second;
-	}
 
-	bool PVAgent::isSpecialAgentColored(LLColor4& color_out) const
+PVAgent* PVAgent::create(const LLUUID& avatar_id, const LLColor3& color, const S32& flags, const std::string& custom_title, const std::string& ban_reason)
+{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
+#endif
+	PVAgent* new_agent;
+	auto it = pvAgents.find(avatar_id);
+	if (it != pvAgents.end())
 	{
-		color_out = color;
-		return color != no_color;
+		new_agent = it->second;
 	}
-
-	// Do not call directly! no agent pointer validity checks are performed here!
-	LLColor4 PVAgent::getColor(PVAgent* pv_agent, S32 av_flags, LLUIColorTable* uiCT) const
+	else
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
-		LLColor4 pv_color = no_color;
-		// Check if agent already has a special color
-		if (!pv_agent->isSpecialAgentColored(pv_color))
+		new_agent = new PVAgent();
+	}
+		
+	new_agent->uuid = avatar_id;
+	new_agent->color = color;
+	new_agent->flags = flags;
+	new_agent->title = custom_title;
+	new_agent->ban_reason = ban_reason;
+
+	pvAgents.emplace(avatar_id, new_agent);
+	return new_agent;
+}
+
+bool PVAgent::hasSpecialColor(LLColor4& color_out)
+{
+	color_out = color;
+	return color_out != LLColor4::black;
+}
+	
+LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
+{
+	// The agent could have a special color without having any flags, so get this one first
+	LLColor4 pv_color;
+	if (!hasSpecialColor(pv_color))
+	{
+		// Not special, could be a linden
+		if (!flags || flags & LINDEN_EMPLOYEE)
 		{
-			// Not special, could be a linden
-			if (av_flags == 0 || av_flags & LINDEN_EMPLOYEE)
+			//@todo Linden Color in a non-horrible way, without this duplicated code bullshit...
+			std::string first_name, last_name;
+			LLAvatarName av_name;
+			if (LLAvatarNameCache::get(uuid, &av_name))
 			{
-				//@todo Linden Color in a non-horrible way, without this duplicated code bullshit...
-				std::string first_name, last_name;
-				LLAvatarName av_name;
-				if (LLAvatarNameCache::get(uuid, &av_name))
-				{
-					std::istringstream full_name(av_name.getUserName());
-					full_name >> first_name >> last_name;
-				}
-				else
-				{
-					gCacheName->getFirstLastName(uuid, first_name, last_name);
-				}
-				if (gPVOldAPI->isLinden(last_name)
-					|| gPVOldAPI->isMole(last_name)
-					|| gPVOldAPI->isProductEngine(last_name)
-					|| gPVOldAPI->isScout(last_name)
-					|| gPVOldAPI->isLLTester(last_name))
-				{
-					static auto linden_color = uiCT->getColor("PlvrLindenChatColor", LLColor4::cyan);
-					pv_color = linden_color;
-				}
-			}
-			if (pv_agent->isUserDevStaff())
-			{
-				static auto dev_color = uiCT->getColor("PlvrDevChatColor", LLColor4::orange);
-				pv_color = dev_color.get();
-			}
-			else if (pv_agent->isUserQAStaff())
-			{
-				static auto qa_color = uiCT->getColor("PlvrQAChatColor", LLColor4::red);
-				pv_color = qa_color.get();
-			}
-			else if (pv_agent->isUserSupportStaff())
-			{
-				static auto support_color = uiCT->getColor("PlvrSupportChatColor", LLColor4::magenta);
-				pv_color = support_color.get();
-			}
-			else if (pv_agent->isUserTester())
-			{
-				static auto tester_color = uiCT->getColor("PlvrTesterChatColor", LLColor4::yellow);
-				pv_color = tester_color.get();
-			}
-			else if (pv_agent->isUserBanned())
-			{
-				static auto banned_color = uiCT->getColor("PlvrBannedChatColor", LLColor4::grey2);
-				pv_color = banned_color.get();
-			}
-			else if (pv_agent->isUserAutoMuted())
-			{
-				static auto muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey);
-				pv_color = muted_color.get();
-			}
-			// Unsupported users have no color.
-			// This will trigger an error for agents who only have a title, so work around that.
-			else if (pv_agent->title[0] != '\0')
-			{
-				// no-op
+				std::istringstream full_name(av_name.getUserName());
+				full_name >> first_name >> last_name;
 			}
 			else
 			{
-				//@todo: Use localizable strings
-				LLSD args;
-				args["AVATAR_ID"] = uuid;
-				args["PV_FLAGS"] = getTitleHumanReadable(false).at(0);
-				//@todo remove this duplicated code and make reusable function in pvtl
-				args["PV_COLOR"] = llformat("<%.5f,%.5f,%.5f>", pv_color.mV[VX], pv_color.mV[VY], pv_color.mV[VZ]);
-				args["MESSAGE"] = "Agent has invalid data set!";
-				LLNotificationsUtil::add("PVData_ColorBug", args);
+				gCacheName->getFirstLastName(uuid, first_name, last_name);
 			}
-			//if (av_flags & DEPRECATED_TITLE_OVERRIDE)
-			//{
-			//	LLSD args;
-			//	args["AVATAR_ID"] = uuid;
-			//	args["PV_FLAGS"] = getTitle(false);
-			//	args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
-			//	args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
-			//	LLNotificationsUtil::add("PVData_ColorBug", args);
-			//}
-		}	
-		return pv_color;
+			if (isLinden(last_name)
+				|| isMole(last_name)
+				|| isProductEngine(last_name)
+				|| isScout(last_name)
+				|| isLLTester(last_name))
+			{
+				static auto linden_color = cTablePtr.getColor("PlvrLindenChatColor", LLColor4::cyan);
+				pv_color = linden_color;
+			}
+		}
+		if (isProviderDeveloper())
+		{
+			static auto dev_color = cTablePtr.getColor("PlvrDevChatColor", LLColor4::orange);
+			pv_color = dev_color.get();
+		}
+		else if (isProviderQATeam())
+		{
+			static auto qa_color = cTablePtr.getColor("PlvrQAChatColor", LLColor4::red);
+			pv_color = qa_color.get();
+		}
+		else if (isProviderSupportTeam())
+		{
+			static auto support_color = cTablePtr.getColor("PlvrSupportChatColor", LLColor4::magenta);
+			pv_color = support_color.get();
+		}
+		else if (isProviderTester())
+		{
+			static auto tester_color = cTablePtr.getColor("PlvrTesterChatColor", LLColor4::yellow);
+			pv_color = tester_color.get();
+		}
+		else if (isProviderBanned())
+		{
+			static auto banned_color = cTablePtr.getColor("PlvrBannedChatColor", LLColor4::grey2);
+			pv_color = banned_color.get();
+		}
+		else if (isProviderMuted())
+		{
+			static auto muted_color = cTablePtr.getColor("PlvrMutedChatColor", LLColor4::grey);
+			pv_color = muted_color.get();
+		}
+		// Unsupported users have no color.
+		// This will trigger an error for agents who only have a title, so work around that.
+		else if (title[0] != '\0')
+		{
+			// no-op
+		}
+		else
+		{
+			//@todo: Use localizable strings
+			LLSD args;
+			args["AVATAR_ID"] = uuid.asString();
+			args["PV_FLAGS"] = getTitleHumanReadable(false).at(0);
+			//@todo remove this duplicated code and make reusable function in pvtl
+			args["PV_COLOR"] = llformat("<%.5f,%.5f,%.5f>", pv_color.mV[VX], pv_color.mV[VY], pv_color.mV[VZ]);
+			args["MESSAGE"] = "Agent has invalid data set!";
+			LLNotificationsUtil::add("PVData_ColorBug", args);
+		}
+		//if (av_flags & DEPRECATED_TITLE_OVERRIDE)
+		//{
+		//	LLSD args;
+		//	args["AVATAR_ID"] = uuid;
+		//	args["PV_FLAGS"] = getTitle(false);
+		//	args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
+		//	args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
+		//	LLNotificationsUtil::add("PVData_ColorBug", args);
+		//}
+		color = pv_color; // store computed color in the agent blob to speed up further lookups
 	}
-
-	LLColor4 PVDataOldAPI::getColor(LLUUID avatar_id,  const LLColor4 &default_color, bool show_buddy_status)
+	return pv_color;
+}
+	LLColor4 PVAgent::getColor(const LLUUID& avatar_id, const LLColor4 &default_color, bool show_buddy_status)
 	{
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
+#endif
 		// Try to operate in the same instance, reduce call overhead
-		LLUIColorTable* uiCT = LLUIColorTable::getInstance();
+		LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
 
 		auto return_color = default_color; // color we end up with at the end of the logic
 
 		// Some flagged users CAN be muted.
 		if (LLMuteList::instance().isMuted(avatar_id))
 		{
-			static auto muted_color = uiCT->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
+			static auto muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
 			return_color = muted_color.get();
 			return return_color;
 		}
 
 		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
 		auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(avatar_id));
-		static auto friend_color = uiCT->getColor("NameTagFriend", LLColor4::yellow);
+		static auto friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
 		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-		if (use_color_manager)
+		if (!use_color_manager)
 		{
-			auto pvdata_color = default_color; // User color from PVData if user has one, equals return_color otherwise.
-
-			auto pv_agent = PVAgent::getDataFor(avatar_id);
-			S32 av_flags = 0;
+			return show_f ? friend_color : default_color;
+		}
+		else
+		{
+			LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
+			auto pvdata_color = default_color;
 			// if the agent isn't a special agent, nullptr is returned.
-			if (pv_agent)
+			auto agentPtr = find(avatar_id);
+			if (agentPtr)
 			{
-				av_flags = pv_agent->getFlags();
-				pvdata_color = pv_agent->getColor(pv_agent, av_flags, uiCT);
+				pvdata_color = agentPtr->getColorInternal(*cTablePtr);
 			}
 
 			/*	Respect user preferences
@@ -1303,52 +1332,48 @@ PVAgent::PVAgent()
 
 			static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
 			// Lengthy but fool-proof.
-			if (show_f && av_flags && low_priority_friend_status)
+			if (show_f && agentPtr && low_priority_friend_status)
 			{
 				return_color = pvdata_color;
 			}
-			if (show_f && av_flags && !low_priority_friend_status)
+			if (show_f && agentPtr && !low_priority_friend_status)
 			{
 				return_color = friend_color;
 			}
-			if (show_f && !av_flags && low_priority_friend_status)
+			if (show_f && !agentPtr && low_priority_friend_status)
 			{
 				return_color = friend_color;
 			}
-			if (show_f && !av_flags && !low_priority_friend_status)
+			if (show_f && !agentPtr && !low_priority_friend_status)
 			{
 				return_color = friend_color;
 			}
-			if (!show_f && av_flags && low_priority_friend_status)
+			if (!show_f && agentPtr && low_priority_friend_status)
 			{
 				return_color = pvdata_color;
 			}
-			if (!show_f && av_flags && !low_priority_friend_status)
+			if (!show_f && agentPtr && !low_priority_friend_status)
 			{
 				return_color = pvdata_color;
 			}
-			if (!show_f && !av_flags && low_priority_friend_status)
+			if (!show_f && !agentPtr && low_priority_friend_status)
 			{
 				return_color = default_color;
 			}
-			if (!show_f && !av_flags && !low_priority_friend_status)
+			if (!show_f && !agentPtr && !low_priority_friend_status)
 			{
 				return_color = default_color;
 			}
-		}
-		else
-		{
-			return_color = show_f ? friend_color : default_color;
 		}
 		return return_color;
 	}
 
-	S32 PVAgent::getFlags() const
+	S32 PVAgent::getFlags()
 	{
 		return flags;
 	}
 
-	std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title) const
+	std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
 		// contents: { raw_flags, custom_title_or_empty }
@@ -1368,30 +1393,28 @@ PVAgent::PVAgent()
 		return title_v;
 	}
 
-	bool PVAgent::getTitleCustom(std::string& new_title) const
+	bool PVAgent::getTitleCustom(std::string& new_title)
 	{
 		new_title = title;
 		return (!new_title.empty());
 	}
 	
-	std::string PVAgent::getTitle(bool get_custom_title) const
+	std::string PVAgent::getTitle(bool get_custom_title)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLE);
 		// Check for agents flagged through PVDataOldAPI
 		std::vector<std::string> flags_list;
-		auto pv_agent = PVAgent::getDataFor(uuid);
-		auto pv_flags = pv_agent->getFlags();
 		if (get_custom_title)
 		{
 			std::string custom_title;
-			if (pv_agent->getTitleCustom(custom_title))
+			if (getTitleCustom(custom_title))
 			{
 				// Custom tag present, drop previous title to use that one instead.
 				flags_list.clear();
 				flags_list.push_back(custom_title);
 			}
 		}
-		if ((pv_flags == 0 || pv_flags & LINDEN_EMPLOYEE) && flags_list.empty())
+		if ((flags == 0 || flags & LINDEN_EMPLOYEE) && flags_list.empty())
 		{
 			// Only call this once, thanks.
 			std::string first_name, last_name;
@@ -1405,57 +1428,57 @@ PVAgent::PVAgent()
 			{
 				gCacheName->getFirstLastName(uuid, first_name, last_name);
 			}
-			if (gPVOldAPI->isLinden(last_name))
+			if (isLinden(last_name))
 			{
 				flags_list.push_back("Linden Lab Employee");
 			}
-			if (gPVOldAPI->isMole(last_name))
+			if (isMole(last_name))
 			{
 				flags_list.push_back("Linden Lab Employee");
 			}
-			if (gPVOldAPI->isProductEngine(last_name))
+			if (isProductEngine(last_name))
 			{
 				flags_list.push_back("Linden Lab Contractor");
 			}
-			if (gPVOldAPI->isScout(last_name))
+			if (isScout(last_name))
 			{
 				flags_list.push_back("Linden Lab Scout");
 			}
-			if (gPVOldAPI->isLLTester(last_name))
+			if (isLLTester(last_name))
 			{
 				flags_list.push_back("Linden Lab Scout");
 			}
 		}
-		else if (pv_flags != 0 && flags_list.empty())
+		else if (flags != 0 && flags_list.empty())
 		{
 			//@todo add a way to only get the highest flag instead of a list.
 			// here are the bad flags
-			if (pv_agent->isUserAutoMuted())
+			if (isProviderMuted())
 			{
 				flags_list.push_back("Nuisance");
 			}
-			if (pv_agent->isUserBanned())
+			if (isProviderBanned())
 			{
 				flags_list.push_back("Exiled");
 			}
-			if (pv_agent->isUserUnsupported())
+			if (isProviderUnsupported())
 			{
 				flags_list.push_back("Unsupported");
 			}
 			// And here are the good flags
-			if (pv_agent->isUserDevStaff())
+			if (isProviderDeveloper())
 			{
 				flags_list.push_back("Developer");
 			}
-			if (pv_agent->isUserQAStaff())
+			if (isProviderQATeam())
 			{
 				flags_list.push_back("QA");
 			}
-			if (pv_agent->isUserSupportStaff())
+			if (isProviderSupportTeam())
 			{
 				flags_list.push_back("Support");
 			}
-			if (pv_agent->isUserTester())
+			if (isProviderTester())
 			{
 				flags_list.push_back("Tester");
 			}
@@ -1465,37 +1488,37 @@ PVAgent::PVAgent()
 		return agent_title.str();
 	}
 
-	bool PVAgent::isUserDevStaff() const
+	bool PVAgent::isProviderDeveloper()
 	{
 		return (flags & STAFF_DEVELOPER);
 	}
 
-	bool PVAgent::isUserSupportStaff() const
+	bool PVAgent::isProviderSupportTeam()
 	{
 		return (flags & STAFF_SUPPORT);
 	}
 
-	bool PVAgent::isUserQAStaff() const
+	bool PVAgent::isProviderQATeam()
 	{
 		return (flags & STAFF_QA);
 	}
 
-	bool PVAgent::isUserTester() const
+	bool PVAgent::isProviderTester()
 	{
 		return (flags & USER_TESTER);
 	}
 
-	bool PVAgent::isUserUnsupported() const
+	bool PVAgent::isProviderUnsupported()
 	{
 		return (flags & BAD_USER_UNSUPPORTED);
 	}
 
-	bool PVAgent::isUserAutoMuted() const
+	bool PVAgent::isProviderMuted()
 	{
 		return (flags & BAD_USER_AUTOMUTED);
 	}
 
-	bool PVAgent::isUserBanned(bool set_error) const
+	bool PVAgent::isProviderBanned(bool set_error)
 	{
 		if (set_error)
 		{
@@ -1517,14 +1540,12 @@ PVAgent::PVAgent()
 		return support_group_.count(group_id);
 	}
 
-	bool PVAgent::isUserPolarized() const
+	bool PVAgent::isPolarized()
 	{
 		//@todo: Re-order flags by hierarchy again and make this nicer
 		//auto flags = getAgentFlags(avatar_id);
 		//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
-		return (getFlags() != 0 &&
-			!isUserAutoMuted() &&
-			!isUserBanned() &&
-			!isUserUnsupported());
+		return ((!isProviderBanned() && !isProviderUnsupported() && !isProviderMuted()) &&
+			(isProviderDeveloper() || isProviderQATeam() || isProviderSupportTeam() || isProviderTester()));
 	}
 //}

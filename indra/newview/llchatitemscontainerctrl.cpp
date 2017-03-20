@@ -234,7 +234,7 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 			// <polarity> Colored names for special users
 			if (mSourceType != CHAT_SOURCE_OBJECT && (mFromID.notNull()))
 			{
-				name_color = gPVOldAPI->getColor(mFromID, html_link_color);
+				name_color = PVAgent::getColor(mFromID, html_link_color);
 			}
 			else
 			{

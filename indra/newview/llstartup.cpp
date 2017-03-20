@@ -1367,7 +1367,7 @@ bool idle_startup()
 			LL_WARNS("PVDataOldAPI") << "Parsing agents sucess, moving on..." << LL_ENDL;
 			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
 			set_startup_status(0.099f, "Wheeee~");
-			if (!(gPVOldAPI->isAllowedToLogin(gAgentID)))
+			if (!(PVAgent::isAllowedToLogin(gAgentID)))
 			{
 				LLLoginInstance::getInstance()->disconnect();
 				gAgentID.setNull();

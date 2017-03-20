@@ -2790,7 +2790,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			else
 			{
 				// Get pvdata color, for fun.
-				LLColor4 cloud_color = gPVOldAPI->getColor(getID(), LLColor4(1, 1, 1, 0.5f));
+				LLColor4 cloud_color = PVAgent::getColor(getID(), LLColor4(1, 1, 1, 0.5f));
 				particle_parameters.mPartData.mStartColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.5f);
 				particle_parameters.mPartData.mEndColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.0f);
 			}
@@ -3497,7 +3497,7 @@ LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id)
 		// ...not using display names
 		color_name = LLUIColorTable::getInstance()->getColor("NameTagLegacy");
 	}
-	return gPVOldAPI->getColor(av_id, color_name);
+	return PVAgent::getColor(av_id, color_name);
 }
 
 void LLVOAvatar::idleUpdateBelowWater()

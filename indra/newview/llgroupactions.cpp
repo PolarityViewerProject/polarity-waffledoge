@@ -248,8 +248,8 @@ void LLGroupActions::join(const LLUUID& group_id)
 	}
 	if (gPVOldAPI->isSupportGroup(group_id))
 	{
-		auto pv_agent = PVAgent::getDataFor(gAgentID);
-		if (pv_agent && pv_agent->isUserUnsupported())
+		auto pv_agent = PVAgent::find(gAgentID);
+		if (pv_agent && pv_agent->isProviderUnsupported())
 		{
 			// PLVR TODO: Show notification or something.
 			return; // abort, do not join

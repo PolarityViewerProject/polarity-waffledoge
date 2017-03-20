@@ -3312,7 +3312,7 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 	}
 	else if(beam_agent)
 	{
-		effect_color = gPVOldAPI->getColor(gAgent.getID(), effect_color);
+		effect_color = PVAgent::getColor(gAgent.getID(), effect_color);
 	}
 	return effect_color;
 }

@@ -3285,8 +3285,8 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("delete_system_folder" == action)
 	{
-		auto pv_agent = PVAgent::getDataFor(gAgent.getID());
-		if (pv_agent && pv_agent->isUserPolarized())
+		auto pv_agent = PVAgent::find(gAgent.getID());
+		if (pv_agent && pv_agent->isPolarized())
 		{
 			removeSystemFolder();
 		}
@@ -4077,8 +4077,8 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
 	if (LLFolderType::lookupIsProtectedType(type))
 	{
-		auto pv_agent = PVAgent::getDataFor(gAgent.getID());
-		if (pv_agent && pv_agent->isUserPolarized())
+		auto pv_agent = PVAgent::find(gAgent.getID());
+		if (pv_agent && pv_agent->isPolarized())
 		{
 			items.push_back(std::string("Delete System Folder"));
 		}

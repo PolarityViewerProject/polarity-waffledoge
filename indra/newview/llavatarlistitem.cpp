@@ -280,7 +280,7 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
 		mAvatarNameStyle = params.color_style();
-		mAvatarNameStyle.color = gPVOldAPI->getColor(mAvatarId, online_color, show_friend_color_b);
+		mAvatarNameStyle.color = PVAgent::getColor(mAvatarId, online_color, show_friend_color_b);
 		mAvatarNameStyle.override_link_style = true;
 		break;
 	default:

@@ -400,7 +400,7 @@ void LLInspectAvatar::onAvatarNameCache(
 		}
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
-		auto pv_agent = PVAgent::getDataFor(mAvatarID);
+		auto pv_agent = PVAgent::find(mAvatarID);
 		if (pv_agent)
 		{
 			std::vector<std::string> agent_role_text = pv_agent->getTitleHumanReadable(false);
@@ -408,7 +408,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			agent_role->setValue(agent_role_text.at(1));
 			agent_role->setToolTip(flags_string + agent_role_text.at(0)); // raw flag as tooltip
 			agent_role_text.clear();
-			agent_role->setColor(gPVOldAPI->getColor(mAvatarID, LLColor4::white, false));
+			agent_role->setColor(PVAgent::getColor(mAvatarID, LLColor4::white, false));
 		}
 		// </polarity>
 	}

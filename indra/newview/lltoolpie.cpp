@@ -1146,7 +1146,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 
 			// <polarity> Add PVData title to hover tip
 			std::string pv_title;
-			auto pv_agent = PVAgent::getDataFor(hover_object->getID());
+			auto pv_agent = PVAgent::find(hover_object->getID());
 			if(pv_agent && pv_agent->getTitleCustom(pv_title))
 			{
 				final_name << ", " << pv_title;
