@@ -383,6 +383,12 @@ vec3 fullbrightScaleSoftClip(vec3 light)
 	return light;
 }
 
+// Set of helper functions to avoid conditionals. From TheOrangeDuck.com
+vec2 when_gt(vec2 x, vec2 y) {
+	return max(sign(x - y), 0.0);
+}
+// end of helpers
+
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
@@ -399,13 +405,7 @@ void main()
 	      final_da = pow(final_da, 1.0/1.3);
 
 	vec4 diffuse;
-    vec2 fromCentre = vec2(0.0);
-    if(chroma_str > 0.0)
-    {
-        fromCentre = (tc / screen_res) - vec2(0.5);
-        float radius = length(fromCentre);
-        fromCentre = (chroma_str * (radius*radius)) / vec2(1);
-    }
+    vec2 fromCentre = when_gt(chroma_str, 0.0)* (chroma_str * (pow(length((tc / screen_res) - vec2(0.5)), 2))) / vec2(1); // <polarity> no conditionals
     diffuse.b= texture2DRect(diffuseRect, tc-fromCentre).b;
 	diffuse.r= texture2DRect(diffuseRect, tc+fromCentre).r;
 	diffuse.ga= texture2DRect(diffuseRect, tc).ga;
