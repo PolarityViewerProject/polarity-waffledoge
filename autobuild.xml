@@ -1041,60 +1041,6 @@
         <key>version</key>
         <string>0.0</string>
       </map>
-      <key>havok-source</key>
-      <map>
-        <key>copyright</key>
-        <string>Uses Havok (TM) Physics. (c)Copyright 1999-2010 Havok.com Inc. (and its Licensors). All Rights Reserved. See www.havok.com for details.</string>
-        <key>description</key>
-        <string>Havok source code for libs and demos</string>
-        <key>license</key>
-        <string>havok</string>
-        <key>license_file</key>
-        <string>LICENSES/havok.txt</string>
-        <key>name</key>
-        <string>havok-source</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>5c5b4820999ae9e398801d6a46f45897</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297312/arch/Darwin/installer/havok_source-2012.1-darwin-297312.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6b0f41ddddfa60d8424d8a2e0bc2077d</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/296959/arch/Linux/installer/havok_source-2012.1-linux-296959.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ab30ae74a665950d73ea559f019ff358</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/havok-source_3p-update-havok-source/rev/297566/arch/CYGWIN/installer/havok_source-2012.1-windows-297566.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>2012.1</string>
-      </map>
       <key>inteltbb</key>
       <map>
         <key>copyright</key>
@@ -1266,60 +1212,6 @@
         </map>
         <key>version</key>
         <string>1.6.5</string>
-      </map>
-      <key>kdu</key>
-      <map>
-        <key>copyright</key>
-        <string>Kakadu software</string>
-        <key>description</key>
-        <string>JPEG2000 library by Kakadu</string>
-        <key>license</key>
-        <string>Kakadu</string>
-        <key>license_file</key>
-        <string>LICENSES/kdu.txt</string>
-        <key>name</key>
-        <string>kdu</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e62f2fc1ee9ab791d603c5b717b46119</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Darwin/installer/kdu-7.2.296932-darwin-296932.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>ed952c0cb86329e63a8db190953962d8</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/Linux/installer/kdu-7.2.296932-linux-296932.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>a0e5c050a4975c81611d9f1862ac57fb</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/kdu_3p-update-kdu/rev/296932/arch/CYGWIN/installer/kdu-7.2.296932-windows-296932.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>7.2.296932</string>
       </map>
       <key>libhunspell</key>
       <map>
@@ -1678,60 +1570,6 @@
         </map>
         <key>version</key>
         <string>3.2526.1364.gf6bf57b</string>
-      </map>
-      <key>llphysicsextensions_source</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (c) 2010, Linden Research, Inc.</string>
-        <key>license</key>
-        <string>internal</string>
-        <key>license_file</key>
-        <string>LICENSES/llphysicsextensions.txt</string>
-        <key>name</key>
-        <string>llphysicsextensions_source</string>
-        <key>platforms</key>
-        <map>
-          <key>darwin</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>01a7cc9d0e56238a9abedd7a41ccd0a3</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/Darwin/installer/llphysicsextensions_source-1.0.313564-darwin-313564.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>darwin</string>
-          </map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>c94dc7ab6efe59c0d5d04fc447257c57</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/Linux/installer/llphysicsextensions_source-1.0.313564-linux-313564.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e760be34addeb0cd6e2ec43394834bac</string>
-              <key>url</key>
-              <string>http://s3-proxy.lindenlab.com/private-builds-secondlife-com/hg/repo/llphysicsextensions/rev/313564/arch/CYGWIN/installer/llphysicsextensions_source-1.0.313564-windows-313564.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>1.0.313564</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>
@@ -2502,62 +2340,6 @@
         </map>
         <key>version</key>
         <string>14.0.24215.1</string>
-      </map>
-      <key>vlc-bin</key>
-      <map>
-        <key>copyright</key>
-        <string>Copyright (C) 1998-2016 VLC authors and VideoLAN</string>
-        <key>license</key>
-        <string>GPL2</string>
-        <key>license_file</key>
-        <string>LICENSES/vlc.txt</string>
-        <key>name</key>
-        <string>vlc-bin</string>
-        <key>platforms</key>
-        <map>
-          <key>linux</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>2f410640df3f9812d1abff02a414cfa8</string>
-              <key>url</key>
-              <string>https://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-vlc-bin/rev/315283/arch/Linux/vlc_bin-2.2.3-linux-201606011750-r10.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>linux</string>
-          </map>
-          <key>windows</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>6bb63f13fe4b143429347c7e8835e373</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/vlc_bin-2.2.4.201611251057-windows-201611251057.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows</string>
-          </map>
-          <key>windows64</key>
-          <map>
-            <key>archive</key>
-            <map>
-              <key>hash</key>
-              <string>e8071a6b9d23576fbb5bf1774f09327c</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
-              <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/vlc_bin-2.2.4.201611250831-windows64-201611250831.tar.bz2</string>
-            </map>
-            <key>name</key>
-            <string>windows64</string>
-          </map>
-        </map>
-        <key>version</key>
-        <string>2.2.4.201611251057</string>
       </map>
       <key>xmlrpc-epi</key>
       <map>
