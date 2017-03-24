@@ -1859,7 +1859,6 @@ if(WINDOWS)
       ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
       SLPlugin
-      media_plugin_quicktime
       media_plugin_cef
       windows-crash-logger
       )
