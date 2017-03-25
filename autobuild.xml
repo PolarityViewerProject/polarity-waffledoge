@@ -2396,7 +2396,7 @@
       <key>zlib</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (C) 1995-2013 Jean-loup Gailly and Mark Adler</string>
+        <string>Copyright (C) 1995-2017 Jean-loup Gailly and Mark Adler</string>
         <key>description</key>
         <string>Zlib Data Compression Library</string>
         <key>license</key>
@@ -2412,9 +2412,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>1a79eeac199c2d94e4ae4e5d0194e25f</string>
+              <string>9996f361c2f7cae4749e0d60bb671ffa</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/296881/arch/Darwin/installer/zlib-1.2.8.296881-darwin-296881.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/darwin/lib/zlib-1.2.11-darwin-201701191923.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2424,25 +2426,37 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2eb8e59b6464222dcf4435016ad5f618</string>
-              <key>hash_algorithm</key>
-              <string>md5</string>
+              <string>63a62bb3cbef2aad3cca49cb6f2d0aeb</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/zlib_3p-update-zlib/rev/296881/arch/Linux/installer/zlib-1.2.8.296881-linux-296881.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-zlib-update/rev/290556/arch/Linux/installer/zlib-1.2.8-linux-20140602.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>9eb17b1c699c7de25f013b22c14583e3</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/zlib-1.2.8-linux64-201609240212.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9c23cfa6f13fd098148ecdcdeb93a616</string>
+              <string>a26a7a9d550dc6988528e2e70bb5e85b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/zlib-1.2.8-windows-201601150945.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/zlib-1.2.8-windows-201601150945.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2452,18 +2466,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>18bc34cd7176721c2fca0e31580b3f57</string>
+              <string>26ebfb3a9d4b3978d41e030da6f555ec</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/zlib-1.2.8-windows64-201512071625.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14_3/zlib-1.2.11-windows64-201701211113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.2.8</string>
+        <string>1.2.11</string>
       </map>
     </map>
     <key>package_description</key>
