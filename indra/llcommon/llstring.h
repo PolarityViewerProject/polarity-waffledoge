@@ -397,11 +397,11 @@ public:
 
 	// Case sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static size_t		compareDict(const string_type& a, const string_type& b);
+	static S32		compareDict(const string_type& a, const string_type& b);
 
 	// Case *in*sensitive comparison with good handling of numbers.  Does not use current locale.
 	// a.k.a. strdictcmp()
-	static size_t		compareDictInsensitive(const string_type& a, const string_type& b);
+	static S32		compareDictInsensitive(const string_type& a, const string_type& b);
 
 	// Puts compareDict() in a form appropriate for LL container classes to use for sorting.
 	static BOOL		precedesDict( const string_type& a, const string_type& b );
@@ -1098,12 +1098,13 @@ S32 LLStringUtilBase<T>::compareInsensitive(const string_type& lhs, const string
 
 //static 
 template<class T>
-size_t LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
+S32 LLStringUtilBase<T>::compareDict(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
 	T ca, cb;
-	size_t ai = 0, bi = 0, cnt = 0, bias = 0;
+	S32 ai, bi, cnt = 0;
+	S32 bias = 0;
 
 	ca = *(a++);
 	cb = *(b++);
@@ -1138,12 +1139,12 @@ size_t LLStringUtilBase<T>::compareDict(const string_type& astr, const string_ty
 
 // static
 template<class T>
-size_t LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
+S32 LLStringUtilBase<T>::compareDictInsensitive(const string_type& astr, const string_type& bstr)
 {
 	const T* a = astr.c_str();
 	const T* b = bstr.c_str();
 	T ca, cb;
-	size_t ai, bi, cnt = 0;
+	S32 ai, bi, cnt = 0;
 
 	ca = *(a++);
 	cb = *(b++);
