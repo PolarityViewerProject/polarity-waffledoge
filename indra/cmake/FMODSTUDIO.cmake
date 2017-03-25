@@ -1,15 +1,10 @@
 # -*- cmake -*-
-
-# FMOD can be set when launching the make using the argument -DFMOD:BOOL=ON
-# When building using proprietary binaries though (i.e. having access to LL private servers),
-# we always build with FMODSTUDIO.
-# Open source devs should use the -DFMODSTUDIO:BOOL=ON then if they want to build with FMOD, whether
+include(Variables)
+# FMOD Studio can be set when launching the make using the argument -DFMODSTUDIO:BOOL=ON
+# When building using proprietary binaries, we always build with FMODSTUDIO.
+# Open source devs should use the -DFMODSTUDIO:BOOL=ON then if they want to build with FMOD Studio, whether
 # they are using STANDALONE or not.
-if (INSTALL_PROPRIETARY)
-  set(FMODSTUDIO ON CACHE BOOL "Using FMOD Studio sound library.")
-endif (INSTALL_PROPRIETARY)
-
-if (FMODSTUDIO)
+if (LINK_FMODSTUDIO)
   if (USESYSTEMLIBS)
     # In that case, we use the version of the library installed on the system
     set(FMODSTUDIO_FIND_REQUIRED ON)
@@ -18,7 +13,7 @@ if (FMODSTUDIO)
     if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
       # If the path have been specified in the arguments, use that
       set(FMODSTUDIO_LIBRARIES ${FMODSTUDIO_LIBRARY})
-      MESSAGE(STATUS "Using FMODSTUDIO path: ${FMODSTUDIO_LIBRARIES}, ${FMODSTUDIO_INCLUDE_DIR}")
+      MESSAGE(STATUS "Using LINK_FMODSTUDIO path: ${FMODSTUDIO_LIBRARIES}, ${FMODSTUDIO_INCLUDE_DIR}")
     else (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
       # If not, we're going to try to get the package listed in autobuild.xml
       # Note: if you're not using INSTALL_PROPRIETARY, the package URL should be local (file:/// URL) 
@@ -48,5 +43,5 @@ if (FMODSTUDIO)
       set(FMODSTUDIO_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/fmodstudio)
     endif (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
   endif (USESYSTEMLIBS)
-endif (FMODSTUDIO)
+endif (LINK_FMODSTUDIO)
 

@@ -37,11 +37,6 @@ if(DISABLE_LTO)
   set(USE_LTO OFF CACHE BOOL "" FORCE)
 endif()
 
-# Proprietary Library Features
-option(INSTALL_PROPRIETARY "Install proprietary binaries" OFF)
-# TODO: Hook NVAPI and TBBMalloc with INSTALL_PROPRIETARY
-option(NVAPI "Use nvapi driver interface library" OFF)
-
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
 else(LIBS_CLOSED_DIR)
@@ -192,27 +187,47 @@ set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header dire
 option(UNATTENDED "Disable use of uneeded tooling for automated builds" ON)
 
 # <polarity> Our feature list.
-
-# Audio Engine
-option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
-
 # Build process tweaks
 set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
 option(INTERNAL_BUILD "Build reserved for internal testing" OFF)
+
 if(NOT DEFINED INTERNAL_BUILD)
   set(INTERNAL_BUILD OFF)
 endif()
 
-# Libraries
-option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF)
-
+# Third-party libraries
+# Audio Engine
+option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
 # Mallocs
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
-if (USE_TCMALLOC AND USE_TBBMALLOC)
-  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
-endif (USE_TCMALLOC AND USE_TBBMALLOC)
+# APIs
+option(NVAPI "Use nvapi driver interface library" OFF)
+option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF) # Not handled by INSTALL_PROPRIETARY on purpose
 
+## sanity check
+if (USE_TCMALLOC AND LINK_TBBMALLOC)
+  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
+endif (USE_TCMALLOC AND LINK_TBBMALLOC)
+
+# option(INSTALL_PROPRIETARY "Install proprietary binaries" OFF) # Defined in autobuild.xml, don't define here until we have to.
+if(INSTALL_PROPRIETARY)
+  set(FMODSTUDIO ON)
+  set(NVAPI ON)
+  set(USE_TBBMALLOC ON)
+endif(INSTALL_PROPRIETARY)
+
+if(FMODSTUDIO)
+  set(LINK_FMODSTUDIO ON CACHE BOOL "Using FMOD Studio sound library.")
+endif(FMODSTUDIO)
+
+if(NVAPI)
+  set(LINK_NVAPI ON CACHE BOOL "Using Nvidia API")
+endif(NVAPI)
+
+if(USE_TBBMALLOC)
+  set(LINK_TBBMALLOC ON CACHE BOOL "Using Intel TBB")
+endif(USE_TBBMALLOC)
 
 
 MESSAGE("")
@@ -222,9 +237,10 @@ MESSAGE("Incremental Link       ${INCREMENTAL_LINK}")
 MESSAGE("Link-Time CodeGen      ${USE_LTO}")
 MESSAGE("Internal Build         ${INTERNAL_BUILD}")
 MESSAGE("========== *Libraries* ==========")
-MESSAGE("NVIDIA API             ${NVAPI}")
-MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
+MESSAGE("NVIDIA API             ${LINK_NVAPI}")
+MESSAGE("Intel Building Blocks  ${LINK_TBBMALLOC}")
 MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
+MESSAGE("FMOD Studio            ${LINK_FMODSTUDIO}")
 MESSAGE("========== *Features*  ==========")
 MESSAGE("Color Manager          ${PVDATA_COLORIZER}")
 MESSAGE("MOTD                   ${PVDATA_MOTD}")

@@ -61,12 +61,12 @@ if(WINDOWS)
       list(APPEND release_files libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
-    if(USE_TBBMALLOC)
+    if(LINK_TBBMALLOC)
       list(APPEND debug_files tbbmalloc_debug.dll tbbmalloc_proxy_debug.dll)
       list(APPEND release_files tbbmalloc.dll tbbmalloc_proxy.dll)
-    endif(USE_TBBMALLOC)
+    endif(LINK_TBBMALLOC)
 
-    if (FMODSTUDIO)
+    if (LINK_FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)
         set(debug_files ${debug_files} fmodL64.dll)
         set(release_files ${release_files} fmod64.dll)
@@ -74,7 +74,7 @@ if(WINDOWS)
         set(debug_files ${debug_files} fmodL.dll)
         set(release_files ${release_files} fmod.dll)
       endif(WORD_SIZE STREQUAL 64)
-    endif (FMODSTUDIO)
+    endif (LINK_FMODSTUDIO)
 
     # <FS:ND> Copy pdb files for symbol generation too
 #    if( NOT WORD_SIZE STREQUAL 64 )
@@ -90,7 +90,7 @@ if(WINDOWS)
 #            apr-1.pdb
 #            aprutil-1.pdb
 #            )
-#        if(USE_TBBMALLOC)
+#        if(LINK_TBBMALLOC)
 #            list(APPEND debug_files
 #                tbbmalloc_debug.pdb
 #                tbbmalloc_proxy_debug.pdb
@@ -99,7 +99,7 @@ if(WINDOWS)
 #                tbbmalloc.pdb
 #                tbbmalloc_proxy.pdb
 #                )
-#        endif(USE_TBBMALLOC)
+#        endif(LINK_TBBMALLOC)
 #    endif( NOT WORD_SIZE STREQUAL 64 )
     # </FS:ND>
 elseif(DARWIN)
@@ -134,10 +134,10 @@ elseif(DARWIN)
         libndofdev.dylib
        )
 
-    if (FMODSTUDIO)
+    if (LINK_FMODSTUDIO)
       set(debug_files ${debug_files} libfmodL.dylib)
       set(release_files ${release_files} libfmod.dylib)
-    endif (FMODSTUDIO)
+    endif (LINK_FMODSTUDIO)
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
     # and we don't seem to have any debug shared libs built yet anyways...
@@ -186,10 +186,10 @@ elseif(LINUX)
       list(APPEND release_files "libtcmalloc_minimal.so")
     endif (USE_TCMALLOC)
 
-    if (FMODSTUDIO)
+    if (LINK_FMODSTUDIO)
       set(debug_files ${debug_files} "libfmodL.so")
       set(release_files ${release_files} "libfmod.so")
-    endif (FMODSTUDIO)
+    endif (LINK_FMODSTUDIO)
 
 else(WINDOWS)
     message(STATUS "WARNING: unrecognized platform for staging 3rd party libs, skipping...")
