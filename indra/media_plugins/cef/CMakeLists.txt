@@ -34,12 +34,6 @@ include_directories(SYSTEM
 
 ### media_plugin_cef
 
-if(NOT WORD_SIZE EQUAL 32)
-  if(NOT WINDOWS) # not windows therefore gcc LINUX and DARWIN
-    add_definitions(-fPIC)
-  endif(NOT WINDOWS)
-endif(NOT WORD_SIZE EQUAL 32)
-
 set(media_plugin_cef_SOURCE_FILES
     media_plugin_cef.cpp
     )
@@ -83,9 +77,7 @@ add_library(media_plugin_cef
     ${media_plugin_cef_SOURCE_FILES}
 )
 
-#add_dependencies(media_plugin_cef
-#  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-#)
+set_target_properties(media_plugin_cef PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 target_link_libraries(media_plugin_cef
   ${media_plugin_cef_LINK_LIBRARIES}
@@ -95,8 +87,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_cef
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT /ignore:4099"
-    LINK_FLAGS_DEBUG "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMTD"
+    LINK_FLAGS "/MANIFEST:NO"
     )
 endif (WINDOWS)
 
@@ -106,17 +97,9 @@ if (DARWIN)
     media_plugin_cef
     PROPERTIES
     PREFIX ""
-    BUILD_WITH_INSTALL_RPATH 1
-    INSTALL_NAME_DIR "@executable_path"
+    INSTALL_RPATH "@executable_path/../../../.."
+    BUILD_WITH_INSTALL_RPATH TRUE
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
-  )
-
-  add_custom_command(TARGET media_plugin_cef
-    POST_BUILD COMMAND ${CMAKE_INSTALL_NAME_TOOL} -change "@executable_path/Chromium Embedded Framework"
-        "@executable_path/../../../../Frameworks/Chromium Embedded Framework.framework/Chromium Embedded Framework"
-        "$<TARGET_FILE:media_plugin_cef>"
-    VERBATIM
-    COMMENT "Fixing path to CEF Framework"
   )
 
 endif (DARWIN)

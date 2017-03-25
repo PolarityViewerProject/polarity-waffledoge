@@ -1530,25 +1530,39 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>2845033912eb947a1401847ece1469ce</string>
+              <string>20e43c141d92a10346805f41ca15adf4</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3p-llceflib_3p-llceflib/rev/321153/arch/Darwin/installer/llceflib-1.5.3.321153-darwin-321153.tar.bz2</string>
+              <string>https://bitbucket.org/alchemyviewer/publiclibs-darwin/downloads/llceflib-3.2987.1591.gd3e47f5-darwin-201703111027.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>abbbc69f47a214535d3c5b4c90e059db</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/llceflib-3.2526.1373.gb660893-linux64-201609260552.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0f5d7009ebaf784b5381cf253734ec83</string>
+              <string>8f480a1b66b0a20babbef4985c7070f9</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows-201611132032.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows-201703110808.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1558,18 +1572,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>5007eda00364eb8a172fcf06dd15a117</string>
+              <string>ae2743c2ef81f1470c1c80a765e94ce1</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/llceflib-3.2526.1364.gf6bf57b-windows64-201611120539.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows64-201703110803.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>3.2526.1364.gf6bf57b</string>
+        <string>3.2987.1591.gd3e47f5</string>
       </map>
       <key>llphysicsextensions_stub</key>
       <map>

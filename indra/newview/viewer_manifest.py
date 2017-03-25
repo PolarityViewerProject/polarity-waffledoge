@@ -488,11 +488,6 @@ class WindowsManifest(ViewerManifest):
         self.path("featuretable.txt")
         self.path("ReleaseNotes.txt")
 
-        # Media plugins - QuickTime
-        if self.prefix(src='../media_plugins/quicktime/%s' % self.args['configuration'], dst="llplugin"):
-            self.path("media_plugin_quicktime.dll")
-            self.end_prefix()
-
         # Media plugins - CEF
         if self.prefix(src='../media_plugins/cef/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_cef.dll")
@@ -507,6 +502,7 @@ class WindowsManifest(ViewerManifest):
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'debug'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
@@ -515,11 +511,11 @@ class WindowsManifest(ViewerManifest):
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
         else:
         # CEF runtime files - not debug (release, relwithdebinfo etc.)
             if self.prefix(src=os.path.join(os.pardir, 'packages', 'bin', 'release'), dst="llplugin"):
+                self.path("chrome_elf.dll")
                 self.path("d3dcompiler_47.dll")
                 self.path("libcef.dll")
                 self.path("libEGL.dll")
@@ -528,7 +524,6 @@ class WindowsManifest(ViewerManifest):
                 self.path("natives_blob.bin")
                 self.path("snapshot_blob.bin")
                 self.path("widevinecdmadapter.dll")
-                self.path("wow_helper.exe")
                 self.end_prefix()
 
         # CEF files common to all configurations
@@ -1200,6 +1195,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin/llplugin"):
             self.path("../media_plugins/gstreamer010/libmedia_plugin_gstreamer010.so", "libmedia_plugin_gstreamer.so")
             self.path("../media_plugins/libvlc/libmedia_plugin_libvlc.so", "libmedia_plugin_libvlc.so")
+            self.path("../media_plugins/cef/libmedia_plugin_cef.so", "libmedia_plugin_cef.so")
             self.end_prefix("bin/llplugin")
 
         if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib', 'vlc', 'plugins'), dst="bin/llplugin/vlc/plugins"):
@@ -1209,6 +1205,79 @@ class LinuxManifest(ViewerManifest):
 
         if self.prefix(src=os.path.join(os.pardir, 'packages', 'lib' ), dst="lib"):
             self.path( "libvlc*.so*" )
+            self.end_prefix()
+
+        # CEF files 
+        if self.prefix(src=os.path.join(pkgdir, 'bin', 'release'), dst="bin"):
+            self.path("chrome-sandbox")
+            self.path("llceflib_host")
+            self.path("natives_blob.bin")
+            self.path("snapshot_blob.bin")
+            self.end_prefix()
+
+        if self.prefix(src=os.path.join(pkgdir, 'resources'), dst="bin"):
+            self.path("cef.pak")
+            self.path("cef_extensions.pak")
+            self.path("cef_100_percent.pak")
+            self.path("cef_200_percent.pak")
+            self.path("devtools_resources.pak")
+            self.path("icudtl.dat")
+            self.end_prefix()
+
+        if self.prefix(src=os.path.join(pkgdir, 'resources', 'locales'), dst=os.path.join('bin', 'locales')):
+            self.path("am.pak")
+            self.path("ar.pak")
+            self.path("bg.pak")
+            self.path("bn.pak")
+            self.path("ca.pak")
+            self.path("cs.pak")
+            self.path("da.pak")
+            self.path("de.pak")
+            self.path("el.pak")
+            self.path("en-GB.pak")
+            self.path("en-US.pak")
+            self.path("es.pak")
+            self.path("es-419.pak")
+            self.path("et.pak")
+            self.path("fa.pak")
+            self.path("fi.pak")
+            self.path("fil.pak")
+            self.path("fr.pak")
+            self.path("gu.pak")
+            self.path("he.pak")
+            self.path("hi.pak")
+            self.path("hr.pak")
+            self.path("hu.pak")
+            self.path("id.pak")
+            self.path("it.pak")
+            self.path("ja.pak")
+            self.path("kn.pak")
+            self.path("ko.pak")
+            self.path("lt.pak")
+            self.path("lv.pak")
+            self.path("ml.pak")
+            self.path("mr.pak")
+            self.path("ms.pak")
+            self.path("nb.pak")
+            self.path("nl.pak")
+            self.path("pl.pak")
+            self.path("pt-BR.pak")
+            self.path("pt-PT.pak")
+            self.path("ro.pak")
+            self.path("ru.pak")
+            self.path("sk.pak")
+            self.path("sl.pak")
+            self.path("sr.pak")
+            self.path("sv.pak")
+            self.path("sw.pak")
+            self.path("ta.pak")
+            self.path("te.pak")
+            self.path("th.pak")
+            self.path("tr.pak")
+            self.path("uk.pak")
+            self.path("vi.pak")
+            self.path("zh-CN.pak")
+            self.path("zh-TW.pak")
             self.end_prefix()
 
         # llcommon
@@ -1281,6 +1350,7 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
             self.path("libaprutil-1.so.0.4.1")
+            self.path("libcef.so")
             self.path("libexpat.so.*")
             self.path("libGLOD.so")
             self.path("libSDL-1.2.so.*")
@@ -1354,6 +1424,11 @@ class Linux_x86_64_Manifest(LinuxManifest):
 
         # support file for valgrind debug tool
         self.path("secondlife-i686.supp")
+        # plugin runtime
+        if self.prefix(src=relpkgdir, dst="lib64"):
+            self.path("libcef.so")
+            self.end_prefix("lib64")
+
 
 ################################################################
 
