@@ -41,7 +41,7 @@
 #include "llcompilequeue.h"
 #include "llvoavatarself.h"
 #include "llerror.h"
-
+#include "llversioninfo.h"
 #if defined(LL_DARWIN) && !defined(DARWINPREPROC)
 // Preprocessor is disabled on darwin by default
 std::string FSLSLPreprocessor::encode(const std::string& script)
@@ -520,7 +520,8 @@ std::string FSLSLPreprocessor::encode(const std::string& script)
 	otext = encode_start + otext + encode_end;
 	otext += "\n//nfo_preprocessor_version 0";
 	//otext += "\n//^ = determine what featureset is supported";
-	otext += llformat("\n//program_version %s", LLAppViewer::instance()->getWindowTitle().c_str());
+	// otext += llformat("\n//program_version %s", LLAppViewer::instance()->getWindowTitle().c_str());
+	otext += llformat("\n//program_version %s", LLVersionInfo::getChannelAndVersionStatic().c_str());
 	time_t utc_time = time_corrected();
 	std::string timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
 		+ LLTrans::getString("TimeDay") + "]/["
@@ -531,7 +532,7 @@ std::string FSLSLPreprocessor::encode(const std::string& script)
 	LLSD substitution;
 	substitution["datetime"] = (S32)utc_time;
 	LLStringUtil::format(timeStr, substitution);
-	otext += "\n//last_compiled " + timeStr;
+	otext += "\n//last_compiled " + timeStr + " by " + gAgentAvatarp->getFullname();
 	otext += "\n";
 	if (mono)
 	{
