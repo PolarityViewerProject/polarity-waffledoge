@@ -53,6 +53,8 @@
 #include "noise.h"
 #include "pvpanellogin.h"
 
+#include "rlvactions.h"
+
 #include <boost/regex.hpp>
 
 #define LL_LINDEN "Linden"
@@ -1286,6 +1288,10 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 #ifndef LL_RELEASE_FOR_DOWNLOAD
 		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
 #endif
+		if (!RlvActions::canShowName(RlvActions::SNC_NAMETAG, avatar_id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, avatar_id))
+		{
+			return default_color;
+		}
 		// Try to operate in the same instance, reduce call overhead
 		LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
 
