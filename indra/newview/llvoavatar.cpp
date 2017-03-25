@@ -3187,7 +3187,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
 			static LLUIColor group_color = LLUIColorTable::instance().getColor("NameTagGroup", LLColor4::magenta);
 			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
-				LLFontGL::getFontSansSerifSmall());
+				LLFontGL::getFontSansSerif());
 		}
 
 		static LLUICachedControl<bool> show_display_names("NameTagShowDisplayNames", true);
