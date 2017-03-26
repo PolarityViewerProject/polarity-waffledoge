@@ -30,16 +30,14 @@ Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] 
 	<string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>
 
 	<string name="AboutPosition">
-You are at [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
 SLURL: [SLURL];
-(global coordinates [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+Global Coord: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
+Simulator Address: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
+[[SERVER_VERSION] [SERVER_RELEASE_NOTES_URL]]
 	</string>
 	<string name="AboutPositionRLVShowLoc">
 You are in [REGION]
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+[[SERVER_VERSION] [SERVER_RELEASE_NOTES_URL]]
 	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,

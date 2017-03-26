@@ -3567,7 +3567,9 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 	else if (LLStringUtil::startsWith(mServerReleaseNotesURL, "http")) // it's an URL
 	{
-		info["SERVER_RELEASE_NOTES_URL"] = "[" + LLWeb::escapeURL(mServerReleaseNotesURL) + " " + LLTrans::getString("ReleaseNotes") + "]";
+		// <polarity>
+		// info["SERVER_RELEASE_NOTES_URL"] = "[" + LLWeb::escapeURL(mServerReleaseNotesURL) + " " + LLTrans::getString("ReleaseNotes") + "]";
+		info["SERVER_RELEASE_NOTES_URL"] = LLWeb::escapeURL(mServerReleaseNotesURL);
 	}
 	else
 	{
