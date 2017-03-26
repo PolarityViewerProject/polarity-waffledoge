@@ -105,7 +105,7 @@ template <typename T> T* LL_NEXT_ALIGNED_ADDRESS_64(T* address)
 	void ll_aligned_free_fallback( void* ptr );
 //------------------------------------------------------------------------------------------------
 #else
-	inline void* ll_aligned_malloc_fallback( size_t size, size_t align )
+	inline void* ll_aligned_malloc_fallback( size_t size, int align )
 	{
 	#if defined(LL_WINDOWS)
 		return _aligned_malloc(size, align);
