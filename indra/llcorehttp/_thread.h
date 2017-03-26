@@ -29,10 +29,12 @@
 
 #include "linden_common.h"
 
-#include <boost/chrono.hpp>
-#include <boost/thread.hpp>
-
 #include "llwin32headerslean.h"
+
+#include <boost/chrono.hpp>
+
+#include <boost/thread.hpp>
+#include <boost/function.hpp>
 
 #include "_refcounted.h"
 
@@ -101,13 +103,13 @@ public:
 	/// not start running.  Caller receives on refcount on the thread
 	/// instance.  If the thread is started, another will be taken
 	/// out for the exit handler.
-	explicit HttpThread(std::function<void (HttpThread *)> threadFunc)
+	explicit HttpThread(boost::function<void (HttpThread *)> threadFunc)
 		: RefCounted(true), // implicit reference
 		  mThreadFunc(threadFunc)
 		{
 			// this creates a boost thread that will call HttpThread::run on this instance
 			// and pass it the threadfunc callable...
-			std::function<void()> f = std::bind(&HttpThread::run, this);
+			boost::function<void()> f = boost::bind(&HttpThread::run, this);
 
 			mThread = new boost::thread(f);
 		}
@@ -144,7 +146,7 @@ public:
 		}
 	
 private:
-	std::function<void(HttpThread *)> mThreadFunc;
+	boost::function<void(HttpThread *)> mThreadFunc;
 	boost::thread * mThread;
 }; // end class HttpThread
 
