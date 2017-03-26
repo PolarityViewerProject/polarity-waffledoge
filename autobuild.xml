@@ -1794,11 +1794,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>41f4611d77c538e20434900d5dbccbfe</string>
+              <string>e026c000f56555ae8730d2a73666b6e0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///C:\devel\secondlife\packages\windows\nvapi-R361v2-windows-201605271049.tar.bz2</string>
+              <string>file:///C:\devel\secondlife\packages\windows\msvc-14\nvapi-R378-windows-20170324163216.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1808,18 +1808,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>9022be5e576bef8e2ee7a09f2420ef27</string>
+              <string>056f8fdedca874513f4f8e8ccd5997af</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///C:\devel\secondlife\packages\windows64\nvapi-R361v2-windows64-201604021129.tar.bz2</string>
+              <string>file:///C:\devel\secondlife\packages\windows64\msvc-14\nvapi-R378-windows64-20170324163233.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>R361v2</string>
+        <string>R378</string>
       </map>
       <key>ogg_vorbis</key>
       <map>
@@ -2038,11 +2038,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>7c01f9ec6c4098794c2e20c767ca13cb</string>
+              <string>444543db54fdcb43c716a735eab12412</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/openjpeg-1.5.1-polarity-windows64-20170318145537-27c1d5ecef2d2034782587a556566e17.rar</string>
+              <string>file:///D:\devel\secondlife\libs\polarityviewer\openjpeg-1.5.1-polarity-windows64-20170326042648.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
