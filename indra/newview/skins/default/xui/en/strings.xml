@@ -45,10 +45,10 @@ You are in [REGION]
        Most PC users who know what these mean will be used to the English versions,
        and this info sometimes gets sent to support. -->
 	<string name="AboutSystem">
-Processor: [CPU]
-Memory: [MEMORY_MB] MB
-OS: [OS_VERSION]
-Graphics: [GRAPHICS_CARD_VENDOR] [GRAPHICS_CARD]
+CPU: [CPU]
+RAM: [MEMORY_MB] MB
+O/S: [OS_VERSION]
+GPU: [GRAPHICS_CARD_VENDOR] [GRAPHICS_CARD]
 	</string>
 <!-- <string name="AboutDriver">Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]</string> -->
 <string name="AboutOGL">OpenGL Version: [OPENGL_VERSION]</string>
