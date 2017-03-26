@@ -2038,11 +2038,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>444543db54fdcb43c716a735eab12412</string>
+              <string>7c01f9ec6c4098794c2e20c767ca13cb</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>file:///D:\devel\secondlife\libs\polarityviewer\openjpeg-1.5.1-polarity-windows64-20170326042648.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/openjpeg-1.5.1-polarity-windows64-20170318145537-27c1d5ecef2d2034782587a556566e17.rar</string>
             </map>
             <key>name</key>
             <string>windows64</string>
