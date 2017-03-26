@@ -22,7 +22,7 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[VIEWER_VERSION][BUILD_ARCH], built on [BUILD_DATE], [BUILD_TIME]
+[VIEWER_VERSION][BUILD_ARCH], [BUILD_DATE], [BUILD_TIME]
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
