@@ -3661,10 +3661,7 @@ F32 LLVOVolume::getStreamingCost(S32* bytes, S32* visible_bytes, F32* unscaled_v
 		LLVolume* volume = getVolume();
 		S32 counts[4];
 
-		// <FS:ND> try to cache calcuated triangles instead of calculating them over and over again
-		//		LLVolume::getLoDTriangleCounts(volume->getParams(), counts);
-		LLVolume::getLoDTriangleCounts(volume->getParams(), counts, volume);
-		// </FS:ND>
+		LLVolume::getLoDTriangleCounts(volume->getParams(), counts);
 
 		LLSD header;
 		header["lowest_lod"]["size"] = counts[0] * 10;

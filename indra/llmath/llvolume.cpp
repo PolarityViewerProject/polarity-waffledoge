@@ -93,15 +93,6 @@ const S32 SCULPT_MIN_AREA_DETAIL = 1;
 
 extern BOOL gDebugGL;
 
-// <FS:ND> Cache for Triangles/LOD estimation
-struct TrianglesPerLODCache
-{
-	LLProfileParams mProfileParams;
-	LLPathParams mPathParams;
-	S32 mTriangles[4];
-};
-// </FS:ND>
-
 BOOL check_same_clock_dir( const LLVector3& pt1, const LLVector3& pt2, const LLVector3& pt3, const LLVector3& norm)
 {    
 	LLVector3 test = (pt2-pt1)%(pt3-pt2);
@@ -2061,7 +2052,6 @@ S32 LLVolume::sNumMeshPoints = 0;
 
 LLVolume::LLVolume(const LLVolumeParams &params, const F32 detail, const BOOL generate_single_face, const BOOL is_unique)
 	: mParams(params)
-	, mTrianglesCache(0) // <FS:ND> cache for trianges/LOD estimation
 {
 	mUnique = is_unique;
 	mFaceMask = 0x0;
@@ -2131,8 +2121,6 @@ LLVolume::~LLVolume()
 	mHullPoints = NULL;
 	ll_aligned_free_16(mHullIndices);
 	mHullIndices = NULL;
-
-	delete mTrianglesCache; // <FS:ND>
 }
 
 BOOL LLVolume::generate()
@@ -3640,31 +3628,9 @@ bool LLVolumeParams::validate(U8 prof_curve, F32 prof_begin, F32 prof_end, F32 h
 	return true;
 }
 
-// <FS:ND> Cache LOD Triangle counts, it is expensive to calculate them each time.
-//	static void getLoDTriangleCounts(const LLVolumeParams& params, S32* counts);
-//void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts)
-void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts, LLVolume *aVolume)
-// </FS:ND>
+void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts)
 { //attempt to approximate the number of triangles that will result from generating a volume LoD set for the 
 	//supplied LLVolumeParams -- inaccurate, but a close enough approximation for determining streaming cost
-
-	// <FS:ND> check cache first
-	if( aVolume->mTrianglesCache && aVolume->mTrianglesCache->mPathParams == params.getPathParams() && aVolume->mTrianglesCache->mProfileParams == params.getProfileParams() )
-	{
-		counts[ 0 ] = aVolume->mTrianglesCache->mTriangles[0];
-		counts[ 1 ] = aVolume->mTrianglesCache->mTriangles[1];
-		counts[ 2 ] = aVolume->mTrianglesCache->mTriangles[2];
-		counts[ 3 ] = aVolume->mTrianglesCache->mTriangles[3];
-		return;
-	}
-
-	if( !aVolume->mTrianglesCache )
-		aVolume->mTrianglesCache = new TrianglesPerLODCache();
-
-	aVolume->mTrianglesCache->mPathParams = params.getPathParams();
-	aVolume->mTrianglesCache->mProfileParams = params.getProfileParams();
-	// </FS:ND>
-
 	F32 detail[] = {1.f, 1.5f, 2.5f, 4.f};	
 	for (S32 i = 0; i < 4; i++)
 	{
@@ -3676,7 +3642,6 @@ void LLVolume::getLoDTriangleCounts(const LLVolumeParams& params, S32* counts, L
 		count += profile_points*2;
 
 		counts[i] = count;
-		aVolume->mTrianglesCache->mTriangles[i] = count; // </FS:ND>
 	}
 }
 
