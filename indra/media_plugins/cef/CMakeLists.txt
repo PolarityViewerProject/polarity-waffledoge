@@ -87,8 +87,7 @@ if (WINDOWS)
   set_target_properties(
     media_plugin_cef
     PROPERTIES
-    LINK_FLAGS "/MANIFEST:NO"
-    LINK_FLAGS_RELEASE "/ignore:4099"
+    LINK_FLAGS "/MANIFEST:NO /ignore:4099"
     )
 endif (WINDOWS)
 
