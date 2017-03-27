@@ -14,10 +14,7 @@ LICENSES
 indra/.distcc
 build-linux-*
 build-darwin-*
-build-vc80/
-build-vc100/
-build-vc120*
-build-vc140*
+build-vc*
 indra/build-vc[0-9]*
 indra/CMakeFiles
 indra/lib/mono/1.0/*.dll
