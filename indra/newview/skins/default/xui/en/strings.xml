@@ -27,7 +27,7 @@
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
 	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
-	<string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>
+	<string name="BuildConfig">Build Configuration: [BUILD_CONFIG]</string>
 
 	<string name="AboutPosition">
 SLURL: [SLURL];
