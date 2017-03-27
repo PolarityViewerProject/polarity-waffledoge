@@ -133,13 +133,13 @@ if (WINDOWS)
       /Zm140
       )
 
-  if (NOT INCREMENTAL_LINK)
+  if (USE_LTO AND NOT INCREMENTAL_LINK)
     add_compile_options(
         /GL
         /Gy
         /Gw
         )
-  endif (NOT INCREMENTAL_LINK)
+  endif (USE_LTO AND NOT INCREMENTAL_LINK)
 
   if(USE_AVX)
     add_compile_options(/arch:AVX)
