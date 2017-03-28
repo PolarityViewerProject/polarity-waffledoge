@@ -2905,7 +2905,7 @@
         <key>windows</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc141</string>
+          <string>build-vc140</string>
           <key>configurations</key>
           <map>
             <key>RelWithDebInfo</key>
@@ -3061,7 +3061,7 @@
         <key>windows64</key>
         <map>
           <key>build_directory</key>
-          <string>build-vc141-x86_64</string>
+          <string>build-vc140-x86_64</string>
           <key>configurations</key>
           <map>
             <key>Coverity</key>
