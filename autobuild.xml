@@ -3096,7 +3096,6 @@
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DUSE_KDU:BOOL=OFF</string>
-                  <string>-DUNATTENDED:BOOL=ON</string>
                 </array>
               </map>
               <key>name</key>
