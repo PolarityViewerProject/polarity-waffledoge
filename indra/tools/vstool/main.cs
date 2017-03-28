@@ -552,7 +552,9 @@ namespace VSTool
                         break;
 
                     case "12.00":
-                        version = "VC140";
+                        // Thanks Microsoft... They didn't increment the solution version so I have to use this hack:
+                        //version = "VC140";
+                        version = "VC141";
                         break;
 
                     default:
@@ -594,6 +596,10 @@ namespace VSTool
 
                 case "VC140":
                     progid = "VisualStudio.DTE.14.0";
+                    break;
+
+                case "VC141":
+                    progid = "VisualStudio.DTE.15.0";
                     break;
 
                 default:
