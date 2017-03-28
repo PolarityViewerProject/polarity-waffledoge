@@ -2513,7 +2513,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2534,7 +2534,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Debug</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2554,7 +2554,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=TRUE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2575,7 +2575,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=RelWithDebInfo</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2595,7 +2595,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DLL_TESTS=TRUE</string>
                 </array>
               </map>
@@ -2617,7 +2617,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DLL_TESTS=FALSE</string>
                 </array>
               </map>
@@ -2662,7 +2662,7 @@
                   <string>-DCMAKE_BUILD_TYPE:STRING=Release</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                 </array>
               </map>
               <key>name</key>
@@ -2973,7 +2973,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 15 2017"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3047,7 +3047,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 15 2017"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3133,7 +3133,7 @@
                   <string>"Visual Studio 15 2017 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3207,7 +3207,7 @@
                   <string>"Visual Studio 15 2017 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3248,7 +3248,7 @@
                   <string>-T</string>
                   <string>"v141,host=x64"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3289,7 +3289,7 @@
                   <string>-T</string>
                   <string>"v141,host=x64"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
-                  <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DINSTALL_PROPRIETARY:BOOL=FALSE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
