@@ -32,7 +32,8 @@
      top_delta="14"
      top_pad="10"
      width="250">
-     Memory used: 9001 Ki
+      Memory used: 9001 Ki
+    </text>
     <scroll_list
      draw_heading="true"
      follows="all"
@@ -67,7 +68,6 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     text_color="TextDefaultColor"
      top="60"
      top_delta="60"
      text_color="EmphasisColor"
