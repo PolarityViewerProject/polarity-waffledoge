@@ -33,11 +33,11 @@ Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] 
 SLURL: [SLURL];
 Global Coord: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
 Simulator Address: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
-[[SERVER_VERSION] [SERVER_RELEASE_NOTES_URL]]
+[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<string name="AboutPositionRLVShowLoc">
 You are in [REGION]
-[[SERVER_VERSION] [SERVER_RELEASE_NOTES_URL]]
+[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
