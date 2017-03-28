@@ -32,11 +32,6 @@ set(LL_TESTS OFF CACHE BOOL "Build and run unit and integration tests (disable f
 option(INCREMENTAL_LINK "Use incremental linking or incremental LTCG for LTO on win32 builds (enable for faster links on some machines)" OFF)
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
 
-option(DISABLE_LTO "Override LTO setting" ON)
-if(DISABLE_LTO)
-  set(USE_LTO OFF CACHE BOOL "" FORCE)
-endif()
-
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
 else(LIBS_CLOSED_DIR)
