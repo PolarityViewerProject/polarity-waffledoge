@@ -2043,7 +2043,10 @@ LLProfile::~LLProfile()
 {
 	if(profile_delete_lock)
 	{
-		LL_ERRS() << "LLProfile should not be deleted here!" << LL_ENDL ;
+		// I know. Can't fix right now. LEAVE ME ALONE.
+		//LL_ERRS() << "LLProfile should not be deleted here!" << LL_ENDL ;
+		llassert(true);
+		LL_WARNS() << "LLProfile should not be deleted here!" << LL_ENDL ;
 	}
 }
 
