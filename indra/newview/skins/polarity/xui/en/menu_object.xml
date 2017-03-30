@@ -258,7 +258,7 @@
         function="EnablePayObject" />
   </menu_item_call>
   <menu_item_call
-      enabled="false"
+      enabled="true"
       label="Buy"
       name="Buy...">
     <menu_item_call.on_click
