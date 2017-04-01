@@ -138,10 +138,6 @@ BOOL LLKeyframeWalkMotion::onUpdate(F32 time, U8* joint_mask)
 //-----------------------------------------------------------------------------
 LLWalkAdjustMotion::LLWalkAdjustMotion(const LLUUID &id) :
 	LLMotion(id),
-	mCharacter(nullptr),
-	mLeftAnkleJoint(nullptr),
-	mRightAnkleJoint(nullptr),
-	mPelvisJoint(nullptr),
 	mLastTime(0.f),
 	mAnimSpeed(0.f),
 	mAdjustedSpeed(0.f),
@@ -337,7 +333,6 @@ void LLWalkAdjustMotion::onDeactivate()
 //-----------------------------------------------------------------------------
 LLFlyAdjustMotion::LLFlyAdjustMotion(const LLUUID &id)
 	: LLMotion(id),
-	  mCharacter(nullptr),
 	  mRoll(0.f)
 {
 	mName = "fly_adjust";

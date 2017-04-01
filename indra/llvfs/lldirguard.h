@@ -35,7 +35,6 @@ class LLDirectoryGuard
 {
 public:
 	LLDirectoryGuard()
-		: mFinalDirLen(0)
 	{
 		mOrigDirLen = GetCurrentDirectory(MAX_PATH, mOrigDir);
 	}

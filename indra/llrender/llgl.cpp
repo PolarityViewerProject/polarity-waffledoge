@@ -439,7 +439,7 @@ LLGLManager::LLGLManager() :
 	mHasTimerQuery(FALSE),
 	mHasOcclusionQuery2(FALSE),
 	mHasPointParameters(FALSE),
-	mHasDrawBuffers(FALSE), mHasDepthClamp(0),
+	mHasDrawBuffers(FALSE),
 	mHasTextureRectangle(FALSE),
 	mHasTextureMultisample(FALSE),
 	mHasTransformFeedback(FALSE),
@@ -452,9 +452,6 @@ LLGLManager::LLGLManager() :
 	mHasARBEnvCombine(FALSE),
 	mHasCubeMap(FALSE),
 	mHasDebugOutput(FALSE),
-	mHassRGBTexture(0),
-	mHassRGBFramebuffer(0),
-	mHasGpuShader5(0),
 
 	mIsATI(FALSE),
 	mIsNVIDIA(FALSE),
@@ -478,10 +475,10 @@ LLGLManager::LLGLManager() :
 	mDriverVersionRelease(0),
 	mGLVersion(1.0f),
 	mGLSLVersionMajor(0),
-	mGLSLVersionMinor(0),
+	mGLSLVersionMinor(0),		
 	mVRAM(0),
 	mGLMaxVertexRange(0),
-	mGLMaxIndexRange(0), mGLMaxTextureSize(0)
+	mGLMaxIndexRange(0)
 {
 }
 

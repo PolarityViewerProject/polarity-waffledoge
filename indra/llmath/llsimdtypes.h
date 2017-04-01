@@ -36,10 +36,7 @@ typedef __m128	LLQuad;
 class LLBool32
 {
 public:
-	inline LLBool32(): m_bool(0)
-	{
-	}
-
+	inline LLBool32() {}
 	inline LLBool32(int rhs) : m_bool(rhs) {}
 	inline LLBool32(unsigned int rhs) : m_bool(rhs) {}
 	inline LLBool32(bool rhs) { m_bool = static_cast<const int>(rhs); }

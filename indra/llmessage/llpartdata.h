@@ -85,14 +85,9 @@ public:
 	LLPartData() :
 		mFlags(0),
 		mMaxAge(0.f),
-		mParameter(0.f),
-		mStartGlow(0),
-		mEndGlow(0),
-		mBlendFuncSource(0),
-		mBlendFuncDest(0)
+		mParameter(0.f)
 	{
 	}
-
 	BOOL unpackLegacy(LLDataPacker &dp);
 	BOOL unpack(LLDataPacker &dp);
 

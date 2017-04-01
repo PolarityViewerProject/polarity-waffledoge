@@ -198,10 +198,8 @@ public:
 		};
 
 		ClampedS32(const Params& p)
-			: RangeS32(p),
-			  mValue(0)
-		{
-		}
+		:	RangeS32(p)
+		{}
 
 		ClampedS32(const RangeS32& range)
 		:	RangeS32(range)

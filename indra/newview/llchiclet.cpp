@@ -317,13 +317,12 @@ void LLChiclet::setValue(const LLSD& value)
 //////////////////////////////////////////////////////////////////////////
 
 LLIMChiclet::LLIMChiclet(const LLIMChiclet::Params& p)
-	: LLChiclet(p),
-	  mShowSpeaker(false),
-	  mCounterEnabled(false),
-	  mDefaultWidth(p.rect().getWidth()),
-	  mNewMessagesIcon(NULL),
-	  mChicletButton(NULL),
-	  mPopupMenu(NULL)
+: LLChiclet(p)
+, mShowSpeaker(false)
+, mDefaultWidth(p.rect().getWidth())
+, mNewMessagesIcon(NULL)
+, mChicletButton(NULL)
+, mPopupMenu(NULL)
 {
 }
 

@@ -219,9 +219,7 @@ private:
 public:
 #endif
 	// no-copy
-	BlockTimer(const BlockTimer& other): mStartTime(0), mParentTimerData()
-	{
-	} ;
+	BlockTimer(const BlockTimer& other) {};
 
 private:
 	U64						mStartTime;
