@@ -34,6 +34,7 @@
 #include "llkeyframewalkmotion.h"
 #include "llcharacter.h"
 #include "llmath.h"
+#include "m3math.h"
 #include "llcriticaldamp.h"
 
 //-----------------------------------------------------------------------------

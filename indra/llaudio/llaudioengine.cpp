@@ -35,6 +35,8 @@
 #include "llerror.h"
 #include "llmath.h"
 
+#include "sound_ids.h"  // temporary hack for min/max distances
+
 #include "llvfs.h"
 #include "lldir.h"
 #include "llaudiodecodemgr.h"

@@ -26,7 +26,11 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "lleventtimer.h"
+
+#include "u64.h"
 
 
 //////////////////////////////////////////////////////////////////////////////

@@ -31,6 +31,8 @@
 
 #include "llformat.h"
 
+#include <cstdarg>
+
 // common used function with va_list argument
 // wrapper for vsnprintf to be called from llformatXXX functions.
 static void va_format(std::string& out, const char *fmt, va_list va)

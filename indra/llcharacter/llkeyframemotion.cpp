@@ -38,9 +38,11 @@
 #include "llcharacter.h"
 #include "llcriticaldamp.h"
 #include "lldir.h"
+#include "llendianswizzle.h"
 #include "llkeyframemotion.h"
 #include "llquantize.h"
 #include "llvfile.h"
+#include "m3math.h"
 #include "message.h"
 
 //-----------------------------------------------------------------------------

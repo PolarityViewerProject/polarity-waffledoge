@@ -29,6 +29,7 @@
 
 #include "llavatarappearancedefines.h"
 #include "llwearable.h"
+#include "llerror.h"
 
 class LLAvatarAppearance;
 

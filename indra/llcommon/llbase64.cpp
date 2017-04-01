@@ -31,6 +31,8 @@
 
 #include "llbase64.h"
 
+#include <string>
+
 #include "apr_base64.h"
 
 

@@ -33,6 +33,7 @@
 
 #include "lltargetingmotion.h"
 #include "llcharacter.h"
+#include "v3dmath.h"
 #include "llcriticaldamp.h"
 
 //-----------------------------------------------------------------------------

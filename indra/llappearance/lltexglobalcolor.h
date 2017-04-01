@@ -27,6 +27,7 @@
 #ifndef LL_LLTEXGLOBALCOLOR_H
 #define LL_LLTEXGLOBALCOLOR_H
 
+#include "lltexlayer.h"
 #include "lltexlayerparams.h"
 
 class LLAvatarAppearance;
