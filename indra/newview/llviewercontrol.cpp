@@ -82,12 +82,10 @@
 #include <boost/algorithm/string.hpp>
 
 //BD - Includes we need for special features
-#include "llappviewer.h"
 #include "lldrawpoolwlsky.h"
 #include "llenvmanager.h"
 #include "llfloatersnapshot.h"
 #include "lltoolfocus.h"
-#include "llviewerobjectlist.h"
 
 #include "pvfpsmeter.h"
 #include "llwindowwin32.h"
