@@ -30,6 +30,7 @@
 
 #include "stdtypes.h"
 
+#include <map>
 #include <vector>
 
 class LLAllocatorHeapProfile

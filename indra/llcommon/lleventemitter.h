@@ -29,7 +29,10 @@
 #define LL_EVENTEMITTER_H
 
 // standard headers
+#include <algorithm>
 #include <typeinfo>
+#include <iostream>
+#include <string>
 #include <list>
 
 #include "stdtypes.h"

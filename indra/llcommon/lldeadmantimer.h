@@ -28,6 +28,9 @@
 #ifndef	LL_DEADMANTIMER_H
 #define	LL_DEADMANTIMER_H
 
+
+#include "linden_common.h"
+
 #include "lltimer.h"
 #include "llprocinfo.h"
 

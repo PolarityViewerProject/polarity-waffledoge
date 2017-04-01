@@ -29,6 +29,7 @@
 
 #include "timer.h"
 #include <deque>
+#include <string>
 #include "llstring.h"
 #include "llthread.h"
 #include "llerrorcontrol.h"

@@ -28,6 +28,7 @@
 #define LL_LLMULTIGESTURE_H
 
 #include <set>
+#include <string>
 #include <vector>
 
 #include "lluuid.h"

@@ -32,6 +32,7 @@
 #if ! defined(LL_LLEVENTS_H)
 #define LL_LLEVENTS_H
 
+#include <string>
 #include <map>
 #include <set>
 #include <vector>
@@ -39,7 +40,9 @@
 
 #include <boost/signals2.hpp>
 #include <boost/bind.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
+#include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
 #include <boost/visit_each.hpp>
 #include <boost/ref.hpp>            // reference_wrapper

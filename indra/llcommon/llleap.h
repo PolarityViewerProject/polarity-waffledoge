@@ -14,6 +14,7 @@
 
 #include "llinstancetracker.h"
 #include "llexception.h"
+#include <string>
 #include <vector>
 
 /**

@@ -27,6 +27,8 @@
 #ifndef LL_LLHEARTBEAT_H
 #define LL_LLHEARTBEAT_H
 
+#include "linden_common.h"
+
 #include "lltimer.h"
 
 // Note: Win32 does not support the heartbeat/smackdown system;

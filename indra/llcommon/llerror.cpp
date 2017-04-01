@@ -42,7 +42,6 @@
 # include <unistd.h>
 #endif // !LL_WINDOWS
 #include <vector>
-#include <fstream>
 
 #include "llapp.h"
 #include "llapr.h"

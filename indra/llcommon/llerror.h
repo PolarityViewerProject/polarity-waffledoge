@@ -34,6 +34,7 @@
 #include "stdtypes.h"
 
 #include "llpreprocessor.h"
+#include <boost/static_assert.hpp>
 
 const int LL_ERR_NOERR = 0;
 

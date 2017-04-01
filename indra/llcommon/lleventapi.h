@@ -33,6 +33,7 @@
 
 #include "lleventdispatcher.h"
 #include "llinstancetracker.h"
+#include <string>
 
 /**
  * LLEventAPI not only provides operation dispatch functionality, inherited

@@ -34,7 +34,10 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "llbox.h"
 #include "lldrawable.h"
+#include "llhudrender.h"
+#include "llviewertexturelist.h"
 #include "llviewerobjectlist.h"
 #include "llviewerpartsim.h"
 #include "llviewerpartsource.h"
