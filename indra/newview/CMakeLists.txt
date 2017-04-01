@@ -117,6 +117,7 @@ source_group("Third Party/Exodus" FILES
     )
 
 set(firestorm_HEADER_FILES
+    llfloaterscriptrecover.h
     fsareasearch.h
     fsareasearchmenu.h
     fsassetblacklist.h
@@ -128,6 +129,7 @@ set(firestorm_HEADER_FILES
     sanitycheck.h
     )
 set(firestorm_SOURCE_FILES
+    llfloaterscriptrecover.cpp
     fsareasearch.cpp
     fsareasearchmenu.cpp
     fsassetblacklist.cpp

@@ -104,6 +104,9 @@
 #include "llweb.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
+// [SL:KB] - Patch: Build-ScriptRecover | Checked: 2011-11-24 (Catznip-3.2.0)
+#include "llfloaterscriptrecover.h"
+// [/SL:KB]
 #include "llspellcheck.h"
 #include "llscenemonitor.h"
 #include "llavatarrenderinfoaccountant.h"
@@ -6019,6 +6022,10 @@ void LLAppViewer::handleLoginComplete()
 	name_is_long = (title_firstname.length() + title_lastname.length() + window_title_appname_string.length()) > 25;
 
 	PVGetDynamicWindowTitle();
+
+// [SL:KB] - Patch: Build-ScriptRecover | Checked: 2011-11-24 (Catznip-3.2.0) | Added: Catznip-3.2.0
+	LLScriptRecoverQueue::recoverIfNeeded();
+// [/SL:KB]
 
 	writeDebugInfo();
 
