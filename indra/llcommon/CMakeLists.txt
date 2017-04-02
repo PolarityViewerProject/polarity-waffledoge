@@ -342,9 +342,7 @@ if (LL_TESTS)
   #set(TEST_DEBUG on)
   set(test_libs llcommon 
       ${LLCOMMON_LIBRARIES} 
-      ${TBBMALLOC_LIBRARIES}
       ${WINDOWS_LIBRARIES} 
-      ${GOOGLEMOCK_LIBRARIES} 
       ${BOOST_COROUTINE_LIBRARY} 
       ${BOOST_CONTEXT_LIBRARY} 
       ${BOOST_THREAD_LIBRARY} 
