@@ -193,6 +193,16 @@ public:
 	void resumeMainloopTimeout( char const *state = "", F32 secs = -1.0f);
 	void pingMainloopTimeout( char const *state, F32 secs = -1.0f);
 
+	
+	// dynamic window title
+	static std::string title_firstname;
+	static std::string title_lastname;
+	static std::string title_short_name;
+	static std::string title_long_name;
+	static std::string window_title_appname_string;
+	static bool name_is_long;
+	
+
 	void PVGetDynamicWindowTitle();
 	// Handle the 'login completed' event.
 	// *NOTE:Mani Fix this for login abstraction!!
@@ -320,8 +330,6 @@ private:
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
 	
-	LLFrameTimer mTitleBarUpdateTimer; 	// <polarity/> Dynamic window title
-
     LLAllocator mAlloc;
 
 	LLFrameTimer mMemCheckTimer;

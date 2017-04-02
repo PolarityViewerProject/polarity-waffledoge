@@ -814,6 +814,34 @@ static bool handleFPSLimiterEnabledChanged(const LLSD& val)
 	return true;
 }
 
+static bool setDynamicTitleAnonymize(const LLSD& val)
+{
+	gSavedSettings.setBOOL("PVWindow_TitleAnonymize", val.asBoolean());
+	return true;
+}
+static bool setDynamicTitleShowVersion(const LLSD& val)
+{
+	gSavedSettings.setBOOL("PVWindow_TitleShowVersionNumber", val.asBoolean());
+	return true;
+}
+static bool setDynamicTitleShowUsername(const LLSD& val)
+{
+	gSavedSettings.setBOOL("PVWindow_TitleShowUserName", val.asBoolean());
+	return true;
+}
+
+static bool handleDynamicTitleOptionsChanged(const LLSD& val)
+{
+	LLAppViewer::instance()->PVGetDynamicWindowTitle();
+	return true;
+}
+
+static bool handleDynamicTitleNameOptionsChanged(const LLSD& val)
+{
+	LLAppViewer::instance()->PVGetDynamicWindowTitle();
+	return true;
+}
+
 void settings_setup_listeners()
 {
 	gSavedSettings.getControl("FirstPersonAvatarVisible")->getSignal()->connect(boost::bind(&handleRenderAvatarMouselookChanged, _2));
@@ -1016,6 +1044,11 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
 	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, gSavedSettings.getLLSD("PVRender_FPSLimiterTarget"), true));
 	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
+	// <polarity> Dynamic Window Title
+	gSavedSettings.getControl("PVWindow_TitleAnonymize")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleShowVersionNumber")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleForceShortName")->getSignal()->connect(boost::bind(&handleDynamicTitleNameOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleNameOptionsChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL
