@@ -1340,7 +1340,7 @@ template<class T>
 void LLStringUtilBase<T>::replaceNonstandardASCII( string_type& string, T replacement )
 {
 	const char LF = 10;
-	const S8 MIN = 32; //-V112
+	const S8 MIN = 32;
 //	const S8 MAX = 127;
 
 	size_type len = string.size();
@@ -1383,7 +1383,7 @@ void LLStringUtilBase<T>::replaceTabsWithSpaces( string_type& str, size_type spa
 template<class T> 
 BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 {
-	const char MIN = 32; //-V112
+	const char MIN = 32;
 	BOOL rv = FALSE;
 	for (size_type i = 0; i < string.size(); i++)
 	{
@@ -1401,7 +1401,7 @@ BOOL LLStringUtilBase<T>::containsNonprintable(const string_type& string)
 template<class T> 
 void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 {
-	const char MIN = 32; //-V112
+	const char MIN = 32;
 	size_type j = 0;
 	if (string.empty())
 	{

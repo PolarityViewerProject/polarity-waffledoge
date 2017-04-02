@@ -68,7 +68,7 @@ namespace LLTrace
 		{
 			const AccumulatorBuffer& other = *getDefaultBuffer();
 			resize(sNextStorageSlot);
-			for (size_t i = 0; i < sNextStorageSlot; i++)
+			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
 				mStorage[i] = other.mStorage[i];
 			}
@@ -99,7 +99,7 @@ namespace LLTrace
               mStorageSize(0)
 		{
 			resize(sNextStorageSlot);
-			for (size_t i = 0; i < sNextStorageSlot; i++)
+			for (S32 i = 0; i < sNextStorageSlot; i++)
 			{
 				mStorage[i] = other.mStorage[i];
 			}
@@ -178,7 +178,7 @@ namespace LLTrace
 			mStorage = new ACCUMULATOR[new_size];
 			if (old_storage)
 			{
-				for (size_t i = 0; i < mStorageSize; i++)
+				for (S32 i = 0; i < mStorageSize; i++)
 				{
 					mStorage[i] = old_storage[i];
 				}
@@ -353,7 +353,7 @@ namespace LLTrace
 		void addSamples(const SampleAccumulator& other, EBufferAppendType append_type);
 		void reset(const SampleAccumulator* other);
 
-		void sync(F64SecondsImplicit &time_stamp)
+		void sync(F64SecondsImplicit time_stamp)
 		{
 			if (mHasValue && time_stamp != mLastSampleTimeStamp)
 			{
@@ -562,7 +562,7 @@ namespace LLTrace
 			mDeallocations.reset(other ? &other->mDeallocations : NULL);
 		}
 
-		void sync(F64SecondsImplicit &time_stamp) 
+		void sync(F64SecondsImplicit time_stamp) 
 		{
 			mSize.sync(time_stamp);
 		}

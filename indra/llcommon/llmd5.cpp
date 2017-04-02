@@ -311,7 +311,7 @@ void LLMD5::hex_digest(char *s) const
 
 
 
-std::ostream& operator<<(std::ostream &stream, const LLMD5 &context)
+std::ostream& operator<<(std::ostream &stream, LLMD5 context)
 {
 	char s[33];		/* Flawfinder: ignore */
 	context.hex_digest(s);
