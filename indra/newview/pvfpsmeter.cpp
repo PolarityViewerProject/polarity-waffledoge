@@ -34,8 +34,6 @@
 #include "llwindowwin32.h"
 #include "llstatbar.h"
 
-// KNOWN BUG: FPS Limiter slider in preferences refuses to properly display the proper value on reset (see PVFPSMeter::setLimit(-1) behavior)
-
 constexpr F32 UPDATE_DELAY = 0.125f;
 constexpr S32 FRAME_NULL_ZONE = 1;
 

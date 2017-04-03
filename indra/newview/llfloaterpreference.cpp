@@ -1338,7 +1338,6 @@ void LLFloaterPreference::resetFpsLimiterTarget()
 	auto fps_limiter_slider = getChild<LLSliderCtrl>("fps_limiter_slider");
 	if (fps_limiter_slider)
 	{
-		//fps_limiter_slider->setValue(controlp.getU32("PVRender_FPSLimiterTarget"));
 		fps_limiter_slider->setValue(controlp->get().asInteger());
 	}
 }
