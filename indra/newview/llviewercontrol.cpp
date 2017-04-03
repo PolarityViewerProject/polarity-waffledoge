@@ -786,12 +786,13 @@ static bool handleCloudNoiseChanged(const LLSD& newvalue)
 static bool validateFPSLimiterTarget(const LLSD& val, bool disable_limiter_if_fail)
 {
 	const U32 fps_limit = val.asInteger();
-	bool valid =  fps_limit == 0 || (fps_limit >= 15); // arbitrary limit
-	if (disable_limiter_if_fail && !valid)
+	if (disable_limiter_if_fail && fps_limit <= 0)
 	{
 		gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", false);
+		return false;
 	}
-	return valid;
+	return true;
+	
 }
 
 static bool handleFPSLimiterTargetChanged(const LLSD& val)
