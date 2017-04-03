@@ -36,7 +36,8 @@
 
 // KNOWN BUG: FPS Limiter slider in preferences refuses to properly display the proper value on reset (see PVFPSMeter::setLimit(-1) behavior)
 
-const S32 FRAME_NULL_ZONE = 1;
+constexpr F32 UPDATE_DELAY = 0.125f;
+constexpr S32 FRAME_NULL_ZONE = 1;
 
 // Default values, because static and shenanigans
 F32 PVFPSMeter::mFPSMeterValue(0.f);
@@ -66,7 +67,7 @@ bool PVFPSMeter::stop()
 
 bool PVFPSMeter::canRefresh()
 {
-	return mStatusBarFPSCounterTimer.getElapsedTimeF32() >= 0.125f; // arbitrary
+	return mStatusBarFPSCounterTimer.getElapsedTimeF32() >= UPDATE_DELAY;
 }
 
 bool PVFPSMeter::update()
@@ -85,7 +86,7 @@ bool PVFPSMeter::update()
 	if (fps_counter_visible)
 	{
 		// Throttle a bit to avoid making faster FPS heavier to process
-		if (mStatusBarFPSCounterTimer.getElapsedTimeF32() > 0.25)
+		if (mStatusBarFPSCounterTimer.getElapsedTimeF32() > UPDATE_DELAY)
 		{// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
 			static auto color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
 			static auto color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
