@@ -6189,7 +6189,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		name_id = dest_id;
 		if (!reason.empty())
 		{
-			if (dest_id.notNull())
+			if (name_id.notNull())
 			{
 				message = success ? LLTrans::getString("you_paid_ldollars" + gift_suffix, args) :
 									LLTrans::getString("you_paid_failure_ldollars" + gift_suffix, args);
@@ -6203,7 +6203,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		}
 		else
 		{
-			if (dest_id.notNull())
+			if (name_id.notNull())
 			{
 				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
 									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
@@ -6216,7 +6216,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 			}
 		}
 		final_args["MESSAGE"] = message;
-		payload["dest_id"] = dest_id;
+		payload["dest_id"] = name_id;
 		// make notification loggable
 		payload["from_id"] = name_id;
 		notification = success ? "PaymentSent" : "PaymentFailure";
@@ -6245,7 +6245,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		final_args["MESSAGE"] = message;
 
 		// make notification loggable
-		payload["from_id"] = source_id;
+		payload["from_id"] = name_id;
 		notification = "PaymentReceived";
 	}
 
