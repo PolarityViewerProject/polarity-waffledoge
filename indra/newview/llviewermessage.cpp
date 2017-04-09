@@ -6174,9 +6174,8 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	LLSD final_args;
 	LLSD payload;
 	
-	bool you_paid_someone = (source_id == gAgentID);
 	std::string gift_suffix = (transaction_type == TRANS_GIFT ? "_gift" : "");
-	if (you_paid_someone)
+	if (source_id == gAgentID)
 	{
 		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
 		static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
