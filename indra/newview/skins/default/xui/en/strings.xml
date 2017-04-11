@@ -2702,6 +2702,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Recompilation Progress</string>
 	<string name="CompileQueueStart">recompile</string>
+	<string name="CompileQueuePreprocessing">Preprocessing: [SCRIPT]</string>
+	<string name="CompileQueuePreprocessingComplete">Preprocessing of script [SCRIPT] completed</string>
 	<string name="ResetQueueTitle">Reset Progress</string>
 	<string name="ResetQueueStart">reset</string>
 	<string name="RunQueueTitle">Set Running Progress</string>
@@ -2709,15 +2711,14 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="NotRunQueueTitle">Set Not Running Progress</string>
 	<string name="NotRunQueueStart">set not running</string>
 	<string name="DeleteQueueTitle">Delete Progress</string>
-	<string name="DeleteQueueStart">deletion</string>
-
-	<string name="DeleteQueueDeleting">Deleting</string>
+	<string name="DeleteQueueStart">Deleting</string>
 
 	<!-- compile comment text-->
+	<string name="Compiling">Compiling [NAME]</string>
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
-	<string name="UploadFailed">File upload failed: </string>
+	<string name="UploadFailed">File upload failed: [REASON]</string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
 	<string name="ScriptWasDeleted">Script (deleted from inventory)</string>
 	
