@@ -51,6 +51,29 @@
 						-->
 						</array>
 				</map>
+				<map>
+					<key>level</key><string>NONE</string>
+					<key>functions</key>
+						<array>
+							<string>needsReflow</string>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+							<!-- <string>AppInit</string> -->
+							<!-- <string>Capabilities</string> -->
+							<!-- <string>TextureCache</string> -->
+							<!-- <string>AppCache</string> -->
+							<!-- <string>Window</string> -->
+							<!-- <string>RenderInit</string> -->
+							<!-- <string>MediaAuth</string> -->
+						</array>
+				</map>
       </array>
 	</map>
 </llsd>
