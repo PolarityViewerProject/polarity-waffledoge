@@ -854,7 +854,12 @@ bool idle_startup()
 		//	// skip directly to message template verification
 		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		//}
-		LLStartUp::setStartupState(STATE_PVDATA_DOWNLOAD);
+
+		// <polarity> PVData support
+		gPVOldAPI = PVDataOldAPI::getInstance();
+		gPVSearchUtil = PVSearchUtil::getInstance();
+		gPVOldAPI->downloadData();
+		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
@@ -875,16 +880,6 @@ bool idle_startup()
         timeout.reset();
 		return FALSE;
 	}
-
-	if (STATE_PVDATA_DOWNLOAD == LLStartUp::getStartupState())
-	{
-		// <polarity> PVData support
-		gPVOldAPI = PVDataOldAPI::getInstance();
-		gPVSearchUtil = PVSearchUtil::getInstance();
-		gPVOldAPI->downloadData();
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
-	}
-
 	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
 	{
 		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
@@ -1352,21 +1347,11 @@ bool idle_startup()
 		static LLFrameTimer agents_timer;
 		const F32 agents_time = agents_timer.getElapsedTimeF32();
 		const F32 MAX_AGENTS_TIME = 15.f;
-		if (agents_time > MAX_AGENTS_TIME)
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing agents timeout, moving on..." << LL_ENDL;
-			set_startup_status(0.099f, "Whoooops!");
-			//LLLoginInstance::getInstance()->disconnect();
-			gAgentID.setNull();
-			LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-			show_connect_box = true;
-			return FALSE;
-		}
-		else if (gPVOldAPI->getAgentsDone())
+		if (gPVOldAPI->getAgentsDone())
 		{
 			LL_WARNS("PVDataOldAPI") << "Parsing agents sucess, moving on..." << LL_ENDL;
 			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
-			set_startup_status(0.099f, "Wheeee~");
+			//set_startup_status(0.099f, "Wheeee~");
 			if (!(PVAgent::isAllowedToLogin(gAgentID)))
 			{
 				LLLoginInstance::getInstance()->disconnect();
@@ -1383,13 +1368,22 @@ bool idle_startup()
 				LLTrace::get_frame_recording().reset();
 			}
 		}
+		else if (agents_time > MAX_AGENTS_TIME)
+		{
+			LL_WARNS("PVDataOldAPI") << "Parsing agents timeout, moving on..." << LL_ENDL;
+			//set_startup_status(0.099f, "Whoooops!");
+			//LLLoginInstance::getInstance()->disconnect();
+			gAgentID.setNull();
+			LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+			show_connect_box = true;
+			return FALSE;
+		}
 		else
 		{
 			ms_sleep(1);
 			return FALSE;
 		}
 	}
-
 	// <FS:Ansariel> Wait for notification confirmation
 	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
 	{
@@ -1398,12 +1392,12 @@ bool idle_startup()
 		// <polarity> Custom error message related to PVDataOldAPI
 		if (!gPVOldAPI->getErrorMessage().empty())
 		{
+			transition_back_to_login_panel(gPVOldAPI->getErrorMessage());
 			LLSD args;
 			args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-			transition_back_to_login_panel(gPVOldAPI->getErrorMessage());
 			show_connect_box = true;
-			return FALSE;
+			LLStartUp::setStartupState(STATE_LOGIN_WAIT);		// Wait for user input
 		}
 		display_startup();
 		ms_sleep(1);
@@ -2996,15 +2990,9 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 #define RTNENUM(E) case E: return #E
 	switch(state){
 		RTNENUM( STATE_FIRST );
-		RTNENUM( STATE_AUDIO_INIT);
 		RTNENUM( STATE_BROWSER_INIT );
 		RTNENUM( STATE_LOGIN_SHOW );
 		RTNENUM( STATE_LOGIN_WAIT );
-		RTNENUM( STATE_PVDATA_DOWNLOAD );
-		RTNENUM( STATE_PVDATA_WAIT );
-		RTNENUM( STATE_PVAGENTS_WAIT );
-		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
-		RTNENUM( STATE_LOGIN_CONTINUE );
 		RTNENUM( STATE_LOGIN_CLEANUP );
 		RTNENUM( STATE_LOGIN_AUTH_INIT );
 		RTNENUM( STATE_LOGIN_CURL_UNSTUCK );
@@ -3023,6 +3011,11 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_WEARABLES_WAIT );
 		RTNENUM( STATE_CLEANUP );
 		RTNENUM( STATE_STARTED );
+		// <polarity> Extra startup states
+		RTNENUM( STATE_PVDATA_WAIT );
+		RTNENUM( STATE_PVAGENTS_WAIT );
+		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
+		// <polarity>
 	default:
 		return llformat("(state #%d)", state);
 	}

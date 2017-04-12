@@ -61,20 +61,23 @@ enum EStartLocation
 
 typedef enum {
 	STATE_FIRST,					// Initial startup
-	STATE_AUDIO_INIT,				// Wait for Audio system to initialize
 	STATE_BROWSER_INIT,             // Initialize web browser for login screen
-	STATE_PVDATA_DOWNLOAD,			// Download our data
-	STATE_PVDATA_WAIT,				// Wait for PVData data to be processed
 	STATE_LOGIN_SHOW,				// Show login screen
-	STATE_PVAGENTS_WAIT,			// Wait for PVData agents to be processed
-	STATE_LOGIN_CONFIRM_NOTIFICATON,
-	STATE_LOGIN_CONTINUE,			// Resume login screen logic
+// <polarity> PVData
+	STATE_PVDATA_WAIT,				// Wait for PVData data to be processed
+// </polarity>
 	STATE_LOGIN_WAIT,				// Wait for user input at login screen
 	STATE_LOGIN_CLEANUP,			// Get rid of login screen and start login
+// <polarity> PVData
+	STATE_PVAGENTS_WAIT,			// Wait for PVData agents to be processed
 	STATE_PROGRESS_TIP,				// Wait until we get a progres tip
+// </polarity>
 	STATE_LOGIN_AUTH_INIT,			// Start login to SL servers
 	STATE_LOGIN_CURL_UNSTUCK,		// Update progress to remove "SL appears frozen" msg.
 	STATE_LOGIN_PROCESS_RESPONSE,	// Check authentication reply
+// <FS:Ansariel> Wait for notification confirmation
+	STATE_LOGIN_CONFIRM_NOTIFICATON,
+// </FS:Ansariel>
 	STATE_WORLD_INIT,				// Start building the world
 	STATE_MULTIMEDIA_INIT,			// Init the rest of multimedia library
 	STATE_FONT_INIT,				// Load default fonts
