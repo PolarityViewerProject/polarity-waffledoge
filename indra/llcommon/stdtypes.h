@@ -26,10 +26,8 @@
 #ifndef LL_STDTYPES_H
 #define LL_STDTYPES_H
 
-#if !LL_WINDOWS
 #include <cfloat>
 #include <climits>
-#endif
 
 typedef signed char			S8;
 typedef unsigned char			U8;
