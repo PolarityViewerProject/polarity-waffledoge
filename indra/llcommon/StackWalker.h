@@ -37,12 +37,13 @@
  *
  * **********************************************************************/
 
-#if LL_WINDOWS
-
+#ifndef LL_STACKWALKER_H
+#define LL_STACKWALKER_H
 // #pragma once is supported starting with _MCS_VER 1000, 
 // so we need not to check the version (because we only support _MSC_VER >= 1100)!
 #pragma once
 
+#if LL_WINDOWS
 #include <windows.h>
 
 // special defines for VC5/6 (if no actual PSDK is installed):
@@ -148,7 +149,6 @@ public:
     CHAR loadedImageName[STACKWALK_MAX_NAMELEN];
   } CallstackEntry;
 
-  // no
   //typedef enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
   enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
 
@@ -226,3 +226,4 @@ public:
 #endif
 
 #endif // LL_WINDOWS
+#endif //LL_STACKWALKER_H
