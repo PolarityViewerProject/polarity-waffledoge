@@ -300,7 +300,7 @@ public:
 	
 	static bool isValidIndex(const string_type& string, size_type i)
 	{
-		return !string.empty() && (i <= string.size());
+		return !string.empty() && (0 <= i) && (i <= string.size());
 	}
 
 	static bool contains(const string_type& string, T c, size_type i=0)
@@ -1178,7 +1178,7 @@ BOOL LLStringUtilBase<T>::precedesDict( const string_type& a, const string_type&
 {
 	if( a.size() && b.size() )
 	{
-		return (LLStringUtilBase<T>::compareDict(a, b) < 0);
+		return (LLStringUtilBase<T>::compareDict(a.c_str(), b.c_str()) < 0);
 	}
 	else
 	{
