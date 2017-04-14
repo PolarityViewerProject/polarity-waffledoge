@@ -24,8 +24,8 @@
 */
 
 #pragma once
-#if !LL_PVTL_H
-#define LL_PVTL_H 1
+#if !PV_TEMPLATE_LIB_H
+#define PV_TEMPLATE_LIB_H 1
 
 // re-usable algorithm by Sebastian Mach (http://stackoverflow.com/a/6693128/1570096)
 // Follow the signature of std::getline. Allows us to stay completely
@@ -56,4 +56,4 @@ inline long version_string_as_long(const std::string& version_in)
 	return version_int;
 }
 
-#endif // LL_PVTL_H
+#endif // PV_TEMPLATE_LIB_H
