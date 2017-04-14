@@ -533,7 +533,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         if (gSavedSettings.getBOOL("_NACL_LSLPreprocessor"))
         {
             // Need to dump some stuff into an LLScriptQueueData struct for the LSL PreProc.
-            LLScriptQueueData* datap = new LLScriptQueueData(hfloater.get()->getKey().asUUID(), object->getID(), experienceId, item);
+            LLScriptQueueData* datap = new LLScriptQueueData(floater->getKey().asUUID(), object->getID(), experienceId, item);
             userData = HandleScriptUserData(pump.getName(), datap);
         }
         else
