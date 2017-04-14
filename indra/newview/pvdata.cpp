@@ -57,6 +57,8 @@
 
 #include <boost/regex.hpp>
 
+#include "pvtl.h" // for vector_to_string
+
 #define LL_LINDEN "Linden"
 #define LL_MOLE "Mole"
 #define LL_PRODUCTENGINE "ProductEngine"

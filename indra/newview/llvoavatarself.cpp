@@ -75,6 +75,8 @@ extern BOOL gTeleportDisplay;
 
 #include <boost/lexical_cast.hpp>
 
+#include "pvtl.h" // for vector_to_string
+
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
 BOOL isAgentAvatarValid()
