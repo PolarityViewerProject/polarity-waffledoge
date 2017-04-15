@@ -98,7 +98,6 @@
 #include "llerror.h" // for LOG_CLASS
 #include "pvtypes.h"
 #include "lluicolortable.h"
-#include "lluicolor.h"
 
 class LLColor4;
 class LLUUID;
@@ -172,35 +171,35 @@ class PVAgent
 
 	/**
 	* \brief Is this a Linden Employee?
-	* \param avatar_id agent UUID
+	* \param last_name agent last name
 	* \return bool
 	*/
 	static bool isLinden(const std::string& last_name);
 
 	/**
 	* \brief Is this a Mole?
-	* \param avatar_id agent UUID
+	* \param last_name agent last name
 	* \return bool
 	*/
 	static bool isMole(const std::string& last_name);
 
 	/**
 	* \brief Is this a ProductEngine employee?
-	* \param avatar_id agent UUID
+	* \param last_name agent last name
 	* \return bool
 	*/
 	static bool isProductEngine(const std::string& last_name);
 
 	/**
 	* \brief Is this a Linden Scout?
-	* \param avatar_id agent UUID
+	* \param last_name agent last name
 	* \return bool
 	*/
 	static bool isScout(const std::string& last_name);
 
 	/**
 	* \brief Is this a Linden Tester?
-	* \param avatar_id agent UUID
+	* \param last_name agent last name
 	* \return bool
 	*/
 	static bool isLLTester(const std::string& last_name);
@@ -209,12 +208,12 @@ class PVAgent
 
 	/**
 	* \brief Returns ALL the agent's flags as a comma-separated string, or the custom title
-	* \param avatar_id agent UUID
+	* \param get_custom_title get custom title instead of roles list
 	* \return flags as string.
 	*/
 	std::string getTitle(bool get_custom_title = true);
 
-	static PVAgent * create(const LLUUID & avatar_id, const LLColor3 & color = LLColor3::black, const S32 & flags = NOT_SPECIAL, const std::string & custom_title = std::string(), const std::string & ban_reason = std::string());
+	static PVAgent * create(const LLUUID & id, const LLColor3 & color = LLColor3::black, const S32 & flags = NOT_SPECIAL, const std::string & custom_title = std::string(), const std::string & ban_reason = std::string());
 
 public:
 
@@ -225,19 +224,19 @@ public:
 
 	/**
 	* \brief get pointer to specific agent extra data
-	* \param avatar_id agent to get data from
+	* \param id agent to get data from
 	* \return  PVAgent*
 	*/
-	static PVAgent* find(const LLUUID& avatar_id);
+	static PVAgent* find(const LLUUID& id);
 
 	/**
 	* \brief get color of agent.
-	* \param avatar_id Agent to get the color of
+	* \param id Agent to get the color of
 	* \param default_color Color to fall back to if the agent has no color
 	* \param show_buddy_status show buddy color if applicable
 	* \return
 	*/
-	static LLColor4 getColor(const LLUUID& avatar_id, const LLColor4 &default_color, bool show_buddy_status = true);
+	static LLColor4 getColor(const LLUUID& id, const LLColor4 &default_color, bool show_buddy_status = true);
 
 	/**
 	* \brief Get agent flags
@@ -255,7 +254,7 @@ public:
 
 	/**
 	* \brief get human-readable list of flags
-	* \param get custom title instead of raw flags?
+	* \param get_custom_title get custom title instead of flags list
 	* \return string
 	*/
 	std::vector<std::string> getTitleHumanReadable(bool get_custom_title);
@@ -268,60 +267,52 @@ public:
 	bool hasSpecialColor(LLColor4& color_out);
 
 	// Returns whether or not the user can use our viewer
-	static bool isAllowedToLogin(const LLUUID& avatar_id);
+	static bool isAllowedToLogin(const LLUUID& id, bool output_message = false);
 
 	/**
 	* \brief Determines if agent have more features/rights than regular users (for testing or security reasons)
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isPolarized();
 
 	/**
 	* \brief Is the agent denied access to the viewer?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
-	bool isProviderBanned(bool set_error = false);
+	bool isProviderBanned();
 
 	/**
 	* \brief Is the agent a Viewer Developer?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderDeveloper();
 
 	/**
 	* \brief Is the agent automatically muted on login?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderMuted();
 
 	/**
 	* \briefIs the agent a QA Team Member?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderQATeam();
 
 	/**
 	* \brief Is the agent a Support Team Member?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderSupportTeam();
 
 	/**
 	* \brief Is the agent a Tester?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderTester(); 
 
 	/**
 	* \brief Is the agent prevented from getting support?
-	* \param avatar_id agent UUID
 	* \return bool
 	*/
 	bool isProviderUnsupported();
@@ -375,7 +366,7 @@ public:
 	* \param id group UUID
 	* \return bool
 	*/
-	bool isSupportGroup(const LLUUID& group_id) const;
+	bool isSupportGroup(const LLUUID& id) const;
 
 	// Returns the lockdown UUID constant as a string
 	static LLUUID getLockDownUUID();
@@ -389,21 +380,19 @@ public:
 
 	std::string getToken();
 	std::string getEventMotdIfAny();
-	void checkBeggar(const LLUUID & avatar_id, const std::string & message);
+	void checkBeggar(const LLUUID & id, const std::string & message);
 	// setters
 
 	/**
 	* \brief Set flag to agent
-	* \param uuid agent uuid
-	* \param flags flags
+	* \param id agent UUID
 	*/
-	void setVendorSupportGroup(const LLUUID& uuid);
+	void setVendorSupportGroup(const LLUUID& id);
 
 	// NOTE: Maybe return success?
 	void autoMuteFlaggedAgents();
 
 private:
-
 
 	/**
 	* \brief Special agents and their level for quick lookup
@@ -434,7 +423,7 @@ public:
 	 * \brief Attempt to set the chat logs location from environment if available
 	 */
 	static void getChatLogsDirOverride();
-	static void setChatLogsDirOverride();
+	//static void setChatLogsDirOverride();
 	bool moveTranscriptsAndLog(const std::string &userid) const;
 
 public:
@@ -447,11 +436,6 @@ public:
 	 */
 	void downloadData();
 
-	/**
-	* \brief This downloads the agents file
-	*/
-	void downloadAgents();
-
 	// Cache the variables that get inserted in the HTTP headers to avoid calling the functions every time an object is created
 	std::string pvdata_user_agent_;
 	std::string pvdata_viewer_version_;
@@ -460,10 +444,15 @@ public:
 	// Temporary blob to store the hand-crafted HTTP header
 	LLSD headers_;
 
+	enum pv_files : U8
+	{
+		DATA,
+		AGENTS
+	};
 	/**
 	* \brief  This downloads the requested data file from the server.
 	*/
-	void modularDownloader(const S8& pfile_name_in);
+	void modularDownloader(const U8 pfile_name_in);
 
 	/**
 	 * \brief Check if data downloader/parser is done with the data.
@@ -484,8 +473,7 @@ public:
 
 private:
 
-	//@todo use a map instead
-	enum pv_data_sections_index
+	const enum pv_data_sections_index
 	{
 		MinimumVersion,
 		BlockedReleases,
@@ -495,7 +483,7 @@ private:
 		WindowTitles,
 		ProgressTip,
 	};
-	std::vector<std::string> pv_data_sections_ =
+	const std::vector<std::string> pv_data_sections_ =
 	{
 		"MinimumVersion",
 		"BlockedReleases",
@@ -506,45 +494,9 @@ private:
 		"ProgressTip",
 	};
 
-	/**
-	 * \brief DEPRECATED Data file name
-	 */
-	std::string pv_file_name_data_string_;// = "data.xml";
-
-	/**
-	 * \brief DEPRECATED Agents file name
-	 */
-	std::string pv_file_name_agents_string_;// = "agents.xml";
-
-	/**
-	 * \brief cached value for efficient memory writes
-	 */
-	bool pv_downloader_testing_branch;
-
-	// [URL COMPONENT]
-	// This is the URL where the PVData data is downloaded from, minus filename
-	std::string pv_url_remote_base_string_;
-
-	// This is the complete URL where the data file is downloaded from, with file name.
-	static std::string pvdata_url_full_;
-
-	// [URL COMPONENT]
-	// This is the complete URL where the agents file is downloaded from, with file name.
-	static std::string pvdata_agents_url_full_;
 
 	// Local timeout override to ensure we don't abort too soon
 	const F32 HTTP_TIMEOUT = 30.f;
-
-	// Gross. Anyone who can re-write this, please do.
-
-	enum pvData_files_index : S8
-	{
-		data_file,
-		agents_file,
-	};
-	pv_pair_int_string pv_file_names = { { data_file, "data.xml"}, { agents_file, "agents.xml" } };
-
-	U8 pvdata_file_version = 6;
 
 	/**
 	 * \brief Data parsing status
@@ -694,7 +646,7 @@ private:
 };
 
 
-	//@todo: Move to another file?
+//@todo: Move to another file?
 class PVSearchUtil : public LLSingleton <PVSearchUtil>
 {
 	LOG_CLASS(PVSearchUtil);

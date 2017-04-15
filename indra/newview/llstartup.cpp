@@ -891,7 +891,7 @@ bool idle_startup()
 		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
 		const F32 MAX_PVDATA_TIME = 15.f;
 		
-		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getDataDone())
+		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getAgentsDone())
 		{
 			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
 			//@todo run login button toggle
@@ -1135,27 +1135,8 @@ bool idle_startup()
 			gAgent.mMOTD = "";
 		}
 		gPVOldAPI->getNewProgressTip(true);
-		LLStartUp::setStartupState(STATE_PROGRESS_TIP);
+		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
-	}
-
-	if (STATE_PROGRESS_TIP == LLStartUp::getStartupState())
-	{
-		progress += 0.02f;
-		set_startup_status(progress, "Fetching MOTD");
-		static LLFrameTimer timer;
-		const F32 current_time = timer.getElapsedTimeF32();
-		const F32 MAX_WAIT_TIME = 15.f;
-		if (current_time > MAX_WAIT_TIME || !gAgent.mMOTD.empty())
-		{
-			LL_INFOS("PVDataOldAPI") << "Got progress tip or timeout, moving on..." << LL_ENDL;
-			LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
 	}
 
 	if(STATE_LOGIN_AUTH_INIT == LLStartUp::getStartupState())
@@ -1192,19 +1173,19 @@ bool idle_startup()
 		auth_desc = LLTrans::getString("LoginInProgressNoFrozen");
 		set_startup_status(progress, auth_desc);
 
-		LLStartUp::setStartupState( STATE_LOGIN_PROCESS_RESPONSE );
+		LLStartUp::setStartupState(STATE_LOGIN_PROCESS_RESPONSE);
 		return FALSE;
 	}
 
-	if(STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState()) 
+	if (STATE_LOGIN_PROCESS_RESPONSE == LLStartUp::getStartupState())
 	{
 		// Generic failure message
 		std::ostringstream emsg;
 		emsg << LLTrans::getString("LoginFailed") << "\n";
-		if(LLLoginInstance::getInstance()->authFailure())
+		if (LLLoginInstance::getInstance()->authFailure())
 		{
 			LL_INFOS("LLStartup") << "Login failed, LLLoginInstance::getResponse(): "
-			                      << LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
+				<< LLLoginInstance::getInstance()->getResponse() << LL_ENDL;
 			LLSD response = LLLoginInstance::getInstance()->getResponse();
 			// Still have error conditions that may need some 
 			// sort of handling - dig up specific message
@@ -1213,15 +1194,15 @@ bool idle_startup()
 			std::string message_id = response["message_id"];
 			std::string message; // actual string to show the user
 
-			if(!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
+			if (!message_id.empty() && LLTrans::findString(message, message_id, response["message_args"]))
 			{
 				// message will be filled in with the template and arguments
 			}
-			else if(!message_response.empty())
+			else if (!message_response.empty())
 			{
 				// *HACK: "no_inventory_host" sent as the message itself.
 				// Remove this clause when server is sending message_id as well.
-				message = LLAgent::sTeleportErrorMessages[ message_response ];
+				message = LLAgent::sTeleportErrorMessages[message_response];
 			}
 
 			if (message.empty())
@@ -1234,14 +1215,14 @@ bool idle_startup()
 			emsg << message;
 
 
-			if(reason_response == "key")
+			if (reason_response == "key")
 			{
 				// Couldn't login because user/password is wrong
 				// Clear the credential
 				gUserCredential->clearAuthenticator();
 			}
 
-			if(reason_response == "update" 
+			if (reason_response == "update"
 				|| reason_response == "optional")
 			{
 				// In the case of a needed update, quit.
@@ -1251,36 +1232,37 @@ bool idle_startup()
 				LLLoginInstance::getInstance()->disconnect();
 				LLAppViewer::instance()->forceQuit();
 			}
-			else 
+			else
 			{
-				if (reason_response != "tos") 
+				if (reason_response != "tos")
 				{
 					// Don't pop up a notification in the TOS case because
 					// LLFloaterTOS::onCancel() already scolded the user.
 					std::string error_code;
-					if(response.has("errorcode"))
+					if (response.has("errorcode"))
 					{
 						error_code = response["errorcode"].asString();
 					}
-					if ((reason_response == "CURLError") && 
-						(error_code == "SSL_CACERT" || error_code == "SSL_PEER_CERTIFICATE") && 
+					if ((reason_response == "CURLError") &&
+						(error_code == "SSL_CACERT" || error_code == "SSL_PEER_CERTIFICATE") &&
 						response.has("certificate"))
 					{
 						// This was a certificate error, so grab the certificate
 						// and throw up the appropriate dialog.
 						LLPointer<LLCertificate> certificate = gSecAPIHandler->getCertificate(response["certificate"]);
-						if(certificate)
+						if (certificate)
 						{
 							LLSD args = transform_cert_args(certificate);
 
-							if(error_code == "SSL_CACERT")
+							if (error_code == "SSL_CACERT")
 							{
 								// if we are handling an untrusted CA, throw up the dialog                             
 								// with the 'trust this CA' button.                                                    
 								LLNotificationsUtil::add("TrustCertificateError", args, response,
-														trust_cert_done);
-								
-								show_connect_box = true;
+														 trust_cert_done);
+
+								// <FS:Ansariel> Not needed here - done below
+								//show_connect_box = true;
 							}
 							else
 							{
@@ -1288,19 +1270,21 @@ bool idle_startup()
 								// we grab this string via the LLUserAuth object, and use that to grab the localized   
 								// string.                                                                             
 								args["REASON"] = LLTrans::getString(message_response);
-								
+
 								LLNotificationsUtil::add("GeneralCertificateError", args, response,
 														 general_cert_done);
-								
-								reset_login();
-								gSavedSettings.setBOOL("AutoLogin", FALSE);
-								show_connect_box = true;
-								
+
+								// <FS:Ansariel> Not needed here - done below & in transition_back_to_login_panel()
+								//reset_login();
+								//gSavedSettings.setBOOL("AutoLogin", FALSE);
+								//show_connect_box = true;
+								// </FS:Ansariel>
+
 							}
 
 						}
 					}
-					else 
+					else
 					{
 						// This wasn't a certificate error, so throw up the normal
 						// notificatioin message.
@@ -1310,22 +1294,46 @@ bool idle_startup()
 						LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 					}
 				}
-				transition_back_to_login_panel(emsg.str());
+				// <FS:Ansariel> Wait for notification confirmation
+				//transition_back_to_login_panel(emsg.str());
+				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+				// </FS:Ansariel>
 				show_connect_box = true;
 			}
 		}
-		else if(LLLoginInstance::getInstance()->authSuccess())
+		else if (LLLoginInstance::getInstance()->authSuccess())
 		{
 			if(process_login_success_response())
 			{
+				// <AW: crash report grid correctness>
+				const std::string current_grid = LLGridManager::getInstance()->getGrid();
+				gSavedSettings.setString("LastConnectedGrid", current_grid);
+				// </AW: crash report grid correctness>
+
 				// Pass the user information to the voice chat server interface.
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
-				LLStartUp::setStartupState(STATE_PVAGENTS_WAIT);
+				// create the default proximal channel
+				LLVoiceChannel::initClass();
+
+				if (gSavedSettings.getBOOL("FSRememberUsername"))
+				{
+					gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);
+				}
+				LLPanelLogin::clearPassword();
+				LLStartUp::setStartupState(STATE_WORLD_INIT);
+				LLTrace::get_frame_recording().reset();
 			}
 			else
 			{
 				LLSD args;
-				args["ERROR_MESSAGE"] = emsg.str();
+				if(!gPVOldAPI->getErrorMessage().empty())
+				{
+					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
+				}
+				else
+				{
+					args["ERROR_MESSAGE"] = emsg.str();
+				}
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 				// <FS:Ansariel> Wait for notification confirmation
@@ -1339,71 +1347,16 @@ bool idle_startup()
 		return FALSE;
 	}
 
-
-
-	// TODO: Move to after curl_unstuck again
-	if (STATE_PVAGENTS_WAIT == LLStartUp::getStartupState())
-	{
-		static LLFrameTimer agents_timer;
-		const F32 agents_time = agents_timer.getElapsedTimeF32();
-		const F32 MAX_AGENTS_TIME = 15.f;
-		if (gPVOldAPI->getAgentsDone())
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing agents sucess, moving on..." << LL_ENDL;
-			// <polarity> Prevent particularly harmful users from using our viewer to do their deeds.
-			//set_startup_status(0.099f, "Wheeee~");
-			if (!(PVAgent::isAllowedToLogin(gAgentID)))
-			{
-				LLLoginInstance::getInstance()->disconnect();
-				gAgentID.setNull();
-				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-				show_connect_box = true;
-				return FALSE;
-			}
-			else
-			{
-				// create the default proximal channel
-				LLVoiceChannel::initClass();
-				LLStartUp::setStartupState(STATE_WORLD_INIT);
-				LLTrace::get_frame_recording().reset();
-			}
-		}
-		else if (agents_time > MAX_AGENTS_TIME)
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing agents timeout, moving on..." << LL_ENDL;
-			//set_startup_status(0.099f, "Whoooops!");
-			//LLLoginInstance::getInstance()->disconnect();
-			gAgentID.setNull();
-			LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-			show_connect_box = true;
-			return FALSE;
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-	}
 	// <FS:Ansariel> Wait for notification confirmation
 	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
 	{
 		display_startup();
 		gViewerWindow->getProgressView()->setVisible(FALSE);
-		// <polarity> Custom error message related to PVDataOldAPI
-		if (!gPVOldAPI->getErrorMessage().empty())
-		{
-			transition_back_to_login_panel(gPVOldAPI->getErrorMessage());
-			LLSD args;
-			args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
-			LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-			show_connect_box = true;
-			LLStartUp::setStartupState(STATE_LOGIN_WAIT);		// Wait for user input
-		}
+		show_connect_box = true;
 		display_startup();
 		ms_sleep(1);
 		return FALSE;
 	}
-	// </FS:Ansariel>
 
 	//---------------------------------------------------------------------
 	// World Init
@@ -1578,18 +1531,18 @@ bool idle_startup()
 		update_texture_fetch();
 		display_startup();
 
-		if ( gViewerWindow != NULL)
+		if (gViewerWindow != NULL)
 		{	// This isn't the first logon attempt, so show the UI
-			gViewerWindow->setNormalControlsVisible( TRUE );
-		}	
-		gLoginMenuBarView->setVisible( FALSE );
-		gLoginMenuBarView->setEnabled( FALSE );
+			gViewerWindow->setNormalControlsVisible(TRUE);
+		}
+		gLoginMenuBarView->setVisible(FALSE);
+		gLoginMenuBarView->setEnabled(FALSE);
 		display_startup();
 
 		// direct logging to the debug console's line buffer
 		LLError::logToFixedBuffer(gDebugView->mDebugConsolep);
 		display_startup();
-		
+
 		// set initial visibility of debug console
 		gDebugView->mDebugConsolep->setVisible(gSavedSettings.getBOOL("ShowDebugConsole"));
 		display_startup();
@@ -1604,13 +1557,13 @@ bool idle_startup()
 		display_startup();
 
 		// Debugging info parameters
-		gMessageSystem->setMaxMessageTime( 0.5f );			// Spam if decoding all msgs takes more than 500 ms
+		gMessageSystem->setMaxMessageTime(0.5f);			// Spam if decoding all msgs takes more than 500 ms
 		display_startup();
 
-		#ifndef	LL_RELEASE_FOR_DOWNLOAD
-			gMessageSystem->setTimeDecodes( TRUE );				// Time the decode of each msg
-			gMessageSystem->setTimeDecodesSpamThreshold( 0.05f );  // Spam if a single msg takes over 50ms to decode
-		#endif
+#ifndef	LL_RELEASE_FOR_DOWNLOAD
+		gMessageSystem->setTimeDecodes(TRUE);				// Time the decode of each msg
+		gMessageSystem->setTimeDecodesSpamThreshold(0.05f);  // Spam if a single msg takes over 50ms to decode
+#endif
 		display_startup();
 
 		gXferManager->registerCallbacks(gMessageSystem);
@@ -3013,7 +2966,6 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_STARTED );
 		// <polarity> Extra startup states
 		RTNENUM( STATE_PVDATA_WAIT );
-		RTNENUM( STATE_PVAGENTS_WAIT );
 		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
 		// <polarity>
 	default:
@@ -3353,7 +3305,10 @@ bool LLStartUp::startLLProxy()
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
 {
-	LLPanelLogin::giveFocus();
+	// <FS:Ansariel> [FS Login Panel]
+	//LLPanelLogin::giveFocus();
+	transition_back_to_login_panel(std::string());
+	// </FS:Ansariel> [FS Login Panel]
 	return false;
 }
 
@@ -3413,8 +3368,11 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 // when we handle a cert error, give focus back to the login panel
 void general_cert_done(const LLSD& notification, const LLSD& response)
 {
-	LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
-	LLPanelLogin::giveFocus();
+	// <FS:Ansariel> [FS Login Panel]
+	//LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
+	//LLPanelLogin::giveFocus();
+	transition_back_to_login_panel(std::string());
+	// </FS:Ansariel> [FS Login Panel]
 }
 
 // check to see if the user wants to trust the cert.
@@ -3434,11 +3392,17 @@ void trust_cert_done(const LLSD& notification, const LLSD& response)
 			break;
 		}
 		case OPT_CANCEL_TRUST:
-			reset_login();
-			gSavedSettings.setBOOL("AutoLogin", FALSE);			
-			LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
+			// <FS:Ansariel> That's what transition_back_to_login_panel is for and does!
+			//reset_login();
+			//gSavedSettings.setBOOL("AutoLogin", FALSE);			
+			//LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
+			transition_back_to_login_panel(std::string());
+			// </FS:Ansariel>
 		default:
-			LLPanelLogin::giveFocus();
+			// <FS:Ansariel> [FS Login Panel]
+			//LLPanelLogin::giveFocus();
+			transition_back_to_login_panel(std::string());
+			// </FS:Ansariel> [FS Login Panel]
 			break;
 	}
 
@@ -3473,16 +3437,22 @@ bool process_login_success_response()
 	LLSD response = LLLoginInstance::getInstance()->getResponse();
 
 	std::string text(response["udp_blacklist"]);
-	if(!text.empty())
+	if (!text.empty())
 	{
 		apply_udp_blacklist(text);
 	}
 
 	// unpack login data needed by the application
 	text = response["agent_id"].asString();
-	if(!text.empty()) gAgentID.set(text);
+	if (!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
-	// Moved here to exit as soon as possible - Xenhat 2015.10.07
+
+	if (!PVAgent::isAllowedToLogin(gAgentID, true))
+	{
+		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
+		return FALSE;
+	}
+
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);

@@ -4428,8 +4428,16 @@ Try enclosing path to the editor with double quotes.
   <string name="NotifyIncomingMessage">/me is typing...</string>
 
   <string name="SessionTimeString">Session uptime: [UPTIME]</string>
+  <!-- PVData -->
   <string name="MissingTesterToken">I-it's not like I need a token to enable updates or anything... &gt;////&lt; Set it in Preferences-&gt;Setup, okay?</string>
-
+  <string name="PVDataBanned">
+    Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].
+  </string>
+  <string name="PVDataNoClearance">
+    You do not have clearance to use this internal build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n[ViewerDownloadURL].
+  </string>
+  <!-- /PVData -->
+  
   <!-- Generic strings  -->
   <string name="Flags">Flags</string>
 
