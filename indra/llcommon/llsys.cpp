@@ -106,7 +106,7 @@ LLCPUInfo gSysCPU;
 
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
-static const F32 MEM_INFO_THROTTLE = 20;
+static const F32 MEM_INFO_THROTTLE = 120;
 // Sliding window of samples. We intentionally limit the length of time we
 // remember "the slowest" framerate because framerate is very slow at login.
 // If we only triggered FrameWatcher logging when the session framerate
