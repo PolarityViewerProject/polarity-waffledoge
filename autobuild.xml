@@ -2596,6 +2596,7 @@
                   <string>-DWORD_SIZE:STRING=32</string>
                   <string>-DROOT_PROJECT_NAME:STRING=Polarity</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
+                  <string>-DLL_RELEASE_FOR_DOWNLOAD=TRUE</string>
                   <string>-DLL_TESTS=TRUE</string>
                 </array>
               </map>
@@ -3011,6 +3012,7 @@
                   <string>-G</string>
                   <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
+                  <string>-DLL_RELEASE_FOR_DOWNLOAD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
