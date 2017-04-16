@@ -858,7 +858,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	}
 	else
 	{
-#if LL_RELEASE_FOR_DOWNLOAD
+#ifdef LL_RELEASE_FOR_DOWNLOAD
 		notification_name += "ReleaseForDownload";
 #endif
 	}

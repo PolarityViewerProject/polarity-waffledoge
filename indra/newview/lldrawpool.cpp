@@ -408,7 +408,7 @@ LLRenderPass::~LLRenderPass()
 
 LLDrawPool* LLRenderPass::instancePool()
 {
-#if LL_RELEASE_FOR_DOWNLOAD
+#ifdef LL_RELEASE_FOR_DOWNLOAD
 	LL_WARNS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
 #else
 	LL_ERRS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
