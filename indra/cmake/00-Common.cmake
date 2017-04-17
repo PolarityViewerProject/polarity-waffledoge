@@ -16,8 +16,8 @@ set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
     "-DLL_RELEASE=1 -DNDEBUG=1 -DLL_RELEASE_WITH_DEBUG_INFO=1 -ULL_RELEASE_FOR_DOWNLOAD")
 
 # Configure crash reporting
-set(RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in release builds")
-set(NON_RELEASE_CRASH_REPORTING OFF CACHE BOOL "Enable use of crash reporting in developer builds")
+option(RELEASE_CRASH_REPORTING "Enable use of crash reporting in release builds" OFF)
+option(NON_RELEASE_CRASH_REPORTING "Enable use of crash reporting in developer builds" OFF)
 
 if(RELEASE_CRASH_REPORTING)
   set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DLL_SEND_CRASH_REPORTS=1")
@@ -26,15 +26,13 @@ endif()
 if(NON_RELEASE_CRASH_REPORTING)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DLL_SEND_CRASH_REPORTS=1")
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DLL_SEND_CRASH_REPORTS=1")
-endif()  
+endif()
 
 # Don't bother with a MinSizeRel build.
 set(CMAKE_CONFIGURATION_TYPES "RelWithDebInfo;Release;Debug" CACHE STRING
     "Supported build types." FORCE)
 
-
 # Platform-specific compilation flags.
-
 if (WINDOWS)
   # Don't build DLLs.
   set(BUILD_SHARED_LIBS OFF)
@@ -49,30 +47,11 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0" # /Z7 fails with LNK1318: Unexpected PDB Error; OK(0)
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
-  set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /ASSEMBLYDEBUG /OPT:NOREF /OPT:NOICF")
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_SECURE_STL=0 -D_ITERATOR_DEBUG_LEVEL=0 /Qpar"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
-  set(CMAKE_LINKER_FLAGS_RELWITHDEBINFO "/DEBUG:FULL /OPT:REF /OPT:ICF") # DEBUG changes /OPT so need to put them back
-
-  # Allow overriding built-in functions (such as malloc and free)
-  # set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
-  # set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /FORCE:MULTIPLE")
-  #set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE}) # Static linker does not recognize FORCE:MULTIPLE
-
-  # <polarity> Compiling flags notes:
-  # * LTCG INCREMENTAL isn't tested yet, and for debugging purpose we don't enable incremental link for non-dev builds
-  #
-  # * /OPT:REF and /OPT:ICF combined with /INCREMENTAL:NO is redundant, They both disable incremental linking
-  #     See https://msdn.microsoft.com/en-us/library/4khtbfyf.aspx
-  #     However harmless to leave for extra safety
-  #
-  # * The static linker does not recognize /OPT
-  #
-  # * How to Fix 'LINK : fatal error LNK1210: exceeded internal ILK size limit?
-  #     Link with /INCREMENTAL:NO'
 
   if (WORD_SIZE EQUAL 32)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LARGEADDRESSAWARE")
@@ -82,7 +61,7 @@ if (WINDOWS)
   set (CMAKE_SHARED_LINKER_FLAGS_DEBUG "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD /NODEFAULTLIB:MSVCRT")
   set (CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /NODEFAULTLIB:LIBCMT")
   set (CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG} /NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCMTD /NODEFAULTLIB:MSVCRT")
-
+  
   if (USE_LTO)
     if(INCREMENTAL_LINK)
       set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /LTCG:INCREMENTAL")
@@ -93,8 +72,8 @@ if (WINDOWS)
       set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /LTCG")
       set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} /LTCG")
     endif(INCREMENTAL_LINK)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:REF /OPT:ICF=4")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /OPT:REF /OPT:ICF=4")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /OPT:REF /OPT:ICF")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} /OPT:REF /OPT:ICF")
     set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS}")
   elseif (INCREMENTAL_LINK)
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS} /INCREMENTAL /VERBOSE:INCR")
@@ -113,10 +92,11 @@ if (WINDOWS)
       /DUNICODE
       /D_UNICODE
       /D_CRT_SECURE_NO_WARNINGS
+      /D_CRT_NONSTDC_NO_DEPRECATE
       /D_WINSOCK_DEPRECATED_NO_WARNINGS
       /DGLM_FORCE_SSE3 # Can be: /DGLM_FORCE_AVX, /DGLM_FORCE_SSE3, /DGLM_FORCE_SSE3,  /DGLM_FORCE_PURE
       #/DGLM_MESSAGES=1 # Enable GLM Messages during compilation
-      /DGLM_FORCE_SWIZZLE=1
+      #/DGLM_FORCE_SWIZZLE=1
       )
 
   add_compile_options(
@@ -141,13 +121,15 @@ if (WINDOWS)
         )
   endif (USE_LTO AND NOT INCREMENTAL_LINK)
 
-  if(USE_AVX)
+ if (WORD_SIZE EQUAL 64) # Do not use AVX on 32bit builds because those are reserved for old hardware
+ if (USE_AVX)
     add_compile_options(/arch:AVX)
-  endif(USE_AVX)
-
-  if (WORD_SIZE EQUAL 32) # Do not use AVX on 32bit builds because those are reserved for old hardware
+  elseif (USE_AVX2)
+    add_compile_options(/arch:AVX2)
+ endif (USE_AVX)
+ else()
     add_compile_options(/arch:SSE2)
-  endif (WORD_SIZE EQUAL 32)
+ endif (WORD_SIZE EQUAL 64)
 
   if (NOT VS_DISABLE_FATAL_WARNINGS)
     add_compile_options(/WX)
