@@ -165,7 +165,6 @@ void LLNetMap::draw()
 		return;
  	static LLFrameTimer map_timer;
 	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
-	static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
@@ -410,8 +409,9 @@ void LLNetMap::draw()
 				// </polarity>
 #else
 				// but put rlva here
-				//color = LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL ? map_avatar_friend_color : map_avatar_color;
+				static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
 				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) && (RlvActions::canShowName(RlvActions::SNC_DEFAULT, uuid));
+				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 #endif
 
 				unknown_relative_z = fixed_pos.mdV[VZ] == COARSEUPDATE_MAX_Z &&
