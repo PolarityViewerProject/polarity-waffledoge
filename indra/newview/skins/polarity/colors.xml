@@ -31,9 +31,6 @@
     name="AvatarDefaultColor"
     reference="MapAvatarColor" />
    <color
-    name="AvatarFriendColor"
-    reference="MapAvatarFriendColor" />
-   <color
     name="AvatarListItemIconDefaultColor"
     reference="White"/>
    <color
@@ -688,10 +685,10 @@
     value="1 1 .79 1"/>
    <color
     name="MapAvatarColor"
-    reference="Green"/>
+    reference="White"/>
    <color
     name="MapAvatarFriendColor"
-    value="0.70196 0.76078 0.42745 1"/>
+    value="0.37158 0.81592 0.59722 1"/>
    <color
     name="MapAvatarSelfColor"
     reference="LtGray"/>
@@ -790,7 +787,7 @@
     reference="EmphasisColor"/>
    <color
     name="NameTagFriend"
-    value="0.650980392156863 0.866666666666667 0.596078431372549"/>
+    reference="MapAvatarFriendColor"/>
    <color
     name="NameTagGroup"
     value="0.60000 0.60000 0.60000 1.0"/>
