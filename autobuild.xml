@@ -2935,7 +2935,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                 </array>
               </map>
               <key>default</key>
@@ -2975,7 +2974,6 @@
                   <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3013,7 +3011,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
-                  <string>-DLL_RELEASE_FOR_DOWNLOAD=TRUE</string>
                 </array>
               </map>
               <key>name</key>
@@ -3051,7 +3048,6 @@
                   <string>"Visual Studio 14 2015"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3138,7 +3134,6 @@
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3172,7 +3167,6 @@
                   <string>-G</string>
                   <string>"Visual Studio 14 2015 Win64"</string>
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                 </array>
               </map>
@@ -3214,7 +3208,6 @@
                   <string>-DCMAKE_SYSTEM_VERSION="10.0.14393.0"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3256,7 +3249,7 @@
                   <string>"v140,host=x64"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DLL_RELEASE_FOR_DOWNLOAD=TRUE</string>
+                  <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
@@ -3298,7 +3291,6 @@
                   <string>"v140,host=x64"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-ULL_RELEASE_FOR_DOWNLOAD</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>
