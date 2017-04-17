@@ -336,16 +336,16 @@ Additional notes:
 <texture name="locked_image.j2c" />
 <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
 <texture name="login_sl_logo_small"  file_name="windows/login_sl_logo_small.png" preload="true" />
-<texture name="map_avatar_16.tga" file_name="map_avatar_16.png" />
-<texture name="map_avatar_32.tga" file_name="map_avatar_32.png" />
-<texture name="map_avatar_8.tga" file_name="map_avatar_8.png" />
-<texture name="map_avatar_above_32.tga" file_name="map_avatar_above_32.png" />
-<texture name="map_avatar_below_32.tga" file_name="map_avatar_below_32.png" />
-<texture name="map_avatar_unknown_32.tga" file_name="map_avatar_unknown_32.png" />
-<texture name="map_avatar_you_32.tga" file_name="map_avatar_you_32.png" />
-<texture name="map_event.tga" file_name="map_event.png" />
-<texture name="map_home.tga" file_name="map_home.png" />
-<texture name="map_infohub.tga" file_name="map_infohub.png" />
+<!-- <texture name="map_avatar_16.tga" file_name="map_avatar_16.png" /> -->
+<!-- <texture name="map_avatar_32.tga" file_name="map_avatar_32.png" /> -->
+<!-- <texture name="map_avatar_8.tga" file_name="map_avatar_8.png" /> -->
+<!-- <texture name="map_avatar_above_32.tga" file_name="map_avatar_above_32.png" /> -->
+<!-- <texture name="map_avatar_below_32.tga" file_name="map_avatar_below_32.png" /> -->
+<!-- <texture name="map_avatar_unknown_32.tga" file_name="map_avatar_unknown_32.png" /> -->
+<!-- <texture name="map_avatar_you_32.tga" file_name="map_avatar_you_32.png" /> -->
+<!-- <texture name="map_event.tga" file_name="map_event.png" /> -->
+<!-- <texture name="map_home.tga" file_name="map_home.png" /> -->
+<!-- <texture name="map_infohub.tga" file_name="map_infohub.png" /> -->
 <texture name="Map_Placeholder_Icon" file_name="icons/map_placeholder.png" preload="true" />
 <texture name="map_telehub.tga" file_name="map_telehub.png" />
 <texture name="map_track_16.tga" file_name="map_track_16.png" />
@@ -395,7 +395,6 @@ Additional notes:
 <texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
 <texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 <texture name="Notices_Unread" file_name="bottomtray/Notices_Unread.png" preload="true" />
-<texture name="notify_caution_icon.png" />
 <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
 <texture name="Object_Cone_Selected" file_name="build/Object_Cone_Selected.png" preload="false" />
 <texture name="Object_Cube" file_name="build/Object_Cube.png" preload="false" />
