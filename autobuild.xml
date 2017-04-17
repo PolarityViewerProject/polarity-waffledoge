@@ -2960,7 +2960,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -2999,7 +2999,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3036,7 +3036,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3088,7 +3088,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:minimal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3198,7 +3198,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3238,7 +3238,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
@@ -3280,7 +3280,7 @@
                   <string>/t:Build</string>
                   <string>/p:useenv=true</string>
                   <string>/verbosity:normal</string>
-                  <string>/maxcpucount</string>
+                  <string>/maxcpucount:1</string>
                 </array>
               </map>
               <key>configure</key>
