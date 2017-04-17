@@ -712,6 +712,7 @@ bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass
 	}
 	return false;
 #else
+	}
 	return true;
 #endif // INTERNAL_BUILD
 #endif // PVDATA_UUID_LOCKDOWN
