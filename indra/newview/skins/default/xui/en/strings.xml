@@ -120,9 +120,9 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
-	<string name="ViewerDownloadURL">https://polarityviewer.org/download</string>
+	<string name="ViewerDownloadURL">https://www.polarityviewer.org/download</string>
 	<string name="LoginFailedViewerNotPermitted">
-	The viewer you are using can no longer access Second Life. [https://polarityviewer.org/download Upgrade], it's FREE!</string>
+	The viewer you are using can no longer access Second Life. [https://www.polarityviewer.org/download Upgrade], it's FREE!</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
@@ -4433,8 +4433,11 @@ Try enclosing path to the editor with double quotes.
   <string name="PVDataBanned">
     Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].
   </string>
+  <!--TODO: put url substitution instead of hard-coding it-->
   <string name="PVDataNoClearance">
-    You do not have clearance to use this internal build of [APP_NAME].\nIf you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at\n[ViewerDownloadURL].
+    You do not have clearance to use this internal build of [APP_NAME].
+    If you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at
+    https://www.polarityviewer.org/download.
   </string>
   <!-- /PVData -->
   
