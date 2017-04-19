@@ -45,9 +45,6 @@ private:
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
 	
-	// <FS:Ansariel> Port old FS script prefs
-	void setPreprocInclude();
-
 	LLScriptEditor* mEditor;
 };
 

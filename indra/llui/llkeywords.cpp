@@ -203,39 +203,16 @@ LLColor4 LLKeywords::getColorGroup(const std::string& key_in)
 	{
 		color_group = "SyntaxLslGodMode";
 	}
-	// <FS:Ansariel> Split constant types up
-	//else if (key_in == "constants"
-	//		 || key_in == "constants-integer"
-	//		 || key_in == "constants-float"
-	//		 || key_in == "constants-string"
-	//		 || key_in == "constants-key"
-	//		 || key_in == "constants-rotation"
-	//		 || key_in == "constants-vector")
-	else if (key_in == "constants")
-	// </FS:Ansariel>
+	else if (key_in == "constants"
+			 || key_in == "constants-integer"
+			 || key_in == "constants-float"
+			 || key_in == "constants-string"
+			 || key_in == "constants-key"
+			 || key_in == "constants-rotation"
+			 || key_in == "constants-vector")
 	{
 		color_group = "SyntaxLslConstant";
 	}
-	// <FS:Ansariel> Split constant types up
-	else if (key_in == "constants-integer")
-	{
-		color_group = "SyntaxLslIntegerConstant";
-	}
-	else if (key_in == "constants-float")
-	{
-		color_group = "SyntaxLslFloatConstant";
-	}
-	else if (key_in == "constants-string"
-			 || key_in == "constants-key")
-	{
-		color_group = "SyntaxLslStringConstant";
-	}
-	else if (key_in == "constants-rotation"
-			 || key_in == "constants-vector")
-	{
-		color_group = "SyntaxLslCompoundConstant";
-	}
-	// </FS:Ansariel>
 	else
 	{
 		LL_WARNS("SyntaxLSL") << "Color key '" << key_in << "' not recognized." << LL_ENDL;
@@ -687,14 +664,10 @@ void LLKeywords::findSegments(std::vector<LLTextSegmentPtr>* seg_list, const LLW
 
 			// check against words
 			llwchar prev = cur > base ? *(cur-1) : 0;
-			// NaCl - LSL Preprocessor
-			//if( !iswalnum( prev ) && (prev != '_') )
-			if( !iswalnum( prev ) && (prev != '_') && (prev != '#'))
+			if( !iswalnum( prev ) && (prev != '_') )
 			{
 				const llwchar* p = cur;
-				//while( iswalnum( *p ) || (*p == '_') )
-				while( *p && ( iswalnum( *p ) || (*p == '_') || (*p == '#') ) )
-				// NaCl End
+				while( iswalnum( *p ) || (*p == '_') )
 				{
 					p++;
 				}
@@ -772,155 +745,6 @@ void LLKeywords::insertSegment(std::vector<LLTextSegmentPtr>& seg_list, LLTextSe
 		seg_list.push_back( new LLNormalTextSegment( defaultColor, new_seg_end, text_len, editor ) );
 	}
 }
-
-// <FS:Ansariel> Re-add support for Cinder's legacy file format
-bool LLKeywords::loadFromLegacyFile(const std::string& filename)
-{
-	mLoaded = false;
-
-	///////////////////////////////////////////
-	// Parse the script library xml
-	
-	LLXMLNodePtr xml_root;
-	if ( (!LLUICtrlFactory::getLayeredXMLNode(filename, xml_root)) || (xml_root.isNull()) || (!xml_root->hasName("script_library")) )
-	{
-		LL_WARNS() << "Could not read the script library (" << filename << ")" << LL_ENDL;
-		return FALSE;
-	}
-	for (LLXMLNode* pNode = xml_root->getFirstChild(); pNode != NULL; pNode = pNode->getNextSibling())
-	{
-		if (pNode->hasName("keywords"))
-		{
-			std::string keyword;
-			for (LLXMLNode* pStringNode = pNode->getFirstChild(); pStringNode != NULL; pStringNode = pStringNode->getNextSibling())
-			{
-				std::string tool_tip;
-				LLColor4 cur_color(LLUIColorTable::instance().getColor("ScriptText"));
-				LLKeywordToken::ETokenType cur_type = LLKeywordToken::TT_WORD;
-				if (!pStringNode->getAttributeString("name", keyword))
-					continue;
-				if (pStringNode->hasName("integer_constant"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslIntegerConstant");
-				}
-				else if (pStringNode->hasName("event"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslEvent");
-					
-				}
-				else if (pStringNode->hasName("section"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslSection");
-						
-				}
-				else if (pStringNode->hasName("data_type"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslDataType");
-						
-				}
-				else if (pStringNode->hasName("string_constant"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslStringConstant");
-				}
-				else if (pStringNode->hasName("float_constant"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslFloatConstant");
-				}
-				else if (pStringNode->hasName("compound_constant"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslCompoundConstant");
-				}
-				else if (pStringNode->hasName("flow_control_keyword"))
-				{
-					cur_type = LLKeywordToken::TT_WORD;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslControlFlow");
-				}
-				else if (pStringNode->hasName("flow_control_label"))
-				{
-					cur_type = LLKeywordToken::TT_LINE;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslControlFlow");
-				}
-				else if (pStringNode->hasName("comment"))
-				{
-					cur_type = LLKeywordToken::TT_ONE_SIDED_DELIMITER;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslComment");
-				}
-				else if (pStringNode->hasName("block_comment"))
-				{
-					cur_type = LLKeywordToken::TT_TWO_SIDED_DELIMITER;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslComment");
-				}
-				else if (pStringNode->hasName("string_literal"))
-				{
-					cur_type = LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslStringLiteral");
-				}
-				else if (pStringNode->hasName("preprocessor"))
-				{
-					cur_type = LLKeywordToken::TT_ONE_SIDED_DELIMITER;
-					cur_color = LLUIColorTable::instance().getColor("SyntaxLslPreprocessor");
-				}
-				if (!pStringNode->getAttributeString("desc", tool_tip))
-				{
-					tool_tip = "No Description available";
-				}
-				
-				std::string delimiter;
-				if (cur_type == LLKeywordToken::TT_DOUBLE_QUOTATION_MARKS)
-				{
-					// Closing delimiter is identical to the opening one.
-					delimiter = keyword;
-				}
-				else if (cur_type == LLKeywordToken::TT_TWO_SIDED_DELIMITER)
-				{
-					std::string token_buffer(keyword);
-					LLStringUtil::trim(token_buffer);
-					
-					typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-					boost::char_separator<char> sep_word(" ");
-					tokenizer word_tokens(token_buffer, sep_word);
-					tokenizer::iterator token_word_iter = word_tokens.begin();
-					
-					if( !token_buffer.empty() && token_word_iter != word_tokens.end() )
-					{
-						// first word is the keyword or a left delimiter
-						keyword = (*token_word_iter);
-						LLStringUtil::trim(keyword);
-						
-						// second word may be a right delimiter
-						while (delimiter.length() == 0 && ++token_word_iter != word_tokens.end())
-						{
-							delimiter = *token_word_iter;
-							LLStringUtil::trim(delimiter);
-						}
-					}
-				}
-				
-				if( !tool_tip.empty() )
-				{
-					// Replace ; with \n for multi-line tool tips.
-					LLStringUtil::replaceChar( tool_tip, ';', '\n' );
-					addToken(cur_type, keyword, cur_color, tool_tip, delimiter );
-				}
-				else
-				{
-					addToken(cur_type, keyword, cur_color, LLStringUtil::null, delimiter );
-				}
-			}
-		}
-	}
-
-	mLoaded = true;
-	return mLoaded;
-}
-// </FS:Ansariel>
 
 #ifdef _DEBUG
 void LLKeywords::dump()
