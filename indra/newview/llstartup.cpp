@@ -891,7 +891,7 @@ bool idle_startup()
 		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
 		const F32 MAX_PVDATA_TIME = 15.f;
 		
-		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getAgentsDone())
+		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getAgentsDone() && gPVOldAPI->getDataDone())
 		{
 			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
 			//@todo run login button toggle
