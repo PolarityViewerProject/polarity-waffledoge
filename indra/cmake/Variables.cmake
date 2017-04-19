@@ -192,7 +192,7 @@ endif()
 
 # Third-party libraries
 # Audio Engine
-option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
+option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
 # Mallocs
 option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
