@@ -2085,8 +2085,6 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
-    ${BOOST_WAVE_LIBRARY} # Required for Firestorm code
-    ${BOOST_THREAD_LIBRARY} # Required for Firestorm code
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMOD_LIBRARY} # must come after LLAudio
