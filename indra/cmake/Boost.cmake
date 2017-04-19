@@ -15,7 +15,6 @@ if (USESYSTEMLIBS)
   set(BOOST_SIGNALS_LIBRARY boost_signals-mt)
   set(BOOST_SYSTEM_LIBRARY boost_system-mt)
   set(BOOST_THREAD_LIBRARY boost_thread-mt)
-  set(BOOST_WAVE_LIBRARY boost_wave-mt)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(boost)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
@@ -50,9 +49,6 @@ else (USESYSTEMLIBS)
     set(BOOST_THREAD_LIBRARY
         optimized libboost_thread-mt
         debug libboost_thread-mt-gd)
-    set(BOOST_WAVE_LIBRARY 
-        optimized libboost_wave-mt
-        debug libboost_wave-mt-gd)
   elseif (LINUX)
     set(BOOST_CHRONO_LIBRARY
         optimized boost_chrono-mt
@@ -81,9 +77,6 @@ else (USESYSTEMLIBS)
     set(BOOST_THREAD_LIBRARY
         optimized boost_thread-mt
         debug boost_thread-mt-d)
-    set(BOOST_WAVE_LIBRARY 
-        optimized boost_wave-mt
-        debug boost_wave-mt-d)
   elseif (DARWIN)
     set(BOOST_CHRONO_LIBRARY
         optimized boost_chrono-mt
@@ -112,9 +105,6 @@ else (USESYSTEMLIBS)
     set(BOOST_THREAD_LIBRARY
         optimized boost_thread-mt
         debug boost_thread-mt-d)
-    set(BOOST_WAVE_LIBRARY 
-        optimized boost_wave-mt
-        debug boost_wave-mt-d)
   endif (WINDOWS)
 endif (USESYSTEMLIBS)
 
