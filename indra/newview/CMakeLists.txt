@@ -122,6 +122,7 @@ set(firestorm_HEADER_FILES
     fsareasearchmenu.h
     fsassetblacklist.h
     fsfloaterassetblacklist.h
+    fslslpreproc.h
     fslslpreprocviewer.h
     fsscriptlibrary.h
     fsscrolllistctrl.h
@@ -134,6 +135,7 @@ set(firestorm_SOURCE_FILES
     fsareasearchmenu.cpp
     fsassetblacklist.cpp
     fsfloaterassetblacklist.cpp
+    fslslpreproc.cpp
     fslslpreprocviewer.cpp
     fsscriptlibrary.cpp
     fsscrolllistctrl.cpp
@@ -172,7 +174,6 @@ set(polarity_HEADER_FILES
     pvpanellogin.h
     pvperformancemaid.h
     pvrandom.h
-    pvscriptpreproc.h
     pvtypes.h
     )
 set(polarity_SOURCE_FILES
@@ -187,7 +188,6 @@ set(polarity_SOURCE_FILES
     pvpanellogin.cpp
     pvperformancemaid.cpp
     pvrandom.cpp
-    pvscriptpreproc.cpp
     )
 source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}

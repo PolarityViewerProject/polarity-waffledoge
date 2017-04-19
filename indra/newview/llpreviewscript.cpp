@@ -108,7 +108,7 @@
 #include "fsscriptlibrary.h"
 
 // NaCl - LSL Preprocessor
-#include "pvscriptpreproc.h"
+#include "fslslpreproc.h"
 #include "fslslpreprocviewer.h"
 // NaCl End
 
