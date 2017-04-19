@@ -160,11 +160,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>380f3a556e69d267a59778d6c33a7d39</string>
+              <string>f38847c000e7a66c510f8f8b8d978863</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/boost-1.60.0-windows64-20170226191557.tar.bz2</string>
+              <string>http://lib.polarityviewer.net/windows64/msvc-14/boost-1.60.0-windows64-201608212158.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
