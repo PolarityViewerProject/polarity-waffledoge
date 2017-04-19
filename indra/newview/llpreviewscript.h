@@ -295,9 +295,7 @@ protected:
 	virtual void loadAsset();
 	/*virtual*/ void saveIfNeeded(bool sync = true);
 
-public:
 	static void onSearchReplace(void* userdata);
-protected:
 	static void onLoad(void* userdata);
 	// <FS:Ansariel> FIRE-7514: Script in external editor needs to be saved twice
 	//static void onSave(void* userdata, BOOL close_after_save);

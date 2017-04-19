@@ -1667,11 +1667,10 @@ BOOL LLScriptEdCore::handleKeyHere(KEY key, MASK mask)
 
 	if(('F' == key) && just_control)
 	{
-		//if(mSearchReplaceCallback)
-		//{
-		//	mSearchReplaceCallback(mUserdata);
-		//}
-		LLPreviewLSL::onSearchReplace(mUserdata);
+		if(mSearchReplaceCallback)
+		{
+			mSearchReplaceCallback(mUserdata);
+		}
 
 		return TRUE;
 	}
