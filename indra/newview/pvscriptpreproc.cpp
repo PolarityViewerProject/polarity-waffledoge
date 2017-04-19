@@ -111,12 +111,12 @@ using namespace boost::regex_constants;
 #define encode_start std::string("//start_unprocessed_text\n/*")
 #define encode_end std::string("*/\n//end_unprocessed_text")
 
-std::string FSLSLPreprocessor::shortfile(const std::string &in)
+std::string FSLSLPreprocessor::shortfile(std::string in)
 {
 	return boost::filesystem::path(std::string(in)).filename().string();
 }
 
-void FSLSLPreprocessor::cache_script(const std::string &name, std::string content)
+void FSLSLPreprocessor::cache_script(std::string name, std::string content)
 {
 	content += "\n";/*hack!*/
 	LL_DEBUGS("FSLSLPreprocessor") << "writing " << name << " to cache" << LL_ENDL;
@@ -227,7 +227,7 @@ void FSLSLPreprocessor::shredder(std::string& text)
 	} while (cursor < S32(text.length()));
 }
 
-void FSLSLPreprocessor::subst_lazy_references(std::string& script, const std::string &retype, std::string fn)
+void FSLSLPreprocessor::subst_lazy_references(std::string& script, std::string retype, std::string fn)
 {
 	std::string ref;
 	do
@@ -310,7 +310,7 @@ list lazy_list_set(list L, integer i, list v)\n\
 ") + "\n" + script;
 	return script;
 }
-std::string FSLSLPreprocessor::randstr(S32 len, const std::string &chars)
+std::string FSLSLPreprocessor::randstr(S32 len, std::string chars)
 {
 	S32 clen = S32(chars.length());
 	S32 built = 0;
@@ -453,7 +453,7 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 					//std::string argl;
 					std::string jumptable = "{";
 					std::map<std::string, std::string>::iterator ifs_it;
-					for (ifs_it = ifs.begin(); ifs_it != ifs.end(); ++ifs_it)
+					for (ifs_it = ifs.begin(); ifs_it != ifs.end(); ifs_it++)
 					{
 						jumptable += "if(" + arg + " == (" + ifs_it->first + "))jump " + ifs_it->second + ";\n";
 					}
@@ -498,7 +498,7 @@ std::string FSLSLPreprocessor::reformat_switch_statements(std::string script)
 	return script;
 }
 
-LLUUID FSLSLPreprocessor::findInventoryByName(const std::string &name)
+LLUUID FSLSLPreprocessor::findInventoryByName(std::string name)
 {
 	LLInventoryModel::cat_array_t cats;
 	LLInventoryModel::item_array_t items;
@@ -650,7 +650,7 @@ std::string FSLSLPreprocessor::lslopt(std::string script)
 		{
 			repass = false;
 			std::map<std::string, std::string>::iterator func_it;
-			for (func_it = functions.begin(); func_it != functions.end(); ++func_it)
+			for (func_it = functions.begin(); func_it != functions.end(); func_it++)
 			{
 				std::string funcname = func_it->first;
 				if (kept_functions.find(funcname) == kept_functions.end())
@@ -690,7 +690,7 @@ std::string FSLSLPreprocessor::lslopt(std::string script)
 		} while (repass);
 		// Find variable invocations and add the declarations back if used.
 		std::vector<std::pair<std::string, std::string> >::reverse_iterator var_it;
-		for (var_it = gvars.rbegin(); var_it != gvars.rend(); ++var_it)
+		for (var_it = gvars.rbegin(); var_it != gvars.rend(); var_it++)
 		{
 			std::string varname = var_it->first;
 			boost::regex findvcalls(std::string() + rDOT_MATCHES_NEWLINE
@@ -941,7 +941,7 @@ void FSLSLPreprocessor::start_process()
 		// 3=seen '/', 4=seen '/*', 5=seen '/*...*', 6=seen '//'
 		int state = 0;
 		int nlines = 0;
-		for (std::string::iterator it = input.begin(); it != input.end(); ++it)
+		for (std::string::iterator it = input.begin(); it != input.end(); it++)
 		{
 			switch (state)
 			{

@@ -100,7 +100,7 @@ public:
 	std::string lslopt(std::string script);
 	std::string lslcomp(std::string script);
 
-	static LLUUID findInventoryByName(const std::string &name);
+	static LLUUID findInventoryByName(std::string name);
 	static void FSProcCacheCallback(LLVFS *vfs, const LLUUID& uuid, LLAssetType::EType type,
 		void *userdata, S32 result, LLExtStat extstat);
 	void preprocess_script(BOOL close = FALSE, bool sync = false, bool defcache = false);
@@ -182,14 +182,14 @@ private:
 		std::stack<std::string> mAssetStack;
 		std::stack<std::string> mFileStack;
 	};
-	static inline std::string shortfile(const std::string &in);
+	static inline std::string shortfile(std::string in);
 	struct ProcCacheInfo
 	{
 		LLViewerInventoryItem* item;
 		FSLSLPreprocessor* self;
 	};
 
-	static void cache_script(const std::string &name, std::string content);
+	static void cache_script(std::string name, std::string content);
 
 	static std::string scopeript2(std::string& top, S32 fstart, char left = '{', char right = '}');
 	static inline S32 const_iterator_to_pos(std::string::const_iterator begin, std::string::const_iterator cursor)
@@ -199,9 +199,9 @@ private:
 
 	static void shredder(std::string& text);
 
-	static void subst_lazy_references(std::string& script, const std::string &retype, std::string fn);
+	static void subst_lazy_references(std::string& script, std::string retype, std::string fn);
 	static std::string reformat_lazy_lists(std::string script);
-	static inline std::string randstr(S32 len, const std::string &chars);
+	static inline std::string randstr(S32 len, std::string chars);
 	static inline std::string quicklabel();
 	/* unused:
 	static std::string minimalize_whitespace(std::string in)
