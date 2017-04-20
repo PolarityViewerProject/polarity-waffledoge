@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <colors>
+<!-- Reminder: Defining colors after they are referenced sounds silly, because it is.
+     If your custom color is showing up as black, move its definition before the first
+     reference.
+ -->
    <color
     name="AccordionHeaderTextColor"
     value="0.72 0.72 0.72 1"/>
