@@ -1090,7 +1090,7 @@
           top_delta="0"
           width="185">
           </slider>
-          <button
+<!--           <button
             follows="left|top"
             control_name="PVRender_FPSLimiterTarget"
             height="15"
@@ -1106,7 +1106,7 @@
             <button.commit_callback
               function="Pref.resetFpsLimiterTarget">
             </button.commit_callback>
-          </button>
+          </button> -->
         <check_box
           control_name="RenderCompressTextures"
           height="16"
