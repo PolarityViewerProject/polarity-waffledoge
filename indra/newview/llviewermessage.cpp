@@ -2585,9 +2585,9 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 			// Prelude with global IMs
 		}
 // [RLVa:KB] - Checked: RLVa-2.1.0
-		else if ( (RlvActions::isRlvEnabled()) && (offline == IM_ONLINE) && (!is_muted) && ((!accept_im_from_only_friend) || (is_friend)) &&
-		          //(message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, session_id, message)) )
-				  (message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, message)) )
+		else if (RlvActions::isRlvEnabled() && offline == IM_ONLINE && !is_muted && (!accept_im_from_only_friend || is_friend) &&
+				 //(message.length() > 3 && (RLV_CMD_PREFIX == message[0] && RlvHandler::instance().processIMQuery(from_id, session_id, message))))
+		          (message.length() > 3 && (RLV_CMD_PREFIX == message[0] && RlvHandler::instance().processIMQuery(from_id, message))))
 		{
 			// Eat the message and do nothing
 		}
