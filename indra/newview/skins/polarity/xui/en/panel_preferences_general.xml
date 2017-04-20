@@ -212,29 +212,6 @@
      top_delta="0"
      width="256"
      tool_tip="" />
-    <check_box
-      control_name="ShowFavoritesOnLogin"
-      enabled="false" 
-      height="22"
-      layout="topleft"
-      label="Show favorites on login screen"
-      left="5"
-      name="favorites_on_login_check"
-      top_pad="10"
-      width="185" />
-    <text
-     type="string"
-     length="1"
-     follows="left|top"
-     height="22"
-     layout="topleft"
-     left_pad="5"
-     name="favorites_check_extra_text"
-     top_delta="0"
-     valign="center"
-     width="400">
-      (Others using this computer will also see them)
-    </text>
     <text
      type="string"
      length="1"

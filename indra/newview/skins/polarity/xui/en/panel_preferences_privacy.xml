@@ -174,7 +174,7 @@
 	 enabled="false"
 	 height="16"
 	 layout="topleft"
-	 label="Show my Favorite Landmarks at Login (via &apos;Start At&apos; drop-down menu)"
+	 label="Show my Favorite Landmarks in the Login location dropdown"
 	 left="30"
 	 name="favorites_on_login_check"
 	 top_pad="10"
