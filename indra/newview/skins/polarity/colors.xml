@@ -277,7 +277,8 @@
     name="ColorPaletteEntry31"
     reference="ChannelBetaColor"/>
    <color
-    name="ColorPaletteEntry32" rvalue="1 0.368627 0.180392 1"/>
+    name="ColorPaletteEntry32"
+    value="1 0.368627 0.180392 1"/>
    <color
     name="ColorPaletteEntry33"
     reference="DkGray"/>
