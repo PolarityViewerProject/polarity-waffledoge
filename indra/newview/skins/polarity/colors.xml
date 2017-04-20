@@ -741,7 +741,7 @@
     value="0.565 0.565 0.565 1"/>
    <color
     name="MenuItemFlashBgColor"
-    reference="PolarityNeonGreen"/>
+    reference="BeaconColor" />
    <color
     name="MenuItemHighlightBgColor"
     reference="EmphasisColor_65"/>
