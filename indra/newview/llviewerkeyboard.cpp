@@ -73,16 +73,6 @@ void agent_jump( EKeystate s )
 	F32 time = gKeyboard->getCurKeyElapsedTime();
 	S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
-	// Chalice Yao - crouch toggle
-	// <Polarity> PLVR-115 Context menus unavailable while crouched.
-	//static LLCachedControl<bool> PVMovement_CrouchToggleStatus(gSavedSettings, "PVMovement_CrouchToggleStatus", false);
-	//if (PVMovement_CrouchToggleStatus)
-	if (gSavedSettings.getBOOL("PVMovement_CrouchToggleStatus"))
-	{
-		gSavedSettings.setBOOL("PVMovement_CrouchToggleStatus", FALSE);
-	}
-	// /CY
-
 	if( time < FLY_TIME 
 		|| frame_count <= FLY_FRAMES 
 		|| gAgent.upGrabbed()
@@ -103,28 +93,7 @@ void agent_jump( EKeystate s )
 void agent_push_down( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	// Chalice Yao - crouch toggle
-	// <Polarity> PLVR-115 Context menus unavailable while crouched.
-	//static LLCachedControl<bool> PVMovement_CrouchToggle(gSavedSettings, "PVMovement_CrouchToggle", false);
-	//static LLCachedControl<bool> PVMovement_CrouchToggleStatus(gSavedSettings, "PVMovement_CrouchToggleStatus", false);
-	//gAgent.moveUp(-1);
-	else if (KEYSTATE_DOWN == s && !gAgent.getFlying() && !gAgentAvatarp->isSitting() && gSavedSettings.getBOOL("PVMovement_CrouchToggle"))
-	{
-		if (gSavedSettings.getBOOL("PVMovement_CrouchToggleStatus"))
-		{
-			gSavedSettings.setBOOL("PVMovement_CrouchToggleStatus", FALSE);
-		}
-		else
-		{
-			gSavedSettings.setBOOL("PVMovement_CrouchToggleStatus", TRUE);
-			gAgent.moveUp(-1);
-		}
-	}
-	else
-	{
-		gAgent.moveUp(-1);
-	}
-	// /CY
+	gAgent.moveUp(-1);
 }
 
 static void agent_check_temporary_run(LLAgent::EDoubleTapRunMode mode)

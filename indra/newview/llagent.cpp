@@ -706,17 +706,9 @@ void LLAgent::moveUp(S32 direction, const bool reset_view)
 	else if (direction < 0)
 	{
 		setControlFlags(AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP);
-		// Chalice Yao - crouch toggle
-		static LLCachedControl<bool> PVMovement_CrouchToggleStatus(gSavedSettings, "PVMovement_CrouchToggleStatus", false);
-		static LLCachedControl<bool> PVMovement_CrouchToggle(gSavedSettings, "PVMovement_CrouchToggle", false);
-		if (PVMovement_CrouchToggleStatus || !PVMovement_CrouchToggle)
-		{
-			camera_reset_on_motion(reset_view);
-		}
-		// /CY
 	}
 
-	//camera_reset_on_motion(reset_view); // CY
+	camera_reset_on_motion(reset_view);
 }
 
 //-----------------------------------------------------------------------------
