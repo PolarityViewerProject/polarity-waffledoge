@@ -175,9 +175,9 @@
 	 height="16"
 	 layout="topleft"
 	 label="Show my Favorite Landmarks in the Login location dropdown"
-	 left="30"
+	 left_delta="0"
 	 name="favorites_on_login_check"
-	 top_pad="10"
+	 top_pad="5"
 	 width="350" />
 
 	<check_box
