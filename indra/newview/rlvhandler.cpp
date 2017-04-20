@@ -476,7 +476,8 @@ ERlvCmdRet RlvHandler::processClearCommand(const RlvCommand& rlvCmd)
 	return RLV_RET_SUCCESS; // Don't fail clear commands even if the object didn't exist since it confuses people
 }
 
-bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage)
+//bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage)
+bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMessage)
 {
 	if ("@stopim" == strMessage)
 	{
@@ -495,18 +496,27 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 		RlvUtil::sendBusyMessage(idSender, RlvStrings::getString(RLV_STRING_STOPIM_NOSESSION));
 		return true;
 	}
-	// <polarity> custom @version reply
-	// else if (RlvSettings::getEnableIMQuery())
-	else if (RlvSettings::getEnableIMQuery() && ("@list" == strMessage))
+//	// <polarity> custom @version reply
+//	// else if (RlvSettings::getEnableIMQuery())
+//	else if (RlvSettings::getEnableIMQuery() && ("@list" == strMessage))
+//	{
+//		// <polarity> custom @version reply
+//		//if ("@version" == strMessage)
+//		//{
+//		//	RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
+//		//	return true;
+//		//}
+//		//else if ("@list" == strMessage)
+//		//{
+	else if (RlvSettings::getEnableIMQuery())
 	{
-		// <polarity> custom @version reply
-		//if ("@version" == strMessage)
-		//{
-		//	RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
-		//	return true;
-		//}
-		//else if ("@list" == strMessage)
-		//{
+		if ("@version" == strMessage)
+		{
+			RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
+			return true;
+		}
+		else if ("@list" == strMessage)
+		{
 			LLNotification::Params params;
 			params.name = "RLVaListRequested";
 			params.functor.function(boost::bind(&RlvHandler::onIMQueryListResponse, this, _1, _2));
@@ -525,32 +535,33 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 			};
 			LLPostponedNotification::add<RlvPostponedOfferNotification>(params, idSender, false);
 			return true;
-		//}
+//		//}
+//	}
 	}
-	// <polarity> custom @version response when disabled
-	else if("@version" == strMessage)
-	{
-		static LLCachedControl<bool> show_at_rlv_requests_reply(gSavedSettings, "PVRLVa_ShowVersionRequestsReply", true);
-		std::string reply_string;
-		if (RlvSettings::getEnableIMQuery())
-		{
-			reply_string = RlvStrings::getVersion(LLUUID::null);
-		}
-		else
-		{
-			auto at_version_custom_string = RlvStrings::getString(RLV_STRING_AT_VERSION_REPLY);
-			if (!at_version_custom_string.empty())
-			{
-				reply_string = at_version_custom_string;
-			}
-		}
-		if(show_at_rlv_requests_reply)
-		{
+//	// <polarity> custom @version response when disabled
+//	else if("@version" == strMessage)
+//	{
+//		static LLCachedControl<bool> show_at_rlv_requests_reply(gSavedSettings, "PVRLVa_ShowVersionRequestsReply", true);
+//		std::string reply_string;
+//		if (RlvSettings::getEnableIMQuery())
+//		{
+//			reply_string = RlvStrings::getVersion(LLUUID::null);
+//		}
+//		else
+//		{
+//			auto at_version_custom_string = RlvStrings::getString(RLV_STRING_AT_VERSION_REPLY);
+//			if (!at_version_custom_string.empty())
+//			{
+//				reply_string = at_version_custom_string;
+//			}
+//		}
+//		if(show_at_rlv_requests_reply)
+//		{
 			//@todo create a new session instead
-			auto message = "Responding to @version from secondlife:///app/agent/" + idSender.asString() + "/inspect with '" + reply_string + "'";
+//			auto message = "Responding to @version from secondlife:///app/agent/" + idSender.asString() + "/inspect with '" + reply_string + "'";
 			//if (sessionID.isNull())
 			//{
-				PVCommon::getInstance()->reportToNearbyChat(message);
+//				PVCommon::getInstance()->reportToNearbyChat(message);
 			//}
 			//else
 			//{
@@ -567,9 +578,9 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const LLUUID& sessionID,
 			//		LLVector3::zero,
 			//		false);
 			//}
-		}
-		RlvUtil::sendBusyMessage(idSender, reply_string, sessionID);
-		return true; // eat message
+//		}
+//		RlvUtil::sendBusyMessage(idSender, reply_string, sessionID);
+//		return true; // eat message
 	}
 	return false;
 }

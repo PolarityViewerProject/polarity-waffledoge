@@ -108,7 +108,8 @@ public:
 	// Command processing helper functions
 	ERlvCmdRet processCommand(const LLUUID& idObj, const std::string& strCommand, bool fFromObj);
 	void       processRetainedCommands(ERlvBehaviour eBhvrFilter = RLV_BHVR_UNKNOWN, ERlvParamType eTypeFilter = RLV_TYPE_UNKNOWN);
-	bool       processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage);
+	//bool       processIMQuery(const LLUUID& idSender, const LLUUID& sessionID, const std::string& strMessage);
+	bool       processIMQuery(const LLUUID& idSender, const std::string& strCommand);
 
 	// Returns a pointer to the currently executing command (do *not* save this pointer)
 	const RlvCommand* getCurrentCommand() const { return (!m_CurCommandStack.empty()) ? m_CurCommandStack.top() : NULL; }

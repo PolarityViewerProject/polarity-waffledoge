@@ -2585,7 +2585,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		}
 // [RLVa:KB] - Checked: RLVa-2.1.0
 		else if ( (RlvActions::isRlvEnabled()) && (offline == IM_ONLINE) && (!is_muted) && ((!accept_im_from_only_friend) || (is_friend)) &&
-		          (message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, session_id, message)) )
+		          //(message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, session_id, message)) )
+				  (message.length() > 3) && (RLV_CMD_PREFIX == message[0]) && (RlvHandler::instance().processIMQuery(from_id, message)) )
 		{
 			// Eat the message and do nothing
 		}
@@ -2596,7 +2597,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 //					&& to_id.notNull()) //not global message
 // [RLVa:KB] - Checked: 2010-11-30 (RLVa-1.3.0)
 		else if (offline == IM_ONLINE 
-					&& is_do_not_disturb
+					&& (is_do_not_disturb && !is_muted)
 					&& from_id.notNull() //not a system message
 					&& to_id.notNull() //not global message
 					&& RlvActions::canReceiveIM(from_id))
