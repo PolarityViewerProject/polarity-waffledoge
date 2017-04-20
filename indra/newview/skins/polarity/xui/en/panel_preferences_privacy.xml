@@ -179,21 +179,6 @@
 	 name="favorites_on_login_check"
 	 top_pad="5"
 	 width="350" />
-
-	<check_box
-	 control_name="ShowMutedAvatarsAsCloud"
-	 height="16"
-	 enabled="false"
-	 initial_value="true"
-	 label="Display muted avatars as clouds"
-	 layout="topleft"
-	 left="15"
-	 name="muted_as_cloud"
-	 top_pad="25"
-	 tool_tip="Disable this to not see them at all"
-	 width="315">
-	</check_box>
-    
 	<button
 	 follows="left|top"
 	 height="23"
