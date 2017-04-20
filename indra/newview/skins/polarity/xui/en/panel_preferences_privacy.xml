@@ -133,7 +133,8 @@
 	<check_box
 	 control_name="VoiceCallsFriendsOnly"
 	 height="16"
-	 label="Only friends and groups can call or IM me"
+	 label="Only friends can call or IM me"
+	 tool_tip="BUG: First non-friend message from the session will still be visible"
 	 layout="topleft"
 	 name="voice_call_friends_only_check"
 	 left_delta="0"
