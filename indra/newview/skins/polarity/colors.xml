@@ -148,6 +148,9 @@
     name="ChannelTestColor"
     value="0.6392156862745098 0.2117647058823529 0.192156862745098 1"/>
    <color
+    name="PolarityNeonGreen"
+    value="0.607843 0.752941 0.168627 1" />
+   <color
     name="ChatHeaderAlphaBackground"
     reference="DkGray2"/>
    <color
@@ -326,7 +329,7 @@
     reference="ChannelProjectColor"/>
    <color
     name="ColorPaletteEntry48"
-    value="0.607843 0.752941 0.168627 1"/>
+    reference="PolarityNeonGreen"/>
    <color
     name="ColorPaletteEntry49"
     reference="DkGray"/>
@@ -734,7 +737,7 @@
     value="0.565 0.565 0.565 1"/>
    <color
     name="MenuItemFlashBgColor"
-    reference="BeaconColor"/>
+    reference="PolarityNeonGreen"/>
    <color
     name="MenuItemHighlightBgColor"
     reference="EmphasisColor_65"/>
