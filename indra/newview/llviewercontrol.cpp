@@ -815,6 +815,15 @@ static bool handleFPSLimiterEnabledChanged(const LLSD& val)
 	return true;
 }
 
+static bool validateDynamicTitleOptionsChanged(const LLSD& val)
+{
+	if (gSavedSettings.getBOOL("PVWindow_TitleAnonymize"))
+	{
+		return false;
+	}
+	return true;
+}
+
 static bool handleDynamicTitleOptionsChanged(const LLSD& val)
 {
 	LLAppViewer::instance()->PVGetDynamicWindowTitle();
@@ -1025,8 +1034,11 @@ void settings_setup_listeners()
 	//gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
 	// <polarity> Dynamic Window Title
 	gSavedSettings.getControl("PVWindow_TitleAnonymize")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleShowVersionNumber")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowVersionNumber")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleForceShortName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleForceShortName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 }
 
