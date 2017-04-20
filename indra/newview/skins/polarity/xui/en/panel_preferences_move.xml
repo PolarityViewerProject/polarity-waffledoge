@@ -402,7 +402,7 @@
               top_pad="0"
               width="237">
             </check_box>
-    <check_box
+<!--     <check_box
       control_name="PVMovement_CrouchToggle"
       follows="left|top"
       height="20"
@@ -412,7 +412,7 @@
       name="crouch_toggle"
       top_pad="0"
       width="237">
-    </check_box>
+    </check_box> -->
     <check_box
       control_name="AllowTapTapHoldRun"
       follows="left|top"
