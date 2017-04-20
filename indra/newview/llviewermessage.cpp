@@ -2589,6 +2589,10 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 				 //(message.length() > 3 && (RLV_CMD_PREFIX == message[0] && RlvHandler::instance().processIMQuery(from_id, session_id, message))))
 		          (message.length() > 3 && (RLV_CMD_PREFIX == message[0] && RlvHandler::instance().processIMQuery(from_id, message))))
 		{
+#if DEBUG_IGNORED_MESSAGES
+			LL_WARNS() << "Ignoring message '" << message.c_str() << "' from " << from_id.asString() << LL_ENDL;
+			llassert(true);
+#endif
 			// Eat the message and do nothing
 		}
 // [/RLVa:KB]
