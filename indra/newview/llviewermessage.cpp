@@ -2538,7 +2538,8 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 		|| (dialog == IM_FROM_TASK && LLMuteList::getInstance()->isMuted(session_id));
 	BOOL is_owned_by_me = FALSE;
 	BOOL is_friend = (LLAvatarTracker::instance().getBuddyInfo(from_id) == NULL) ? false : true;
-	BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
+	//BOOL accept_im_from_only_friend = gSavedSettings.getBOOL("VoiceCallsFriendsOnly");
+	static LLCachedControl<bool> accept_im_from_only_friend(gSavedSettings, "VoiceCallsFriendsOnly", false);
 	BOOL is_linden = chat.mSourceType != CHAT_SOURCE_OBJECT &&
 			LLMuteList::getInstance()->isLinden(name);
 
