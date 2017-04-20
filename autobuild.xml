@@ -122,9 +122,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>c296845cad075250c1ae2620f175a957</string>
+              <string>df477a3184d4063d9248a517f64c9891</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Darwin/installer/boost-1.57-darwin-297445.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/darwin/lib/boost-1.60.0-darwin-201701192014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -134,23 +136,37 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>fb1537f7ad0b490fcb4f096c15dce9cd</string>
+              <string>2f076eae296600a1b810ce375dc4b42d</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/boost_3p-update-boost/rev/297445/arch/Linux/installer/boost-1.57-linux-297445.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-boost-update/rev/290566/arch/Linux/installer/boost-1.55.0-linux-20140602.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>78bb44859fdd6eaf043db566c7e3d682</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/boost-1.60.0-linux64-201703120634.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>b3799cac17a12344c7ae8a629b64e7de</string>
+              <string>ae0998e5d108c77c5cea2a68ad928151</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/boost-1.60.0-windows-201604091625.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/boost-1.63.0-windows-201703281813.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -160,18 +176,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>f38847c000e7a66c510f8f8b8d978863</string>
+              <string>c92e5fe414a014bb9a4236f130a2ac75</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/boost-1.60.0-windows64-201608212158.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc141/boost-1.63.0-windows64-201703280907.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
           </map>
         </map>
         <key>version</key>
-        <string>1.60.0</string>
+        <string>1.63.0</string>
       </map>
       <key>colladadom</key>
       <map>
@@ -190,9 +206,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>66849777a83cb69cec3c06b07da7cd3d</string>
+              <string>49888398e3acd869c643ba18b87a6493</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Darwin/installer/colladadom-2.3.297450-darwin-297450.tar.bz2</string>
+              <string>http://depot.alchemyviewer.org/pub/darwin/lib/colladadom-2.3-darwin-201701192019.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -202,9 +220,23 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>d627c2a679f3afb8d3e090d42f53cd2e</string>
+              <string>bdec5fe5fd008da4328f84115128ee61</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/colladadom_3p-update-colladadom/rev/297450/arch/Linux/installer/colladadom-2.3.297450-linux-297450.tar.bz2</string>
+              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/3pl_3p-colladadom-update/rev/290576/arch/Linux/installer/colladadom-2.3-linux-20140602.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>linux</string>
+          </map>
+          <key>linux64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>4ac706e4688e9f8fcd75c09a7844f8f1</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/colladadom-2.3-linux64-201703120842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -214,11 +246,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>ba3e4e888eadbc80a7829f95c8c44a5b</string>
+              <string>60bd2dbac5559141e05be6c424cf9cd0</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows32/msvc-14/colladadom-2.3-windows-201604091641.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/colladadom-2.3-windows-201703281922.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -228,11 +260,11 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>0b68a6bcf46b6d4b13ae686b705e5835</string>
+              <string>694e43857efae2ae0c2bab238562ac1b</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://lib.polarityviewer.net/windows64/msvc-14/colladadom-2.3-windows64-201604091741.rar</string>
+              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc141/colladadom-2.3-windows64-201703281827.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>

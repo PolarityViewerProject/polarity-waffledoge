@@ -18,7 +18,7 @@ if (USESYSTEMLIBS)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(boost)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
-  set(BOOST_VERSION "1.60.0")
+  set(BOOST_VERSION "1.63.0")
 
   if (WINDOWS)
     set(BOOST_CHRONO_LIBRARY
