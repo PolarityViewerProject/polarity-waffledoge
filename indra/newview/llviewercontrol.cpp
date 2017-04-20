@@ -785,12 +785,12 @@ static bool handleCloudNoiseChanged(const LLSD& newvalue)
 // FPS Limiter
 static bool validateFPSLimiterTarget(const LLSD& val, bool disable_limiter_if_fail)
 {
-	const U32 fps_limit = val.asInteger();
-	if (disable_limiter_if_fail && fps_limit <= 0)
-	{
-		gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", false);
-		return false;
-	}
+//	const U32 fps_limit = val.asInteger();
+//	if (disable_limiter_if_fail && fps_limit <= 0)
+//	{
+//		gSavedSettings.setBOOL("PVRender_FPSLimiterEnabled", false);
+//		return false;
+//	}
 	return true;
 	
 }
@@ -1019,10 +1019,10 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
 	// <polarity> FPS Meter class and FPS Limiter
-	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2, false));
-	gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
-	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, gSavedSettings.getLLSD("PVRender_FPSLimiterTarget"), true));
-	gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
+	//gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2, false));
+	//gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
+	//gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, gSavedSettings.getLLSD("PVRender_FPSLimiterTarget"), true));
+	//gSavedSettings.getControl("PVRender_FPSLimiterEnabled")->getSignal()->connect(boost::bind(&handleFPSLimiterEnabledChanged, _2));
 	// <polarity> Dynamic Window Title
 	gSavedSettings.getControl("PVWindow_TitleAnonymize")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowVersionNumber")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
