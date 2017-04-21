@@ -1611,7 +1611,7 @@
     <key>PVRender_ProjectorShadowResolution</key>
     <map>
       <key>Comment</key>
-      <string>Raw projector shadow width (X) and height (Y) by multiplicator (Z)</string>
+      <string>Raw projector shadow width (X) and height (Y). Z component unused.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

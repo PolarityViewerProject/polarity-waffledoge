@@ -1141,45 +1141,57 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 void LLPipeline::allocateShadowMaps(bool force_allocate)
 {
 	// Why are we creating a copy? - Xenhat 2017.02.06
-	LLVector4 scale(RenderShadowResolution);
+	LLVector4 scale = RenderShadowResolution;
 	LLVector3 proj_scale = RenderProjectorShadowResolution;
 	U32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
 
-	//BD - Quickly go through all 6 shadow maps and check if they need releasing or allocating.
-	//     Only reallocate them if we have shadows enabled otherwise just clear them.
+	//BD - Go through all shadow maps and either clear them or decide weither we want to
+	//     allocate them (when enabling shadows) or just resize them (when changing shadow
+	//     resolution) and which.
 	for (U32 i = 0; i < 6; i++)
 	{
-		//BD - Always clear the shadowmap.
-		mShadow[i].release();
-
-		if (i < 4)
+		if (shadow_detail > 0)
 		{
-			//BD - Sun Shadows mismatched.
-			if (shadow_detail > 0
-				&& (force_allocate
-				|| U32(scale.mV[i]) != mShadow[i].getWidth()))
+			if (i < 4)
 			{
-				//BD - Always clear the shadowmap.
-				//mShadow[i].release();
-
-				//BD - Now reallocate the released map with the new resolution.
-				mShadow[i].allocate(U32(scale.mV[i]), U32(scale.mV[i]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE);
+				//BD - Shadowmap mismatch.
+				if (U32(scale.mV[i]) != mShadow[i].getWidth())
+				{
+					if (force_allocate)
+					{
+						//BD - Now reallocate the released map with the new resolution.
+						mShadow[i].allocate(U32(scale.mV[i]), U32(scale.mV[i]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE);
+					}
+					else
+					{
+						//BD - Resizing it should be sufficient.
+						mShadow[i].resize(U32(scale.mV[i]), U32(scale.mV[i]));
+					}
+				}
+			}
+			else
+			{
+				//BD - Projector Shadows mismatched.
+				if (shadow_detail > 1
+					&& U32(proj_scale.mV[i-4]) != mShadow[i].getWidth())
+				{
+					if (force_allocate)
+					{
+						//BD - Now reallocate the released map with the new resolution.
+						mShadow[i].allocate(U32(proj_scale.mV[i-4]), U32(proj_scale.mV[i-4]), 0, TRUE, FALSE);
+					}
+					else
+					{
+						//BD - Resizing it should be sufficient.
+						mShadow[i].resize(U32(proj_scale.mV[i-4]), U32(proj_scale.mV[i-4]));
+					}
+				}
 			}
 		}
 		else
 		{
-			//BD - Always clear the shadowmap.
-			//mShadow[i].release();
-
-			//BD - Projector Shadows mismatched.
-			if (shadow_detail > 1
-				&& (force_allocate
-				|| (U32(proj_scale.mV[0]) != mShadow[4].getWidth()
-				|| U32(proj_scale.mV[1]) != mShadow[4].getHeight())))
-			{
-				//BD - Now reallocate the released map with the new resolution.
-				mShadow[i].allocate(U32(proj_scale.mV[VX]), U32(proj_scale.mV[VY]), 0, TRUE, FALSE);
-			}
+			//BD - Flush all shadowmaps.
+			mShadow[i].release();
 		}
 	}
 }

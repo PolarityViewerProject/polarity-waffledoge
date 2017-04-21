@@ -689,7 +689,7 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 // <Black Dragon:NiranV> Granular controls refresh
 static bool handleShadowMapsChanged(const LLSD& newvalue)
 {
-	gPipeline.allocateShadowMaps();
+	gPipeline.allocateShadowMaps(false);
 	return true;
 }
 // </Black Dragon:NiranV>
@@ -737,7 +737,7 @@ static bool handleShadowsChanged(const LLSD& newvalue)
 	success = LLViewerShaderMgr::instance()->loadShadersShadows(success);
 	if (success)
 	{
-		gPipeline.allocateShadowMaps(true);
+		gPipeline.allocateShadowMaps(newvalue);
 	}
 	return success;
 }
