@@ -1378,7 +1378,7 @@ void LLFloaterPreference::refreshEnabledState()
 	LLFloaterPreference::updateAALabel();
 }
 
-// <polarity> unused
+// <polarity> TODO: Re-enable this after properly QA-ing it
 #if 0
 void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 {
@@ -2800,7 +2800,7 @@ void LLPanelPreferenceGraphics::saveSettings()
 void LLPanelPreferenceGraphics::setHardwareDefaults()
 {
 	resetDirtyChilds();
-	LLFeatureManager::getInstance()->setGraphicsLevel(gSavedSettings.getU32("RenderQualityPerformance"), false); // reload from feature table, reset is reset...
+	LLPanelPreference::setHardwareDefaults();
 	refresh();
 }
 
