@@ -374,7 +374,7 @@ LLFloaterPreference::LLFloaterPreference(const LLSD& key)
 	mCommitCallbackRegistrar.add("Pref.ArrayVec4W", boost::bind(&LLFloaterPreference::onCommitVec4W, _1, _2));
 
 	// <Black Dragon:NiranV> Revert to Default
-	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1, _2));
+	mCommitCallbackRegistrar.add("Pref.ResetToDefault", boost::bind(&LLFloaterPreference::resetToDefault, this, _1));
 
 	gSavedSettings.getControl("PVColorManager_LowPriorityFriendStatus")->getCommitSignal()->connect(boost::bind(&handleNameTagOptionChanged,  _2));	
 
@@ -2280,19 +2280,14 @@ void LLFloaterPreference::onDeleteTranscriptsResponse(const LLSD& notification, 
 	}
 }
 
-// <Black Dragon:NiranV> Revert to Default
-void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl, const LLSD& param)
+//BD - Revert to Default
+void LLFloaterPreference::resetToDefault(LLUICtrl* ctrl)
 {
-	auto controlp = ctrl->getControlVariable();
-	if (!controlp)
-	{
-		controlp = gSavedSettings.getControl(param.asString());
-	}
-	llassert(controlp);
-	controlp->resetToDefault(true);
-
-	LLFloaterPreference::refreshGraphicControls();
+	llassert(ctrl);
+	ctrl->getControlVariable()->resetToDefault(true);
+	refreshGraphicControls();
 }
+
 void LLFloaterPreference::onLogChatHistorySaved()
 {
 	LLButton * delete_transcripts_buttonp = getChild<LLButton>("delete_transcripts");

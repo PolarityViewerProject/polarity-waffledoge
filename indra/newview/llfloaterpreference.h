@@ -194,7 +194,7 @@ public:
 	static void onCommitVec4W(LLUICtrl* ctrl, const LLSD& param);
 
 	// <Black Dragon:NiranV> Revert to Default
-	void resetToDefault(LLUICtrl* ctrl, const LLSD& param);
+	void resetToDefault(LLUICtrl* ctrl);
 private:
 	// <Black Dragon:NiranV> Catznip's Borderless Window Mode
 	void toggleFullscreenWindow();
