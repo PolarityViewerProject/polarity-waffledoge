@@ -1202,23 +1202,23 @@
             width="110">
           </check_box>
           <slider
-            control_name="PVRender_SSRResolution"
             can_edit_text="true"
-            decimal_digits="2"
+            control_name="PVRender_SSRResolution"
+            decimal_digits="0"
             follows="left|top"
             height="15"
             increment="1"
             initial_value="1.0"
-            label="SSR Resolution"
+            label="SSR Resolution:"
             label_width="150"
             layout="topleft"
             left="10"
             max_val="512"
             min_val="0"
             name="PVRender_SSRResolution"
+            text_width="40"
             tool_tip="This will wreck your shit."
             top_pad="5"
-            text_width="40"
             width="385">
           </slider>
           <button
