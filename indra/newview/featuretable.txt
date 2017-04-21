@@ -392,9 +392,9 @@ RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
 PVRender_ShadowResolutionClosest	1	1024
-PVRender_ShadowResolutionMid	1	512
-PVRender_ShadowResolutionFar	1	256
-PVRender_ShadowResolutionFurthest	1	256
+PVRender_ShadowResolutionMid	1	1280
+PVRender_ShadowResolutionFar	1	1536
+PVRender_ShadowResolutionFurthest	1	1600
 
 //
 // High Ultra Graphics Settings (deferred + SSAO + shadows)
@@ -435,10 +435,10 @@ PVRender_DeferredFXAAQuality	1	15
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	0
-PVRender_ShadowResolutionClosest	1	2048
-PVRender_ShadowResolutionMid	1	1024
-PVRender_ShadowResolutionFar	1	768
-PVRender_ShadowResolutionFurthest	1	512
+PVRender_ShadowResolutionClosest	1	1024
+PVRender_ShadowResolutionMid	1	1280
+PVRender_ShadowResolutionFar	1	1536
+PVRender_ShadowResolutionFurthest	1	1600
 
 //
 // Ultra graphics (REALLY PURTY!)
