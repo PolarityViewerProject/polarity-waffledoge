@@ -1454,6 +1454,39 @@
 				width="295">
 				Shadows:
 			</text>
+			<check_box
+				control_name="PVRender_SyncFarClip"
+				enabled_control="VertexShaderEnable"
+				halign="center"
+				height="16"
+				label="Auto. manage shadow draw dist."
+				layout="topleft"
+				left="5"
+				name="WindlightInterpolation"
+				top_pad="5"
+				width="75">
+			</check_box>
+			<slider
+				enabled="true"
+				control_name="RenderShadowFarClip"
+				disabled_control="PVRender_SyncFarClip"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="0.1"
+				can_edit_text="true"
+				label="Draw Distance:"
+				label_width="130"
+				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
+				layout="topleft"
+				left_delta="0"
+				max_val="2048"
+				min_val="0.0"
+				name="RenderShadowFarClip"
+				top_pad="1"
+				text_width="40"
+				width="310">
+			</slider>
 			<slider
 				control_name="RenderShadowBlurSize"
 				decimal_digits="1"
@@ -1470,26 +1503,6 @@
 				min_val="0.0"
 				name="RenderShadowBlurSize"
 				top_pad="3"
-				text_width="40"
-				width="310">
-			</slider>
-			<slider
-				enabled="true"
-				control_name="RenderShadowFarClip"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				can_edit_text="true"
-				label="Draw distance cap:"
-				label_width="130"
-				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
-				layout="topleft"
-				left_delta="0"
-				max_val="2048"
-				min_val="0.0"
-				name="RenderShadowFarClip"
-				top_pad="1"
 				text_width="40"
 				width="310">
 			</slider>

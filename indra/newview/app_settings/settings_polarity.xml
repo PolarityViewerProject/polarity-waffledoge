@@ -1059,7 +1059,7 @@
     <key>PVRender_SyncFarClip</key>
     <map>
       <key>Comment</key>
-      <string>Automatically set shadow far clip ("draw distance") to 110$ of the draw distance</string>
+      <string>Automatically keep shadow and render draw distances synced together</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
