@@ -3218,7 +3218,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 				{
 					// *HACK: Desaturate the color
 					LLColor4 username_color = name_tag_color * 0.83f;
-					addNameTagLine(av_name.getUserName(), username_color, LLFontGL::NORMAL,
+					addNameTagLine(av_name.getAccountName(), username_color, LLFontGL::NORMAL, // <polarity> Cinder's fix for duplicated names in groups Circa 2013
 					LLFontGL::getFontSansSerifSmall());
 				}
 // [RLVa:KB] - Checked: RLVa-1.2.2

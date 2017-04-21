@@ -1117,8 +1117,14 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				link_params.readonly_color = name_color;
 
 				// Add link to avatar's inspector and delimiter to message.
-				mEditor->appendText(std::string(link_params.link_href) + delimiter,
-					prependNewLineState, link_params);
+				// <FS:Ansariel> Append delimiter with different style params or
+				//               it will be replaced with the avatar name once it's
+				//               returned from the server!
+				//appendText(std::string(link_params.link_href) + delimiter,
+				//		prependNewLineState, link_params);
+				mEditor->appendText(std::string(link_params.link_href), prependNewLineState, link_params);
+				mEditor->appendText(delimiter, prependNewLineState, body_message_params);
+				// </FS:Ansariel>
 				prependNewLineState = false;
 			}
 			else
