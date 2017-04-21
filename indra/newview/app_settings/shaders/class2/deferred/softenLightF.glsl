@@ -613,7 +613,7 @@ void main()
     ssshiny *= ssr_brightness;
 				col.rgb = mix(col.rgb + ssshiny, diffuse.rgb, fullbrightification);
 			}
-		#else
+		#endif
 			if (spec.a > 0.0) // specular reflection
 			{
 				// the old infinite-sky shiny reflection
@@ -627,20 +627,21 @@ void main()
 				bloom = dot(spec_contrib, spec_contrib) / 6;
 				col += spec_contrib;
 			}
-		#endif
+
 		
 		col = mix(col, diffuse.rgb, diffuse.a);
 		
+		/*
 		// Add environmentmap
-  /*if (envIntensity > 0.0)
-  {
-      vec3 env_vec = env_mat * refnormpersp;
-      
-      vec3 refcol = textureCube(environmentMap, env_vec).rgb;
+		if (envIntensity > 0.0)
+		{
+			vec3 env_vec = env_mat * refnormpersp;
 
-      col = mix(col.rgb, refcol, 
-          envIntensity);  
-  }*/
+			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
+
+			col = mix(col.rgb, refcol,
+			  envIntensity);
+		}*/
             
 						
 		if (norm.w < 0.5)
