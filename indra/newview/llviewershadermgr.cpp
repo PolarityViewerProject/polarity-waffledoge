@@ -434,20 +434,11 @@ void LLViewerShaderMgr::setShaders()
 
 	reentrance = true;
 
-	// <polarity> Cached controls for speed improvement
-	// Don't go through the entire settings stack over and over, do the logic and commit
-	// result to settings when done.
-	auto cached_avcloth = gSavedSettings.getBOOL("RenderAvatarCloth");
-	auto cached_avatarvp = gSavedSettings.getBOOL("RenderAvatarVP");
-	auto cached_deferred = gSavedSettings.getBOOL("RenderDeferred");
-	auto cached_vertexshader = gSavedSettings.getBOOL("VertexShaderEnable");
-	auto cached_atmosshdr = gSavedSettings.getBOOL("WindLightUseAtmosShaders");
-
 	if (LLRender::sGLCoreProfile)
 	{  
-		if (!cached_vertexshader)
+		if (!gSavedSettings.getBOOL("VertexShaderEnable"))
 		{ //vertex shaders MUST be enabled to use core profile
-			cached_vertexshader = TRUE;
+			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
 		}
 	}
 	
@@ -460,7 +451,7 @@ void LLViewerShaderMgr::setShaders()
 	initAttribsAndUniforms();
 	gPipeline.releaseGLBuffers();
 
-	if (cached_vertexshader)
+	if (gSavedSettings.getBOOL("VertexShaderEnable"))
 	{
 		LLPipeline::sWaterReflections = gGLManager.mHasCubeMap;
 		LLPipeline::sRenderGlow = gSavedSettings.getBOOL("RenderGlow"); 
@@ -497,7 +488,7 @@ void LLViewerShaderMgr::setShaders()
 	LLVertexBuffer::unbind();
 	if (LLFeatureManager::getInstance()->isFeatureAvailable("VertexShaderEnable") 
 		&& (gGLManager.mGLSLVersionMajor > 1 || gGLManager.mGLSLVersionMinor >= 10)
-		&& cached_vertexshader)
+		&& gSavedSettings.getBOOL("VertexShaderEnable"))
 	{
 		//using shaders, disable fixed function
 		LLGLSLShader::sNoFixedFunction = true;
@@ -511,9 +502,9 @@ void LLViewerShaderMgr::setShaders()
 		S32 deferred_class = 0;
 		
 		if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-			cached_deferred &&
-			cached_avatarvp &&
-			cached_atmosshdr)
+			gSavedSettings.getBOOL("RenderDeferred") &&
+			gSavedSettings.getBOOL("RenderAvatarVP") &&
+			gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 		{
 			if (gSavedSettings.getS32("RenderShadowDetail") > 0
 				|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
@@ -534,7 +525,7 @@ void LLViewerShaderMgr::setShaders()
 
 
 		if (!(LLFeatureManager::getInstance()->isFeatureAvailable("WindLightUseAtmosShaders")
-			  && cached_atmosshdr))
+			  && gSavedSettings.getBOOL("WindLightUseAtmosShaders")))
 		{
 			// user has disabled WindLight in their settings, downgrade
 			// windlight shaders to stub versions.
@@ -595,12 +586,12 @@ void LLViewerShaderMgr::setShaders()
 				mVertexShaderLevel[SHADER_AVATAR] = 3;
 				mMaxAvatarShaderLevel = 3;
 				
-				if (cached_avatarvp && loadShadersObject())
+				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
 					S32 avatar_class = 1;
 				
 					// cloth is a class3 shader
-					if(cached_avcloth)
+					if(gSavedSettings.getBOOL("RenderAvatarCloth"))
 					{
 						avatar_class = 3;
 					}
@@ -612,15 +603,15 @@ void LLViewerShaderMgr::setShaders()
 					{
 						if (mVertexShaderLevel[SHADER_AVATAR] == 0)
 						{
-							cached_avatarvp = FALSE;
+							gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
 						}
 						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
 						{
-							cached_avcloth = TRUE;
+							gSavedSettings.setBOOL("RenderAvatarCloth", TRUE);
 						}
 						else
 						{
-							cached_avcloth = FALSE;
+							gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
 						}
 						
 					}
@@ -630,11 +621,11 @@ void LLViewerShaderMgr::setShaders()
 					mVertexShaderLevel[SHADER_AVATAR] = 0;
 					mVertexShaderLevel[SHADER_DEFERRED] = 0;
 
-					if (cached_avatarvp)
+					if (gSavedSettings.getBOOL("RenderAvatarVP"))
 					{
-						cached_deferred = FALSE;
-						cached_avcloth = FALSE;
-						cached_avatarvp = FALSE;
+						gSavedSettings.setBOOL("RenderDeferred", FALSE);
+						gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
+						gSavedSettings.setBOOL("RenderAvatarVP", FALSE);
 					}
 
 					loadShadersAvatar(); // unloads
@@ -645,18 +636,18 @@ void LLViewerShaderMgr::setShaders()
 
 			if (!loaded)
 			{ //some shader absolutely could not load, try to fall back to a simpler setting
-				if (cached_atmosshdr)
+				if (gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 				{ //disable windlight and try again
-					cached_atmosshdr = FALSE;
+					gSavedSettings.setBOOL("WindLightUseAtmosShaders", FALSE);
 					unloadShaders();
 					reentrance = false;
 					setShaders();
 					return;
 				}
 
-				if (cached_vertexshader)
+				if (gSavedSettings.getBOOL("VertexShaderEnable"))
 				{ //disable shaders outright and try again
-					cached_vertexshader = FALSE;
+					gSavedSettings.setBOOL("VertexShaderEnable", FALSE);
 					unloadShaders();
 					reentrance = false;
 					setShaders();
@@ -666,7 +657,7 @@ void LLViewerShaderMgr::setShaders()
 
 			if (loaded && !loadShadersDeferred())
 			{ //everything else succeeded but deferred failed, disable deferred and try again
-				cached_deferred = FALSE;
+				gSavedSettings.setBOOL("RenderDeferred", FALSE);
 				unloadShaders();
 				reentrance = false;
 				setShaders();
@@ -707,14 +698,6 @@ void LLViewerShaderMgr::setShaders()
 	{
 		gViewerWindow->setCursor(UI_CURSOR_ARROW);
 	}
-
-	// <polarity> And now commit setting to control stack.
-	gSavedSettings.setBOOL("RenderAvatarCloth", cached_avcloth);
-	gSavedSettings.setBOOL("RenderAvatarVP", cached_avatarvp);
-	gSavedSettings.setBOOL("RenderDeferred", cached_deferred);
-	gSavedSettings.setBOOL("VertexShaderEnable", cached_vertexshader);
-	gSavedSettings.setBOOL("WindLightUseAtmosShaders", cached_atmosshdr);
-	// </polarity>
 
 	gPipeline.createGLBuffers();
 
