@@ -7,8 +7,8 @@
 
 	<!-- Default Args - these arguments will be replaced in all strings -->
 	<string name="SECOND_LIFE">Second Life</string>
-	<string name="APP_NAME">Polarity</string>
-	<string name="CAPITALIZED_APP_NAME">POLARITY</string>
+	<string name="APP_NAME">Second Life</string>
+	<string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
 
@@ -22,39 +22,47 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[VIEWER_VERSION][BUILD_ARCH], built on [BUILD_DATE], [BUILD_TIME]
+[VIEWER_VERSION][BUILD_ARCH], [BUILD_DATE], [BUILD_TIME]
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
 	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
-	<string name="BuildConfig">Build Configuration [BUILD_CONFIG]</string>
+	<string name="BuildConfig">Build Configuration: [BUILD_CONFIG]</string>
 
 	<string name="AboutPosition">
-You are at [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] in [REGION] located at &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
-SLURL: &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-(global coordinates [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+SLURL: [SLURL];
+Global Coord: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
+Simulator Address: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
+[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<string name="AboutPositionRLVShowLoc">
 You are in [REGION]
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
        and this info sometimes gets sent to support. -->
 	<string name="AboutSystem">
-Processor: [CPU]
-Memory: [MEMORY_MB] MB
-OS: [OS_VERSION]
-Graphics: [GRAPHICS_CARD_VENDOR] [GRAPHICS_CARD]
+CPU: [CPU]
+RAM: [MEMORY_MB] MB
+O/S: [OS_VERSION]
+GPU: [GRAPHICS_CARD_VENDOR] [GRAPHICS_CARD]
 	</string>
 <!-- <string name="AboutDriver">Windows Graphics Driver Version: [GRAPHICS_DRIVER_VERSION]</string> -->
-<string name="AboutDriver">Driver: [GRAPHICS_DRIVER_VERSION] (OpenGL [OPENGL_VERSION])</string>
+<string name="AboutOGL">OpenGL Version: [OPENGL_VERSION]</string>
+	<string name="AboutSettings">
+Window size: [WINDOW_WIDTH]x[WINDOW_HEIGHT]
+Font Size Adjustment: [FONT_SIZE_ADJUSTMENT]pt
+UI Scaling: [UI_SCALE]
+Draw distance: [DRAW_DISTANCE]m
+Bandwidth: [NET_BANDWITH]kbit/s
+LOD factor: [LOD_FACTOR]
+Render quality: [RENDER_QUALITY] / 7
+Advanced Lighting Model: [GPU_SHADERS]
+Texture memory: [TEXTURE_MEMORY]MB
+VFS (cache) creation time: [VFS_TIME]
+	</string>
 	<string name="AboutLibs">
-OpenGL Version: [OPENGL_VERSION]
-
 RestrainedLove API: [RLV_VERSION]
 libcurl Version: [LIBCURL_VERSION]
 J2C Decoder Version: [J2C_VERSION]
@@ -112,9 +120,9 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
-	<string name="ViewerDownloadURL">https://polarityviewer.org/download</string>
+	<string name="ViewerDownloadURL">https://www.polarityviewer.org/download</string>
 	<string name="LoginFailedViewerNotPermitted">
-	The viewer you are using can no longer access Second Life. [https://polarityviewer.org/download Upgrade], it's FREE!</string>
+	The viewer you are using can no longer access Second Life. [https://www.polarityviewer.org/download Upgrade], it's FREE!</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
@@ -2694,6 +2702,8 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="CompileNoExperiencePerm">Skipping script [SCRIPT] with Experience [EXPERIENCE].</string>
 	<string name="CompileQueueTitle">Recompilation Progress</string>
 	<string name="CompileQueueStart">recompile</string>
+	<string name="CompileQueuePreprocessing">Preprocessing: [SCRIPT]</string>
+	<string name="CompileQueuePreprocessingComplete">Preprocessing of script [SCRIPT] completed</string>
 	<string name="ResetQueueTitle">Reset Progress</string>
 	<string name="ResetQueueStart">reset</string>
 	<string name="RunQueueTitle">Set Running Progress</string>
@@ -2701,15 +2711,14 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<string name="NotRunQueueTitle">Set Not Running Progress</string>
 	<string name="NotRunQueueStart">set not running</string>
 	<string name="DeleteQueueTitle">Delete Progress</string>
-	<string name="DeleteQueueStart">deletion</string>
-
-	<string name="DeleteQueueDeleting">Deleting</string>
+	<string name="DeleteQueueStart">Deleting</string>
 
 	<!-- compile comment text-->
+	<string name="Compiling">Compiling [NAME]</string>
 	<string name="CompileSuccessful">Compile successful!</string>
 	<string name="CompileSuccessfulSaving">Compile successful, saving...</string>
 	<string name="SaveComplete">Save complete.</string>
-	<string name="UploadFailed">File upload failed: </string>
+	<string name="UploadFailed">File upload failed: [REASON]</string>
 	<string name="ObjectOutOfRange">Script (object out of range)</string>
 	<string name="ScriptWasDeleted">Script (deleted from inventory)</string>
 	
@@ -3015,7 +3024,8 @@ This can be because you somehow have multiple copies running, or your system inc
 If this message persists, restart your computer and try again.
 If it continues to persist, you may need to completely uninstall [APP_NAME] and reinstall it.
 	</string>
-	<string name="MBFatalError">Fatal Error</string>
+	<!-- <string name="MBFatalError">Fatal Error</string> -->
+	<string name="AssertDialogTitle">Fatal Error! Stop program?</string>
 	<string name="MBRequiresAltiVec"> [APP_NAME] requires a processor with AltiVec (G4 or later).</string>
 	<string name="MBAlreadyRunning">
 		[APP_NAME] is already running.
@@ -3850,12 +3860,15 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 
   <!-- Financial operations strings -->
   <string name="paid_you_ldollars">[NAME] paid you L$[AMOUNT] [REASON].</string>
+  <string name="paid_you_ldollars_gift">[NAME] paid you L$[AMOUNT]: [REASON]</string>
   <string name="paid_you_ldollars_no_reason">[NAME] paid you L$[AMOUNT].</string>
   <string name="you_paid_ldollars">You paid [NAME] L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_ldollars_gift">You paid [NAME] L$[AMOUNT]: [REASON]</string>
   <string name="you_paid_ldollars_no_info">You paid L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_reason">You paid [NAME] L$[AMOUNT].</string>
   <string name="you_paid_ldollars_no_name">You paid L$[AMOUNT] [REASON].</string>
   <string name="you_paid_failure_ldollars">You failed to pay [NAME] L$[AMOUNT] [REASON].</string>
+  <string name="you_paid_failure_ldollars_gift">You failed to pay [NAME] L$[AMOUNT]: [REASON]</string>
   <string name="you_paid_failure_ldollars_no_info">You failed to pay L$[AMOUNT].</string>
   <string name="you_paid_failure_ldollars_no_reason">You failed to pay [NAME] L$[AMOUNT].</string>
   <string name="you_paid_failure_ldollars_no_name">You failed to pay L$[AMOUNT] [REASON].</string>
@@ -4198,7 +4211,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Preferences_Label">Preferences</string>
   <string name="Command_Profile_Label">Profile</string>
   <string name="Command_Quick_Settings_Label">Quick Settings</string>
-  <string name="Command_Scripts_Label">Scripts</string>
+  <string name="Command_Report_Abuse_Label">Report Abuse</string>
+  <string name="Command_Scripts_Label">My Scripts</string>
   <string name="Command_Search_Label">Search</string>
   <string name="Command_Sidebar_Label">Sidebar</string>
   <string name="Command_Snapshot_Label">Snapshot</string>
@@ -4207,6 +4221,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Twitter_Label">Twitter</string>
   <string name="Command_View_Label">Camera Controls</string>
   <string name="Command_Voice_Label">Voice Settings</string>
+  <string name="Command_Webbrowser_Label">WWW Browser</string>
 
   <string name="Command_AboutLand_Tooltip">Information about the land you're visiting</string>
   <string name="Command_Appearance_Tooltip">Change your avatar</string>
@@ -4239,7 +4254,7 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Places_Tooltip">Places you've saved</string>
   <string name="Command_Preferences_Tooltip">Preferences</string>
   <string name="Command_Profile_Tooltip">Edit or view your profile</string>
-  <string name="Command_Quick_Settings_Tooltip">Quick preferences</string>
+  <string name="Command_Report_Abuse_Tooltip">Report Abuse</string>
   <string name="Command_Scripts_Tooltip">Scripts attached to your avatar</string>
   <string name="Command_Search_Tooltip">Find places, events, people</string>
   <string name="Command_Sidebar_Tooltip">Graphical settings</string>
@@ -4249,7 +4264,8 @@ Try enclosing path to the editor with double quotes.
   <string name="Command_Twitter_Tooltip">Twitter</string>
   <string name="Command_View_Tooltip">Changing camera angle</string>
   <string name="Command_Voice_Tooltip">Volume controls for calls and people near you in world</string>
- <string name="Command_Webbrowser_Tooltip">Open a web browser inside [APP_NAME]</string>
+  <string name="Command_Webbrowser_Tooltip">Open a web browser inside [APP_NAME]</string>
+
   <string name="Toolbar_Bottom_Tooltip">currently in your bottom toolbar</string>
   <string name="Toolbar_Top_Tooltip">currently in your top toolbar</string>
   <string name="Toolbar_Left_Tooltip"  >currently in your left toolbar</string>
@@ -4335,6 +4351,9 @@ Try enclosing path to the editor with double quotes.
     Loading...
   </string>
 
+  <!-- Statistics -->
+  <string name="na">n/a</string>
+
   <!-- Presets graphic/camera -->
   <string name="preset_combo_label">-Empty list-</string>
   <string name="Default">Default</string>
@@ -4343,6 +4362,12 @@ Try enclosing path to the editor with double quotes.
   
   <string name="Mav_Details_MAV_FOUND_DEGENERATE_TRIANGLES">
       The physics shape contains triangles which are too small. Try simplifying the physics model.
+  </string>
+  <string name="Mav_Details_MAV_CONFIRMATION_DATA_MISMATCH">
+      The physics shape contains bad confirmation data. Try to correct the physics model.
+  </string>
+  <string name="Mav_Details_MAV_UNKNOWN_VERSION">
+      The physics shape does not have correct version. Set the correct version for the physics model.
   </string>
 
 <!-- Double Click Teleport -->
@@ -4403,13 +4428,24 @@ Try enclosing path to the editor with double quotes.
   <string name="NotifyIncomingMessage">/me is typing...</string>
 
   <string name="SessionTimeString">Session uptime: [UPTIME]</string>
+  <!-- PVData -->
   <string name="MissingTesterToken">I-it's not like I need a token to enable updates or anything... &gt;////&lt; Set it in Preferences-&gt;Setup, okay?</string>
-
+  <string name="PVDataBanned">
+    Unfortunately, you have been disallowed to login to [SECOND_LIFE] using [APP_NAME]. If you believe this message to be a mistake, restart the viewer. Otherwise, Please download [https://get.secondlife.com another Viewer].
+  </string>
+  <!--TODO: put url substitution instead of hard-coding it-->
+  <string name="PVDataNoClearance">
+    You do not have clearance to use this internal build of [APP_NAME].
+    If you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at
+    https://www.polarityviewer.org/download.
+  </string>
+  <!-- /PVData -->
+  
   <!-- Generic strings  -->
   <string name="Flags">Flags</string>
 
   <!-- Satisfy something -->
-  <string name="[Linden Homes / Full Region]">[Linden Homes / Full Region]</string>
+  <string name="Linden Homes / Full Region">Linden Homes / Full Region</string>
 
   <!-- Area Search -->
   <string name="free">Free</string>
@@ -4431,5 +4467,44 @@ Try enclosing path to the editor with double quotes.
   <string name="NotificationItemDateStringUTC">[mthnum,datetime,utc]/[day,datetime,utc]/[year,datetime,utc] [hour,datetime,utc]:[min,datetime,utc]</string>
   <string name="NotificationItemDateStringSLT">[mthnum,datetime,slt]/[day,datetime,slt]/[year,datetime,slt] [hour,datetime,slt]:[min,datetime,slt]</string>
   <!-- /date format strings -->
+
+  <!-- <FS:Cron> FIRE-9335 -->
+  <!-- <LSL Preprocessor -->
+  <string name="fs_preprocessor_starting">[APP_NAME] preprocessor starting...</string>
+  <string name="fs_preprocessor_not_supported">Warning: Preprocessor not supported in this build. ([WHERE])</string>
+  <string name="fs_preprocessor_disabled_by_script_marker">[APP_NAME] preprocessor disabled by directive at line [LINENUMBER].</string>
+  <string name="fs_preprocessor_settings_list_prefix">Settings:</string>
+  <string name="fs_preprocessor_wave_exception">[ERR_NAME] ([LINENUMBER]): [ERR_DESC]</string>
+  <string name="fs_preprocessor_exception">[ERR_NAME] ([LINENUMBER]): exception caught: [ERR_DESC]</string>
+  <string name="fs_preprocessor_error">[ERR_NAME] ([LINENUMBER]): unexpected exception caught.</string>
+  <!-- LSL Optimizer -->
+  <string name="fs_preprocessor_optimizer_start">Optimizing out unreferenced user-defined functions and global variables.</string>
+  <string name="fs_preprocessor_optimizer_regex_err">Not a valid regular expression: '[WHAT]'; LSL optimization skipped.</string>
+  <string name="fs_preprocessor_optimizer_exception">Exception caught: '[WHAT]'; LSL optimization skipped.</string>
+  <string name="fs_preprocessor_optimizer_unexpected_exception">Unexpected exception in LSL optimizer; not applied.</string>
+  <!-- LSL Compressor -->
+  <string name="fs_preprocessor_compress_start">Compressing script text by removing unnecessary space.</string>
+  <string name="fs_preprocessor_compress_regex_err">Not a valid regular expression: '[WHAT]'; LSL compression skipped.</string>
+  <string name="fs_preprocessor_compress_exception">Exception caught: '[WHAT]'; LSL compression skipped.</string>
+  <string name="fs_preprocessor_compress_unexpected_exception">Unexpected exception in LSL compressor; not applied.</string>
+  <!-- LSL Lazy lists -->
+  <string name="fs_preprocessor_lazylist_start">Applying lazy list conversion.</string>
+  <string name="fs_preprocessor_lazylist_regex_err">Not a valid regular expression: '[WHAT]'; Lazy list converter skipped.</string>
+  <string name="fs_preprocessor_lazylist_exception">Exception caught: '[WHAT]'; Lazy list converter skipped.</string>
+  <string name="fs_preprocessor_lazylist_unexpected_exception">Unexpected exception in lazy list converter; not applied.</string>
+  <!-- LSL switch statement -->
+  <string name="fs_preprocessor_switchstatement_start">Applying switch statement conversion.</string>
+  <string name="fs_preprocessor_switchstatement_regex_err">Not a valid regular expression: '[WHAT]'; Switch statement converter skipped.</string>
+  <string name="fs_preprocessor_switchstatement_exception">Exception caught: '[WHAT]'; Switch statement converter skipped.</string>
+  <string name="fs_preprocessor_switchstatement_unexpected_exception">Unexpected exception in switch statement converter; not applied.</string>
+  <!-- LSL Cache -->
+  <string name="fs_preprocessor_cache_miss">Caching included file: '[FILENAME]'</string>
+  <string name="fs_preprocessor_cache_invalidated">Included file '[FILENAME]' has changed, recaching.</string>
+  <string name="fs_preprocessor_cache_completed">Caching completed for '[FILENAME]'</string>
+  <string name="fs_preprocessor_cache_unsafe">Error: script named '[FILENAME]' isn't safe to copy to the filesystem. This include will fail.</string>
+  <string name="fs_preprocessor_caching_err">Error caching included file '[FILENAME]'</string>
+  <!-- </FS:Cron> -->
+  <string name="recompile_script_verb">Recompile</string>
+  <string name="preproc_toggle_warning">Toggling the preprocessor will not take full effect until you close and reopen this editor.</string>
 
 </strings>

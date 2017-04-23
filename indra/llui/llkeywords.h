@@ -112,6 +112,8 @@ public:
 	void		clearLoaded() { mLoaded = false; }
 	LLColor4	getColorGroup(const std::string& key_in);
 	bool		isLoaded() const	{ return mLoaded; }
+	// <FS:Ansariel> Re-add support for Cinder's legacy file format
+	bool		loadFromLegacyFile(const std::string& filename);
 
 	void		findSegments(std::vector<LLTextSegmentPtr> *seg_list,
 							 const LLWString& text,

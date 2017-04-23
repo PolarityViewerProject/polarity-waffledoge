@@ -121,6 +121,8 @@ set(firestorm_HEADER_FILES
     fsareasearchmenu.h
     fsassetblacklist.h
     fsfloaterassetblacklist.h
+    fslslpreprocviewer.h
+    fsscriptlibrary.h
     fsscrolllistctrl.h
     kcwlinterface.h
     sanitycheck.h
@@ -130,6 +132,8 @@ set(firestorm_SOURCE_FILES
     fsareasearchmenu.cpp
     fsassetblacklist.cpp
     fsfloaterassetblacklist.cpp
+    fslslpreprocviewer.cpp
+    fsscriptlibrary.cpp
     fsscrolllistctrl.cpp
     kcwlinterface.cpp
     sanitycheck.cpp
@@ -166,6 +170,7 @@ set(polarity_HEADER_FILES
     pvpanellogin.h
     pvperformancemaid.h
     pvrandom.h
+    pvscriptpreproc.h
     pvtypes.h
     )
 set(polarity_SOURCE_FILES
@@ -180,6 +185,7 @@ set(polarity_SOURCE_FILES
     pvpanellogin.cpp
     pvperformancemaid.cpp
     pvrandom.cpp
+    pvscriptpreproc.cpp
     )
 source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}
@@ -2077,6 +2083,8 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${BOOST_REGEX_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
     ${BOOST_CONTEXT_LIBRARY}
+    ${BOOST_WAVE_LIBRARY} # Required for Firestorm code
+    ${BOOST_THREAD_LIBRARY} # Required for Firestorm code
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMOD_LIBRARY} # must come after LLAudio
