@@ -1363,20 +1363,6 @@ bool LLAppViewer::frame()
 	LLEventPump& mainloop(LLEventPumps::instance().obtain("mainloop"));
 	LLSD newFrame;
 
-	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
-	{
-		BOOL isDebuggerPresent = FALSE;
-		CheckRemoteDebuggerPresent(GetCurrentProcess(), &isDebuggerPresent);
-		if (isDebuggerPresent)
-		{
-			PVAgent* pvAgentp = PVAgent::find(gAgentID);
-			if (pvAgentp == nullptr || !pvAgentp->isProviderDeveloper())
-			{
-				disconnectViewer();
-				LLError::crashAndLoop("No peeking! :T");
-			}
-		}
-	}
 	// <polarity> FPS Limiter
 	//LLTimer frameTimer,idleTimer;
 	LLTimer frameTimer,idleTimer,periodicRenderingTimer;
@@ -5409,6 +5395,21 @@ void LLAppViewer::idle()
 	{
 		gGLActive = TRUE;
 		idleShutdown();
+	}
+
+	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
+	{
+		BOOL isDebuggerPresent = FALSE;
+		CheckRemoteDebuggerPresent(GetCurrentProcess(), &isDebuggerPresent);
+		if (isDebuggerPresent)
+		{
+			PVAgent* pvAgentp = PVAgent::find(gAgentID);
+			if (pvAgentp == nullptr || !pvAgentp->isProviderDeveloper())
+			{
+				disconnectViewer();
+				LLError::crashAndLoop("No peeking! :T");
+			}
+		}
 	}
 }
 
