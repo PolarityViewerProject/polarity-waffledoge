@@ -59,7 +59,7 @@
 ///----------------------------------------------------------------------------
 
 // debug switches, won't work in release
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 
 // dump responder replies to LL_INFOS() for debugging
 //#define DUMP_REPLIES_TO_LLINFOS

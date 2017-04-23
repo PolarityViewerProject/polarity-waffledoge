@@ -47,7 +47,7 @@
 #include "lljoint.h"
 #include "llskinningutil.h"
 
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 #define UNIFORM_ERRS LL_WARNS_ONCE("Shader")
 #else
 #define UNIFORM_ERRS LL_ERRS("Shader")

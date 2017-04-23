@@ -671,7 +671,7 @@ private:
 
 		// *NOTE:Mani - I didn't find any docs that assure me that machdep.cpu.feature_bits will always be
 		// The feature bits I think it is. Here's a test:
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	#if defined(__i386__) && defined(__PIC__)
 			/* %ebx may be the PIC register.  */
 		#define __cpuid(level, a, b, c, d)			\

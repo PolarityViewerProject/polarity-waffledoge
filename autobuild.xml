@@ -3281,7 +3281,6 @@
                   <string>"v140,host=x64"</string>
                   <string>-DWORD_SIZE:STRING=64</string>
                   <string>-DINSTALL_PROPRIETARY=FALSE</string>
-                  <string>-DLL_RELEASE_FOR_DOWNLOAD:BOOL=TRUE</string>
                   <string>-DUSE_KDU=FALSE</string>
                 </array>
               </map>

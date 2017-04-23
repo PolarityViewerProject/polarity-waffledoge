@@ -64,7 +64,7 @@
 #include "llcommandlineparser.h"
 #include "lltrans.h"
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 #include "llwindebug.h"
 #endif
 
@@ -463,7 +463,7 @@ bool LLAppViewerWin32::init()
 	// LL_INFOS() << "Turning off Windows error reporting." << LL_ENDL;
 	disableWinErrorReporting();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	LLWinDebug::instance().init();
 #endif
 
@@ -486,7 +486,7 @@ bool LLAppViewerWin32::cleanup()
 {
 	bool result = LLAppViewer::cleanup();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	LLWinDebug::instance().cleanup();
 #endif
 

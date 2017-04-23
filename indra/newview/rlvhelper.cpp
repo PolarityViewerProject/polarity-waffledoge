@@ -335,7 +335,7 @@ void RlvBehaviourDictionary::addEntry(const RlvBehaviourInfo* pEntry)
 	}
 
 	// Sanity check for duplicate entries
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	std::for_each(m_BhvrInfoList.begin(), m_BhvrInfoList.end(), 
 	              [&pEntry](const RlvBehaviourInfo* pBhvrInfo) { 
 					RLV_ASSERT_DBG( ((pBhvrInfo->getBehaviour()) != (pEntry->getBehaviour())) || ((pBhvrInfo->getParamTypeMask() & pEntry->getParamTypeMask()) == 0) );

@@ -2021,7 +2021,7 @@ class LLAdvancedDumpAvatarLocalTextures : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 		handle_dump_avatar_local_textures(NULL);
 #endif
 		return true;

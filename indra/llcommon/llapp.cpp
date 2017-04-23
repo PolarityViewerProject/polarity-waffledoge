@@ -412,7 +412,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 	// API.  We disable this test for shipping versions to avoid conflicts with
 	// future releases of Darwin.  This test is really only needed for developers
 	// starting the app from a debugger anyway.
-	#ifndef LL_RELEASE_FOR_DOWNLOAD
+	#if !LL_RELEASE_FOR_DOWNLOAD
     int mib[4];
 	mib[0] = CTL_KERN;
 	mib[1] = KERN_PROC;
@@ -935,7 +935,7 @@ bool unix_minidump_callback(const google_breakpad::MinidumpDescriptor& minidump_
 	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
 	LLApp::runErrorHandler();
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	clear_signals();
 	return false;
 #else
@@ -981,7 +981,7 @@ bool unix_post_minidump_callback(const char *dump_dir,
 	LL_INFOS("CRASHREPORT") << "generated minidump: " << LLApp::instance()->getMiniDumpFilename() << LL_ENDL;
 	LLApp::runErrorHandler();
 	
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	clear_signals();
 	return false;
 #else
@@ -1044,7 +1044,7 @@ bool windows_post_minidump_callback(const wchar_t* dump_path,
 		ms_sleep(10);
 	}
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	return false;
 #else
 	return true;

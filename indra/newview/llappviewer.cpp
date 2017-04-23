@@ -2125,7 +2125,7 @@ bool LLAppViewer::cleanup()
 	SUBSYSTEM_CLEANUP(LLVFSThread);
 	SUBSYSTEM_CLEANUP(LLLFSThread);
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	LL_INFOS() << "Auditing VFS" << LL_ENDL;
 	if(gVFS)
 	{
@@ -2268,7 +2268,7 @@ void errorCallback(const std::string &error_string)
 	static std::string last_message;
 	if (last_message != error_string)
 	{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 		U32 response = OSMessageBox(error_string, LLTrans::getString("AssertDialogTitle"), OSMB_YESNO);
 		if (response == OSBTN_NO)
 		{
@@ -4747,7 +4747,7 @@ bool LLAppViewer::initCache()
 	{
 		LLVFile::initClass();
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 		if (gSavedSettings.getBOOL("DumpVFSCaches"))
 		{
 			dumpVFSCaches();

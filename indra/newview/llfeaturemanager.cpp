@@ -608,7 +608,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 {
 	// see featuretable.txt / featuretable_linux.txt / featuretable_mac.txt
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	dump();
 #endif
 

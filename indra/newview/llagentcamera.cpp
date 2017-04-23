@@ -582,7 +582,7 @@ BOOL LLAgentCamera::calcCameraMinDistance(F32 &obj_min_distance)
 
 	if (mFocusObject->mDrawable.isNull())
 	{
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 		LL_WARNS() << "Focus object with no drawable!" << LL_ENDL;
 #else
 		mFocusObject->dump();

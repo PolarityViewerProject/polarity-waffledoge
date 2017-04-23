@@ -2009,7 +2009,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_SPATIAL_PARTITION);
 		if (!drawablep->getSpatialGroup()->getSpatialPartition()->remove(drawablep, drawablep->getSpatialGroup()))
 		{
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 			LL_WARNS() << "Couldn't remove object from spatial group!" << LL_ENDL;
 #else
 			LL_ERRS() << "Couldn't remove object from spatial group!" << LL_ENDL;
@@ -7780,8 +7780,8 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				}
 				//BD
 				else if (gAgentCamera.cameraMouselook() ||
-					!LLViewerJoystick::getInstance()->getOverrideCamera() && 
-					CameraFreeDoFFocus)
+					(!LLViewerJoystick::getInstance()->getOverrideCamera() && 
+					CameraFreeDoFFocus))
 				{ //focus on point under mouselook crosshairs
 					LLVector4a result;
 					result.clear();

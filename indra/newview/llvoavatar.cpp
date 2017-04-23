@@ -5681,7 +5681,7 @@ LLJoint *LLVOAvatar::getJoint( const JointKey &name )
 	}
 // </FS:ND>
 
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
     if (jointp && jointp->getName()!="mScreen" && jointp->getName()!="mRoot")
     {
         llassert(getJoint(jointp->getJointNum())==jointp);

@@ -527,7 +527,7 @@ LLUpdateAppearanceOnDestroy::LLUpdateAppearanceOnDestroy(bool enforce_item_restr
 
 void LLUpdateAppearanceOnDestroy::fire(const LLUUID& inv_item)
 {
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 	LLViewerInventoryItem* item = (LLViewerInventoryItem*) gInventory.getItem(inv_item);
 	const std::string item_name = item ? item->getName() : "ITEM NOT FOUND";
 	LL_DEBUGS("Avatar") << self_av_string() << "callback fired [ name:" << item_name << " UUID:" << inv_item << " count:" << mFireCount << " ] " << LL_ENDL;
@@ -2762,7 +2762,7 @@ void LLAppearanceMgr::updateAppearanceFromCOF(bool enforce_item_restrictions,
 				);
 
 // [RLVa:KB] - Checked: 2010-12-15 (RLVa-1.2.2)
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 			// Don't allow forcing an invalid wearable if the initial wearables aren't set yet, or if any wearable type is currently locked
 			if ( (!rlv_handler_t::isEnabled()) || 
 				 ((gAgentWearables.areInitalWearablesLoaded()) && (!gRlvWearableLocks.hasLockedWearableType(RLV_LOCK_REMOVE))) )

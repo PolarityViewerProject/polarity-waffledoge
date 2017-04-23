@@ -1306,7 +1306,7 @@ LLVector3 LLManipRotate::getConstraintAxis()
 		}
 		else
 		{
-#ifndef LL_RELEASE_FOR_DOWNLOAD
+#if !LL_RELEASE_FOR_DOWNLOAD
 			LL_ERRS() << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << LL_ENDL;
 #else
 			LL_WARNS() << "Got bogus hit part in LLManipRotate::getConstraintAxis():" << mManipPart << LL_ENDL;
