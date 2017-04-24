@@ -519,7 +519,7 @@ void main()
 				rnd = rand(tc.xy);
 				reflight = sun_dir.xyz;
 				bloomdamp = 0.0;
-				
+				// TODO PLVR: Get rid of this loop and unroll it
 				for (int guessnum = 1; guessnum <= ssr_res; ++guessnum)
 				{
 					rnd2 = rand(vec2(guessnum-rnd, tc.x));
@@ -547,7 +547,7 @@ void main()
 					float refapprop = 1.0;
 					
 					// Non-sky
-					if (refdepth < 1.0)
+					if (refdepth < 1.0) // TODO PLVR: Remove flow control
 					{
 						float angleapprop = sqrt(max(0.0, dot(refnorm, (refpos - pos)) / (1.0 + refposdistpow2 )));
 						refapprop = min(refapprop, angleapprop);
@@ -582,6 +582,7 @@ void main()
 						best_refcol += refcol.rgb * refapprop;
 					}
 				}
+				// TODO PLVR: Remove flow control
 				if (total_refapprop > 0.0) {
 					// We must have the power of >= 25% voters, else damp progressively
 					float use_refapprop = max(float(ssr_res), (total_refapprop));
@@ -613,7 +614,8 @@ void main()
     ssshiny *= ssr_brightness;
 				col.rgb = mix(col.rgb + ssshiny, diffuse.rgb, fullbrightification);
 			}
-		#endif
+		#else
+			// TODO PLVR: Remove flow control
 			if (spec.a > 0.0) // specular reflection
 			{
 				// the old infinite-sky shiny reflection
@@ -627,6 +629,7 @@ void main()
 				bloom = dot(spec_contrib, spec_contrib) / 6;
 				col += spec_contrib;
 			}
+		#endif
 
 		
 		col = mix(col, diffuse.rgb, diffuse.a);
