@@ -11636,16 +11636,4 @@ Color: [PV_COLOR]
      yestext="OK"/>
   </notification>
 
-  <notification
-   icon="alertmodal.tga"
-   name="AllowMultipleViewer"
-   type="alertmodal">    
-    Warning: Enabling multiple viewer instances can and will create instability and other various obscure issues.
-
-    Please disable this setting before reporting bugs.
-    <usetemplate
-     name="okbutton"
-     yestext="OK"/>
-  </notification>
-
 </notifications>

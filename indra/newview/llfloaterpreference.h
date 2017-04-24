@@ -1,34 +1,34 @@
-/**
+/** 
  * @file llfloaterpreference.h
  * @brief LLPreferenceCore class definition
  *
  * $LicenseInfo:firstyear=2002&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
- *
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation;
  * version 2.1 of the License only.
- *
+ * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- *
+ * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
  */
 
- /*
-  * App-wide preferences.  Note that these are not per-user,
-  * because we need to load many preferences before we have
-  * a login name.
-  */
+/*
+ * App-wide preferences.  Note that these are not per-user,
+ * because we need to load many preferences before we have
+ * a login name.
+ */
 
 #ifndef LL_LLFLOATERPREFERENCE_H
 #define LL_LLFLOATERPREFERENCE_H
@@ -55,18 +55,19 @@ bool callbackcheckAllowedLookAt(const LLSD& notification, const LLSD& response);
 // Unused
 #ifdef OLD_GRAPHIC_SETTINGS
 typedef enum
-{
-	GS_LOW_GRAPHICS,
-	GS_MID_GRAPHICS,
-	GS_HIGH_GRAPHICS,
-	GS_ULTRA_GRAPHICS
-} EGraphicsSettings;
+	{
+		GS_LOW_GRAPHICS,
+		GS_MID_GRAPHICS,
+		GS_HIGH_GRAPHICS,
+		GS_ULTRA_GRAPHICS
+		
+	} EGraphicsSettings;
 #endif
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
 {
-public:
+public: 
 	LLFloaterPreference(const LLSD& key);
 	~LLFloaterPreference();
 
@@ -90,21 +91,21 @@ public:
 
 	// refresh all the graphics preferences menus
 	static void refreshEnabledGraphics();
-
+	
 	// translate user's do not disturb response message according to current locale if message is default, otherwise do nothing
 	static void initDoNotDisturbResponse();
 
 	// update Show Favorites checkbox
 	static void updateShowFavoritesCheckbox(bool val);
 
-	void processProperties(void* pData, EAvatarProcessorType type);
-	void processProfileProperties(const LLAvatarData* pAvatarData);
-	void storeAvatarProperties(const LLAvatarData* pAvatarData);
-	void saveAvatarProperties(void);
+	void processProperties( void* pData, EAvatarProcessorType type );
+	void processProfileProperties(const LLAvatarData* pAvatarData );
+	void storeAvatarProperties( const LLAvatarData* pAvatarData );
+	void saveAvatarProperties( void );
 	void selectPrivacyPanel();
 	void selectChatPanel();
 
-protected:
+protected:	
 	void		onBtnOK(const LLSD& userdata);
 	void		onBtnCancel(const LLSD& userdata);
 	void		onBtnApply();
@@ -137,7 +138,7 @@ protected:
 
 public:
 	// This function squirrels away the current values of the controls so that
-	// cancel() can restore them.
+	// cancel() can restore them.	
 	void saveSettings();
 	// <polarity> LookAt Logic
 	bool confirmNosyLookAt();
@@ -148,7 +149,7 @@ private:
 
 	void onClickSetCache();
 	void onClickResetCache();
-	void onClickSkin(LLUICtrl* ctrl, const LLSD& userdata);
+	void onClickSkin(LLUICtrl* ctrl,const LLSD& userdata);
 	void onSelectSkin();
 	void onClickSetKey();
 public:
@@ -157,7 +158,7 @@ private:
 	void onClickSetMiddleMouse();
 	void onClickSetSounds();
 	void onClickEnablePopup();
-	void onClickDisablePopup();
+	void onClickDisablePopup();	
 	void resetAllIgnored();
 	void setAllIgnored();
 	void onClickLogPath();
@@ -173,7 +174,7 @@ public:
 private:
 	// if the quality radio buttons are changed
 	void onChangeQuality(const LLSD& data);
-
+	
 	void updateSliderText(LLSliderCtrl* ctrl, LLTextBox* text_box);
 	void refreshUI();
 	void updateMaxNonImpostors();
@@ -220,7 +221,7 @@ private:
 	//void onClickAdvanced(); // <polarity> unused
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
-	void onLogChatHistorySaved();
+	void onLogChatHistorySaved();	
 	void buildPopupLists();
 
 public:
@@ -243,10 +244,10 @@ private:
 	bool mLanguageChanged;
 	bool mAvatarDataInitialized;
 	std::string mPriorInstantMessageLogPath;
-
+	
 	bool mOriginalHideOnlineStatus;
 	std::string mDirectoryVisibility;
-
+	
 	LLAvatarData mAvatarProperties;
 
 	LOG_CLASS(LLFloaterPreference);
@@ -257,13 +258,13 @@ class LLPanelPreference : public LLPanel
 public:
 	LLPanelPreference();
 	/*virtual*/ BOOL postBuild();
-
+	
 	virtual ~LLPanelPreference();
 
 	virtual void apply();
 	virtual void cancel();
 	void setControlFalse(const LLSD& user_data);
-	virtual void setHardwareDefaults() {};
+	virtual void setHardwareDefaults(){};
 
 	// Disables "Allow Media to auto play" check box only when both
 	// "Streaming Music" and "Media" are unchecked. Otherwise enables it.
@@ -272,7 +273,7 @@ public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.
 	virtual void saveSettings();
-
+	
 	class Updater;
 
 protected:
@@ -284,7 +285,6 @@ private:
 	static void showFriendsOnlyWarning(LLUICtrl*, const LLSD&);
 	//for "Show my Favorite Landmarks at Login"
 	static void handleFavoritesOnLoginChanged(LLUICtrl* checkbox, const LLSD& value);
-	static void handleAllowMultipleViewerChanged(LLUICtrl* checkbox, const LLSD& value);
 
 	typedef std::map<std::string, LLColor4> string_color_map_t;
 	string_color_map_t mSavedColors;
@@ -311,7 +311,7 @@ protected:
 #if 0
 class LLFloaterPreferenceGraphicsAdvanced : public LLFloater
 {
-public:
+  public: 
 	LLFloaterPreferenceGraphicsAdvanced(const LLSD& key);
 	~LLFloaterPreferenceGraphicsAdvanced();
 	void onOpen(const LLSD& key);
@@ -336,7 +336,7 @@ public:
 
 class LLAvatarComplexityControls
 {
-public:
+  public: 
 	static void updateMax(LLSliderCtrl* slider, LLTextBox* value_label);
 	static void setText(U32 value, LLTextBox* text_box);
 	static void setIndirectControls();
@@ -347,14 +347,14 @@ public:
 
 class LLFloaterPreferenceProxy : public LLFloater
 {
-public:
+public: 
 	LLFloaterPreferenceProxy(const LLSD& key);
 	~LLFloaterPreferenceProxy();
 
 	/// show off our menu
 	static void show();
 	void cancel();
-
+	
 protected:
 	BOOL postBuild();
 	void onOpen(const LLSD& key);
@@ -367,11 +367,12 @@ protected:
 	void onChangeSocksSettings();
 
 private:
-
+	
 	bool mSocksSettingsDirty;
 	typedef std::map<LLControlVariable*, LLSD> control_values_map_t;
 	control_values_map_t mSavedValues;
 	LOG_CLASS(LLFloaterPreferenceProxy);
 };
+
 
 #endif  // LL_LLPREFERENCEFLOATER_H

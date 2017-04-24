@@ -186,6 +186,14 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
+      <key>SanityCheckType</key>
+      <string>Equals</string>
+      <key>SanityValue</key>
+      <array>
+        <integer>0</integer>
+      </array>
+      <key>SanityComment</key>
+      <string>Enabling multiple viewer instances can and will create instability and other various obscure issues. Please disable multiple instances before reporting bugs.</string>
     </map>
     <key>AllowTapTapHoldRun</key>
     <map>
