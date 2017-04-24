@@ -81,7 +81,6 @@
 			</check_box>
 			<check_box
 				enabled="false"
-				enabled_control="ShowHoverTips"
 				control_name="PVUI_HoverTipsAdvanced"
 				name="PVUI_HoverTipsAdvanced"
 				label="Show extended information"
