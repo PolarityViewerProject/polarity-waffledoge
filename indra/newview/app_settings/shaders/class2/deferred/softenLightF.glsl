@@ -631,17 +631,15 @@ void main()
 		
 		col = mix(col, diffuse.rgb, diffuse.a);
 		
-		/*
-		// Add environmentmap
 		if (envIntensity > 0.0)
-		{
+		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
 
 			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
 
 			col = mix(col.rgb, refcol,
 			  envIntensity);
-		}*/
+		}
             
 						
 		if (norm.w < 0.5)
