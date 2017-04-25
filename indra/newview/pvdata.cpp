@@ -96,7 +96,7 @@ std::string pvitoa(T Number)
 size_t strnlen(const char *s, size_t n)
 {
 	const char *p = (const char *)memchr(s, 0, n);
-	return(p ? p-s : n);
+	return(p ? p - s : n);
 }
 #endif // LL_DARWIN
 
@@ -109,7 +109,7 @@ void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 #else
 	LL_DEBUGS()
 #endif
-	 << "\n===========================\n<!--  <" << name << "> -->\n" << str.str() << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
+		<< "\n===========================\n<!--  <" << name << "> -->\n" << str.str() << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
@@ -189,7 +189,6 @@ void PVDataOldAPI::modularDownloader(const U8 pfile_name_in)
 	{
 		LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(*_pv_url_test_a, boost::bind(downloadComplete, _1, *_pv_url_test_a), boost::bind(downloadError, _1, *_pv_url_test_a));
 	}
-	
 }
 
 void PVDataOldAPI::downloadComplete(const LLSD& aData, std::string& aURL)
@@ -215,8 +214,8 @@ void PVDataOldAPI::downloadError(const LLSD& aData, std::string& aURL)
 }
 
 void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
-	const std::string& http_source_url,
-	const bool& download_failed
+											const std::string& http_source_url,
+											const bool& download_failed
 )
 {
 	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
@@ -226,7 +225,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 	}
 	if (*_pv_url_prod_d == http_source_url || *_pv_url_test_d == http_source_url)
 	{
-                LL_INFOS() << "Got DATA file" << LL_ENDL;
+		LL_INFOS() << "Got DATA file" << LL_ENDL;
 		gPVOldAPI->setDataStatus(NEW_DATA);
 		if (download_failed)
 		{
@@ -288,7 +287,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	std::string section = pv_data_sections_.at(MinimumVersion);
 
 	//@todo: Loop through sections and check section type to determine validity?
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -300,7 +299,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 			auto reason = iter->second;
 			blob[version] = reason;
 			minimum_version_[version] = reason;
-			LL_DEBUGS() << "Minimum Version is " + version<< LL_ENDL;
+			LL_DEBUGS() << "Minimum Version is " + version << LL_ENDL;
 		}
 	}
 	else
@@ -309,7 +308,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	}
 
 	section = pv_data_sections_.at(PVDataOldAPI::BlockedReleases);
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -326,7 +325,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 #if PVDATA_MOTD
 	// Set Message Of The Day if present
 	section = pv_data_sections_.at(PVDataOldAPI::MOTD);
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -341,7 +340,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 
 #if PVDATA_MOTD_CHAT
 	section = pv_data_sections_.at(ChatMOTD);
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -358,7 +357,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 
 	section = pv_data_sections_.at(EventsMOTD);
 	// If the event falls within the current date, use that for MOTD instead.
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -377,7 +376,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	section = pv_data_sections_.at(ProgressTip);
 	//@todo: Split tips files
 	// Load the progress screen tips
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -393,7 +392,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 #endif // PVDATA_PROGRESS_TIPS
 
 	section = pv_data_sections_.at(WindowTitles);
-	LL_DEBUGS() << "Attempting to find " + section<< LL_ENDL;
+	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
 	{
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
@@ -418,7 +417,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
 
 		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
-			uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
+			 uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
 			LLUUID uuid;
 			auto uuid_str = uuid_iterator->first;
@@ -494,7 +493,7 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 	mPVAgents_llsd = data_input;
 	//autoMuteFlaggedAgents();
 	LL_INFOS() << "Done parsing agents" << LL_ENDL;
-	Dump("PVAgents",mPVAgents_llsd);
+	Dump("PVAgents", mPVAgents_llsd);
 	pv_agents_status_ = READY;
 }
 
@@ -632,7 +631,7 @@ void PVDataOldAPI::autoMuteFlaggedAgents()
 
 LLUUID PVDataOldAPI::getLockDownUUID()
 {
-// Workaround for missing CMAKE flags
+	// Workaround for missing CMAKE flags
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
@@ -655,7 +654,7 @@ bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass
 	if (output_message) gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the [APP_NAME] developers).");
 	if (id.isNull())
 	{
-		if(output_message) gPVOldAPI->setErrorMessage("Agent UUID is null! WTF!?!?!?!");
+		if (output_message) gPVOldAPI->setErrorMessage("Agent UUID is null! WTF!?!?!?!");
 		return false;
 	}
 
@@ -712,7 +711,7 @@ bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass
 	}
 	return false;
 #else
-	}
+}
 	return true;
 #endif // INTERNAL_BUILD
 #endif // PVDATA_UUID_LOCKDOWN
@@ -765,8 +764,8 @@ bool PVDataOldAPI::isBlockedRelease()
 
 	// assign the iterator's associated value (the reason message) to the LLSD that will be returned to the calling function
 	const LLSD& reason_llsd = blockedver_iterator->second;
-		setErrorMessage(reason_llsd["REASON"]);
-		LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << getErrorMessage() << ")" << LL_ENDL;
+	setErrorMessage(reason_llsd["REASON"]);
+	LL_WARNS() << sCurrentVersion << " is not allowed to be used anymore (" << getErrorMessage() << ")" << LL_ENDL;
 	LLFloaterAboutUtil::checkUpdatesAndNotify();
 	blocked = TRUE;
 	return true;
@@ -813,7 +812,7 @@ void PVDataOldAPI::startRefreshTimer()
 void PVDataOldAPI::refreshDataFromServer(bool force_refresh_now)
 {
 	// paranoia check
-	if(!pvdata_refresh_timer_.getStarted())
+	if (!pvdata_refresh_timer_.getStarted())
 	{
 		return;
 	}
@@ -845,7 +844,7 @@ LLColor4 PVDataOldAPI::Hex2Color4(int hexValue)
 
 void PVDataOldAPI::cleanup()
 {
-	if(!pvdata_refresh_timer_.getStarted())
+	if (!pvdata_refresh_timer_.getStarted())
 	{
 		return;
 	}
@@ -866,7 +865,6 @@ void PVSearchUtil::setSearchSeparator(const U32 separator_in_u32)
 	PVSearchSeparatorSelected = separator_in_u32;
 	LL_DEBUGS() << "Setting search separator to '" << separator_in_u32 << "'" << "('" << getSearchSeparator() << "')" << LL_ENDL;
 	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
-
 }
 
 std::string PVSearchUtil::getSearchSeparator()
@@ -984,13 +982,12 @@ void PVDataOldAPI::getChatLogsDirOverride()
 	}
 	else if (log_location_from_registry != NULL && log_location_from_registry[0] != '\0')
 	{
-
 		new_chat_logs_dir = log_location_from_registry;
 	}
 	//if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
 	//{
-	LL_DEBUGS() << "Would set logs location to: " + new_chat_logs_dir<< LL_ENDL;
-	LL_DEBUGS() << "gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir()<< LL_ENDL;
+	LL_DEBUGS() << "Would set logs location to: " + new_chat_logs_dir << LL_ENDL;
+	LL_DEBUGS() << "gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir() << LL_ENDL;
 
 	LL_WARNS() << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
 	//}
@@ -1009,7 +1006,7 @@ void PVDataOldAPI::getChatLogsDirOverride()
 
 	if (new_chat_logs_dir != gDirUtilp->getChatLogsDir())
 	{
-		LL_DEBUGS() << "Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir()<< LL_ENDL;
+		LL_DEBUGS() << "Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir() << LL_ENDL;
 	}
 
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
@@ -1054,14 +1051,14 @@ bool PVDataOldAPI::moveTranscriptsAndLog(const std::string &userid) const
 	LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
 
 	if (!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
-		instantMessageLogPath,
-		listOfTranscripts,
-		listOfFilesMoved))
+									instantMessageLogPath,
+									listOfTranscripts,
+									listOfFilesMoved))
 	{
 		//Couldn't move all the transcripts so restore those that moved back to their old location
 		LLLogChat::moveTranscripts(instantMessageLogPath,
-			gDirUtilp->getChatLogsDir(),
-			listOfFilesMoved);
+								   gDirUtilp->getChatLogsDir(),
+								   listOfFilesMoved);
 
 		//Move the conversation log back
 		LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
@@ -1119,10 +1116,9 @@ void PVDataOldAPI::setBlockedVersionsList(const LLSD& blob)
 	}
 }
 
-
 void PVDataOldAPI::checkBeggar(const LLUUID& id, const std::string& message)
 {
-	if(!mBeggarCheckEnabled)
+	if (!mBeggarCheckEnabled)
 	{
 		return;
 	}
@@ -1181,7 +1177,7 @@ PVAgent* PVAgent::create(const LLUUID& id, const LLColor3& color, const S32& fla
 	{
 		new_agent = new PVAgent();
 	}
-		
+
 	new_agent->uuid = id;
 	new_agent->color = color;
 	new_agent->flags = flags;
@@ -1197,7 +1193,7 @@ bool PVAgent::hasSpecialColor(LLColor4& color_out)
 	color_out = color;
 	return color_out != LLColor4::black;
 }
-	
+
 LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 {
 	// The agent could have a special color without having any flags, so get this one first
@@ -1289,263 +1285,263 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 	}
 	return pv_color;
 }
-	LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool show_buddy_status)
-	{
+LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool show_buddy_status)
+{
 #if !LL_RELEASE_FOR_DOWNLOAD
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
 #endif
-		if (!RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
-		{
-			return default_color;
-		}
-		// Try to operate in the same instance, reduce call overhead
-		LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
+	if (!RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
+	{
+		return default_color;
+	}
+	// Try to operate in the same instance, reduce call overhead
+	LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
 
-		auto return_color = default_color; // color we end up with at the end of the logic
+	auto return_color = default_color; // color we end up with at the end of the logic
 
-		// Some flagged users CAN be muted.
-		if (LLMuteList::instance().isMuted(id))
-		{
-			static auto muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
-			return_color = muted_color.get();
-			return return_color;
-		}
-
-		static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-		auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
-		static auto friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
-		static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-		if (!use_color_manager)
-		{
-			return show_f ? friend_color : default_color;
-		}
-		else
-		{
-			LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
-			auto pvdata_color = default_color;
-			// if the agent isn't a special agent, nullptr is returned.
-			auto agentPtr = find(id);
-			if (agentPtr)
-			{
-				pvdata_color = agentPtr->getColorInternal(*cTablePtr);
-			}
-
-			/*	Respect user preferences
-				Expected behavior:
-				+Friend, +PVDATA, +lpf = show PVDATA
-				+Friend, +PVDATA, -lpl = show FRIEND
-				+Friend, -PVDATA, +lpl = show FRIEND
-				+Friend, -PVDATA, -lpl = show FRIEND
-				-Friend, +PVDATA, +lpl = show PVDATA
-				-Friend, +PVDATA, -lpl = show PVDATA
-				-Friend, -PVDATA, +lpl = show FALLBACK
-				-Friend, -PVDATA, -lpl = show FALLBACK
-			*/
-
-			static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
-			// Lengthy but fool-proof.
-			if (show_f && agentPtr && low_priority_friend_status)
-			{
-				return_color = pvdata_color;
-			}
-			if (show_f && agentPtr && !low_priority_friend_status)
-			{
-				return_color = friend_color;
-			}
-			if (show_f && !agentPtr && low_priority_friend_status)
-			{
-				return_color = friend_color;
-			}
-			if (show_f && !agentPtr && !low_priority_friend_status)
-			{
-				return_color = friend_color;
-			}
-			if (!show_f && agentPtr && low_priority_friend_status)
-			{
-				return_color = pvdata_color;
-			}
-			if (!show_f && agentPtr && !low_priority_friend_status)
-			{
-				return_color = pvdata_color;
-			}
-			if (!show_f && !agentPtr && low_priority_friend_status)
-			{
-				return_color = default_color;
-			}
-			if (!show_f && !agentPtr && !low_priority_friend_status)
-			{
-				return_color = default_color;
-			}
-		}
+	// Some flagged users CAN be muted.
+	if (LLMuteList::instance().isMuted(id))
+	{
+		static auto muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
+		return_color = muted_color.get();
 		return return_color;
 	}
 
-	S32 PVAgent::getFlags()
+	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
+	auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
+	static auto friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
+	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
+	if (!use_color_manager)
 	{
-		return flags;
+		return show_f ? friend_color : default_color;
 	}
-
-	std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
+	else
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
-		// contents: { raw_flags, custom_title_or_empty }
-		std::vector<std::string> title_v; title_v.reserve(3);
-		std::string raw_flags = getTitle(false);
-		if (raw_flags.empty())
+		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
+		auto pvdata_color = default_color;
+		// if the agent isn't a special agent, nullptr is returned.
+		auto agentPtr = find(id);
+		if (agentPtr)
 		{
-			raw_flags = "None";
+			pvdata_color = agentPtr->getColorInternal(*cTablePtr);
+		}
+
+		/*	Respect user preferences
+			Expected behavior:
+			+Friend, +PVDATA, +lpf = show PVDATA
+			+Friend, +PVDATA, -lpl = show FRIEND
+			+Friend, -PVDATA, +lpl = show FRIEND
+			+Friend, -PVDATA, -lpl = show FRIEND
+			-Friend, +PVDATA, +lpl = show PVDATA
+			-Friend, +PVDATA, -lpl = show PVDATA
+			-Friend, -PVDATA, +lpl = show FALLBACK
+			-Friend, -PVDATA, -lpl = show FALLBACK
+		*/
+
+		static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+		// Lengthy but fool-proof.
+		if (show_f && agentPtr && low_priority_friend_status)
+		{
+			return_color = pvdata_color;
+		}
+		if (show_f && agentPtr && !low_priority_friend_status)
+		{
+			return_color = friend_color;
+		}
+		if (show_f && !agentPtr && low_priority_friend_status)
+		{
+			return_color = friend_color;
+		}
+		if (show_f && !agentPtr && !low_priority_friend_status)
+		{
+			return_color = friend_color;
+		}
+		if (!show_f && agentPtr && low_priority_friend_status)
+		{
+			return_color = pvdata_color;
+		}
+		if (!show_f && agentPtr && !low_priority_friend_status)
+		{
+			return_color = pvdata_color;
+		}
+		if (!show_f && !agentPtr && low_priority_friend_status)
+		{
+			return_color = default_color;
+		}
+		if (!show_f && !agentPtr && !low_priority_friend_status)
+		{
+			return_color = default_color;
+		}
+	}
+	return return_color;
+}
+
+S32 PVAgent::getFlags()
+{
+	return flags;
+}
+
+std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
+{
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
+	// contents: { raw_flags, custom_title_or_empty }
+	std::vector<std::string> title_v; title_v.reserve(3);
+	std::string raw_flags = getTitle(false);
+	if (raw_flags.empty())
+	{
+		raw_flags = "None";
+	}
+	else
+	{
+		raw_flags = "[" + raw_flags + "]";
+	}
+	title_v.push_back(raw_flags);
+	//@todo highest non-custom title, see comment in getTitle()
+	title_v.push_back(getTitle(true));
+	return title_v;
+}
+
+bool PVAgent::getTitleCustom(std::string& new_title)
+{
+	new_title = title;
+	return (!new_title.empty());
+}
+
+std::string PVAgent::getTitle(bool get_custom_title)
+{
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLE);
+	// Check for agents flagged through PVDataOldAPI
+	std::vector<std::string> flags_list;
+	if (get_custom_title)
+	{
+		std::string custom_title;
+		if (getTitleCustom(custom_title))
+		{
+			// Custom tag present, drop previous title to use that one instead.
+			flags_list.clear();
+			flags_list.push_back(custom_title);
+		}
+	}
+	if ((flags == 0 || flags & LINDEN_EMPLOYEE) && flags_list.empty())
+	{
+		// Only call this once, thanks.
+		std::string first_name, last_name;
+		LLAvatarName av_name;
+		if (LLAvatarNameCache::get(uuid, &av_name))
+		{
+			std::istringstream full_name(av_name.getUserName());
+			full_name >> first_name >> last_name;
 		}
 		else
 		{
-			raw_flags = "[" + raw_flags + "]";
+			gCacheName->getFirstLastName(uuid, first_name, last_name);
 		}
-		title_v.push_back(raw_flags);
-		//@todo highest non-custom title, see comment in getTitle()
-		title_v.push_back(getTitle(true));
-		return title_v;
-	}
-
-	bool PVAgent::getTitleCustom(std::string& new_title)
-	{
-		new_title = title;
-		return (!new_title.empty());
-	}
-	
-	std::string PVAgent::getTitle(bool get_custom_title)
-	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLE);
-		// Check for agents flagged through PVDataOldAPI
-		std::vector<std::string> flags_list;
-		if (get_custom_title)
+		if (isLinden(last_name))
 		{
-			std::string custom_title;
-			if (getTitleCustom(custom_title))
-			{
-				// Custom tag present, drop previous title to use that one instead.
-				flags_list.clear();
-				flags_list.push_back(custom_title);
-			}
+			flags_list.push_back("Linden Lab Employee");
 		}
-		if ((flags == 0 || flags & LINDEN_EMPLOYEE) && flags_list.empty())
+		if (isMole(last_name))
 		{
-			// Only call this once, thanks.
-			std::string first_name, last_name;
-			LLAvatarName av_name;
-			if (LLAvatarNameCache::get(uuid, &av_name))
-			{
-				std::istringstream full_name(av_name.getUserName());
-				full_name >> first_name >> last_name;
-			}
-			else
-			{
-				gCacheName->getFirstLastName(uuid, first_name, last_name);
-			}
-			if (isLinden(last_name))
-			{
-				flags_list.push_back("Linden Lab Employee");
-			}
-			if (isMole(last_name))
-			{
-				flags_list.push_back("Linden Lab Employee");
-			}
-			if (isProductEngine(last_name))
-			{
-				flags_list.push_back("Linden Lab Contractor");
-			}
-			if (isScout(last_name))
-			{
-				flags_list.push_back("Linden Lab Scout");
-			}
-			if (isLLTester(last_name))
-			{
-				flags_list.push_back("Linden Lab Scout");
-			}
+			flags_list.push_back("Linden Lab Employee");
 		}
-		else if (flags != 0 && flags_list.empty())
+		if (isProductEngine(last_name))
 		{
-			//@todo add a way to only get the highest flag instead of a list.
-			// here are the bad flags
-			if (isProviderMuted())
-			{
-				flags_list.push_back("Nuisance");
-			}
-			if (isProviderBanned())
-			{
-				flags_list.push_back("Exiled");
-			}
-			if (isProviderUnsupported())
-			{
-				flags_list.push_back("Unsupported");
-			}
-			// And here are the good flags
-			if (isProviderDeveloper())
-			{
-				flags_list.push_back("Developer");
-			}
-			if (isProviderQATeam())
-			{
-				flags_list.push_back("QA");
-			}
-			if (isProviderSupportTeam())
-			{
-				flags_list.push_back("Support");
-			}
-			if (isProviderTester())
-			{
-				flags_list.push_back("Tester");
-			}
+			flags_list.push_back("Linden Lab Contractor");
 		}
-		std::ostringstream agent_title;
-		vector_to_string(agent_title, flags_list.begin(), flags_list.end());
-		return agent_title.str();
+		if (isScout(last_name))
+		{
+			flags_list.push_back("Linden Lab Scout");
+		}
+		if (isLLTester(last_name))
+		{
+			flags_list.push_back("Linden Lab Scout");
+		}
 	}
-
-	bool PVAgent::isProviderDeveloper()
+	else if (flags != 0 && flags_list.empty())
 	{
-		return (flags & STAFF_DEVELOPER);
+		//@todo add a way to only get the highest flag instead of a list.
+		// here are the bad flags
+		if (isProviderMuted())
+		{
+			flags_list.push_back("Nuisance");
+		}
+		if (isProviderBanned())
+		{
+			flags_list.push_back("Exiled");
+		}
+		if (isProviderUnsupported())
+		{
+			flags_list.push_back("Unsupported");
+		}
+		// And here are the good flags
+		if (isProviderDeveloper())
+		{
+			flags_list.push_back("Developer");
+		}
+		if (isProviderQATeam())
+		{
+			flags_list.push_back("QA");
+		}
+		if (isProviderSupportTeam())
+		{
+			flags_list.push_back("Support");
+		}
+		if (isProviderTester())
+		{
+			flags_list.push_back("Tester");
+		}
 	}
+	std::ostringstream agent_title;
+	vector_to_string(agent_title, flags_list.begin(), flags_list.end());
+	return agent_title.str();
+}
 
-	bool PVAgent::isProviderSupportTeam()
-	{
-		return (flags & STAFF_SUPPORT);
-	}
+bool PVAgent::isProviderDeveloper()
+{
+	return (flags & STAFF_DEVELOPER);
+}
 
-	bool PVAgent::isProviderQATeam()
-	{
-		return (flags & STAFF_QA);
-	}
+bool PVAgent::isProviderSupportTeam()
+{
+	return (flags & STAFF_SUPPORT);
+}
 
-	bool PVAgent::isProviderTester()
-	{
-		return (flags & USER_TESTER);
-	}
+bool PVAgent::isProviderQATeam()
+{
+	return (flags & STAFF_QA);
+}
 
-	bool PVAgent::isProviderUnsupported()
-	{
-		return (flags & BAD_USER_UNSUPPORTED);
-	}
+bool PVAgent::isProviderTester()
+{
+	return (flags & USER_TESTER);
+}
 
-	bool PVAgent::isProviderMuted()
-	{
-		return (flags & BAD_USER_AUTOMUTED);
-	}
+bool PVAgent::isProviderUnsupported()
+{
+	return (flags & BAD_USER_UNSUPPORTED);
+}
 
-	bool PVAgent::isProviderBanned()
-	{
-		return (flags & BAD_USER_BANNED);
-	}
+bool PVAgent::isProviderMuted()
+{
+	return (flags & BAD_USER_AUTOMUTED);
+}
 
-	bool PVDataOldAPI::isSupportGroup(const LLUUID& id) const
-	{
-		return support_group_.count(id);
-	}
+bool PVAgent::isProviderBanned()
+{
+	return (flags & BAD_USER_BANNED);
+}
 
-	bool PVAgent::isPolarized()
-	{
-		//@todo: Re-order flags by hierarchy again and make this nicer
-		//auto flags = getAgentFlags(avatar_id);
-		//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
-		return ((!isProviderBanned() && !isProviderUnsupported() && !isProviderMuted()) &&
-			(isProviderDeveloper() || isProviderQATeam() || isProviderSupportTeam() || isProviderTester()));
-	}
+bool PVDataOldAPI::isSupportGroup(const LLUUID& id) const
+{
+	return support_group_.count(id);
+}
+
+bool PVAgent::isPolarized()
+{
+	//@todo: Re-order flags by hierarchy again and make this nicer
+	//auto flags = getAgentFlags(avatar_id);
+	//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
+	return ((!isProviderBanned() && !isProviderUnsupported() && !isProviderMuted()) &&
+		(isProviderDeveloper() || isProviderQATeam() || isProviderSupportTeam() || isProviderTester()));
+}
 //}
