@@ -1133,7 +1133,7 @@ void PVDataOldAPI::checkBeggar(const LLUUID& id, const std::string& message)
 	{
 		// todo: set pvdata flag
 		LLSD args;
-		args["id"] = id;
+		args["AVATAR_ID"] = id;
 		LLNotificationsUtil::add("GenericBeggarNotifyTip", args);
 	}
 }
