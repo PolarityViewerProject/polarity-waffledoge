@@ -1134,6 +1134,7 @@ void PVDataOldAPI::checkBeggar(const LLUUID& id, const std::string& message)
 		// todo: set pvdata flag
 		LLSD args;
 		args["AVATAR_ID"] = id;
+		LL_WARNS() << "Flagging " << id << " as potential beggar by match against '" << message << "'" << LL_ENDL;
 		LLNotificationsUtil::add("GenericBeggarNotifyTip", args);
 	}
 }
