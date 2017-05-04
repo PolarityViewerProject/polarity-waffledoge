@@ -406,7 +406,7 @@ RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
-RenderFarClip				1	96
+RenderFarClip				1	128
 RenderShadowFarClip			1	106
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
