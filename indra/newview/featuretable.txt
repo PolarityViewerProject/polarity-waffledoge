@@ -449,7 +449,6 @@ RenderAvatarCloth			1	1
 RenderAvatarLODFactor		1	1.0
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
-RenderFarClip				1	256
 RenderShadowFarClip			1	282
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
@@ -491,7 +490,6 @@ RenderAvatarLODFactor		1	10.0
 RenderAvatarMaxComplexity	1	500000
 RenderAvatarPhysicsLODFactor 1	5.0
 RenderAvatarVP				1	1
-RenderFarClip				1	8192
 RenderShadowFarClip			1	9010
 RenderFlexTimeFactor		1	10.0
 RenderGlowResolutionPow		1	11
