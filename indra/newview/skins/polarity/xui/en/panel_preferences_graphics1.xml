@@ -531,7 +531,7 @@
         label_width="135"
         layout="topleft"
         left="210"
-        max_val="2048"
+        max_val="512"
         min_val="0"
         name="DrawDistance"
         top="60"
