@@ -521,6 +521,7 @@
         Low
       </text>
       <slider
+        can_edit_text="true"
         control_name="RenderFarClip"
         decimal_digits="0"
         follows="left|top"
@@ -538,6 +539,7 @@
         width="275">
       </slider>
       <slider
+        can_edit_text="true"
         control_name="RenderMaxPartCount"
         decimal_digits="0"
         follows="left|top"
