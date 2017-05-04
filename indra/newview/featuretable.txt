@@ -41,10 +41,10 @@ PVRender_FPSLimiterEnabled	1	0
 PVRender_FPSLimiterTarget	1	0
 PVRender_GodraysDirectional	1	1
 PVRender_ShadowDetailRigged	1	3
-PVRender_ShadowResolutionClosest	1	8192
-PVRender_ShadowResolutionFar	1	8192
-PVRender_ShadowResolutionFurthest	1	8192
-PVRender_ShadowResolutionMid	1	8192
+PVRender_ShadowResolutionClosest	1	3072
+PVRender_ShadowResolutionMid	1	2048
+PVRender_ShadowResolutionFar	1	1024
+PVRender_ShadowResolutionFurthest	1	768
 RenderAnisotropic			1	1
 RenderAutoMuteSurfaceAreaLimit     1	1000.0
 RenderAvatarCloth			1	1
@@ -517,6 +517,10 @@ PVRender_EnableSSR			1	1
 PVRender_EnableToneMapping	1	1
 PVRender_ShadowDetailRigged	1	3
 PVRender_DeferredFXAAQuality	1	39
+PVRender_ShadowResolutionClosest	1	3072
+PVRender_ShadowResolutionMid	1	2048
+PVRender_ShadowResolutionFar	1	1024
+PVRender_ShadowResolutionFurthest	1	768
 
 //
 // Class Unknown Hardware (unknown)
