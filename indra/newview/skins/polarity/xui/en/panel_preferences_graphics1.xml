@@ -530,13 +530,14 @@
         initial_value="128"
         label="Draw distance (meters):"
         label_width="135"
+        text_width="35"
         layout="topleft"
         left="210"
         max_val="512"
         min_val="0"
         name="DrawDistance"
         top="60"
-        width="275">
+        width="280">
       </slider>
       <slider
         can_edit_text="true"
