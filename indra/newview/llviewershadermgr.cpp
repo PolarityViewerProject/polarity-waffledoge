@@ -1337,6 +1337,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredTreeShadowProgram.mShaderFiles.clear();
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredTreeShadowProgram.mShaderFiles.push_back(make_pair("deferred/treeShadowF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredTreeShadowProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" :*/ "0");
 		gDeferredTreeShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredTreeShadowProgram.createShader(NULL, NULL);
 	}
