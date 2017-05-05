@@ -1293,7 +1293,7 @@ void LLPipeline::refreshCachedSettings()
 	if(sync_far_clip)
 	{
 		// RenderShadowFarClip = (RenderFarClip * 1.10);
-		gSavedSettings.setF32("RenderShadowFarClip", RenderFarClip);
+		gSavedSettings.setF32("RenderShadowFarClip", RenderFarClip + 32);
 	}
 	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
 	// </polarity>
