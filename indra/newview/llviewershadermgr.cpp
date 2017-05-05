@@ -498,8 +498,7 @@ void LLViewerShaderMgr::setShaders()
 			gSavedSettings.getBOOL("RenderAvatarVP") &&
 			gSavedSettings.getBOOL("WindLightUseAtmosShaders"))
 		{
-			if (gSavedSettings.getS32("RenderShadowDetail") > 0
-				|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+			if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 			{ //shadows
 				deferred_class = 2;
 			}
@@ -708,8 +707,7 @@ BOOL LLViewerShaderMgr::resetDeferredShaders()
 	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
 		gSavedSettings.getBOOL("RenderDeferred"))
 	{
-		if (gSavedSettings.getS32("RenderShadowDetail") > 0
-			|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+		if (gSavedSettings.getS32("RenderShadowDetail") > 0)
 		{ //shadows
 			deferred_class = 2;
 		}
@@ -1897,8 +1895,7 @@ BOOL LLViewerShaderMgr::loadShadersSSAO(bool success)
 
 		//BD
 		if (gSavedSettings.getBOOL("RenderDeferredBlurLight")
-			|| gSavedSettings.getBOOL("RenderDeferredSSAO")
-			|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+			|| gSavedSettings.getBOOL("RenderDeferredSSAO"))
 		{
 			fragment = "deferred/sunLightSSAOF.glsl";
 		}
