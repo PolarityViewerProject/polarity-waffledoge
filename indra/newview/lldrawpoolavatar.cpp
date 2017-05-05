@@ -455,11 +455,11 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
+	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 	// NaCl - Faster Avatar Shadows
 	static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
 	if (0 == PVRender_ShadowDetailRigged)
 		return;
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR); // shouldn't we still record if we disable shadows?
 
 	if (mDrawFace.empty())
 	{
