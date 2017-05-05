@@ -1201,7 +1201,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("translationPalette");
 
 	// <Black Dragon:NiranV> Post-Process Effects
-	mReservedUniforms.push_back("lastMatrixPalette");
 	mReservedUniforms.push_back("num_colors");
 	mReservedUniforms.push_back("greyscale_str");
 	mReservedUniforms.push_back("sepia_str");
