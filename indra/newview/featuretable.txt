@@ -390,7 +390,7 @@ PVRender_ShadowDetailRigged	1	2
 PVRender_DeferredFXAAQuality	1	10
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
+PVRender_DepthOfFieldAlphas	1	1
 PVRender_ShadowResolutionClosest	1	1024
 PVRender_ShadowResolutionMid	1	1280
 PVRender_ShadowResolutionFar	1	1536
@@ -434,7 +434,7 @@ PVRender_ShadowDetailRigged	1	2
 PVRender_DeferredFXAAQuality	1	15
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
+PVRender_DepthOfFieldAlphas	1	1
 PVRender_ShadowResolutionClosest	1	1024
 PVRender_ShadowResolutionMid	1	1280
 PVRender_ShadowResolutionFar	1	1536
