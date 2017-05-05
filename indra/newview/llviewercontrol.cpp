@@ -122,6 +122,12 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	F32 draw_distance = (F32) newvalue.asReal();
 	gAgentCamera.mDrawDistance = draw_distance;
 	LLWorld::getInstance()->setLandFarClip(draw_distance);
+	// <polarity>
+	static LLCachedControl<bool> sync_far_clip(gSavedSettings, "PVRender_SyncFarClip", true);
+	if(sync_far_clip)
+	{
+		gSavedSettings.setF32("RenderShadowFarClip", gAgentCamera.mDrawDistance + 32);
+	}
 	return true;
 }
 
