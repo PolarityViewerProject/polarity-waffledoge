@@ -577,12 +577,14 @@ void LLViewerShaderMgr::setShaders()
 				mVertexShaderLevel[SHADER_AVATAR] = 3;
 				mMaxAvatarShaderLevel = 3;
 				
-				if (gSavedSettings.getBOOL("RenderAvatarVP") && loadShadersObject())
+				static LLCachedControl<bool> renderAvatarVP(gSavedSettings, "RenderAvatarVP");
+				if (renderAvatarVP && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
+					static LLCachedControl<bool> avatar_cloth(gSavedSettings, "RenderAvatarCloth");
 					S32 avatar_class = 1;
 				
 					// cloth is a class3 shader
-					if(gSavedSettings.getBOOL("RenderAvatarCloth"))
+					if(avatar_cloth)
 					{
 						avatar_class = 3;
 					}
