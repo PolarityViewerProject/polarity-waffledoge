@@ -1258,8 +1258,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>
 
-	mReservedUniforms.push_back("custom_alpha");
-
 	if (mReservedUniforms.size() != END_RESERVED_UNIFORMS)
 	{
 		LL_WARNS() << "Amount of allocated uniforms dos not match amount of allocatables! (Allocated: " << mReservedUniforms.size() << ", Total: " << END_RESERVED_UNIFORMS << ")" << LL_ENDL;

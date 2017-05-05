@@ -189,9 +189,10 @@ void LLDrawPoolWLSky::renderStars(void) const
 
 	gGL.getTexUnit(0)->bind(gSky.mVOSkyp->getBloomTex());
 
-	if (LLGLSLShader::sNoFixedFunction)
+	if (gPipeline.canUseVertexShaders())
 	{
-		star_shader->uniform1f(LLShaderMgr::CUSTOM_ALPHA, star_alpha.mV[3]);
+		static LLStaticHashedString sCustomAlpha("custom_alpha");
+		star_shader->uniform1f(sCustomAlpha, star_alpha.mV[3]);
 	}
 	else
 	{

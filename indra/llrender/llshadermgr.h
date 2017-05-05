@@ -247,7 +247,6 @@ public:
 		// <polarity> Gaussian blur shader
 		PLVR_BLUR_DIRECTION,
 		// </polarity>
-		CUSTOM_ALPHA,
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
