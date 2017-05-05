@@ -22,7 +22,6 @@
  * $/LicenseInfo$
  */
  
-//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
 
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;

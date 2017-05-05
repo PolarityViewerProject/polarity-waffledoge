@@ -29,7 +29,6 @@ out vec4 frag_color;
 #define frag_color gl_FragColor
 #endif
 
-//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
 
 uniform sampler2D glowMap;
 uniform sampler2DRect screenMap;

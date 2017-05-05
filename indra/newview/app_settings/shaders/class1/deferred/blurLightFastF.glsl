@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
 
-//#extension GL_ARB_texture_rectangle : enable
-
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else

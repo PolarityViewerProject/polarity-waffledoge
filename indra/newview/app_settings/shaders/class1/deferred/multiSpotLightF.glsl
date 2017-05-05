@@ -31,9 +31,6 @@ out vec4 frag_color;
 
 //class 1 -- no shadows
 
-//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
-//#extension GL_ARB_shader_texture_lod : enable // <Alchemy:Drake/> Fix GLSL compatibility
-
 uniform sampler2DRect diffuseRect;
 uniform sampler2DRect specularRect;
 uniform sampler2DRect depthMap;

@@ -23,8 +23,6 @@
  * $/LicenseInfo$
  */
  
-//#extension GL_ARB_texture_rectangle : enable // <Alchemy:Drake/> Fix GLSL compatibility
-
 #define INDEXED 1
 #define NON_INDEXED 2
 #define NON_INDEXED_NO_COLOR 3
