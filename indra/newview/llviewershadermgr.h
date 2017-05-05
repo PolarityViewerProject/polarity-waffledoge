@@ -355,14 +355,6 @@ extern LLGLSLShader			gGaussianBlurProgram;
 //BD - Volumetric Lighting
 extern LLGLSLShader			gVolumetricLightProgram;
 
-//BD - Motion Blur
-extern LLGLSLShader			gVelocityProgram;
-extern LLGLSLShader			gVelocityAlphaProgram;
-extern LLGLSLShader			gAvatarVelocityProgram;
-extern LLGLSLShader			gSkinnedVelocityProgram;
-extern LLGLSLShader			gSkinnedVelocityAlphaProgram;
-extern LLGLSLShader			gMotionBlurProgram;
-
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
 extern LLGLSLShader			gDeferredMaterialWaterProgram[LLMaterial::SHADER_COUNT*2];

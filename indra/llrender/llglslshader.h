@@ -52,8 +52,6 @@ public:
 	bool disableTextureIndex;
 	bool hasAlphaMask;
 	bool attachNothing;
-//	//BD - Motion Blur
-	bool hasMotionBlur;
 
 	// char numLights;
 	

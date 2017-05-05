@@ -217,10 +217,6 @@ U32 LLPipeline::RenderGodraysResolution;
 F32 LLPipeline::RenderGodraysMultiplier;
 F32 LLPipeline::RenderGodraysFalloffMultiplier;
 
-//	//BD - Motion Blur
-BOOL LLPipeline::RenderMotionBlur;
-U32 LLPipeline::RenderMotionBlurStrength;
-
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
 
 bool	LLPipeline::sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
@@ -714,10 +710,6 @@ void LLPipeline::init()
 	// <Black Dragon:NiranV> Tofu's SSR
 	connectRefreshCachedSettingsSafe("PVRender_SSRResolution");
 
-//	//BD - Motion Blur
-	connectRefreshCachedSettingsSafe("RenderMotionBlur");
-	connectRefreshCachedSettingsSafe("RenderMotionBlurStrength");
-
 //	//BD - Exodus Post Process
 	connectRefreshCachedSettingsSafe("PVRender_Gamma");
 	connectRefreshCachedSettingsSafe("PVRender_HDRBrightnessOffset");
@@ -1084,17 +1076,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 //		//BD - Shadow Map Allocation
 		allocateShadowMaps(true);
 
-//		//BD - Motion Blur
-		if (RenderMotionBlur)
-		{
-			//allocate velocity map
-			mVelocityMap.allocate(resX, resY, GL_RGB, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE);
-		}
-		else
-		{
-			mVelocityMap.release();
-		}
-
 		//HACK make screenbuffer allocations start failing after 30 seconds
 		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
 		{
@@ -1114,8 +1095,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
 		mOcclusionDepth.release();
-//		//BD - Motion Blur
-		mVelocityMap.release();
 						
 		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 	}
@@ -1123,11 +1102,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 	if (sRenderDeferred)
 	{ //share depth buffer between deferred targets
 		mDeferredScreen.shareDepthBuffer(mScreen);
-//		//BD - Motion Blur
-		if (RenderMotionBlur)
-		{
-			mDeferredScreen.shareDepthBuffer(mVelocityMap);
-		}
 	}
 
 	gGL.getTexUnit(0)->disable();
@@ -1348,10 +1322,6 @@ void LLPipeline::refreshCachedSettings()
 //	</polarity>
 	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
 
-//	//BD - Motion Blur
-	RenderMotionBlur = gSavedSettings.getBOOL("RenderMotionBlur");
-	RenderMotionBlurStrength = gSavedSettings.getU32("RenderMotionBlurStrength");
-
 //	//BD - Exodus Post Process
 	exoPostProcess::instance().ExodusRenderPostSettingsUpdate();
 	
@@ -1440,8 +1410,6 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredDepth.release();
 	mDeferredLight.release();
 	mOcclusionDepth.release();
-//	//BD - Motion Blur
-	mVelocityMap.release();
 		
 	for (U32 i = 0; i < 6; i++)
 	{
@@ -7288,89 +7256,6 @@ void LLPipeline::doResetVertexBuffers(bool forced)
 	LLVOPartGroup::restoreGL();
 }
 
-//BD - Motion Blur
-void LLPipeline::renderMotionBlur(U32 type)
-{
-	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
-	{
-		LLDrawInfo* params = *i;
-		if (params) 
-		{
-			if (params->mVertexBuffer.notNull() && params->mLastModelMatrix)
-			{
-				LLRenderPass::applyModelMatrix(*params);
-				if (params->mGroup)
-				{
-					params->mGroup->rebuildMesh();
-				}
-				LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, (F32*) params->mLastModelMatrix->mMatrix);
-				LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_OBJECT_MATRIX, 1, GL_FALSE, (F32*) params->mModelMatrix->mMatrix);
-				params->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX);
-				params->mVertexBuffer->drawRange(params->mDrawMode, params->mStart, params->mEnd, params->mCount, params->mOffset);
-				gPipeline.addTrianglesDrawn(params->mCount, params->mDrawMode);
-			}
-		}
-	}	
-}
-void LLPipeline::renderMotionBlurWithTexture(U32 type)
-{
-	for (LLCullResult::drawinfo_iterator i = gPipeline.beginRenderMap(type); i != gPipeline.endRenderMap(type); ++i)	
-	{
-		LLDrawInfo* params = *i;
-		if (params) 
-		{
-			if (params->mVertexBuffer.notNull() && params->mLastModelMatrix)
-			{
-				LLRenderPass::applyModelMatrix(*params);
-				bool tex_setup = false;
-				if (params->mTextureList.size() > 1)
-				{
-					for (U32 tex = 0; tex < params->mTextureList.size(); ++tex)
-					{
-						if (params->mTextureList[tex].notNull())
-						{
-							gGL.getTexUnit(tex)->bind(params->mTextureList[tex], TRUE);
-						}
-					}
-				}
-				else
-				{ //not batching textures or batch has only 1 texture -- might need a texture matrix
-					if (params->mTexture.notNull())
-					{
-						params->mTexture->addTextureStats(params->mVSize);
-						gGL.getTexUnit(0)->bind(params->mTexture, TRUE) ;
-						if (params->mTextureMatrix)
-						{
-							tex_setup = true;
-							gGL.getTexUnit(0)->activate();
-							gGL.matrixMode(LLRender::MM_TEXTURE);
-							gGL.loadMatrix((GLfloat*) params->mTextureMatrix->mMatrix);
-							gPipeline.mTextureMatrixOps++;
-						}
-					}
-					else
-					{
-						gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-					}
-				}
-				if (params->mGroup)
-				{
-					params->mGroup->rebuildMesh();
-				}
-				LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::LAST_OBJECT_MATRIX, 1, GL_FALSE, (F32*) params->mLastModelMatrix->mMatrix);
-				LLGLSLShader::sCurBoundShaderPtr->uniformMatrix4fv(LLShaderMgr::CURRENT_OBJECT_MATRIX, 1, GL_FALSE, (F32*) params->mModelMatrix->mMatrix);
-				params->mVertexBuffer->setBuffer(LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_COLOR | LLVertexBuffer::MAP_TEXCOORD0);
-				params->mVertexBuffer->drawRange(params->mDrawMode, params->mStart, params->mEnd, params->mCount, params->mOffset);
-				gPipeline.addTrianglesDrawn(params->mCount, params->mDrawMode);
-				if (tex_setup)
-				{
-					gGL.loadIdentity();
-					gGL.matrixMode(LLRender::MM_MODELVIEW);
-				}
-			}
-		}
-	}	
-}
 void LLPipeline::renderObjects(U32 type, U32 mask, BOOL texture, BOOL batch_texture)
 {
 	assertInitialized();
@@ -8202,48 +8087,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.getTexUnit(0)->setTextureBlendType(LLTexUnit::TB_MULT);
 		}
 		
-	}
-
-//	//BD - Motion Blur
-	if (sRenderDeferred && RenderMotionBlur)
-	{
-
-		gMotionBlurProgram.bind();
-
-		S32 channel;
-		channel = gMotionBlurProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
-		if (channel > -1)
-		{
-			mScreen.bindTexture(0,channel);
-			glCopyTexSubImage2D(LLTexUnit::getInternalType(mScreen.getUsage()), 0, 0, 0, 0, 0, mScreen.getWidth(), mScreen.getHeight());
-		}
-		
-		channel = gMotionBlurProgram.enableTexture(LLShaderMgr::DEFERRED_NORMAL, mVelocityMap.getUsage());
-		if (channel > -1)
-		{
-			mVelocityMap.bindTexture(0, channel);
-		}
-		
-		gMotionBlurProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
-		gMotionBlurProgram.uniform1f(LLShaderMgr::TIME_STEP, gFrameIntervalSeconds);
-		gMotionBlurProgram.uniform1i(LLShaderMgr::MBLUR_STRENGTH, RenderMotionBlurStrength);
-
-		gGL.begin(LLRender::TRIANGLE_STRIP);
-		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-		gGL.vertex2f(-1,-1);
-		
-		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-		gGL.vertex2f(-1,3);
-		
-		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-		gGL.vertex2f(3,-1);
-		
-		gGL.end();
-
-		gGL.flush();
-
-		gMotionBlurProgram.unbind();
-			
 	}
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
@@ -9137,12 +8980,6 @@ void LLPipeline::renderDeferredLighting()
 		popRenderTypeMask();
 	}
 
-//	//BD - Motion Blur
-	if (RenderMotionBlur)
-	{
-		renderGeomMotionBlur();
-	}
-
 	{
 		//render highlights, etc.
 		renderHighlights();
@@ -9693,116 +9530,6 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 	}
 
 	//target->flush();				
-}
-
-//BD - Motion Blur
-LLTrace::BlockTimerStatHandle FTM_RENDER_MOTION_BLUR("Motion Blur");
-
-void LLPipeline::renderGeomMotionBlur()
-{
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_MOTION_BLUR);
-	mVelocityMap.bindTarget();
-	mVelocityMap.clear(GL_COLOR_BUFFER_BIT);
-	//generate velocity map
-	gVelocityProgram.bind();
-	gVelocityProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32) gGLViewport[0],
-								(F32) gGLViewport[1],
-								(F32) gGLViewport[2],
-								(F32) gGLViewport[3]);
-
-	gVelocityProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
-	gVelocityProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
-	
-	renderMotionBlur(LLRenderPass::PASS_SIMPLE);
-	renderMotionBlur(LLRenderPass::PASS_FULLBRIGHT);
-	renderMotionBlur(LLRenderPass::PASS_BUMP);
-	renderMotionBlur(LLRenderPass::PASS_MATERIAL);
-	renderMotionBlur(LLRenderPass::PASS_MATERIAL_ALPHA_MASK);
-
-	gVelocityProgram.unbind();
-
-	gGLLastMatrix = NULL;
-	gGL.loadMatrix(gGLModelView);
-
-	gVelocityAlphaProgram.bind();
-	gVelocityAlphaProgram.uniform4f(LLShaderMgr::VIEWPORT, (F32) gGLViewport[0],
-								(F32) gGLViewport[1],
-								(F32) gGLViewport[2],
-								(F32) gGLViewport[3]);
-
-	gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::LAST_MODELVIEW_MATRIX, 1, GL_FALSE, gGLLastModelView);
-	gVelocityAlphaProgram.uniformMatrix4fv(LLShaderMgr::CURRENT_MODELVIEW_MATRIX, 1, GL_FALSE, gGLModelView);
-	
-	renderMotionBlurWithTexture(LLRenderPass::PASS_ALPHA_MASK);
-	renderMotionBlurWithTexture(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK);
-	renderMotionBlurWithTexture(LLRenderPass::PASS_ALPHA);
-
-	gVelocityAlphaProgram.unbind();
-
-	//make sure channel 0 is active channel
-	gGL.getTexUnit(0)->activate();
-
-	gGLLastMatrix = NULL;
-	gGL.loadMatrix(gGLModelView);
-
-	pool_set_t::iterator iter1 = mPools.begin();
-
-	U32 cur_type;
-
-	while ( iter1 != mPools.end() )
-	{
-		LLDrawPool *poolp = *iter1;
-		
-		cur_type = poolp->getType();
-				
-		pool_set_t::iterator iter2 = iter1;
-		if (hasRenderType(poolp->getType()) && poolp->getNumMotionBlurPasses() > 0)
-		{
-			gGLLastMatrix = NULL;
-			gGL.loadMatrix(gGLModelView);
-		
-			for( S32 i = 0; i < poolp->getNumMotionBlurPasses(); i++ )
-			{
-				LLVertexBuffer::unbind();
-				poolp->beginMotionBlurPass(i);
-				for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
-				{
-					LLDrawPool *p = *iter2;
-					if (p->getType() != cur_type)
-					{
-						break;
-					}
-										
-					p->renderMotionBlur(i);
-				}
-				poolp->endMotionBlurPass(i);
-				LLVertexBuffer::unbind();
-
-				if (gDebugGL || gDebugPipeline)
-				{
-					LLGLState::checkStates();
-				}
-			}
-		}
-		else
-		{
-			// Skip all pools of this type
-			for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
-			{
-				LLDrawPool *p = *iter2;
-				if (p->getType() != cur_type)
-				{
-					break;
-				}
-			}
-		}
-		iter1 = iter2;
-		stop_glerror();
-	}
-	mVelocityMap.flush();
-
-	gGLLastMatrix = NULL;
-	gGL.loadMatrix(gGLModelView);
 }
 
 void LLPipeline::setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep)

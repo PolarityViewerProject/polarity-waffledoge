@@ -106,8 +106,6 @@ void LLDrawable::init(bool new_entry)
 	mCurrentScale = LLVector3(1,1,1);
 	mDistanceWRTCamera = 0.0f;
 	mState     = 0;
-//	//BD - Motion Blur
-	mLastRenderMatrix = NULL;
 
 	// mFaces
 	mRadius = 0.f;
@@ -185,13 +183,6 @@ void LLDrawable::destroy()
 		LL_INFOS() << "- Zombie drawables: " << sNumZombieDrawables << LL_ENDL;
 	}*/	
 
-//	//BD - Motion Blur
-	if (mLastRenderMatrix)
-	{
-		delete mLastRenderMatrix;
-		mLastRenderMatrix = NULL;
-	}
-
 }
 
 void LLDrawable::markDead()
@@ -232,23 +223,6 @@ LLVOVolume* LLDrawable::getVOVolume() const
 const LLMatrix4& LLDrawable::getRenderMatrix() const
 { 
 	return isRoot() ? getWorldMatrix() : getParent()->getWorldMatrix();
-}
-
-//BD - Motion Blur
-LLMatrix4& LLDrawable::getLastRenderMatrix() 
-{ 
-	if (isState(LLDrawable::ANIMATED_CHILD) || isRoot())
-	{
-		if (!mLastRenderMatrix)
-		{
-			mLastRenderMatrix = new LLMatrix4(getWorldMatrix());
-		}
-		return *mLastRenderMatrix;
-	}
-	else
-	{
-		return getParent()->getLastRenderMatrix();
-	}
 }
 
 BOOL LLDrawable::isLight() const
@@ -620,12 +594,6 @@ void LLDrawable::makeStatic(BOOL warning_enabled)
 // Returns "distance" between target destination and resulting xfrom
 F32 LLDrawable::updateXform(BOOL undamped)
 {
-//	//BD - Motion Blur
-	if (mLastRenderMatrix)
-	{
-		*mLastRenderMatrix = mXform.getWorldMatrix();
-	}
-
 	BOOL damped = !undamped;
 
 	// Position

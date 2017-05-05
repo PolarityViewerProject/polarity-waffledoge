@@ -81,9 +81,6 @@ LLViewerJointMesh::LLViewerJointMesh()
 	:
 	LLAvatarJointMesh()
 {
-//	//BD - Motion Blur
-	mLastMatrixPalette = NULL;
-	mLastMatrixPaletteUpdated = 0;
 }
 
 
@@ -93,11 +90,6 @@ LLViewerJointMesh::LLViewerJointMesh()
 //-----------------------------------------------------------------------------
 LLViewerJointMesh::~LLViewerJointMesh()
 {
-//	//BD - Motion Blur
-	if (mLastMatrixPalette)
-	{
-		delete [] mLastMatrixPalette;
-	}
 }
 
 const S32 NUM_AXES = 3;
@@ -177,8 +169,7 @@ void LLViewerJointMesh::uploadJointMatrices()
 	// upload matrices
 	if (hardware_skinning)
 	{
-		GLfloat mat[45*4];
-		memset(mat, 0, sizeof(GLfloat)*45*4);
+		GLfloat mat[45*4] = {0};
 
 		for (joint_num = 0; joint_num < reference_mesh->mJointRenderData.size(); joint_num++)
 		{
@@ -195,24 +186,6 @@ void LLViewerJointMesh::uploadJointMatrices()
 		if (LLGLSLShader::sCurBoundShaderPtr)
 		{
 			LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLViewerShaderMgr::AVATAR_MATRIX, 45, mat);
-//			//BD - Motion Blur
-			if (LLGLSLShader::sCurBoundShaderPtr == &gAvatarVelocityProgram)
-			{
-				if (!mLastMatrixPalette)
-				{
-					mLastMatrixPalette = new F32[45*4];
-				}
-
-				if (mLastMatrixPaletteUpdated < gFrameCount-1)
-				{
-					memcpy(mLastMatrixPalette, mat, sizeof(F32)*45*4);
-				}
-					
-				LLGLSLShader::sCurBoundShaderPtr->uniform4fv(LLShaderMgr::AVATAR_LAST_MATRIX, 45, (GLfloat*) mLastMatrixPalette);
-								
-				memcpy(mLastMatrixPalette, mat, sizeof(F32)*45*4);
-				mLastMatrixPaletteUpdated = gFrameCount;
-			}
 		}
 		stop_glerror();
 	}

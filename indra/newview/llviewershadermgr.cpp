@@ -227,14 +227,6 @@ LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 LLGLSLShader			gNormalMapGenProgram;
 
-//BD - Motion Blur
-LLGLSLShader			gVelocityProgram;
-LLGLSLShader			gVelocityAlphaProgram;
-LLGLSLShader			gAvatarVelocityProgram;
-LLGLSLShader			gSkinnedVelocityProgram;
-LLGLSLShader			gSkinnedVelocityAlphaProgram;
-LLGLSLShader			gMotionBlurProgram;
-
 //BD - Volumetric Lighting
 LLGLSLShader			gVolumetricLightProgram;
 
@@ -907,8 +899,6 @@ BOOL LLViewerShaderMgr::loadBasicShaders()
 	if (gGLManager.mGLSLVersionMajor >= 2 || gGLManager.mGLSLVersionMinor >= 30)
 	{
 		shaders.push_back( make_pair( "objects/indexedTextureV.glsl",			1 ) );
-//		//BD - Motion Blur
-		shaders.push_back( make_pair( "deferred/velocityFuncV.glsl", 1) );
 	}
 	shaders.push_back( make_pair( "objects/nonindexedTextureV.glsl",		1 ) );
 
@@ -1232,14 +1222,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].unload();
 			gDeferredMaterialWaterProgram[i].unload();
 		}
-
-//		//BD - Motion Blur
-		gVelocityProgram.unload();
-		gVelocityAlphaProgram.unload();
-		gAvatarVelocityProgram.unload();
-		gSkinnedVelocityProgram.unload();
-		gSkinnedVelocityAlphaProgram.unload();
-		gMotionBlurProgram.unload();
 
 //		//BD - Volumetric Lighting
 		gVolumetricLightProgram.unload();
@@ -1713,76 +1695,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredPostNoDoFProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredPostNoDoFProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gVelocityProgram.mName = "Velocity Shader";
-		gVelocityProgram.mFeatures.hasMotionBlur = true;
-		gVelocityProgram.mShaderFiles.clear();
-		gVelocityProgram.mShaderFiles.push_back(make_pair("deferred/velocityV.glsl", GL_VERTEX_SHADER));
-		gVelocityProgram.mShaderFiles.push_back(make_pair("deferred/velocityF.glsl", GL_FRAGMENT_SHADER));
-		gVelocityProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gVelocityProgram.createShader(NULL, NULL);
-	}
-
-//	//BD - Motion Blur
-	if (success)
-	{
-		gVelocityAlphaProgram.mName = "Velocity Alpha Shader";
-		gVelocityAlphaProgram.mFeatures.hasMotionBlur = true;
-		gVelocityAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		gVelocityAlphaProgram.mShaderFiles.clear();
-		gVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaV.glsl", GL_VERTEX_SHADER));
-		gVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/velocityAlphaF.glsl", GL_FRAGMENT_SHADER));
-		gVelocityAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gVelocityAlphaProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gAvatarVelocityProgram.mName = "Avatar Velocity Shader";
-		gAvatarVelocityProgram.mFeatures.hasSkinning = true;
-		gAvatarVelocityProgram.mFeatures.hasMotionBlur = true;
-		gAvatarVelocityProgram.mShaderFiles.clear();
-		gAvatarVelocityProgram.mShaderFiles.push_back(make_pair("deferred/avatarVelocityV.glsl", GL_VERTEX_SHADER));
-		gAvatarVelocityProgram.mShaderFiles.push_back(make_pair("deferred/avatarVelocityF.glsl", GL_FRAGMENT_SHADER));
-		gAvatarVelocityProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gAvatarVelocityProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gSkinnedVelocityProgram.mName = "Skinned Velocity Shader";
-		gSkinnedVelocityProgram.mFeatures.hasMotionBlur = true;
-		gSkinnedVelocityProgram.mFeatures.hasObjectSkinning = true;
-		gSkinnedVelocityProgram.mShaderFiles.clear();
-		gSkinnedVelocityProgram.mShaderFiles.push_back(make_pair("deferred/skinnedVelocityV.glsl", GL_VERTEX_SHADER));
-		gSkinnedVelocityProgram.mShaderFiles.push_back(make_pair("deferred/velocityF.glsl", GL_FRAGMENT_SHADER));
-		gSkinnedVelocityProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gSkinnedVelocityProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gSkinnedVelocityAlphaProgram.mName = "Skinned Velocity Alpha Shader";
-		gSkinnedVelocityAlphaProgram.mFeatures.hasMotionBlur = true;
-		gSkinnedVelocityAlphaProgram.mFeatures.hasObjectSkinning = true;
-		gSkinnedVelocityAlphaProgram.mShaderFiles.clear();
-		gSkinnedVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/skinnedVelocityAlphaV.glsl", GL_VERTEX_SHADER));
-		gSkinnedVelocityAlphaProgram.mShaderFiles.push_back(make_pair("deferred/avatarVelocityF.glsl", GL_FRAGMENT_SHADER));
-		gSkinnedVelocityAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gSkinnedVelocityAlphaProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gMotionBlurProgram.mName = "Motion Blur Shader";
-		gMotionBlurProgram.mShaderFiles.clear();
-		gMotionBlurProgram.mShaderFiles.push_back(make_pair("deferred/motionBlurV.glsl", GL_VERTEX_SHADER));
-		gMotionBlurProgram.mShaderFiles.push_back(make_pair("deferred/motionBlurF.glsl", GL_FRAGMENT_SHADER));
-		gMotionBlurProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gMotionBlurProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
