@@ -580,7 +580,7 @@ void LLViewerShaderMgr::setShaders()
 				static LLCachedControl<bool> renderAvatarVP(gSavedSettings, "RenderAvatarVP");
 				if (renderAvatarVP && loadShadersObject())
 				{ //hardware skinning is enabled and rigged attachment shaders loaded correctly
-					static LLCachedControl<bool> avatar_cloth(gSavedSettings, "RenderAvatarCloth");
+					BOOL avatar_cloth = gSavedSettings.getBOOL("RenderAvatarCloth");
 					S32 avatar_class = 1;
 				
 					// cloth is a class3 shader
@@ -600,13 +600,13 @@ void LLViewerShaderMgr::setShaders()
 						}
 						if(llmax(mVertexShaderLevel[SHADER_AVATAR]-1,0) >= 3)
 						{
-							gSavedSettings.setBOOL("RenderAvatarCloth", TRUE);
+							avatar_cloth = true;
 						}
 						else
 						{
-							gSavedSettings.setBOOL("RenderAvatarCloth", FALSE);
+							avatar_cloth = false;
 						}
-						
+						gSavedSettings.setBOOL("RenderAvatarCloth", avatar_cloth);
 					}
 				}
 				else
@@ -695,32 +695,6 @@ void LLViewerShaderMgr::setShaders()
 	gPipeline.createGLBuffers();
 
 	reentrance = false;
-}
-
-//BD
-BOOL LLViewerShaderMgr::resetDeferredShaders()
-{
-	//using shaders, disable fixed function
-	LLGLSLShader::sNoFixedFunction = true;
-
-	S32 deferred_class = 0;
-
-	//BD
-	if (LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&
-		gSavedSettings.getBOOL("RenderDeferred"))
-	{
-		if (gSavedSettings.getS32("RenderShadowDetail") > 0)
-		{ //shadows
-			deferred_class = 2;
-		}
-		else
-		{ //no shadows
-			deferred_class = 1;
-		}
-	}
-
-	mVertexShaderLevel[SHADER_DEFERRED] = deferred_class;
-	return deferred_class;
 }
 
 void LLViewerShaderMgr::unloadShaders()
@@ -1200,9 +1174,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredEmissiveProgram.unload();
 		gDeferredAvatarEyesProgram.unload();
 		gDeferredPostProgram.unload();		
-		// <polarity> Gaussian blur shader
-		gGaussianBlurProgram.unload();
-		// </polarity>
 		gDeferredCoFProgram.unload();		
 		gDeferredDoFCombineProgram.unload();
 		gDeferredPostGammaCorrectProgram.unload();
@@ -1228,6 +1199,10 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 //		//BD - Exodus Post Process
 		unloadExodusPostShaders();
+		
+		// <polarity> Gaussian blur shader
+		gGaussianBlurProgram.unload();
+		// </polarity>
 
 		return TRUE;
 	}
@@ -1311,6 +1286,32 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
+		gDeferredSkinnedAlphaProgram.mName = "Deferred Skinned Alpha Shader";
+		gDeferredSkinnedAlphaProgram.mFeatures.hasObjectSkinning = true;
+		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = false;
+		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = false;
+		gDeferredSkinnedAlphaProgram.mFeatures.isAlphaLighting = true;
+		gDeferredSkinnedAlphaProgram.mFeatures.disableTextureIndex = true;
+		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
+		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredSkinnedAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
+		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
+		gDeferredSkinnedAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
+		//     shadows only if we really enabled them.
+		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
+			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
+		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
+
+		// Hack to include uniforms for lighting without linking in lighting file
+		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
+		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
 		gDeferredBumpProgram.mName = "Deferred Bump Shader";
 		gDeferredBumpProgram.mShaderFiles.clear();
 		gDeferredBumpProgram.mShaderFiles.push_back(make_pair("deferred/bumpV.glsl", GL_VERTEX_SHADER));
@@ -1319,7 +1320,98 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredBumpProgram.createShader(NULL, NULL);
 	}
 
-	success = loadShadersMaterials(success);
+	gDeferredMaterialProgram[1].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[5].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[9].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[13].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+
+	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
+
+	for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
+	{
+		if (success)
+		{
+			gDeferredMaterialProgram[i].mName = llformat("Deferred Material Shader %d", i);
+			
+			U32 alpha_mode = i & 0x3;
+
+			gDeferredMaterialProgram[i].mShaderFiles.clear();
+			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
+			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
+			gDeferredMaterialProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			gDeferredMaterialProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
+			gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
+			gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+			gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
+			bool has_skin = i & 0x10;
+			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
+
+			if (has_skin)
+			{
+				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
+			}
+
+			success = gDeferredMaterialProgram[i].createShader(NULL, NULL);
+		}
+
+		if (success)
+		{
+			gDeferredMaterialWaterProgram[i].mName = llformat("Deferred Underwater Material Shader %d", i);
+
+			U32 alpha_mode = i & 0x3;
+
+			gDeferredMaterialWaterProgram[i].mShaderFiles.clear();
+			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
+			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
+			gDeferredMaterialWaterProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+			gDeferredMaterialWaterProgram[i].mShaderGroup = LLGLSLShader::SG_WATER;
+
+			gDeferredMaterialWaterProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
+			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
+			gDeferredMaterialWaterProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
+			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
+			bool has_skin = i & 0x10;
+			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
+			gDeferredMaterialWaterProgram[i].addPermutation("WATER_FOG","1");
+
+			if (has_skin)
+			{
+				gDeferredMaterialWaterProgram[i].mFeatures.hasObjectSkinning = true;
+			}
+
+			success = gDeferredMaterialWaterProgram[i].createShader(NULL, NULL);//&mWLUniforms);
+		}
+	}
+
+	gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[5].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[9].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[13].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+
+	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
+
 	
 	if (success)
 	{
@@ -1365,8 +1457,8 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	for (U32 i = 0; i < LL_DEFERRED_MULTI_LIGHT_COUNT; i++)
 	{
-		if (success)
-		{
+	if (success)
+	{
 			gDeferredMultiLightProgram[i].mName = llformat("Deferred MultiLight Shader %d", i);
 			gDeferredMultiLightProgram[i].mShaderFiles.clear();
 			gDeferredMultiLightProgram[i].mShaderFiles.push_back(make_pair("deferred/multiPointLightV.glsl", GL_VERTEX_SHADER));
@@ -1399,11 +1491,152 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredMultiSpotLightProgram.createShader(NULL, NULL);
 	}
 
-	success = loadShadersSSAO(success);
+	if (success)
+	{
+		std::string fragment;
+		std::string vertex = "deferred/sunLightV.glsl";
 
-	success = loadShadersBlurLight(success);
+		//BD
+		if (gSavedSettings.getBOOL("RenderDeferredBlurLight")
+			|| gSavedSettings.getBOOL("RenderDeferredSSAO"))
+		{
+			fragment = "deferred/sunLightSSAOF.glsl";
+		}
+		else
+		{
+			fragment = "deferred/sunLightF.glsl";
+			if (mVertexShaderLevel[SHADER_DEFERRED] == 1)
+			{ //no shadows, no SSAO, no frag coord
+				vertex = "deferred/sunLightNoFragCoordV.glsl";
+			}
+		}
 
-	success = loadShadersShadows(success);
+		gDeferredSunProgram.mName = "Deferred Sun Shader";
+		gDeferredSunProgram.mShaderFiles.clear();
+		gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
+		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
+		//BD
+		gDeferredSunProgram.addPermutation("USE_SSAO", (bool)gSavedSettings.getBOOL("RenderDeferredSSAO") ? "1" : "0");
+
+		gDeferredSunProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredSunProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredBlurLightProgram.mName = "Deferred Blur Light Shader";
+		gDeferredBlurLightProgram.mShaderFiles.clear();
+		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER));
+		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredBlurLightProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredAlphaProgram.mName = "Deferred Alpha Shader";
+
+		gDeferredAlphaProgram.mFeatures.calculatesLighting = false;
+		gDeferredAlphaProgram.mFeatures.hasLighting = false;
+		gDeferredAlphaProgram.mFeatures.isAlphaLighting = true;
+		gDeferredAlphaProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
+		{
+			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+		}
+		else
+		{ //shave off some texture units for shadow maps
+			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
+		}
+			
+		gDeferredAlphaProgram.mShaderFiles.clear();
+		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredAlphaProgram.addPermutation("USE_INDEXED_TEX", "1");
+		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
+		//     shadows only if we really enabled them.
+		gDeferredAlphaProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
+			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
+		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredAlphaProgram.createShader(NULL, NULL);
+
+		// Hack
+		gDeferredAlphaProgram.mFeatures.calculatesLighting = true;
+		gDeferredAlphaProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
+		gDeferredAlphaImpostorProgram.mName = "Deferred Alpha Shader";
+
+		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = false;
+		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = false;
+		gDeferredAlphaImpostorProgram.mFeatures.isAlphaLighting = true;
+		gDeferredAlphaImpostorProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
+		{
+			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+		}
+		else
+		{ //shave off some texture units for shadow maps
+			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
+		}
+
+		gDeferredAlphaImpostorProgram.mShaderFiles.clear();
+		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredAlphaImpostorProgram.addPermutation("USE_INDEXED_TEX", "1");
+		gDeferredAlphaImpostorProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
+		gDeferredAlphaImpostorProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		gDeferredAlphaImpostorProgram.addPermutation("FOR_IMPOSTOR", "1");
+
+		gDeferredAlphaImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredAlphaImpostorProgram.createShader(NULL, NULL);
+
+		// Hack
+		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = true;
+		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = true;
+	}
+
+	if (success)
+	{
+		gDeferredAlphaWaterProgram.mName = "Deferred Alpha Underwater Shader";
+		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = false;
+		gDeferredAlphaWaterProgram.mFeatures.hasLighting = false;
+		gDeferredAlphaWaterProgram.mFeatures.isAlphaLighting = true;
+		gDeferredAlphaWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
+		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
+		{
+			gDeferredAlphaWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
+		}
+		else
+		{ //shave off some texture units for shadow maps
+			gDeferredAlphaWaterProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
+		}
+		gDeferredAlphaWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+		gDeferredAlphaWaterProgram.mShaderFiles.clear();
+		gDeferredAlphaWaterProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+		gDeferredAlphaWaterProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredAlphaWaterProgram.addPermutation("USE_INDEXED_TEX", "1");
+		gDeferredAlphaWaterProgram.addPermutation("WATER_FOG", "1");
+		gDeferredAlphaWaterProgram.addPermutation("USE_VERTEX_COLOR", "1");
+		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
+		//     shadows only if we really enabled them.
+		gDeferredAlphaWaterProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
+			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
+		gDeferredAlphaWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredAlphaWaterProgram.createShader(NULL, NULL);
+
+		// Hack
+		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = true;
+		gDeferredAlphaWaterProgram.mFeatures.hasLighting = true;
+	}
 
 	if (success)
 	{
@@ -1569,12 +1802,54 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
+		gDeferredSoftenProgram.mName = "Deferred Soften Shader";
+		gDeferredSoftenProgram.mShaderFiles.clear();
+		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
+		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
+		//BD
+		gDeferredSoftenProgram.addPermutation("USE_SSR", (bool)gSavedSettings.getBOOL("PVRender_EnableSSR") ? "1" : "0");
+
+		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		//BD
+		if (gSavedSettings.getBOOL("RenderDeferredSSAO")
+			|| gSavedSettings.getBOOL("RenderDeferredBlurLight"))
+		{ //if using SSAO, take screen space light map into account as if shadows are enabled
+			gDeferredSoftenProgram.mShaderLevel = llmax(gDeferredSoftenProgram.mShaderLevel, 2);
+		}
+
+		success = gDeferredSoftenProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredSoftenWaterProgram.mName = "Deferred Soften Underwater Shader";
+		gDeferredSoftenWaterProgram.mShaderFiles.clear();
+		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
+		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
+
+		gDeferredSoftenWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		gDeferredSoftenWaterProgram.addPermutation("WATER_FOG", "1");
+		gDeferredSoftenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
+
+		//BD
+		if (gSavedSettings.getBOOL("RenderDeferredSSAO")
+			|| gSavedSettings.getBOOL("RenderDeferredBlurLight"))
+		{ //if using SSAO, take screen space light map into account as if shadows are enabled
+			gDeferredSoftenWaterProgram.mShaderLevel = llmax(gDeferredSoftenWaterProgram.mShaderLevel, 2);
+		}
+
+		success = gDeferredSoftenWaterProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
 		gDeferredShadowProgram.mName = "Deferred Shadow Shader";
 		gDeferredShadowProgram.mShaderFiles.clear();
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredShadowProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" : */"0");
+		gDeferredShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		success = gDeferredShadowProgram.createShader(NULL, NULL);
 	}
 
@@ -1584,7 +1859,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowCubeProgram.mShaderFiles.clear();
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowCubeV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowCubeProgram.mShaderFiles.push_back(make_pair("deferred/shadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredShadowCubeProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" : */"0");
+		gDeferredShadowCubeProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredShadowCubeProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredShadowCubeProgram.createShader(NULL, NULL);
 	}
@@ -1596,7 +1871,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.clear();
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskV.glsl", GL_VERTEX_SHADER));
 		gDeferredShadowAlphaMaskProgram.mShaderFiles.push_back(make_pair("deferred/shadowAlphaMaskF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredShadowAlphaMaskProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" :*/ "0");
+		gDeferredShadowAlphaMaskProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredShadowAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredShadowAlphaMaskProgram.createShader(NULL, NULL);
 	}
@@ -1608,7 +1883,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAvatarShadowProgram.mShaderFiles.clear();
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAvatarShadowProgram.mShaderFiles.push_back(make_pair("deferred/avatarShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAvatarShadowProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" :*/ "0");
+		gDeferredAvatarShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAvatarShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarShadowProgram.createShader(NULL, NULL);
 	}
@@ -1620,7 +1895,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredAttachmentShadowProgram.mShaderFiles.clear();
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowV.glsl", GL_VERTEX_SHADER));
 		gDeferredAttachmentShadowProgram.mShaderFiles.push_back(make_pair("deferred/attachmentShadowF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAttachmentShadowProgram.addPermutation("DEPTH_CLAMP", /*gGLManager.mHasDepthClamp ? "1" :*/ "0");
+		gDeferredAttachmentShadowProgram.addPermutation("DEPTH_CLAMP", gGLManager.mHasDepthClamp ? "1" : "0");
 		gDeferredAttachmentShadowProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAttachmentShadowProgram.createShader(NULL, NULL);
 	}
@@ -1637,13 +1912,35 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredAvatarProgram.mName = "Avatar Shader";
+		gDeferredAvatarProgram.mName = "Deferred Avatar Shader";
 		gDeferredAvatarProgram.mFeatures.hasSkinning = true;
 		gDeferredAvatarProgram.mShaderFiles.clear();
 		gDeferredAvatarProgram.mShaderFiles.push_back(make_pair("deferred/avatarV.glsl", GL_VERTEX_SHADER));
 		gDeferredAvatarProgram.mShaderFiles.push_back(make_pair("deferred/avatarF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredAvatarProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredAvatarProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredAvatarAlphaProgram.mName = "Deferred Avatar Alpha Shader";
+		gDeferredAvatarAlphaProgram.mFeatures.hasSkinning = true;
+		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = false;
+		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = false;
+		gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
+		gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
+		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
+		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredAvatarAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
+		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
+		gDeferredAvatarAlphaProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
+		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+
+		success = gDeferredAvatarAlphaProgram.createShader(NULL, NULL);
+
+		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
+		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
 	}
 
 	if (success)
@@ -1656,7 +1953,19 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gDeferredPostGammaCorrectProgram.createShader(NULL, NULL);
 	}
 
-	success = loadShadersDOF(success);
+	// <Black Dragon:NiranV> God Rays/Volumetric Lighting
+	if (success)
+	{
+		gVolumetricLightProgram.mName = "Volumetric Light Shader";
+		gVolumetricLightProgram.mShaderFiles.clear();
+		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/volumetricLightF.glsl", GL_FRAGMENT_SHADER));
+		gVolumetricLightProgram.addPermutation("GODRAYS_FADE", (bool)gSavedSettings.getBOOL("PVRender_GodraysDirectional") ? "1" : "0");
+		gVolumetricLightProgram.addPermutation("HAS_NO_DOF", (bool)gSavedSettings.getBOOL("RenderDepthOfField") ? "0" : "1");
+		gVolumetricLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gVolumetricLightProgram.createShader(NULL, NULL);
+	}
+	// </Black Dragon:NiranV>
 
 	if (success)
 	{
@@ -1667,6 +1976,16 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("PVRender_DeferredFXAAQuality"))); // <alchemy/>
 		gFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gFXAAProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gDeferredPostProgram.mName = "Deferred Post Shader";
+		gDeferredPostProgram.mShaderFiles.clear();
+		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
+		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredF.glsl", GL_FRAGMENT_SHADER));
+		gDeferredPostProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
+		success = gDeferredPostProgram.createShader(NULL, NULL);
 	}
 
 	if (success)
@@ -1685,6 +2004,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDoFCombineProgram.mShaderFiles.clear();
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(make_pair("deferred/dofCombineF.glsl", GL_FRAGMENT_SHADER));
+		//gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("PVRender_EnableFilmGrain") ? "1" : "0");
 		gDeferredDoFCombineProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDoFCombineProgram.createShader(NULL, NULL);
 	}
@@ -1725,12 +2045,13 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 	if (success)
 	{
 		gDeferredStarProgram.mName = "Deferred Star Program";
+		static std::vector<LLStaticHashedString> shaderUniforms = { LLStaticHashedString("custom_alpha") };
 		gDeferredStarProgram.mShaderFiles.clear();
 		gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsV.glsl", GL_VERTEX_SHADER));
 		gDeferredStarProgram.mShaderFiles.push_back(make_pair("deferred/starsF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredStarProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		gDeferredStarProgram.mShaderGroup = LLGLSLShader::SG_SKY;
-		success = gDeferredStarProgram.createShader(NULL, NULL);
+		success = gDeferredStarProgram.createShader(NULL, &shaderUniforms);
 	}
 
 	if (success)
@@ -1744,438 +2065,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		success = gNormalMapGenProgram.createShader(NULL, NULL);
 	}
 
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersMaterials(bool success)
-{
-	//BD - Materials
-	for (U32 i = 0; i < LLMaterial::SHADER_COUNT * 2; ++i)
-	{
-		gDeferredMaterialProgram[i].unload();
-		gDeferredMaterialWaterProgram[i].unload();
-	}
-
-	gDeferredMaterialProgram[1].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[5].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[9].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[13].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-
-	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = false;
-
-	for (U32 i = 0; i < LLMaterial::SHADER_COUNT*2; ++i)
-	{
-		if (success)
-		{
-			gDeferredMaterialProgram[i].mName = llformat("Deferred Material Shader %d", i);
-			
-			U32 alpha_mode = i & 0x3;
-
-			gDeferredMaterialProgram[i].mShaderFiles.clear();
-			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
-			gDeferredMaterialProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
-			gDeferredMaterialProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-			gDeferredMaterialProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
-			gDeferredMaterialProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
-			gDeferredMaterialProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-			gDeferredMaterialProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
-			bool has_skin = i & 0x10;
-			gDeferredMaterialProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
-
-			if (has_skin)
-			{
-				gDeferredMaterialProgram[i].mFeatures.hasObjectSkinning = true;
-			}
-
-			success = gDeferredMaterialProgram[i].createShader(NULL, NULL);
-		}
-
-		if (success)
-		{
-			gDeferredMaterialWaterProgram[i].mName = llformat("Deferred Underwater Material Shader %d", i);
-
-			U32 alpha_mode = i & 0x3;
-
-			gDeferredMaterialWaterProgram[i].mShaderFiles.clear();
-			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialV.glsl", GL_VERTEX_SHADER));
-			gDeferredMaterialWaterProgram[i].mShaderFiles.push_back(make_pair("deferred/materialF.glsl", GL_FRAGMENT_SHADER));
-			gDeferredMaterialWaterProgram[i].mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-			gDeferredMaterialWaterProgram[i].mShaderGroup = LLGLSLShader::SG_WATER;
-
-			gDeferredMaterialWaterProgram[i].addPermutation("HAS_NORMAL_MAP", i & 0x8? "1" : "0");
-			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SPECULAR_MAP", i & 0x4 ? "1" : "0");
-			gDeferredMaterialWaterProgram[i].addPermutation("DIFFUSE_ALPHA_MODE", llformat("%d", alpha_mode));
-			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SUN_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
-			bool has_skin = i & 0x10;
-			gDeferredMaterialWaterProgram[i].addPermutation("HAS_SKIN",has_skin ? "1" : "0");
-			gDeferredMaterialWaterProgram[i].addPermutation("WATER_FOG","1");
-
-			if (has_skin)
-			{
-				gDeferredMaterialWaterProgram[i].mFeatures.hasObjectSkinning = true;
-			}
-
-			success = gDeferredMaterialWaterProgram[i].createShader(NULL, NULL);//&mWLUniforms);
-		}
-	}
-
-	gDeferredMaterialProgram[1].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[5].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[9].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[13].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-
-	gDeferredMaterialWaterProgram[1].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[5].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[9].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[13].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[1+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[5+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[9+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-	gDeferredMaterialWaterProgram[13+LLMaterial::SHADER_COUNT].mFeatures.hasLighting = true;
-
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersDOF(bool success)
-{
-	//BD - Depth Of Field
-	gDeferredPostProgram.unload();
-	gVolumetricLightProgram.unload();
-	if (success)
-	{
-		string fragment = "deferred/postDeferredF.glsl";
-		if (gSavedSettings.getBOOL("RenderDepthOfFieldHighQuality"))
-		{
-			fragment = "deferred/postDeferredHQDoFF.glsl";
-		}
-		gDeferredPostProgram.mName = "Deferred Post Shader";
-		gDeferredPostProgram.mShaderFiles.clear();
-		gDeferredPostProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-		gDeferredPostProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
-		gDeferredPostProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gDeferredPostProgram.createShader(NULL, NULL);
-	}
-
-	//	//BD - Volumetric Lighting
-	if (success)
-	{
-		// <polarity> Deduplication
-		// gVolumetricLightProgram.mShaderFiles.clear();
-		// gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-		// gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/volumetricLightF.glsl", GL_FRAGMENT_SHADER));
-		// gVolumetricLightProgram.addPermutation("GODRAYS_FADE", (bool)gSavedSettings.getBOOL("PVRender_GodraysDirectional") ? "1" : "0");
-		// gVolumetricLightProgram.addPermutation("HAS_NO_DOF", (bool)gSavedSettings.getBOOL("RenderDepthOfField") ? "0" : "1");
-		// gVolumetricLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		// success = gVolumetricLightProgram.createShader(NULL, NULL);
-		loadShadersGodrays(success);
-		gVolumetricLightProgram.mName = "Volumetric Light Shader";
-	}
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersSSAO(bool success)
-{
-	//BD - Screen Space Ambient Occlusion
-	gDeferredSunProgram.unload();
-	if (success)
-	{
-		std::string fragment;
-		std::string vertex = "deferred/sunLightV.glsl";
-
-		//BD
-		if (gSavedSettings.getBOOL("RenderDeferredBlurLight")
-			|| gSavedSettings.getBOOL("RenderDeferredSSAO"))
-		{
-			fragment = "deferred/sunLightSSAOF.glsl";
-		}
-		else
-		{
-			fragment = "deferred/sunLightF.glsl";
-			if (mVertexShaderLevel[SHADER_DEFERRED] == 1)
-			{ //no shadows, no SSAO, no frag coord
-				vertex = "deferred/sunLightNoFragCoordV.glsl";
-			}
-		}
-
-		gDeferredSunProgram.mName = "Deferred Sun Shader";
-		gDeferredSunProgram.mShaderFiles.clear();
-		gDeferredSunProgram.mShaderFiles.push_back(make_pair(vertex, GL_VERTEX_SHADER));
-		gDeferredSunProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
-		//BD
-		gDeferredSunProgram.addPermutation("USE_SSAO", (bool)gSavedSettings.getBOOL("RenderDeferredSSAO") ? "1" : "0");
-
-		gDeferredSunProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredSunProgram.createShader(NULL, NULL);
-	}
-
-	success = loadShadersSSR(success);
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersShadows(bool success)
-{
-	//BD - Shadows
-	gDeferredSkinnedAlphaProgram.unload();
-	gDeferredAlphaProgram.unload();
-	gDeferredAlphaImpostorProgram.unload();
-	gDeferredAlphaWaterProgram.unload();
-	gDeferredAvatarAlphaProgram.unload();
-
-	if (success)
-	{
-		gDeferredSkinnedAlphaProgram.mName = "Deferred Skinned Alpha Shader";
-		gDeferredSkinnedAlphaProgram.mFeatures.hasObjectSkinning = true;
-		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = false;
-		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = false;
-		gDeferredSkinnedAlphaProgram.mFeatures.isAlphaLighting = true;
-		gDeferredSkinnedAlphaProgram.mFeatures.disableTextureIndex = true;
-		gDeferredSkinnedAlphaProgram.mShaderFiles.clear();
-		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-		gDeferredSkinnedAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredSkinnedAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSkinnedAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
-		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SKIN", "1");
-		gDeferredSkinnedAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
-		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
-		//     shadows only if we really enabled them.
-		gDeferredSkinnedAlphaProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
-			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
-		success = gDeferredSkinnedAlphaProgram.createShader(NULL, NULL);
-
-		// Hack to include uniforms for lighting without linking in lighting file
-		gDeferredSkinnedAlphaProgram.mFeatures.calculatesLighting = true;
-		gDeferredSkinnedAlphaProgram.mFeatures.hasLighting = true;
-	}
-
-	if (success)
-	{
-		gDeferredAlphaProgram.mName = "Deferred Alpha Shader";
-
-		gDeferredAlphaProgram.mFeatures.calculatesLighting = false;
-		gDeferredAlphaProgram.mFeatures.hasLighting = false;
-		gDeferredAlphaProgram.mFeatures.isAlphaLighting = true;
-		gDeferredAlphaProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
-		{
-			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		}
-		else
-		{ //shave off some texture units for shadow maps
-			gDeferredAlphaProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-		}
-
-		gDeferredAlphaProgram.mShaderFiles.clear();
-		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-		gDeferredAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAlphaProgram.addPermutation("USE_INDEXED_TEX", "1");
-		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
-		//     shadows only if we really enabled them.
-		gDeferredAlphaProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
-			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
-		gDeferredAlphaProgram.addPermutation("USE_VERTEX_COLOR", "1");
-		gDeferredAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredAlphaProgram.createShader(NULL, NULL);
-
-		// Hack
-		gDeferredAlphaProgram.mFeatures.calculatesLighting = true;
-		gDeferredAlphaProgram.mFeatures.hasLighting = true;
-	}
-
-	if (success)
-	{
-		gDeferredAlphaImpostorProgram.mName = "Deferred Alpha Shader";
-
-		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = false;
-		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = false;
-		gDeferredAlphaImpostorProgram.mFeatures.isAlphaLighting = true;
-		gDeferredAlphaImpostorProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
-		{
-			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		}
-		else
-		{ //shave off some texture units for shadow maps
-			gDeferredAlphaImpostorProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-		}
-
-		gDeferredAlphaImpostorProgram.mShaderFiles.clear();
-		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-		gDeferredAlphaImpostorProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAlphaImpostorProgram.addPermutation("USE_INDEXED_TEX", "1");
-		gDeferredAlphaImpostorProgram.addPermutation("HAS_SHADOW", mVertexShaderLevel[SHADER_DEFERRED] > 1 ? "1" : "0");
-		gDeferredAlphaImpostorProgram.addPermutation("USE_VERTEX_COLOR", "1");
-		gDeferredAlphaImpostorProgram.addPermutation("FOR_IMPOSTOR", "1");
-
-		gDeferredAlphaImpostorProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredAlphaImpostorProgram.createShader(NULL, NULL);
-
-		// Hack
-		gDeferredAlphaImpostorProgram.mFeatures.calculatesLighting = true;
-		gDeferredAlphaImpostorProgram.mFeatures.hasLighting = true;
-	}
-
-	if (success)
-	{
-		gDeferredAlphaWaterProgram.mName = "Deferred Alpha Underwater Shader";
-		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = false;
-		gDeferredAlphaWaterProgram.mFeatures.hasLighting = false;
-		gDeferredAlphaWaterProgram.mFeatures.isAlphaLighting = true;
-		gDeferredAlphaWaterProgram.mFeatures.disableTextureIndex = true; //hack to disable auto-setup of texture channels
-		if (mVertexShaderLevel[SHADER_DEFERRED] < 1)
-		{
-			gDeferredAlphaWaterProgram.mFeatures.mIndexedTextureChannels = LLGLSLShader::sIndexedTextureChannels;
-		}
-		else
-		{ //shave off some texture units for shadow maps
-			gDeferredAlphaWaterProgram.mFeatures.mIndexedTextureChannels = llmax(LLGLSLShader::sIndexedTextureChannels - 6, 1);
-		}
-		gDeferredAlphaWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-		gDeferredAlphaWaterProgram.mShaderFiles.clear();
-		gDeferredAlphaWaterProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-		gDeferredAlphaWaterProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAlphaWaterProgram.addPermutation("USE_INDEXED_TEX", "1");
-		gDeferredAlphaWaterProgram.addPermutation("WATER_FOG", "1");
-		gDeferredAlphaWaterProgram.addPermutation("USE_VERTEX_COLOR", "1");
-		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
-		//     shadows only if we really enabled them.
-		gDeferredAlphaWaterProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
-			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
-		gDeferredAlphaWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredAlphaWaterProgram.createShader(NULL, NULL);
-
-		// Hack
-		gDeferredAlphaWaterProgram.mFeatures.calculatesLighting = true;
-		gDeferredAlphaWaterProgram.mFeatures.hasLighting = true;
-	}
-
-	if (success)
-	{
-		gDeferredAvatarAlphaProgram.mName = "Avatar Alpha Shader";
-		gDeferredAvatarAlphaProgram.mFeatures.hasSkinning = true;
-		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = false;
-		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = false;
-		gDeferredAvatarAlphaProgram.mFeatures.isAlphaLighting = true;
-		gDeferredAvatarAlphaProgram.mFeatures.disableTextureIndex = true;
-		gDeferredAvatarAlphaProgram.mShaderFiles.clear();
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaV.glsl", GL_VERTEX_SHADER));
-		gDeferredAvatarAlphaProgram.mShaderFiles.push_back(make_pair("deferred/alphaF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredAvatarAlphaProgram.addPermutation("USE_DIFFUSE_TEX", "1");
-		gDeferredAvatarAlphaProgram.addPermutation("IS_AVATAR_SKIN", "1");
-		//BD - Since we force deferred shader level 2 we have to add an additional check to ensure we use
-		//     shadows only if we really enabled them.
-		gDeferredAvatarAlphaProgram.addPermutation("HAS_SHADOW", (mVertexShaderLevel[SHADER_DEFERRED] > 1
-			&& gSavedSettings.getS32("RenderShadowDetail") > 0) ? "1" : "0");
-		gDeferredAvatarAlphaProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredAvatarAlphaProgram.createShader(NULL, NULL);
-
-		gDeferredAvatarAlphaProgram.mFeatures.calculatesLighting = true;
-		gDeferredAvatarAlphaProgram.mFeatures.hasLighting = true;
-	}
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersGodrays(bool success)
-{
-	//BD - Volumetric Lighting
-	gVolumetricLightProgram.unload();
-	if (success)
-	{
-		gVolumetricLightProgram.mName = "Volumetric Light Shader";
-		gVolumetricLightProgram.mShaderFiles.clear();
-		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-		gVolumetricLightProgram.mShaderFiles.push_back(make_pair("deferred/volumetricLightF.glsl", GL_FRAGMENT_SHADER));
-		gVolumetricLightProgram.addPermutation("GODRAYS_FADE", (bool)gSavedSettings.getBOOL("PVRender_GodraysDirectional") ? "1" : "0");
-		gVolumetricLightProgram.addPermutation("HAS_NO_DOF", (bool)gSavedSettings.getBOOL("RenderDepthOfField") ? "0" : "1");
-		gVolumetricLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		success = gVolumetricLightProgram.createShader(NULL, NULL);
-	}
-
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersBlurLight(bool success)
-{
-	gDeferredBlurLightProgram.unload();
-	if (success)
-	{
-		gDeferredBlurLightProgram.mName = "Deferred Blur Light Shader";
-		gDeferredBlurLightProgram.mShaderFiles.clear();
-		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER));
-		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		success = gDeferredBlurLightProgram.createShader(NULL, NULL);
-	}
-
-	return success;
-}
-
-BOOL LLViewerShaderMgr::loadShadersSSR(bool success)
-{
-	//BD - Screen Space Reflections
-	gDeferredSoftenProgram.unload();
-	gDeferredSoftenWaterProgram.unload();
-	if (success)
-	{
-		gDeferredSoftenProgram.mName = "Deferred Soften Shader";
-		gDeferredSoftenProgram.mShaderFiles.clear();
-		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
-		gDeferredSoftenProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
-		//BD
-		gDeferredSoftenProgram.addPermutation("USE_SSR", (bool)gSavedSettings.getBOOL("PVRender_EnableSSR") ? "1" : "0");
-
-		gDeferredSoftenProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-
-		//BD
-		if (gSavedSettings.getBOOL("RenderDeferredSSAO")
-			|| gSavedSettings.getBOOL("RenderDeferredBlurLight"))
-		{ //if using SSAO, take screen space light map into account as if shadows are enabled
-			gDeferredSoftenProgram.mShaderLevel = llmax(gDeferredSoftenProgram.mShaderLevel, 2);
-		}
-
-		success = gDeferredSoftenProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
-		gDeferredSoftenWaterProgram.mName = "Deferred Soften Underwater Shader";
-		gDeferredSoftenWaterProgram.mShaderFiles.clear();
-		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightV.glsl", GL_VERTEX_SHADER));
-		gDeferredSoftenWaterProgram.mShaderFiles.push_back(make_pair("deferred/softenLightF.glsl", GL_FRAGMENT_SHADER));
-
-		gDeferredSoftenWaterProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
-		gDeferredSoftenWaterProgram.addPermutation("WATER_FOG", "1");
-		gDeferredSoftenWaterProgram.mShaderGroup = LLGLSLShader::SG_WATER;
-
-		//BD
-		if (gSavedSettings.getBOOL("RenderDeferredSSAO")
-			|| gSavedSettings.getBOOL("RenderDeferredBlurLight"))
-		{ //if using SSAO, take screen space light map into account as if shadows are enabled
-			gDeferredSoftenWaterProgram.mShaderLevel = llmax(gDeferredSoftenWaterProgram.mShaderLevel, 2);
-		}
-
-		success = gDeferredSoftenWaterProgram.createShader(NULL, NULL);
-	}
 	return success;
 }
 
@@ -2695,7 +2584,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 	if (success)
 	{
-		gObjectPreviewProgram.mName = "Simple Shader";
+		gObjectPreviewProgram.mName = "Preview Shader";
 		gObjectPreviewProgram.mFeatures.calculatesLighting = false;
 		gObjectPreviewProgram.mFeatures.calculatesAtmospherics = false;
 		gObjectPreviewProgram.mFeatures.hasGamma = false;
@@ -3532,22 +3421,22 @@ BOOL LLViewerShaderMgr::loadShadersInterface()
 
 	if (success)
 	{
-		gAlphaMaskProgram.mName = "Alpha Mask Shader";
-		gAlphaMaskProgram.mShaderFiles.clear();
-		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER));
-		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER));
-		gAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
-		success = gAlphaMaskProgram.createShader(NULL, NULL);
-	}
-
-	if (success)
-	{
 		gBenchmarkProgram.mName = "Benchmark Shader";
 		gBenchmarkProgram.mShaderFiles.clear();
 		gBenchmarkProgram.mShaderFiles.push_back(make_pair("interface/benchmarkV.glsl", GL_VERTEX_SHADER));
 		gBenchmarkProgram.mShaderFiles.push_back(make_pair("interface/benchmarkF.glsl", GL_FRAGMENT_SHADER));
 		gBenchmarkProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
 		success = gBenchmarkProgram.createShader(NULL, NULL);
+	}
+
+	if (success)
+	{
+		gAlphaMaskProgram.mName = "Alpha Mask Shader";
+		gAlphaMaskProgram.mShaderFiles.clear();
+		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskV.glsl", GL_VERTEX_SHADER));
+		gAlphaMaskProgram.mShaderFiles.push_back(make_pair("interface/alphamaskF.glsl", GL_FRAGMENT_SHADER));
+		gAlphaMaskProgram.mShaderLevel = mVertexShaderLevel[SHADER_INTERFACE];
+		success = gAlphaMaskProgram.createShader(NULL, NULL);
 	}
 
 	if( !success )
