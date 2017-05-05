@@ -126,7 +126,7 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	static LLCachedControl<bool> sync_far_clip(gSavedSettings, "PVRender_SyncFarClip", true);
 	if(sync_far_clip)
 	{
-		gSavedSettings.setF32("RenderShadowFarClip", gAgentCamera.mDrawDistance + 32);
+		gSavedSettings.setF32("RenderShadowFarClip", gAgentCamera.mDrawDistance + 96);
 	}
 	return true;
 }
