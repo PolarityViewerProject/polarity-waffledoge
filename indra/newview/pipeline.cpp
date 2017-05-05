@@ -198,7 +198,6 @@ BOOL LLPipeline::CameraFreeDoFFocus;
 BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderDeferredBlurLight;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
-U32 LLPipeline::RenderShadowBlurSamples;
 U32 LLPipeline::RenderSSRResolution;
 F32 LLPipeline::RenderSSRBrightness;
 F32 LLPipeline::RenderSSAOEffect;
@@ -678,7 +677,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("RenderDeferredBlurLight");
 	connectRefreshCachedSettingsSafe("RenderSnapshotAutoAdjustMultiplier");
-	connectRefreshCachedSettingsSafe("RenderShadowBlurSamples");
 	connectRefreshCachedSettingsSafe("PVRender_SSRResolution");
 	connectRefreshCachedSettingsSafe("RenderSSRBrightness");
 	connectRefreshCachedSettingsSafe("RenderSSAOEffect");
@@ -1301,7 +1299,6 @@ void LLPipeline::refreshCachedSettings()
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	RenderDeferredBlurLight = gSavedSettings.getBOOL("RenderDeferredBlurLight");
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
-	RenderShadowBlurSamples = gSavedSettings.getU32("RenderShadowBlurSamples");
 	RenderSSRResolution = gSavedSettings.getU32("PVRender_SSRResolution");
 	RenderSSRBrightness = gSavedSettings.getF32("RenderSSRBrightness");
 	RenderSSAOEffect = gSavedSettings.getF32("RenderSSAOEffect");
@@ -8351,8 +8348,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	//	//BD - Special Options
 	F32 ssao_effect = RenderSSAOEffect;
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect);
-	shader.uniform1i(LLShaderMgr::DEFERRED_SSAO_SAMPLES, RenderShadowBlurSamples);
-	shader.uniform1f(LLShaderMgr::DEFERRED_CHROMA_STRENGTH, RenderChromaStrength);
+	shader.uniform1f(LLShaderMgr::EXO_POST_CHROMA_STR, RenderChromaStrength);
 	shader.uniform1i(LLShaderMgr::SSR_RES, RenderSSRResolution);
 	shader.uniform1f(LLShaderMgr::SSR_BRIGHTNESS, RenderSSRBrightness);
 	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));

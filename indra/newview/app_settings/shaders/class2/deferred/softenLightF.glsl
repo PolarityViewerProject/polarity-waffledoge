@@ -61,7 +61,7 @@ float refdepth;
 uniform int ssr_res;
 uniform float ssr_brightness;
 uniform float res_scale;
-uniform float chroma_str;
+uniform float exo_post_chroma_str;
 
 // Inputs
 uniform vec4 morphFactor;
@@ -447,11 +447,11 @@ void main()
 	
     vec4 diffuse ;
     vec2 fromCentre = vec2(0.0);
-    if(chroma_str > 0.0)
+    if(exo_post_chroma_str > 0.0)
     {
         fromCentre = (tc / screen_res) - vec2(0.5);
         float radius = length(fromCentre);
-        fromCentre = (chroma_str * (radius*radius)) / vec2(1);
+        fromCentre = (exo_post_chroma_str * (radius*radius)) / vec2(1);
     }
     diffuse.b= texture2DRect(diffuseRect, tc-fromCentre).b;
 	diffuse.r= texture2DRect(diffuseRect, tc+fromCentre).r;

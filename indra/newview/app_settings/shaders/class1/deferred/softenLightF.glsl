@@ -76,7 +76,7 @@ vec3 vary_AtmosAttenuation;
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
 
-uniform float chroma_str;
+uniform float exo_post_chroma_str;
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -402,7 +402,7 @@ void main()
 	      final_da = pow(final_da, 1.0/1.3);
 
 	vec4 diffuse;
-    vec2 fromCentre = when_gt(chroma_str, 0.0)* (chroma_str * (pow(length((tc / screen_res) - vec2(0.5)), 2))) / vec2(1); // <polarity> no conditionals
+    vec2 fromCentre = when_gt(exo_post_chroma_str, 0.0)* (exo_post_chroma_str * (pow(length((tc / screen_res) - vec2(0.5)), 2))) / vec2(1); // <polarity> no conditionals
     diffuse.b= texture2DRect(diffuseRect, tc-fromCentre).b;
 	diffuse.r= texture2DRect(diffuseRect, tc+fromCentre).r;
 	diffuse.ga= texture2DRect(diffuseRect, tc).ga;

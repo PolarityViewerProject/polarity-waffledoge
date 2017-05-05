@@ -855,17 +855,6 @@
       <key>Value</key>
       <real>0.01</real>
     </map>
-    <key>RenderShadowBlurSamples</key>
-    <map>
-      <key>Comment</key>
-      <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>4</integer>
-    </map>
     <key>RenderShadowBlurSize</key>
     <map>
       <key>Comment</key>

@@ -326,9 +326,9 @@ void exoPostProcess::ExodusRenderSpecial(LLRenderTarget* src, LLRenderTarget* ds
 
 	exoShader::BindRenderTarget(dst, shader, LLShaderMgr::EXO_RENDER_SCREEN);
 
-	shader->uniform1i(LLShaderMgr::DEFERRED_NUM_COLORS, sNumColors);
-	shader->uniform1f(LLShaderMgr::DEFERRED_GREYSCALE_STRENGTH, sGreyscaleStrength);
-	shader->uniform1f(LLShaderMgr::DEFERRED_SEPIA_STRENGTH, sSepiaStrength);
+	shader->uniform1i(LLShaderMgr::EXO_NUMCOLORS, sNumColors);
+	shader->uniform1f(LLShaderMgr::EXO_POST_GREY_STR, sGreyscaleStrength);
+	shader->uniform1f(LLShaderMgr::EXO_POST_SEPIA_STR, sSepiaStrength);
 	mExoPostBuffer->drawArrays(LLRender::TRIANGLES, 0, 3);
 	stop_glerror();
 	shader->unbind();

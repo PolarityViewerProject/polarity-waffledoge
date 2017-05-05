@@ -968,7 +968,6 @@ public:
 	static BOOL RenderDepthOfFieldInEditMode;
 	static BOOL RenderDeferredBlurLight;
 	static BOOL RenderSnapshotAutoAdjustMultiplier;
-	static U32 RenderShadowBlurSamples;
 	static U32 RenderSSRResolution;
 	static F32 RenderSSRBrightness;
 	static F32 RenderSSAOEffect;
