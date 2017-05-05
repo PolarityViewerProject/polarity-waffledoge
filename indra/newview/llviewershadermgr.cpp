@@ -1482,7 +1482,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredFullbrightShinyProgram.mName = "Deferred FullbrightShiny Shader";
+		gDeferredFullbrightShinyProgram.mName = "Deferred Fullbright Shiny Shader";
 		gDeferredFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredFullbrightShinyProgram.mFeatures.hasTransport = true;
@@ -1496,7 +1496,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredSkinnedFullbrightProgram.mName = "Skinned Fullbright Shader";
+		gDeferredSkinnedFullbrightProgram.mName = "Deferred Skinned Fullbright Shader";
 		gDeferredSkinnedFullbrightProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedFullbrightProgram.mFeatures.hasTransport = true;
@@ -1511,7 +1511,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredSkinnedFullbrightShinyProgram.mName = "Skinned Fullbright Shiny Shader";
+		gDeferredSkinnedFullbrightShinyProgram.mName = "Deferred Skinned Fullbright Shiny Shader";
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.calculatesAtmospherics = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasGamma = true;
 		gDeferredSkinnedFullbrightShinyProgram.mFeatures.hasTransport = true;
@@ -1689,7 +1689,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 
 	if (success)
 	{
-		gDeferredPostNoDoFProgram.mName = "Deferred Post Shader";
+		gDeferredPostNoDoFProgram.mName = "Deferred Post No DoF Shader";
 		gDeferredPostNoDoFProgram.mShaderFiles.clear();
 		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredPostNoDoFProgram.mShaderFiles.push_back(make_pair("deferred/postDeferredNoDoFF.glsl", GL_FRAGMENT_SHADER));
@@ -2902,7 +2902,7 @@ BOOL LLViewerShaderMgr::loadShadersObject()
 
 	if (success)
 	{
-		gObjectFullbrightWaterAlphaMaskProgram.mName = "Fullbright Water Shader";
+		gObjectFullbrightWaterAlphaMaskProgram.mName = "Fullbright Water Alpha Mask Shader";
 		gObjectFullbrightWaterAlphaMaskProgram.mFeatures.calculatesAtmospherics = true;
 		gObjectFullbrightWaterAlphaMaskProgram.mFeatures.isFullbright = true;
 		gObjectFullbrightWaterAlphaMaskProgram.mFeatures.hasWaterFog = true;		
