@@ -1178,14 +1178,40 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
 
+//	// EXODUS
+	// The order seems to matter - Xenhat
+	mReservedUniforms.push_back("exo_gamma");
+	mReservedUniforms.push_back("exo_exposure");
+	mReservedUniforms.push_back("exo_offset");
+	mReservedUniforms.push_back("exo_numcolors");
+	mReservedUniforms.push_back("exo_post_grey_str");
+	mReservedUniforms.push_back("exo_post_sepia_str");
+	mReservedUniforms.push_back("exo_post_chroma_str");
+	mReservedUniforms.push_back("exo_grade");
+	mReservedUniforms.push_back("exo_screen");
+	mReservedUniforms.push_back("exo_vignette");
+	mReservedUniforms.push_back("exo_invgamma");
+	mReservedUniforms.push_back("exo_advToneUA");
+	mReservedUniforms.push_back("exo_advToneUB");
+	mReservedUniforms.push_back("exo_advToneUC");
+	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::EXO_RENDER_ADV_TONE_UC);
+
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
-	
 	mReservedUniforms.push_back("specular_color");
 	mReservedUniforms.push_back("env_intensity");
-
 	mReservedUniforms.push_back("matrixPalette");
 	mReservedUniforms.push_back("translationPalette");
+
+//	// BD
+	// The order seems to matter - Xenhat
+	mReservedUniforms.push_back("time_step");
+	mReservedUniforms.push_back("godray_res");
+	mReservedUniforms.push_back("godray_multiplier");
+	mReservedUniforms.push_back("falloff_multiplier");
+	mReservedUniforms.push_back("ssr_res");
+	mReservedUniforms.push_back("ssr_brightness");
+	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::SSR_BRIGHTNESS);
 
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");
@@ -1223,35 +1249,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_3");
 	mReservedUniforms.push_back("alpha_ramp");
 
-	// <exodus>
-	mReservedUniforms.push_back("exo_advToneUA");
-	mReservedUniforms.push_back("exo_advToneUB");
-	mReservedUniforms.push_back("exo_advToneUC");
-	mReservedUniforms.push_back("exo_exposure");
-	mReservedUniforms.push_back("exo_gamma");
-	mReservedUniforms.push_back("exo_grade");
-	mReservedUniforms.push_back("exo_invgamma");
-	mReservedUniforms.push_back("exo_numcolors");
-	mReservedUniforms.push_back("exo_offset");
-	mReservedUniforms.push_back("exo_post_chroma_str");
-	mReservedUniforms.push_back("exo_post_grey_str");
-	mReservedUniforms.push_back("exo_post_sepia_str");
-	mReservedUniforms.push_back("exo_screen");
-	mReservedUniforms.push_back("exo_vignette");
-	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::EXO_RENDER_VIGNETTE);
-	// </exodus>
-
-	// <Black Dragon:NiranV> Post-Process Effects
-	mReservedUniforms.push_back("falloff_multiplier");
-	mReservedUniforms.push_back("godray_multiplier");
-	mReservedUniforms.push_back("godray_res");
-	mReservedUniforms.push_back("ssr_brightness");
-	mReservedUniforms.push_back("ssr_res");
-	mReservedUniforms.push_back("time_step");
-	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::TIME_STEP);
-	// </Black Dragon:NiranV>
-
-		// <Black Dragon:NiranV> Post-Process Effects
 	// <polarity> Gaussian blur shader
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>
