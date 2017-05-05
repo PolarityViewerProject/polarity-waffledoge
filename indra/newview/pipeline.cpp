@@ -1061,10 +1061,11 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 
 		//BD
+		static LLCachedControl<bool> force_high_shader(gSavedSettings, "RenderForceHighShaderLevel");
 		if (shadow_detail > 0 || ssao 
 			|| RenderDepthOfField || samples > 0 
 			|| RenderDeferredBlurLight
-			|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+			|| force_high_shader)
 		{ //only need mDeferredLight for shadows OR ssao OR dof OR fxaa
 			if (!mDeferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
@@ -8467,10 +8468,11 @@ void LLPipeline::renderDeferredLighting()
 		gGL.loadIdentity();
 
 		//BD
+		static LLCachedControl<bool> force_high_shader(gSavedSettings, "RenderForceHighShaderLevel");
 		if (RenderDeferredSSAO 
 			|| RenderShadowDetail > 0 
 			|| RenderDeferredBlurLight
-			|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+			|| force_high_shader)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -9075,10 +9077,11 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		gGL.loadIdentity();
 
 		//BD
+		static LLCachedControl<bool> force_high_shader(gSavedSettings, "RenderForceHighShaderLevel");
 		if (RenderDeferredSSAO 
 			|| RenderShadowDetail > 0 
 			|| RenderDeferredBlurLight
-			|| gSavedSettings.getBOOL("RenderForceHighShaderLevel"))
+			|| force_high_shader)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
