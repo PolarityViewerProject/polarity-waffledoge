@@ -2114,28 +2114,13 @@ BOOL LLViewerShaderMgr::loadShadersGodrays(bool success)
 
 BOOL LLViewerShaderMgr::loadShadersBlurLight(bool success)
 {
-	//BD - Soften Light
 	gDeferredBlurLightProgram.unload();
 	if (success)
 	{
-		//BD
-		const std::string shader_fast = "deferred/blurLightFastF.glsl";
-		const std::string shader_slow = "deferred/blurLightF.glsl";
-		static std::string fragment = shader_fast;
-		static LLCachedControl<bool> blur_perf_mode(gSavedSettings, "RenderBlurPerformanceMode");
-		switch (blur_perf_mode)
-			{
-				case false:
-					fragment = shader_slow;
-					break;
-				default:
-					fragment = shader_fast;
-					break;
-			}
 		gDeferredBlurLightProgram.mName = "Deferred Blur Light Shader";
 		gDeferredBlurLightProgram.mShaderFiles.clear();
 		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightV.glsl", GL_VERTEX_SHADER));
-		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair(fragment, GL_FRAGMENT_SHADER));
+		gDeferredBlurLightProgram.mShaderFiles.push_back(make_pair("deferred/blurLightF.glsl", GL_FRAGMENT_SHADER));
 		gDeferredBlurLightProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 
 		success = gDeferredBlurLightProgram.createShader(NULL, NULL);

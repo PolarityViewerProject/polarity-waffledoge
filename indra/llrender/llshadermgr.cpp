@@ -1207,7 +1207,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("sepia_str");
 	mReservedUniforms.push_back("chroma_str");
 
-	mReservedUniforms.push_back("blur_passes");
 	mReservedUniforms.push_back("time_step");
 	mReservedUniforms.push_back("ssr_res");
 	mReservedUniforms.push_back("ssr_brightness");

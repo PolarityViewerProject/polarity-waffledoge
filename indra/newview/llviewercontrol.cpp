@@ -1006,7 +1006,6 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVRender_ShadowResolutionFurthest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	// </polarity>
 	gSavedSettings.getControl("RenderDeferredBlurLight")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
-	gSavedSettings.getControl("RenderBlurPerformanceMode")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
 	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
 	gSavedSettings.getControl("PVRender_DisableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
 	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
