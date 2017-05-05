@@ -9813,17 +9813,17 @@ BOOL LLVOAvatar::isTextureDefined(LLAvatarAppearanceDefines::ETextureIndex te, U
 //virtual
 BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type, U32 index) const
 {
-	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
 	if (isIndexLocalTexture(type))
 	{
 		return isTextureDefined(type, index);
 	}
 	else
 	{
+		// NaCl - Faster Avatar Shadows
+		static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
-			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_ShadowDetailRigged == 2)))
+			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_ShadowDetailRigged == 1)))
 				|| LLDrawPoolAlpha::sShowDebugAlpha));
 	}
 }
