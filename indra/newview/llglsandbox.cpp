@@ -973,8 +973,12 @@ F32 gpu_benchmark()
 		return -1.f;
 	}
 	// <polarity> Don't run GPU benchmark on Intel graphics, they take too long to run (0.117834GB/sec / 11.225GB/sec )
-	//@todo Add setting to only run benchmark when gpu model changes
 	if(gGLManager.mIsIntel)
+	{
+		return -1.f;
+	}
+
+	if (gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
 		return -1.f;
 	}
@@ -1180,6 +1184,8 @@ F32 gpu_benchmark()
 
 	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
 
+	// Turn off subsequent benchmarking.
+	gSavedSettings.setBOOL("NoHardwareProbe", TRUE);
 	return gbps;
 }
 
