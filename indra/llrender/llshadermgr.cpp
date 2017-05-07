@@ -549,7 +549,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		}
 	}
 	
-	LL_DEBUGS("ShaderLoading") << "Loading shader file: " << filename << " class " << shader_level << LL_ENDL;
+	LL_INFOS("ShaderLoading") << "Attempting to load shader file: " << filename << " class " << shader_level << LL_ENDL;
 
 	if (filename.empty()) 
 	{
@@ -574,12 +574,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		std::stringstream fname;
 		fname << getShaderDirPrefix();
 		fname << gpu_class << SEPARATOR << filename;
-		
- 		LL_DEBUGS("ShaderLoading") << "Looking in " << fname.str() << LL_ENDL;
+ 		LL_INFOS("ShaderLoading") << "[Class " << gpu_class << "] Looking for " << fname.str() << LL_ENDL;
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
-			LL_INFOS("ShaderLoading") << "Loading file: shaders" << SEPARATOR << "class" << gpu_class << SEPARATOR << filename << " (Want class " << gpu_class << ")" << LL_ENDL;
+			LL_INFOS("ShaderLoading") << "Highest matching shader found: " << SEPARATOR << "class" << gpu_class << SEPARATOR << filename << " (Wanted class " << gpu_class << ")" << LL_ENDL;
 			break; // done
 		}
 	}
