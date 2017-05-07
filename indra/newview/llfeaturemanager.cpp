@@ -193,7 +193,6 @@ void LLFeatureList::dump()
 }
 
 static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
-	("Potato")
 	("Low")
 	("LowMid")
 	("Mid")
@@ -578,12 +577,9 @@ void LLFeatureManager::applyRecommendedSettings()
 {
 	loadGPUClass();
 	// apply saved settings
-	// cap the level at 2 (high)
-	// <polarity/> Bump level up by one since we added a lower setting that would
-	// equal Class-1, but this is not allowed. We therefore need to "fake" a higher
-	// GPU class to get the correct one.
+	// <polarity> Allow all GPU classes
 	// U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5)) + 1;
+	 U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_6));
 
 	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
@@ -773,7 +769,7 @@ void LLFeatureManager::applyBaseMasks()
 	}
 	if (!mGPUSupported)
 	{
-		maskFeatures("Potato");
+		maskFeatures("FixedFunction");
 	}
 	else if (!gGLManager.mHasVertexShader)
 	{
@@ -868,7 +864,8 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 	LLSD map(LLSD::emptyMap());
 
 	loadGPUClass();
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	// U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_6)); // <polarity>
 	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
 
 	applyBaseMasks();

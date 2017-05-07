@@ -43,7 +43,8 @@ typedef enum EGPUClass
 	GPU_CLASS_2 = 2,
 	GPU_CLASS_3 = 3,
 	GPU_CLASS_4 = 4,
-	GPU_CLASS_5 = 5
+	GPU_CLASS_5 = 5,
+	GPU_CLASS_6 = 6
 } EGPUClass; 
 
 

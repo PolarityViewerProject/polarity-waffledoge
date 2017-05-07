@@ -92,64 +92,6 @@ WindLightUseAtmosShaders	1	1
 WLSkyDetail					1	128
 
 //
-// Potato
-//
-list Potato
-RenderAnisotropic			1	0
-RenderAvatarCloth			1	1
-RenderAvatarLODFactor		1	0.25
-RenderAvatarPhysicsLODFactor 1	0.0
-RenderAvatarMaxNonImpostors 1	1
-RenderAvatarMaxComplexity	1	35000
-RenderAvatarVP				1	1
-RenderAutoMuteSurfaceAreaLimit	1	100.0
-RenderCubeMap				1	1
-RenderDelayVBUpdate			1	0
-RenderFarClip				1	30
-RenderFlexTimeFactor		1	0.25
-RenderFogRatio				1	4.0
-RenderGamma					1	0
-RenderGlowResolutionPow		1	6
-RenderGround				1	1
-RenderMaxPartCount			1	64
-RenderObjectBump			1	0
-RenderLocalLights			1	0
-RenderReflectionDetail		1	0
-RenderTerrainDetail			1	1
-RenderTerrainLODFactor		1	0.25
-RenderTransparentWater		1	0
-RenderTreeLODFactor			1	0.25
-RenderVBOEnable				1	1
-RenderVolumeLODFactor		1	1.0
-UseStartScreen				1	1
-UseOcclusion				1	0
-VertexShaderEnable			1	1
-WindLightUseAtmosShaders	1	0
-WLSkyDetail					1	32
-Disregard128DefaultDrawDistance	1	1
-Disregard96DefaultDrawDistance	1	1
-RenderCompressTextures		1	1
-RenderShaderLightingMaxLevel	1	1
-RenderDeferred				1	0
-RenderDeferredSSAO			1	0
-RenderShadowDetail			1	0
-WatchdogDisabled				1	1
-RenderUseStreamVBO			1	0
-RenderFSAASamples			1	1
-RenderMaxTextureIndex		1	1
-PVRender_EnableGodRays		1	0
-PVRender_EnableLensFlare	1	0
-PVRender_EnableSSR			1	0
-PVRender_EnableToneMapping	1	0
-PVRender_ShadowDetailRigged	1	0
-PVDebug_ForcedVideoMemory	1	0
-RenderDepthOfField			1	0
-RenderDepthOfFieldInEditMode	1	0
-PVRender_DepthOfFieldAlphas	1	0
-PVRender_FPSLimiterEnabled	1	1
-PVRender_FPSLimiterTarget	1	24
-
-//
 // Low Graphics Settings (fixed function)
 //
 list LowFixedFunction
