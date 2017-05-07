@@ -28,6 +28,7 @@
 
 #include <boost/noncopyable.hpp>
 #include <boost/intrusive_ptr.hpp>
+#include <boost/thread.hpp>
 #include "llatomic.h"
 #include "llmutex.h"
 
@@ -84,7 +85,7 @@ private:
 
 #if LL_REF_COUNT_DEBUG
 	mutable LLMutex  mMutex ;
-	mutable U32  mLockedThreadID ;
+	mutable boost::thread::id  mLockedThreadID ;
 	mutable BOOL mCrashAtUnlock ; 
 #endif
 };
