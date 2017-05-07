@@ -2800,8 +2800,6 @@ void LLPanelPreferenceGraphics::saveSettings()
 void LLPanelPreferenceGraphics::setHardwareDefaults()
 {
 	resetDirtyChilds();
-	LLPanelPreference::setHardwareDefaults();
-	refresh();
 }
 
 // <polarity> unused
