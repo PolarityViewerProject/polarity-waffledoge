@@ -431,12 +431,12 @@
           value="1">
         </combo_box.item>
         <combo_box.item
-          label="Optimized"
+          label="System Avatar"
           name="2"
           value="2">
         </combo_box.item>
         <combo_box.item
-          label="Thorough"
+          label="All Attachments"
           name="3"
           value="3">
         </combo_box.item>

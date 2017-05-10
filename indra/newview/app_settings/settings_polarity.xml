@@ -1738,7 +1738,7 @@
     <key>PVRender_AttachmentShadowDetail</key>
     <map>
       <key>Comment</key>
-      <string>0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows but always render system avatar. 3 = Full detail, but slow.</string>
+      <string>Simplyfy the deferred avatar shadows a lot. They are a FPS hog. 0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows, always render system avatar. 3 = Full shadows.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

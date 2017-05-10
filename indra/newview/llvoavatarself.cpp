@@ -1651,8 +1651,8 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 
 	LLUUID tex_id = getLocalTextureID(type,index);
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail", 2);
-	return (((tex_id != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_AttachmentShadowDetail == 1))))
+	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
+	return (((tex_id != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_AttachmentShadowDetail == 2))))
 			|| (LLDrawPoolAlpha::sShowDebugAlpha);
 }
 

@@ -457,17 +457,17 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail", 2);
-	if (0 == PVRender_AttachmentShadowDetail)
+	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
+	if (0 == PVRender_AttachmentShadowDetail || mDrawFace.empty())
     {
             return;
     }
-	if (mDrawFace.empty())
+
+	const LLFace *facep = mDrawFace[0];
+	if (!facep->getDrawable())
 	{
 		return;
 	}
-
-	const LLFace *facep = mDrawFace[0];
 	if (!facep->getDrawable())
 	{
 		return;
@@ -480,12 +480,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 
 	BOOL impostor = avatarp->isImpostor();
-	if (impostor 
-		// <FS:Ansariel> Fix LL impostor hacking; No shadow for impostors
-		//&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
-		//&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
-		)
-		// </FS:Ansariel>
+	if (impostor)
 	{
 		return;
 	}
@@ -495,12 +490,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		avatarp->renderSkinned();
 	}
 // Nacl - Faster Avatar Shadows
-	else if (1 == PVRender_AttachmentShadowDetail)
-	{
-		// No shadows from rigged attachments
-		return;
-	}
-	else if (2 == PVRender_AttachmentShadowDetail)
+	else if (3 == PVRender_AttachmentShadowDetail)
 	{
 		// Use simplified/optimized shadow spiral
 		renderRiggedShadows(avatarp);
