@@ -480,7 +480,9 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 
 	BOOL impostor = avatarp->isImpostor();
-	if (impostor)
+	if (impostor 
+		&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
+		&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
 	{
 		return;
 	}
@@ -1946,7 +1948,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 
 				stop_glerror();
 
-				F32 mp[LL_MAX_JOINTS_PER_MESH_OBJECT*12];
+				F32 mp[LL_MAX_JOINTS_PER_MESH_OBJECT * 12];
 
 				for (U32 i = 0; i < count; ++i)
 				{
@@ -2027,7 +2029,6 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 		}
 	}
 }
-// </FS:Ansariel>
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
