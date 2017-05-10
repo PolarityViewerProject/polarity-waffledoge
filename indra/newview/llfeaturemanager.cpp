@@ -441,9 +441,13 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_3;
 		}
-		else 
+		else if (gGLManager.mGLVersion < 4.3f)
 		{
 			mGPUClass = GPU_CLASS_4;
+		}
+		else 
+		{
+			mGPUClass = GPU_CLASS_5;
 		}
 #endif
 	}
