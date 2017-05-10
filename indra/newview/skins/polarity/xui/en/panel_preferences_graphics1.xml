@@ -408,16 +408,16 @@
         word_wrap="true"
         layout="topleft"
         left_delta="1"
+        tool_tip="Examples: Hair, mesh bodies, Kemono, Solarian..."
         name="rigmeshshadow_label">
-        Attachment shadow detail:
+        Attachment shadows:
       </text>
       <combo_box
-        control_name="PVRender_ShadowDetailRigged"
+        control_name="PVRender_AttachmentShadowDetail"
         height="22"
         layout="topleft"
         left_delta="-1"
         name="rigmeshshadow_dropdown"
-        tool_tip="Examples: Mesh bodies, Kemono, Solarian..."
         top_pad="5"
         width="168">
         <combo_box.item
@@ -436,7 +436,7 @@
           value="2">
         </combo_box.item>
         <combo_box.item
-          label="Full (slow)"
+          label="Thorough"
           name="3"
           value="3">
         </combo_box.item>

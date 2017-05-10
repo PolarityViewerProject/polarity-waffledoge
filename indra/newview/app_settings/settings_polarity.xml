@@ -1735,7 +1735,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVRender_ShadowDetailRigged</key>
+    <key>PVRender_AttachmentShadowDetail</key>
     <map>
       <key>Comment</key>
       <string>0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows but always render system avatar. 3 = Full detail, but slow.</string>

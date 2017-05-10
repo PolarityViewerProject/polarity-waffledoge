@@ -457,11 +457,11 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
-	if (0 == PVRender_ShadowDetailRigged)
-        {
-                return;
-        }
+	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail", 2);
+	if (0 == PVRender_AttachmentShadowDetail)
+    {
+            return;
+    }
 	if (mDrawFace.empty())
 	{
 		return;
@@ -495,12 +495,12 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		avatarp->renderSkinned();
 	}
 // Nacl - Faster Avatar Shadows
-	else if (1 == PVRender_ShadowDetailRigged)
+	else if (1 == PVRender_AttachmentShadowDetail)
 	{
 		// No shadows from rigged attachments
 		return;
 	}
-	else if (2 == PVRender_ShadowDetailRigged)
+	else if (2 == PVRender_AttachmentShadowDetail)
 	{
 		// Use simplified/optimized shadow spiral
 		renderRiggedShadows(avatarp);

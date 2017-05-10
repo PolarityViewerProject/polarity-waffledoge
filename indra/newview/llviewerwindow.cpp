@@ -4646,10 +4646,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 
 	// <polarity> set rigged shadow detail to maximum when taking screenshots
-	U32 previous_rigged_shadow_detail = gSavedSettings.getU32("PVRender_ShadowDetailRigged");
+	U32 previous_rigged_shadow_detail = gSavedSettings.getU32("PVRender_AttachmentShadowDetail");
 	if (previous_rigged_shadow_detail > 0)
 	{
-		gSavedSettings.setU32("PVRender_ShadowDetailRigged", 3);
+		gSavedSettings.setU32("PVRender_AttachmentShadowDetail", 3);
 	}
 	// </polarity>
 
@@ -4931,7 +4931,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	// <polarity> set rigged shadow detail to maximum when taking screenshots
 	if (previous_rigged_shadow_detail > 0)
 	{
-		gSavedSettings.setU32("PVRender_ShadowDetailRigged", previous_rigged_shadow_detail); 
+		gSavedSettings.setU32("PVRender_AttachmentShadowDetail", previous_rigged_shadow_detail); 
 	}
 	// </polarity>
 	return ret;

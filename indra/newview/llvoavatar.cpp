@@ -9820,10 +9820,10 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	else
 	{
 		// NaCl - Faster Avatar Shadows
-		static LLCachedControl<U32> PVRender_ShadowDetailRigged(gSavedSettings, "PVRender_ShadowDetailRigged", 2);
+		static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail", 2);
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
-			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_ShadowDetailRigged == 1)))
+			&& (((getTEImage(type)->getID() != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_AttachmentShadowDetail == 1)))
 				|| LLDrawPoolAlpha::sShowDebugAlpha));
 	}
 }
