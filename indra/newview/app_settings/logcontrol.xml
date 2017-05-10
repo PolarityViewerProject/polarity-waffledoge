@@ -42,13 +42,7 @@
 						</array>
 					<key>tags</key>
 						<array>
-						<!-- sample entry for debugging specific items	
-						     <string>Avatar</string>
-						     <string>Inventory</string>
-						     <string>SceneLoadTiming</string>
-						     <string>Avatar</string>
-						     <string>Voice</string>		
-						-->
+							<string>ShaderLoading</string>
 						</array>
 				</map>
 				<map>
