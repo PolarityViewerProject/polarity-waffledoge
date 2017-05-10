@@ -359,5 +359,15 @@
          function="Floater.Toggle"
          parameter="notifications_console" />
       </menu_item_call>
+      <menu_item_check
+       label="Skip GPU Benchmark on next run"
+       name="Skip GPU Benchmark on Next Run">
+        <menu_item_check.on_check
+         function="CheckControl"
+         parameter="NoHardwareProbe" />
+        <menu_item_check.on_click
+         function="ToggleControl"
+         parameter="NoHardwareProbe" />
+      </menu_item_check>
     </menu>
 </menu_bar>
