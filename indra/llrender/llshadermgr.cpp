@@ -1259,7 +1259,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 
 	if (mReservedUniforms.size() != END_RESERVED_UNIFORMS)
 	{
-		LL_ERRS() << "Amount of allocated uniforms dos not match amount of allocatables! (Allocated: " << mReservedUniforms.size() << ", Total: " << END_RESERVED_UNIFORMS << ")" << LL_ENDL;
+		LL_ERRS() << "Amount of allocated uniforms does not match amount of allocatables! (Allocated: " << mReservedUniforms.size() << ", Total: " << END_RESERVED_UNIFORMS << ")" << LL_ENDL;
 	}
 
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
