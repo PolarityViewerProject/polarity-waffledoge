@@ -1680,61 +1680,6 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVRender_ShadowsFromAlphaMatAlpha</key>
-    <map>
-      <key>Comment</key>
-      <string>Render shadows from and on alpha objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>PVRender_ShadowsFromAlphaNormMask</key>
-    <map>
-      <key>Comment</key>
-      <string>Render shadows from and on alpha objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>PVRender_ShadowsFromAlphaNormSpec</key>
-    <map>
-      <key>Comment</key>
-      <string>Render shadows from and on alpha objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>PVRender_ShadowsFromAlphaSpecMask</key>
-    <map>
-      <key>Comment</key>
-      <string>Render shadows from and on alpha objects</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>PVRender_ShadowsFromAlphaSetMinSecondPass</key>
-    <map>
-      <key>Comment</key>
-      <string>Render second pass of SetMinimumAlpha</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>PVRender_AttachmentShadowDetail</key>
     <map>
       <key>Comment</key>

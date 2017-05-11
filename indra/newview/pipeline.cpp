@@ -118,6 +118,7 @@
 // Expensive and currently broken
 //
 #define MATERIALS_IN_REFLECTIONS 0
+#define shadow_min_alpha 0.598f
 
 bool gShiftFrame = false;
 
@@ -10206,7 +10207,6 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
 
-		const float shadow_min_alpha = 0.598f;
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
 		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
@@ -10214,23 +10214,11 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
-		// <polarity> disable materials in alpha items. Tremendous speed gains.
-		static LLCachedControl<bool> PVRender_ShadowsFromAlphaMatAlpha(gSavedSettings, "PVRender_ShadowsFromAlphaMatAlpha", 1);
-		static LLCachedControl<bool> PVRender_ShadowsFromAlphaNormMask(gSavedSettings, "PVRender_ShadowsFromAlphaNormMask", 1);
-		static LLCachedControl<bool> PVRender_ShadowsFromAlphaNormSpec(gSavedSettings, "PVRender_ShadowsFromAlphaNormSpec", 1);
-		static LLCachedControl<bool> PVRender_ShadowsFromAlphaSpecMask(gSavedSettings, "PVRender_ShadowsFromAlphaSpecMask", 1);
-		if(PVRender_ShadowsFromAlphaNormSpec)
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
-		if (PVRender_ShadowsFromAlphaMatAlpha)
 		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
-		if (PVRender_ShadowsFromAlphaSpecMask)
 		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
-		if (PVRender_ShadowsFromAlphaNormMask)
 		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
 
-		// TODO: do we have to call this twice?
-		static LLCachedControl<bool> PVRender_ShadowsFromAlphaSetMinSecondPass(gSavedSettings, "PVRender_ShadowsFromAlphaSetMinSecondPass", 1);
-		if(PVRender_ShadowsFromAlphaSetMinSecondPass)
 		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
