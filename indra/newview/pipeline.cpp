@@ -10243,8 +10243,8 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	gGL.popMatrix();
 	gGLLastMatrix = NULL;
 
-	sUseOcclusion = occlude;
-	sShadowRender = FALSE;
+	LLPipeline::sUseOcclusion = occlude;
+	LLPipeline::sShadowRender = FALSE;
 }
 
 static LLTrace::BlockTimerStatHandle FTM_VISIBLE_CLOUD("Visible Cloud");
