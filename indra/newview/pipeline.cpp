@@ -1113,7 +1113,7 @@ void LLPipeline::allocateShadowMaps(bool force_allocate)
 {
 	LLVector4 scale = RenderShadowResolution;
 	LLVector3 proj_scale = RenderProjectorShadowResolution;
-	U32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
+	U32 shadow_detail = RenderShadowDetail;
 
 	//BD - Go through all shadow maps and either clear them or decide weither we want to
 	//     allocate them (when enabling shadows) or just resize them (when changing shadow
