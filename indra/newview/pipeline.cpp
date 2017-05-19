@@ -1111,8 +1111,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 //BD - Shadow Map Allocation
 void LLPipeline::allocateShadowMaps(bool force_allocate)
 {
-	// Why are we creating a copy? - Xenhat 2017.02.06
-	LLVector4 scale(RenderShadowResolution);
+	LLVector4 scale = RenderShadowResolution;
 	LLVector3 proj_scale = RenderProjectorShadowResolution;
 	U32 shadow_detail = gSavedSettings.getS32("RenderShadowDetail");
 
