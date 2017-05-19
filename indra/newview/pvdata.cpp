@@ -1124,8 +1124,7 @@ void PVDataOldAPI::checkBeggar(const LLUUID& id, const std::string& message)
 	}
 	boost::cmatch result;
 	const boost::regex generic_beg_regex("(((can|)(someone|you)|(can|)(\\splease|)(\\slend me|)|urgently need).*(\\d+L).*(pay back|honest))", boost::regex::perl);
-	bool is_generic_beg = boost::regex_search(message.c_str(), result, generic_beg_regex);
-	if (is_generic_beg)
+	if (boost::regex_search(message.c_str(), result, generic_beg_regex))
 	{
 		// todo: set pvdata flag
 		LLSD args;
