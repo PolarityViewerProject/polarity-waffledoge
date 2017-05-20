@@ -1142,13 +1142,17 @@
     <key>RenderSSAOEffect</key>
     <map>
       <key>Comment</key>
-      <string>Multiplier for value for areas which are totally occluded.  Blends with original color for partly-occluded areas.</string>
+      <string>Multiplier for (1) value for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Only first component is used.)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>F32</string>
+      <string>Vector3</string>
       <key>Value</key>
-      <real>-1.0</real>
+      <array>
+        <real>0.50</real>
+        <real>1.00</real>
+        <real>0.00</real>
+      </array>
     </map>
     <key>RenderSSAOFactor</key>
     <map>
@@ -1159,7 +1163,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>0.075</real>
+      <real>5.0</real>
     </map>
     <key>RenderSSAOMaxScale</key>
     <map>
@@ -1170,7 +1174,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>150</integer>
+      <integer>400</integer>
     </map>
     <key>RenderSSAOScale</key>
     <map>
@@ -1181,7 +1185,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>3000.0</real>
+      <real>1500.0</real>
     </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>

@@ -28,7 +28,7 @@
 #define LL_PIPELINE_H
 
 #include "llcamera.h"
-//#include "llerror.h"
+#include "llerror.h"
 #include "lldrawpool.h"
 #include "llspatialpartition.h"
 #include "m4math.h"
@@ -948,6 +948,7 @@ public:
 	static F32 RenderSpotShadowBias;
 	static F32 RenderEdgeDepthCutoff;
 	static F32 RenderEdgeNormCutoff;
+	static LLVector3 RenderShadowGaussian;
 	static F32 RenderShadowBlurDistFactor;
 	static BOOL RenderDeferredAtmospheric;
 	static S32 RenderReflectionDetail;
@@ -966,7 +967,6 @@ public:
 //	//BD - Special Options
 	static BOOL CameraFreeDoFFocus;
 	static BOOL RenderDepthOfFieldInEditMode;
-	static BOOL RenderDeferredBlurLight;
 	static BOOL RenderSnapshotAutoAdjustMultiplier;
 	static U32 RenderSSRResolution;
 	static F32 RenderSSRBrightness;

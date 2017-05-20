@@ -179,6 +179,7 @@ F32 LLPipeline::RenderSpotShadowOffset;
 F32 LLPipeline::RenderSpotShadowBias;
 F32 LLPipeline::RenderEdgeDepthCutoff;
 F32 LLPipeline::RenderEdgeNormCutoff;
+LLVector3 LLPipeline::RenderShadowGaussian;
 F32 LLPipeline::RenderShadowBlurDistFactor;
 BOOL LLPipeline::RenderDeferredAtmospheric;
 S32 LLPipeline::RenderReflectionDetail;
@@ -197,7 +198,6 @@ F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 //BD - Special Options
 BOOL LLPipeline::CameraFreeDoFFocus;
 BOOL LLPipeline::RenderDepthOfFieldInEditMode;
-BOOL LLPipeline::RenderDeferredBlurLight;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
 U32 LLPipeline::RenderSSRResolution;
 F32 LLPipeline::RenderSSRBrightness;
@@ -659,6 +659,7 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderSpotShadowBias");
 	connectRefreshCachedSettingsSafe("RenderEdgeDepthCutoff");
 	connectRefreshCachedSettingsSafe("RenderEdgeNormCutoff");
+	connectRefreshCachedSettingsSafe("RenderShadowGaussian");
 	connectRefreshCachedSettingsSafe("RenderShadowBlurDistFactor");
 	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
 	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
@@ -680,7 +681,6 @@ void LLPipeline::init()
 //	//BD - Special Options
 	connectRefreshCachedSettingsSafe("CameraFreeDoFFocus");
 	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
-	connectRefreshCachedSettingsSafe("RenderDeferredBlurLight");
 	connectRefreshCachedSettingsSafe("RenderSnapshotAutoAdjustMultiplier");
 	connectRefreshCachedSettingsSafe("PVRender_SSRResolution");
 	connectRefreshCachedSettingsSafe("RenderSSRBrightness");
@@ -1064,8 +1064,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 
 		//BD
 		if (shadow_detail > 0 || ssao 
-			|| RenderDepthOfField || samples > 0 
-			|| RenderDeferredBlurLight)
+			|| RenderDepthOfField || samples > 0)
 		{ //only need mDeferredLight for shadows OR ssao OR dof OR fxaa
 			if (!mDeferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
@@ -1282,6 +1281,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderSpotShadowBias = gSavedSettings.getF32("RenderSpotShadowBias");
 	RenderEdgeDepthCutoff = gSavedSettings.getF32("RenderEdgeDepthCutoff");
 	RenderEdgeNormCutoff = gSavedSettings.getF32("RenderEdgeNormCutoff");
+	RenderShadowGaussian = gSavedSettings.getVector3("RenderShadowGaussian");
 	RenderShadowBlurDistFactor = gSavedSettings.getF32("RenderShadowBlurDistFactor");
 	RenderDeferredAtmospheric = gSavedSettings.getBOOL("RenderDeferredAtmospheric");
 	RenderReflectionDetail = gSavedSettings.getS32("RenderReflectionDetail");
@@ -1301,7 +1301,6 @@ void LLPipeline::refreshCachedSettings()
 //	//BD - Special Options
 	CameraFreeDoFFocus = gSavedSettings.getBOOL("CameraFreeDoFFocus");
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
-	RenderDeferredBlurLight = gSavedSettings.getBOOL("RenderDeferredBlurLight");
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
 	RenderSSRResolution = gSavedSettings.getU32("PVRender_SSRResolution");
 	RenderSSRBrightness = gSavedSettings.getF32("RenderSSRBrightness");
@@ -8465,8 +8464,7 @@ void LLPipeline::renderDeferredLighting()
 
 		//BD
 		if (RenderDeferredSSAO 
-			|| RenderShadowDetail > 0 
-			|| RenderDeferredBlurLight)
+			|| RenderShadowDetail > 0)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -8515,7 +8513,7 @@ void LLPipeline::renderDeferredLighting()
 		}
 		
 		//BD
-		if (RenderDeferredBlurLight)
+		if (RenderDeferredSSAO)
 		{ //soften direct lighting lightmap
 			LL_RECORD_BLOCK_TIME(FTM_SOFTEN_SHADOW);
 			//blur lightmap
@@ -8526,19 +8524,28 @@ void LLPipeline::renderDeferredLighting()
 			
 			bindDeferredShader(gDeferredBlurLightProgram);
 			mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
+			LLVector3 go = RenderShadowGaussian;
+			const U32 kern_length = 4;
+			F32 blur_size = RenderShadowBlurSize;
 			F32 dist_factor = RenderShadowBlurDistFactor;
+
+			// sample symmetrically with the middle sample falling exactly on 0.0
+			F32 x = 0.f;
+
+			LLVector3 gauss[32]; // xweight, yweight, offset
+
+			for (U32 i = 0; i < kern_length; i++)
+			{
+				gauss[i].mV[0] = llgaussian(x, go.mV[0]);
+				gauss[i].mV[1] = llgaussian(x, go.mV[1]);
+				gauss[i].mV[2] = x;
+				x += 1.f;
+			}
 
 			gDeferredBlurLightProgram.uniform2f(sDelta, 1.f, 0.f);
 			gDeferredBlurLightProgram.uniform1f(sDistFactor, dist_factor);
-			//BD
-			F32 shadow_blur = RenderShadowBlurSize;
-			F32 ssao_blur = RenderSSAOBlurSize;
-			if (RenderSnapshotAutoAdjustMultiplier)
-			{
-				shadow_blur *= RenderSnapshotMultiplier;
-				ssao_blur *= RenderSnapshotMultiplier;
-			}
-			gDeferredBlurLightProgram.uniform2f(sGaussian, shadow_blur, ssao_blur);
+			gDeferredBlurLightProgram.uniform3fv(sKern, kern_length, gauss[0].mV);
+			gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length/2.f - 0.5f));
 		
 			{
 				LLGLDisable blend7(GL_BLEND);
@@ -8731,7 +8738,7 @@ void LLPipeline::renderDeferredLighting()
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-							gGL.syncMatrices();
+							//gGL.syncMatrices(); // <alchemy/>
 							
 							mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 							stop_glerror();
@@ -8790,7 +8797,7 @@ void LLPipeline::renderDeferredLighting()
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-					gGL.syncMatrices();
+					//gGL.syncMatrices(); // <alchemy/>
 										
 					mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 				}
@@ -9072,8 +9079,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 
 		//BD
 		if (RenderDeferredSSAO 
-			|| RenderShadowDetail > 0 
-			|| RenderDeferredBlurLight)
+			|| RenderShadowDetail > 0)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -9279,7 +9285,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 							gDeferredLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 							gDeferredLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-							gGL.syncMatrices();
+							//gGL.syncMatrices(); // <alchemy/>
 							
 							mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 							stop_glerror();
@@ -9338,7 +9344,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
 					gDeferredSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
-					gGL.syncMatrices();
+					//gGL.syncMatrices(); // <alchemy/>
 										
 					mCubeVB->drawRange(LLRender::TRIANGLE_FAN, 0, 7, 8, get_box_fan_indices(camera, center));
 				}
