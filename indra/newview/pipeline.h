@@ -976,7 +976,11 @@ public:
 	static F32 RenderSnapshotMultiplier;
 
 //	//BD - Shadow Map Allocation
-	static LLVector4 RenderShadowResolution;
+	static U32 RenderShadowResolutionClose;
+	static U32 RenderShadowResolutionMid;
+	static U32 RenderShadowResolutionFar;
+	static U32 RenderShadowResolutionFurthest;
+	static LLVector4 RenderShadowResolutionMap; // TODO: Remove me?
 	static LLVector3 RenderProjectorShadowResolution;
 
 //	//BD - Volumetric Lighting

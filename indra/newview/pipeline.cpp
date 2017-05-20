@@ -207,7 +207,11 @@ F32 LLPipeline::RenderChromaStrength;
 F32 LLPipeline::RenderSnapshotMultiplier;
 
 //	//BD - Shadow Map Allocation
-LLVector4 LLPipeline::RenderShadowResolution;
+U32 LLPipeline::RenderShadowResolutionClose;
+U32 LLPipeline::RenderShadowResolutionMid;
+U32 LLPipeline::RenderShadowResolutionFar;
+U32 LLPipeline::RenderShadowResolutionFurthest;
+LLVector4 LLPipeline::RenderShadowResolutionMap;
 LLVector3 LLPipeline::RenderProjectorShadowResolution;
 
 
@@ -1111,7 +1115,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 //BD - Shadow Map Allocation
 void LLPipeline::allocateShadowMaps(bool force_allocate)
 {
-	LLVector4 scale = RenderShadowResolution;
+	LLVector4 scale = RenderShadowResolutionMap;
 	LLVector3 proj_scale = RenderProjectorShadowResolution;
 	U32 shadow_detail = RenderShadowDetail;
 
@@ -1313,12 +1317,18 @@ void LLPipeline::refreshCachedSettings()
 	RenderGodraysFalloffMultiplier = gSavedSettings.getF32("PVRender_GodraysFalloffMultiplier");
 
 //	//BD - Shadow Map Allocation
-//	<polarity> Split controls for feature table integration
-	RenderShadowResolution = LLVector4(
-		gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
-		gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
-		gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
-		gSavedSettings.getU32("PVRender_ShadowResolutionFurthest"));
+//	<polarity> Split controls for feature table integration.
+//  Use cached values since they are refreshed at the beginning of this function
+	RenderShadowResolutionClose		= gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
+	RenderShadowResolutionMid		= gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
+	RenderShadowResolutionFar		= gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
+	RenderShadowResolutionFurthest	= gSavedSettings.getU32("PVRender_ShadowResolutionFurthest");
+	RenderShadowResolutionMap		= LLVector4(
+										RenderShadowResolutionClose,
+										RenderShadowResolutionMid,
+										RenderShadowResolutionFar,
+										RenderShadowResolutionFurthest);
+
 //	</polarity>
 	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
 
@@ -8340,7 +8350,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
-	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolution.mV);
+	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);

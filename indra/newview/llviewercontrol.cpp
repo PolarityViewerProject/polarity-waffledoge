@@ -692,6 +692,29 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 	gPipeline.handleReflectionChanges();
 	return true;
 }
+
+// <polarity> Only trigger shadow map resize when the value changed
+static bool validateShadowMapsChangedClose(const LLSD& newvalue)
+{
+	return LLPipeline::RenderShadowResolutionClose != (U32)newvalue.asInteger();
+}
+static bool validateShadowMapsChangedMid(const LLSD& newvalue)
+{
+	return LLPipeline::RenderShadowResolutionMid != (U32)newvalue.asInteger();
+}
+static bool validateShadowMapsChangedFar(const LLSD& newvalue)
+{
+	return LLPipeline::RenderShadowResolutionFar != (U32)newvalue.asInteger();
+}
+static bool validateShadowMapsChangedFurthest(const LLSD& newvalue)
+{
+	return LLPipeline::RenderShadowResolutionFurthest != (U32)newvalue.asInteger();
+}
+static bool validateProjectorShadowMapsChanged(const LLSD& newvalue)
+{
+	return LLPipeline::RenderProjectorShadowResolution != (LLVector3)newvalue;
+}
+// </polarity>
 // <Black Dragon:NiranV> Granular controls refresh
 static bool handleShadowMapsChanged(const LLSD& newvalue)
 {
@@ -1001,13 +1024,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
 	gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
 	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-	gSavedSettings.getControl("PVRender_ProjectorShadowResolution")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	// <polarity> Split controls for feature table integration
-	gSavedSettings.getControl("PVRender_ShadowResolutionClosest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("PVRender_ShadowResolutionMid")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("PVRender_ShadowResolutionFar")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	gSavedSettings.getControl("PVRender_ShadowResolutionFurthest")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	// </polarity>
+
 	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
 	gSavedSettings.getControl("PVRender_DisableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
 	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
@@ -1033,14 +1050,25 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 
-	// gSavedSettings.getControl("RenderShadowDetail")->getSignal()->connect(boost::bind(&handleShadowsChanged, _2));
-	// gSavedSettings.getControl("RenderDeferredSSAO")->getSignal()->connect(boost::bind(&handleSSAOChanged, _2));
-	// gSavedSettings.getControl("RenderDeferredBlurLight")->getSignal()->connect(boost::bind(&handleBlurLightChanged, _2));
-	// gSavedSettings.getControl("RenderDepthOfField")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
-	// gSavedSettings.getControl("RenderDepthOfFieldHighQuality")->getSignal()->connect(boost::bind(&handleDepthOfFieldChanged, _2));
-	// gSavedSettings.getControl("PVRender_EnableSSR")->getSignal()->connect(boost::bind(&handleSSRChanged, _2));
-	// gSavedSettings.getControl("PVRender_EnableGodRays")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
-	// gSavedSettings.getControl("PVRender_GodraysDirectional")->getSignal()->connect(boost::bind(&handleGodraysChanged, _2));
+	// <polarity> Split controls for feature table integration
+	// I would have preferred to only fire handleShadowMapsChanged() once, but I can't seem to figure how to store ValidateSignal's result as a boolean.
+	static auto shadow_ctrl_cls = gSavedSettings.getControl("PVRender_ShadowResolutionClosest");
+	shadow_ctrl_cls->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedClose, _2));
+	shadow_ctrl_cls->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	static auto shadow_ctrl_mid = gSavedSettings.getControl("PVRender_ShadowResolutionMid");
+	shadow_ctrl_mid->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedMid, _2));
+	shadow_ctrl_mid->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	static auto shadow_ctrl_far = gSavedSettings.getControl("PVRender_ShadowResolutionFar");
+	shadow_ctrl_far->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedFar, _2));
+	shadow_ctrl_far->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	static auto shadow_ctrl_fur = gSavedSettings.getControl("PVRender_ShadowResolutionFurthest");
+	shadow_ctrl_fur->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedFurthest, _2));
+	shadow_ctrl_fur->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+
+	static auto proj_shadow_ctrl = gSavedSettings.getControl("PVRender_ProjectorShadowResolution");
+	proj_shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateProjectorShadowMapsChanged, _2));
+	proj_shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// </polarity>
 }
 
 #if TEST_CACHED_CONTROL
