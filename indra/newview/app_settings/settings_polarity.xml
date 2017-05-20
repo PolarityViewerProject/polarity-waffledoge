@@ -1308,7 +1308,7 @@
       <key>Type</key>
       <string>S32</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>-1</integer>
     </map>
     <key>PVRender_ColorGradeTexture</key>
     <map>
