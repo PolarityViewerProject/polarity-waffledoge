@@ -395,10 +395,6 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	tmpAmbient *= mix(ssao_effect, 1.0, ambFactor);
 
 	//brightness of surface both sunlight and ambient
-	/*setSunlitColor(pow(vec3(sunlight * .5), vec3(global_gamma)) * global_gamma);
-	setAmblitColor(pow(vec3(tmpAmbient * .25), vec3(global_gamma)) * global_gamma);
-	setAdditiveColor(pow(getAdditiveColor() * vec3(1.0 - temp1), vec3(global_gamma)) * global_gamma);*/
-
 	setSunlitColor(vec3(sunlight * .5));
 	setAmblitColor(vec3(tmpAmbient * .25));
 	setAdditiveColor(getAdditiveColor() * vec3(1.0 - temp1));
