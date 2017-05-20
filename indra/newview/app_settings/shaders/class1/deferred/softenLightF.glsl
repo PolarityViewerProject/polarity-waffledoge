@@ -61,7 +61,6 @@ uniform vec4 glow;
 uniform float global_gamma;
 uniform float scene_light_strength;
 uniform mat3 env_mat;
-uniform float ssao_effect;
 
 uniform vec3 sun_dir;
 VARYING vec2 vary_fragcoord;
@@ -304,10 +303,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
 	  + (haze_horizon * haze_weight) * (sunlight*(1.-cloud_shadow) * temp2.x
 		  + tmpAmbient)));
-		  
-	// decrease ambient value for occluded areas
-	tmpAmbient *= mix(ssao_effect, 1.0, ambFactor);
-
+	
 	//brightness of surface both sunlight and ambient
 	setSunlitColor(vec3(sunlight * .5));
 	setAmblitColor(vec3(tmpAmbient * .25));
