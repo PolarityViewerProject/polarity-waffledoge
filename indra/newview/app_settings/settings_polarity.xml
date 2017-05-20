@@ -1128,17 +1128,6 @@
       <key>Value</key>
       <real>0.2</real>
     </map>
-    <key>RenderSSAOBlurSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale of ssao softening kernel.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
     <key>RenderSSAOEffect</key>
     <map>
       <key>Comment</key>
