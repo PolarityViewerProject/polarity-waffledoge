@@ -201,7 +201,7 @@ BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
 U32 LLPipeline::RenderSSRResolution;
 F32 LLPipeline::RenderSSRBrightness;
-F32 LLPipeline::RenderSSAOEffect;
+LLVector3 LLPipeline::RenderSSAOEffect;
 F32 LLPipeline::RenderSSAOBlurSize;
 F32 LLPipeline::RenderChromaStrength;
 F32 LLPipeline::RenderSnapshotMultiplier;
@@ -1304,7 +1304,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
 	RenderSSRResolution = gSavedSettings.getU32("PVRender_SSRResolution");
 	RenderSSRBrightness = gSavedSettings.getF32("RenderSSRBrightness");
-	RenderSSAOEffect = gSavedSettings.getF32("RenderSSAOEffect");
+	RenderSSAOEffect = gSavedSettings.getVector3("RenderSSAOEffect");
 	RenderSSAOBlurSize = gSavedSettings.getF32("RenderSSAOBlurSize");
 	RenderChromaStrength = gSavedSettings.getF32("PVRender_ChromaStrength");
 	RenderSnapshotMultiplier = gSavedSettings.getF32("RenderSnapshotMultiplier");
@@ -8336,7 +8336,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	F32 ssao_factor = RenderSSAOFactor;
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR, ssao_factor);
-	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR_INV, 1.0/ssao_factor);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR_INV, 1.f/ssao_factor);
+
+	LLVector3 ssao_effect = RenderSSAOEffect;
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect[0]);
 
 	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
@@ -8355,8 +8358,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
 
 	//	//BD - Special Options
-	F32 ssao_effect = RenderSSAOEffect;
-	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect);
 	shader.uniform1f(LLShaderMgr::EXO_POST_CHROMA_STR, RenderChromaStrength);
 	shader.uniform1i(LLShaderMgr::SSR_RES, RenderSSRResolution);
 	shader.uniform1f(LLShaderMgr::SSR_BRIGHTNESS, RenderSSRBrightness);

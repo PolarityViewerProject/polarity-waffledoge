@@ -1584,7 +1584,7 @@
 			</slider> -->
 			<slider
 				control_name="RenderSSAOEffect"
-				enabled_control="RenderDeferredSSAO"
+				enabled="false"
 				decimal_digits="2"
 				can_edit_text="true"
 				follows="left|top"
