@@ -81,7 +81,11 @@ S32 LLDrawPoolAlpha::getNumPostDeferredPasses()
 	{ //skip depth buffer filling pass when rendering impostors
 		return 1;
 	}
-	else if (render_dof && render_dof_alphas)
+	// <polarity> PLVR-15 HACK: Disable Alphas in DoF when god rays are enabled to fix alpha glitch
+	// @note The proper fix would most likely be to re-order the shader passes so that the rays don't have a hole where alpha+DoF are rendered
+	// else if (render_dof && render_dof_alphas)
+	else if (render_dof && (render_dof_alphas && !LLPipeline::RenderGodrays))
+	// </polarity>
 	{
 		return 2;
 	}

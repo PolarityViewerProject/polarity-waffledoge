@@ -1333,23 +1333,6 @@ void LLPipeline::refreshCachedSettings()
 
 //	//BD - Exodus Post Process
 	exoPostProcess::instance().ExodusRenderPostSettingsUpdate();
-	
-	// <polarity> PLVR-15 Depth of Field and God Rays used together creates artifacts on alpha surfaces
-	//RenderDepthofFieldAlphas = gSavedSettings.getBOOL("PVRender_DepthOfFieldAlphas");
-	// Not in XML because runtime only.
-	//if (PVRender_EnableGodRays && PVRender_DepthOfFieldAlphas)
-	//{
-	//	PVDebug_RenderDepthOfFieldAlphasBackup = PVRender_DepthOfFieldAlphas;
-	//	PVRender_DepthOfFieldAlphas = FALSE;
-	//	gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", FALSE);
-	//}
-	// Restore previous value6
-	//else if (!PVRender_EnableGodRays && PVDebug_RenderDepthOfFieldAlphasBackup)
-	//{
-	//	gSavedSettings.setBOOL("PVRender_DepthOfFieldAlphas", PVDebug_RenderDepthOfFieldAlphasBackup);
-	//	PVDebug_RenderDepthOfFieldAlphasBackup = FALSE;
-	//}
-
 	updateRenderDeferred();
 }
 // <Black Dragon:NiranV> Refresh reflections on the fly
