@@ -1448,7 +1448,7 @@ void LLPipeline::createGLBuffers()
 	}
 
 //	//BD - Exodus Post Process
-	exoPostProcess::instance().ExodusGenerateLUT();
+//	exoPostProcess::instance().ExodusGenerateLUT(); // Dead Code
 
 	gBumpImageList.restoreGL();
 }
@@ -7329,7 +7329,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	glClearColor(0,0,0,0);
 		
 	// <Black Dragon:NiranV> Exodus post processing shaders
-	exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
+	//exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
 	// </Black Dragon:NiranV>
 
 	// <polarity> Gaussian blur shader
@@ -8221,6 +8221,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	LLVector3 ssao_effect = RenderSSAOEffect;
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect[0]);
 
+	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
 
 	shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
@@ -8237,7 +8238,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
 
-	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));
+
 
 	if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
 	{
@@ -8334,9 +8335,7 @@ void LLPipeline::renderDeferredLighting()
 		gGL.pushMatrix();
 		gGL.loadIdentity();
 
-		//BD
-		if (RenderDeferredSSAO 
-			|| RenderShadowDetail > 0)
+		if (RenderDeferredSSAO || RenderShadowDetail > 0)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -8489,16 +8488,16 @@ void LLPipeline::renderDeferredLighting()
 		}
 
 		{ //render non-deferred geometry (fullbright, alpha, etc)
-			LLGLDisable blend10(GL_BLEND);
-			LLGLDisable stencil2(GL_STENCIL_TEST);
+			LLGLDisable blend(GL_BLEND);
+			LLGLDisable stencil(GL_STENCIL_TEST);
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 			gPipeline.pushRenderTypeMask();
 			
-			gPipeline.andRenderTypeMask(RENDER_TYPE_SKY,
-										RENDER_TYPE_CLOUDS,
-										RENDER_TYPE_WL_SKY,
-										END_RENDER_TYPES);
+			gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+										LLPipeline::RENDER_TYPE_CLOUDS,
+										LLPipeline::RENDER_TYPE_WL_SKY,
+										LLPipeline::END_RENDER_TYPES);
 								
 			
 			renderGeomPostDeferred(*LLViewerCamera::getInstance(), false);

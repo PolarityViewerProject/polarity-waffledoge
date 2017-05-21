@@ -716,7 +716,6 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 static bool validateProjectorShadowMapsChanged(const LLSD& newvalue)
 {
 	return LLPipeline::RenderProjectorShadowResolution != (LLVector3)newvalue;
-	return LLPipeline::RenderProjectorShadowResolution != (LLVector3)newvalue;
 }
 
 static bool validateShadowMapsChanged(const LLSD& newvalue)

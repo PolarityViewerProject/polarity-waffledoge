@@ -1339,7 +1339,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>10</integer>
+      <integer>12</integer>
     </map>
     <key>PVRender_DepthOfFieldAlphas</key>
     <map>
@@ -1407,7 +1407,7 @@
       <key>Value</key>
       <real>0</real>
     </map>
-<!--     <key>PVRender_EnableFilmGrain</key>
+    <key>PVRender_EnableFilmGrain</key>
     <map>
       <key>Comment</key>
       <string>Add a filmic grain to the depth of field shader</string>
@@ -1417,7 +1417,7 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>1</integer>
-    </map> -->
+    </map>
     <key>PVRender_EnableGodRays</key>
     <map>
       <key>Comment</key>

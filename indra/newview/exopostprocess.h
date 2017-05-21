@@ -55,7 +55,7 @@ public:
 		EXODUS_RENDER_TONE_FILMIC_ADV = 40
 	};
 
-	void ExodusSetPostAttribute(U32 attribute, void* value = NULL);
+	//void ExodusSetPostAttribute(U32 attribute, void* value = NULL);
 	void ExodusRenderPostStack(LLRenderTarget* src, LLRenderTarget* dst);
 	void ExodusRenderPost(LLRenderTarget* src, LLRenderTarget* dst, S32 type);
 	void ExodusRenderToneMapping(LLRenderTarget* src, LLRenderTarget* dst, S32 type);

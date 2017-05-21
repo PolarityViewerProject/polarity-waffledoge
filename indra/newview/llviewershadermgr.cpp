@@ -1895,7 +1895,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gFXAAProgram.mShaderFiles.clear();
 		gFXAAProgram.mShaderFiles.push_back(std::make_pair("deferred/postDeferredV.glsl", GL_VERTEX_SHADER));
 		gFXAAProgram.mShaderFiles.push_back(std::make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
-		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("RenderDeferredFXAAQuality"))); // <alchemy/>
+		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("PVRender_DeferredFXAAQuality"))); // <alchemy/>
 		gFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gFXAAProgram.createShader(NULL, NULL);
 	}
@@ -1926,7 +1926,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDoFCombineProgram.mShaderFiles.clear();
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(std::make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(std::make_pair("deferred/dofCombineF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("RenderDeferredDoFGrain") ? "1" : "0");
+		gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("PVRender_EnableFilmGrain") ? "1" : "0");
 		gDeferredDoFCombineProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDoFCombineProgram.createShader(NULL, NULL);
 	}

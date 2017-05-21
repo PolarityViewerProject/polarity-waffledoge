@@ -88,6 +88,7 @@ exoPostProcess::~exoPostProcess()
 	mExoPostBuffer = NULL;
 }
 
+#ifdef ENHANCED_POST
 void exoPostProcess::ExodusRenderPostStack(LLRenderTarget *src, LLRenderTarget *dst)
 {
 	if (mVertexShaderLevel > 0)
@@ -264,6 +265,7 @@ void exoPostProcess::ExodusRenderToneMapping(LLRenderTarget *src, LLRenderTarget
 
 void exoPostProcess::ExodusRenderColorGrade(LLRenderTarget *src, LLRenderTarget *dst, S32 type)
 {
+
 	if (type == EXODUS_RENDER_COLOR_GRADE) {
 		if (LLViewerFetchedTexture::sExodusColorGradeTexp->isFullyLoaded()) //Prevents the "gray screen" while the color grade texture loads.
 		{
@@ -353,6 +355,7 @@ void exoPostProcess::ExodusRenderLens(LLRenderTarget* src, LLRenderTarget* dst)
 	shader->unbind();
 	dst->flush();
 }
+#endif // ENHANCED_POST
 
 void exoShader::BindTex2D(LLTexture *tex2D, LLGLSLShader *shader, S32 uniform, S32 unit, LLTexUnit::eTextureType mode, LLTexUnit::eTextureAddressMode addressMode, LLTexUnit::eTextureFilterOptions filterMode)
 {
