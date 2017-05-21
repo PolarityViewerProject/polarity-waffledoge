@@ -1047,6 +1047,26 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVRender_ShadowResolution</key>
+    <map>
+      <key>Comment</key>
+      <string>Raw shadow map resolution.
+      X: Close
+      Y: Mid-range
+      Z: Far
+      W: Furthest</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Vector4</string>
+      <key>Value</key>
+      <array>
+        <real>4096</real>
+        <real>2048</real>
+        <real>1024</real>
+        <real>512</real>
+      </array>
+    </map>
     <key>PVRender_ShadowResolutionClosest</key>
     <map>
       <key>Comment</key>

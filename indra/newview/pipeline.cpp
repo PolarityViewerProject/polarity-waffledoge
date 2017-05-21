@@ -214,11 +214,7 @@ BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
 F32 LLPipeline::RenderSnapshotMultiplier;
 
-//	//BD - Shadow Map Allocation
-U32 LLPipeline::RenderShadowResolutionClose;
-U32 LLPipeline::RenderShadowResolutionMid;
-U32 LLPipeline::RenderShadowResolutionFar;
-U32 LLPipeline::RenderShadowResolutionFurthest;
+// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 LLVector4 LLPipeline::RenderShadowResolutionMap;
 LLVector3 LLPipeline::RenderProjectorShadowResolution;
 
@@ -1265,18 +1261,13 @@ void LLPipeline::refreshCachedSettings()
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
 	RenderSnapshotMultiplier = gSavedSettings.getF32("RenderSnapshotMultiplier");
-//	//BD - Shadow Map Allocation
-//	<polarity> Split controls for feature table integration.
-//  Use cached values since they are refreshed at the beginning of this function
-	RenderShadowResolutionClose		= gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
-	RenderShadowResolutionMid		= gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
-	RenderShadowResolutionFar		= gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
-	RenderShadowResolutionFurthest	= gSavedSettings.getU32("PVRender_ShadowResolutionFurthest");
-	RenderShadowResolutionMap		= LLVector4(
-										RenderShadowResolutionClose,
-										RenderShadowResolutionMid,
-										RenderShadowResolutionFar,
-										RenderShadowResolutionFurthest);
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	// TODO: Make slider work with this:
+	// RenderShadowResolutionMap		= gSavedSettings.getVector4("PVRender_ShadowResolution");
+	RenderShadowResolutionMap		= LLVector4(gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
+										gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
+										gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
+										gSavedSettings.getU32("PVRender_ShadowResolutionFurthest"));
 
 //	</polarity>
 	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
@@ -8240,6 +8231,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
