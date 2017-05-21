@@ -1426,16 +1426,18 @@ void LLPipeline::createGLBuffers()
 
 	updateRenderDeferred();
 
-	if (sWaterReflections)
-	{ //water reflection texture
 		// <polarity/> Speed up
-		// todo: move to class variable maybe
-		static LLCachedControl<U32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
-		auto res = llmax((U32)render_water_ref_res, (U32)512);
-		// Set up SRGB targets if we're doing deferred-path reflection rendering
-		//
 #if MATERIALS_IN_REFLECTIONS
+		static LLCachedControl<U32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
 		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
+#else
+		static constexpr bool materials_in_water = false;
+#endif
+	if (LLPipeline::sWaterReflections)
+	{ //water reflection texture
+		// Set up SRGB targets if we're doing deferred-path reflection rendering
+		static LLCachedControl<U32> res(gSavedSettings, "RenderWaterRefResolution");
+#if MATERIALS_IN_REFLECTIONS
 		if (LLPipeline::sRenderDeferred && materials_in_water)
 		{
 			mWaterRef.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE);
