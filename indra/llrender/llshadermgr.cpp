@@ -527,7 +527,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0 || warns)
 	{
-        LL_DEBUGS("ShaderLoading") << "Shader loading ";
+        LL_INFOS("ShaderLoading") << "Shader loading ";
         
 		if (!filename.empty())
 		{
@@ -575,7 +575,7 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 		std::stringstream fname;
 		fname << getShaderDirPrefix();
 		fname << gpu_class << SEPARATOR << filename;
- 		LL_INFOS("ShaderLoading") << "Looking for " << fname.str() << LL_ENDL;
+ 		LL_INFOS("ShaderLoading") << "Looking in " << fname.str() << LL_ENDL;
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
@@ -931,6 +931,7 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 	{
 		//an error occured, print log
 		LL_WARNS("ShaderLoading") << "GLSL Linker Error:" << LL_ENDL;
+		dumpObjectLog(obj);
 	}
 
 #if LL_DARWIN
