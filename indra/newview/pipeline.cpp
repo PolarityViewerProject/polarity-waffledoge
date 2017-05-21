@@ -1236,13 +1236,14 @@ void LLPipeline::refreshCachedSettings()
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
 	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
-	// <polarity> Hack to temporary disable SSAO globally so that the UI toggles correctly
-	LLControlVariable* ssao_ctrl = gSavedSettings.getControl("RenderDeferredSSAO");
-	if(!RenderDeferred)
-	{
-		ssao_ctrl->setValue(FALSE,false);
-	}
-	RenderDeferredSSAO = ssao_ctrl->getValue();
+	//// <polarity> Hack to temporary disable SSAO globally so that the UI toggles correctly
+	//LLControlVariable* ssao_ctrl = gSavedSettings.getControl("RenderDeferredSSAO");
+	//if(!RenderDeferred)
+	//{
+	//	ssao_ctrl->setValue(FALSE,false);
+	//}
+	//RenderDeferredSSAO = ssao_ctrl->getValue();
+	RenderDeferredSSAO = gSavedSettings.getControl("RenderDeferredSSAO");
 	// </polarity>
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
 	RenderDelayCreation = gSavedSettings.getBOOL("RenderDelayCreation");
