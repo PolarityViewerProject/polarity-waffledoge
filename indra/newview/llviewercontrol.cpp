@@ -723,12 +723,6 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 }
 // </Black Dragon:NiranV>
 
-//static bool handleDepthOfFieldChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersDOF(success);
-//}
-//
 //static bool handleSSAOChanged(const LLSD& newvalue)
 //{
 //	BOOL success = gPipeline.sRenderDeferred;
@@ -742,34 +736,6 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 //	return LLViewerShaderMgr::instance()->loadShadersSSAO(success);
 //}
 //
-//static bool handleSSRChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersSSR(success);
-//}
-//
-//static bool handleGodraysChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersGodrays(success);
-//}
-//
-//static bool handleShadowsChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	if (success)
-//	{
-//		success = LLViewerShaderMgr::instance()->resetDeferredShaders();
-//	}
-//	success = LLViewerShaderMgr::instance()->loadShadersMaterials(success);
-//	success = LLViewerShaderMgr::instance()->loadShadersSSAO(success);
-//	success = LLViewerShaderMgr::instance()->loadShadersShadows(success);
-//	if (success)
-//	{
-//		gPipeline.allocateShadowMaps(newvalue);
-//	}
-//	return success;
-//}
 
 static bool handleTimeFactorChanged(const LLSD& newvalue)
 {
