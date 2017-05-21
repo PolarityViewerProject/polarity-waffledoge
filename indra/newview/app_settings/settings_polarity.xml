@@ -1646,8 +1646,8 @@
       <string>Vector3</string>
       <key>Value</key>
       <array>
-        <real>2048</real>
-        <real>2048</real>
+        <real>256</real>
+        <real>256</real>
         <real>1.0</real>
       </array>
     </map>
