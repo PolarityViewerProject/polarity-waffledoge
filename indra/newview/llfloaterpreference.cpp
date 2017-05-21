@@ -1684,7 +1684,7 @@ void LLFloaterPreference::disableUnavailableSettings()
 	LLComboBox* ctrl_shadows = getChild<LLComboBox>("ShadowDetail");
 	LLCheckBoxCtrl* ctrl_ssao = getChild<LLCheckBoxCtrl>("UseSSAO");
 	LLCheckBoxCtrl* ctrl_dof = getChild<LLCheckBoxCtrl>("UseDoF");
-	LLComboBox* ctrl_avatar_shadow = getChild<LLComboBox>("AvatarShadowDetail");
+	LLComboBox* ctrl_avatar_shadow = getChild<LLComboBox>("rigmeshshadow_dropdown");
 	LLSliderCtrl* sky = getChild<LLSliderCtrl>("SkyMeshDetail");
 
 	// if vertex shaders off, disable all shader related products
