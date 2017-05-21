@@ -36,8 +36,6 @@ PVRender_DepthOfFieldAlphas	1	1
 PVRender_EnableGodRays		1	1
 PVRender_EnableLensFlare	1	1
 PVRender_EnableSSR			1	1
-PVRender_FPSLimiterEnabled	1	0
-PVRender_FPSLimiterTarget	1	0
 PVRender_GodraysDirectional	1	1
 PVRender_AttachmentShadowDetail	1	3
 PVRender_ShadowResolutionClosest	1	3072
