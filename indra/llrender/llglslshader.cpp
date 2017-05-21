@@ -456,10 +456,10 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
         LL_WARNS("ShaderLoading") << "Failed to link shader: " << mName << LL_ENDL;
 
         // Try again using a lower shader level;
-        if (mShaderLevel > 0)
+        if (mShaderLevel > 1)
         {
-            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel - 1) << LL_ENDL;
             mShaderLevel--;
+            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel) << LL_ENDL;
             return createShader(attributes,uniforms);
         }
     }
