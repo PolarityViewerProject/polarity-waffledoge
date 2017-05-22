@@ -1315,7 +1315,7 @@ bool idle_startup()
 				// create the default proximal channel
 				LLVoiceChannel::initClass();
 
-				if (gSavedSettings.getBOOL("FSRememberUsername"))
+				if (gSavedSettings.getBOOL("PVPrivacy_RememberUsername"))
 				{
 					gSecAPIHandler->saveCredential(gUserCredential, gRememberPassword);
 				}
