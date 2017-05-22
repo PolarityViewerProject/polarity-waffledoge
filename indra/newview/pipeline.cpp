@@ -212,25 +212,11 @@ F32 LLPipeline::RenderAutoHideSurfaceAreaLimit;
 BOOL LLPipeline::CameraFreeDoFFocus;
 BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
-U32 LLPipeline::RenderSSRResolution;
-F32 LLPipeline::RenderSSRBrightness;
-F32 LLPipeline::RenderChromaStrength;
 F32 LLPipeline::RenderSnapshotMultiplier;
 
-//	//BD - Shadow Map Allocation
-U32 LLPipeline::RenderShadowResolutionClose;
-U32 LLPipeline::RenderShadowResolutionMid;
-U32 LLPipeline::RenderShadowResolutionFar;
-U32 LLPipeline::RenderShadowResolutionFurthest;
+// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 LLVector4 LLPipeline::RenderShadowResolutionMap;
 LLVector3 LLPipeline::RenderProjectorShadowResolution;
-
-
-//	//BD - Volumetric Lighting
-BOOL LLPipeline::RenderGodrays;
-U32 LLPipeline::RenderGodraysResolution;
-F32 LLPipeline::RenderGodraysMultiplier;
-F32 LLPipeline::RenderGodraysFalloffMultiplier;
 
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
 
@@ -292,14 +278,14 @@ static LLStaticHashedString sTint("tint");
 static LLStaticHashedString sAmbiance("ambiance");
 static LLStaticHashedString sAlphaScale("alpha_scale");
 static LLStaticHashedString sNormMat("norm_mat");
-static LLStaticHashedString sOffset("offset");
 static LLStaticHashedString sScreenRes("screenRes");
 static LLStaticHashedString sDelta("delta");
 static LLStaticHashedString sDistFactor("dist_factor");
 static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
-//BD
+//<polarity> Gaussian Blur
 static LLStaticHashedString sGaussian("gaussian");
+// </polarity>
 
 //----------------------------------------
 std::string gPoolNames[] = 
@@ -675,9 +661,6 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("RenderDeferredAtmospheric");
 	connectRefreshCachedSettingsSafe("RenderReflectionDetail");
 	connectRefreshCachedSettingsSafe("RenderHighlightFadeTime");
-	// <Black Dragon:NiranV> Tofu's SSR
-	connectRefreshCachedSettingsSafe("PVRender_EnableSSR");
-	// </Black Dragon:NiranV>
 	connectRefreshCachedSettingsSafe("RenderShadowClipPlanes");
 	connectRefreshCachedSettingsSafe("RenderShadowOrthoClipPlanes");
 	connectRefreshCachedSettingsSafe("RenderFarClip");
@@ -693,49 +676,18 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraFreeDoFFocus");
 	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("RenderSnapshotAutoAdjustMultiplier");
-	connectRefreshCachedSettingsSafe("PVRender_SSRResolution");
-	connectRefreshCachedSettingsSafe("RenderSSRBrightness");
-	connectRefreshCachedSettingsSafe("PVRender_ChromaStrength");
 	connectRefreshCachedSettingsSafe("RenderSnapshotMultiplier");
 
-//	//BD - Post Processing
-	connectRefreshCachedSettingsSafe("PVRender_EnableLensFlare");
-	connectRefreshCachedSettingsSafe("PVRender_PostGreyscaleStrength");
-	connectRefreshCachedSettingsSafe("PVRender_PostSepiaStrength");
-	connectRefreshCachedSettingsSafe("PVRender_PostPosterizationSamples");
-
 //	//BD - Shadow Map Allocation
-//	<polarity> Split controls for feature table integration
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionClosest");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionMid");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionFar");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionFurthest");
-// </polarity>
 	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
-
-//	//BD - Volumetric Lighting
-	connectRefreshCachedSettingsSafe("PVRender_EnableGodRays");
-	connectRefreshCachedSettingsSafe("PVRender_GodraysResolution");
-	connectRefreshCachedSettingsSafe("PVRender_GodraysMultiplier");
-	connectRefreshCachedSettingsSafe("PVRender_GodraysFalloffMultiplier");
-	// <Black Dragon:NiranV> Tofu's SSR
-	connectRefreshCachedSettingsSafe("PVRender_SSRResolution");
-
-//	//BD - Exodus Post Process
-	connectRefreshCachedSettingsSafe("PVRender_Gamma");
-	connectRefreshCachedSettingsSafe("PVRender_HDRBrightnessOffset");
-	connectRefreshCachedSettingsSafe("PVRender_Exposure");
-	connectRefreshCachedSettingsSafe("PVRender_ToneMappingExposure");
-	connectRefreshCachedSettingsSafe("PVRender_EnableToneMapping");
-	connectRefreshCachedSettingsSafe("PVRender_Vignette");
-	connectRefreshCachedSettingsSafe("PVRender_ToneMappingTech");
-	connectRefreshCachedSettingsSafe("PVRender_ColorGradeTexture");
-	connectRefreshCachedSettingsSafe("PVRender_ColorGradeTech");
-	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlA");
-	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlB");
-	connectRefreshCachedSettingsSafe("PVRender_ToneMappingControlC");
-
+// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	connectRefreshCachedSettingsSafe("PVRender_ShadowResolution");
+// <polarity> Sync Shadow Far Clip with Render Far Clip
 	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
+// </polarity>
+
+
+
 }
 
 LLPipeline::~LLPipeline()
@@ -1070,10 +1022,8 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		{
 			mFXAABuffer.release();
 		}
-
-		//BD
-		if (shadow_detail > 0 || ssao 
-			|| RenderDepthOfField || samples > 0)
+		
+		if (shadow_detail > 0 || ssao || RenderDepthOfField || samples > 0)
 		{ //only need mDeferredLight for shadows OR ssao OR dof OR fxaa
 			if (!mDeferredLight.allocate(resX, resY, GL_RGBA, FALSE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 		}
@@ -1187,21 +1137,16 @@ void LLPipeline::updateRenderBump()
 //static
 void LLPipeline::updateRenderDeferred()
 {
-	//BD
 	BOOL deferred = ((RenderDeferred && 
 					 LLRenderTarget::sUseFBO &&
 					 LLFeatureManager::getInstance()->isFeatureAvailable("RenderDeferred") &&	 
-					 sRenderBump &&
+					 LLPipeline::sRenderBump &&
 					 VertexShaderEnable && 
 					 RenderAvatarVP &&
 					 WindLightUseAtmosShaders) ? TRUE : FALSE) &&
 					!gUseWireframe;
 
 	sRenderDeferred = deferred;	
-
-//	//BD - Exodus Post Process
-	exoPostProcess::instance().ExodusRenderPostUpdate();
-	// </Black Dragon:NiranV>
 	if (deferred)
 	{ //must render glow when rendering deferred since post effect pass is needed to present any lighting at all
 		sRenderGlow = TRUE;
@@ -1211,21 +1156,21 @@ void LLPipeline::updateRenderDeferred()
 //static
 void LLPipeline::refreshCachedSettings()
 {
-	sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
-	sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
-	sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
+	LLPipeline::sAutoMaskAlphaDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaDeferred");
+	LLPipeline::sAutoMaskAlphaNonDeferred = gSavedSettings.getBOOL("RenderAutoMaskAlphaNonDeferred");
+	LLPipeline::sUseFarClip = gSavedSettings.getBOOL("RenderUseFarClip");
 	LLVOAvatar::sMaxNonImpostors = gSavedSettings.getU32("RenderAvatarMaxNonImpostors");
 	LLVOAvatar::updateImpostorRendering(LLVOAvatar::sMaxNonImpostors);
-	sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
+	LLPipeline::sDelayVBUpdate = gSavedSettings.getBOOL("RenderDelayVBUpdate");
 
-//	//BD - Freeze World
-	sUseOcclusion = 
+	LLPipeline::sUseOcclusion = 
 			(!gUseWireframe
 			&& LLGLSLShader::sNoFixedFunction
 			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) // <polarity/>
-			&& !gSavedSettings.getBOOL("PVRender_FreezeWorld");
+//	//BD - Freeze World
+			&& !gSavedSettings.getBOOL("PVRender_FreezeWorld"); 
 	
 	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
@@ -1301,7 +1246,6 @@ void LLPipeline::refreshCachedSettings()
 	RenderShadowOrthoClipPlanes = gSavedSettings.getVector3("RenderShadowOrthoClipPlanes");
 	RenderFarClip = gSavedSettings.getF32("RenderFarClip");
 	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
-	// </polarity>
 	RenderShadowSplitExponent = gSavedSettings.getVector3("RenderShadowSplitExponent");
 	RenderShadowErrorCutoff = gSavedSettings.getF32("RenderShadowErrorCutoff");
 	RenderShadowFOVCutoff = gSavedSettings.getF32("RenderShadowFOVCutoff");
@@ -1313,35 +1257,13 @@ void LLPipeline::refreshCachedSettings()
 	CameraFreeDoFFocus = gSavedSettings.getBOOL("CameraFreeDoFFocus");
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
-	RenderSSRResolution = gSavedSettings.getU32("PVRender_SSRResolution");
-	RenderSSRBrightness = gSavedSettings.getF32("RenderSSRBrightness");
-	RenderChromaStrength = gSavedSettings.getF32("PVRender_ChromaStrength");
 	RenderSnapshotMultiplier = gSavedSettings.getF32("RenderSnapshotMultiplier");
-
-//	//BD - Volumetric Lighting
-	RenderGodrays = gSavedSettings.getBOOL("PVRender_EnableGodRays");
-	RenderGodraysResolution = gSavedSettings.getU32("PVRender_GodraysResolution");
-	RenderGodraysMultiplier = gSavedSettings.getF32("PVRender_GodraysMultiplier");
-	RenderGodraysFalloffMultiplier = gSavedSettings.getF32("PVRender_GodraysFalloffMultiplier");
-
-//	//BD - Shadow Map Allocation
-//	<polarity> Split controls for feature table integration.
-//  Use cached values since they are refreshed at the beginning of this function
-	RenderShadowResolutionClose		= gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
-	RenderShadowResolutionMid		= gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
-	RenderShadowResolutionFar		= gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
-	RenderShadowResolutionFurthest	= gSavedSettings.getU32("PVRender_ShadowResolutionFurthest");
-	RenderShadowResolutionMap		= LLVector4(
-										RenderShadowResolutionClose,
-										RenderShadowResolutionMid,
-										RenderShadowResolutionFar,
-										RenderShadowResolutionFurthest);
-
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	// TODO: Make slider work with this:
+	RenderShadowResolutionMap		= gSavedSettings.getVector4("PVRender_ShadowResolution");
 //	</polarity>
 	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
 
-//	//BD - Exodus Post Process
-	exoPostProcess::instance().ExodusRenderPostSettingsUpdate();
 	updateRenderDeferred();
 }
 // <Black Dragon:NiranV> Refresh reflections on the fly
@@ -1518,7 +1440,7 @@ void LLPipeline::createGLBuffers()
 	}
 
 //	//BD - Exodus Post Process
-	exoPostProcess::instance().ExodusGenerateLUT();
+//	exoPostProcess::instance().ExodusGenerateLUT(); // Dead Code
 
 	gBumpImageList.restoreGL();
 }
@@ -7399,7 +7321,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	glClearColor(0,0,0,0);
 		
 	// <Black Dragon:NiranV> Exodus post processing shaders
-	exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
+	//exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
 	// </Black Dragon:NiranV>
 
 	// <polarity> Gaussian blur shader
@@ -7425,11 +7347,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			mScreen.bindTarget();
 			shader->bind();
 			
-			// S32 channel = shader->enableTexture(LLShaderMgr::EXO_RENDER_SCREEN, mScreen.getUsage());
-			// if (channel > -1)
-			// {
-			// 	mScreen.bindTexture(0, channel);
-			// }
 			exoShader::BindRenderTarget(&mScreen, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
 			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, vertical_dir);
 			
@@ -7919,42 +7836,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				mDeferredLight.flush();
 			}
 		}
-		if (sRenderDeferred && RenderShadowDetail && RenderGodrays)
-		{
-			// volumetric lighting
-			if (multisample)
-			{
-				mDeferredLight.bindTarget();
-			}
-			LLGLSLShader* shader = &gVolumetricLightProgram;
-			bindDeferredShader(*shader);
-			shader->uniform1f(LLShaderMgr::DOF_RES_SCALE, dof_enabled ? CameraDoFResScale : 1.0f);
-			S32 channel = shader->enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
-			if (channel > -1)
-			{
-				mScreen.bindTexture(0, channel);
-			}
-			// </Black Dragon:NiranV>
-
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-			gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-			gGL.vertex2f(-1,-1);
-		
-			gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-			gGL.vertex2f(-1,3);
-		
-			gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-			gGL.vertex2f(3,-1);
-		
-			gGL.end();
-
-			unbindDeferredShader(*shader);
-
-			if (multisample)
-			{
-				mDeferredLight.flush();
-			}
-		}
 
 		if (multisample)
 		{
@@ -8055,9 +7936,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (LLGLSLShader::sNoFixedFunction)
 		{
 			gGlowCombineProgram.bind();
-			// <Black Dragon:NiranV> Exodus post processing shaders
-			gGlowCombineProgram.uniform3fv(LLShaderMgr::EXO_RENDER_VIGNETTE, 1, exoPostProcess::sExodusRenderVignette.mV); // Work around for ExodusRenderVignette in non-deferred.
-			// </Black Dragon:NiranV>
 		}
 		else
 		{
@@ -8335,6 +8213,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	LLVector3 ssao_effect = RenderSSAOEffect;
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_EFFECT, ssao_effect[0]);
 
+	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
 
 	shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
@@ -8345,21 +8224,13 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
 
-	//	//BD - Special Options
-	shader.uniform1f(LLShaderMgr::EXO_POST_CHROMA_STR, RenderChromaStrength);
-	shader.uniform1i(LLShaderMgr::SSR_RES, RenderSSRResolution);
-	shader.uniform1f(LLShaderMgr::SSR_BRIGHTNESS, RenderSSRBrightness);
-	shader.uniform1f(LLShaderMgr::SECONDS60, (F32)fmod(LLTimer::getElapsedSeconds(), 60.0));
 
-//	//BD - Volumetric Lighting
-	shader.uniform1i(LLShaderMgr::GODRAY_RES, RenderGodraysResolution);
-	shader.uniform1f(LLShaderMgr::GODRAY_MULTIPLIER, RenderGodraysMultiplier);
-	shader.uniform1f(LLShaderMgr::FALLOFF_MULTIPLIER, RenderGodraysFalloffMultiplier);
 
 	if (shader.getUniformLocation(LLShaderMgr::DEFERRED_NORM_MATRIX) >= 0)
 	{
@@ -8456,9 +8327,7 @@ void LLPipeline::renderDeferredLighting()
 		gGL.pushMatrix();
 		gGL.loadIdentity();
 
-		//BD
-		if (RenderDeferredSSAO 
-			|| RenderShadowDetail > 0)
+		if (RenderDeferredSSAO || RenderShadowDetail > 0)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -8611,16 +8480,16 @@ void LLPipeline::renderDeferredLighting()
 		}
 
 		{ //render non-deferred geometry (fullbright, alpha, etc)
-			LLGLDisable blend10(GL_BLEND);
-			LLGLDisable stencil2(GL_STENCIL_TEST);
+			LLGLDisable blend(GL_BLEND);
+			LLGLDisable stencil(GL_STENCIL_TEST);
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 			gPipeline.pushRenderTypeMask();
 			
-			gPipeline.andRenderTypeMask(RENDER_TYPE_SKY,
-										RENDER_TYPE_CLOUDS,
-										RENDER_TYPE_WL_SKY,
-										END_RENDER_TYPES);
+			gPipeline.andRenderTypeMask(LLPipeline::RENDER_TYPE_SKY,
+										LLPipeline::RENDER_TYPE_CLOUDS,
+										LLPipeline::RENDER_TYPE_WL_SKY,
+										LLPipeline::END_RENDER_TYPES);
 								
 			
 			renderGeomPostDeferred(*LLViewerCamera::getInstance(), false);
@@ -10683,10 +10552,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
-
-		// <polarity> Cache more debug settings / Performance improvement
-		// F32 range = gSavedSettings.getF32("RenderShadowFarClip");
-		// Moved to RenderShadowFarClip
 
 		LLVector3 split_exp = RenderShadowSplitExponent;
 

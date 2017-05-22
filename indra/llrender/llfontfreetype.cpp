@@ -126,6 +126,7 @@ LLFontFreetype::~LLFontFreetype()
 	std::for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
 	mCharGlyphInfoMap.clear();
 
+	if(mFontBitmapCachep)
 	delete mFontBitmapCachep;
 	// mFallbackFonts cleaned up by LLPointer destructor
 }

@@ -940,6 +940,7 @@ public:
 	static F32 RenderSSAOScale;
 	static U32 RenderSSAOMaxScale;
 	static F32 RenderSSAOFactor;
+	static LLVector3 RenderSSAOEffect;
 	static F32 RenderShadowOffsetError;
 	static F32 RenderShadowBiasError;
 	static F32 RenderShadowOffset;
@@ -968,9 +969,6 @@ public:
 	static BOOL CameraFreeDoFFocus;
 	static BOOL RenderDepthOfFieldInEditMode;
 	static BOOL RenderSnapshotAutoAdjustMultiplier;
-	static U32 RenderSSRResolution;
-	static F32 RenderSSRBrightness;
-	static LLVector3 RenderSSAOEffect;
 	static F32 RenderChromaStrength;
 	static F32 RenderSnapshotMultiplier;
 
@@ -981,12 +979,6 @@ public:
 	static U32 RenderShadowResolutionFurthest;
 	static LLVector4 RenderShadowResolutionMap; // TODO: Remove me?
 	static LLVector3 RenderProjectorShadowResolution;
-
-//	//BD - Volumetric Lighting
-	static BOOL RenderGodrays;
-	static U32 RenderGodraysResolution;
-	static F32 RenderGodraysMultiplier;
-	static F32 RenderGodraysFalloffMultiplier;
 
 	static F32 RenderShadowFarClip; // </polarity>
 };

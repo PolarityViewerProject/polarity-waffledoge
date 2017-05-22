@@ -58,9 +58,6 @@ public:
 	BOOL loadShadersWater();
 	BOOL loadShadersInterface();
 	BOOL loadShadersWindLight();
-//	//BD - Exodus Post Process
-	void unloadExodusPostShaders();
-    BOOL loadExodusPostShaders();
 
 	std::vector<S32> mVertexShaderLevel;
 	S32	mMaxAvatarShaderLevel;
@@ -267,22 +264,6 @@ extern LLGLSLShader			gImpostorProgram;
 extern LLGLSLShader			gWLSkyProgram;
 extern LLGLSLShader			gWLCloudProgram;
 
-// Post Process Shaders
-extern LLGLSLShader			gPostColorFilterProgram;
-extern LLGLSLShader			gPostNightVisionProgram;
-
-//BD - Exodus Post Process
-extern LLGLSLShader         gColorGradePost;
-extern LLGLSLShader         gLinearToneMapping;
-extern LLGLSLShader         gReinhardToneMapping;
-extern LLGLSLShader         gFilmicToneMapping;
-extern LLGLSLShader         gVignettePost;
-extern LLGLSLShader         gColorGradePostLegacy;
-extern LLGLSLShader         gFilmicToneMappingAdv;
-
-extern LLGLSLShader         gLensFlare;
-extern LLGLSLShader         gSpecialPost;
-
 // Deferred rendering shaders
 extern LLGLSLShader			gDeferredImpostorProgram;
 extern LLGLSLShader			gDeferredWaterProgram;
@@ -340,9 +321,6 @@ extern LLGLSLShader			gNormalMapGenProgram;
 // <polarity> Gaussian blur shader
 extern LLGLSLShader			gGaussianBlurProgram;
 // </polarity>
-
-//BD - Volumetric Lighting
-extern LLGLSLShader			gVolumetricLightProgram;
 
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];

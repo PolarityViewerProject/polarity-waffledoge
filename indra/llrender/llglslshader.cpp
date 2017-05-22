@@ -411,7 +411,7 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     for ( ; fileIter != mShaderFiles.end(); ++fileIter )
     {
         GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
-        LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
+        LL_INFOS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
         if (shaderhandle > 0)
         {
             attachObject(shaderhandle);
@@ -456,10 +456,10 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
         LL_WARNS("ShaderLoading") << "Failed to link shader: " << mName << LL_ENDL;
 
         // Try again using a lower shader level;
-        if (mShaderLevel > 0)
+        if (mShaderLevel > 1)
         {
-            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel - 1) << LL_ENDL;
             mShaderLevel--;
+            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel) << LL_ENDL;
             return createShader(attributes,uniforms);
         }
     }
@@ -560,7 +560,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
             {
                 mAttribute[i] = index;
                 mAttributeMask |= 1 << i;
-                LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                LL_INFOS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
         }
         if (attributes != NULL)
@@ -572,7 +572,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
                 if (index != -1)
                 {
                     mAttribute[shader_mgr->mReservedAttribs.size() + i] = index;
-                    LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                    LL_INFOS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
                 }
             }
         }
@@ -657,7 +657,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         mUniformNameMap[location] = name;
         mUniformMap[hashedName] = location;
 
-        LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
+        LL_INFOS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
     
 		const auto& shader_mgr = LLShaderMgr::instance();
 
@@ -707,7 +707,7 @@ GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
         type == GL_SAMPLER_2D_MULTISAMPLE)
     {   //this here is a texture
         glUniform1iARB(location, mActiveTextureChannels);
-        LL_DEBUGS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
+        LL_INFOS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
         return mActiveTextureChannels++;
     }
     return -1;
@@ -842,7 +842,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	unbind();
 
-	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
+	LL_INFOS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
 	return res;
 }
 

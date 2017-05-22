@@ -527,7 +527,7 @@ void LLShaderMgr::dumpObjectLog(GLhandleARB ret, BOOL warns, const std::string& 
 
 	if (log.length() > 0 || warns)
 	{
-        LL_DEBUGS("ShaderLoading") << "Shader loading ";
+        LL_INFOS("ShaderLoading") << "Shader loading ";
         
 		if (!filename.empty())
 		{
@@ -572,10 +572,11 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
  	LL_INFOS("ShaderLoading") << "Finding best shaders for GPU Class " << try_gpu_class << LL_ENDL;
 	for (gpu_class = try_gpu_class; gpu_class > 0; gpu_class--)
 	{	//search from the current gpu class down to class 1 to find the most relevant shader
+		llassert(gpu_class != 0)
 		std::stringstream fname;
 		fname << getShaderDirPrefix();
 		fname << gpu_class << SEPARATOR << filename;
- 		LL_INFOS("ShaderLoading") << "Looking for " << fname.str() << LL_ENDL;
+ 		LL_INFOS("ShaderLoading") << "Looking in " << fname.str() << LL_ENDL;
 		file = LLFile::fopen(fname.str(), "r");		/* Flawfinder: ignore */
 		if (file)
 		{
@@ -916,11 +917,6 @@ GLhandleARB LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shade
 	return ret;
 }
 
-
-		// Clear the linked program list as its no longer needed
-
-		// Clear the compiled shader list as its no longer needed
-
 BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors) 
 {
 	//check for errors
@@ -931,6 +927,7 @@ BOOL LLShaderMgr::linkProgramObject(GLhandleARB obj, BOOL suppress_errors)
 	{
 		//an error occured, print log
 		LL_WARNS("ShaderLoading") << "GLSL Linker Error:" << LL_ENDL;
+		dumpObjectLog(obj);
 	}
 
 #if LL_DARWIN
@@ -1175,41 +1172,19 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
 
-//	// EXODUS
-	// The order seems to matter - Xenhat
-	mReservedUniforms.push_back("exo_gamma");
-	mReservedUniforms.push_back("exo_exposure");
-	mReservedUniforms.push_back("exo_offset");
-	mReservedUniforms.push_back("exo_numcolors");
-	mReservedUniforms.push_back("exo_post_grey_str");
-	mReservedUniforms.push_back("exo_post_sepia_str");
-	mReservedUniforms.push_back("exo_post_chroma_str");
-	mReservedUniforms.push_back("exo_grade");
+	// <polarity> Exodus post-processing
 	mReservedUniforms.push_back("exo_screen");
-	mReservedUniforms.push_back("exo_vignette");
-	mReservedUniforms.push_back("exo_invgamma");
-	mReservedUniforms.push_back("exo_advToneUA");
-	mReservedUniforms.push_back("exo_advToneUB");
-	mReservedUniforms.push_back("exo_advToneUC");
-	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::EXO_RENDER_ADV_TONE_UC);
 
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
+	
 	mReservedUniforms.push_back("specular_color");
 	mReservedUniforms.push_back("env_intensity");
+
 	mReservedUniforms.push_back("matrixPalette");
 	mReservedUniforms.push_back("translationPalette");
-
-//	// BD
-	// The order seems to matter - Xenhat
-	mReservedUniforms.push_back("time_step");
-	mReservedUniforms.push_back("godray_res");
-	mReservedUniforms.push_back("godray_multiplier");
-	mReservedUniforms.push_back("falloff_multiplier");
-	mReservedUniforms.push_back("ssr_res");
-	mReservedUniforms.push_back("ssr_brightness");
-	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::SSR_BRIGHTNESS);
-
+	mReservedUniforms.push_back("maxWeight");
+	
 	mReservedUniforms.push_back("screenTex");
 	mReservedUniforms.push_back("screenDepth");
 	mReservedUniforms.push_back("refTex");
@@ -1251,9 +1226,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	// </polarity>
 
 	mReservedUniforms.push_back("origin");
-
+	// <alchemy>
 	mReservedUniforms.push_back("seconds60");
-	llassert(mReservedUniforms.size() - 1 == LLShaderMgr::SECONDS60);
+
+	// </alchemy>
 
 	if (mReservedUniforms.size() != END_RESERVED_UNIFORMS)
 	{

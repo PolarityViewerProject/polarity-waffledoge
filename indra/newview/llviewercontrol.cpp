@@ -693,27 +693,16 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 	return true;
 }
 
-// <polarity> Only trigger shadow map resize when the value changed
-static bool validateShadowMapsChangedClose(const LLSD& newvalue)
-{
-	return LLPipeline::RenderShadowResolutionClose != (U32)newvalue.asInteger();
-}
-static bool validateShadowMapsChangedMid(const LLSD& newvalue)
-{
-	return LLPipeline::RenderShadowResolutionMid != (U32)newvalue.asInteger();
-}
-static bool validateShadowMapsChangedFar(const LLSD& newvalue)
-{
-	return LLPipeline::RenderShadowResolutionFar != (U32)newvalue.asInteger();
-}
-static bool validateShadowMapsChangedFurthest(const LLSD& newvalue)
-{
-	return LLPipeline::RenderShadowResolutionFurthest != (U32)newvalue.asInteger();
-}
 static bool validateProjectorShadowMapsChanged(const LLSD& newvalue)
 {
 	return LLPipeline::RenderProjectorShadowResolution != (LLVector3)newvalue;
 }
+
+static bool validateShadowMapsChanged(const LLSD& newvalue)
+{
+	return LLPipeline::RenderShadowResolutionMap != (LLVector4)newvalue;
+}
+
 // </polarity>
 // <Black Dragon:NiranV> Granular controls refresh
 static bool handleShadowMapsChanged(const LLSD& newvalue)
@@ -723,12 +712,6 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 }
 // </Black Dragon:NiranV>
 
-//static bool handleDepthOfFieldChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersDOF(success);
-//}
-//
 //static bool handleSSAOChanged(const LLSD& newvalue)
 //{
 //	BOOL success = gPipeline.sRenderDeferred;
@@ -742,34 +725,6 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 //	return LLViewerShaderMgr::instance()->loadShadersSSAO(success);
 //}
 //
-//static bool handleSSRChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersSSR(success);
-//}
-//
-//static bool handleGodraysChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	return LLViewerShaderMgr::instance()->loadShadersGodrays(success);
-//}
-//
-//static bool handleShadowsChanged(const LLSD& newvalue)
-//{
-//	BOOL success = gPipeline.sRenderDeferred;
-//	if (success)
-//	{
-//		success = LLViewerShaderMgr::instance()->resetDeferredShaders();
-//	}
-//	success = LLViewerShaderMgr::instance()->loadShadersMaterials(success);
-//	success = LLViewerShaderMgr::instance()->loadShadersSSAO(success);
-//	success = LLViewerShaderMgr::instance()->loadShadersShadows(success);
-//	if (success)
-//	{
-//		gPipeline.allocateShadowMaps(newvalue);
-//	}
-//	return success;
-//}
 
 static bool handleTimeFactorChanged(const LLSD& newvalue)
 {
@@ -1050,25 +1005,17 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 
-	// <polarity> Split controls for feature table integration
-	// I would have preferred to only fire handleShadowMapsChanged() once, but I can't seem to figure how to store ValidateSignal's result as a boolean.
-	static auto shadow_ctrl_cls = gSavedSettings.getControl("PVRender_ShadowResolutionClosest");
-	shadow_ctrl_cls->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedClose, _2));
-	shadow_ctrl_cls->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	static auto shadow_ctrl_mid = gSavedSettings.getControl("PVRender_ShadowResolutionMid");
-	shadow_ctrl_mid->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedMid, _2));
-	shadow_ctrl_mid->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	static auto shadow_ctrl_far = gSavedSettings.getControl("PVRender_ShadowResolutionFar");
-	shadow_ctrl_far->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedFar, _2));
-	shadow_ctrl_far->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	static auto shadow_ctrl_fur = gSavedSettings.getControl("PVRender_ShadowResolutionFurthest");
-	shadow_ctrl_fur->getValidateSignal()->connect(boost::bind(&validateShadowMapsChangedFurthest, _2));
-	shadow_ctrl_fur->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	// TODO: Make these slider work with a vector4
+	static auto shadow_ctrl = gSavedSettings.getControl("PVRender_ShadowResolution");
+	shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateShadowMapsChanged, _2));
+	shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// </polarity>
 
+//	// BD
 	static auto proj_shadow_ctrl = gSavedSettings.getControl("PVRender_ProjectorShadowResolution");
 	proj_shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateProjectorShadowMapsChanged, _2));
 	proj_shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
-	// </polarity>
 }
 
 #if TEST_CACHED_CONTROL
