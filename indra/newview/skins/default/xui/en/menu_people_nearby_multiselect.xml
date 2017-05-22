@@ -66,4 +66,11 @@
       function="Avatar.EnableItem"
       parameter="can_offer_teleport"/>
     </menu_item_call>
+    <menu_item_call
+     enabled="true"
+     label="Refresh Appearance"
+     name="refresh">
+        <menu_item_call.on_click
+         function="Polarity.Avatar.TextureRefresh" />
+    </menu_item_call>
 </context_menu>

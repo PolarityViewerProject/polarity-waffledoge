@@ -51,13 +51,15 @@
         <on_click
          function="Clothing.TakeOff" />
     </menu_item_call>
+<!-- Doesn't work yet unfortunately. Also does not hide itself when item is not worn.
     <menu_item_call
      label="Edit"
      layout="topleft"
-     name="edit">
+     name="edit_item">
         <on_click
          function="Wearable.Edit" />
     </menu_item_call>
+-->
     <menu_item_call
      label="Item Profile"
      layout="topleft"

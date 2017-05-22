@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
   can_close="true"
@@ -14,7 +14,7 @@
   single_instance="true"
  
   bg_opaque_color="0 0.5 0 0.3"
-  title="EXPERIENCES">
+  title="Experiences">
   <tab_container
     top="3"
     left="3"

@@ -7,7 +7,7 @@
  name="floaterland"
  help_topic="floaterland"
  save_rect="true"
- title="ABOUT LAND"
+ title="About Land"
  width="634">
     <floater.string
       name="maturity_icon_general">
@@ -1219,6 +1219,41 @@ Only large parcels can be listed in search.
              width="278">
                 Allow other Residents to:
             </text>
+
+          <text
+           follows="left|top"
+           height="16"
+           layout="topleft"
+           left="20"
+           length="1"
+           name="allow_label1"
+           type="string"
+           width="150">
+            Edit Terrain:
+          </text>
+
+          <check_box
+             height="16"
+             label="Everyone"
+             layout="topleft"
+             left_pad="2"
+             name="public_terraform_checkbox"
+             tool_tip="If checked, anyone can terraform your land. It is best to leave this unchecked, as you can always edit your own land."
+             width="130" />
+             
+         <text
+          follows="left|top"
+          font="SansSerifSmall"
+          height="16"
+          layout="topleft"
+          left_pad="-55"
+          length="1"
+          name="caution_text"
+          text_color="Yellow"
+          type="string"
+          width="200">
+           (Use with caution!)
+         </text>
           <text
            type="string"
            length="1"
@@ -1320,7 +1355,7 @@ Only large parcels can be listed in search.
              width="70" />
           <panel
             bevel_style="none"
-            border="true"
+            border="false"
             top="121"
             bottom="121"
             follows="left|bottom|right"
@@ -2014,7 +2049,7 @@ Only large parcels can be listed in search.
              name="AllowedText"
              top="0"
              width="230">
-                Allowed Residents ([COUNT], max [MAX])
+                Allowed Residents ([COUNT])
             </text>
             <name_list
              column_padding="0"
@@ -2063,7 +2098,7 @@ Only large parcels can be listed in search.
              name="BanCheck"
              top="0"
              width="200">
-                Banned Residents ([COUNT], max [MAX])
+                Banned Residents ([COUNT])
             </text>
             <name_list
              column_padding="0"

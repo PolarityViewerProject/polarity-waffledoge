@@ -26,6 +26,18 @@
         [hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
     </panel.string>
     <panel.string
+     name="timePrecise">
+        [hour12, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="time24">
+        [hour24, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="time24Precise">
+        [hour24, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
      name="timeTooltip">
         [weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
     </panel.string>
@@ -36,9 +48,10 @@
   <panel
     height="18"
     left="-416"
-    width="185"
+    width="140"
     top="1"
     follows="right|top" 
+    visibility_control="PVUI_ShowCurrencyBalanceInStatusBar"
     name="balance_bg">
     <text
      halign="center"
@@ -69,7 +82,7 @@
      pad_right="0"
      tool_tip="Click to buy more L$"
      top="0"
-     width="80" />
+     width="55" />
     <button
      halign="left"
      font="SansSerifSmall"
@@ -105,14 +118,6 @@
      width="145">
         24:00 AM PST
     </text>
-    <icon
-     follows="right|top"
-     height="16"
-     image_name="Presets_Icon"
-     left_pad="8"
-     top="2"
-     name="presets_icon"
-     width="18" />
     <button
      follows="right|top"
      height="16"
@@ -138,4 +143,33 @@
      top="2"
      name="volume_btn"
      width="16" />
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="Icon_Gear_Background"
+     image_pressed="Icon_Gear_Background"
+     image_unselected="Icon_Gear_Foreground"
+     left_pad="5"
+     top="2"
+     name="quick_settings_btn"
+     width="16">
+     <click_callback
+      function="Floater.ToggleOrBringToFront"
+      parameter="quick_settings" />
+    </button>
+    <text
+    visibility_control="PVUI_StatusBarShowFPSCounter"
+    type="string"
+    font="SansSerifSmall"
+    follows="right|top"
+    halign="left"
+    height="16"
+    top="4"
+    layout="topleft"
+    left_pad="5"
+    name="FPS_count"
+    tool_tip="Frames per second/Refresh rate"
+    width="65">
+999.0/120
+	 </text>
 </panel>

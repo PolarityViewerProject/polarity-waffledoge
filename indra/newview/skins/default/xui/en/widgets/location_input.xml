@@ -133,7 +133,7 @@
     name="damage_text"
 	width="35"
 	height="18"
-	top="18"
+	top="17"
     follows="right|top"
 	halign="right"
 	font="SansSerifSmall"

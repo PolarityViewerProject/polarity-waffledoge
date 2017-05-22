@@ -9,7 +9,7 @@
  width="980"
  min_width="980"
  name="Model Preview"
- title="UPLOAD MODEL"
+ title="Upload Model"
  help_topic="upload_model" >
 
   <string name="status_idle"></string>

@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- border="true"
  follows="all"
- height="438"
- label="Sounds"
+ height="408"
  layout="topleft"
  left="102"
  name="Preference Media panel"
@@ -317,7 +315,6 @@
 	<check_box
 		name="media_auto_play_btn"
 		control_name="ParcelMediaAutoPlayEnable"
-		enabled_control="AudioStreamingMedia"
 		value="true"
 		follows="left|bottom|right"
 		height="15"
@@ -364,7 +361,7 @@
      follows="left|top"
      layout="topleft"
 	   left="46"
-	   top_delta="16"
+	   top_pad="10"
      name="Listen from"
      width="112">
         Listen from:
@@ -417,6 +414,43 @@
      top_delta ="0" 
      width="200" />
    </radio_group>
+        <text
+         follows="top|left"
+         height="23"
+         layout="topleft"
+         left_delta="-128"
+         length="1"
+         name="quantum_voice_label"
+         top_pad="10"
+         type="string"
+         width="130">
+          Indicator appearance:
+        </text>
+        <combo_box
+         control_name="PVUI_VoiceIndicatorBehavior"
+         height="23"
+         layout="topleft"
+         left_pad="50"
+         name="ShadowDetail"
+         top_delta="-5" 
+         width="150">
+           <combo_box.item
+            label="Status dot &amp; waves"
+            name="3"
+            value="3"/>
+           <combo_box.item
+            label="Waves only"
+            name="1"
+            value="1"/>
+           <combo_box.item
+            label="Status dot only"
+            name="2"
+            value="2"/>
+           <combo_box.item
+            label="Hidden"
+            name="0"
+            value="0"/>
+        </combo_box>
   <check_box
    control_name="LipSyncEnabled"
    follows="left|top"

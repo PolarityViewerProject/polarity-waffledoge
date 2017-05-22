@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
  <panel name="Outfits"
- bg_alpha_color="DkGray"
- bg_opaque_color="DkGray"
- background_opaque="true"
- background_visible="true"
   follows="all"
- height="575"
+ height="535"
  label="Things"
  layout="topleft"
  min_height="350"
@@ -24,24 +20,21 @@
      follows="all"
      height="539"
      layout="topleft"
-     left="5"
+     left="0"
      name="appearance_tabs"
-     tab_min_width="100"
-     tab_height="30"
      tab_position="top"
      halign="center"
-     hide_scroll_arrows="true"
-     top="8"
+     top="0"
      width="315">
          <panel
            class="outfit_gallery"
            filename="panel_outfit_gallery.xml"
            height="520"
            name="outfit_gallery_tab"
-           background_visible="true"
+           background_visible="false"
            help_topic="outfit_gallery_tab"
            follows="all"
-           label="OUTFIT GALLERY"
+           label="Gallery"
            layout="topleft"
            width="315" />
          <panel
@@ -49,10 +42,10 @@
            filename="panel_outfits_list.xml"
            height="520"
            name="outfitslist_tab"
-           background_visible="true"
+           background_visible="false"
            help_topic="my_outfits_tab"
            follows="all"
-           label="MY OUTFITS"
+           label="List"
            layout="topleft"
            width="315" />
          <panel
@@ -63,7 +56,7 @@
            follows="all"
            height="520"
            help_topic="now_wearing_tab"
-           label="WEARING"
+           label="Wearing"
            layout="topleft"
            name="cof_tab"
            width="315" />
@@ -74,70 +67,71 @@
        follows="bottom|left|right"
        height="27"
        layout="topleft"
-       left="9"
-       top_pad="1"
+       left="38"
+       top_pad="-30"
        visible="true"
        name="bottom_panel"
-       width="310">
+       width="250">
 			<layout_stack
      	         follows="bottom|left|right"
-		         height="23"
+		         height="27"
 		         layout="topleft"
 		         mouse_opaque="false"
 		         name="bottom_panel_ls"
 		         left="0"
 		         orientation="horizontal"
 		         top="0"
-		         width="308">	
+		         width="250">	
 			    <layout_panel
 			         follows="bottom|left|right"
-			         height="23"
+			         height="27"
                      layout="bottomleft"
                      left="0"			
                      mouse_opaque="false"
                      name="save_btn_lp"
                      auto_resize="true"
-                     width="156">
+                     width="149">
                     <button
                          follows="bottom|left|right"
-                         height="23"
+                         height="27"
                          label="Save As"
                          left="1"
                          layout="topleft"
                          name="save_btn"
                          top="0"
-                         width="155" />
+                         width="125" />
                     <button
                          follows="bottom|right"
-                         height="23"
+                         height="26"
                          name="save_flyout_btn"
                          label=""
+                         top_delta="0"
                          layout="topleft"
-                         left_pad="-20"
+                         left_pad="-1"
                          tab_stop="false"
                          image_selected="SegmentedBtn_Right_Selected_Press"
                          image_unselected="SegmentedBtn_Right_Off"
                          image_pressed="SegmentedBtn_Right_Press"
                          image_pressed_selected="SegmentedBtn_Right_Selected_Press"
                          image_overlay="Arrow_Small_Up"
-                         width="20"/>
+                         width="26"/>
 			    </layout_panel>
 			    <layout_panel
                      follows="bottom|left|right"
-                     height="23"
+                     height="27"
                      layout="bottomleft"
-                     left_pad="3"			
+                     left_pad="0"
                      mouse_opaque="false"
                      name="wear_btn_lp"
                      auto_resize="true"
                      width="147">
                     <button
                          follows="bottom|left|right"
-                         height="23"
+                         height="27"
                          label="Wear"
                          layout="topleft"
                          name="wear_btn"
-                         left="1"
+                         left="0"
                          top="0"
                          width="146" />
 			    </layout_panel>

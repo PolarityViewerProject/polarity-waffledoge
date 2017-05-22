@@ -5,7 +5,8 @@
  name="menu_gesture_gear"
  visible="false">
     <menu_item_call
-     label="Activate/Deactivate selected gesture"
+     font="SansSerifBold"
+     label="Add/Remove from Favorites"
      layout="topleft"
      name="activate">
         <on_click

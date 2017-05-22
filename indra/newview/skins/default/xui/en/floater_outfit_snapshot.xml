@@ -12,7 +12,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="OUTFIT SNAPSHOT"
+ title="Outfit Snapshot"
  width="624"
  min_height="455">
   <floater.string

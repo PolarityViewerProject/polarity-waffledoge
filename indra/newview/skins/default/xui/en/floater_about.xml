@@ -10,6 +10,7 @@
  title="ABOUT [CAPITALIZED_APP_NAME]"
  width="470">
   
+RestrainedLove API: [RLV_VERSION]
   <tab_container
     follows="all" 
     top="25"
@@ -131,5 +132,124 @@ Dummy Name replaced at run time
         Voice chat Audio coding: Polycom(R) Siren14(TM) (ITU-T Rec. G.722.1 Annex C)
       </text_editor>
       </panel>
-    </tab_container>
+    <panel
+      border="true" 
+      label="Polarity Credits" 
+      name="polarity_credits_panel">
+      <text
+          follows="top|left|right"
+          height="20"
+          layout="topleft"
+          left="5"
+          name="polarity_intro"
+          top="10"
+          width="435"
+          wrap="true">
+Polarity Viewer is brought to you by:
+      </text>
+      <text_editor
+       enabled="false"
+       follows="top|left"
+       parse_urls="true"
+       height="25"
+       bg_readonly_color="Transparent"
+       left="5"
+       text_color="LtGray"
+       max_length="65536"
+       name="polarity_names"
+       top_pad="5"
+       width="445"
+       word_wrap="true">
+secondlife:///app/agent/680c62e6-5cdd-494f-a31e-646392aa768b/inspect, secondlife:///app/agent/584d796a-bb85-4fe9-8f7c-1f2fbf2ff164/inspect and secondlife:///app/agent/f1a73716-4ad2-4548-9f0e-634c7a98fe86/inspect
+      </text_editor>
+      <text
+        follows="top|left"
+        height="10"
+        layout="topleft"
+        left="5"
+        name="opensource_intro"
+        top_pad="0"
+        width="445"
+        wrap="true">
+with open source code from:
+      </text>
+      <text_editor
+       enabled="false"
+       follows="top|left"
+       parse_urls="true"
+       height="35"
+       bg_readonly_color="Transparent"
+       left="5"
+       text_color="LtGray"
+       max_length="65536"
+       name="opensource_names"
+       top_pad="5"
+       width="445"
+       word_wrap="true">
+[http://alchemyviewer.org Alchemy], [http://niranv-sl.blogspot.de/ Black Dragon], [http://catznip.com/ Catznip], [http://exodusviewer.com/ Exodus] and [http://www.firestormviewer.org Firestorm].
+      </text_editor>
+       <text
+        follows="top|left"
+        height="10"
+        layout="topleft"
+        left="5"
+        name="special_thanks_intro"
+        top_pad="0"
+        width="220"
+        wrap="true">
+Special thanks:
+      </text>
+      <text_editor
+       enabled="false"
+       follows="top|left"
+       parse_urls="true"
+       height="260"
+       bg_readonly_color="Transparent"
+       left="5"
+       text_color="LtGray"
+       max_length="65536"
+       name="special_thanks_names"
+       top_pad="10"
+       width="225"
+       word_wrap="true">
+Dummy Name Replaced at Runtime
+     </text_editor>
+  <text
+    follows="all"
+    height="25"
+    layout="topleft"
+    left_pad="0"
+    name="services_intro"
+    top_delta="-21"
+    right="-1"
+    wrap="true">
+Project infrastructure and extra software resources provided by:
+  </text>
+  <text_editor
+   enabled="false"
+   follows="all"
+   parse_urls="true"
+   bg_readonly_color="Transparent"
+   left_delta="0"
+   text_color="LtGray"
+   max_length="65536"
+   name="services_names"
+   top_pad="0"
+   right="-1"
+   bottom="-1"
+   word_wrap="true">
+[https://www.atlassian.com/ Atlassian]:
+ Bamboo Automated Builds
+ Bitbucket Repository hosting
+ Confluence
+ JIRA Bug Tracker
+[https://www.jetbrains.com/ JetBrains]:
+ ReSharper Code Analysis
+[http://www.sublimetext.com/ Sublime Text]:
+ Cross-platform code editor
+ [https://scan.coverity.com/faq Coverity Scan]:
+ Static Analysis
+</text_editor>
+    </panel>
+  </tab_container>
 </floater>

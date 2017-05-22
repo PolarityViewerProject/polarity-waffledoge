@@ -4,12 +4,12 @@
  legacy_header_height="18"
  height="590"
  layout="topleft"
- bg_opaque_image="Window_NoTitle_Foreground"
- bg_alpha_image="Window_NoTitle_Background"
+ bg_opaque_image="Window_Foreground"
+ bg_alpha_image="Window_Background"
  name="toolbox floater"
  help_topic="toolbox_floater"
  save_rect="true"
- short_title="BUILD TOOLS"
+ short_title="Build Tools"
  single_instance="true"
  save_visibility="true"
  sound_flags="0"
@@ -238,6 +238,15 @@
 		 layout="topleft"
 		 name="radio position" />
         <radio_item
+         top_delta="0"
+         left="55"
+         label="Align"
+         layout="topleft"
+         name="radio align" />
+            <radio_group.commit_callback
+            function="BuildTool.commitRadioEdit"/>
+        <radio_item
+         left="0"
 		 top_pad="6"
          label="Rotate (Ctrl)"
          layout="topleft"
@@ -827,7 +836,6 @@
      tab_max_width="100"
      tab_min_width="40"
      tab_position="top"
-     tab_height="25"
      open_tabs_on_drag_and_drop="true"
      top="173"
      width="295">

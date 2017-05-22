@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 	follows="all"
-	height="968"
+	height="940"
 	layout="topleft"
 	left="0"
+	can_resize="false"
 	name="Machinima Sidebar"
 	top="0"
 	width="345">
 	<icon
 		color="1 1 1 1"
 		follows="all"
-		height="968"
+		height="940"
 		image_name="Window_Square_NoTransparentEdges"
 		layout="topleft"
 		left="0"
@@ -26,18 +27,18 @@
 		left="0"
 		name="camera_scroll"
 		opaque="true"
-		width="341"
+		width="345"
 		top="0">
 		<panel
 			border="false"
 			background_visible="false"
 			follows="left|top|right"
-			height="1255"
+			height="940"
 			layout="topleft"
 			left="0"
 			name="scroll_panel"
 			top="0"
-			width="326">
+			width="331">
 			<slider
 				control_name="RenderFarClip"
 				decimal_digits="0"
@@ -49,7 +50,7 @@
 				label_width="125"
 				layout="topleft"
 				left="5"
-				max_val="512"
+				max_val="2048"
 				min_val="0"
 				name="DrawDistance"
 				top="5"
@@ -448,7 +449,7 @@
 				width="10">
 				┣
 			</text>
-			<check_box
+<!-- 			<check_box
 				control_name="PVRender_EnableSSR"
 				height="16"
 				initial_value="true"
@@ -473,7 +474,7 @@
 				top_pad="0"
 				width="10">
 				┣
-			</text>
+			</text> -->
 			<check_box
 				control_name="RenderDepthOfField"
 				enabled_control="RenderDeferred"
@@ -512,7 +513,7 @@
 				name="shaders"
 				top_delta="0"
 				width="10">
-				┣
+				┗
 			</text>
 			<check_box
 				control_name="PVRender_DepthOfFieldAlphas"
@@ -526,7 +527,7 @@
 				top_delta="0"
 				width="115">
 			</check_box>
-			<text
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -540,7 +541,7 @@
 				width="10">
 				┃
 			</text>
-<!-- 			<text
+			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -580,7 +581,7 @@
 				width="10">
 				┣
 			</text>-->
-			<check_box
+<!-- 			<check_box
 				control_name="PVRender_EnableToneMapping"
 				enabled_control="RenderDeferred"
 				height="16"
@@ -772,8 +773,8 @@
 				name="LensFlare"
 				top_delta="0"
 				width="115">
-			</check_box>
-			<text
+			</check_box> -->
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -782,6 +783,20 @@
 				text_color="EmphasisColor"
 				layout="topleft"
 				left_delta="-10"
+				name="shaders"
+				top_pad="0"
+				width="10">
+				┣
+			</text> -->
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left_delta="-27"
 				name="shaders"
 				top_pad="0"
 				width="10">
@@ -962,7 +977,7 @@
 				width="120">
 				FS Parcel Windlight
 			</text>
-			<button
+			<!-- <button
 				label="⌊What is this?⌉"
 				follows="left|top"
 				label_color="EmphasisColor"
@@ -979,7 +994,7 @@
 					name="fs_windlight_url"
 					parameter="WebLaunchExternalTarget,http://wiki.phoenixviewer.com/phoenix:parcelwl">
 				</button.commit_callback>
-			</button>
+			</button> -->
 			<text
 				font="SansSerif"
 				font.style="BOLD"
@@ -1131,11 +1146,30 @@
 				tool_tip="Higher value increases the resolution of the sky dome, rendering the sun with finer detail."
 				layout="topleft"
 				left_delta="-79"
-				max_val="2048"
-				min_val="48"
+				max_val="1024"
+				min_val="32"
 				name="RenderShadowFarClip"
 				top_pad="5"
 				text_width="40"
+				width="310">
+			</slider>
+			<slider
+				control_name="PVRender_SSRResolution"
+				enabled_control="PVRender_EnableSSR"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="10"
+				label="SSR Resolution:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="256"
+				min_val="2"
+				name="PVRender_SSRResolution"
+				top_pad="2"
 				width="310">
 			</slider>
 			<text
@@ -1412,50 +1446,51 @@
 				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
-				height="20"
+				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
 				left="5"
-				name="light"
-				top_pad="5"
-				width="295">
-				Rendering:
-			</text>
-			<slider
-				control_name="PVRender_SSRResolution"
-				enabled_control="PVRender_EnableSSR"
-				decimal_digits="0"
-				can_edit_text="true"
-				follows="left|top"
-				height="15"
-				increment="1"
-				initial_value="10"
-				label="SSR Resolution:"
-				label_width="130"
-				layout="topleft"
-				left_delta="5"
-				max_val="256"
-				min_val="2"
-				name="PVRender_SSRResolution"
-				top_pad="2"
-				width="310">
-			</slider>
-			<text
-				font="SansSerif"
-				font.style="ITALIC"
-				font_shadow="soft"
-				follows="left|top"
-				height="15"
-				text_color="EmphasisColor"
-				layout="topleft"
-				left_delta="0"
 				name="shadows_section"
 				top_pad="2"
 				width="295">
 				Shadows:
 			</text>
+			<check_box
+				control_name="PVRender_SyncFarClip"
+				enabled_control="RenderDeferred"
+				halign="center"
+				height="16"
+				label="Auto. manage shadow draw dist."
+				layout="topleft"
+				left="5"
+				name="WindlightInterpolation"
+				top_pad="5"
+				width="75">
+			</check_box>
+			<slider
+				enabled="true"
+				control_name="RenderShadowFarClip"
+				disabled_control="PVRender_SyncFarClip"
+				decimal_digits="1"
+				follows="left|top"
+				height="15"
+				increment="0.1"
+				can_edit_text="true"
+				label="Draw Distance:"
+				label_width="130"
+				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
+				layout="topleft"
+				left_delta="5"
+				max_val="2048"
+				min_val="0.0"
+				name="RenderShadowFarClip"
+				top_pad="1"
+				text_width="40"
+				width="310">
+			</slider>
 			<slider
 				control_name="RenderShadowBlurSize"
+				enabled_control="RenderDeferred"
 				decimal_digits="1"
 				follows="left|top"
 				height="15"
@@ -1470,26 +1505,6 @@
 				min_val="0.0"
 				name="RenderShadowBlurSize"
 				top_pad="3"
-				text_width="40"
-				width="310">
-			</slider>
-			<slider
-				enabled="true"
-				control_name="RenderShadowFarClip"
-				decimal_digits="1"
-				follows="left|top"
-				height="15"
-				increment="0.1"
-				can_edit_text="true"
-				label="Draw distance cap:"
-				label_width="130"
-				tool_tip="How far away from the camera, in meters, should the viewer continue to cast shadows from and onto objects and avatars. Can dramatically reduce performance at high values on anemic hardware."
-				layout="topleft"
-				left_delta="0"
-				max_val="2048"
-				min_val="0.0"
-				name="RenderShadowFarClip"
-				top_pad="1"
 				text_width="40"
 				width="310">
 			</slider>
@@ -1581,97 +1596,91 @@
 					parameter="RenderShadowResolution">
 				</slider.commit_callback>
 			</slider> -->
-			<panel
-				enabled_control="RenderDeferred"
-				height="65"
+<!-- 			<slider
+				control_name="RenderSSAOEffect"
+				enabled="false"
+				decimal_digits="2"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="0.01"
+				initial_value="0.7"
+				label="SSAO Effect:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="4"
+				min_val="-1"
+				name="SSAOEffect"
 				top_pad="0"
-				width="300">
-				<slider
-					control_name="RenderSSAOEffect"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="2"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="0.01"
-					initial_value="0.7"
-					label="SSAO Effect:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="4"
-					min_val="-1"
-					name="SSAOEffect"
-					top_pad="0"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOScale"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="0"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="1"
-					initial_value="100"
-					label="SSAO Scale:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="3000"
-					min_val="0"
-					name="SSAOScale"
-					top_pad="1"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOMaxScale"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="0"
-					follows="left|top"
-					can_edit_text="true"
-					height="15"
-					increment="1"
-					initial_value="200"
-					label="SSAO Max Scale:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="3000"
-					min_val="0"
-					name="SSAOMaxScale"
-					top_pad="1"
-					width="310">
-				</slider>
-				<slider
-					control_name="RenderSSAOFactor"
-					enabled_control="RenderDeferredSSAO"
-					decimal_digits="1"
-					can_edit_text="true"
-					follows="left|top"
-					height="15"
-					increment="0.10"
-					initial_value="100"
-					label="SSAO Factor:"
-					label_width="130"
-					layout="topleft"
-					left_delta="0"
-					max_val="100"
-					min_val="0"
-					name="SSAOFactor"
-					top_pad="1"
-					width="310">
-				</slider>
-			</panel>
-			<text
+				width="310">
+			</slider> -->
+			<slider
+				control_name="RenderSSAOScale"
+				enabled_control="RenderDeferredSSAO"
+				decimal_digits="0"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="1"
+				initial_value="100"
+				label="SSAO Scale:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="3000"
+				min_val="0"
+				name="SSAOScale"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="RenderSSAOMaxScale"
+				enabled_control="RenderDeferredSSAO"
+				decimal_digits="0"
+				follows="left|top"
+				can_edit_text="true"
+				height="15"
+				increment="1"
+				initial_value="200"
+				label="SSAO Max Scale:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="3000"
+				min_val="0"
+				name="SSAOMaxScale"
+				top_pad="1"
+				width="310">
+			</slider>
+			<slider
+				control_name="RenderSSAOFactor"
+				enabled_control="RenderDeferredSSAO"
+				decimal_digits="1"
+				can_edit_text="true"
+				follows="left|top"
+				height="15"
+				increment="0.10"
+				initial_value="100"
+				label="SSAO Factor:"
+				label_width="130"
+				layout="topleft"
+				left_delta="0"
+				max_val="100"
+				min_val="0"
+				name="SSAOFactor"
+				top_pad="1"
+				width="310">
+			</slider>
+<!-- 			<text
 				font="SansSerif"
-				font.style="ITALIC"
+				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
 				height="15"
 				text_color="EmphasisColor"
 				layout="topleft"
-				left_delta="-5"
+				left="5"
 				name="light"
 				top_pad="5"
 				width="295">
@@ -1742,9 +1751,9 @@
 				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
-				height="20"
+				height="16"
 				layout="topleft"
-				left_delta="-5"
+				left="5"
 				text_color="EmphasisColor"
 				name="shadows"
 				top_pad="6"
@@ -1830,10 +1839,10 @@
 				name="ChromaStrength"
 				top_pad="1"
 				width="310">
-			</slider>
+			</slider> -->
 			<text
 				font="SansSerif"
-				font.style="ITALIC"
+				font.style="BOLD"
 				font_shadow="soft"
 				follows="left|top"
 				height="15"

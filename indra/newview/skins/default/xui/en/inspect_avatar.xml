@@ -120,22 +120,33 @@
      top_delta="4"
      name="mute_btn"
      width="16" />
+     <text
+      follows="top|left"
+      font="SansSerifSmall"
+      height="16"
+      right="-8"
+      bottom="-2"
+      name="agent_role"
+      text_color="White"
+      halign="right"
+      translate="false"
+      value="Developer,Support,QA,Tester"
+      width="150" />
     <text
      follows="top|left"
      height="16"
      left="8"
+     bottom="-2"
      name="avatar_profile_link"
      font="SansSerifSmall"
      text_color="White"
-     top_pad="5"
      translate="false"
-     value="[[LINK] View full profile]"
+     value="[[LINK] View Profile]"
      width="175" />
     <avatar_icon
      follows="top|left"
      height="38"
      right="-10"
-     bevel_style="in"
      border_style="line"
      mouse_opaque="true"
      name="avatar_icon"

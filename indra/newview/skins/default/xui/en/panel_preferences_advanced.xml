@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <panel
- border="true"
  follows="all"
  height="408"
  label="Advanced"
@@ -87,7 +86,6 @@
    height="23"
    layout="topleft"
    left="80"
-   max_length="4096"
    name="cache_location"
    top_pad="5"
    width="205" />

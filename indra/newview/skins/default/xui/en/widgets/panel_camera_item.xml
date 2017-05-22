@@ -31,7 +31,7 @@
   <panel_camera_item.picture
      follows="top|left"
      height="30"
-     image_name="Icon_For_Sale"
+     image_name="icon_for_sale"
      layout="topleft"
      left="0"
      mouse_opaque="false"

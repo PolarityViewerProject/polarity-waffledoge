@@ -27,7 +27,6 @@
           label="Filter"
           max_length_chars="300"
           name="blocked_filter_input"
-          text_color="Black"
           text_pad_left="10"
           top="4"
           width="177" />
@@ -90,26 +89,13 @@
           top_delta="0"
           width="31"/>
      </panel>
-     <text
-          type="string"
-          length="1"
-          follows="left|top|right"
-          height="14"
-          layout="topleft"
-          right="-10"
-          top_pad="4"
-          left="3"
-          use_ellipses="true"
-          name="block_limit">
-          [COUNT] entries in your block list, and the limit is [LIMIT].
-      </text>
     <block_list
      follows="all"
-     height="255"
+     height="273"
      layout="topleft"
      left="3"
      name="blocked"
      tool_tip="List of currently blocked Residents"
-     top_pad="4"
+     top="31"
   	 right="-1"/>
 </panel>

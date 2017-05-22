@@ -55,6 +55,44 @@
              function="ToggleControl"
              parameter="MiniMapAutoCenter" />
     </menu_item_check>
+    <menu_item_check
+      enabled_control="MiniMapAutoCenter"
+      label="Center Region"
+      name="Center Region">
+      <menu_item_check.on_check
+        control="PVUI_MinimapCenterRegion" />
+      <menu_item_check.on_click
+        function="ToggleControl"
+        parameter="PVUI_MinimapCenterRegion" />
+      </menu_item_check>
+    <menu_item_separator />
+    <menu_item_check
+      label="Use Map Tile"
+      name="Use Map Tile">
+        <menu_item_check.on_check
+          control="PVUI_MinimapTile" />
+        <menu_item_check.on_click
+          function="ToggleControl"
+          parameter="PVUI_MinimapTile" />
+    </menu_item_check>
+    <menu_item_check
+      label="Render Objects"
+      name="Render Objects">
+        <menu_item_check.on_check
+          control="PVUI_MinimapRenderObjects" />
+        <menu_item_check.on_click
+          function="ToggleControl"
+          parameter="PVUI_MinimapRenderObjects" />
+    </menu_item_check>
+    <menu_item_check
+      label="Guide Line"
+      name="Guide Line">
+      <menu_item_check.on_check
+        control="PVUI_MinimapGuideLine" />
+      <menu_item_check.on_click
+        function="ToggleControl"
+        parameter="PVUI_MinimapGuideLine" />
+    </menu_item_check>
     <menu_item_separator />
     <menu_item_call
      label="Stop Tracking"

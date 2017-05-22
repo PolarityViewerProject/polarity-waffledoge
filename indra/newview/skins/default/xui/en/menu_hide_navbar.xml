@@ -13,21 +13,76 @@
          layout="topleft"
          name="ShowNavbarNavigationPanel">
            <on_click
-             function="ToggleControl"
-             parameter="ShowNavbarNavigationPanel" /> 
+             function="SetNavigationBar"
+             parameter="2" />
              <on_check
-             function="CheckControl"
-             parameter="ShowNavbarNavigationPanel" />
+             function="CheckNavigationBar"
+             parameter="2" />
     </menu_item_check>
     <menu_item_check
          label="Show Mini-Location Bar"
          layout="topleft"
          name="ShowMiniLocationPanel">
            <on_click
+             function="SetNavigationBar"
+             parameter="1" />
+             <on_check
+             function="CheckNavigationBar"
+             parameter="1" />
+    </menu_item_check>
+    <menu_item_check
+         label="Hide Navigation &amp; Mini-Location Bars"
+         layout="topleft"
+         name="HideNavigationPanels">
+           <on_click
+             function="SetNavigationBar"
+             parameter="0" />
+             <on_check
+             function="CheckNavigationBar"
+             parameter="0" />
+    </menu_item_check>
+    <menu_item_check
+         label="Show Currency Balance"
+         layout="topleft"
+         name="PVUI_ShowCurrencyBalanceInStatusBar">
+           <on_click
              function="ToggleControl"
-             parameter="ShowMiniLocationPanel" />
+             parameter="PVUI_ShowCurrencyBalanceInStatusBar" /> 
              <on_check
              function="CheckControl"
-             parameter="ShowMiniLocationPanel" />
+             parameter="PVUI_ShowCurrencyBalanceInStatusBar" />
+    </menu_item_check>
+    <menu_item_check
+         label="Clock uses 24h format"
+         layout="topleft"
+         name="PVUI_ClockUse24hFormat">
+           <on_click
+             function="ToggleControl"
+             parameter="PVUI_ClockUse24hFormat" /> 
+             <on_check
+             function="CheckControl"
+             parameter="PVUI_ClockUse24hFormat" />
+    </menu_item_check>
+    <menu_item_check
+         label="Show FPS Meter"
+         layout="topleft"
+         name="PVUI_StatusBarShowFPSCounter">
+           <on_click
+             function="ToggleControl"
+             parameter="PVUI_StatusBarShowFPSCounter" /> 
+             <on_check
+             function="CheckControl"
+             parameter="PVUI_StatusBarShowFPSCounter" />
+    </menu_item_check>
+    <menu_item_check
+         label="Show Network statistics"
+         layout="topleft"
+         name="ShowNetStats">
+           <on_click
+             function="ToggleControl"
+             parameter="ShowNetStats" /> 
+             <on_check
+             function="CheckControl"
+             parameter="ShowNetStats" />
     </menu_item_check>
 </menu>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 
 <floater
   positioning="cascading"
@@ -6,7 +6,7 @@
   enabled="true"
   can_resize="true"
   help_topic="floater_experienceprofile"
-  title="EXPERIENCE PROFILE"
+  title="Experience Profile"
   save_rect="true"
   min_width="325"
   min_height="325"
@@ -475,7 +475,6 @@
             left="10"
             name="edit_experience_title"
             max_length_bytes="63"
-            text_color="black"
             right="-10"/>
           <text
             follows="left|top|right"
@@ -494,7 +493,6 @@
             left="11"
             name="edit_experience_description"
             max_length="2048"
-            text_color="black"
             right="-11"
             word_wrap="true"/>
           <button

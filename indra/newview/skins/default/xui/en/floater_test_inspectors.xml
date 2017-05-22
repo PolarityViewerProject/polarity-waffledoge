@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
  legacy_header_height="18"
  can_resize="false"
@@ -6,7 +6,7 @@
  layout="topleft"
  name="floater_test_inspectors"
  help_topic="floater_test_inspectors"
- title="TEST INSPECTORS" 
+ title="Test Inspectors" 
  translate="false"
  width="400">
   <text

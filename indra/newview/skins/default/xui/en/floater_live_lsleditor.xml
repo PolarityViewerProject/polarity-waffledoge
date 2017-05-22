@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
   legacy_header_height="18"
   bevel_style="none"
@@ -9,13 +9,13 @@
   min_height="271"
   min_width="328"
   name="script ed float"
-  help_topic="script_ed_float"
+  help_topic="preview_lsl_text"
   save_rect="true"
-  title="SCRIPT: NEW SCRIPT"
+  title="Script: New script"
   width="508">
   <floater.string
     name="not_allowed">
-    You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
+    You can not view or edit this script, since it has been set with restricted permissions. You need full permissions to view or edit a script inside an object.
   </floater.string>
   <floater.string
     name="script_running">
@@ -23,7 +23,7 @@
   </floater.string>
   <floater.string
     name="Title">
-    SCRIPT: [NAME]
+    Script: [NAME]
   </floater.string>
   <floater.string
     name="experience_enabled">
@@ -78,7 +78,7 @@
     name="running"
     width="205" />
   <check_box
-    left_delta="140"
+    left_delta="130"
     enabled="true"
     follows="left|bottom"
     font="SansSerif"

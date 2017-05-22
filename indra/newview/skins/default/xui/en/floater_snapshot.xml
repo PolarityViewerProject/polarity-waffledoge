@@ -9,10 +9,11 @@
  layout="topleft"
  name="Snapshot"
  single_instance="true"
+ reuse_instance="false"
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="SNAPSHOT"
+ title="Snapshot"
  width="624"
  min_height="455">
     <floater.string
@@ -39,97 +40,97 @@
      name="local_progress_str">
         Saving to Computer
     </string>
- 	<string
+  <string
         name="facebook_succeeded_str">
- 	    Image uploaded
- 	</string>
- 	<string
+      Image uploaded
+  </string>
+  <string
         name="profile_succeeded_str">
- 	    Image uploaded
- 	</string>
- 	<string
- 	 name="postcard_succeeded_str">
- 	    Email Sent!
- 	</string>
- 	<string
- 	 name="inventory_succeeded_str">
- 	    Saved to Inventory!
- 	</string>
- 	<string
- 	 name="local_succeeded_str">
- 	    Saved to Computer!
- 	</string>
- 	<string
+      Image uploaded
+  </string>
+  <string
+   name="postcard_succeeded_str">
+      Email Sent!
+  </string>
+  <string
+   name="inventory_succeeded_str">
+      Saved to Inventory!
+  </string>
+  <string
+   name="local_succeeded_str">
+      Saved to Computer!
+  </string>
+  <string
      name="facebook_failed_str">
- 	    Failed to upload image to your Facebook timeline.
- 	</string>
- 	<string
+      Failed to upload image to your Facebook timeline.
+  </string>
+  <string
      name="profile_failed_str">
- 	    Failed to upload image to your Profile Feed.
- 	</string>
- 	<string
- 	 name="postcard_failed_str">
- 	    Failed to send email.
- 	</string>
- 	<string
- 	 name="inventory_failed_str">
- 	    Failed to save to inventory.
- 	</string>
- 	<string
- 	 name="local_failed_str">
- 	    Failed to save to computer.
- 	</string>
+      Failed to upload image to your Profile Feed.
+  </string>
+  <string
+   name="postcard_failed_str">
+      Failed to send email.
+  </string>
+  <string
+   name="inventory_failed_str">
+      Failed to save to inventory.
+  </string>
+  <string
+   name="local_failed_str">
+      Failed to save to computer.
+  </string>
     <button
      follows="left|top"
      height="25"
      image_overlay="Refresh_Off"
-	 image_hover_unselected="Toolbar_Middle_Over"
+   image_hover_unselected="Toolbar_Middle_Over"
      image_selected="Toolbar_Middle_Selected"
      image_unselected="Toolbar_Middle_Off"
      image_overlay_alignment="left"
      imgoverlay_label_space="5"
-	 pad_bottom="0"
-	 halign="left"
+   pad_bottom="0"
+   halign="left"
      layout="topleft"
      left="10"
-	 label="REFRESH"
+   label="REFRESH"
      name="new_snapshot_btn"
      top_pad="26"
      width="167" />
-	<button
+  <button
        follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   invisibility_control="AdvanceSnapshot"
+     control_name="AdvanceSnapshot"
+     invisibility_control="AdvanceSnapshot"
        height="25"
-	   is_toggle="true"
+     is_toggle="true"
        layout="topleft"
-	   image_hover_unselected="Toolbar_Middle_Over"
-	   image_selected="Toolbar_Middle_Off"
-	   image_unselected="Toolbar_Middle_Off"
-	   image_overlay="Conv_toolbar_expand"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_selected="Toolbar_Middle_Off"
+     image_unselected="Toolbar_Middle_Off"
+     image_overlay="Conv_toolbar_expand"
        name="retract_btn"
        left_pad="1"
-	   top_delta="0"
+     top_delta="0"
        width="31" />
    <button
        follows="left|top"
-	   control_name="AdvanceSnapshot"
-	   visibility_control="AdvanceSnapshot"
+     control_name="AdvanceSnapshot"
+     visibility_control="AdvanceSnapshot"
        height="25"
-	   is_toggle="true"
+     is_toggle="true"
        layout="topleft"
-	   image_overlay="Conv_toolbar_collapse"
-	   image_hover_unselected="Toolbar_Middle_Over"
-	   image_selected="Toolbar_Middle_Off"
-	   image_unselected="Toolbar_Middle_Off"
+     image_overlay="Conv_toolbar_collapse"
+     image_hover_unselected="Toolbar_Middle_Over"
+     image_selected="Toolbar_Middle_Off"
+     image_unselected="Toolbar_Middle_Off"
        name="extend_btn"
        left_delta="0"
-	   top_delta="0"
+     top_delta="0"
        width="31" />
-	<panel
+  <panel
      height="154"
      layout="topleft"
-	 follows="top|left"
+   follows="top|left"
      left="0"
      name="advanced_options_panel"
      top_pad="-6"
@@ -177,30 +178,40 @@
          label="Interface"
          layout="topleft"
          left="30"
-		 height="16"
+     height="16"
          top_pad="8"
          width="180"
          name="ui_check" />
         <check_box
          label="HUDs"
          layout="topleft"
-		 height="16"
+     height="16"
          left="30"
          top_pad="1"
          width="180"
          name="hud_check" />
-        <check_box
+<!--         <check_box
          label="Freeze frame (fullscreen)"
          layout="topleft"
-		 height="16"
+     height="16"
          left="10"
          top_pad="1"
          width="180"
-         name="freeze_frame_check" />
+         name="freeze_frame_check" /> -->
+        <check_box
+         label="Freeze World"
+         initial_value="false"
+         control_name="PVRender_FreezeWorld"
+         layout="topleft"
+         height="16"
+         left="10"
+         top_pad="1"
+         width="180"
+         name="freeze_world_check" />
         <check_box
          label="Auto-refresh"
          layout="topleft"
-		 height="16"
+     height="16"
          left="10"
          top_pad="1"
          width="180"
@@ -224,7 +235,7 @@
             tool_tip="Image filters"
             top_delta="-3"
             left="50"
-			right="-1"
+      right="-1"
             height="21"
             width="135">
             <combo_box.item
@@ -232,7 +243,7 @@
             name="NoFilter"
             value="NoFilter" />
         </combo_box>
-		 <view_border 
+     <view_border 
          bevel_style="in"
          follows="left|top|right" 
          height="1"
@@ -243,7 +254,7 @@
          top_pad="7"
          />
     </panel>
-	<panel_container
+  <panel_container
      follows="left|top"
      height="230"
      layout="topleft"
@@ -285,7 +296,7 @@
        name="panel_snapshot_local"
        filename="panel_snapshot_local.xml" />
     </panel_container>
-	<view_border 
+  <view_border 
          bevel_style="in"
          follows="left|top" 
          height="1"
@@ -294,7 +305,7 @@
          name="status_hr"
          width="199"
          top_pad="-16"/>
-	<panel
+  <panel
        background_visible="false"
        follows="left|top"
        font="SansSerifLarge"
@@ -304,7 +315,7 @@
        left="10"
        length="1"
        name="succeeded_panel"
-	   width="198"
+     width="198"
        top_pad="1"
        type="string"
        visible="false">
@@ -335,7 +346,7 @@
        left="10"
        length="1"
        name="failed_panel"
-	   width="198"
+     width="198"
        top_delta="0"
        type="string"
        visible="false">
@@ -402,9 +413,9 @@
     layout="topleft"
     name="thumbnail_placeholder"
     top="23"
-	left="215"
-	width="400"
-	height="400"
+  left="215"
+  width="400"
+  height="400"
     follows="top|left"/>
   <view_border 
    bevel_style="in" 
@@ -423,7 +434,7 @@
     height="14"
     layout="topleft"
     left="220"
-	right="-20"
+  right="-20"
     halign="left"
     name="image_res_text"
     top_delta="5"

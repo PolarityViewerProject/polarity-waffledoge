@@ -9,7 +9,7 @@
  name="inspect"
  help_topic="inspect"
  save_rect="true"
- title="INSPECT OBJECTS"
+ title="Inspect Objects"
  width="400">
     <floater.string
      name="timeStamp">
@@ -27,21 +27,21 @@
      tool_tip="Select an object from this list to highlight it in-world"
      top="20">
         <scroll_list.columns
-         relative_width="0.25"
+         dynamic_width="true"
          label="Object Name"
          name="object_name" />
         <scroll_list.columns
-         relative_width="0.25"
+         dynamic_width="true"
          label="Owner Name"
          name="owner_name" />
         <scroll_list.columns
-         relative_width="0.25"
+         dynamic_width="true"
          label="Creator Name"
          name="creator_name" />
         <scroll_list.columns
-         relative_width="0.25"
          label="Creation Date"
-         name="creation_date" />
+         name="creation_date"
+         width="150" />
 		 <scroll_list.commit_callback
 		   function="Inspect.SelectObject" />
     </scroll_list>

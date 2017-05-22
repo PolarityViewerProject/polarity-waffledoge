@@ -7,9 +7,8 @@
  layout="topleft"
  name="scriptlimits"
  save_rect="true"
- title="SCRIPT INFORMATION"
- min_width="620"
- width="620">
+ title="Script Information"
+ width="480">
     <tab_container
      bottom="555"
      follows="left|right|top|bottom"
