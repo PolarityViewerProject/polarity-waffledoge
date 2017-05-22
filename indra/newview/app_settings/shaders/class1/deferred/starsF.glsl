@@ -29,12 +29,12 @@ out vec4 frag_data[3];
 #define frag_data gl_FragData
 #endif
 
+uniform float custom_alpha;
+
 VARYING vec4 vertex_color;
 VARYING vec2 vary_texcoord0;
 
 uniform sampler2D diffuseMap;
-
-uniform float custom_alpha;
 
 void main() 
 {

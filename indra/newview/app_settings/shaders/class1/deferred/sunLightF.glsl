@@ -26,6 +26,7 @@
 //class 1, no shadow, no SSAO, should never be called
 
 
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else

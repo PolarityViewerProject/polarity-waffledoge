@@ -24,6 +24,7 @@
  */
  
 
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -34,8 +35,6 @@ uniform sampler2DRect diffuseRect;
 
 uniform vec2 screen_res;
 VARYING vec2 vary_fragcoord;
-
-uniform float display_gamma;
 
 vec3 linear_to_srgb(vec3 cl)
 {

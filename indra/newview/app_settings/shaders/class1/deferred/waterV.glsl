@@ -66,7 +66,7 @@ void main()
 	pos.xy = eyeVec.xy + oEyeVec.xy/d*ld;
 	view.xyz = oEyeVec;
 		
-	d = clamp(ld/8192.0-0.5, 0.0, 1.0);	
+	d = clamp(ld/1536.0-0.5, 0.0, 1.0);	
 	d *= d;
 		
 	oPosition = vec4(position, 1.0);
@@ -78,15 +78,15 @@ void main()
 	
 	//get wave position parameter (create sweeping horizontal waves)
 	vec3 v = pos.xyz;
-	v.x += (cos(v.x*0.02/*+time*0.02*/)+sin(v.y*0.02))*12.0;
+	v.x += (cos(v.x*0.08/*+time*0.01*/)+sin(v.y*0.02))*6.0;
 	    
 	//push position for further horizon effect.
 	pos.xyz = oEyeVec.xyz*(waterHeight/oEyeVec.z);
 	pos.w = 1.0;
 	pos = modelview_matrix*pos;
-	
-	calcAtmospherics(pos.xyz);
-		
+
+	calcAtmospherics(view.xyz);
+
 	//pass wave parameters to pixel shader
 	vec2 bigWave =  (v.xy) * vec2(0.04,0.04)  + d1 * time * 0.055;
 	//get two normal map (detail map) texture coordinates
