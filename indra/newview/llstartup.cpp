@@ -1305,11 +1305,6 @@ bool idle_startup()
 		{
 			if(process_login_success_response())
 			{
-				// <AW: crash report grid correctness>
-				const std::string current_grid = LLGridManager::getInstance()->getGrid();
-				gSavedSettings.setString("LastConnectedGrid", current_grid);
-				// </AW: crash report grid correctness>
-
 				// Pass the user information to the voice chat server interface.
 				LLVoiceClient::getInstance()->userAuthorized(gUserCredential->userID(), gAgentID);
 				// create the default proximal channel
