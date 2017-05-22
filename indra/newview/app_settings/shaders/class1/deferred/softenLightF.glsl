@@ -23,6 +23,9 @@
  * $/LicenseInfo$
  */
  
+
+
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -74,8 +77,6 @@ vec3 vary_AtmosAttenuation;
 
 uniform mat4 inv_proj;
 uniform vec2 screen_res;
-
-uniform float exo_post_chroma_str;
 
 vec3 srgb_to_linear(vec3 cs)
 {
@@ -237,7 +238,7 @@ vec4 applyWaterFogDeferred(vec3 pos, vec4 color)
 }
 #endif
 
-void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
+void calcAtmospherics(vec3 inPositionEye) {
 
 	vec3 P = inPositionEye;
 	setPositionEye(P);
@@ -297,7 +298,7 @@ void calcAtmospherics(vec3 inPositionEye, float ambFactor) {
 	
 	//increase ambient when there are more clouds
 	vec4 tmpAmbient = ambient + (vec4(1.) - ambient) * cloud_shadow * 0.5;
-	
+
 	//haze color
 	setAdditiveColor(
 		vec3(blue_horizon * blue_weight * (sunlight*(1.-cloud_shadow) + tmpAmbient)
@@ -372,12 +373,6 @@ vec3 fullbrightScaleSoftClip(vec3 light)
 	return light;
 }
 
-// Set of helper functions to avoid conditionals. From TheOrangeDuck.com
-vec2 when_gt(vec2 x, vec2 y) {
-	return max(sign(x - y), 0.0);
-}
-// end of helpers
-
 void main() 
 {
 	vec2 tc = vary_fragcoord.xy;
@@ -393,11 +388,7 @@ void main()
           final_da = min(final_da, 1.0f);
 	      final_da = pow(final_da, 1.0/1.3);
 
-	vec4 diffuse;
-    vec2 fromCentre = when_gt(exo_post_chroma_str, 0.0)* (exo_post_chroma_str * (pow(length((tc / screen_res) - vec2(0.5)), 2))) / vec2(1); // <polarity> no conditionals
-    diffuse.b= texture2DRect(diffuseRect, tc-fromCentre).b;
-	diffuse.r= texture2DRect(diffuseRect, tc+fromCentre).r;
-	diffuse.ga= texture2DRect(diffuseRect, tc).ga;
+	vec4 diffuse = texture2DRect(diffuseRect, tc);
 
 	//convert to gamma space
 	diffuse.rgb = linear_to_srgb(diffuse.rgb);
@@ -406,7 +397,7 @@ void main()
 	vec3 col;
 	float bloom = 0.0;
 	{
-		calcAtmospherics(pos.xyz, 1.0);
+		calcAtmospherics(pos.xyz);
 	
 		col = atmosAmbient(vec3(0));
 		float ambient = min(abs(dot(norm.xyz, sun_dir.xyz)), 1.0);
@@ -442,8 +433,12 @@ void main()
 		if (envIntensity > 0.0)
 		{ //add environmentmap
 			vec3 env_vec = env_mat * refnormpersp;
+			
+			
 			vec3 refcol = textureCube(environmentMap, env_vec).rgb;
-			col = mix(col.rgb, refcol, envIntensity);  
+
+			col = mix(col.rgb, refcol, 
+				envIntensity);  
 		}
 				
 		if (norm.w < 0.5)

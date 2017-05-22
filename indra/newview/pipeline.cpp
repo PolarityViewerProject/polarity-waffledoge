@@ -8225,7 +8225,10 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
 	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
-	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
+	// Temporary workaround: use the "Medium" resolution
+	// shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
+	float shadow_resolution = RenderShadowResolutionMap.mV[1];
+	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES,shadow_resolution, shadow_resolution);
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);

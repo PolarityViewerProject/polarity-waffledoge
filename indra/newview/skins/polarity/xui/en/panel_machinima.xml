@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
 	follows="all"
-	height="970"
+	height="940"
 	layout="topleft"
 	left="0"
 	can_resize="false"
@@ -11,7 +11,7 @@
 	<icon
 		color="1 1 1 1"
 		follows="all"
-		height="970"
+		height="940"
 		image_name="Window_Square_NoTransparentEdges"
 		layout="topleft"
 		left="0"
@@ -33,7 +33,7 @@
 			border="false"
 			background_visible="false"
 			follows="left|top|right"
-			height="1220"
+			height="940"
 			layout="topleft"
 			left="0"
 			name="scroll_panel"
@@ -449,7 +449,7 @@
 				width="10">
 				┣
 			</text>
-			<check_box
+<!-- 			<check_box
 				control_name="PVRender_EnableSSR"
 				height="16"
 				initial_value="true"
@@ -474,7 +474,7 @@
 				top_pad="0"
 				width="10">
 				┣
-			</text>
+			</text> -->
 			<check_box
 				control_name="RenderDepthOfField"
 				enabled_control="RenderDeferred"
@@ -513,7 +513,7 @@
 				name="shaders"
 				top_delta="0"
 				width="10">
-				┣
+				┗
 			</text>
 			<check_box
 				control_name="PVRender_DepthOfFieldAlphas"
@@ -527,7 +527,7 @@
 				top_delta="0"
 				width="115">
 			</check_box>
-			<text
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -541,7 +541,7 @@
 				width="10">
 				┃
 			</text>
-<!-- 			<text
+			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -581,7 +581,7 @@
 				width="10">
 				┣
 			</text>-->
-			<check_box
+<!-- 			<check_box
 				control_name="PVRender_EnableToneMapping"
 				enabled_control="RenderDeferred"
 				height="16"
@@ -773,8 +773,8 @@
 				name="LensFlare"
 				top_delta="0"
 				width="115">
-			</check_box>
-			<text
+			</check_box> -->
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -783,6 +783,20 @@
 				text_color="EmphasisColor"
 				layout="topleft"
 				left_delta="-10"
+				name="shaders"
+				top_pad="0"
+				width="10">
+				┣
+			</text> -->
+			<text
+				font="SansSerif"
+				font.style="BOLD"
+				font_shadow="soft"
+				follows="left|top"
+				height="20"
+				text_color="EmphasisColor"
+				layout="topleft"
+				left_delta="-27"
 				name="shaders"
 				top_pad="0"
 				width="10">
@@ -1582,7 +1596,7 @@
 					parameter="RenderShadowResolution">
 				</slider.commit_callback>
 			</slider> -->
-			<slider
+<!-- 			<slider
 				control_name="RenderSSAOEffect"
 				enabled="false"
 				decimal_digits="2"
@@ -1600,7 +1614,7 @@
 				name="SSAOEffect"
 				top_pad="0"
 				width="310">
-			</slider>
+			</slider> -->
 			<slider
 				control_name="RenderSSAOScale"
 				enabled_control="RenderDeferredSSAO"
@@ -1658,7 +1672,7 @@
 				top_pad="1"
 				width="310">
 			</slider>
-			<text
+<!-- 			<text
 				font="SansSerif"
 				font.style="BOLD"
 				font_shadow="soft"
@@ -1825,7 +1839,7 @@
 				name="ChromaStrength"
 				top_pad="1"
 				width="310">
-			</slider>
+			</slider> -->
 			<text
 				font="SansSerif"
 				font.style="BOLD"

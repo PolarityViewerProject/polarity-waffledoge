@@ -24,6 +24,7 @@
  
 
 
+
 #ifdef DEFINE_GL_FRAGCOLOR
 out vec4 frag_color;
 #else
@@ -90,7 +91,7 @@ vec2 getKern(int i)
 	kern[5] = vec2(-0.7071, -0.7071) * 0.750*0.750;
 	kern[6] = vec2(-0.7071, 0.7071) * 0.875*0.875;
 	kern[7] = vec2(0.7071, -0.7071) * 1.000*1.000;
-       
+
 	return kern[i];
 }
 
@@ -143,17 +144,16 @@ float calcAmbientOcclusion(vec4 pos, vec3 norm)
 void main() 
 {
 	vec2 pos_screen = vary_fragcoord.xy;
-	vec4 pos = getPosition(pos_screen);
-	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
 	
-	norm = decode_normal(norm.xy); // unpack norm
+	//try doing an unproject here
+	
+	vec4 pos = getPosition(pos_screen);
+	
+	vec3 norm = texture2DRect(normalMap, pos_screen).xyz;
+	norm = decode_normal(norm.xy);
 		
 	frag_color[0] = 1.0;
-#if USE_SSAO
 	frag_color[1] = calcAmbientOcclusion(pos, norm);
-#else
-	frag_color[1] = 1.0;
-#endif
 	frag_color[2] = 1.0; 
 	frag_color[3] = 1.0;
 }

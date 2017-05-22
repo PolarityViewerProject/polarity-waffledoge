@@ -1204,7 +1204,7 @@
             top_pad="5"
             width="110">
           </check_box>
-          <slider
+<!--          <slider
             can_edit_text="true"
             control_name="PVRender_SSRResolution"
             decimal_digits="0"
@@ -1280,7 +1280,7 @@
               parameter="RenderSSRBrightness">
             </button.commit_callback>
           </button>
-<!--           <text
+           <text
             type="string"
             length="1"
             top_pad="15"
@@ -1472,8 +1472,8 @@
               image_selected="transparent.j2c"
               image_unselected="transparent.j2c"
               layout="topleft"
-              left_delta="0"
-              top_pad="2"
+              left_pad="0"
+              top_delta="0"
               width="60">
               <button.commit_callback
                 function="Pref.ResetToDefault"
@@ -1488,7 +1488,7 @@
       left="0"
       name="effects_tab"
       top_pad="2">
-      <scroll_container
+<!--       <scroll_container
         color="Transparent"
         follows="all"
         layout="topleft"
@@ -1498,7 +1498,7 @@
         right="-1"
         name="gfx_scroll"
         opaque="true"
-        top="0">
+        top="0"> -->
         <panel
           layout="topleft"
           follows="left|top|right"
@@ -2100,7 +2100,7 @@
               </button.commit_callback>
             </button>
           </panel>
-          <panel
+<!--           <panel
             follows="left|top|right"
             height="20"
             bg_visible="true"
@@ -2991,9 +2991,9 @@
               function="Pref.ResetToDefault"
               parameter="PVRender_Vignette">
             </button.commit_callback>
-          </button>
+          </button> -->
         </panel>
-      </scroll_container>
+      <!-- </scroll_container> -->
     </panel>
     </tab_container>
   </panel>

@@ -72,7 +72,6 @@ void main()
 	windEffect.xyz = windEffect.xyz*gSinWaveParams.xyz
 						+vec3(gSinWaveParams.w);			// use sin wave params to scale and offset input
 
-		
 	//reduce to period of 2 PI
 	vec4 temp1, temp0, temp2, offsetPos;
 	temp1.xyz = windEffect.xyz * gPiConstants.x;			// change input as multiple of [0-2PI] to [0-1]
@@ -83,7 +82,6 @@ void main()
 	
 	windEffect.z = temp0.y * gPiConstants.y;				// scale from [0,1] to [0, 2PI]
 	windEffect.xyz = windEffect.xyz + vec3(-3.141592);		// offset to [-PI, PI]
-															
 
 	//calculate sinusoid
 	vec4 sinWave;
@@ -112,7 +110,7 @@ void main()
 	temp2 = gWindDir*sinWave.z + vec4(norm,0);				// calculate normal offset due to wind oscillation
 	offsetPos = vec4(1.0,1.0,1.0,0.0)*offsetPos+pos_in;		// add to offset vertex position, and zero out effect from w
 	norm += temp2.xyz*2.0;									// add sin wave effect on normals (exaggerated)
-	
+
 	//renormalize normal (again)
 	norm = normalize(norm);
 
@@ -126,7 +124,7 @@ void main()
 	pos.z = dot(trans[2], pos_in);
 	pos.w = 1.0;
 #endif
-	
+
 	vary_normal = norm;
 	
 	gl_Position = projection_matrix * pos;

@@ -35,7 +35,7 @@ void main()
 {
 	//transform vertex
 	mat4 mat = modelview_matrix * getObjectSkinnedTransform();
-	
+
 	vec3 pos = (mat*vec4(position.xyz, 1.0)).xyz;
 	
 

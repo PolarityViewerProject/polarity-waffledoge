@@ -30,6 +30,7 @@ out vec4 frag_color;
 #endif
 
 
+
 uniform sampler2D glowMap;
 uniform sampler2DRect screenMap;
 
