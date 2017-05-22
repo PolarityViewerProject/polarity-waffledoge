@@ -35,8 +35,6 @@
 
 #include "llviewerwindow.h"
 
-#include <map>
-
 LLWLDayCycle::LLWLDayCycle() : mDayRate(120)
 {
 }
