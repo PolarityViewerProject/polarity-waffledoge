@@ -1280,7 +1280,7 @@
               parameter="RenderSSRBrightness">
             </button.commit_callback>
           </button>
-          <text
+<!--           <text
             type="string"
             length="1"
             top_pad="15"
@@ -1374,7 +1374,7 @@
               top_pad="2"
               text_width="40"
               width="385">
-            </slider>
+            </slider> -->
             <!-- TODO: Add projector shadows sliders -->
             <slider
               control_name="RenderShadowBlurSize"
@@ -1395,7 +1395,7 @@
               text_width="40"
               width="385">
             </slider>
-            <button
+<!--             <button
               follows="left|top"
               control_name="PVRender_ShadowResolutionClosest"
               height="15"
@@ -1462,7 +1462,7 @@
                 function="Pref.ResetToDefault"
                 parameter="PVRender_ShadowResolutionFurthest">
               </button.commit_callback>
-            </button>
+            </button> -->
             <button
               follows="left|top"
               control_name="RenderShadowBlurSize"

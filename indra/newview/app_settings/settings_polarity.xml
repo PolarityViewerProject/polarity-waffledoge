@@ -822,176 +822,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>RenderShadowBias</key>
-    <map>
-      <key>Comment</key>
-      <string>Bias value for shadows (prevent shadow acne).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>-0.003</real>
-    </map>
-    <key>RenderShadowBiasError</key>
-    <map>
-      <key>Comment</key>
-      <string>Error scale for shadow bias (based on altitude).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>-0.001</real>
-    </map>
-    <key>RenderShadowBlurDistFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Distance scaler for shadow blur.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.01</real>
-    </map>
-    <key>RenderShadowBlurSize</key>
-    <map>
-      <key>Comment</key>
-      <string>Scale of shadow softening kernel.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1.0</real>
-    </map>
-    <key>RenderShadowClipPlanes</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane split distances for shadow map frusta.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>1.0</real>
-        <real>12.0</real>
-        <real>32.0</real>
-      </array>
-    </map>
-    <key>RenderShadowDetail</key>
-    <map>
-      <key>Comment</key>
-      <string>Detail of shadows.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>S32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
-    <key>RenderShadowErrorCutoff</key>
-    <map>
-      <key>Comment</key>
-      <string>Cutoff error value to use ortho instead of perspective projection.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.0</real>
-    </map>
-    <key>RenderShadowFOVCutoff</key>
-    <map>
-      <key>Comment</key>
-      <string>Cutoff FOV to use ortho instead of perspective projection.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.0</real>
-    </map>
-    <key>RenderShadowGaussian</key>
-    <map>
-      <key>Comment</key>
-      <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>1.25</real>
-        <real>2.0</real>
-        <real>0.0</real>
-      </array>
-    </map>
-    <key>RenderShadowNearDist</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>256</real>
-        <real>256</real>
-        <real>256</real>
-      </array>
-    </map>
-    <key>RenderShadowNoise</key>
-    <map>
-      <key>Comment</key>
-      <string>Magnitude of noise on shadow samples.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>-0.0001</real>
-    </map>
-    <key>RenderShadowOffset</key>
-    <map>
-      <key>Comment</key>
-      <string>Offset value for shadows (prevent shadow acne).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.01</real>
-    </map>
-    <key>RenderShadowOffsetError</key>
-    <map>
-      <key>Comment</key>
-      <string>Error scale for shadow offset (based on altitude).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>0.0</real>
-    </map>
-    <key>RenderShadowOrthoClipPlanes</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane split distances for orthographic shadow map frusta.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>4.0</real>
-        <real>8.0</real>
-        <real>24.0</real>
-      </array>
-    </map>
     <key>CloudNoiseImageName</key>
     <map>
       <key>Comment</key>
@@ -1067,50 +897,6 @@
         <real>512</real>
       </array>
     </map>
-    <key>PVRender_ShadowResolutionClosest</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width and height of the closest shadow map.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <real>2048</real>
-    </map>
-    <key>PVRender_ShadowResolutionMid</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width and height of the mid-range shadow map.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-       <string>U32</string>
-      <key>Value</key>
-      <real>2048</real>
-    </map>
-    <key>PVRender_ShadowResolutionFar</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width and height of the far shadow map.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <real>1024</real>
-    </map>
-      <key>PVRender_ShadowResolutionFurthest</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow width and height of the furthest shadow map.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <real>512</real>
-    </map>
     <key>PVRender_SyncFarClip</key>
     <map>
       <key>Comment</key>
@@ -1120,22 +906,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>RenderShadowSplitExponent</key>
-    <map>
-      <key>Comment</key>
-      <string>Near clip plane split distances for shadow map frusta (x=perspective, y=ortho, z=transition rate).</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>3.34</real>
-        <real>3.0</real>
-        <real>5.0</real>
-      </array>
+      <integer>0</integer>
     </map>
     <key>SlowMotionTimeFactor</key>
     <map>
@@ -1147,54 +918,6 @@
       <string>F32</string>
       <key>Value</key>
       <real>0.2</real>
-    </map>
-    <key>RenderSSAOEffect</key>
-    <map>
-      <key>Comment</key>
-      <string>Multiplier for (1) value for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Only first component is used.)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector3</string>
-      <key>Value</key>
-      <array>
-        <real>0.50</real>
-        <real>1.00</real>
-        <real>0.00</real>
-      </array>
-    </map>
-    <key>RenderSSAOFactor</key>
-    <map>
-      <key>Comment</key>
-      <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>5.0</real>
-    </map>
-    <key>RenderSSAOMaxScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Maximum screen radius for sampling (pixels)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>400</integer>
-    </map>
-    <key>RenderSSAOScale</key>
-    <map>
-      <key>Comment</key>
-      <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>1500.0</real>
     </map>
     <key>PVPrivacy_HideEditBeam</key>
     <map>
@@ -2393,17 +2116,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>RenderShadowFarClip</key>
-    <map>
-      <key>Comment</key>
-      <string>Distance of shadow far clip plane from camera (meters)</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>F32</string>
-      <key>Value</key>
-      <real>160.0</real>
     </map>
     <key>7bd9b379-962b-407f-9dd3-2d5ce9eba39a</key>
     <map>

@@ -8562,7 +8562,7 @@
     <integer>1</integer>
   </map>
 
-  <!-- <key>RenderShadowNearDist</key>
+  <key>RenderShadowNearDist</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
@@ -8578,8 +8578,8 @@
       <real>256</real>
       <real>256</real>
     </array>
-  </map> -->
-  <!-- <key>RenderShadowClipPlanes</key>
+  </map>
+  <key>RenderShadowClipPlanes</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane split distances for shadow map frusta.</string>
@@ -8595,8 +8595,8 @@
       <real>12.0</real>
       <real>32.0</real>
     </array>
-  </map> -->
-  <!-- <key>RenderShadowSplitExponent</key>
+  </map>
+  <key>RenderShadowSplitExponent</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane split distances for shadow map frusta (x=perspective, y=ortho, z=transition rate).</string>
@@ -8612,8 +8612,8 @@
       <real>3.0</real>
       <real>2.0</real>
     </array>
-  </map> -->
-  <!-- <key>RenderShadowOrthoClipPlanes</key>
+  </map>
+  <key>RenderShadowOrthoClipPlanes</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane split distances for orthographic shadow map frusta.</string>
@@ -8629,7 +8629,7 @@
       <real>8.0</real>
       <real>24.0</real>
     </array>
-  </map> -->
+  </map>
   <key>RenderShadowProjOffset</key>
   <map>
     <key>Comment</key>
@@ -8667,7 +8667,7 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
-<!--   <key>RenderSSAOScale</key>
+  <key>RenderSSAOScale</key>
   <map>
     <key>Comment</key>
     <string>Scaling factor for the area to sample for occluders (pixels at 1 meter away, inversely varying with distance)</string>
@@ -8679,8 +8679,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>1500.0</real>
-  </map> -->
-  <!-- <key>RenderSSAOMaxScale</key>
+  </map>
+  <key>RenderSSAOMaxScale</key>
   <map>
     <key>Comment</key>
     <string>Maximum screen radius for sampling (pixels)</string>
@@ -8692,8 +8692,8 @@
     <string>U32</string>
     <key>Value</key>
     <integer>400</integer>
-  </map> -->
-  <!-- <key>RenderSSAOFactor</key>
+  </map>
+  <key>RenderSSAOFactor</key>
   <map>
     <key>Comment</key>
     <string>Occlusion sensitivity factor for ambient occlusion (larger is more)</string>
@@ -8705,8 +8705,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>5.0</real>
-  </map> -->
-  <!-- <key>RenderSSAOEffect</key>
+  </map>
+  <key>RenderSSAOEffect</key>
   <map>
     <key>Comment</key>
     <string>Multiplier for (1) value and (2) saturation (HSV definition), for areas which are totally occluded.  Blends with original color for partly-occluded areas.  (Third component is unused.)</string>
@@ -8722,7 +8722,7 @@
       <real>1.00</real>
       <real>0.00</real>
     </array>
-  </map> -->
+  </map>
   <key>RenderBumpmapMinDistanceSquared</key>
     <map>
       <key>Comment</key>
@@ -8952,7 +8952,7 @@
     <real>0.8</real>
   </map>
 
-  <!-- <key>RenderShadowBias</key>
+  <key>RenderShadowBias</key>
   <map>
     <key>Comment</key>
     <string>Bias value for shadows (prevent shadow acne).</string>
@@ -8964,8 +8964,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>-0.008</real>
-  </map> -->
-  <!-- <key>RenderShadowOffset</key>
+  </map>
+  <key>RenderShadowOffset</key>
   <map>
     <key>Comment</key>
     <string>Offset value for shadows (prevent shadow acne).</string>
@@ -8977,8 +8977,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>0.01</real>
-  </map> -->
-  <!-- <key>RenderShadowBiasError</key>
+  </map>
+  <key>RenderShadowBiasError</key>
   <map>
     <key>Comment</key>
     <string>Error scale for shadow bias (based on altitude).</string>
@@ -8990,8 +8990,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>-0.007</real>
-  </map> -->
-  <!-- <key>RenderShadowOffsetError</key>
+  </map>
+  <key>RenderShadowOffsetError</key>
   <map>
     <key>Comment</key>
     <string>Error scale for shadow offset (based on altitude).</string>
@@ -9003,7 +9003,7 @@
     <string>F32</string>
     <key>Value</key>
     <real>0.0</real>
-  </map> -->
+  </map>
 
   <key>RenderDepthPrePass</key>
   <map>
@@ -9088,7 +9088,7 @@
     <real>0.04</real>
   </map>
 
- <!--  <key>RenderShadowResolutionScale</key>
+<!--   <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
     <string>Scale of shadow map resolution vs. screen resolution</string>
@@ -9297,7 +9297,7 @@
     <key>Value</key>
     <real>0.5</real>
   </map>
-  <!-- <key>RenderShadowNoise</key>
+  <key>RenderShadowNoise</key>
   <map>
     <key>Comment</key>
     <string>Magnitude of noise on shadow samples.</string>
@@ -9309,8 +9309,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>-0.0001</real>
-  </map> -->
-  <!-- <key>RenderShadowErrorCutoff</key>
+  </map>
+  <key>RenderShadowErrorCutoff</key>
   <map>
     <key>Comment</key>
     <string>Cutoff error value to use ortho instead of perspective projection.</string>
@@ -9322,8 +9322,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>5.0</real>
-  </map> -->
-  <!-- <key>RenderShadowFOVCutoff</key>
+  </map>
+  <key>RenderShadowFOVCutoff</key>
   <map>
     <key>Comment</key>
     <string>Cutoff FOV to use ortho instead of perspective projection.</string>
@@ -9335,9 +9335,9 @@
     <string>F32</string>
     <key>Value</key>
     <real>0.8</real>
-  </map> -->
+  </map>
 
-<!--   <key>RenderShadowGaussian</key>
+  <key>RenderShadowGaussian</key>
   <map>
     <key>Comment</key>
     <string>Gaussian coefficients for the two shadow/SSAO blurring passes (z component unused).</string>
@@ -9353,9 +9353,9 @@
       <real>2.0</real>
       <real>0.0</real>
     </array>
-  </map> -->
+  </map>
 
-  <!-- <key>RenderShadowBlurSize</key>
+  <key>RenderShadowBlurSize</key>
   <map>
     <key>Comment</key>
     <string>Scale of shadow softening kernel.</string>
@@ -9367,8 +9367,8 @@
     <string>F32</string>
     <key>Value</key>
     <real>3.0</real>
-  </map> -->
-  <!-- <key>RenderShadowBlurSamples</key>
+  </map>
+  <key>RenderShadowBlurSamples</key>
   <map>
     <key>Comment</key>
     <string>Number of samples to take for each pass of shadow blur (value range 1-16).  Actual number of samples is value * 2 - 1.</string>
@@ -9380,8 +9380,8 @@
     <string>U32</string>
     <key>Value</key>
     <integer>4</integer>
-  </map> -->
-<!--   <key>RenderShadowBlurDistFactor</key>
+  </map>
+  <key>RenderShadowBlurDistFactor</key>
   <map>
     <key>Comment</key>
     <string>Distance scaler for shadow blur.</string>
@@ -9393,7 +9393,7 @@
     <string>F32</string>
     <key>Value</key>
     <real>0</real>
-  </map> -->
+  </map>
 
   <key>RenderDynamicLOD</key>
     <map>
@@ -9876,7 +9876,7 @@
       <key>Value</key>
       <integer>2</integer>
     </map>
-    <!-- <key>RenderShadowDetail</key>
+    <key>RenderShadowDetail</key>
     <map>
       <key>Comment</key>
       <string>Detail of shadows.</string>
@@ -9888,7 +9888,7 @@
       <string>S32</string>
       <key>Value</key>
       <integer>2</integer>
-    </map> -->
+    </map>
 
     <key>RenderReflectionRes</key>
     <map>

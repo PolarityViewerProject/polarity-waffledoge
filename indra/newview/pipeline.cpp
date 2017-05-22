@@ -680,11 +680,8 @@ void LLPipeline::init()
 
 //	//BD - Shadow Map Allocation
 	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
-//	<polarity> Split Shadow resolution values for feature table integration
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionClosest");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionMid");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionFar");
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolutionFurthest");
+// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	connectRefreshCachedSettingsSafe("PVRender_ShadowResolution");
 // <polarity> Sync Shadow Far Clip with Render Far Clip
 	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
 // </polarity>
@@ -1263,12 +1260,7 @@ void LLPipeline::refreshCachedSettings()
 	RenderSnapshotMultiplier = gSavedSettings.getF32("RenderSnapshotMultiplier");
 	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 	// TODO: Make slider work with this:
-	// RenderShadowResolutionMap		= gSavedSettings.getVector4("PVRender_ShadowResolution");
-	RenderShadowResolutionMap		= LLVector4(gSavedSettings.getU32("PVRender_ShadowResolutionClosest"),
-										gSavedSettings.getU32("PVRender_ShadowResolutionMid"),
-										gSavedSettings.getU32("PVRender_ShadowResolutionFar"),
-										gSavedSettings.getU32("PVRender_ShadowResolutionFurthest"));
-
+	RenderShadowResolutionMap		= gSavedSettings.getVector4("PVRender_ShadowResolution");
 //	</polarity>
 	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
 
@@ -10560,10 +10552,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 
 		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
-
-		// <polarity> Cache more debug settings / Performance improvement
-		// F32 range = gSavedSettings.getF32("RenderShadowFarClip");
-		// Moved to RenderShadowFarClip
 
 		LLVector3 split_exp = RenderShadowSplitExponent;
 
