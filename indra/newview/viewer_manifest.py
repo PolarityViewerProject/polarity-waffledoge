@@ -174,9 +174,16 @@ class ViewerManifest(LLManifest):
                 self.end_prefix("fonts")
 
             # skins
-            if self.prefix(src="skins"):
+            if self.prefix(src="skins/default"):
+                self.path("colors.xml")
+                # <polarity> automatically copy the right vendor icon from the icons folder
+                try:
+                    self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
+                except IOError:
+                    print "There was a problem finding the channel icon. Using default instead"
+
                 # include the entire textures directory recursively
-                if self.prefix(src="*/textures"):
+                if self.prefix(src="textures"):
                     self.path("*/*.tga")
                     self.path("*/*.j2c")
                     self.path("*/*.jpg")
@@ -188,50 +195,22 @@ class ViewerManifest(LLManifest):
                     # <polarity> url icons subfolder
                     self.path("icons/*/*.png")
                     self.path("textures.xml")
-                    self.end_prefix("*/textures")
+                    self.end_prefix("textures")
+
                 # <polarity> Do not pack unsupported/unmaintained languages.
                 # Please contribute your translations to the source code to see your language included.
                 # self.path("*/xui/*/*.xml")
                 supported_languages = ["en","fr"];
                 for index, language in enumerate(supported_languages):
-                    print "Including language '%s'" % language
-                    self.path("*/xui/%s/*.xml" % language)
-                    self.path("*/xui/%s/widgets/*.xml" % language)
+                    lang = ("xui/%s" % language)
+                    if self.prefix(src=lang):
+                        print "Including XML for language '%s'" % language
+                        self.path("*.xml")
+                        self.path("widgets/*.xml")
 
-                # <polarity> Skin Picker
-                self.path("*/themes/*/colors.xml")
-                if self.prefix(src="*/themes/*/textures"):
-                    # self.path("*/*.tga")
-                    self.path("*/*.j2c")
-                    self.path("*/*.jpg")
-                    self.path("*/*.png")
-                    # self.path("*.tga")
-                    self.path("*.j2c")
-                    self.path("*.jpg")
-                    self.path("*.png")
-                    self.end_prefix("*/themes/*/textures")
-                self.path("*/*.ini")
-                # <polarity> automatically copy the right vendor icon from the icons folder
-                try:
-                    self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
-                except IOError:
-                    print "There was a problem finding the channel icon. Using default instead"
-                self.path("*/*.xml")
+                    self.end_prefix(lang)
 
-                # Local HTML files (e.g. loading screen)
-                # The claim is that we never use local html files any
-                # longer. But rather than commenting out this block, let's
-                # rename every html subdirectory as html.old. That way, if
-                # we're wrong, a user actually does have the relevant
-                # files; s/he just needs to rename every html.old
-                # directory back to html to recover them.
-                if self.prefix(src="*/html", dst="*/html.old"):
-                    self.path("*.png")
-                    self.path("*/*/*.html")
-                    self.path("*/*/*.gif")
-                    self.end_prefix("*/html")
-
-                self.end_prefix("skins")
+                self.end_prefix("skins/default")
 
             # local_assets dir (for pre-cached textures)
             if self.prefix(src="local_assets"):
@@ -240,7 +219,7 @@ class ViewerManifest(LLManifest):
                 self.end_prefix("local_assets")
 
             # File in the newview/ directory
-            self.path("gpu_table.txt")
+            # self.path("gpu_table.txt")
 
             #summary.json.  Standard with exception handling is fine.  If we can't open a new file for writing, we have worse problems
             summary_dict = {"Type":"viewer","Version":'.'.join(self.args['version']),"Channel":self.channel_with_pkg_suffix()}
