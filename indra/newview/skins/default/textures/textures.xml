@@ -93,7 +93,7 @@ Additional notes:
 <texture name="Cam_Rotate_Out" file_name="bottomtray/Cam_Rotate_Out.png" preload="false" />
 <texture name="Cam_Tracking_In" file_name="bottomtray/Cam_Tracking_In.png" preload="false" />
 <texture name="Cam_Tracking_Out" file_name="bottomtray/Cam_Tracking_Out.png" preload="false" />
-<texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.png"/>
+<texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.tga"/>
 <texture name="Caret_Bottom_Icon"         file_name="toolbar_icons/caret_bottom.png" preload="true" scale.left="1" scale.top="23" scale.right="15" scale.bottom="1" />
 <texture name="Caret_Left_Icon"           file_name="toolbar_icons/caret_left.png"   preload="true" scale.left="1" scale.top="15" scale.right="23" scale.bottom="1" />
 <texture name="Caret_Right_Icon"          file_name="toolbar_icons/caret_right.png"  preload="true" scale.left="5" scale.top="15" scale.right="28" scale.bottom="1" />
@@ -190,7 +190,7 @@ Additional notes:
 <texture name="crosshairs.png" />
 <texture name="default_land_picture.j2c" />
 <texture name="default_profile_picture.j2c" />
-<texture name="direction_arrow.tga" file_name="world/direction_arrow_small.png" />
+<texture name="direction_arrow.tga" file_name="world/direction_arrow_small.tga" />
 <texture name="DisclosureArrow_Opened_Off" file_name="widgets/DisclosureArrow_Opened_Off.png" preload="true" />
 <texture name="down_arrow.png" file_name="down_arrow.png" />
 <texture name="DownArrow" file_name="bottomtray/DownArrow.png" preload="false" />
@@ -392,8 +392,6 @@ Additional notes:
 <texture name="Nearby_chat_icon" file_name="icons/nearby_chat_icon.png" preload="false" />
 <texture name="New_Tag_Background" file_name="widgets/New_Tag_Background.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
 <texture name="New_Tag_Border" file_name="widgets/New_Tag_Border.png" preload="true" scale.left="12" scale.top="2" scale.right="36" scale.bottom="2" />
-<texture name="NoEntryLines" file_name="world/NoEntryLines.png" use_mips="true" preload="false" />
-<texture name="NoEntryPassLines" file_name="world/NoEntryPassLines.png" use_mips="true" preload="false" />
 <texture name="Notices_Unread" file_name="bottomtray/Notices_Unread.png" preload="true" />
 <texture name="Object_Cone" file_name="build/Object_Cone.png" preload="false" />
 <texture name="Object_Cone_Selected" file_name="build/Object_Cone_Selected.png" preload="false" />
@@ -724,13 +722,13 @@ Additional notes:
 <texture name="buy_off" file_name="widgets/buy_off.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
 <texture name="buy_over" file_name="widgets/buy_over.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
 <texture name="buy_press" file_name="widgets/buy_press.png" preload="true" scale.left="2" scale.top="15" scale.right="67" scale.bottom="4"/>
-<texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.png"/>
+<texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.tga"/>
 <texture name="color_swatch_alpha.tga" preload="true" />
 <texture name="crosshairs.tga" />
 <texture name="default_land_picture.j2c" />
 <texture name="Default_Outfit_Photo" file_name="icons/Default_Outfit_Photo.png" preload="true"/>
 <texture name="default_profile_picture.j2c" />
-<texture name="direction_arrow.tga" file_name="world/BeaconArrow.png" />
+<texture name="direction_arrow.tga" file_name="world/BeaconArrow.tga" />
 <texture name="down_arrow.tga" file_name="down_arrow.png" />
 <texture name="hint_arrow_down" file_name="windows/hint_arrow_down.png" preload="false"/>
 <texture name="hint_arrow_left" file_name="windows/hint_arrow_left.png" preload="false"/>
