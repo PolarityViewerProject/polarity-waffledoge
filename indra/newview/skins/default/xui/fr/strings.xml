@@ -38,8 +38,9 @@
 		Échec d&apos;initialisation des graphiques. Veuillez mettre votre pilote graphique à jour.
 	</string>
 	<string name="AboutHeader">
-		[APP_NAME] [VIEWER_VERSION_0].[VIEWER_VERSION_1].[VIEWER_VERSION_2].[VIEWER_VERSION_3] ([CHANNEL])
-[[VIEWER_RELEASE_NOTES_URL] [Notes de version]]
+[VIEWER_VERSION][BUILD_ARCH], [BUILD_DATE], [BUILD_TIME]
+[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+Dernière fusion: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
 	<string name="BuildConfig">
 		Configuration de la construction [BUILD_CONFIG]
