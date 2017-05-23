@@ -42,9 +42,6 @@
 [[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
 Dernière fusion: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
-	<string name="BuildConfig">
-		Configuration de la construction [BUILD_CONFIG]
-	</string>
 	<string name="AboutPosition">
 	<string name="AboutPosition">
 SLURL: [SLURL];

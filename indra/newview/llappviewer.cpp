@@ -3407,10 +3407,12 @@ LLSD LLAppViewer::getViewerInfo() const
 
 
 	std::string build_config = LLVersionInfo::getBuildConfig();
-    //if (build_config != "Release")
-    //{
-        info["BUILD_CONFIG"] = build_config;
-    //}
+	//if (build_config != "Release")
+	//{
+		static const std::string build_config_string = LLTrans::getString("BuildConfiguration");
+		info["BuildConfiguration"] = build_config_string;
+		info["BUILD_CONFIG"] = build_config;
+	//}
 
 	std::string rel_notes = gSavedSettings.getString("LastReleaseNotesURL");
 	if (!rel_notes.empty())
