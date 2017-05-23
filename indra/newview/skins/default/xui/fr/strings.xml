@@ -46,11 +46,12 @@ Dernière fusion: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_U
 		Configuration de la construction [BUILD_CONFIG]
 	</string>
 	<string name="AboutPosition">
-		Vous êtes à [POSITION_LOCAL_0,number,1], [POSITION_LOCAL_1,number,1], [POSITION_LOCAL_2,number,1] dans [REGION], se trouvant à &lt;nolink&gt;[HOSTNAME]&lt;/nolink&gt; ([HOSTIP])
-SLURL : &lt;nolink&gt;[SLURL]&lt;/nolink&gt;
-(coordonnées globales [POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1])
-[SERVER_VERSION]
-[SERVER_RELEASE_NOTES_URL]
+	<string name="AboutPosition">
+SLURL: [SLURL];
+Coord. Globales: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
+Addresse du Simulateur: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
+[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
+	</string>
 	</string>
 	<string name="AboutSystem">
 		CPU : [CPU]
