@@ -698,7 +698,7 @@ class WindowsManifest(ViewerManifest):
             NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         installer_created=False
         nsis_attempts=3
-        nsis_retry_wait=15
+        nsis_retry_wait=2
         while (not installer_created) and (nsis_attempts > 0):
             try:
                 nsis_attempts-=1;
