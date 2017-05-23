@@ -189,8 +189,15 @@ class ViewerManifest(LLManifest):
                     self.path("icons/*/*.png")
                     self.path("textures.xml")
                     self.end_prefix("*/textures")
-                self.path("*/xui/*/*.xml")
-                self.path("*/xui/*/widgets/*.xml")
+                # <polarity> Do not pack unsupported/unmaintained languages.
+                # Please contribute your translations to the source code to see your language included.
+                # self.path("*/xui/*/*.xml")
+                supported_languages = ["en","fr"];
+                for index, language in enumerate(supported_languages):
+                    print "Including language '%s'" % language
+                    self.path("*/xui/%s/*.xml" % language)
+                    self.path("*/xui/%s/widgets/*.xml" % language)
+
                 # <polarity> Skin Picker
                 self.path("*/themes/*/colors.xml")
                 if self.prefix(src="*/themes/*/textures"):
