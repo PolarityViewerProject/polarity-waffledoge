@@ -43,12 +43,10 @@
 Dernière fusion: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 	</string>
 	<string name="AboutPosition">
-	<string name="AboutPosition">
 SLURL: [SLURL];
 Coord. Globales: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
 Addresse du Simulateur: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
 [[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
-	</string>
 	</string>
 	<string name="AboutSystem">
 		CPU : [CPU]
