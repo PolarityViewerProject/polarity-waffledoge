@@ -1554,8 +1554,6 @@ if(WINDOWS)
 
     # Replace the icons with the appropriate ones for the channel
     # ('test' is the default)
-    set(ICON_PATH "test")
-    set(VIEWER_MACOSX_PHASE "d")
     string(TOLOWER ${VIEWER_CHANNEL} channel_lower)
     if(channel_lower MATCHES "^polarity release")
         set(ICON_PATH "release")
@@ -1566,6 +1564,9 @@ if(WINDOWS)
     elseif(channel_lower MATCHES "^polarity project")
         set(ICON_PATH "project")
         set(VIEWER_MACOSX_PHASE "a")
+    else()
+        set(ICON_PATH "test")
+        set(VIEWER_MACOSX_PHASE "d")
     endif()
     message("Copying icons for ${ICON_PATH}")
     execute_process(
