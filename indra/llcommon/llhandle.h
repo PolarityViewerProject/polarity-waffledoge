@@ -26,7 +26,7 @@
 */
 #ifndef LLHANDLE_H
 #define LLHANDLE_H
-
+#include "llrefcount.h"
 #include "llpointer.h"
 #include "llexception.h"
 #include <stdexcept>

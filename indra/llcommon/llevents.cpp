@@ -274,7 +274,8 @@ const std::string LLEventPump::ANONYMOUS = std::string();
 
 LLEventPump::LLEventPump(const std::string& name, bool tweak):
     // Register every new instance with LLEventPumps
-    mName(LLEventPumps::instance().registerNew(*this, name, tweak)),
+    mRegistry(LLEventPumps::instance().getHandle()),
+    mName(mRegistry.get()->registerNew(*this, name, tweak)),
     mSignal(new LLStandardSignal()),
     mEnabled(true)
 {}
