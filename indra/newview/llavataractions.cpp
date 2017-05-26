@@ -1556,6 +1556,13 @@ void LLAvatarActions::copyData(const uuid_vec_t& ids, ECopyDataType type)
 				data_string.append(av_name.getUserName());
 				break;
 			}
+			case E_DATA_DISPLAYNAME:
+			{
+				LLAvatarName av_name;
+				LLAvatarNameCache::get(id, &av_name);
+				data_string.append(av_name.getDisplayName());
+				break;
+			}
 			case E_DATA_SLURL:
 				data_string.append(LLSLURL("agent", id, "inspect").getSLURLString());
 				break;

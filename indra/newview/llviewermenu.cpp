@@ -9500,6 +9500,11 @@ class PLVRCopKey : public view_listener_t
 				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_NAME);
 				return true;
 			}
+			if (param == "copy_displayname")
+			{
+				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_DISPLAYNAME);
+				return true;
+			}
 			else if (param == "copy_slurl")
 			{
 				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_SLURL);

@@ -252,7 +252,8 @@ public:
 	enum ECopyDataType {
 		E_DATA_NAME = 0,
 		E_DATA_SLURL,
-		E_DATA_UUID
+		E_DATA_UUID,
+		E_DATA_DISPLAYNAME
 	};
 	static void copyData(const LLUUID& id, ECopyDataType type);
 	static void copyData(const uuid_vec_t& ids, ECopyDataType type);
