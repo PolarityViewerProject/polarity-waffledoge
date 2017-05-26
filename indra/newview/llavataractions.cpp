@@ -1557,7 +1557,7 @@ void LLAvatarActions::copyData(const uuid_vec_t& ids, ECopyDataType type)
 				break;
 			}
 			case E_DATA_SLURL:
-				data_string.append(LLSLURL("agent", id, "about").getSLURLString());
+				data_string.append(LLSLURL("agent", id, "inspect").getSLURLString());
 				break;
 			case E_DATA_UUID:
 				data_string.append(id.asString());
