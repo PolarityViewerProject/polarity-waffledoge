@@ -126,7 +126,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/darwin/lib/boost-1.60.0-darwin-201701192014.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/boost-1.60.0-darwin-201701192014.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -152,7 +152,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/boost-1.60.0-linux64-201703120634.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/boost-1.60.0-linux64-201703120634.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -166,7 +166,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/boost-1.63.0-windows-201703281813.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/boost-1.63.0-windows-201703281813.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -210,7 +210,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/darwin/lib/colladadom-2.3-darwin-201701192019.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/colladadom-2.3-darwin-201701192019.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -236,7 +236,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/colladadom-2.3-linux64-201703120842.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/colladadom-2.3-linux64-201703120842.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux</string>
@@ -250,7 +250,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/colladadom-2.3-windows-201703281922.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/colladadom-2.3-windows-201703281922.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -264,7 +264,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc141/colladadom-2.3-windows64-201703281827.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc141/colladadom-2.3-windows64-201703281827.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -1580,7 +1580,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/llceflib-3.2526.1373.gb660893-linux64-201609260552.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/llceflib-3.2526.1373.gb660893-linux64-201609260552.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -1594,7 +1594,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows-201703110808.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows-201703110808.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -1608,7 +1608,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows64-201703110803.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc141/llceflib-3.2987.1591.gd3e47f5-windows64-201703110803.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
@@ -2448,7 +2448,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/darwin/lib/zlib-1.2.11-darwin-201701191923.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/darwin/lib/zlib-1.2.11-darwin-201701191923.tar.bz2</string>
             </map>
             <key>name</key>
             <string>darwin</string>
@@ -2474,7 +2474,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/linux64/lib-xenial/zlib-1.2.8-linux64-201609240212.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/zlib-1.2.8-linux64-201609240212.tar.bz2</string>
             </map>
             <key>name</key>
             <string>linux64</string>
@@ -2488,7 +2488,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows/lib-vc14/zlib-1.2.8-windows-201601150945.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc14/zlib-1.2.8-windows-201601150945.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
@@ -2502,7 +2502,7 @@
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/windows64/lib-vc14_3/zlib-1.2.11-windows64-201701211113.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc14_3/zlib-1.2.11-windows64-201701211113.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows64</string>
