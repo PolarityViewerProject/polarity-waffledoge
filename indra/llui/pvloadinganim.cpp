@@ -59,7 +59,7 @@ PVLoadingAnim::PVLoadingAnim(const Params& p)
 	// Add default texture for this too because XML parsing is slow.
 	if (!p.sprite_image.isProvided())
 	{
-		mSpriteImage = LLUI::getUIImage("load_animation_sprite.png");
+		mSpriteImage = LLUI::getUIImage("LoadAnimation");
 	}
 	// FIXME: doesn't handle all elements width the same. Could we automate some values when not defined so that it fills the element width automatically?
 	mSpriteSeparation = getRect().getWidth() / mNumSprites;

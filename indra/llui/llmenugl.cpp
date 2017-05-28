@@ -1669,7 +1669,7 @@ LLMenuScrollItem::LLMenuScrollItem(const Params& p)
 	bparams.click_callback(p.scroll_callback);
 	bparams.mouse_held_callback(p.scroll_callback);
 	bparams.follows.flags(FOLLOWS_ALL);
-	std::string background = "transparent.j2c";
+	constexpr char background[] = "global/transparent.j2c";
 	bparams.image_unselected.name(background);
 	bparams.image_disabled.name(background);
 	bparams.image_selected.name(background);

@@ -31,6 +31,15 @@ Additional notes:
 -->
 <textures version="101">
 <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
+<!-- Global Textures -->
+<texture name="Blank" file_name="global/Blank.tga" preload="false" />
+<texture name="LoadAnimation" file_name="global/LoadAnimation.tga" preload="true" />
+<texture name="ProgressBar" file_name="widgets/ProgressBar.tga" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
+<texture name="ProgressTrack" file_name="widgets/ProgressTrack.tga" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
+<texture name="transparent" file_name="global/transparent.j2c" preload="true" />
+<texture name="White" file_name="global/white.tga" preload="true" />
+<!-- /Global Textures -->
+
 <texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
 <texture name="Accordion_ArrowClosed_Press" file_name="containers/Accordion_ArrowClosed_Press.png" preload="false" />
 <texture name="Accordion_ArrowOpened_Off" file_name="containers/Accordion_ArrowOpened_Off.png" preload="false" />
@@ -63,7 +72,6 @@ Additional notes:
 <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 <texture name="Badge_Background" file_name="widgets/Badge_Background.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 <texture name="Badge_Border" file_name="widgets/Badge_Border.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
-<texture name="Blank" file_name="Blank.png" preload="false" />
 <texture name="BreadCrumbBtn_Left_Disabled" file_name="widgets/BreadCrumbBtn_Left_Disabled.png" preload="false"/>
 <texture name="BreadCrumbBtn_Left_Off" file_name="widgets/BreadCrumbBtn_Left_Off.png" preload="false"/>
 <texture name="BreadCrumbBtn_Left_Over" file_name="widgets/BreadCrumbBtn_Left_Over.png" preload="false"/>
@@ -384,7 +392,6 @@ Additional notes:
 <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 <texture name="Music_Icon" file_name="icons/Music_Icon.png" preload="true" />
 <texture name="NavBar Separator" file_name="navbar/separator.png"/>
-<texture name="Nametag_Rect"  file_name="Nametag_Rect.j2c" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
 <texture name="Nametag_Rect_Top"  file_name="Nametag_Rect.j2c" preload="true" scale.left="6" scale.top="8" scale.right="58" scale.bottom="0" clip.left="0" clip.right="64" clip.bottom="16" clip.top="32" />
 <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
 <texture name="NavBar_BG_NoFav_Bevel" file_name="navbar/NavBar_BG_NoFav_Bevel.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
@@ -496,8 +503,6 @@ Additional notes:
 <texture name="Progress_7" file_name="icons/Progress_7.png" preload="true" />
 <texture name="Progress_8" file_name="icons/Progress_8.png" preload="true" />
 <texture name="Progress_9" file_name="icons/Progress_9.png" preload="true" />
-<texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
-<texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 <texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 <texture name="PushButton_Login" file_name="widgets/PushButton_Login.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 <texture name="PushButton_Login_Over" file_name="widgets/PushButton_Login_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
@@ -647,7 +652,6 @@ Additional notes:
 <texture name="Toolbar_Right_Over" file_name="containers/Toolbar_Right_Over.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
 <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
 <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="16" scale.right="100" scale.bottom="3" />
-<texture name="transparent" file_name="transparent.j2c" use_mips="true" />
 <texture name="TrashItem_Disabled" file_name="icons/TrashItem_Disabled.png" preload="false" />
 <texture name="TrashItem_Off" file_name="icons/TrashItem_Off.png" preload="false" />
 <texture name="TrashItem_Press" file_name="icons/TrashItem_Press.png" preload="false" />
