@@ -1865,27 +1865,21 @@ void LLFloater::draw()
 			color = getTransparentColor();
 			overlay_color = getTransparentImageOverlay();
 		}
-
-		if (image)
 		{
-			// We're using images for this floater's backgrounds
-			image->draw(getLocalRect(), overlay_color % alpha);
-		}
-		else
-		{
-			// We're not using images, use old-school flat colors
-			gl_rect_2d( left, top, right, bottom, color % alpha );
+			// use old-school flat colors for highlight
+			// gl_rect_2d( left, top, right, bottom, color % alpha );
+			gl_rect_2d( left, top, right , bottom, color % alpha );
 
 			// draw highlight on title bar to indicate focus.  RDW
-			if(hasFocus() 
-				&& !getIsChrome() 
-				&& !getCurrentTitle().empty())
+			if(hasFocus() && !getIsChrome())
 			{
 				static LLUIColor titlebar_focus_color = LLUIColorTable::instance().getColor("TitleBarFocusColor");
 				
 				const LLFontGL* font = LLFontGL::getFontSansSerif();
 				LLRect r = getRect();
-				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - font->getLineHeight() - 1, 
+				// <Polarity>
+				// gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth(), r.getHeight() - font->getLineHeight() - 1, 
+				gl_rect_2d_offset_local(0, r.getHeight(), r.getWidth() - 1, r.getHeight() - font->getLineHeight() + 8, 
 					titlebar_focus_color % alpha, 0, TRUE);
 			}
 		}
