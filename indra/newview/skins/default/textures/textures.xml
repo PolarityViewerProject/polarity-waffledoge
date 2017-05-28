@@ -28,17 +28,25 @@ with the same filename but different name
       region.
 Additional notes:
  For in-world textures, use TGA. They are apparently simpler to decode.
+ Please use RGB mode for textures, not greyscale or indexed. As example, in GIMP: Image->Mode->RGB
 -->
 <textures version="101">
 <!-- Please add new files alphabetically to prevent merge conflicts. JC -->
+<!-- Please respect categories. Xenhat -->
+
 <!-- Global Textures -->
-<texture name="Blank" file_name="global/Blank.tga" preload="false" />
 <texture name="LoadAnimation" file_name="global/LoadAnimation.tga" preload="true" />
+<texture name="Nametag_Rect"  file_name="global/Nametag_Rect.j2c" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
 <texture name="ProgressBar" file_name="widgets/ProgressBar.tga" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
 <texture name="ProgressTrack" file_name="widgets/ProgressTrack.tga" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 <texture name="transparent" file_name="global/transparent.j2c" preload="true" />
 <texture name="White" file_name="global/white.tga" preload="true" />
 <!-- /Global Textures -->
+
+<!-- Buttons -->
+<texture name="PushButton_Off" file_name="widgets/PushButton_Off.tga" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+<texture name="PushButton_Selected_Press" file_name="widgets/PushButton_Selected_Press.tga" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
+<!-- /Buttons -->
 
 <!-- LSL Preprocessor icons  --> <!-- TODO: Use higher resolution pictures (Retina please) and scale them down here -->
 <texture name="Script_Config"       file_name="icons/script_editor/script_config.tga"/>
@@ -57,7 +65,41 @@ Additional notes:
 <texture name="Script_Undo"         file_name="icons/script_editor/script_undo.tga"/>
 <!-- /LSL Preprocessor Icons -->
 
-<texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
+<!-- URL Decoration -->
+<texture name="Url_Icon_Bitbucket"   file_name="icons/url/bitbucket.tga"/>
+<texture name="Url_Icon_e621"        file_name="icons/url/e621.tga"/>
+<texture name="Url_Icon_Flickr"      file_name="icons/url/flickr.tga"/>
+<texture name="Url_Icon_Github"      file_name="icons/url/github.tga"/>
+<texture name="Url_Icon_Imgur"       file_name="icons/url/imgur.tga"/>
+<texture name="Url_Icon_LastFM"      file_name="icons/url/lastfm.tga"/>
+<texture name="Url_Icon_Reddit"      file_name="icons/url/reddit.tga"/>
+<texture name="Url_Icon_Soundcloud"  file_name="icons/url/soundcloud.tga"/>
+<texture name="Url_Icon_Steam"       file_name="icons/url/steam.tga"/>
+<texture name="Url_Icon_Twitch"      file_name="icons/url/twitch.tga"/>
+<texture name="Url_Icon_Twitter"     file_name="icons/url/twitter.tga"/>
+<texture name="Url_Icon_Vendor"      file_name="icons/url/vendor.tga"/>
+<texture name="Url_Icon_Wikipedia"   file_name="icons/url/wikipedia.tga"/>
+<texture name="Url_Icon_Youtube"     file_name="icons/url/youtube.tga"/>
+<!-- /URL Decoration -->
+
+<!-- Windows textures -->
+<texture name="Resize_Corner" file_name="windows/Resize_Corner.png" preload="true" />
+<texture name="Window_Background" file_name="windows/Window_NoTitle_Background.tga" preload="true" scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+<texture name="Window_Foreground" file_name="windows/Window_NoTitle_Background.tga" preload="true" scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+<texture name="Window_NoTitle_Background" file_name="windows/Window_NoTitle_Background.tga" preload="true" scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+<texture name="Window_NoTitle_Foreground" file_name="windows/Window_NoTitle_Background.tga" preload="true" scale.left="4" scale.top="24" scale.right="26" scale.bottom="4" />
+<!-- /Windows Textures -->
+
+<!-- World Textures -->
+<!-- <texture name="ParcelLinesNoEntry" file_name="world/NoEntryLines.tga" /> -->
+<!-- <texture name="ParcelLinesNeedPass" file_name="world/NoEntryPassLines.tga" /> -->
+<texture name="BeaconArrow" file_name="world/BeaconArrow.tga" />
+<texture name="Camera_Drag_Dot" file_name="world/CameraDragDot.tga"/>
+<!-- /World Textures -->
+
+
+<!-- OLD Assets -->
+<!-- <texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
 <texture name="Accordion_ArrowClosed_Press" file_name="containers/Accordion_ArrowClosed_Press.png" preload="false" />
 <texture name="Accordion_ArrowOpened_Off" file_name="containers/Accordion_ArrowOpened_Off.png" preload="false" />
 <texture name="Accordion_ArrowOpened_Press" file_name="containers/Accordion_ArrowOpened_Press.png" preload="false" />
@@ -89,6 +131,7 @@ Additional notes:
 <texture name="BackButton_Press" file_name="icons/back_arrow_press.png" preload="false" scale.left="22" scale.top="12" scale.right="25" scale.bottom="12" />
 <texture name="Badge_Background" file_name="widgets/Badge_Background.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
 <texture name="Badge_Border" file_name="widgets/Badge_Border.png" preload="true" scale.left="9" scale.top="12" scale.right="248" scale.bottom="12" />
+<texture name="Blank" file_name="Blank.png" preload="false" />
 <texture name="BreadCrumbBtn_Left_Disabled" file_name="widgets/BreadCrumbBtn_Left_Disabled.png" preload="false"/>
 <texture name="BreadCrumbBtn_Left_Off" file_name="widgets/BreadCrumbBtn_Left_Off.png" preload="false"/>
 <texture name="BreadCrumbBtn_Left_Over" file_name="widgets/BreadCrumbBtn_Left_Over.png" preload="false"/>
@@ -361,16 +404,6 @@ Additional notes:
 <texture name="locked_image.j2c" />
 <texture name="login_sl_logo"  file_name="windows/login_sl_logo.png" preload="true" />
 <texture name="login_sl_logo_small"  file_name="windows/login_sl_logo_small.png" preload="true" />
-<!-- <texture name="map_avatar_16.tga" file_name="map_avatar_16.png" /> -->
-<!-- <texture name="map_avatar_32.tga" file_name="map_avatar_32.png" /> -->
-<!-- <texture name="map_avatar_8.tga" file_name="map_avatar_8.png" /> -->
-<!-- <texture name="map_avatar_above_32.tga" file_name="map_avatar_above_32.png" /> -->
-<!-- <texture name="map_avatar_below_32.tga" file_name="map_avatar_below_32.png" /> -->
-<!-- <texture name="map_avatar_unknown_32.tga" file_name="map_avatar_unknown_32.png" /> -->
-<!-- <texture name="map_avatar_you_32.tga" file_name="map_avatar_you_32.png" /> -->
-<!-- <texture name="map_event.tga" file_name="map_event.png" /> -->
-<!-- <texture name="map_home.tga" file_name="map_home.png" /> -->
-<!-- <texture name="map_infohub.tga" file_name="map_infohub.png" /> -->
 <texture name="Map_Placeholder_Icon" file_name="icons/map_placeholder.png" preload="true" />
 <texture name="map_telehub.tga" file_name="map_telehub.png" />
 <texture name="map_track_16.tga" file_name="map_track_16.png" />
@@ -409,6 +442,7 @@ Additional notes:
 <texture name="Movement_Up_On" file_name="bottomtray/Movement_Up_On.png" preload="false" />
 <texture name="Music_Icon" file_name="icons/Music_Icon.png" preload="true" />
 <texture name="NavBar Separator" file_name="navbar/separator.png"/>
+<texture name="Nametag_Rect"  file_name="Nametag_Rect.j2c" preload="true" scale.left="6" scale.top="26" scale.right="58" scale.bottom="6" />
 <texture name="Nametag_Rect_Top"  file_name="Nametag_Rect.j2c" preload="true" scale.left="6" scale.top="8" scale.right="58" scale.bottom="0" clip.left="0" clip.right="64" clip.bottom="16" clip.top="32" />
 <texture name="NavBar_BG" file_name="navbar/NavBar_BG.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
 <texture name="NavBar_BG_NoFav_Bevel" file_name="navbar/NavBar_BG_NoFav_Bevel.png" preload="true" scale.left="1" scale.top="1" scale.right="0" scale.bottom="0" />
@@ -520,6 +554,8 @@ Additional notes:
 <texture name="Progress_7" file_name="icons/Progress_7.png" preload="true" />
 <texture name="Progress_8" file_name="icons/Progress_8.png" preload="true" />
 <texture name="Progress_9" file_name="icons/Progress_9.png" preload="true" />
+<texture name="ProgressBar" file_name="widgets/ProgressBar.png" preload="true" scale.left="4" scale.top="11" scale.right="48" scale.bottom="3" />
+<texture name="ProgressTrack" file_name="widgets/ProgressTrack.png" preload="true" scale.left="4" scale.top="13" scale.right="148" scale.bottom="2" />
 <texture name="PushButton_Disabled" file_name="widgets/PushButton_Disabled.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 <texture name="PushButton_Login" file_name="widgets/PushButton_Login.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
 <texture name="PushButton_Login_Over" file_name="widgets/PushButton_Login_Over.png" preload="true" scale.left="4" scale.top="19" scale.right="28" scale.bottom="4" />
@@ -669,6 +705,7 @@ Additional notes:
 <texture name="Toolbar_Right_Over" file_name="containers/Toolbar_Right_Over.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
 <texture name="Toolbar_Right_Selected" file_name="containers/Toolbar_Right_Selected.png" preload="false" scale.left="1" scale.bottom="4" scale.top="24" scale.right="26" />
 <texture name="Tooltip" file_name="widgets/Tooltip.png" preload="true" scale.left="2" scale.top="16" scale.right="100" scale.bottom="3" />
+<texture name="transparent" file_name="transparent.j2c" use_mips="true" />
 <texture name="TrashItem_Disabled" file_name="icons/TrashItem_Disabled.png" preload="false" />
 <texture name="TrashItem_Off" file_name="icons/TrashItem_Off.png" preload="false" />
 <texture name="TrashItem_Press" file_name="icons/TrashItem_Press.png" preload="false" />
@@ -700,23 +737,6 @@ Additional notes:
 <texture name="Yellow_Gradient" file_name="windows/yellow_gradient.png"/>
 <texture name="Zoom_Off" file_name="icons/Zoom_Off.png" preload="false" />
 
-<!-- URL Decoration -->
-<texture name="Url_Icon_Bitbucket"   file_name="icons/url_icons/bitbucket.png" preload="true" />
-<texture name="Url_Icon_e621"        file_name="icons/url_icons/e621.png" preload="true" />
-<texture name="Url_Icon_Flickr"      file_name="icons/url_icons/flickr.png" preload="true" />
-<texture name="Url_Icon_Github"      file_name="icons/url_icons/github.png" preload="true" />
-<texture name="Url_Icon_Imgur"       file_name="icons/url_icons/imgur.png" preload="true" />
-<texture name="Url_Icon_LastFM"      file_name="icons/url_icons/lastfm.png" preload="true" />
-<texture name="Url_Icon_Reddit"      file_name="icons/url_icons/reddit.png" preload="true" />
-<texture name="Url_Icon_Soundcloud"  file_name="icons/url_icons/soundcloud.png" preload="true" />
-<texture name="Url_Icon_Steam"       file_name="icons/url_icons/steam.png" preload="true" />
-<texture name="Url_Icon_Twitch"      file_name="icons/url_icons/twitch.png" preload="true" />
-<texture name="Url_Icon_Twitter"     file_name="icons/url_icons/twitter.png" preload="true" />
-<texture name="Url_Icon_Vendor"      file_name="icons/url_icons/vendor.png" preload="true" />
-<texture name="Url_Icon_Wikipedia"   file_name="icons/url_icons/wikipedia.png" preload="true" />
-<texture name="Url_Icon_Youtube"     file_name="icons/url_icons/youtube.png" preload="true" />
-
-<!--WARNING OLD ART BELOW *do not use*-->
 <texture name="arrow_down.tga" />
 <texture name="bevel_background" file_name="widgets/bevel_background.png" preload="true" scale.left="12" scale.top="15" scale.right="108" scale.bottom="2"/>
 <texture name="button_anim_pause.tga" />
@@ -794,5 +814,5 @@ Additional notes:
 <texture name="System_Notification" file_name="icons/SL_Logo.png" preload="true"/>
 <texture name="tearoff_pressed.tga" />
 <texture name="tearoffbox.tga" />
-<texture name="up_arrow.tga" file_name="up_arrow.png" />
+<texture name="up_arrow.tga" file_name="up_arrow.png" /> -->
 </textures>
