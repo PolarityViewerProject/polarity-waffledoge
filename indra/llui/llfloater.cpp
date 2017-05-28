@@ -641,9 +641,11 @@ void LLFloater::onVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
-    LL_DEBUGS() << "Opening floater " << getName() << " full path: " << getPathname() << LL_ENDL;
+	// <polarity> reduce getName() calls where possible
+	std::string floater_name(getName());
+    LL_DEBUGS() << "Opening floater " << floater_name << " full path: " << getPathname() << LL_ENDL;
 
-	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), true,"floater"); // Last param is event subtype or empty string
+	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), floater_name, true,"floater"); // Last param is event subtype or empty string
 
 	mKey = key; // in case we need to open ourselves again
 	
@@ -691,8 +693,10 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
-	LL_DEBUGS() << "Closing floater " << getName() << LL_ENDL;
-	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), false,"floater"); // Last param is event subtype or empty string
+	// <polarity> reduce getName() calls where possible
+	std::string floater_name(getName());
+	LL_DEBUGS() << "Closing floater " << floater_name << LL_ENDL;
+	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), floater_name, false,"floater"); // Last param is event subtype or empty string
 	if (app_quitting)
 	{
 		LLFloater::sQuitting = true;
