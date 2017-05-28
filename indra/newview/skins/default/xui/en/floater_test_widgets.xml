@@ -221,7 +221,6 @@
      height="25"
      name="loading_anim_test"
      number_sprites="28"
-     sprite_image="load_animation_sprite.png"
      top_pad="15"/>
   <!-- New column -->
 

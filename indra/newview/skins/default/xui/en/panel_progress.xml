@@ -90,7 +90,6 @@
                      name="loading_anim_test"
                      number_sprites="72"
                      right="-30"
-                     sprite_image="load_animation_sprite.png"
                      top_pad="20"/>
                     <progress_bar
                      color_bar="EmphasisColor"
