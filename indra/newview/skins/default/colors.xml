@@ -536,16 +536,16 @@
     value="0.42 0.42 0.42 1"/>
    <color
     name="FloaterDefaultBackgroundColor"
-    reference="DkGray_66" />
+    reference="PlvrWindowBackground" />
    <color
     name="FloaterFocusBackgroundColor"
-    reference="DkGray2" />
+    reference="PlvrWindowBackground" />
    <color
     name="FloaterFocusBorderColor"
-    reference="Black_50" />
+    reference="PlvrWindowBackground" />
    <color
     name="FloaterUnfocusBorderColor"
-    reference="Black_50" />
+    reference="PlvrWindowBackground" />
    <color
     name="FocusColor"
     reference="EmphasisColorLight"/>
