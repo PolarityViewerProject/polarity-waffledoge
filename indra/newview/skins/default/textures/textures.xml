@@ -40,6 +40,23 @@ Additional notes:
 <texture name="White" file_name="global/white.tga" preload="true" />
 <!-- /Global Textures -->
 
+<!-- LSL Preprocessor icons  --> <!-- TODO: Use higher resolution pictures (Retina please) and scale them down here -->
+<texture name="Script_Config"       file_name="icons/script_editor/script_config.tga"/>
+<texture name="Script_Copy"         file_name="icons/script_editor/script_copy.tga"/>
+<texture name="Script_Cut"          file_name="icons/script_editor/script_cut.tga"/>
+<texture name="Script_Disk_Load"    file_name="icons/script_editor/script_disk_load.tga"/>
+<texture name="Script_Disk_Save"    file_name="icons/script_editor/script_disk_save.tga"/>
+<texture name="Script_Editor"       file_name="icons/script_editor/script_editor.tga"/>
+<texture name="Script_Error"        file_name="icons/script_editor/red_square.tga"/>
+<texture name="Script_NotRunning"   file_name="icons/script_editor/yellow_square.tga"/>
+<texture name="Script_Paste"        file_name="icons/script_editor/script_paste.tga"/>
+<texture name="Script_Redo"         file_name="icons/script_editor/script_redo.tga"/>
+<texture name="Script_Running"      file_name="icons/script_editor/green_square.tga"/>
+<texture name="Script_Save"         file_name="icons/script_editor/script_save.tga"/>
+<texture name="Script_Search"       file_name="icons/script_editor/script_search.tga"/>
+<texture name="Script_Undo"         file_name="icons/script_editor/script_undo.tga"/>
+<!-- /LSL Preprocessor Icons -->
+
 <texture name="Accordion_ArrowClosed_Off" file_name="containers/Accordion_ArrowClosed_Off.png" preload="false" />
 <texture name="Accordion_ArrowClosed_Press" file_name="containers/Accordion_ArrowClosed_Press.png" preload="false" />
 <texture name="Accordion_ArrowOpened_Off" file_name="containers/Accordion_ArrowOpened_Off.png" preload="false" />
@@ -698,23 +715,6 @@ Additional notes:
 <texture name="Url_Icon_Vendor"      file_name="icons/url_icons/vendor.png" preload="true" />
 <texture name="Url_Icon_Wikipedia"   file_name="icons/url_icons/wikipedia.png" preload="true" />
 <texture name="Url_Icon_Youtube"     file_name="icons/url_icons/youtube.png" preload="true" />
-
-<!-- LSL Preprocessor icons -->
-<texture name="Script_Save"         file_name="script_editor/script_save.png" preload="false" />
-<texture name="Script_Copy"         file_name="script_editor/script_copy.png" preload="false" />
-<texture name="Script_Cut"          file_name="script_editor/script_cut.png" preload="false" />
-<texture name="Script_Paste"        file_name="script_editor/script_paste.png" preload="false" />
-<texture name="Script_Disk_Save"    file_name="script_editor/script_disk_save.png" preload="false" />
-<texture name="Script_Disk_Load"    file_name="script_editor/script_disk_load.png" preload="false" />
-<texture name="Script_Undo"         file_name="script_editor/script_undo.png" preload="false" />
-<texture name="Script_Redo"         file_name="script_editor/script_redo.png" preload="false" />
-<texture name="Script_Search"       file_name="script_editor/script_search.png" preload="false" />
-<texture name="Script_Editor"       file_name="script_editor/script_editor.png" preload="false" />
-<texture name="Script_Config"       file_name="script_editor/script_config.png" preload="false" />
-<texture name="Script_Running"      file_name="script_editor/green_square.png" preload="false" />
-<texture name="Script_NotRunning"   file_name="script_editor/yellow_square.png" preload="false" />
-<texture name="Script_Error"        file_name="script_editor/red_square.png" preload="false" />
-
 
 <!--WARNING OLD ART BELOW *do not use*-->
 <texture name="arrow_down.tga" />
