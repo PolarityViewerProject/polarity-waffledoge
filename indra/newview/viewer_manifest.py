@@ -738,6 +738,10 @@ class Windows_i686_Manifest(WindowsManifest):
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
 
+            # Security
+            self.path("libcrypto-1_1.dll")
+            self.path("libssl-1_1.dll")
+
             # Get fmod studio dll, continue if missing
             try:
                 if self.args['configuration'].lower() == 'debug':
@@ -760,6 +764,10 @@ class Windows_x86_64_Manifest(WindowsManifest):
         # Get shared libs from the shared libs staging directory
         if self.prefix(src=os.path.join(os.pardir, 'sharedlibs', self.args['configuration']),
                        dst=""):
+
+            # Security
+            self.path("libcrypto-1_1-x64.dll")
+            self.path("libssl-1_1-x64.dll")
 
             # Get fmodstudio dll, continue if missing
             try:
@@ -868,10 +876,14 @@ class Darwin_i386_Manifest(ViewerManifest):
                 for libfile in (
                                 "libapr-1.0.dylib",
                                 "libaprutil-1.0.dylib",
-                                "libcollada14dom.dylib",
-                                "libexpat.1.5.2.dylib",
                                 "libexception_handler.dylib",
                                 "libGLOD.dylib",
+                                "libjpeg.8.0.2.dylib",
+                                "libopenjpeg.dylib",
+                                "libturbojpeg.0.0.0.dylib",
+                                "libopenal.dylib",
+                                "libalut.dylib",
+                                "libfreetype.6.dylib",
                                 ):
                     dylibs += path_optional(os.path.join(relpkgdir, libfile), libfile)
 
@@ -932,8 +944,6 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                 # SLPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
-                    self.path2basename("../media_plugins/quicktime/" + self.args['configuration'],
-                                       "media_plugin_quicktime.dylib")
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                        "media_plugin_cef.dylib")
                     self.end_prefix("llplugin")

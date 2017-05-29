@@ -35,9 +35,6 @@ if(WINDOWS)
     set(debug_src_dir "${ARCH_PREBUILT_DIRS_DEBUG}")
     set(debug_files
         openjpegd.dll
-        libapr-1.dll
-        libaprutil-1.dll
-        libapriconv-1.dll
         glod.dll    
         libhunspell.dll
         )
@@ -45,12 +42,42 @@ if(WINDOWS)
     set(release_src_dir "${ARCH_PREBUILT_DIRS_RELEASE}")
     set(release_files
         openjpeg.dll
-        libapr-1.dll
-        libaprutil-1.dll
-        libapriconv-1.dll
         glod.dll
         libhunspell.dll
         )
+
+    if(WORD_SIZE STREQUAL 64)
+      list(APPEND debug_files
+           libcrypto-1_1-x64.dll
+           libssl-1_1-x64.dll
+           )
+      list(APPEND release_files
+           libcrypto-1_1-x64.dll
+           libssl-1_1-x64.dll
+           )
+    else(WORD_SIZE STREQUAL 64)
+      list(APPEND debug_files
+           libcrypto-1_1.dll
+           libssl-1_1.dll
+           )
+      list(APPEND release_files
+           libcrypto-1_1.dll
+           libssl-1_1.dll
+           )
+    endif(WORD_SIZE STREQUAL 64)
+		
+    if (LLCOMMON_LINK_SHARED)
+      list(APPEND debug_files 
+        libapr-1.dll
+        libaprutil-1.dll
+        libapriconv-1.dll
+        )
+      list(APPEND release_files 
+        libapr-1.dll
+        libaprutil-1.dll
+        libapriconv-1.dll
+        )
+    endif (LLCOMMON_LINK_SHARED)
 
     if(USE_TCMALLOC)
       list(APPEND debug_files libtcmalloc_minimal-debug.dll)
@@ -64,11 +91,11 @@ if(WINDOWS)
 
     if (LINK_FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)
-        set(debug_files ${debug_files} fmodL64.dll)
-        set(release_files ${release_files} fmod64.dll)
+        list(APPEND debug_files fmodL64.dll)
+        list(APPEND release_files fmod64.dll)
       else(WORD_SIZE STREQUAL 64)
-        set(debug_files ${debug_files} fmodL.dll)
-        set(release_files ${release_files} fmod.dll)
+        list(APPEND debug_files fmodL.dll)
+        list(APPEND release_files fmod.dll)
       endif(WORD_SIZE STREQUAL 64)
     endif (LINK_FMODSTUDIO)
 elseif(DARWIN)
@@ -96,16 +123,15 @@ elseif(DARWIN)
         libaprutil-1.0.dylib
         libaprutil-1.dylib
         libexception_handler.dylib
-        libexpat.1.5.2.dylib
-        libexpat.dylib
+        libfreetype.6.dylib
         libGLOD.dylib
-        libhunspell-1.3.0.dylib
         libndofdev.dylib
+        libopenjpeg.dylib
        )
 
     if (LINK_FMODSTUDIO)
-      set(debug_files ${debug_files} libfmodL.dylib)
-      set(release_files ${release_files} libfmod.dylib)
+      list(APPEND debug_files libfmodL.dylib)
+      list(APPEND release_files libfmod.dylib)
     endif (LINK_FMODSTUDIO)
 elseif(LINUX)
     # linux is weird, multiple side by side configurations aren't supported
@@ -139,16 +165,17 @@ elseif(LINUX)
         libatk-1.0.so
         libexpat.so
         libexpat.so.1
-        libfreetype.so.6.6.2
+        libfreetype.so.6.13.0
         libfreetype.so.6
+        libfreetype.so
         libGLOD.so
         libgmodule-2.0.so
         libgobject-2.0.so
-        libhunspell-1.3.so.0.0.0
         libopenal.so
         libopenjpeg.so
-        libfontconfig.so.1.8.0
+        libfontconfig.so.1.9.2
         libfontconfig.so.1
+        libfontconfig.so
        )
 
     if (USE_TCMALLOC)
@@ -156,8 +183,8 @@ elseif(LINUX)
     endif (USE_TCMALLOC)
 
     if (LINK_FMODSTUDIO)
-      set(debug_files ${debug_files} "libfmodL.so")
-      set(release_files ${release_files} "libfmod.so")
+      list(APPEND debug_files "libfmodL.so")
+      list(APPEND release_files "libfmod.so")
     endif (LINK_FMODSTUDIO)
 
 else(WINDOWS)
