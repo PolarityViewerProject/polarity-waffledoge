@@ -43,6 +43,7 @@
 #include <ios>
 #include <openssl/ossl_typ.h>
 #include <openssl/x509.h>
+#include <openssl/x509_vfy.h>
 #include <openssl/x509v3.h>
 #include <openssl/pem.h>
 #include <openssl/asn1.h>
@@ -54,10 +55,11 @@
 #include <time.h>
 #include "llmachineid.h"
 
+// compat
+#define COMPAT_STORE_SALT_SIZE 16
 
-
-// 128 bits of salt data...
-#define STORE_SALT_SIZE 16 
+// 256 bits of salt data...
+#define STORE_SALT_SIZE 32 
 #define BUFFER_READ_SIZE 256
 std::string cert_string_from_asn1_string(ASN1_STRING* value);
 std::string cert_string_from_octet_string(ASN1_OCTET_STRING* value);
@@ -91,7 +93,7 @@ LLBasicCertificate::LLBasicCertificate(const std::string& pem_cert)
 
 LLBasicCertificate::LLBasicCertificate(X509* pCert) 
 {
-	if (!pCert || !pCert->cert_info)
+	if (!pCert)
 	{
 		LLTHROW(LLInvalidCertificate(this));
 	}	
@@ -121,7 +123,7 @@ std::string LLBasicCertificate::getPem() const
 		return std::string();
 	}
 	PEM_write_bio_X509(pem_bio, mCert);
-	size_t length = BIO_get_mem_data(pem_bio, &pem_bio_chars);
+	int length = BIO_get_mem_data(pem_bio, &pem_bio_chars);
 	std::string result = std::string(pem_bio_chars, length);
 	BIO_free(pem_bio);
 	return result;
@@ -140,7 +142,7 @@ std::vector<U8> LLBasicCertificate::getBinary() const
 		return std::vector<U8>();
 	}
 	i2d_X509_bio(der_bio, mCert);
-	size_t length = BIO_get_mem_data(der_bio, &der_bio_data);
+	int length = BIO_get_mem_data(der_bio, &der_bio_data);
 	std::vector<U8> result(length);
 	// vectors are guranteed to be a contiguous chunk of memory.
 	memcpy(&result[0], der_bio_data,  length);
@@ -173,8 +175,8 @@ LLSD& LLBasicCertificate::_initLLSD()
 		mLLSDInfo[CERT_SERIAL_NUMBER] = cert_string_from_asn1_integer(sn);
 	}
 	
-	mLLSDInfo[CERT_VALID_TO] = cert_date_from_asn1_time(X509_get_notAfter(mCert));
-	mLLSDInfo[CERT_VALID_FROM] = cert_date_from_asn1_time(X509_get_notBefore(mCert));
+	mLLSDInfo[CERT_VALID_TO] = cert_date_from_asn1_time(X509_getm_notAfter(mCert));
+	mLLSDInfo[CERT_VALID_FROM] = cert_date_from_asn1_time(X509_getm_notBefore(mCert));
 	mLLSDInfo[CERT_SHA1_DIGEST] = cert_get_digest("sha1", mCert);
 	mLLSDInfo[CERT_MD5_DIGEST] = cert_get_digest("md5", mCert);
 	// add the known extensions
@@ -338,7 +340,7 @@ std::string cert_string_name_from_X509_NAME(X509_NAME* name)
 	BIO *name_bio = BIO_new(BIO_s_mem());
 	// stream the name into the bio.  The name will be in the 'short name' format
 	X509_NAME_print_ex(name_bio, name, 0, XN_FLAG_RFC2253);
-	size_t length = BIO_get_mem_data(name_bio, &name_bio_chars);
+	int length = BIO_get_mem_data(name_bio, &name_bio_chars);
 	std::string result = std::string(name_bio_chars, length);
 	BIO_free(name_bio);
 	return result;
@@ -350,13 +352,25 @@ LLSD cert_name_from_X509_NAME(X509_NAME* name)
 {
 	LLSD result = LLSD::emptyMap();
 	int name_entries = X509_NAME_entry_count(name);
-	for (int entry_index=0; entry_index < name_entries; entry_index++)
+	for (int entry_index=0; entry_index < name_entries; entry_index++) 
 	{
 		char buffer[32];
 		X509_NAME_ENTRY *entry = X509_NAME_get_entry(name, entry_index);
 		
-		std::string name_value = std::string((const char*)M_ASN1_STRING_data(X509_NAME_ENTRY_get_data(entry)), 
-											 M_ASN1_STRING_length(X509_NAME_ENTRY_get_data(entry)));
+		ASN1_STRING *tmp = X509_NAME_ENTRY_get_data(entry);
+
+		std::string name_value;
+		if (ASN1_STRING_type(tmp) != V_ASN1_UTF8STRING)
+		{
+			unsigned char* out_utf8_str;
+			int len = ASN1_STRING_to_UTF8(&out_utf8_str, tmp);
+			name_value = std::string((char*) out_utf8_str, len);
+			OPENSSL_free(out_utf8_str);
+		}
+		else
+		{
+			name_value = std::string((char*) ASN1_STRING_get0_data(tmp), ASN1_STRING_length(tmp));
+		}
 
 		ASN1_OBJECT* name_obj = X509_NAME_ENTRY_get_object(entry);		
 		OBJ_obj2txt(buffer, sizeof(buffer), name_obj, 0);
@@ -607,34 +621,25 @@ void LLBasicCertificateStore::load_from_file(const std::string& filename)
 		return;
 	}
 	
-	// <FS:ND> Do not use BIO_new(BIO_s_file())/BIO_read_filename. This will fail if filename is an UTF8 encoded unicode path. Instead
-	// use BIO_new_file. BIO_new_file handles UTF8 encoded filenames gracefully.
-
-	// BIO* file_bio = BIO_new(BIO_s_file());
-	BIO *file_bio( BIO_new_file( filename.c_str(), "rt" ) );
-	// </FS:ND>
-
+	BIO *file_bio = BIO_new_file(filename.c_str(), "r");
 	if(file_bio)
 	{
-		// if (BIO_read_filename(file_bio, filename.c_str()) > 0) // <FS:ND/>
-		{	
-			X509 *cert_x509 = NULL;
-			while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) && 
-				  (cert_x509 != NULL))
+		X509 *cert_x509 = NULL;
+		while((PEM_read_bio_X509(file_bio, &cert_x509, 0, NULL)) && 
+			  (cert_x509 != NULL))
+		{
+			try
 			{
-				try
-				{
-					add(new LLBasicCertificate(cert_x509));
-				}
-				catch (...)
-				{
-					LOG_UNHANDLED_EXCEPTION("creating certificate from the certificate store file");
-				}
-				X509_free(cert_x509);
-				cert_x509 = NULL;
+				add(new LLBasicCertificate(cert_x509));
 			}
-			BIO_free(file_bio);
+			catch (...)
+			{
+				LOG_UNHANDLED_EXCEPTION("creating certificate from the certificate store file");
+			}
+			X509_free(cert_x509);
+			cert_x509 = NULL;
 		}
+		BIO_free(file_bio);
 	}
 	else
 	{
@@ -685,29 +690,32 @@ std::string LLBasicCertificateStore::storeId() const
 // LLBasicCertificateChain
 // This class represents a chain of certs, each cert being signed by the next cert
 // in the chain.  Certs must be properly signed by the parent
-LLBasicCertificateChain::LLBasicCertificateChain(const X509_STORE_CTX* store)
+LLBasicCertificateChain::LLBasicCertificateChain(X509_STORE_CTX* store)
 {
 
 	// we're passed in a context, which contains a cert, and a blob of untrusted
 	// certificates which compose the chain.
-	if((store == NULL) || (store->cert == NULL))
+	if((store == NULL) || (X509_STORE_CTX_get0_cert(store) == NULL))
 	{
 		LL_WARNS("SECAPI") << "An invalid store context was passed in when trying to create a certificate chain" << LL_ENDL;
 		return;
 	}
 	// grab the child cert
-	LLPointer<LLCertificate> current = new LLBasicCertificate(store->cert);
+	LLPointer<LLCertificate> current = new LLBasicCertificate(X509_STORE_CTX_get0_cert(store));
 
 	add(current);
-	if(store->untrusted != NULL)
+
+	stack_st_X509* untrusted = X509_STORE_CTX_get0_untrusted(store);
+
+	if(untrusted != NULL)
 	{
 		// if there are other certs in the chain, we build up a vector
 		// of untrusted certs so we can search for the parents of each
 		// consecutive cert.
 		LLBasicCertificateVector untrusted_certs;
-		for(int i = 0; i < sk_X509_num(store->untrusted); i++)
+		for(int i = 0; i < sk_X509_num(untrusted); i++)
 		{
-			LLPointer<LLCertificate> cert = new LLBasicCertificate(sk_X509_value(store->untrusted, i));
+			LLPointer<LLCertificate> cert = new LLBasicCertificate(sk_X509_value(untrusted, i));
 			untrusted_certs.add(cert);
 
 		}		
@@ -1066,9 +1074,14 @@ void LLBasicCertificateStore::validate(int validation_policy,
 	{
 		LLTHROW(LLInvalidCertificate((*current_cert)));
 	}
-	std::string sha1_hash((const char *)cert_x509->sha1_hash, SHA_DIGEST_LENGTH);
+
+	unsigned char sha1_hash_array[SHA_DIGEST_LENGTH];
+	X509_digest(cert_x509, EVP_sha1(), sha1_hash_array, NULL);
+	std::string sha1_hash((const char *)sha1_hash_array, SHA_DIGEST_LENGTH);
+
 	X509_free( cert_x509 );
 	cert_x509 = NULL;
+	
 	t_cert_cache::iterator cache_entry = mTrustedCertCache.find(sha1_hash);
 	if(cache_entry != mTrustedCertCache.end())
 	{
@@ -1246,10 +1259,45 @@ void LLSecAPIBasicHandler::init()
 }
 LLSecAPIBasicHandler::~LLSecAPIBasicHandler()
 {
-	// SA: no reason to write to data store during destruction. In particular this implies erasing all credentials
-	// if the viewer was previously unable to decode the existing file, which would happen if the network interface changed, for instance.
-	//
-	//_writeProtectedData();
+	_writeProtectedData();
+}
+
+// compat_rc4 reads old rc4 encrypted files
+void compat_rc4(llifstream &protected_data_stream, std::string &decrypted_data)
+{
+	U8 salt[COMPAT_STORE_SALT_SIZE];
+	U8 buffer[BUFFER_READ_SIZE];
+	U8 decrypted_buffer[BUFFER_READ_SIZE];
+	int decrypted_length;
+	unsigned char unique_id[MAC_ADDRESS_BYTES];
+	LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
+	LLXORCipher cipher(unique_id, sizeof(unique_id));
+
+	// read in the salt and key
+	protected_data_stream.read((char *)salt, COMPAT_STORE_SALT_SIZE);
+	if (protected_data_stream.gcount() < COMPAT_STORE_SALT_SIZE)
+	{
+		throw LLProtectedDataException("Config file too short.");
+	}
+
+	cipher.decrypt(salt, COMPAT_STORE_SALT_SIZE);
+
+	EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+	EVP_CipherInit_ex(ctx, EVP_rc4(), NULL, salt, NULL, 0); // 0 is decrypt
+
+	while (protected_data_stream.good()) {
+		// read data as a block:
+		protected_data_stream.read((char *)buffer, BUFFER_READ_SIZE);
+
+		EVP_CipherUpdate(ctx, decrypted_buffer, &decrypted_length,
+			buffer, protected_data_stream.gcount());
+		decrypted_data.append((const char *)decrypted_buffer, decrypted_length);
+	}
+
+	EVP_CipherFinal(ctx, decrypted_buffer, &decrypted_length);
+	decrypted_data.append((const char *)decrypted_buffer, decrypted_length);
+
+	EVP_CIPHER_CTX_free(ctx);
 }
 
 void LLSecAPIBasicHandler::_readProtectedData()
@@ -1290,29 +1338,41 @@ void LLSecAPIBasicHandler::_readProtectedData()
 		
 
 		// read in the rest of the file.
-		EVP_CIPHER_CTX ctx;
-		EVP_CIPHER_CTX_init(&ctx);
-		EVP_DecryptInit(&ctx, EVP_rc4(), salt, NULL);
-		// allocate memory:
-		std::string decrypted_data;	
-		
+		EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+		EVP_CipherInit_ex(ctx, EVP_chacha20(), NULL, salt, NULL, 0); // 0 is decrypt
+
+		std::string decrypted_data;
 		while(protected_data_stream.good()) {
 			// read data as a block:
 			protected_data_stream.read((char *)buffer, BUFFER_READ_SIZE);
 			
-			EVP_DecryptUpdate(&ctx, decrypted_buffer, &decrypted_length, 
+			EVP_CipherUpdate(ctx, decrypted_buffer, &decrypted_length,
 							  buffer, protected_data_stream.gcount());
-			decrypted_data.append((const char *)decrypted_buffer, protected_data_stream.gcount());
+			decrypted_data.append((const char *)decrypted_buffer, decrypted_length);
 		}
 		
-		// RC4 is a stream cipher, so we don't bother to EVP_DecryptFinal, as there is
-		// no block padding.
-		EVP_CIPHER_CTX_cleanup(&ctx);
+		EVP_CipherFinal(ctx, decrypted_buffer, &decrypted_length);
+		decrypted_data.append((const char *)decrypted_buffer, decrypted_length);
+
+		EVP_CIPHER_CTX_free(ctx);
 		std::istringstream parse_stream(decrypted_data);
 		if (parser->parse(parse_stream, mProtectedDataMap, 
 						  LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
 		{
-			LLTHROW(LLProtectedDataException("Config file cannot be decrypted."));
+			// clear and reset to try compat
+			parser->reset();
+			decrypted_data.clear();
+			protected_data_stream.clear();
+			protected_data_stream.seekg(0, std::ios::beg);
+			compat_rc4(protected_data_stream, decrypted_data);
+
+			std::istringstream compat_parse_stream(decrypted_data);
+			if (parser->parse(compat_parse_stream, mProtectedDataMap,
+				LLSDSerialize::SIZE_UNLIMITED) == LLSDParser::PARSE_FAILURE)
+			{
+				// everything failed abort
+				LLTHROW(LLProtectedDataException("Config file cannot be decrypted."));
+			}
 		}
 	}
 }
@@ -1324,19 +1384,18 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	U8 buffer[BUFFER_READ_SIZE];
 	U8 encrypted_buffer[BUFFER_READ_SIZE];
 
-	
 	if(mProtectedDataMap.isUndefined())
 	{
 		LLFile::remove(mProtectedDataFilename);
 		return;
 	}
+
 	// create a string with the formatted data.
 	LLSDSerialize::toXML(mProtectedDataMap, formatted_data_ostream);
 	std::istringstream formatted_data_istream(formatted_data_ostream.str());
 	// generate the seed
 	RAND_bytes(salt, STORE_SALT_SIZE);
 
-	
 	// write to a temp file so we don't clobber the initial file if there is
 	// an error.
 	std::string tmp_filename = mProtectedDataFilename + ".tmp";
@@ -1346,15 +1405,15 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 	try
 	{
 		
-		EVP_CIPHER_CTX ctx;
-		EVP_CIPHER_CTX_init(&ctx);
-		EVP_EncryptInit(&ctx, EVP_rc4(), salt, NULL);
+		EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+		EVP_CipherInit_ex(ctx, EVP_chacha20(), NULL, salt, NULL, 1); // 1 is encrypt
 		unsigned char unique_id[MAC_ADDRESS_BYTES];
         LLMachineID::getUniqueID(unique_id, sizeof(unique_id));
 		LLXORCipher cipher(unique_id, sizeof(unique_id));
 		cipher.encrypt(salt, STORE_SALT_SIZE);
 		protected_data_stream.write((const char *)salt, STORE_SALT_SIZE);
 
+		int encrypted_length;
 		while (formatted_data_istream.good())
 		{
 			formatted_data_istream.read((char *)buffer, BUFFER_READ_SIZE);
@@ -1362,14 +1421,15 @@ void LLSecAPIBasicHandler::_writeProtectedData()
 			{
 				break;
 			}
-			int encrypted_length;
-			EVP_EncryptUpdate(&ctx, encrypted_buffer, &encrypted_length, 
+			EVP_CipherUpdate(ctx, encrypted_buffer, &encrypted_length,
 						  buffer, formatted_data_istream.gcount());
 			protected_data_stream.write((const char *)encrypted_buffer, encrypted_length);
 		}
+
+		EVP_CipherFinal(ctx, encrypted_buffer, &encrypted_length);
+		protected_data_stream.write((const char *)encrypted_buffer, encrypted_length);
 		
-		// no EVP_EncrypteFinal, as this is a stream cipher
-		EVP_CIPHER_CTX_cleanup(&ctx);
+		EVP_CIPHER_CTX_free(ctx);
 
 		protected_data_stream.close();
 	}
@@ -1433,7 +1493,7 @@ LLPointer<LLCertificate> LLSecAPIBasicHandler::getCertificate(X509* openssl_cert
 }
 		
 // instantiate a chain from an X509_STORE_CTX
-LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(const X509_STORE_CTX* chain)
+LLPointer<LLCertificateChain> LLSecAPIBasicHandler::getCertificateChain(X509_STORE_CTX* chain)
 {
 	LLPointer<LLCertificateChain> result = new LLBasicCertificateChain(chain);
 	return result;

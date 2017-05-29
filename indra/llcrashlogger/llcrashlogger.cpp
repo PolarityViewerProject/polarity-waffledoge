@@ -51,13 +51,9 @@
 #include "llcleanup.h"
 
 #include <curl/curl.h>
-#include <openssl/crypto.h>
 
 BOOL gBreak = false;
 BOOL gSent = false;
-
-int LLCrashLogger::ssl_mutex_count = 0;
-LLCoreInt::HttpMutex ** LLCrashLogger::ssl_mutex_list = NULL;
 
 #define CRASH_UPLOAD_RETRIES 3 /* seconds */
 #define CRASH_UPLOAD_TIMEOUT 180 /* seconds */
@@ -92,8 +88,8 @@ LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
 	mCrashInPreviousExec(false),
 	mCrashSettings("CrashSettings"),
-	mSentCrashLogs(false),
-	mCrashHost("")
+	mCrashHost(""),
+	mSentCrashLogs(false)
 {
 }
 
@@ -134,8 +130,9 @@ std::string getStartupStateFromLog(std::string& sllog)
 	std::string startup_state = "STATE_FIRST";
 	std::string startup_token = "Startup state changing from ";
 
-	size_t index = sllog.rfind(startup_token);
-	if (index != std::string::npos || index + startup_token.length() > sllog.length()) {
+	size_t index = sllog.rfind(startup_token);  // <alchemy/> 
+	if (index != std::string::npos || index + startup_token.length() > sllog.length())
+	{
 		return startup_state;
 	}
 
@@ -269,13 +266,13 @@ void LLCrashLogger::gatherFiles()
 	gatherPlatformSpecificFiles();
 
 
-    if ( has_logs && !mFileMap["CrashHostUrl"].empty())
-    {
-        mCrashHost = mFileMap["CrashHostUrl"];
-    }
+//    if ( has_logs && !mFileMap["CrashHostUrl"].empty())
+//    {
+//        mCrashHost = mFileMap["CrashHostUrl"];
+//    }
 
 	//default to agni, per product
-	mAltCrashHost = "http://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
+	//mAltCrashHost = "http://viewercrashreport.agni.lindenlab.com/cgi-bin/viewercrashreceiver.py";
 
 	mCrashInfo["DebugLog"] = mDebugLog;
 	mFileMap["StatsLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"stats.log");
@@ -386,6 +383,8 @@ const char* const CRASH_SETTINGS_FILE = "settings_crash_behavior.xml";
 
 std::string LLCrashLogger::loadCrashURLSetting()
 {
+	// <polarity> No crash host for the moment
+#if 0
 	// First check user_settings (in the user's home dir)
 	std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS, CRASH_SETTINGS_FILE);
 	if (! mCrashSettings.loadFromFile(filename))
@@ -394,23 +393,34 @@ std::string LLCrashLogger::loadCrashURLSetting()
 		std::string filename = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, CRASH_SETTINGS_FILE);
 		mCrashSettings.loadFromFile(filename);
 	}
+    
 
-    if (! mCrashSettings.controlExists("CrashHostUrl"))
-    {
-        return "";
-    }
-    else
-    {
-        return mCrashSettings.getString("CrashHostUrl");
-    }
+    return mCrashHost;
+#else
+	return "";
+#endif
+
+//    if (! mCrashSettings.controlExists("CrashHostUrl"))
+//    {
+//        return "";
+//    }
+//    else
+//    {
+//        return mCrashSettings.getString("CrashHostUrl");
+//    }
 }
 
 bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg, int retries, int timeout)
 {
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
     LLCore::HttpOptions::ptr_t httpOpts(new LLCore::HttpOptions);
+    LLCore::HttpHeaders::ptr_t httpHeaders(new LLCore::HttpHeaders);
 
     httpOpts->setTimeout(timeout);
+    httpOpts->setSSLVerifyHost(true);
+    httpOpts->setSSLVerifyPeer(true);
+    
+    httpHeaders->append("Content-Type", HTTP_CONTENT_LLSD_XML);
 
 	for(int i = 0; i < retries; ++i)
 	{
@@ -433,7 +443,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
             ms_sleep(250);
             updateApplication(); // No new message, just pump the IO
             httpRequest->update(0L);
-		}
+        }
 		if(gSent)
 		{
 			return gSent;
@@ -446,6 +456,7 @@ bool LLCrashLogger::runCrashLogPost(std::string host, LLSD data, std::string msg
 
 bool LLCrashLogger::sendCrashLog(std::string dump_dir)
 {
+
     gDirUtilp->setDumpDir( dump_dir );
     
     std::string dump_path = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
@@ -468,8 +479,8 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
     
 	bool sent = false;
     
-    if(!mCrashHost.empty())
-	{
+//    if(!mCrashHost.empty())
+//	{
         LL_WARNS("CRASHREPORT") << "Sending crash data to server from CrashHostUrl '" << mCrashHost << "'" << LL_ENDL;
         
         std::string msg = "Using override crash server... ";
@@ -477,13 +488,13 @@ bool LLCrashLogger::sendCrashLog(std::string dump_dir)
         updateApplication(msg.c_str());
         
 		sent = runCrashLogPost(mCrashHost, post_data, std::string("Sending to server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
-	}
+//	}
     
-	if(!sent)
-	{
-        updateApplication("Using default server...");
-		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to default server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
-	}
+//	if(!sent)
+//	{
+//        updateApplication("Using default server...");
+//		sent = runCrashLogPost(mAltCrashHost, post_data, std::string("Sending to default server"), CRASH_UPLOAD_RETRIES, CRASH_UPLOAD_TIMEOUT);
+//	}
     
 	mSentCrashLogs = sent;
     
@@ -629,56 +640,10 @@ void LLCrashLogger::commonCleanup()
 void LLCrashLogger::init_curl()
 {
     curl_global_init(CURL_GLOBAL_ALL);
-
-    ssl_mutex_count = CRYPTO_num_locks();
-    if (ssl_mutex_count > 0)
-    {
-        ssl_mutex_list = new LLCoreInt::HttpMutex *[ssl_mutex_count];
-
-        for (int i(0); i < ssl_mutex_count; ++i)
-        {
-            ssl_mutex_list[i] = new LLCoreInt::HttpMutex;
-        }
-
-        CRYPTO_set_locking_callback(ssl_locking_callback);
-        CRYPTO_set_id_callback(ssl_thread_id_callback);
-    }
 }
 
 
 void LLCrashLogger::term_curl()
 {
-    CRYPTO_set_locking_callback(NULL);
-    for (int i(0); i < ssl_mutex_count; ++i)
-    {
-        delete ssl_mutex_list[i];
-    }
-    delete[] ssl_mutex_list;
-}
-
-
-unsigned long LLCrashLogger::ssl_thread_id_callback(void)
-{
-#if LL_WINDOWS
-    return (unsigned long)(intptr_t)GetCurrentThread();
-#else
-    return (unsigned long)pthread_self();
-#endif
-}
-
-
-void LLCrashLogger::ssl_locking_callback(int mode, int type, const char * /* file */, int /* line */)
-{
-    if (type >= 0 && type < ssl_mutex_count)
-    {
-        if (mode & CRYPTO_LOCK)
-        {
-            ssl_mutex_list[type]->lock();
-        }
-        else
-        {
-            ssl_mutex_list[type]->unlock();
-        }
-    }
 }
 
