@@ -441,10 +441,6 @@ class WindowsManifest(ViewerManifest):
             self.path("vivoxoal.dll")
             self.path("ca-bundle.crt")
 
-            # Security
-            self.path("ssleay32.dll")
-            self.path("libeay32.dll")
-
             # Hunspell
             self.path("libhunspell.dll")
 
