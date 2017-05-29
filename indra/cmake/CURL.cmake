@@ -10,10 +10,12 @@ else (USESYSTEMLIBS)
   use_prebuilt_binary(curl)
   if (WINDOWS)
     set(CURL_LIBRARIES 
-    debug libcurld.lib
-    optimized libcurl.lib)
-  else (WINDOWS)
-    set(CURL_LIBRARIES libcurl.a)
-  endif (WINDOWS)
+    debug libcurl_a_debug.lib
+    optimized libcurl_a.lib)
+  elseif (LINUX)
+    set(CURL_LIBRARIES curl)
+  else (DARWIN)
+    set(CURL_LIBRARIES curl iconv)
+  endif ()
   set(CURL_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
 endif (USESYSTEMLIBS)

@@ -38,8 +38,6 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         glod.dll    
         libhunspell.dll
         )
@@ -50,8 +48,6 @@ if(WINDOWS)
         libapr-1.dll
         libaprutil-1.dll
         libapriconv-1.dll
-        ssleay32.dll
-        libeay32.dll
         glod.dll
         libhunspell.dll
         )
@@ -75,33 +71,6 @@ if(WINDOWS)
         set(release_files ${release_files} fmod.dll)
       endif(WORD_SIZE STREQUAL 64)
     endif (LINK_FMODSTUDIO)
-
-    # <FS:ND> Copy pdb files for symbol generation too
-#    if( NOT WORD_SIZE STREQUAL 64 )
-#        list(APPEND debug_files
-#            # ssleay32.pdb
-#            # libeay32.pdb
-#            apr-1.pdb
-#            aprutil-1.pdb
-#            )
-#        list(APPEND release_files
-#            # ssleay32.pdb
-#            # libeay32.pdb
-#            apr-1.pdb
-#            aprutil-1.pdb
-#            )
-#        if(LINK_TBBMALLOC)
-#            list(APPEND debug_files
-#                tbbmalloc_debug.pdb
-#                tbbmalloc_proxy_debug.pdb
-#                )
-#            list(APPEND release_files
-#                tbbmalloc.pdb
-#                tbbmalloc_proxy.pdb
-#                )
-#        endif(LINK_TBBMALLOC)
-#    endif( NOT WORD_SIZE STREQUAL 64 )
-    # </FS:ND>
 elseif(DARWIN)
     set(SHARED_LIB_STAGING_DIR_DEBUG            "${SHARED_LIB_STAGING_DIR}/Debug/Resources")
     set(SHARED_LIB_STAGING_DIR_RELWITHDEBINFO   "${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/Resources")
