@@ -1777,7 +1777,7 @@ bool LLTextureFetchWorker::doWork(S32 param)
 				mFileSize = total_size + 1 ; //flag the file is not fully loaded.
 			}
 			
-			U8 * buffer = (U8*) ll_aligned_malloc_16(total_size);
+			U8 * buffer = (U8*) ll_aligned_malloc_16(total_size); // I died here.
 			if (cur_size > 0)
 			{
 				memcpy(buffer, mFormattedImage->getData(), cur_size);
