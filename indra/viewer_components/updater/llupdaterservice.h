@@ -79,7 +79,7 @@ public:
 					const std::string &  platform_version,
 					const bool&         willing_to_test,
 					const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-					const std::string & auth_token
+					const std::string & auth_token = ""
 					);
 
 	void setCheckPeriod(unsigned int seconds) const;
@@ -87,7 +87,7 @@ public:
 	
 	void startChecking(bool install_if_ready = false) const;
 	void stopChecking() const;
-	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in) const;
+	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in = "") const;
 	bool isChecking() const;
 	eUpdaterState getState() const;
 

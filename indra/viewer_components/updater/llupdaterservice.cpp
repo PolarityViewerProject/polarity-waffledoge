@@ -137,7 +137,7 @@ public:
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
-	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in);
+	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in = "");
 	bool isChecking() const;
 	LLUpdaterService::eUpdaterState getState() const;
 	
@@ -718,7 +718,7 @@ void LLUpdaterService::initialize(const std::string & channel,
 								  const std::string & platform_version,
 								  const bool&         willing_to_test,
 								  const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-								  const std::string& auth_token
+								  const std::string& auth_token = ""
 )
 {
 	mImpl->initialize(channel,

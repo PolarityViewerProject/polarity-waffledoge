@@ -3212,8 +3212,8 @@ void LLAppViewer::initUpdater()
 						 gPlatform,
 						 getOSInfo().getOSVersionString(),
 						 willing_to_test,
-						 hardware_id,
-						 gPVOldAPI->getToken()
+						 hardware_id
+						 ,gPVOldAPI->getToken()
 						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
