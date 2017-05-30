@@ -9322,7 +9322,7 @@
     <key>Persist</key>
     <integer>1</integer>
     <key>HideFromEditor</key>
-    <integer>1</integer>
+    <integer>0</integer>
     <key>Type</key>
     <string>F32</string>
     <key>Value</key>
