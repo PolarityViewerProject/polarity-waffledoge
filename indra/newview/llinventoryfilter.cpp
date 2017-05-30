@@ -727,7 +727,7 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		// TODO: Add "whole word" option.
 		// TODO: Debug broken first search when separator is not "set" manually
 		// std::string search_separator = PVSearchUtil::getInstance()->getSearchSeparator();
-		static const std:: search_separator = '+';
+		static const char search_separator = '+';
 		std::string::size_type to;
 
 		do
