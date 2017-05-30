@@ -9315,6 +9315,19 @@
     <key>Value</key>
     <real>5.0</real>
   </map>
+  <key>RenderShadowFarClip</key>
+  <map>
+    <key>Comment</key>
+    <string>Distance of shadow far clip plane from camera (meters).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>1</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>128</real>
+  </map>
   <key>RenderShadowFOVCutoff</key>
   <map>
     <key>Comment</key>
