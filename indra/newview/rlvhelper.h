@@ -95,6 +95,7 @@ class RlvBehaviourDictionary : public LLSingleton<RlvBehaviourDictionary>
 	friend class RlvFloaterBehaviours;
 
 	LLSINGLETON(RlvBehaviourDictionary);
+	RlvBehaviourDictionary();
 	~RlvBehaviourDictionary();
 public:
 	void addEntry(const RlvBehaviourInfo* pEntry);
