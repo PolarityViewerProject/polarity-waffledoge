@@ -3482,11 +3482,10 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["COMPILER_VERSION"] = GCC_VERSION;
 #endif
 
-// <polarity> Don't show "x86_64", this is the normal build type.
 #if !LL_X86_64
-	info["BUILD_ARCH"] = " (x86)";
+	info["BUILD_ARCH"] = " x86"; // <polarity>
 #else
-	info["BUILD_ARCH"] = "";
+	info["BUILD_ARCH"] = " x64"; // <polarity>
 #endif
 
 	// Position
