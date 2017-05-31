@@ -1063,36 +1063,38 @@ void LLPanelLogin::updateLoginButtons()
 {
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
-	sLoginButtonEnabled = false;
-	auto gPVDataOldAPI = PVDataOldAPI::getInstance();
-	if (gPVDataOldAPI->getDataDone())
+	sLoginButtonEnabled = true;
+	if (gPVOldAPI->getDataDone())
 	{
-		if (!gPVDataOldAPI->isBlockedRelease())
+		if (!gPVOldAPI->isBlockedRelease())
 		{
 			sLoginButtonEnabled = true;
-			static const std::string loginString = LLTrans::getString("Login");
-			login_btn->setLabel(loginString);
 		}
 		else
 		{
-			//enable_button = false;
+			sLoginButtonEnabled = false;
 			static const std::string outdatedString = LLTrans::getString("Outdated");
 			login_btn->setLabel(outdatedString);
 			LLSD args;
-			args["REASON"] = gPVDataOldAPI->getErrorMessage();
+			args["REASON"] = gPVOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 		}
 	}
 	else
 	{
-		//enable_button = false;
+		sLoginButtonEnabled = false;
 		static const std::string plzHoldString = LLTrans::getString("PleaseHold");
 		login_btn->setLabel(plzHoldString);
 	}
-	if (mUsernameLength == 0 || mPasswordLength == 0)
+	if ((mUsernameLength == 0 || mPasswordLength == 0))
 	{
 		sLoginButtonEnabled = false;
 		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
+	}
+	if (sLoginButtonEnabled)
+	{
+		static const std::string loginString = LLTrans::getString("Login");
+		login_btn->setLabel(loginString);
 	}
 	login_btn->setEnabled(sLoginButtonEnabled);
 }
