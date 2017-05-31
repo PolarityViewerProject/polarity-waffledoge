@@ -208,7 +208,9 @@
 #endif
 #include "pvcommon.h"
 #include "pvfpsmeter.h"
+#ifdef PV_SEARCH_SEPARATOR
 #include "pvsearchseparator.h"
+#endif
 #include "fsassetblacklist.h"
 #include "llprogressview.h"
 //
@@ -418,7 +420,9 @@ bool idle_startup()
 #if PVDATA_SYSTEM
 		gPVOldAPI = PVDataOldAPI::getInstance();
 #endif
+#ifdef PV_SEARCH_SEPARATOR
 		gPVSearchUtil = PVSearchUtil::getInstance();
+#endif
 
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-0.2.1d
 		if ( (gSavedSettings.controlExists(RLV_SETTING_MAIN)) && (gSavedSettings.getBOOL(RLV_SETTING_MAIN)) )

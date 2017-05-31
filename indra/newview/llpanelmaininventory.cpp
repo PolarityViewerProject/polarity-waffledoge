@@ -61,7 +61,9 @@
 #if PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#ifdef PV_SEARCH_SEPARATOR
 #include "pvsearchseparator.h"
+#endif
 
 // <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
@@ -283,6 +285,7 @@ BOOL LLPanelMainInventory::postBuild()
 	}
 	// </FS:Zi> Filter dropdown
 	
+#ifdef PV_SEARCH_SEPARATOR
 	// <polarity> Search separator dropdown
 	mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
 	if(mSeparatorComboBox)
@@ -290,6 +293,7 @@ BOOL LLPanelMainInventory::postBuild()
 		mSeparatorComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onSeparatorSelected, this, _2));
 	}
 	// </polarity>
+#endif
 
 	mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
@@ -669,7 +673,7 @@ void LLPanelMainInventory::updateFilterDropdown(const LLInventoryFilter* filter)
 	mFilterComboBox->setValue(controlName);
 }
 // ## Zi: Filter dropdown
-
+#ifdef PV_SEARCH_SEPARATOR
 void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_selected)
 {
 	if (!mActivePanel)

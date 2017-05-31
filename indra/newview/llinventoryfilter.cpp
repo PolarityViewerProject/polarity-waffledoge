@@ -53,7 +53,9 @@
 #if PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#ifdef PV_SEARCH_SEPARATOR
 #include "pvsearchseparator.h"
+#endif
 
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 

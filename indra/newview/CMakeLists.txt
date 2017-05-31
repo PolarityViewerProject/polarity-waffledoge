@@ -170,7 +170,6 @@ set(polarity_HEADER_FILES
     pvperformancemaid.h
     pvrandom.h
     pvscriptpreproc.h
-    pvsearchseparator.h
     pvtypes.h
     )
 set(polarity_SOURCE_FILES
@@ -185,8 +184,25 @@ set(polarity_SOURCE_FILES
     pvperformancemaid.cpp
     pvrandom.cpp
     pvscriptpreproc.cpp
+    )
+
+set(pvsearchutil_HEADER_FILES
+    pvsearchseparator.h
+    )
+
+set(pvsearchutil_SOURCE_FILES
     pvsearchseparator.cpp
     )
+
+source_group("Polarity Search Utils" FILES
+    ${pvsearchutil_HEADER_FILES}
+    ${pvsearchutil_SOURCE_FILES}
+    )
+
+if(PV_SEARCH_SEPARATOR)
+    list(APPEND polarity_HEADER_FILES "${pvsearchutil_HEADER_FILES}")
+    list(APPEND polarity_SOURCE_FILES "${pvsearchutil_SOURCE_FILES}")
+endif(PV_SEARCH_SEPARATOR)
 
 set(pvdata_HEADER_FILES
     pvdata.h

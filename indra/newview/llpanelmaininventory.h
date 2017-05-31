@@ -96,8 +96,11 @@ public:
 	// ## Zi: Filter dropdown
 	void onFilterTypeSelected(const std::string& filter_type_name);
 	void updateFilterDropdown(const LLInventoryFilter* filter);
+#ifdef PV_SEARCH_SEPARATOR
 	// ## Zi: Filter dropdown
 	void onSeparatorSelected(const std::string& separator_selected);
+#endif
+
 protected:
 	//
 	// Misc functions
