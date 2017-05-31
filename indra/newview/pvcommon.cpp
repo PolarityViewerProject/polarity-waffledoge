@@ -55,12 +55,6 @@ bool PVCommon::sAVXSupported = false;
 
 S32 PVCommon::sObjectAddMsg = 0;
 
-// constructor
-//void PVCommon()
-//{
-//	gPVCommon = PVCommon::getInstance();
-//}
-
 // Fancy little macro to output a variable's name
 #define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
 
