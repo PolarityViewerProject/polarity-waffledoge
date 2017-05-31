@@ -1,5 +1,5 @@
 /**
- * @file pvsearchsepatator.h
+ * @file pvsearchseparator.h
  * @brief Configurable inventory search separator
  *
  * $LicenseInfo:firstyear=2014&license=viewerlgpl$
