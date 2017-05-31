@@ -1,7 +1,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
-set(PVDATA_SYSTEM ON CACHE BOOL "Master setting to compile PVDAta into the viewer" FORCE)
+set(PVDATA_SYSTEM TRUE CACHE BOOL "Master setting to compile PVDAta into the viewer" FORCE)
 option(PVDATA_COLORIZER "Color avatar names and various other elements based on their role in the project" ON)
 option(PVDATA_MOTD "Use PVData-served Message of the Day" ON)
 option(PVDATA_MOTD_CHAT "Display a MOTD in chat at login" ON)
