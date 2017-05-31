@@ -51,6 +51,7 @@
 #include <boost/algorithm/string.hpp> // <polarity/>
 #include "llappearancemgr.h" // needed to query whether we are in COF
 #include "pvdata.h"
+#include "pvsearchseparator.h"
 
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 

@@ -645,54 +645,6 @@ private:
 	std::string last_login_tip;
 };
 
-
-//@todo: Move to another file?
-class PVSearchUtil : public LLSingleton <PVSearchUtil>
-{
-	LOG_CLASS(PVSearchUtil);
-	LLSINGLETON_EMPTY_CTOR(PVSearchUtil);
-
-public:
-	// refresh from settings
-	static U32 getSearchSeparatorFromSettings();
-	static void setSearchSeparator(const U32 separator_in_u32);
-	// get separator
-	static std::string getSearchSeparator();
-	std::string getSearchSeparator(const U32 separator_to_get_u32) const;
-
-private:
-	enum PVSearchSeparators : U32
-	{
-		separator_space,
-		separator_plus,
-		separator_comma,
-		separator_pipe,
-		separator_semicolon,
-		separator_period,
-		separator_colon,
-	};
-
-	/**
-	 * \brief Contains the possible search separators
-	 * TODO: Re-write as a map.
-	 */
-	const std::vector<std::string> PVSearchSeparatorAssociation
-	{
-		" ",
-		"+",
-		",",
-		"|",
-		";",
-		".",
-		":",
-	};
-
-	/**
-	* \brief Currently selected search separator
-	*/
-	static U32 PVSearchSeparatorSelected;
-};
 extern PVDataOldAPI* gPVOldAPI;
-extern PVSearchUtil* gPVSearchUtil;
 //}
 #endif // PV_DATA_H

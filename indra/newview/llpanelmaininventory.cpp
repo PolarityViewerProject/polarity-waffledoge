@@ -59,6 +59,7 @@
 #include "llfolderview.h"
 #include "llradiogroup.h"
 #include "pvdata.h"
+#include "pvsearchseparator.h"
 
 // <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");

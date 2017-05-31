@@ -171,6 +171,7 @@ set(polarity_HEADER_FILES
     pvperformancemaid.h
     pvrandom.h
     pvscriptpreproc.h
+    pvsearchseparator.h
     pvtypes.h
     )
 set(polarity_SOURCE_FILES
@@ -186,6 +187,7 @@ set(polarity_SOURCE_FILES
     pvperformancemaid.cpp
     pvrandom.cpp
     pvscriptpreproc.cpp
+    pvsearchseparator.cpp
     )
 source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}

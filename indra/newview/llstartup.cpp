@@ -206,6 +206,7 @@
 #include "pvdata.h"
 #include "pvcommon.h"
 #include "pvfpsmeter.h"
+#include "pvsearchseparator.h"
 #include "fsassetblacklist.h"
 #include "llprogressview.h"
 //
