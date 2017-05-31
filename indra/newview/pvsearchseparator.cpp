@@ -27,6 +27,9 @@
  * $/LicenseInfo$
  */
 
+#include "pvsearchseparator.h"
+#include "llviewercontrol.h"
+
 PVSearchUtil*		gPVSearchUtil = NULL;
 
 U32 PVSearchUtil::PVSearchSeparatorSelected = gPVSearchUtil->separator_space;

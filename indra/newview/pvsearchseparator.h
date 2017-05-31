@@ -26,6 +26,9 @@
 #ifndef PV_SEARCHSEPARATOR_H
 #define PV_SEARCHSEPARATOR_H
 
+#include "llerror.h"
+#include "llsingleton.h"
+
 class PVSearchUtil : public LLSingleton <PVSearchUtil>
 {
 	LOG_CLASS(PVSearchUtil);
