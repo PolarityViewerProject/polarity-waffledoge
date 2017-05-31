@@ -417,17 +417,6 @@ public:
 	// This contains the UUID of our support group
 	std::set<LLUUID> support_group_;
 
-	/// <summary></summary>
-
-	/**
-	 * \brief Attempt to set the chat logs location from environment if available
-	 */
-	static void getChatLogsDirOverride();
-	//static void setChatLogsDirOverride();
-	bool moveTranscriptsAndLog(const std::string &userid) const;
-
-public:
-
 	void setDataStatus(const S32& status) { pv_data_status_ = status; }
 	void setAgentsDataStatus(const S32& status) { pv_agents_status_ = status; }
 
