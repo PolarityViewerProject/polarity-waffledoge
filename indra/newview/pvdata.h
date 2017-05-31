@@ -27,11 +27,20 @@
  * $/LicenseInfo$
  */
 
-#if PVDATA_SYSTEM
+#pragma once
 #ifndef PV_DATA_H
 #define PV_DATA_H
 
-#pragma once
+#include "llavatarname.h" // for convenience
+#include "llerror.h" // for LOG_CLASS
+#include "pvtypes.h"
+#include "lluicolortable.h"
+#include "v3color.h"
+#include "llframetimer.h"
+
+class LLColor4;
+class LLColor3;
+class LLUUID;
 
  //
  // Dear maintainer:
@@ -95,15 +104,6 @@
 	// Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
 
  */
-#include "llavatarname.h" // for convenience
-#include "llerror.h" // for LOG_CLASS
-#include "pvtypes.h"
-#include "lluicolortable.h"
-
-class LLColor4;
-class LLUUID;
-
-
 	// Last updated 2016-09-26 1:23:12 PM
 enum flags_t : S32
 {
@@ -638,4 +638,3 @@ private:
 extern PVDataOldAPI* gPVOldAPI;
 //}
 #endif // PV_DATA_H
-#endif // PVDATA_SYSTEM
