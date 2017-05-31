@@ -1069,6 +1069,10 @@ void LLButton::resize(LLUIString label)
 		S32 min_width = label_width + mLeftHPad + mRightHPad;
 		if (mImageOverlay)
 		{
+			// <polarity> FIXME: That's one weird way to crash:
+			//Exception thrown: read access violation.
+			//this->mImageOverlay.mPointer->was 0xFFFFFFFFFFFFFFF7.
+			// </polarity>
 			S32 overlay_width = mImageOverlay->getWidth();
 			F32 scale_factor = (getRect().getHeight() - (mImageOverlayBottomPad + mImageOverlayTopPad)) / (F32)mImageOverlay->getHeight();
 			overlay_width = ll_round((F32)overlay_width * scale_factor);
