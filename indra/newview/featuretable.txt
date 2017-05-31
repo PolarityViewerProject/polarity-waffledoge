@@ -550,16 +550,22 @@ RenderDeferred				0	0
 RenderMaxTextureIndex		1	1
 
 list Intel
+Disregard96DefaultDrawDistance	1	1
+PVDebug_ForcedVideoMemory   1   512
 RenderAnisotropic			1	0
-RenderVBOEnable				1	0
-RenderFSAASamples			1	0
-RenderFarClip				1	32
-WLSkyDetail					1	32
 RenderCompressTextures		1	1
+RenderDeferred 				1	0
 RenderDeferredSSAO			0	0
+RenderFarClip				1	32
+RenderFSAASamples			1	0
+RenderVBOEnable				1	0
+WLSkyDetail					1	32
 
 list IntelRecent
+Disregard96DefaultDrawDistance	1	1
 RenderCompressTextures		1	1
+RenderDeferred 				1	0
+RenderFarClip				1	64
 
 list GeForce2
 RenderAnisotropic			1	0
