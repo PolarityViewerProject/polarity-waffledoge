@@ -82,6 +82,11 @@ public:
     /// return the CMake build type
     static const std::string &getBuildConfig();
 
+    /// Return the short hash of the commit this build was made from
+    static const std::string &getBuildCommitHash();
+    /// Return the short hash of the commit this build was made from
+    static const std::string &getBuildCommitHashLong();
+
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);
 

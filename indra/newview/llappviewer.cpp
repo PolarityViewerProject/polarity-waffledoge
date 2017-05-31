@@ -3432,6 +3432,31 @@ LLSD LLAppViewer::getViewerInfo() const
 	
 
 	info["LATEST_MERGED_VERSION"] = LLVersionInfo::getLastLindenRelease();
+	// <polarity> build url to the commit the viewer was built on
+	// TODO: Get url from repo config maybe?
+	static const std::string channel_name_release	= "Polarity Release";
+	static const std::string channel_name_beta		= "Polarity Beta";
+	static const std::string channel_name_nightly	= "Polarity Project XenNightly";
+
+	std::string commit_url = "[";
+	if(LLVersionInfo::getChannel() == channel_name_release)
+	{
+		commit_url = "https://bitbucket.org/polarityviewer/polarity-release/commits/ ";
+	}
+	else if(LLVersionInfo::getChannel() == channel_name_beta)
+	{
+		commit_url = "https://bitbucket.org/polarityviewer/polarity-beta/commits/ ";
+	}
+	else if(LLVersionInfo::getChannel() == channel_name_nightly)
+	{
+		commit_url = "https://bitbucket.org/polarityviewer/xenhat.polarity-development/commits/ ";
+	}
+	if(commit_url != "[")
+	{
+		commit_url += LLVersionInfo::getBuildCommitHashLong();
+	}
+	commit_url += LLVersionInfo::getBuildCommitHash() +"]";
+	info["BUILD_HASH"] = commit_url;
 
 	// return a URL to the Latest merged Linden Lab release
 	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
@@ -3637,7 +3662,7 @@ std::string LLAppViewer::getViewerInfoString() const
 	{
 		support << "\n" << LLTrans::getString("BuildConfig", args);
 #if INTERNAL_BUILD
-		support << "\n" << LLTrans::getString("InternalBuild", args);
+		support << ", " << LLTrans::getString("InternalBuild", args);
 #endif
 	}
 	if (info.has("REGION"))

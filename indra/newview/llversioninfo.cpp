@@ -40,7 +40,9 @@
  || ! defined(LL_VIEWER_VERSION_BUILD) \
  || ! defined(LINDEN_SOURCE_MAJOR) \
  || ! defined(LINDEN_SOURCE_MINOR) \
- || ! defined(LINDEN_SOURCE_PATCH)
+ || ! defined(LINDEN_SOURCE_PATCH) \
+ || ! defined(BUILD_COMMIT_HASH) \
+ || ! defined(BUILD_COMMIT_HASH_LONG)
  #error "Channel or Version information is undefined"
 #endif
 
@@ -221,4 +223,16 @@ const std::string &LLVersionInfo::getBuildConfig()
 {
     static const std::string build_configuration(LLBUILD_CONFIG); // set in indra/cmake/BuildVersion.cmake
     return build_configuration;
+}
+
+const std::string &LLVersionInfo::getBuildCommitHash()
+{
+	static const std::string hash_short(BUILD_COMMIT_HASH);
+	return hash_short;
+}
+
+const std::string &LLVersionInfo::getBuildCommitHashLong()
+{
+	static const std::string hash_long(BUILD_COMMIT_HASH_LONG);
+	return hash_long;
 }

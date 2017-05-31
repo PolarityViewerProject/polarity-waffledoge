@@ -34,6 +34,19 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
             endif (NOT ${hg_id_result} EQUAL 0)
             if ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
               message("Revision (from hg) ${VIEWER_VERSION_REVISION}")
+              # <polarity> get hash of the commit we're building
+              set(BUILD_COMMIT_HASH "NaN")
+              set(BUILD_COMMIT_HASH_LONG "NaN")
+              execute_process(
+                COMMAND ${MERCURIAL} log -l1 --template "{node|short}"
+                OUTPUT_VARIABLE BUILD_COMMIT_HASH
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                )
+              execute_process(
+                COMMAND ${MERCURIAL} log -l1 --template "{node}"
+                OUTPUT_VARIABLE BUILD_COMMIT_HASH_LONG
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                )
             else ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
               message("Revision not set (repository not found?); using 0")
               set(VIEWER_VERSION_REVISION 0 )
@@ -43,7 +56,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
               set(VIEWER_VERSION_REVISION 0)
            endif (MERCURIAL)
         endif (DEFINED ENV{revision})
-        message("Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}")
+        message("Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} (Commit ${BUILD_COMMIT_HASH})")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
         message(FATAL_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
@@ -92,5 +105,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         "LINDEN_SOURCE_MINOR=${LL_SOURCE_MINOR}"
         "LINDEN_SOURCE_PATCH=${LL_SOURCE_PATCH}"
         "LLBUILD_CONFIG=\"${CMAKE_BUILD_TYPE}\""
+        "BUILD_COMMIT_HASH=\"${BUILD_COMMIT_HASH}\""
+        "BUILD_COMMIT_HASH_LONG=\"${BUILD_COMMIT_HASH_LONG}\""
         )
 endif (NOT DEFINED VIEWER_SHORT_VERSION)
