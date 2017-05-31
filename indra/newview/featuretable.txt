@@ -550,6 +550,7 @@ RenderDeferred				0	0
 RenderMaxTextureIndex		1	1
 
 list Intel
+Disregard128DefaultDrawDistance 1	1
 Disregard96DefaultDrawDistance	1	1
 PVDebug_ForcedVideoMemory   1   512
 RenderAnisotropic			1	0
@@ -562,6 +563,7 @@ RenderVBOEnable				1	0
 WLSkyDetail					1	32
 
 list IntelRecent
+Disregard128DefaultDrawDistance 1	1
 Disregard96DefaultDrawDistance	1	1
 RenderCompressTextures		1	1
 RenderDeferred 				1	0
