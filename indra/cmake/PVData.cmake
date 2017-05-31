@@ -1,7 +1,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
-set(PVDATA_SYSTEM FALSE CACHE BOOL "Master setting to compile PVDAta into the viewer" FORCE)
+set(PVDATA_SYSTEM TRUE CACHE BOOL "Master setting to compile PVDAta into the viewer" FORCE)
 option(PVDATA_UUID_LOCKDOWN "Lock down the viewer to a specific user" OFF)
 set(PVDATA_UUID_LOCKTO "${PVDATA_UUID_LOCKTO}" CACHE STRING "UUID to lock down to" FORCE)
 
