@@ -414,6 +414,12 @@ bool idle_startup()
 		std::string lastGPU = gSavedSettings.getString("LastGPUString");
 		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
 		
+		// <polarity> PVData support
+#if PVDATA_SYSTEM
+		gPVOldAPI = PVDataOldAPI::getInstance();
+#endif
+		gPVSearchUtil = PVSearchUtil::getInstance();
+
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-0.2.1d
 		if ( (gSavedSettings.controlExists(RLV_SETTING_MAIN)) && (gSavedSettings.getBOOL(RLV_SETTING_MAIN)) )
 		{
@@ -858,12 +864,8 @@ bool idle_startup()
 		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		//}
 
-		// <polarity> PVData support
-#if PVDATA_SYSTEM
-		gPVOldAPI = PVDataOldAPI::getInstance();
 		gPVOldAPI->downloadData();
-#endif
-		gPVSearchUtil = PVSearchUtil::getInstance();
+
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
