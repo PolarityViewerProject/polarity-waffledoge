@@ -27,6 +27,7 @@
  * $/LicenseInfo$
  */
 
+#include "llviewerprecompiledheaders.h" // ew D:
 #include "pvsearchseparator.h"
 #include "llviewercontrol.h"
 
