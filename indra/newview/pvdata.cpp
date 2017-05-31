@@ -998,7 +998,6 @@ void PVDataOldAPI::setBeggarCheck(const bool enabled)
 
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("!PVAgentData Get Agent");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("!PVAgentData Get Color");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("!PVData Get Color");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("!PVAgentData Get Title HR");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgentData Get Title");
 
@@ -1141,91 +1140,84 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 }
 LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool show_buddy_status)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
-#endif
-	if (!RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
+
+	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
+	if ((!show_buddy_status && !use_color_manager) || !RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
 	{
 		return default_color;
 	}
 	// Try to operate in the same instance, reduce call overhead
-	LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
-
-	auto return_color = default_color; // color we end up with at the end of the logic
-
+	LLUIColorTable* cTablePtr				= LLUIColorTable::getInstance();
+	LLColor4 return_color					= default_color; // color we end up with at the end of the logic
+	bool is_friend_and_show 				= false;
+	static LLColor4 friend_color		= cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
+	if(show_buddy_status)
+	{
+		static LLCachedControl<bool> show_friends_option(gSavedSettings, "NameTagShowFriends");
+		is_friend_and_show 								= (show_friends_option && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
+		if (!use_color_manager)
+		{
+			return is_friend_and_show ? friend_color : default_color;
+		}
+	}
 	// Some flagged users CAN be muted.
 	if (LLMuteList::instance().isMuted(id))
 	{
-		static auto muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
-		return_color = muted_color.get();
-		return return_color;
+		static LLColor4 muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey);
+		return muted_color;
 	}
-
-	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-	auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
-	static auto friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
-	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-	if (!use_color_manager)
+	LLColor4 pvdata_color = return_color;
+	// if the agent isn't a special agent, nullptr is returned.
+	auto agentPtr = find(id);
+	if (agentPtr)
 	{
-		return show_f ? friend_color : default_color;
+		pvdata_color = agentPtr->getColorInternal(*cTablePtr);
 	}
-	else
+	/*	Respect user preferences
+		Expected behavior:
+		+Friend, +PVDATA, +lpf = show PVDATA
+		+Friend, +PVDATA, -lpl = show FRIEND
+		+Friend, -PVDATA, +lpl = show FRIEND
+		+Friend, -PVDATA, -lpl = show FRIEND
+		-Friend, +PVDATA, +lpl = show PVDATA
+		-Friend, +PVDATA, -lpl = show PVDATA
+		-Friend, -PVDATA, +lpl = show FALLBACK
+		-Friend, -PVDATA, -lpl = show FALLBACK
+	*/
+	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+	// Lengthy but fool-proof.
+	if (is_friend_and_show && agentPtr && low_priority_friend_status)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
-		auto pvdata_color = default_color;
-		// if the agent isn't a special agent, nullptr is returned.
-		auto agentPtr = find(id);
-		if (agentPtr)
-		{
-			pvdata_color = agentPtr->getColorInternal(*cTablePtr);
-		}
-
-		/*	Respect user preferences
-			Expected behavior:
-			+Friend, +PVDATA, +lpf = show PVDATA
-			+Friend, +PVDATA, -lpl = show FRIEND
-			+Friend, -PVDATA, +lpl = show FRIEND
-			+Friend, -PVDATA, -lpl = show FRIEND
-			-Friend, +PVDATA, +lpl = show PVDATA
-			-Friend, +PVDATA, -lpl = show PVDATA
-			-Friend, -PVDATA, +lpl = show FALLBACK
-			-Friend, -PVDATA, -lpl = show FALLBACK
-		*/
-
-		static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
-		// Lengthy but fool-proof.
-		if (show_f && agentPtr && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (show_f && agentPtr && !low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (show_f && !agentPtr && low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (show_f && !agentPtr && !low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (!show_f && agentPtr && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && agentPtr && !low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && !agentPtr && low_priority_friend_status)
-		{
-			return_color = default_color;
-		}
-		if (!show_f && !agentPtr && !low_priority_friend_status)
-		{
-			return_color = default_color;
-		}
+		return_color = pvdata_color;
+	}
+	if (is_friend_and_show && agentPtr && !low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (is_friend_and_show && !agentPtr && low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (is_friend_and_show && !agentPtr && !low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (!is_friend_and_show && agentPtr && low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!is_friend_and_show && agentPtr && !low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!is_friend_and_show && !agentPtr && low_priority_friend_status)
+	{
+		return_color = default_color;
+	}
+	if (!is_friend_and_show && !agentPtr && !low_priority_friend_status)
+	{
+		return_color = default_color;
 	}
 	return return_color;
 }
