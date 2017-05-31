@@ -67,7 +67,7 @@
 #include "llmutelist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -955,7 +955,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
 	LLColor4 name_color;
 	LLColor4 txt_color;
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
 	// <polarity> Colored names for special users, short-circuit getChatColor for agents
 	if (chat.mChatStyle != CHAT_STYLE_HISTORY)

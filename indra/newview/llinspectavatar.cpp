@@ -51,7 +51,7 @@
 #include "lltrans.h"
 
 // <polarity>
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif // for getPreferredName()
 // </polarity>
@@ -400,7 +400,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			getChild<LLUICtrl>("user_name")->setVisible( true );
 
 		}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
 		auto pv_agent = PVAgent::find(mAvatarID);

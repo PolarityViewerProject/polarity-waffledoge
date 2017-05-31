@@ -44,7 +44,7 @@
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "groupchatlistener.h"
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -248,7 +248,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	if (gPVOldAPI->isSupportGroup(group_id))
 	{
 		auto pv_agent = PVAgent::find(gAgentID);

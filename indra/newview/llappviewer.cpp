@@ -267,7 +267,7 @@
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
 #include "sanitycheck.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #include "pvfpsmeter.h"
@@ -1725,7 +1725,7 @@ bool LLAppViewer::cleanup()
 	// stop our FPS meter logic
 	PVFPSMeter::stop();
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	// stop PVData refresh timer
 	gPVOldAPI->cleanup();
 #endif
@@ -3216,7 +3216,7 @@ void LLAppViewer::initUpdater()
 						 getOSInfo().getOSVersionString(),
 						 willing_to_test,
 						 hardware_id
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 						,gPVOldAPI->getToken()
 #endif
 						 );
@@ -5206,7 +5206,7 @@ void LLAppViewer::idle()
 		return;
     }
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	// <polarity>
 	gPVOldAPI->refreshDataFromServer();
 	// </polarity>
@@ -5402,7 +5402,7 @@ void LLAppViewer::idle()
 		gGLActive = TRUE;
 		idleShutdown();
 	}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
 	{
 		BOOL isDebuggerPresent = FALSE;

@@ -203,7 +203,7 @@
 #include "llcleanup.h"
 
 // <polarity> Polarity Includes
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #include "pvcommon.h"
@@ -417,7 +417,7 @@ bool idle_startup()
 		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
 		
 		// <polarity> PVData support
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		gPVOldAPI = PVDataOldAPI::getInstance();
 #endif
 #ifdef PV_SEARCH_SEPARATOR
@@ -893,7 +893,7 @@ bool idle_startup()
 	}
 	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
 	{
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
 		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
 		// then enable the login button again. this will reduce the apparent startup time.
@@ -917,7 +917,7 @@ bool idle_startup()
 			//LLPanelLogin::doLoginButtonLockUnlock();
 #endif
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		}
 		else
 		{
@@ -1149,7 +1149,7 @@ bool idle_startup()
 		{
 			gAgent.mMOTD = "";
 		}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		gPVOldAPI->getNewProgressTip(true);
 #endif
 		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
@@ -1338,7 +1338,7 @@ bool idle_startup()
 			else
 			{
 				LLSD args;
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 				if(!gPVOldAPI->getErrorMessage().empty())
 				{
 					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
@@ -2425,7 +2425,7 @@ bool idle_startup()
 		gAgentAvatarp->sendHoverHeight();
 
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
 		PVFPSMeter::start();
@@ -3463,7 +3463,7 @@ bool process_login_success_response()
 	if (!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	if (!PVAgent::isAllowedToLogin(gAgentID, true))
 	{
 		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
@@ -3648,7 +3648,7 @@ bool process_login_success_response()
 		gAgent.setHomePosRegion(region_handle, position);
 	}
 
-#if !PVDATA_MOTD
+#if !PVDATA_SYSTEM
 	auto motd_response = response["message"];
 	LL_INFOS("PVDataOldAPI") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
 	gAgent.mMOTD.assign(motd_response);

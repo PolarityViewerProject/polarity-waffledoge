@@ -58,7 +58,7 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #ifdef PV_SEARCH_SEPARATOR

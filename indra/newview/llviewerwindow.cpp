@@ -185,7 +185,7 @@
 #include "lltabcontainer.h"
 
 #include "pvcommon.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #include "pvgpuinfo.h"
@@ -5105,7 +5105,7 @@ void LLViewerWindow::setProgressString(const std::string& string)
 
 void LLViewerWindow::setProgressMessage()
 {
-#if PVDATA_PROGRESS_TIPS
+#ifdef PVDATA_SYSTEM
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);

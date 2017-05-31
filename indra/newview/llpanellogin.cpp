@@ -73,7 +73,7 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 

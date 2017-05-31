@@ -77,7 +77,7 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -1146,7 +1146,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				final_name << LLTrans::getString("TooltipPerson");;
 			}
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 			// <polarity> Add PVData title to hover tip
 			std::string pv_title;
 			auto pv_agent = PVAgent::find(hover_object->getID());

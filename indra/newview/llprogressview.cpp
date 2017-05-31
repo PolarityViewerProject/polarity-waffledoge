@@ -52,7 +52,7 @@
 #include "llpanellogin.h"
 #include "llviewertexture.h"
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -325,7 +325,7 @@ void LLProgressView::setMessage(const std::string& msg)
 {
 	// TODO: Set the progress tip once at the start of the progress screen instead of
 	// short-circuiting here.
-#if PVDATA_MOTD
+#ifdef PVDATA_SYSTEM
 	mMessage = gPVOldAPI->getNewProgressTip();
 #else
 	mMessage = msg;

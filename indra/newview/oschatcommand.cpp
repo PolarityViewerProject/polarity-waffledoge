@@ -49,7 +49,7 @@
 #include "llvolume.h"
 #include "llvolumemessage.h"
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #include "pvcommon.h"
@@ -423,7 +423,7 @@ bool OSChatCommand::parseCommand(std::string data)
 		}
 		return true;
 	}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	case CMD_PVDATA_REFRESH:
 	{
 		auto pv_agent = PVAgent::find(gAgentID);

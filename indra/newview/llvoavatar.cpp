@@ -113,7 +113,7 @@
 
 #include "pvcommon.h"
 //#include "llsidepanelappearance.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -2780,7 +2780,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			//particle_parameters.mPartData.mStartScale.mV[VZ] = 1.0f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
-#if !PVDATA_COLORIZER
+#ifndef PVDATA_SYSTEM
 			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
 			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
 #else
@@ -3107,7 +3107,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// cache avatar uuid
 	LLUUID av_id = getID();
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 	// get avatar's color
 	auto name_tag_color = getNameTagColor(av_id);
 #else
@@ -3499,7 +3499,7 @@ LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id)
 		// ...not using display names
 		color_name = LLUIColorTable::getInstance()->getColor("NameTagLegacy");
 	}
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 	return PVAgent::getColor(av_id, color_name);
 #else
 	return color_name;

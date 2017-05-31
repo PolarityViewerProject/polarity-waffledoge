@@ -50,7 +50,7 @@
 
 #include <boost/algorithm/string.hpp> // <polarity/>
 #include "llappearancemgr.h" // needed to query whether we are in COF
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #ifdef PV_SEARCH_SEPARATOR

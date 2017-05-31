@@ -65,7 +65,7 @@
 #include "llsdutil_math.h"
 #include "lleventapi.h"
 #include "llcorehttputil.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -399,7 +399,7 @@ void LLFloaterAbout::showCheckUpdateNotification(S32 state)
 	{
 	case LLUpdaterService::UP_TO_DATE:
 #if INTERNAL_BUILD
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		if (gPVOldAPI->getToken() == "")
 		{
 			LLSD arguments;
@@ -447,7 +447,7 @@ void LLFloaterAbout::setUpdateListener()
 	S32 service_state = update_service.getState();
 	// Note: Do not set state listener before forceCheck() since it set's new state
 	if (update_service.forceCheck(gSavedSettings.getBOOL("UpdaterWillingToTest")
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	,gPVOldAPI->getToken()
 #endif
 	) || service_state == LLUpdaterService::CHECKING_FOR_UPDATE)

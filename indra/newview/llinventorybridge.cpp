@@ -86,7 +86,7 @@
 #include "lltoolcomp.h"
 #include <boost/shared_ptr.hpp>
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -3287,7 +3287,7 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("delete_system_folder" == action)
 	{
-	#if PVDATA_SYSTEM
+	#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized())
 		{
@@ -4081,7 +4081,7 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
 	if (LLFolderType::lookupIsProtectedType(type))
 	{
-	#if PVDATA_SYSTEM
+	#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized())
 		{

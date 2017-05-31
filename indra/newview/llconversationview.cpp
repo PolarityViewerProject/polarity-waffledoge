@@ -42,7 +42,7 @@
 #include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 #include "lltoolbarview.h"
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -182,7 +182,7 @@ BOOL LLConversationViewSession::postBuild()
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
 				static auto avatar_list_item_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 				mSessionTitle->setColor(PVAgent::getColor(session->mOtherParticipantID, avatar_list_item_color));
 #endif
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);

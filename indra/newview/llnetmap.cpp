@@ -65,8 +65,8 @@
 #include "llfloatercamera.h"
 #include "llviewerjoystick.h"
 
-#if PVDATA_COLORIZER
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #endif
@@ -404,7 +404,7 @@ void LLNetMap::draw()
 				pos_map = globalPosToView(fixed_pos);
 				
 
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 				// <polarity> Colored names for special users.
 				// Note: RLVa handled in getColor, do not put here.
 				color = PVAgent::getColor(uuid, map_avatar_color);

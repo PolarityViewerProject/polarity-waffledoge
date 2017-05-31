@@ -63,7 +63,7 @@
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -236,7 +236,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			return FALSE;
 		}
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		// Can't mute our developers
 		auto pv_agent = PVAgent::find(mute.mID);
 		if (pv_agent && pv_agent->isProviderDeveloper())

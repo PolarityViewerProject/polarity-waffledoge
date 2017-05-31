@@ -58,7 +58,7 @@
 #include "llsdserialize.h"
 #include "llviewerobjectlist.h"
 #include "boost/foreach.hpp"
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -1829,7 +1829,7 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
 	static LLColor4 white = LLUIColorTable::getInstance()->getColor("White");
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 	params.font_color = PVAgent::getColor(item->getUUID(), white);
 #else
 	params.font_color = white;

@@ -45,7 +45,7 @@
 #include "lllayoutstack.h"
 #include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 const F32 REFRESH_INTERVAL = 1.0f;
@@ -813,7 +813,7 @@ void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 // static
 void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	gPVOldAPI->setBeggarCheck(false);
 #endif
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
@@ -832,7 +832,7 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
 	{
              nearby_chat->reloadMessages(clean_messages);
 	}
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	gPVOldAPI->setBeggarCheck(true);
 #endif
 }

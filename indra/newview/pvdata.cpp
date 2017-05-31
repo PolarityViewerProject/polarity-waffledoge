@@ -321,7 +321,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
 
-#if PVDATA_MOTD
 	// Set Message Of The Day if present
 	section = pv_data_sections_.at(PVDataOldAPI::MOTD);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
@@ -337,7 +336,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL; // Don't warn on this one
 	}
 
-#if PVDATA_MOTD_CHAT
 	section = pv_data_sections_.at(ChatMOTD);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
@@ -352,7 +350,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
-#endif // PVDATA_MOTD_CHAT
 
 	section = pv_data_sections_.at(EventsMOTD);
 	// If the event falls within the current date, use that for MOTD instead.
@@ -369,9 +366,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL; // don't warn on this one
 	}
-#endif // PVDATA_MOTD
 
-#if PVDATA_PROGRESS_TIPS
 	section = pv_data_sections_.at(ProgressTip);
 	//@todo: Split tips files
 	// Load the progress screen tips
@@ -388,7 +383,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
 
-#endif // PVDATA_PROGRESS_TIPS
 
 	section = pv_data_sections_.at(WindowTitles);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;

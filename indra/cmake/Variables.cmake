@@ -238,10 +238,6 @@ MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
 MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
 MESSAGE("========== *PVData* ==========")
 MESSAGE("PVData System          ${PVDATA_SYSTEM}")
-MESSAGE("PVData Colorizer       ${PVDATA_COLORIZER}")
-MESSAGE("PVData MOTD            ${PVDATA_MOTD}")
-MESSAGE("MOTD In Chat           ${PVDATA_MOTD_CHAT}")
-MESSAGE("Progress Tips          ${PVDATA_PROGRESS_TIPS}")
 MESSAGE("==============================")
 # Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
 add_definitions(

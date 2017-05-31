@@ -73,7 +73,7 @@
 #include "llglheaders.h"
 #include "llpanelloginlistener.h"
 
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -1066,7 +1066,7 @@ void LLPanelLogin::updateLoginButtons()
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
 	sLoginButtonEnabled = true;
-#if PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 	if (gPVOldAPI->getDataDone())
 	{
 		if (!gPVOldAPI->isBlockedRelease())
