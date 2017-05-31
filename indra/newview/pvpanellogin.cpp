@@ -282,11 +282,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	//							   LLVersionInfo::getShortVersion().c_str(),
 	//							   LLVersionInfo::getBuild());
 	
-	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
-	if (forgot_password_text)
-	{
-		forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
-	}
+	// LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
+	// if (forgot_password_text)
+	// {
+	// 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
+	// }
 	
 	loadLoginPage();
 
