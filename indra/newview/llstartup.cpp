@@ -2503,7 +2503,7 @@ void show_release_notes_if_required()
 	{
 		LLSD info(LLAppViewer::instance()->getViewerInfo());
 		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
-		if (rel_notes != "0" && rel_notes != VIEWER_RELEASE_NOTES_URL_FALLBACK)
+		if (rel_notes != "0")
 		{
 			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
 		}

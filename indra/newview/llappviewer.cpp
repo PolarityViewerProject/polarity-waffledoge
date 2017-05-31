@@ -3422,14 +3422,16 @@ LLSD LLAppViewer::getViewerInfo() const
 	std::string rel_notes = gSavedSettings.getString("LastReleaseNotesURL");
 	if (!rel_notes.empty())
 	{
-		info["VIEWER_RELEASE_NOTES_URL"] = rel_notes;
+
+		// allow the "Release Notes" URL label to be localized
+		static const std::string release_notes_text = LLTrans::getString("ReleaseNotes");
+		static const std::string release_notes_url = "[" + rel_notes + " " + LLTrans::getString("ReleaseNotes") + "]";
+		info["VIEWER_RELEASE_NOTES_URL"] = release_notes_url;
 	}
 	else
 	{
-		// give fallback to prevent empty string
-		info["VIEWER_RELEASE_NOTES_URL"] = VIEWER_RELEASE_NOTES_URL_FALLBACK;
+		info["VIEWER_RELEASE_NOTES_URL"] = "";
 	}
-	
 
 	info["LATEST_MERGED_VERSION"] = LLVersionInfo::getLastLindenRelease();
 	// <polarity> build url to the commit the viewer was built on
