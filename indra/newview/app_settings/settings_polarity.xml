@@ -1976,16 +1976,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVUI_SubstringSearchSeparator</key>
+    <key>PVUI_SubstringSearchMode</key>
     <map>
       <key>Comment</key>
-      <string>Character to use to separate search keywords. Defaults to space</string>
+      <string>Use space instead of &apos;+&apos; to specify additional search terms.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <string>0</string>
+      <string>1</string>
     </map>
     <key>PVUI_UseStatsInsteadOfLagMeter</key>
     <map>

@@ -729,12 +729,21 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		mSubStringMatchOffsets.clear();
 		std::string::size_type frm = 0;
 		// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
-		// TODO: Add "whole word" option.
-		// TODO: Debug broken first search when separator is not "set" manually
-		// std::string search_separator = PVSearchUtil::getInstance()->getSearchSeparator();
-		static const char search_separator = '+';
+		// TODO: Add reverse match with '-', i.e. "demon horn -demo"
+		// 	or add option to have whole words ('n' in demon would invalidate "demo" results)
+		static LLCachedControl<bool> substring_mode(gSavedSettings, "PVUI_SubstringSearchMode");
+		static const char SEPARATOR_SPACE = ' ';
+		static const char SEPARATOR_PLUS  = '+';
+		static char search_separator = SEPARATOR_SPACE;
+		if(substring_mode && search_separator != SEPARATOR_SPACE)
+		{
+			search_separator = SEPARATOR_SPACE;
+		}
+		else if(!substring_mode && search_separator == SEPARATOR_SPACE)
+		{
+			search_separator = SEPARATOR_PLUS;
+		}
 		std::string::size_type to;
-
 		do
 		{
 			to = filter_sub_string_new.find_first_of(search_separator,frm); // <polarity>
