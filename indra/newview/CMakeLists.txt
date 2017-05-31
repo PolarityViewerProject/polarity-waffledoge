@@ -201,15 +201,15 @@ source_group("PVData System" FILES
     ${pvdata_SOURCE_FILES}
     )
 
+if(PVDATA_SYSTEM)
+    list(APPEND polarity_HEADER_FILES "${pvdata_HEADER_FILES}")
+    list(APPEND polarity_SOURCE_FILES "${pvdata_SOURCE_FILES}")
+endif(PVDATA_SYSTEM)
+
 source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}
     ${polarity_SOURCE_FILES}
     )
-
-if(PVDATA_SYSTEM)
-    list(APPEND polarity_HEADER_FILES ${pvdata_HEADER_FILES})
-    list(APPEND polarity_SOURCE_FILES ${pvdata_SOURCE_FILES})
-endif(PVDATA_SYSTEM)
 
 set(rlva_SOURCE_FILES
     rlvactions.cpp
