@@ -37,13 +37,12 @@
  *
  * **********************************************************************/
 
-#ifndef LL_STACKWALKER_H
-#define LL_STACKWALKER_H
+#if LL_WINDOWS
+
 // #pragma once is supported starting with _MCS_VER 1000, 
 // so we need not to check the version (because we only support _MSC_VER >= 1100)!
 #pragma once
 
-#if LL_WINDOWS
 #include <windows.h>
 
 // special defines for VC5/6 (if no actual PSDK is installed):
@@ -123,14 +122,14 @@ public:
     LPVOID pUserData = NULL  // optional to identify some data in the 'readMemoryFunction'-callback
     );
 
-//#if _MSC_VER >= 1300
+#if _MSC_VER >= 1300
 // due to some reasons, the "STACKWALK_MAX_NAMELEN" must be declared as "public" 
 // in older compilers in order to use it... starting with VC7 we can declare it as "protected"
-//protected:
-//#endif
+protected:
+#endif
 	enum { STACKWALK_MAX_NAMELEN = 4096 }; // max name length for found symbols
 
-//protected:
+protected:
   // Entry for each Callstack-Entry
   typedef struct CallstackEntry
   {
@@ -149,8 +148,7 @@ public:
     CHAR loadedImageName[STACKWALK_MAX_NAMELEN];
   } CallstackEntry;
 
-  //typedef enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
-  enum CallstackEntryType {firstEntry,nextEntry,lastEntry};
+  typedef enum CallstackEntryType {firstEntry, nextEntry, lastEntry} CallstackEntryType;
 
   virtual void OnSymInit(LPCSTR szSearchPath, DWORD symOptions, LPCSTR szUserName);
   virtual void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion);
@@ -226,4 +224,3 @@ public:
 #endif
 
 #endif // LL_WINDOWS
-#endif //LL_STACKWALKER_H
