@@ -237,11 +237,11 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 				name_color = PVAgent::getColor(mFromID, html_link_color);
 			}
 			else
+#endif // PVDATA_COLORIZER
 			{
 				name_color = html_link_color;
 			}
 			// </polarity>
-#endif // PVDATA_COLORIZER
 			style_params_name.color(name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);

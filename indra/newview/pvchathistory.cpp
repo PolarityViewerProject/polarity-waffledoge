@@ -63,7 +63,9 @@
 #include "llviewerobjectlist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
 #include "rlvcommon.h"

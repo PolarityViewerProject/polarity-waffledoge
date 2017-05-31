@@ -27,6 +27,7 @@
  * $/LicenseInfo$
  */
 
+#if PVDATA_SYSTEM
 #ifndef PV_DATA_H
 #define PV_DATA_H
 
@@ -637,3 +638,4 @@ private:
 extern PVDataOldAPI* gPVOldAPI;
 //}
 #endif // PV_DATA_H
+#endif // PVDATA_SYSTEM

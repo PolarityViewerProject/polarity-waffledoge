@@ -267,7 +267,9 @@
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
 #include "sanitycheck.h"
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvfpsmeter.h"
 #include "llhasheduniqueid.h"
 
@@ -1723,9 +1725,10 @@ bool LLAppViewer::cleanup()
 	// stop our FPS meter logic
 	PVFPSMeter::stop();
 
+#if PVDATA_SYSTEM
 	// stop PVData refresh timer
 	gPVOldAPI->cleanup();
-
+#endif
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
@@ -3213,7 +3216,9 @@ void LLAppViewer::initUpdater()
 						 getOSInfo().getOSVersionString(),
 						 willing_to_test,
 						 hardware_id
-						 ,gPVOldAPI->getToken()
+#if PVDATA_SYSTEM
+						,gPVOldAPI->getToken()
+#endif
 						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
@@ -5201,9 +5206,11 @@ void LLAppViewer::idle()
 		return;
     }
 
+#if PVDATA_SYSTEM
 	// <polarity>
 	gPVOldAPI->refreshDataFromServer();
 	// </polarity>
+#endif
 
 	gViewerWindow->updateUI();
 
@@ -5395,7 +5402,7 @@ void LLAppViewer::idle()
 		gGLActive = TRUE;
 		idleShutdown();
 	}
-
+#if PVDATA_SYSTEM
 	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
 	{
 		BOOL isDebuggerPresent = FALSE;
@@ -5410,6 +5417,7 @@ void LLAppViewer::idle()
 			}
 		}
 	}
+#endif
 }
 
 void LLAppViewer::idleShutdown()

@@ -73,7 +73,9 @@
 #include "llglheaders.h"
 #include "llpanelloginlistener.h"
 
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 #if LL_WINDOWS
 #pragma warning(disable: 4355)      // 'this' used in initializer list
@@ -1064,6 +1066,7 @@ void LLPanelLogin::updateLoginButtons()
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
 	sLoginButtonEnabled = true;
+#if PVDATA_SYSTEM
 	if (gPVOldAPI->getDataDone())
 	{
 		if (!gPVOldAPI->isBlockedRelease())
@@ -1086,6 +1089,7 @@ void LLPanelLogin::updateLoginButtons()
 		static const std::string plzHoldString = LLTrans::getString("PleaseHold");
 		login_btn->setLabel(plzHoldString);
 	}
+#endif
 	if ((mUsernameLength == 0 || mPasswordLength == 0))
 	{
 		sLoginButtonEnabled = false;

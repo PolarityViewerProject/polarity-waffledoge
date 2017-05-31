@@ -162,7 +162,6 @@ source_group("Third Party/Obsidian" FILES
 set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
-    pvdata.h
     pvfloaterprogressview.h
     pvfpsmeter.h
     pvgpuinfo.h
@@ -178,7 +177,6 @@ set(polarity_SOURCE_FILES
     pvaligntool.cpp
     pvchathistory.cpp
     pvcommon.cpp
-    pvdata.cpp
     pvfloaterprogressview.cpp
     pvfpsmeter.cpp
     pvgpuinfo.cpp
@@ -189,10 +187,29 @@ set(polarity_SOURCE_FILES
     pvscriptpreproc.cpp
     pvsearchseparator.cpp
     )
+
+set(pvdata_HEADER_FILES
+    pvdata.h
+    )
+
+set(pvdata_SOURCE_FILES
+    pvdata.cpp
+    )
+
+source_group("PVData System" FILES
+    ${pvdata_HEADER_FILES}
+    ${pvdata_SOURCE_FILES}
+    )
+
 source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}
     ${polarity_SOURCE_FILES}
     )
+
+if(PVDATA_SYSTEM)
+    list(APPEND polarity_HEADER_FILES ${pvdata_HEADER_FILES})
+    list(APPEND polarity_SOURCE_FILES ${pvdata_SOURCE_FILES})
+endif(PVDATA_SYSTEM)
 
 set(rlva_SOURCE_FILES
     rlvactions.cpp

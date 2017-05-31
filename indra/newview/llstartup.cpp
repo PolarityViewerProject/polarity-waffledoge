@@ -203,7 +203,9 @@
 #include "llcleanup.h"
 
 // <polarity> Polarity Includes
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvcommon.h"
 #include "pvfpsmeter.h"
 #include "pvsearchseparator.h"
@@ -857,9 +859,11 @@ bool idle_startup()
 		//}
 
 		// <polarity> PVData support
+#if PVDATA_SYSTEM
 		gPVOldAPI = PVDataOldAPI::getInstance();
-		gPVSearchUtil = PVSearchUtil::getInstance();
 		gPVOldAPI->downloadData();
+#endif
+		gPVSearchUtil = PVSearchUtil::getInstance();
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
@@ -883,6 +887,7 @@ bool idle_startup()
 	}
 	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
 	{
+#if PVDATA_SYSTEM
 		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
 		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
 		// then enable the login button again. this will reduce the apparent startup time.
@@ -904,13 +909,16 @@ bool idle_startup()
 			}
 			gViewerWindow->getWindow()->setTitle(new_title);
 			//LLPanelLogin::doLoginButtonLockUnlock();
+#endif
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+#if PVDATA_SYSTEM
 		}
 		else
 		{
 			ms_sleep(1);
 			return FALSE;
 		}
+#endif
 	}
 	
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
@@ -1135,7 +1143,9 @@ bool idle_startup()
 		{
 			gAgent.mMOTD = "";
 		}
+#if PVDATA_SYSTEM
 		gPVOldAPI->getNewProgressTip(true);
+#endif
 		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
 	}
@@ -1322,11 +1332,13 @@ bool idle_startup()
 			else
 			{
 				LLSD args;
+#if PVDATA_SYSTEM
 				if(!gPVOldAPI->getErrorMessage().empty())
 				{
 					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
 				}
 				else
+#endif
 				{
 					args["ERROR_MESSAGE"] = emsg.str();
 				}
@@ -2407,7 +2419,9 @@ bool idle_startup()
 		gAgentAvatarp->sendHoverHeight();
 
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
+#if PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
+#endif
 		PVFPSMeter::start();
 		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
 		{
@@ -3443,11 +3457,13 @@ bool process_login_success_response()
 	if (!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 
+#if PVDATA_SYSTEM
 	if (!PVAgent::isAllowedToLogin(gAgentID, true))
 	{
 		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
 		return FALSE;
 	}
+#endif
 
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.

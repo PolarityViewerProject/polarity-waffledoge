@@ -42,7 +42,9 @@
 #include "llgroupiconctrl.h"
 #include "lluictrlfactory.h"
 #include "lltoolbarview.h"
+#if PVDATA_COLORIZER
 #include "pvdata.h"
+#endif
 
 //
 // Implementation of conversations list session widgets
@@ -180,7 +182,9 @@ BOOL LLConversationViewSession::postBuild()
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
 				static auto avatar_list_item_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
+#if PVDATA_COLORIZER
 				mSessionTitle->setColor(PVAgent::getColor(session->mOtherParticipantID, avatar_list_item_color));
+#endif
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
 				mHasArrow = false;
 			}

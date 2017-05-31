@@ -66,7 +66,9 @@
 #include "llviewerjoystick.h"
 
 #if PVDATA_COLORIZER
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #endif
 
 // [RLVa:KB] - Checked: RLVa-2.0.1

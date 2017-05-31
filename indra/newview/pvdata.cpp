@@ -33,6 +33,7 @@
  * $/LicenseInfo$
  */
 
+#if PVDATA_SYSTEM
 #include "llviewerprecompiledheaders.h"
 #include <stdlib.h> // for setenv
 #include "pvdata.h"
@@ -1405,3 +1406,4 @@ bool PVAgent::isPolarized()
 		(isProviderDeveloper() || isProviderQATeam() || isProviderSupportTeam() || isProviderTester()));
 }
 //}
+#endif

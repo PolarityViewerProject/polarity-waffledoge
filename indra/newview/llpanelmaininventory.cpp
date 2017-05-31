@@ -58,7 +58,9 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvsearchseparator.h"
 
 // <polarity> fix Major FPS drop by disabling filters.xml

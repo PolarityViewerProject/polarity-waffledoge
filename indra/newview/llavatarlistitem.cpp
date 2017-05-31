@@ -44,7 +44,9 @@
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
 
+#if PVDATA_COLORIZER
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: RLVa-2.0.1
 #include "rlvactions.h"
@@ -280,7 +282,11 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 	case IS_ONLINE:
 		// <polarity> override online color if agent has a color
 		mAvatarNameStyle = params.color_style();
+#if PVDATA_COLORIZER
 		mAvatarNameStyle.color = PVAgent::getColor(mAvatarId, online_color, show_friend_color_b);
+#else
+		mAvatarNameStyle = params.online_style;
+#endif
 		mAvatarNameStyle.override_link_style = true;
 		break;
 	default:

@@ -103,7 +103,9 @@
 #include "rlvui.h"
 // [/RLVa:KB]
 
+#if PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvfloaterprogressview.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -3302,10 +3304,12 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 		rainbow.setHSL(fmodf((F32)LLFrameTimer::getElapsedSeconds()/4.f, 1.f), 1.f, 0.5f);
 		effect_color.set(rainbow, 1.0f);
 	}
+#if PVDATA_SYSTEM
 	else if(beam_agent)
 	{
 		effect_color = PVAgent::getColor(gAgent.getID(), effect_color);
 	}
+#endif
 	return effect_color;
 }
 
