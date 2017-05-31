@@ -726,6 +726,7 @@ void LLPanelMainInventory::updateSeparatorDropdown(const LLInventoryFilter* filt
 	}
 	mFilterComboBox->setValue(controlName);
 }
+#endif
 
  //static
  BOOL LLPanelMainInventory::incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward)
