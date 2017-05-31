@@ -749,7 +749,7 @@ bool LLGLManager::initGL()
 		mHasRequirements = FALSE;
 
 		// We don't support cards that don't support the GL_ARB_multitexture extension
-		LL_ERRS("RenderInit") << "GL Drivers do not support GL_ARB_multitexture" << LL_ENDL;
+		LL_WARNS("RenderInit") << "GL Drivers do not support GL_ARB_multitexture" << LL_ENDL;
 		return false;
 	}
 	
