@@ -22,8 +22,8 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[VIEWER_VERSION][BUILD_HASH]
-Architecture: [BUILD_ARCH]
+[VIEWER_VERSION] [BUILD_HASH]
+Architecture:[BUILD_ARCH]
 Build date: [BUILD_DATE], [BUILD_TIME]
 [VIEWER_RELEASE_NOTES_URL]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
