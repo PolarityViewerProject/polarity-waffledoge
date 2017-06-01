@@ -23,14 +23,12 @@
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
 [VIEWER_VERSION] [BUILD_HASH]
-Architecture:[BUILD_ARCH]
+[BUILD_CONFIG]
 Build date: [BUILD_DATE], [BUILD_TIME]
-[VIEWER_RELEASE_NOTES_URL]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
+[VIEWER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
-	<string name="BuildConfig">[BuildConfiguration]: [BUILD_CONFIG]</string>
-
 	<string name="AboutPosition">
 SLURL: [SLURL];
 Global Coord: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
@@ -76,7 +74,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">Current date: [month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
-	<string name="BuildConfiguration">Build Configuration</string>
+	<string name="BuildConfiguration">Build Configuration: </string>
 	
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>

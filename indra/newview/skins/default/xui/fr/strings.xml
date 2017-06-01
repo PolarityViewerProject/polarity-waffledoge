@@ -89,9 +89,7 @@ Version serveur vocal : [VOICE_VERSION]
 	<string name="ErrorFetchingServerReleaseNotesURL">
 		Erreur lors de la récupération de l&apos;URL des notes de version du serveur.
 	</string>
-	<string name="BuildConfiguration">
-		Configuration de la construction
-	</string>
+	<string name="BuildConfiguration">Configuration de la construction: </string>
 	<string name="ProgressRestoring">
 		Restauration...
 	</string>

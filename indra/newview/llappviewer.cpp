@@ -3401,36 +3401,28 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	// <polarity> Save a few calls...
-	//LLSD version;
-	//version.append(LLVersionInfo::getMajor());
-	//version.append(LLVersionInfo::getMinor());
-	//version.append(LLVersionInfo::getPatch());
-	//version.append(LLVersionInfo::getBuild());
-	// info["VIEWER_VERSION"] = version;
-	// info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	//info["VIEWER_VERSION"] = LLVersionInfo::getVersion();
-	//info["BUILD_DATE"] = __DATE__;
-	//info["BUILD_TIME"] = __TIME__;
-	//info["CHANNEL"] = LLVersionInfo::getChannel();
 	info["VIEWER_VERSION"] = LLVersionInfo::getChannelAndVersionStatic();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
-	// </polarity>
 
-
-	std::string build_config = LLVersionInfo::getBuildConfig();
-	//if (build_config != "Release")
-	//{
-		static const std::string build_config_string = LLTrans::getString("BuildConfiguration");
-		info["BuildConfiguration"] = build_config_string;
-		info["BUILD_CONFIG"] = build_config;
-	//}
+ // <polarity>
+#if LL_X86_64
+	static const std::string build_arch = "x64, "; // <polarity>
+#else
+	static const std::string build_arch = "x86, ";
+#endif
+	static const std::string build_config = LLVersionInfo::getBuildConfig();
+#if INTERNAL_BUILD
+	static const std::string internal_string = ", " + LLTrans::getString("InternalBuild");
+#else
+	static const std::string internal_string = std::string::empty();
+#endif
+	static const std::string build_config_string = LLTrans::getString("BuildConfiguration");
+	info["BUILD_CONFIG"] = build_config_string + build_arch + build_config + internal_string;
 
 	std::string rel_notes = gSavedSettings.getString("LastReleaseNotesURL");
 	if (!rel_notes.empty())
 	{
-
 		// allow the "Release Notes" URL label to be localized
 		static const std::string release_notes_text = LLTrans::getString("ReleaseNotes");
 		static const std::string release_notes_url = "[" + rel_notes + " " + LLTrans::getString("ReleaseNotes") + "]";
@@ -3480,12 +3472,6 @@ LLSD LLAppViewer::getViewerInfo() const
 #elif LL_GNUC
 	info["COMPILER"] = "GCC";
 	info["COMPILER_VERSION"] = GCC_VERSION;
-#endif
-
-#if !LL_X86_64
-	info["BUILD_ARCH"] = " x86"; // <polarity>
-#else
-	info["BUILD_ARCH"] = " x64"; // <polarity>
 #endif
 
 	// Position
@@ -3667,21 +3653,14 @@ std::string LLAppViewer::getViewerInfoString() const
 
 	// Now build the various pieces
 	support << LLTrans::getString("AboutHeader", args);
-	if (info.has("BUILD_CONFIG"))
-	{
-		support << "\n" << LLTrans::getString("BuildConfig", args);
-#if INTERNAL_BUILD
-		support << ", " << LLTrans::getString("InternalBuild", args);
-#endif
-	}
 	if (info.has("REGION"))
 	{
 // [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		support << "\n\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args);
+		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args);
 // [/RLVa:KB]
 //		support << "\n\n" << LLTrans::getString("AboutPosition", args);
 	}
-	support << "\n\n" << LLTrans::getString("AboutSystem", args);
+	support << "\n" << LLTrans::getString("AboutSystem", args);
 #if MAKE_ABOUT_FLOATER_HANG
 	support << "\n";
 	if (info.has("GRAPHICS_DRIVER_VERSION"))
