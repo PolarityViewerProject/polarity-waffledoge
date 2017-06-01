@@ -3415,7 +3415,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #if INTERNAL_BUILD
 	static const std::string internal_string = ", " + LLTrans::getString("InternalBuild");
 #else
-	static const std::string internal_string = std::string::empty();
+	static const std::string internal_string = "";
 #endif
 	static const std::string build_config_string = LLTrans::getString("BuildConfiguration");
 	info["BUILD_CONFIG"] = build_config_string + build_arch + build_config + internal_string;
