@@ -3656,7 +3656,7 @@ std::string LLAppViewer::getViewerInfoString() const
 	if (info.has("REGION"))
 	{
 // [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args);
+		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args) << "\n";
 // [/RLVa:KB]
 //		support << "\n\n" << LLTrans::getString("AboutPosition", args);
 	}
