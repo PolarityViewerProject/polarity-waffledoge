@@ -7970,7 +7970,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (hasRenderDebugMask(RENDER_DEBUG_PHYSICS_SHAPES))
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
 		if (LLGLSLShader::sNoFixedFunction)
 		{
