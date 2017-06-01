@@ -7953,8 +7953,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		buff->setBuffer(mask);
 		buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
 		
-		buff->unref(); // we're done with this
-
 		if (LLGLSLShader::sNoFixedFunction)
 		{
 			gGlowCombineProgram.unbind();
