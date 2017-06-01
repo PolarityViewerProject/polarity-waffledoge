@@ -450,10 +450,10 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_5;
 		}
-		// Regardless of thteir OpenGL Support, I refuse to qualify Intel graphics
-		// that are not part of the IRIS lineup "class 5", so let's force them to something
-		// more representative of their performance - Xenhat
-		if(gGLManager.mIsIntel)
+		// Regardless of their OpenGL Support, I refuse to put Intel graphics adapters
+		// that are not part of the IRIS lineup on the same pedetal than discrete gpus,
+		// so let's force them to something more representative of their performance - Xenhat
+		if(gGLManager.mIsIntel) // TODO: Detect IRIS lineup
 		{
 			static const EGPUClass forced_intel_gpu_class = GPU_CLASS_3;
 			LL_INFOS() << "Intel graphics detected, forcing GPU class based on performance (" << mGPUClass << "->" << forced_intel_gpu_class << ")" << LL_ENDL;
