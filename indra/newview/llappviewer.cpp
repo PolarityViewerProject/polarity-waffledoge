@@ -2522,11 +2522,13 @@ bool LLAppViewer::initConfiguration()
 	{
 		c->setValue(true, false);
 	}
-	c = gSavedSettings.getControl("AllowMultipleViewers");
-	if (c)
-	{
-		c->setValue(true, false);
-	}
+	// <polarity> Don't forcefully enable multiple viewers for dev builds, this makes
+	// debugging file markers impossible.
+	//c = gSavedSettings.getControl("AllowMultipleViewers");
+	//if (c)
+	//{
+	//	c->setValue(true, false);
+	//}
 
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
