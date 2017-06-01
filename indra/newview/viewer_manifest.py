@@ -711,7 +711,6 @@ class WindowsManifest(ViewerManifest):
                 else:
                     print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
                     raise
-        self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
         if not sign_py or sign_py == "${SIGN}":
@@ -729,6 +728,8 @@ class WindowsManifest(ViewerManifest):
         self.package_file = installer_file
         # Darl wanted this.
         self.path(self.dst_path_of(installer_file), "Polarity_Latest.exe")
+        # Remove the temporary NSIS script
+        self.remove(self.dst_path_of(tempfile))
 
 
 class Windows_i686_Manifest(WindowsManifest):
