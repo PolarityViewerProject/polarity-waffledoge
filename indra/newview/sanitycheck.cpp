@@ -56,10 +56,10 @@ void SanityCheck::init()
 // static
 void SanityCheck::onSanity(LLControlVariable* controlp)
 {
-	static LLControlVariable* lastControl = nullptr;
-
 	if (controlp->isSane())
 		return;
+
+	static LLControlVariable* lastControl = nullptr;
 
 	if (controlp == lastControl)
 		return;
@@ -85,7 +85,7 @@ void SanityCheck::onSanity(LLControlVariable* controlp)
 	}
 	else
 	{
-	map["VALUE_1"] = sanityValues[0].asString();
+		map["VALUE_1"] = sanityValues[0].asString();
 	}
 	map["VALUE_2"] = sanityValues[1].asString();
 	map["CONTROL_NAME"] = controlp->getName();
