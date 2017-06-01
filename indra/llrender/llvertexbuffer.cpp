@@ -262,12 +262,7 @@ void LLVBOPool::seedPool()
 		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
 	}
 
-	// <polarity> Dirty hack to speed this loop up. This wastes a lot of cycles creating and deleting integers every iteration.
-	U32 i = 0;
-	U32 j = 0;
-	U32 size = 0;
-	S32 count = -1;
-	for (;i < LL_VBO_POOL_SEED_COUNT; i++)
+	for (U32 i = 0;i < LL_VBO_POOL_SEED_COUNT; i++)
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{ 
