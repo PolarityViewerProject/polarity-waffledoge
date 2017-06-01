@@ -241,7 +241,7 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	llassert(vbo_block_size(size) == size);
 
 	deleteBuffer(name);
-	ll_aligned_free<64>((U8*) buffer);
+	ll_aligned_free_16((U8*) buffer);
 
 	if (mType == GL_ARRAY_BUFFER_ARB)
 	{
@@ -271,10 +271,10 @@ void LLVBOPool::seedPool()
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{ 
-			size = i*LL_VBO_BLOCK_SIZE;
+			U32 size = i*LL_VBO_BLOCK_SIZE;
 		
-			count = mMissCount[i] - mFreeList[i].size();
-			for (;j < count; ++j)
+			S32 count = mMissCount[i] - mFreeList[i].size();
+			for (U32 j = 0; j < count; ++j)
 			{
 				allocate(dummy_name, size, true);
 			}
