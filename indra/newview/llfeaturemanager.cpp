@@ -450,6 +450,15 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_5;
 		}
+		// Regardless of thteir OpenGL Support, I refuse to qualify Intel graphics
+		// that are not part of the IRIS lineup "class 5", so let's force them to something
+		// more representative of their performance - Xenhat
+		if(gGLManager.mIsIntel)
+		{
+			static const EGPUClass forced_intel_gpu_class = GPU_CLASS_3;
+			LL_INFOS() << "Intel graphics detected, forcing GPU class based on performance (" << mGPUClass << "->" << forced_intel_gpu_class << ")" << LL_ENDL;
+			mGPUClass = forced_intel_gpu_class;
+		}
 #endif
 	}
 	else if (gGLManager.mGLVersion <= 2.f)
@@ -759,14 +768,19 @@ void LLFeatureManager::applyBaseMasks()
 	}
 	else if (gGLManager.mIsIntel)
 	{
+		maskFeatures("Intel");
 		if (gGLManager.mGLVersion < 3.f)
 		{
-			maskFeatures("Intel");
+			maskFeatures("IntelOld");
 		}
 		else
 		{
 			maskFeatures("IntelRecent");
 		}
+	}
+	else
+	{
+		LL_WARNS() << "FeatureTable was unable to detect the graphic card vendor!" << LL_ENDL;
 	}
 	if (!gGLManager.mHasFragmentShader)
 	{
