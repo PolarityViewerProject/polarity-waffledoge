@@ -65,10 +65,10 @@
 #define LL_SCOUT "Scout"
 #define LL_TESTER "Tester"
 
-static const std::string* _pv_url_prod_a = new std::string("https://data.polarityviewer.org/live/6/agents.xml");
-static const std::string* _pv_url_prod_d = new std::string("https://data.polarityviewer.org/live/6/data.xml");
-static const std::string* _pv_url_test_a = new std::string("https://data.polarityviewer.org/test/6/agents.xml");
-static const std::string* _pv_url_test_d = new std::string("https://data.polarityviewer.org/test/6/data.xml");
+static const std::string* _pv_url_prod_a = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/agents.xml");
+static const std::string* _pv_url_prod_d = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/data.xml");
+static const std::string* _pv_url_test_a = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/agents.xml");
+static const std::string* _pv_url_test_d = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/data.xml");
 
 PVDataOldAPI*		gPVOldAPI = nullptr;
 

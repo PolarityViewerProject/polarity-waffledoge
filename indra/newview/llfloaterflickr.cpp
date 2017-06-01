@@ -58,7 +58,7 @@ static LLPanelInjector<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLPanelInjector<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
 const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
-const std::string DEFAULT_TAG_TEXT = "secondlife polarityviewer";
+const std::string DEFAULT_TAG_TEXT = "secondlife " + PROJECT_STRING;
 const std::string FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
 
 ///////////////////////////

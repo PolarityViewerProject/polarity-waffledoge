@@ -283,7 +283,7 @@ static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 // viewer.cpp - these are only used in viewer, should be easily moved.
 
 #if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "org.polarityviewer.viewer";
+const char * const LL_VERSION_BUNDLE_ID = "org." + PROJECT_STRING + ".viewer";
 extern void init_apple_menu(const char* product);
 #endif // LL_DARWIN
 
@@ -448,6 +448,10 @@ void init_default_trans_args()
 	default_trans_args.insert("SECOND_LIFE"); // World
 	default_trans_args.insert("APP_NAME");
 	default_trans_args.insert("CAPITALIZED_APP_NAME");
+	default_trans_args.insert("PROJECT_STRING");
+	default_trans_args.insert("PROJECT_DOMAIN");
+	default_trans_args.insert("PROJECT_HOMEPAGE");
+	default_trans_args.insert("PROJECT_UPDATE_URL");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
 	// This URL shows up in a surprising number of places in various skin
@@ -3020,6 +3024,10 @@ void LLAppViewer::initStrings()
 	}
 	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
 	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", CAPITALIZED_APP_NAME);
+	LLTrans::setDefaultArg("[PROJECT_STRING]",PROJECT_STRING);
+	LLTrans::setDefaultArg("[PROJECT_DOMAIN]",PROJECT_DOMAIN);
+	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]",PROJECT_HOMEPAGE);
+	LLTrans::setDefaultArg("[PROJECT_UPDATE_URL]",PROJECT_UPDATE_URL);
 }
 
 namespace {
@@ -6083,7 +6091,7 @@ void LLAppViewer::launchUpdater()
 	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("polarityviewer.org", 80, "update.php", query_map);
+	LLURI update_url = LLURI::buildHTTP(PROJECT_DOMAIN, 80, "update.php", query_map);
 	
 	if(LLAppViewer::sUpdaterInfo)
 	{

@@ -7234,7 +7234,6 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			payload["item_id"] = itemid;
 			payload["object_name"] = object_name;
 			
-			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
 			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
 		}
 		
