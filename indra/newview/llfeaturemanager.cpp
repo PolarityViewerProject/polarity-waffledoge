@@ -58,6 +58,7 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 
+#include "llstartup.h" // for getStartupState
 #include "pvgpuinfo.h" // to update vram immediately
 
 #if LL_DARWIN
@@ -411,12 +412,12 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	return parse_ok;
 }
 
-F32 gpu_benchmark();
+F32 gpu_benchmark(bool force); // forward-declaration because llglsandbox doesn't have a header file (sigh)
 
 bool LLFeatureManager::loadGPUClass()
 {
 	//get memory bandwidth from benchmark
-	F32 gbps = gpu_benchmark();
+	F32 gbps = gpu_benchmark(LLStartUp::getStartupState() >= STATE_BROWSER_INIT); // Only force the benchmark to run on user request (which cannot happen during startup)
 
 	if (gbps < 0.f)
 	{ //couldn't bench, use GLVersion

@@ -962,26 +962,30 @@ void LLViewerObjectList::renderObjectBeacons()
 }
 
 
-F32 gpu_benchmark()
+F32 gpu_benchmark(bool force_run = false)
 {
-	LL_INFOS() << "Running GPU benchmark..." << LL_ENDL;
+
+	if (!force_run && gSavedSettings.getBOOL("NoHardwareProbe"))
+	{
+		LL_INFOS() << "Skipping GPU Benchmark due to user preference" << LL_ENDL;
+		return -1.f;
+	}
 	if (!gGLManager.mHasVertexBufferObject || !gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
-	{ // don't bother benchmarking the fixed function
-      // or without vbos
-      // or venerable drivers which don't support accurate timing anyway
-      // and are likely to be correctly identified by the GPU table already.
+	{
+		// don't bother benchmarking the fixed function
+		// or without vbos
+		// or venerable drivers which don't support accurate timing anyway
+		// and are likely to be correctly identified by the GPU table already.
+		LL_INFOS() << "Skipping GPU Benchmark due missing features" << LL_ENDL;
 		return -1.f;
 	}
 	// <polarity> Don't run GPU benchmark on Intel graphics, they take too long to run (0.117834GB/sec / 11.225GB/sec )
 	if(gGLManager.mIsIntel)
 	{
+		LL_INFOS() << "Skipping GPU Benchmark on Intel graphics" << LL_ENDL;
 		return -1.f;
 	}
-
-	if (gSavedSettings.getBOOL("NoHardwareProbe"))
-	{
-		return -1.f;
-	}
+	LL_INFOS() << "Running GPU benchmark..." << LL_ENDL;
 
 	bool old_fixed_func = LLGLSLShader::sNoFixedFunction;
 	
@@ -1000,6 +1004,7 @@ F32 gpu_benchmark()
 		gBenchmarkProgram.mShaderLevel = 1;
 		if (!gBenchmarkProgram.createShader(NULL, NULL))
 		{
+			LL_WARNS() << "GPU Benchmark failed to compose shaders! Benchmark not run." << LL_ENDL;
 			return -1.f;
 		}
 	}
