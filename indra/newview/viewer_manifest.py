@@ -48,6 +48,8 @@ try:
 except ImportError:
     from indra.base import llsd
 
+today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
+
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
         # Some commands, files will only be included
@@ -276,7 +278,6 @@ class ViewerManifest(LLManifest):
 
     def installer_base_name(self):
         global CHANNEL_VENDOR_BASE
-        today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'channel_vendor_base' : '-'.join(CHANNEL_VENDOR_BASE.split()),
