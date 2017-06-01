@@ -4386,7 +4386,7 @@ Try enclosing path to the editor with double quotes.
   </string>
 
  <!-- Settings sanity checks -->
-  <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be at [VALUE_1].</string>
+  <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be [VALUE_1].</string>
   <string name="SanityCheckNotEquals">&quot;[CONTROL_NAME]&quot; should not be set to [VALUE_1].</string>
   <string name="SanityCheckLessThan"> &quot;[CONTROL_NAME]&quot; should be lower than [VALUE_1].</string>
   <string name="SanityCheckGreaterThan"> &quot;[CONTROL_NAME]&quot; should be higher than [VALUE_1].</string>

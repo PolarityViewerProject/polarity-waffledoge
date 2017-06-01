@@ -71,9 +71,25 @@ void SanityCheck::onSanity(LLControlVariable* controlp)
 
 	LLSD args;
 	LLStringUtil::format_map_t map;
+	// <polarity> print true/false for boolean values instead of 1/0
+	if (controlp->isType(eControlType::TYPE_BOOLEAN))
+	{
+		if (sanityValues[0].asBoolean())
+		{
+			map["VALUE_1"] = "true";
+		}
+		else
+		{
+			map["VALUE_1"] = "false";
+		}
+	}
+	else
+	{
 	map["VALUE_1"] = sanityValues[0].asString();
+	}
 	map["VALUE_2"] = sanityValues[1].asString();
 	map["CONTROL_NAME"] = controlp->getName();
+	// FIXME: Special symbols such as '&quot;' seem to be stripped from the XML
 	args["SANITY_MESSAGE"] = LLTrans::getString(checkType, map);
 	args["SANITY_COMMENT"] = controlp->getSanityComment();
 	args["CURRENT_VALUE"] = controlp->getValue().asString();

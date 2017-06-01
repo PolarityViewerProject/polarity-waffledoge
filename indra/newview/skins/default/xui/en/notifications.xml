@@ -11471,10 +11471,9 @@ Color vector copied to clipboard. Have fun!
 [APP_NAME] has detected a possible issue with your settings:
 
 [SANITY_MESSAGE]
+Current value: &apos;[CURRENT_VALUE]&apos;
 
-Reason: [SANITY_COMMENT]
-
-Current setting: [CURRENT_VALUE]
+[SANITY_COMMENT]
   <form name="form">
     <ignore name="ignore"
      text="A settings control has failed the sanity check."/>
