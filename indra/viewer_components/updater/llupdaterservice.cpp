@@ -697,8 +697,8 @@ LLUpdaterService::LLUpdaterService()
 {
 	if(gUpdater.expired())
 	{
-		mImpl =
-			boost::make_shared<LLUpdaterServiceImpl>();
+		mImpl = 
+			std::shared_ptr<LLUpdaterServiceImpl>(new LLUpdaterServiceImpl());
 		gUpdater = mImpl;
 	}
 	else

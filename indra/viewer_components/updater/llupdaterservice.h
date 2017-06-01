@@ -104,7 +104,7 @@ public:
 	std::string updatedVersion(void) const;
 
 private:
-	boost::shared_ptr<LLUpdaterServiceImpl> mImpl;
+	std::shared_ptr<LLUpdaterServiceImpl> mImpl;
 	void setImplAppExitCallback(app_exit_callback_t aecb) const;
 };
 
