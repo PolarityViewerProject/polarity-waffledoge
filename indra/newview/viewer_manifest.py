@@ -730,7 +730,7 @@ class WindowsManifest(ViewerManifest):
                     rar_retry_wait*=2
                 else:
                     print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
-                    raise
+                    # raise
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
         if not sign_py or sign_py == "${SIGN}":
