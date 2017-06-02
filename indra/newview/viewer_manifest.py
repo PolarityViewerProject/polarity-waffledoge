@@ -686,26 +686,6 @@ class WindowsManifest(ViewerManifest):
                      "%%WIN64_BIN_BUILD%%":"!define WIN64_BIN_BUILD 1" if self.is_win64() else "",
                      })
 
-        # Compress the symbols with WinRAR
-        Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe')
-        if not os.path.exists(Winrar_path):
-            Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe')
-        archive_created=False
-        rar_attempts=3
-        rar_retry_wait=2
-        while (not archive_created) and (rar_attempts > 0):
-            try:
-                rar_attempts-=1;
-                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi1:1 -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), today_str, self.dst_path_of("polarity-bin.pdb")))
-                archive_created=True
-            except ManifestError, err:
-                if rar_attempts:
-                    print >> sys.stderr, "WinRAR failed, waiting %d seconds before retrying" % rar_retry_wait
-                    time.sleep(rar_retry_wait)
-                    rar_retry_wait*=2
-                else:
-                    print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
-                    raise
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
@@ -730,6 +710,26 @@ class WindowsManifest(ViewerManifest):
                     nsis_retry_wait*=2
                 else:
                     print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
+                    raise
+        # Compress the symbols with WinRAR
+        Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe')
+        if not os.path.exists(Winrar_path):
+            Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe')
+        archive_created=False
+        rar_attempts=3
+        rar_retry_wait=2
+        while (not archive_created) and (rar_attempts > 0):
+            try:
+                rar_attempts-=1;
+                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi1:1 -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), today_str, self.dst_path_of("polarity-bin.pdb")))
+                archive_created=True
+            except ManifestError, err:
+                if rar_attempts:
+                    print >> sys.stderr, "WinRAR failed, waiting %d seconds before retrying" % rar_retry_wait
+                    time.sleep(rar_retry_wait)
+                    rar_retry_wait*=2
+                else:
+                    print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
                     raise
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
