@@ -3444,19 +3444,19 @@ LLSD LLAppViewer::getViewerInfo() const
 	std::string commit_url = "[";
 	if(LLVersionInfo::getChannel() == channel_name_release)
 	{
-		commit_url += "https://bitbucket.org/polarityviewer/polarity-release/commits/ ";
+		commit_url += "https://bitbucket.org/polarityviewer/polarity-release/commits/";
 	}
 	else if(LLVersionInfo::getChannel() == channel_name_beta)
 	{
-		commit_url += "https://bitbucket.org/polarityviewer/polarity-beta/commits/ ";
+		commit_url += "https://bitbucket.org/polarityviewer/polarity-beta/commits/";
 	}
 	else if(LLVersionInfo::getChannel() == channel_name_nightly)
 	{
-		commit_url += "https://bitbucket.org/polarityviewer/xenhat.polarity-development/commits/ ";
+		commit_url += "https://bitbucket.org/polarityviewer/xenhat.polarity-development/commits/";
 	}
 	if(commit_url != "[")
 	{
-		commit_url += LLVersionInfo::getBuildCommitHashLong();
+		commit_url += LLVersionInfo::getBuildCommitHashLong() + " ";
 	}
 	commit_url += LLVersionInfo::getBuildCommitHash() +"]";
 	info["BUILD_HASH"] = commit_url;
