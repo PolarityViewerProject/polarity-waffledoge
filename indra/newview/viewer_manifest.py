@@ -689,10 +689,11 @@ class WindowsManifest(ViewerManifest):
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
-        # Yay 64bit windows.
-        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+        # Yay 64bit windows and python.
+        NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
-            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
+            print "WARNING: 32bit python or Windows detected; please install 64bit python instead for a smoother experience"
+            NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
         installer_created=False
         nsis_attempts=3
         nsis_retry_wait=2
@@ -712,9 +713,12 @@ class WindowsManifest(ViewerManifest):
                     print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
                     raise
         # Compress the symbols with WinRAR
-        Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe')
+        Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe') # 64-bit winrar on 64-bit python
         if not os.path.exists(Winrar_path):
-            Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe')
+            print "WARNING: 32bit python or Windows detected; please install 64bit python instead for a smoother experience"
+            Winrar_path = os.path.expandvars('${ProgramW6432}\\WinRAR\\Rar.exe') # 64-bit Winrar on 32-bit python
+            if not os.path.exists(Winrar_path):
+                Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe') # 32-bit winrar on 32-bit python
         archive_created=False
         rar_attempts=3
         rar_retry_wait=2
