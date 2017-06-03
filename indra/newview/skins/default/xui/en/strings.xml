@@ -43,7 +43,7 @@ Simulator Address: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
 	</string>
 	<string name="AboutPositionRLVShowLoc">
 You are in [REGION]
-[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
+Server version: [[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
