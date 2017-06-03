@@ -692,8 +692,9 @@ class WindowsManifest(ViewerManifest):
         # Yay 64bit windows and python.
         NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
-            print "WARNING: 32bit python or Windows detected; please install 64bit python instead for a smoother experience"
             NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+            if not os.path.exists(NSIS_path):
+                print >> sys.stderr, "NSIS was never found. Installer not created."
         installer_created=False
         nsis_attempts=3
         nsis_retry_wait=2
@@ -716,9 +717,12 @@ class WindowsManifest(ViewerManifest):
         Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe') # 64-bit winrar on 64-bit python
         if not os.path.exists(Winrar_path):
             print "WARNING: 32bit python or Windows detected; please install 64bit python instead for a smoother experience"
+            sys.stdout.flush()
             Winrar_path = os.path.expandvars('${ProgramW6432}\\WinRAR\\Rar.exe') # 64-bit Winrar on 32-bit python
             if not os.path.exists(Winrar_path):
                 Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe') # 32-bit winrar on 32-bit python
+                if not os.path.exists(Winrar_path):
+                    print >> sys.stderr,"WinRAR was never found. Symbols not compressed."
         archive_created=False
         rar_attempts=3
         rar_retry_wait=2
@@ -735,7 +739,9 @@ class WindowsManifest(ViewerManifest):
                 else:
                     print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
                     # raise
-        # If we're on a build machine, sign the code using our Authenticode certificate. JC
+        # Remove the temporary NSIS script
+        self.remove(self.dst_path_of(tempfile))
+         If we're on a build machine, sign the code using our Authenticode certificate. JC
         sign_py = os.path.expandvars("${SIGN}")
         if not sign_py or sign_py == "${SIGN}":
             sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
@@ -752,8 +758,6 @@ class WindowsManifest(ViewerManifest):
         self.package_file = installer_file
         # Darl wanted this.
         self.path(self.dst_path_of(installer_file), "Polarity_Latest.exe")
-        # Remove the temporary NSIS script
-        self.remove(self.dst_path_of(tempfile))
 
 
 class Windows_i686_Manifest(WindowsManifest):
