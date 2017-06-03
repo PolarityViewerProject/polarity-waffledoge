@@ -11,6 +11,12 @@
 	<string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
+	<!-- The value for these isn't used, it is filled on the code side. However not adding
+	them here causes a warning to be emitted. -->
+	<string name="PROJECT_DOMAIN">NaN</string>
+	<string name="PROJECT_HOME_PAGE">NaN</string>
+	<string name="PROJECT_STRING">NaN</string>
+	<string name="PROJECT_UPDATE_URL">NaN</string>
 
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
