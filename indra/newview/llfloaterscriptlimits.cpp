@@ -1058,7 +1058,11 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 		if(content["attachments"][i].has("location"))
 		{
 			std::string actualLocation = content["attachments"][i]["location"];
-			humanReadableLocation = LLTrans::getString(actualLocation.c_str());
+			// BUG-100781 The server sends "location", but pairs it with an empty string. - Xenhat Liamano
+			if(actualLocation != "")
+			{
+				humanReadableLocation = LLTrans::getString(actualLocation.c_str());
+			}
 		}
 		
 		S32 number_objects = content["attachments"][i]["objects"].size();
