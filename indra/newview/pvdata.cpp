@@ -101,14 +101,14 @@ size_t strnlen(const char *s, size_t n)
 
 void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 {
-	std::stringstream str;
-	LLSDSerialize::toPrettyXML(map, str);
 #if !LL_RELEASE_FOR_DOWNLOAD
 	LL_INFOS()
 #else
 	LL_DEBUGS()
 #endif
-		<< "\n===========================\n<!--  <" << name << "> -->\n" << str.str() << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
+		<< "\n===========================\n<!--  <" << name << "> -->\n";
+		LLSDSerialize::toPrettyXML(map, LL_CONT);
+		LL_CONT << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
