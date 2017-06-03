@@ -68,6 +68,7 @@
      follows="left|top"
      height="20"
      layout="topleft"
+     name="loading_text"
      top="60"
      top_delta="60"
      text_color="EmphasisColor"
