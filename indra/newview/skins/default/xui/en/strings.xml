@@ -14,7 +14,7 @@
 	<!-- The value for these isn't used, it is filled on the code side. However not adding
 	them here causes a warning to be emitted. -->
 	<string name="PROJECT_DOMAIN">NaN</string>
-	<string name="PROJECT_HOME_PAGE">NaN</string>
+	<string name="PROJECT_HOMEPAGE">NaN</string>
 	<string name="PROJECT_STRING">NaN</string>
 	<string name="PROJECT_UPDATE_URL">NaN</string>
 
