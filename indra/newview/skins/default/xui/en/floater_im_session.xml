@@ -237,7 +237,6 @@
                              auto_resize="false"
                              height="15"
                              visible="false"
-                             animate="true"
                              name="support_group_ribbon">
                                 <text
                                  top_pad="2"
