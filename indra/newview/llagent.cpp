@@ -266,7 +266,7 @@ const F32 LLAgent::MIN_AFK_TIME = 10.0f;
 const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
 
 std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
-std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
+//std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
 
 class LLAgentFriendObserver : public LLFriendObserver
 {
@@ -4607,10 +4607,10 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			{
 				teleport_msg_map = &sTeleportErrorMessages;
 			}
-			else if ( message_set_name == "progress" )
-			{
-				teleport_msg_map = &sTeleportProgressMessages;
-			}
+			//else if ( message_set_name == "progress" )
+			//{
+			//	teleport_msg_map = &sTeleportProgressMessages;
+			//}
 		}
 
 		if ( !teleport_msg_map ) continue;
