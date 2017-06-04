@@ -231,6 +231,12 @@ BOOL LLFloaterScriptQueue::postBuild()
 	return TRUE;
 }
 
+//nonstatic
+void LLFloaterScriptQueue::Close()
+{
+	this->closeFloater();
+}
+
 // static
 void LLFloaterScriptQueue::onCloseBtn(void* user_data)
 {
@@ -281,6 +287,8 @@ bool LLFloaterScriptQueue::onScriptModifyConfirmation(const LLSD& notification, 
 	addStringMessage(buffer);
 	// </FS:Ansariel>
 
+	LLButton* butt = getChild<LLButton>("close");
+	butt->setLabel(LLTrans::getString("Cancel"));
 	return startQueue();
 }
 
@@ -1019,7 +1027,14 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         //floater->addStringMessage("Done");
         floater->addStringMessage(floater->getString("Done"));
         // </FS:Ansariel>
-        floater->getChildView("close")->setEnabled(TRUE);
+        LLButton* butt = floater->getChild<LLButton>("close");
+        butt->setLabel(LLTrans::getString("Done"));
+        butt->setEnabled(TRUE);
+        static LLCachedControl<bool> auto_close_floater(gSavedSettings, "PVUI_ScriptQueueAutoClose", true);
+        if(auto_close_floater)
+        {
+            floater->Close();
+        }
     }
     catch (LLCheckedHandleBase::Stale &)
     {

@@ -1764,6 +1764,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_ScriptQueueAutoClose</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically close the script queue (Recompile, Reset, Stop, Run, Delete) when done.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_ShowMarketplaceInboxPanel</key>
     <map>
       <key>Comment</key>
