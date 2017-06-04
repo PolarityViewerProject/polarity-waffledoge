@@ -4292,6 +4292,9 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	msg->getString("Info", "Message", buffer);
 	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << LL_ENDL;
 
+#if TELEPORT_PROGRESS_MESSAGE
+	// <polarity> This has a very hich chance of going very very wrong
+
 	//Sorta hacky...default to using simulator raw messages
 	//if we don't find the coresponding mapping in our progress mappings
 	std::string message = buffer;
@@ -4301,8 +4304,11 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	{
 		message = LLAgent::sTeleportProgressMessages[buffer];
 	}
-
-	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages[message]);
+	if (!LLApp::isQuitting() && !message.empty())
+	{
+		gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages[message]);
+	}
+#endif
 }
 
 class LLFetchInWelcomeArea : public LLInventoryFetchDescendentsObserver
