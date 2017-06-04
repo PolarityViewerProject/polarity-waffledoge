@@ -1139,7 +1139,11 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	setAttachmentSummary(content);
 
-	getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
+	auto loading_text = getChild<LLUICtrl>("loading_text");
+	if (loading_text)
+	{
+		loading_text->setValue(LLSD(std::string("")));
+	}
 
 	LLButton* btn = getChild<LLButton>("refresh_list_btn");
 	if(btn)
