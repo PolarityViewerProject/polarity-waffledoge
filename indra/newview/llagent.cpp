@@ -261,9 +261,9 @@ private:
 //
 
 /// minimum time after setting away state before coming back based on movement
-const F32 LLAgent::MIN_AFK_TIME = 10.0f;
+const F32 LLAgent::MIN_AFK_TIME = 2.0f;
 
-const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
+const F32 LLAgent::TYPING_TIMEOUT_SECS = 1.f;
 
 std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
 //std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
