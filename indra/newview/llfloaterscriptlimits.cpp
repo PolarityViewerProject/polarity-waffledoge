@@ -1052,6 +1052,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	S32 number_attachments = content["attachments"].size();
 
+	bool has_attachment_point_data = false;
 	for(int i = 0; i < number_attachments; i++)
 	{
 		std::string humanReadableLocation = "";
@@ -1061,6 +1062,10 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			// BUG-100781 The server sends "location", but pairs it with an empty string. - Xenhat Liamano
 			if(actualLocation != "")
 			{
+				if(!has_attachment_point_data)
+				{
+					has_attachment_point_data = true;
+				}
 				humanReadableLocation = LLTrans::getString(actualLocation.c_str());
 			}
 		}
@@ -1097,13 +1102,39 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			element["columns"][2]["column"] = "name";
 			element["columns"][2]["value"] = name;
 			element["columns"][2]["font"] = "SANSSERIF";
-			
-			element["columns"][3]["column"] = "location";
-			element["columns"][3]["value"] = humanReadableLocation;
-			element["columns"][3]["font"] = "SANSSERIF";
+
+			if(has_attachment_point_data)
+			{
+				element["columns"][3]["column"] = "location";
+				element["columns"][3]["value"] = humanReadableLocation;
+				element["columns"][3]["font"] = "SANSSERIF";
+			}
 
 			list->addElement(element);
 		}
+	}
+	
+	static LLCachedControl<bool> show_location_col(gSavedSettings, "PVUI_ShowScriptsAttachmentPoint", true);
+	if (!has_attachment_point_data || !show_location_col)
+	{
+		LLScrollListColumn* location_col = list->getColumn("location");
+		if (location_col)
+		{
+			location_col->mHeader->setVisible(FALSE);
+			location_col->setWidth(0);
+			location_col->mDynamicWidth = FALSE;
+			location_col->mMaxContentWidth = 0;
+			location_col->mRelWidth = 0;
+		}
+		LLScrollListColumn* name_col = list->getColumn("name");
+		if (name_col)
+		{
+			name_col->setWidth(-1);
+			name_col->mMaxContentWidth = -1;
+			name_col->mDynamicWidth = TRUE;
+		}
+		list->dirtyColumns();
+		list->updateColumns(true);
 	}
 	
 	setAttachmentSummary(content);
