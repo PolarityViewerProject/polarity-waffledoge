@@ -1569,23 +1569,23 @@ std::string LLUrlEntryJira::getUrl(const std::string &string) const
 {
 	if (string.find("PLVR") != std::string::npos)
 	{
-		static const char* project_jira_url = std::string("https://" + PROJECT_STRING + ".atlassian.net/browse/%s").c_str();
-		return llformat(project_jira_url, string.c_str());
+		static const std::string project_jira_url = std::string("https://" + PROJECT_STRING + ".atlassian.net/browse/%s");
+		return llformat(project_jira_url.c_str(), string);
 	}
 	if (string.find("ALCH") != std::string::npos)
 	{
-		static const char* alchemy_jira_url = std::string("https://alchemy.atlassian.net/browse/%s").c_str();
-		return llformat(alchemy_jira_url, string.c_str());
+		static const std::string alchemy_jira_url = std::string("https://alchemy.atlassian.net/browse/%s");
+		return llformat(alchemy_jira_url.c_str(), string);
 	}
 	if (string.find("FIRE") != std::string::npos ||
 		string.find("SLS") != std::string::npos ||
 		string.find("SUP") != std::string::npos )
 	{
-		static const char* phoenix_jira_url = std::string("http://jira.phoenixviewer.com/browse/%s").c_str();
-		return llformat(phoenix_jira_url, string.c_str());
+		static const std::string phoenix_jira_url = std::string("http://jira.phoenixviewer.com/browse/%s");
+		return llformat(phoenix_jira_url.c_str(), string);
 	}
-	static const char* second_life_jira_url = std::string("https://jira.secondlife.com/browse/%s").c_str();
-	return llformat(second_life_jira_url, string.c_str());
+	static const std::string second_life_jira_url = std::string("https://jira.secondlife.com/browse/%s");
+	return llformat(second_life_jira_url.c_str(), string);
 }
 
 //
