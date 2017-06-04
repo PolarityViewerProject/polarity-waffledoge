@@ -101,14 +101,14 @@ size_t strnlen(const char *s, size_t n)
 
 void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LL_INFOS()
-#else
-	LL_DEBUGS()
-#endif
-		<< "\n===========================\n<!--  <" << name << "> -->\n";
-		LLSDSerialize::toPrettyXML(map, LL_CONT);
-		LL_CONT << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
+	static LLCachedControl<bool> dump_data(gSavedSettings, "PVData_DumpLLSD");
+	if(!dump_data)
+	{
+		return;
+	}
+	LL_INFOS() << "\n===========================\n<!--  <" << name << "> -->\n";
+	LLSDSerialize::toPrettyXML(map, LL_CONT);
+	LL_CONT << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
@@ -217,11 +217,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 											const bool& download_failed
 )
 {
-	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
-	if (dump_web_data)
-	{
-		Dump(http_source_url, http_content);
-	}
+	Dump(http_source_url, http_content);
 	if (*_pv_url_prod_d == http_source_url || *_pv_url_test_d == http_source_url)
 	{
 		LL_INFOS() << "Got DATA file" << LL_ENDL;
