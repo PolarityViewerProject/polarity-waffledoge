@@ -723,25 +723,16 @@ void LLVOAvatarSelf::idleUpdate(LLAgent &agent, const F64 &time)
 }
 
 // virtual
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//LLJoint *LLVOAvatarSelf::getJoint( const std::string &name )
-LLJoint *LLVOAvatarSelf::getJoint( const JointKey &name )
-// </FS:ND>
+LLJoint *LLVOAvatarSelf::getJoint(const std::string &name)
 {
     LLJoint *jointp = NULL;
     jointp = LLVOAvatar::getJoint(name);
 	if (!jointp && mScreenp)
 	{
-		//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-		//jointp = mScreenp->findJoint(name);
-		jointp = mScreenp->findJoint(name.mName);
-		// </FS:ND>
+		jointp = mScreenp->findJoint(name);
         if (jointp)
         {
-            //<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-            //mJointMap[name] = jointp;
-            mJointMap[name.mKey] = jointp;
-            // </FS:ND>
+            mJointMap[name] = jointp;
         }
 	}
     if (jointp && jointp != mScreenp && jointp != mRoot)
