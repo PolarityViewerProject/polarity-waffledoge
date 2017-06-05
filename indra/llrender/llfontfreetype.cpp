@@ -26,6 +26,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llfontfreetype.h"
 #include "llfontgl.h"
 
@@ -96,7 +98,6 @@ LLFontGlyphInfo::LLFontGlyphInfo(U32 index)
 	mYBearing(0),		// Distance from baseline to top in pixels
 	mBitmapNum(0) // Which bitmap in the bitmap cache contains this glyph
 {
-	mCharGlyphInfoMap.reserve(500);
 }
 
 LLFontFreetype::LLFontFreetype()
@@ -127,7 +128,6 @@ LLFontFreetype::~LLFontFreetype()
 	std::for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
 	mCharGlyphInfoMap.clear();
 
-	if(mFontBitmapCachep)
 	delete mFontBitmapCachep;
 	// mFallbackFonts cleaned up by LLPointer destructor
 }
@@ -629,10 +629,6 @@ bool LLFontFreetype::getKerningCache(U32 left_glyph, U32 right_glyph, F32& kerni
 
 void LLFontFreetype::setKerningCache(U32 left_glyph, U32 right_glyph, F32 kerning) const
 {
-	// reserve memory to prevent multiple allocations
-	// do this here instead of the constructor to save memory on unused fonts
-	if (mKerningCache.capacity() < 500)
-		mKerningCache.reserve(500);
 	// reserve memory to prevent multiple allocations
 	// do this here instead of the constructor to save memory on unused fonts
 	if (mKerningCache.capacity() < 500)
