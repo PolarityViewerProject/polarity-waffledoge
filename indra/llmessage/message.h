@@ -35,12 +35,8 @@
 #include <netinet/in.h>
 #endif
 
-#if LL_SOLARIS
-#include <netinet/in.h>
-#endif
-
 #if LL_WINDOWS
-#include "winsock2.h" // htons etc.
+#include "llwin32headerslean.h"
 #endif
 
 #include "llerror.h"
@@ -59,7 +55,8 @@
 #include "llmessagesenderinterface.h"
 
 #include "llstoredmessage.h"
-#include "boost/function.hpp"
+
+#include <boost/signals2/connection.hpp>
 #include "llpounceable.h"
 
 const U32 MESSAGE_MAX_STRINGS_LENGTH = 64;
@@ -220,11 +217,9 @@ class LLMessageSystem : public LLMessageSenderInterface
 	typedef std::map<const char *, LLMessageTemplate*> message_template_name_map_t;
 	typedef std::map<U32, LLMessageTemplate*> message_template_number_map_t;
 
-private:
 	message_template_name_map_t		mMessageTemplates;
 	message_template_number_map_t	mMessageNumbers;
 
-public:
 	S32					mSystemVersionMajor;
 	S32					mSystemVersionMinor;
 	S32					mSystemVersionPatch;
@@ -740,7 +735,7 @@ public:
 	void receivedMessageFromTrustedSender();
 	
 private:
-    typedef boost::function<void(S32)>  UntrustedCallback_t;
+    typedef std::function<void(S32)>  UntrustedCallback_t;
     void sendUntrustedSimulatorMessageCoro(std::string url, std::string message, LLSD body, UntrustedCallback_t callback);
 
 
@@ -814,6 +809,7 @@ private:
 	S32 mIncomingCompressedSize;		// original size of compressed msg (0 if uncomp.)
 	TPACKETID mCurrentRecvPacketID;       // packet ID of current receive packet (for reporting)
 
+public:
 	LLMessageBuilder* mMessageBuilder;
 	LLTemplateMessageBuilder* mTemplateMessageBuilder;
 	LLSDMessageBuilder* mLLSDMessageBuilder;
@@ -821,6 +817,7 @@ private:
 	LLTemplateMessageReader* mTemplateMessageReader;
 	LLSDMessageReader* mLLSDMessageReader;
 
+private:
 	friend class LLMessageHandlerBridge;
 	
 	bool callHandler(const char *name, bool trustedSource,
