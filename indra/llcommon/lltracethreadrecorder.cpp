@@ -115,7 +115,7 @@ ThreadRecorder::~ThreadRecorder()
 		mActiveRecordings.clear();
 	}
 
-	set_thread_recorder(NULL);D
+	set_thread_recorder(NULL);
 	delete[] mTimeBlockTreeNodes;
 
 	if (mParentRecorder)
