@@ -121,13 +121,13 @@ LLSidepanelInventory::LLSidepanelInventory()
 	, mInboxEnabled(false)
 	, mCategoriesObserver(NULL)
 	, mInboxAddedObserver(NULL)
-	, mInfoBtn(NULL)
-	, mWearBtn(NULL)
-	, mShareBtn(NULL)
-	, mShopBtn(NULL)
-	, mTeleportBtn(NULL)
-	, mPlayBtn(NULL)
-	, mOverflowBtn(NULL)
+	// , mInfoBtn(NULL)
+	// , mWearBtn(NULL)
+	// , mShareBtn(NULL)
+	// , mShopBtn(NULL)
+	// , mTeleportBtn(NULL)
+	// , mPlayBtn(NULL)
+	// , mOverflowBtn(NULL)
 {
 	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
@@ -159,26 +159,26 @@ BOOL LLSidepanelInventory::postBuild()
 		mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
 		//@TODO reduce dummy elements creation by only creating buttons in relevant panels
-		mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
-		mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
+		// mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
+		// mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
 		
-		mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
-		mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
+		// mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
+		// mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
 		
-		mShopBtn = mInventoryPanel->getChild<LLButton>("shop_btn");
-		mShopBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShopButtonClicked, this));
+		// mShopBtn = mInventoryPanel->getChild<LLButton>("shop_btn");
+		// mShopBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShopButtonClicked, this));
 
-		mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
-		mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
+		// mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
+		// mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
 		
-		mPlayBtn = mInventoryPanel->getChild<LLButton>("play_btn");
-		mPlayBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onPlayButtonClicked, this));
+		// mPlayBtn = mInventoryPanel->getChild<LLButton>("play_btn");
+		// mPlayBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onPlayButtonClicked, this));
 		
-		mTeleportBtn = mInventoryPanel->getChild<LLButton>("teleport_btn");
-		mTeleportBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onTeleportButtonClicked, this));
+		// mTeleportBtn = mInventoryPanel->getChild<LLButton>("teleport_btn");
+		// mTeleportBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onTeleportButtonClicked, this));
 		
-		mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
-		mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
+		// mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
+		// mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
 		
 		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
@@ -548,47 +548,47 @@ void LLSidepanelInventory::showInventoryPanel()
 
 void LLSidepanelInventory::updateVerbs()
 {
-	mInfoBtn->setEnabled(FALSE);
-	if(mShareBtn)mShareBtn->setEnabled(FALSE);
+	// mInfoBtn->setEnabled(FALSE);
+	// if(mShareBtn)mShareBtn->setEnabled(FALSE);
 
-	if(mWearBtn)mWearBtn->setVisible(FALSE);
-	if(mWearBtn)mWearBtn->setEnabled(FALSE);
-	if(mPlayBtn)mPlayBtn->setVisible(FALSE);
-	if(mPlayBtn)mPlayBtn->setEnabled(FALSE);
- 	if(mTeleportBtn)mTeleportBtn->setVisible(FALSE);
- 	if(mTeleportBtn)mTeleportBtn->setEnabled(FALSE);
- 	if(mShopBtn)mShopBtn->setVisible(TRUE);
+	// if(mWearBtn)mWearBtn->setVisible(FALSE);
+	// if(mWearBtn)mWearBtn->setEnabled(FALSE);
+	// if(mPlayBtn)mPlayBtn->setVisible(FALSE);
+	// if(mPlayBtn)mPlayBtn->setEnabled(FALSE);
+ 	// if(mTeleportBtn)mTeleportBtn->setVisible(FALSE);
+ 	// if(mTeleportBtn)mTeleportBtn->setEnabled(FALSE);
+ 	// if(mShopBtn)mShopBtn->setVisible(TRUE);
 
-	if(mShareBtn)mShareBtn->setEnabled(canShare());
+	// if(mShareBtn)mShareBtn->setEnabled(canShare());
 
 	const LLInventoryItem *item = getSelectedItem();
 	if (!item)
 		return;
 
-	bool is_single_selection = getSelectedCount() == 1;
+	// bool is_single_selection = getSelectedCount() == 1;
 
-	mInfoBtn->setEnabled(is_single_selection);
+	// mInfoBtn->setEnabled(is_single_selection);
 
 	switch(item->getInventoryType())
 	{
 		case LLInventoryType::IT_WEARABLE:
 		case LLInventoryType::IT_OBJECT:
 		case LLInventoryType::IT_ATTACHMENT:
-			if(mWearBtn)mWearBtn->setVisible(TRUE);
-			if(mWearBtn)mWearBtn->setEnabled(canWearSelected());
-		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
+			// if(mWearBtn)mWearBtn->setVisible(TRUE);
+			// if(mWearBtn)mWearBtn->setEnabled(canWearSelected());
+		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_SOUND:
 		case LLInventoryType::IT_GESTURE:
 		case LLInventoryType::IT_ANIMATION:
-			if(mPlayBtn)mPlayBtn->setVisible(TRUE);
-			if(mPlayBtn)mPlayBtn->setEnabled(TRUE);
-		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
+			// if(mPlayBtn)mPlayBtn->setVisible(TRUE);
+			// if(mPlayBtn)mPlayBtn->setEnabled(TRUE);
+		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		case LLInventoryType::IT_LANDMARK:
-			if(mTeleportBtn)mTeleportBtn->setVisible(TRUE);
-			if(mTeleportBtn)mTeleportBtn->setEnabled(TRUE);
-		 	if(mShopBtn)mShopBtn->setVisible(FALSE);
+			// if(mTeleportBtn)mTeleportBtn->setVisible(TRUE);
+			// if(mTeleportBtn)mTeleportBtn->setEnabled(TRUE);
+		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
 			break;
 		default:
 			break;
