@@ -49,6 +49,7 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloatergroups.h"
+#include "llglsandbox.h"
 #include "llpanelnearbymedia.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
@@ -58,6 +59,7 @@
 #include "llsdutil_math.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
+#include "llsurface.h"
 #include "llui.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
@@ -72,7 +74,7 @@
 #include "kcwlinterface.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
-
+const F32 PARCEL_POST_HEIGHT = 0.666f;
 
 // Globals
 
@@ -2532,3 +2534,396 @@ void LLViewerParcelMgr::onTeleportDone()
 	mTeleportDoneSignal();
 }
 // [/SL:KB]
+
+// north = a wall going north/south.  Need that info to set up texture
+// coordinates correctly.
+// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+//void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp)
+void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp, bool absolute_height /* = false */)
+// </FS:Ansariel>
+{
+	// HACK: At edge of last region of world, we need to make sure the region
+	// resolves correctly so we can get a height value.
+	const F32 BORDER = REGION_WIDTH_METERS - 0.1f;
+
+	F32 clamped_x1 = x1;
+	F32 clamped_y1 = y1;
+	F32 clamped_x2 = x2;
+	F32 clamped_y2 = y2;
+
+	if (clamped_x1 > BORDER) clamped_x1 = BORDER;
+	if (clamped_y1 > BORDER) clamped_y1 = BORDER;
+	if (clamped_x2 > BORDER) clamped_x2 = BORDER;
+	if (clamped_y2 > BORDER) clamped_y2 = BORDER;
+
+	F32 z;
+	F32 z1;
+	F32 z2;
+
+	z1 = regionp->getLand().resolveHeightRegion( LLVector3( clamped_x1, clamped_y1, 0.f ) );
+	z2 = regionp->getLand().resolveHeightRegion( LLVector3( clamped_x2, clamped_y2, 0.f ) );
+
+	// Convert x1 and x2 from region-local to agent coords.
+	LLVector3 origin = regionp->getOriginAgent();
+	x1 += origin.mV[VX];
+	x2 += origin.mV[VX];
+	y1 += origin.mV[VY];
+	y2 += origin.mV[VY];
+
+	if (height < 1.f)
+	{
+		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+		//z = z1+height;
+		z = absolute_height ? height : z1+height;
+		// </FS:Ansariel>
+		gGL.vertex3f(x1, y1, z);
+
+		gGL.vertex3f(x1, y1, z1);
+
+		gGL.vertex3f(x2, y2, z2);
+
+		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+		//z = z2+height;
+		z = absolute_height ? height : z2+height;
+		// </FS:Ansariel>
+		gGL.vertex3f(x2, y2, z);
+	}
+	else
+	{
+		F32 tex_coord1;
+		F32 tex_coord2;
+
+		if (WEST_MASK == direction)
+		{
+			tex_coord1 = y1;
+			tex_coord2 = y2;
+		}
+		else if (SOUTH_MASK == direction)
+		{
+			tex_coord1 = x1;
+			tex_coord2 = x2;
+		}
+		else if (EAST_MASK == direction)
+		{
+			tex_coord1 = y2;
+			tex_coord2 = y1;
+		}
+		else /* (NORTH_MASK == direction) */
+		{
+			tex_coord1 = x2;
+			tex_coord2 = x1;
+		}
+
+
+		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z1*0.5f);
+		gGL.vertex3f(x1, y1, z1);
+
+		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z2*0.5f);
+		gGL.vertex3f(x2, y2, z2);
+
+		// top edge stairsteps
+		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+		//z = llmax(z2+height, z1+height);
+		z = absolute_height ? height : llmax(z2+height, z1+height);
+		// </FS:Ansariel>
+		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z*0.5f);
+		gGL.vertex3f(x2, y2, z);
+
+		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z*0.5f);
+		gGL.vertex3f(x1, y1, z);
+	}
+}
+
+// Used by lltoolselectland
+void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
+	const LLVector3d &east_north_top_global)
+{
+	LLGLSUIDefault gls_ui;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	LLGLDepthTest gls_depth(GL_TRUE);
+
+	LLVector3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
+	F32 west = west_south_bottom_agent.mV[VX];
+	F32 south = west_south_bottom_agent.mV[VY];
+	//	F32 bottom	= west_south_bottom_agent.mV[VZ] - 1.f;
+
+	LLVector3 east_north_top_agent = gAgent.getPosAgentFromGlobal(east_north_top_global);
+	F32 east = east_north_top_agent.mV[VX];
+	F32 north = east_north_top_agent.mV[VY];
+	//	F32 top		= east_north_top_agent.mV[VZ] + 1.f;
+
+	// HACK: At edge of last region of world, we need to make sure the region
+	// resolves correctly so we can get a height value.
+	const F32 FUDGE = 0.01f;
+
+	F32 sw_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(west, south, 0.f));
+	F32 se_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(east - FUDGE, south, 0.f));
+	F32 ne_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(east - FUDGE, north - FUDGE, 0.f));
+	F32 nw_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(west, north - FUDGE, 0.f));
+
+	F32 sw_top = sw_bottom + PARCEL_POST_HEIGHT;
+	F32 se_top = se_bottom + PARCEL_POST_HEIGHT;
+	F32 ne_top = ne_bottom + PARCEL_POST_HEIGHT;
+	F32 nw_top = nw_bottom + PARCEL_POST_HEIGHT;
+
+	LLUI::setLineWidth(2.f);
+	gGL.color4f(1.f, 1.f, 0.f, 1.f);
+
+	// Cheat and give this the same pick-name as land
+	gGL.begin(LLRender::LINES);
+
+	gGL.vertex3f(west, north, nw_bottom);
+	gGL.vertex3f(west, north, nw_top);
+
+	gGL.vertex3f(east, north, ne_bottom);
+	gGL.vertex3f(east, north, ne_top);
+
+	gGL.vertex3f(east, south, se_bottom);
+	gGL.vertex3f(east, south, se_top);
+
+	gGL.vertex3f(west, south, sw_bottom);
+	gGL.vertex3f(west, south, sw_top);
+
+	gGL.end();
+
+	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
+	gGL.begin(LLRender::QUADS);
+
+	gGL.vertex3f(west, north, nw_bottom);
+	gGL.vertex3f(west, north, nw_top);
+	gGL.vertex3f(east, north, ne_top);
+	gGL.vertex3f(east, north, ne_bottom);
+
+	gGL.vertex3f(east, north, ne_bottom);
+	gGL.vertex3f(east, north, ne_top);
+	gGL.vertex3f(east, south, se_top);
+	gGL.vertex3f(east, south, se_bottom);
+
+	gGL.vertex3f(east, south, se_bottom);
+	gGL.vertex3f(east, south, se_top);
+	gGL.vertex3f(west, south, sw_top);
+	gGL.vertex3f(west, south, sw_bottom);
+
+	gGL.vertex3f(west, south, sw_bottom);
+	gGL.vertex3f(west, south, sw_top);
+	gGL.vertex3f(west, north, nw_top);
+	gGL.vertex3f(west, north, nw_bottom);
+
+	gGL.end();
+
+	LLUI::setLineWidth(1.f);
+}
+
+void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegion* regionp)
+{
+	S32 x, y;
+	F32 x1, y1;	// start point
+	F32 x2, y2;	// end point
+	bool has_segments = false;
+
+	LLGLSUIDefault gls_ui;
+	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+	// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+	//LLGLDepthTest gls_depth(GL_TRUE);
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	LLGLDisable cull(GL_CULL_FACE);
+
+	static LLCachedControl<bool> render_parcel_selection_to_mbh(gSavedSettings, "PVTools_RenderParcelSelectionToMaxBuildHeight");
+	F32 height = render_parcel_selection_to_mbh ? MAX_OBJECT_Z + PARCEL_POST_HEIGHT : PARCEL_POST_HEIGHT;
+	// </FS:Ansariel>
+
+	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
+
+	const S32 STRIDE = (mParcelsPerEdge + 1);
+
+	// Cheat and give this the same pick-name as land
+
+
+	for (y = 0; y < STRIDE; y++)
+	{
+		for (x = 0; x < STRIDE; x++)
+		{
+			U8 segment_mask = segments[x + y*STRIDE];
+
+			if (segment_mask & SOUTH_MASK)
+			{
+				x1 = x * PARCEL_GRID_STEP_METERS;
+				y1 = y * PARCEL_GRID_STEP_METERS;
+
+				x2 = x1 + PARCEL_GRID_STEP_METERS;
+				y2 = y1;
+
+				if (!has_segments)
+				{
+					has_segments = true;
+					gGL.begin(LLRender::QUADS);
+				}
+				// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+				//renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, SOUTH_MASK, regionp);
+				renderOneSegment(x1, y1, x2, y2, height, SOUTH_MASK, regionp, render_parcel_selection_to_mbh);
+				// </FS:Ansariel>
+			}
+
+			if (segment_mask & WEST_MASK)
+			{
+				x1 = x * PARCEL_GRID_STEP_METERS;
+				y1 = y * PARCEL_GRID_STEP_METERS;
+
+				x2 = x1;
+				y2 = y1 + PARCEL_GRID_STEP_METERS;
+
+				if (!has_segments)
+				{
+					has_segments = true;
+					gGL.begin(LLRender::QUADS);
+				}
+				// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
+				//renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, WEST_MASK, regionp);
+				renderOneSegment(x1, y1, x2, y2, height, WEST_MASK, regionp, render_parcel_selection_to_mbh);
+				// </FS:Ansariel>
+			}
+		}
+	}
+
+	if (has_segments)
+	{
+		gGL.end();
+	}
+}
+
+
+void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp)
+{
+
+	S32 x, y;
+	F32 x1, y1;	// start point
+	F32 x2, y2;	// end point
+	F32 alpha = 0;
+	F32 dist = 0;
+	F32 dx, dy;
+	F32 collision_height;
+
+	const S32 STRIDE = (mParcelsPerEdge + 1);
+
+	LLVector3 pos = gAgent.getPositionAgent();
+
+	F32 pos_x = pos.mV[VX];
+	F32 pos_y = pos.mV[VY];
+
+	LLGLSUIDefault gls_ui;
+	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
+	LLGLDisable cull(GL_CULL_FACE);
+
+	if (mCollisionBanned == BA_BANNED ||
+		regionp->getRegionFlag(REGION_FLAGS_BLOCK_FLYOVER))
+	{
+		collision_height = BAN_HEIGHT;
+	}
+	else
+	{
+		collision_height = PARCEL_HEIGHT;
+	}
+
+
+	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
+	{
+		gGL.getTexUnit(0)->bind(mPassImage);
+	}
+	else
+	{
+		gGL.getTexUnit(0)->bind(mBlockedImage);
+	}
+
+	gGL.begin(LLRender::QUADS);
+
+	for (y = 0; y < STRIDE; y++)
+	{
+		for (x = 0; x < STRIDE; x++)
+		{
+			U8 segment_mask = segments[x + y*STRIDE];
+			U8 direction;
+			const F32 MAX_ALPHA = 0.95f;
+			const S32 DIST_OFFSET = 5;
+			const S32 MIN_DIST_SQ = DIST_OFFSET*DIST_OFFSET;
+			const S32 MAX_DIST_SQ = 169;
+
+			if (segment_mask & SOUTH_MASK)
+			{
+				x1 = x * PARCEL_GRID_STEP_METERS;
+				y1 = y * PARCEL_GRID_STEP_METERS;
+
+				x2 = x1 + PARCEL_GRID_STEP_METERS;
+				y2 = y1;
+
+				dy = (pos_y - y1) + DIST_OFFSET;
+
+				if (pos_x < x1)
+					dx = pos_x - x1;
+				else if (pos_x > x2)
+					dx = pos_x - x2;
+				else
+					dx = 0;
+
+				dist = dx*dx + dy*dy;
+
+				if (dist < MIN_DIST_SQ)
+					alpha = MAX_ALPHA;
+				else if (dist > MAX_DIST_SQ)
+					alpha = 0.0f;
+				else
+					alpha = 30 / dist;
+
+				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
+
+				gGL.color4f(1.f, 1.f, 1.f, alpha);
+
+				if ((pos_y - y1) < 0) direction = SOUTH_MASK;
+				else 		direction = NORTH_MASK;
+
+				// avoid Z fighting
+				renderOneSegment(x1 + 0.1f, y1 + 0.1f, x2 + 0.1f, y2 + 0.1f, collision_height, direction, regionp);
+
+			}
+
+			if (segment_mask & WEST_MASK)
+			{
+				x1 = x * PARCEL_GRID_STEP_METERS;
+				y1 = y * PARCEL_GRID_STEP_METERS;
+
+				x2 = x1;
+				y2 = y1 + PARCEL_GRID_STEP_METERS;
+
+				dx = (pos_x - x1) + DIST_OFFSET;
+
+				if (pos_y < y1)
+					dy = pos_y - y1;
+				else if (pos_y > y2)
+					dy = pos_y - y2;
+				else
+					dy = 0;
+
+				dist = dx*dx + dy*dy;
+
+				if (dist < MIN_DIST_SQ)
+					alpha = MAX_ALPHA;
+				else if (dist > MAX_DIST_SQ)
+					alpha = 0.0f;
+				else
+					alpha = 30 / dist;
+
+				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
+
+				gGL.color4f(1.f, 1.f, 1.f, alpha);
+
+				if ((pos_x - x1) > 0) direction = WEST_MASK;
+				else 		direction = EAST_MASK;
+
+				// avoid Z fighting
+				renderOneSegment(x1 + 0.1f, y1 + 0.1f, x2 + 0.1f, y2 + 0.1f, collision_height, direction, regionp);
+
+			}
+		}
+	}
+
+	gGL.end();
+}

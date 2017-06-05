@@ -42,6 +42,7 @@
 
 #include "llappviewer.h"
 #include "llbufferstream.h"
+#include "llglsandbox.h"
 #include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
@@ -411,8 +412,6 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	
 	return parse_ok;
 }
-
-F32 gpu_benchmark(bool force); // forward-declaration because llglsandbox doesn't have a header file (sigh)
 
 bool LLFeatureManager::loadGPUClass()
 {

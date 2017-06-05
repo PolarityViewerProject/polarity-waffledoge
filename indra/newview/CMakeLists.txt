@@ -1063,6 +1063,7 @@ set(viewer_HEADER_FILES
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
+    llglsandbox.h # <polarity>
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h

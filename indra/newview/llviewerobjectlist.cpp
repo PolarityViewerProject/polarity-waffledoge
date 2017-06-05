@@ -50,6 +50,7 @@
 #include "llstring.h"
 #include "llhudicon.h"
 #include "llhudnametag.h"
+#include "llhudtext.h"
 #include "lldrawable.h"
 #include "llflexibleobject.h"
 #include "llviewertextureanim.h"
@@ -88,6 +89,8 @@
 #include "llfloaterreg.h"
 #include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
 #include "fsassetblacklist.h"
+
+#include "llglsandbox.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -2504,3 +2507,112 @@ void LLViewerObjectList::removeDerenderedItem( LLUUID const &aId )
 }
 
 // </FS:ND>
+
+void LLViewerObjectList::renderObjectBeacons()
+{
+	if (mDebugBeacons.empty())
+	{
+		return;
+	}
+
+	LLGLSUIDefault gls_ui;
+
+	if (LLGLSLShader::sNoFixedFunction)
+	{
+		gUIProgram.bind();
+	}
+
+	{
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+
+		S32 last_line_width = -1;
+		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
+		
+		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		{
+			const LLDebugBeacon &debug_beacon = *iter;
+			LLColor4 color = debug_beacon.mColor;
+			color.mV[3] *= 0.25f;
+			S32 line_width = debug_beacon.mLineWidth;
+			if (line_width != last_line_width)
+			{
+				gGL.flush();
+				glLineWidth( (F32)line_width );
+				last_line_width = line_width;
+			}
+
+			const LLVector3 &thisline = debug_beacon.mPositionAgent;
+		
+			gGL.begin(LLRender::LINES);
+			gGL.color4fv(color.mV);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
+			gGL.vertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
+
+			draw_line_cube(0.10f, thisline);
+			
+			gGL.end();
+		}
+	}
+
+	{
+		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
+		LLGLDepthTest gls_depth(GL_TRUE);
+		
+		S32 last_line_width = -1;
+		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
+		
+		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		{
+			const LLDebugBeacon &debug_beacon = *iter;
+
+			S32 line_width = debug_beacon.mLineWidth;
+			if (line_width != last_line_width)
+			{
+				gGL.flush();
+				glLineWidth( (F32)line_width );
+				last_line_width = line_width;
+			}
+
+			const LLVector3 &thisline = debug_beacon.mPositionAgent;
+			gGL.begin(LLRender::LINES);
+			gGL.color4fv(debug_beacon.mColor.mV);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
+			gGL.vertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
+			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
+
+			draw_line_cube(0.10f, thisline);
+
+			gGL.end();
+		}
+		
+		gGL.flush();
+		glLineWidth(1.f);
+
+		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
+		{
+			LLDebugBeacon &debug_beacon = *iter;
+			if (debug_beacon.mString.empty())
+			{
+				continue;
+			}
+			LLHUDText *hud_textp = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
+
+			hud_textp->setZCompare(FALSE);
+			LLColor4 color;
+			color = debug_beacon.mTextColor;
+			color.mV[3] *= 1.f;
+
+			hud_textp->setString(debug_beacon.mString);
+			hud_textp->setColor(color);
+			hud_textp->setPositionAgent(debug_beacon.mPositionAgent);
+			debug_beacon.mHUDObject = hud_textp;
+		}
+	}
+}

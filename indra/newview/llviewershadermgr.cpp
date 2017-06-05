@@ -35,6 +35,7 @@
 #include "llviewershadermgr.h"
 
 #include "llfile.h"
+#include "llglsandbox.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
@@ -83,8 +84,7 @@ LLGLSLShader	gClipProgram;
 LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gDownsampleDepthRectProgram;
 LLGLSLShader	gAlphaMaskProgram;
-LLGLSLShader	gBenchmarkProgram;
-
+extern LLGLSLShader gBenchmarkProgram;
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;

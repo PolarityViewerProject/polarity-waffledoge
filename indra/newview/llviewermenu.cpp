@@ -84,6 +84,7 @@
 #include "llfloaterbuildoptions.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
+#include "llglsandbox.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
@@ -8098,8 +8099,6 @@ class LLAdvancedClickRenderProfile: public view_listener_t
 		return true;
 	}
 };
-
-F32 gpu_benchmark(bool force); // forward-declaration because llglsandbox doesn't have a header file (sigh)
 
 class LLAdvancedClickRenderBenchmark: public view_listener_t
 {
