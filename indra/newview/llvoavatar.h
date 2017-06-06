@@ -929,6 +929,7 @@ private:
 	LLColor4		mNameArcColor;
 	// </FS:Ansariel>
 	bool			mShowComplexityString;
+	bool			mSowComplexUnderThreshold;
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

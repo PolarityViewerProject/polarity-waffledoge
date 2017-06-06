@@ -653,6 +653,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameArcColor(LLColor4::white),
 	// </FS:Ansariel>
 	mShowComplexityString(false),
+	mSowComplexUnderThreshold(false),
 	mNameAway(false),
 	mNameDoNotDisturb(false),
 	mNameMute(false),
@@ -3087,9 +3088,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	U32 complexity(0);
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 
-		if (show_arw_tag &&
-							((isSelf() && show_own_arw_tag) ||
-							((!isSelf() && show_others_arw_tag) && (show_under_threshold_arw_tag || isTooComplex()))))
+	if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
@@ -3133,6 +3132,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| complexity_color != mNameArcColor
 		|| show_complexity_string != mShowComplexityString
 		// </FS:Ansariel>
+		|| show_under_threshold_arw_tag != mSowComplexUnderThreshold
 		|| name_tag_color != mColorLast
 		|| is_typing != mTypingInNameTag)
 	{
@@ -3249,9 +3249,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		// WOW, nested ternary operator.
 		std::string complexity_label = show_complexity_string ? (show_complexity_string_short ? LLTrans::getString("Nametag_Complexity_Label_Short") : LLTrans::getString("Nametag_Complexity_Label")) : LLTrans::getString("Nametag_Complexity_Label_NoText");
 		
-		if (show_arw_tag &&
-			((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
-			&& (show_under_threshold_arw_tag || isTooComplex()))
+		if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -3281,6 +3279,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
 		mShowComplexityString = show_complexity_string;
+		mSowComplexUnderThreshold = show_under_threshold_arw_tag;
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
