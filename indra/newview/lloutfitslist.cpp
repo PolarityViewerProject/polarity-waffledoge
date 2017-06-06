@@ -270,15 +270,6 @@ void LLOutfitsList::arrange()
 // </FS:Ansariel>
 
 //virtual
-void LLOutfitsList::arrange()
-{
-	if (mAccordion)
-	{
-		mAccordion->arrange();
-	}
-}
-
-//virtual
 void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
 {
     if (mOutfitsMap[prev_id])
