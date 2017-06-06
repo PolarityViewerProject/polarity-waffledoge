@@ -4093,7 +4093,7 @@ BOOL LLModelPreview::render()
 							LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
                             const LLMeshSkinInfo *skin = &model->mSkinInfo;
 							U32 count = LLSkinningUtil::getMeshJointCount(skin);
-                            LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count,
+                            LLSkinningUtil::initSkinningMatrixPalette(mat, count,
                                                                         skin, getPreviewAvatar());
                             LLMatrix4a bind_shape_matrix;
                             bind_shape_matrix.loadu(skin->mBindShapeMatrix);
@@ -4101,8 +4101,7 @@ BOOL LLModelPreview::render()
 							for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 							{
                                 LLMatrix4a final_mat;
-                                F32 *wptr = weight[j].getF32ptr();
-                                LLSkinningUtil::getPerVertexSkinMatrix(wptr, mat, true, final_mat, max_joints);
+                                LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, true, final_mat, max_joints);
 
 								//VECTORIZE THIS
                                 LLVector4a& v = face.mPositions[j];

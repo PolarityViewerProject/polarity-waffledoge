@@ -34,7 +34,6 @@
 #if !LL_WINDOWS
 #include <stdint.h>
 #endif
-#include <cmath>
 
 #include "llerror.h"
 
@@ -2195,7 +2194,7 @@ BOOL LLVolume::generate()
 				0, 0, scale[2], 0,
 					0, 0, 0, 1 };
 			
-			LLMatrix4 rot((F32*) mPathp->mPath[s].mRot.mMatrix);
+			LLMatrix4 rot((F32*) mPathp->mPath[s].mRot.getF32ptr());
 			LLMatrix4 scale_mat(sc);
 			
 			scale_mat *= rot;
@@ -2214,7 +2213,7 @@ BOOL LLVolume::generate()
 			{
 				rot_mat.rotate(*profile++, tmp);
 				dst->setAdd(tmp,offset);
-				//llassert(dst->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
+				llassert(dst->isFinite3()); // MAINT-5660; don't know why this happens, does not affect Release builds
 				++dst;
 			}
 		}

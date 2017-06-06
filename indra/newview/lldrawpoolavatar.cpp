@@ -1603,8 +1603,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		(drawable && drawable->isState(LLDrawable::REBUILD_ALL)))
 	{
 		if (drawable && drawable->isState(LLDrawable::REBUILD_ALL))
-		{
-            //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
+		{ //rebuild EVERY face in the drawable, not just this one, to avoid missing drawable wide rebuild issues
 			for (S32 i = 0; i < drawable->getNumFaces(); ++i)
 			{
 				LLFace* facep = drawable->getFace(i);
@@ -1621,8 +1620,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 			buffer = face->getVertexBuffer();
 		}
 		else
-		{
-			//just rebuild this face
+		{ //just rebuild this face
 			getRiggedGeometry(face, buffer, data_mask, skin, volume, vol_face);
 		}
 	}
@@ -1648,7 +1646,7 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		//build matrix palette
 		LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
         U32 count = LLSkinningUtil::getMeshJointCount(skin);
-        LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+        LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
         LLSkinningUtil::checkSkinWeights(weights, buffer->getNumVerts(), skin);
 
 		LLMatrix4a bind_shape_matrix;
@@ -1658,12 +1656,8 @@ void LLDrawPoolAvatar::updateRiggedFaceVertexBuffer(
 		for (U32 j = 0; j < buffer->getNumVerts(); ++j)
 		{
 			LLMatrix4a final_mat;
-
-            // <FS:ND> Use the SSE2 version
-            // LLSkinningUtil::getPerVertexSkinMatrix( weights[ j ].getF32ptr(), mat, false, final_mat, max_joints );
-            FSSkinningUtil::getPerVertexSkinMatrixSSE( weights[ j ], mat, false, final_mat, max_joints );
-            // </FS:ND>
-
+            LLSkinningUtil::getPerVertexSkinMatrix(weights[j].getF32ptr(), mat, false, final_mat, max_joints);
+			
 			LLVector4a& v = vol_face.mPositions[j];
 
 			LLVector4a t;
@@ -1747,7 +1741,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
                 // upload matrix palette to shader
 				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
 				U32 count = LLSkinningUtil::getMeshJointCount(skin);
-                LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+                LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
 
 				stop_glerror();
 
@@ -1755,7 +1749,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 				for (U32 i = 0; i < count; ++i)
 				{
-					F32* m = (F32*) mat[i].mMatrix[0].getF32ptr();
+					F32* m = (F32*) mat[i].getF32ptr();
 
 					U32 idx = i*12;
 
@@ -1805,20 +1799,16 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
 				//(gGL).mCurrTextureUnitIndex
                 LLViewerTexture* specular = NULL;
-                if (LLPipeline::sImpostorRender)
+                if (LLPipeline::sImpostorRender && avatar->isVisuallyMuted())
                 {
                     specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_STANDARD);
-                    llassert(NULL != specular);
                 }
                 else
                 {
                     specular = face->getTexture(LLRender::SPECULAR_MAP);
                 }
-                if (specular)
-                {
-                    gGL.getTexUnit(specular_channel)->bind(specular);
-                }
                 
+				gGL.getTexUnit(specular_channel)->bind(specular);
 				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
 				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
 
@@ -1948,7 +1938,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 				// upload matrix palette to shader
 				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
 				U32 count = LLSkinningUtil::getMeshJointCount(skin);
-				LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, count, skin, avatar);
+				LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
 
 				stop_glerror();
 
@@ -1956,7 +1946,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 
 				for (U32 i = 0; i < count; ++i)
 				{
-					F32* m = (F32*)mat[i].mMatrix[0].getF32ptr();
+					F32* m = (F32*)mat[i].getF32ptr();
 
 					U32 idx = i * 12;
 

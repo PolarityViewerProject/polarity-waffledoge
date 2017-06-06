@@ -4224,7 +4224,7 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 	LLMatrix4a mat[kMaxJoints];
 	U32 maxJoints = LLSkinningUtil::getMeshJointCount(skin);
-    LLSkinningUtil::initSkinningMatrixPalette((LLMatrix4*)mat, maxJoints, skin, avatar);
+    LLSkinningUtil::initSkinningMatrixPalette(mat, maxJoints, skin, avatar);
 
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
@@ -4234,28 +4234,27 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 		
 		LLVector4a* weight = vol_face.mWeights;
 
-		if ( weight )
+		if(!weight)
 		{
+			continue;
+		}
+
             LLSkinningUtil::checkSkinWeights(weight, dst_face.mNumVertices, skin);
 			LLMatrix4a bind_shape_matrix;
 			bind_shape_matrix.loadu(skin->mBindShapeMatrix);
 
 			LLVector4a* pos = dst_face.mPositions;
 
-			if( pos && weight && dst_face.mExtents )
-			{
-				LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
+		if( pos && dst_face.mExtents )
+		{
+			LL_RECORD_BLOCK_TIME(FTM_SKIN_RIGGED);
 
                 U32 max_joints = LLSkinningUtil::getMaxJointCount();
 				for (U32 j = 0; j < dst_face.mNumVertices; ++j)
 				{
 					LLMatrix4a final_mat;
-					
-                    // <FS:ND> Use the SSE2 version
-                    // LLSkinningUtil::getPerVertexSkinMatrix( weight[ j ].getF32ptr(), mat, false, final_mat, max_joints );
-                    FSSkinningUtil::getPerVertexSkinMatrixSSE( weight[ j ], mat, false, final_mat, max_joints );
-                    // </FS:ND>
-
+                    LLSkinningUtil::getPerVertexSkinMatrix(weight[j].getF32ptr(), mat, false, final_mat, max_joints);
+				
 					LLVector4a& v = vol_face.mPositions[j];
 					LLVector4a t;
 					LLVector4a dst;
@@ -4279,11 +4278,6 @@ void LLRiggedVolume::update(const LLMeshSkinInfo* skin, LLVOAvatar* avatar, cons
 
 				dst_face.mCenter->setAdd(dst_face.mExtents[0], dst_face.mExtents[1]);
 				dst_face.mCenter->mul(0.5f);
-
-			}
-		// <FS:ND> Crashfix if mExtents is 0
-		if( dst_face.mExtents )
-		// </FS:ND>
 
 			{
 				LL_RECORD_BLOCK_TIME(FTM_RIGGED_OCTREE);
