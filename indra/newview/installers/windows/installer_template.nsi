@@ -158,16 +158,16 @@
 
   !include "%%SOURCE%%\installers\windows\lang_en-us.nsi"
   !include "%%SOURCE%%\installers\windows\lang_fr.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_de.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_es.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_pl.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_it.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_da.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_ru.nsi"
-  !include "%%SOURCE%%\installers\windows\lang_tr.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_de.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_es.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_zh.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_ja.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_pl.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_it.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_pt-br.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_da.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_ru.nsi"
+  ; !include "%%SOURCE%%\installers\windows\lang_tr.nsi"
 
 ;--------------------------------
 ;Reserve Files
