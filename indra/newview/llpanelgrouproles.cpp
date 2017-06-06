@@ -1341,7 +1341,7 @@ void LLPanelGroupMembersSubTab::onRoleCheck(LLUICtrl* ctrl, void* user_data)
 	if (first_selected)
 	{
 		LLUUID role_id = first_selected->getUUID();
-		LLRoleMemberChangeType change_type = (check_box->get() ?
+		LLRoleMemberChangeType change_type = (check_box->get()
 								  ? LLRoleMemberChangeType::RMC_ADD
 								  : LLRoleMemberChangeType::RMC_REMOVE); 
 		
