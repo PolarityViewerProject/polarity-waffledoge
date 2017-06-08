@@ -9082,7 +9082,7 @@
     <real>0.04</real>
   </map>
 
-<!--   <key>RenderShadowResolutionScale</key>
+  <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
     <string>Scale of shadow map resolution vs. screen resolution</string>
@@ -9094,7 +9094,7 @@
     <string>F32</string>
     <key>Value</key>
     <real>1.0</real>
-  </map> -->
+  </map>
   <key>RenderDeferredTreeShadowBias</key>
   <map>
     <key>Comment</key>
