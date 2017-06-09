@@ -61,6 +61,7 @@
 						</array>
 					<key>tags</key>
 						<array>
+							<string>PluginPoll</string>
 							<string>ShaderLoading</string>
 							<string>Texture</string>
 						</array>

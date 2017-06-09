@@ -883,7 +883,7 @@ void LLPluginProcessParent::poll(F64 timeout)
 			// The pollset has been or will be recreated, so just return.
 			LL_DEBUGS("PluginPoll") << "apr_pollset_poll returned EBADF" << LL_ENDL;
 		}
-		else if(status != APR_SUCCESS)
+		else if(status != APR_SUCCESS && (int)status != 730038)
 		{
 			LL_WARNS("PluginPoll") << "apr_pollset_poll failed with status " << status << LL_ENDL;
 		}
