@@ -21,7 +21,7 @@
 						<array>
 							<!-- <string>AppInit</string> -->
 							<!-- <string>Capabilities</string> -->
-							<string>SystemInfo</string>
+							<!-- <string>SystemInfo</string> -->
 							<!-- <string>TextureCache</string> -->
 							<!-- <string>AppCache</string> -->
 							<!-- <string>Window</string> -->
@@ -29,7 +29,25 @@
 							<!-- <string>MediaAuth</string> -->
 						</array>
 				</map>
-				<!-- Suppress anything but ERROR for some very verbose components -->
+				<!-- Suppress anything lower than WARNING for some very verbose components -->
+				
+				<map>
+					<key>level</key><string>WARN</string>
+					<key>functions</key>
+						<array>
+						</array>
+					<key>classes</key>
+						<array>
+						</array>
+					<key>files</key>
+						<array>
+						</array>
+					<key>tags</key>
+						<array>
+							<string>Settings</string>
+						</array>
+				</map>
+				<!-- Suppress anything lower than ERROR for some very verbose components -->
 				<map>
 					<key>level</key><string>ERROR</string>
 					<key>functions</key>
@@ -44,6 +62,7 @@
 					<key>tags</key>
 						<array>
 							<string>ShaderLoading</string>
+							<string>Texture</string>
 						</array>
 				</map>
       </array>
