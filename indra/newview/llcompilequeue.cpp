@@ -1033,7 +1033,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         static LLCachedControl<bool> auto_close_floater(gSavedSettings, "PVUI_ScriptQueueAutoClose", true);
         if(auto_close_floater)
         {
-            LL_INFOS("SCRIPTQ") << "Automatically closing compile queue window for script " << getScriptName() << LL_ENDL;
+            LL_INFOS("SCRIPTQ") << "Automatically closing compile queue window." << LL_ENDL;
             floater->Close();
         }
     }
