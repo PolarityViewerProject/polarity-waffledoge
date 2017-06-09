@@ -270,6 +270,7 @@ ATI Technologies Inc. AMD FirePro M4000
 ATI Technologies Inc. AMD FirePro M5950
 ATI Technologies Inc. AMD FirePro M5950 Mobility Professional Graphics
 ATI Technologies Inc. AMD FirePro M5950 Mobility Professional Graphics
+ATI Technologies Inc. AMD FirePro M6100 (FireGL V)
 ATI Technologies Inc. AMD FirePro V3900
 ATI Technologies Inc. AMD FirePro V3900 (ATI FireGL)
 ATI Technologies Inc. AMD FirePro V4900

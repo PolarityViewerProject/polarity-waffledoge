@@ -234,6 +234,8 @@ ATI Technologies Inc. AMD FirePro V5900                                         
 ATI Technologies Inc. AMD FirePro V5900 (ATI FireGL)                                                     supported      4     1     4.2    ATI FireGL
 ATI Technologies Inc. AMD FirePro V5900 (FireGL V)                                                       supported      4     1     4.2    ATI FireGL
 ATI Technologies Inc. AMD FirePro V5900 (FireGL V) Graphics Adapter                                      supported      4     1     4.2    ATI FireGL
+ATI Technologies Inc. AMD FirePro M6100 (FireGL V)				                                         supported      4     1     4.2    ATI FireGL
+ATI Technologies Inc. AMD FirePro M6100 (FireGL V) Graphics Adapter                                      supported      4     1     4.2    ATI FireGL
 ATI Technologies Inc. AMD FirePro V7900                                                                  supported      3     0     0      ATI FirePro 7000
 ATI Technologies Inc. AMD FirePro V7900 (ATI FireGL)                                                     supported      4     1     4.2    ATI FireGL
 ATI Technologies Inc. AMD FirePro V7900 (FireGL V)                                                       supported      4     1     4.2    ATI FireGL
