@@ -133,6 +133,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "https://my.aditi.lindenlab.com/",
 				  "Aditi");
 
+#ifdef USE_GRID_MANAGER
 	LLSD other_grids;
 	llifstream llsd_xml;
 	if (!grid_file.empty())
@@ -184,6 +185,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 	{
 		LL_DEBUGS("GridManager")<<"no grid file specified"<<LL_ENDL;
 	}
+#endif // USE_GRID_MANAGER
 
 	// load a grid from the command line.
 	// if the actual grid name is specified from the command line,
