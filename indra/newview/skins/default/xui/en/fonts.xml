@@ -149,7 +149,7 @@
 
   <font_size name="Monospace"
 	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-	     size="8.0"
+	     size="7.8"
 	     />
   <font_size name="MonospaceSmall"
        comment="Size for monospaced font (points, or 1/72 of an inch)"
