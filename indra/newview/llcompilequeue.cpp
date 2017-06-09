@@ -951,7 +951,8 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         for (object_data_list_t::iterator itObj(objectList.begin()); (itObj != objectList.end()); ++itObj)
         {
             bool firstForObject = true;
-            LLUUID object_id = (*itObj).mObjectId;
+			auto object_ptr = (*itObj);
+            LLUUID object_id = object_ptr.mObjectId;
             LL_INFOS("SCRIPTQ") << "Next object in queue with ID=" << object_id.asString() << LL_ENDL;
 
             LLPointer<LLViewerObject> obj = gObjectList.findObject(object_id);
@@ -963,7 +964,8 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 fetcher->fetchInventory();
 
                 LLStringUtil::format_map_t args;
-                args["[OBJECT_NAME]"] = (*itObj).mObjectName;
+				auto object_name = object_ptr.mObjectName;
+                args["[OBJECT_NAME]"] = object_name;
                 floater->addStringMessage(floater->getString("LoadingObjInv", args));
 
                 LLSD result = llcoro::suspendUntilEventOnWithTimeout(maildrop, fetch_timeout,
@@ -975,7 +977,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                         ". Skipping to next object." << LL_ENDL;
 
                     LLStringUtil::format_map_t args;
-                    args["[OBJECT_NAME]"] = (*itObj).mObjectName;
+                    args["[OBJECT_NAME]"] = object_name;
                     floater->addStringMessage(floater->getString("Timeout", args));
 
                     continue;
@@ -1002,16 +1004,18 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 // note, we have a smart pointer to the obj above... but if we didn't we'd check that 
                 // it still exists here.
 
-                if (((*itInv)->getType() == LLAssetType::AT_LSL_TEXT))
+				auto script_ptr = (*itInv);
+
+                if ((script_ptr->getType() == LLAssetType::AT_LSL_TEXT))
                 {
-                    LL_DEBUGS("SCRIPTQ") << "Inventory item " << (*itInv)->getUUID().asString() << "\"" << (*itInv)->getName() << "\"" << LL_ENDL;
+                    LL_DEBUGS("SCRIPTQ") << "Inventory item " << script_ptr->getUUID().asString() << "\"" << script_ptr->getName() << "\"" << LL_ENDL;
                     if (firstForObject)
                     {
                         //floater->addStringMessage(objName + ":");
                         firstForObject = false;
                     }
 
-                    if (!func(obj, (*itInv), maildrop))
+                    if (!func(obj, script_ptr, maildrop))
                     {
                         continue;
                     }
