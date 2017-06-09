@@ -798,11 +798,13 @@ void FSLSLPreprocessor::FSProcCacheCallback(LLVFS* vfs, const LLUUID& iuuid, LLA
 				args["[FILENAME]"] = name;
 				self->display_message(LLTrans::getString("fs_preprocessor_cache_completed", args));
 				cache_script(name, content);
-				if (self->caching_files.size() <= 0)
+				static LLCachedControl<bool> workaround_crash(gSavedSettings, "PVDebug_WorkaroundPreprocCrash", false);
+				if (self->caching_files.size() <= 0 && workaround_crash)
 				{
-					LL_WARNS("FSLSLPreprocessor") << "Recompiling an unopened script (or file cache is empty); aborting! Please verify that your script compiled properly." << LL_ENDL;
+					LL_WARNS("FSLSLPreprocessor") << "Attempted to cache and compile a script without the proper preparation; aborted." << LL_ENDL;
 					return;
 				}
+				llassert(self->caching_files.size() <= 0);
 				std::set<std::string>::iterator loc = self->caching_files.find(name);
 				if (loc != self->caching_files.end())
 				{
