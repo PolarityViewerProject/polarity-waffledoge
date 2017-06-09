@@ -147,8 +147,8 @@ void LLVBOPool::deleteBuffer(U32 name)
 LLVBOPool::LLVBOPool(U32 vboUsage, U32 vboType)
 : mUsage(vboUsage), mType(vboType)
 {
+	mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
 	mMissCount.resize(LL_VBO_POOL_SEED_COUNT);
-	std::fill(mMissCount.begin(), mMissCount.end(), 0);
 }
 
 volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
@@ -162,6 +162,7 @@ volatile U8* LLVBOPool::allocate(U32& name, U32 size, bool for_seed)
 	if (mFreeList.size() <= i)
 	{
 		mFreeList.resize(i+1);
+		mMissCount.resize(i + 1);
 	}
 
 	if (mFreeList[i].empty() || for_seed)
@@ -241,7 +242,7 @@ void LLVBOPool::release(U32 name, volatile U8* buffer, U32 size)
 	llassert(vbo_block_size(size) == size);
 
 	deleteBuffer(name);
-	ll_aligned_free<64>((U8*) buffer);
+	ll_aligned_free_16((U8*) buffer);
 
 	if (mType == GL_ARRAY_BUFFER_ARB)
 	{
@@ -257,24 +258,14 @@ void LLVBOPool::seedPool()
 {
 	U32 dummy_name = 0;
 
-	if (mFreeList.size() < LL_VBO_POOL_SEED_COUNT)
-	{
-		mFreeList.resize(LL_VBO_POOL_SEED_COUNT);
-	}
-
-	// <polarity> Dirty hack to speed this loop up. This wastes a lot of cycles creating and deleting integers every iteration.
-	U32 i = 0;
-	U32 j = 0;
-	U32 size = 0;
-	S32 count = -1;
-	for (;i < LL_VBO_POOL_SEED_COUNT; i++)
+	for (U32 i = 0;i < LL_VBO_POOL_SEED_COUNT; i++)
 	{
 		if (mMissCount[i] > mFreeList[i].size())
 		{ 
-			size = i*LL_VBO_BLOCK_SIZE;
+			U32 size = i*LL_VBO_BLOCK_SIZE;
 		
-			count = mMissCount[i] - mFreeList[i].size();
-			for (;j < count; ++j)
+			S32 count = mMissCount[i] - mFreeList[i].size();
+			for (U32 j = 0; j < count; ++j)
 			{
 				allocate(dummy_name, size, true);
 			}
@@ -2238,9 +2229,7 @@ void LLVertexBuffer::setBuffer(U32 data_mask)
 			{
 				
 				U32 unsatisfied_mask = (required_mask & ~data_mask);
-				U32 i = 0;
-
-				while (i < TYPE_MAX)
+				for (U32 i = 0; i < TYPE_MAX; i++) // <alchemy/>
 				{
                     U32 unsatisfied_flag = unsatisfied_mask & (1 << i);
 					switch (unsatisfied_flag)

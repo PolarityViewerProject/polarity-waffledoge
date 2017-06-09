@@ -214,9 +214,7 @@ BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
 F32 LLPipeline::RenderSnapshotMultiplier;
 
-// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
-LLVector4 LLPipeline::RenderShadowResolutionMap;
-LLVector3 LLPipeline::RenderProjectorShadowResolution;
+F32 LLPipeline::RenderShadowResolutionScale;
 
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
 
@@ -681,7 +679,7 @@ void LLPipeline::init()
 //	//BD - Shadow Map Allocation
 	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
 // <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
-	connectRefreshCachedSettingsSafe("PVRender_ShadowResolution");
+	connectRefreshCachedSettingsSafe("RenderShadowResolutionScale");
 // <polarity> Sync Shadow Far Clip with Render Far Clip
 	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
 // </polarity>
@@ -994,12 +992,9 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		S32 shadow_detail = RenderShadowDetail;
 		BOOL ssao = RenderDeferredSSAO;
 		
-		const U32 occlusion_divisor = 3;
-
 		//allocate deferred rendering color buffers
 		if (!mDeferredScreen.allocate(resX, resY, GL_SRGB8_ALPHA8, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!mDeferredDepth.allocate(resX, resY, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
-		if (!mOcclusionDepth.allocate(resX/occlusion_divisor, resY/occlusion_divisor, 0, TRUE, FALSE, LLTexUnit::TT_RECT_TEXTURE, FALSE, samples)) return false;
 		if (!addDeferredAttachments(mDeferredScreen)) return false;
 	
 		GLuint screenFormat = GL_RGBA16;
@@ -1033,7 +1028,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 
 //		//BD - Shadow Map Allocation
-		allocateShadowMaps(true);
+		allocateShadowMaps(shadow_detail, true);
 
 		//HACK make screenbuffer allocations start failing after 30 seconds
 		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
@@ -1071,61 +1066,41 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 }
 
 //BD - Shadow Map Allocation
-void LLPipeline::allocateShadowMaps(bool force_allocate)
+bool LLPipeline::allocateShadowMaps(const U32 shadow_detail, const bool force_allocate)
 {
-	LLVector4 scale = RenderShadowResolutionMap;
-	LLVector3 proj_scale = RenderProjectorShadowResolution;
-	U32 shadow_detail = RenderShadowDetail;
+	U32 width = (U32)(gViewerWindow->getWorldViewWidthRaw()*RenderShadowResolutionScale);
 
-	//BD - Go through all shadow maps and either clear them or decide weither we want to
-	//     allocate them (when enabling shadows) or just resize them (when changing shadow
-	//     resolution) and which.
-	for (U32 i = 0; i < 6; i++)
-	{
-		if (shadow_detail > 0)
+	if (shadow_detail > 0)
+	{ //allocate 4 sun shadow maps
+		U32 sun_shadow_map_width = ((width + 1)&~1); // must be even to avoid a stripe in the horizontal shadow blur
+		for (U32 i = 0; i < 4; i++)
 		{
-			if (i < 4)
-			{
-				//BD - Shadowmap mismatch.
-				if (U32(scale.mV[i]) != mShadow[i].getWidth())
-				{
-					if (force_allocate)
-					{
-						//BD - Now reallocate the released map with the new resolution.
-						mShadow[i].allocate(U32(scale.mV[i]), U32(scale.mV[i]), 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE);
-					}
-					else
-					{
-						//BD - Resizing it should be sufficient.
-						mShadow[i].resize(U32(scale.mV[i]), U32(scale.mV[i]));
-					}
-				}
-			}
-			else
-			{
-				//BD - Projector Shadows mismatched.
-				if (shadow_detail > 1
-					&& U32(proj_scale.mV[i-4]) != mShadow[i].getWidth())
-				{
-					if (force_allocate)
-					{
-						//BD - Now reallocate the released map with the new resolution.
-						mShadow[i].allocate(U32(proj_scale.mV[i-4]), U32(proj_scale.mV[i-4]), 0, TRUE, FALSE);
-					}
-					else
-					{
-						//BD - Resizing it should be sufficient.
-						mShadow[i].resize(U32(proj_scale.mV[i-4]), U32(proj_scale.mV[i-4]));
-					}
-				}
-			}
+			if (!mShadow[i].allocate(sun_shadow_map_width, width, 0, TRUE, FALSE, LLTexUnit::TT_TEXTURE)) return false;
 		}
-		else
+	}
+	else
+	{
+		for (U32 i = 0; i < 4; i++)
 		{
-			//BD - Flush all shadowmaps.
 			mShadow[i].release();
 		}
 	}
+	if (shadow_detail > 1)
+	{ //allocate two spot shadow maps
+		U32 spot_shadow_map_width = width;
+		for (U32 i = 4; i < 6; i++)
+		{
+			if (!mShadow[i].allocate(spot_shadow_map_width, width, 0, TRUE, FALSE)) return false;
+		}
+	}
+	else
+	{
+		for (U32 i = 4; i < 6; i++)
+		{
+			mShadow[i].release();
+		}
+	}
+	return true;
 }
 
 //static
@@ -1258,11 +1233,9 @@ void LLPipeline::refreshCachedSettings()
 	RenderDepthOfFieldInEditMode = gSavedSettings.getBOOL("RenderDepthOfFieldInEditMode");
 	RenderSnapshotAutoAdjustMultiplier = gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier");
 	RenderSnapshotMultiplier = gSavedSettings.getF32("RenderSnapshotMultiplier");
-	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
-	// TODO: Make slider work with this:
-	RenderShadowResolutionMap		= gSavedSettings.getVector4("PVRender_ShadowResolution");
+// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	RenderShadowResolutionScale		= gSavedSettings.getF32("RenderShadowResolutionScale");
 //	</polarity>
-	RenderProjectorShadowResolution = gSavedSettings.getVector3("PVRender_ProjectorShadowResolution");
 
 	updateRenderDeferred();
 }
@@ -4785,7 +4758,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 			gGLLastMatrix = NULL;
 			gGL.loadMatrix(gGLModelView);
 			LLGLSLShader::bindNoShader();
-			doOcclusion(camera, mScreen, mOcclusionDepth, &mDeferredDepth);
+			doOcclusion(camera);
 			gGL.setColorMask(true, false);
 		}
 
@@ -4810,7 +4783,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 						break;
 					}
 										
-					p->renderPostDeferred(i);
+					if (!p->getSkipRenderFlag()) { p->renderPostDeferred(i); }
 				}
 				poolp->endPostDeferredPass(i);
 				if (gDebugGL)check_blend_funcs();
@@ -4889,14 +4862,16 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 						break;
 					}
 										
-					p->renderShadow(i);
+					if (!p->getSkipRenderFlag()) { p->renderShadow(i); }
 				}
 				poolp->endShadowPass(i);
 				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
-
+				if (gDebugGL || gDebugPipeline)
+				{
 				LLGLState::checkStates();
 			}
+		}
 		}
 		else
 		{
@@ -5042,6 +5017,11 @@ void LLPipeline::renderDebug()
 		gGL.end();
 		gGL.flush();
 		glPointSize(1.f);
+
+		if (LLGLSLShader::sNoFixedFunction)
+		{
+			gUIProgram.unbind();
+		}
 	}
 
 
@@ -5094,6 +5074,7 @@ void LLPipeline::renderDebug()
 			
 			drawBox(bounds[0], size);
 		}
+		gDebugProgram.unbind();
 	}
 
 	visible_selected_groups.clear();
@@ -7791,6 +7772,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		
 				gGL.end();
 
+				if (channel > -1)
+				{
+					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+				}
+
 				unbindDeferredShader(*shader);
 
 				if (multisample)
@@ -7900,6 +7886,12 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.end();
 
 			gGL.flush();
+
+			if (channel > -1)
+			{
+				gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+			}
+
 			shader->unbind();
 		}
 	}
@@ -7953,8 +7945,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		buff->setBuffer(mask);
 		buff->drawArrays(LLRender::TRIANGLE_STRIP, 0, 3);
 		
-		buff->unref(); // we're done with this
-
 		if (LLGLSLShader::sNoFixedFunction)
 		{
 			gGlowCombineProgram.unbind();
@@ -7972,7 +7962,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
-	if (hasRenderDebugMask(RENDER_DEBUG_PHYSICS_SHAPES))
+	if (hasRenderDebugMask(LLPipeline::RENDER_DEBUG_PHYSICS_SHAPES))
 	{
 		if (LLGLSLShader::sNoFixedFunction)
 		{
@@ -8224,11 +8214,7 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, U32 light_index, U32 n
 	shader.uniform1f(LLShaderMgr::DEFERRED_SPOT_SHADOW_BIAS, RenderSpotShadowBias);	
 
 	shader.uniform3fv(LLShaderMgr::DEFERRED_SUN_DIR, 1, mTransformedSunDir.mV);
-	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
-	// Temporary workaround: use the "Medium" resolution
-	// shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_RES,1, RenderShadowResolutionMap.mV);
-	float shadow_resolution = RenderShadowResolutionMap.mV[1];
-	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES,shadow_resolution, shadow_resolution);
+	shader.uniform2f(LLShaderMgr::DEFERRED_SHADOW_RES, mShadow[0].getWidth(), mShadow[0].getHeight());
 	shader.uniform2f(LLShaderMgr::DEFERRED_PROJ_SHADOW_RES, mShadow[4].getWidth(), mShadow[4].getHeight());
 	shader.uniform1f(LLShaderMgr::DEFERRED_DEPTH_CUTOFF, RenderEdgeDepthCutoff);
 	shader.uniform1f(LLShaderMgr::DEFERRED_NORM_CUTOFF, RenderEdgeNormCutoff);
@@ -8797,8 +8783,7 @@ void LLPipeline::renderDeferredLighting()
 		// Apply gamma correction to the frame here.
 		gDeferredPostGammaCorrectProgram.bind();
 		//mDeferredVB->setBuffer(LLVertexBuffer::MAP_VERTEX);
-		S32 channel;
-		channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
+		S32 channel = gDeferredPostGammaCorrectProgram.enableTexture(LLShaderMgr::DEFERRED_DIFFUSE, mScreen.getUsage());
 		if (channel > -1)
 		{
 			mScreen.bindTexture(0,channel);
@@ -10008,7 +9993,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 	LLGLEnable cull(GL_CULL_FACE);
 
 	//enable depth clamping if available
-	LLGLEnable depth_clamp(gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP : 0);
+	LLGLEnable depth_clamp(/*gGLManager.mHasDepthClamp ? GL_DEPTH_CLAMP :*/ 0);
 
 	if (use_shader)
 	{
@@ -10061,6 +10046,10 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		{
 			gOcclusionProgram.unbind();
 		}
+		else
+		{
+			gDeferredShadowProgram.unbind();
+		}
 	}
 	
 	if (use_shader)
@@ -10091,6 +10080,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
 		
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
+		gDeferredShadowAlphaMaskProgram.unbind();
 
 		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
@@ -10103,6 +10093,7 @@ void LLPipeline::renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera
 		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 
 		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
+		gDeferredTreeShadowProgram.unbind();
 	}
 
 	//glCullFace(GL_BACK);

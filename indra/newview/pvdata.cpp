@@ -65,12 +65,11 @@
 #define LL_SCOUT "Scout"
 #define LL_TESTER "Tester"
 
-static const std::string* _pv_url_prod_a = new std::string("https://data.polarityviewer.org/live/6/agents.xml");
-static const std::string* _pv_url_prod_d = new std::string("https://data.polarityviewer.org/live/6/data.xml");
-static const std::string* _pv_url_test_a = new std::string("https://data.polarityviewer.org/test/6/agents.xml");
-static const std::string* _pv_url_test_d = new std::string("https://data.polarityviewer.org/test/6/data.xml");
+static const std::string* _pv_url_prod_a = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/agents.xml");
+static const std::string* _pv_url_prod_d = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/data.xml");
+static const std::string* _pv_url_test_a = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/agents.xml");
+static const std::string* _pv_url_test_d = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/data.xml");
 
-PVSearchUtil*		gPVSearchUtil = NULL;
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
 // Static initialization
@@ -102,14 +101,14 @@ size_t strnlen(const char *s, size_t n)
 
 void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 {
-	std::stringstream str;
-	LLSDSerialize::toPrettyXML(map, str);
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LL_INFOS()
-#else
-	LL_DEBUGS()
-#endif
-		<< "\n===========================\n<!--  <" << name << "> -->\n" << str.str() << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
+	static LLCachedControl<bool> dump_data(gSavedSettings, "PVData_DumpLLSD");
+	if(!dump_data)
+	{
+		return;
+	}
+	LL_INFOS() << "\n===========================\n<!--  <" << name << "> -->\n";
+	LLSDSerialize::toPrettyXML(map, LL_CONT);
+	LL_CONT << "\n<!--  </" << name << "> -->\n===========================\n" << LL_ENDL;
 }
 
 // ########   #######  ##      ## ##    ## ##        #######     ###    ########  ######## ########
@@ -218,11 +217,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 											const bool& download_failed
 )
 {
-	static LLCachedControl<bool> dump_web_data(gSavedSettings, "PVDebug_DumpWebData", false);
-	if (dump_web_data)
-	{
-		Dump(http_source_url, http_content);
-	}
+	Dump(http_source_url, http_content);
 	if (*_pv_url_prod_d == http_source_url || *_pv_url_test_d == http_source_url)
 	{
 		LL_INFOS() << "Got DATA file" << LL_ENDL;
@@ -322,7 +317,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
 
-#if PVDATA_MOTD
 	// Set Message Of The Day if present
 	section = pv_data_sections_.at(PVDataOldAPI::MOTD);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
@@ -338,7 +332,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL; // Don't warn on this one
 	}
 
-#if PVDATA_MOTD_CHAT
 	section = pv_data_sections_.at(ChatMOTD);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
@@ -353,7 +346,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
-#endif // PVDATA_MOTD_CHAT
 
 	section = pv_data_sections_.at(EventsMOTD);
 	// If the event falls within the current date, use that for MOTD instead.
@@ -370,9 +362,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	{
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL; // don't warn on this one
 	}
-#endif // PVDATA_MOTD
 
-#if PVDATA_PROGRESS_TIPS
 	section = pv_data_sections_.at(ProgressTip);
 	//@todo: Split tips files
 	// Load the progress screen tips
@@ -389,7 +379,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
 
-#endif // PVDATA_PROGRESS_TIPS
 
 	section = pv_data_sections_.at(WindowTitles);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
@@ -851,35 +840,6 @@ void PVDataOldAPI::cleanup()
 	pvdata_refresh_timer_.stop();
 }
 
-U32 PVSearchUtil::PVSearchSeparatorSelected = gPVSearchUtil->separator_space;
-
-U32 PVSearchUtil::getSearchSeparatorFromSettings()
-{
-	static LLCachedControl<U32> settings_separator(gSavedSettings, "PVUI_SubstringSearchSeparator", separator_space);
-	LL_DEBUGS() << "Search separator index from settings: '" << settings_separator << "'" << LL_ENDL;
-	return settings_separator;
-}
-
-void PVSearchUtil::setSearchSeparator(const U32 separator_in_u32)
-{
-	PVSearchSeparatorSelected = separator_in_u32;
-	LL_DEBUGS() << "Setting search separator to '" << separator_in_u32 << "'" << "('" << getSearchSeparator() << "')" << LL_ENDL;
-	gSavedSettings.setU32("PVUI_SubstringSearchSeparator", separator_in_u32);
-}
-
-std::string PVSearchUtil::getSearchSeparator()
-{
-	auto separator = gPVSearchUtil->PVSearchSeparatorAssociation[PVSearchSeparatorSelected];
-	LL_DEBUGS() << "Search separator from runtime: '" << separator << "'" << LL_ENDL;
-	return separator;
-}
-
-std::string PVSearchUtil::getSearchSeparator(const U32 separator_to_get_u32) const
-{
-	PVSearchSeparatorSelected = separator_to_get_u32;
-	return getSearchSeparator();
-}
-
 //@todo replace with proper code fixes
 std::string PVDataOldAPI::getPreferredName(const LLAvatarName& av_name)
 {
@@ -968,115 +928,6 @@ std::string getRegKey(const std::string& name_) {
 	return value;
 }
 
-void PVDataOldAPI::getChatLogsDirOverride()
-{
-	const std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
-	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
-	char* log_location_from_registry = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
-
-	auto log_location_from_runtime = gDirUtilp->getChatLogsDir();
-	std::string new_chat_logs_dir = "";
-	if (log_location_from_settings.empty() || log_location_from_registry == NULL)
-	{
-		new_chat_logs_dir = gDirUtilp->getOSUserAppDir();
-	}
-	else if (log_location_from_registry != NULL && log_location_from_registry[0] != '\0')
-	{
-		new_chat_logs_dir = log_location_from_registry;
-	}
-	//if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
-	//{
-	LL_DEBUGS() << "Would set logs location to: " + new_chat_logs_dir << LL_ENDL;
-	LL_DEBUGS() << "gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir() << LL_ENDL;
-
-	LL_WARNS() << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
-	//}
-	if (new_chat_logs_dir.empty())
-	{
-		LL_ERRS() << "new_chat_logs_dir is null!" << LL_ENDL;
-	}
-	else if (new_chat_logs_dir == "")
-	{
-		LL_ERRS() << "new_chat_logs_dir is empty!" << LL_ENDL;
-	}
-	else
-	{
-		gDirUtilp->setChatLogsDir(new_chat_logs_dir);
-	}
-
-	if (new_chat_logs_dir != gDirUtilp->getChatLogsDir())
-	{
-		LL_DEBUGS() << "Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir() << LL_ENDL;
-	}
-
-	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
-}
-
-// Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
-bool PVDataOldAPI::moveTranscriptsAndLog(const std::string &userid) const
-{
-	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
-	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);
-
-	bool madeDirectory = false;
-
-	//Does the directory really exist, if not then make it
-	if (!LLFile::isdir(chatLogPath))
-	{
-		//mkdir success is defined as zero
-		if (LLFile::mkdir(chatLogPath) != 0)
-		{
-			return false;
-		}
-		madeDirectory = true;
-	}
-
-	std::string originalConversationLogDir = LLConversationLog::instance().getFileName();
-	std::string targetConversationLogDir = gDirUtilp->add(chatLogPath, "conversation.log");
-	//Try to move the conversation log
-	if (!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
-	{
-		//Couldn't move the log and created a new directory so remove the new directory
-		if (madeDirectory)
-		{
-			LLFile::rmdir(chatLogPath);
-		}
-		return false;
-	}
-
-	//Attempt to move transcripts
-	std::vector<std::string> listOfTranscripts;
-	std::vector<std::string> listOfFilesMoved;
-
-	LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
-
-	if (!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
-									instantMessageLogPath,
-									listOfTranscripts,
-									listOfFilesMoved))
-	{
-		//Couldn't move all the transcripts so restore those that moved back to their old location
-		LLLogChat::moveTranscripts(instantMessageLogPath,
-								   gDirUtilp->getChatLogsDir(),
-								   listOfFilesMoved);
-
-		//Move the conversation log back
-		LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
-
-		if (madeDirectory)
-		{
-			LLFile::rmdir(chatLogPath);
-		}
-
-		return false;
-	}
-
-	gDirUtilp->setChatLogsDir(instantMessageLogPath);
-	gDirUtilp->updatePerAccountChatLogsDir();
-
-	return true;
-}
-
 std::string PVDataOldAPI::getToken()
 {
 #if INTERNAL_BUILD
@@ -1143,7 +994,6 @@ void PVDataOldAPI::setBeggarCheck(const bool enabled)
 
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETDATAFOR("!PVAgentData Get Agent");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOR("!PVAgentData Get Color");
-static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETCOLOROLD("!PVData Get Color");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLEHUMANREADABLE("!PVAgentData Get Title HR");
 static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgentData Get Title");
 
@@ -1286,91 +1136,84 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 }
 LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool show_buddy_status)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
-	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOROLD);
-#endif
-	if (!RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
+
+	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
+	if ((!show_buddy_status && !use_color_manager) || !RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
 	{
 		return default_color;
 	}
 	// Try to operate in the same instance, reduce call overhead
-	LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
-
-	auto return_color = default_color; // color we end up with at the end of the logic
-
+	LLUIColorTable* cTablePtr				= LLUIColorTable::getInstance();
+	LLColor4 return_color					= default_color; // color we end up with at the end of the logic
+	bool is_friend_and_show 				= false;
+	static LLColor4 friend_color		= cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
+	if(show_buddy_status)
+	{
+		static LLCachedControl<bool> show_friends_option(gSavedSettings, "NameTagShowFriends");
+		is_friend_and_show 								= (show_friends_option && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
+		if (!use_color_manager)
+		{
+			return is_friend_and_show ? friend_color : default_color;
+		}
+	}
 	// Some flagged users CAN be muted.
 	if (LLMuteList::instance().isMuted(id))
 	{
-		static auto muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey); // ugh duplicated code
-		return_color = muted_color.get();
-		return return_color;
+		static LLColor4 muted_color = cTablePtr->getColor("PlvrMutedChatColor", LLColor4::grey);
+		return muted_color;
 	}
-
-	static LLCachedControl<bool> show_friends(gSavedSettings, "NameTagShowFriends");
-	auto show_f = (show_friends && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
-	static auto friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
-	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-	if (!use_color_manager)
+	LLColor4 pvdata_color = return_color;
+	// if the agent isn't a special agent, nullptr is returned.
+	auto agentPtr = find(id);
+	if (agentPtr)
 	{
-		return show_f ? friend_color : default_color;
+		pvdata_color = agentPtr->getColorInternal(*cTablePtr);
 	}
-	else
+	/*	Respect user preferences
+		Expected behavior:
+		+Friend, +PVDATA, +lpf = show PVDATA
+		+Friend, +PVDATA, -lpl = show FRIEND
+		+Friend, -PVDATA, +lpl = show FRIEND
+		+Friend, -PVDATA, -lpl = show FRIEND
+		-Friend, +PVDATA, +lpl = show PVDATA
+		-Friend, +PVDATA, -lpl = show PVDATA
+		-Friend, -PVDATA, +lpl = show FALLBACK
+		-Friend, -PVDATA, -lpl = show FALLBACK
+	*/
+	static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
+	// Lengthy but fool-proof.
+	if (is_friend_and_show && agentPtr && low_priority_friend_status)
 	{
-		LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
-		auto pvdata_color = default_color;
-		// if the agent isn't a special agent, nullptr is returned.
-		auto agentPtr = find(id);
-		if (agentPtr)
-		{
-			pvdata_color = agentPtr->getColorInternal(*cTablePtr);
-		}
-
-		/*	Respect user preferences
-			Expected behavior:
-			+Friend, +PVDATA, +lpf = show PVDATA
-			+Friend, +PVDATA, -lpl = show FRIEND
-			+Friend, -PVDATA, +lpl = show FRIEND
-			+Friend, -PVDATA, -lpl = show FRIEND
-			-Friend, +PVDATA, +lpl = show PVDATA
-			-Friend, +PVDATA, -lpl = show PVDATA
-			-Friend, -PVDATA, +lpl = show FALLBACK
-			-Friend, -PVDATA, -lpl = show FALLBACK
-		*/
-
-		static LLCachedControl<bool> low_priority_friend_status(gSavedSettings, "PVColorManager_LowPriorityFriendStatus", true);
-		// Lengthy but fool-proof.
-		if (show_f && agentPtr && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (show_f && agentPtr && !low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (show_f && !agentPtr && low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (show_f && !agentPtr && !low_priority_friend_status)
-		{
-			return_color = friend_color;
-		}
-		if (!show_f && agentPtr && low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && agentPtr && !low_priority_friend_status)
-		{
-			return_color = pvdata_color;
-		}
-		if (!show_f && !agentPtr && low_priority_friend_status)
-		{
-			return_color = default_color;
-		}
-		if (!show_f && !agentPtr && !low_priority_friend_status)
-		{
-			return_color = default_color;
-		}
+		return_color = pvdata_color;
+	}
+	if (is_friend_and_show && agentPtr && !low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (is_friend_and_show && !agentPtr && low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (is_friend_and_show && !agentPtr && !low_priority_friend_status)
+	{
+		return_color = friend_color;
+	}
+	if (!is_friend_and_show && agentPtr && low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!is_friend_and_show && agentPtr && !low_priority_friend_status)
+	{
+		return_color = pvdata_color;
+	}
+	if (!is_friend_and_show && !agentPtr && low_priority_friend_status)
+	{
+		return_color = default_color;
+	}
+	if (!is_friend_and_show && !agentPtr && !low_priority_friend_status)
+	{
+		return_color = default_color;
 	}
 	return return_color;
 }

@@ -28,8 +28,6 @@
 #ifndef LLAVATARNAME_H
 #define LLAVATARNAME_H
 
-#include <string>
-
 class LLSD;
 
 class LL_COMMON_API LLAvatarName

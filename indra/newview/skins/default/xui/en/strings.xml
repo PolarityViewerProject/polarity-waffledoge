@@ -11,6 +11,12 @@
 	<string name="CAPITALIZED_APP_NAME">SECOND LIFE</string>
 	<string name="SECOND_LIFE_GRID">Second Life Grid</string>
 	<string name="SUPPORT_SITE">Second Life Support Portal</string>
+	<!-- The value for these isn't used, it is filled on the code side. However not adding
+	them here causes a warning to be emitted. -->
+	<string name="PROJECT_DOMAIN">NaN</string>
+	<string name="PROJECT_HOMEPAGE">NaN</string>
+	<string name="PROJECT_STRING">NaN</string>
+	<string name="PROJECT_UPDATE_URL">NaN</string>
 
 	<!-- starting up -->
 	<string name="StartupDetectingHardware">Detecting hardware...</string>
@@ -22,22 +28,22 @@
 
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
-[VIEWER_VERSION][BUILD_ARCH], [BUILD_DATE], [BUILD_TIME]
-[[VIEWER_RELEASE_NOTES_URL] [ReleaseNotes]]
+[VIEWER_VERSION] [BUILD_HASH]
+[BUILD_CONFIG]
+Build date: [BUILD_DATE], [BUILD_TIME]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
+[VIEWER_RELEASE_NOTES_URL]
 	</string>
 	<string name="AboutCompiler">Built with [COMPILER] version [COMPILER_VERSION]</string>
-	<string name="BuildConfig">[BuildConfiguration]: [BUILD_CONFIG]</string>
-
 	<string name="AboutPosition">
 SLURL: [SLURL];
 Global Coord: &lt;[POSITION_0,number,1], [POSITION_1,number,1], [POSITION_2,number,1]&gt;
-Simulator Address: [HOSTNAME] ([http://[HOSTIP] [HOSTIP]])
+Simulator Address: [http://[HOSTNAME] [HOSTNAME]] ([http://[HOSTIP] [HOSTIP]])
 [[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<string name="AboutPositionRLVShowLoc">
 You are in [REGION]
-[[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
+Server version: [[SERVER_RELEASE_NOTES_URL] [SERVER_VERSION]]
 	</string>
 	<!-- *NOTE: Do not translate text like GPU, Graphics Card, etc -
        Most PC users who know what these mean will be used to the English versions,
@@ -74,7 +80,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AboutTraffic">Packets Lost: [PACKETS_LOST,number,0]/[PACKETS_IN,number,0] ([PACKETS_PCT,number,1]%)</string>
 	<string name="AboutTime">Current date: [month, datetime, slt] [day, datetime, slt] [year, datetime, slt] [hour, datetime, slt]:[min, datetime, slt]:[second,datetime,slt]</string>
 	<string name="ErrorFetchingServerReleaseNotesURL">Error fetching server release notes URL.</string>
-	<string name="BuildConfiguration">Build Configuration</string>
+	<string name="BuildConfiguration">Build Configuration:</string>
 	
 	<!--  progress -->
 	<string name="ProgressRestoring">Restoring...</string>
@@ -120,9 +126,8 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AgniGridLabel">Second Life Main Grid (Agni)</string>
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
-	<string name="ViewerDownloadURL">https://www.polarityviewer.org/download</string>
 	<string name="LoginFailedViewerNotPermitted">
-	The viewer you are using can no longer access Second Life. [https://www.polarityviewer.org/download Upgrade], it's FREE!</string>
+	The viewer you are using can no longer access Second Life. [[PROJECT_HOME_PAGE]/download Upgrade], it's FREE!</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
@@ -2914,6 +2919,7 @@ This feature is currently in Beta. Please add your name to this [http://goo.gl/f
 	<!-- Viewer menu -->
 	<string name="AcquiredItems">Acquired Items</string>
 	<string name="Cancel">Cancel</string>
+	<string name="Done">Done</string> <!--pPolarity -->
 	<string name="UploadingCosts">Uploading [NAME] costs L$ [AMOUNT]</string>
 	<string name="BuyingCosts">Buying this costs L$ [AMOUNT]</string>
 	<string name="UnknownFileExtension">
@@ -4387,7 +4393,7 @@ Try enclosing path to the editor with double quotes.
   </string>
 
  <!-- Settings sanity checks -->
-  <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be at [VALUE_1].</string>
+  <string name="SanityCheckEquals"> &quot;[CONTROL_NAME]&quot; should be [VALUE_1].</string>
   <string name="SanityCheckNotEquals">&quot;[CONTROL_NAME]&quot; should not be set to [VALUE_1].</string>
   <string name="SanityCheckLessThan"> &quot;[CONTROL_NAME]&quot; should be lower than [VALUE_1].</string>
   <string name="SanityCheckGreaterThan"> &quot;[CONTROL_NAME]&quot; should be higher than [VALUE_1].</string>
@@ -4437,7 +4443,7 @@ Try enclosing path to the editor with double quotes.
   <string name="PVDataNoClearance">
     You do not have clearance to use this internal build of [APP_NAME].
     If you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at
-    https://www.polarityviewer.org/download.
+    [PROJECT_HOME_PAGE]/download.
   </string>
   <!-- /PVData -->
   

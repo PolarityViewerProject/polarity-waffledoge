@@ -123,7 +123,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>FSDestroyGLTexturesThreshold</key>
     <map>
@@ -412,6 +412,19 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVData_DumpLLSD</key>
+    <map>
+      <key>Comment</key>
+      <string>Dump PVData LLSD responses to viewer log</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVData_RefreshTimeout</key>
     <map>
       <key>Comment</key>
@@ -444,19 +457,6 @@
       <string>Always keep a media plugin thread to speed up loading.</string>
       <key>Persist</key>
       <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
-    <key>PVDebug_DumpWebData</key>
-    <map>
-      <key>Comment</key>
-      <string>Only for developers</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>HideFromEditor</key>
-      <integer>0</integer>
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
@@ -876,26 +876,6 @@
       <string>Boolean</string>
       <key>Value</key>
       <integer>0</integer>
-    </map>
-    <key>PVRender_ShadowResolution</key>
-    <map>
-      <key>Comment</key>
-      <string>Raw shadow map resolution.
-      X: Close
-      Y: Mid-range
-      Z: Far
-      W: Furthest</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Vector4</string>
-      <key>Value</key>
-      <array>
-        <real>4096</real>
-        <real>2048</real>
-        <real>1024</real>
-        <real>512</real>
-      </array>
     </map>
     <key>PVRender_SyncFarClip</key>
     <map>
@@ -1764,6 +1744,17 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
+    <key>PVUI_ScriptQueueAutoClose</key>
+    <map>
+      <key>Comment</key>
+      <string>Automatically close the script queue (Recompile, Reset, Stop, Run, Delete) when done.</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVUI_ShowMarketplaceInboxPanel</key>
     <map>
       <key>Comment</key>
@@ -1976,16 +1967,16 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVUI_SubstringSearchSeparator</key>
+    <key>PVUI_SubstringSearchMode</key>
     <map>
       <key>Comment</key>
-      <string>Character to use to separate search keywords. Defaults to space</string>
+      <string>Use space instead of &apos;+&apos; to specify additional search terms.</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
-      <string>U32</string>
+      <string>Boolean</string>
       <key>Value</key>
-      <string>0</string>
+      <string>1</string>
     </map>
     <key>PVUI_UseStatsInsteadOfLagMeter</key>
     <map>

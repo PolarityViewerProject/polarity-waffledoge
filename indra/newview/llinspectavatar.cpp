@@ -51,7 +51,9 @@
 #include "lltrans.h"
 
 // <polarity>
-#include "pvdata.h" // for getPreferredName()
+#ifdef PVDATA_SYSTEM
+#include "pvdata.h"
+#endif // for getPreferredName()
 // </polarity>
 class LLFetchAvatarData;
 
@@ -398,6 +400,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			getChild<LLUICtrl>("user_name")->setVisible( true );
 
 		}
+#ifdef PVDATA_SYSTEM
 		// <polarity> Show agent's role
 		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
 		auto pv_agent = PVAgent::find(mAvatarID);
@@ -411,6 +414,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			agent_role->setColor(PVAgent::getColor(mAvatarID, LLColor4::white, false));
 		}
 		// </polarity>
+#endif
 	}
 }
 

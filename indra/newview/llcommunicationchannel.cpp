@@ -31,9 +31,6 @@
 
 #include "llcommunicationchannel.h"
 
-#include <string>
-#include <map>
-
 #include "llagent.h"
 #include "lldate.h"
 #include "llnotifications.h"

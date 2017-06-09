@@ -65,7 +65,6 @@
 
 // Boost (for linux/unix command-line execv)
 #include <boost/tokenizer.hpp>
-#include <boost/shared_ptr.hpp>
 
 // External utility
 #include <string>
@@ -159,7 +158,7 @@ public:
 
 	// typedef std::map<std::string,std::pair<std::list<std::string>,std::list<std::string> > > DiffMap; // this version copies the lists etc., and thus is bad memory-wise
 	typedef std::list<std::string> StringList;
-	typedef boost::shared_ptr<StringList> StringListPtr;
+	typedef std::shared_ptr<StringList> StringListPtr;
 	typedef std::map<std::string, std::pair<StringListPtr,StringListPtr> > DiffMap;
 	DiffMap mDiffsMap;							// map, of filename to pair of list of changed element paths and list of errors
 

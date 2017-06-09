@@ -36,25 +36,6 @@
   tool_tip="Type in one or more keywords to search for"
   top="0"
   width="230" />
-<combo_box
- control_name="PVUI_SubstringSearchSeparator"
- name="search_separator_combo_box"
- follows="top|right"
- width="75"
- height="25"
- left_pad="2"
- tool_tip="Search Separator"
- top_delta="0"
- layout="topleft">
-  <combo_box.item value="0"   label="Space" />
-  <combo_box.item value="1"   label="Plus ( + )" />
-  <combo_box.item value="2"   label="Comma ( , )" />
-  <combo_box.item value="3"   label="Pipe ( | )" />
-  <!-- I'm not really sure why these would be desired, but they are supported. -->
-  <!-- <combo_box.item value="5"   label=";" /> -->
-  <!-- <combo_box.item value="6"   label="." /> -->
-  <!-- <combo_box.item value="7"   label=":" /> -->
-</combo_box>
 
  <combo_box
   name="filter_combo_box"

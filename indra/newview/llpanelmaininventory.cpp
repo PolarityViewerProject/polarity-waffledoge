@@ -58,7 +58,9 @@
 #include "llsidepanelinventory.h"
 #include "llfolderview.h"
 #include "llradiogroup.h"
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
@@ -280,14 +282,6 @@ BOOL LLPanelMainInventory::postBuild()
 	}
 	// </FS:Zi> Filter dropdown
 	
-	// <polarity> Search separator dropdown
-	mSeparatorComboBox = getChild<LLComboBox>("search_separator_combo_box");
-	if(mSeparatorComboBox)
-	{
-		mSeparatorComboBox->setCommitCallback(boost::bind(&LLPanelMainInventory::onSeparatorSelected, this, _2));
-	}
-	// </polarity>
-
 	mGearMenuButton = getChild<LLMenuButton>("options_gear_btn");
 
 	initListCommandsHandlers();
@@ -666,59 +660,6 @@ void LLPanelMainInventory::updateFilterDropdown(const LLInventoryFilter* filter)
 	mFilterComboBox->setValue(controlName);
 }
 // ## Zi: Filter dropdown
-
-void LLPanelMainInventory::onSeparatorSelected(const std::string& separator_selected)
-{
-	if (!mActivePanel)
-		return;
-	LLFloaterInventoryFinder* finder = getFinder();
-	if (!separator_selected.empty())
-	{
-		PVSearchUtil::getInstance()->setSearchSeparator(std::stoi(separator_selected));
-		// clear, then restore search string to make the new separator effective
-		// TODO: Find a better way to refresh search results
-		std::string old_substring = mFilterSubString;
-		mActivePanel->setFilterSubString(LLStringUtil::null);
-		mActivePanel->setFilterSubString(old_substring);
-	}
-	// invalid selection (broken XML?)
-	else
-	{
-		LL_WARNS() << "Invalid separator selection: " << separator_selected << LL_ENDL;
-		return;
-	}
-	//mActivePanel->setFilterTypes(filterTypes);
-	if (finder)
-		finder->updateElementsFromFilter();
-}
-// reflect state of current filter selection in the dropdown list
-void LLPanelMainInventory::updateSeparatorDropdown(const LLInventoryFilter* filter)
-{
-	if (!mFilterComboBox)
-		return;
-	// extract filter bits we need to see
-	U64 filterTypes = filter->getFilterObjectTypes() & mSeparatorMask;
-	std::string controlName;
-	// check if the filter types match our filter mask, meaning "All"
-	//if (filterTypes == mSeparatorMask)
-	//	controlName = "filter_type_all";
-	//else
-	{
-		// find the name of the current filter in our filter map, if exists
-		for (std::map<std::string, U64>::iterator i = mFilterMap.begin(); i != mFilterMap.end(); ++i)
-		{
-			if ((*i).second == filterTypes)
-			{
-				controlName = (*i).first;
-				break;
-			}
-		}
-		// no filter type found in the map, must be a custom filter
-		//if (controlName.empty())
-		//	controlName = "filter_type_custom";
-	}
-	mFilterComboBox->setValue(controlName);
-}
 
  //static
  BOOL LLPanelMainInventory::incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward)

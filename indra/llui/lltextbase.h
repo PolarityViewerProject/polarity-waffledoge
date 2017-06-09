@@ -35,11 +35,7 @@
 #include "llkeywords.h"
 #include "llpanel.h"
 
-#include <string>
-#include <vector>
 #include <set>
-
-#include <boost/signals2.hpp>
 
 class LLScrollContainer;
 class LLContextMenu;

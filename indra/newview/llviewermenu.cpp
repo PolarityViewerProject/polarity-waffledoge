@@ -84,6 +84,7 @@
 #include "llfloaterbuildoptions.h"
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
+#include "llglsandbox.h"
 #include "llgroupmgr.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
@@ -145,6 +146,8 @@
 #include "llstartup.h"
 #include "boost/unordered_map.hpp"
 #include "llcleanup.h"
+#include "roles_constants.h"
+
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
@@ -8099,13 +8102,11 @@ class LLAdvancedClickRenderProfile: public view_listener_t
 	}
 };
 
-F32 gpu_benchmark();
-
 class LLAdvancedClickRenderBenchmark: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		gpu_benchmark();
+		gpu_benchmark(true);
 		return true;
 	}
 };

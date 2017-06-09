@@ -52,7 +52,9 @@
 #include "llpanellogin.h"
 #include "llviewertexture.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 LLProgressView* LLProgressView::sInstance = NULL;
 
@@ -321,7 +323,13 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
+	// TODO: Set the progress tip once at the start of the progress screen instead of
+	// short-circuiting here.
+#ifdef PVDATA_SYSTEM
 	mMessage = gPVOldAPI->getNewProgressTip();
+#else
+	mMessage = msg;
+#endif
 	//gAgent.mMOTD.assign(mMessage);
 	getChild<LLUICtrl>("message_text")->setValue(mMessage);
 }

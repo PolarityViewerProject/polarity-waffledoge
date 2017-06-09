@@ -32,9 +32,6 @@
 
 #include "lluuid.h"
 
-#include <map>
-#include <boost/shared_ptr.hpp>
-
 namespace LLNotificationsUI
 {
 /**

@@ -139,7 +139,6 @@
 #endif
 
 // Third party library includes
-#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/regex.hpp>
@@ -267,7 +266,9 @@
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
 #include "sanitycheck.h"
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvfpsmeter.h"
 #include "llhasheduniqueid.h"
 
@@ -281,7 +282,7 @@ static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 // viewer.cpp - these are only used in viewer, should be easily moved.
 
 #if LL_DARWIN
-const char * const LL_VERSION_BUNDLE_ID = "org.polarityviewer.viewer";
+const char * const LL_VERSION_BUNDLE_ID = "org." + PROJECT_STRING + ".viewer";
 extern void init_apple_menu(const char* product);
 #endif // LL_DARWIN
 
@@ -446,6 +447,10 @@ void init_default_trans_args()
 	default_trans_args.insert("SECOND_LIFE"); // World
 	default_trans_args.insert("APP_NAME");
 	default_trans_args.insert("CAPITALIZED_APP_NAME");
+	default_trans_args.insert("PROJECT_STRING");
+	default_trans_args.insert("PROJECT_DOMAIN");
+	default_trans_args.insert("PROJECT_HOMEPAGE");
+	default_trans_args.insert("PROJECT_UPDATE_URL");
 	default_trans_args.insert("SECOND_LIFE_GRID");
 	default_trans_args.insert("SUPPORT_SITE");
 	// This URL shows up in a surprising number of places in various skin
@@ -1723,9 +1728,10 @@ bool LLAppViewer::cleanup()
 	// stop our FPS meter logic
 	PVFPSMeter::stop();
 
+#ifdef PVDATA_SYSTEM
 	// stop PVData refresh timer
 	gPVOldAPI->cleanup();
-
+#endif
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
@@ -2516,11 +2522,13 @@ bool LLAppViewer::initConfiguration()
 	{
 		c->setValue(true, false);
 	}
-	c = gSavedSettings.getControl("AllowMultipleViewers");
-	if (c)
-	{
-		c->setValue(true, false);
-	}
+	// <polarity> Don't forcefully enable multiple viewers for dev builds, this makes
+	// debugging file markers impossible.
+	//c = gSavedSettings.getControl("AllowMultipleViewers");
+	//if (c)
+	//{
+	//	c->setValue(true, false);
+	//}
 
 	gSavedSettings.setBOOL("QAMode", TRUE );
 	gSavedSettings.setS32("WatchdogEnabled", 0);
@@ -3017,6 +3025,10 @@ void LLAppViewer::initStrings()
 	}
 	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
 	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", CAPITALIZED_APP_NAME);
+	LLTrans::setDefaultArg("[PROJECT_STRING]",PROJECT_STRING);
+	LLTrans::setDefaultArg("[PROJECT_DOMAIN]",PROJECT_DOMAIN);
+	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]",PROJECT_HOMEPAGE);
+	LLTrans::setDefaultArg("[PROJECT_UPDATE_URL]",PROJECT_UPDATE_URL);
 }
 
 namespace {
@@ -3212,8 +3224,10 @@ void LLAppViewer::initUpdater()
 						 gPlatform,
 						 getOSInfo().getOSVersionString(),
 						 willing_to_test,
-						 hardware_id,
-						 gPVOldAPI->getToken()
+						 hardware_id
+#ifdef PVDATA_SYSTEM
+						,gPVOldAPI->getToken()
+#endif
 						 );
  	mUpdater->setCheckPeriod(check_period);
 	mUpdater->setBandwidthLimit((int)gSavedSettings.getF32("UpdaterMaximumBandwidth") * (1024/8));
@@ -3388,45 +3402,64 @@ LLSD LLAppViewer::getViewerInfo() const
 	// is available to a getInfo() caller as to the user opening
 	// LLFloaterAbout.
 	LLSD info;
-	// <polarity> Save a few calls...
-	//LLSD version;
-	//version.append(LLVersionInfo::getMajor());
-	//version.append(LLVersionInfo::getMinor());
-	//version.append(LLVersionInfo::getPatch());
-	//version.append(LLVersionInfo::getBuild());
-	// info["VIEWER_VERSION"] = version;
-	// info["VIEWER_VERSION_STR"] = LLVersionInfo::getVersion();
-	//info["VIEWER_VERSION"] = LLVersionInfo::getVersion();
-	//info["BUILD_DATE"] = __DATE__;
-	//info["BUILD_TIME"] = __TIME__;
-	//info["CHANNEL"] = LLVersionInfo::getChannel();
 	info["VIEWER_VERSION"] = LLVersionInfo::getChannelAndVersionStatic();
 	info["BUILD_DATE"] = __DATE__;
 	info["BUILD_TIME"] = __TIME__;
-	// </polarity>
 
-
-	std::string build_config = LLVersionInfo::getBuildConfig();
-	//if (build_config != "Release")
-	//{
-		static const std::string build_config_string = LLTrans::getString("BuildConfiguration");
-		info["BuildConfiguration"] = build_config_string;
-		info["BUILD_CONFIG"] = build_config;
-	//}
+ // <polarity>
+#if LL_X86_64
+	static const std::string build_arch = "x64, "; // <polarity>
+#else
+	static const std::string build_arch = "x86, ";
+#endif
+	static const std::string build_config = LLVersionInfo::getBuildConfig();
+#if INTERNAL_BUILD
+	static const std::string internal_string = ", " + LLTrans::getString("InternalBuild");
+#else
+	static const std::string internal_string = "";
+#endif
+	static const std::string build_config_string = LLTrans::getString("BuildConfiguration") + " ";
+	info["BUILD_CONFIG"] = build_config_string + build_arch + build_config + internal_string;
 
 	std::string rel_notes = gSavedSettings.getString("LastReleaseNotesURL");
 	if (!rel_notes.empty())
 	{
-		info["VIEWER_RELEASE_NOTES_URL"] = rel_notes;
+		// allow the "Release Notes" URL label to be localized
+		static const std::string release_notes_text = LLTrans::getString("ReleaseNotes");
+		static const std::string release_notes_url = "[" + rel_notes + " " + LLTrans::getString("ReleaseNotes") + "]";
+		info["VIEWER_RELEASE_NOTES_URL"] = release_notes_url;
 	}
 	else
 	{
-		// give fallback to prevent empty string
-		info["VIEWER_RELEASE_NOTES_URL"] = VIEWER_RELEASE_NOTES_URL_FALLBACK;
+		info["VIEWER_RELEASE_NOTES_URL"] = "";
 	}
-	
 
 	info["LATEST_MERGED_VERSION"] = LLVersionInfo::getLastLindenRelease();
+	// <polarity> build url to the commit the viewer was built on
+	// TODO: Get url from repo config maybe?
+	static const std::string channel_name_release	= "Polarity Release";
+	static const std::string channel_name_beta		= "Polarity Beta";
+	static const std::string channel_name_nightly	= "Polarity Project XenNightly";
+
+	std::string commit_url = "[";
+	if(LLVersionInfo::getChannel() == channel_name_release)
+	{
+		commit_url += "https://bitbucket.org/polarityviewer/polarity-release/commits/";
+	}
+	else if(LLVersionInfo::getChannel() == channel_name_beta)
+	{
+		commit_url += "https://bitbucket.org/polarityviewer/polarity-beta/commits/";
+	}
+	else if(LLVersionInfo::getChannel() == channel_name_nightly)
+	{
+		commit_url += "https://bitbucket.org/polarityviewer/xenhat.polarity-development/commits/";
+	}
+	if(commit_url != "[")
+	{
+		commit_url += LLVersionInfo::getBuildCommitHashLong() + " ";
+	}
+	commit_url += LLVersionInfo::getBuildCommitHash() +"]";
+	info["BUILD_HASH"] = commit_url;
 
 	// return a URL to the Latest merged Linden Lab release
 	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
@@ -3440,13 +3473,6 @@ LLSD LLAppViewer::getViewerInfo() const
 #elif LL_GNUC
 	info["COMPILER"] = "GCC";
 	info["COMPILER_VERSION"] = GCC_VERSION;
-#endif
-
-// <polarity> Don't show "x86_64", this is the normal build type.
-#if !LL_X86_64
-	info["BUILD_ARCH"] = " (x86)";
-#else
-	info["BUILD_ARCH"] = "";
 #endif
 
 	// Position
@@ -3628,21 +3654,14 @@ std::string LLAppViewer::getViewerInfoString() const
 
 	// Now build the various pieces
 	support << LLTrans::getString("AboutHeader", args);
-	if (info.has("BUILD_CONFIG"))
-	{
-		support << "\n" << LLTrans::getString("BuildConfig", args);
-#if INTERNAL_BUILD
-		support << "\n" << LLTrans::getString("InternalBuild", args);
-#endif
-	}
 	if (info.has("REGION"))
 	{
 // [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		support << "\n\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args);
+		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args) << "\n";
 // [/RLVa:KB]
 //		support << "\n\n" << LLTrans::getString("AboutPosition", args);
 	}
-	support << "\n\n" << LLTrans::getString("AboutSystem", args);
+	support << "\n" << LLTrans::getString("AboutSystem", args);
 #if MAKE_ABOUT_FLOATER_HANG
 	support << "\n";
 	if (info.has("GRAPHICS_DRIVER_VERSION"))
@@ -5201,9 +5220,11 @@ void LLAppViewer::idle()
 		return;
     }
 
+#ifdef PVDATA_SYSTEM
 	// <polarity>
 	gPVOldAPI->refreshDataFromServer();
 	// </polarity>
+#endif
 
 	gViewerWindow->updateUI();
 
@@ -5395,7 +5416,7 @@ void LLAppViewer::idle()
 		gGLActive = TRUE;
 		idleShutdown();
 	}
-
+#ifdef PVDATA_SYSTEM
 	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
 	{
 		BOOL isDebuggerPresent = FALSE;
@@ -5410,6 +5431,7 @@ void LLAppViewer::idle()
 			}
 		}
 	}
+#endif
 }
 
 void LLAppViewer::idleShutdown()
@@ -6048,7 +6070,7 @@ void LLAppViewer::launchUpdater()
 	query_map["channel"] = LLVersionInfo::getChannel();
 	// *TODO constantize this guy
 	// *NOTE: This URL is also used in win_setup/lldownloader.cpp
-	LLURI update_url = LLURI::buildHTTP("polarityviewer.org", 80, "update.php", query_map);
+	LLURI update_url = LLURI::buildHTTP(PROJECT_DOMAIN, 80, "update.php", query_map);
 	
 	if(LLAppViewer::sUpdaterInfo)
 	{

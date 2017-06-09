@@ -31,9 +31,6 @@
 
 #include "lleventapi.h"
 #include "llnotificationptr.h"
-#include <boost/shared_ptr.hpp>
-#include <map>
-#include <string>
 
 class LLNotifications;
 class LLSD;
@@ -61,7 +58,7 @@ private:
     static LLSD asLLSD(LLNotificationPtr);
 
     class Forwarder;
-    typedef std::map<std::string, boost::shared_ptr<Forwarder> > ForwarderMap;
+    typedef std::map<std::string, std::shared_ptr<Forwarder> > ForwarderMap;
     ForwarderMap mForwarders;
 	LLNotifications & mNotifications;
 };

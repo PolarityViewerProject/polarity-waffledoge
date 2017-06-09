@@ -312,10 +312,12 @@ LLTeleportHistoryFlatItemStorage::getFlatItemForPersistentItem (
 			item->setVisible(TRUE);
 			item->updateTitle();
 			item->updateTimestamp();
+			LL_INFOS() << "Adding Teleport History item '" << persistent_item.mTitle.c_str() << "' with date '" << persistent_item.mDate.asString() << "'" << LL_ENDL;
 		}
 		else
 		{
 			// Item already added to parent
+			LL_INFOS() << "Skipping Teleport History item '" << persistent_item.mTitle.c_str() << "' with date '" << persistent_item.mDate.asString() << "' (already present)" << LL_ENDL;
 			item = NULL;
 		}
 	}

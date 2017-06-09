@@ -185,7 +185,9 @@
 #include "lltabcontainer.h"
 
 #include "pvcommon.h"
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvgpuinfo.h"
 
 // [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c)
@@ -5103,11 +5105,13 @@ void LLViewerWindow::setProgressString(const std::string& string)
 
 void LLViewerWindow::setProgressMessage()
 {
+#ifdef PVDATA_SYSTEM
 	if(mProgressView)
 	{
 		//mProgressView->setMessage(msg);
 		mProgressView->setMessage(gPVOldAPI->getNewProgressTip());
 	}
+#endif
 }
 
 void LLViewerWindow::setProgressPercent(const F32 percent)

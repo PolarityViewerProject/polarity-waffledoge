@@ -92,10 +92,11 @@
 #include "llwindow.h"
 #include "llworld.h"
 #include "llworldmap.h"
-#include "stringize.h"
 #include "boost/foreach.hpp"
 #include "kcwlinterface.h"
 #include "llcorehttputil.h"
+#include "roles_constants.h"
+
 // [RLVa:KB] - Checked: 2011-11-04 (RLVa-1.4.4a)
 #include "rlvactions.h"
 #include "rlvhandler.h"
@@ -103,7 +104,9 @@
 #include "rlvui.h"
 // [/RLVa:KB]
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvfloaterprogressview.h"
 
 using namespace LLAvatarAppearanceDefines;
@@ -259,12 +262,12 @@ private:
 //
 
 /// minimum time after setting away state before coming back based on movement
-const F32 LLAgent::MIN_AFK_TIME = 10.0f;
+const F32 LLAgent::MIN_AFK_TIME = 2.0f;
 
-const F32 LLAgent::TYPING_TIMEOUT_SECS = 5.f;
+const F32 LLAgent::TYPING_TIMEOUT_SECS = 1.f;
 
 std::map<std::string, std::string> LLAgent::sTeleportErrorMessages;
-std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
+//std::map<std::string, std::string> LLAgent::sTeleportProgressMessages;
 
 class LLAgentFriendObserver : public LLFriendObserver
 {
@@ -3302,10 +3305,12 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 		rainbow.setHSL(fmodf((F32)LLFrameTimer::getElapsedSeconds()/4.f, 1.f), 1.f, 0.5f);
 		effect_color.set(rainbow, 1.0f);
 	}
+#ifdef PVDATA_SYSTEM
 	else if(beam_agent)
 	{
 		effect_color = PVAgent::getColor(gAgent.getID(), effect_color);
 	}
+#endif
 	return effect_color;
 }
 
@@ -4603,10 +4608,10 @@ void LLAgent::parseTeleportMessages(const std::string& xml_filename)
 			{
 				teleport_msg_map = &sTeleportErrorMessages;
 			}
-			else if ( message_set_name == "progress" )
-			{
-				teleport_msg_map = &sTeleportProgressMessages;
-			}
+			//else if ( message_set_name == "progress" )
+			//{
+			//	teleport_msg_map = &sTeleportProgressMessages;
+			//}
 		}
 
 		if ( !teleport_msg_map ) continue;

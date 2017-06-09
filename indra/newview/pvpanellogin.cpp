@@ -73,7 +73,9 @@
 #include "llglheaders.h"
 #include "llpanelloginlistener.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 #if LL_WINDOWS
 #pragma warning(disable: 4355)      // 'this' used in initializer list
@@ -280,11 +282,11 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	//							   LLVersionInfo::getShortVersion().c_str(),
 	//							   LLVersionInfo::getBuild());
 	
-	LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
-	if (forgot_password_text)
-	{
-		forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
-	}
+	// LLTextBox* forgot_password_text = getChild<LLTextBox>("forgot_password_text");
+	// if (forgot_password_text)
+	// {
+	// 	forgot_password_text->setClickedCallback(onClickForgotPassword, NULL);
+	// }
 	
 	loadLoginPage();
 
@@ -1063,36 +1065,40 @@ void LLPanelLogin::updateLoginButtons()
 {
 	LLButton* login_btn = getChild<LLButton>("connect_btn");
 
-	sLoginButtonEnabled = false;
-	auto gPVDataOldAPI = PVDataOldAPI::getInstance();
-	if (gPVDataOldAPI->getDataDone())
+	sLoginButtonEnabled = true;
+#ifdef PVDATA_SYSTEM
+	if (gPVOldAPI->getDataDone())
 	{
-		if (!gPVDataOldAPI->isBlockedRelease())
+		if (!gPVOldAPI->isBlockedRelease())
 		{
 			sLoginButtonEnabled = true;
-			static const std::string loginString = LLTrans::getString("Login");
-			login_btn->setLabel(loginString);
 		}
 		else
 		{
-			//enable_button = false;
+			sLoginButtonEnabled = false;
 			static const std::string outdatedString = LLTrans::getString("Outdated");
 			login_btn->setLabel(outdatedString);
 			LLSD args;
-			args["REASON"] = gPVDataOldAPI->getErrorMessage();
+			args["REASON"] = gPVOldAPI->getErrorMessage();
 			LLNotificationsUtil::add("BlockedReleaseReason", args);
 		}
 	}
 	else
 	{
-		//enable_button = false;
+		sLoginButtonEnabled = false;
 		static const std::string plzHoldString = LLTrans::getString("PleaseHold");
 		login_btn->setLabel(plzHoldString);
 	}
-	if (mUsernameLength == 0 || mPasswordLength == 0)
+#endif
+	if ((mUsernameLength == 0 || mPasswordLength == 0))
 	{
 		sLoginButtonEnabled = false;
 		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
+	}
+	if (sLoginButtonEnabled)
+	{
+		static const std::string loginString = LLTrans::getString("Login");
+		login_btn->setLabel(loginString);
 	}
 	login_btn->setEnabled(sLoginButtonEnabled);
 }

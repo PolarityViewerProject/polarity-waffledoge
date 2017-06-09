@@ -32,10 +32,9 @@
 #include "llstring.h"
 #include "v3color.h"
 #include "v4color.h"
-#include <map>
-#include <list>
-#include <deque>
 #include "llpointer.h"
+
+#include <deque>
 
 class LLTextSegment;
 typedef LLPointer<LLTextSegment> LLTextSegmentPtr;

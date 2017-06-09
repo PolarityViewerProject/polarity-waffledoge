@@ -42,6 +42,7 @@
 
 #include "llappviewer.h"
 #include "llbufferstream.h"
+#include "llglsandbox.h"
 #include "llnotificationsutil.h"
 #include "llviewercontrol.h"
 #include "llworld.h"
@@ -58,6 +59,7 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 
+#include "llstartup.h" // for getStartupState
 #include "pvgpuinfo.h" // to update vram immediately
 
 #if LL_DARWIN
@@ -411,12 +413,10 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	return parse_ok;
 }
 
-F32 gpu_benchmark();
-
 bool LLFeatureManager::loadGPUClass()
 {
 	//get memory bandwidth from benchmark
-	F32 gbps = gpu_benchmark();
+	F32 gbps = gpu_benchmark(LLStartUp::getStartupState() >= STATE_BROWSER_INIT); // Only force the benchmark to run on user request (which cannot happen during startup)
 
 	if (gbps < 0.f)
 	{ //couldn't bench, use GLVersion
@@ -448,6 +448,15 @@ bool LLFeatureManager::loadGPUClass()
 		else 
 		{
 			mGPUClass = GPU_CLASS_5;
+		}
+		// Regardless of their OpenGL Support, I refuse to put Intel graphics adapters
+		// that are not part of the IRIS lineup on the same pedetal than discrete gpus,
+		// so let's force them to something more representative of their performance - Xenhat
+		if(gGLManager.mIsIntel) // TODO: Detect IRIS lineup
+		{
+			static const EGPUClass forced_intel_gpu_class = GPU_CLASS_3;
+			LL_INFOS() << "Intel graphics detected, forcing GPU class based on performance (" << mGPUClass << "->" << forced_intel_gpu_class << ")" << LL_ENDL;
+			mGPUClass = forced_intel_gpu_class;
 		}
 #endif
 	}
@@ -758,14 +767,19 @@ void LLFeatureManager::applyBaseMasks()
 	}
 	else if (gGLManager.mIsIntel)
 	{
+		maskFeatures("Intel");
 		if (gGLManager.mGLVersion < 3.f)
 		{
-			maskFeatures("Intel");
+			maskFeatures("IntelOld");
 		}
 		else
 		{
 			maskFeatures("IntelRecent");
 		}
+	}
+	else
+	{
+		LL_WARNS() << "FeatureTable was unable to detect the graphic card vendor!" << LL_ENDL;
 	}
 	if (!gGLManager.mHasFragmentShader)
 	{

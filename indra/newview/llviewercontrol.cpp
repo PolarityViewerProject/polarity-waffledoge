@@ -693,14 +693,9 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 	return true;
 }
 
-static bool validateProjectorShadowMapsChanged(const LLSD& newvalue)
-{
-	return LLPipeline::RenderProjectorShadowResolution != (LLVector3)newvalue;
-}
-
 static bool validateShadowMapsChanged(const LLSD& newvalue)
 {
-	return LLPipeline::RenderShadowResolutionMap != (LLVector4)newvalue;
+	return LLPipeline::RenderShadowResolutionScale != newvalue.asInteger();
 }
 
 // </polarity>
@@ -1007,15 +1002,10 @@ void settings_setup_listeners()
 
 	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 	// TODO: Make these slider work with a vector4
-	static auto shadow_ctrl = gSavedSettings.getControl("PVRender_ShadowResolution");
+	static auto shadow_ctrl = gSavedSettings.getControl("RenderShadowResolutionScale");
 	shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateShadowMapsChanged, _2));
 	shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	// </polarity>
-
-//	// BD
-	static auto proj_shadow_ctrl = gSavedSettings.getControl("PVRender_ProjectorShadowResolution");
-	proj_shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateProjectorShadowMapsChanged, _2));
-	proj_shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 }
 
 #if TEST_CACHED_CONTROL

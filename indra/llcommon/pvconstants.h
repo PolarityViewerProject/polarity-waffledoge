@@ -40,4 +40,9 @@ const std::wstring LAPP_NAME = L"Polarity";
 const LPCWSTR LAPP_NAME_LPCWSTR = LAPP_NAME.c_str();
 #endif
 
+const std::string PROJECT_STRING = "polarityviewer";
+const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
+const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
+const std::string PROJECT_UPDATE_URL = "https://update."+PROJECT_DOMAIN+"/update";
+
 #endif

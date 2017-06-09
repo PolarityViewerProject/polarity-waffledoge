@@ -44,7 +44,9 @@
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "groupchatlistener.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: 2011-03-28 (RLVa-1.3.0)
 #include "llslurl.h"
@@ -246,6 +248,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
+#ifdef PVDATA_SYSTEM
 	if (gPVOldAPI->isSupportGroup(group_id))
 	{
 		auto pv_agent = PVAgent::find(gAgentID);
@@ -256,6 +259,7 @@ void LLGroupActions::join(const LLUUID& group_id)
 		}
 
 	}
+#endif
 
 	LLGroupMgrGroupData* gdatap = 
 		LLGroupMgr::getInstance()->getGroupData(group_id);

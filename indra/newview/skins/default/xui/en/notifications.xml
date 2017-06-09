@@ -8020,7 +8020,7 @@ Do not allow access if you do not fully understand why it wants access to your a
    type="notify">
 The runtime script permission requested by &apos;&lt;nolink&gt;[OBJECTNAME]&lt;/nolink&gt;&apos;, an object owned by &apos;[NAME]&apos;, isn&apos;t recognized by the viewer and can&apos;t be granted.
 
-To grant this permission please update your viewer to the latest version from [DOWNLOADURL].
+To grant this permission please update your viewer to the latest version from [PROJECT_HOMEPAGE]/download.
     <tag>confirm</tag>
     <form name="form">
       <button
@@ -11471,10 +11471,9 @@ Color vector copied to clipboard. Have fun!
 [APP_NAME] has detected a possible issue with your settings:
 
 [SANITY_MESSAGE]
+Current value: &apos;[CURRENT_VALUE]&apos;
 
-Reason: [SANITY_COMMENT]
-
-Current setting: [CURRENT_VALUE]
+[SANITY_COMMENT]
   <form name="form">
     <ignore name="ignore"
      text="A settings control has failed the sanity check."/>

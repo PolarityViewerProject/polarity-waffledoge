@@ -95,7 +95,7 @@ class RlvBehaviourDictionary : public LLSingleton<RlvBehaviourDictionary>
 	friend class RlvFloaterBehaviours;
 
 	LLSINGLETON(RlvBehaviourDictionary);
-	~RlvBehaviourDictionary();
+	virtual ~RlvBehaviourDictionary();
 public:
 	void addEntry(const RlvBehaviourInfo* pEntry);
 	void addModifier(ERlvBehaviour eBhvr, ERlvBehaviourModifier eModifier, RlvBehaviourModifier* pModifierEntry);
@@ -329,7 +329,7 @@ public:
 			mCachedValue = {};
 		}
 	}
-	~RlvBehaviourModifierCache() {}
+	virtual ~RlvBehaviourModifierCache() {}
 
 	/*
 	 * Member functions

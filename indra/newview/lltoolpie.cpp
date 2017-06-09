@@ -77,7 +77,9 @@
 #include "rlvhandler.h"
 // [/RLVa:KB]
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 extern BOOL gDebugClicks;
 
@@ -1144,6 +1146,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				final_name << LLTrans::getString("TooltipPerson");;
 			}
 
+#ifdef PVDATA_SYSTEM
 			// <polarity> Add PVData title to hover tip
 			std::string pv_title;
 			auto pv_agent = PVAgent::find(hover_object->getID());
@@ -1151,7 +1154,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			{
 				final_name << ", " << pv_title;
 			}
-
+#endif
 			// *HACK: We may select this object, so pretend it was clicked
 			mPick = mHoverPick;
 // [RLVa:KB] - Checked: RLVa-1.2.0

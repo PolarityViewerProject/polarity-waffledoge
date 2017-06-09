@@ -131,11 +131,8 @@ void LLMorphView::updateCamera()
 {
 	if (!mCameraTargetJoint)
 	{
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//		setCameraTargetJoint( gAgentAvatarp->getJoint( "mHead" ) );
-		setCameraTargetJoint( gAgentAvatarp->getJoint( JointKey::construct( "mHead" ) ) );
-// </FS:ND>
-	}
+		setCameraTargetJoint(gAgentAvatarp->getJoint("mHead"));
+	}	
 	if (!isAgentAvatarValid()) return;
 
 	LLJoint* root_joint = gAgentAvatarp->getRootJoint();

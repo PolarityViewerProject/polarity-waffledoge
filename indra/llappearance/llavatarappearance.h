@@ -137,10 +137,7 @@ public:
 	LLVector3			mHeadOffset; // current head position
 	LLAvatarJoint		*mRoot;
 
-	// <FS:ND> This map gets queried a huge amount of time.
-	// typedef std::map<std::string, LLJoint*> joint_map_t;
-	typedef boost::unordered_map< U32, LLJoint*> joint_map_t;
-	// </FS:ND>
+	typedef std::map<std::string, LLJoint*> joint_map_t;
 
 	joint_map_t			mJointMap;
 

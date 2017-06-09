@@ -15,7 +15,7 @@
      follows="left|top"
      height="16"
      layout="topleft"
-     left="10"
+     left="3"
      name="memory_used"
      top_pad="10"
      width="250">
@@ -29,26 +29,34 @@
      layout="topleft"
      left_delta="0"
      name="urls_used"
-     top_delta="14"
-     top_pad="10"
+     top_pad="0"
      width="250">
-      Memory used: 9001 Ki
+      URLs used: 418
     </text>
+    <button
+     follows="top|left"
+     height="19"
+     label="Refresh List"
+     layout="topleft"
+     left_delta="1"
+     name="refresh_list_btn"
+     top_pad="0"
+     width="80" />
     <scroll_list
      draw_heading="true"
      follows="all"
-     height="510"
+     height="500"
      layout="topleft"
-     left="5"
+     left_delta="-1"
      multi_select="true"
      name="scripts_list"
      text_color="TextDefaultColor"
-     top="60"
-     width="470">
+     top_pad="5"
+     width="478">
         <scroll_list.columns
-         label="KB"
+         label="Limit (KB)"
          name="size"
-         width="50" />
+         width="65" />
         <scroll_list.columns
          label="URLs"
          name="urls"
@@ -59,28 +67,19 @@
          width="240" />
         <scroll_list.columns
          label="Location"
-         name="location"
-         width="70" />
+         name="location"/>
     </scroll_list>
     <text
      type="string"
      length="1"
+     left_delta="5"
      follows="left|top"
      height="20"
      layout="topleft"
-     top="60"
-     top_delta="60"
+     name="loading_text"
+     top_delta="30"
      text_color="EmphasisColor"
      width="130">
         Retrieving information...
     </text>
-    <button
-     follows="top|left"
-     height="19"
-     label="Refresh List"
-     layout="topleft"
-     left="8"
-     name="refresh_list_btn"
-     top="40"
-     width="80" />
 </panel>

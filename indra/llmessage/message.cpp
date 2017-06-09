@@ -43,9 +43,6 @@
 #include <sstream>
 
 #include "llapr.h"
-#include "apr_portable.h"
-#include "apr_network_io.h"
-#include "apr_poll.h"
 
 // linden library headers
 #include "indra_constants.h"
@@ -78,6 +75,7 @@
 #include "v4math.h"
 #include "lltransfertargetvfile.h"
 #include "llcorehttputil.h"
+#include "llrand.h"
 #include "llpounceable.h"
 
 // Constants
@@ -577,7 +575,7 @@ BOOL LLMessageSystem::checkMessages( S64 frame_count )
 				for(S32 i = 0; i < acks; ++i)
 				{
 					true_rcv_size -= sizeof(TPACKETID);
-					memcpy(&mem_id, &mTrueReceiveBuffer[true_rcv_size], /* Flawfinder: ignore*/
+					memcpy(&mem_id, &buffer[true_rcv_size], /* Flawfinder: ignore*/
 					     sizeof(TPACKETID));
 					packet_id = ntohl(mem_id);
 					//LL_INFOS("Messaging") << "got ack: " << packet_id << LL_ENDL;
@@ -1954,7 +1952,6 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 		{
 			cdp->setRemoteID(id);
 			cdp->setRemoteSessionID(session_id);
-		}
 
 		if (!had_circuit_already)
 		{
@@ -1973,6 +1970,7 @@ void LLMessageSystem::processUseCircuitCode(LLMessageSystem* msg,
 			// (and bad from a state point of view).  DJS 9/23/04
 			//
 			cdp->checkPacketInID(gMessageSystem->mCurrentRecvPacketID, FALSE ); // Since this is the first message on the circuit, by definition it's not resent.
+		}
 		}
 
 		msg->mIPPortToCircuitCode[ip_port_in] = circuit_code_in;
@@ -4033,7 +4031,7 @@ void LLMessageSystem::sendUntrustedSimulatorMessageCoro(std::string url, std::st
     LLSD httpResults = result[LLCoreHttpUtil::HttpCoroutineAdapter::HTTP_RESULTS];
     LLCore::HttpStatus status = LLCoreHttpUtil::HttpCoroutineAdapter::getStatusFromLLSD(httpResults);
 
-    if ((callback) && (!callback.empty()))
+    if (callback && callback != nullptr)
         callback((status) ? LL_ERR_NOERR : LL_ERR_TCP_TIMEOUT);
 }
 

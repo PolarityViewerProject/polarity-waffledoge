@@ -53,13 +53,14 @@
 #include "lluictrlfactory.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
-#include <boost/regex.hpp>
-#include "llcorehttputil.h"
 
+#include "llcorehttputil.h"
+#include "roles_constants.h"
+#include <boost/regex.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include "llsdutil.h" // for ll_pretty_print_sd
-const U32 MAX_CACHED_GROUPS = 20;
+constexpr U32 MAX_CACHED_GROUPS = 20;
 
 //
 // LLRoleActionSet
@@ -138,7 +139,7 @@ LLGroupRoleData::LLGroupRoleData(const LLUUID& role_id,
 	mRoleData.mRoleTitle = role_title;
 	mRoleData.mRoleDescription = role_desc;
 	mRoleData.mRolePowers = role_powers;
-	mRoleData.mChangeType = RC_UPDATE_NONE;
+	mRoleData.mChangeType = LLRoleChangeType::RC_UPDATE_NONE;
 }
 
 LLGroupRoleData::LLGroupRoleData(const LLUUID& role_id, 
@@ -214,6 +215,19 @@ void LLGroupRoleData::clearMembers()
 	mMemberIDs.clear();
 }
 
+//
+// LLRoleData
+//
+
+LLRoleData::LLRoleData() : mRolePowers(0), mChangeType(LLRoleChangeType::RC_UPDATE_NONE)
+{ }
+
+//
+//
+//
+
+LLRoleMemberChange::LLRoleMemberChange() : mChange(LLRoleMemberChangeType::RMC_NONE)
+{ }
 
 //
 // LLGroupMgrGroupData
@@ -255,7 +269,7 @@ BOOL LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_da
 	it = mRoleChanges.find(role_id);
 	if (it != mRoleChanges.end()) 
 	{
-		if ((*it).second.mChangeType == RC_DELETE) return FALSE;
+        if ((*it).second.mChangeType == LLRoleChangeType::RC_DELETE) return FALSE;
 
 		role_data = (*it).second;
 		return TRUE;
@@ -277,17 +291,16 @@ BOOL LLGroupMgrGroupData::getRoleData(const LLUUID& role_id, LLRoleData& role_da
 void LLGroupMgrGroupData::setRoleData(const LLUUID& role_id, LLRoleData role_data)
 {
 	// If this is a newly created group, we need to change the data in the created list.
-	role_data_map_t::iterator it;
-	it = mRoleChanges.find(role_id);
+	auto it = mRoleChanges.find(role_id);
 	if (it != mRoleChanges.end())
 	{
-		if ((*it).second.mChangeType == RC_CREATE)
+        if ((*it).second.mChangeType == LLRoleChangeType::RC_CREATE)
 		{
-			role_data.mChangeType = RC_CREATE;
+			role_data.mChangeType = LLRoleChangeType::RC_CREATE;
 			mRoleChanges[role_id] = role_data;
 			return;
 		}
-		else if ((*it).second.mChangeType == RC_DELETE)
+		else if ((*it).second.mChangeType == LLRoleChangeType::RC_DELETE)
 		{
 			// Don't do anything for a role being deleted.
 			return;
@@ -313,15 +326,15 @@ void LLGroupMgrGroupData::setRoleData(const LLUUID& role_id, LLRoleData role_dat
 
 		if (data_change && powers_change)
 		{
-			role_data.mChangeType = RC_UPDATE_ALL;
+			role_data.mChangeType = LLRoleChangeType::RC_UPDATE_ALL;
 		}
 		else if (data_change)
 		{
-			role_data.mChangeType = RC_UPDATE_DATA;
+			role_data.mChangeType = LLRoleChangeType::RC_UPDATE_DATA;
 		}
 		else
 		{
-			role_data.mChangeType = RC_UPDATE_POWERS;
+			role_data.mChangeType = LLRoleChangeType::RC_UPDATE_POWERS;
 		}
 
 		mRoleChanges[role_id] = role_data;
@@ -346,7 +359,7 @@ void LLGroupMgrGroupData::createRole(const LLUUID& role_id, LLRoleData role_data
 	}
 	else
 	{
-		role_data.mChangeType = RC_CREATE;
+        role_data.mChangeType = LLRoleChangeType::RC_CREATE;
 		mRoleChanges[role_id] = role_data;
 	}
 }
@@ -358,14 +371,14 @@ void LLGroupMgrGroupData::deleteRole(const LLUUID& role_id)
 	// If this was a new role, just discard it.
 	it = mRoleChanges.find(role_id);
 	if (it != mRoleChanges.end() 
-		&& (*it).second.mChangeType == RC_CREATE)
+        && (*it).second.mChangeType == LLRoleChangeType::RC_CREATE)
 	{
 		mRoleChanges.erase(it);
 		return;
 	}
 
 	LLRoleData rd;
-	rd.mChangeType = RC_DELETE;
+    rd.mChangeType = LLRoleChangeType::RC_DELETE;
 	mRoleChanges[role_id] = rd;
 }
 
@@ -504,7 +517,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 		return false;
 	}
 
-	if (RMC_ADD == rmc)
+    if (LLRoleMemberChangeType::RMC_ADD == rmc)
 	{
 		LL_INFOS() << " adding member to role." << LL_ENDL;
 		grd->addMember(member_id);
@@ -514,7 +527,7 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 		//see if they added someone to the owner role and update isOwner
 		gmd->mIsOwner = (role_id == mOwnerRole) ? TRUE : gmd->mIsOwner;
 	}
-	else if (RMC_REMOVE == rmc)
+    else if (LLRoleMemberChangeType::RMC_REMOVE == rmc)
 	{
 		LL_INFOS() << " removing member from role." << LL_ENDL;
 		grd->removeMember(member_id);
@@ -537,13 +550,13 @@ bool LLGroupMgrGroupData::changeRoleMember(const LLUUID& role_id,
 			// Already recorded this change?  Weird.
 			LL_INFOS() << "Received duplicate change for "
 					<< " role: " << role_id << " member " << member_id 
-					<< " change " << (rmc == RMC_ADD ? "ADD" : "REMOVE") << LL_ENDL;
+            << " change " << (rmc == LLRoleMemberChangeType::RMC_ADD ? "ADD" : "REMOVE") << LL_ENDL;
 		}
 		else
 		{
 			// The only two operations (add and remove) currently cancel each other out
 			// If that changes this will need more logic
-			if (rmc == RMC_NONE)
+            if (rmc == LLRoleMemberChangeType::RMC_NONE)
 			{
 				LL_WARNS() << "changeRoleMember: existing entry with 'RMC_NONE' change! This shouldn't happen." << LL_ENDL;
 				LLRoleMemberChange rc(role_id,member_id,rmc);
@@ -670,9 +683,9 @@ void LLGroupMgrGroupData::sendRoleChanges()
 		// Commit to local data set
 		role_it = mRoles.find((*it).first);
 		if ( (mRoles.end() == role_it 
-				&& RC_CREATE != role_data.mChangeType)
+                && LLRoleChangeType::RC_CREATE != role_data.mChangeType)
 			|| (mRoles.end() != role_it
-				&& RC_CREATE == role_data.mChangeType))
+                && LLRoleChangeType::RC_CREATE == role_data.mChangeType))
 		{
 			continue;
 		}
@@ -680,7 +693,7 @@ void LLGroupMgrGroupData::sendRoleChanges()
 		// NOTE: role_it is valid EXCEPT for the RC_CREATE case
 		switch (role_data.mChangeType)
 		{
-			case RC_CREATE:
+            case LLRoleChangeType::RC_CREATE:
 			{
 				// NOTE: role_it is NOT valid in this case
 				grd = new LLGroupRoleData(role_id, role_data, 0);
@@ -688,7 +701,7 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				need_role_data = true;
 				break;
 			}
-			case RC_DELETE:
+            case LLRoleChangeType::RC_DELETE:
 			{
 				LLGroupRoleData* group_role_data = (*role_it).second;
 				delete group_role_data;
@@ -697,12 +710,12 @@ void LLGroupMgrGroupData::sendRoleChanges()
 				need_power_recalc = true;
 				break;
 			}
-			case RC_UPDATE_ALL:
+            case LLRoleChangeType::RC_UPDATE_ALL:
 				// fall through
-			case RC_UPDATE_POWERS:
+            case LLRoleChangeType::RC_UPDATE_POWERS:
 				need_power_recalc = true;
 				// fall through
-			case RC_UPDATE_DATA:
+            case LLRoleChangeType::RC_UPDATE_DATA:
 				// fall through
 			default: 
 			{

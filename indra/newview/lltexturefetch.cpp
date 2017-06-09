@@ -28,12 +28,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <iostream>
-#include <map>
-#include <algorithm>
-
-#include "llstl.h"
-
 #include "lltexturefetch.h"
 
 #include "lldir.h"
@@ -778,7 +772,7 @@ public:
 		: LLTextureFetch::TFRequest(),
 		  mRegionHandle(region_handle)
 		{}
-	TFReqSetRegion & operator=(const TFReqSetRegion &);	// Not defined
+	TFReqSetRegion & operator=(const TFReqSetRegion &) = delete;	// Not defined
 
 	virtual ~TFReqSetRegion()
 		{}
@@ -828,7 +822,7 @@ public:
         const LLUUID & session_id,
         const LLUUID & agent_id,
         LLViewerAssetStats * main_stats);
-	TFReqSendMetrics & operator=(const TFReqSendMetrics &);	// Not defined
+	TFReqSendMetrics & operator=(const TFReqSendMetrics &) = delete;	// Not defined
 
 	virtual ~TFReqSendMetrics();
 

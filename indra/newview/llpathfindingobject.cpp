@@ -32,8 +32,6 @@
 
 #include "llpathfindingobject.h"
 
-#include <string>
-
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
 #include "llsd.h"

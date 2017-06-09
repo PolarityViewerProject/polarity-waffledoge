@@ -40,9 +40,6 @@
 
 #include "lluuid.h"
 #include "llfloater.h"
-#include <map>
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
 
 class LLUICtrl;
 class LLTextBox;

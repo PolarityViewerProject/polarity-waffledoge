@@ -30,7 +30,6 @@
 #include "llsingleton.h"
 #include "llui.h"
 #include "llinitdestroyclass.h"
-#include <boost/signals2.hpp>
 
 class Hunspell;
 

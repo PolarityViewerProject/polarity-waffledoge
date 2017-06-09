@@ -100,6 +100,13 @@ public:
 	 * I'm not sure we we need this yet.
 	 */
 	static std::string format_string(std::string text, const LLStringUtil::format_map_t& args);
+
+	/**
+	 * \brief Attempt to set the chat logs location from environment if available
+	 */
+	static void getChatLogsDirOverride();
+	bool moveTranscriptsAndLog(const std::string &userid) const;
+
 private:
 	static bool sAVX_Checked;
 	static bool sAVXSupported;

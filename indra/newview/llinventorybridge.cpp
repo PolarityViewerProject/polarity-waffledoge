@@ -86,7 +86,9 @@
 #include "lltoolcomp.h"
 #include <boost/shared_ptr.hpp>
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
 #include "rlvactions.h"
@@ -3285,11 +3287,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 	}
 	else if ("delete_system_folder" == action)
 	{
+	#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized())
 		{
 			removeSystemFolder();
 		}
+#endif
 		return;
 	}
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
@@ -4077,11 +4081,13 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 
 	if (LLFolderType::lookupIsProtectedType(type))
 	{
+	#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized())
 		{
 			items.push_back(std::string("Delete System Folder"));
 		}
+#endif
 	}
 
 	// wearables related functionality for folders.

@@ -31,13 +31,6 @@
 
 #include "llfloaterpathfindingobjects.h"
 
-#include <string>
-#include <map>
-#include <vector>
-
-#include <boost/bind.hpp>
-#include <boost/signals2.hpp>
-
 #include "llagent.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"

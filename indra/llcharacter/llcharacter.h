@@ -30,8 +30,6 @@
 //-----------------------------------------------------------------------------
 // Header Files
 //-----------------------------------------------------------------------------
-#include <string>
-
 #include "lljoint.h"
 #include "llmotioncontroller.h"
 #include "llvisualparam.h"
@@ -76,13 +74,7 @@ public:
 	// get the specified joint
 	// default implementation does recursive search,
 	// subclasses may optimize/cache results.
-	// virtual LLJoint *getJoint( const std::string &name );
-
-	//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-	virtual LLJoint *getJoint( const JointKey &name );
-	// </FS:ND>
-
-	LLJoint *getJoint( const std::string &name );
+	virtual LLJoint *getJoint( const std::string &name );
 
 	// get the position of the character
 	virtual LLVector3 getCharacterPosition() = 0;

@@ -36,8 +36,6 @@
 #include "llerror.h"
 
 #include <boost/foreach.hpp>
-#include <boost/signals2.hpp>
-
 
 namespace LLMarketplaceInventoryNotifications
 {

@@ -26,6 +26,8 @@
  * $/LicenseInfo$
  */
 
+#include "linden_common.h"
+
 #include "llfontfreetype.h"
 #include "llfontgl.h"
 
@@ -126,7 +128,6 @@ LLFontFreetype::~LLFontFreetype()
 	std::for_each(mCharGlyphInfoMap.begin(), mCharGlyphInfoMap.end(), DeletePairedPointer());
 	mCharGlyphInfoMap.clear();
 
-	if(mFontBitmapCachep)
 	delete mFontBitmapCachep;
 	// mFallbackFonts cleaned up by LLPointer destructor
 }

@@ -27,19 +27,13 @@
 #ifndef LL_LLPATHFINDINGNAVMESH_H
 #define LL_LLPATHFINDINGNAVMESH_H
 
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
-
 #include "llpathfindingnavmeshstatus.h"
 #include "llsd.h"
 
 class LLPathfindingNavMesh;
 class LLUUID;
 
-typedef boost::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
+typedef std::shared_ptr<LLPathfindingNavMesh> LLPathfindingNavMeshPtr;
 
 class LLPathfindingNavMesh
 {

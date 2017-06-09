@@ -30,7 +30,6 @@
 
 #include "llproxy.h"
 
-#include <string>
 #include <curl/curl.h>
 #include "httpcommon.h"
 #include "llapr.h"

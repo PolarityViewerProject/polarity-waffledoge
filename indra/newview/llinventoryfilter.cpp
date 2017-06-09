@@ -50,7 +50,12 @@
 
 #include <boost/algorithm/string.hpp> // <polarity/>
 #include "llappearancemgr.h" // needed to query whether we are in COF
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
+#ifdef PV_SEARCH_SEPARATOR
+#include "pvsearchseparator.h"
+#endif
 
 LLTrace::BlockTimerStatHandle FT_FILTER_CLIPBOARD("Filter Clipboard");
 
@@ -723,14 +728,25 @@ void LLInventoryFilter::setFilterSubString(const std::string& string)
 		mFilterSubStrings.clear();
 		mSubStringMatchOffsets.clear();
 		std::string::size_type frm = 0;
+		// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
+		// TODO: Add reverse match with '-', i.e. "demon horn -demo"
+		// 	or add option to have whole words ('n' in demon would invalidate "demo" results)
+		static LLCachedControl<bool> substring_mode(gSavedSettings, "PVUI_SubstringSearchMode");
+		static const char SEPARATOR_SPACE = ' ';
+		static const char SEPARATOR_PLUS  = '+';
+		static char search_separator = SEPARATOR_SPACE;
+		if(substring_mode && search_separator != SEPARATOR_SPACE)
+		{
+			search_separator = SEPARATOR_SPACE;
+		}
+		else if(!substring_mode && search_separator == SEPARATOR_SPACE)
+		{
+			search_separator = SEPARATOR_PLUS;
+		}
 		std::string::size_type to;
-		
 		do
 		{
-			// <polarity> Make inventory search behave like a keyword list instead of a litteral expression
-			// TODO: Add "whole word" option.
-			to = filter_sub_string_new.find_first_of(PVSearchUtil::getInstance()->getSearchSeparator(),frm);
-			// to = filter_sub_string_new.find_first_of(' ',frm);
+			to = filter_sub_string_new.find_first_of(search_separator,frm); // <polarity>
 			std::string subSubString = (to == std::string::npos) ? filter_sub_string_new.substr(frm, to) : filter_sub_string_new.substr(frm, to-frm);
 			if (subSubString.size())
 			{

@@ -45,7 +45,6 @@ bool callbackConfirmDisplayPreferencesReset(const LLSD& notification, const LLSD
 // constants, variables,  & enumerations
 extern std::string SCREEN_HOME_FILENAME;
 extern std::string SCREEN_LAST_FILENAME;
-static const std::string VIEWER_RELEASE_NOTES_URL_FALLBACK = "https://www.polarityviewer.org/";
 
 // start location constants
 enum EStartLocation

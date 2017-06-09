@@ -65,7 +65,9 @@
 #include "llautoreplace.h"
 #include "llcorehttputil.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvcommon.h" // For MuPose and AutoCloseOOC
 
 // [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
@@ -434,8 +436,10 @@ BOOL LLFloaterIMSession::postBuild()
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
 
+#ifdef PVDATA_SYSTEM
 	BOOL is_support_group = gPVOldAPI->isSupportGroup(mSessionID);
 	getChild<LLUICtrl>("support_group_ribbon")->setVisible(is_support_group);
+#endif
 
 	initIMFloater();
 

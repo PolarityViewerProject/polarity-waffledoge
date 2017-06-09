@@ -48,6 +48,8 @@ try:
 except ImportError:
     from indra.base import llsd
 
+today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
+
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
         # Some commands, files will only be included
@@ -276,7 +278,6 @@ class ViewerManifest(LLManifest):
 
     def installer_base_name(self):
         global CHANNEL_VENDOR_BASE
-        today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'channel_vendor_base' : '-'.join(CHANNEL_VENDOR_BASE.split()),
@@ -688,10 +689,12 @@ class WindowsManifest(ViewerManifest):
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
         # Check two paths, one for Program Files, and one for Program Files (x86).
-        # Yay 64bit windows.
-        NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+        # Yay 64bit windows and python.
+        NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
         if not os.path.exists(NSIS_path):
-            NSIS_path = os.path.expandvars('${ProgramFiles(x86)}\\NSIS\\Unicode\\makensis.exe')
+            NSIS_path = os.path.expandvars('${ProgramFiles}\\NSIS\\Unicode\\makensis.exe')
+            if not os.path.exists(NSIS_path):
+                print >> sys.stderr, "NSIS was never found. Installer not created."
         installer_created=False
         nsis_attempts=3
         nsis_retry_wait=2
@@ -710,20 +713,47 @@ class WindowsManifest(ViewerManifest):
                 else:
                     print >> sys.stderr, "Maximum nsis attempts exceeded; giving up"
                     raise
-        # self.remove(self.dst_path_of(tempfile))
+        # Compress the symbols with WinRAR
+        Winrar_path = os.path.expandvars('${ProgramFiles}\\WinRAR\\Rar.exe') # 64-bit winrar on 64-bit python
+        if not os.path.exists(Winrar_path):
+            print "WARNING: 32bit python or Windows detected; please install 64bit python instead for a smoother experience"
+            sys.stdout.flush()
+            Winrar_path = os.path.expandvars('${ProgramW6432}\\WinRAR\\Rar.exe') # 64-bit Winrar on 32-bit python
+            if not os.path.exists(Winrar_path):
+                Winrar_path = os.path.expandvars('${ProgramFiles(x86)}\\WinRAR\\Rar.exe') # 32-bit winrar on 32-bit python
+                if not os.path.exists(Winrar_path):
+                    print >> sys.stderr,"WinRAR was never found. Symbols not compressed."
+        archive_created=False
+        rar_attempts=3
+        rar_retry_wait=2
+        while (not archive_created) and (rar_attempts > 0):
+            try:
+                rar_attempts-=1;
+                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), today_str, self.dst_path_of("polarity-bin.pdb")))
+                archive_created=True
+            except ManifestError, err:
+                if rar_attempts:
+                    print >> sys.stderr, "WinRAR failed, waiting %d seconds before retrying" % rar_retry_wait
+                    time.sleep(rar_retry_wait)
+                    rar_retry_wait*=2
+                else:
+                    print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
+                    # raise
+        # Remove the temporary NSIS script
+        self.remove(self.dst_path_of(tempfile))
         # If we're on a build machine, sign the code using our Authenticode certificate. JC
-        sign_py = os.path.expandvars("${SIGN}")
-        if not sign_py or sign_py == "${SIGN}":
-            sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
-        else:
-            sign_py = sign_py.replace('\\', '\\\\\\\\')
-        python = os.path.expandvars("${PYTHON}")
-        if not python or python == "${PYTHON}":
-            python = 'python'
-        if os.path.exists(sign_py):
-            self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
-        else:
-            print "Skipping code signing,", sign_py, "does not exist"
+        #sign_py = os.path.expandvars("${SIGN}")
+        #if not sign_py or sign_py == "${SIGN}":
+        #    sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
+        #else:
+        #    sign_py = sign_py.replace('\\', '\\\\\\\\')
+        #python = os.path.expandvars("${PYTHON}")
+        #if not python or python == "${PYTHON}":
+        #    python = 'python'
+        #if os.path.exists(sign_py):
+        #    self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
+        #else:
+        #    print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
         # Darl wanted this.

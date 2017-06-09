@@ -30,9 +30,6 @@
 
 #include "linden_common.h"
 
-#include <string>
-#include <map>
-
 // Linden library includes
 #include "v2math.h"
 #include "m3math.h"

@@ -51,7 +51,7 @@ void LLCurl::Responder::httpCompleted()
 }
 
 void LLCurl::Responder::completedRaw(LLChannelDescriptors const&,
-									 boost::shared_ptr<LLBufferArray> const&)
+									 std::shared_ptr<LLBufferArray> const&)
 {
 }
 

@@ -108,18 +108,10 @@ LLJoint *LLCharacter::getJoint( const std::string &name )
 
 	if (!joint)
 	{
-		LL_WARNS() << "Failed to find joint '" << name << "'." << LL_ENDL;
+		LL_WARNS() << "Failed to find joint." << LL_ENDL;
 	}
 	return joint;
 }
-
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-// Default fallback is string.
-LLJoint *LLCharacter::getJoint( const JointKey &name )
-{
-	return getJoint( name.mName );
-}
-// </FS:ND>
 
 //-----------------------------------------------------------------------------
 // registerMotion()

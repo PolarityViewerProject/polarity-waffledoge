@@ -32,7 +32,6 @@
 
 #include <boost/program_options.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/bind.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/assign/list_of.hpp>
 
@@ -40,9 +39,6 @@
 #include "llerror.h"
 #include "stringize.h"
 #include "llexception.h"
-#include <string>
-#include <set>
-#include <iostream>
 #include <sstream>
 #include <typeinfo>
 

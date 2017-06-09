@@ -28,11 +28,6 @@
 #ifndef LL_VOAVATAR_H
 #define LL_VOAVATAR_H
 
-#include <map>
-#include <deque>
-//#include <string>
-#include <vector>
-
 #include <boost/signals2/trackable.hpp>
 
 #include "llavatarappearance.h"
@@ -197,11 +192,7 @@ public:
 	void					startDefaultMotions();
 	void					dumpAnimationState();
 
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-	//virtual LLJoint*		getJoint( const std::string &name );
-	virtual LLJoint*		getJoint( const JointKey &name );
-	LLJoint* getJoint( const std::string &name ) { return getJoint( JointKey::construct( name ) ); }
-// </FS:ND>
+	virtual LLJoint*		getJoint(const std::string &name);
 	LLJoint*		        getJoint(S32 num);
 	
 	void 					addAttachmentOverridesForObject(LLViewerObject *vo);
@@ -938,6 +929,7 @@ private:
 	LLColor4		mNameArcColor;
 	// </FS:Ansariel>
 	bool			mShowComplexityString;
+	bool			mSowComplexUnderThreshold;
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

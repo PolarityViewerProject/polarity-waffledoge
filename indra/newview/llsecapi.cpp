@@ -34,7 +34,6 @@
 #include "llsechandler_basic.h"
 #include "llexception.h"
 #include "stringize.h"
-#include <map>
 
 std::map<std::string, LLPointer<LLSecAPIHandler> > gHandlerMap;
 LLPointer<LLSecAPIHandler> gSecAPIHandler;

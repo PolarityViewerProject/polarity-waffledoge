@@ -36,8 +36,7 @@
 #include "llupdateinstaller.h"
 #include "llexception.h"
 
-//#include <boost/scoped_ptr.hpp>
-//#include <boost/weak_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include "lldir.h"
 #include "llsdserialize.h"
 #include "llfile.h"
@@ -56,7 +55,7 @@
 
 namespace 
 {
-	boost::weak_ptr<LLUpdaterServiceImpl> gUpdater;
+	std::weak_ptr<LLUpdaterServiceImpl> gUpdater;
 
 	const std::string UPDATE_MARKER_FILENAME("PolarityUpdateReady.xml");
 	std::string update_marker_path()
@@ -137,7 +136,7 @@ public:
 
 	void startChecking(bool install_if_ready);
 	void stopChecking();
-	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in);
+	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in = "");
 	bool isChecking() const;
 	LLUpdaterService::eUpdaterState getState() const;
 	
@@ -698,8 +697,8 @@ LLUpdaterService::LLUpdaterService()
 {
 	if(gUpdater.expired())
 	{
-		mImpl =
-			boost::make_shared<LLUpdaterServiceImpl>();
+		mImpl = 
+			std::shared_ptr<LLUpdaterServiceImpl>(new LLUpdaterServiceImpl());
 		gUpdater = mImpl;
 	}
 	else

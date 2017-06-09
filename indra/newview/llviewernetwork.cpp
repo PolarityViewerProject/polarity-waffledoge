@@ -65,11 +65,9 @@ const std::string  GRID_LOGIN_IDENTIFIER_TYPES = "login_identifier_types";
 const std::string GRID_SLURL_BASE = "slurl_base";
 const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 
-const std::string DEFAULT_LOGIN_PAGE = "https://app.polarityviewer.org/";
+const std::string DEFAULT_LOGIN_PAGE = "https://app."+PROJECT_DOMAIN;
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
-
-const std::string SL_UPDATE_QUERY_URL = "https://update.polarityviewer.org/update";
 
 const std::string MAIN_GRID_SLURL_BASE = "http://maps.secondlife.com/secondlife/";
 const std::string SYSTEM_GRID_APP_SLURL_BASE = "secondlife:///app";
@@ -123,7 +121,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  MAIN_GRID_LOGIN_URI,
 				  "https://secondlife.com/helpers/",
 				  DEFAULT_LOGIN_PAGE,
-				  SL_UPDATE_QUERY_URL,
+				  PROJECT_UPDATE_URL,
 				  MAIN_GRID_WEB_PROFILE_URL,
 				  "Agni");
 	addSystemGrid(SECOND_LIFE_BETA_LABEL,
@@ -131,7 +129,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  "https://login.aditi.lindenlab.com/cgi-bin/login.cgi",
 				  "http://aditi-secondlife.webdev.lindenlab.com/helpers/",
 				  DEFAULT_LOGIN_PAGE,
-				  SL_UPDATE_QUERY_URL,
+				  PROJECT_UPDATE_URL,
 				  "https://my.aditi.lindenlab.com/",
 				  "Aditi");
 

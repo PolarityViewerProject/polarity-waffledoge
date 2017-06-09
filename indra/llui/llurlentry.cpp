@@ -516,8 +516,7 @@ LLUrlEntrySimpleURlVendor::LLUrlEntrySimpleURlVendor()
 	//  e.g.
 	// GOOD: \\.
 	// BAD: \.
-	//"(http|https):\/\/([-\w\.]*\.)?polarityviewer\.(org(:\d{1,5})?)\S*"
-	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?polarityviewer\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?" + PROJECT_STRING + "\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
 	mIcon = "Url_Icon_Vendor";
 	mMenuName = "menu_url_http.xml";
 }
@@ -1570,19 +1569,23 @@ std::string LLUrlEntryJira::getUrl(const std::string &string) const
 {
 	if (string.find("PLVR") != std::string::npos)
 	{
-		return llformat("https://polarityviewer.atlassian.net/browse/%s", string.c_str());
+		static const std::string project_jira_url = std::string("https://" + PROJECT_STRING + ".atlassian.net/browse/%s");
+		return llformat(project_jira_url.c_str(), string);
 	}
 	if (string.find("ALCH") != std::string::npos)
 	{
-		return llformat("https://alchemy.atlassian.net/browse/%s", string.c_str());
+		static const std::string alchemy_jira_url = std::string("https://alchemy.atlassian.net/browse/%s");
+		return llformat(alchemy_jira_url.c_str(), string);
 	}
 	if (string.find("FIRE") != std::string::npos ||
 		string.find("SLS") != std::string::npos ||
 		string.find("SUP") != std::string::npos )
 	{
-		return llformat("http://jira.phoenixviewer.com/browse/%s", string.c_str());
+		static const std::string phoenix_jira_url = std::string("http://jira.phoenixviewer.com/browse/%s");
+		return llformat(phoenix_jira_url.c_str(), string);
 	}
-	return llformat("https://jira.secondlife.com/browse/%s", string.c_str());
+	static const std::string second_life_jira_url = std::string("https://jira.secondlife.com/browse/%s");
+	return llformat(second_life_jira_url.c_str(), string);
 }
 
 //

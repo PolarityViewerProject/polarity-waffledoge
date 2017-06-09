@@ -49,7 +49,9 @@
 #include "llvolume.h"
 #include "llvolumemessage.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvcommon.h"
 #include "llappviewer.h"
 
@@ -421,6 +423,7 @@ bool OSChatCommand::parseCommand(std::string data)
 		}
 		return true;
 	}
+#ifdef PVDATA_SYSTEM
 	case CMD_PVDATA_REFRESH:
 	{
 		auto pv_agent = PVAgent::find(gAgentID);
@@ -437,8 +440,10 @@ bool OSChatCommand::parseCommand(std::string data)
 		gPVData::getInstance()->Dump("Runtime",PVDataOldAPI->mPVData_llsd);
 		gPVData::getInstance()->Dump("Runtime", PVDataOldAPI->mPVAgents_llsd);
 		return true;
+		break;
 	}
 		*/
+#endif
 	case CMD_GET_UPTIME:
 		{
 			PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");

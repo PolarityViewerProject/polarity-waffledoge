@@ -106,7 +106,7 @@ public:
 	void handleReflectionChanges();
 
 //	//BD - Shadow Map Allocation
-	void allocateShadowMaps(bool force_allocate = false);
+	bool allocateShadowMaps(const U32 shadow_detail = 0, const bool force_allocate = false);
 
 	void destroyGL();
 	void restoreGL();
@@ -972,14 +972,7 @@ public:
 	static F32 RenderChromaStrength;
 	static F32 RenderSnapshotMultiplier;
 
-//	//BD - Shadow Map Allocation
-	static U32 RenderShadowResolutionClose;
-	static U32 RenderShadowResolutionMid;
-	static U32 RenderShadowResolutionFar;
-	static U32 RenderShadowResolutionFurthest;
-	static LLVector4 RenderShadowResolutionMap; // TODO: Remove me?
-	static LLVector3 RenderProjectorShadowResolution;
-
+	static F32 RenderShadowResolutionScale;
 	static F32 RenderShadowFarClip; // </polarity>
 };
 

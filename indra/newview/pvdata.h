@@ -27,10 +27,20 @@
  * $/LicenseInfo$
  */
 
+#pragma once
 #ifndef PV_DATA_H
 #define PV_DATA_H
 
-#pragma once
+#include "llavatarname.h" // for convenience
+#include "llerror.h" // for LOG_CLASS
+#include "pvtypes.h"
+#include "lluicolortable.h"
+#include "v3color.h"
+#include "llframetimer.h"
+
+class LLColor4;
+class LLColor3;
+class LLUUID;
 
  //
  // Dear maintainer:
@@ -94,15 +104,6 @@
 	// Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
 
  */
-#include "llavatarname.h" // for convenience
-#include "llerror.h" // for LOG_CLASS
-#include "pvtypes.h"
-#include "lluicolortable.h"
-
-class LLColor4;
-class LLUUID;
-
-
 	// Last updated 2016-09-26 1:23:12 PM
 enum flags_t : S32
 {
@@ -417,17 +418,6 @@ public:
 	// This contains the UUID of our support group
 	std::set<LLUUID> support_group_;
 
-	/// <summary></summary>
-
-	/**
-	 * \brief Attempt to set the chat logs location from environment if available
-	 */
-	static void getChatLogsDirOverride();
-	//static void setChatLogsDirOverride();
-	bool moveTranscriptsAndLog(const std::string &userid) const;
-
-public:
-
 	void setDataStatus(const S32& status) { pv_data_status_ = status; }
 	void setAgentsDataStatus(const S32& status) { pv_agents_status_ = status; }
 
@@ -645,54 +635,6 @@ private:
 	std::string last_login_tip;
 };
 
-
-//@todo: Move to another file?
-class PVSearchUtil : public LLSingleton <PVSearchUtil>
-{
-	LOG_CLASS(PVSearchUtil);
-	LLSINGLETON_EMPTY_CTOR(PVSearchUtil);
-
-public:
-	// refresh from settings
-	static U32 getSearchSeparatorFromSettings();
-	static void setSearchSeparator(const U32 separator_in_u32);
-	// get separator
-	static std::string getSearchSeparator();
-	std::string getSearchSeparator(const U32 separator_to_get_u32) const;
-
-private:
-	enum PVSearchSeparators : U32
-	{
-		separator_space,
-		separator_plus,
-		separator_comma,
-		separator_pipe,
-		separator_semicolon,
-		separator_period,
-		separator_colon,
-	};
-
-	/**
-	 * \brief Contains the possible search separators
-	 * TODO: Re-write as a map.
-	 */
-	const std::vector<std::string> PVSearchSeparatorAssociation
-	{
-		" ",
-		"+",
-		",",
-		"|",
-		";",
-		".",
-		":",
-	};
-
-	/**
-	* \brief Currently selected search separator
-	*/
-	static U32 PVSearchSeparatorSelected;
-};
 extern PVDataOldAPI* gPVOldAPI;
-extern PVSearchUtil* gPVSearchUtil;
 //}
 #endif // PV_DATA_H

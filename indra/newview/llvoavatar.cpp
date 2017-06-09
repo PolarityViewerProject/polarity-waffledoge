@@ -113,7 +113,9 @@
 
 #include "pvcommon.h"
 //#include "llsidepanelappearance.h"
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: RLVa-2.0.1
 #include "rlvactions.h"
@@ -651,6 +653,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mNameArcColor(LLColor4::white),
 	// </FS:Ansariel>
 	mShowComplexityString(false),
+	mSowComplexUnderThreshold(false),
 	mNameAway(false),
 	mNameDoNotDisturb(false),
 	mNameMute(false),
@@ -2778,7 +2781,7 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			//particle_parameters.mPartData.mStartScale.mV[VZ] = 1.0f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
-#ifndef PVDATA_COLORIZER
+#ifndef PVDATA_SYSTEM
 			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
 			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
 #else
@@ -3085,9 +3088,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	U32 complexity(0);
 	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
 
-		if (show_arw_tag &&
-							((isSelf() && show_own_arw_tag) ||
-							((!isSelf() && show_others_arw_tag) && (show_under_threshold_arw_tag || isTooComplex()))))
+	if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
 	{
 		// freeze complexity value we compare against
 		complexity = mVisualComplexity;
@@ -3105,7 +3106,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 	// cache avatar uuid
 	LLUUID av_id = getID();
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 	// get avatar's color
 	auto name_tag_color = getNameTagColor(av_id);
 #else
@@ -3131,6 +3132,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| complexity_color != mNameArcColor
 		|| show_complexity_string != mShowComplexityString
 		// </FS:Ansariel>
+		|| show_under_threshold_arw_tag != mSowComplexUnderThreshold
 		|| name_tag_color != mColorLast
 		|| is_typing != mTypingInNameTag)
 	{
@@ -3247,9 +3249,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		// WOW, nested ternary operator.
 		std::string complexity_label = show_complexity_string ? (show_complexity_string_short ? LLTrans::getString("Nametag_Complexity_Label_Short") : LLTrans::getString("Nametag_Complexity_Label")) : LLTrans::getString("Nametag_Complexity_Label_NoText");
 		
-		if (show_arw_tag &&
-			((isSelf() && show_own_arw_tag) || (!isSelf() && show_others_arw_tag))
-			&& (show_under_threshold_arw_tag || isTooComplex()))
+		if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
 		{
 			std::string complexity_string;
 			LLLocale locale(LLLocale::USER_LOCALE);
@@ -3279,6 +3279,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mNameArcColor = complexity_color;
 		// </FS:Ansariel>
 		mShowComplexityString = show_complexity_string;
+		mSowComplexUnderThreshold = show_under_threshold_arw_tag;
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
@@ -3497,7 +3498,11 @@ LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id)
 		// ...not using display names
 		color_name = LLUIColorTable::getInstance()->getColor("NameTagLegacy");
 	}
+#ifdef PVDATA_SYSTEM
 	return PVAgent::getColor(av_id, color_name);
+#else
+	return color_name;
+#endif
 }
 
 void LLVOAvatar::idleUpdateBelowWater()
@@ -5646,40 +5651,21 @@ const LLUUID& LLVOAvatar::getID() const
 // getJoint()
 //-----------------------------------------------------------------------------
 // RN: avatar joints are multi-rooted to include screen-based attachments
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//LLJoint *LLVOAvatar::getJoint( const std::string &name )
-LLJoint *LLVOAvatar::getJoint( const JointKey &name )
-// </FS:ND>
+LLJoint *LLVOAvatar::getJoint( const std::string &name )
 {
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-	//joint_map_t::iterator iter = mJointMap.find( name );
-
-	//LLJoint* jointp = NULL;
-
-	//if( iter == mJointMap.end() || iter->second == NULL )
-	//{ //search for joint and cache found joint in lookup table
-	//	jointp = mRoot->findJoint( name );
-	//	mJointMap[ name ] = jointp;
-	//}
-	//else
-	//{ //return cached pointer
-	//	jointp = iter->second;
-	//}
-
-	joint_map_t::iterator iter = mJointMap.find( name.mKey );
+	joint_map_t::iterator iter = mJointMap.find(name);
 
 	LLJoint* jointp = NULL;
 
-	if( iter == mJointMap.end() || iter->second == NULL )
+	if (iter == mJointMap.end() || iter->second == NULL)
 	{   //search for joint and cache found joint in lookup table
-		jointp = mRoot->findJoint( name.mName );
-		mJointMap[ name.mKey ] = jointp;
+		jointp = mRoot->findJoint(name);
+		mJointMap[name] = jointp;
 	}
 	else
 	{   //return cached pointer
 		jointp = iter->second;
 	}
-// </FS:ND>
 
 #if !LL_RELEASE_FOR_DOWNLOAD
     if (jointp && jointp->getName()!="mScreen" && jointp->getName()!="mRoot")
@@ -5794,11 +5780,8 @@ bool LLVOAvatar::jointIsRiggedTo(const std::string& joint_name, const LLViewerOb
 
 	if ( vobj && vobj->isAttachment() && vobj->isMesh() && pSkinData )
 	{
-		//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-		//if( std::find( pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name ) !=
-		// </FS:ND>
-		if( std::find( pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), JointKey::construct( joint_name ) ) !=
-				pSkinData->mJointNames.end() )
+        if (std::find(pSkinData->mJointNames.begin(), pSkinData->mJointNames.end(), joint_name) !=
+            pSkinData->mJointNames.end())
         {
             return true;
         }
@@ -5900,11 +5883,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
 			{								
 				for ( int i=0; i<jointCnt; ++i )
 				{
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//					std::string lookingForJoint = pSkinData->mJointNames[ i ].c_str();
-					JointKey lookingForJoint  = pSkinData->mJointNames[ i ];
-// </FS:ND>
-
+					std::string lookingForJoint = pSkinData->mJointNames[i];
 					LLJoint* pJoint = getJoint( lookingForJoint );
 					if (pJoint)
 					{   									
@@ -5917,10 +5896,7 @@ void LLVOAvatar::addAttachmentOverridesForObject(LLViewerObject *vo)
                             if (override_changed)
                             {
                                 //If joint is a pelvis then handle old/new pelvis to foot values
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//                              if( lookingForJoint == "mPelvis" )
-                                if( lookingForJoint.mName == "mPelvis" )
-// </FS:ND>
+                                if ( lookingForJoint == "mPelvis" )
                                 {	
                                     pelvisGotSet = true;											
                                 }										
@@ -6108,11 +6084,8 @@ void LLVOAvatar::resetJointsOnDetach(const LLUUID& mesh_id)
 	avatar_joint_list_t::iterator iter = mSkeleton.begin();
 	avatar_joint_list_t::iterator end  = mSkeleton.end();
 
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//	LLJoint* pJointPelvis = getJoint( "mPelvis" );
-	LLJoint* pJointPelvis = getJoint( JointKey::construct( "mPelvis" ) );
-// </FS:ND>
-
+	LLJoint* pJointPelvis = getJoint("mPelvis");
+	
 	for (; iter != end; ++iter)
 	{
 		LLJoint* pJoint = (*iter);
@@ -6301,12 +6274,7 @@ void LLVOAvatar::initAttachmentPoints(bool ignore_hud_joints)
         }
 
         attachment->setName(info->mName);
-
-//<FS:ND> Query by JointKey rather than just a string, the key can be a U32 index for faster lookup
-//		LLJoint *parent_joint = getJoint(info->mJointName);
-		LLJoint *parent_joint = getJoint( JointKey::construct( info->mJointName ) );
-// </FS:ND>
-
+        LLJoint *parent_joint = getJoint(info->mJointName);
         if (!parent_joint)
         {
             // If the intended parent for attachment point is unavailable, avatar_lad.xml is corrupt.

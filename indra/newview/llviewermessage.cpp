@@ -4292,6 +4292,9 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	msg->getString("Info", "Message", buffer);
 	LL_DEBUGS("Messaging") << "teleport progress: " << buffer << LL_ENDL;
 
+#if TELEPORT_PROGRESS_MESSAGE
+	// <polarity> This has a very hich chance of going very very wrong
+
 	//Sorta hacky...default to using simulator raw messages
 	//if we don't find the coresponding mapping in our progress mappings
 	std::string message = buffer;
@@ -4301,8 +4304,11 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	{
 		message = LLAgent::sTeleportProgressMessages[buffer];
 	}
-
-	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages[message]);
+	if (!LLApp::isQuitting() && !message.empty())
+	{
+		gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages[message]);
+	}
+#endif
 }
 
 class LLFetchInWelcomeArea : public LLInventoryFetchDescendentsObserver
@@ -4501,7 +4507,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	send_complete_agent_movement(sim_host);
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
-	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
+	//gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
 	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from process_teleport_finish(). Seed cap == "
 			<< seedCap << LL_ENDL;
@@ -7234,7 +7240,6 @@ void process_script_question(LLMessageSystem *msg, void **user_data)
 			payload["item_id"] = itemid;
 			payload["object_name"] = object_name;
 			
-			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
 			LLNotificationsUtil::add("UnknownScriptQuestion",args,payload);
 		}
 		

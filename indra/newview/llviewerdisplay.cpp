@@ -427,8 +427,8 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gTeleportDisplayTimer.reset();
 			pProgFloater->setVisible(TRUE);
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
-			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["pending"]);
-			pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["pending"]);
+			//gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["pending"]);
+			//pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["pending"]);
 			break;
 
 		case LLAgent::TELEPORT_START:
@@ -438,9 +438,9 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			pProgFloater->setVisible(TRUE);
 			// <polarity> Add missing call to put new message in TP screen
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
-			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
-			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["requesting"]);
-			pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["requesting"]);
+			//gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
+			//gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["requesting"]);
+			//pProgFloater->setProgressText(LLAgent::sTeleportProgressMessages["requesting"]);
 			break;
 
 		case LLAgent::TELEPORT_REQUESTED:
@@ -464,7 +464,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			pProgFloater->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
 			// <polarity> Add missing call to put new message in TP screen
-			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["arriving"]);
+			//gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
 			

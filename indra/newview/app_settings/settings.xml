@@ -187,10 +187,10 @@
       <key>Value</key>
       <integer>0</integer>
       <key>SanityCheckType</key>
-      <string>Equals</string>
+      <string>NotEquals</string>
       <key>SanityValue</key>
       <array>
-        <integer>0</integer>
+        <integer>1</integer>
       </array>
       <key>SanityComment</key>
       <string>Enabling multiple viewer instances can and will create instability and other various obscure issues. Please disable multiple instances before reporting bugs.</string>
@@ -3689,6 +3689,8 @@
         <string>Base directory for HTTP feature/gpu table fetches</string>
         <key>Persist</key>
         <integer>1</integer>
+        <key>HideFromEditor</key>
+        <integer>1</integer>
         <key>Type</key>
         <string>String</string>
         <key>Value</key>
@@ -4583,7 +4585,7 @@
       <key>Type</key>
       <string>Boolean</string>
       <key>Value</key>
-      <integer>1</integer>
+      <integer>0</integer>
     </map>
     <key>HttpRangeRequestsDisable</key>
     <map>
@@ -9080,7 +9082,7 @@
     <real>0.04</real>
   </map>
 
-<!--   <key>RenderShadowResolutionScale</key>
+  <key>RenderShadowResolutionScale</key>
   <map>
     <key>Comment</key>
     <string>Scale of shadow map resolution vs. screen resolution</string>
@@ -9092,7 +9094,7 @@
     <string>F32</string>
     <key>Value</key>
     <real>1.0</real>
-  </map> -->
+  </map>
   <key>RenderDeferredTreeShadowBias</key>
   <map>
     <key>Comment</key>
@@ -9315,6 +9317,19 @@
     <key>Value</key>
     <real>5.0</real>
   </map>
+  <key>RenderShadowFarClip</key>
+  <map>
+    <key>Comment</key>
+    <string>Distance of shadow far clip plane from camera (meters).</string>
+    <key>Persist</key>
+    <integer>1</integer>
+    <key>HideFromEditor</key>
+    <integer>0</integer>
+    <key>Type</key>
+    <string>F32</string>
+    <key>Value</key>
+    <real>128</real>
+  </map>
   <key>RenderShadowFOVCutoff</key>
   <map>
     <key>Comment</key>
@@ -9416,7 +9431,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>256.0</real>
+      <real>64.0</real>
     </map>
     <key>RenderAutoMaskAlphaNonDeferred</key>
     <map>
@@ -12116,7 +12131,7 @@
       <key>Type</key>
       <string>F32</string>
       <key>Value</key>
-      <real>3000.0</real>
+      <real>1500.0</real>
     </map>
     <key>UpdaterMaximumBandwidth</key>
     <map>
@@ -13261,28 +13276,6 @@
       <string>U32</string>
       <key>Value</key>
       <integer>3600</integer>
-    </map>
-    <key>UpdaterServiceURL</key>
-    <map>
-      <key>Comment</key>
-      <string>Default location for the updater service.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>https://update.polarityviewer.org</string>
-    </map>
-    <key>UpdaterServicePath</key>
-    <map>
-      <key>Comment</key>
-      <string>Path on the update server host.</string>
-      <key>Persist</key>
-      <integer>0</integer>
-      <key>Type</key>
-      <string>String</string>
-      <key>Value</key>
-      <string>update</string>
     </map>
     <key>UpdaterWillingToTest</key>
     <map>

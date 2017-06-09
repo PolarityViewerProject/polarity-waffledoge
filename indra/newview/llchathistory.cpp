@@ -31,8 +31,6 @@
 #if LL_CHAT_HISTORY
 #include "llchathistory.h"
 
-#include <boost/signals2.hpp>
-
 #include "llavatarnamecache.h"
 #include "llinstantmessage.h"
 
@@ -67,7 +65,9 @@
 #include "llmutelist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
 #include "rlvcommon.h"
@@ -951,10 +951,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
 	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
-	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
 	LLColor4 name_color;
 	LLColor4 txt_color;
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
+	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
 	// <polarity> Colored names for special users, short-circuit getChatColor for agents
 	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{

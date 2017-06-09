@@ -63,7 +63,9 @@
 #include "llviewerobjectlist.h"
 #include <boost/algorithm/string/predicate.hpp> // <polarity> for BOOST functions
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 // [RLVa:KB] - Checked: 2010-04-22 (RLVa-1.2.0f)
 #include "rlvcommon.h"
@@ -950,7 +952,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	LLColor4 txt_color;
 	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 		// <polarity> Colored names for special users, short-circuit getChatColor for agents
 		if (chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
 		{

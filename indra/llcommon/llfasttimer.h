@@ -218,7 +218,8 @@ private:
 	// This appears to be fixed in 2012.
 public:
 #endif
-	// no-copy
+
+	// noop-copy see timeThisBlock
 	BlockTimer(const BlockTimer& other) {};
 
 private:

@@ -78,6 +78,8 @@ public:
 	virtual ~LLFloaterScriptQueue();
 
 	/*virtual*/ BOOL postBuild();
+
+	void Close();
 	
 	void setMono(bool mono) { mMono = mono; }
 	

@@ -115,13 +115,13 @@ protected:
 	void 						onBackButtonClicked();
 
 private:
-	LLButton*					mInfoBtn;
-	LLButton*					mShareBtn;
-	LLButton*					mWearBtn;
-	LLButton*					mPlayBtn;
-	LLButton*					mTeleportBtn;
-	LLButton*					mOverflowBtn;
-	LLButton*					mShopBtn;
+	// LLButton*					mInfoBtn;
+	// LLButton*					mShareBtn;
+	// LLButton*					mWearBtn;
+	// LLButton*					mPlayBtn;
+	// LLButton*					mTeleportBtn;
+	// LLButton*					mOverflowBtn;
+	// LLButton*					mShopBtn;
 
 	bool						mInboxEnabled;
 

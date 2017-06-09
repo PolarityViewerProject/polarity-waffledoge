@@ -925,6 +925,8 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         updateRemovedCategory(cat_id);
     }
 
+    arrange();
+
     // Get changed items from inventory model and update outfit tabs
     // which might have been renamed.
     const LLInventoryModel::changed_items_t& changed_items = gInventory.getChangedIDs();

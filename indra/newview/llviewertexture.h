@@ -36,9 +36,6 @@
 #include "llmetricperformancetester.h"
 #include "httpcommon.h"
 
-#include <map>
-#include <list>
-
 #ifdef LL_VRAM_CODE
 extern const S32Megabytes gMinVideoRam;
 #endif

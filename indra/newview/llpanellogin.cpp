@@ -73,7 +73,9 @@
 #endif  // LL_WINDOWS
 
 #include "llsdserialize.h"
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;

@@ -27,12 +27,6 @@
 #ifndef LL_LLPATHFINDINGOBJECT_H
 #define LL_LLPATHFINDINGOBJECT_H
 
-#include <string>
-
-#include <boost/shared_ptr.hpp>
-#include <boost/function.hpp>
-#include <boost/signals2.hpp>
-
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
 #include "lluuid.h"
@@ -41,7 +35,7 @@
 class LLPathfindingObject;
 class LLSD;
 
-typedef boost::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
+typedef std::shared_ptr<LLPathfindingObject> LLPathfindingObjectPtr;
 
 class LLPathfindingObject
 {

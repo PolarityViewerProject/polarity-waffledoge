@@ -63,7 +63,9 @@
 #include "llviewerobjectlist.h"
 #include "lltrans.h"
 
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 
 namespace 
 {
@@ -234,6 +236,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			return FALSE;
 		}
 
+#ifdef PVDATA_SYSTEM
 		// Can't mute our developers
 		auto pv_agent = PVAgent::find(mute.mID);
 		if (pv_agent && pv_agent->isProviderDeveloper())
@@ -243,6 +246,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
 			return FALSE;
 		}
+#endif
 	}
 
 	S32 mute_list_limit = gSavedSettings.getS32("MuteListLimit");

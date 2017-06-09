@@ -203,9 +203,14 @@
 #include "llcleanup.h"
 
 // <polarity> Polarity Includes
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
+#endif
 #include "pvcommon.h"
 #include "pvfpsmeter.h"
+#ifdef PV_SEARCH_SEPARATOR
+#include "pvsearchseparator.h"
+#endif
 #include "fsassetblacklist.h"
 #include "llprogressview.h"
 //
@@ -411,6 +416,11 @@ bool idle_startup()
 		std::string lastGPU = gSavedSettings.getString("LastGPUString");
 		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
 		
+		// <polarity> PVData support
+#ifdef PVDATA_SYSTEM
+		gPVOldAPI = PVDataOldAPI::getInstance();
+#endif
+
 // [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0a) | Modified: RLVa-0.2.1d
 		if ( (gSavedSettings.controlExists(RLV_SETTING_MAIN)) && (gSavedSettings.getBOOL(RLV_SETTING_MAIN)) )
 		{
@@ -855,10 +865,8 @@ bool idle_startup()
 		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
 		//}
 
-		// <polarity> PVData support
-		gPVOldAPI = PVDataOldAPI::getInstance();
-		gPVSearchUtil = PVSearchUtil::getInstance();
 		gPVOldAPI->downloadData();
+
 		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
@@ -882,6 +890,7 @@ bool idle_startup()
 	}
 	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
 	{
+#ifdef PVDATA_SYSTEM
 		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
 		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
 		// then enable the login button again. this will reduce the apparent startup time.
@@ -903,13 +912,16 @@ bool idle_startup()
 			}
 			gViewerWindow->getWindow()->setTitle(new_title);
 			//LLPanelLogin::doLoginButtonLockUnlock();
+#endif
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+#ifdef PVDATA_SYSTEM
 		}
 		else
 		{
 			ms_sleep(1);
 			return FALSE;
 		}
+#endif
 	}
 	
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
@@ -1038,7 +1050,7 @@ bool idle_startup()
 		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		//}
 
-		gPVOldAPI->getChatLogsDirOverride();
+		gPVCommon->getChatLogsDirOverride();
 
 		gDirUtilp->setPerAccountChatLogsDir(userid);  
 		
@@ -1134,7 +1146,9 @@ bool idle_startup()
 		{
 			gAgent.mMOTD = "";
 		}
+#ifdef PVDATA_SYSTEM
 		gPVOldAPI->getNewProgressTip(true);
+#endif
 		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
 	}
@@ -1321,11 +1335,13 @@ bool idle_startup()
 			else
 			{
 				LLSD args;
+#ifdef PVDATA_SYSTEM
 				if(!gPVOldAPI->getErrorMessage().empty())
 				{
 					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
 				}
 				else
+#endif
 				{
 					args["ERROR_MESSAGE"] = emsg.str();
 				}
@@ -2406,7 +2422,9 @@ bool idle_startup()
 		gAgentAvatarp->sendHoverHeight();
 
 		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
+#ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
+#endif
 		PVFPSMeter::start();
 		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
 		{
@@ -2485,7 +2503,7 @@ void show_release_notes_if_required()
 	{
 		LLSD info(LLAppViewer::instance()->getViewerInfo());
 		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
-		if (rel_notes != "0" && rel_notes != VIEWER_RELEASE_NOTES_URL_FALLBACK)
+		if (rel_notes != "0")
 		{
 			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
 		}
@@ -3442,11 +3460,13 @@ bool process_login_success_response()
 	if (!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
 
+#ifdef PVDATA_SYSTEM
 	if (!PVAgent::isAllowedToLogin(gAgentID, true))
 	{
 		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
 		return FALSE;
 	}
+#endif
 
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
@@ -3625,7 +3645,7 @@ bool process_login_success_response()
 		gAgent.setHomePosRegion(region_handle, position);
 	}
 
-#if !PVDATA_MOTD
+#if !PVDATA_SYSTEM
 	auto motd_response = response["message"];
 	LL_INFOS("PVDataOldAPI") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
 	gAgent.mMOTD.assign(motd_response);

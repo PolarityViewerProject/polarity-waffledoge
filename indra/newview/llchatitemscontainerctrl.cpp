@@ -43,7 +43,7 @@
 
 #include "llslurl.h"
 
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 
@@ -230,18 +230,18 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 
 			static LLColor4 html_link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 			LLColor4 name_color;
-#if PVDATA_COLORIZER
+#ifdef PVDATA_SYSTEM
 			// <polarity> Colored names for special users
 			if (mSourceType != CHAT_SOURCE_OBJECT && (mFromID.notNull()))
 			{
 				name_color = PVAgent::getColor(mFromID, html_link_color);
 			}
 			else
+#endif // PVDATA_SYSTEM
 			{
 				name_color = html_link_color;
 			}
 			// </polarity>
-#endif // PVDATA_COLORIZER
 			style_params_name.color(name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);

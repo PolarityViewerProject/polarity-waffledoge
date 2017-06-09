@@ -43,6 +43,7 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <tchar.h>
+#include "llconversationlog.h"
 using namespace boost::posix_time;
 using namespace boost::gregorian;
 
@@ -54,12 +55,6 @@ bool PVCommon::sAVX_Checked = false;
 bool PVCommon::sAVXSupported = false;
 
 S32 PVCommon::sObjectAddMsg = 0;
-
-// constructor
-//void PVCommon()
-//{
-//	gPVCommon = PVCommon::getInstance();
-//}
 
 // Fancy little macro to output a variable's name
 #define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
@@ -303,4 +298,113 @@ std::string PVCommon::format_string(std::string text, const LLStringUtil::format
 {
 	LLStringUtil::format(text, args);
 	return text;
+}
+
+void PVCommon::getChatLogsDirOverride()
+{
+	const std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
+	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
+	char* log_location_from_registry = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
+
+	auto log_location_from_runtime = gDirUtilp->getChatLogsDir();
+	std::string new_chat_logs_dir = "";
+	if (log_location_from_settings.empty() || log_location_from_registry == NULL)
+	{
+		new_chat_logs_dir = gDirUtilp->getOSUserAppDir();
+	}
+	else if (log_location_from_registry != NULL && log_location_from_registry[0] != '\0')
+	{
+		new_chat_logs_dir = log_location_from_registry;
+	}
+	//if (new_chat_logs_dir != log_location_from_settings || gDirUtilp->getChatLogsDir() != log_location_from_registry)
+	//{
+	LL_DEBUGS() << "Would set logs location to: " + new_chat_logs_dir << LL_ENDL;
+	LL_DEBUGS() << "gDirUtilp->getChatLogsDir() = " + gDirUtilp->getChatLogsDir() << LL_ENDL;
+
+	LL_WARNS() << "Chat log location = " << new_chat_logs_dir << LL_ENDL;
+	//}
+	if (new_chat_logs_dir.empty())
+	{
+		LL_ERRS() << "new_chat_logs_dir is null!" << LL_ENDL;
+	}
+	else if (new_chat_logs_dir == "")
+	{
+		LL_ERRS() << "new_chat_logs_dir is empty!" << LL_ENDL;
+	}
+	else
+	{
+		gDirUtilp->setChatLogsDir(new_chat_logs_dir);
+	}
+
+	if (new_chat_logs_dir != gDirUtilp->getChatLogsDir())
+	{
+		LL_DEBUGS() << "Hmmm strange, location mismatch: " + new_chat_logs_dir + " != " + gDirUtilp->getChatLogsDir() << LL_ENDL;
+	}
+
+	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
+}
+
+// Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
+bool PVCommon::moveTranscriptsAndLog(const std::string &userid) const
+{
+	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
+	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);
+
+	bool madeDirectory = false;
+
+	//Does the directory really exist, if not then make it
+	if (!LLFile::isdir(chatLogPath))
+	{
+		//mkdir success is defined as zero
+		if (LLFile::mkdir(chatLogPath) != 0)
+		{
+			return false;
+		}
+		madeDirectory = true;
+	}
+
+	std::string originalConversationLogDir = LLConversationLog::instance().getFileName();
+	std::string targetConversationLogDir = gDirUtilp->add(chatLogPath, "conversation.log");
+	//Try to move the conversation log
+	if (!LLConversationLog::instance().moveLog(originalConversationLogDir, targetConversationLogDir))
+	{
+		//Couldn't move the log and created a new directory so remove the new directory
+		if (madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+		return false;
+	}
+
+	//Attempt to move transcripts
+	std::vector<std::string> listOfTranscripts;
+	std::vector<std::string> listOfFilesMoved;
+
+	LLLogChat::getListOfTranscriptFiles(listOfTranscripts);
+
+	if (!LLLogChat::moveTranscripts(gDirUtilp->getChatLogsDir(),
+									instantMessageLogPath,
+									listOfTranscripts,
+									listOfFilesMoved))
+	{
+		//Couldn't move all the transcripts so restore those that moved back to their old location
+		LLLogChat::moveTranscripts(instantMessageLogPath,
+								   gDirUtilp->getChatLogsDir(),
+								   listOfFilesMoved);
+
+		//Move the conversation log back
+		LLConversationLog::instance().moveLog(targetConversationLogDir, originalConversationLogDir);
+
+		if (madeDirectory)
+		{
+			LLFile::rmdir(chatLogPath);
+		}
+
+		return false;
+	}
+
+	gDirUtilp->setChatLogsDir(instantMessageLogPath);
+	gDirUtilp->updatePerAccountChatLogsDir();
+
+	return true;
 }
