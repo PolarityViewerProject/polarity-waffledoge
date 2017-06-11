@@ -204,8 +204,8 @@ public:
 								   std::string& tooltip_msg);
 	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
 	/*virtual*/ void onMouseLeave(S32 x, S32 y, MASK mask) { setShowSelectionContext(FALSE); }
-	virtual void draw();
-	virtual void deleteAllChildren();
+	//virtual void draw();
+	//virtual void deleteAllChildren();
 
 	void scrollToShowSelection();
 	void scrollToShowItem(LLFolderViewItem* item, const LLRect& constraint_rect);
