@@ -39,14 +39,11 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
-// This should never be empty, ever.
+// Compile-time checks don't appear to work on strings, we're going to have to pray this never ends up empty
 const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME);
 
 const std::string PROJECT_STRING = "polarityviewer";
 const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
 const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
 const std::string PROJECT_UPDATE_URL = "https://update."+PROJECT_DOMAIN+"/update";
-
-// tests or something
-BOOST_STATIC_ASSERT(sizeof(BOOST_STRINGIZE(APP_NAME)) > 1);
 #endif
