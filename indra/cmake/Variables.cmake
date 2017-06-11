@@ -236,9 +236,9 @@ MESSAGE("FMOD Studio            ${FMODSTUDIO}")
 MESSAGE("NVIDIA API             ${NVAPI}")
 MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
 MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
-MESSAGE("========== *PVData* ==========")
+MESSAGE("========== *PVData* =============")
 MESSAGE("PVData System          ${PVDATA_SYSTEM}")
-MESSAGE("==============================")
+MESSAGE("=================================")
 # Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
 add_definitions(
   /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
