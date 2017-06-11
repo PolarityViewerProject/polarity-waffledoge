@@ -243,7 +243,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 		if (pv_agent && pv_agent->isProviderDeveloper())
 		{
 			LLSD args;
-			args[APP_NAME] = APP_NAME;
+			args["APP_NAME"] = APP_NAME;
 			LLNotifications::instance().add("MuteDeveloper", LLSD(), args);
 			return FALSE;
 		}
