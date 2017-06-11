@@ -574,18 +574,15 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	{
 		logdir = logdir.substr(0,end+1);
 	}
-	//std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid());
-	//_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
-	std::string arg_str =  "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid()); 
+
+	std::string arg_str =  "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + std::to_string(LLApp::getPid());
 
 	STARTUPINFO startInfo={sizeof(startInfo)};
 	PROCESS_INFORMATION processInfo;
 
-	std::wstring exe_wstr;
-	exe_wstr=wstringize(exe_path);
+	std::wstring exe_wstr = utf8str_to_utf16str(exe_path);
 
-	std::wstring arg_wstr;
-	arg_wstr=wstringize(arg_str);
+	std::wstring arg_wstr = utf8str_to_utf16str(arg_str);
 
 	LL_INFOS("CrashReport") << "Creating crash reporter process " << exe_path << " with params: " << arg_str << LL_ENDL;
     if(CreateProcess(exe_wstr.c_str(),     
@@ -640,7 +637,7 @@ std::string LLAppViewerWin32::generateSerialNumber()
 	DWORD serial = 0;
 	DWORD flags = 0;
 	BOOL success = GetVolumeInformation(
-			L"C:\\",
+			TEXT("C:\\"),
 			NULL,		// volume name buffer
 			0,			// volume name buffer size
 			&serial,	// volume serial
