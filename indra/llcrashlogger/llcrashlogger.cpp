@@ -231,7 +231,7 @@ void LLCrashLogger::gatherFiles()
         mergeLogs(dynamic_sd);
 		mCrashInPreviousExec = mDebugLog["CrashNotHandled"].asBoolean();
 
-		mFileMap["PolarityLog"] = mDebugLog["SLLog"].asString();
+		mFileMap["SecondLifeLog"] = mDebugLog["SLLog"].asString();
 		mFileMap["SettingsXml"] = mDebugLog["SettingsFilename"].asString();
         mFileMap["CrashHostUrl"] = loadCrashURLSetting();
 		if(mDebugLog.has("CAFilename"))
@@ -245,7 +245,7 @@ void LLCrashLogger::gatherFiles()
                 LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
 		}
 
-		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["PolarityLog"] << LL_ENDL;
+		LL_INFOS("CRASHREPORT") << "Using log file from debug log " << mFileMap["SecondLifeLog"] << LL_ENDL;
 		LL_INFOS("CRASHREPORT") << "Using settings file from debug log " << mFileMap["SettingsXml"] << LL_ENDL;
 	}
 	else
@@ -254,13 +254,13 @@ void LLCrashLogger::gatherFiles()
         LLCore::HttpRequest::setStaticPolicyOption(LLCore::HttpRequest::PO_CA_FILE,
             LLCore::HttpRequest::GLOBAL_POLICY_ID, gDirUtilp->getCAFile(), NULL);
         
-		mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
+		mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,"Polarity.log");
         mFileMap["SettingsXml"] = gDirUtilp->getExpandedFilename(LL_PATH_USER_SETTINGS,"settings.xml");
 	}
 
-    if (!gDirUtilp->fileExists(mFileMap["PolarityLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
+    if (!gDirUtilp->fileExists(mFileMap["SecondLifeLog"]) ) //We would prefer to get this from the per-run but here's our fallback.
     {
-        mFileMap["PolarityLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");
+        mFileMap["SecondLifeLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,"Polarity.old");
     }
 
 	gatherPlatformSpecificFiles();
@@ -292,7 +292,7 @@ void LLCrashLogger::gatherFiles()
                 s << f.rdbuf();
 
 		std::string crash_info = s.str();
-		if(itr->first == "PolarityLog")
+		if(itr->first == "SecondLifeLog")
 		{
 			if(!mCrashInfo["DebugLog"].has("StartupState"))
 			{
