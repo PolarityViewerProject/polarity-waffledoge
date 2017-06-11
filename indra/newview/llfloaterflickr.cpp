@@ -54,6 +54,8 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include <boost/regex.hpp>
+#include "pvconstants.h"
+
 static LLPanelInjector<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLPanelInjector<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
