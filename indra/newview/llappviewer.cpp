@@ -754,6 +754,9 @@ LLAppViewer::LLAppViewer()
 
     mDumpPath.clear();
 
+	// Boost; be my jeebus, my savior, my sanity. Make sure CMake isn't a being a flake.
+	BOOST_STATIC_ASSERT(sizeof(BOOST_STRINGIZE(APP_NAME)) > 1);
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs(APP_NAME);
