@@ -51,6 +51,7 @@
 #include "llcleanup.h"
 
 #include <curl/curl.h>
+#include "pvconstants.h"
 
 BOOL gBreak = false;
 BOOL gSent = false;
@@ -574,12 +575,12 @@ bool LLCrashLogger::init()
     LLCore::LLHttp::initialize();
 
 	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs("Polarity");
+	gDirUtilp->initAppDirs(APP_NAME);
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
 	// Default to the product name "Polarity" (this is overridden by the -name argument)
-	mProductName = "Polarity";
+	mProductName = APP_NAME;
 
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");
