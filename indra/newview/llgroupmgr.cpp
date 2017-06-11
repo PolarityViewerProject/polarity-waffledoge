@@ -57,6 +57,7 @@
 #include <boost/format.hpp>
 #include <boost/regex.hpp>
 
+#include "llsdutil.h" // for ll_pretty_print_sd
 constexpr U32 MAX_CACHED_GROUPS = 20;
 
 //
