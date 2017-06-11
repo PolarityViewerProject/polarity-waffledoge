@@ -3022,7 +3022,10 @@ void LLAppViewer::initStrings()
 		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
 	}
 	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
-	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", LLStringUtil::toUpper(APP_NAME);
+	std::string capitalized_app_name = APP_NAME;
+	// This function really should return something instead of being void...
+	LLStringUtil::toUpper(capitalized_app_name);
+	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
 	LLTrans::setDefaultArg("[PROJECT_STRING]",PROJECT_STRING);
 	LLTrans::setDefaultArg("[PROJECT_DOMAIN]",PROJECT_DOMAIN);
 	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]",PROJECT_HOMEPAGE);
