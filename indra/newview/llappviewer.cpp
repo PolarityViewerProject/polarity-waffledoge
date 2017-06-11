@@ -754,6 +754,8 @@ LLAppViewer::LLAppViewer()
 
     mDumpPath.clear();
 
+    llassert_always(APP_NAME != "");
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs(APP_NAME);
