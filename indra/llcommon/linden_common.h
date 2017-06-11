@@ -59,6 +59,4 @@
 #include "lldefs.h"
 #include "llerror.h"
 #include "llfile.h"
-
-#include "pvconstants.h" // for APP_NAME
 #endif

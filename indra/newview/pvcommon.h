@@ -34,6 +34,7 @@
 #include "llchat.h"
 #include "llsingleton.h" // for instance()
 #include "pvtypes.h"
+#include "pvconstants.h"
 
 class LLAvatarName;
 class LLViewerObject;

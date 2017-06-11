@@ -62,6 +62,8 @@
 #include <dinput.h>
 #include <Dbt.h>
 
+#include "pvconstants.h";
+
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
 const S32	MAX_NUM_RESOLUTIONS = 32;

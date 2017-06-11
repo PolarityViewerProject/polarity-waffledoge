@@ -66,6 +66,7 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#include "pvconstants.h"
 
 namespace 
 {

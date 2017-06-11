@@ -269,6 +269,7 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#include "pvconstants.h"
 #include "pvfpsmeter.h"
 #include "llhasheduniqueid.h"
 

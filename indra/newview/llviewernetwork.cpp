@@ -35,6 +35,7 @@
 #include "llsecapi.h"
 #include "lltrans.h"
 #include "llweb.h"
+#include "pvconstants.h"
 
 
 /// key used to store the grid, and the name attribute in the grid data

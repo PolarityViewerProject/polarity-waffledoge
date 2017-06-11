@@ -133,6 +133,7 @@
 #include "fsassetblacklist.h"
 
 #include "pvfloaterprogressview.h"
+#include "pvconstants.h"
 
 extern void on_new_message(const LLSD& msg);
 
