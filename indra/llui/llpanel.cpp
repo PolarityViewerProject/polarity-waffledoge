@@ -125,6 +125,7 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 
 LLPanel::~LLPanel()
 {
+	if (mVisibleSignal)
 	delete mVisibleSignal;
 }
 
