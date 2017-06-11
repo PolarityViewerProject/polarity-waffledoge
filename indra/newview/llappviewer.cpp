@@ -780,9 +780,6 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
-
-	LLLoginInstance::instance().setUpdaterService(0);
 	
 	destroyMainloopTimeout();
     
