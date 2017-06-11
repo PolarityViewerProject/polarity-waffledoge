@@ -224,9 +224,12 @@ if(USE_TBBMALLOC)
   set(LINK_TBBMALLOC ON CACHE BOOL "Using Intel TBB")
 endif(USE_TBBMALLOC)
 
+# <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
+add_definitions(/DROOT_PROJECT_NAME="${ROOT_PROJECT_NAME}")
 
 MESSAGE("")
 MESSAGE("======== *Configuration* ========")
+MESSAGE("ROOT_PROJECT_NAME      ${ROOT_PROJECT_NAME}")
 MESSAGE("Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
 MESSAGE("Incremental Link       ${INCREMENTAL_LINK}")
 MESSAGE("Link-Time CodeGen      ${USE_LTO}")

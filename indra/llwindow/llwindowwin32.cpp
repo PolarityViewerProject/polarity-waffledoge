@@ -62,7 +62,7 @@
 #include <dinput.h>
 #include <Dbt.h>
 
-#include "pvconstants.h";
+#include "pvconstants.h"
 
 const S32	MAX_MESSAGE_PER_UPDATE = 20;
 const S32	BITS_PER_PIXEL = 32;
@@ -78,6 +78,9 @@ extern BOOL gDebugWindowProc;
 LPWSTR gIconResource = IDI_APPLICATION;
 
 LLW32MsgCallback gAsyncMsgCallback = NULL;
+
+// <polarity> branding
+const LPCWSTR LAPP_NAME_LPCWSTR = ll_convert_string_to_wide(std::string(APP_NAME).c_str(),0);
 
 #ifndef DPI_ENUMS_DECLARED
 

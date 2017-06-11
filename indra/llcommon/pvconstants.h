@@ -31,14 +31,16 @@
 //#include "stdtypes.h" // for std::string
 #include <string>
 
-// <polarity> This contains the name of the viewer.
-const std::string APP_NAME = "Polarity";
-const std::string CAPITALIZED_APP_NAME = "POLARITY";
-
-#if (LL_WINDOWS)
-const std::wstring LAPP_NAME = L"Polarity";
-const LPCWSTR LAPP_NAME_LPCWSTR = LAPP_NAME.c_str();
+// <polarity> This contains the name of the viewer project.
+#ifndef ROOT_PROJECT_NAME
+ #error "ROOT_PROJECT_NAME is not defined! If you see this error message, re-run CMake or clean your build directory and try again."
 #endif
+//const std::string APP_NAME = APP_NAME;
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME); // This seems totally safe </sarcasm>
+#undef APP_NAME
 
 const std::string PROJECT_STRING = "polarityviewer";
 const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
