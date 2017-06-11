@@ -11,7 +11,7 @@ if (NDOF)
     if (WINDOWS OR DARWIN)
       use_prebuilt_binary(libndofdev)
     elseif (LINUX)
-      use_prebuilt_binary(open-libndofdev)
+      use_prebuilt_binary(libndofdev-opem)
     endif (WINDOWS OR DARWIN)
 
     if (WINDOWS)
