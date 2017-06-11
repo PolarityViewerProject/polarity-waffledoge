@@ -641,7 +641,7 @@ LLUUID PVDataOldAPI::getLockDownUUID()
 
 bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass an ID to allow check against other agent than the logged-in user
 {
-	if (output_message) gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the [APP_NAME] developers).");
+	if (output_message) gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the " << APP_NAME << " developers).");
 	if (id.isNull())
 	{
 		if (output_message) gPVOldAPI->setErrorMessage("Agent UUID is null! WTF!?!?!?!");
