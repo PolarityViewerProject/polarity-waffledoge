@@ -47,4 +47,6 @@ const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
 const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
 const std::string PROJECT_UPDATE_URL = "https://update."+PROJECT_DOMAIN+"/update";
 
+// tests or something
+BOOST_STATIC_ASSERT(sizeof(BOOST_STRINGIZE(APP_NAME)) > 1);
 #endif
