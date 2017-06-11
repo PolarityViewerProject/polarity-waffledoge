@@ -28,6 +28,9 @@
 #define LL_LLGROUPMGR_H
 
 #include "lluuid.h"
+#include <vector>
+#include <string>
+#include <map>
 #include "lleventcoro.h"
 #include "llcoros.h"
 

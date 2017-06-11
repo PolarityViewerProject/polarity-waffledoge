@@ -319,7 +319,8 @@ LLGroupListItem::LLGroupListItem()
 mGroupIcon(NULL),
 mGroupNameBox(NULL),
 mInfoBtn(NULL),
-mGroupID(LLUUID::null)
+mGroupID(LLUUID::null),
+mGroupName(LLStringUtil::null)
 {
 	buildFromFile( "panel_group_list_item.xml");
 
