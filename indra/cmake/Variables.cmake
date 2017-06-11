@@ -225,7 +225,7 @@ if(USE_TBBMALLOC)
 endif(USE_TBBMALLOC)
 
 # <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
-add_definitions(/DROOT_PROJECT_NAME="${ROOT_PROJECT_NAME}")
+add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
 
 MESSAGE("")
 MESSAGE("======== *Configuration* ========")
