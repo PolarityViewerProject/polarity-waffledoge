@@ -39,7 +39,8 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
-const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME); // This seems totally safe </sarcasm>
+// This should never be empty, ever.
+const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME);
 
 const std::string PROJECT_STRING = "polarityviewer";
 const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
