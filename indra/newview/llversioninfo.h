@@ -86,6 +86,9 @@ public:
     /// Return the short hash of the commit this build was made from
     static const std::string &getBuildCommitHashLong();
 
+    /// Return the build ID for this binary
+    static const std::string &getBuildID();
+
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);
 

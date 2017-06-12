@@ -56,7 +56,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
               set(VIEWER_VERSION_REVISION 0)
            endif (MERCURIAL)
         endif (DEFINED ENV{revision})
-        message("Building '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} (Commit ${BUILD_COMMIT_HASH})")
+        message("Starting build [${BUILD_ID}] : '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} (Commit ${BUILD_COMMIT_HASH})")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
         message(FATAL_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
@@ -107,5 +107,6 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
         "LLBUILD_CONFIG=\"${CMAKE_BUILD_TYPE}\""
         "BUILD_COMMIT_HASH=\"${BUILD_COMMIT_HASH}\""
         "BUILD_COMMIT_HASH_LONG=\"${BUILD_COMMIT_HASH_LONG}\""
+        "BUILD_ID=\"${BUILD_ID}\""
         )
 endif (NOT DEFINED VIEWER_SHORT_VERSION)

@@ -3463,6 +3463,19 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 	commit_url += LLVersionInfo::getBuildCommitHash() +"]";
 	info["BUILD_HASH"] = commit_url;
+	static const std::string build_id = LLVersionInfo::getBuildID();
+	if(!build_id.empty())
+	{
+		static const std::string build_id_str = " Build No. " + build_id; // Hashtag (#) isn't a valid XML character, sorry.
+		// TODO: More translation work
+		info["BUILD_ID"] = build_id_str; 
+	}
+	else
+	{
+		// This should never happen, but let's make it sane in case it happens
+		static const std::string build_id_str = "";
+		info["BUILD_ID"] = build_id_str;
+	}
 
 	// return a URL to the Latest merged Linden Lab release
 	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
