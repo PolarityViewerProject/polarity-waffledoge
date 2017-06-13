@@ -288,10 +288,10 @@ class ViewerManifest(LLManifest):
             }
         channel_type=self.channel_type()
         installer_file_name=""
-        if channel_type == 'test':
-            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s_%(utcdate)s"
-        else:
+        if channel_type == 'release':
             installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s"
+        else:
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s_%(utcdate)s"
         return installer_file_name % substitution_strings
 
     def app_name(self):
