@@ -43,7 +43,7 @@
  || ! defined(LINDEN_SOURCE_PATCH) \
  || ! defined(BUILD_COMMIT_HASH) \
  || ! defined(BUILD_COMMIT_HASH_LONG) \
- || ! defined(BUILD_ID)
+ || ! defined(BUILD_NUMBER)
  #error "Channel or Version information is undefined"
 #endif
 
@@ -238,8 +238,8 @@ const std::string &LLVersionInfo::getBuildCommitHashLong()
 	return hash_long;
 }
 
-const std::string &LLVersionInfo::getBuildID()
+const std::string &LLVersionInfo::getBuildNumber()
 {
-	static const std::string build_id(std::to_string(BUILD_ID)); // oh surprise, we get numbers!
+	static const std::string build_id(std::to_string(BUILD_NUMBER)); // oh surprise, we get numbers!
 	return build_id;
 }

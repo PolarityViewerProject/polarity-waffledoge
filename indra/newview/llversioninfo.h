@@ -87,7 +87,7 @@ public:
     static const std::string &getBuildCommitHashLong();
 
     /// Return the build ID for this binary
-    static const std::string &getBuildID();
+    static const std::string &getBuildNumber();
 
 	/// reset the channel name used by the viewer.
 	static void resetChannel(const std::string& channel);

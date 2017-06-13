@@ -29,7 +29,7 @@
 	<!-- about dialog/support string-->
 	<string name="AboutHeader">
 [VIEWER_VERSION] [BUILD_HASH]
-[BUILD_CONFIG][BUILD_ID]
+[BUILD_CONFIG][BUILD_NUMBER]
 Build date: [BUILD_DATE], [BUILD_TIME]
 Latest merge: Second Life Release [LATEST_MERGED_VERSION] [[[LATEST_SOURCE_URL] Source]]
 [VIEWER_RELEASE_NOTES_URL]

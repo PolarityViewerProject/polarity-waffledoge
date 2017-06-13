@@ -224,7 +224,7 @@ if(USE_TBBMALLOC)
   set(LINK_TBBMALLOC ON CACHE BOOL "Using Intel TBB")
 endif(USE_TBBMALLOC)
 
-# set(BUILD_ID ${BUILD_ID} CACHE STRING "ID of this viewer build")
+# set(BUILD_NUMBER ${BUILD_NUMBER} CACHE STRING "ID of this viewer build")
 
 # <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
 add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
@@ -232,7 +232,7 @@ add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
 MESSAGE("")
 MESSAGE("======== *Configuration* ========")
 MESSAGE("ROOT_PROJECT_NAME      ${ROOT_PROJECT_NAME}")
-MESSAGE("Build ID               ${BUILD_ID}")
+MESSAGE("Build No.              ${BUILD_NUMBER}")
 MESSAGE("Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
 MESSAGE("Incremental Link       ${INCREMENTAL_LINK}")
 MESSAGE("Link-Time CodeGen      ${USE_LTO}")
@@ -251,7 +251,7 @@ add_definitions(
   /DUSE_LTO=${USE_LTO}
   /DINTERNAL_BUILD=${INTERNAL_BUILD}
   /DLINK_VLC_PLUGIN=${LINK_VLC_PLUGIN}
-  /DBUILD_ID=${BUILD_ID}
+  /DBUILD_NUMBER=${BUILD_NUMBER}
   )
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")

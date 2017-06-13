@@ -48,7 +48,7 @@ try:
 except ImportError:
     from indra.base import llsd
 
-build_id = os.getenv('BUILD_ID', "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow()))
+build_number = os.getenv('BUILD_NUMBER', "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow()))
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
@@ -284,7 +284,7 @@ class ViewerManifest(LLManifest):
             'channel_variant_underscores':self.channel_variant_app_suffix(),
             'version_underscores' : '_'.join(self.args['version']),
             'arch' : self.args['arch'],
-            'utcdate' : ''.join(str(build_id))
+            'utcdate' : ''.join(str(build_number))
             }
         channel_type=self.channel_type()
         installer_file_name=""
@@ -729,7 +729,7 @@ class WindowsManifest(ViewerManifest):
         while (not archive_created) and (rar_attempts > 0):
             try:
                 rar_attempts-=1;
-                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), build_id, self.dst_path_of("polarity-bin.pdb")))
+                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), build_number, self.dst_path_of("polarity-bin.pdb")))
                 archive_created=True
             except ManifestError, err:
                 if rar_attempts:
