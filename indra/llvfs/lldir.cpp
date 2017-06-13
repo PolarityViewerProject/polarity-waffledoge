@@ -58,6 +58,8 @@ LLDir_Mac gDirUtil;
 LLDir_Linux gDirUtil;
 #endif
 
+#include "pvconstants.h"
+
 using namespace std::placeholders;
 
 LLDir *gDirUtilp = (LLDir *)&gDirUtil;
@@ -357,12 +359,6 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 	}
 }
 
-#if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-#define OS_CACHE_DIR "Polarity64"
-#else
-#define OS_CACHE_DIR "Polarity"
-#endif
-
 // Return the default cache directory
 std::string LLDir::buildSLOSCacheDir() const
 {
@@ -380,7 +376,11 @@ std::string LLDir::buildSLOSCacheDir() const
 	}
 	else
 	{
-		res = add(getOSCacheDir(), OS_CACHE_DIR);
+#if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
+		res = add(getOSCacheDir(), APP_NAME + "64");
+#else
+		res = add(getOSCacheDir(), APP_NAME);
+#endif
 	}
 	return res;
 }
