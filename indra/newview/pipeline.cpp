@@ -1068,7 +1068,8 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 //BD - Shadow Map Allocation
 bool LLPipeline::allocateShadowMaps(const U32 shadow_detail, const bool force_allocate)
 {
-	U32 width = (U32)(gViewerWindow->getWorldViewWidthRaw()*RenderShadowResolutionScale);
+	F32 shadow_scale = RenderShadowResolutionScale;
+	U32 width = (U32)(gViewerWindow->getWorldViewWidthRaw() * shadow_scale);
 
 	if (shadow_detail > 0)
 	{ //allocate 4 sun shadow maps
