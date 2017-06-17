@@ -71,6 +71,9 @@
 #include "stringize.h"
 
 #include <exception>
+
+#include "pvconstants.h"
+
 namespace
 {
     void (*gOldTerminateHandler)() = NULL;
@@ -96,8 +99,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-// PLVR TODO: APP_NAME
-const std::string LLAppViewerWin32::sWindowClass = "Polarity";
+const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -110,8 +112,7 @@ const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 bool create_app_mutex()
 {
 	bool result = true;
-	// PLVR TODO: APP_NAME
-	LPCWSTR unique_mutex_name = L"PolarityAppMutex";
+	LPCWSTR unique_mutex_name = ll_convert_string_to_wide(APP_NAME + "AppMutex",0);
 	HANDLE hMutex;
 	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
@@ -352,6 +353,8 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 #endif
 
 	}
+	delete viewer_app_ptr;
+	viewer_app_ptr = NULL;
 
 	//start updater
 	if(LLAppViewer::sUpdaterInfo)
@@ -370,12 +373,6 @@ int APIENTRY WINMAIN(HINSTANCE hInstance,
 		hSession = 0;
 	}
 #endif
-
-	if (viewer_app_ptr)
-	{
-		delete viewer_app_ptr; //@todo ensure we call the right delete() (TBBMalloc or else)
-		viewer_app_ptr = NULL;
-	}
 
 	return 0;
 }
@@ -578,18 +575,15 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 	{
 		logdir = logdir.substr(0,end+1);
 	}
-	//std::string arg_str = "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid());
-	//_spawnl(_P_NOWAIT, exe_path.c_str(), arg_str.c_str(), NULL);
-	std::string arg_str =  "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + stringize(LLApp::getPid()); 
+
+	std::string arg_str =  "\"" + exe_path + "\" -dumpdir \"" + logdir + "\" -procname \"" + appname + "\" -pid " + std::to_string(LLApp::getPid());
 
 	STARTUPINFO startInfo={sizeof(startInfo)};
 	PROCESS_INFORMATION processInfo;
 
-	std::wstring exe_wstr;
-	exe_wstr=wstringize(exe_path);
+	std::wstring exe_wstr = utf8str_to_utf16str(exe_path);
 
-	std::wstring arg_wstr;
-	arg_wstr=wstringize(arg_str);
+	std::wstring arg_wstr = utf8str_to_utf16str(arg_str);
 
 	LL_INFOS("CrashReport") << "Creating crash reporter process " << exe_path << " with params: " << arg_str << LL_ENDL;
     if(CreateProcess(exe_wstr.c_str(),     
@@ -613,7 +607,8 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
 	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	mbstowcs(window_class, APP_NAME.c_str(), 255);
+	static const char* app_name_cstr = APP_NAME.c_str();
+	mbstowcs(window_class, app_name_cstr, 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.
 	HWND other_window = FindWindow(window_class, NULL);
@@ -644,7 +639,7 @@ std::string LLAppViewerWin32::generateSerialNumber()
 	DWORD serial = 0;
 	DWORD flags = 0;
 	BOOL success = GetVolumeInformation(
-			L"C:\\",
+			TEXT("C:\\"),
 			NULL,		// volume name buffer
 			0,			// volume name buffer size
 			&serial,	// volume serial

@@ -41,6 +41,7 @@
 #include "lluicolortable.h"
 #include "message.h"
 #include "llexperiencecache.h"
+#include "pvconstants.h"
 
 #define APP_HEADER_REGEX "((x-grid-location-info://[-\\w\\.]+/app)|(secondlife:///app))"
 

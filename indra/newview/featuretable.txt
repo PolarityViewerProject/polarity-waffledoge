@@ -52,7 +52,7 @@ RenderDeferredSSAO			1	1
 RenderDelayVBUpdate			1	0
 RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	1
-RenderFarClip				1	128
+RenderFarClip				1	96
 RenderFlexTimeFactor		1	10.0
 RenderFogRatio				1	4.0
 RenderFSAASamples			1	16
@@ -317,7 +317,7 @@ RenderAvatarLODFactor		1	1.0
 RenderAvatarMaxComplexity   1	100000
 RenderAvatarPhysicsLODFactor 1	1.0
 RenderAvatarVP				1	1
-RenderFarClip				1	128
+RenderFarClip				1	96
 RenderFlexTimeFactor		1	1.0
 RenderGlowResolutionPow		1	9
 RenderMaxPartCount			1	4096
@@ -655,10 +655,15 @@ RenderTerrainDetail			1	0
 RenderVBOEnable				1	0
 
 
+/// Tweaked AMD
+
 list ATI_FireGL_5200
 RenderVBOEnable				1	0
 WindLightUseAtmosShaders	0	0
 
+list ATI_Technologies_Inc._AMD_FirePro_M6100_FireGL_V
+RenderFarClip				1	96
+PVDebug_ForcedVideoMemory	1	2048
 
 list ATI_Mobility_Radeon_7xxx
 RenderVBOEnable				0	0

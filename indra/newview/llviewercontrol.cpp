@@ -695,7 +695,7 @@ static bool handleWaterResolutionChanged(const LLSD& newvalue)
 
 static bool validateShadowMapsChanged(const LLSD& newvalue)
 {
-	return LLPipeline::RenderShadowResolutionScale != newvalue.asInteger();
+	return LLPipeline::RenderShadowResolutionScale != newvalue.asReal();
 }
 
 // </polarity>

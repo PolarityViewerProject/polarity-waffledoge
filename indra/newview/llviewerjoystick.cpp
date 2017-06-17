@@ -41,7 +41,7 @@
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
-
+#include "pvconstants.h"
 
 // ----------------------------------------------------------------------------
 // Constants

@@ -35,7 +35,6 @@
 
 #include "llgroupmgr.h"
 
-#include <vector>
 #include <algorithm>
 
 #include "llappviewer.h"
@@ -50,14 +49,13 @@
 #include "llpanelgroup.h"
 #include "llgroupactions.h"
 #include "llnotificationsutil.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 #include "llviewerregion.h"
 
 #include "llcorehttputil.h"
 #include "roles_constants.h"
+#include <boost/format.hpp>
 #include <boost/regex.hpp>
-#include <boost/lexical_cast.hpp>
 
 #include "llsdutil.h" // for ll_pretty_print_sd
 constexpr U32 MAX_CACHED_GROUPS = 20;
@@ -71,13 +69,9 @@ LLRoleActionSet::LLRoleActionSet()
 
 LLRoleActionSet::~LLRoleActionSet()
 {
-	// This crashes on shutdown.
-	if (mActionSetData)
-	{
-		delete mActionSetData;
-		std::for_each(mActions.begin(), mActions.end(), DeletePointer());
-		mActions.clear();
-	}
+	delete mActionSetData;
+	std::for_each(mActions.begin(), mActions.end(), DeletePointer());
+	mActions.clear();
 }
 
 //
@@ -782,7 +776,7 @@ void LLGroupMgrGroupData::banMemberById(const LLUUID& participant_uuid)
 		mPendingBanRequest = true;
 		mPendingBanMemberID = participant_uuid;
 
-		if (!mMemberDataComplete || !mMembers.size())
+		if (!mMemberDataComplete || mMembers.empty())
 		{
 			LLGroupMgr::getInstance()->sendCapGroupMembersRequest(mID);
 		}
@@ -944,12 +938,12 @@ static void formatDateString(std::string &date_string)
 	if (regex_match(date_string.c_str(), result, expression))
 	{
 		// convert matches to integers so that we can pad them with zeroes on Linux
-		S32 year	= boost::lexical_cast<S32>(result[3]);
-		S32 month	= boost::lexical_cast<S32>(result[1]);
-		S32 day		= boost::lexical_cast<S32>(result[2]);
+		S32 year	= std::stoi(result[3]);
+		S32 month	= std::stoi(result[1]);
+		S32 day		= std::stoi(result[2]);
 
 		// ISO 8601 date format
-		date_string = llformat("%04d/%02d/%02d", year, month, day);
+		date_string = (boost::format("%1%/%2%/%3%") % year % month % day).str();
 	}
 }
 

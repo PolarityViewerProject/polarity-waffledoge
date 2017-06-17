@@ -48,7 +48,7 @@ try:
 except ImportError:
     from indra.base import llsd
 
-today_str = "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow())
+build_number = os.getenv('BUILD_NUMBER', "{:%Y%m%d%H%M%S}".format(datetime.datetime.utcnow()))
 
 class ViewerManifest(LLManifest):
     def is_packaging_viewer(self):
@@ -284,14 +284,14 @@ class ViewerManifest(LLManifest):
             'channel_variant_underscores':self.channel_variant_app_suffix(),
             'version_underscores' : '_'.join(self.args['version']),
             'arch' : self.args['arch'],
-            'utcdate' : ''.join(str(today_str))
+            'utcdate' : ''.join(str(build_number))
             }
         channel_type=self.channel_type()
         installer_file_name=""
-        if channel_type == 'test':
-            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s_%(utcdate)s"
-        else:
+        if channel_type == 'release':
             installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s"
+        else:
+            installer_file_name="%(channel_vendor_base)s%(channel_variant_underscores)s_%(version_underscores)s_%(arch)s_%(utcdate)s"
         return installer_file_name % substitution_strings
 
     def app_name(self):
@@ -729,7 +729,7 @@ class WindowsManifest(ViewerManifest):
         while (not archive_created) and (rar_attempts > 0):
             try:
                 rar_attempts-=1;
-                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), today_str, self.dst_path_of("polarity-bin.pdb")))
+                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), build_number, self.dst_path_of("polarity-bin.pdb")))
                 archive_created=True
             except ManifestError, err:
                 if rar_attempts:

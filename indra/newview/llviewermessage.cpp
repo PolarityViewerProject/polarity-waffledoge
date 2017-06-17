@@ -133,6 +133,7 @@
 #include "fsassetblacklist.h"
 
 #include "pvfloaterprogressview.h"
+#include "pvconstants.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -1188,7 +1189,6 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 				std::ostringstream time ;
 				time<<OFFER_THROTTLE_TIME;
 
-				arg["APP_NAME"] = LLAppViewer::instance()->getSecondLifeTitle();
 				arg["TIME"] = time.str();
 
 				if (!from_name.empty())

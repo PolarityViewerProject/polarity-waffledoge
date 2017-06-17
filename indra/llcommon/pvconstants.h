@@ -25,24 +25,19 @@
 
 #ifndef PV_CONSTANTS_H
 #define PV_CONSTANTS_H
-#if (LL_WINDOWS)
-#include "llwin32headers.h"
-#endif
-//#include "stdtypes.h" // for std::string
 #include <string>
 
-// <polarity> This contains the name of the viewer.
-const std::string APP_NAME = "Polarity";
-const std::string CAPITALIZED_APP_NAME = "POLARITY";
-
-#if (LL_WINDOWS)
-const std::wstring LAPP_NAME = L"Polarity";
-const LPCWSTR LAPP_NAME_LPCWSTR = LAPP_NAME.c_str();
+// <polarity> This contains the name of the viewer project.
+#ifndef ROOT_PROJECT_NAME
+ #error "ROOT_PROJECT_NAME is not defined! If you see this error message, re-run CMake or clean your build directory and try again."
 #endif
-
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+#define AT __FILE__ ":" TOSTRING(__LINE__)
+// Compile-time checks don't appear to work on strings, we're going to have to pray this never ends up empty
+const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME);
 const std::string PROJECT_STRING = "polarityviewer";
 const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
 const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
 const std::string PROJECT_UPDATE_URL = "https://update."+PROJECT_DOMAIN+"/update";
-
 #endif

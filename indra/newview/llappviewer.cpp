@@ -269,6 +269,7 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#include "pvconstants.h"
 #include "pvfpsmeter.h"
 #include "llhasheduniqueid.h"
 
@@ -753,6 +754,8 @@ LLAppViewer::LLAppViewer()
 
     mDumpPath.clear();
 
+    llassert_always(APP_NAME != "");
+
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
 	gDirUtilp->initAppDirs(APP_NAME);
@@ -779,9 +782,6 @@ LLAppViewer::LLAppViewer()
 LLAppViewer::~LLAppViewer()
 {
 	delete mSettingsLocationList;
-	LLViewerEventRecorder::deleteSingleton();
-
-	LLLoginInstance::instance().setUpdaterService(0);
 	
 	destroyMainloopTimeout();
     
@@ -3024,7 +3024,10 @@ void LLAppViewer::initStrings()
 		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
 	}
 	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
-	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", CAPITALIZED_APP_NAME);
+	std::string capitalized_app_name = APP_NAME;
+	// This function really should return something instead of being void...
+	LLStringUtil::toUpper(capitalized_app_name);
+	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
 	LLTrans::setDefaultArg("[PROJECT_STRING]",PROJECT_STRING);
 	LLTrans::setDefaultArg("[PROJECT_DOMAIN]",PROJECT_DOMAIN);
 	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]",PROJECT_HOMEPAGE);
@@ -3460,6 +3463,19 @@ LLSD LLAppViewer::getViewerInfo() const
 	}
 	commit_url += LLVersionInfo::getBuildCommitHash() +"]";
 	info["BUILD_HASH"] = commit_url;
+	static const std::string build_number = LLVersionInfo::getBuildNumber();
+	if(!build_number.empty())
+	{
+		static const std::string build_number_str = " Build No. " + build_number; // Hashtag (#) isn't a valid XML character, sorry.
+		// TODO: More translation work
+		info["BUILD_NUMBER"] = build_number_str; 
+	}
+	else
+	{
+		// This should never happen, but let's make it sane in case it happens
+		static const std::string build_number_str = "";
+		info["BUILD_NUMBER"] = build_number_str;
+	}
 
 	// return a URL to the Latest merged Linden Lab release
 	std::string ll_source_url = "https://bitbucket.org/lindenlab/viewer-release/commits/tag/";
@@ -3541,6 +3557,8 @@ LLSD LLAppViewer::getViewerInfo() const
     LLSD substitution;
     substitution["datetime"] = (S32)(gVFS ? gVFS->creationTime() : 0);
     info["VFS_TIME"] = LLTrans::getString("AboutTime", substitution);
+        // FIXME: Http Pipelining is still broken.
+    info["HTTP_PIPELINE"] = /*gSavedSettings.getBOOL("HttpPipelining") ? "Enabled" : */"Disabled";
 
 	// Libraries
 

@@ -835,20 +835,6 @@ void LLFeatureManager::applyBaseMasks()
 	}
 #endif
 
-	// now mask by gpu string
-	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
-	std::string gpustr = mGPUString;
-	for (std::string::iterator iter = gpustr.begin(); iter != gpustr.end(); ++iter)
-	{
-		if (*iter == ' ')
-		{
-			*iter = '_';
-		}
-	}
-
-	//LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
-	maskFeatures(gpustr);
-
 	// now mask cpu type ones
 	if (gSysMemory.getPhysicalMemoryClamped() <= U32Megabytes(256))
 	{
@@ -869,6 +855,18 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("safe");
 	}
+	// <polarity> Apply the GPU-specific tweaks last
+	// Replaces ' ' with '_' in mGPUString to deal with inability for parser to handle spaces
+	std::string gpustr = mGPUString;
+	for (std::string::iterator iter = gpustr.begin(); iter != gpustr.end(); ++iter)
+	{
+		if (*iter == ' ')
+		{
+			*iter = '_';
+		}
+	}
+	LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
+	maskFeatures(gpustr);
 	// <polarity> Hack! poke the vram fetching function to update VRAM immediately after applying features
 	PVGPUInfo::vRAMGetTotalOnboard();
 }

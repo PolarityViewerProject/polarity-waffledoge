@@ -45,7 +45,6 @@
 #include "lldiriterator.h"
 #include "stringize.h"
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <algorithm>
 
 #if LL_WINDOWS
@@ -54,13 +53,12 @@ LLDir_Win32 gDirUtil;
 #elif LL_DARWIN
 #include "lldir_mac.h"
 LLDir_Mac gDirUtil;
-#elif LL_SOLARIS
-#include "lldir_solaris.h"
-LLDir_Solaris gDirUtil;
 #else
 #include "lldir_linux.h"
 LLDir_Linux gDirUtil;
 #endif
+
+#include "pvconstants.h"
 
 using namespace std::placeholders;
 
@@ -361,12 +359,6 @@ const std::string  LLDir::getCacheDir(bool get_default) const
 	}
 }
 
-#if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-#define OS_CACHE_DIR "Polarity64"
-#else
-#define OS_CACHE_DIR "Polarity"
-#endif
-
 // Return the default cache directory
 std::string LLDir::buildSLOSCacheDir() const
 {
@@ -384,7 +376,11 @@ std::string LLDir::buildSLOSCacheDir() const
 	}
 	else
 	{
-		res = add(getOSCacheDir(), OS_CACHE_DIR);
+#if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
+		res = add(getOSCacheDir(), APP_NAME + "64");
+#else
+		res = add(getOSCacheDir(), APP_NAME);
+#endif
 	}
 	return res;
 }
@@ -688,10 +684,10 @@ void LLDir::walkSearchSkinDirs(const std::string& subdir,
 							   const std::string& filename,
 							   const FUNCTION& function) const
 {
-	BOOST_FOREACH(std::string skindir, mSearchSkinDirs)
+	for (std::string skindir : mSearchSkinDirs)
 	{
 		std::string subdir_path(add(skindir, subdir));
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (std::string subsubdir : subsubdirs)
 		{
 			std::string full_path(add(add(subdir_path, subsubdir), filename));
 			if (fileExists(full_path))
@@ -829,7 +825,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 		// current language, copy them -- in proper order -- into results.
 		// Don't drive this by walking the map itself: it matters that we
 		// generate results in the same order as subsubdirs.
-		BOOST_FOREACH(std::string subsubdir, subsubdirs)
+		for (std::string subsubdir : subsubdirs)
 		{
 			StringMap::const_iterator found(path_for.find(subsubdir));
 			if (found != path_for.end())
@@ -841,7 +837,7 @@ std::vector<std::string> LLDir::findSkinnedFilenames(const std::string& subdir,
 
 	LL_DEBUGS("LLDir") << empty;
 	const char* comma = "";
-	BOOST_FOREACH(std::string path, results)
+	for (std::string path : results)
 	{
 		LL_CONT << comma << "'" << path << "'";
 		comma = ", ";

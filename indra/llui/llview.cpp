@@ -573,6 +573,10 @@ void LLView::deleteAllChildren()
 	while (!mChildList.empty())
 	{
 		LLView* viewp = mChildList.front();
+		if (!viewp) // please don't delete if there's nothing...
+		{
+			continue;
+		}
 		delete viewp; // will remove the child from mChildList
 	}
 }
