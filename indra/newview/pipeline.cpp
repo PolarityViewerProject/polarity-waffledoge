@@ -1247,11 +1247,9 @@ void LLPipeline::handleReflectionChanges()
 	mWaterDis.release();
 	if (sWaterReflections)
 	{
-		// <polarity/> Speed up
-		static LLCachedControl<U32> render_water_reflection(gSavedSettings, "RenderWaterRefResolution");
-		auto res = llmax((U32)render_water_reflection, (U32)512);
-		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
-		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+		static LLCachedControl<U32> water_ref_res(gSavedSettings, "RenderWaterRefResolution");
+		mWaterRef.allocate(water_ref_res, water_ref_res,GL_RGBA,TRUE,FALSE);
+		mWaterDis.allocate(water_ref_res, water_ref_res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 	}
 }
 
