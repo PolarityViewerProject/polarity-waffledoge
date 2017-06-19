@@ -1321,8 +1321,8 @@ void LLPipeline::createGLBuffers()
 	updateRenderDeferred();
 
 		// <polarity/> Speed up
+		static LLCachedControl<U32> water_ref_res(gSavedSettings, "RenderWaterRefResolution");
 #if MATERIALS_IN_REFLECTIONS
-		static LLCachedControl<U32> render_water_ref_res(gSavedSettings, "RenderWaterRefResolution");
 		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
 #else
 		static constexpr bool materials_in_water = false;
@@ -1330,7 +1330,6 @@ void LLPipeline::createGLBuffers()
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
-		static LLCachedControl<U32> res(gSavedSettings, "RenderWaterRefResolution");
 #if MATERIALS_IN_REFLECTIONS
 		if (LLPipeline::sRenderDeferred && materials_in_water)
 		{
@@ -1339,9 +1338,9 @@ void LLPipeline::createGLBuffers()
 			mWaterDis.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 		}
 #else
-		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
+		mWaterRef.allocate(water_ref_res, water_ref_res,GL_RGBA,TRUE,FALSE);
 		//always use FBO for mWaterDis so it can be used for avatar texture bakes
-		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+		mWaterDis.allocate(water_ref_res, water_ref_res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
 #endif
 	}
 
