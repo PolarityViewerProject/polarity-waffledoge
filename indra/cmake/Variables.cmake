@@ -216,10 +216,6 @@ if(FMODSTUDIO)
   set(LINK_FMODSTUDIO ON CACHE BOOL "Using FMOD Studio sound library.")
 endif(FMODSTUDIO)
 
-if(NVAPI)
-  set(LINK_NVAPI ON CACHE BOOL "Using Nvidia API")
-endif(NVAPI)
-
 if(USE_TBBMALLOC)
   set(LINK_TBBMALLOC ON CACHE BOOL "Using Intel TBB")
 endif(USE_TBBMALLOC)
