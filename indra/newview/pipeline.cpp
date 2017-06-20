@@ -683,9 +683,6 @@ void LLPipeline::init()
 // <polarity> Sync Shadow Far Clip with Render Far Clip
 	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
 // </polarity>
-
-
-
 }
 
 LLPipeline::~LLPipeline()

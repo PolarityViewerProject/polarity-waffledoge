@@ -975,7 +975,8 @@ public:
 	static F32 RenderSnapshotMultiplier;
 
 	static F32 RenderShadowResolutionScale;
-	static F32 RenderShadowFarClip; // </polarity>
+	static F32 RenderShadowFarClip;
+	// </polarity>
 };
 
 void render_bbox(const LLVector3 &min, const LLVector3 &max);
