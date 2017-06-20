@@ -1599,8 +1599,9 @@ bool LLAppViewer::frame()
 			// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
 			// Only limit FPS when we are actually rendering something. Otherwise
 			// logins, logouts and teleports take much longer to complete.
+			static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
 			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& PVFPSMeter::update()
+					&& fps_limiter_enabled
 					&& !gTeleportDisplay
 					&& !logoutRequestSent())
 			{
@@ -1616,6 +1617,8 @@ bool LLAppViewer::frame()
 			}
 			// </polarity> FPS Limiter
 			frameTimer.reset();
+
+			PVFPSMeter::update();
 
 			resumeMainloopTimeout();
 
