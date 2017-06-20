@@ -84,7 +84,7 @@ bool PVFPSMeter::update()
 	if (fps_counter_visible)
 	{
 		// Throttle a bit to avoid making faster FPS heavier to process
-		if (mStatusBarFPSCounterTimer.getElapsedTimeF32() > UPDATE_DELAY)
+		if (canRefresh())
 		{// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
 			static auto color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
 			static auto color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
