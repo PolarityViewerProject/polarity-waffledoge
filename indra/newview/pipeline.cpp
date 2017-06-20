@@ -2578,11 +2578,11 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
 	{
-		LLViewerRegion* region2 = *iter;
+		LLViewerRegion* region = *iter;
 		if (water_clip != 0)
 		{
-			LLPlane plane2(LLVector3(0,0, (F32) -water_clip), (F32) water_clip*region2->getWaterHeight());
-			camera.setUserClipPlane(plane2);
+			LLPlane plane(LLVector3(0,0, (F32) -water_clip), (F32) water_clip*region->getWaterHeight());
+			camera.setUserClipPlane(plane);
 		}
 		else
 		{
@@ -2591,7 +2591,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 		for (U32 i = 0; i < LLViewerRegion::NUM_PARTITIONS; i++)
 		{
-			LLSpatialPartition* part = region2->getSpatialPartition(i);
+			LLSpatialPartition* part = region->getSpatialPartition(i);
 			if (part)
 			{
 				if (hasRenderType(part->mDrawableType))
@@ -2602,7 +2602,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 		}
 
 		//scan the VO Cache tree
-		LLVOCachePartition* vo_part = region2->getVOCachePartition();
+		LLVOCachePartition* vo_part = region->getVOCachePartition();
 		if(vo_part)
 		{
 			bool do_occlusion_cull = can_use_occlusion && use_occlusion && !gUseWireframe/* && !gViewerWindow->getProgressView()->getVisible()*/;
@@ -3086,22 +3086,22 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		 iter != mBuildQ1.end();)
 	{
 		LLDrawable::drawable_list_t::iterator curiter = iter++;
-		LLDrawable* drawablep2 = *curiter;
-		if (drawablep2 && !drawablep2->isDead())
+		LLDrawable* drawablep = *curiter;
+		if (drawablep && !drawablep->isDead())
 		{
-			if (drawablep2->isState(LLDrawable::IN_REBUILD_Q2))
+			if (drawablep->isState(LLDrawable::IN_REBUILD_Q2))
 			{
-				drawablep2->clearState(LLDrawable::IN_REBUILD_Q2);
-				LLDrawable::drawable_list_t::iterator find = std::find(mBuildQ2.begin(), mBuildQ2.end(), drawablep2);
+				drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
+				LLDrawable::drawable_list_t::iterator find = std::find(mBuildQ2.begin(), mBuildQ2.end(), drawablep);
 				if (find != mBuildQ2.end())
 				{
 					mBuildQ2.erase(find);
 				}
 			}
 
-			if (updateDrawableGeom(drawablep2, TRUE))
+			if (updateDrawableGeom(drawablep, TRUE))
 			{
-				drawablep2->clearState(LLDrawable::IN_REBUILD_Q1);
+				drawablep->clearState(LLDrawable::IN_REBUILD_Q1);
 				mBuildQ1.erase(curiter);
 			}
 		}
@@ -3129,12 +3129,12 @@ void LLPipeline::updateGeom(F32 max_dtime)
 		 iter != mBuildQ2.end(); )
 	{
 		LLDrawable::drawable_list_t::iterator curiter = iter++;
-		LLDrawable* drawable3 = *curiter;
+		LLDrawable* drawablep = *curiter;
 
-		LLSpatialBridge* bridge = drawable3->isRoot() ? drawable3->getSpatialBridge() :
-									drawable3->getParent()->getSpatialBridge();
+		LLSpatialBridge* bridge = drawablep->isRoot() ? drawablep->getSpatialBridge() :
+									drawablep->getParent()->getSpatialBridge();
 
-		if (drawable3->getSpatialGroup() != last_group && 
+		if (drawablep->getSpatialGroup() != last_group && 
 			(!last_bridge || bridge != last_bridge) &&
 			(update_timer.getElapsedTimeF32() >= max_dtime) && count > min_count)
 		{
@@ -3143,18 +3143,18 @@ void LLPipeline::updateGeom(F32 max_dtime)
 
 		//make sure updates don't stop in the middle of a spatial group
 		//to avoid thrashing (objects are enqueued by group)
-		last_group = drawable3->getSpatialGroup();
+		last_group = drawablep->getSpatialGroup();
 		last_bridge = bridge;
 
 		BOOL update_complete = TRUE;
-		if (!drawable3->isDead())
+		if (!drawablep->isDead())
 		{
-			update_complete = updateDrawableGeom(drawable3, FALSE);
+			update_complete = updateDrawableGeom(drawablep, FALSE);
 			count++;
 		}
 		if (update_complete)
 		{
-			drawable3->clearState(LLDrawable::IN_REBUILD_Q2);
+			drawablep->clearState(LLDrawable::IN_REBUILD_Q2);
 			mBuildQ2.erase(curiter);
 		}
 	}	
@@ -4650,7 +4650,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 	LLGLState::checkTextureChannels();
 	LLGLState::checkClientArrays();
 
-	U32 cur_type;
+	U32 cur_type = 0;
 
 	gGL.setColorMask(true, true);
 	
@@ -4720,7 +4720,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 {
 	LL_RECORD_BLOCK_TIME(FTM_POST_DEFERRED_POOLS);
-	U32 cur_type;
+	U32 cur_type = 0;
 
 	LLGLEnable cull(GL_CULL_FACE);
 
@@ -4885,7 +4885,7 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 void LLPipeline::addTrianglesDrawn(S32 index_count, U32 render_type)
 {
 	assertInitialized();
-	S32 count;
+	S32 count = 0;
 	if (render_type == LLRender::TRIANGLE_STRIP)
 	{
 		count = index_count-2;
@@ -7378,7 +7378,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		gGlowExtractProgram.uniform3f(LLShaderMgr::GLOW_WARMTH_WEIGHTS, warmthWeights.mV[0], warmthWeights.mV[1], warmthWeights.mV[2]);
 		gGlowExtractProgram.uniform1f(LLShaderMgr::GLOW_WARMTH_AMOUNT, warmthAmount);
 		LLGLEnable blend_on(GL_BLEND);
-		LLGLEnable test2(GL_ALPHA_TEST);
+		LLGLEnable test(GL_ALPHA_TEST);
 		
 		gGL.setSceneBlendType(LLRender::BT_ADD_WITH_ALPHA);
 		
@@ -7504,7 +7504,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		if (dof_enabled)
 		{
 			LLGLSLShader* shader;
-			LLGLDisable blend2(GL_BLEND);
+			LLGLDisable blend(GL_BLEND);
 
 			//depth of field focal plane calculations
 			static F32 current_distance = 16.f;
@@ -7911,7 +7911,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 				
 		buff->flush();
 
-		LLGLDisable blend3(GL_BLEND);
+		LLGLDisable blend(GL_BLEND);
 
 		if (LLGLSLShader::sNoFixedFunction)
 		{
@@ -7959,23 +7959,23 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 		gGL.setColorMask(true, false);
 
-		LLVector2 tc1_2(0,0);
-		LLVector2 tc2_2((F32) gViewerWindow->getWorldViewWidthRaw()*2,
+		LLVector2 tc1(0,0);
+		LLVector2 tc2((F32) gViewerWindow->getWorldViewWidthRaw()*2,
 				  (F32) gViewerWindow->getWorldViewHeightRaw()*2);
 
-		LLGLEnable blend4(GL_BLEND);
+		LLGLEnable blend(GL_BLEND);
 		gGL.color4f(1,1,1,0.75f);
 
 		gGL.getTexUnit(0)->bind(&mPhysicsDisplay);
 
 		gGL.begin(LLRender::TRIANGLES);
-		gGL.texCoord2f(tc1_2.mV[0], tc1_2.mV[1]);
+		gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
 		gGL.vertex2f(-1,-1);
 		
-		gGL.texCoord2f(tc1_2.mV[0], tc2_2.mV[1]);
+		gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
 		gGL.vertex2f(-1,3);
 		
-		gGL.texCoord2f(tc2_2.mV[0], tc1_2.mV[1]);
+		gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
 		gGL.vertex2f(3,-1);
 		
 		gGL.end();
@@ -8340,7 +8340,7 @@ void LLPipeline::renderDeferredLighting()
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
-					LLGLDisable blend6(GL_BLEND);
+					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 					stop_glerror();
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -8352,7 +8352,6 @@ void LLPipeline::renderDeferredLighting()
 			mDeferredLight.flush();
 		}
 		
-		//BD
 		if (RenderDeferredSSAO)
 		{ //soften direct lighting lightmap
 			LL_RECORD_BLOCK_TIME(FTM_SOFTEN_SHADOW);
@@ -8388,7 +8387,7 @@ void LLPipeline::renderDeferredLighting()
 			gDeferredBlurLightProgram.uniform1f(sKernScale, blur_size * (kern_length/2.f - 0.5f));
 		
 			{
-				LLGLDisable blend7(GL_BLEND);
+				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 				stop_glerror();
 				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -8405,7 +8404,7 @@ void LLPipeline::renderDeferredLighting()
 			gDeferredBlurLightProgram.uniform2f(sDelta, 0.f, 1.f);
 
 			{
-				LLGLDisable blend8(GL_BLEND);
+				LLGLDisable blend(GL_BLEND);
 				LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 				stop_glerror();
 				mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -8434,7 +8433,7 @@ void LLPipeline::renderDeferredLighting()
 			bindDeferredShader(sUnderWaterRender ? gDeferredSoftenWaterProgram : gDeferredSoftenProgram);	
 			{
 				LLGLDepthTest depth(GL_FALSE);
-				LLGLDisable blend9(GL_BLEND);
+				LLGLDisable blend(GL_BLEND);
 				LLGLDisable test(GL_ALPHA_TEST);
 
 				//full screen blit
@@ -8724,7 +8723,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					setupSpotLight(gDeferredMultiSpotLightProgram, drawablep);
 
-					LLColor3 col2 = volume->getLightColor();
+					LLColor3 col = volume->getLightColor();
 					
 					/*col.mV[0] = powf(col.mV[0], 2.2f);
 					col.mV[1] = powf(col.mV[1], 2.2f);
@@ -8732,7 +8731,7 @@ void LLPipeline::renderDeferredLighting()
 					
 					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::LIGHT_CENTER, 1, tc.v);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_SIZE, s);
-					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col2.mV);
+					gDeferredMultiSpotLightProgram.uniform3fv(LLShaderMgr::DIFFUSE_COLOR, 1, col.mV);
 					gDeferredMultiSpotLightProgram.uniform1f(LLShaderMgr::LIGHT_FALLOFF, volume->getLightFalloff()*0.5f);
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
 				}
@@ -8916,9 +8915,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		gGL.pushMatrix();
 		gGL.loadIdentity();
 
-		//BD
-		if (RenderDeferredSSAO 
-			|| RenderShadowDetail > 0)
+		if (RenderDeferredSSAO || RenderShadowDetail > 0)
 		{
 			mDeferredLight.bindTarget();
 			{ //paint shadow/SSAO light map (direct lighting lightmap)
@@ -8953,7 +8950,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
-					LLGLDisable blend11(GL_BLEND);
+					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
 					stop_glerror();
 					mDeferredVB->drawArrays(LLRender::TRIANGLES, 0, 3);
@@ -8985,7 +8982,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 			bindDeferredShader(gDeferredSoftenProgram);	
 			{
 				LLGLDepthTest depth(GL_FALSE);
-				LLGLDisable blend13(GL_BLEND);
+				LLGLDisable blend(GL_BLEND);
 				LLGLDisable test(GL_ALPHA_TEST);
 
 				//full screen blit
@@ -9008,8 +9005,8 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 		}
 
 		{ //render non-deferred geometry (fullbright, alpha, etc)
-			LLGLDisable blend14(GL_BLEND);
-			LLGLDisable stencil3(GL_STENCIL_TEST);
+			LLGLDisable blend(GL_BLEND);
+			LLGLDisable stencil(GL_STENCIL_TEST);
 			gGL.setSceneBlendType(LLRender::BT_ALPHA);
 
 			gPipeline.pushRenderTypeMask();
@@ -9614,7 +9611,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		LLVector3 pnorm;
 		F32 pd;
 
-		S32 water_clip;
+		S32 water_clip = 0;
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{ //camera is above water, clip plane points up
 			pnorm.setVec(0,0,1);
@@ -9812,11 +9809,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			{
 				//clip out geometry on the same side of water as the camera
 				mat = glh_get_current_modelview();
-				LLPlane plane2(-pnorm, -(pd+pad));
+				LLPlane plane(-pnorm, -(pd+pad));
 
-				LLGLUserClipPlane clip_plane(plane2, mat, projection);
+				LLGLUserClipPlane clip_plane(plane, mat, projection);
 				static LLCullResult result;
-				updateCull(camera, result, water_clip, &plane2);
+				updateCull(camera, result, water_clip, &plane);
 				stateSort(camera, result);
 
 				gGL.setColorMask(true, true);
@@ -10479,7 +10476,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	
 	LLCamera main_camera = camera;
 	
-	F32 near_clip;
+	F32 near_clip = 0.f;
 	{
 		//get visible point cloud
 		std::vector<LLVector3> fp;
@@ -11020,9 +11017,9 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			at_axis.normVec();
 
 			//get origin that has given fov for plane np, at_axis, and given scale
-			F32 dist2 = (scale.mV[1]*0.5f)/tanf(fov*0.5f);
+			F32 dist = (scale.mV[1]*0.5f)/tanf(fov*0.5f);
 
-			LLVector3 origin = np - at_axis*dist2;
+			LLVector3 origin = np - at_axis*dist;
 
 			LLMatrix4 mat(quat, LLVector4(origin, 1.f));
 
@@ -11031,15 +11028,15 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			view[i+4] = view[i+4].inverse();
 
 			//get perspective matrix
-			F32 near_clip2 = dist2+0.01f;
+			F32 near_clip = dist+0.01f;
 			F32 width = scale.mV[VX];
 			F32 height = scale.mV[VY];
-			F32 far_clip = dist2+volume->getLightRadius()*1.5f;
+			F32 far_clip = dist+volume->getLightRadius()*1.5f;
 
 			F32 fovy = fov * RAD_TO_DEG;
 			F32 aspect = width/height;
 			
-			proj[i+4] = gl_perspective(fovy, aspect, near_clip2, far_clip);
+			proj[i+4] = gl_perspective(fovy, aspect, near_clip, far_clip);
 
 			//translate and scale to from [-1, 1] to [0, 1]
 			glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
