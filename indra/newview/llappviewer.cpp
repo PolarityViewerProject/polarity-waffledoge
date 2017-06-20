@@ -1736,7 +1736,7 @@ bool LLAppViewer::cleanup()
 
 #ifdef PVDATA_SYSTEM
 	// stop PVData refresh timer
-	gPVOldAPI->cleanup();
+	// gPVOldAPI->cleanup();
 #endif
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
