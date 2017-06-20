@@ -39,8 +39,14 @@ S64Bytes PVGPUInfo::vram_used_by_others_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
 LLFrameTimer PVGPUInfo::gpuInfoRefreshTimer = LLFrameTimer();
 
+static LLTrace::BlockTimerStatHandle FTM_PV_GPU_INFO("!PVGPUInfo");
+static LLTrace::BlockTimerStatHandle FTM_PV_GPU_INFO_UPDATE("updateValues");
+static LLTrace::BlockTimerStatHandle FTM_PV_GPU_INFO_GET_VRAM("getTotalOnboard");
+
 void PVGPUInfo::updateValues()
 {
+	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO);
+	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO_UPDATE);
 	if (gpuInfoRefreshTimer.getStarted())
 	{
 		if (gpuInfoRefreshTimer.getElapsedSeconds() <= 2)
@@ -80,6 +86,8 @@ void PVGPUInfo::updateValues()
 
 S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()
 {
+	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO);
+	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO_GET_VRAM);
 	static const S64Megabytes MINIMUM_VRAM_AMOUNT = S64Megabytes(1024); // fallback for cases where video memory is not detected properly
 	static S64Megabytes vram_s64_megabytes = S64Megabytes(gGLManager.mVRAM);
 	if (gGLManager.mIsIntel)

@@ -522,8 +522,10 @@ private:
 	LLTextureView* mTextureView;
 };
 
+static LLTrace::BlockTimerStatHandle FTM_DRAW_MEM_BAR("!Draw Tex Mem Bar");
 void LLGLTexMemBar::draw()
 {
+	LL_RECORD_BLOCK_TIME(FTM_DRAW_MEM_BAR);
 	F32 discard_bias = LLViewerTexture::sDesiredDiscardBias;
 	F32 cache_usage = LLAppViewer::getTextureCache()->getUsage().valueInUnits<LLUnits::Megabytes>();
 	F32 cache_max_usage = LLAppViewer::getTextureCache()->getMaxUsage().valueInUnits<LLUnits::Megabytes>();

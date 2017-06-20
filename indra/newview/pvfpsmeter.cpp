@@ -37,6 +37,10 @@
 constexpr F32 UPDATE_DELAY = 0.125f;
 constexpr S32 FRAME_NULL_ZONE = 1;
 
+static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER("!PVFPSMeter");
+static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER_UPDATE("Update");
+static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER_GET_VAL("getValue");
+
 // Default values, because static and shenanigans
 F32 PVFPSMeter::mFPSMeterValue(0.f);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
@@ -70,6 +74,8 @@ bool PVFPSMeter::canRefresh()
 
 bool PVFPSMeter::update()
 {
+	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER);
+	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER_UPDATE);
 	if (!mStatusBarFPSCounterTimer.getStarted())
 	{
 		//llassert(mStatusBarFPSCounterTimer.getStarted());
@@ -169,6 +175,8 @@ bool PVFPSMeter::update()
 }
 std::string PVFPSMeter::getValueWithRefreshRate()
 {
+	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER);
+	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER_GET_VAL);
 	// Cap the amount of decimals we return
 	auto decimal_precision = "%.2f";
 	if (mFPSMeterValue > 100.f)
