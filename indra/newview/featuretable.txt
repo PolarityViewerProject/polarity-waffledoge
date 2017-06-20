@@ -25,11 +25,11 @@ version 35
 //
 // All contains everything at their default settings for high end machines
 // NOTE: All settings are set to the MIN of applied values, including 'all'!
-//
+// This means that "all" should contain the highest value and NOT be used as a fallback
 list all
 //RenderTextureMemoryMultiple		1	1.0
 Disregard128DefaultDrawDistance	1	0
-Disregard96DefaultDrawDistance	1	1
+Disregard96DefaultDrawDistance	1	0
 PVDebug_ForcedVideoMemory	1	0
 PVRender_DepthOfFieldAlphas	1	1
 PVRender_EnableGodRays		1	1
@@ -52,11 +52,11 @@ RenderDeferredSSAO			1	1
 RenderDelayVBUpdate			1	0
 RenderDepthOfField			1	1
 RenderDepthOfFieldInEditMode	1	1
-RenderFarClip				1	96
+RenderFarClip				1	1024
 RenderFlexTimeFactor		1	10.0
 RenderFogRatio				1	4.0
 RenderFSAASamples			1	16
-RenderGamma					1	0
+RenderGamma					1	1
 RenderGlowResolutionPow		1	11
 RenderGround				1	1
 RenderLocalLights			1	1
