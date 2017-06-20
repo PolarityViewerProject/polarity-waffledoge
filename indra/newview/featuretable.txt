@@ -56,7 +56,7 @@ RenderFarClip				1	1024
 RenderFlexTimeFactor		1	10.0
 RenderFogRatio				1	4.0
 RenderFSAASamples			1	16
-RenderGamma					1	1
+RenderGamma					1	0
 RenderGlowResolutionPow		1	11
 RenderGround				1	1
 RenderLocalLights			1	1
