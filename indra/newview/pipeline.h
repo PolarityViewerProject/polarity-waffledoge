@@ -415,6 +415,8 @@ public:
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
 
+	void allocateWaterReflectionMaps();
+
 	static void throttleNewMemoryAllocation(BOOL disable);
 
 	
