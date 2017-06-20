@@ -265,15 +265,16 @@
 #include "glib.h"
 #endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
 
+#include "llhasheduniqueid.h"
+
 #include "sanitycheck.h"
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
 #include "pvconstants.h"
 #include "pvfpsmeter.h"
-#include "llhasheduniqueid.h"
 
- #include "llstring.h" // for boost::bind unknown override specifier
+#include "llstring.h" // for boost::bind unknown override specifier
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
