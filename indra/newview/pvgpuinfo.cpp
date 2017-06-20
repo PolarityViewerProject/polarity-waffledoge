@@ -37,9 +37,22 @@ S64Bytes PVGPUInfo::vram_free_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_total_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_others_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
+LLFrameTimer PVGPUInfo::gpuInfoRefreshTimer = LLFrameTimer();
 
 void PVGPUInfo::updateValues()
 {
+	if (gpuInfoRefreshTimer.getStarted())
+	{
+		if (gpuInfoRefreshTimer.getElapsedSeconds() <= 2)
+		{
+			return;
+		}
+	}
+	else
+	{
+		gpuInfoRefreshTimer.start();
+	}
+	
 	GLint free_memory = 0; // in KB
 	if (gGLManager.mIsNVIDIA)
 	{
@@ -62,6 +75,7 @@ void PVGPUInfo::updateValues()
 		//@todo make sure this is more or less accurate
 		vram_used_by_others_ = on_board - vram_free_ - vram_used_by_viewer_;
 	}
+	gpuInfoRefreshTimer.reset();
 }
 
 S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()

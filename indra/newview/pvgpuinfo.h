@@ -47,6 +47,8 @@ class PVGPUInfo : public LLSingleton<PVGPUInfo>
 	* \brief Computed "Other Programs" memory. Should be the grey bar.
 	*/
 	static S64Bytes vram_used_by_others_;
+
+	static LLFrameTimer gpuInfoRefreshTimer;
 public:
 
 	/*
@@ -94,7 +96,6 @@ public:
 	 * \return S32Megabytes
 	 */
 	static S32Megabytes vRAMGetTotalOnboard();
-
 	
 	static void updateValues();
 
