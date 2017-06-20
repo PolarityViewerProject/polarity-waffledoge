@@ -356,7 +356,8 @@ void LLStatusBar::refresh()
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
-	getChild<LLUICtrl>("balance_bg")->setVisible(visible && gSavedSettings.getBOOL("PVUI_ShowCurrencyBalanceInStatusBar"));
+	static LLCachedControl<bool> show_balance(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
+	getChild<LLUICtrl>("balance_bg")->setVisible(visible && show_balance);
 	mBoxBalance->setVisible(visible);
 	mBtnQuickSettings->setVisible(visible);
 	mBtnVolume->setVisible(visible);
@@ -401,12 +402,15 @@ void LLStatusBar::setBalance(S32 balance)
 		balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
 		balance_bg_view->setShape(balance_bg_rect);
 	}
-
-	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
+	static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
+	static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
+	if (mBalance)
 	{
-		if (mBalance > balance)
+		auto difference = fabs((F32)(mBalance - balance));
+		// This assumes that the platform doesn't allow you to send negative currency amounts
+		if (mBalance > balance && difference >= notification_threshold_send)
 			make_ui_sound("UISndMoneyChangeDown");
-		else
+		else if (mBalance < balance && difference >= notification_threshold_recv)
 			make_ui_sound("UISndMoneyChangeUp");
 	}
 
