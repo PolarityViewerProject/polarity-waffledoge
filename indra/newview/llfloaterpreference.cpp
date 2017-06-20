@@ -638,26 +638,26 @@ void LLFloaterPreference::applyGraphicsOptions()
 // <Black Dragon:NiranV> Refresh all controls
 void LLFloaterPreference::refreshGraphicControls()
 {
-	getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlB_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VX]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlB_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VY]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlB_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VZ]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlC_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VX]);
-	getChild<LLUICtrl>("PVRender_ToneMappingControlC_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VY]);
-	getChild<LLUICtrl>("PVRender_Gamma_X")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VX]);
-	getChild<LLUICtrl>("PVRender_Gamma_Y")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VY]);
-	getChild<LLUICtrl>("PVRender_Gamma_Z")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VZ]);
-	getChild<LLUICtrl>("PVRender_Exposure_X")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VX]);
-	getChild<LLUICtrl>("PVRender_Exposure_Y")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VY]);
-	getChild<LLUICtrl>("PVRender_Exposure_Z")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VZ]);
-	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_X")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VX]);
-	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Y")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VY]);
-	getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Z")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VZ]);
-	getChild<LLUICtrl>("PVRender_Vignette_X")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VX]);
-	getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
-	getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlA_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlA").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlB_Z")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlB").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlC_X")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_ToneMappingControlC_Y")->setValue(gSavedSettings.getVector3("PVRender_ToneMappingControlC").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_Gamma_X")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_Gamma_Y")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_Gamma_Z")->setValue(gSavedSettings.getVector3("PVRender_Gamma").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_Exposure_X")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_Exposure_Y")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_Exposure_Z")->setValue(gSavedSettings.getVector3("PVRender_Exposure").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_X")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Y")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_HDRBrightnessOffset_Z")->setValue(gSavedSettings.getVector3("PVRender_HDRBrightnessOffset").mV[VZ]);
+	//getChild<LLUICtrl>("PVRender_Vignette_X")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VX]);
+	//getChild<LLUICtrl>("PVRender_Vignette_Y")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VY]);
+	//getChild<LLUICtrl>("PVRender_Vignette_Z")->setValue(gSavedSettings.getVector3("PVRender_Vignette").mV[VZ]);
 
 	// <polarity> set initial value for avatar complexity stuff.
 	//@todo re-write this. what the hell. Q_Q
@@ -1363,23 +1363,23 @@ void LLFloaterPreference::refreshEnabledState()
 		!gGLManager.mHasVertexBufferObject)
 	{
 		getChildView("vbo")->setEnabled(FALSE);
-		getChildView("vbo_stream")->setEnabled(FALSE);
+		// getChildView("vbo_stream")->setEnabled(FALSE);
 	}
 	else
-#if LL_DARWIN
-		getChildView("vbo_stream")->setEnabled(FALSE);  //Hardcoded disable on mac
-		getChild<LLUICtrl>("vbo_stream")->setValue((LLSD::Boolean) FALSE);
-#else
-		getChildView("vbo_stream")->setEnabled(LLVertexBuffer::sEnableVBOs);
-#endif
+//#if LL_DARWIN
+//		getChildView("vbo_stream")->setEnabled(FALSE);  //Hardcoded disable on mac
+//		getChild<LLUICtrl>("vbo_stream")->setValue((LLSD::Boolean) FALSE);
+//#else
+//		getChildView("vbo_stream")->setEnabled(LLVertexBuffer::sEnableVBOs);
+//#endif
 	if (!LLFeatureManager::getInstance()->isFeatureAvailable("RenderCompressTextures") ||
 		!gGLManager.mHasVertexBufferObject)
 	{
 		getChildView("texture compression")->setEnabled(FALSE);
 	}
-	LLSpinCtrl* gamma_ctrl = getChild<LLSpinCtrl>("gamma");
-	gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
-	getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
+	// LLSpinCtrl* gamma_ctrl = getChild<LLSpinCtrl>("gamma");
+	// gamma_ctrl->setEnabled(!gPipeline.canUseWindLightShaders());
+	// getChildView("fog")->setEnabled(!gPipeline.canUseWindLightShaders());
 	//{
 	//	LLUICtrl* fsaa_ctrl = getChild<LLUICtrl>("fsaa");
 	//	if (gPipeline.canUseAntiAliasing())

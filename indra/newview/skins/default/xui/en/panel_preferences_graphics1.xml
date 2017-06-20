@@ -892,7 +892,6 @@
         label="Apply"
         layout="topleft"
         left="3"
-        name="Save"
         top="355"
         width="115">
         <button.commit_callback
@@ -905,7 +904,6 @@
         label="Defaults"
         layout="topleft"
         left_pad="3"
-        name="Defaults"
         tool_tip="Resets the graphical preferences to the defaults for your hardware"
         top_delta="0"
         width="115">
@@ -1150,7 +1148,6 @@
             layout="topleft"
             left_pad="0"
             top_delta="0"
-            name="default_textmem_btn"
             width="60">
             <button.commit_callback
               function="Pref.getRecommendedtextMem">
