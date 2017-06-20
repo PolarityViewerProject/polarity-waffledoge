@@ -35,34 +35,12 @@ static const S64Megabytes INTEL_GPU_MAX_VRAM = S64Megabytes(2048);
 
 S64Bytes PVGPUInfo::vram_free_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_total_ = S64Bytes(0);
-S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_others_ = S64Bytes(0);
-
-S64Bytes PVGPUInfo::vram_bound_mem = S64Bytes(0);
-S64Bytes PVGPUInfo::vram_max_bound_mem = S64Bytes(0);
-S64Bytes PVGPUInfo::vram_total_mem = S64Bytes(0);
-S64Bytes PVGPUInfo::vram_max_total_texture_mem = S64Bytes(0);
-S64Bytes PVGPUInfo::vram_bar_fbo = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
 
 void PVGPUInfo::updateValues()
 {
-	// @todo deduplicate calls to this and use value from this class across the rest of the viewer
-
-	//LLMemory::updateMemoryInfo();
-	vram_bar_fbo				= S64Bytes(LLRenderTarget::sBytesAllocated);
-	vram_bound_mem 				= LLViewerTexture::sBoundTextureMemory;
-	vram_max_bound_mem 			= S64Megabytes(LLViewerTexture::sMaxBoundTextureMemory.valueInUnits<LLUnits::Megabytes>());
-	vram_max_total_texture_mem 	= LLViewerTexture::sMaxTotalTextureMem;
-	vram_total_mem 				= LLViewerTexture::sTotalTextureMemory;
-
-	// Don't count the FBO to see if this fixes the texture bar
-	//vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bar_fbo + vram_bound_mem);
-	vram_used_by_viewer_ = S64Bytes(vram_total_mem + vram_bound_mem);
-	
 	GLint free_memory = 0; // in KB
-	// Note: glGet* calls are slow. Instead consider using something like:
-	//     INT  wglGetGPUInfoAMD(UINT id, INT property, GLenum dataType, UINT size, void *data);
-	
 	if (gGLManager.mIsNVIDIA)
 	{
 		// Only the NVIDIA driver can reliably know how much memory is in use,
@@ -76,10 +54,6 @@ void PVGPUInfo::updateValues()
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &free_memory);
 	}
 	vram_free_ = S64Kilobytes(free_memory);
-
-	// we really need these unit tests...
-	// @note If someone manages to make better math, please contribute.
-	
 	if (!gGLManager.mIsIntel)
 	{
 		auto on_board = vRAMGetTotalOnboard();
@@ -90,16 +64,16 @@ void PVGPUInfo::updateValues()
 	}
 }
 
-S64Bytes PVGPUInfo::vRAMGetTotalOnboard()
+S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()
 {
 	static const S64Megabytes MINIMUM_VRAM_AMOUNT = S64Megabytes(1024); // fallback for cases where video memory is not detected properly
 	static S64Megabytes vram_s64_megabytes = S64Megabytes(gGLManager.mVRAM);
 	if (gGLManager.mIsIntel)
 	{
 		// sometimes things can go wrong
-		if (gGLManager.mVRAM < 256)
+		if (vram_s64_megabytes.valueInUnits<LLUnits::Megabits>() < 256)
 		{
-			gGLManager.mVRAM = 256;
+			return (S32Megabytes)256;
 		}
 	}
 	if (!gGLManager.mIsIntel)

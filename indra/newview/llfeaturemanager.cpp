@@ -867,8 +867,7 @@ void LLFeatureManager::applyBaseMasks()
 	}
 	LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
 	maskFeatures(gpustr);
-	// <polarity> Hack! poke the vram fetching function to update VRAM immediately after applying features
-	PVGPUInfo::vRAMGetTotalOnboard();
+	gGLManager.mVRAM = PVGPUInfo::vRAMGetTotalOnboard().value();
 }
 
 LLSD LLFeatureManager::getRecommendedSettingsMap()

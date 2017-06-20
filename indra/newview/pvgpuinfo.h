@@ -33,14 +33,26 @@
 class PVGPUInfo : public LLSingleton<PVGPUInfo>
 {
 	LLSINGLETON(PVGPUInfo);
-	// @todo Write unit tests
+
+	/*
+	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
+	*/
+	static S64Bytes vram_free_;
+
+	/*
+	* \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars.
+	*/
+	static S64Bytes vram_used_total_;
+	/*
+	* \brief Computed "Other Programs" memory. Should be the grey bar.
+	*/
+	static S64Bytes vram_used_by_others_;
 public:
 
-	static S64Bytes vram_bound_mem;
-	static S64Bytes vram_max_bound_mem;
-	static S64Bytes vram_total_mem;
-	static S64Bytes vram_max_total_texture_mem;
-	static S64Bytes vram_bar_fbo;
+	/*
+	* \brief Computed "Our Own" memory. Should be the sum of the red, yellow and blue bars.
+	*/
+	static S64Bytes vram_used_by_viewer_;
 
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
@@ -81,31 +93,13 @@ public:
 	 * \brief proprietary API-provided replacement for GLManager::mVRAM
 	 * \return S32Megabytes
 	 */
-	static S64Bytes vRAMGetTotalOnboard();
+	static S32Megabytes vRAMGetTotalOnboard();
 
 	
 	static void updateValues();
 
 	// Enables logging for this class
 	typedef PVGPUInfo _LL_CLASS_TO_LOG;
-
-private:
-	/*
-	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.
-	*/
-	static S64Bytes vram_free_;
-	/*
-	* \brief Computed "In Use" memory. Should be the biggest non-free value and be the sum of all colored bars.
-	*/
-	static S64Bytes vram_used_total_;
-	/*
-	* \brief Computed "Our Own" memory. Should be the sum of the red, yellow and blue bars.
-	*/
-	static S64Bytes vram_used_by_viewer_;
-	/*
-	* \brief Computed "Other Programs" memory. Should be the grey bar.
-	*/
-	static S64Bytes vram_used_by_others_;
 };
 
 #endif // PV_GPUINFO_H
