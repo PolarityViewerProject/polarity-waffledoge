@@ -1871,7 +1871,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		mLights.erase(drawablep);
 
 		for (light_set_t::iterator iter = mNearbyLights.begin();
-					iter != mNearbyLights.end(); ++iter)
+					iter != mNearbyLights.end(); iter++)
 		{
 			if (iter->drawable == drawablep)
 			{
@@ -1913,13 +1913,14 @@ void LLPipeline::removeMutedAVsLights(LLVOAvatar* muted_avatar)
 {
 	LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_LIGHT_SET);
 	for (light_set_t::iterator iter = gPipeline.mNearbyLights.begin();
-		 iter != gPipeline.mNearbyLights.end(); ++iter)
+		 iter != gPipeline.mNearbyLights.end();)
 	{
 		if (iter->drawable->getVObj()->isAttachment() && iter->drawable->getVObj()->getAvatar() == muted_avatar)
 		{
 			gPipeline.mLights.erase(iter->drawable);
-			gPipeline.mNearbyLights.erase(iter);
+			gPipeline.mNearbyLights.erase(iter++);
 		}
+		else ++iter;
 	}
 }
 
@@ -3285,7 +3286,7 @@ void LLPipeline::shiftObjects(const LLVector3 &offset)
 		LL_RECORD_BLOCK_TIME(FTM_SHIFT_DRAWABLE);
 
 		for (LLDrawable::drawable_vector_t::iterator iter = mShiftList.begin();
-			 iter != mShiftList.end(); ++iter)
+			 iter != mShiftList.end(); iter++)
 		{
 			LLDrawable *drawablep = *iter;
 			if (drawablep->isDead())
@@ -3659,7 +3660,7 @@ void LLPipeline::stateSort(LLDrawable* drawablep, LLCamera& camera)
 	if (!drawablep->getVOVolume())
 	{
 		for (LLDrawable::face_list_t::iterator iter = drawablep->mFaces.begin();
-				iter != drawablep->mFaces.end(); ++iter)
+				iter != drawablep->mFaces.end(); iter++)
 		{
 			LLFace* facep = *iter;
 
@@ -4502,7 +4503,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 					LLVertexBuffer::unbind();
 					if(gDebugGL)check_blend_funcs();
 					poolp->beginRenderPass(i);
-					for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 					{
 						LLDrawPool *p = *iter2;
 						if (p->getType() != cur_type)
@@ -4527,7 +4528,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 			else
 			{
 				// Skip all pools of this type
-				for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
 					LLDrawPool *p = *iter2;
 					if (p->getType() != cur_type)
@@ -4674,7 +4675,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 				LLVertexBuffer::unbind();
 				if (gDebugGL)check_blend_funcs();
 				poolp->beginDeferredPass(i);
-				for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
 					LLDrawPool *p = *iter2;
 					if (p->getType() != cur_type)
@@ -4697,7 +4698,7 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 		else
 		{
 			// Skip all pools of this type
-			for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+			for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 			{
 				LLDrawPool *p = *iter2;
 				if (p->getType() != cur_type)
@@ -4762,7 +4763,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 				LLVertexBuffer::unbind();
 				if (gDebugGL)check_blend_funcs();
 				poolp->beginPostDeferredPass(i);
-				for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
 					LLDrawPool *p = *iter2;
 					if (p->getType() != cur_type)
@@ -4785,7 +4786,7 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 		else
 		{
 			// Skip all pools of this type
-			for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+			for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 			{
 				LLDrawPool *p = *iter2;
 				if (p->getType() != cur_type)
@@ -4842,7 +4843,7 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 				LLVertexBuffer::unbind();
 				if (gDebugGL)check_blend_funcs();
 				poolp->beginShadowPass(i);
-				for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
 					LLDrawPool *p = *iter2;
 					if (p->getType() != cur_type)
@@ -4864,7 +4865,7 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 		else
 		{
 			// Skip all pools of this type
-			for (iter2 = iter1; iter2 != mPools.end(); ++iter2)
+			for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 			{
 				LLDrawPool *p = *iter2;
 				if (p->getType() != cur_type)
@@ -4994,7 +4995,7 @@ void LLPipeline::renderDebug()
 			}
 			else
 			{
-				++iter;
+				iter++;
 			}
 
 			blip.mPosition.mV[2] += gFrameIntervalSeconds.value()*2.f;
@@ -5378,7 +5379,7 @@ void LLPipeline::rebuildPools()
 		else
 		{
 			mLastRebuildPool = poolp;
-			++iter1;
+			iter1++;
 		}
 		max_count--;
 	}
@@ -5840,7 +5841,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		// UPDATE THE EXISTING NEARBY LIGHTS
 		light_set_t cur_nearby_lights;
 		for (light_set_t::iterator iter = mNearbyLights.begin();
-			iter != mNearbyLights.end(); ++iter)
+			iter != mNearbyLights.end(); iter++)
 		{
 			const Light* light = &(*iter);
 			LLDrawable* drawable = light->drawable;
@@ -5910,7 +5911,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 
 		// INSERT ANY NEW LIGHTS
 		for (light_set_t::iterator iter = new_nearby_lights.begin();
-			 iter != new_nearby_lights.end(); ++iter)
+			 iter != new_nearby_lights.end(); iter++)
 		{
 			const Light* light = &(*iter);
 			if (mNearbyLights.size() < (U32)MAX_LOCAL_LIGHTS)
@@ -5940,7 +5941,7 @@ void LLPipeline::calcNearbyLights(LLCamera& camera)
 		
 		//mark nearby lights not-removable.
 		for (light_set_t::iterator iter = mNearbyLights.begin();
-			 iter != mNearbyLights.end(); ++iter)
+			 iter != mNearbyLights.end(); iter++)
 		{
 			const Light* light = &(*iter);
 			((LLViewerOctreeEntryData*) light->drawable)->setVisible();
@@ -11727,7 +11728,7 @@ void LLPipeline::hideDrawable( LLDrawable *pDrawable )
 	//hide the children
 	LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
 	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin();
-		  iter != child_list.end(); ++iter )
+		  iter != child_list.end(); iter++ )
 	{
 		LLViewerObject* child = *iter;
 		LLDrawable* drawable = child->mDrawable;					
@@ -11745,7 +11746,7 @@ void LLPipeline::unhideDrawable( LLDrawable *pDrawable )
 	//restore children
 	const LLViewerObject::const_child_list_t& child_list = pDrawable->getVObj()->getChildren();
 	for ( LLViewerObject::child_list_t::const_iterator iter = child_list.begin(), end_iter = child_list.end();
-		  iter != end_iter; ++iter)
+		  iter != end_iter; iter++)
 	{
 		LLViewerObject* child = *iter;
 		LLDrawable* drawable = child->mDrawable;					
