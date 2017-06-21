@@ -1505,31 +1505,25 @@ bool LLAppViewer::frame()
 			// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
 			// Only limit FPS when we are actually rendering something. Otherwise
 			// logins, logouts and teleports take much longer to complete.
-			static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
 			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& fps_limiter_enabled
 					&& !gTeleportDisplay
 					&& !logoutRequestSent())
 			{
-				// Sleep a while to limit frame rate.
-				static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-				F32 min_frame_time = 1.000f / (F32)fps_target;
-				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
-				if (milliseconds_to_sleep > 0)
-				{
-					LL_RECORD_BLOCK_TIME(FTM_YIELD);
-					ms_sleep(milliseconds_to_sleep);
-				}
-
 				PVFPSMeter::update();
+				static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
+				if (fps_limiter_enabled)
+				{
+					// Sleep a while to limit frame rate.
+					static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+					F32 min_frame_time = 1.000f / (F32)fps_target;
+					S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
+					if (milliseconds_to_sleep > 0)
+					{
+						LL_RECORD_BLOCK_TIME(FTM_YIELD);
+						ms_sleep(milliseconds_to_sleep);
+					}
+				}
 			}
-			
-			//static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime");
-			//if(yield_time >= 0)
-			//{
-			//	LL_RECORD_BLOCK_TIME(FTM_YIELD);
-			//	ms_sleep(yield_time);
-			//}
 			// </polarity> FPS Limiter
 
 			// yield cooperatively when not running as foreground window
