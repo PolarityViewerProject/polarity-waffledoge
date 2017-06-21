@@ -485,13 +485,18 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		return;
 	}
-	
+
 	if (pass == 0)
 	{
 		avatarp->renderSkinned();
 	}
+
 // Nacl - Faster Avatar Shadows
-	else if (3 == PVRender_AttachmentShadowDetail)
+	if (1 == PVRender_AttachmentShadowDetail)
+	{
+		return;
+	}
+	else if (2 == PVRender_AttachmentShadowDetail)
 	{
 		// Use simplified/optimized shadow spiral
 		renderRiggedShadows(avatarp);
