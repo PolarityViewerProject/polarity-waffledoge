@@ -468,10 +468,6 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		return;
 	}
-	if (!facep->getDrawable())
-	{
-		return;
-	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
 	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
