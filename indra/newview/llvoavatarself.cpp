@@ -1639,11 +1639,18 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 	{
 		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
+	// NaCl - Faster Avatar Shadows
+	if (LLPipeline::sShadowRender)
+	{
+		static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
+		if (3 > PVRender_AttachmentShadowDetail)
+		{
+			return TRUE;
+		}
+	}
 
 	LLUUID tex_id = getLocalTextureID(type,index);
-	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-	return (((tex_id != IMG_INVISIBLE) || (LLPipeline::sShadowRender && (PVRender_AttachmentShadowDetail == 2))))
+	return (tex_id != IMG_INVISIBLE)
 			|| (LLDrawPoolAlpha::sShowDebugAlpha);
 }
 

@@ -492,7 +492,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 
 // Nacl - Faster Avatar Shadows
-	if (1 == PVRender_AttachmentShadowDetail)
+	else if (1 == PVRender_AttachmentShadowDetail)
 	{
 		return;
 	}
@@ -2023,6 +2023,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 		}
 	}
 }
+// /NaCL - Faster Avatar Shadows
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
