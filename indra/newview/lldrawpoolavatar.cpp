@@ -459,9 +459,9 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	// NaCl - Faster Avatar Shadows
 	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
 	if (0 == PVRender_AttachmentShadowDetail || mDrawFace.empty())
-    {
-            return;
-    }
+	{
+		return;
+	}
 
 	const LLFace *facep = mDrawFace[0];
 	if (!facep->getDrawable())
