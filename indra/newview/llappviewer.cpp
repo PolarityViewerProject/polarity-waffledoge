@@ -1520,9 +1520,10 @@ bool LLAppViewer::frame()
 					LL_RECORD_BLOCK_TIME(FTM_YIELD);
 					ms_sleep(milliseconds_to_sleep);
 				}
+
+				PVFPSMeter::update();
 			}
-
-
+			
 			//static LLCachedControl<S32> yield_time(gSavedSettings, "YieldTime");
 			//if(yield_time >= 0)
 			//{
@@ -1619,8 +1620,6 @@ bool LLAppViewer::frame()
 				gFrameStalls++;
 			}
 			frameTimer.reset();
-
-			PVFPSMeter::update();
 
 			resumeMainloopTimeout();
 
