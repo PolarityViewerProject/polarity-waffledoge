@@ -477,8 +477,11 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 
 	BOOL impostor = avatarp->isImpostor();
 	if (impostor 
-		&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
-		&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
+		// <FS:Ansariel> Fix LL impostor hacking; No shadow for impostors
+		//&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
+		//&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
+		)
+		// </FS:Ansariel>
 	{
 		return;
 	}
