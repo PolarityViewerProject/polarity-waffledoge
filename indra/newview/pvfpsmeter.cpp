@@ -75,7 +75,6 @@ bool PVFPSMeter::canRefresh()
 bool PVFPSMeter::update()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER);
-	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER_UPDATE);
 	if (!mStatusBarFPSCounterTimer.getStarted())
 	{
 		//llassert(mStatusBarFPSCounterTimer.getStarted());
