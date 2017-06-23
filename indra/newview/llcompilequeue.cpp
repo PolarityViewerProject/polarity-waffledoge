@@ -491,12 +491,6 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     // Attempt to retrieve the experience
     LLUUID experienceId;
     {
-        // <FS:Ansariel> FIRE-17688: Recompile scripts not working on OpenSim
-        //LLExperienceCache::instance().fetchAssociatedExperience(inventory->getParentUUID(), inventory->getUUID(),
-        //    boost::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _1));
-
-        //result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout, 
-        //    LLSDMap("timeout", LLSD::Boolean(true)));
         if (object->getRegion() && object->getRegion()->isCapabilityAvailable("GetMetadata"))
         {
         LLExperienceCache::instance().fetchAssociatedExperience(inventory->getParentUUID(), inventory->getUUID(),
@@ -682,12 +676,10 @@ bool LLFloaterCompileQueue::startQueue()
                 success, failure);
             return true;
         }
-        // <FS:Ansariel> FIRE-20765: Recompile scripts not working on OpenSim
         else
         {
             processExperienceIdResults(LLSD(), getKey().asUUID());
         }
-        // </FS:Ansariel>
     }
 
     return true;
