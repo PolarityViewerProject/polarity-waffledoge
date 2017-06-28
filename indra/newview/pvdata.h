@@ -581,7 +581,7 @@ private:
 public:
 	static void setBeggarCheck(const bool enabled);
 	// Get a new progress tip (throttled)
-	std::string getNewProgressTip(bool forced = false);
+	std::string getNewProgressTip();
 	static std::string getRandomWindowTitle();
 
 	/**
@@ -629,10 +629,6 @@ public:
 	// Minimum viewer version allowed to be used
 	//LLSD minimum_version_; // v7?
 	pv_pair_string_llsd minimum_version_;
-private:
-	LLFrameTimer mTipCycleTimer;
-
-	std::string last_login_tip;
 };
 
 extern PVDataOldAPI* gPVOldAPI;

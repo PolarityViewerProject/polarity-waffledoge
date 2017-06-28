@@ -1142,12 +1142,8 @@ bool idle_startup()
 
 		gVFS->pokeFiles();
 		// just to be sure
-		if(!gAgent.mMOTD.empty())
-		{
-			gAgent.mMOTD = "";
-		}
 #ifdef PVDATA_SYSTEM
-		gPVOldAPI->getNewProgressTip(true);
+		gAgent.mMOTD.assign(gPVOldAPI->getNewProgressTip())
 #endif
 		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
@@ -2534,10 +2530,6 @@ void set_startup_status(const F32 frac, const std::string& string)
 {
 	gViewerWindow->setProgressPercent(frac*100);
 	gViewerWindow->setProgressString(string);
-	if(LLStartUp::getStartupState() >= STATE_LOGIN_CURL_UNSTUCK)
-	{
-		gViewerWindow->setProgressMessage();
-	}
 }
 
 bool login_alert_status(const LLSD& notification, const LLSD& response)
@@ -3649,6 +3641,8 @@ bool process_login_success_response()
 	auto motd_response = response["message"];
 	LL_INFOS("PVDataOldAPI") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
 	gAgent.mMOTD.assign(motd_response);
+#else
+	gViewerWindow->getProgressView()->setMessage(gPVOldAPI->getNewProgressTip());
 #endif
 
 	// Options...

@@ -542,44 +542,18 @@ bool PVDataOldAPI::getAgentsDone()
 	return false;
 }
 
-std::string PVDataOldAPI::getNewProgressTip(bool forced)
+std::string PVDataOldAPI::getNewProgressTip()
 {
-	LL_DEBUGS() << "Entering function" << LL_ENDL;
-	// Use the last tip if available
-	std::string return_tip = "";
-	if (last_login_tip != "")
+	// Check for events MOTD first...
+	std::string return_tip = getEventMotdIfAny();
+	if (return_tip.empty())
 	{
-		return_tip = last_login_tip;
+		return_tip = progress_tips_list_.getRandom();
 	}
-	static LLCachedControl<F32> progress_tip_timout(gSavedSettings, "PVUI_ProgressTipTimer", 2.f);
-	if (forced || (mTipCycleTimer.getStarted() && mTipCycleTimer.getElapsedTimeF32() >= progress_tip_timout))
+	if (!return_tip.empty())
 	{
-		LL_DEBUGS() << "mTipCycleTimer elapsed; getting a new random tip" << LL_ENDL;
-		LL_DEBUGS() << "Last tip was '" << last_login_tip << "'" << LL_ENDL;
-
-		// Most likely a teleport screen; let's add something.
-
-		// Check for events MOTD first...
-		return_tip = getEventMotdIfAny();
-		if (return_tip == "")
-		{
-			return_tip = progress_tips_list_.getRandom();
-			LL_INFOS() << "New tip from function is '" << return_tip << "'" << LL_ENDL;
-		}
-
-		if (!return_tip.empty() && return_tip != last_login_tip)
-		{
-			LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
-			last_login_tip = return_tip;
-		}
-		mTipCycleTimer.reset();
+		LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
 	}
-	else
-	{
-		LL_DEBUGS() << "mTipCycleTimer not started!" << LL_ENDL;
-	}
-
-	gAgent.mMOTD = return_tip;
 	return return_tip;
 }
 

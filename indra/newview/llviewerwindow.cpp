@@ -5103,17 +5103,6 @@ void LLViewerWindow::setProgressString(const std::string& string)
 	}
 }
 
-void LLViewerWindow::setProgressMessage()
-{
-#ifdef PVDATA_SYSTEM
-	if(mProgressView)
-	{
-		//mProgressView->setMessage(msg);
-		mProgressView->setMessage(gPVOldAPI->getNewProgressTip());
-	}
-#endif
-}
-
 void LLViewerWindow::setProgressPercent(const F32 percent)
 {
 	if (mProgressView)

@@ -76,8 +76,6 @@ public:
 	static void onClickMessage(void*);
 	bool onAlertModal(const LLSD& sd);
 
-	LLFrameTimer mTipCycleTimer;
-
 protected:
 	LLProgressBar* mProgressBar;
 	LLMediaCtrl* mMediaCtrl;

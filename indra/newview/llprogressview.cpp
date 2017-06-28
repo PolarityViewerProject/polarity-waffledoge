@@ -73,15 +73,10 @@ LLProgressView::LLProgressView()
 	mUpdateEvents("LLProgressView"),
 	mFadeToWorldTimer(),
 	mFadeFromLoginTimer(),
-	mStartupComplete(false),
-	mTipCycleTimer()
+	mStartupComplete(false)
 {
 	mUpdateEvents.listen("self", boost::bind(&LLProgressView::handleUpdate, this, _1));
 	mFadeToWorldTimer.stop();
-	if (!mTipCycleTimer.getStarted())
-	{
-		mTipCycleTimer.start();
-	}
 	mFadeFromLoginTimer.stop();
 }
 
@@ -107,11 +102,6 @@ BOOL LLProgressView::postBuild()
 	setVisible(FALSE);
 
 	LLNotifications::instance().getChannel("AlertModal")->connectChanged(boost::bind(&LLProgressView::onAlertModal, this, _1));
-
-	if (!mTipCycleTimer.getStarted())
-	{
-		mTipCycleTimer.start();
-	}
 
 	sInstance = this;
 	return TRUE;
@@ -183,7 +173,6 @@ void LLProgressView::setStartupComplete()
 	{
 		mFadeFromLoginTimer.stop();
 		mFadeToWorldTimer.start();
-		//mTipCycleTimer.stop();
 	}
 }
 
@@ -205,10 +194,6 @@ void LLProgressView::setVisible(BOOL visible)
 		setFocus(TRUE);
 		mFadeToWorldTimer.stop();
 		LLPanel::setVisible(TRUE);
-	}
-	if (!mTipCycleTimer.getStarted())
-	{
-		mTipCycleTimer.start();
 	}
 }
 
@@ -323,15 +308,18 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
-	// TODO: Set the progress tip once at the start of the progress screen instead of
-	// short-circuiting here.
-#ifdef PVDATA_SYSTEM
-	mMessage = gPVOldAPI->getNewProgressTip();
-#else
-	mMessage = msg;
-#endif
-	//gAgent.mMOTD.assign(mMessage);
-	getChild<LLUICtrl>("message_text")->setValue(mMessage);
+	llassert(msg.empty());
+	if (!msg.empty())
+	{
+		mMessage = msg;
+	}
+	if (mMessage != msg)
+	{
+		mMessage = msg;
+		gAgent.mMOTD.assign(msg);
+	}
+	static auto message_text = getChild<LLUICtrl>("message_text");
+	message_text->setValue(mMessage);
 }
 
 void LLProgressView::setCancelButtonVisible(BOOL b, const std::string& label)
@@ -435,7 +423,6 @@ void LLProgressView::handleMediaEvent(LLPluginClassMedia* self, EMediaEvent even
 		{
 			//make sure other timer has stopped
 			mFadeFromLoginTimer.stop();
-			//mTipCycleTimer.stop();
 			mFadeToWorldTimer.start();
 		}
 		else
@@ -465,7 +452,6 @@ void LLProgressView::onIdle(void* user_data)
 	{
 		self->mFadeFromLoginTimer.stop();
 		LLPanelLogin::closePanel();
-		//self->mTipCycleTimer.stop();
 
 		// Nothing to do anymore.
 		gIdleCallbacks.deleteFunction(onIdle, user_data);
