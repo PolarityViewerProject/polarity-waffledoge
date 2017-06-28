@@ -1221,17 +1221,6 @@
       <key>Value</key>
       <integer>-1</integer>
     </map>
-    <key>PVRender_RiggedAttachmentLODForceToMinimum</key>
-    <map>
-      <key>Comment</key>
-      <string>Force avatar attachments to be rendered at their minimum level of detail.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>0</integer>
-    </map>
     <key>PVRender_Gamma</key>
     <map>
       <key>Comment</key>
