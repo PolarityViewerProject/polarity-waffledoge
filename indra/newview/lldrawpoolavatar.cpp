@@ -1397,7 +1397,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 				renderRigged(avatarp, RIGGED_SPECMAP_BLEND);
 				renderRigged(avatarp, RIGGED_NORMMAP_BLEND);
 				renderRigged(avatarp, RIGGED_NORMSPEC_BLEND);
-				//gGL.setSceneBlendType(LLRender::BT_ALPHA);
+				gGL.setSceneBlendType(LLRender::BT_ALPHA); // <alchemy/>
 				gGL.setColorMask(true, false);
 			}
 			return;
@@ -1444,7 +1444,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 	{
 		LLMatrix4 rot_mat;
 		LLViewerCamera::getInstance()->getMatrixToLocal(rot_mat);
-		LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
+		static const LLMatrix4 cfr(OGL_TO_CFR_ROTATION);
 		rot_mat *= cfr;
 		
 		LLVector4 wind;
@@ -2127,7 +2127,7 @@ void LLDrawPoolAvatar::renderRiggedAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_ALPHA);
-		//gGL.setSceneBlendType(LLRender::BT_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA); // <alchemy/>
 		gGL.setColorMask(true, false);
 	}
 }
@@ -2145,7 +2145,7 @@ void LLDrawPoolAvatar::renderRiggedFullbrightAlpha(LLVOAvatar* avatar)
 						LLRender::BF_ONE_MINUS_SOURCE_ALPHA);
 
 		renderRigged(avatar, RIGGED_FULLBRIGHT_ALPHA);
-		//gGL.setSceneBlendType(LLRender::BT_ALPHA);
+		gGL.setSceneBlendType(LLRender::BT_ALPHA); // <alchemy/>
 		gGL.setColorMask(true, false);
 	}
 }

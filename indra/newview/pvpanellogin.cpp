@@ -84,7 +84,6 @@
 #include "llsdserialize.h"
 
 const S32 MAX_PASSWORD_SL = 16;
-const S32 MAX_PASSWORD_OPENSIM = 255;
 
 LLPanelLogin *LLPanelLogin::sInstance = NULL;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
@@ -616,18 +615,7 @@ void LLPanelLogin::getFields(LLPointer<LLCredential>& credential,
 	{
 		// Be lenient in terms of what separators we allow for two-word names
 		// and allow legacy users to login with firstname.lastname
-#ifdef OPENSIM
-		if (LLGridManager::getInstance()->isInSecondLife())
-		{
-			separator_index = username.find_first_of(" ._");
-		}
-		else
-		{
-			separator_index = username.find_first_of(" .");
-		}
-#else
 		separator_index = username.find_first_of(" ._");
-#endif
 		std::string first = username.substr(0, separator_index);
 		std::string last;
 		if (separator_index != username.npos)
@@ -965,14 +953,6 @@ void LLPanelLogin::onClickNewAccount(void*)
 {
 	if (sInstance)
 	{
-#ifdef OPENSIM
-		LLSD grid_info;
-		LLGridManager::getInstance()->getGridData(grid_info);
-
-		if (LLGridManager::getInstance()->isInOpenSim() && grid_info.has(GRID_REGISTER_NEW_ACCOUNT))
-			LLWeb::loadURLInternal(grid_info[GRID_REGISTER_NEW_ACCOUNT]);
-		else
-#endif // OPENSIM
 			LLWeb::loadURLExternal(LLTrans::getString("create_account_url"));
 	}
 }
@@ -989,14 +969,6 @@ void LLPanelLogin::onClickForgotPassword(void*)
 {
 	if (sInstance)
 	{
-#ifdef OPENSIM
-		LLSD grid_info;
-		LLGridManager::getInstance()->getGridData(grid_info);
-
-		if (LLGridManager::getInstance()->isInOpenSim() && grid_info.has(GRID_FORGOT_PASSWORD))
-			LLWeb::loadURLInternal(grid_info[GRID_FORGOT_PASSWORD]);
-		else
-#endif // OPENSIM
 		LLWeb::loadURLExternal(sInstance->getString( "forgot_password_url" ));
 	}
 }
@@ -1045,10 +1017,6 @@ void LLPanelLogin::updateServer()
 			// grid changed so show new splash screen (possibly)
 			updateServerCombo();
 			loadLoginPage();
-
-#ifdef OPENSIM
-			sInstance->getChild<LLLineEditor>("password_edit")->setMaxTextChars(LLGridManager::getInstance()->isInSecondLife() ? MAX_PASSWORD_SL : MAX_PASSWORD_OPENSIM);
-#endif
 		}
 		catch (LLInvalidGridName ex)
 		{
@@ -1236,32 +1204,15 @@ void LLPanelLogin::addUsersToCombo(BOOL show_server)
 			
 			const std::string grid_label = LLGridManager::getInstance()->getGridLabel(gridname);
 			
-			bool add_grid = false;
-			/// We only want to append a grid label when the user has enabled logging into other grids, or
-			/// they are using the OpenSim build. That way users who only want Second Life Agni can remain
-			/// blissfully ignorant. We will also not show them any saved credential that isn't Agni because
-			/// they don't want them.
-			if (SECOND_LIFE_MAIN_LABEL == grid_label)
+			/// We only want to append a grid label when the user has enabled logging into other grids (i.e Aditi)
+			/// That way users who only want Second Life Agni can remain blissfully ignorant.
+			/// We will also not show them any saved credential that isn't Agni because they don't want them.
+			if (SECOND_LIFE_MAIN_LABEL == grid_label || SECOND_LIFE_BETA_LABEL == grid_label)
 			{
 				if (show_server)
+				{
 					name.append( " @ " + grid_label);
-				add_grid = true;
-			}
-#ifdef OPENSIM
-			else if (!grid_label.empty() && show_server)
-			{
-				name.append(" @ " + grid_label);
-				add_grid = true;
-			}
-#else  // OPENSIM
-			else if (SECOND_LIFE_BETA_LABEL == grid_label && show_server)
-			{
-				name.append(" @ " + grid_label);
-				add_grid = true;
-			}
-#endif // OPENSIM
-			if (add_grid)
-			{
+				}
 				combo->add(name,LLSD(credname));
 			}
 		}
