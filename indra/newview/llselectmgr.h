@@ -231,6 +231,7 @@ protected:
 class LLObjectSelection : public LLRefCount
 {
 	friend class LLSelectMgr;
+	friend class LLSafeHandle<LLObjectSelection>;
 
 protected:
 	~LLObjectSelection();
