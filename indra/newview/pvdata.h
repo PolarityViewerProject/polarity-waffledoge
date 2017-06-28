@@ -42,69 +42,68 @@ class LLColor4;
 class LLColor3;
 class LLUUID;
 
- //
- // Dear maintainer:
- //
- // Once you are done trying to 'optimize' this routine,
- // and have realized what a terrible mistake that was,
- // please increment the following counter as a warning
- // to the next guy:
- //
- // total_hours_wasted_here = 138
- // See also: https://xkcd.com/844/
- //
+//
+// Dear maintainer:
+//
+// Once you are done trying to 'optimize' this routine,
+// and have realized what a terrible mistake that was,
+// please increment the following counter as a warning
+// to the next guy:
+//
+// total_hours_wasted_here = 138
+// See also: https://xkcd.com/844/
+//
 
 /**
  * Notes about the code and the methodologies employed here
  * If you have a valid reason to disregard the information provided here, please update this documentation to reflect the new standard
  * and change the code, or leave a note for the maintainer/code grunt.
- * 
+ *
  * Function parameter types:
  * When should I use const int& instead of int?
  *     The rule of thumb is, pass all data that is at most as large as the word size (32bit, 64bit) by value (generally simple data such as int), and everything else by reference to const.
  *     Also pass templated arguments by reference to const; since the compiler has access to the definition of the template, it can always optimize the reference away.
  *     see: http://stackoverflow.com/a/4705846/1570096
- * 
+ *
  * However, if passing by reference requires you to make a copy of the data in the function, please refrain from doing so and pass by value instead (ie 'int' instead of 'const& int')
  * See: http://stackoverflow.com/a/7592741/1570096
  *
  */
 
-/*
- 	Member ordering:
- 	Please follow the following standard:
- 	Class YourClass
- 	{
- 	public:
- 		get stuff
- 		set stuff
- 	
- 	private:
- 		const var
- 		static var
- 		private var
- 	
- 		functions
- 		in order
- 		of execution or need
- 	}
+ /*
+	 Member ordering:
+	 Please follow the following standard:
+	 Class YourClass
+	 {
+	 public:
+		 get stuff
+		 set stuff
 
+	 private:
+		 const var
+		 static var
+		 private var
 
- * Concerning structure size optimization, the correct order according to viva64 is:
+		 functions
+		 in order
+		 of execution or need
+	 }
 
-	struct MyStructOpt
-	{
-		compound_type;
-		void *m_ptr;
-		size_t m_size_t;
-		int m_int; // equivalent for long, signed and unsigned
-		short m_short;
-		char m_char;
-	};
-	// Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
+  * Concerning structure size optimization, the correct order according to viva64 is:
 
- */
-	// Last updated 2016-09-26 1:23:12 PM
+	 struct MyStructOpt
+	 {
+		 compound_type;
+		 void *m_ptr;
+		 size_t m_size_t;
+		 int m_int; // equivalent for long, signed and unsigned
+		 short m_short;
+		 char m_char;
+	 };
+	 // Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
+
+  */
+  // Last updated 2016-09-26 1:23:12 PM
 enum flags_t : S32
 {
 	// Those aren't numbers. They are bits and here we use them as an array of booleans.
@@ -310,7 +309,7 @@ public:
 	* \brief Is the agent a Tester?
 	* \return bool
 	*/
-	bool isProviderTester(); 
+	bool isProviderTester();
 
 	/**
 	* \brief Is the agent prevented from getting support?
@@ -484,7 +483,6 @@ private:
 		"ProgressTip",
 	};
 
-
 	// Local timeout override to ensure we don't abort too soon
 	const F32 HTTP_TIMEOUT = 30.f;
 
@@ -536,8 +534,8 @@ private:
 	 * \param download_failed did it fail downloading?
 	 */
 	static void handleResponseFromServer(const LLSD& http_content,
-										 const std::string& http_source_url,
-										 const bool& download_failed
+		const std::string& http_source_url,
+		const bool& download_failed
 	);
 
 	static void downloadComplete(const LLSD& aData, std::string& aURL);
@@ -604,7 +602,6 @@ public:
 		window_titles_list_ = blob;
 	}
 	void setBlockedVersionsList(const LLSD& blob);
-
 
 	// This contains the re-usable LLSD data for login tips.
 	// It is easier (at least for me) to parse the LLSD over and over and get a new value,

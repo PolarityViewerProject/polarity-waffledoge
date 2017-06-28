@@ -66,10 +66,10 @@
 #define LL_SCOUT "Scout"
 #define LL_TESTER "Tester"
 
-static const std::string* _pv_url_prod_a = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/agents.xml");
-static const std::string* _pv_url_prod_d = new std::string("https://data."+PROJECT_DOMAIN +"/live/6/data.xml");
-static const std::string* _pv_url_test_a = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/agents.xml");
-static const std::string* _pv_url_test_d = new std::string("https://data."+PROJECT_DOMAIN +"/test/6/data.xml");
+static const std::string* _pv_url_prod_a = new std::string("https://data." + PROJECT_DOMAIN + "/live/6/agents.xml");
+static const std::string* _pv_url_prod_d = new std::string("https://data." + PROJECT_DOMAIN + "/live/6/data.xml");
+static const std::string* _pv_url_test_a = new std::string("https://data." + PROJECT_DOMAIN + "/test/6/agents.xml");
+static const std::string* _pv_url_test_d = new std::string("https://data." + PROJECT_DOMAIN + "/test/6/data.xml");
 
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
@@ -103,7 +103,7 @@ size_t strnlen(const char *s, size_t n)
 void PVDataOldAPI::Dump(const std::string &name, const LLSD &map)
 {
 	static LLCachedControl<bool> dump_data(gSavedSettings, "PVData_DumpLLSD");
-	if(!dump_data)
+	if (!dump_data)
 	{
 		return;
 	}
@@ -214,8 +214,8 @@ void PVDataOldAPI::downloadError(const LLSD& aData, std::string& aURL)
 }
 
 void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
-											const std::string& http_source_url,
-											const bool& download_failed
+	const std::string& http_source_url,
+	const bool& download_failed
 )
 {
 	Dump(http_source_url, http_content);
@@ -380,7 +380,6 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "No " << section << " found!" << LL_ENDL;
 	}
 
-
 	section = pv_data_sections_.at(WindowTitles);
 	LL_DEBUGS() << "Attempting to find " + section << LL_ENDL;
 	if (data_input.has(section))
@@ -407,7 +406,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
 
 		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
-			 uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
+			uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
 			LLUUID uuid;
 			auto uuid_str = uuid_iterator->first;
@@ -675,7 +674,7 @@ bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass
 	}
 	return false;
 #else
-}
+	}
 	return true;
 #endif // INTERNAL_BUILD
 #endif // PVDATA_UUID_LOCKDOWN
@@ -1119,14 +1118,14 @@ LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool
 		return default_color;
 	}
 	// Try to operate in the same instance, reduce call overhead
-	LLUIColorTable* cTablePtr				= LLUIColorTable::getInstance();
-	LLColor4 return_color					= default_color; // color we end up with at the end of the logic
-	bool is_friend_and_show 				= false;
-	static LLColor4 friend_color		= cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
-	if(show_buddy_status)
+	LLUIColorTable* cTablePtr = LLUIColorTable::getInstance();
+	LLColor4 return_color = default_color; // color we end up with at the end of the logic
+	bool is_friend_and_show = false;
+	static LLColor4 friend_color = cTablePtr->getColor("NameTagFriend", LLColor4::yellow);
+	if (show_buddy_status)
 	{
 		static LLCachedControl<bool> show_friends_option(gSavedSettings, "NameTagShowFriends");
-		is_friend_and_show 								= (show_friends_option && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
+		is_friend_and_show = (show_friends_option && show_buddy_status && LLAvatarTracker::instance().isBuddy(id));
 		if (!use_color_manager)
 		{
 			return is_friend_and_show ? friend_color : default_color;
