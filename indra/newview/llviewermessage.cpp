@@ -4507,7 +4507,7 @@ void process_teleport_finish(LLMessageSystem* msg, void**)
 
 	send_complete_agent_movement(sim_host);
 	gAgent.setTeleportState( LLAgent::TELEPORT_MOVING );
-	//gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
+	gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["contacting"]);
 
 	LL_DEBUGS("CrossingCaps") << "Calling setSeedCapability from process_teleport_finish(). Seed cap == "
 			<< seedCap << LL_ENDL;

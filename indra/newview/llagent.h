@@ -626,7 +626,7 @@ public:
 public:
 	// ! TODO ! Define ERROR and PROGRESS enums here instead of exposing the mappings.
 	static std::map<std::string, std::string> sTeleportErrorMessages;
-	//static std::map<std::string, std::string> sTeleportProgressMessages; // This may not get destroyed correctly on shutdown
+	static std::map<std::string, std::string> sTeleportProgressMessages; // This may not get destroyed correctly on shutdown
 private:
 	LLSLURL * mTeleportSourceSLURL; 			// SLURL where last TP began
 
