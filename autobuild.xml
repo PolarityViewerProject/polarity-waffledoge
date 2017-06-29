@@ -900,18 +900,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>a3887ed1534f18d9b6d3991853ce27d1</string>
+              <string>d7ca464d8418fe76736ec99a7b725dbe</string>
               <key>hash_algorithm</key>
               <string>md5</string>
               <key>url</key>
-              <string>http://depot.alchemyviewer.org/pub/common/lib/glm-0.9.7.6-common-201607172129.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/common/lib/glm-0.9.8.4-common-201701231537.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.9.7.6</string>
+        <string>0.9.8.4</string>
       </map>
       <key>glod</key>
       <map>
