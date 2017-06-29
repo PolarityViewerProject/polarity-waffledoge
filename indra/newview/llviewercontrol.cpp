@@ -784,6 +784,7 @@ static bool handleFPSLimiterTargetChanged(const LLSD& val)
 	}
 
 	gSavedSettings.setU32("PVRender_FPSLimiterTarget", fps_limit);
+	PVFPSMeter::preComputeFloorAndCeiling();
 	return true;
 }
 

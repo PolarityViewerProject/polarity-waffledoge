@@ -52,9 +52,17 @@ public:
 
 	static bool canRefresh();
 
+	static void preComputeFloorAndCeiling();
+
 private:
 	static LLColor4			mFPSMeterColor;
 	static LLFrameTimer		mStatusBarFPSCounterTimer;
 	static F32				mFPSMeterValue;
+	static U32				mFPSNullZoneVSyncLower;
+	static U32				mFPSNullZoneTargetLower;
+	static U32				mFPSNullZoneTarget;
+	static U32				mFPSNullZoneVSync;
+
+	static bool isCloseEnoughToTarget(const F32 value, const bool compare_with_refresh);
 };
 #endif // PV_FPS_METER_H

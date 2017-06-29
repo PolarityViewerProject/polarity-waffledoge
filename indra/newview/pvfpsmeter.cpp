@@ -35,7 +35,7 @@
 #include "llstatbar.h"
 
 constexpr F32 UPDATE_DELAY = 0.125f;
-constexpr S32 FRAME_NULL_ZONE = 1;
+constexpr U32 FRAME_NULL_ZONE = 1;
 
 static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER("!PVFPSMeter");
 static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER_UPDATE("Update");
@@ -70,6 +70,28 @@ bool PVFPSMeter::stop()
 bool PVFPSMeter::canRefresh()
 {
 	return mStatusBarFPSCounterTimer.getElapsedTimeF32() >= UPDATE_DELAY;
+}
+
+void PVFPSMeter::preComputeFloorAndCeiling()
+{
+	const U32 target = gSavedSettings.getU32("PVRender_FPSLimiterTarget");
+	// TODO: Handle refresh rate change during application runtime. Currently not supported.
+	const U32 refresh_rate = LLWindowWin32::getRefreshRate();
+	U32 mFPSNullZoneTargetUpper =  target + FRAME_NULL_ZONE;
+	U32 mFPSNullZoneVSyncUpper =  refresh_rate + FRAME_NULL_ZONE;
+	mFPSNullZoneTargetLower =  target - FRAME_NULL_ZONE;
+	mFPSNullZoneVSyncLower =  refresh_rate - FRAME_NULL_ZONE;
+	mFPSNullZoneTarget =  mFPSNullZoneTargetUpper - mFPSNullZoneTargetLower + 1;
+	mFPSNullZoneVSync =  mFPSNullZoneVSyncUpper - mFPSNullZoneVSyncLower + 1;
+}
+
+bool PVFPSMeter::isCloseEnoughToTarget(const F32 value, const bool compare_with_refresh)
+{
+	if(compare_with_refresh)
+	{
+		return ((unsigned)(ll_round(value) - mFPSNullZoneVSyncLower) < mFPSNullZoneVSync);
+	}
+	return ((unsigned)(ll_round(value) - mFPSNullZoneTargetLower) < mFPSNullZoneTarget);
 }
 
 bool PVFPSMeter::update()
@@ -120,49 +142,35 @@ bool PVFPSMeter::update()
 			//­­­­­­-------------------------------|
 			// ~/~
 			static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
-			if (fps_limiter_enabled && (mFPSMeterValue <= (fps_limiter_target + FRAME_NULL_ZONE) && mFPSMeterValue >= (fps_limiter_target - FRAME_NULL_ZONE))
-				//&& mFPSMeterColor != color_limited
-				)
+			if (fps_limiter_enabled && isCloseEnoughToTarget(mFPSMeterValue, false))
 			{
 				mFPSMeterColor = color_limited;
 			}
-			else if ((vsync_mode == 1 || vsync_mode == 2) && (mFPSMeterValue <= (LLWindowWin32::getRefreshRate() + FRAME_NULL_ZONE) && mFPSMeterValue >= (LLWindowWin32::getRefreshRate() - FRAME_NULL_ZONE))
-				//&& mFPSMeterColor != color_vsync
-				)
+			else if (vsync_mode && isCloseEnoughToTarget(mFPSMeterValue, true))
 			{
 				mFPSMeterColor = color_vsync;
 			}
-			else if (mFPSMeterValue <= fps_critical
-				//&& mFPSMeterColor != color_critical
-				)
+			else if (mFPSMeterValue <= fps_critical)
 			{
 				mFPSMeterColor = color_critical;
 			}
-			else if (mFPSMeterValue >= fps_critical && mFPSMeterValue < fps_medium
-				//&& mFPSMeterColor != color_low
-				)
+			else if (mFPSMeterValue >= fps_critical && mFPSMeterValue < fps_medium)
 			{
 				mFPSMeterColor = color_low;
 			}
-			else if (mFPSMeterValue >= fps_low && mFPSMeterValue < fps_high
-				//&& mFPSMeterColor != color_medium
-				)
+			else if (mFPSMeterValue >= fps_low && mFPSMeterValue < fps_high)
 			{
 				mFPSMeterColor = color_medium;
 			}
-			else if (mFPSMeterValue >= fps_medium && mFPSMeterValue < fps_outstanding
-				//&& mFPSMeterColor != color_high
-				)
+			else if (mFPSMeterValue >= fps_medium && mFPSMeterValue < fps_outstanding)
 			{
 				mFPSMeterColor = color_high;
 			}
-			else if (mFPSMeterValue >= fps_outstanding
-				//&& mFPSMeterColor != color_outstanding
-				)
+			else if (mFPSMeterValue >= fps_outstanding)
 			{
 				mFPSMeterColor = color_outstanding;
 			}
-			else /* if (mFPSMeterColor != color_fps_default) */
+			else
 			{
 				// all else fails, fallback to default color to prevent blackness
 				mFPSMeterColor = color_fps_default;

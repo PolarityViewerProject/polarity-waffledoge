@@ -2421,6 +2421,7 @@ bool idle_startup()
 #ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
+		PVFPSMeter::preComputeFloorAndCeiling();
 		PVFPSMeter::start();
 		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
 		{
