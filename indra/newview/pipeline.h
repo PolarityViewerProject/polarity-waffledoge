@@ -282,8 +282,7 @@ public:
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
-	void renderGeomShadow(); // <polarity/>
-
+	void renderGeomShadow(LLCamera& camera);
 	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 

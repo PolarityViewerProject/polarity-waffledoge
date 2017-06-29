@@ -4740,9 +4740,9 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 	}
 }
 
-void LLPipeline::renderGeomShadow() // <polarity/>
+void LLPipeline::renderGeomShadow(LLCamera& camera)
 {
-	U32 cur_type;
+	U32 cur_type = 0;
 	
 	LLGLEnable cull(GL_CULL_FACE);
 
@@ -4767,7 +4767,6 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 			for( S32 i = 0; i < poolp->getNumShadowPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
-				if (gDebugGL)check_blend_funcs();
 				poolp->beginShadowPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4780,13 +4779,13 @@ void LLPipeline::renderGeomShadow() // <polarity/>
 					if (!p->getSkipRenderFlag()) { p->renderShadow(i); }
 				}
 				poolp->endShadowPass(i);
-				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
+
 				if (gDebugGL || gDebugPipeline)
 				{
-				LLGLState::checkStates();
+					LLGLState::checkStates();
+				}
 			}
-		}
 		}
 		else
 		{
@@ -9935,12 +9934,12 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	if (use_shader)
 	{
 		gDeferredShadowProgram.unbind();
-		renderGeomShadow(); // <polarity/>
+		renderGeomShadow(shadow_cam);
 		gDeferredShadowProgram.bind();
 	}
 	else
 	{
-		renderGeomShadow(); // <polarity/>
+		renderGeomShadow(shadow_cam);
 	}
 	static LLCachedControl<bool> PVRender_ShadowsFromAlphaEnabled(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", 1);
 	if (PVRender_ShadowsFromAlphaEnabled)
@@ -10756,9 +10755,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 					else
 					{
 						//get perspective projection
-						view[j] = view[j].inverse();
-
-						glh::vec3f origin_agent(origin.mV);
 						view[j] = glm::inverse(view[j]);
 
 						glm::vec3 origin_agent(glm::make_vec3(origin.mV));
@@ -10778,7 +10774,7 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 						F32 fx = 1.f/tanf(fovx);
 						F32 fz = 1.f/tanf(fovz);
 
-                                                proj[j] = glm::mat4(-fx, 0.f, 0.f, 0.f,
+						proj[j] = glm::mat4(-fx, 0.f, 0.f, 0.f,
 							0.f, (yfar + ynear) / (ynear - yfar), 0.f, -1.f,
 							0.f, 0.f, -fz, 0.f,
 							0.f, (2.f*yfar*ynear) / (ynear - yfar), 0.f, 0.f);
@@ -10804,11 +10800,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 				0.f, 0.5f, 0.f, 0.f,
 				0.f, 0.f, 0.5f, 0.f,
 				0.5f, 0.5f, 0.5f, 1.f);
-
-			glm_set_current_modelview(view[i+4]);
-			glm_set_current_projection(proj[i+4]);
-
-			mSunShadowMatrix[i+4] = trans*proj[i + 4] * view[i + 4] * inv_view;
 
 			glm_set_current_modelview(view[j]);
 			glm_set_current_projection(proj[j]);
@@ -10942,15 +10933,15 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 			proj[i+4] = glm::perspective(glm::radians(fovy), aspect, near_clip, far_clip);
 
 			//translate and scale to from [-1, 1] to [0, 1]
-			glh::matrix4f trans(0.5f, 0.f, 0.f, 0.5f,
-							0.f, 0.5f, 0.f, 0.5f,
-							0.f, 0.f, 0.5f, 0.5f,
-							0.f, 0.f, 0.f, 1.f);
+			const glm::mat4 trans(0.5f, 0.f, 0.f, 0.f,
+				0.f, 0.5f, 0.f, 0.f,
+				0.f, 0.f, 0.5f, 0.f,
+				0.5f, 0.5f, 0.5f, 1.f);
 
-			glm_set_current_modelview(glm::make_mat4(view[i+4].m));
-			glm_set_current_projection(glm::make_mat4(proj[i+4].m));
+			glm_set_current_modelview(view[i+4]);
+			glm_set_current_projection(proj[i+4]);
 
-			mSunShadowMatrix[i+4] = trans*proj[i+4]*view[i+4]*inv_view;
+			mSunShadowMatrix[i+4] = trans*proj[i + 4] * view[i + 4] * inv_view;
 			
 			memcpy(gGLLastModelView, glm::value_ptr(mShadowModelview[i + 4]), sizeof(F32) * 16);
 			memcpy(gGLLastProjection, glm::value_ptr(mShadowProjection[i + 4]), sizeof(F32) * 16);
