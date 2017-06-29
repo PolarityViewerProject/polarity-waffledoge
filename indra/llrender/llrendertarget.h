@@ -62,10 +62,7 @@ public:
 	//whether or not to use FBO implementation
 	static bool sUseFBO; 
 	static U32 sBytesAllocated;
-	static U32 sCurFBO;
-	static U32 sCurResX;
-	static U32 sCurResY;
-
+	static LLRenderTarget* sCurFBO;
 
 	LLRenderTarget();
 	~LLRenderTarget();
@@ -126,9 +123,9 @@ public:
 	//must be called when rendering is complete
 	//should be used 1:1 with bindTarget 
 	// call bindTarget once, do all your rendering, call flush once
-	// if fetch_depth is true, every effort will be made to copy the depth buffer into 
+	// if fetch_depth is TRUE, every effort will be made to copy the depth buffer into 
 	// the current depth texture.  A depth texture will be allocated if needed.
-	void flush(bool fetch_depth = false);
+	void flush(bool fetch_depth = FALSE);
 
 	void copyContents(LLRenderTarget& source, S32 srcX0, S32 srcY0, S32 srcX1, S32 srcY1,
 						S32 dstX0, S32 dstY0, S32 dstX1, S32 dstY1, U32 mask, U32 filter);
@@ -141,6 +138,8 @@ public:
 	//one renderable attachment (i.e. color buffer, depth buffer).
 	bool isComplete() const;
 
+	U32 getFBO() const {return mFBO;}
+
 	static LLRenderTarget* getCurrentBoundTarget() { return sBoundTarget; }
 
 protected:
@@ -149,9 +148,7 @@ protected:
 	std::vector<U32> mTex;
 	std::vector<U32> mInternalFormat;
 	U32 mFBO;
-	U32 mPreviousFBO;
-	U32 mPreviousResX;
-	U32 mPreviousResY;
+	LLRenderTarget* mPreviousFBO;
 
 	U32 mDepth;
 	bool mStencil;
