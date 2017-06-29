@@ -1019,7 +1019,10 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		}
 
 //		//BD - Shadow Map Allocation
-		allocateShadowMaps(shadow_detail, true);
+		if (!allocateShadowMaps(shadow_detail, true))
+		{
+			return false;
+		}
 
 		//HACK make screenbuffer allocations start failing after 30 seconds
 		if (gSavedSettings.getBOOL("SimulateFBOFailure"))
