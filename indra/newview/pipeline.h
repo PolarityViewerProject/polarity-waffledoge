@@ -43,6 +43,7 @@
 // </Black Dragon:NiranV>
 
 #include <stack>
+#include <glm/mat4x4.hpp>
 
 class LLViewerTexture;
 class LLFace;
@@ -64,14 +65,11 @@ BOOL compute_min_max(LLMatrix4& box, LLVector2& min, LLVector2& max); // Shouldn
 bool LLRayAABB(const LLVector3 &center, const LLVector3 &size, const LLVector3& origin, const LLVector3& dir, LLVector3 &coord, F32 epsilon = 0);
 BOOL setup_hud_matrices(); // use whole screen to render hud
 BOOL setup_hud_matrices(const LLRect& screen_region); // specify portion of screen (in pixels) to render hud attachments from (for picking)
-glh::matrix4f glh_copy_matrix(F32* src);
-glh::matrix4f glh_get_current_modelview();
-void glh_set_current_modelview(const glh::matrix4f& mat);
-glh::matrix4f glh_get_current_projection();
-void glh_set_current_projection(glh::matrix4f& mat);
-glh::matrix4f gl_ortho(GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat znear, GLfloat zfar);
-glh::matrix4f gl_perspective(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar);
-glh::matrix4f gl_lookat(LLVector3 eye, LLVector3 center, LLVector3 up);
+glm::mat4 glm_copy_matrix(F32* src);
+glm::mat4 glm_get_current_modelview();
+void glm_set_current_modelview(const glm::mat4& mat);
+glm::mat4 glm_get_current_projection();
+void glm_set_current_projection(const glm::mat4& mat);
 
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GEOMETRY;
 extern LLTrace::BlockTimerStatHandle FTM_RENDER_GRASS;
@@ -174,11 +172,6 @@ public:
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
 	static void		markOccluder(LLSpatialGroup* group);
 
-	//downsample source to dest, taking the maximum depth value per pixel in source and writing to dest
-	// if source's depth buffer cannot be bound for reading, a scratch space depth buffer must be provided
-	void		downsampleDepthBuffer(LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
-
-	void		doOcclusion(LLCamera& camera, LLRenderTarget& source, LLRenderTarget& dest, LLRenderTarget* scratch_space = NULL);
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
 	void        markMoved(LLDrawable *drawablep, BOOL damped_motion = FALSE);
@@ -289,9 +282,8 @@ public:
 	void renderGeom(LLCamera& camera, BOOL forceVBOUpdate = FALSE);
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
-	void renderGeomShadow(); // <polarity/>
-
-	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
+	void renderGeomShadow(LLCamera& camera);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
 	void unbindDeferredShader(LLGLSLShader& shader) const;
@@ -305,7 +297,7 @@ public:
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
-	void renderShadow(glh::matrix4f& view, glh::matrix4f& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
+	void renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCamera& camera, LLCullResult& result, BOOL use_shader, BOOL use_occlusion, U32 target_width);
 	void renderHighlights();
 	void renderDebug();
 	void renderPhysicsDisplay();
@@ -621,11 +613,10 @@ public:
 	
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
+	LLRenderTarget			mFinalScreen;
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
-	LLRenderTarget			mEdgeMap;
 	LLRenderTarget			mDeferredDepth;
-	LLRenderTarget			mOcclusionDepth;
 	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
@@ -638,24 +629,15 @@ public:
 
 	//sun shadow map
 	LLRenderTarget			mShadow[6];
-	LLRenderTarget			mShadowOcclusion[6];
 	std::vector<LLVector3>	mShadowFrustPoints[4];
 	LLVector4				mShadowError;
 	LLVector4				mShadowFOV;
 	LLVector3				mShadowFrustOrigin[4];
 	LLCamera				mShadowCamera[8];
 	LLVector3				mShadowExtents[4][2];
-	glh::matrix4f			mSunShadowMatrix[6];
-	glh::matrix4f			mShadowModelview[6];
-	glh::matrix4f			mShadowProjection[6];
-	glh::matrix4f			mGIMatrix;
-	glh::matrix4f			mGIMatrixProj;
-	glh::matrix4f			mGIModelview;
-	glh::matrix4f			mGIProjection;
-	glh::matrix4f			mGINormalMatrix;
-	glh::matrix4f			mGIInvProj;
-	LLVector2				mGIRange;
-	F32						mGILightRadius;
+	glm::mat4				mSunShadowMatrix[6];
+	glm::mat4				mShadowModelview[6];
+	glm::mat4				mShadowProjection[6];
 	
 	LLPointer<LLDrawable>				mShadowSpotLight[2];
 	F32									mSpotLightFade[2];

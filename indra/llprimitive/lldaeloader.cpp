@@ -31,41 +31,42 @@
 #pragma warning (disable : 4263)
 #pragma warning (disable : 4264)
 #endif
-#include "dae.h"
-#include "dom/domAsset.h"
-#include "dom/domBind_material.h"
-#include "dom/domCOLLADA.h"
-#include "dom/domConstants.h"
-#include "dom/domController.h"
-#include "dom/domEffect.h"
-#include "dom/domGeometry.h"
-#include "dom/domInstance_geometry.h"
-#include "dom/domInstance_material.h"
-#include "dom/domInstance_node.h"
-#include "dom/domInstance_effect.h"
-#include "dom/domMaterial.h"
-#include "dom/domMatrix.h"
-#include "dom/domNode.h"
-#include "dom/domProfile_COMMON.h"
-#include "dom/domRotate.h"
-#include "dom/domScale.h"
-#include "dom/domTranslate.h"
-#include "dom/domVisual_scene.h"
+#include <dae.h>
+#include <dom/domAsset.h>
+#include <dom/domBind_material.h>
+#include <dom/domCOLLADA.h>
+#include <dom/domConstants.h>
+#include <dom/domController.h>
+#include <dom/domEffect.h>
+#include <dom/domGeometry.h>
+#include <dom/domInstance_geometry.h>
+#include <dom/domInstance_material.h>
+#include <dom/domInstance_node.h>
+#include <dom/domInstance_effect.h>
+#include <dom/domMaterial.h>
+#include <dom/domMatrix.h>
+#include <dom/domNode.h>
+#include <dom/domProfile_COMMON.h>
+#include <dom/domRotate.h>
+#include <dom/domScale.h>
+#include <dom/domTranslate.h>
+#include <dom/domVisual_scene.h>
 #if LL_MSVC
 #pragma warning (pop)
 #endif
 
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/regex.hpp>
 
 #include "lldaeloader.h"
 #include "llsdserialize.h"
 #include "lljoint.h"
 
-#include "glh/glh_linear.h"
+#include <glm/mat4x4.hpp>
+#include <glm/gtc/matrix_inverse.hpp>
+#include <glm/gtc/type_ptr.hpp>
 #include "llmatrix4a.h"
-
-#include <boost/regex.hpp>
-#include <boost/algorithm/string/replace.hpp>
 
 std::string colladaVersion[VERSIONTYPE_COUNT+1] = 
 {
@@ -1132,9 +1133,9 @@ void LLDAELoader::processDomModel(LLModel* model, DAE* dae, daeElement* root, do
 		mesh_scale *= normalized_transformation;
 		normalized_transformation = mesh_scale;
 
-		glh::matrix4f inv_mat((F32*) normalized_transformation.mMatrix);
-		inv_mat = inv_mat.inverse();
-		LLMatrix4 inverse_normalized_transformation(inv_mat.m);
+		glm::mat4 inv_mat(glm::make_mat4((F32*) normalized_transformation.mMatrix));
+		inv_mat = glm::inverse(inv_mat);
+		LLMatrix4 inverse_normalized_transformation(glm::value_ptr(inv_mat));
 
 		domSkin::domBind_shape_matrix* bind_mat = skin->getBind_shape_matrix();
 

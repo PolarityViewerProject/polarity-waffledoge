@@ -27,7 +27,6 @@ set(cmake_SOURCE_FILES
     FindAPR.cmake
     FindAutobuild.cmake
     FindFMODSTUDIO.cmake
-    FindGLH.cmake
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
     FindHUNSPELL.cmake
@@ -40,7 +39,7 @@ set(cmake_SOURCE_FILES
     FindZLIB.cmake
     FMODSTUDIO.cmake
     FreeType.cmake
-    GLH.cmake
+    GLM.cmake
     GLOD.cmake
     GStreamer010Plugin.cmake
     Glut.cmake

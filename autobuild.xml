@@ -881,18 +881,18 @@
         <key>version</key>
         <string>68</string>
       </map>
-      <key>glh-linear</key>
+      <key>glm</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 2000 Cass Everitt</string>
+        <string>Copyright (c) 2005 - 2014 G-Truc Creation</string>
         <key>description</key>
-        <string>glh - is a platform-indepenedent C++ OpenGL helper library</string>
+        <string>A C++ mathematics library for graphics programming</string>
         <key>license</key>
-        <string>BSD</string>
+        <string>MIT</string>
         <key>license_file</key>
-        <string>LICENSES/glh-linear.txt</string>
+        <string>LICENSES/glm.txt</string>
         <key>name</key>
-        <string>glh-linear</string>
+        <string>glm</string>
         <key>platforms</key>
         <map>
           <key>common</key>
@@ -900,16 +900,18 @@
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>44c596c659d32a86972ac9c6f206cb68</string>
+              <string>d7ca464d8418fe76736ec99a7b725dbe</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glh-linear_3p-glh-linear/rev/303446/arch/Linux/installer/glh_linear-0.0.0-common-303446.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/common/lib/glm-0.9.8.4-common-201701231537.tar.bz2</string>
             </map>
             <key>name</key>
             <string>common</string>
           </map>
         </map>
         <key>version</key>
-        <string>0.0.0</string>
+        <string>0.9.8.4</string>
       </map>
       <key>glod</key>
       <map>
