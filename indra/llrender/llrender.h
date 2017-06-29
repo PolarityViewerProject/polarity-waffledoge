@@ -43,7 +43,6 @@
 #include "llglheaders.h"
 #include "llmatrix4a.h"
 #include "llvector4a.h"
-#include "llvector4a.h"
 #include <boost/align/aligned_allocator.hpp>
 #include <glm/mat4x4.hpp>
 
@@ -66,7 +65,6 @@ public:
 		TT_TEXTURE = 0,			// Standard 2D Texture
 		TT_RECT_TEXTURE,	// Non power of 2 texture
 		TT_CUBE_MAP,		// 6-sided cube map texture
-		TT_MULTISAMPLE_TEXTURE, // see GL_ARB_texture_multisample
 		TT_NONE 		// No texture type is currently enabled
 	} eTextureType;
 
@@ -377,13 +375,14 @@ public:
 
 	void begin(const GLuint& mode);
 	void end();
+
 	LL_FORCE_INLINE void vertex2i(const GLint& x, const GLint& y) { vertex4a(LLVector4a((GLfloat)x,(GLfloat)y,0.f)); }
 	LL_FORCE_INLINE void vertex2f(const GLfloat& x, const GLfloat& y) { vertex4a(LLVector4a(x,y,0.f)); }
 	LL_FORCE_INLINE void vertex3f(const GLfloat& x, const GLfloat& y, const GLfloat& z) { vertex4a(LLVector4a(x,y,z)); }
 	LL_FORCE_INLINE void vertex2fv(const GLfloat* v) { vertex4a(LLVector4a(v[0],v[1],0.f)); }
 	LL_FORCE_INLINE void vertex3fv(const GLfloat* v) { vertex4a(LLVector4a(v[0],v[1],v[2])); }
 	void vertex4a(const LLVector4a& v);
-	
+
 	void texCoord2i(const GLint& x, const GLint& y);
 	void texCoord2f(const GLfloat& x, const GLfloat& y);
 	void texCoord2fv(const GLfloat* tc);
@@ -420,7 +419,7 @@ public:
 
 	LLLightState* getLight(U32 index);
 	void setAmbientLightColor(const LLColor4& color);
-	
+
 	LLTexUnit* getTexUnit(U32 index);
 
 	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }

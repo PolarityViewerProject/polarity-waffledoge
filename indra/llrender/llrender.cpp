@@ -50,8 +50,8 @@ LLRender gGL;
 // Handy copies of last good GL matrices
 F32	gGLModelView[16];
 F32	gGLLastModelView[16];
-F32 gGLLastProjection[16];
-F32 gGLProjection[16];
+F32	gGLLastProjection[16];
+F32	gGLProjection[16];
 S32	gGLViewport[4];
 
 U32 LLRender::sUICalls = 0;
@@ -66,8 +66,7 @@ static const GLenum sGLTextureType[] =
 {
 	GL_TEXTURE_2D,
 	GL_TEXTURE_RECTANGLE_ARB,
-	GL_TEXTURE_CUBE_MAP_ARB,
-	GL_TEXTURE_2D_MULTISAMPLE
+	GL_TEXTURE_CUBE_MAP_ARB
 };
 
 static const GLint sGLAddressMode[] =
@@ -139,7 +138,7 @@ void LLTexUnit::refreshState(void)
 	// http://www.mailinglistarchive.com/html/mac-opengl@lists.apple.com/2008-07/msg00653.html
 	//
 	bool enableDisable = !LLGLSLShader::sNoFixedFunction && 
-		(mIndex < gGLManager.mNumTextureUnits) && mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE;
+		(mIndex < gGLManager.mNumTextureUnits);
 		
 	if (mCurrTexType != TT_NONE)
 	{
@@ -201,7 +200,6 @@ void LLTexUnit::enable(eTextureType type)
 
 		gGL.flush();
 		if (!LLGLSLShader::sNoFixedFunction && 
-			type != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			stop_glerror();
@@ -221,7 +219,6 @@ void LLTexUnit::disable(void)
 		unbind(mCurrTexType);
 		gGL.flush();
 		if (!LLGLSLShader::sNoFixedFunction &&
-			mCurrTexType != LLTexUnit::TT_MULTISAMPLE_TEXTURE &&
 			mIndex < gGLManager.mNumTextureUnits)
 		{
 			glDisable(sGLTextureType[mCurrTexType]);
@@ -240,7 +237,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 
 		LLImageGL* gl_tex = NULL ;
 
-		if (texture != NULL && ((gl_tex = texture->getGLTexture())))
+		if (texture != NULL && (gl_tex = texture->getGLTexture()))
 		{
 			if (gl_tex->getTexName()) //if texture exists
 			{
@@ -282,7 +279,7 @@ bool LLTexUnit::bind(LLTexture* texture, bool for_rendering, bool forceBind)
 			}
 			else
 			{
-			LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
+				LL_DEBUGS() << "NULL LLTexUnit::bind texture" << LL_ENDL;
 			}
 			return false;
 		}
@@ -472,7 +469,7 @@ void LLTexUnit::setTextureAddressMode(eTextureAddressMode mode)
 
 void LLTexUnit::setTextureFilteringOption(LLTexUnit::eTextureFilterOptions option)
 {
-	if (mIndex < 0 || mCurrTexture == 0 || mCurrTexType == LLTexUnit::TT_MULTISAMPLE_TEXTURE) return;
+	if (mIndex < 0 || mCurrTexture == 0) return;
 
 	gGL.flush();
 
@@ -1030,7 +1027,6 @@ void LLLightState::setSpotDirection(const LLVector3& direction)
 	}
 }
 
-LLRender::eBlendFactor blendfunc_debug[4]={LLRender::BF_UNDEF};
 LLRender::LLRender()
   : mDirty(false),
     mCount(0),
@@ -1651,14 +1647,6 @@ void LLRender::setAlphaRejectSettings(eCompareFunc func, F32 value)
 	}
 }
 
-void check_blend_funcs()
-{
-	llassert_always(blendfunc_debug[0] == LLRender::BF_SOURCE_ALPHA );
-	llassert_always(blendfunc_debug[1] == LLRender::BF_SOURCE_ALPHA );
-	llassert_always(blendfunc_debug[2] == LLRender::BF_ONE_MINUS_SOURCE_ALPHA );
-	llassert_always(blendfunc_debug[3] == LLRender::BF_ONE_MINUS_SOURCE_ALPHA );
-}
-
 void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 {
 	llassert(sfactor < BF_UNDEF);
@@ -1670,8 +1658,6 @@ void LLRender::blendFunc(eBlendFactor sfactor, eBlendFactor dfactor)
 		mCurrBlendAlphaSFactor = sfactor;
 		mCurrBlendColorDFactor = dfactor;
 		mCurrBlendAlphaDFactor = dfactor;
-		blendfunc_debug[0]=blendfunc_debug[1]=sfactor;
-		blendfunc_debug[2]=blendfunc_debug[3]=dfactor;
 		flush();
 		glBlendFunc(sGLBlendFactor[sfactor], sGLBlendFactor[dfactor]);
 	}
@@ -1697,10 +1683,6 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 		mCurrBlendAlphaSFactor = alpha_sfactor;
 		mCurrBlendColorDFactor = color_dfactor;
 		mCurrBlendAlphaDFactor = alpha_dfactor;
-		blendfunc_debug[0]=color_sfactor;
-		blendfunc_debug[1]=alpha_sfactor;
-		blendfunc_debug[2]=color_dfactor;
-		blendfunc_debug[3]=alpha_dfactor;
 		flush();
 		glBlendFuncSeparateEXT(sGLBlendFactor[color_sfactor], sGLBlendFactor[color_dfactor],
 				       sGLBlendFactor[alpha_sfactor], sGLBlendFactor[alpha_dfactor]);
