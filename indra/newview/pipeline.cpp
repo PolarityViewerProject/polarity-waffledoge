@@ -1847,7 +1847,7 @@ void LLPipeline::unlinkDrawable(LLDrawable *drawable)
 		LL_RECORD_BLOCK_TIME(FTM_REMOVE_FROM_SPATIAL_PARTITION);
 		if (!drawablep->getSpatialGroup()->getSpatialPartition()->remove(drawablep, drawablep->getSpatialGroup()))
 		{
-#if LL_RELEASE_FOR_DOWNLOAD
+#ifdef LL_RELEASE_FOR_DOWNLOAD
 			LL_WARNS() << "Couldn't remove object from spatial group!" << LL_ENDL;
 #else
 			LL_ERRS() << "Couldn't remove object from spatial group!" << LL_ENDL;

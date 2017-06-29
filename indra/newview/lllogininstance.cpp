@@ -858,7 +858,7 @@ void LLLoginInstance::updateApp(bool mandatory, const std::string& auth_msg)
 	}
 	else
 	{
-#if LL_RELEASE_FOR_DOWNLOAD
+#ifdef LL_RELEASE_FOR_DOWNLOAD
 		notification_name += "ReleaseForDownload";
 #endif
 	}
@@ -877,7 +877,7 @@ bool LLLoginInstance::updateDialogCallback(const LLSD& notification, const LLSD&
 	S32 option = LLNotification::getSelectedOption(notification, response);
 	bool mandatory = notification["payload"]["mandatory"].asBoolean();
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (option == 2)
 	{
 		// This condition attempts to skip the 

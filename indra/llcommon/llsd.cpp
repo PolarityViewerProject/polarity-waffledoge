@@ -39,7 +39,7 @@
 #include "stringize.h"
 #include "llrand.h"
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 #define NAME_UNNAMED_NAMESPACE
 #endif
 

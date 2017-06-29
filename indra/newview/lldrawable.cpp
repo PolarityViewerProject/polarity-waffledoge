@@ -486,7 +486,7 @@ void LLDrawable::updateMaterial()
 
 void LLDrawable::makeActive()
 {		
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (mVObjp.notNull())
 	{
 		U32 pcode = mVObjp->getPCode();

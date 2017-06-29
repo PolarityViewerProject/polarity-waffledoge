@@ -1925,7 +1925,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 		// index is baked texture - index is not relevant. putting in 0 as placeholder
 		if (isTextureDefined(baked_equiv, 0))
 		{
-#if LL_RELEASE_FOR_DOWNLOAD
+#ifdef LL_RELEASE_FOR_DOWNLOAD
 			// End users don't get to trivially see avatar texture IDs, makes textures
 			// easier to steal. JC
 			LL_INFOS() << "LocTex " << name << ": Baked " << LL_ENDL;
@@ -1946,7 +1946,7 @@ void LLVOAvatarSelf::dumpLocalTextures() const
 				LL_INFOS() << "LocTex " << name << ": "
 						<< "Discard " << image->getDiscardLevel() << ", "
 						<< "(" << image->getWidth() << ", " << image->getHeight() << ") " 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 					// End users don't get to trivially see avatar texture IDs,
 					// makes textures easier to steal
 						<< image->getID() << " "

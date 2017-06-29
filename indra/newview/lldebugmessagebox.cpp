@@ -144,7 +144,7 @@ LLDebugVarMessageBox::~LLDebugVarMessageBox()
 
 void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_value, F32 increment)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLDebugVarMessageBox* box = show(title, VAR_TYPE_F32, (void*)var);
 	max_value = llabs(max_value);
 	box->mSlider1->setMaxValue(max_value);
@@ -160,7 +160,7 @@ void LLDebugVarMessageBox::show(const std::string& title, F32 *var, F32 max_valu
 
 void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_value, S32 increment)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLDebugVarMessageBox* box = show(title, VAR_TYPE_S32, (void*)var);
 	F32 max_val = llabs((F32)max_value);
 	box->mSlider1->setMaxValue(max_val);
@@ -176,7 +176,7 @@ void LLDebugVarMessageBox::show(const std::string& title, S32 *var, S32 max_valu
 
 void LLDebugVarMessageBox::show(const std::string& title, LLVector3 *var, LLVector3 max_value, LLVector3 increment)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LLDebugVarMessageBox* box = show(title, VAR_TYPE_VEC3, (LLVector3*)var);
 	max_value.abs();
 	box->mSlider1->setMaxValue(max_value.mV[VX]);

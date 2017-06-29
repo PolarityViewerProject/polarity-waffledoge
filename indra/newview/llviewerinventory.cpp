@@ -1195,7 +1195,7 @@ void link_inventory_array(const LLUUID& category,
 			 LLInventoryObject::const_object_list_t& baseobj_array,
 			 LLPointer<LLInventoryCallback> cb)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	const LLViewerInventoryCategory *cat = gInventory.getCategory(category);
 	const std::string cat_name = cat ? cat->getName() : "CAT NOT FOUND";
 #endif
@@ -1265,7 +1265,7 @@ void link_inventory_array(const LLUUID& category,
 		link["desc"] = new_desc;
 		links.append(link);
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 		LL_DEBUGS(LOG_INV) << "Linking Object [ name:" << baseobj->getName() 
 						   << " UUID:" << baseobj->getUUID() 
 						   << " ] into Category [ name:" << cat_name 

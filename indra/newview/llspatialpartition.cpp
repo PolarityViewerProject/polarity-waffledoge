@@ -564,7 +564,7 @@ void LLSpatialGroup::updateDistance(LLCamera &camera)
 		return;
 	}
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (hasState(LLSpatialGroup::OBJECT_DIRTY))
 	{
 		LL_ERRS() << "Spatial group dirty on distance update." << LL_ENDL;

@@ -5672,7 +5672,7 @@ LLJoint *LLVOAvatar::getJoint( const std::string &name )
 		jointp = iter->second;
 	}
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
     if (jointp && jointp->getName()!="mScreen" && jointp->getName()!="mRoot")
     {
         llassert(getJoint(jointp->getJointNum())==jointp);

@@ -973,7 +973,7 @@ static LLTrace::BlockTimerStatHandle FTM_PVAGENT_GETTITLE("!PVAgentData Get Titl
 
 PVAgent* PVAgent::find(const LLUUID& id)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
 #endif
 	PVAgent* agentPtr = nullptr;
@@ -987,7 +987,7 @@ PVAgent* PVAgent::find(const LLUUID& id)
 
 PVAgent* PVAgent::create(const LLUUID& id, const LLColor3& color, const S32& flags, const std::string& custom_title, const std::string& ban_reason)
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETDATAFOR);
 #endif
 	PVAgent* new_agent;

@@ -1660,7 +1660,7 @@ const S32 MAX_ADDITIONAL_LEVEL_FOR_PRIORITY          = 8;
 const F32 PRIORITY_BOOST_HIGH_FACTOR                 = 10000000.f;//boost high
 F32 LLViewerFetchedTexture::calcDecodePriority()
 {
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (mID == LLAppViewer::getTextureFetch()->mDebugID)
 	{
 		LLAppViewer::getTextureFetch()->mDebugCount++; // for setting breakpoints
@@ -1974,7 +1974,7 @@ bool LLViewerFetchedTexture::updateFetch()
 	mFetchDeltaTime = 999999.f;
 	mRequestDeltaTime = 999999.f;
 
-#if !LL_RELEASE_FOR_DOWNLOAD
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	if (mID == LLAppViewer::getTextureFetch()->mDebugID)
 	{
 		LLAppViewer::getTextureFetch()->mDebugCount++; // for setting breakpoints
