@@ -230,7 +230,7 @@ public:
 	static F32 sLastFrameTime;
 
 	// Global memory statistics
-#ifdef LL_X86_64
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
 	static S64Bytes sGlobalTextureMemory;	// Tracks main memory texmem
 	static S64Bytes sBoundTextureMemory;	// Tracks bound texmem for last completed frame
 	static S64Bytes sCurBoundTextureMemory;		// Tracks bound texmem for current frame
