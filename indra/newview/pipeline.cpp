@@ -9798,10 +9798,8 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 	}
 }
 
-glm::mat4 shadowLook(const LLVector3 pos, const LLVector3 dir, const LLVector3 up)
+glm::mat4 shadowLook(const LLVector3& pos, const LLVector3& dir, const LLVector3& up)
 {
-	glh::matrix4f ret;
-
 	LLVector3 dirN;
 	LLVector3 upN;
 	LLVector3 lftN;
@@ -9882,6 +9880,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	}
 
 	updateCull(shadow_cam, result);
+
 	stateSort(shadow_cam, result);
 	
 	
@@ -9982,6 +9981,8 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	gDeferredShadowCubeProgram.bind();
 	gGLLastMatrix = NULL;
 	gGL.loadMatrix(gGLModelView);
+
+	doOcclusion(shadow_cam);
 
 	if (use_shader)
 	{
@@ -10426,6 +10427,8 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		//far_clip = llmin(far_clip, 128.f);
 		far_clip = llmin(far_clip, camera.getFar());
 
+		F32 range = far_clip-near_clip;
+
 		LLVector3 split_exp = RenderShadowSplitExponent;
 
 		F32 da = 1.f-llmax( fabsf(lightDir*up), fabsf(lightDir*camera.getLeftAxis()) );
@@ -10438,11 +10441,10 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 		{
 			F32 x = (F32)(i+1)/4.f;
 			x = powf(x, sxp);
-			mSunClipPlanes.mV[i] = near_clip+RenderShadowFarClip*x;
+			mSunClipPlanes.mV[i] = near_clip+range*x;
 		}
 
-		//BD
-		//mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
+		mSunClipPlanes.mV[0] *= 1.25f; //bump back first split for transition padding
 	}
 
 	// convenience array of 4 near clip plane distances
