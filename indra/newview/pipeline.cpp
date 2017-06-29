@@ -1237,7 +1237,7 @@ void LLPipeline::allocateWaterReflectionMaps()
 		U32 res = gSavedSettings.getU32("RenderWaterRefResolution");
 
 #if MATERIALS_IN_REFLECTIONS
-		bool materials_in_water = gSavedSettings.getBOOL("RenderWaterMaterials");
+		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
 		if (LLPipeline::sRenderDeferred && materials_in_water)
 		{
@@ -1324,10 +1324,8 @@ void LLPipeline::createGLBuffers()
 
 	updateRenderDeferred();
 
-	bool materials_in_water = false;
-
 #if MATERIALS_IN_REFLECTIONS
-	materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
 #endif
 	allocateWaterReflectionMaps();
 
@@ -9488,7 +9486,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 		{	//generate planar reflection map
 
 #if MATERIALS_IN_REFLECTIONS
-			static LLCachedControl<bool> materials_in_water(gSavedSettings.getS32("RenderWaterMaterials");
+		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
 #endif
 			//disable occlusion culling for reflection map for now
 			S32 occlusion = LLPipeline::sUseOcclusion;
