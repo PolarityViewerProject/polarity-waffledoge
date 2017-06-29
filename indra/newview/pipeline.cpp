@@ -4286,7 +4286,6 @@ void LLPipeline::renderHighlights()
 //debug use
 U32 LLPipeline::sCurRenderPoolType = 0 ;
 
-extern void check_blend_funcs();
 void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 {
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_GEOMETRY);

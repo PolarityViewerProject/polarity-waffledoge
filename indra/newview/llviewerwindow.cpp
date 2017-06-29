@@ -2512,7 +2512,6 @@ void LLViewerWindow::drawDebugText()
 	}
 }
 
-extern void check_blend_funcs();
 void LLViewerWindow::draw()
 {
 	
@@ -2598,9 +2597,7 @@ void LLViewerWindow::draw()
 
 		// Draw all nested UI views.
 		// No translation needed, this view is glued to 0,0
-		if(gDebugGL)check_blend_funcs();
 		mRootView->draw();
-		if(gDebugGL)check_blend_funcs();
 
 		if (LLView::sDebugRects)
 		{
@@ -2617,9 +2614,7 @@ void LLViewerWindow::draw()
 			gGL.matrixMode(LLRender::MM_MODELVIEW);
 			LLUI::pushMatrix();
 			LLUI::translate( (F32) screen_x, (F32) screen_y);
-			if(gDebugGL)check_blend_funcs();
 			top_ctrl->draw();	
-			if(gDebugGL)check_blend_funcs();
 			LLUI::popMatrix();
 		}
 
