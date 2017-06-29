@@ -440,7 +440,6 @@ LLPipeline::LLPipeline():
 
 	mScreenWidth(0),
 	mScreenHeight(0),
-	mGILightRadius(0),
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
