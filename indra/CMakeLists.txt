@@ -56,10 +56,8 @@ if (LL_TESTS)
   add_subdirectory(${VIEWER_PREFIX}test)
 endif (LL_TESTS)
 
-# if (ENABLE_MEDIA_PLUGINS)
 # viewer media plugins
 add_subdirectory(${LIBS_OPEN_PREFIX}media_plugins)
-# endif (ENABLE_MEDIA_PLUGINS)
 
 if (LINUX)
   add_subdirectory(${VIEWER_PREFIX}linux_crash_logger)
