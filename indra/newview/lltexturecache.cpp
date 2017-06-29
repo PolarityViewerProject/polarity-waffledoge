@@ -1899,9 +1899,9 @@ LLPointer<LLImageRaw> LLTextureCache::readFromFastCache(const LLUUID& id, S32& d
 
 		openFastCache();
 
-		mFastCachep->seek(APR_SET, offset);
+		mFastCachep->seek(APR_SET, offset);		
 	
-                if(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) != TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
+		if(mFastCachep->read(head, TEXTURE_FAST_CACHE_ENTRY_OVERHEAD) != TEXTURE_FAST_CACHE_ENTRY_OVERHEAD)
 		{
 			//cache corrupted or under thread race condition
 			closeFastCache(); 
