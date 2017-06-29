@@ -438,8 +438,6 @@ LLPipeline::LLPipeline():
 	mDebugMeshUploadCost(0),
 	mNumVisibleFaces(0),
 
-	mScreenWidth(0),
-	mScreenHeight(0),
 	mInitialized(FALSE),
 	mVertexShadersEnabled(FALSE),
 	mVertexShadersLoaded(0),
@@ -447,8 +445,8 @@ LLPipeline::LLPipeline():
 	mRenderDebugMask(0),
 	mOldRenderDebugMask(0),
 	mMeshDirtyQueryObject(0),
-	mGroupQ2Locked(false),
 	mGroupQ1Locked(false),
+	mGroupQ2Locked(false),
 	mResetVertexBuffers(false),
 	mLastRebuildPool(NULL),
 	mAlphaPool(NULL),
@@ -468,14 +466,16 @@ LLPipeline::LLPipeline():
 	mWLSkyPool(NULL),
 	mLightMask(0),
 	mLightMovingMask(0),
-	mLightingDetail(0)
+	mLightingDetail(0),
+	mScreenWidth(0),
+	mScreenHeight(0)
 {
 	mNoiseMap = 0;
 	mTrueNoiseMap = 0;
 	mLightFunc = 0;
 }
 
-void LLPipeline::connectRefreshCachedSettingsSafe(const std::string& name) const
+void LLPipeline::connectRefreshCachedSettingsSafe(const std::string& name)
 {
 	LLPointer<LLControlVariable> cntrl_ptr = gSavedSettings.getControl(name);
 	if ( cntrl_ptr.isNull() )
@@ -853,26 +853,26 @@ void LLPipeline::allocatePhysicsBuffer()
 	}
 }
 
-bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, bool write_settings)
+bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY)
 {
 	refreshCachedSettings();
 	
-	bool save_settings = sRenderDeferred && write_settings;
-	if (save_settings)
-	{
-		// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
-		gSavedSettings.setBOOL("RenderInitError", TRUE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
-	}
+	//bool save_settings = sRenderDeferred;
+	//if (save_settings)
+	//{
+	//	// Set this flag in case we crash while resizing window or allocating space for deferred rendering targets
+	//	gSavedSettings.setBOOL("RenderInitError", TRUE);
+	//	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	//}
 
 	eFBOStatus ret = doAllocateScreenBuffer(resX, resY);
 
-	if (save_settings)
-	{
-		// don't disable shaders on next session
-		gSavedSettings.setBOOL("RenderInitError", FALSE);
-		gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"));
-	}
+	//if (save_settings)
+	//{
+	//	// don't disable shaders on next session
+	//	gSavedSettings.setBOOL("RenderInitError", FALSE);
+	//	gSavedSettings.saveToFile( gSavedSettings.getString("ClientSettingsFile"), TRUE );
+	//}
 	
 	if (ret == FBO_FAILURE)
 	{ //FAILSAFE: screen buffer allocation failed, disable deferred rendering if it's enabled
@@ -1044,7 +1044,7 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
 						
-		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
+		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;		
 	}
 	
 	if (LLPipeline::sRenderDeferred)
@@ -1504,14 +1504,14 @@ BOOL LLPipeline::canUseVertexShaders()
 	}
 }
 
-BOOL LLPipeline::canUseWindLightShaders()
+BOOL LLPipeline::canUseWindLightShaders() const
 {
 	return (!sDisableShaders &&
 			gWLSkyProgram.mProgramObject != 0 &&
 			LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_WINDLIGHT) > 1);
 }
 
-BOOL LLPipeline::canUseWindLightShadersOnObjects()
+BOOL LLPipeline::canUseWindLightShadersOnObjects() const
 {
 	return (canUseWindLightShaders() 
 		&& LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_OBJECT) > 0);
@@ -1532,7 +1532,7 @@ void LLPipeline::unloadShaders()
 	mVertexShadersLoaded = 0;
 }
 
-void LLPipeline::assertInitializedDoError() const
+void LLPipeline::assertInitializedDoError()
 {
 	LL_ERRS() << "LLPipeline used when uninitialized." << LL_ENDL;
 }
@@ -2166,7 +2166,7 @@ void LLPipeline::updateMove()
 /////////////////////////////////////////////////////////////////////////////
 
 //static
-F32 LLPipeline::calcPixelArea(const LLVector3 &center, const LLVector3 &size, LLCamera &camera)
+F32 LLPipeline::calcPixelArea(LLVector3 center, LLVector3 size, LLCamera &camera)
 {
 	LLVector3 lookAt = center - camera.getOrigin();
 	F32 dist = lookAt.length();
@@ -2398,7 +2398,7 @@ void LLPipeline::checkReferences(LLSpatialGroup* group)
 }
 
 
-BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera) const
+BOOL LLPipeline::visibleObjectsInFrustum(LLCamera& camera)
 {
 	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin(); 
 			iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
