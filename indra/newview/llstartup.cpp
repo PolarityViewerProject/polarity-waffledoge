@@ -1143,7 +1143,7 @@ bool idle_startup()
 		gVFS->pokeFiles();
 		// just to be sure
 #ifdef PVDATA_SYSTEM
-		gAgent.mMOTD.assign(gPVOldAPI->getNewProgressTip())
+		gAgent.mMOTD.assign(gPVOldAPI->getNewProgressTip());
 #endif
 		LLStartUp::setStartupState(STATE_LOGIN_AUTH_INIT);
 		return FALSE;
