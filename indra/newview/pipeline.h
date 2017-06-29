@@ -119,7 +119,7 @@ public:
 
 	//allocate the largest screen buffer possible up to resX, resY
 	//returns true if full size buffer allocated, false if some other size is allocated
-	bool allocateScreenBuffer(U32 resX, U32 resY, bool write_settings = true);
+	bool allocateScreenBuffer(U32 resX, U32 resY);
 
 	typedef enum {
 		FBO_SUCCESS_FULLRES = 0,
@@ -140,7 +140,7 @@ public:
 	
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
-	//void bindScreenToTexture() const; // <polarity/> Unused 2016.11.27
+	void bindScreenToTexture();
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -162,7 +162,7 @@ public:
 	void		 addPool(LLDrawPool *poolp);	// Only to be used by LLDrawPool classes for splitting pools!
 	void		 removePool( LLDrawPool* poolp );
 
-	static void		 allocDrawable(LLViewerObject *obj);
+	void		 allocDrawable(LLViewerObject *obj);
 
 	void		 unlinkDrawable(LLDrawable*);
 
@@ -170,7 +170,7 @@ public:
 
 	// Object related methods
 	void        markVisible(LLDrawable *drawablep, LLCamera& camera);
-	static void		markOccluder(LLSpatialGroup* group);
+	void		markOccluder(LLSpatialGroup* group);
 
 	void		doOcclusion(LLCamera& camera);
 	void		markNotCulled(LLSpatialGroup* group, LLCamera &camera);
@@ -226,8 +226,9 @@ public:
 	void		setUseVertexShaders(BOOL use_shaders);
 	BOOL		getUseVertexShaders() const { return mVertexShadersEnabled; }
 	BOOL		canUseVertexShaders();
-	static BOOL		canUseWindLightShaders();
-	static BOOL		canUseWindLightShadersOnObjects();
+	BOOL		canUseWindLightShaders() const;
+	BOOL		canUseWindLightShadersOnObjects() const;
+
 #ifdef AA_CHECK_IS_FUNCTION
 	BOOL		canUseAntiAliasing() const;
 #endif // #ifdef AA_CHECK_IS_FUNCTION
@@ -239,7 +240,7 @@ public:
 	void updateMoveNormalAsync(LLDrawable* drawablep);
 	void updateMovedList(LLDrawable::drawable_vector_t& move_list);
 	void updateMove();
-	BOOL visibleObjectsInFrustum(LLCamera& camera) const;
+	BOOL visibleObjectsInFrustum(LLCamera& camera);
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	BOOL getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
 	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
@@ -254,7 +255,7 @@ public:
 	void clearRebuildDrawables();
 
 	//calculate pixel area of given box from vantage point of given camera
-	static F32 calcPixelArea(const LLVector3 &center, const LLVector3 &size, LLCamera& camera);
+	static F32 calcPixelArea(LLVector3 center, LLVector3 size, LLCamera& camera);
 	static F32 calcPixelArea(const LLVector4a& center, const LLVector4a& size, LLCamera &camera);
 
 	void stateSort(LLCamera& camera, LLCullResult& result);
@@ -269,7 +270,7 @@ public:
 
 	void renderGroups(LLRenderPass* pass, U32 type, U32 mask, BOOL texture);
 
-	static void grabReferences(LLCullResult& result);
+	void grabReferences(LLCullResult& result);
 	void clearReferences();
 
 	//check references will assert that there are no references in sCullResult to the provided data
@@ -286,14 +287,14 @@ public:
 	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
-	void unbindDeferredShader(LLGLSLShader& shader) const;
+	void unbindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
 	void renderDeferredLighting();
 	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
 	void generateWaterReflection(LLCamera& camera);
 	void generateSunShadow(LLCamera& camera);
 	void generateHighlight(LLCamera& camera);
-	void renderHighlight(const LLViewerObject* obj, F32 fade) const;
+	void renderHighlight(const LLViewerObject* obj, F32 fade);
 	void setHighlightObject(LLDrawable* obj) { mHighlightObject = obj; }
 
 
@@ -324,12 +325,12 @@ public:
 	void shiftObjects(const LLVector3 &offset);
 
 	void setLight(LLDrawable *drawablep, BOOL is_light);
-
-	static BOOL hasRenderBatches(const U32 type);
-	static LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
-	static LLCullResult::drawinfo_iterator endRenderMap(U32 type);
-	static LLCullResult::sg_iterator beginAlphaGroups();
-	static LLCullResult::sg_iterator endAlphaGroups();
+	
+	BOOL hasRenderBatches(const U32 type) const;
+	LLCullResult::drawinfo_iterator beginRenderMap(U32 type);
+	LLCullResult::drawinfo_iterator endRenderMap(U32 type);
+	LLCullResult::sg_iterator beginAlphaGroups();
+	LLCullResult::sg_iterator endAlphaGroups();
 	
 
 	void addTrianglesDrawn(S32 index_count, U32 render_type = LLRender::TRIANGLES);
@@ -426,9 +427,9 @@ private:
 	void addToQuickLookup( LLDrawPool* new_poolp );
 	void removeFromQuickLookup( LLDrawPool* poolp );
 	BOOL updateDrawableGeom(LLDrawable* drawable, BOOL priority);
-	void assertInitializedDoError() const;
+	void assertInitializedDoError();
 	bool assertInitialized() { const bool is_init = isInit(); if (!is_init) assertInitializedDoError(); return is_init; };
-	void connectRefreshCachedSettingsSafe(const std::string& name) const;
+	void connectRefreshCachedSettingsSafe(const std::string& name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
 public:
@@ -670,7 +671,6 @@ public:
 	BOOL					mVertexShadersEnabled;
 	S32						mVertexShadersLoaded; // 0 = no, 1 = yes, -1 = failed
 
-	U32						mTransformFeedbackPrimitives; //number of primitives expected to be generated by transform feedback
 protected:
 	BOOL					mRenderTypeEnabled[NUM_RENDER_TYPES];
 	std::stack<std::string> mRenderTypeEnableStack;

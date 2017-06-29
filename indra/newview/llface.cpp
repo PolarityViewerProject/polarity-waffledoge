@@ -853,8 +853,8 @@ BOOL LLFace::genVolumeBBoxes(const LLVolume &volume, S32 f,
 		min = face.mExtents[0];
 		max = face.mExtents[1];
 		
-		//llassert(less_than_max_mag(min));
-		//llassert(less_than_max_mag(max));
+		llassert(less_than_max_mag(min));
+		llassert(less_than_max_mag(max));
 
 		//min, max are in volume space, convert to drawable render space
 
@@ -1000,30 +1000,9 @@ LLVector2 LLFace::surfaceToTexture(LLVector2 surface_coord, const LLVector4a& po
 void LLFace::getPlanarProjectedParams(LLQuaternion* face_rot, LLVector3* face_pos, F32* scale) const
 {
 	const LLMatrix4& vol_mat = getWorldMatrix();
-	if( ! getViewerObject() )
-	{
-		LL_WARNS() << "No viewer object" << LL_ENDL;
-		return;
-	}
-	if( ! getViewerObject()->getVolume() )
-	{
-		LL_WARNS() << "No volume" << LL_ENDL;
-		return;
-	}
-
-	if( getViewerObject()->getVolume()->getNumVolumeFaces() <= mTEOffset )
-	{
-		LL_WARNS() << "No volume face" << (S32)mTEOffset << LL_ENDL;
-		return;
-	}
-
 	const LLVolumeFace& vf = getViewerObject()->getVolume()->getVolumeFace(mTEOffset);
 	const LLVector4a& normal4a = vf.mNormals[0];
 	const LLVector4a& tangent = vf.mTangents[0];
-	if (!&tangent)
-	{
-		return;
-	}
 
 	LLVector4a binormal4a;
 	binormal4a.setCross3(normal4a, tangent);
@@ -1200,23 +1179,6 @@ void LLFace::cacheFaceInVRAM(const LLVolumeFace& vf)
 	}
 
 	buff->flush();
-}
-
-//helper function for pushing primitives for transform shaders and cleaning up
-//uninitialized data on the tail, plus tracking number of expected primitives
-void push_for_transform(LLVertexBuffer* buff, U32 source_count, U32 dest_count)
-{
-	if (source_count > 0 && dest_count >= source_count) //protect against possible U32 wrapping
-	{
-		//push source primitives
-		buff->drawArrays(LLRender::POINTS, 0, source_count);
-		U32 tail = dest_count-source_count;
-		for (U32 i = 0; i < tail; ++i)
-		{ //copy last source primitive into each element in tail
-			buff->drawArrays(LLRender::POINTS, source_count-1, 1);
-		}
-		gPipeline.mTransformFeedbackPrimitives += dest_count;
-	}
 }
 
 static LLTrace::BlockTimerStatHandle FTM_FACE_GET_GEOM("Face Geom");
@@ -1474,6 +1436,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			do_xform = false;
 		}
 	}
+	
 	{
 		//if it's not fullbright and has no normals, bake sunlight based on face normal
 		//bool bake_sunlight = !getTextureEntry()->getFullbright() &&
@@ -2037,8 +2000,12 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		{
 			LL_RECORD_BLOCK_TIME(FTM_FACE_GEOM_WEIGHTS);
 			mVertexBuffer->getWeight4Strider(wght, mGeomIndex, mGeomCount, map_range);
-			F32* weights = (F32*) wght.get();
-			LLVector4a::memcpyNonAliased16(weights, (F32*) vf.mWeights, num_vertices*4*sizeof(F32));
+
+			for (S32 i = 0; i < num_vertices; ++i)
+			{
+				*(wght++) = vf.mWeights[i];
+			}
+
 			if (map_range)
 			{
 				mVertexBuffer->flush();
