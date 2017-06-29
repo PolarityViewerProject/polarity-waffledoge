@@ -729,7 +729,7 @@ class WindowsManifest(ViewerManifest):
         while (not archive_created) and (rar_attempts > 0):
             try:
                 rar_attempts-=1;
-                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -k -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), build_number, self.dst_path_of("polarity-bin.pdb")))
+                self.run_command("\"%s\" %s \"%s%s.rar\" \"%s\"" % (Winrar_path, 'a -cfg- -htb -idcd -ma5 -md1024m -mt8 -oi- -s -t -m5 -r -ep1 --',self.dst_path_of("Symbols-"), build_number, self.dst_path_of("polarity-bin.pdb")))
                 archive_created=True
             except ManifestError, err:
                 if rar_attempts:
