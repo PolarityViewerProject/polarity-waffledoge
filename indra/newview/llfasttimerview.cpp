@@ -380,7 +380,7 @@ static std::vector<LLColor4> sTimerColors;
 
 void LLFastTimerView::draw()
 {
-	LL_RECORD_BLOCK_TIME(FTM_RENDER_TIMER);
+	// LL_RECORD_BLOCK_TIME(FTM_RENDER_TIMER);
 	
 	if (!mPauseHistory)
 	{
