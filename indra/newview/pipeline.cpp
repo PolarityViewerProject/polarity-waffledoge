@@ -381,7 +381,7 @@ BOOL	LLPipeline::sRenderBeacons = FALSE;
 BOOL	LLPipeline::sRenderHighlight = TRUE;
 LLRender::eTexIndex LLPipeline::sRenderHighlightTextureChannel = LLRender::DIFFUSE_MAP;
 BOOL	LLPipeline::sForceOldBakedUpload = FALSE;
-BOOL	LLPipeline::sUseOcclusion = FALSE; // <polarity/>
+S32		LLPipeline::sUseOcclusion = 0;
 BOOL	LLPipeline::sDelayVBUpdate = TRUE;
 BOOL	LLPipeline::sAutoMaskAlphaDeferred = TRUE;
 BOOL	LLPipeline::sAutoMaskAlphaNonDeferred = FALSE;
@@ -1139,7 +1139,7 @@ void LLPipeline::refreshCachedSettings()
 			&& gSavedSettings.getBOOL("UseOcclusion") 
 			&& gGLManager.mHasOcclusionQuery) // <polarity/>
 //	//BD - Freeze World
-			&& !gSavedSettings.getBOOL("PVRender_FreezeWorld"); 
+			&& !gSavedSettings.getBOOL("PVRender_FreezeWorld")  ? 2 : 0;
 	
 	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
@@ -1150,15 +1150,8 @@ void LLPipeline::refreshCachedSettings()
 	RenderResolutionDivisor = gSavedSettings.getU32("RenderResolutionDivisor");
 	RenderUIBuffer = gSavedSettings.getBOOL("RenderUIBuffer");
 	RenderShadowDetail = gSavedSettings.getS32("RenderShadowDetail");
-	//// <polarity> Hack to temporary disable SSAO globally so that the UI toggles correctly
-	//LLControlVariable* ssao_ctrl = gSavedSettings.getControl("RenderDeferredSSAO");
-	//if(!RenderDeferred)
-	//{
-	//	ssao_ctrl->setValue(FALSE,false);
-	//}
-	//RenderDeferredSSAO = ssao_ctrl->getValue();
-	RenderDeferredSSAO = gSavedSettings.getControl("RenderDeferredSSAO");
-	// </polarity>
+	RenderDeferredSSAO = gSavedSettings.getBOOL("RenderDeferredSSAO");
+
 	RenderLocalLights = gSavedSettings.getBOOL("RenderLocalLights");
 	RenderDelayCreation = gSavedSettings.getBOOL("RenderDelayCreation");
 	RenderAnimateRes = gSavedSettings.getBOOL("RenderAnimateRes");
@@ -1330,11 +1323,11 @@ void LLPipeline::createGLBuffers()
 	assertInitialized();
 
 	updateRenderDeferred();
-		
+
+	bool materials_in_water = false;
+
 #if MATERIALS_IN_REFLECTIONS
-		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
-#else
-		static constexpr bool materials_in_water = false;
+	materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
 #endif
 	allocateWaterReflectionMaps();
 
@@ -4395,7 +4388,7 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 		}
 
 		BOOL occlude = sUseOcclusion > 1;
-		U32 cur_type;
+		U32 cur_type = 0;
 
 		pool_set_t::iterator iter1 = mPools.begin();
 		while ( iter1 != mPools.end() )
@@ -4427,7 +4420,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 				for( S32 i = 0; i < poolp->getNumPasses(); i++ )
 				{
 					LLVertexBuffer::unbind();
-					if(gDebugGL)check_blend_funcs();
 					poolp->beginRenderPass(i);
 					for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 					{
@@ -4440,7 +4432,6 @@ void LLPipeline::renderGeom(LLCamera& camera, BOOL forceVBOUpdate)
 						if ( !p->getSkipRenderFlag() ) { p->render(i); }
 					}
 					poolp->endRenderPass(i);
-					if(gDebugGL)check_blend_funcs();
 					LLVertexBuffer::unbind();
 					if (gDebugGL)
 					{
@@ -4599,7 +4590,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 			for( S32 i = 0; i < poolp->getNumDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
-				if (gDebugGL)check_blend_funcs();
 				poolp->beginDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4612,7 +4602,6 @@ void LLPipeline::renderGeomDeferred(LLCamera& camera)
 					if ( !p->getSkipRenderFlag() ) { p->renderDeferred(i); }
 				}
 				poolp->endDeferredPass(i);
-				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -4687,7 +4676,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 			for( S32 i = 0; i < poolp->getNumPostDeferredPasses(); i++ )
 			{
 				LLVertexBuffer::unbind();
-				if (gDebugGL)check_blend_funcs();
 				poolp->beginPostDeferredPass(i);
 				for (iter2 = iter1; iter2 != mPools.end(); iter2++)
 				{
@@ -4700,7 +4688,6 @@ void LLPipeline::renderGeomPostDeferred(LLCamera& camera, bool do_occlusion)
 					if (!p->getSkipRenderFlag()) { p->renderPostDeferred(i); }
 				}
 				poolp->endPostDeferredPass(i);
-				if (gDebugGL)check_blend_funcs();
 				LLVertexBuffer::unbind();
 
 				if (gDebugGL || gDebugPipeline)
@@ -8087,21 +8074,13 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffus
 		}
 	}
 
-	F32 ssao_scale = RenderSSAOScale;
-	U32 ssao_max_scale = RenderSSAOMaxScale;
-	if (RenderSnapshotAutoAdjustMultiplier)
-	{
-		ssao_scale *= RenderSnapshotMultiplier;
-		ssao_max_scale *= RenderSnapshotMultiplier;
-	}
-
 	shader.uniform4fv(LLShaderMgr::DEFERRED_SHADOW_CLIP, 1, mSunClipPlanes.mV);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SUN_WASH, RenderDeferredSunWash);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_NOISE, RenderShadowNoise);
 	shader.uniform1f(LLShaderMgr::DEFERRED_BLUR_SIZE, RenderShadowBlurSize);
 
-	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_RADIUS, ssao_scale);
-	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_MAX_RADIUS, ssao_max_scale);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_RADIUS, RenderSSAOScale);
+	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_MAX_RADIUS, RenderSSAOMaxScale);
 
 	F32 ssao_factor = RenderSSAOFactor;
 	shader.uniform1f(LLShaderMgr::DEFERRED_SSAO_FACTOR, ssao_factor);
@@ -8233,28 +8212,6 @@ void LLPipeline::renderDeferredLighting()
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
 
-#if 0 // wat
-				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
-
-				const U32 slice = 32;
-				F32 offset[slice*3];
-				for (U32 i = 0; i < 4; i++)
-				{
-					for (U32 j = 0; j < 8; j++)
-					{
-						glh::vec3f v;
-						v.set_value(sinf(6.284f/8*j), cosf(6.284f/8*j), -(F32) i);
-						v.normalize();
-						inv_trans.mult_matrix_vec(v);
-						v.normalize();
-						offset[(i*8+j)*3+0] = v.v[0];
-						offset[(i*8+j)*3+1] = v.v[2];
-						offset[(i*8+j)*3+2] = v.v[1];
-					}
-				}
-
-				gDeferredSunProgram.uniform3fv(sOffset, slice, offset);
-#endif
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
@@ -8844,28 +8801,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 				glClearColor(1,1,1,1);
 				mDeferredLight.clear(GL_COLOR_BUFFER_BIT);
 				glClearColor(0,0,0,0);
-#if 0 // wat
-				glh::matrix4f inv_trans = glh_get_current_modelview().inverse().transpose();
 
-				const U32 slice = 32;
-				F32 offset[slice*3];
-				for (U32 i = 0; i < 4; i++)
-				{
-					for (U32 j = 0; j < 8; j++)
-					{
-						glh::vec3f v;
-						v.set_value(sinf(6.284f/8*j), cosf(6.284f/8*j), -(F32) i);
-						v.normalize();
-						inv_trans.mult_matrix_vec(v);
-						v.normalize();
-						offset[(i*8+j)*3+0] = v.v[0];
-						offset[(i*8+j)*3+1] = v.v[2];
-						offset[(i*8+j)*3+2] = v.v[1];
-					}
-				}
-
-				gDeferredSunProgram.uniform3fv(LLShaderMgr::DEFERRED_SHADOW_OFFSET, slice, offset);
-#endif
 				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
 				
 				{
