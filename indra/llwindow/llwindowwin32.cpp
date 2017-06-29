@@ -754,7 +754,8 @@ BOOL LLWindowWin32::getFullscreenWindow()
 
 void LLWindowWin32::setFullscreenWindow(BOOL fFullscreen)
 {
-	if (getFullscreenWindow() == fFullscreen)
+	// FIXME: Switching back from borderless on Intel breaks updating the scene
+	if (gGLManager.mIsIntel || getFullscreenWindow() == fFullscreen)
 		return;
 
 	DWORD dwStyle = GetWindowLong(mWindowHandle, GWL_STYLE);
