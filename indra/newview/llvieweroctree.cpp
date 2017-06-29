@@ -790,16 +790,14 @@ void LLViewerOctreeGroup::checkStates()
 //occulsion culling functions and classes
 //-------------------------------------------------------------------------------------------
 std::set<U32> LLOcclusionCullingGroup::sPendingQueries;
-class LLOcclusionQueryPool : public LLGLNamePool
+class LLOcclusionQueryPool
 {
 public:
 	LLOcclusionQueryPool()
 	{
 	}
 
-protected:
-
-	virtual GLuint allocateName()
+	GLuint genQuery()
 	{
 		GLuint ret = 0;
 
@@ -808,7 +806,7 @@ protected:
 		return ret;
 	}
 
-	virtual void releaseName(GLuint name)
+	void deleteQuery(GLuint name)
 	{
 #if LL_TRACK_PENDING_OCCLUSION_QUERIES
 		LLOcclusionCullingGroup::sPendingQueries.erase(name);
@@ -820,12 +818,12 @@ protected:
 static LLOcclusionQueryPool sQueryPool;
 U32 LLOcclusionCullingGroup::getNewOcclusionQueryObjectName()
 {
-	return sQueryPool.allocate();
+	return sQueryPool.genQuery();
 }
 
 void LLOcclusionCullingGroup::releaseOcclusionQueryObjectName(GLuint name)
 {
-	sQueryPool.release(name);
+	sQueryPool.deleteQuery(name);
 }
 
 //=====================================
@@ -1194,7 +1192,6 @@ static LLTrace::BlockTimerStatHandle FTM_OCCLUSION_DRAW("Draw");
 
 void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* shift)
 {
-	LLGLDisable stencil(GL_STENCIL_TEST);
 	if (mSpatialPartition->isOcclusionEnabled() && LLPipeline::sUseOcclusion > 1)
 	{
 		LLGLDisable stencil(GL_STENCIL_TEST);
@@ -1206,6 +1203,12 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 		if(shift != NULL)
 		{
 			bounds[0].add(*shift);
+		}
+
+		F32 OCCLUSION_FUDGE_Z = SG_OCCLUSION_FUDGE; //<-- #Solution #2
+		if (LLDrawPool::POOL_WATER == mSpatialPartition->mDrawableType)
+		{
+			OCCLUSION_FUDGE_Z = 1.;
 		}
 
 		// Don't cull hole/edge water, unless we have the GL_ARB_depth_clamp extension
@@ -1267,7 +1270,7 @@ void LLOcclusionCullingGroup::doOcclusion(LLCamera* camera, const LLVector4a* sh
 						shader->uniform3fv(LLShaderMgr::BOX_CENTER, 1, bounds[0].getF32ptr());
 						shader->uniform3f(LLShaderMgr::BOX_SIZE, bounds[1][0]+SG_OCCLUSION_FUDGE, 
 																 bounds[1][1]+SG_OCCLUSION_FUDGE, 
-																 bounds[1][2]+SG_OCCLUSION_FUDGE);
+																 bounds[1][2]+OCCLUSION_FUDGE_Z);
 
 						if (!use_depth_clamp && mSpatialPartition->mDrawableType == LLDrawPool::POOL_VOIDWATER)
 						{

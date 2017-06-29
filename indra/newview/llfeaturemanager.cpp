@@ -744,14 +744,6 @@ void LLFeatureManager::applyBaseMasks()
 	if (gGLManager.mIsNVIDIA)
 	{
 		maskFeatures("NVIDIA");
-		if (gGLManager.mIsGF2or4MX)
-		{
-			maskFeatures("GeForce2");
-		}
-		else if (gGLManager.mIsGFFX)
-		{
-			maskFeatures("GeForceFX");
-		}
 	}
 	else if (gGLManager.mIsATI)
 	{
@@ -781,17 +773,9 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		LL_WARNS() << "FeatureTable was unable to detect the graphic card vendor!" << LL_ENDL;
 	}
-	if (!gGLManager.mHasFragmentShader)
-	{
-		maskFeatures("NoPixelShaders");
-	}
 	if (!mGPUSupported)
 	{
 		maskFeatures("FixedFunction");
-	}
-	else if (!gGLManager.mHasVertexShader)
-	{
-		maskFeatures("NoVertexShaders");
 	}
 	if (gGLManager.mGLVersion < 3.f)
 	{

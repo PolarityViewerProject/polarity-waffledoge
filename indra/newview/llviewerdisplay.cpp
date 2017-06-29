@@ -185,7 +185,7 @@ void display_startup()
 	LLGLState::checkTextureChannels();
 
 	if (gViewerWindow && gViewerWindow->getWindow())
-	gViewerWindow->getWindow()->swapBuffers();
+		gViewerWindow->getWindow()->swapBuffers();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -227,6 +227,7 @@ void display_stats()
 		gRecentFrameCount = 0;
 		gRecentFPSTime.reset();
 	}
+
 	static LLCachedControl<F32> mem_log_freq(gSavedSettings, "MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
@@ -387,8 +388,10 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 
 	LLImageGL::updateStats(gFrameTimeSeconds);
 	
-	LLVOAvatar::sRenderName = gSavedSettings.getS32("AvatarNameTagMode");
-	LLVOAvatar::sRenderGroupTitles = (gSavedSettings.getBOOL("NameTagShowGroupTitles") && LLVOAvatar::sRenderName);
+	static LLCachedControl<S32> name_tag_mode(gSavedSettings, "AvatarNameTagMode");
+	static LLCachedControl<bool> name_tag_group_titles(gSavedSettings, "NameTagShowGroupTitles");
+	LLVOAvatar::sRenderName = name_tag_mode;
+	LLVOAvatar::sRenderGroupTitles = (name_tag_group_titles && name_tag_mode);
 	
 	gPipeline.mBackfaceCull = TRUE;
 	gFrameCount++;
@@ -403,7 +406,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 	// Display start screen if we're teleporting, and skip render
 	//
 
-	if (gTeleportDisplay && !LLApp::isQuitting())
+	if (gTeleportDisplay)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_TELEPORT_DISPLAY);
 		LLAppViewer::instance()->pingMainloopTimeout("Display:Teleport");
@@ -637,9 +640,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			gPipeline.toggleRenderType(LLPipeline::RENDER_TYPE_HUD_PARTICLES);
 		}
 
-		//upkeep gl name pools
-		LLGLNamePool::upkeepPools();
-		
 		stop_glerror();
 		display_update_camera();
 		stop_glerror();
@@ -952,19 +952,20 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			static LLCachedControl<bool> renderDepthPrePass(gSavedSettings, "RenderDepthPrePass");
 			if (renderDepthPrePass && LLGLSLShader::sNoFixedFunction)
 			{
+				LLGLDepthTest depth(GL_TRUE, GL_TRUE);
+				LLGLEnable cull_face(GL_CULL_FACE);
 				gGL.setColorMask(false, false);
 
-				static const U32 types[] = { 
-					LLRenderPass::PASS_SIMPLE, 
-					LLRenderPass::PASS_FULLBRIGHT, 
-					LLRenderPass::PASS_SHINY 
-				};
-
-				U32 num_types = LL_ARRAY_SIZE(types);
+				static const std::array<U32, 3> types{{
+					LLRenderPass::PASS_SIMPLE,
+					LLRenderPass::PASS_FULLBRIGHT,
+					LLRenderPass::PASS_SHINY
+				}};
+				
 				gOcclusionProgram.bind();
-				for (U32 i = 0; i < num_types; i++)
+				for (const U32 type : types)
 				{
-					gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+					gPipeline.renderObjects(type, LLVertexBuffer::MAP_VERTEX, FALSE);
 				}
 
 				gOcclusionProgram.unbind();
@@ -982,6 +983,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			}
 			
 			gGL.setColorMask(true, true);
+
+			//store this frame's modelview matrix for use
+			//when rendering next frame's occlusion queries
+			memcpy(gGLLastModelView, gGLModelView, sizeof(F32) * 16);
+			memcpy(gGLLastProjection, gGLProjection, sizeof(F32) * 16);
+			stop_glerror();
 		}
 
 		{
@@ -1030,12 +1037,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		{
 			gPipeline.renderDeferredLighting();
 		}
-
-		//store this frame's modelview matrix for use
-		//when rendering next frame's occlusion queries
-		memcpy(gGLLastModelView, gGLModelView, sizeof(F32) * 16);
-		memcpy(gGLLastProjection, gGLProjection, sizeof(F32) * 16);
-		stop_glerror();
 
 		LLPipeline::sUnderWaterRender = FALSE;
 
@@ -1468,7 +1469,6 @@ void render_ui_3d()
 	stop_glerror();
 }
 
-extern void check_blend_funcs();
 void render_ui_2d()
 {
 	LLGLSUIDefault gls_ui;
@@ -1514,8 +1514,7 @@ void render_ui_2d()
 		gGL.popMatrix();
 		stop_glerror();
 	}
-
-	if(gDebugGL)check_blend_funcs();
+	
 	static LLCachedControl<bool> renderUIBuffer(gSavedSettings, "RenderUIBuffer");
 	if (renderUIBuffer)
 	{
@@ -1580,7 +1579,7 @@ void render_ui_2d()
 		gViewerWindow->draw();
 	}
 
-	if(gDebugGL)check_blend_funcs();
+
 
 	// reset current origin for font rendering, in case of tiling render
 	LLFontGL::sCurOrigin.set(0, 0);
