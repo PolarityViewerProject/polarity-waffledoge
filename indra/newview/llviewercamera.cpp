@@ -437,7 +437,6 @@ BOOL LLViewerCamera::projectPosAgentToScreen(const LLVector3 &pos_agent, LLCoord
 		glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
 		glm::vec3 window_coord = glm::project(glm::make_vec3(pos_agent.mV), 
 			glm::make_mat4(gGLModelView), glm::make_mat4(gGLProjection), viewport);
-	}
 
 		// convert screen coordinates to virtual UI coordinates
 		window_coord[0] /= gViewerWindow->getDisplayScale().mV[VX];
@@ -536,7 +535,6 @@ BOOL LLViewerCamera::projectPosAgentToScreenEdge(const LLVector3 &pos_agent,
 		LLRect world_view_rect = gViewerWindow->getWorldViewRectRaw();
 		glm::ivec4 viewport(world_view_rect.mLeft, world_view_rect.mBottom, world_view_rect.getWidth(), world_view_rect.getHeight());
 		glm::vec3 window_coord = glm::project(glm::make_vec3(pos_agent.mV), glm::make_mat4(gGLModelView), glm::make_mat4(gGLProjection), viewport);
-
 
 		// convert screen coordinates to virtual UI coordinates
 		window_coord[0] /= gViewerWindow->getDisplayScale().mV[VX];
