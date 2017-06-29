@@ -839,47 +839,65 @@
         <key>version</key>
         <string>2.7.1</string>
       </map>
-      <key>glext</key>
+      <key>glew</key>
       <map>
         <key>copyright</key>
-        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
+        <string>Copyright (C) 2002-2007, Milan Ikits, Copyright (C) 2002-2007, Marcelo E. Magallon, Copyright (C) 2002, Lev Povalahev</string>
         <key>description</key>
-        <string>glext headers define function prototypes and constants for OpenGL extensions</string>
+        <string>The OpenGL Extension Wrangler Library.</string>
         <key>license</key>
-        <string>Copyright (c) 2007-2010 The Khronos Group Inc.</string>
+        <string>BSD</string>
         <key>license_file</key>
-        <string>LICENSES/glext.txt</string>
+        <string>LICENSES/glew.txt</string>
         <key>name</key>
-        <string>glext</string>
+        <string>glew</string>
         <key>platforms</key>
         <map>
-          <key>linux</key>
+          <key>linux64</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>4bf4f9e65168138eebbc769e9e12230b</string>
+              <string>c21f348f5d785ec52ac273b77c74a99c</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/Linux/installer/glext-68-linux-296893.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/linux64/lib-xenial/glew-2.0.0-linux64-201609241431.tar.bz2</string>
             </map>
             <key>name</key>
-            <string>linux</string>
+            <string>linux64</string>
           </map>
           <key>windows</key>
           <map>
             <key>archive</key>
             <map>
               <key>hash</key>
-              <string>6eb51c6f17e717a5617b112858d41c80</string>
+              <string>ab8c9ff79c966e31ea177b8239285002</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
               <key>url</key>
-              <string>http://automated-builds-secondlife-com.s3.amazonaws.com/hg/repo/glext_3p-update-glext/rev/296893/arch/CYGWIN/installer/glext-68-windows-296893.tar.bz2</string>
+              <string>https://depot.alchemyviewer.org/pub/windows/lib-vc141/glew-2.0.0-windows-201703090625.tar.bz2</string>
             </map>
             <key>name</key>
             <string>windows</string>
           </map>
+          <key>windows64</key>
+          <map>
+            <key>archive</key>
+            <map>
+              <key>hash</key>
+              <string>53f7e32de85a8530e5d7a462d3fe3e62</string>
+              <key>hash_algorithm</key>
+              <string>md5</string>
+              <key>url</key>
+              <string>https://depot.alchemyviewer.org/pub/windows64/lib-vc141/glew-2.0.0-windows64-201703081228.tar.bz2</string>
+            </map>
+            <key>name</key>
+            <string>windows64</string>
+          </map>
         </map>
         <key>version</key>
-        <string>68</string>
+        <string>2.0.0</string>
       </map>
       <key>glm</key>
       <map>

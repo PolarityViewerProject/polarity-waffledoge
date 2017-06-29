@@ -78,11 +78,15 @@ public:
 	BOOL mHasMultitexture;
 	BOOL mHasATIMemInfo;
 	BOOL mHasNVXMemInfo;
+#if LL_LINUX
+	BOOL mHasMESAQueryRenderer;
+#endif
 	S32	 mNumTextureUnits;
 	BOOL mHasMipMapGeneration;
 	BOOL mHasCompressedTextures;
 	BOOL mHasFramebufferObject;
-	S32 mMaxSamples;
+	//S32 mMaxSamples;
+	BOOL mHasFramebufferMultisample;
 	BOOL mHasBlendFuncSeparate;
 		
 	// ARB Extensions
@@ -93,8 +97,6 @@ public:
 	BOOL mHasFlushBufferRange;
 	BOOL mHasPBuffer;
 	BOOL mHasShaderObjects;
-	BOOL mHasVertexShader;
-	BOOL mHasFragmentShader;
 	S32  mNumTextureImageUnits;
 	BOOL mHasOcclusionQuery;
 	BOOL mHasTimerQuery;
@@ -103,12 +105,11 @@ public:
 	BOOL mHasDrawBuffers;
 	BOOL mHasDepthClamp;
 	BOOL mHasTextureRectangle;
-	BOOL mHasTextureMultisample;
 	BOOL mHasTransformFeedback;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
 	S32 mMaxDepthTextureSamples;
-	S32 mMaxIntegerSamples;
+	//S32 mMaxIntegerSamples;
 
 	// Other extensions.
 	BOOL mHasAnisotropic;
@@ -117,15 +118,15 @@ public:
 	BOOL mHasDebugOutput;
 	BOOL mHassRGBTexture;
 	BOOL mHassRGBFramebuffer;
+	BOOL mHasAdaptiveVSync;
+	BOOL mHasTextureSwizzle;
 	BOOL mHasGpuShader5;
 
 	// Vendor-specific extensions
 	BOOL mIsATI;
 	BOOL mIsNVIDIA;
 	BOOL mIsIntel;
-	BOOL mIsGF2or4MX;
-	BOOL mIsGF3;
-	BOOL mIsGFFX;
+	BOOL mIsHD3K;
 	BOOL mATIOffsetVerticalLines;
 	BOOL mATIOldDriver;
 
@@ -156,6 +157,7 @@ public:
 	S32 mGLMaxVertexRange;
 	S32 mGLMaxIndexRange;
 	S32 mGLMaxTextureSize;
+	S32 mGLMaxVertexUniformComponents;
 	
 	void getPixelFormat(); // Get the best pixel format
 
@@ -179,10 +181,7 @@ private:
 
 extern LLGLManager gGLManager;
 
-class LLQuaternion;
 class LLMatrix4;
-
-void rotate_quat(LLQuaternion& rotation);
 
 void flush_glerror(); // Flush GL errors when we know we're handling them correctly.
 
@@ -355,51 +354,6 @@ public:
 };
 
 /*
-	Generic pooling scheme for things which use GL names (used for occlusion queries and vertex buffer objects).
-	Prevents thrashing of GL name caches by avoiding calls to glGenFoo and glDeleteFoo.
-*/
-class LLGLNamePool : public LLInstanceTracker<LLGLNamePool>
-{
-public:
-	typedef LLInstanceTracker<LLGLNamePool> tracker_t;
-
-	struct NameEntry
-	{
-		GLuint name;
-		BOOL used;
-	};
-
-	struct CompareUsed
-	{
-		bool operator()(const NameEntry& lhs, const NameEntry& rhs)
-		{
-			return lhs.used < rhs.used;  //FALSE entries first
-		}
-	};
-
-	typedef std::vector<NameEntry> name_list_t;
-	name_list_t mNameList;
-
-	LLGLNamePool();
-	virtual ~LLGLNamePool();
-	
-	void upkeep();
-	void cleanup();
-	
-	GLuint allocate();
-	void release(GLuint name);
-	
-	static void upkeepPools();
-	static void cleanupPools();
-
-protected:
-	typedef std::vector<LLGLNamePool*> pool_list_t;
-	
-	virtual GLuint allocateName() = 0;
-	virtual void releaseName(GLuint name) = 0;
-};
-
-/*
 	Interface for objects that need periodic GL updates applied to them.
 	Used to synchronize GL updates with GL thread.
 */
@@ -468,68 +422,5 @@ void parse_gl_version( S32* major, S32* minor, S32* release, std::string* vendor
 extern BOOL gClothRipple;
 extern BOOL gHeadlessClient;
 extern BOOL gGLActive;
-
-// Deal with changing glext.h definitions for newer SDK versions, specifically
-// with MAC OSX 10.5 -> 10.6
-
-
-#ifndef GL_DEPTH_ATTACHMENT
-#define GL_DEPTH_ATTACHMENT GL_DEPTH_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_STENCIL_ATTACHMENT
-#define GL_STENCIL_ATTACHMENT GL_STENCIL_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_FRAMEBUFFER
-#define GL_FRAMEBUFFER GL_FRAMEBUFFER_EXT
-#define GL_DRAW_FRAMEBUFFER GL_DRAW_FRAMEBUFFER_EXT
-#define GL_READ_FRAMEBUFFER GL_READ_FRAMEBUFFER_EXT
-#define GL_FRAMEBUFFER_COMPLETE GL_FRAMEBUFFER_COMPLETE_EXT
-#define GL_FRAMEBUFFER_UNSUPPORTED GL_FRAMEBUFFER_UNSUPPORTED_EXT
-#define GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT
-#define GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT
-#define glGenFramebuffers glGenFramebuffersEXT
-#define glBindFramebuffer glBindFramebufferEXT
-#define glCheckFramebufferStatus glCheckFramebufferStatusEXT
-#define glBlitFramebuffer glBlitFramebufferEXT
-#define glDeleteFramebuffers glDeleteFramebuffersEXT
-#define glFramebufferRenderbuffer glFramebufferRenderbufferEXT
-#define glFramebufferTexture2D glFramebufferTexture2DEXT
-#endif
-
-#ifndef GL_RENDERBUFFER
-#define GL_RENDERBUFFER GL_RENDERBUFFER_EXT
-#define glGenRenderbuffers glGenRenderbuffersEXT
-#define glBindRenderbuffer glBindRenderbufferEXT
-#define glRenderbufferStorage glRenderbufferStorageEXT
-#define glRenderbufferStorageMultisample glRenderbufferStorageMultisampleEXT
-#define glDeleteRenderbuffers glDeleteRenderbuffersEXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT
-#define GL_COLOR_ATTACHMENT GL_COLOR_ATTACHMENT_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT0
-#define GL_COLOR_ATTACHMENT0 GL_COLOR_ATTACHMENT0_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT1
-#define GL_COLOR_ATTACHMENT1 GL_COLOR_ATTACHMENT1_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT2
-#define GL_COLOR_ATTACHMENT2 GL_COLOR_ATTACHMENT2_EXT
-#endif
-
-#ifndef GL_COLOR_ATTACHMENT3
-#define GL_COLOR_ATTACHMENT3 GL_COLOR_ATTACHMENT3_EXT
-#endif
-
-
-#ifndef GL_DEPTH24_STENCIL8
-#define GL_DEPTH24_STENCIL8 GL_DEPTH24_STENCIL8_EXT
-#endif 
 
 #endif // LL_LLGL_H
