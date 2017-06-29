@@ -1041,7 +1041,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 		mFinalScreen.release();
 		mDeferredScreen.release(); //make sure to release any render targets that share a depth buffer with mDeferredScreen first
 		mDeferredDepth.release();
-		mOcclusionDepth.release();
 						
 		if (!mScreen.allocate(resX, resY, GL_RGBA, TRUE, TRUE, LLTexUnit::TT_RECT_TEXTURE, FALSE)) return false;
 	}
@@ -1317,7 +1316,6 @@ void LLPipeline::releaseScreenBuffers()
 	mDeferredScreen.release();
 	mDeferredDepth.release();
 	mDeferredLight.release();
-	mOcclusionDepth.release();
 		
 	for (U32 i = 0; i < 6; i++)
 	{
@@ -2495,14 +2493,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			mOcclusionDepth.bindTarget();
-		}
-		else
-		{
 		mScreen.bindTarget();
-		}
 	}
 
 	if (sUseOcclusion > 1)
@@ -2647,14 +2638,7 @@ void LLPipeline::updateCull(LLCamera& camera, LLCullResult& result, S32 water_cl
 
 	if (to_texture)
 	{
-		if (LLPipeline::sRenderDeferred)
-		{
-			mOcclusionDepth.flush();
-		}
-		else
-		{
 		mScreen.flush();
-		}
 	}
 }
 
