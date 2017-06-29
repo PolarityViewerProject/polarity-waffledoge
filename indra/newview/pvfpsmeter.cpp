@@ -42,6 +42,10 @@ static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER_UPDATE("Update");
 static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER_GET_VAL("getValue");
 
 // Default values, because static and shenanigans
+U32 PVFPSMeter::mFPSNullZoneVSyncLower(0);
+U32 PVFPSMeter::mFPSNullZoneTargetLower(0);
+U32 PVFPSMeter::mFPSNullZoneTarget(0);
+U32 PVFPSMeter::mFPSNullZoneVSync(0);
 F32 PVFPSMeter::mFPSMeterValue(0.f);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
