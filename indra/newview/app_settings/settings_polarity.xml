@@ -1055,7 +1055,7 @@
       <key>Type</key>
       <string>U32</string>
       <key>Value</key>
-      <integer>12</integer>
+      <integer>10</integer>
     </map>
     <key>PVRender_DepthOfFieldAlphas</key>
     <map>
