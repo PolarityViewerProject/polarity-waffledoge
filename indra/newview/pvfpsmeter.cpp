@@ -80,7 +80,7 @@ bool PVFPSMeter::update()
 		//llassert(mStatusBarFPSCounterTimer.getStarted());
 		return false;
 	}
-	
+
 	static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
 	static LLCachedControl<U32> fps_limiter_target(gSavedSettings, "PVRender_FPSLimiterTarget");
 
