@@ -849,7 +849,7 @@
     reference="DkGray_66"/>
    <color
     name="ObjectChatColor"
-    value="0.89563 0.66123 0.21374 1.0"/>
+    reference="PolarityNeonGreen"/>
    <color
     name="ObjectIMColor"
     value="0.6705882352941176 0.803921568627451 0.6784313725490196 1"/>
