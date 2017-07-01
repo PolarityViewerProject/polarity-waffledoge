@@ -149,6 +149,9 @@ F32 gpu_benchmark(bool force_run)
 	//number of samples to take
 	const S32 samples = 64;
 
+	//pre-calculated ([resolution of textures/render targets] ^ 2) * number of textures
+	constexpr U32 res2_count = (res * res) * count;
+
 	LLGLSLShader::initProfile();
 
 	LLRenderTarget dest[count];
@@ -201,9 +204,6 @@ F32 gpu_benchmark(bool force_run)
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
 
-	// <polarity/> avoid math in the loop.
-	auto res2_count = res * res * count;
-
 	for (S32 c = -1; c < samples; ++c)
 	{
 		LLTimer timer;
@@ -236,9 +236,7 @@ F32 gpu_benchmark(bool force_run)
 		if (c >= 4) // <-- ignore the first 5 samples as they tend to be artificially slow // <polarity/>
 		{
 			//store result in gigabytes per second
-			auto gb = (res2_count * 8) * 0.000000001; // <polarity/>
-
-			auto gbps = gb / time; // <polarity/>
+			auto gbps = ((res2_count * 8) * 0.000000001) / time; // <polarity/>
 
 			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 2048.f) // <polarity/>
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
@@ -260,14 +258,12 @@ F32 gpu_benchmark(bool force_run)
 
 	std::sort(results.begin(), results.end());
 
-	auto gbps = results[results.size() / 2];
-	// Can't do that directly above for some reason.
-	auto gbps_real = gbps * 1.9f;
+	F64 gbps = results[results.size() / 2];
 
-	LL_INFOS() << "Memory bandwidth is " << gbps_real << "GB/sec according to CPU timers" << LL_ENDL;
+	LL_INFOS() << "Memory bandwidth is " << (gbps * 1.9) << "GB/sec according to CPU timers" << LL_ENDL;
 
 	//#if LL_DARWIN
-	if (gbps > 2048.f)
+	if (gbps > 2048.0)
 	{
 		LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
 		//OSX is probably lying, discard result
@@ -275,13 +271,16 @@ F32 gpu_benchmark(bool force_run)
 	}
 	//#endif
 
-	F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
-	F32 seconds = ms / 1000.f;
+	LL_INFOS() << "gBenchmarkProgram.mTimeElapsed : " << gBenchmarkProgram.mTimeElapsed << LL_ENDL;
 
-	const auto DIVIDER = 512; // to work around data size limit
-	auto samples_drawn = (res2_count * samples) / DIVIDER;
-	auto samples_sec = ((samples_drawn / 1000000000.0))*DIVIDER / seconds;
-	gbps = samples_sec * 8;
+	// <polarity> leaner benchmark result math
+	//F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
+	//F32 seconds = ms / 1000.f;
+	//F64 samples_drawn = res*res*count*samples;
+	//F64 samples_sec = (samples_drawn / 1000000000.0) / seconds;
+	//gbps = samples_sec * 8;
+	gbps = ((res2_count * samples) / (F64)gBenchmarkProgram.mTimeElapsed) * 8;
+	// </polarity>
 
 	if (local_init)
 	{
