@@ -149,6 +149,9 @@ F32 gpu_benchmark(bool force_run)
 	//number of samples to take
 	const S32 samples = 128;
 
+	//amount of initial samples to discard - 1
+	const U8 samples_discard = 4;
+
 	//pre-calculated ([resolution of textures/render targets] ^ 2) * number of textures
 	constexpr U64 res2_count = (res * res) * count;
 
@@ -233,7 +236,7 @@ F32 gpu_benchmark(bool force_run)
 
 		F32 time = timer.getElapsedTimeF32();
 
-		if (c >= 4) // <-- ignore the first 5 samples as they tend to be artificially slow // <polarity/>
+		if (c > samples_discard) // ignore some initial samples as they tend to be artificially slow
 		{
 			//store result in gigabytes per second
 			F64 result = ((res2_count * 8) * 0.000000001) / time; // <polarity/>
@@ -256,7 +259,7 @@ F32 gpu_benchmark(bool force_run)
 
 	LLImageGL::deleteTextures(count, source);
 
-	F64 gbps = (result_sum / (F64)(samples - 1)); // first sample is discarded
+	F64 gbps = (result_sum / (F64)(samples - (samples_discard + 1)));
 
 	LL_INFOS() << "Memory bandwidth is " << (gbps * 1.9) << "GB/sec according to CPU timers" << LL_ENDL;
 
