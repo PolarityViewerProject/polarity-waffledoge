@@ -496,47 +496,43 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMe
 		RlvUtil::sendBusyMessage(idSender, RlvStrings::getString(RLV_STRING_STOPIM_NOSESSION));
 		return true;
 	}
-//	// <polarity> custom @version reply
-//	// else if (RlvSettings::getEnableIMQuery())
-//	else if (RlvSettings::getEnableIMQuery() && ("@list" == strMessage))
-//	{
-//		// <polarity> custom @version reply
-//		//if ("@version" == strMessage)
-//		//{
-//		//	RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
-//		//	return true;
-//		//}
-//		//else if ("@list" == strMessage)
-//		//{
-	else if (RlvSettings::getEnableIMQuery())
+	// <polarity> custom @version response when disabled
+	else if("@version" == strMessage)
 	{
-		if ("@version" == strMessage)
+		if (RlvSettings::getEnableIMQuery())
 		{
 			RlvUtil::sendBusyMessage(idSender, RlvStrings::getVersion(LLUUID::null));
-			return true;
+			return true; // eat message
 		}
-		else if ("@list" == strMessage)
+		else
 		{
-			LLNotification::Params params;
-			params.name = "RLVaListRequested";
-			params.functor.function(boost::bind(&RlvHandler::onIMQueryListResponse, this, _1, _2));
-			params.substitutions = LLSD().with("NAME_LABEL", LLSLURL("agent", idSender, "completename").getSLURLString()).with("NAME_SLURL", LLSLURL("agent", idSender, "about").getSLURLString());
-			params.payload = LLSD().with("from_id", idSender);
-
-			class RlvPostponedOfferNotification : public LLPostponedNotification
+			static const std::string at_version_custom_string = RlvStrings::getString(RLV_STRING_AT_VERSION_REPLY);
+			if (!at_version_custom_string.empty())
 			{
-			protected:
-				void modifyNotificationParams() override
-				{
-					LLSD substitutions = mParams.substitutions;
-					substitutions["NAME"] = mName;
-					mParams.substitutions = substitutions;
-				}
-			};
-			LLPostponedNotification::add<RlvPostponedOfferNotification>(params, idSender, false);
-			return true;
-//		//}
-//	}
+				RlvUtil::sendBusyMessage(idSender, at_version_custom_string);
+				return true; // eat message
+			}
+		}
+	}
+	else if ("@list" == strMessage)
+	{
+		LLNotification::Params params;
+		params.name = "RLVaListRequested";
+		params.functor.function(boost::bind(&RlvHandler::onIMQueryListResponse, this, _1, _2));
+		params.substitutions = LLSD().with("NAME_LABEL", LLSLURL("agent", idSender, "completename").getSLURLString()).with("NAME_SLURL", LLSLURL("agent", idSender, "about").getSLURLString());
+		params.payload = LLSD().with("from_id", idSender);
+		class RlvPostponedOfferNotification : public LLPostponedNotification
+		{
+		protected:
+			void modifyNotificationParams() override
+			{
+				LLSD substitutions = mParams.substitutions;
+				substitutions["NAME"] = mName;
+				mParams.substitutions = substitutions;
+			}
+		};
+		LLPostponedNotification::add<RlvPostponedOfferNotification>(params, idSender, false);
+		return true;
 	}
 //	// <polarity> custom @version response when disabled
 //	else if("@version" == strMessage)
@@ -581,7 +577,6 @@ bool RlvHandler::processIMQuery(const LLUUID& idSender, const std::string& strMe
 //		}
 //		RlvUtil::sendBusyMessage(idSender, reply_string, sessionID);
 //		return true; // eat message
-	}
 	return false;
 }
 
