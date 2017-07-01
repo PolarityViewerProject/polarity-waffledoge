@@ -468,29 +468,33 @@ bool LLFeatureManager::loadGPUClass()
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps <= 40.f)
+	else if (gbps <= GPU_BW_0)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gbps <= 50.f)
+	else if (gbps <= GPU_BW_1)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps <= 70.f)
+	else if (gbps <= GPU_BW_2)
 	{
 		mGPUClass = GPU_CLASS_2;
 	}
-	else if (gbps <= 100.f)
+	else if (gbps <= GPU_BW_3)
 	{
 		mGPUClass = GPU_CLASS_3;
 	}
-	else if (gbps <= 150.f)
+	else if (gbps <= GPU_BW_4)
 	{
 		mGPUClass = GPU_CLASS_4;
 	}
-	else 
+	else if (gbps <= GPU_BW_5)
 	{
 		mGPUClass = GPU_CLASS_5;
+	}
+	else 
+	{
+		mGPUClass = GPU_CLASS_6;
 	}
 
 	// defaults
