@@ -2904,6 +2904,7 @@ bool LLAppViewer::initConfiguration()
 	//
 	if (mSecondInstance && !gSavedSettings.getBOOL("AllowMultipleViewers"))
 	{
+		// TODO: allow retry.
 		std::ostringstream msg;
 		msg << LLTrans::getString("MBAlreadyRunning");
 		OSMessageBox(
