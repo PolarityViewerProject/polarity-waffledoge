@@ -160,9 +160,9 @@ F32 gpu_benchmark(bool force_run)
 	LLRenderTarget dest[count];
 	U32 source[count];
 	LLImageGL::generateTextures(count, source);
-	F64 result_sum = 0.0; // <polarity/>
+	U64Bytes result_sum(0); // <polarity/>
 
-	//build a random texture
+	//build a random 8-bit texture
 	U8* pixels = new U8[res*res * 4];
 
 	for (U32 i = 0; i < res*res * 4; ++i)
@@ -238,16 +238,18 @@ F32 gpu_benchmark(bool force_run)
 
 		if (c > samples_discard) // ignore some initial samples as they tend to be artificially slow
 		{
-			//store result in gigabytes per second
-			F64 result = ((res2_count * 8) * 0.000000001) / timer.getElapsedTimeF32();
-			if (!gGLManager.mHasTimerQuery && !busted_finish && result > 2048.f)
+			//store result in bytes per second
+			// Note: Memory calculation is based off the assumtion of a Black and White, 8-bit texture.
+			F64Bytes bytesPerSecond = F64Bytes((8 * res2_count) / timer.getElapsedTimeF64());
+			if (!gGLManager.mHasTimerQuery && !busted_finish && bytesPerSecond > (U64Gigabytes)2048)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
 				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
 			}
 			else
 			{
-				result_sum += result; // <polarity/>
+				LL_DEBUGS() << "result[" << c << "] : " << (F64Gigabytes)bytesPerSecond << LL_ENDL;
+				result_sum += bytesPerSecond; // <polarity/>
 			}
 		}
 	}
@@ -258,16 +260,17 @@ F32 gpu_benchmark(bool force_run)
 
 	LLImageGL::deleteTextures(count, source);
 
-	F64 gbps = (result_sum / (F64)(samples - (samples_discard + 1)));
-
-	LL_INFOS() << "Memory bandwidth is " << (gbps * 1.9) << "GB/sec according to CPU timers" << LL_ENDL;
+	const F64 divider = (1 + samples - samples_discard);
+	// Get the average value and apply another 8-bit offset to correct it
+	F64Gigabytes gbps = F64Bytes(8 * (result_sum / divider));
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << " GBytes/sec according to CPU timers" << LL_ENDL;
 
 	//#if LL_DARWIN
-	if (gbps > 2048.0)
+	if (gbps > (U64Gigabytes)2048)
 	{
 		LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
 		//OSX is probably lying, discard result
-		gbps = -1.f;
+		gbps = (U64Bytes)0;
 	}
 	//#endif
 
@@ -279,7 +282,7 @@ F32 gpu_benchmark(bool force_run)
 	//F64 samples_drawn = res*res*count*samples;
 	//F64 samples_sec = (samples_drawn / 1000000000.0) / seconds;
 	//gbps = samples_sec * 8;
-	gbps = ((res2_count * samples) / (F64)gBenchmarkProgram.mTimeElapsed) * 8;
+	gbps = F64Bits(8 * ((res2_count * divider) / (F64(gBenchmarkProgram.mTimeElapsed) / 10000000000.f)));
 	// </polarity>
 
 	if (local_init)
@@ -297,10 +300,10 @@ F32 gpu_benchmark(bool force_run)
 		local_init = false;
 	}
 
-	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << "GB/sec according to ARB_timer_query" << LL_ENDL;
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << " GBytes/sec according to ARB_timer_query" << LL_ENDL;
 
 	// Turn off subsequent benchmarking.
 	gSavedSettings.setBOOL("NoHardwareProbe", TRUE);
-	return gbps;
+	return gbps.value();
 }
 
