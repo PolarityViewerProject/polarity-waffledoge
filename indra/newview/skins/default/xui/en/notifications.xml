@@ -8801,7 +8801,7 @@ Please check your network and firewall setup.
   <notification
    icon="alertmodal.tga"
    name="NoVoiceConnect"
-   type="alertmodal">
+   type="notifytip">
 We're having trouble connecting to your voice server:
 
 [HOSTID]
