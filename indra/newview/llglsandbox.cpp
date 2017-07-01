@@ -157,7 +157,7 @@ F32 gpu_benchmark(bool force_run)
 	LLRenderTarget dest[count];
 	U32 source[count];
 	LLImageGL::generateTextures(count, source);
-	std::vector<F32> results;
+	F64 result_sum = 0.0; // <polarity/>
 
 	//build a random texture
 	U8* pixels = new U8[res*res * 4];
@@ -236,16 +236,16 @@ F32 gpu_benchmark(bool force_run)
 		if (c >= 4) // <-- ignore the first 5 samples as they tend to be artificially slow // <polarity/>
 		{
 			//store result in gigabytes per second
-			auto gbps = ((res2_count * 8) * 0.000000001) / time; // <polarity/>
+			F64 result = ((res2_count * 8) * 0.000000001) / time; // <polarity/>
 
-			if (!gGLManager.mHasTimerQuery && !busted_finish && gbps > 2048.f) // <polarity/>
+			if (!gGLManager.mHasTimerQuery && !busted_finish && result > 2048.f) // <polarity/>
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
 				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
 			}
 			else
 			{
-				results.push_back(gbps);
+				result_sum += result; // <polarity/>
 			}
 		}
 	}
@@ -256,9 +256,7 @@ F32 gpu_benchmark(bool force_run)
 
 	LLImageGL::deleteTextures(count, source);
 
-	std::sort(results.begin(), results.end());
-
-	F64 gbps = results[results.size() / 2];
+	F64 gbps = (result_sum / (F64)(samples - 1)); // first sample is discarded
 
 	LL_INFOS() << "Memory bandwidth is " << (gbps * 1.9) << "GB/sec according to CPU timers" << LL_ENDL;
 
