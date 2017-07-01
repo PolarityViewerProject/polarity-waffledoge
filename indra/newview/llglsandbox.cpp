@@ -271,7 +271,7 @@ F32 gpu_benchmark(bool force_run)
 	}
 	//#endif
 
-	LL_INFOS() << "gBenchmarkProgram.mTimeElapsed : " << gBenchmarkProgram.mTimeElapsed << LL_ENDL;
+	LL_DEBUGS() << "gBenchmarkProgram.mTimeElapsed : " << gBenchmarkProgram.mTimeElapsed << LL_ENDL;
 
 	// <polarity> leaner benchmark result math
 	//F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
