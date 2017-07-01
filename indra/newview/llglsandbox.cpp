@@ -214,34 +214,33 @@ F32 gpu_benchmark(bool force_run)
 
 		for (U32 i = 0; i < count; ++i)
 		{
-			dest[i].bindTarget();
+			LLRenderTarget destp = dest[i];
+			destp.bindTarget();
 			gGL.getTexUnit(0)->bindManual(LLTexUnit::TT_TEXTURE, source[i]);
 			buff->drawArrays(LLRender::TRIANGLES, 0, 3);
-			dest[i].flush();
+			destp.flush();
 		}
 
 		//wait for current batch of copies to finish
 		if (busted_finish)
 		{
 			//read a pixel off the last target since some drivers seem to ignore glFinish
-			dest[count - 1].bindTarget();
+			LLRenderTarget destp = dest[count - 1];
+			destp.bindTarget();
 			U32 pixel = 0;
 			glReadPixels(0, 0, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, &pixel);
-			dest[count - 1].flush();
+			destp.flush();
 		}
 		else
 		{
 			glFinish();
 		}
 
-		F32 time = timer.getElapsedTimeF32();
-
 		if (c > samples_discard) // ignore some initial samples as they tend to be artificially slow
 		{
 			//store result in gigabytes per second
-			F64 result = ((res2_count * 8) * 0.000000001) / time; // <polarity/>
-
-			if (!gGLManager.mHasTimerQuery && !busted_finish && result > 2048.f) // <polarity/>
+			F64 result = ((res2_count * 8) * 0.000000001) / timer.getElapsedTimeF32();
+			if (!gGLManager.mHasTimerQuery && !busted_finish && result > 2048.f)
 			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
 				busted_finish = true;
 				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
