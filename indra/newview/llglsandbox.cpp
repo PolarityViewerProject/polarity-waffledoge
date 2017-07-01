@@ -141,16 +141,16 @@ F32 gpu_benchmark(bool force_run)
 	// - taking the median time for a given number of samples
 
 	//resolution of textures/render targets
-	const U32 res = 1024;
+	const U32 res = 512;
 
 	//number of textures
-	const U32 count = 32;
+	const U32 count = 64;
 
 	//number of samples to take
-	const S32 samples = 64;
+	const S32 samples = 128;
 
 	//pre-calculated ([resolution of textures/render targets] ^ 2) * number of textures
-	constexpr U32 res2_count = (res * res) * count;
+	constexpr U64 res2_count = (res * res) * count;
 
 	LLGLSLShader::initProfile();
 
