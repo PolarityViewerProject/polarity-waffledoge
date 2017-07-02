@@ -1387,10 +1387,10 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVRender_ShadowsFromAlphaEnabled</key>
+    <key>PVRender_TreeShadowsFromAlphaEnabled</key>
     <map>
       <key>Comment</key>
-      <string>Render shadows from and on alpha objects</string>
+      <string>Render tree shadows from and on alpha objects</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>
