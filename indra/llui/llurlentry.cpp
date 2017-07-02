@@ -73,7 +73,6 @@ LLStyle::Params LLUrlEntryBase::getStyle() const
 	LLStyle::Params style_params;
 	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.font.style = "UNDERLINE";
 	return style_params;
 }
 
