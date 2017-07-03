@@ -1,6 +1,6 @@
 # -*- cmake -*-
 
-  set(INCLUDE_VLD_CMAKE OFF CACHE BOOL "Build the Windows viewer with Visual Leak Detector turned on or off")
+  option(INCLUDE_VLD_CMAKE "Build the Windows viewer with Visual Leak Detector support" OFF)
 
   if (INCLUDE_VLD_CMAKE)
 
