@@ -475,18 +475,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
-	{
-		return;
-	}
-
-	BOOL impostor = avatarp->isImpostor();
-	if (impostor 
-		// <FS:Ansariel> Fix LL impostor hacking; No shadow for impostors
-		//&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
-		//&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
-		)
-		// </FS:Ansariel>
+	if (avatarp->isDead() || avatarp->mIsDummy || !avatarp->isFullyLoaded() || avatarp->isImpostor() || avatarp->mDrawable.isNull())
 	{
 		return;
 	}
