@@ -201,6 +201,7 @@ option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
 option(NVAPI "Use nvapi driver interface library" OFF)
 
 # Media Plugins
+option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
 option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF) # Not handled by INSTALL_PROPRIETARY on purpose
 
 ## sanity check
