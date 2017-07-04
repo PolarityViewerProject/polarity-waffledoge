@@ -196,8 +196,11 @@ option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
 # Mallocs
 # option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
 # option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
+
 # APIs
 option(NVAPI "Use nvapi driver interface library" OFF)
+
+# Media Plugins
 option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF) # Not handled by INSTALL_PROPRIETARY on purpose
 
 ## sanity check
