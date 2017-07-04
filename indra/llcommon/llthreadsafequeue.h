@@ -148,7 +148,7 @@ LLThreadSafeQueue<ElementT>::LLThreadSafeQueue(apr_pool_t * pool, unsigned int c
 template<typename ElementT>
 void LLThreadSafeQueue<ElementT>::pushFront(ElementT const & element)
 {
-	ElementT * elementCopy = new ElementT(element);
+	ElementT * elementCopy = DBG_NEW ElementT(element);
 	try {
 		mImplementation.pushFront(elementCopy);
 	} catch (const LLThreadSafeQueueInterrupt&) {
@@ -161,7 +161,7 @@ void LLThreadSafeQueue<ElementT>::pushFront(ElementT const & element)
 template<typename ElementT>
 bool LLThreadSafeQueue<ElementT>::tryPushFront(ElementT const & element)
 {
-	ElementT * elementCopy = new ElementT(element);
+	ElementT * elementCopy = DBG_NEW ElementT(element);
 	bool result = mImplementation.tryPushFront(elementCopy);
 	if(!result) delete elementCopy;
 	return result;

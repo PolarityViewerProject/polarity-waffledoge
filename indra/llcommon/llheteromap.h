@@ -49,7 +49,7 @@ public:
             // Didn't find typeid(T). Create an entry. Because we're storing
             // only a void* in the map, discarding type information, make sure
             // we capture that type information in our deleter.
-            void* ptr = new T();
+            void* ptr = DBG_NEW T();
             void (*dlfn)(void*) = &deleter<T>;
             std::pair<TypeMap::iterator, bool> inserted =
                 mMap.insert(TypeMap::value_type(&typeid(T),

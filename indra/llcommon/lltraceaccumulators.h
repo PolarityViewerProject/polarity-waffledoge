@@ -28,7 +28,7 @@
 #ifndef LL_LLTRACEACCUMULATORS_H
 #define LL_LLTRACEACCUMULATORS_H
 
-
+#include "linden_common.h"
 #include "stdtypes.h"
 #include "llpreprocessor.h"
 #include "llunits.h"
@@ -217,7 +217,7 @@ namespace LLTrace
 			{
 				// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
 				// so as not to trigger an access violation
-				sDefaultBuffer = new AccumulatorBuffer(StaticAllocationMarker());
+				sDefaultBuffer = DBG_NEW AccumulatorBuffer(StaticAllocationMarker());
 				sInitialized = true;
 				sDefaultBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
 			}

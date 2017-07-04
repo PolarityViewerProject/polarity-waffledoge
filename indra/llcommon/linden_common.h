@@ -32,12 +32,16 @@
 // Files included here are included in every library .cpp file and
 // are not precompiled.
 
-#if defined(LL_WINDOWS) && defined(_DEBUG)
-# if _MSC_VER >= 1400 // Visual C++ 2005 or later
-#  define _CRTDBG_MAP_ALLOC
-#  include <stdlib.h>
-#  include <crtdbg.h>
-# endif
+#define CHECK_MEMORY_LEAK 1
+#if defined(LL_WINDOWS) && (defined(_DEBUG) || CHECK_MEMORY_LEAK) && (!LL_USE_TCMALLOC && !LINK_TBBMALLOC)
+#define _CRTDBG_MAP_ALLOC  
+#include <stdlib.h>  
+#include <crtdbg.h>  
+#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
+// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
+// allocations to be of _CLIENT_BLOCK type
+#else
+#define DBG_NEW new
 #endif
 
 #include "llpreprocessor.h"

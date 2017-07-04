@@ -675,7 +675,7 @@ namespace LLInitParam
 
 		LazyValue(const T& value)
 			{
-			mPtr = new T(value);
+			mPtr = DBG_NEW T(value);
 		}
 
 		LazyValue(const LazyValue& other)
@@ -695,7 +695,7 @@ namespace LLInitParam
 			{
 				if (!mPtr)
 				{
-					mPtr = new T(*other.mPtr);
+					mPtr = DBG_NEW T(*other.mPtr);
 				}
 				else
 				{
@@ -720,7 +720,7 @@ namespace LLInitParam
 			{
 			if (!mPtr)
 			{
-				mPtr = new T(other);
+				mPtr = DBG_NEW T(other);
 			}
 			else
 			{
@@ -749,7 +749,7 @@ namespace LLInitParam
 			{
 				if (mPtr == NULL)
 				{
-					mPtr = new T();
+					mPtr = DBG_NEW T();
 				}
 				return mPtr;
 			}

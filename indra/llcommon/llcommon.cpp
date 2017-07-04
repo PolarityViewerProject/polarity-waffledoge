@@ -55,7 +55,7 @@ void LLCommon::initClass()
 	assert_main_thread();		// Make sure we record the main thread
 	if (!sMasterThreadRecorder)
 	{
-		sMasterThreadRecorder = new LLTrace::ThreadRecorder();
+		sMasterThreadRecorder = DBG_NEW LLTrace::ThreadRecorder();
 		LLTrace::set_master_thread_recorder(sMasterThreadRecorder);
 	}
 }

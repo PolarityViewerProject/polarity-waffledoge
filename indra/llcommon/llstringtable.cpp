@@ -40,7 +40,7 @@ LLStringTableEntry::LLStringTableEntry(const char *str)
 	// Copy string
 	U32 length = (U32)strlen(str) + 1;	 /*Flawfinder: ignore*/
 	length = llmin(length, MAX_STRINGS_LENGTH);
-	mString = new char[length];
+	mString = DBG_NEW char[length];
 	strncpy(mString, str, length);	 /*Flawfinder: ignore*/
 	mString[length - 1] = 0;
 }
@@ -73,7 +73,7 @@ LLStringTable::LLStringTable(int tablesize)
 
 #if !STRING_TABLE_HASH_MAP
 	// ALlocate strings
-	mStringList = new string_list_ptr_t[mMaxEntries];
+	mStringList = DBG_NEW string_list_ptr_t[mMaxEntries];
 	// Clear strings
 	for (i = 0; i < mMaxEntries; i++)
 	{
@@ -251,7 +251,7 @@ LLStringTableEntry* LLStringTable::addStringEntry(const char *str)
 		}
 
 		// not found, so add!
-		LLStringTableEntry* newentry = new LLStringTableEntry(str);
+		LLStringTableEntry* newentry = DBG_NEW LLStringTableEntry(str);
 		ret_val = newentry->mString;
 		mStringHash.insert(string_hash_t::value_type(hash_value, newentry));
 #else
@@ -273,12 +273,12 @@ LLStringTableEntry* LLStringTable::addStringEntry(const char *str)
 		}
 		else
 		{
-			mStringList[hash_value] = new string_list_t;
+			mStringList[hash_value] = DBG_NEW string_list_t;
 			strlist = mStringList[hash_value];
 		}
 
 		// not found, so add!
-		LLStringTableEntry *newentry = new LLStringTableEntry(str);
+		LLStringTableEntry *newentry = DBG_NEW LLStringTableEntry(str);
 		//ret_val = newentry->mString;
 		strlist->push_front(newentry);
 #endif

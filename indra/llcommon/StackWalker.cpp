@@ -95,7 +95,7 @@
 #pragma warning(disable:4826)
 
 #include "StackWalker.h"
-
+#include "linden_common.h"
 
 // If VC7 and later, then use the shipped 'dbghelp.h'-file
 #pragma pack(push,8)
@@ -861,7 +861,7 @@ StackWalker::StackWalker(DWORD dwProcessId, HANDLE hProcess)
   this->m_options = OptionsAll;
   this->m_modulesLoaded = FALSE;
   this->m_hProcess = hProcess;
-  this->m_sw = new StackWalkerInternal(this, this->m_hProcess);
+  this->m_sw = DBG_NEW StackWalkerInternal(this, this->m_hProcess);
   this->m_dwProcessId = dwProcessId;
   this->m_szSymPath = NULL;
   this->m_MaxRecursionCount = 1000;
@@ -872,7 +872,7 @@ StackWalker::StackWalker(bool verbose, int options, LPCSTR szSymPath, DWORD dwPr
   this->m_options = options;
   this->m_modulesLoaded = FALSE;
   this->m_hProcess = hProcess;
-  this->m_sw = new StackWalkerInternal(this, this->m_hProcess);
+  this->m_sw = DBG_NEW StackWalkerInternal(this, this->m_hProcess);
   this->m_dwProcessId = dwProcessId;
   if (szSymPath != NULL)
   {

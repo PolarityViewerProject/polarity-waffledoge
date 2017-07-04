@@ -131,7 +131,7 @@ public:
 				// prune old data
 				delete m.prevMap;
 				m.prevMap = m.currMap;
-				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+				m.currMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 
 				m.startTime += m.intervalLength;
 			}
@@ -140,8 +140,8 @@ public:
 				// lots of time has passed, all data is stale
 				delete m.prevMap;
 				delete m.currMap;
-				m.prevMap = new typename LLKeyThrottleImpl<T>::EntryMap;
-				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+				m.prevMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
+				m.currMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 
 				m.startTime = now;
 			}
@@ -189,7 +189,7 @@ public:
 				// prune old data
 				delete m.prevMap;
 				m.prevMap = m.currMap;
-				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+				m.currMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 
 				m.startTime += m.intervalLength;
 			}
@@ -198,8 +198,8 @@ public:
 				// lots of time has passed, all data is stale
 				delete m.prevMap;
 				delete m.currMap;
-				m.prevMap = new typename LLKeyThrottleImpl<T>::EntryMap;
-				m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+				m.prevMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
+				m.currMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 
 				m.startTime = now;
 			}
@@ -318,9 +318,9 @@ public:
 		}
 
 		delete m.prevMap;
-		m.prevMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+		m.prevMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 		delete m.currMap;
-		m.currMap = new typename LLKeyThrottleImpl<T>::EntryMap;
+		m.currMap = DBG_NEW typename LLKeyThrottleImpl<T>::EntryMap;
 	}
 
 protected:

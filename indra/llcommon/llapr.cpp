@@ -52,7 +52,7 @@ void ll_init_apr()
 
 	if(!LLAPRFile::sAPRFilePoolp)
 	{
-		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
+		LLAPRFile::sAPRFilePoolp = DBG_NEW LLVolatileAPRPool(FALSE) ;
 	}
 
 	gAPRInitialized = true;
@@ -152,7 +152,7 @@ LLVolatileAPRPool::LLVolatileAPRPool(BOOL is_local, apr_pool_t *parent, apr_size
 	//create mutex
 	if(!is_local) //not a local apr_pool, that is: shared by multiple threads.
 	{
-		mMutexp = new LLMutex();
+		mMutexp = DBG_NEW LLMutex();
 	}
 }
 

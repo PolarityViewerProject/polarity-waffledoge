@@ -31,11 +31,11 @@
 
 //----------------------------------------------------------------------------
 // RefCount objects should generally only be accessed by way of LLPointer<>'s
-// NOTE: LLPointer<LLFoo> x = new LLFoo(); MAY NOT BE THREAD SAFE
+// NOTE: LLPointer<LLFoo> x = DBG_NEW LLFoo(); MAY NOT BE THREAD SAFE
 //   if LLFoo::LLFoo() does anything like put itself in an update queue.
 //   The queue may get accessed before it gets assigned to x.
 // The correct implementation is:
-//   LLPointer<LLFoo> x = new LLFoo; // constructor does not do anything interesting
+//   LLPointer<LLFoo> x = DBG_NEW LLFoo; // constructor does not do anything interesting
 //   x->instantiate(); // does stuff like place x into an update queue
 
 // see llthread.h for LLThreadSafeRefCount
@@ -328,7 +328,7 @@ public:
 	{
 		if (pointer_t::notNull() && pointer_t::mPointer->getNumRefs() > 1)
 		{
-			*(pointer_t* )(this) = new Type(*pointer_t::mPointer);
+			*(pointer_t* )(this) = DBG_NEW Type(*pointer_t::mPointer);
 		}
 	}
 

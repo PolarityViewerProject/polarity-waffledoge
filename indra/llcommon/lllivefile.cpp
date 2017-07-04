@@ -186,7 +186,7 @@ namespace
 
 void LLLiveFile::addToEventTimer()
 {
-	impl.mEventTimer = new LiveFileEventTimer(*this, impl.mRefreshPeriod);
+	impl.mEventTimer = DBG_NEW LiveFileEventTimer(*this, impl.mRefreshPeriod);
 }
 
 void LLLiveFile::setRefreshPeriod(F32 seconds)

@@ -337,7 +337,7 @@ std::string LLCoros::launch(const std::string& prefix, const callable_t& callabl
     std::string name(generateDistinctName(prefix));
     Current current;
     // pass the current value of Current as previous context
-    CoroData* newCoro = new CoroData(current, name, callable, mStackSize);
+    CoroData* newCoro = DBG_NEW CoroData(current, name, callable, mStackSize);
     // Store it in our pointer map
     mCoros.insert(name, newCoro);
     // also set it as current

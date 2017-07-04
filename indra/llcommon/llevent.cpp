@@ -232,7 +232,7 @@ bool LLSimpleDispatcher::fireEvent(LLPointer<LLEvent> event, LLSD filter)
 
 LLEventDispatcher::LLEventDispatcher()
 {
-	impl = new LLSimpleDispatcher(this);
+	impl = DBG_NEW LLSimpleDispatcher(this);
 }
 
 LLEventDispatcher::~LLEventDispatcher()

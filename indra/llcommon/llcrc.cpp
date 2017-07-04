@@ -179,7 +179,7 @@ void LLCRC::update(const std::string& filename)
 
 		if (size > 0)
 		{
-			U8* data = new U8[size];
+			U8* data = DBG_NEW U8[size];
 			size_t nread;
 			
 			nread = fread(data, 1, size, fp);

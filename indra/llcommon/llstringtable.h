@@ -28,6 +28,7 @@
 #ifndef LL_STRING_TABLE_H
 #define LL_STRING_TABLE_H
 
+#include "linden_common.h"
 #include "lldefs.h"
 #include "llformat.h"
 #include "llstl.h"
@@ -123,7 +124,7 @@ public:
 			}
 		}
 		mTableSize = tablesize;
-		mStringList = new string_set_t[tablesize];
+		mStringList = DBG_NEW string_set_t[tablesize];
 	}
 	~LLStdStringTable()
 	{
@@ -162,7 +163,7 @@ public:
 		LLStdStringHandle result = lookup(hashval, s);
 		if (result == NULL)
 		{
-			result = new std::string(s);
+			result = DBG_NEW std::string(s);
 			mStringList[hashval].insert(result);
 		}
 		return result;
