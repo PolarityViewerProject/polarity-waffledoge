@@ -71,8 +71,9 @@ std::string LLUrlEntryBase::getIcon(const std::string &url)
 LLStyle::Params LLUrlEntryBase::getStyle() const
 {
 	LLStyle::Params style_params;
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	auto color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.color = color ;
+	style_params.readonly_color = color;
 	return style_params;
 }
 
@@ -755,8 +756,9 @@ std::string LLUrlEntryAgent::getLabel(const std::string &url, const LLUrlLabelCa
 LLStyle::Params LLUrlEntryAgent::getStyle() const
 {
 	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	auto color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.color = color ;
+	style_params.readonly_color = color;
 	return style_params;
 }
 
@@ -1038,8 +1040,9 @@ std::string LLUrlEntryGroup::getLabel(const std::string &url, const LLUrlLabelCa
 LLStyle::Params LLUrlEntryGroup::getStyle() const
 {
 	LLStyle::Params style_params = LLUrlEntryBase::getStyle();
-	style_params.color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-	style_params.readonly_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	auto color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+	style_params.color = color ;
+	style_params.readonly_color = color;
 	return style_params;
 }
 
