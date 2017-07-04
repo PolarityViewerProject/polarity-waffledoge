@@ -346,7 +346,7 @@ RenderFSAASamples			1	2
 PVRender_EnableGodRays		1	0
 PVRender_EnableLensFlare	1	0
 PVRender_EnableSSR			1	0
-PVRender_AttachmentShadowDetail	1	2
+PVRender_AttachmentShadowDetail	1	3
 RenderDepthOfField			1	0
 RenderDepthOfFieldInEditMode	1	0
 PVRender_DepthOfFieldAlphas	1	1
