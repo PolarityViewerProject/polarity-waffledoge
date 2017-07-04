@@ -52,8 +52,8 @@ typedef enum EGPUClassBandwidth
 	GPU_BW_0 = 40,
 	GPU_BW_1 = 50,
 	GPU_BW_2 = 70,
-	GPU_BW_3 = 80,
-	GPU_BW_4 = 150,
+	GPU_BW_3 = 130,
+	GPU_BW_4 = 200,
 	GPU_BW_5 = 350,
 	GPU_BW_6 = 450,
 } EGPUClassBandwidth;
