@@ -133,7 +133,9 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
+#if USE_MEDIA_PLUGIN
 #include "cef/llceflib.h"
+#endif
 #if LINK_VLC_PLUGIN
 #include "vlc/libvlc_version.h"
 #endif
