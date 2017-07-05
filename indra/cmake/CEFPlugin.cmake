@@ -3,7 +3,7 @@ include(Linking)
 include(Prebuilt)
 include(Variables)
 
-if (USE_MEDIA_PLUGINS)
+if (ENABLE_MEDIA_PLUGINS)
 if (USESYSTEMLIBS)
     set(CEFPLUGIN OFF CACHE BOOL
         "CEFPLUGIN support for the llplugin/llmedia test apps.")
@@ -40,4 +40,4 @@ elseif (DARWIN)
 
 elseif (LINUX)
 endif (WINDOWS)
-endif (USE_MEDIA_PLUGINS)
+endif (ENABLE_MEDIA_PLUGINS)
