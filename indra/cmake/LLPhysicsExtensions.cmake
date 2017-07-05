@@ -1,5 +1,6 @@
 # -*- cmake -*-
 include(Prebuilt)
+include(Variables)
 
 # There are three possible solutions to provide the llphysicsextensions:
 # - The full source package, selected by -DHAVOK:BOOL=ON
@@ -30,9 +31,11 @@ include(Prebuilt)
 #   set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions)
 #else (HAVOK)
 #if (NOT USE_LL_STUBS)
+if (ENABLE_MEDIA_PLUGINS)
    use_prebuilt_binary( ndPhysicsStub )
    set(LLPHYSICSEXTENSIONS_LIBRARIES nd_hacdConvexDecomposition hacd nd_Pathing )
    set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/ )
+endif (ENABLE_MEDIA_PLUGINS)
 #else (NOT USE_LL_STUBS)
 #   use_prebuilt_binary(llphysicsextensions_stub)
 #   set(LLPHYSICSEXTENSIONS_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include/llphysicsextensions) 

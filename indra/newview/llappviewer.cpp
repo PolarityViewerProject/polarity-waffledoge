@@ -133,7 +133,7 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#if USE_MEDIA_PLUGIN
+#if ENABLE_MEDIA_PLUGINS
 #include "cef/llceflib.h"
 #endif
 #if LINK_VLC_PLUGIN
@@ -1802,8 +1802,10 @@ bool LLAppViewer::cleanup()
 	// shut down mesh streamer
 	gMeshRepo.shutdown();
 
+#if ENABLE_MEDIA_PLUGINS
 	// shut down Havok
 	LLPhysicsExtensions::quitSystem();
+#endif
 
 	// Must clean up texture references before viewer window is destroyed.
 	if(LLHUDManager::instanceExists())
@@ -3581,7 +3583,7 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
 
-#if !LL_LINUX
+#if !LL_LINUX && ENABLE_MEDIA_PLUGINS
 	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
 #else
 	info["LLCEFLIB_VERSION"] = "Undefined";

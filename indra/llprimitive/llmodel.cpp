@@ -30,7 +30,9 @@
 
 #include "llmodel.h"
 #include "llmemory.h"
+#if ENABLE_MEDIA_PLUGINS
 #include "llconvexdecomposition.h"
+#endif
 #include "llsdserialize.h"
 #include "llvector4a.h"
 
@@ -65,10 +67,12 @@ LLModel::LLModel(LLVolumeParams& params, F32 detail)
 
 LLModel::~LLModel()
 {
+#if ENABLE_MEDIA_PLUGINS
 	if (mDecompID >= 0)
 	{
 		LLConvexDecomposition::getInstance()->deleteDecomposition(mDecompID);
 	}
+#endif
 }
 
 //static
