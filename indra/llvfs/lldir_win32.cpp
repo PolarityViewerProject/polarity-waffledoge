@@ -74,6 +74,7 @@ LLDir_Win32::LLDir_Win32()
 	pPath = NULL;
 
 	mOSCacheDir = utf16str_to_utf8str(llutf16string(w_str));
+	llassert_always(!mOSCacheDir.empty());
 
 	if (GetTempPath(MAX_PATH, w_str))
 	{

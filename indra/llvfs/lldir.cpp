@@ -389,6 +389,7 @@ std::string LLDir::buildSLOSCacheDir() const
 
 const std::string &LLDir::getOSCacheDir() const
 {
+	llassert_always(!mOSCacheDir.empty());
 	return mOSCacheDir;
 }
 

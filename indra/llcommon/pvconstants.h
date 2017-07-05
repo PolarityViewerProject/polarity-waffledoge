@@ -34,8 +34,18 @@
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
-// Compile-time checks don't appear to work on strings, we're going to have to pray this never ends up empty
-const std::string APP_NAME = TOSTRING(ROOT_PROJECT_NAME);
+static std::string getAppName()
+{
+	// Compile-time checks don't appear to work on strings, we're going to have to pray this never ends up empty
+	static const std::string temp_app_name = TOSTRING(ROOT_PROJECT_NAME);
+	if (temp_app_name.empty())
+	{
+		static const std::string fallback_app_name = "Polarity";
+		return fallback_app_name;
+	}
+	return temp_app_name;
+}
+const std::string APP_NAME = getAppName();
 const std::string PROJECT_STRING = "polarityviewer";
 const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
 const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
