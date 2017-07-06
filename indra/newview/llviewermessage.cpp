@@ -7476,6 +7476,7 @@ void process_teleport_failed(LLMessageSystem *msg, void**)
 	if (msg->has(_PREHASH_AlertInfo) && msg->getSizeFast(_PREHASH_AlertInfo, _PREHASH_Message) > 0)
 	{
 		// Get the message ID
+		LL_INFOS() << "MESSAGE ID : " << message_id << LL_ENDL;
 		msg->getStringFast(_PREHASH_AlertInfo, _PREHASH_Message, message_id);
 		big_reason = LLAgent::sTeleportErrorMessages[message_id];
 		if ( big_reason.size() > 0 )
