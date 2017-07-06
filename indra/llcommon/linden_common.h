@@ -32,7 +32,7 @@
 // Files included here are included in every library .cpp file and
 // are not precompiled.
 
-#define CHECK_MEMORY_LEAK 1
+#define CHECK_MEMORY_LEAK 0
 #if defined(LL_WINDOWS) && (defined(_DEBUG) || CHECK_MEMORY_LEAK) && (!LL_USE_TCMALLOC && !LINK_TBBMALLOC)
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
