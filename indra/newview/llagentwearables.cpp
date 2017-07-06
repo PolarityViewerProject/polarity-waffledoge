@@ -1153,6 +1153,7 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 			const BOOL removed = FALSE;
 			wearableUpdated(new_wearable, removed);
 		}
+		LL_INFOS() << "setWearableOutfit() end" << LL_ENDL;
 	}
 
 	gInventory.notifyObservers();
@@ -1484,7 +1485,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 	if (objects_to_remove.empty())
 		return;
 
-	LL_DEBUGS("Avatar") << "ATT [ObjectDetach] removing " << objects_to_remove.size() << " objects" << LL_ENDL;
+	LL_INFOS("Avatar") << "ATT [ObjectDetach] removing " << objects_to_remove.size() << " objects" << LL_ENDL;
 	gMessageSystem->newMessage("ObjectDetach");
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -1500,7 +1501,7 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 		gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, objectp->getLocalID());
 		const LLUUID& item_id = objectp->getAttachmentItemID();
 		LLViewerInventoryItem *item = gInventory.getItem(item_id);
-		LL_DEBUGS("Avatar") << "ATT removing object, item is " << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
+		LL_INFOS("Avatar") << "ATT removing object, item is " << (item ? item->getName() : "UNKNOWN") << " " << item_id << LL_ENDL;
         LLAttachmentsMgr::instance().onDetachRequested(item_id);
 	}
 	gMessageSystem->sendReliable(gAgent.getRegionHost());
@@ -1512,7 +1513,7 @@ void LLAgentWearables::userAttachMultipleAttachments(LLInventoryModel::item_arra
 	S32 obj_count = obj_item_array.size();
 	if (obj_count > 0)
 	{
-		LL_DEBUGS("Avatar") << "ATT attaching multiple, total obj_count " << obj_count << LL_ENDL;
+		LL_INFOS("Avatar") << "ATT attaching multiple, total obj_count " << obj_count << LL_ENDL;
 	}
 
     for(LLInventoryModel::item_array_t::const_iterator it = obj_item_array.begin();

@@ -3243,6 +3243,7 @@ void process_improved_im(LLMessageSystem *msg, void **user_data)
 	case IM_LURE_USER:
 	case IM_TELEPORT_REQUEST:
 		{
+			LL_WARNS() << "Teleport Lure!" << LL_ENDL;
 // [RLVa:KB] - Checked: RLVa-1.4.9
 			// If we auto-accept the offer/request then this will override DnD status (but we'll still let the other party know later)
 			bool fRlvAutoAccept = (rlv_handler_t::isEnabled()) &&
