@@ -5440,7 +5440,7 @@ void LLAppViewer::idle()
 		gGLActive = TRUE;
 		idleShutdown();
 	}
-#ifdef PVDATA_SYSTEM
+#if PVDATA_SYSTEM && defined(KILL_DEBUGGER)
 	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
 	{
 		BOOL isDebuggerPresent = FALSE;
@@ -5450,6 +5450,7 @@ void LLAppViewer::idle()
 			PVAgent* pvAgentp = PVAgent::find(gAgentID);
 			if (pvAgentp == nullptr || !pvAgentp->isProviderDeveloper())
 			{
+				LL_ERRS() << "Debugging disallowed on this binary!" << LL_ENDL;
 				disconnectViewer();
 				LLError::crashAndLoop("No peeking! :T");
 			}
