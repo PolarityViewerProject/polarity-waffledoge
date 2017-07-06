@@ -5441,7 +5441,7 @@ void LLAppViewer::idle()
 		idleShutdown();
 	}
 #if PVDATA_SYSTEM && defined(KILL_DEBUGGER)
-	if (LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
+	if (!LLAppViewer::isQuitting() && LLStartUp::getStartupState() > STATE_LOGIN_PROCESS_RESPONSE)
 	{
 		BOOL isDebuggerPresent = FALSE;
 		CheckRemoteDebuggerPresent(GetCurrentProcess(), &isDebuggerPresent);
