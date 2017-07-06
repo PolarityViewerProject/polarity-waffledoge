@@ -326,6 +326,7 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 		LL_DEBUGS() << "Found " << section << "!" << LL_ENDL;
 		auto blob = data_input[section];
 		Dump(section, blob);
+		// TODO: use another variable to keep the grid MOTD
 		gAgent.mMOTD.assign(blob);
 	}
 	else
@@ -553,6 +554,11 @@ std::string PVDataOldAPI::getNewProgressTip()
 	{
 		LL_INFOS() << "Setting new progress tip to '" << return_tip << "'" << LL_ENDL;
 	}
+	else
+	{
+		LL_WARNS() << "Returning an empty progress tip!" << LL_ENDL;
+	}
+	llassert(!return_tip.empty());
 	return return_tip;
 }
 

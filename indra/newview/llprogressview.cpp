@@ -311,7 +311,7 @@ void LLProgressView::setPercent(const F32 percent)
 
 void LLProgressView::setMessage(const std::string& msg)
 {
-	llassert(msg.empty());
+	llassert(!msg.empty());
 	if (!msg.empty())
 	{
 		mMessage = msg;
@@ -319,7 +319,6 @@ void LLProgressView::setMessage(const std::string& msg)
 	if (mMessage != msg)
 	{
 		mMessage = msg;
-		gAgent.mMOTD.assign(msg);
 	}
 	static auto message_text = getChild<LLUICtrl>("message_text");
 	message_text->setValue(mMessage);
