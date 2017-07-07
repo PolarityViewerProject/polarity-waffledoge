@@ -50,7 +50,7 @@
 		</combo_box>
 		<check_box label="Interface" name="ui_check"/>
 		<check_box label="HUD" name="hud_check"/>
-		<check_box label="Arrêt sur image (plein écran)" name="freeze_frame_check"/>
+		<check_box label="Arrêt sur image" name="freeze_world_check"/>
 		<check_box label="Actualisation automatique" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			Filtre :

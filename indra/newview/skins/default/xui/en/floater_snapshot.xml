@@ -190,14 +190,6 @@
          top_pad="1"
          width="180"
          name="hud_check" />
-<!--         <check_box
-         label="Freeze frame (fullscreen)"
-         layout="topleft"
-     height="16"
-         left="10"
-         top_pad="1"
-         width="180"
-         name="freeze_frame_check" /> -->
         <check_box
          label="Freeze World"
          initial_value="false"

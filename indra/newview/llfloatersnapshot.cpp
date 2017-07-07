@@ -159,8 +159,6 @@ void LLFloaterSnapshot::Impl::setResolution(LLFloaterSnapshotBase* floater, cons
 //virtual 
 void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floaterp)
 {
-	LLSnapshotLivePreview* previewp = getPreviewView();
-
 	//BD - Automatically calculate the size of our snapshot window to enlarge
 	//     the snapshot preview to its maximum size, this is especially helpfull
 	//     for pretty much every aspect ratio other than 1:1.
@@ -189,66 +187,6 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 	if(!floaterp->isMinimized())
 	{
 		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
-	}
-
-	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
-
-	if (use_freeze_frame)
-	{
-		// stop all mouse events at fullscreen preview layer
-		floaterp->getParent()->setMouseOpaque(TRUE);
-		
-		// shrink to smaller layout
-		// *TODO: unneeded?
-		floaterp->reshape(floaterp->getRect().getWidth(), floaterp->getRect().getHeight());
-
-		// can see and interact with fullscreen preview now
-		if (previewp)
-		{
-			previewp->setVisible(TRUE);
-			previewp->setEnabled(TRUE);
-		}
-
-		//RN: freeze all avatars
-		LLCharacter* avatarp;
-		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
-			iter != LLCharacter::sInstances.end(); ++iter)
-		{
-			avatarp = *iter;
-			floaterp->impl->mAvatarPauseHandles.push_back(avatarp->requestPause());
-		}
-
-		// freeze everything else
-		gSavedSettings.setBOOL("FreezeTime", TRUE);
-
-		if (LLToolMgr::getInstance()->getCurrentToolset() != gCameraToolset)
-		{
-			floaterp->impl->mLastToolset = LLToolMgr::getInstance()->getCurrentToolset();
-			LLToolMgr::getInstance()->setCurrentToolset(gCameraToolset);
-		}
-	}
-	else // turning off freeze frame mode
-	{
-		floaterp->getParent()->setMouseOpaque(FALSE);
-		// *TODO: unneeded?
-		floaterp->reshape(floaterp->getRect().getWidth(), floaterp->getRect().getHeight());
-		if (previewp)
-		{
-			previewp->setVisible(FALSE);
-			previewp->setEnabled(FALSE);
-		}
-
-		//RN: thaw all avatars
-		floaterp->impl->mAvatarPauseHandles.clear();
-
-		// thaw everything else
-		gSavedSettings.setBOOL("FreezeTime", FALSE);
-
-		// restore last tool (e.g. pie menu, etc)
-		if (floaterp->impl->mLastToolset)
-		{
-			LLToolMgr::getInstance()->setCurrentToolset(floaterp->impl->mLastToolset);
-		}
 	}
 }
 
@@ -595,28 +533,6 @@ void LLFloaterSnapshot::Impl::applyKeepAspectCheck(LLFloaterSnapshotBase* view, 
 			checkAutoSnapshot(previewp, TRUE);
 		}
 	}
-}
-
-// static
-void LLFloaterSnapshotBase::ImplBase::onCommitFreezeFrame(LLUICtrl* ctrl, void* data)
-{
-	LLCheckBoxCtrl* check_box = (LLCheckBoxCtrl*)ctrl;
-	LLFloaterSnapshotBase *view = (LLFloaterSnapshotBase *)data;
-	LLSnapshotLivePreview* previewp = view->getPreviewView();
-		
-	if (!view || !check_box || !previewp)
-	{
-		return;
-	}
-
-	gSavedSettings.setBOOL("UseFreezeFrame", check_box->get());
-
-	if (check_box->get())
-	{
-		previewp->prepareFreezeFrame();
-	}
-
-	view->impl->updateLayout(view);
 }
 
 void LLFloaterSnapshot::Impl::checkAspectRatio(LLFloaterSnapshotBase *view, S32 index)
@@ -1051,8 +967,6 @@ BOOL LLFloaterSnapshot::postBuild()
 	getChild<LLUICtrl>("layer_types")->setValue("colors");
 	getChildView("layer_types")->setEnabled(FALSE);
 
-	getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
-	childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
 	childSetCommitCallback("autoscale_check", ImplBase::onClickMultiplierCheck, this);
 	getChild<LLUICtrl>("autoscale_check")->setValue(gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier"));
 

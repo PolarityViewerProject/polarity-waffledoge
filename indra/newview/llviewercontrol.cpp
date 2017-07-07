@@ -648,8 +648,6 @@ bool toggle_freeze_world(const LLSD& newvalue)
 			mAvatarPauseHandles.push_back(avatarp->requestPause());
 		}
 
-
-
 		// freeze everything else
 		gSavedSettings.setBOOL("FreezeTime", TRUE);
 	}

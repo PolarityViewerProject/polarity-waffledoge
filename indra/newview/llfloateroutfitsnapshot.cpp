@@ -243,9 +243,6 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
     childSetCommitCallback("hud_check", ImplBase::onClickHUDCheck, this);
     getChild<LLUICtrl>("hud_check")->setValue(gSavedSettings.getBOOL("RenderHUDInSnapshot"));
 
-    getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
-    childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
-
     getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
     childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
 

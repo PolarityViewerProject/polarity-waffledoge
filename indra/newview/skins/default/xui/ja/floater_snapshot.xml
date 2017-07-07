@@ -50,7 +50,6 @@
 		</combo_box>
 		<check_box label="インターフェース" name="ui_check"/>
 		<check_box label="HUD" name="hud_check"/>
-		<check_box label="画面全体を静止" name="freeze_frame_check"/>
 		<check_box label="自動更新" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			フィルター:

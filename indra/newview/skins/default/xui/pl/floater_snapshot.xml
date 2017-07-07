@@ -59,7 +59,6 @@
 		</combo_box>
 		<check_box label="Interfejs" name="ui_check" />
 		<check_box label="Obiekty HUD" name="hud_check" />
-		<check_box label="Wstrzymaj (pełny ekran)" name="freeze_frame_check" />
 		<check_box label="Autoodświeżanie" name="auto_snapshot_check" />
 		<text name="filter_list_label">
 			Filtr:

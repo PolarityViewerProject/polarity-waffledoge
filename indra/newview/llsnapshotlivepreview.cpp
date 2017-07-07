@@ -741,7 +741,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
 
         // grab the raw image
 		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
-		static LLCachedControl<bool> freeze_frame(gSavedSettings, "UseFreezeFrame");
         if (gViewerWindow->rawSnapshot(
                 previewp->mPreviewImage,
                 previewp->getWidth(),
@@ -759,12 +758,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             // Update the data size
             previewp->estimateDataSize();
 
-            // Full size preview is set: get the decoded image result and save it for animation
-            if (freeze_frame && previewp->mAllowFullScreenPreview)
-            {
-                previewp->prepareFreezeFrame();
-            }
-
             // The snapshot is updated now...
             previewp->mSnapshotUpToDate = TRUE;
         
@@ -773,7 +766,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
             previewp->generateThumbnailImage(TRUE) ;
         }
         previewp->getWindow()->decBusyCount();
-        previewp->setVisible(freeze_frame && previewp->mAllowFullScreenPreview); // only show fullscreen preview when in freeze frame mode
         previewp->mSnapshotActive = FALSE;
         LL_DEBUGS() << "done creating snapshot" << LL_ENDL;
     }
@@ -790,47 +782,6 @@ BOOL LLSnapshotLivePreview::onIdle( void* snapshot_preview )
     }
 
 	return TRUE;
-}
-
-void LLSnapshotLivePreview::prepareFreezeFrame()
-{
-    // Get the decoded version of the formatted image
-    getEncodedImage();
-
-    // We need to scale that a bit for display...
-    LLPointer<LLImageRaw> scaled = new LLImageRaw(
-        mPreviewImageEncoded->getData(),
-        mPreviewImageEncoded->getWidth(),
-        mPreviewImageEncoded->getHeight(),
-        mPreviewImageEncoded->getComponents());
-
-    if (!scaled->isBufferInvalid())
-    {
-        // leave original image dimensions, just scale up texture buffer
-        if (mPreviewImageEncoded->getWidth() > MAX_IMAGE_SIZE || mPreviewImageEncoded->getHeight() > MAX_IMAGE_SIZE)
-        {
-            // go ahead and shrink image to appropriate power of 2 for display
-            scaled->biasedScaleToPowerOfTwo(MAX_IMAGE_SIZE);
-            setImageScaled(TRUE);
-        }
-        else
-        {
-            // expand image but keep original image data intact
-            scaled->expandToPowerOfTwo(MAX_IMAGE_SIZE, FALSE);
-        }
-
-        mViewerImage[mCurImageIndex] = LLViewerTextureManager::getLocalTexture(scaled.get(), FALSE);
-        LLPointer<LLViewerTexture> curr_preview_image = mViewerImage[mCurImageIndex];
-        gGL.getTexUnit(0)->bind(curr_preview_image);
-        curr_preview_image->setFilteringOption(getSnapshotType() == LLSnapshotModel::SNAPSHOT_TEXTURE ? LLTexUnit::TFO_ANISOTROPIC : LLTexUnit::TFO_POINT);
-        curr_preview_image->setAddressMode(LLTexUnit::TAM_CLAMP);
-
-        static LLCachedControl<bool> freeze_frame(gSavedSettings, "UseFreezeFrame", false);
-        if (freeze_frame && mAllowFullScreenPreview)
-        {
-            mShineCountdown = 4; // wait a few frames to avoid animation glitch due to readback this frame
-        }
-    }
 }
 
 S32 LLSnapshotLivePreview::getEncodedImageWidth() const

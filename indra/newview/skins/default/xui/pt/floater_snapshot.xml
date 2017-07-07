@@ -50,7 +50,6 @@
 		</combo_box>
 		<check_box label="Interface" name="ui_check"/>
 		<check_box label="HUDs" name="hud_check"/>
-		<check_box label="Gerar quadro (tela inteira)" name="freeze_frame_check"/>
 		<check_box label="Atualização automática" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			Filtro:

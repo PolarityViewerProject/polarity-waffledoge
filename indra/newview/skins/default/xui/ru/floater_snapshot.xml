@@ -50,7 +50,6 @@
 		</combo_box>
 		<check_box label="Интерфейс" name="ui_check"/>
 		<check_box label="Данные в игре" name="hud_check"/>
-		<check_box label="Стоп-кадр (полноэкранный)" name="freeze_frame_check"/>
 		<check_box label="Автообновление" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			Фильтр:

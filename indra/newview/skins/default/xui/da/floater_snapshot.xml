@@ -70,6 +70,5 @@
 	<check_box label="Snitflade" name="ui_check"/>
 	<check_box label="HUDs" name="hud_check"/>
 	<check_box label="Behold åben efter gem" name="keep_open_check"/>
-	<check_box label="Frys billede (fuld skærm)" name="freeze_frame_check"/>
 	<check_box label="Auto-optegn" name="auto_snapshot_check"/>
 </floater>
