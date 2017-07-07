@@ -125,13 +125,15 @@
          width="180"
          name="hud_check" />
         <check_box
-         label="Freeze frame (fullscreen)"
+         label="Freeze World"
+         initial_value="false"
+         control_name="PVRender_FreezeWorld"
          layout="topleft"
-		 height="16"
+     height="16"
          left="10"
          top_pad="1"
          width="180"
-         name="freeze_frame_check" />
+         name="freeze_world_check" />
         <check_box
          label="Auto-refresh"
          layout="topleft"
