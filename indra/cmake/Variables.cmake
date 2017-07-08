@@ -194,20 +194,17 @@ endif()
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
 # Mallocs
-# option(USE_TCMALLOC " Build with Google PerfTools support." OFF)
-# option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
-
+option(USE_TCMALLOC "Build with Google PerfTools support." OFF)
+option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
+if (USE_TCMALLOC AND USE_TBBMALLOC)
+  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
+endif (USE_TCMALLOC AND USE_TBBMALLOC)
 # APIs
 option(NVAPI "Use nvapi driver interface library" OFF)
 
 # Media Plugins
 option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
 option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF) # Not handled by INSTALL_PROPRIETARY on purpose
-
-## sanity check
-##if (USE_TCMALLOC AND LINK_TBBMALLOC)
-##  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
-##endif (USE_TCMALLOC AND LINK_TBBMALLOC)
 
 # option(INSTALL_PROPRIETARY "Install proprietary binaries" OFF) # Defined in autobuild.xml, don't define here until we have to.
 if(INSTALL_PROPRIETARY)
@@ -220,9 +217,6 @@ if(FMODSTUDIO)
   set(LINK_FMODSTUDIO ON CACHE BOOL "Using FMOD Studio sound library.")
 endif(FMODSTUDIO)
 
-#if(USE_TBBMALLOC)
-#  set(LINK_TBBMALLOC ON CACHE BOOL "Using Intel TBB")
-#endif(USE_TBBMALLOC)
 
 # set(BUILD_NUMBER ${BUILD_NUMBER} CACHE STRING "ID of this viewer build")
 

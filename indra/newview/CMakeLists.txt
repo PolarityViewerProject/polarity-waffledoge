@@ -1895,7 +1895,7 @@ if(WINDOWS)
         )
      endif(USE_TCMALLOC)
 
-    if(LINK_TBBMALLOC)
+    if(USE_TBBMALLOC)
       # Configure a var for tbbmalloc location, if used.
       # Note the need to specify multiple names explicitly.
       MESSAGE("Adding TBBMalloc DLLs...")
@@ -1907,7 +1907,7 @@ if(WINDOWS)
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc_proxy.dll
         ${SHARED_LIB_STAGING_DIR}/Debug/tbbmalloc_proxy_debug.dll
         )
-    endif(LINK_TBBMALLOC)
+    endif(USE_TBBMALLOC)
 	  
     if(LINK_FMODSTUDIO)
       if(WORD_SIZE EQUAL 64)

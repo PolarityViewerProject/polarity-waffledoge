@@ -33,7 +33,7 @@
 // are not precompiled.
 
 #define CHECK_MEMORY_LEAK 0
-#if defined(LL_WINDOWS) && (defined(_DEBUG) || CHECK_MEMORY_LEAK) && (!LL_USE_TCMALLOC && !LINK_TBBMALLOC)
+#if defined(LL_WINDOWS) && (defined(_DEBUG) || CHECK_MEMORY_LEAK) && (!LL_USE_TCMALLOC && !USE_TBBMALLOC)
 #define _CRTDBG_MAP_ALLOC  
 #include <stdlib.h>  
 #include <crtdbg.h>  

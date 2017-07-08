@@ -84,10 +84,10 @@ if(WINDOWS)
       list(APPEND release_files libtcmalloc_minimal.dll)
     endif(USE_TCMALLOC)
 
-    if(LINK_TBBMALLOC)
+    if(USE_TBBMALLOC)
       list(APPEND debug_files tbbmalloc_debug.dll tbbmalloc_proxy_debug.dll)
       list(APPEND release_files tbbmalloc.dll tbbmalloc_proxy.dll)
-    endif(LINK_TBBMALLOC)
+    endif(USE_TBBMALLOC)
 
     if (LINK_FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)

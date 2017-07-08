@@ -1,7 +1,7 @@
 # -*- cmake -*-
 include(Prebuilt)
 
-if(LINK_TBBMALLOC)
+if(USE_TBBMALLOC)
   if(STANDALONE)
   else(STANDALONE)
     use_prebuilt_binary(inteltbb)
@@ -22,7 +22,7 @@ if(LINK_TBBMALLOC)
           )
     endif(WINDOWS)
   endif(STANDALONE)
-else(LINK_TBBMALLOC)
+else(USE_TBBMALLOC)
   set(TBBMALLOC_LIBRARIES "")
   set(TBBMALLOC_LINK_FLAGS "")
-endif(LINK_TBBMALLOC)
+endif(USE_TBBMALLOC)
