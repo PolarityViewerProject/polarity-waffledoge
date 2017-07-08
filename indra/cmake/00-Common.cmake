@@ -43,13 +43,13 @@ if (WINDOWS)
     set (CXX_JOBS "/MP${COMPILER_JOBS}")
   endif (COMPILER_JOBS STREQUAL "1")
 
-  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Oy- /Zi /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /Zi /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /Zo /Oy- /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /Zo /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Oi /Oy /Zi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Oi /Zi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
   if (WORD_SIZE EQUAL 32)
@@ -107,6 +107,7 @@ if (WINDOWS)
       /Zc:forScope
       /Zc:rvalueCast
       /nologo
+      /Oy-
       /fp:fast
       /Zm140
       )
