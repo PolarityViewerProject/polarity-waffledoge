@@ -1,12 +1,12 @@
 /** 
  * @mainpage
  *
- * This is the sources for the Second Life Viewer;
+ * This is the sources for the Polarity Viewer;
  * information on the open source project is at 
  * https://wiki.secondlife.com/wiki/Open_Source_Portal
  *
  * The Mercurial repository for the trunk version is at
- * https://bitbucket.org/lindenlab/viewer-release
+ * https://bitbucket.org/polarityviewer/xenhat.polarity-development
  *
  * @section source-license Source License
  * @verbinclude LICENSE-source.txt
