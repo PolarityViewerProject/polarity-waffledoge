@@ -517,7 +517,8 @@ LLUrlEntrySimpleURlVendor::LLUrlEntrySimpleURlVendor()
 	//  e.g.
 	// GOOD: \\.
 	// BAD: \.
-	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?" + PROJECT_STRING + "\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
+	static const std::string project_str = PROJECT_STRING;
+	mPattern = boost::regex("https:\\/\\/([-\\w\\.]*\\.)?" + project_str + "\\.((org|atlassian\\.net)(:\\d{1,5})?)\\S*", boost::regex::perl | boost::regex::icase);
 	mIcon = "Url_Icon_Vendor";
 	mMenuName = "menu_url_http.xml";
 }
@@ -1572,7 +1573,8 @@ std::string LLUrlEntryJira::getUrl(const std::string &string) const
 {
 	if (string.find("PLVR") != std::string::npos)
 	{
-		static const std::string project_jira_url = std::string("https://" + PROJECT_STRING + ".atlassian.net/browse/%s");
+		static const std::string project_str = PROJECT_STRING;
+		static const std::string project_jira_url = std::string("https://" + project_str + ".atlassian.net/browse/%s");
 		return llformat(project_jira_url.c_str(), string);
 	}
 	if (string.find("ALCH") != std::string::npos)

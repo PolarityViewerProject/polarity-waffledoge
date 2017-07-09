@@ -574,13 +574,15 @@ bool LLCrashLogger::init()
     
     LLCore::LLHttp::initialize();
 
+	static const std::string app_name_str = APP_NAME;
+	
+	// Default to the product name "Polarity" (this is overridden by the -name argument)
+	mProductName = app_name_str;
+	
 	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs(APP_NAME);
+	gDirUtilp->initAppDirs(mProductName);
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
-
-	// Default to the product name "Polarity" (this is overridden by the -name argument)
-	mProductName = APP_NAME;
 
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");

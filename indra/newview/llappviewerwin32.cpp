@@ -112,7 +112,8 @@ const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
 bool create_app_mutex()
 {
 	bool result = true;
-	LPCWSTR unique_mutex_name = ll_convert_string_to_wide(APP_NAME + "AppMutex",0);
+	static const std::string app_name_str = APP_NAME;
+	LPCWSTR unique_mutex_name = ll_convert_string_to_wide(app_name_str + "AppMutex",0);
 	HANDLE hMutex;
 	hMutex = CreateMutex(NULL, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
@@ -607,7 +608,8 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
 	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	static const char* app_name_cstr = APP_NAME.c_str();
+	static const std::string app_name_str = APP_NAME;
+	static const char* app_name_cstr = app_name_str.c_str();
 	mbstowcs(window_class, app_name_cstr, 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.

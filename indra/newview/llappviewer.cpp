@@ -381,11 +381,12 @@ BOOL gLogoutInProgress = FALSE;
 // Internal globals... that should be removed.
 static std::string gArgs;
 const int MAX_MARKER_LENGTH = 1024;
-const std::string MARKER_FILE_NAME(APP_NAME + ".exec_marker");
-const std::string START_MARKER_FILE_NAME(APP_NAME + ".start_marker");
-const std::string ERROR_MARKER_FILE_NAME(APP_NAME + ".error_marker");
-const std::string LLERROR_MARKER_FILE_NAME(APP_NAME + ".llerror_marker");
-const std::string LOGOUT_MARKER_FILE_NAME(APP_NAME + ".logout_marker");
+static const std::string app_name_str = APP_NAME;
+const std::string MARKER_FILE_NAME(app_name_str + ".exec_marker");
+const std::string START_MARKER_FILE_NAME(app_name_str + ".start_marker");
+const std::string ERROR_MARKER_FILE_NAME(app_name_str + ".error_marker");
+const std::string LLERROR_MARKER_FILE_NAME(app_name_str + ".llerror_marker");
+const std::string LOGOUT_MARKER_FILE_NAME(app_name_str + ".logout_marker");
 static BOOL gDoDisconnect = FALSE;
 static std::string gLaunchFileOnQuit;
 
@@ -758,11 +759,12 @@ LLAppViewer::LLAppViewer()
 
     mDumpPath.clear();
 
-    llassert_always(APP_NAME != "");
+	static const std::string app_name_str = APP_NAME;
+    llassert_always(app_name_str != "");
 
 	// Need to do this initialization before we do anything else, since anything
 	// that touches files should really go through the lldir API
-	gDirUtilp->initAppDirs(APP_NAME);
+	gDirUtilp->initAppDirs(app_name_str);
 	//
 	// IMPORTANT! Do NOT put anything that will write
 	// into the log files during normal startup until AFTER
@@ -2291,13 +2293,14 @@ void LLAppViewer::initLoggingAndGetLastDuration()
 	//LLError::setTimeFunction(getRuntime);
 
 	// Remove the last ".old" log file.
+	static const std::string app_name_str = APP_NAME;
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     APP_NAME + ".old");
+							     app_name_str + ".old");
 	LLFile::remove(old_log_file);
 
 	// Get name of the log file
 	std::string log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,
-							     APP_NAME + ".log");
+							     app_name_str + ".log");
  	/*
 	 * Before touching any log files, compute the duration of the last run
 	 * by comparing the ctime of the previous start marker file with the ctime
@@ -2874,7 +2877,7 @@ bool LLAppViewer::initConfiguration()
 	// crash as this dialog is always frontmost.
 	std::string splash_msg;
 	LLStringUtil::format_map_t args;
-	args["[APP_NAME]"] = APP_NAME; // do not use getstring here. use hard-coded name.
+	args["[APP_NAME]"] = app_name_str; // do not use getstring here. use hard-coded name.
 	splash_msg = LLTrans::getString("StartupLoading", args);
 
 	//LLVolumeMgr::initClass();
@@ -3029,15 +3032,19 @@ void LLAppViewer::initStrings()
 		// translation strings into this one.
 		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
 	}
-	LLTrans::setDefaultArg("[APP_NAME]", APP_NAME);
-	std::string capitalized_app_name = APP_NAME;
+	LLTrans::setDefaultArg("[APP_NAME]", app_name_str);
+	std::string capitalized_app_name = app_name_str;
 	// This function really should return something instead of being void...
 	LLStringUtil::toUpper(capitalized_app_name);
 	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
-	LLTrans::setDefaultArg("[PROJECT_STRING]",PROJECT_STRING);
-	LLTrans::setDefaultArg("[PROJECT_DOMAIN]",PROJECT_DOMAIN);
-	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]",PROJECT_HOMEPAGE);
-	LLTrans::setDefaultArg("[PROJECT_UPDATE_URL]",PROJECT_UPDATE_URL);
+	static const std::string project_str = PROJECT_STRING;
+	static const std::string project_domain_str = PROJECT_DOMAIN;
+	static const std::string project_homepage_str = PROJECT_HOMEPAGE;
+	static const std::string project_update_url_str = PROJECT_UPDATE_URL;
+	LLTrans::setDefaultArg("[PROJECT_STRING]", project_str);
+	LLTrans::setDefaultArg("[PROJECT_DOMAIN]", project_domain_str);
+	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]", project_homepage_str);
+	LLTrans::setDefaultArg("[PROJECT_UPDATE_URL]", project_update_url_str);
 }
 
 namespace {
@@ -3277,7 +3284,7 @@ bool LLAppViewer::initWindow()
 	LLViewerWindow::Params window_params;
 	window_params
 		.title(gWindowTitle)
-		.name(APP_NAME)
+		.name(app_name_str)
 		.x(gSavedSettings.getS32("WindowX"))
 		.y(gSavedSettings.getS32("WindowY"))
 		.width(gSavedSettings.getS32("WindowWidth"))
@@ -3785,10 +3792,10 @@ void LLAppViewer::writeSystemInfo()
         gDebugInfo["Dynamic"] = LLSD::emptyMap();
     
 #if LL_WINDOWS
-	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,APP_NAME + ".log");
+	gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_DUMP,app_name_str + ".log");
 #else
     //Not ideal but sufficient for good reporting.
-    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS,APP_NAME + ".old");  //LLError::logFileName();
+    gDebugInfo["SLLog"] = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, app_name_str + ".old");  //LLError::logFileName();
 #endif
 
 	// Do we really need to create all these variables and make all those calls? - Xenhat 2016.12.16
@@ -3838,7 +3845,7 @@ void LLAppViewer::writeSystemInfo()
 	}
 	
 	// Dump some debugging info
-	LL_INFOS("SystemInfo") << "Application: " << APP_NAME << LL_ENDL;
+	LL_INFOS("SystemInfo") << "Application: " << app_name_str << LL_ENDL;
 	LL_INFOS("SystemInfo") << "Version: " << LLVersionInfo::getChannelAndVersion() << LL_ENDL;
 
 	// Dump the local time and time zone
@@ -4818,7 +4825,7 @@ void LLAppViewer::purgeCacheImmediate()
 
 std::string LLAppViewer::getSecondLifeTitle() const
 {
-	return APP_NAME;
+	return app_name_str;
 }
 
 std::string LLAppViewer::getWindowTitle() const 

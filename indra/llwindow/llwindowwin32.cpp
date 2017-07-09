@@ -80,7 +80,8 @@ LPWSTR gIconResource = IDI_APPLICATION;
 LLW32MsgCallback gAsyncMsgCallback = NULL;
 
 // <polarity> branding
-const LPCWSTR LAPP_NAME_LPCWSTR = ll_convert_string_to_wide(std::string(APP_NAME).c_str(),0);
+static const std::string app_name_str = APP_NAME;
+const LPCWSTR LAPP_NAME_LPCWSTR = ll_convert_string_to_wide(app_name_str,0);
 
 #ifndef DPI_ENUMS_DECLARED
 

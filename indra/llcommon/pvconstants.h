@@ -21,33 +21,16 @@
  * $/LicenseInfo$
  */
 
-#pragma once
-
 #ifndef PV_CONSTANTS_H
 #define PV_CONSTANTS_H
 #include <string>
-
-// <polarity> This contains the name of the viewer project.
-#ifndef ROOT_PROJECT_NAME
- #error "ROOT_PROJECT_NAME is not defined! If you see this error message, re-run CMake or clean your build directory and try again."
-#endif
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
+// Cannot use STRINGIZE because defined for something else in stringize.h
+#define DEF_TO_STRING(x) #x
+#define TOSTRING(x) DEF_TO_STRING(x)
 #define AT __FILE__ ":" TOSTRING(__LINE__)
-static std::string getAppName()
-{
-	// Compile-time checks don't appear to work on strings, we're going to have to pray this never ends up empty
-	static const std::string temp_app_name = TOSTRING(ROOT_PROJECT_NAME);
-	if (temp_app_name.empty())
-	{
-		static const std::string fallback_app_name = "Polarity";
-		return fallback_app_name;
-	}
-	return temp_app_name;
-}
-const std::string APP_NAME = getAppName();
-const std::string PROJECT_STRING = "polarityviewer";
-const std::string PROJECT_DOMAIN = PROJECT_STRING + ".org";
-const std::string PROJECT_HOMEPAGE = "https://www." + PROJECT_DOMAIN;
-const std::string PROJECT_UPDATE_URL = "https://update."+PROJECT_DOMAIN+"/update";
+#define APP_NAME "Polarity"
+#define PROJECT_STRING "polarityviewer"
+#define PROJECT_DOMAIN "polarityviewer.org"
+#define PROJECT_HOMEPAGE "https://www.polarityviewer.org"
+#define PROJECT_UPDATE_URL "https://update.polarityviewer.org/update"
 #endif

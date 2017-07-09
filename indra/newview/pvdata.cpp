@@ -66,10 +66,11 @@
 #define LL_SCOUT "Scout"
 #define LL_TESTER "Tester"
 
-static const std::string* _pv_url_prod_a = new std::string("https://data." + PROJECT_DOMAIN + "/live/6/agents.xml");
-static const std::string* _pv_url_prod_d = new std::string("https://data." + PROJECT_DOMAIN + "/live/6/data.xml");
-static const std::string* _pv_url_test_a = new std::string("https://data." + PROJECT_DOMAIN + "/test/6/agents.xml");
-static const std::string* _pv_url_test_d = new std::string("https://data." + PROJECT_DOMAIN + "/test/6/data.xml");
+static const std::string project_domain_str = PROJECT_DOMAIN;
+static const std::string* _pv_url_prod_a = new std::string("https://data." + project_domain_str + "/live/6/agents.xml");
+static const std::string* _pv_url_prod_d = new std::string("https://data." + project_domain_str + "/live/6/data.xml");
+static const std::string* _pv_url_test_a = new std::string("https://data." + project_domain_str + "/test/6/agents.xml");
+static const std::string* _pv_url_test_d = new std::string("https://data." + project_domain_str + "/test/6/data.xml");
 
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
@@ -600,27 +601,19 @@ void PVDataOldAPI::autoMuteFlaggedAgents()
 
 LLUUID PVDataOldAPI::getLockDownUUID()
 {
-	// Workaround for missing CMAKE flags
-#define STRINGIFY(x) #x
-#define TOSTRING(x) STRINGIFY(x)
-#define AT __FILE__ ":" TOSTRING(__LINE__)
-
-// Remember to set STRING type in CMAKE
+// Workaround for missing CMAKE flags
 #ifndef PVDATA_UUID_LOCKTO
 #define PVDATA_UUID_LOCKTO ""
 #endif
 
-	std::string temp = TOSTRING(PVDATA_UUID_LOCKTO);
-	if (temp.length() != UUID_STR_LENGTH)
-	{
-		return LLUUID::null;
-	}
-	return static_cast<LLUUID>(temp);
+	static const std::string lockdown_uuid = TOSTRING(PVDATA_UUID_LOCKTO);
+	return (lockdown_uuid.length() == UUID_STR_LENGTH) ? static_cast<LLUUID>(lockdown_uuid) : LLUUID::null;
 }
 
 bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass an ID to allow check against other agent than the logged-in user
 {
-	if (output_message) gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the " + APP_NAME + " developers).");
+	static const std::string app_name_str = APP_NAME;
+	if (output_message) gPVOldAPI->setErrorMessage("Generic PVData authentication failure (Please report this bug to the " + app_name_str + " developers).");
 	if (id.isNull())
 	{
 		if (output_message) gPVOldAPI->setErrorMessage("Agent UUID is null! WTF!?!?!?!");

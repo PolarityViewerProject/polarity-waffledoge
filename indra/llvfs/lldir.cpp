@@ -376,10 +376,11 @@ std::string LLDir::buildSLOSCacheDir() const
 	}
 	else
 	{
+		static const std::string app_name_str = APP_NAME;
 #if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-		res = add(getOSCacheDir(), APP_NAME + "64");
+		res = add(getOSCacheDir(), app_name_str + "64");
 #else
-		res = add(getOSCacheDir(), APP_NAME);
+		res = add(getOSCacheDir(), app_name_str);
 #endif
 	}
 	return res;

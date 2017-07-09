@@ -66,7 +66,8 @@ const std::string  GRID_LOGIN_IDENTIFIER_TYPES = "login_identifier_types";
 const std::string GRID_SLURL_BASE = "slurl_base";
 const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 
-const std::string DEFAULT_LOGIN_PAGE = "https://app."+PROJECT_DOMAIN;
+static const std::string project_domain_str = PROJECT_DOMAIN;
+const std::string DEFAULT_LOGIN_PAGE = "https://app." + project_domain_str;
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
 
