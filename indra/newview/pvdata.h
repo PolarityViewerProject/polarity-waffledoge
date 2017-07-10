@@ -157,14 +157,14 @@ const pvagent_flag BAD_USER_BANNED = (1 << 31);
 
 // XML flags defines
 
-const std::string WORD_STAFF_DEVELOPER		= "developer";		/* They wrote the code you're looking at.     	*/
-const std::string WORD_STAFF_QA				= "qa";		       	/* They approved the code you're looking at.  	*/
-const std::string WORD_STAFF_SUPPORT		= "support";		/* They help users.                           	*/
-const std::string WORD_USER_TESTER			= "tester";			/* They kill kittens in the name of science.  	*/
-const std::string WORD_USER_CONTRIBUTOR		= "tester";			/* They kill kittens in the name of science.  	*/
-const std::string WORD_BAD_USER_UNSUPPORTED	= "unsupported";	/* User voided their warranty.                	*/
-const std::string WORD_BAD_USER_AUTOMUTED	= "automuted";		/* Automatically muted on login.              	*/
-const std::string WORD_BAD_USER_BANNED		= "banned";		   	/* We don't want them using our stuff.        	*/
+const std::string WORD_STAFF_DEVELOPER		= "Developer";		/* They wrote the code you're looking at.     	*/
+const std::string WORD_STAFF_QA				= "QA";		       	/* They approved the code you're looking at.  	*/
+const std::string WORD_STAFF_SUPPORT		= "Support";		/* They help users.                           	*/
+const std::string WORD_USER_TESTER			= "Tester";			/* They kill kittens in the name of science.  	*/
+const std::string WORD_USER_CONTRIBUTOR		= "Contributor";			/* They kill kittens in the name of science.  	*/
+const std::string WORD_BAD_USER_UNSUPPORTED	= "Unsupported";	/* User voided their warranty.                	*/
+const std::string WORD_BAD_USER_AUTOMUTED	= "Automuted";		/* Automatically muted on login.              	*/
+const std::string WORD_BAD_USER_BANNED		= "Banned";		   	/* We don't want them using our stuff.        	*/
 
 class PVAgent
 {
