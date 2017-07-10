@@ -408,19 +408,12 @@ pvagent_flag PVDataOldAPI::translateFlagsToBitSet(std::string flag, bool enabled
 	{
 		return USER_TESTER_RETIRED;
 	}
-	try
+	for (auto& i : titles_dictionary)
 	{
-		for (auto& i : titles_dictionary)
+		if (i.second == flag)
 		{
-			if (i.second == flag)
-			{
-				return i.first;
-			}
+			return i.first;
 		}
-	}
-	catch (std::out_of_range)
-	{
-		LL_ERRS() << flag << " ended up out of range!" << LL_ENDL;
 	}
 	LL_WARNS() << "Unimplemented flag " << flag << LL_ENDL;
 	return 0;
