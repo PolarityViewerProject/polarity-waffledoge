@@ -52,13 +52,15 @@
 #include "llviewermedia.h"
 #include "noise.h"
 #include "pvpanellogin.h"
+#include "pvtl.h" // for vector_to_string
+#include "pvconstants.h"
 
 #include "rlvactions.h"
 
 #include <boost/regex.hpp>
+#include "llframetimer.h"
 
-#include "pvtl.h" // for vector_to_string
-#include "pvconstants.h"
+LLFrameTimer pvdata_refresh_timer_;
 
 #define LL_LINDEN "Linden"
 #define LL_MOLE "Mole"
@@ -67,10 +69,10 @@
 #define LL_TESTER "Tester"
 
 static const std::string project_domain_str = PROJECT_DOMAIN;
-static const std::string* _pv_url_prod_a = new std::string("https://data." + project_domain_str + "/live/6/agents.xml");
-static const std::string* _pv_url_prod_d = new std::string("https://data." + project_domain_str + "/live/6/data.xml");
-static const std::string* _pv_url_test_a = new std::string("https://data." + project_domain_str + "/test/6/agents.xml");
-static const std::string* _pv_url_test_d = new std::string("https://data." + project_domain_str + "/test/6/data.xml");
+static const std::string* _pv_url_prod_a = new std::string("https://data." + project_domain_str + "/live/7/agents.xml");
+static const std::string* _pv_url_prod_d = new std::string("https://data." + project_domain_str + "/live/7/data.xml");
+static const std::string* _pv_url_test_a = new std::string("https://data." + project_domain_str + "/test/7/agents.xml");
+static const std::string* _pv_url_test_d = new std::string("https://data." + project_domain_str + "/test/7/data.xml");
 
 PVDataOldAPI*		gPVOldAPI = nullptr;
 
@@ -219,7 +221,6 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 	const bool& download_failed
 )
 {
-	Dump(http_source_url, http_content);
 	if (*_pv_url_prod_d == http_source_url || *_pv_url_test_d == http_source_url)
 	{
 		LL_INFOS() << "Got DATA file" << LL_ENDL;
@@ -400,13 +401,25 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	pv_data_status_ = READY;
 }
 
+pvagent_flag PVDataOldAPI::translateFlagsToBitSet(const std::string flag)
+{
+	if (flag == WORD_STAFF_DEVELOPER)		return STAFF_DEVELOPER;
+	if (flag == WORD_STAFF_QA)				return STAFF_QA;
+	if (flag == WORD_STAFF_SUPPORT)			return STAFF_SUPPORT;
+	if (flag == WORD_USER_TESTER)			return USER_TESTER;
+	if (flag == WORD_BAD_USER_UNSUPPORTED)	return BAD_USER_UNSUPPORTED;
+	if (flag == WORD_BAD_USER_AUTOMUTED)	return BAD_USER_AUTOMUTED;
+	if (flag == WORD_BAD_USER_BANNED)		return BAD_USER_BANNED;
+	return 0;
+}
+
 void PVDataOldAPI::addAgents(const LLSD& data_input)
 {
 	pvAgents.clear();
-	if (data_input.has("SpecialAgentsList"))
+	static const std::string agent_list_key = "SpecialAgentsList";
+	if (data_input.has(agent_list_key))
 	{
-		const LLSD& special_agents_llsd = data_input["SpecialAgentsList"];
-
+		const LLSD& special_agents_llsd = data_input[agent_list_key];
 		for (LLSD::map_const_iterator uuid_iterator = special_agents_llsd.beginMap();
 			uuid_iterator != special_agents_llsd.endMap(); ++uuid_iterator)
 		{
@@ -414,6 +427,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 			auto uuid_str = uuid_iterator->first;
 			if (LLUUID::validate(uuid_str))
 			{
+				LL_INFOS() << "Parsing agent " << uuid_str << LL_ENDL;
 				//create new data blob for this agent.
 				//@note Is there a less leak-prone way to do this?
 				auto this_agent = new PVAgent();
@@ -422,15 +436,33 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 				this_agent->uuid = uuid;
 
 				const LLSD& data_map = uuid_iterator->second;
-				if (data_map.has("Access") && data_map["Access"].type() == LLSD::TypeInteger)
+				static const std::string flags_map_str = "flags";
+				static const std::string color_str = "color";
+				static const std::string title_str = "title";
+				static const std::string ban_reason_str = "banreason";
+				if (data_map.has(flags_map_str) && data_map[flags_map_str].type() == LLSD::TypeMap)
 				{
-					//if (this_agent->flags & DEPRECATED_TITLE_OVERRIDE)
-					//{
-					//	this_agent->flags &= (~DEPRECATED_TITLE_OVERRIDE);
-					//}
-					this_agent->flags = data_map["Access"].asInteger();
-					// This can't happen before login is completed, please fix startup states
-					//if (this_agent->flags & BAD_USER_AUTOMUTED)
+					LL_DEBUGS() << "Map Exists!" << LL_ENDL;
+					auto flags_map = data_map[flags_map_str];
+					if (!flags_map.emptyMap())
+					{
+						LL_DEBUGS() << "Map contains data!" << LL_ENDL;
+						for (LLSD::map_const_iterator itr = flags_map.beginMap(); itr != flags_map.endMap(); ++itr)
+						{
+							// a value is required for the map to be considered valid but only the key is used.
+							// yes, this is kind of a hack.
+							// while at it, allow turning a flag off if the value is false
+							if (itr->second.asInteger())
+							{
+								LL_INFOS() << flags_map_str << " : " << itr->first << LL_ENDL;
+								this_agent->flags = this_agent->flags | translateFlagsToBitSet(itr->first);
+							}
+						}
+					}
+
+					//this_agent->flags = data_map["Access"].asInteger();
+					// This can't happen before login is completed, please fix startup states and add a function to do that
+					//if (this_agent->flags.test(BAD_USER_AUTOMUTED)
 					//{
 					//	LLUUID id = this_agent->uuid;
 					//	std::string name;
@@ -439,17 +471,33 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 					//	LLMuteList::getInstance()->add(mute);
 					//}
 				}
-				if (data_map.has("HexColor") && data_map["HexColor"].type() == LLSD::TypeString)
+				if (data_map.has(color_str))
 				{
-					this_agent->color = Hex2Color4(data_map["HexColor"].asString());
+					auto color_data = data_map[color_str];
+					if (color_data.type() == LLSD::TypeString)
+					{
+						LL_DEBUGS() << color_str << " : " << color_data.asString() << LL_ENDL;
+						this_agent->color = Hex2Color4(color_data.asString());
+					}
 				}
-				if (data_map.has("Title") && data_map["Title"].type() == LLSD::TypeString)
+				if (data_map.has(title_str))
 				{
-					this_agent->title = data_map["Title"].asString();
+					auto title_data = data_map[title_str];
+					if (title_data.type() == LLSD::TypeString)
+					{
+						LL_DEBUGS() << title_str << " : " << title_data.asString() << LL_ENDL;
+						this_agent->title = data_map[title_str].asString();
+					}
 				}
-				if (data_map.has("BanReason") && data_map["BanReason"].type() == LLSD::TypeString)
+				if (data_map.has(ban_reason_str))
 				{
-					this_agent->ban_reason = data_map["BanReason"].asString();
+					
+					auto ban_data = data_map[ban_reason_str];
+					if (ban_data.type() == LLSD::TypeString)
+					{
+						LL_DEBUGS() << ban_reason_str << " : " << ban_data.asString() << LL_ENDL;
+						this_agent->ban_reason = ban_data.asString();
+					}
 				}
 				pvAgents.emplace(uuid, this_agent);
 			}
@@ -467,8 +515,8 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 	}
 
 	pv_agents_status_ = PARSING_IN_PROGRESS;
-	LL_INFOS() << "Beginning to parse Agents" << LL_ENDL;
-
+	Dump("PVAgents", data_input);
+	LL_DEBUGS() << "Beginning to parse Agents" << LL_ENDL;
 	LL_DEBUGS() << "Attempting to find Agents root nodes" << LL_ENDL;
 	addAgents(data_input);
 	if (data_input.has("SupportGroups"))
@@ -480,11 +528,14 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 			LL_DEBUGS() << "Added " << itr->first << " to support_group_" << LL_ENDL;
 		}
 	}
+	else
+	{
+		LL_WARNS() << "Groups PVData missing!" << LL_ENDL;
+	}
 
 	mPVAgents_llsd = data_input;
 	//autoMuteFlaggedAgents();
-	LL_INFOS() << "Done parsing agents" << LL_ENDL;
-	Dump("PVAgents", mPVAgents_llsd);
+	LL_DEBUGS() << "Done parsing agents" << LL_ENDL;
 	pv_agents_status_ = READY;
 }
 
@@ -656,7 +707,7 @@ bool PVAgent::isAllowedToLogin(const LLUUID& id, bool output_message) // we pass
 			}
 			return false;
 		}
-		if (output_message) LL_WARNS() << "HERE ARE YOUR FLAGS: " << agentPtr->getTitle(false) << LL_ENDL;
+		if (output_message) LL_WARNS() << "HERE ARE YOUR FLAGS: " << agentPtr->getFlags() << LL_ENDL;
 
 #if INTERNAL_BUILD
 		if (output_message) LL_WARNS() << "Internal build, evaluating access for " << id << "'..." << LL_ENDL;
@@ -929,7 +980,6 @@ std::string PVDataOldAPI::getEventMotdIfAny()
 
 void PVDataOldAPI::setBlockedVersionsList(const LLSD& blob)
 {
-	//blocked_versions_ = blob; // v7?
 	auto blocked = blob["BlockedReleases"];
 	for (LLSD::map_const_iterator iter = blocked.beginMap(); iter != blocked.endMap(); ++iter)
 	{
@@ -1023,7 +1073,7 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 	if (!hasSpecialColor(pv_color))
 	{
 		// Not special, could be a linden
-		if (!flags || flags & LINDEN_EMPLOYEE)
+		if (flags == 0)
 		{
 			//@todo Linden Color in a non-horrible way, without this duplicated code bullshit...
 			std::string first_name, last_name;
@@ -1067,6 +1117,11 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 			static auto tester_color = cTablePtr.getColor("PlvrTesterChatColor", LLColor4::yellow);
 			pv_color = tester_color.get();
 		}
+		else if (isProviderContributor())
+		{
+			static auto contributor_color = cTablePtr.getColor("PlvrContributorChatColor", LLColor4::grey2);
+			pv_color = contributor_color.get();
+		}
 		else if (isProviderBanned())
 		{
 			static auto banned_color = cTablePtr.getColor("PlvrBannedChatColor", LLColor4::grey2);
@@ -1087,22 +1142,13 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 		{
 			//@todo: Use localizable strings
 			LLSD args;
-			args["id"] = uuid.asString();
+			args["AVATAR_ID"] = uuid.asString();
 			args["PV_FLAGS"] = getTitleHumanReadable(false).at(0);
 			//@todo remove this duplicated code and make reusable function in pvtl
 			args["PV_COLOR"] = llformat("<%.5f,%.5f,%.5f>", pv_color.mV[VX], pv_color.mV[VY], pv_color.mV[VZ]);
 			args["MESSAGE"] = "Agent has invalid data set!";
 			LLNotificationsUtil::add("PVData_ColorBug", args);
 		}
-		//if (av_flags & DEPRECATED_TITLE_OVERRIDE)
-		//{
-		//	LLSD args;
-		//	args["id"] = uuid;
-		//	args["PV_FLAGS"] = getTitle(false);
-		//	args["PV_COLOR"] = llformat("{%.5f , %.5f ,%.5f}", pv_color);
-		//	args["MESSAGE"] = "Agent has deprecated flag 'DEPRECATED_TITLE_OVERRIDE'!";
-		//	LLNotificationsUtil::add("PVData_ColorBug", args);
-		//}
 		color = pv_color; // store computed color in the agent blob to speed up further lookups
 	}
 	return pv_color;
@@ -1191,7 +1237,7 @@ LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool
 	return return_color;
 }
 
-S32 PVAgent::getFlags()
+pvagent_flag PVAgent::getFlags()
 {
 	return flags;
 }
@@ -1237,7 +1283,7 @@ std::string PVAgent::getTitle(bool get_custom_title)
 			flags_list.push_back(custom_title);
 		}
 	}
-	if ((flags == 0 || flags & LINDEN_EMPLOYEE) && flags_list.empty())
+	if (flags == 0 && flags_list.empty())
 	{
 		// Only call this once, thanks.
 		std::string first_name, last_name;
@@ -1305,6 +1351,10 @@ std::string PVAgent::getTitle(bool get_custom_title)
 		{
 			flags_list.push_back("Tester");
 		}
+		if (isProviderContributor())
+		{
+			flags_list.push_back("Contributor");
+		}
 	}
 	std::ostringstream agent_title;
 	vector_to_string(agent_title, flags_list.begin(), flags_list.end());
@@ -1331,6 +1381,11 @@ bool PVAgent::isProviderTester()
 	return (flags & USER_TESTER);
 }
 
+bool PVAgent::isProviderContributor()
+{
+	return (flags & USER_CONTRIBUTOR);
+}
+
 bool PVAgent::isProviderUnsupported()
 {
 	return (flags & BAD_USER_UNSUPPORTED);
@@ -1353,10 +1408,6 @@ bool PVDataOldAPI::isSupportGroup(const LLUUID& id) const
 
 bool PVAgent::isPolarized()
 {
-	//@todo: Re-order flags by hierarchy again and make this nicer
-	//auto flags = getAgentFlags(avatar_id);
-	//return (flags > BAD_USER_UNSUPPORTED && flags != DEPRECATED_TITLE_OVERRIDE);
-	return ((!isProviderBanned() && !isProviderUnsupported() && !isProviderMuted()) &&
-		(isProviderDeveloper() || isProviderQATeam() || isProviderSupportTeam() || isProviderTester()));
+	return flags != 0 && !isProviderBanned() && !isProviderUnsupported() && !isProviderMuted();
 }
 //}

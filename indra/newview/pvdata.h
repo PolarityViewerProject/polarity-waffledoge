@@ -33,10 +33,8 @@
 
 #include "llavatarname.h" // for convenience
 #include "llerror.h" // for LOG_CLASS
-#include "pvtypes.h"
 #include "lluicolortable.h"
-#include "v3color.h"
-#include "llframetimer.h"
+#include "pvtypes.h"
 
 class LLColor4;
 class LLColor3;
@@ -50,7 +48,7 @@ class LLUUID;
 // please increment the following counter as a warning
 // to the next guy:
 //
-// total_hours_wasted_here = 138
+// total_hours_wasted_here = 145
 // See also: https://xkcd.com/844/
 //
 
@@ -103,47 +101,82 @@ class LLUUID;
 	 // Respectfully borrowed from http://www.viva64.com/en/w/V802/print/ and http://www.viva64.com/en/a/0030/ for documentation purposes
 
   */
-  // Last updated 2016-09-26 1:23:12 PM
-enum flags_t : S32
-{
-	// Those aren't numbers. They are bits and here we use them as an array of booleans.
-	// Every agent flag has its own bit and you can combine them should such need arise.
-	// REMINDER: Check against 0 for avatars not in the list, NOT -1
-	// TODO v7: MAKE -3
-	BAD_USER_BANNED = (1 << 0),      /* [0000 0000 0001] We don't want them using our stuff.        */
-	// TODO v7: MAKE -1
-	BAD_USER_AUTOMUTED = (1 << 1),   /* [0000 0000 0010] Automatically muted on login.              */
-	// TODO v7: Make -2
-	BAD_USER_UNSUPPORTED = (1 << 2),  /* [0000 0000 0100] User voided their warranty.                */
-	NOT_SPECIAL = 0,
-	// TODO v7: move under STAFF_QA
-	STAFF_DEVELOPER = (1 << 3),        /* [0000 0000 1000] They wrote the code you're looking at.     */
-	// TODO v7: move under STAFF_SUPPORT
-	STAFF_QA = (1 << 4),         /* [0000 0001 0000] They approved the code you're looking at.  */
-	// TODO v7: move under USER_TESTER
-	STAFF_SUPPORT = (1 << 5),    /* [0000 0010 0000] They help users.                           */
-	// TODO v7: move under DEPRECATED_TITLE_OVERRIDE
-	USER_TESTER = (1 << 6), /* [0000 0100 0000] They kill kittens in the name of science.  */
-	//FLAG_USER_HAS_TITLE = (1 << 7),   /* [0000 1000 0000] User that deserves recognition             */
-	// TODO v7: DEPRECATE, empty title falls back to level flag
-	DEPRECATED_TITLE_OVERRIDE = (1 << 8),   /* [0001 0000 0000] Title overrides general flags list         */
-	//FLAG_USER_HAS_COLOR = (1 << 9),   /* DEPRECATED [0010 0000 0000] User has a custom color         */
 
-	// Last.
-	LINDEN_EMPLOYEE = (1 << 15), /* [1000 0000 0000 0000] Linden Lab Employee */
-};
+// 32bit integer
+// 0000 0000 0000 0000 0000 0000 0000 0000
+// I tried to use bitset and couldn't work around the out_of_range exception
+typedef U32 pvagent_flag;
+/**
+ * \brief They wrote the code you're looking at.
+ *
+ *	Detailed Bitset representation : [0000 0000 0000 0000 0000 0000 0000 001]
+ */
+const pvagent_flag STAFF_DEVELOPER = (1 << 2);
+/**
+ * \brief They approved the code you're looking at.
+ *
+ *	Detailed Bitset representation : [0000 0000 0000 0000 0000 0000 0000 0010]
+ */
+const pvagent_flag STAFF_QA = (1 << 3);
+/**
+ * \brief They help users.
+ *
+ *	Detailed Bitset representation : [0000 0000 0000 0000 0000 0000 0000 0100]
+ */
+const pvagent_flag STAFF_SUPPORT = (1 << 4);
+/**
+ * \brief They kill kittens in the name of science.
+ *
+ *	Detailed Bitset representation : [0000 0000 0000 0000 0000 0000 0000 1000]
+ */
+const pvagent_flag USER_TESTER = (1 << 5);
+/**
+ * \brief They kill kittens in the name of science.
+ *
+ *	Detailed Bitset representation : [0000 0000 0000 0000 0000 0000 0000 1000]
+ */
+const pvagent_flag USER_CONTRIBUTOR = (1 << 6);
+/**
+ * \brief User voided their warranty.
+ *
+ *	Detailed Bitset representation : [0010 0000 0000 0000 0000 0000 0000 0000]
+ */
+const pvagent_flag BAD_USER_UNSUPPORTED = (1 << 29);
+/**
+ * \brief Automatically muted on login.
+ *
+ *	Detailed Bitset representation : [0100 0000 0000 0000 0000 0000 0000 0000]
+ */
+const pvagent_flag BAD_USER_AUTOMUTED = (1 << 30);
+/**
+ * \brief We don't want them using our stuff.
+ *
+ *	Detailed Bitset representation : [1000 0000 0000 0000 0000 0000 0000 0000]
+ */
+const pvagent_flag BAD_USER_BANNED = (1 << 31);
+
+// XML flags defines
+
+const std::string WORD_STAFF_DEVELOPER		= "developer";		/* They wrote the code you're looking at.     	*/
+const std::string WORD_STAFF_QA				= "qa";		       	/* They approved the code you're looking at.  	*/
+const std::string WORD_STAFF_SUPPORT		= "support";		/* They help users.                           	*/
+const std::string WORD_USER_TESTER			= "tester";			/* They kill kittens in the name of science.  	*/
+const std::string WORD_USER_CONTRIBUTOR		= "tester";			/* They kill kittens in the name of science.  	*/
+const std::string WORD_BAD_USER_UNSUPPORTED	= "unsupported";	/* User voided their warranty.                	*/
+const std::string WORD_BAD_USER_AUTOMUTED	= "automuted";		/* Automatically muted on login.              	*/
+const std::string WORD_BAD_USER_BANNED		= "banned";		   	/* We don't want them using our stuff.        	*/
 
 class PVAgent
 {
 	// Let this class access the data as well
 	friend class PVDataOldAPI;
 
-	S32 flags; //@todo move to bitset
+	pvagent_flag flags;
 	std::string title;
 	std::string ban_reason;
 	LLColor3 color;
 	LLUUID uuid;
-
+/*
 	PVAgent()
 	{
 		uuid = LLUUID::null;
@@ -166,7 +199,7 @@ class PVAgent
 		//}
 		uuid = LLUUID::null;
 	};
-
+*/
 	// Functions. Remember: "Instantiating many instances of a class incurs run-time space only for its instance variables, not for any of its functions."
 
 	/**
@@ -213,14 +246,9 @@ class PVAgent
 	*/
 	std::string getTitle(bool get_custom_title = true);
 
-	static PVAgent * create(const LLUUID & id, const LLColor3 & color = LLColor3::black, const S32 & flags = NOT_SPECIAL, const std::string & custom_title = std::string(), const std::string & ban_reason = std::string());
+	static PVAgent * create(const LLUUID & id, const LLColor3 & color = LLColor3::black, const S32 & flags = 0, const std::string & custom_title = std::string(), const std::string & ban_reason = std::string());
 
 public:
-
-	operator bool() const
-	{
-		return (bool)flags;
-	};
 
 	/**
 	* \brief get pointer to specific agent extra data
@@ -240,10 +268,9 @@ public:
 
 	/**
 	* \brief Get agent flags
-	* @todo Convert to std::binary or std::bitset
-	* \return S32 flag set
+	* \return U32 flag set
 	*/
-	S32 getFlags();
+	pvagent_flag getFlags();
 
 	/**
 	* \brief get the agent's custom title, if any.
@@ -310,6 +337,12 @@ public:
 	* \return bool
 	*/
 	bool isProviderTester();
+
+	/**
+	* \brief Is the agent a contributor?
+	* \return bool
+	*/
+	bool isProviderContributor();
 
 	/**
 	* \brief Is the agent prevented from getting support?
@@ -428,7 +461,6 @@ public:
 	// Cache the variables that get inserted in the HTTP headers to avoid calling the functions every time an object is created
 	std::string pvdata_user_agent_;
 	std::string pvdata_viewer_version_;
-	LLFrameTimer pvdata_refresh_timer_;
 
 	// Temporary blob to store the hand-crafted HTTP header
 	LLSD headers_;
@@ -548,6 +580,8 @@ private:
 	*/
 	void parsePVData(const LLSD& data_input);
 
+	U32 translateFlagsToBitSet(const std::string flag);
+
 	void addAgents(const LLSD & agent_list);
 
 	/**
@@ -619,12 +653,10 @@ public:
 	LLSD motd_events_list_ = LLSD::emptyMap();
 
 	// This contains the viewer versions that aren't allowed to be used anymore
-	//LLSD blocked_versions_; // v7?
 	pv_pair_string_llsd blocked_versions_;
 
 public:
 	// Minimum viewer version allowed to be used
-	//LLSD minimum_version_; // v7?
 	pv_pair_string_llsd minimum_version_;
 };
 

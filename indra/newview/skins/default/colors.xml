@@ -925,13 +925,16 @@
     value="0.31765 0.51373 0.10980 1.0"/>
    <color
     name="PlvrBannedChatColor"
-    value="0.38 0.38 0.38 1.0"/>
+    value="0.19141 0.19141 0.19141 1.0"/>
    <color
     name="PlvrBlack"
     value="0.611765 0.235294 0.376471 1"/>
    <color
+    name="PlvrContributorChatColor"
+    value="0.73333 0.58039 0.24314 1.0"/>
+   <color
     name="PlvrDevChatColor"
-    value="1.00000 0.46275 0.30588 1.0"/>
+    value="0.53081 0.75957 0.16199 1.0"/>
    <color
     name="PlvrGray1"
     value="0.20000 0.200000 0.20000 1"/>
@@ -940,16 +943,16 @@
     value="0.33725 0.70196 0.96863 1.0"/>
    <color
     name="PlvrMutedChatColor"
-    value="0.313 0.313 0.313 1.0"/>
+    value="0.28906 0.28906 0.28906 1.0"/>
    <color
     name="PlvrQAChatColor"
-    value="0.85490 0.80000 0.32549 1.0"/>
+    value="0.24314 0.73333 0.72549 1.0"/>
    <color
     name="PlvrSupportChatColor"
-    value="0.849 0.665 0.974 1.0"/>
+    value="0.70980 0.24314 0.73333 1.0"/>
    <color
     name="PlvrTesterChatColor"
-    value="0.97478 0.38978 0.34554 1.0"/>
+    value="0.76078 0.16078 0.16078 1.0"/>
    <color
     name="PlvrWhite"
     value="0.85882 0.858820.85882 1"/>
