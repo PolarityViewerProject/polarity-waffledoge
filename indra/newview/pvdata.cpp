@@ -223,7 +223,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 {
 	if (*_pv_url_prod_d == http_source_url || *_pv_url_test_d == http_source_url)
 	{
-		LL_INFOS() << "Got DATA file" << LL_ENDL;
+		LL_DEBUGS() << "Got DATA file" << LL_ENDL;
 		gPVOldAPI->setDataStatus(NEW_DATA);
 		if (download_failed)
 		{
@@ -239,7 +239,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 	}
 	else if (*_pv_url_prod_a == http_source_url || *_pv_url_test_a == http_source_url)
 	{
-		LL_INFOS() << "Got AGENTS file" << LL_ENDL;
+		LL_DEBUGS() << "Got AGENTS file" << LL_ENDL;
 		gPVOldAPI->setAgentsDataStatus(NEW_DATA);
 		if (download_failed)
 		{
@@ -453,7 +453,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 			auto uuid_str = uuid_iterator->first;
 			if (LLUUID::validate(uuid_str))
 			{
-				LL_INFOS() << "Parsing agent " << uuid_str << LL_ENDL;
+				LL_DEBUGS() << "Parsing agent " << uuid_str << LL_ENDL;
 				//create new data blob for this agent.
 				//@note Is there a less leak-prone way to do this?
 				auto this_agent = new PVAgent();
@@ -516,10 +516,6 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 				{
 					// fill "custom title" with the highest role available if any
 					auto new_title = this_agent->getTitle(true);
-					if (this_agent->uuid == (LLUUID)"3861d3da-a824-4298-884f-39b14ebf4712")
-					{
-						LL_WARNS() << "Ayyyyy" << LL_ENDL;
-					}
 					if (!new_title.empty())
 					{
 						this_agent->title = new_title;
@@ -571,7 +567,7 @@ void PVDataOldAPI::parsePVAgents(const LLSD& data_input)
 
 	mPVAgents_llsd = data_input;
 	//autoMuteFlaggedAgents();
-	LL_DEBUGS() << "Done parsing agents" << LL_ENDL;
+	LL_INFOS() << "Done parsing agents" << LL_ENDL;
 	pv_agents_status_ = READY;
 }
 
@@ -1357,7 +1353,7 @@ std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
 	// contents: { raw_flags, custom or highest }
 	std::vector<std::string> title_v; title_v.reserve(3);
 	std::string raw_flags = getTitle(false);
-	LL_WARNS() << "Raw Flags:" << raw_flags << LL_ENDL;
+	LL_DEBUGS() << "Raw Flags:" << raw_flags << LL_ENDL;
 	if (raw_flags.empty())
 	{
 		raw_flags = "None";
