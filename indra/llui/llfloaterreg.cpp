@@ -496,6 +496,11 @@ void LLFloaterReg::toggleInstanceOrBringToFront(const LLSD& sdname, const LLSD& 
 		return;
 	}
 	
+// [RLVa:XL] - Checked: 2017-07-10 (RLVa-2.1.0) - Fix RLV Locks for floaters using TIOBTF
+	if ( (sBlockShowFloaters && sAlwaysShowableList.find(name) == sAlwaysShowableList.end()) || (!mValidateSignal(name, key)) )
+		return;
+// [/RLVa:XL]
+
 	// If hosted, we need to take that into account
 	LLFloater* host = instance->getHost();
 	
