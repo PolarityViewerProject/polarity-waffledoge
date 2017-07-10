@@ -48,7 +48,7 @@ class LLUUID;
 // please increment the following counter as a warning
 // to the next guy:
 //
-// total_hours_wasted_here = 145
+// total_hours_wasted_here = 155
 // See also: https://xkcd.com/844/
 //
 
@@ -137,6 +137,16 @@ const pvagent_flag USER_TESTER = (1 << 5);
  */
 const pvagent_flag USER_CONTRIBUTOR = (1 << 6);
 /**
+ * \brief DO NOT USE Placeholder flag to split between "flagged as bad" and "flagged as good"
+ */
+const pvagent_flag POLARIZED_THRESHOLD = (1 << 27);
+/**
+ * \brief Retired Testers
+ *
+ *	Detailed Bitset representation : [0001 0000 0000 0000 0000 0000 0000 0000]
+ */
+const pvagent_flag USER_TESTER_RETIRED = (1 << 28);
+/**
  * \brief User voided their warranty.
  *
  *	Detailed Bitset representation : [0010 0000 0000 0000 0000 0000 0000 0000]
@@ -161,10 +171,34 @@ const std::string WORD_STAFF_DEVELOPER		= "Developer";		/* They wrote the code y
 const std::string WORD_STAFF_QA				= "QA";		       	/* They approved the code you're looking at.  	*/
 const std::string WORD_STAFF_SUPPORT		= "Support";		/* They help users.                           	*/
 const std::string WORD_USER_TESTER			= "Tester";			/* They kill kittens in the name of science.  	*/
-const std::string WORD_USER_CONTRIBUTOR		= "Contributor";			/* They kill kittens in the name of science.  	*/
+const std::string WORD_RETIRED_TESTER		= "Retired Tester";	/* Unused in XML, enabled  by Tester + 0		*/
+const std::string WORD_USER_CONTRIBUTOR		= "Contributor";	/* They kill kittens in the name of science.  	*/
 const std::string WORD_BAD_USER_UNSUPPORTED	= "Unsupported";	/* User voided their warranty.                	*/
 const std::string WORD_BAD_USER_AUTOMUTED	= "Automuted";		/* Automatically muted on login.              	*/
 const std::string WORD_BAD_USER_BANNED		= "Banned";		   	/* We don't want them using our stuff.        	*/
+
+typedef std::map<pvagent_flag, std::string> ft_dictionary;
+
+struct FT_DICT {
+	static ft_dictionary create_map()
+	{
+		ft_dictionary dict;
+		dict[STAFF_DEVELOPER] = WORD_STAFF_DEVELOPER;
+		dict[STAFF_QA] = WORD_STAFF_QA;
+		dict[STAFF_SUPPORT] = WORD_STAFF_SUPPORT;
+		dict[USER_TESTER] = WORD_USER_TESTER;
+		dict[USER_CONTRIBUTOR] = WORD_USER_CONTRIBUTOR;
+		dict[USER_TESTER_RETIRED] = WORD_RETIRED_TESTER;
+		dict[BAD_USER_UNSUPPORTED] = WORD_BAD_USER_UNSUPPORTED;
+		dict[BAD_USER_AUTOMUTED] = WORD_BAD_USER_AUTOMUTED;
+		dict[BAD_USER_BANNED] = WORD_BAD_USER_BANNED;
+		return dict;
+	}
+	static const ft_dictionary titles_dictionary;
+
+};
+
+const ft_dictionary titles_dictionary = FT_DICT::create_map();
 
 class PVAgent
 {
@@ -239,16 +273,10 @@ class PVAgent
 
 	LLColor4 getColorInternal(const LLUIColorTable& cTablePtr);
 
-	/**
-	* \brief Returns ALL the agent's flags as a comma-separated string, or the custom title
-	* \param get_custom_title get custom title instead of roles list
-	* \return flags as string.
-	*/
-	std::string getTitle(bool get_custom_title = true);
-
 	static PVAgent * create(const LLUUID & id, const LLColor3 & color = LLColor3::black, const S32 & flags = 0, const std::string & custom_title = std::string(), const std::string & ban_reason = std::string());
 
 public:
+
 
 	/**
 	* \brief get pointer to specific agent extra data
@@ -273,11 +301,18 @@ public:
 	pvagent_flag getFlags();
 
 	/**
+	* \brief Returns ALL the agent's flags as a comma-separated string, or the custom title
+	* \param get_custom_title get custom title instead of roles list
+	* \return flags as string.
+	*/
+	std::string getTitle(bool get_custom_title = true);
+
+	/**
 	* \brief get the agent's custom title, if any.
 	* \param new_title variable to store the custom title into.
 	* \return true if custom title exists, false otherwise.
 	*/
-	bool getTitleCustom(std::string& new_title);
+	bool hasCustomTitle();
 
 	/**
 	* \brief get human-readable list of flags
@@ -338,6 +373,8 @@ public:
 	*/
 	bool isProviderTester();
 
+	bool isProviderRetiredTester();
+
 	/**
 	* \brief Is the agent a contributor?
 	* \return bool
@@ -356,7 +393,7 @@ typedef std::map<LLUUID, PVAgent*> pvagent_list;
 static pvagent_list pvAgents;
 // OLD API
 // @todo get rid of singleton. This is bad. Very bad.
-class PVDataOldAPI : public LLSingleton<PVDataOldAPI> // required for instance()
+class PVDataOldAPI : public LLSingleton<PVDataOldAPI>
 {
 	friend class PVAgentData;
 	LLSINGLETON_EMPTY_CTOR(PVDataOldAPI);
@@ -492,6 +529,10 @@ public:
 	void refreshDataFromServer(bool force_refresh_now = false);
 	void cleanup();
 
+	pvagent_flag PVDataOldAPI::translateFlagsToBitSet(std::string flag, bool enabled);
+
+	std::string translateBitsetToFlag(const pvagent_flag & flag);
+
 private:
 
 	const enum pv_data_sections_index
@@ -579,8 +620,6 @@ private:
 	* \param data_input LLSD blob to parse
 	*/
 	void parsePVData(const LLSD& data_input);
-
-	U32 translateFlagsToBitSet(const std::string flag);
 
 	void addAgents(const LLSD & agent_list);
 

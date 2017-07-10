@@ -401,16 +401,49 @@ void PVDataOldAPI::parsePVData(const LLSD& data_input)
 	pv_data_status_ = READY;
 }
 
-pvagent_flag PVDataOldAPI::translateFlagsToBitSet(const std::string flag)
+pvagent_flag PVDataOldAPI::translateFlagsToBitSet(std::string flag, bool enabled)
 {
-	if (flag == WORD_STAFF_DEVELOPER)		return STAFF_DEVELOPER;
-	if (flag == WORD_STAFF_QA)				return STAFF_QA;
-	if (flag == WORD_STAFF_SUPPORT)			return STAFF_SUPPORT;
-	if (flag == WORD_USER_TESTER)			return USER_TESTER;
-	if (flag == WORD_BAD_USER_UNSUPPORTED)	return BAD_USER_UNSUPPORTED;
-	if (flag == WORD_BAD_USER_AUTOMUTED)	return BAD_USER_AUTOMUTED;
-	if (flag == WORD_BAD_USER_BANNED)		return BAD_USER_BANNED;
+	// exception
+	if (flag == WORD_USER_TESTER && !enabled)
+	{
+		return USER_TESTER_RETIRED;
+	}
+	try
+	{
+		for (auto& i : titles_dictionary)
+		{
+			if (i.second == flag)
+			{
+				return i.first;
+			}
+		}
+	}
+	catch (std::out_of_range)
+	{
+		LL_ERRS() << flag << " ended up out of range!" << LL_ENDL;
+	}
+	LL_WARNS() << "Unimplemented flag " << flag << LL_ENDL;
 	return 0;
+}
+std::string PVDataOldAPI::translateBitsetToFlag(const pvagent_flag& flag)
+{
+	try
+	{
+		// map::at isn't used because throwing an exception is going to get hairy
+		for (auto& i : titles_dictionary)
+		{
+			if (i.first == flag)
+			{
+				return i.second;
+			}
+		}
+	}
+	catch (std::out_of_range)
+	{
+		LL_ERRS() << flag << " ended up out of range!" << LL_ENDL;
+	}
+	LL_WARNS() << "Unimplemented flag " << flag << LL_ENDL;
+	return "";
 }
 
 void PVDataOldAPI::addAgents(const LLSD& data_input)
@@ -452,11 +485,8 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 							// a value is required for the map to be considered valid but only the key is used.
 							// yes, this is kind of a hack.
 							// while at it, allow turning a flag off if the value is false
-							if (itr->second.asInteger())
-							{
-								LL_INFOS() << flags_map_str << " : " << itr->first << LL_ENDL;
-								this_agent->flags = this_agent->flags | translateFlagsToBitSet(itr->first);
-							}
+							LL_INFOS() << flags_map_str << " : " << itr->first << "[" << itr->second << "]" << LL_ENDL;
+							this_agent->flags = this_agent->flags | translateFlagsToBitSet(itr->first, itr->second);
 						}
 					}
 
@@ -487,6 +517,19 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 					{
 						LL_DEBUGS() << title_str << " : " << title_data.asString() << LL_ENDL;
 						this_agent->title = data_map[title_str].asString();
+					}
+				}
+				if(this_agent->title.empty())
+				{
+					// fill "custom title" with the highest role available if any
+					auto new_title = this_agent->getTitle(true);
+					if (this_agent->uuid == (LLUUID)"3861d3da-a824-4298-884f-39b14ebf4712")
+					{
+						LL_WARNS() << "Ayyyyy" << LL_ENDL;
+					}
+					if (!new_title.empty())
+					{
+						this_agent->title = new_title;
 					}
 				}
 				if (data_map.has(ban_reason_str))
@@ -1112,7 +1155,7 @@ LLColor4 PVAgent::getColorInternal(const LLUIColorTable& cTablePtr)
 			static auto support_color = cTablePtr.getColor("PlvrSupportChatColor", LLColor4::magenta);
 			pv_color = support_color.get();
 		}
-		else if (isProviderTester())
+		else if (isProviderTester() || isProviderRetiredTester())
 		{
 			static auto tester_color = cTablePtr.getColor("PlvrTesterChatColor", LLColor4::yellow);
 			pv_color = tester_color.get();
@@ -1242,48 +1285,39 @@ pvagent_flag PVAgent::getFlags()
 	return flags;
 }
 
-std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
+bool PVAgent::hasCustomTitle()
 {
-	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
-	// contents: { raw_flags, custom_title_or_empty }
-	std::vector<std::string> title_v; title_v.reserve(3);
-	std::string raw_flags = getTitle(false);
-	if (raw_flags.empty())
-	{
-		raw_flags = "None";
-	}
-	else
-	{
-		raw_flags = "[" + raw_flags + "]";
-	}
-	title_v.push_back(raw_flags);
-	//@todo highest non-custom title, see comment in getTitle()
-	title_v.push_back(getTitle(true));
-	return title_v;
-}
-
-bool PVAgent::getTitleCustom(std::string& new_title)
-{
-	new_title = title;
-	return (!new_title.empty());
+	return (!title.empty());
 }
 
 std::string PVAgent::getTitle(bool get_custom_title)
 {
 	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLE);
-	// Check for agents flagged through PVDataOldAPI
-	std::vector<std::string> flags_list;
-	if (get_custom_title)
+	
+	if (get_custom_title && hasCustomTitle())
 	{
-		std::string custom_title;
-		if (getTitleCustom(custom_title))
+		return title;
+	}
+	std::vector<std::string> flags_list;
+	if (flags != 0)
+	{
+		for (auto& i : titles_dictionary)
 		{
-			// Custom tag present, drop previous title to use that one instead.
-			flags_list.clear();
-			flags_list.push_back(custom_title);
+			if (flags & i.first)
+			{
+
+				if (get_custom_title)
+				{
+					return i.second;
+				}
+				else
+				{
+					flags_list.push_back(i.second);
+				}
+			}
 		}
 	}
-	if (flags == 0 && flags_list.empty())
+	else
 	{
 		// Only call this once, thanks.
 		std::string first_name, last_name;
@@ -1318,47 +1352,30 @@ std::string PVAgent::getTitle(bool get_custom_title)
 			flags_list.push_back("Linden Lab Scout");
 		}
 	}
-	else if (flags != 0 && flags_list.empty())
-	{
-		//@todo add a way to only get the highest flag instead of a list.
-		// here are the bad flags
-		if (isProviderMuted())
-		{
-			flags_list.push_back("Nuisance");
-		}
-		if (isProviderBanned())
-		{
-			flags_list.push_back("Exiled");
-		}
-		if (isProviderUnsupported())
-		{
-			flags_list.push_back("Unsupported");
-		}
-		// And here are the good flags
-		if (isProviderDeveloper())
-		{
-			flags_list.push_back("Developer");
-		}
-		if (isProviderQATeam())
-		{
-			flags_list.push_back("QA");
-		}
-		if (isProviderSupportTeam())
-		{
-			flags_list.push_back("Support");
-		}
-		if (isProviderTester())
-		{
-			flags_list.push_back("Tester");
-		}
-		if (isProviderContributor())
-		{
-			flags_list.push_back("Contributor");
-		}
-	}
 	std::ostringstream agent_title;
 	vector_to_string(agent_title, flags_list.begin(), flags_list.end());
 	return agent_title.str();
+}
+
+
+std::vector<std::string> PVAgent::getTitleHumanReadable(bool get_custom_title)
+{
+	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETTITLEHUMANREADABLE);
+	// contents: { raw_flags, custom or highest }
+	std::vector<std::string> title_v; title_v.reserve(3);
+	std::string raw_flags = getTitle(false);
+	LL_WARNS() << "Raw Flags:" << raw_flags << LL_ENDL;
+	if (raw_flags.empty())
+	{
+		raw_flags = "None";
+	}
+	else
+	{
+		raw_flags = "[" + raw_flags + "]";
+	}
+	title_v.push_back(raw_flags);
+	title_v.push_back(title);
+	return title_v;
 }
 
 bool PVAgent::isProviderDeveloper()
@@ -1379,6 +1396,11 @@ bool PVAgent::isProviderQATeam()
 bool PVAgent::isProviderTester()
 {
 	return (flags & USER_TESTER);
+}
+
+bool PVAgent::isProviderRetiredTester()
+{
+	return (flags & USER_TESTER_RETIRED);
 }
 
 bool PVAgent::isProviderContributor()
@@ -1408,6 +1430,15 @@ bool PVDataOldAPI::isSupportGroup(const LLUUID& id) const
 
 bool PVAgent::isPolarized()
 {
-	return flags != 0 && !isProviderBanned() && !isProviderUnsupported() && !isProviderMuted();
+	//#pragma warning (disable:4293) // bit shift count negative or too big
+	//static const pvagent_flag mask = ( 1 << ( POLARIZED_THRESHOLD + 1 ) ) - 1;
+	// https://www.cs.umd.edu/class/sum2003/cmsc311/Notes/BitOp/bitRange.html
+	pvagent_flag mask = ~0;   // creates all 1's, using bitwise negation of 0
+	auto numOnes = (POLARIZED_THRESHOLD - 1) + 1;
+	auto numBits = sizeof(pvagent_flag) * 8;
+	// creates (numBits - numOnes) 0's followed by numOnes 1's
+	mask >>= (numBits - numOnes);
+	mask <<= 1; // shift left group of 1's to correct location
+	return flags & mask;
 }
 //}
