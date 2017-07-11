@@ -367,7 +367,7 @@ const char* RlvStrings::getStringFromReturnCode(ERlvCmdRet eRet)
 		case RLV_RET_SUCCESS_DEPRECATED:
 			return "deprecated";
 		case RLV_RET_FAILED_SYNTAX:
-			return "thingy error";
+			return "syntax error (malformed command)";
 		case RLV_RET_FAILED_OPTION:
 			return "invalid option";
 		case RLV_RET_FAILED_PARAM:
