@@ -12,6 +12,43 @@
         <menu_item_call.on_visible
          function="RLV.CanShowName" />
     </menu_item_call>
+    <context_menu
+      label="Copy Data..."
+      layout="topleft"
+      name="copy_info">
+      <menu_item_call
+        label="SLURL"
+        name="Copy SLURL">
+        <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_slurl">
+        </menu_item_call.on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Display name"
+        name="Copy Display Name">
+        <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_displayname">
+        </menu_item_call.on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Username"
+        name="Copy Name">
+        <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_name">
+        </menu_item_call.on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Key"
+        name="Copy Key">
+        <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_key">
+        </menu_item_call.on_click>
+      </menu_item_call>
+    </context_menu>
    <menu_item_call
      label="Add Friend"
      name="Add Friend">
@@ -124,43 +161,6 @@
         <menu_item_call.on_visible
           function="Avatar.EnableFreezeEject">
         </menu_item_call.on_visible>
-      </menu_item_call>
-    </context_menu>
-    <context_menu
-      label="Copy..."
-      layout="topleft"
-      name="Copy info &gt;">
-      <menu_item_call
-        label="SLURL"
-        name="Copy SLURL">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_slurl">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Display name"
-        name="Copy Display Name">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_displayname">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Username"
-        name="Copy Name">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_name">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Key"
-        name="Copy Key">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_key">
-        </menu_item_call.on_click>
       </menu_item_call>
     </context_menu>
     <context_menu
