@@ -39,6 +39,43 @@
         <on_click function="Avatar.DoToSelected" parameter="view_profile"/>
         <on_enable function="Avatar.EnableItem" parameter="can_view_profile"/>
     </menu_item_call>
+    <context_menu
+      label="Copy Data..."
+      layout="topleft"
+      name="copy_info">
+      <menu_item_call
+        label="SLURL"
+        name="Copy SLURL">
+        <on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_slurl">
+        </on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Display name"
+        name="Copy Display Name">
+        <on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_displayname">
+        </on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Username"
+        name="Copy Name">
+        <on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_name">
+        </on_click>
+      </menu_item_call>
+      <menu_item_call
+        label="Key"
+        name="Copy Key">
+        <on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_key">
+        </on_click>
+      </menu_item_call>
+    </context_menu>
     <menu_item_call
      label="IM"
      layout="topleft"

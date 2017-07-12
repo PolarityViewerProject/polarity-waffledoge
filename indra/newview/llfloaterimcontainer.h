@@ -88,6 +88,8 @@ public:
 
 	static void onCurrentChannelChanged(const LLUUID& session_id);
 
+	bool copyData(const LLSD & userdata);
+
 	void collapseMessagesPane(bool collapse);
 	bool isMessagesPaneCollapsed();
 	bool isConversationsPaneCollapsed();

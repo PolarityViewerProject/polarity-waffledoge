@@ -86,6 +86,8 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
     
     mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
 
+    mCommitCallbackRegistrar.add("Polarity.Common.CopyData", boost::bind(&LLFloaterIMContainer::copyData, this, _2));
+
 	// Firstly add our self to IMSession observers, so we catch session events
     LLIMMgr::getInstance()->addSessionObserver(this);
 
@@ -168,6 +170,44 @@ void LLFloaterIMContainer::onCurrentChannelChanged(const LLUUID& session_id)
     	LLFloaterIMContainer::getInstance()->showConversation(session_id);
     }
 }
+
+// <polarity> Copy Key. From Alchemy's CopyData.
+bool LLFloaterIMContainer::copyData(const LLSD& userdata)
+{
+	uuid_vec_t selected_uuids;
+	getSelectedUUIDs(selected_uuids);
+	// TODO: Write multiple-UUID support
+	//bool is_single_select = (selected_uuids.size() == 1);
+	const LLUUID& uuid = selected_uuids.front();
+	LL_INFOS() << "Selected UUID : " << uuid << LL_ENDL;
+	if (uuid.notNull())
+	{
+		const std::string& param = userdata.asString();
+		if (param == "copy_name")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_NAME);
+			return true;
+		}
+		if (param == "copy_displayname")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_DISPLAYNAME);
+			return true;
+		}
+		else if (param == "copy_slurl")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_SLURL);
+			return true;
+		}
+		else if (param == "copy_key")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_UUID);
+			return true;
+		}
+	}
+	return false;
+}
+// </polarity>
+
 
 BOOL LLFloaterIMContainer::postBuild()
 {
