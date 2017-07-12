@@ -208,6 +208,22 @@ public:
 		{
 			LLAvatarActions::showProfile(getAvatarId());
 		}
+		else if (level == "copy_slurl")
+		{
+			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_SLURL);
+		}
+		else if (level == "copy_displayname")
+		{
+			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_DISPLAYNAME);
+		}
+		else if (level == "copy_name")
+		{
+			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_NAME);
+		}
+		else if (level == "copy_key")
+		{
+			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_UUID);
+		}
 		else if (level == "im")
 		{
 			LLAvatarActions::startIM(getAvatarId());

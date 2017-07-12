@@ -16,6 +16,41 @@
          function="AvatarIcon.Action"
          parameter="profile" />
     </menu_item_call>
+    <!-- This menu doesn't support submenus :( -->
+    <menu_item_separator layout="topleft" name="separator_copy_info"/>
+    <menu_item_call
+      label="Copy SLURL"
+      name="copy_slurl">
+      <on_click
+        function="AvatarIcon.Action"
+        parameter="copy_slurl">
+      </on_click>
+    </menu_item_call>
+    <menu_item_call
+      label="Copy Display name"
+      name="copy_displayname">
+      <on_click
+        function="AvatarIcon.Action"
+        parameter="copy_displayname">
+      </on_click>
+    </menu_item_call>
+    <menu_item_call
+      label="Copy Username"
+      name="copy_name">
+      <on_click
+        function="AvatarIcon.Action"
+        parameter="copy_name">
+      </on_click>
+    </menu_item_call>
+    <menu_item_call
+      label="Copy Key"
+      name="copy_key">
+      <on_click
+        function="AvatarIcon.Action"
+        parameter="copy_key">
+      </on_click>
+    </menu_item_call>
+    <menu_item_separator layout="topleft" name="separator_send_im"/>
     <menu_item_call
      label="IM"
      layout="topleft"
