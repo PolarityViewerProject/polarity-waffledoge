@@ -23,8 +23,8 @@
      parameter="view_info" />
   </menu_item_call>
   <menu_item_call
-   label="Copy SLurl to clipboard"
-   name="Copy SLurl to clipboard">
+   label="Copy SLURL"
+   name="Copy SLURL">
     <menu_item_call.on_click
      function="People.Groups.Action"
      parameter="copy_slurl" />
@@ -33,8 +33,8 @@
      parameter="copy_slurl" />
   </menu_item_call>
   <menu_item_call
-   label="Copy UUID to clipboard"
-   name="Copy UUID to clipboard">
+   label="Copy Key"
+   name="Copy Key">
     <menu_item_call.on_click
      function="People.Groups.Action"
      parameter="copy_uuid" />
