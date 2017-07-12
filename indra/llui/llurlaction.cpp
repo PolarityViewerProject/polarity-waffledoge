@@ -135,6 +135,12 @@ void LLUrlAction::copyURLToClipboard(std::string url)
 	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(url));
 }
 
+void LLUrlAction::copyUUIDToClipboard(std::string url)
+{
+	auto uuid = LLUrlAction::getUserID(url);
+	LLView::getWindow()->copyTextToClipboard(utf8str_to_wstring(uuid));
+}
+
 void LLUrlAction::copyLabelToClipboard(std::string url)
 {
 	LLUrlMatch match;
