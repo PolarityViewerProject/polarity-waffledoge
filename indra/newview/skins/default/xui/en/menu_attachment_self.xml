@@ -286,7 +286,7 @@
   </menu_item_call>
   <menu_item_call
      enabled="true"
-     label="Refresh Attachment Textures"
+     label="Refresh Att. Textures"
      name="Texture Refresh">
     <menu_item_call.on_click
      function="Polarity.Object.TextureRefresh" />
