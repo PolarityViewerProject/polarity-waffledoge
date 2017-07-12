@@ -46,6 +46,8 @@ public:
 protected:
 	virtual void buildContextMenu(class LLMenuGL& menu, U32 flags);
 
+	bool copyData(const LLSD & userdata);
+
 private:
 	bool enableContextMenuItem(const LLSD& userdata);
 	bool checkContextMenuItem(const LLSD& userdata);

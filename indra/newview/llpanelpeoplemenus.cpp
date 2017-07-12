@@ -91,6 +91,7 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		registrar.add("Avatar.Eject",			boost::bind(&PeopleContextMenu::eject,					this));
 
 		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearance, id)); // <polarity> PLVR-32 Refresh texture on objects and avatars
+		registrar.add("Polarity.Common.CopyData", boost::bind(&PeopleContextMenu::copyData, this, _2));
 
 		enable_registrar.add("Avatar.EnableItem", boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 		enable_registrar.add("Avatar.CheckItem",  boost::bind(&PeopleContextMenu::checkContextMenuItem,	this, _2));
@@ -113,6 +114,8 @@ LLContextMenu* PeopleContextMenu::createMenu()
 		// registrar.add("Avatar.Pay",			boost::bind(&LLAvatarActions::pay,						mUUIDs)); // *TODO: unimplemented
 		
 		registrar.add("Polarity.Avatar.TextureRefresh", boost::bind(&LLAvatarActions::refreshAppearances, mUUIDs)); // <polarity> PLVR-32 Refresh texture on objects and avatars
+		// TODO: Make work
+		//registrar.add("Polarity.Common.CopyData", boost::bind(&PeopleContextMenu::copyData, mUUIDs));
 
 		enable_registrar.add("Avatar.EnableItem",	boost::bind(&PeopleContextMenu::enableContextMenuItem, this, _2));
 
@@ -142,6 +145,7 @@ void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 	else 
 	{
 		items.push_back(std::string("view_profile"));
+		items.push_back(std::string("copy_info"));
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
@@ -159,6 +163,37 @@ void PeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 	}
 
     hide_context_entries(menu, items, disabled_items);
+}
+
+// <polarity> Copy Key. From Alchemy's CopyData.
+bool PeopleContextMenu::copyData(const LLSD& userdata)
+{
+	auto uuid = mUUIDs.front();
+	if (uuid.notNull())
+	{
+		const std::string& param = userdata.asString();
+		if (param == "copy_name")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_NAME);
+			return true;
+		}
+		if (param == "copy_displayname")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_DISPLAYNAME);
+			return true;
+		}
+		else if (param == "copy_slurl")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_SLURL);
+			return true;
+		}
+		else if (param == "copy_key")
+		{
+			LLAvatarActions::copyData(uuid, LLAvatarActions::E_DATA_UUID);
+			return true;
+		}
+	}
+	return false;
 }
 
 bool PeopleContextMenu::enableContextMenuItem(const LLSD& userdata)
@@ -445,6 +480,7 @@ void NearbyPeopleContextMenu::buildContextMenu(class LLMenuGL& menu, U32 flags)
 	else 
 	{
 		items.push_back(std::string("view_profile"));
+		items.push_back(std::string("copy_info"));
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
