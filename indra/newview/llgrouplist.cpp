@@ -285,6 +285,12 @@ bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
 		LLUrlAction::copyURLToClipboard(LLSLURL("group", selected_group, "about").getSLURLString());
 	}
 	// </FS:Ansariel>
+	// <polarity>
+	else if (action == "copy_uuid")
+	{
+		LLUrlAction::copyURLToClipboard(selected_group.asString());
+	}
+	// </polarity>
 
 	return true;
 }

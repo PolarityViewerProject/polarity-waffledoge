@@ -33,6 +33,16 @@
      parameter="copy_slurl" />
   </menu_item_call>
   <menu_item_call
+   label="Copy UUID to clipboard"
+   name="Copy UUID to clipboard">
+    <menu_item_call.on_click
+     function="People.Groups.Action"
+     parameter="copy_uuid" />
+    <menu_item_call.on_enable
+     function="People.Groups.Enable"
+     parameter="copy_uuid" />
+  </menu_item_call>
+  <menu_item_call
    label="Chat"
    name="Chat">
     <menu_item_call.on_click
