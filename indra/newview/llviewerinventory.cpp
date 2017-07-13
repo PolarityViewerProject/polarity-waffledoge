@@ -1889,12 +1889,21 @@ const LLUUID& LLViewerInventoryItem::getProtectedAssetUUID() const
 		return linked_item->getProtectedAssetUUID();
 	}
 
-	// check for conditions under which we may return a visible UUID to the user
-	bool item_is_fullperm = getIsFullPerm();
-	bool agent_is_godlike = gAgent.isGodlikeWithoutAdminMenuFakery();
-	if (item_is_fullperm || agent_is_godlike)
+	// <polarity> Calling Cards aren't really that secret,
+	// the returned UUID should be the creator's UUID which is the agent it points to.
+	if (this->getActualType() == LLAssetType::AT_CALLINGCARD)
 	{
-		return LLInventoryItem::getAssetUUID();
+		return LLInventoryItem::getCreatorUUID();
+	}
+	else
+	{
+		// check for conditions under which we may return a visible UUID to the user
+		bool item_is_fullperm = getIsFullPerm();
+		bool agent_is_godlike = gAgent.isGodlikeWithoutAdminMenuFakery();
+		if (item_is_fullperm || agent_is_godlike)
+		{
+			return LLInventoryItem::getAssetUUID();
+		}
 	}
 
 	return LLUUID::null;
