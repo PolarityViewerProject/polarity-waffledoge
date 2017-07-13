@@ -1899,25 +1899,28 @@ std::string LLItemBridge::getLabelSuffix() const
 		BOOL link = item->getIsLinkType();
 		if (link) return LINK;
 
-		// ...but it's a bit confusing to put nocopy/nomod/etc suffixes on calling cards.
-		if(LLAssetType::AT_CALLINGCARD != item->getType()
-		   && item->getPermissions().getOwner() == gAgent.getID())
+		// <polarity> Calling cards are certainly no modify, but can be copied and transferred. Keep "NO_MOD" as a friendly reminder
+		// that they cannot be tampered with.
+		if(item->getPermissions().getOwner() == gAgent.getID())
 		{
-			BOOL copy = item->getPermissions().allowCopyBy(gAgent.getID());
-			if (!copy)
-			{
-				suffix += NO_COPY;
-			}
-			BOOL mod = item->getPermissions().allowModifyBy(gAgent.getID());
-			if (!mod)
+			if(LLAssetType::AT_CALLINGCARD == item->getType())
 			{
 				suffix += NO_MOD;
 			}
-			BOOL xfer = item->getPermissions().allowOperationBy(PERM_TRANSFER,
-																gAgent.getID());
-			if (!xfer)
+			else
 			{
-				suffix += NO_XFER;
+				if (!item->getPermissions().allowCopyBy(gAgent.getID()))
+				{
+					suffix += NO_COPY;
+				}
+				if (!item->getPermissions().allowModifyBy(gAgent.getID()))
+				{
+					suffix += NO_MOD;
+				}
+				if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
+				{
+					suffix += NO_XFER;
+				}
 			}
 		}
 	}
