@@ -766,7 +766,8 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			
 			if (show_asset_id)
 			{
-				items.push_back(std::string("Copy Asset UUID"));
+				static const std::string copy_asset_uuid_str = std::string("Copy Asset UUID");
+				items.push_back(copy_asset_uuid_str);
 
 				bool is_asset_knowable = false;
 
@@ -779,7 +780,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
 					 || (flags & FIRST_SELECTED_ITEM) == 0)
 				{
-					disabled_items.push_back(std::string("Copy Asset UUID"));
+					disabled_items.push_back(copy_asset_uuid_str);
 				}
 			}
 			if (obj->getActualType() != LLAssetType::AT_CATEGORY &&
