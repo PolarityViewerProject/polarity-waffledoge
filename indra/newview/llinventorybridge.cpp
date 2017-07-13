@@ -776,9 +776,9 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				{
 					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
 				}
-				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
-					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
-					 || (flags & FIRST_SELECTED_ITEM) == 0)
+				//<polarity> Remove comparison against const BOOL FALSE
+				if ((!gAgent.isGodlike() && !is_asset_knowable) // disable menu item for Inventory items with unknown asset. EXT-5308
+					|| (flags & FIRST_SELECTED_ITEM) == 0)
 				{
 					disabled_items.push_back(copy_asset_uuid_str);
 				}
