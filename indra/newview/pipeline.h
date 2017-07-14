@@ -284,10 +284,10 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
+	void bindDeferredShader(LLGLSLShader& shader, U32 light_index = 0, U32 noise_map = 0xFFFFFFFF);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
-	void unbindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
+	void unbindDeferredShader(LLGLSLShader& shader);
 	void renderDeferredLighting();
 	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
@@ -614,7 +614,6 @@ public:
 	
 	LLRenderTarget			mScreen;
 	LLRenderTarget			mUIScreen;
-	LLRenderTarget			mFinalScreen;
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mDeferredDepth;
@@ -886,6 +885,7 @@ public:
 	static BOOL RenderUIBuffer;
 	static S32 RenderShadowDetail;
 	static BOOL RenderDeferredSSAO;
+	static F32 RenderShadowResolutionScale;
 	static BOOL RenderLocalLights;
 	static BOOL RenderDelayCreation;
 	static BOOL RenderAnimateRes;
@@ -910,7 +910,7 @@ public:
 	static F32 RenderGlowWarmthAmount;
 	static LLVector3 RenderGlowLumWeights;
 	static LLVector3 RenderGlowWarmthWeights;
-	static U32 RenderGlowResolutionPow; // <polarity/>
+	static S32 RenderGlowResolutionPow; // <polarity/>
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
@@ -956,7 +956,7 @@ public:
 	static F32 RenderChromaStrength;
 	static F32 RenderSnapshotMultiplier;
 
-	static F32 RenderShadowResolutionScale;
+	// <polarity>
 	static F32 RenderShadowFarClip;
 	// </polarity>
 };
