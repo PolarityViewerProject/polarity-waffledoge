@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <drop_down text_enabled_color="LabelTextColor"
            text_disabled_color="LabelDisabledColor"
-           font="SansSerifSmall"
+           font="SansSerif"
+           font.size="Small"
            allow_text_entry="false"
            follows="left|top">
   <drop_down.combo_button name="Combobox Button"
                           hover_glow_amount="0.15"
-                          font="SansSerifSmall"
+                          font="SansSerif"
+                          font.size="Small"
                           halign="left"
                           scale_image="true"
                           image_unselected="PushButton_Off"

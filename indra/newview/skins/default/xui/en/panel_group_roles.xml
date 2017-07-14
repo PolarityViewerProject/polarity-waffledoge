@@ -619,7 +619,8 @@ clicking on their names.
     <text_editor
    bg_readonly_color="Transparent"
    text_readonly_color="EmphasisColor"
-   font="SansSerifSmall"
+   font="SansSerif"
+   font.size="Small"
      type="string"
      enabled="false"
      halign="left"

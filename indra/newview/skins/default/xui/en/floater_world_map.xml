@@ -34,7 +34,8 @@
   bg_alpha_color="DkGray2">
     <text
      text_color="White"
-     font="SansSerifLarge"
+     font="SansSerif"
+     font.size="Large"
      type="string"
      length="1"
      follows="top|right"
@@ -378,7 +379,8 @@
   name="layout_panel_3">
     <text
      text_color="White"
-     font="SansSerifLarge"
+     font="SansSerif"
+     font.size="Large"
      type="string"
      length="1"
      follows="top|right"
@@ -646,7 +648,8 @@
   name="layout_panel_5">
     <text
      text_color="White"
-     font="SansSerifLarge"
+     font="SansSerif"
+     font.size="Large"
      type="string"
      length="1"
      follows="top|right"

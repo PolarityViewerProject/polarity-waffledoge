@@ -136,7 +136,8 @@
 	top="17"
     follows="right|top"
 	halign="right"
-	font="SansSerifSmall"
+	font="SansSerif"
+	font.size="Small"
 	text_color="TextFgColor"
 	/>
   <see_avatars_icon
@@ -158,7 +159,8 @@
   <combo_editor name="Combo Text Entry"
                 text_pad_left="27"
                 select_on_focus="false"
-                font="SansSerifSmall"
+                font="SansSerif"
+                font.size="Small"
                 bevel_style="none"
                 border_style="line"
                 border.border_thickness="0" />

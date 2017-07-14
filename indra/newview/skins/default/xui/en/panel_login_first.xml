@@ -128,7 +128,8 @@
             name="password_edit"
             label="Password"
             text_pad_left="8"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             is_password="true"
             select_on_focus="true"
             commit_on_focus_lost="false"
@@ -140,7 +141,8 @@
             image_hover="PushButton_Login_Over"
             label="Log In"
             label_color="White"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             name="connect_btn"
             left="432"
             width="100"
@@ -149,7 +151,8 @@
           <check_box
             control_name="RememberPassword"
             follows="left|top"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             left="0"
             top="32"
             height="24"
@@ -159,7 +162,8 @@
             width="145" />
           <text
             follows="left|top"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             text_color="EmphasisColor"
             height="16"
             name="forgot_password_text"
@@ -222,7 +226,8 @@
             top="0" />
           <text
             follows="left|top"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             text_color="White"
             height="64"
             name="image_caption_left"
@@ -235,7 +240,8 @@
           </text>
           <text
             follows="left|top"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             text_color="White"
             height="64"
             name="image_caption_right"

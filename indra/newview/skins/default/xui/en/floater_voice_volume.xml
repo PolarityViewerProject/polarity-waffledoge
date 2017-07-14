@@ -19,7 +19,8 @@
  width="245">
     <text
      follows="top|left|right"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      height="21"
      left="10"
      name="avatar_name"

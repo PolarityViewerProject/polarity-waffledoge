@@ -273,7 +273,8 @@
             <text
              parse_urls="false"
              follows="left|top|right"
-             font="SansSerifLarge"
+             font="SansSerif"
+             font.size="Large"
              height="14"
              layout="topleft"
              left="10"

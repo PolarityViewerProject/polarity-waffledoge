@@ -6,7 +6,8 @@
                 >
   <multiselect_text font="SansSerifSmall"/>
   <caption_text halign="center" 
-                font="SansSerifSmall"
+                font="SansSerif"
+                font.size="Small"
                 v_pad="2"/>
   <border bevel_style="in"/>
 </texture_picker>

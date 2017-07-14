@@ -11,5 +11,6 @@
   is_toggle="false"
   scale_image="true"
   commit_on_return="true"
-  font="SansSerifSmall"
+  font="SansSerif"
+  font.size="Small"
   follows="bottom"/>

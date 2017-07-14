@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <time text_enabled_color="LabelTextColor"
          text_disabled_color="LabelDisabledColor"
-         font="SansSerifSmall"
+         font="SansSerif"
+         font.size="Small"
          label_width="40" >
   <time.up_button name="SpinCtrl Up"
                      image_unselected="Stepper_Up_Off"

@@ -1243,7 +1243,8 @@ Only large parcels can be listed in search.
              
          <text
           follows="left|top"
-          font="SansSerifSmall"
+          font="SansSerif"
+          font.size="Small"
           height="16"
           layout="topleft"
           left_pad="-55"

@@ -28,7 +28,8 @@ Owner [OWNER]
   <text
      parse_urls="false"
      follows="all"
-     font="SansSerifLarge"
+     font="SansSerif"
+     font.size="Large"
      height="30"
      left="8"
      name="object_name"
@@ -50,7 +51,8 @@ owner secondlife:///app/agent/0e346d8b-4433-4d66-a6b0-fd37083abc4c/about
   </text>
   <text
    follows="all"
-   font="SansSerifSmall"
+   font="SansSerif"
+   font.size="Small"
    font.style="BOLD"
    height="14"
    halign="right"
@@ -65,7 +67,8 @@ L$30,000
   <text
    clip_partial="true"
    follows="all"
-   font="SansSerifSmall"
+   font="SansSerif"
+   font.size="Small"
    height="25"
    left="8"
    name="object_description"
@@ -88,7 +91,8 @@ L$30,000
    follows="left|top" />
    <text
    follows="all"
-   font="SansSerifSmall"
+   font="SansSerif"
+   font.size="Small"
    height="13"
    clip="false"
    name="object_media_url"

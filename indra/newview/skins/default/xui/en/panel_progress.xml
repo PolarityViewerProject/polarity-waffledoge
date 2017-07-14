@@ -104,7 +104,8 @@
                      right="-85" />
                     <text
                      follows="left|right|top|bottom"
-                     font="SansSerifLarge"
+                     font="SansSerif"
+                     font.size="Large"
                      halign="center"
                      height="100"
                      layout="topleft"

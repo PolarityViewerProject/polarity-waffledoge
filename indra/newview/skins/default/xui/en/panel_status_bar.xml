@@ -55,7 +55,8 @@
     name="balance_bg">
     <text
      halign="center"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="all"
      height="18"
      left="0" 
@@ -68,7 +69,8 @@
      width="40" />
     <button
      halign="center"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="right|top|bottom"
      image_hover_unselected="PushButton_Over"
      image_unselected="PushButton_Off"
@@ -85,7 +87,8 @@
      width="55" />
     <button
      halign="left"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="right|top|bottom"
      imgoverlay_label_space="7"
      image_overlay="Command_MiniCart_Icon"
@@ -105,7 +108,8 @@
   </panel>
     <text
      type="string"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      text_readonly_color="TimeTextColor"
      follows="right|top"
      halign="right"
@@ -160,7 +164,8 @@
     <text
     visibility_control="PVUI_StatusBarShowFPSCounter"
     type="string"
-    font="SansSerifSmall"
+    font="SansSerif"
+    font.size="Small"
     follows="right|top"
     halign="left"
     height="16"

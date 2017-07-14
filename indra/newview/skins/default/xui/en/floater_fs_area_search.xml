@@ -162,7 +162,8 @@
 			 left="10"
 			 bottom_delta="20"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true" />
 			<line_editor
@@ -175,7 +176,8 @@
 			 left_delta="206"
 			 bottom_delta="0"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true" />
 			<text
@@ -206,7 +208,8 @@
 			 left="10"
 			 bottom_delta="20"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true" />
 			<line_editor
@@ -219,7 +222,8 @@
 			 left_delta="206"
 			 bottom_delta="0"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true"/>
 			<text
@@ -250,7 +254,8 @@
 			 left="10"
 			 bottom_delta="20"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true"/>
 			 <line_editor
@@ -263,7 +268,8 @@
 			 left_delta="206"
 			 bottom_delta="0"
 			 follows="left|top"
-			 font="SansSerifSmall"
+			 font="SansSerif"
+			 font.size="Small"
 			 max_length_chars="256"
 			 mouse_opaque="true"/>
 			<check_box

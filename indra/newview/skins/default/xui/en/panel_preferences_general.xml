@@ -96,7 +96,8 @@
          value="zh" />
     </combo_box>
     <text
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      type="string"
      text_color="White_50"
      length="1"

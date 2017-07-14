@@ -47,7 +47,8 @@
      width="90" />
     <text
      follows="top|left|right"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      height="15"
      layout="topleft"
      left="110"
@@ -60,7 +61,8 @@
      word_wrap="false" />
     <expandable_text
      follows="top|left|right"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      height="55"
      layout="topleft"
      left="103"

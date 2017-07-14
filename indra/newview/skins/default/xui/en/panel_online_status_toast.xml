@@ -19,7 +19,8 @@
 	 top="10"
 	 width="18" />
     <text
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="all"
      height="13"
      layout="topleft"

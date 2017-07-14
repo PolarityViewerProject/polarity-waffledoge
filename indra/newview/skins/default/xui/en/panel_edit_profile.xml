@@ -240,7 +240,8 @@
        type="string"
        length="1"
        follows="left|top|right"
-       font="SansSerifSmall"
+       font="SansSerif"
+       font.size="Small"
        height="102"
        layout="topleft"
        left="123"
@@ -296,7 +297,8 @@
        type="string"
        length="1"
        follows="left|top|right"
-       font="SansSerifSmall"
+       font="SansSerif"
+       font.size="Small"
        height="102"
        layout="topleft"
        left="123"
@@ -310,7 +312,8 @@
        type="string"
        length="1"
        follows="left|top"
-       font="SansSerifSmall"
+       font="SansSerif"
+       font.size="Small"
        font.style="BOLD"
        height="15"
        layout="topleft"
@@ -323,7 +326,8 @@
       </text>
       <line_editor
        follows="left|top|right"
-       font="SansSerifSmall"
+       font="SansSerif"
+       font.size="Small"
        height="20"
        layout="topleft"
        left="10"
@@ -334,7 +338,8 @@
       </line_editor>
       <text
          follows="left|top"
-         font="SansSerifSmall"
+         font="SansSerif"
+         font.size="Small"
 	 font.style="BOLD"
          height="15"
          layout="topleft"
@@ -362,7 +367,8 @@
         <text
          type="string"
          follows="left|top"
-         font="SansSerifSmall"
+         font="SansSerif"
+         font.size="Small"
          height="15"
          layout="topleft"
          left="10"
@@ -371,7 +377,8 @@
          width="200" />
         <text
          follows="left|top"
-         font="SansSerifSmall"
+         font="SansSerif"
+         font.size="Small"
       	 font.style="BOLD"
          height="15"
          layout="topleft"

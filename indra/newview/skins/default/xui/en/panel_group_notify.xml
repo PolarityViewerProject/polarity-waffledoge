@@ -38,7 +38,8 @@
          width="20" />
         <text
          follows="all"
-         font="SansSerifVeryBig"
+         font="SansSerif"
+         font.size="VeryBig"
          height="20"
          layout="topleft"
          left_pad="10"

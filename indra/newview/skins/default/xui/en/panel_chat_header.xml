@@ -42,7 +42,8 @@
     <text
         allow_scroll="false"
         follows="right"
-        font="SansSerifSmall"
+        font="SansSerif"
+        font.size="Small"
         halign="right"
         layout="topleft"
         left_pad="5"

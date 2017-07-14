@@ -55,7 +55,8 @@
      width="20" />
     <text
      follows="left|right"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      height="15"
      layout="topleft"
      left_pad="5"
@@ -67,7 +68,8 @@
      width="180" />
     <text
      follows="right"
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      height="15"
      layout="topleft"
      left_pad="5"

@@ -4,4 +4,5 @@
               text_disabled_color="LabelDisabledColor"
               draw_track="true"
               use_triangle="false"
-              font="SansSerifSmall"/>
+              font="SansSerif"
+              font.size="Small"/>

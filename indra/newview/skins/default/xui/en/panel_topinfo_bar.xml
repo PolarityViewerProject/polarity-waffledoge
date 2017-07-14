@@ -100,7 +100,8 @@
     />
   <text
     follows="right|top"
-    font="SansSerifSmall"
+    font="SansSerif"
+    font.size="Small"
     halign="right"
     height="18"
     name="damage_text"

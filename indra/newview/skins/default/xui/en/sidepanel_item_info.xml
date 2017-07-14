@@ -178,7 +178,8 @@
       <text
         type="string"
         follows="left|right|top"
-        font="SansSerifSmall"
+        font="SansSerif"
+        font.size="Small"
         height="15"
         layout="topleft"
         left_pad="5"
@@ -221,7 +222,8 @@
       <text
         type="string"
         follows="left|right|top"
-        font="SansSerifSmall"
+        font="SansSerif"
+        font.size="Small"
         height="15"
         layout="topleft"
         left_pad="5"

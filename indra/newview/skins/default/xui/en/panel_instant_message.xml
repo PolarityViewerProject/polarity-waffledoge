@@ -72,7 +72,8 @@
          width="205" />
 	 <!-- TIME STAMP -->
         <text
-        font="SansSerifSmall"
+        font="SansSerif"
+        font.size="Small"
          follows="right"
          height="13"
          layout="topleft"
@@ -84,7 +85,8 @@
          width="50" />
     </panel>
     <text
-        font="SansSerifSmall"
+        font="SansSerif"
+        font.size="Small"
      follows="all"
      height="97"
      layout="topleft"

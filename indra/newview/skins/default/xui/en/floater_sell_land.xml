@@ -71,7 +71,8 @@
     </text>
     <text
      follows="top|left"
-     font="SansSerifVeryBig"
+     font="SansSerif"
+     font.size="VeryBig"
      height="24"
      left="16"
      name="info_action"
@@ -182,7 +183,8 @@
         3. Sell the objects with the land?
     </text>
     <text
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="top|left"
      height="25"
      word_wrap="true"
@@ -226,7 +228,8 @@
     <text
      bottom_delta="30"
      follows="top|left"
-     font="SansSerifVeryBig"
+     font="SansSerif"
+     font.size="VeryBig"
      height="16"
      left="16"
      name="nag_message_label"

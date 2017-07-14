@@ -157,19 +157,19 @@
        />
   <font_size name="Gigantic"
        comment="Size of huge font (points, or 1/72 of an inch)"
-       size="16.0"
+       size="16.6"
        />
   <font_size name="Humongous"
        comment="Size of huge font (points, or 1/72 of an inch)"
-       size="15.0"
+       size="15.6"
        />    
   <font_size name="VeryHuge"
        comment="Size of huge font (points, or 1/72 of an inch)"
-       size="14.0"
+       size="14.6"
        />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="13.0"
+	     size="13.6"
 	     />
   <font_size name="VeryLarge"
        comment="Size of large font (points, or 1/72 of an inch)"

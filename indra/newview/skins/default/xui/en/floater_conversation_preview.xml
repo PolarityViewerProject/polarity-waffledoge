@@ -15,7 +15,8 @@
         CONVERSATION: [NAME]
     </floater.string>
     <chat_history
-     font="SansSerifSmall"
+     font="SansSerif"
+     font.size="Small"
      follows="all"
      visible="true"
      height="330"

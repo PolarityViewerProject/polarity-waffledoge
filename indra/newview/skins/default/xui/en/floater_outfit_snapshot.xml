@@ -203,7 +203,8 @@
 	<panel
        background_visible="false"
        follows="left|top"
-       font="SansSerifLarge"
+       font="SansSerif"
+       font.size="Large"
        halign="center"
        height="20"
        layout="topleft"
@@ -234,7 +235,8 @@
       <panel
        background_visible="false"
        follows="left|top"
-       font="SansSerifLarge"
+       font="SansSerif"
+       font.size="Large"
        halign="center"
        height="20"
        layout="topleft"
@@ -323,7 +325,8 @@
    left_delta="0"/>
    <text
     type="string"
-    font="SansSerifSmall"
+    font="SansSerif"
+    font.size="Small"
     length="1"
     follows="left|top|right"
     height="14"
@@ -338,7 +341,8 @@
    </text>
    <text
     follows="right|top"
-    font="SansSerifSmall"
+    font="SansSerif"
+    font.size="Small"
     height="14"
     layout="topleft"
     left="-65"

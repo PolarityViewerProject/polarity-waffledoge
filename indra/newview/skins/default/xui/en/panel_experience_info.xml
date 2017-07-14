@@ -83,7 +83,8 @@
             >
           <text
             follows="left|top|right"
-            font="SansSerifLarge"
+            font="SansSerif"
+            font.size="Large"
             height="14"
             layout="topleft"
             left="10"
@@ -278,7 +279,8 @@
             height="35"
             width="280"
             layout="topleft"
-            font="SansSerifVeryBig"
+            font="SansSerif"
+            font.size="VeryBig"
             font.style="BOLD"
             left="10"
             top_pad="10"

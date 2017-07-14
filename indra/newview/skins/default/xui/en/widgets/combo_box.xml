@@ -6,14 +6,16 @@
            follows="right|top">
   <combo_box.combo_button name="Combobox Button"
                           hover_glow_amount="0.15"
-                          font="SansSerifSmall"
+                          font="SansSerif"
+                          font.size="Small"
                           scale_image="true"
                           image_unselected="ComboButton_Off"
                           image_selected="ComboButton_Selected"
                           image_disabled="ComboButton_Disabled" />
   <combo_box.drop_down_button name="Drop Down Button"
                               hover_glow_amount="0.15"
-                              font="SansSerifSmall"
+                              font="SansSerif"
+                              font.size="Small"
                               scale_image="true"
                               pad_right="24"
                               halign="left"
@@ -32,6 +34,7 @@
     as normal text. -->
   <combo_box.combo_editor name="Combo Text Entry"
                           select_on_focus="true"
-                          font="SansSerifSmall" 
+                          font="SansSerif"
+                          font.size="Small" 
                           text_tentative_color="TextFgColor" />
 </combo_box>

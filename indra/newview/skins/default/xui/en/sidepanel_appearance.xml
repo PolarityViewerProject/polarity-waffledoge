@@ -55,7 +55,8 @@ width="320">
       Unsaved Changes
       </text>
       <text
-      font="SansSerifSmall"
+      font="SansSerif"
+      font.size="Small"
       height="15"
       left="2"
       parse_urls="false"

@@ -166,7 +166,8 @@
 
            <favorites_bar
              follows="left|right|top"
-             font="SansSerifSmall"
+             font="SansSerif"
+             font.size="Small"
              height="20"
              layout="topleft"
              left="0"

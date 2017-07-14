@@ -40,7 +40,8 @@ Hover your mouse over the options for more help.
      top="5"
      width="100" />
     <text
-      font="SansSerifSmall"
+      font="SansSerif"
+      font.size="Small"
       text_color="White_50"
       width="190"
       follows="top|left|right"
@@ -136,7 +137,8 @@ Hover your mouse over the options for more help.
          top_pad="2" />
         <check_box
          height="16"
-         font="SansSerifSmall"
+         font="SansSerif"
+         font.size="Small"
          label="Receive group notices"
          layout="topleft"
          left="10"

@@ -2,4 +2,5 @@
 <radio_group name="radio_group"
              mouse_opaque="false"
              follows="left|top"
-             font="SansSerifSmall"/>
+             font="SansSerif"
+             font.size="Small"/>

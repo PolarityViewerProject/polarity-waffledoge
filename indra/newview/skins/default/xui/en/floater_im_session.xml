@@ -249,7 +249,8 @@
                             <layout_panel
                              name="chat_holder">
                                 <chat_history
-                                 font="SansSerifSmall"
+                                 font="SansSerif"
+                                 font.size="Small"
                                  follows="all"
                                  name="chat_history"
                                  parse_highlights="true"
@@ -283,7 +284,8 @@
                          bottom="-2"
                          expand_lines_count="5"
                          follows="left|right|bottom"
-                         font="SansSerifSmall"
+                         font="SansSerif"
+                         font.size="Small"
                          height="20"
                          is_expandable="true"
                          layout="topleft"

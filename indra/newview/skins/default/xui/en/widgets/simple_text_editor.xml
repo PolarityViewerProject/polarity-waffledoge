@@ -2,7 +2,8 @@
 <simple_text_editor
   parse_urls="false" 
   mouse_opaque="true"
-  font="SansSerifSmall"
+  font="SansSerif"
+  font.size="Small"
   max_length="255" 
   embedded_items="false" 
   allow_scroll="true"

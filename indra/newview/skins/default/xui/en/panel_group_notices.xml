@@ -112,7 +112,8 @@ Maximum 200 per group daily
         <text
          follows="left|top"
          type="string"
-         font="SansSerifVeryBig"
+         font="SansSerif"
+         font.size="VeryBig"
          height="16"
          layout="topleft"
          left="10"
