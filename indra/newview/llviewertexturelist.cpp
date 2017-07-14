@@ -1370,10 +1370,10 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		}
 		else
 		{
-		if (Hardware_VRAM_MB < VRAM_BIG_THRESHOLD / 2)
+		if (Hardware_VRAM_MB <= VRAM_BIG_THRESHOLD / 2)
 		{
 			LL_DEBUGS() << "I HAVE TINY VRAM WHEW" << LL_ENDL;
-			// 1GB isn't a lot of VRAM nowadays, especially if other applications are running.
+			// Less than 2GB isn't a lot of VRAM nowadays, especially if other applications are running.
 			if (leave_vram_for_os)
 			{
 				adjusted_max_vram = Hardware_VRAM_MB * 3 / 4;
