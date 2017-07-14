@@ -13,9 +13,9 @@
     <text
      type="string"
      length="1"
-     bottom_delta="40"
      follows="left|top|right"
      height="16"
+     top="20"
      layout="topleft"
      left="16">
         SansSerifSmall
@@ -23,10 +23,10 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerifMedium"
      height="16"
+     top_pad="0"
      layout="topleft"
      left="16">
         SansSerifMedium
@@ -34,10 +34,10 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      height="16"
+     top_pad="0"
      layout="topleft"
      left="16">
         SansSerif, no size or style (should be same as medium)
@@ -45,10 +45,10 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerifLarge"
-     height="16"
+     height="20"
+     top_pad="0"
      layout="topleft"
      left="16">
         SansSerifLarge
@@ -56,11 +56,34 @@
     <text
      type="string"
      length="1"
-     bottom_delta="36"
      follows="left|top|right"
      font="SansSerif"
-     font.size="Gigantic"
-     height="32"
+     font.size="Large"
+     height="20"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Large
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="VeryLarge"
+     height="20"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=VeryLarge
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerifHuge"
+     height="23"
+     top_pad="0"
      layout="topleft"
      left="16">
         SansSerifHuge
@@ -68,12 +91,24 @@
     <text
      type="string"
      length="1"
-     bottom_delta="36"
      follows="left|top|right"
      font="SansSerif"
-     font.size="Gigantic"
+     font.size="Huge"
+     height="23"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Huge
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="Huge"
      font.style.="BOLD"
-     height="32"
+     height="23"
+     top_pad="0"
      layout="topleft"
      left="16">
         SansSerifHuge style=BOLD
@@ -81,19 +116,80 @@
     <text
      type="string"
      length="1"
-     bottom_delta="36"
      follows="left|top|right"
-     font="SansSerifBold"
-     font.size="Huge"
-     height="32"
+     font="SansSerif"
+     font.size="VeryHuge"
+     height="20"
+     top_pad="0"
      layout="topleft"
      left="16">
-        SansSerifBold size=Huge
+        SansSerif size=VeryHuge
+    </text>
+    <!-- Bad, do not use -->
+<!--     <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerifHumongous"
+     height="26"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerifHumongous
+    </text> -->
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="Humongous"
+     height="26"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Humongous
     </text>
     <text
      type="string"
      length="1"
-     bottom_delta="40"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="Humongous"
+     font.style="BOLD"
+     height="26"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Humongous style=BOLD
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="Gigantic"
+     height="26"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Gigantic
+    </text>
+    <text
+     type="string"
+     length="1"
+     follows="left|top|right"
+     font="SansSerif"
+     font.size="Gigantic"
+     font.style="BOLD"
+     height="26"
+     top_pad="0"
+     layout="topleft"
+     left="16">
+        SansSerif size=Gigantic style=BOLD
+    </text>
+    <text
+     type="string"
+     length="1"
      follows="left|top|right"
      font="Monospace"
      height="16"
@@ -104,7 +200,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Monospace"
      font.size="Large"
@@ -116,9 +211,9 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
-     font="SansSerifLarge"
+     font="SansSerif"
+     font.size="Large"
      font.style="BOLD"
      height="16"
      layout="topleft"
@@ -128,7 +223,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerifBold"
      height="16"
@@ -139,7 +233,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font.style="BOLD"
@@ -151,7 +244,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font.style="ITALIC"
@@ -163,7 +255,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font.style="BOLD|ITALIC"
@@ -175,7 +266,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font.style="BOLD|ITALIC"
@@ -187,7 +277,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font.style="UNDERLINE"
@@ -199,7 +288,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      font_shadow="none"
@@ -211,7 +299,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="SansSerif"
      height="16"
@@ -222,7 +309,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="DejaVu"
      height="16"
@@ -233,7 +319,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="DejaVu"
      font.style="BOLD"
@@ -245,7 +330,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="DejaVu"
      font.style="ITALIC"
@@ -257,7 +341,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="DejaVu"
      font.style="BOLD|ITALIC"
@@ -269,7 +352,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="DejaVu"
      font.size="Large"
@@ -282,7 +364,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Helvetica"
      height="16"
@@ -293,7 +374,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Helvetica"
      font.style="BOLD"
@@ -305,7 +385,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Helvetica"
      font.style="ITALIC"
@@ -317,7 +396,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Helvetica"
      font.style="BOLD|ITALIC"
@@ -329,7 +407,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="Helvetica"
      font.size="Large"
@@ -343,7 +420,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      height="16"
      layout="topleft"
@@ -356,7 +432,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      font="OverrideTest"
      height="16"
@@ -368,7 +443,6 @@
     <text
      type="string"
      length="1"
-     bottom_delta="20"
      follows="left|top|right"
      height="16"
      layout="topleft"
