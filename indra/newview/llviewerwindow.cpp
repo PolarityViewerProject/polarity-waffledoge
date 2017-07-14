@@ -162,7 +162,6 @@
 #include "llspatialpartition.h"
 #include "llviewerjoystick.h"
 #include "llviewernetwork.h"
-#include "llpostprocess.h"
 #include "llfloaterimnearbychat.h"
 #include "llwearablelist.h"
 
@@ -5170,11 +5169,6 @@ void LLViewerWindow::stopGL(BOOL save_state)
 		
 		gBox.cleanupGL();
 		
-		if(gPostProcess)
-		{
-			gPostProcess->invalidate();
-		}
-
 		gTextureList.destroyGL(save_state);
 		stop_glerror();
 		

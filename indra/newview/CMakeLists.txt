@@ -410,7 +410,6 @@ set(viewer_SOURCE_FILES
     llfloaterpathfindingobjects.cpp
     llfloaterpay.cpp
     llfloaterperms.cpp
-    llfloaterpostprocess.cpp
     llfloaterpreference.cpp
     llfloaterproperties.cpp
     llfloaterregiondebugconsole.cpp
@@ -1019,7 +1018,6 @@ set(viewer_HEADER_FILES
     llfloaterpathfindingobjects.h
     llfloaterpay.h
     llfloaterperms.h
-    llfloaterpostprocess.h
     llfloaterpreference.h
     llfloaterproperties.h
     llfloaterregiondebugconsole.h
