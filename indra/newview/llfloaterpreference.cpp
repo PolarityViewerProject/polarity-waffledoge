@@ -1317,7 +1317,7 @@ void LLFloaterPreference::updateMemorySlider(const bool& set_default)
 	}
 	if(set_default)
 	{
-		static S32 recommended = LLViewerTextureList::getMaxVideoRamSetting(true).value();
+		S32 recommended = LLViewerTextureList::getMaxVideoRamSetting(true).value();
 		gSavedSettings.setS32("TextureMemory", recommended);
 		memorySlider->setValue(recommended);
 	}
@@ -1351,9 +1351,8 @@ void LLFloaterPreference::refreshEnabledState()
 			if(!min_max_set)
 			{
 				static S32 min_tex_mem = LLViewerTextureList::getMinVideoRamSetting().value();
-				static S32 max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false).value();
 				memorySlider->setMinValue(min_tex_mem);
-				memorySlider->setMaxValue(max_tex_mem);
+				memorySlider->setMaxValue(gMaxVideoRam.value());
 				min_max_set = true;
 			}
 			memorySlider->setValue(gSavedSettings.getS32("TextureMemory"));

@@ -851,6 +851,8 @@ void LLFeatureManager::applyBaseMasks()
 	LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
 	maskFeatures(gpustr);
 	gGLManager.mVRAM = PVGPUInfo::vRAMGetTotalOnboard().value();
+	// prime the texture memory here to be sure we don't end up with a 0
+	gMaxVideoRam = LLViewerTextureList::getMaxVideoRamSetting(false);
 }
 
 LLSD LLFeatureManager::getRecommendedSettingsMap()

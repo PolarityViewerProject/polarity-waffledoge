@@ -1353,63 +1353,51 @@ S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 // Returns the maximum value TextureMemory can be, based on the amount of VRAM the video card in use has.
 S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommended)
 {
-	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
+	static const S64Megabytes VRAM_BIG_THRESHOLD(4096);
 	S64Megabytes Hardware_VRAM_MB = PVGPUInfo::vRAMGetTotalOnboard();
-	const S64Megabytes VRAM_BIG_THRESHOLD(4096);
-	S64Megabytes adjusted_max_vram = Hardware_VRAM_MB;
-	LL_DEBUGS() << "MADE NEW VARIABLES" << LL_ENDL;
-
+	F64Megabytes adjusted_max_vram = Hardware_VRAM_MB;
 	bool leave_vram_for_os = (bool)gSavedSettings.getBOOL("PVDebug_ReserveVRAMForSystem");
 
-	LL_DEBUGS() << "MADE CACHED CONTROL" << LL_ENDL;
-	
-		if (gGLManager.mIsATI)
-		{
-			LL_DEBUGS() << "I AM ATI" << LL_ENDL;
-			leave_vram_for_os = true; // forced in ATI's case. Sorry guys, you swap too hard.
-		}
-		else
-		{
-		if (Hardware_VRAM_MB <= VRAM_BIG_THRESHOLD / 2)
-		{
-			LL_DEBUGS() << "I HAVE TINY VRAM WHEW" << LL_ENDL;
-			// Less than 2GB isn't a lot of VRAM nowadays, especially if other applications are running.
-			if (leave_vram_for_os)
-			{
-				adjusted_max_vram = Hardware_VRAM_MB * 3 / 4;
-				// VRAM is too small for this logic to work anyway, force off after this adjustment
-				leave_vram_for_os = false;
-			}
-		}
-		else if (Hardware_VRAM_MB >= VRAM_BIG_THRESHOLD) 
-		{
-			LL_DEBUGS() << "I HAVE MUCH VRAM WOW" << LL_ENDL;
-			if (leave_vram_for_os)
-			{
-				// leave some for the Operating system and other programs. This should reduce fragmentation and swapping.
-				adjusted_max_vram = Hardware_VRAM_MB - (VRAM_BIG_THRESHOLD * 3 / 4);
-			}
-		}
-		auto previous_adjusted_max = adjusted_max_vram;
-		// Set texture memory to 75% of available VRAM
-		adjusted_max_vram = Hardware_VRAM_MB * 3 / 4 - ((int)leave_vram_for_os * (VRAM_BIG_THRESHOLD * 0.25));
-		LL_DEBUGS() << "FINAL VRAM SHRINK FROM " << previous_adjusted_max << " TO " << adjusted_max_vram << LL_ENDL;
-		LL_DEBUGS() << "EXITING ATI BLOCK" << LL_ENDL;
-	}
+	// Set max texture memory to 75% of available VRAM. Linden Lab's original value was 50%.
+	adjusted_max_vram = F64Megabytes((Hardware_VRAM_MB * 3) / 4);
+	LL_INFOS() << "MAX VIDEO TEXTURE MEMORY SHRINK FROM " << Hardware_VRAM_MB << " TO " << adjusted_max_vram << LL_ENDL;
 
 	// reminder: this is the texture memory, it must not take all the VRAM because we have more data to store as well.
 	if (get_recommended)
 	{
 		LL_DEBUGS() << "GETTING RECOMMENDED" << LL_ENDL;
-		adjusted_max_vram = adjusted_max_vram * 3 / 4; // LL Original was 50%, we recommend using 75% of the adjusted value.
+		if (gGLManager.mIsATI)
+		{
+			leave_vram_for_os = true; // forced in ATI's case. Sorry guys, you swap too hard.
+		}
+		if (leave_vram_for_os)
+		{
+			// Make sure we leave some VRAM for the OS
+			F64Megabytes used_vram = PVGPUInfo::vRAMGetUsedOthers();
+			if (used_vram <= F64Megabytes(0))
+			{
+				// Work around math error if the GPU API doesn't return that info
+				used_vram = F64Megabytes(256);
+			}
+			adjusted_max_vram = llclamp(adjusted_max_vram, used_vram, adjusted_max_vram - used_vram); // adjust here if still swapping
+		}
+		LL_INFOS() << "RECOMMENDED VIDEO TEXTURE MEMORY: " << adjusted_max_vram << LL_ENDL;
 	}
-	if (S64Megabytes(gMaxVideoRam) != adjusted_max_vram) // be nice on memory writes
+	/*
+	else
 	{
-		gMaxVideoRam = S32Megabytes(adjusted_max_vram);
-		LL_DEBUGS() << "Texture memory allocation updated" << LL_ENDL;
+		llassert(adjusted_max_vram > S32Megabytes(0))
+		if (S64Megabytes(gMaxVideoRam) != adjusted_max_vram) // be nice on memory writes
+		{
+			//gMaxVideoRam = S32Megabytes(adjusted_max_vram);
+			LL_INFOS() << "FINAL MAX VIDEO TEXTURE MEMORY SHRINK FROM " << gMaxVideoRam << " TO " << adjusted_max_vram << LL_ENDL;
+			LL_INFOS() << "Texture memory allocation updated" << LL_ENDL;
+		}
 	}
+	*/
+	LL_INFOS() << "FINAL MAX VIDEO TEXTURE MEMORY SHRINK FROM " << gMaxVideoRam << " TO " << adjusted_max_vram << LL_ENDL;
 	LL_DEBUGS() << "EXITING FUNCTION" << LL_ENDL;
-	return gMaxVideoRam;
+	return adjusted_max_vram;
 }
 
 // <polarity> TODO: Make this dynamic based on the snapshot texture size
@@ -1419,8 +1407,8 @@ const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(256); // <polarity>
 // Updates TextureMemory based on user selection and current limits
 void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 {
-	// Initialize the image pipeline VRAM settings
 	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
+	// Initialize the image pipeline VRAM settings
 	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 
 // ------------------------------------------------------------------
@@ -1428,7 +1416,7 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
 //
 	if (mem <= 0 || cur_mem.value() <= 0) // convention for "use current"
 	{
-		LL_INFOS() << "Auto-detecting TextureMemory allocation..." << LL_ENDL;
+		llassert(0); // This should not happen
 		mem = getMaxVideoRamSetting(true).value(); // recommended default
 	}
 
