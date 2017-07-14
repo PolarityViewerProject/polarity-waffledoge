@@ -8566,7 +8566,7 @@
     <integer>1</integer>
   </map>
 
-  <key>RenderShadowNearDist</key>
+<!--   <key>RenderShadowNearDist</key>
   <map>
     <key>Comment</key>
     <string>Near clip plane of shadow camera (affects precision of depth shadows).</string>
@@ -8582,7 +8582,7 @@
       <real>256</real>
       <real>256</real>
     </array>
-  </map>
+  </map> -->
   <key>RenderShadowClipPlanes</key>
   <map>
     <key>Comment</key>

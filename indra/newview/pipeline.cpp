@@ -10255,10 +10255,6 @@ void LLPipeline::generateSunShadow(LLCamera& camera)
 	clip = RenderShadowOrthoClipPlanes;
 	mSunOrthoClipPlanes = LLVector4(clip, clip.mV[2]*clip.mV[2]/clip.mV[1]);
 
-	//currently used for amount to extrude frusta corners for constructing shadow frusta
-	//LLVector3 n = RenderShadowNearDist;
-	//F32 nearDist[] = { n.mV[0], n.mV[1], n.mV[2], n.mV[2] };
-
 	//put together a universal "near clip" plane for shadow frusta
 	LLPlane shadow_near_clip;
 	{
