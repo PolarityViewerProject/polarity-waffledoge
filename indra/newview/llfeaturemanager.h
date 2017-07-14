@@ -49,13 +49,13 @@ typedef enum EGPUClass
 typedef enum EGPUClassBandwidth
 {
 	GPU_BW_UNKNOWN = 0,
-	GPU_BW_0 = 40,
-	GPU_BW_1 = 50,
-	GPU_BW_2 = 60,
-	GPU_BW_3 = 70,
-	GPU_BW_4 = 150,
-	GPU_BW_5 = 350,
-	GPU_BW_6 = 450,
+	GPU_BW_0 = 50,
+	GPU_BW_1 = 60,
+	GPU_BW_2 = 70,
+	GPU_BW_3 = 80,
+	GPU_BW_4 = 90,
+	GPU_BW_5 = 190,
+	GPU_BW_6 = 350,
 } EGPUClassBandwidth;
 
 // I can't bother moving the function to a class.
