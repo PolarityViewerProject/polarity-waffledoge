@@ -142,6 +142,7 @@ LLFontGL* LLConsole::getFontSize(const S32& size_index)
 	// Make sure the font exists
 	if (return_font == NULL)
 	{
+		LL_WARNS() << "Font size " << return_font << " does not exist!" << LL_ENDL;
 		return_font = LLFontGL::getFontDefault();
 	}
 	return return_font;
