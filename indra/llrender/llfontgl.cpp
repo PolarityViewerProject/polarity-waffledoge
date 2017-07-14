@@ -824,10 +824,18 @@ void LLFontGL::initClass(F32 screen_dpi, F32 x_scale, F32 y_scale, const std::st
 bool LLFontGL::loadDefaultFonts()
 {
 	bool succ = true;
+	succ &= (NULL != getFontSansSerifMicro());
+	succ &= (NULL != getFontSansSerifTiny());
+	succ &= (NULL != getFontSansSerifVerySmall());
 	succ &= (NULL != getFontSansSerifSmall());
 	succ &= (NULL != getFontSansSerif());
 	succ &= (NULL != getFontSansSerifBig());
+	succ &= (NULL != getFontSansSerifVeryBig());
+	succ &= (NULL != getFontSansSerifLarge());
+	succ &= (NULL != getFontSansSerifVeryLarge());
 	succ &= (NULL != getFontSansSerifHuge());
+	succ &= (NULL != getFontSansSerifHumongous());
+	succ &= (NULL != getFontSansSerifGigantic());
 	succ &= (NULL != getFontSansSerifBold());
 	succ &= (NULL != getFontMonospace());
 	succ &= (NULL != getFontExtChar());
@@ -981,6 +989,27 @@ LLFontGL* LLFontGL::getFontMonospace()
 }
 
 //static
+LLFontGL* LLFontGL::getFontSansSerifMicro()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Micro",0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifTiny()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Tiny",0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifVerySmall()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","VerySmall",0));
+	return fontp;
+}
+
+//static
 LLFontGL* LLFontGL::getFontSansSerifSmall()
 {
 	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Small",0));
@@ -997,7 +1026,28 @@ LLFontGL* LLFontGL::getFontSansSerif()
 //static
 LLFontGL* LLFontGL::getFontSansSerifBig()
 {
-	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Large",0));
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Big",0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifVeryBig()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","VeryBig",0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifLarge()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif", "Large", 0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifVeryLarge()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif", "VeryLarge", 0));
 	return fontp;
 }
 
@@ -1005,6 +1055,27 @@ LLFontGL* LLFontGL::getFontSansSerifBig()
 LLFontGL* LLFontGL::getFontSansSerifHuge()
 {
 	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif","Huge",0));
+	return fontp;
+}
+
+//static 
+LLFontGL* LLFontGL::getFontSansSerifVeryHuge()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif", "VeryHuge", 0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifHumongous()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif", "Humongous", 0));
+	return fontp;
+}
+
+//static
+LLFontGL* LLFontGL::getFontSansSerifGigantic()
+{
+	static LLFontGL* fontp = getFont(LLFontDescriptor("SansSerif", "Gigantic", 0));
 	return fontp;
 }
 

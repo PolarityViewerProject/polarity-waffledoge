@@ -278,7 +278,7 @@
             height="35"
             width="280"
             layout="topleft"
-            font="SansSerifBig"
+            font="SansSerifVeryBig"
             font.style="BOLD"
             left="10"
             top_pad="10"

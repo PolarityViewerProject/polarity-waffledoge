@@ -46,7 +46,7 @@
           width="180"
           height="40"
           label="Pause"
-          font="SansSerifHuge"/>
+          font="SansSerifGigantic"/>
   <layout_stack name="legend_stack"
                 orientation="horizontal"
                 left="0"

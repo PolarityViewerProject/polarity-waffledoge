@@ -10,7 +10,7 @@
  name="sidetray_tab_panel">
     <text
      follows="left|top|right"
-     font="SansSerifHuge"
+     font="SansSerifGigantic"
      height="16"
      layout="topleft"
      left="10"

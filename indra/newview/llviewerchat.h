@@ -39,8 +39,7 @@ public:
 
 	static void getChatColor(const LLChat& chat, LLColor4& r_color);
 	static void getChatColor(const LLChat& chat, std::string& r_color_name, F32& r_color_alpha);
-	static LLFontGL* getChatFont();
-	static S32 getChatFontSize();
+	static inline LLFontGL* getChatFont();
 	static void formatChatMsg(const LLChat& chat, std::string& formated_msg);
 	static std::string getSenderSLURL(const LLChat& chat, const LLSD& args);
 

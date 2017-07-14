@@ -58,7 +58,7 @@
      length="1"
      bottom_delta="36"
      follows="left|top|right"
-     font="SansSerifHuge"
+     font="SansSerifGigantic"
      height="32"
      layout="topleft"
      left="16">
@@ -69,7 +69,7 @@
      length="1"
      bottom_delta="36"
      follows="left|top|right"
-     font="SansSerifHuge"
+     font="SansSerifGigantic"
      font.style.="BOLD"
      height="32"
      layout="topleft"

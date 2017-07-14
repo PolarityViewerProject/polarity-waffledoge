@@ -101,30 +101,57 @@ void LLConsole::reshape(S32 width, S32 height, BOOL called_from_parent)
 	}
 }
 
-void LLConsole::setFontSize(S32 size_index)
+// static
+// <polarity> Centralize font size selection
+LLFontGL* LLConsole::getFontSize(const S32& size_index)
 {
-	if (-1 == size_index)
+	LLFontGL* return_font = NULL;
+	switch (size_index)
 	{
-		mFont = LLFontGL::getFontMonospace();
-	}
-	else if (0 == size_index)
-	{
-		mFont = LLFontGL::getFontSansSerif();
-	}
-	else if (1 == size_index)
-	{
-		mFont = LLFontGL::getFontSansSerifBig();
-	}
-	else
-	{
-		mFont = LLFontGL::getFontSansSerifHuge();
+	case -1:
+		return_font = LLFontGL::getFontMonospace();		break;
+	case 0:
+		return_font = LLFontGL::getFontSansSerifMicro(); break;
+	case 1:
+		return_font = LLFontGL::getFontSansSerifTiny(); break;
+	case 2:
+		return_font = LLFontGL::getFontSansSerifVerySmall(); break;
+	case 3:
+		return_font = LLFontGL::getFontSansSerifSmall(); break;
+	default:
+		LL_WARNS() << "Invalid font size : " << size_index << LL_ENDL;
+	case 4:
+		return_font = LLFontGL::getFontSansSerif();	    break;
+	case 5:
+		return_font = LLFontGL::getFontSansSerifBig();	break;
+	case 6:
+		return_font = LLFontGL::getFontSansSerifVeryBig();	break;
+	case 7:
+		return_font = LLFontGL::getFontSansSerifLarge();	break;
+	case 8:
+		return_font = LLFontGL::getFontSansSerifVeryLarge();	break;
+	case 9:
+		return_font = LLFontGL::getFontSansSerifHuge();	break;
+	case 10:
+		return_font = LLFontGL::getFontSansSerifVeryHuge();	break;
+	case 11:
+		return_font = LLFontGL::getFontSansSerifHumongous();	break;
+	case 12:
+		return_font = LLFontGL::getFontSansSerifGigantic();	break;
 	}
 	// Make sure the font exists
-	if (mFont == NULL)
+	if (return_font == NULL)
 	{
-		mFont = LLFontGL::getFontDefault();
+		return_font = LLFontGL::getFontDefault();
 	}
-	
+	return return_font;
+}
+// </polarity>
+void LLConsole::setFontSize(S32 size_index)
+{
+	// <polarity/> Centralize font size selection
+	mFont = getFontSize(size_index);
+
 	for(paragraph_t::iterator paragraph_it = mParagraphs.begin(); paragraph_it != mParagraphs.end(); paragraph_it++)
 	{
 		(*paragraph_it).updateLines((F32)getRect().getWidth(), mFont, true);

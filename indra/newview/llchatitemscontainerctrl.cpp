@@ -29,6 +29,7 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llchatitemscontainerctrl.h"
+#include "llconsole.h"
 #include "lltextbox.h"
 
 #include "llavatariconctrl.h"
@@ -141,17 +142,10 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 	LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
 	textColor.mV[VALPHA] =notification["color_alpha"].asReal();
 	
-	S32 font_size = notification["font_size"].asInteger();
-
-	LLFontGL*       messageFont;
-	switch(font_size)
-	{
-		case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
-		default:
-		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
-		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
-		case 3: messageFont = LLFontGL::getFontMonospace();		break;
-	}
+	// <polarity> Centralize font size selection
+	//S32 font_size = notification["font_size"].asInteger();
+	LLFontGL*       messageFont = LLConsole::getFontSize(notification["font_size"].asInteger());
+	// </polarity>
 
 	//append text
 	{
@@ -200,15 +194,8 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 	
 	S32 font_size = notification["font_size"].asInteger();
 
-	LLFontGL*       messageFont;
-	switch(font_size)
-	{
-		case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
-		default:
-		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
-		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
-		case 3: messageFont = LLFontGL::getFontMonospace();		break;
-	}
+	// <polarity/> Centralize font size selection
+	LLFontGL*       messageFont = LLConsole::getFontSize(font_size);
 	
 	mMsgText = getChild<LLChatMsgBox>("msg_text", false);
 	mMsgText->setContentTrusted(false);

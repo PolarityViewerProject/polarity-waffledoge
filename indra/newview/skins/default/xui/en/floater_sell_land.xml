@@ -71,7 +71,7 @@
     </text>
     <text
      follows="top|left"
-     font="SansSerifBig"
+     font="SansSerifVeryBig"
      height="24"
      left="16"
      name="info_action"
@@ -226,7 +226,7 @@
     <text
      bottom_delta="30"
      follows="top|left"
-     font="SansSerifBig"
+     font="SansSerifVeryBig"
      height="16"
      left="16"
      name="nag_message_label"

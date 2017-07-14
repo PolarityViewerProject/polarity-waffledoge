@@ -77,7 +77,7 @@
      use_draw_context_alpha="false" />
         <text
      follows="top|left|right"
-     font="SansSerifHuge"
+     font="SansSerifGigantic"
      height="26"
      layout="topleft"
      left_pad="10"

@@ -32,7 +32,7 @@
  <text
     follows="left|top"
     font.style="BOLD"
-    font="SansSerifHuge"
+    font="SansSerifGigantic"
     height="25"
     left="5"
     name="app_name_text"
@@ -45,7 +45,7 @@
  <text
     follows="left|top"
     font.style="BOLD"
-    font="SansSerifHuge"
+    font="SansSerifGigantic"
     height="25"
     left="5"
     halign="right"

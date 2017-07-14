@@ -155,14 +155,38 @@
        comment="Size for monospaced font (points, or 1/72 of an inch)"
        size="5.0"
        />
+  <font_size name="Gigantic"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="16.0"
+       />
+  <font_size name="Humongous"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="15.0"
+       />    
+  <font_size name="VeryHuge"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="14.0"
+       />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="16.0"
+	     size="13.0"
 	     />
+  <font_size name="VeryLarge"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="12.6"
+       />
   <font_size name="Large"
-	     comment="Size of large font (points, or 1/72 of an inch)"
-	     size="10.6"
-	     />
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="11.6"
+       />
+  <font_size name="VeryBig"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="10.6"
+       />
+  <font_size name="Big"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="9.6"
+       />
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
 	     size="8.6"
@@ -171,4 +195,16 @@
 	     comment="Size of small font (points, or 1/72 of an inch)"
 	     size="7.6"
 	     />
+  <font_size name="VerySmall"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="6.6"
+       />
+  <font_size name="Tiny"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="5.6"
+       />
+  <font_size name="Micro"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="4.6"
+       />
 </fonts>

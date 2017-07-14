@@ -183,10 +183,19 @@ public:
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
 		
 	static LLFontGL* getFontMonospace();
+	static LLFontGL* getFontSansSerifMicro();
+	static LLFontGL* getFontSansSerifTiny();
+	static LLFontGL* getFontSansSerifVerySmall();
 	static LLFontGL* getFontSansSerifSmall();
 	static LLFontGL* getFontSansSerif();
 	static LLFontGL* getFontSansSerifBig();
+	static LLFontGL* getFontSansSerifVeryBig();
+	static LLFontGL* getFontSansSerifLarge();
+	static LLFontGL* getFontSansSerifVeryLarge();
 	static LLFontGL* getFontSansSerifHuge();
+	static LLFontGL* getFontSansSerifVeryHuge();
+	static LLFontGL* getFontSansSerifHumongous();
+	static LLFontGL* getFontSansSerifGigantic();
 	static LLFontGL* getFontSansSerifBold();
 	static LLFontGL* getFontExtChar();
 	static LLFontGL* getFont(const LLFontDescriptor& desc);

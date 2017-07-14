@@ -38,6 +38,7 @@
 #include "llviewerregion.h"
 #include "llworld.h"
 #include "llinstantmessage.h" //SYSTEM_FROM
+#include "llconsole.h"
 
 // LLViewerChat
 LLViewerChat::font_change_signal_t LLViewerChat::sChatFontChangedSignal;
@@ -188,35 +189,8 @@ void LLViewerChat::getChatColor(const LLChat& chat, std::string& r_color_name, F
 //static 
 LLFontGL* LLViewerChat::getChatFont()
 {
-	S32 font_size = gSavedSettings.getS32("ChatFontSize");
-	LLFontGL* fontp = NULL;
-	switch(font_size)
-	{
-		case 0:
-			fontp = LLFontGL::getFontSansSerifSmall();
-			break;
-		default:
-		case 1:
-			fontp = LLFontGL::getFontSansSerif();
-			break;
-		case 2:
-			fontp = LLFontGL::getFontSansSerifBig();
-			break;
-		case 3:
-			fontp = LLFontGL::getFontMonospace();
-			break;
-	}
-	
-	return fontp;
-	
+	return LLConsole::getFontSize(gSavedSettings.getS32("ChatFontSize"));
 }
-
-//static
-S32 LLViewerChat::getChatFontSize()
-{
-	return gSavedSettings.getS32("ChatFontSize");
-}
-
 
 //static
 void LLViewerChat::formatChatMsg(const LLChat& chat, std::string& formated_msg)
