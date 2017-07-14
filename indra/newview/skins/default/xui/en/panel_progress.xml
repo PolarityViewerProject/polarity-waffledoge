@@ -60,7 +60,8 @@
                  width="670" />
 <!--                     <text
                      follows="left|right|top"
-                     font="SansSerifGigantic"
+                     font="SansSerif"
+                     font.size="Gigantic"
                      font_shadow="none"
                      halign="center"
                      height="20"
