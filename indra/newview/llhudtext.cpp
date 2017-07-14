@@ -247,11 +247,16 @@ void LLHUDText::renderText()
 
 void LLHUDText::setString(const std::string &text_utf8)
 {
-	mTextSegments.clear();
+	if (!mTextSegments.empty())
+	{
+		mTextSegments.clear();
+	}
 	// <polarity> RLV-independant hovertext nuke.
-	// TODO: re-implement and QA this post-merge
-	// static LLCachedControl<bool> force_hide_hover_text(gSavedSettings, "PVRender_HideAllHoverText", false);
-
+	static LLCachedControl<bool> force_hide_hover_text(gSavedSettings, "PVRender_HideAllHoverText", false);
+	if (force_hide_hover_text)
+	{
+		return;
+	}
 //	addLine(text_utf8, mColor);
 // [RLVa:KB] - Checked: RLVa-2.0.3
 	// NOTE: setString() is called for debug and map beacons as well
