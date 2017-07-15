@@ -697,6 +697,13 @@ static bool validateShadowMapsChanged(const LLSD& newvalue)
 }
 
 // </polarity>
+// <Black Dragon:NiranV> Granular controls refresh
+static bool handleShadowMapsChanged(const LLSD& newvalue)
+{
+	gPipeline.allocateShadowMaps(false);
+	return true;
+}
+// </Black Dragon:NiranV>
 
 //static bool handleSSAOChanged(const LLSD& newvalue)
 //{
@@ -993,6 +1000,13 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVWindow_TitleForceShortName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
+
+	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
+	// TODO: Make these slider work with a vector4
+	static auto shadow_ctrl = gSavedSettings.getControl("RenderShadowResolutionScale");
+	shadow_ctrl->getValidateSignal()->connect(boost::bind(&validateShadowMapsChanged, _2));
+	shadow_ctrl->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	// </polarity>
 }
 
 #if TEST_CACHED_CONTROL
