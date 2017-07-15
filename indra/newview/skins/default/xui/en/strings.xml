@@ -127,7 +127,7 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="AditiGridLabel">Second Life Beta Test Grid (Aditi)</string>
 	
 	<string name="LoginFailedViewerNotPermitted">
-	The viewer you are using can no longer access Second Life. [[PROJECT_HOME_PAGE]/download Upgrade], it's FREE!</string>
+	The viewer you are using can no longer access Second Life. [[PROJECT_HOMEPAGE]/download Upgrade], it's FREE!</string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
 	<string name="LoginFailedAlreadyLoggedIn">This agent is already logged in.
@@ -4443,7 +4443,7 @@ Try enclosing path to the editor with double quotes.
   <string name="PVDataNoClearance">
     You do not have clearance to use this internal build of [APP_NAME].
     If you believe this to be a mistake, contact the [APP_NAME] Viewer support. Otherwise, please download a public build at
-    [PROJECT_HOME_PAGE]/download.
+    [PROJECT_HOMEPAGE]/download.
   </string>
   <!-- /PVData -->
   
