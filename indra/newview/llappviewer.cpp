@@ -3642,7 +3642,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	return info;
 }
 
-std::string LLAppViewer::getViewerInfoString() const
+std::string LLAppViewer::getViewerInfoString(bool detailed) const
 {
 	std::ostringstream support;
 
@@ -3682,7 +3682,7 @@ std::string LLAppViewer::getViewerInfoString() const
 
 	// Now build the various pieces
 	support << LLTrans::getString("AboutHeader", args);
-	if (info.has("REGION"))
+	if (detailed && info.has("REGION"))
 	{
 // [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
 		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args) << "\n";
@@ -3699,21 +3699,25 @@ std::string LLAppViewer::getViewerInfoString() const
 #endif
 
 	support << "\n" << LLTrans::getString("AboutOGL", args);
-	support << "\n\n" << LLTrans::getString("AboutSettings", args);
-	support << "\n\n" << LLTrans::getString("AboutLibs", args);
-	if (info.has("COMPILER"))
+	if(detailed)
 	{
-		support << "\n" << LLTrans::getString("AboutCompiler", args);
-	}
-	if (info.has("PACKETS_IN"))
-	{
-		support << '\n' << LLTrans::getString("AboutTraffic", args);
-	}
+		support << "\n\n" << LLTrans::getString("AboutSettings", args);
+		support << "\n\n" << LLTrans::getString("AboutLibs", args);
+		if (info.has("COMPILER"))
+		{
+			support << "\n" << LLTrans::getString("AboutCompiler", args);
+		}
+		if (info.has("PACKETS_IN"))
+		{
+			support << '\n' << LLTrans::getString("AboutTraffic", args);
+		}
 
-	// SLT timestamp
-	LLSD substitution;
-	substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
-	support << "\n" << LLTrans::getString("AboutTime", substitution);
+		// SLT timestamp
+		LLSD substitution;
+		substitution["datetime"] = (S32)time(NULL);//(S32)time_corrected();
+		support << "\n" << LLTrans::getString("AboutTime", substitution);
+
+	}
 
 	if (info.has("UPTIME"))
 	{

@@ -79,6 +79,7 @@ OSChatCommand::OSChatCommand()
 	//gSavedSettings.getControl("PVChatCommand_PVDataDump")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("PVChatCommand_PurgeChat")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 	gSavedSettings.getControl("PVChatCommand_Uptime")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
+	gSavedSettings.getControl("PVChatCommand_SysInfo")->getSignal()->connect(boost::bind(&OSChatCommand::refreshCommands, this));
 }
 
 void OSChatCommand::refreshCommands()
@@ -102,6 +103,7 @@ void OSChatCommand::refreshCommands()
 	//mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PVDataDump")), CMD_PVDATA_DUMP); 
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_PurgeChat")), CMD_PURGE_CHAT);
 	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_Uptime")), CMD_GET_UPTIME);
+	mChatCommands.emplace(utf8str_tolower(gSavedSettings.getString("PVChatCommand_SysInfo")), CMD_SYS_INFO);
 }
 
 bool OSChatCommand::matchPrefix(const std::string& in_str, std::string* out_str)
@@ -445,6 +447,11 @@ bool OSChatCommand::parseCommand(std::string data)
 			PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");
 			return true;
 		}
+	case CMD_SYS_INFO:
+	{
+		PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::instance()->getViewerInfoString(false), "System info");
+		return true;
+	}
 	}
 	return false;
 }

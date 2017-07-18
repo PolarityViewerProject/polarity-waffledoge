@@ -48,6 +48,7 @@ class OSChatCommand : public LLSingleton<OSChatCommand>
 		CMD_PVDATA_REFRESH,
 		//CMD_PVDATA_DUMP,
 		CMD_GET_UPTIME,
+		CMD_SYS_INFO,
 		CMD_UNKNOWN
 	} e_chat_commands;
 

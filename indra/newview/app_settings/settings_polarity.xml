@@ -379,6 +379,17 @@
       <key>Value</key>
       <string>/uptime</string>
     </map>
+    <key>PVChatCommand_SysInfo</key>
+    <map>
+      <key>Comment</key>
+      <string>Command to get system info</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>String</string>
+      <key>Value</key>
+      <string>/sysinfo</string>
+    </map>
     <key>PVChat_NearbyTypingIndicators</key>
     <map>
       <key>Comment</key>
