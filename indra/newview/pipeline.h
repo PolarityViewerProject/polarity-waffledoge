@@ -100,9 +100,6 @@ public:
 	LLPipeline();
 	~LLPipeline();
 
-	// <Black Dragon:NiranV> Change water reflection resolution on the way
-	void handleReflectionChanges();
-
 //	//BD - Shadow Map Allocation
 	bool allocateShadowMaps(const U32 shadow_detail = 0, const bool force_allocate = false);
 
@@ -407,8 +404,6 @@ public:
 	static void updateRenderBump();
 	static void updateRenderDeferred();
 	static void refreshCachedSettings();
-
-	void allocateWaterReflectionMaps();
 
 	static void throttleNewMemoryAllocation(BOOL disable);
 

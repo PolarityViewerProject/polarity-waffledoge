@@ -1223,36 +1223,6 @@ void LLPipeline::refreshCachedSettings()
 
 	updateRenderDeferred();
 }
-// <Black Dragon:NiranV> Refresh reflections on the fly
-void LLPipeline::allocateWaterReflectionMaps()
-{
-	mWaterRef.release();
-	mWaterDis.release();
-	if (LLPipeline::sWaterReflections)
-	{ //water reflection texture
-		// NOTE: Do NOT use a static LLCachedControl within a bound function; it doesn't refresh the value right away
-		U32 res = gSavedSettings.getU32("RenderWaterRefResolution");
-
-#if MATERIALS_IN_REFLECTIONS
-		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
-		// Set up SRGB targets if we're doing deferred-path reflection rendering
-		if (LLPipeline::sRenderDeferred && materials_in_water)
-		{
-			mWaterRef.allocate(res, res, GL_SRGB8_ALPHA8, TRUE, FALSE);
-			//always use FBO for mWaterDis so it can be used for avatar texture bakes
-			mWaterDis.allocate(res, res, GL_SRGB8_ALPHA8, TRUE, FALSE, LLTexUnit::TT_TEXTURE, true);
-		}
-#else
-		mWaterRef.allocate(res, res,GL_RGBA,TRUE,FALSE);
-		mWaterDis.allocate(res, res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
-#endif
-	}
-}
-
-void LLPipeline::handleReflectionChanges()
-{
-	allocateWaterReflectionMaps();
-}
 
 void LLPipeline::releaseGLBuffers()
 {
@@ -1320,10 +1290,31 @@ void LLPipeline::createGLBuffers()
 
 	updateRenderDeferred();
 
+	bool materials_in_water = false;
+
 #if MATERIALS_IN_REFLECTIONS
-		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
+	materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
 #endif
-	allocateWaterReflectionMaps();
+
+	if (LLPipeline::sWaterReflections)
+	{ //water reflection texture
+		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
+			
+		// Set up SRGB targets if we're doing deferred-path reflection rendering
+		//
+		if (LLPipeline::sRenderDeferred && materials_in_water)
+		{
+			mWaterRef.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE);
+			//always use FBO for mWaterDis so it can be used for avatar texture bakes
+			mWaterDis.allocate(res,res,GL_SRGB8_ALPHA8,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+		}
+		else
+		{
+		mWaterRef.allocate(res,res,GL_RGBA,TRUE,FALSE);
+		//always use FBO for mWaterDis so it can be used for avatar texture bakes
+		mWaterDis.allocate(res,res,GL_RGBA,TRUE,FALSE,LLTexUnit::TT_TEXTURE, true);
+	}
+	}
 
 	mHighlight.allocate(256,256,GL_RGBA, FALSE, FALSE);
 
@@ -9531,7 +9522,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					static LLCullResult result;
 					updateCull(camera, result);
 					stateSort(camera, result);
-#if MATERIALS_IN_REFLECTIONS
+
 					if (LLPipeline::sRenderDeferred && materials_in_water)
 					{
 						mWaterRef.flush();
@@ -9544,9 +9535,11 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 						renderGeomDeferred(camera);						
 					}
-#else
+					else
+					{
 					renderGeom(camera, TRUE);
-#endif
+					}					
+
 					gPipeline.popRenderTypeMask();
 				}
 
@@ -9588,24 +9581,24 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					{
 						gPipeline.grabReferences(ref_result);
 						LLGLUserClipPlane clip_plane(plane, mat, projection);
-#if MATERIALS_IN_REFLECTIONS
+
 						if (LLPipeline::sRenderDeferred && materials_in_water)
 						{							
 							renderGeomDeferred(camera);
 						}
-#else
+						else
+						{
 						renderGeom(camera);
-#endif
+					}
 				}	
 				}	
 
-#if MATERIALS_IN_REFLECTIONS
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{
 					gPipeline.mDeferredScreen.flush();
 					renderDeferredLightingToRT(&mWaterRef);
 				}
-#endif
+
 				gPipeline.popRenderTypeMask();
 			}	
 			glCullFace(GL_BACK);
@@ -9665,7 +9658,7 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 
 				gGL.setColorMask(true, false);
 
-#if MATERIALS_IN_REFLECTIONS
+				
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{										
 					mWaterDis.flush();
@@ -9676,17 +9669,16 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 					gPipeline.grabReferences(result);
 					renderGeomDeferred(camera);					
 				}
-#else
+				else
+				{
 				renderGeom(camera);
-#endif
-				
-#if MATERIALS_IN_REFLECTIONS
+				}
+
 				if (LLPipeline::sRenderDeferred && materials_in_water)
 				{
 					gPipeline.mDeferredScreen.flush();
 					renderDeferredLightingToRT(&mWaterDis);
 				}
-#endif
 			}
 
 			mWaterDis.flush();
