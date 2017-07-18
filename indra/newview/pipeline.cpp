@@ -9462,12 +9462,15 @@ void LLPipeline::generateWaterReflection(LLCamera& camera_in)
 			water_clip = 1;
 		}
 
+		bool materials_in_water = false;
+
+#if MATERIALS_IN_REFLECTIONS
+		materials_in_water = gSavedSettings.getS32("RenderWaterMaterials");
+#endif
+
 		if (!LLViewerCamera::getInstance()->cameraUnderWater())
 		{	//generate planar reflection map
 
-#if MATERIALS_IN_REFLECTIONS
-		static LLCachedControl<bool> materials_in_water(gSavedSettings, "RenderWaterMaterials"));
-#endif
 			//disable occlusion culling for reflection map for now
 			S32 occlusion = LLPipeline::sUseOcclusion;
 			LLPipeline::sUseOcclusion = 0;
