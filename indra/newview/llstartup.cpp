@@ -2411,7 +2411,8 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD,"", CHAT_SOURCE_MOTD);
+		std::string appname_str = APP_NAME;
+		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer", CHAT_SOURCE_MOTD);
 #ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
