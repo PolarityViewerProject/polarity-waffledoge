@@ -467,33 +467,29 @@ bool LLFeatureManager::loadGPUClass()
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps <= GPU_BW_0)
+	else if (gbps < GPU_BW_1)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gbps <= GPU_BW_1)
+	else if (gbps < GPU_BW_2)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps <= GPU_BW_2)
+	else if (gbps < GPU_BW_3)
 	{
 		mGPUClass = GPU_CLASS_2;
 	}
-	else if (gbps <= GPU_BW_3)
+	else if (gbps < GPU_BW_4)
 	{
 		mGPUClass = GPU_CLASS_3;
 	}
-	else if (gbps <= GPU_BW_4)
+	else if (gbps < GPU_BW_5)
 	{
 		mGPUClass = GPU_CLASS_4;
 	}
-	else if (gbps <= GPU_BW_5)
+	else
 	{
 		mGPUClass = GPU_CLASS_5;
-	}
-	else 
-	{
-		mGPUClass = GPU_CLASS_6;
 	}
 
 	// defaults
@@ -594,8 +590,7 @@ void LLFeatureManager::applyRecommendedSettings()
 	loadGPUClass();
 	// apply saved settings
 	// <polarity> Allow all GPU classes
-	// U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
-	 U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_6));
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
 	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
@@ -864,8 +859,7 @@ LLSD LLFeatureManager::getRecommendedSettingsMap()
 	LLSD map(LLSD::emptyMap());
 
 	loadGPUClass();
-	// U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_6)); // <polarity>
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 	LL_INFOS("RenderInit") << "Getting the map of recommended settings for level " << level << LL_ENDL;
 
 	applyBaseMasks();

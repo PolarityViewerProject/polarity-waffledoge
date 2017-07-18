@@ -42,20 +42,18 @@ typedef enum EGPUClass
 	GPU_CLASS_2 = 2,
 	GPU_CLASS_3 = 3,
 	GPU_CLASS_4 = 4,
-	GPU_CLASS_5 = 5,
-	GPU_CLASS_6 = 6
+	GPU_CLASS_5 = 5
 } EGPUClass; 
 
 typedef enum EGPUClassBandwidth
 {
 	GPU_BW_UNKNOWN = -1,
-	GPU_BW_0 = 50,
-	GPU_BW_1 = 60,
-	GPU_BW_2 = 70,
-	GPU_BW_3 = 80,
-	GPU_BW_4 = 90,
-	GPU_BW_5 = 190,
-	GPU_BW_6 = 350,
+	GPU_BW_0 = 40,
+	GPU_BW_1 = 50,
+	GPU_BW_2 = 60,
+	GPU_BW_3 = 70,
+	GPU_BW_4 = 190,
+	GPU_BW_5 = 350,
 } EGPUClassBandwidth;
 
 // I can't bother moving the function to a class.
