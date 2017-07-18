@@ -48,7 +48,7 @@ typedef enum EGPUClass
 
 typedef enum EGPUClassBandwidth
 {
-	GPU_BW_UNKNOWN = 0,
+	GPU_BW_UNKNOWN = -1,
 	GPU_BW_0 = 50,
 	GPU_BW_1 = 60,
 	GPU_BW_2 = 70,

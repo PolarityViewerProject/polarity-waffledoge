@@ -76,11 +76,21 @@ void draw_line_cube(F32 width, const LLVector3& center)
 F32 gpu_benchmark(bool force_run)
 {
 
-	if (!force_run && gSavedSettings.getBOOL("NoHardwareProbe"))
+	// <polarity> save GPU benchmark result and re-use it when possible
+	S32 saved_bench = gSavedSettings.getF32("PVRender_SavedGPUBenchmarkBandwidth");
+	if(saved_bench > 0 && !force_run && gSavedSettings.getBOOL("NoHardwareProbe"))
 	{
-		LL_INFOS() << "Skipping GPU Benchmark due to user preference" << LL_ENDL;
-		return -1.f;
+		LL_INFOS() << "Skipping GPU Benchmark and returning previous result due to user preference" << LL_ENDL;
+		return saved_bench;
 	}
+	// <polarity> Don't run GPU benchmark on Intel graphics, they take too long to run (0.117834GB/sec / 11.225GB/sec )
+	if (gGLManager.mIsIntel)
+	{
+		LL_INFOS() << "Skipping GPU Benchmark on Intel graphics" << LL_ENDL;
+		gSavedSettings.setF32("PVRender_SavedGPUBenchmarkBandwidth", (F32)11.225f);
+		return 11.225f;
+	}
+	// </polarity>
 	if (!gGLManager.mHasVertexBufferObject || !gGLManager.mHasShaderObjects || !gGLManager.mHasTimerQuery)
 	{
 		// don't bother benchmarking the fixed function
@@ -88,12 +98,6 @@ F32 gpu_benchmark(bool force_run)
 		// or venerable drivers which don't support accurate timing anyway
 		// and are likely to be correctly identified by the GPU table already.
 		LL_INFOS() << "Skipping GPU Benchmark due missing features" << LL_ENDL;
-		return -1.f;
-	}
-	// <polarity> Don't run GPU benchmark on Intel graphics, they take too long to run (0.117834GB/sec / 11.225GB/sec )
-	if (gGLManager.mIsIntel)
-	{
-		LL_INFOS() << "Skipping GPU Benchmark on Intel graphics" << LL_ENDL;
 		return -1.f;
 	}
 	LL_INFOS() << "Running GPU benchmark..." << LL_ENDL;
@@ -304,6 +308,8 @@ F32 gpu_benchmark(bool force_run)
 
 	// Turn off subsequent benchmarking.
 	gSavedSettings.setBOOL("NoHardwareProbe", TRUE);
+	// <polarity> save GPU benchmark result and re-use it when possible
+	gSavedSettings.setF32("PVRender_SavedGPUBenchmarkBandwidth", (F32)gbps.value());
 	return gbps.value();
 }
 

@@ -416,7 +416,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 bool LLFeatureManager::loadGPUClass()
 {
 	//get memory bandwidth from benchmark
-	F32 gbps = gpu_benchmark(LLStartUp::getStartupState() >= STATE_BROWSER_INIT); // Only force the benchmark to run on user request (which cannot happen during startup)
+	F32 gbps = gpu_benchmark(false);
 
 	if (gbps < 0.f)
 	{ //couldn't bench, use GLVersion
@@ -454,9 +454,8 @@ bool LLFeatureManager::loadGPUClass()
 		// so let's force them to something more representative of their performance - Xenhat
 		if(gGLManager.mIsIntel) // TODO: Detect IRIS lineup
 		{
-			static const EGPUClass forced_intel_gpu_class = GPU_CLASS_3;
-			LL_INFOS() << "Intel graphics detected, forcing GPU class based on performance (" << mGPUClass << "->" << forced_intel_gpu_class << ")" << LL_ENDL;
-			mGPUClass = forced_intel_gpu_class;
+			mGPUClass = GPU_CLASS_3;
+			LL_INFOS() << "Intel graphics detected, forcing GPU class based on performance (Class " << mGPUClass << ")" << LL_ENDL;
 		}
 #endif
 	}
@@ -674,6 +673,7 @@ void LLFeatureManager::applyFeatures(bool skipFeatures)
 
 void LLFeatureManager::setGraphicsLevel(U32 level, bool skipFeatures)
 {
+	LL_WARNS() << "Attempting to set graphic preset '" << level << "'" << LL_ENDL;
 	LLViewerShaderMgr::sSkipReload = true;
 
 	applyBaseMasks();

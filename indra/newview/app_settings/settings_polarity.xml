@@ -877,6 +877,18 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    
+    <key>PVRender_SavedGPUBenchmarkBandwidth</key>
+    <map>
+      <key>Comment</key>
+      <string>Value of last GPU Benchmark ARB Timers resukt</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>F32</string>
+      <key>Value</key>
+      <real>0</real>
+    </map>
     <key>PVRender_SyncFarClip</key>
     <map>
       <key>Comment</key>
