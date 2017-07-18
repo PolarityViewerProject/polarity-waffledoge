@@ -58,7 +58,7 @@
         initial_value="0"
         layout="topleft"
         left_delta="35"
-        max_val="8"
+        max_val="7"
         name="QualityPerformanceSelectionUltra"
         show_text="false"
         top="0"
@@ -75,23 +75,10 @@
         halign="center"
         height="12"
         layout="topleft"
-        left="10"
+        left="20"
         name="ShadersPrefText"
         top_delta="20"
-        width="40">
-        Potato
-      </text>
-      <text
-        type="string"
-        length="1"
-        follows="left|top"
-        halign="center"
-        height="12"
-        layout="topleft"
-        left_pad="0"
-        name="ShadersPrefText2"
-        top_delta="0"
-        width="40">
+        width="60">
         Low
       </text>
       <text
@@ -115,9 +102,9 @@
         height="12"
         layout="topleft"
         left_pad="0"
-        name="ShadersPrefText3"
+        name="ShadersPrefText2"
         top_delta="0"
-        width="55">
+        width="60">
         High
       </text>
       <text
@@ -130,7 +117,7 @@
         left_pad="0"
         name="ShadersPrefText4"
         top_delta="0"
-        width="45">
+        width="50">
         Ultra
       </text>
       <text
