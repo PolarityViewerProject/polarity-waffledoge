@@ -589,8 +589,7 @@ void LLFeatureManager::applyRecommendedSettings()
 {
 	loadGPUClass();
 	// apply saved settings
-	// <polarity> Allow all GPU classes
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5)) + 1; // +1 to get preset name which is one index higher
 
 	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
