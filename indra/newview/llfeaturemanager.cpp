@@ -195,14 +195,14 @@ void LLFeatureList::dump()
 }
 
 static const std::vector<std::string> sGraphicsLevelNames = boost::assign::list_of
-	("Low")
-	("LowMid")
-	("Mid")
-	("MidHigh")
-	("High")
-	("HighUltra")
-	("Ultra")
-	("MoltenCore")
+	("Low") // 0
+	("LowMid") // 1
+	("Mid") // 2
+	("MidHigh") // 3
+	("High") // 4
+ 	("HighUltra") // 5
+	("Ultra") // 6
+	("MoltenCore") // 7
 ;
 
 U32 LLFeatureManager::getMaxGraphicsLevel() const
