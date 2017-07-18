@@ -977,6 +977,9 @@ void LLFloaterPreference::setHardwareDefaults()
 			panel->setHardwareDefaults();
 		}
 	}
+	// <polarity> HACK: forcefully save settings and apply them to prevent temporary renderer bork
+	saveSettings();
+	apply();
 }
 
 //virtual
