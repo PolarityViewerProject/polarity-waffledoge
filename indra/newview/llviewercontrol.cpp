@@ -685,11 +685,6 @@ static bool handleUseRegioLight(const LLSD& newvalue)
 	envmgr.setUseRegionSettings(newvalue.asBoolean());
 	return true;
 }
-static bool handleWaterResolutionChanged(const LLSD& newvalue)
-{
-	gPipeline.handleReflectionChanges();
-	return true;
-}
 
 static bool validateShadowMapsChanged(const LLSD& newvalue)
 {
@@ -970,7 +965,6 @@ void settings_setup_listeners()
 
 	//BD - Special Debugs and handles
 	gSavedSettings.getControl("UseEnvironmentFromRegion")->getSignal()->connect(boost::bind(&handleUseRegioLight, _2));
-	gSavedSettings.getControl("RenderWaterRefResolution")->getSignal()->connect(boost::bind(&handleWaterResolutionChanged, _2));
 //	//BD - Expose Attached Lights and Particles
 	gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
 	gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
