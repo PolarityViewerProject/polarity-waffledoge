@@ -1453,7 +1453,7 @@ void pushVerts(LLVolume* volume)
 	for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 	{
 		const LLVolumeFace& face = volume->getVolumeFace(i);
-		LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
+		LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mNumVertices, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 	}
 }
 
@@ -1503,7 +1503,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 {
 	LLDrawInfo* params = NULL;
 
-	static const LLColor4 colors[] = {
+	static const std::array<LLColor4, 7> colors {{
 		LLColor4::green,
 		LLColor4::green1,
 		LLColor4::green2,
@@ -1511,9 +1511,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 		LLColor4::green4,
 		LLColor4::green5,
 		LLColor4::green6
-	};
-		
-	static const U32 col_count = LL_ARRAY_SIZE(colors);
+	}};
 
 	U32 col = 0;
 
@@ -1527,7 +1525,7 @@ void pushVertsColorCoded(LLSpatialGroup* group, U32 mask)
 			params->mVertexBuffer->setBuffer(mask);
 			params->mVertexBuffer->drawRange(params->mParticle ? LLRender::POINTS : LLRender::TRIANGLES,
 				params->mStart, params->mEnd, params->mCount, params->mOffset);
-			col = (col+1)%col_count;
+			col = (col+1)%colors.size();
 		}
 	}
 }
@@ -1728,7 +1726,6 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 	{
 		LLGLDepthTest depth_under(GL_TRUE, GL_FALSE, GL_GREATER);
 		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
-		gGL.diffuseColor4f(0, 0.5f, 0, 0.5f);
 		pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 	}
 
@@ -1738,7 +1735,6 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 		if (render_objects)
 		{
 			gGL.diffuseColor4f(0.f, 0.5f, 0.f,1.f);
-			gGL.diffuseColor4f(0.f, 0.5f, 0.f, 1.f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		}
 
@@ -1747,7 +1743,6 @@ void renderVisibility(LLSpatialGroup* group, LLCamera* camera)
 		if (render_objects)
 		{
 			gGL.diffuseColor4f(0.f, 0.75f, 0.f,0.5f);
-			gGL.diffuseColor4f(0.f, 0.75f, 0.f, 0.5f);
 			pushBufferVerts(group, LLVertexBuffer::MAP_VERTEX);
 		
 			bool selected = false;
@@ -1942,7 +1937,7 @@ void renderComplexityDisplay(LLDrawable* drawablep)
 	// don't highlight objects below the threshold
 	if (cost > gSavedSettings.getS32("RenderComplexityThreshold"))
 	{
-		glColor4f(color[0],color[1],color[2],0.5f);
+		gGL.diffuseColor4f(color[0],color[1],color[2],0.5f);
 
 
 		S32 num_faces = drawablep->getNumFaces();
@@ -2399,11 +2394,11 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 				llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
 							
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
 				gGL.diffuseColor4fv(color.mV);
 				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
 				
 			}
 			else
@@ -2478,6 +2473,7 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 
 		if (phys_volume->mHullPoints && phys_volume->mHullIndices)
 		{
+#if ALCHEMY_NO_FIXED_FUNCTION
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 			llassert(!LLGLSLShader::sNoFixedFunction || LLGLSLShader::sCurBoundShader != 0);
 			LLVertexBuffer::unbind();
@@ -2489,6 +2485,15 @@ void renderPhysicsShape(LLDrawable* drawable, LLVOVolume* volume)
 			gGL.diffuseColor4fv(color.mV);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glDrawElements(GL_TRIANGLES, phys_volume->mNumHullIndices, GL_UNSIGNED_SHORT, phys_volume->mHullIndices);			
+#else
+			gGL.diffuseColor4fv(line_color.mV);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+			LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+
+			gGL.diffuseColor4fv(color.mV);
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			LLVertexBuffer::drawElements(LLRender::TRIANGLES, phys_volume->mNumHullPoints, phys_volume->mHullPoints, NULL, phys_volume->mNumHullIndices, phys_volume->mHullIndices);
+#endif
 		}
 		else
 		{
@@ -3002,11 +3007,16 @@ void renderRaycast(LLDrawable* drawablep)
 
 					{
 						//render face positions
+#if ALCHEMY_NO_FIXED_FUNCTION
 						LLVertexBuffer::unbind();
 						gGL.diffuseColor4f(0,1,1,0.5f);
 						glVertexPointer(3, GL_FLOAT, sizeof(LLVector4a), face.mPositions);
 						gGL.syncMatrices();
 						glDrawElements(GL_TRIANGLES, face.mNumIndices, GL_UNSIGNED_SHORT, face.mIndices);
+#else
+						gGL.diffuseColor4f(0.f, 1.f, 1.f, 0.5f);
+						LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mNumVertices, face.mPositions, NULL, face.mNumIndices, face.mIndices);
+#endif
 					}
 					
 					if (!volume->isUnique())
@@ -3643,88 +3653,6 @@ BOOL LLSpatialPartition::isVisible(const LLVector3& v)
 	return TRUE;
 }
 
-// <FS:ND> Class to watch for any octree changes while iterating. Will catch child insertion/removal as well as data insertion/removal.
-// Template so it can be used for than LLOctreeNode< LLDrawable > if needed
-
-template< typename T > class ndOctreeListener: public LLOctreeListener< T >
-{
-	typedef LLOctreeNode< T > tNode;
-	typedef std::vector< LLPointer< LLTreeListener< T > > > tListener;
-
-	tNode *mNode;
-	bool mNodeIsDead;
-	bool mNodeChildrenChanged;
-	bool mNodeDataChanged;
-
-	virtual void handleInsertion(const LLTreeNode<T>* node, T* data)
-	{ mNodeDataChanged = true; }
-	
-	virtual void handleRemoval(const LLTreeNode<T>* node, T* data)
-	{ mNodeDataChanged = true; }
-
-	virtual void handleDestruction(const LLTreeNode<T>* node)
-	{ mNodeIsDead = true; }
-
-	virtual void handleStateChange(const LLTreeNode<T>* node)
-	{ }
-
-	virtual void handleChildAddition(const tNode* parent, tNode* child)
-	{ mNodeChildrenChanged = true; }
-
-	virtual void handleChildRemoval(const tNode* parent, const tNode* child)
-	{ mNodeChildrenChanged = true; }
-
-public:
-	ndOctreeListener( OctreeNode *aNode )
-		: mNode( aNode )
-		, mNodeIsDead( false )
-		, mNodeChildrenChanged( false )
-		, mNodeDataChanged( false )
-	{
-		if( mNode )
-			mNode->addListener( this );
-		else
-			mNodeIsDead = true;
-	}
-
-	~ndOctreeListener()
-	{ removeObserver();	}
-
-	bool getNodeIsDead() const
-	{ return mNodeIsDead; }
-
-	bool getNodeChildrenChanged() const
-	{ return mNodeChildrenChanged; }
-
-	bool getNodeDataChanged() const
-	{ return mNodeDataChanged; }
-
-	// FS:ND This is kind of hackery, poking into the internals of mNode like that. But there's no removeListener function.
-	// To keep change locality for merges I decided to put the implemention here.
-	// This is what you get for making your member public/protected.
-	void removeObserver()
-	{
-		if( mNode && !getNodeIsDead() )
-		{
-			for( typename tListener::iterator itr = mNode->mListeners.begin(); itr != mNode->mListeners.end(); ++itr )
-			{
-				if( (*itr).get() == this )
-				{
-					mNode->mListeners.erase( itr );
-					break;
-				}
-			}
-		}
-		mNode = 0;
-		mNodeIsDead = true;
-	}
-};
-
-typedef ndOctreeListener< LLViewerOctreeEntry > ndDrawableOctreeListener;
-typedef LLPointer< ndDrawableOctreeListener > ndDrawableOctreeListenerPtr;
-
-// </FS:ND>
-
 LL_ALIGN_PREFIX(16)
 class LLOctreeIntersect : public LLOctreeTraveler<LLViewerOctreeEntry>
 {
@@ -3758,52 +3686,19 @@ public:
 	
 	virtual void visit(const OctreeNode* branch) 
 	{	
-		// <FS:ND> Make sure we catch any changes to this node while we iterate over it
-		ndDrawableOctreeListenerPtr nodeObserver = new ndDrawableOctreeListener ( const_cast<OctreeNode*>(branch) );
-
-		// for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
-		for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); )
-		// </FS:ND>
+		for (OctreeNode::const_element_iter i = branch->getDataBegin(); i != branch->getDataEnd(); ++i)
 		{
-		 	check(*i);
-
-			// <FS:ND> Check for any change that happened during check, it is possible the tree changes due to calling it.
-			// If it does, we need to restart again as pointers might be invalidated.
-
-			if( !nodeObserver->getNodeDataChanged() )
-				++i;
-			else
-			{
-				i = branch->getDataBegin();
-				LL_WARNS() << "Warning, resetting data iterator to branch->getDataBegin due to tree change." << LL_ENDL;
-			}
-
-			// FS:ND Can this really happen? I seriously hope not.
-			if( nodeObserver->getNodeIsDead() )
-			{
-				LL_WARNS() << "Warning, node died. Exiting iteration" << LL_ENDL;
-				break;
-			}
-
-			// </FS:ND>
+			check(*i);
 		}
-
-		nodeObserver->removeObserver();
 	}
 
 	virtual LLDrawable* check(const OctreeNode* node)
 	{
 		node->accept(this);
-
-		// <FS:ND> Make sure we catch any changes to this node while we iterate over it
-		ndDrawableOctreeListenerPtr nodeObserver = new ndDrawableOctreeListener ( const_cast<OctreeNode*>(node) );
-
-		// for (U32 i = 0; i < node->getChildCount(); i++)
-		for (U32 i = 0; i < node->getChildCount(); )
-		// </FS:ND>
+	
+		for (U32 i = 0; i < node->getChildCount(); i++)
 		{
 			const OctreeNode* child = node->getChild(i);
-
 			LLVector3 res;
 
 			LLSpatialGroup* group = (LLSpatialGroup*) child->getListener(0);
@@ -3834,30 +3729,8 @@ public:
 			{
 				check(child);
 			}
-
-			// <FS:ND> Check for any change that happened during check, it is possible the tree changes due to calling it.
-			// If it does, do we need to restart again as pointers might be invalidated? Child insertion/removal happens it seems, but restarting
-			// iteration leads into endless recursion.
-
-			if( !nodeObserver->getNodeChildrenChanged() )
-				++i;
-			else
-			{
-				++i;
-			 	LL_WARNS() << "Warning, child nodes changed during tree iteration." << LL_ENDL;
-			}
-
-			// FS:ND Can this really happen? I seriously hope not.
-			if( nodeObserver->getNodeIsDead() )
-			{
-				LL_WARNS() << "Warning, node died. Exiting iteration" << LL_ENDL;
-				break;
-			}
-
-			// </FS:ND>
 		}	
 
-		nodeObserver->removeObserver();
 		return mHit;
 	}
 
@@ -3957,6 +3830,7 @@ LLDrawInfo::LLDrawInfo(U16 start, U16 end, U32 count, U32 offset,
 	mOffset(offset), 
 	mFullbright(fullbright),
 	mBump(bump),
+	mShiny(0),
 	mParticle(particle),
 	mPartSize(part_size),
 	mVSize(0.f),
@@ -4041,10 +3915,9 @@ LLCullResult::LLCullResult()
 		mRenderMap[i].push_back(NULL);
 		mRenderMapEnd[i] = &mRenderMap[i][0];
 		mRenderMapAllocated[i] = 0;
+		mRenderMapSize[i] = 0;
 	}
 
-	memset( mRenderMapSize, 0, sizeof(mRenderMapSize) ); // <FS:ND> Initialize with 0.
-	
 	clear();
 }
 

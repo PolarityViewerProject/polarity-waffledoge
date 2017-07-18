@@ -42,6 +42,8 @@
 #include "llvector4a.h"
 #include <queue>
 
+#include <boost/container/flat_map.hpp>
+
 #define SG_STATE_INHERIT_MASK (OCCLUDED)
 #define SG_INITIAL_STATE_MASK (DIRTY | GEOM_DIRTY)
 
@@ -193,6 +195,18 @@ class LLSpatialGroup : public LLOcclusionCullingGroup
 	friend class LLOctreeStateCheck;
 public:
 
+	// <alchemy>
+	void* operator new(size_t size)
+	{
+		return ll_aligned_malloc<64>(size);
+	}
+
+	void operator delete(void* ptr)
+	{
+		ll_aligned_free<64>(ptr);
+	}
+	// </alchemy>
+
 	LLSpatialGroup(const LLSpatialGroup& rhs) : LLOcclusionCullingGroup(rhs)
 	{
 		*this = rhs;
@@ -210,10 +224,10 @@ public:
 	typedef std::vector<LLPointer<LLSpatialGroup> > sg_vector_t;
 	typedef std::vector<LLPointer<LLSpatialBridge> > bridge_list_t;
 	typedef std::vector<LLPointer<LLDrawInfo> > drawmap_elem_t; 
-	typedef std::map<U32, drawmap_elem_t > draw_map_t;	
+	typedef boost::container::flat_map<U32, drawmap_elem_t > draw_map_t;	
 	typedef std::vector<LLPointer<LLVertexBuffer> > buffer_list_t;
-	typedef std::map<LLFace*, buffer_list_t> buffer_texture_map_t;
-	typedef std::map<U32, buffer_texture_map_t> buffer_map_t;
+	typedef boost::container::flat_map<LLFace*, buffer_list_t> buffer_texture_map_t;
+	typedef boost::container::flat_map<U32, buffer_texture_map_t> buffer_map_t;
 
 	struct CompareDistanceGreater
 	{

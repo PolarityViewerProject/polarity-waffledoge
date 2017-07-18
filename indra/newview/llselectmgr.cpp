@@ -6418,7 +6418,7 @@ void pushWireframe(LLDrawable* drawable)
 			for (S32 i = 0; i < volume->getNumVolumeFaces(); ++i)
 			{
 				const LLVolumeFace& face = volume->getVolumeFace(i);
-				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mPositions, NULL, face.mNumIndices, face.mIndices);
+				LLVertexBuffer::drawElements(LLRender::TRIANGLES, face.mNumVertices, face.mPositions, NULL, face.mNumIndices, face.mIndices);
 			}
 		}
 
@@ -6429,9 +6429,6 @@ void pushWireframe(LLDrawable* drawable)
 
 void LLSelectNode::renderOneWireframe(const LLColor4& color)
 {
-	//Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
-	LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
-
 	LLViewerObject* objectp = getObject();
 	if (!objectp)
 	{

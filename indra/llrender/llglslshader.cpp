@@ -315,7 +315,13 @@ LLGLSLShader::LLGLSLShader()
       mShaderGroup(SG_DEFAULT), 
       mUniformsDirty(FALSE),
       mTimerQuery(0),
-      mSamplesQuery(0)
+      mLightHash(0),
+      mTimeElapsed(0),
+      mTrianglesDrawn(0),
+      mSamplesDrawn(0),
+      mSamplesQuery(0),
+      mDrawCalls(0),
+      mTextureStateFetched(false)
 
 {
     
@@ -344,17 +350,9 @@ void LLGLSLShader::unloadInternal()
 
     if (mProgramObject)
     {
-        GLhandleARB obj[1024];
-        GLsizei count;
 
-        glGetAttachedObjectsARB(mProgramObject, sizeof(obj)/sizeof(obj[0]), &count, obj);
-        for (GLsizei i = 0; i < count; i++)
-        {
-            glDetachObjectARB(mProgramObject, obj[i]);
-                glDeleteObjectARB(obj[i]);
-            }
 
-        glDeleteObjectARB(mProgramObject);
+        glDeleteProgram(mProgramObject);
 
         mProgramObject = 0;
     }
@@ -397,9 +395,11 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     BOOL success = TRUE;
 
     // Purge the old program just in case
+    if (mProgramObject)
+        glDeleteProgram(mProgramObject);
 
     // Create program
-    mProgramObject = glCreateProgramObjectARB();
+    mProgramObject = glCreateProgram();
     
 #if LL_DARWIN
     // work-around missing mix(vec3,vec3,bvec3)
@@ -410,11 +410,11 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     vector< pair<string,GLenum> >::iterator fileIter = mShaderFiles.begin();
     for ( ; fileIter != mShaderFiles.end(); ++fileIter )
     {
-        GLhandleARB shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
-        LL_INFOS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
+        GLuint shaderhandle = LLShaderMgr::instance()->loadShaderFile((*fileIter).first, mShaderLevel, (*fileIter).second, &mDefines, mFeatures.mIndexedTextureChannels);
+        LL_DEBUGS("ShaderLoading") << "SHADER FILE: " << (*fileIter).first << " mShaderLevel=" << mShaderLevel << LL_ENDL;
         if (shaderhandle > 0)
         {
-            attachObject(shaderhandle);
+            attachShader(shaderhandle);
         }
         else
         {
@@ -425,6 +425,8 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     // Attach existing objects
     if (!LLShaderMgr::instance()->attachShaderFeatures(this))
     {
+        glDeleteProgram(mProgramObject);
+        mProgramObject = 0;
         return FALSE;
     }
 
@@ -452,14 +454,16 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
     }
     if( !success )
     {
+        glDeleteProgram(mProgramObject);
+        mProgramObject = 0;
 
         LL_WARNS("ShaderLoading") << "Failed to link shader: " << mName << LL_ENDL;
 
         // Try again using a lower shader level;
-        if (mShaderLevel > 1)
+        if (mShaderLevel > 0)
         {
+            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel - 1) << LL_ENDL;
             mShaderLevel--;
-            LL_WARNS("ShaderLoading") << "Failed to link using shader level " << mShaderLevel << " trying again using shader level " << (mShaderLevel) << LL_ENDL;
             return createShader(attributes,uniforms);
         }
     }
@@ -487,32 +491,60 @@ BOOL LLGLSLShader::createShader(std::vector<LLStaticHashedString> * attributes,
         unbind();
     }
 
+    if (LLShaderMgr::instance()->mProgramObjects.find(mName) == LLShaderMgr::instance()->mProgramObjects.end())
+    {
+        LLShaderMgr::instance()->mProgramObjects.emplace(mName, mProgramObject);
+    }
+    else
+    {
+        LL_WARNS("ShaderLoading") << "Attempting to create shader program with duplicate name: " << mName << LL_ENDL;
+    }
 
     return success;
 }
 
-BOOL LLGLSLShader::attachObject(const std::string& object)
+BOOL LLGLSLShader::attachShader(const std::string& object)
 {
-    if (LLShaderMgr::instance()->mShaderObjects.count(object) > 0)
+	const auto& shader_objects = LLShaderMgr::instance()->mShaderObjects;
+	for (auto it = shader_objects.begin(); it != shader_objects.end(); it++)
     {
-        stop_glerror();
-        glAttachObjectARB(mProgramObject, LLShaderMgr::instance()->mShaderObjects[object]);
+		if (it->first == object)
+		{
+			if (glIsShader(it->second.mHandle))
+			{
+				glAttachShader(mProgramObject, it->second.mHandle);
             stop_glerror();
             return TRUE;
         }
-    else
+		}
+	}
+
     {
         LL_WARNS("ShaderLoading") << "Attempting to attach shader object that hasn't been compiled: " << object << LL_ENDL;
     return FALSE;
     }
 }
 
-void LLGLSLShader::attachObject(GLhandleARB object)
+void LLGLSLShader::attachShader(GLuint object)
 {
     if (object != 0)
     {
+		const auto& shader_objects = LLShaderMgr::instance()->mShaderObjects;
+		auto it = shader_objects.begin();
+		for (; it != shader_objects.end(); it++)
+		{
+			if (it->second.mHandle == object)
+			{
+				LL_DEBUGS("ShaderLoading") << "Attached: " << (*it).first << LL_ENDL;
+				break;
+			}
+		}
+		if (it == shader_objects.end())
+		{
+			LL_WARNS("ShaderLoading") << "Attached unknown shader!" << LL_ENDL;
+		}
             stop_glerror();
-        glAttachObjectARB(mProgramObject, object);
+        glAttachShader(mProgramObject, object);
             stop_glerror();
         }
     else
@@ -521,11 +553,11 @@ void LLGLSLShader::attachObject(GLhandleARB object)
     }
 }
 
-void LLGLSLShader::attachObjects(GLhandleARB* objects, S32 count)
+void LLGLSLShader::attachShaders(GLuint* objects, S32 count)
 {
     for (S32 i = 0; i < count; i++)
     {
-        attachObject(objects[i]);
+        attachShader(objects[i]);
     }
 }
 
@@ -536,7 +568,7 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
     for (U32 i = 0; i < shader_mgr->mReservedAttribs.size(); i++)
     {
         const char* name = shader_mgr->mReservedAttribs[i].c_str();
-        glBindAttribLocationARB(mProgramObject, i, (const GLcharARB *) name);
+        glBindAttribLocation(mProgramObject, i, (const GLchar*) name);
     }
     
     //link the program
@@ -555,12 +587,12 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
         for (U32 i = 0; i < shader_mgr->mReservedAttribs.size(); i++)
         {
             const char* name = shader_mgr->mReservedAttribs[i].c_str();
-            S32 index = glGetAttribLocationARB(mProgramObject, (const GLcharARB *)name);
+            S32 index = glGetAttribLocation(mProgramObject, (const GLchar*)name);
             if (index != -1)
             {
                 mAttribute[i] = index;
                 mAttributeMask |= 1 << i;
-                LL_INFOS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
             }
         }
         if (attributes != NULL)
@@ -568,11 +600,11 @@ BOOL LLGLSLShader::mapAttributes(const std::vector<LLStaticHashedString> * attri
             for (U32 i = 0; i < numAttributes; i++)
             {
                 const char* name = (*attributes)[i].String().c_str();
-                S32 index = glGetAttribLocationARB(mProgramObject, name);
+                S32 index = glGetAttribLocation(mProgramObject, (const GLchar*)name);
                 if (index != -1)
                 {
                     mAttribute[shader_mgr->mReservedAttribs.size() + i] = index;
-                    LL_INFOS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
+                    LL_DEBUGS("ShaderLoading") << "Attribute " << name << " assigned to channel " << index << LL_ENDL;
                 }
             }
         }
@@ -597,7 +629,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
     name[0] = 0;
 
 
-    glGetActiveUniformARB(mProgramObject, index, 1024, &length, &size, &type, (GLcharARB *)name);
+    glGetActiveUniform(mProgramObject, index, 1024, &length, &size, &type, (GLchar*)name);
 #if !LL_DARWIN
     if (size > 0)
     {
@@ -642,7 +674,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
     }
 #endif
 
-    S32 location = glGetUniformLocationARB(mProgramObject, name);
+    S32 location = glGetUniformLocation(mProgramObject, name);
     if (location != -1)
     {
         //chop off "[0]" so we can always access the first element
@@ -657,7 +689,7 @@ void LLGLSLShader::mapUniform(GLint index, const vector<LLStaticHashedString> * 
         mUniformNameMap[location] = name;
         mUniformMap[hashedName] = location;
 
-        LL_INFOS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
+        LL_DEBUGS("ShaderLoading") << "Uniform " << name << " is at location " << location << LL_ENDL;
     
 		const auto& shader_mgr = LLShaderMgr::instance();
 
@@ -703,11 +735,10 @@ void LLGLSLShader::removePermutation(const std::string& name)
 
 GLint LLGLSLShader::mapUniformTextureChannel(GLint location, GLenum type)
 {
-    if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB) ||
-        type == GL_SAMPLER_2D_MULTISAMPLE)
+    if ((type >= GL_SAMPLER_1D_ARB && type <= GL_SAMPLER_2D_RECT_SHADOW_ARB))
     {   //this here is a texture
-        glUniform1iARB(location, mActiveTextureChannels);
-        LL_INFOS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
+        glUniform1i(location, mActiveTextureChannels);
+        LL_DEBUGS("ShaderLoading") << "Assigned to texture channel " << mActiveTextureChannels << LL_ENDL;
         return mActiveTextureChannels++;
     }
     return -1;
@@ -733,7 +764,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	//get the number of active uniforms
 	GLint activeCount;
-	glGetObjectParameterivARB(mProgramObject, GL_OBJECT_ACTIVE_UNIFORMS_ARB, &activeCount);
+	glGetProgramiv(mProgramObject, GL_ACTIVE_UNIFORMS, &activeCount);
 
 	//........................................................................................................................................
 	//........................................................................................
@@ -757,9 +788,9 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 	*/
 
 
-	S32 diffuseMap = glGetUniformLocationARB(mProgramObject, "diffuseMap");
-	S32 bumpMap = glGetUniformLocationARB(mProgramObject, "bumpMap");
-	S32 environmentMap = glGetUniformLocationARB(mProgramObject, "environmentMap");
+	S32 diffuseMap = glGetUniformLocation(mProgramObject, "diffuseMap");
+	S32 bumpMap = glGetUniformLocation(mProgramObject, "bumpMap");
+	S32 environmentMap = glGetUniformLocation(mProgramObject, "environmentMap");
 
 	std::set<S32> skip_index;
 
@@ -776,7 +807,7 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 		{
 			name[0] = '\0';
 
-			glGetActiveUniformARB(mProgramObject, i, 1024, &length, &size, &type, (GLcharARB *)name);
+			glGetActiveUniform(mProgramObject, i, 1024, &length, &size, &type, (GLchar*)name);
 
 			if (-1 == diffuseMap && std::string(name) == "diffuseMap")
 			{
@@ -842,18 +873,18 @@ BOOL LLGLSLShader::mapUniforms(const vector<LLStaticHashedString> * uniforms)
 
 	unbind();
 
-	LL_INFOS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
+	LL_DEBUGS("ShaderLoading") << "Total Uniform Size: " << mTotalUniformSize << LL_ENDL;
 	return res;
 }
 
 
 BOOL LLGLSLShader::link(BOOL suppress_errors)
 {
-    BOOL success = LLShaderMgr::instance()->linkProgramObject(mProgramObject, suppress_errors);
+    BOOL success = LLShaderMgr::instance()->linkProgram(mProgramObject, suppress_errors);
 
     if (!suppress_errors)
     {
-        LLShaderMgr::instance()->dumpObjectLog(mProgramObject, !success, mName);
+        LLShaderMgr::instance()->dumpProgramLog(mProgramObject, !success, mName);
     }
 
     return success;
@@ -865,7 +896,7 @@ void LLGLSLShader::bind()
     if (gGLManager.mHasShaderObjects)
     {
         LLVertexBuffer::unbind();
-        glUseProgramObjectARB(mProgramObject);
+        glUseProgram(mProgramObject);
         sCurBoundShader = mProgramObject;
         sCurBoundShaderPtr = this;
         if (mUniformsDirty)
@@ -891,7 +922,7 @@ void LLGLSLShader::unbind()
             }
         }
         LLVertexBuffer::unbind();
-        glUseProgramObjectARB(0);
+        glUseProgram(0);
         sCurBoundShader = 0;
         sCurBoundShaderPtr = NULL;
         stop_glerror();
@@ -903,7 +934,7 @@ void LLGLSLShader::bindNoShader(void)
     LLVertexBuffer::unbind();
     if (gGLManager.mHasShaderObjects)
     {
-        glUseProgramObjectARB(0);
+        glUseProgram(0);
         sCurBoundShader = 0;
         sCurBoundShaderPtr = NULL;
     }
@@ -1019,7 +1050,7 @@ void LLGLSLShader::uniform1i(U32 index, GLint x)
             std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
-                glUniform1iARB(mUniform[index], x);
+                glUniform1i(mUniform[index], x);
                 mValue[mUniform[index]] = LLVector4(x,0.f,0.f,0.f);
             }
         }
@@ -1041,7 +1072,7 @@ void LLGLSLShader::uniform1f(U32 index, GLfloat x)
             std::map<GLint, LLVector4>::iterator iter = mValue.find(mUniform[index]);
             if (iter == mValue.end() || iter->second.mV[0] != x)
             {
-                glUniform1fARB(mUniform[index], x);
+                glUniform1f(mUniform[index], x);
                 mValue[mUniform[index]] = LLVector4(x,0.f,0.f,0.f);
             }
         }
@@ -1064,7 +1095,7 @@ void LLGLSLShader::uniform2f(U32 index, GLfloat x, GLfloat y)
             LLVector4 vec(x,y,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform2fARB(mUniform[index], x, y);
+                glUniform2f(mUniform[index], x, y);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1087,7 +1118,7 @@ void LLGLSLShader::uniform3f(U32 index, GLfloat x, GLfloat y, GLfloat z)
             LLVector4 vec(x,y,z,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform3fARB(mUniform[index], x, y, z);
+                glUniform3f(mUniform[index], x, y, z);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1110,7 +1141,7 @@ void LLGLSLShader::uniform4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GLfloat
             LLVector4 vec(x,y,z,w);
             if (iter == mValue.end() || shouldChange(iter->second,vec))
             {
-                glUniform4fARB(mUniform[index], x, y, z, w);
+                glUniform4f(mUniform[index], x, y, z, w);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1133,7 +1164,7 @@ void LLGLSLShader::uniform1iv(U32 index, U32 count, const GLint* v)
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform1ivARB(mUniform[index], count, v);
+                glUniform1iv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1156,7 +1187,7 @@ void LLGLSLShader::uniform1fv(U32 index, U32 count, const GLfloat* v)
             LLVector4 vec(v[0],0.f,0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform1fvARB(mUniform[index], count, v);
+                glUniform1fv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1179,7 +1210,7 @@ void LLGLSLShader::uniform2fv(U32 index, U32 count, const GLfloat* v)
             LLVector4 vec(v[0],v[1],0.f,0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform2fvARB(mUniform[index], count, v);
+                glUniform2fv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1202,7 +1233,7 @@ void LLGLSLShader::uniform3fv(U32 index, U32 count, const GLfloat* v)
             LLVector4 vec(v[0],v[1],v[2],0.f);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform3fvARB(mUniform[index], count, v);
+                glUniform3fv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1225,7 +1256,7 @@ void LLGLSLShader::uniform4fv(U32 index, U32 count, const GLfloat* v)
             LLVector4 vec(v[0],v[1],v[2],v[3]);
             if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
             {
-                glUniform4fvARB(mUniform[index], count, v);
+                glUniform4fv(mUniform[index], count, v);
                 mValue[mUniform[index]] = vec;
             }
         }
@@ -1244,7 +1275,7 @@ void LLGLSLShader::uniformMatrix2fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0)
         {
-            glUniformMatrix2fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix2fv(mUniform[index], count, transpose, v);
         }
     }
 }
@@ -1261,7 +1292,7 @@ void LLGLSLShader::uniformMatrix3fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0)
         {
-            glUniformMatrix3fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix3fv(mUniform[index], count, transpose, v);
         }
     }
 }
@@ -1295,7 +1326,7 @@ void LLGLSLShader::uniformMatrix4fv(U32 index, U32 count, GLboolean transpose, c
 
         if (mUniform[index] >= 0)
         {
-            glUniformMatrix4fvARB(mUniform[index], count, transpose, v);
+            glUniformMatrix4fv(mUniform[index], count, transpose, v);
         }
     }
 }
@@ -1311,7 +1342,7 @@ GLint LLGLSLShader::getUniformLocation(const LLStaticHashedString& uniform)
             if (gDebugGL)
             {
                 stop_glerror();
-                if (iter->second != glGetUniformLocationARB(mProgramObject, uniform.String().c_str()))
+                if (iter->second != glGetUniformLocation(mProgramObject, uniform.String().c_str()))
                 {
                     LL_ERRS() << "Uniform does not match." << LL_ENDL;
                 }
@@ -1358,7 +1389,7 @@ void LLGLSLShader::uniform1i(const LLStaticHashedString& uniform, GLint v)
         LLVector4 vec(v,0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
-            glUniform1iARB(location, v);
+            glUniform1i(location, v);
             mValue[location] = vec;
         }
     }
@@ -1374,7 +1405,7 @@ void LLGLSLShader::uniform2i(const LLStaticHashedString& uniform, GLint i, GLint
         LLVector4 vec(i,j,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
-            glUniform2iARB(location, i, j);
+            glUniform2i(location, i, j);
             mValue[location] = vec;
         }
     }
@@ -1391,7 +1422,7 @@ void LLGLSLShader::uniform1f(const LLStaticHashedString& uniform, GLfloat v)
         LLVector4 vec(v,0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
-            glUniform1fARB(location, v);
+            glUniform1f(location, v);
             mValue[location] = vec;
         }
     }
@@ -1407,7 +1438,7 @@ void LLGLSLShader::uniform2f(const LLStaticHashedString& uniform, GLfloat x, GLf
         LLVector4 vec(x,y,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
-            glUniform2fARB(location, x,y);
+            glUniform2f(location, x,y);
             mValue[location] = vec;
         }
     }
@@ -1424,7 +1455,7 @@ void LLGLSLShader::uniform3f(const LLStaticHashedString& uniform, GLfloat x, GLf
         LLVector4 vec(x,y,z,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec))
         {
-            glUniform3fARB(location, x,y,z);
+            glUniform3f(location, x,y,z);
             mValue[location] = vec;
         }
     }
@@ -1440,7 +1471,7 @@ void LLGLSLShader::uniform1fv(const LLStaticHashedString& uniform, U32 count, co
         LLVector4 vec(v[0],0.f,0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
-            glUniform1fvARB(location, count, v);
+            glUniform1fv(location, count, v);
             mValue[location] = vec;
         }
     }
@@ -1456,7 +1487,7 @@ void LLGLSLShader::uniform2fv(const LLStaticHashedString& uniform, U32 count, co
         LLVector4 vec(v[0],v[1],0.f,0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
-            glUniform2fvARB(location, count, v);
+            glUniform2fv(location, count, v);
             mValue[location] = vec;
         }
     }
@@ -1472,7 +1503,7 @@ void LLGLSLShader::uniform3fv(const LLStaticHashedString& uniform, U32 count, co
         LLVector4 vec(v[0],v[1],v[2],0.f);
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
-            glUniform3fvARB(location, count, v);
+            glUniform3fv(location, count, v);
             mValue[location] = vec;
         }
     }
@@ -1489,7 +1520,7 @@ void LLGLSLShader::uniform4fv(const LLStaticHashedString& uniform, U32 count, co
         if (iter == mValue.end() || shouldChange(iter->second,vec) || count != 1)
         {
             stop_glerror();
-            glUniform4fvARB(location, count, v);
+            glUniform4fv(location, count, v);
             stop_glerror();
             mValue[location] = vec;
         }
@@ -1503,7 +1534,7 @@ void LLGLSLShader::uniformMatrix4fv(const LLStaticHashedString& uniform, U32 cou
     if (location >= 0)
     {
         stop_glerror();
-        glUniformMatrix4fvARB(location, count, transpose, v);
+        glUniformMatrix4fv(location, count, transpose, v);
         stop_glerror();
     }
 }
@@ -1513,7 +1544,7 @@ void LLGLSLShader::vertexAttrib4f(U32 index, GLfloat x, GLfloat y, GLfloat z, GL
 {
     if (mAttribute[index] > 0)
     {
-        glVertexAttrib4fARB(mAttribute[index], x, y, z, w);
+        glVertexAttrib4f(mAttribute[index], x, y, z, w);
     }
 }
 
@@ -1521,7 +1552,7 @@ void LLGLSLShader::vertexAttrib4fv(U32 index, GLfloat* v)
 {
     if (mAttribute[index] > 0)
     {
-        glVertexAttrib4fvARB(mAttribute[index], v);
+        glVertexAttrib4fv(mAttribute[index], v);
     }
 }
 

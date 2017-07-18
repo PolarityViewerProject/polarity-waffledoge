@@ -75,6 +75,8 @@ bool llhudnametag_further_away::operator()(const LLPointer<LLHUDNameTag>& lhs, c
 	return lhs->getDistance() > rhs->getDistance();
 }
 
+static LLTrace::BlockTimerStatHandle FTM_NAMETAG_UPDATE("Nametags");
+static LLTrace::BlockTimerStatHandle FTM_NAMETAG_RESHAPE("Reshape");
 
 LLHUDNameTag::LLHUDNameTag(const U8 type)
 :	LLHUDObject(type),
@@ -708,6 +710,7 @@ void LLHUDNameTag::updateSize()
 
 void LLHUDNameTag::updateAll()
 {
+	LL_RECORD_BLOCK_TIME(FTM_NAMETAG_UPDATE);
 	// iterate over all text objects, calculate their restoration forces,
 	// and add them to the visible set if they are on screen and close enough
 	sVisibleTextObjects.clear();
@@ -887,6 +890,7 @@ void LLHUDNameTag::addPickable(std::set<LLViewerObject*> &pick_list)
 // called when UI scale changes, to flush font width caches
 void LLHUDNameTag::reshape()
 {
+	LL_RECORD_BLOCK_TIME(FTM_NAMETAG_RESHAPE);
 	TextObjectIterator text_it;
 	for (text_it = sTextObjects.begin(); text_it != sTextObjects.end(); ++text_it)
 	{
