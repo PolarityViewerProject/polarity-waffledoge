@@ -507,7 +507,7 @@ void LLPipeline::init()
 
 	mInitialized = TRUE;
 	
-	stop_glerror();
+	//stop_glerror();
 
 	//create render pass pools
 	getPool(LLDrawPool::POOL_ALPHA);
@@ -560,13 +560,13 @@ void LLPipeline::init()
 
 	mBackfaceCull = TRUE;
 
-	stop_glerror();
+	//stop_glerror();
 	
 	// Enable features
 		
 	LLViewerShaderMgr::instance()->setShaders();
 
-	stop_glerror();
+	//stop_glerror();
 
 	for (U32 i = 0; i < 2; ++i)
 	{
@@ -676,6 +676,7 @@ void LLPipeline::init()
 // <polarity> Sync Shadow Far Clip with Render Far Clip
 	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
 // </polarity>
+	stop_glerror();
 }
 
 LLPipeline::~LLPipeline()
