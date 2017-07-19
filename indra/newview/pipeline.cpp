@@ -407,7 +407,7 @@ S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs;
 
-BOOL	LLPipeline::sRenderGaussian = FALSE; // <polarity> Gaussian blur shader
+BOOL	LLPipeline::sRenderGaussianBlur = FALSE; // <polarity> Gaussian blur shader
 
 // [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
 bool	LLPipeline::sRenderTextures = true;
@@ -7197,7 +7197,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	glClearColor(0,0,0,0);
 		
 	// <polarity> Gaussian blur shader
-	if (LLPipeline::sRenderGaussian)
+	if (LLPipeline::sRenderGaussianBlur)
 	{
 		static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
 		for (int i = 0; i < blur_iterations; ++i)

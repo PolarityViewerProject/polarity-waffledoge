@@ -852,7 +852,7 @@ public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
 	
-	static BOOL				sRenderGaussian; // <polarity> Gaussian blur shader
+	static BOOL				sRenderGaussianBlur; // <polarity> Gaussian blur shader
 
 	// Determines which set of UVs to use in highlight display
 	//

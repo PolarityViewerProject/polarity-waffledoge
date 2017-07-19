@@ -4927,7 +4927,7 @@ void LLAppViewer::saveFinalSnapshot()
 		// <polarity> Gaussian blur shader
 		if (LLPipeline::sRenderDeferred)
 		{
-			LLPipeline::sRenderGaussian = TRUE;
+			LLPipeline::sRenderGaussianBlur = TRUE;
 		}
 		// </polarity>
 		idle();
@@ -4937,9 +4937,9 @@ void LLAppViewer::saveFinalSnapshot()
 		snap_filename += SCREEN_LAST_FILENAME;
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
-		if (LLPipeline::sRenderGaussian && LLPipeline::sRenderDeferred)
+		if (LLPipeline::sRenderGaussianBlur && LLPipeline::sRenderDeferred)
 		{
-			LLPipeline::sRenderGaussian = FALSE; // <polarity> Gaussian blur shader
+			LLPipeline::sRenderGaussianBlur = FALSE; // <polarity> Gaussian blur shader
 		}
 		mSavedFinalSnapshot = TRUE;
 	}
