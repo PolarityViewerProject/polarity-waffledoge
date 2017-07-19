@@ -1299,7 +1299,16 @@ void LLPipeline::createGLBuffers()
 
 	if (LLPipeline::sWaterReflections)
 	{ //water reflection texture
-		U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
+		// <polarity> Fix type that can sometimes be wrong
+		//U32 res = (U32) llmax(gSavedSettings.getS32("RenderWaterRefResolution"), 512);
+		auto water_ref_ctrl = gSavedSettings.getControl("RenderWaterRefResolution");
+		U32 water_ref_value = (U32)water_ref_ctrl->getValue().asInteger();
+		if (!water_ref_ctrl->isType(TYPE_U32))
+		{
+			gSavedSettings.setU32("RenderWaterRefResolution", water_ref_value);
+		}
+		U32 res = llmax(water_ref_value, (U32)512);
+		// </polarity>
 			
 		// Set up SRGB targets if we're doing deferred-path reflection rendering
 		//
