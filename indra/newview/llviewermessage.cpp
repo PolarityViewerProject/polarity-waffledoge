@@ -4278,6 +4278,12 @@ void process_teleport_progress(LLMessageSystem* msg, void**)
 	U32 teleport_flags = 0x0;
 	msg->getU32("Info", "TeleportFlags", teleport_flags);
 	LLFloaterProgressView* pProgFloater = LLFloaterReg::getTypedInstance<LLFloaterProgressView>("progress_view");
+	// null pointer crash fix
+	llassert(pProgFloater != NULL);
+	if(pProgFloater == NULL)
+	{
+		return;
+	}
 //	if (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL)
 // [RLVa:KB] - Checked: 2010-04-07 (RLVa-1.2.0d) | Added: RLVa-0.2.0b
 	if ( (teleport_flags & TELEPORT_FLAGS_DISABLE_CANCEL) || (!gRlvHandler.getCanCancelTp()) )
