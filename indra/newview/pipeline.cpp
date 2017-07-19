@@ -7216,7 +7216,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 			LLGLSLShader *shader = &gGaussianBlurProgram;
 			
-			mScreen.bindTarget();
+			mFinalScreen.bindTarget();
 			shader->bind();
 			
 			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
@@ -7234,10 +7234,10 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.end();
 
 			shader->unbind();
-			mScreen.flush();
+			mFinalScreen.flush();
 
 			// Second Pass
-			mScreen.bindTarget();
+			mFinalScreen.bindTarget();
 			shader->bind();
 			
 			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
@@ -7255,7 +7255,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			gGL.end();
 
 			shader->unbind();
-			mScreen.flush();
+			mFinalScreen.flush();
 		}
 	}
 	// </polarity>
