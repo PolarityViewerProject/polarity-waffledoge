@@ -217,11 +217,17 @@ namespace LLInitParam
 		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
 		{
 			const Param* param = getParamFromHandle(it->first);
+			
 			if (!it->second(param))
 			{
 				if (emit_errors)
 				{
-					LL_WARNS() << "Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
+					auto param_name = getParamName(block_data, param);
+					// Workaround for spam, doesn't fix the param name resolution problem
+					if(!param_name.empty())
+					{
+						LL_WARNS() << "line " << param->getEnclosingBlockOffset() << ": Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
+					}
 				}
 				return false;
 			}
