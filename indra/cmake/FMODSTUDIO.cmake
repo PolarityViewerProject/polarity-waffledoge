@@ -4,11 +4,11 @@
 # Open source devs should use the -DFMODSTUDIO:BOOL=ON then if they want to build with FMOD Studio, whether
 # they are using STANDALONE or not.
 if (FMODSTUDIO)
-  if (USESYSTEMLIBS)
+  if (STANDALONE)
     # In that case, we use the version of the library installed on the system
     set(FMODSTUDIO_FIND_REQUIRED ON)
     include(FindFMODSTUDIO)
-  else (USESYSTEMLIBS)
+  else (STANDALONE)
     if (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
       # If the path have been specified in the arguments, use that
       set(FMODSTUDIO_LIBRARIES ${FMODSTUDIO_LIBRARY})
@@ -41,6 +41,6 @@ if (FMODSTUDIO)
       set(FMODSTUDIO_LIBRARIES ${FMODSTUDIO_LIBRARY})
       set(FMODSTUDIO_INCLUDE_DIR ${LIBS_PREBUILT_DIR}/include/fmodstudio)
     endif (FMODSTUDIO_LIBRARY AND FMODSTUDIO_INCLUDE_DIR)
-  endif (USESYSTEMLIBS)
+  endif (STANDALONE)
 endif (FMODSTUDIO)
 

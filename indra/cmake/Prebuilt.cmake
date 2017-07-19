@@ -5,9 +5,6 @@ set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
 include(FindAutobuild)
 include(Variables)
-if(INSTALL_PROPRIETARY)
-  include(FindSCP)
-endif(INSTALL_PROPRIETARY)
 
 set(PREBUILD_TRACKING_DIR ${AUTOBUILD_INSTALL_DIR}/cmake_tracking)
 # For the library installation process;

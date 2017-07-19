@@ -4,9 +4,12 @@
 project(llcommon)
 
 include(00-Common)
+include(CXXFeatureDetection)
 include(LLCommon)
+include(LLMath)
 include(Linking)
 include(Boost)
+include(OpenSSL)
 include(LLSharedLibs)
 include(JsonCpp)
 include(GoogleBreakpad)
@@ -18,10 +21,17 @@ include(URIPARSER)
 include_directories(
     ${EXPAT_INCLUDE_DIRS}
     ${LLCOMMON_INCLUDE_DIRS}
+    ${OPENSSL_INCLUDE_DIRS}
     ${JSONCPP_INCLUDE_DIR}
     ${ZLIB_INCLUDE_DIRS}
     ${BREAKPAD_INCLUDE_DIRECTORIES}
     ${URIPARSER_INCLUDE_DIRS}
+    ${LLMATH_INCLUDE_DIRS}
+    )
+
+include_directories(
+    SYSTEM
+    ${LLCOMMON_SYSTEM_INCLUDE_DIRS}
     )
 
 # add_executable(lltreeiterators lltreeiterators.cpp)
@@ -126,9 +136,9 @@ set(llcommon_SOURCE_FILES
 set(llcommon_HEADER_FILES
     CMakeLists.txt
 
-    ctype_workaround.h
     fix_macros.h
     indra_constants.h
+    is_approx_equal_fraction.h
     pvconstants.h
     pvtl.h
     linden_common.h
@@ -245,8 +255,6 @@ set(llcommon_HEADER_FILES
     lluri.h
     lluriparser.h
     lluuid.h
-    llwin32headers.h
-    llwin32headerslean.h
     llworkerthread.h
     stdtypes.h
     stringize.h
@@ -255,6 +263,14 @@ set(llcommon_HEADER_FILES
     StackWalker.h
     )
 
+if (WINDOWS)
+  list(APPEND llcommon_HEADER_FILES llwin32headers.h llwin32headerslean.h)
+endif (WINDOWS)
+
+if (DARWIN)
+  list(APPEND llcommon_HEADER_FILES llsys_objc.h)
+  list(APPEND llcommon_SOURCE_FILES llsys_objc.mm)
+endif (DARWIN)
 
 set_source_files_properties(${llcommon_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -263,11 +279,6 @@ list(APPEND llcommon_SOURCE_FILES ${llcommon_HEADER_FILES})
 
 if(LLCOMMON_LINK_SHARED)
   add_library (llcommon SHARED ${llcommon_SOURCE_FILES})
-  if(NOT WORD_SIZE EQUAL 32)
-    if(NOT WINDOWS)
-      add_definitions(-fPIC)
-    endif(NOT WINDOWS)
-  endif(NOT WORD_SIZE EQUAL 32)
   if(WINDOWS)
     # always generate llcommon.pdb, even for "Release" builds
     set_target_properties(llcommon PROPERTIES LINK_FLAGS "/DEBUG")
@@ -291,12 +302,19 @@ else(LLCOMMON_LINK_SHARED)
     add_library (llcommon ${llcommon_SOURCE_FILES})
 endif(LLCOMMON_LINK_SHARED)
 
+set_target_properties(llcommon PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
+
+target_compile_features(llcommon PRIVATE cxx_nullptr cxx_range_for)
+target_compile_features(llcommon PUBLIC cxx_nullptr cxx_static_assert)
+
 target_link_libraries(
     llcommon
     ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES}
     ${APRUTIL_LIBRARIES}
     ${APR_LIBRARIES}
     ${EXPAT_LIBRARIES}
+    ${OPENSSL_LIBRARIES}
+    ${CRYPTO_LIBRARIES}
     ${JSONCPP_LIBRARIES}
     ${ZLIB_LIBRARIES}
     ${WINDOWS_LIBRARIES}
@@ -304,18 +322,13 @@ target_link_libraries(
     ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
-    ${BOOST_THREAD_LIBRARY}
     ${BOOST_CHRONO_LIBRARY}
+    ${BOOST_THREAD_LIBRARY}
     ${BOOST_SYSTEM_LIBRARY}
     ${GOOGLE_PERFTOOLS_LIBRARIES}
-    ${URIPARSER_LIBRARIES}
+    ${URIPARSER_LIBRARY}
+    ${RT_LIBRARY}
     )
-
-if (DARWIN)
-  include(CMakeFindFrameworks)
-  find_library(CARBON_LIBRARY Carbon)
-  target_link_libraries(llcommon ${CARBON_LIBRARY})
-endif (DARWIN)
 
 add_dependencies(llcommon stage_third_party_libs)
 
@@ -333,7 +346,9 @@ if (LL_TESTS)
       ${BOOST_COROUTINE_LIBRARY} 
       ${BOOST_CONTEXT_LIBRARY} 
       ${BOOST_THREAD_LIBRARY} 
-      ${BOOST_SYSTEM_LIBRARY})
+      ${BOOST_SYSTEM_LIBRARY}
+      ${OPENSSL_LIBRARIES}
+      ${CRYPTO_LIBRARIES})
   LL_ADD_INTEGRATION_TEST(commonmisc "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(bitpack "" "${test_libs}")
   LL_ADD_INTEGRATION_TEST(llbase64 "" "${test_libs}")

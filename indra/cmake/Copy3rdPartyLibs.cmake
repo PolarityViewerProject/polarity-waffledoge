@@ -89,6 +89,11 @@ if(WINDOWS)
       list(APPEND release_files tbbmalloc.dll tbbmalloc_proxy.dll)
     endif(USE_TBBMALLOC)
 
+    if(OPENAL)
+      list(APPEND debug_files alut.dll OpenAL32.dll)
+      list(APPEND release_files alut.dll OpenAL32.dll)
+    endif(OPENAL)
+
     if (FMODSTUDIO)
       if(WORD_SIZE STREQUAL 64)
         list(APPEND debug_files fmodL64.dll)
@@ -128,6 +133,10 @@ elseif(DARWIN)
         libndofdev.dylib
         libopenjpeg.dylib
        )
+
+    if (OPENAL)
+      list(APPEND release_files libopenal.dylib libalut.dylib)
+    endif (OPENAL)
 
     if (FMODEX)
       list(APPEND debug_files libfmodexL.dylib)

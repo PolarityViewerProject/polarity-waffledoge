@@ -5,6 +5,7 @@
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
+include(CheckCCompilerFlag)
 include(Variables)
 
 # Portable compilation flags.
@@ -142,141 +143,146 @@ endif (WINDOWS)
 
 
 if (LINUX)
+  option(CONSERVE_MEMORY "Optimize for memory usage during link stage for memory-starved systems" OFF)
   set(CMAKE_SKIP_RPATH TRUE)
 
-  # Here's a giant hack for Fedora 8, where we can't use
-  # _FORTIFY_SOURCE if we're using a compiler older than gcc 4.1.
-
-  find_program(GXX g++)
-  mark_as_advanced(GXX)
-
-  if (GXX)
-    execute_process(
-        COMMAND ${GXX} --version
-        COMMAND sed "s/^[gc+ ]*//"
-        COMMAND head -1
-        OUTPUT_VARIABLE GXX_VERSION
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        )
-  else (GXX)
-    set(GXX_VERSION x)
-  endif (GXX)
-
-  # The quoting hack here is necessary in case we're using distcc or
-  # ccache as our compiler.  CMake doesn't pass the command line
-  # through the shell by default, so we end up trying to run "distcc"
-  # " g++" - notice the leading space.  Ugh.
-
-  execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_COMPILER_ARG1} --version"
-      COMMAND sed "s/^[gc+ ]*//"
-      COMMAND head -1
-      OUTPUT_VARIABLE CXX_VERSION
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-  if (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-    add_definitions(-D_FORTIFY_SOURCE=2)
-  else (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-    if (NOT ${GXX_VERSION} MATCHES " 4.1.*Red Hat")
-      add_definitions(-D_FORTIFY_SOURCE=2)
-    endif (NOT ${GXX_VERSION} MATCHES " 4.1.*Red Hat")
-  endif (${GXX_VERSION} STREQUAL ${CXX_VERSION})
-
-  # Let's actually get a numerical version of gxx's version
-  STRING(REGEX REPLACE ".* ([0-9])\\.([0-9])\\.([0-9]).*" "\\1\\2\\3" CXX_VERSION_NUMBER ${CXX_VERSION})
-
-  # Hacks to work around gcc 4.1 TC build pool machines which can't process pragma warning disables
-  # This is pure rubbish; I wish there was another way.
-  #
-  if(${CXX_VERSION_NUMBER} LESS 420)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-uninitialized -Wno-unused-variable -Wno-unused-function ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} LESS 420)
-
-  if(${CXX_VERSION_NUMBER} GREATER 459)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated -Wno-unused-but-set-variable -Wno-unused-variable ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} GREATER 459)
-
-  # gcc 4.3 and above don't like the LL boost and also
-  # cause warnings due to our use of deprecated headers
-  if(${CXX_VERSION_NUMBER} GREATER 429)
-    add_definitions(-Wno-parentheses)
-    set(CMAKE_CXX_FLAGS "-Wno-deprecated ${CMAKE_CXX_FLAGS}")
-  endif (${CXX_VERSION_NUMBER} GREATER 429)
-
-  # End of hacks.
+  add_compile_options(
+    -fvisibility=hidden
+    -fexceptions
+    -fno-math-errno
+    -fno-strict-aliasing
+    -fsigned-char
+    -std=gnu++14
+    -g
+    -pthread
+    )
 
   add_definitions(
-      -DLL_LINUX=1
-      -D_REENTRANT
-      -fexceptions
-      -fno-math-errno
-      -fno-strict-aliasing
-      -fsigned-char
-      -g
-      -msse2
-      -mfpmath=sse
-      -pthread
-      )
+    -DLL_LINUX=1
+    -DAPPID=secondlife
+    -DLL_IGNORE_SIGCHLD
+    -D_REENTRANT
+    -DGDK_DISABLE_DEPRECATED 
+    -DGTK_DISABLE_DEPRECATED
+    -DGSEAL_ENABLE
+    -DGTK_DISABLE_SINGLE_INCLUDES
+    )
 
-  # force this platform to accept TOS via external browser
-  add_definitions(-DEXTERNAL_TOS)
+  if (USE_LTO)
+    add_compile_options(-flto=8)
+  endif (USE_LTO)
 
-  add_definitions(-DAPPID=secondlife)
-  add_definitions(-fvisibility=hidden)
-  # don't catch SIGCHLD in our base application class for the viewer - some of our 3rd party libs may need their *own* SIGCHLD handler to work.  Sigh!  The viewer doesn't need to catch SIGCHLD anyway.
-  add_definitions(-DLL_IGNORE_SIGCHLD)
-  if (WORD_SIZE EQUAL 32)
-    add_definitions(-march=pentium4)
-  endif (WORD_SIZE EQUAL 32)
-  add_definitions(-mfpmath=sse)
-  #add_definitions(-ftree-vectorize) # THIS CRASHES GCC 3.1-3.2
-  if (NOT USESYSTEMLIBS)
-    # this stops us requiring a really recent glibc at runtime
-    add_definitions(-fno-stack-protector)
-    # linking can be very memory-hungry, especially the final viewer link
-    set(CMAKE_CXX_LINKER_FLAGS " ${CMAKE_CXX_LINKER_FLAGS} -Wl,--no-keep-memory")
-  endif (NOT USESYSTEMLIBS)
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    if (USE_ASAN)
+      add_compile_options(-fsanitize=address)
+      link_libraries(-lasan)
+    endif (USE_ASAN)
 
-  set(CMAKE_CXX_FLAGS_DEBUG "-fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
-  set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
+    if (USE_LEAKSAN)
+      add_compile_options(-fsanitize=leak)
+      link_libraries(-llsan)
+    endif (USE_LEAKSAN)
+
+    if (USE_UBSAN)
+      add_compile_options(-fsanitize=undefined)
+      link_libraries(-lubsan)
+    endif (USE_UBSAN)
+
+    if (USE_THDSAN)
+      add_compile_options(-fsanitize=thread)
+    endif (USE_THDSAN)
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+
+  CHECK_C_COMPILER_FLAG(-Og HAS_DEBUG_OPTIMIZATION)
+  CHECK_C_COMPILER_FLAG(-fstack-protector-strong HAS_STRONG_STACK_PROTECTOR)
+  CHECK_C_COMPILER_FLAG(-fstack-protector HAS_STACK_PROTECTOR)
+  if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    if(HAS_STRONG_STACK_PROTECTOR)
+      add_compile_options(-fstack-protector-strong)
+    elseif(HAS_STACK_PROTECTOR)
+      add_compile_options(-fstack-protector)
+    endif(HAS_STRONG_STACK_PROTECTOR)
+    add_definitions(-D_FORTIFY_SOURCE=2)
+  endif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    if (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+      add_compile_options(
+        -msse2
+        -mfpmath=sse
+        -march=pentium4)
+    endif (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+
+    if (HAS_DEBUG_OPTIMIZATION)
+      set(CMAKE_CXX_FLAGS_DEBUG "-Og ${CMAKE_CXX_FLAGS_DEBUG}")
+    else (HAS_DEBUG_OPTIMIZATION)
+      set(CMAKE_CXX_FLAGS_DEBUG "-O0 -fno-inline ${CMAKE_CXX_FLAGS_DEBUG}")
+    endif (HAS_DEBUG_OPTIMIZATION)
+    if (USE_ASAN OR USE_LEAKSAN OR USE_UBSAN OR USE_THDSAN)
+      if (HAS_DEBUG_OPTIMIZATION)
+        set(CMAKE_CXX_FLAGS_RELEASE "-Og ${CMAKE_CXX_FLAGS_RELEASE}")
+      else (HAS_DEBUG_OPTIMIZATION)
+        set(CMAKE_CXX_FLAGS_RELEASE "-O1 -fno-omit-frame-pointer ${CMAKE_CXX_FLAGS_RELEASE}")
+      endif (HAS_DEBUG_OPTIMIZATION)
+    else (USE_ASAN OR USE_LEAKSAN OR USE_UBSAN OR USE_THDSAN)
+      set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
+    endif (USE_ASAN OR USE_LEAKSAN OR USE_UBSAN OR USE_THDSAN)
+  elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
+    if (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+      add_compile_options(-msse2 -march=pentium4)
+    endif (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 ${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
+  elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
+    if (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+      add_compile_options(-march=pentium4)
+    endif (WORD_SIZE EQUAL 32 AND NOT USESYSTEMLIBS)
+
+    set(CMAKE_CXX_FLAGS_DEBUG "-O0 ${CMAKE_CXX_FLAGS_DEBUG}")
+    set(CMAKE_CXX_FLAGS_RELEASE "-O2 ${CMAKE_CXX_FLAGS_RELEASE}")
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+
+  # Enable these flags so we have a read only GOT and some linking opts
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -Wl,--as-needed ${CMAKE_EXE_LINKER_FLAGS}")
+  set(CMAKE_SHARED_LINKER_FLAGS "-Wl,-z,relro -Wl,-z,now -Wl,--as-needed ${CMAKE_SHARED_LINKER_FLAGS}")
 endif (LINUX)
 
 
 if (DARWIN)
   add_definitions(-DLL_DARWIN=1)
-  set(CMAKE_CXX_LINKER_FLAGS " ${CMAKE_CXX_LINKER_FLAGS} -Wl,-no_compact_unwind -Wl,-headerpad_max_install_names,-search_paths_first")
-  #set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINKER_FLAGS}")
-  set(DARWIN_extra_cstar_flags "-g -Wno-unused-local-typedef -Wno-deprecated-declarations")
+  set(CMAKE_CXX_LINK_FLAGS "-Wl,-headerpad_max_install_names,-search_paths_first")
+  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_CXX_LINK_FLAGS}")
+  set(DARWIN_extra_cstar_flags "-g")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${DARWIN_extra_cstar_flags}")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS}  ${DARWIN_extra_cstar_flags}")
   # NOTE: it's critical that the optimization flag is put in front.
   # NOTE: it's critical to have both CXX_FLAGS and C_FLAGS covered.
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
   set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O0 ${CMAKE_C_FLAGS_RELWITHDEBINFO}")
-  set(ENABLE_SIGNING TRUE)
-  set(SIGNING_IDENTITY "Developer ID Application: Linden Research, Inc.")
+  set(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE}")
+  set(CMAKE_C_FLAGS_RELEASE "-O3 ${CMAKE_C_FLAGS_RELEASE}")
 endif (DARWIN)
 
 
 if (LINUX OR DARWIN)
-  if (CMAKE_CXX_COMPILER MATCHES ".*clang")
-    set(CMAKE_COMPILER_IS_CLANGXX 1)
-  endif (CMAKE_CXX_COMPILER MATCHES ".*clang")
+  if (NOT UNIX_DISABLE_FATAL_WARNINGS)
+    set(UNIX_WARNINGS "-Werror")
+  endif (NOT UNIX_DISABLE_FATAL_WARNINGS)
 
-  if (CMAKE_COMPILER_IS_GNUCXX)
-    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
-  elseif (CMAKE_COMPILER_IS_CLANGXX)
-    set(GCC_WARNINGS "-Wall -Wno-sign-compare -Wno-trigraphs")
-  endif()
+  if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    set(UNIX_WARNINGS "-Wall -Wno-sign-compare -Wno-unused-variable -Wno-maybe-uninitialized ${UNIX_WARNINGS} ")
+    set(UNIX_CXX_WARNINGS "${UNIX_WARNINGS} -Wno-reorder")
+  elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang" OR ${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+    set(UNIX_WARNINGS "-Wall -Wno-sign-compare ${UNIX_WARNINGS} ")
+    set(UNIX_CXX_WARNINGS "${UNIX_WARNINGS} -Wno-reorder -Wno-unused-local-typedef -Wempty-body -Wunreachable-code -Wundefined-bool-conversion -Wenum-conversion -Wassign-enum -Wint-conversion -Wconstant-conversion -Wnewline-eof -Wno-protocol -Wno-deprecated-declarations")
+  elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
+    set(UNIX_WARNINGS "-w2 -diag-disable remark -wd68 -wd597 -wd780 -wd858 ${UNIX_WARNINGS} ")
+    set(UNIX_CXX_WARNINGS "${UNIX_WARNINGS}")
+  endif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 
-  if (NOT GCC_DISABLE_FATAL_WARNINGS)
-    set(GCC_WARNINGS "${GCC_WARNINGS} -Werror")
-  endif (NOT GCC_DISABLE_FATAL_WARNINGS)
-
-  set(GCC_CXX_WARNINGS "${GCC_WARNINGS} -Wno-reorder -Wno-non-virtual-dtor")
-
-  set(CMAKE_C_FLAGS "${GCC_WARNINGS} ${CMAKE_C_FLAGS}")
-  set(CMAKE_CXX_FLAGS "${GCC_CXX_WARNINGS} ${CMAKE_CXX_FLAGS}")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${UNIX_WARNINGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${UNIX_CXX_WARNINGS}")
 
   if (WORD_SIZE EQUAL 32)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
@@ -292,17 +298,26 @@ if (USESYSTEMLIBS)
   add_definitions(-DLL_USESYSTEMLIBS=1)
 
   if (LINUX AND ${ARCH} STREQUAL "i686")
-    add_definitions(-march=pentiumpro)
+    add_compile_options(-march=pentiumpro)
   endif (LINUX AND ${ARCH} STREQUAL "i686")
 
 else (USESYSTEMLIBS)
+  #Define this here so it propagates on all systems to all targets
+  #add_definitions(-DBOOST_THREAD_VERSION=4)
+
+  #Uncomment this definition when we can build cleanly against OpenSSL 1.1
+  #add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
+
   set(${ARCH}_linux_INCLUDES
       ELFIO
       atk-1.0
+      cairo
+      gdk-pixbuf-2.0
       glib-2.0
       gstreamer-0.10
       gtk-2.0
       pango-1.0
+      pixman-1
       )
 endif (USESYSTEMLIBS)
 

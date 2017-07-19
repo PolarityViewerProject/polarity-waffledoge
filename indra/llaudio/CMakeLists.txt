@@ -3,13 +3,13 @@
 project(llaudio)
 
 include(00-Common)
-include(LLAudio)
 include(FMODSTUDIO)
 include(OPENAL)
 include(LLCommon)
 include(LLMath)
 include(LLMessage)
 include(LLVFS)
+include(LLXML)
 
 include_directories(
     ${LLAUDIO_INCLUDE_DIRS}
@@ -17,6 +17,10 @@ include_directories(
     ${LLMATH_INCLUDE_DIRS}
     ${LLMESSAGE_INCLUDE_DIRS}
     ${LLVFS_INCLUDE_DIRS}
+    ${LLXML_INCLUDE_DIRS}
+    )
+
+include_directories(SYSTEM 
     ${OGG_INCLUDE_DIRS}
     ${VORBISENC_INCLUDE_DIRS}
     ${VORBISFILE_INCLUDE_DIRS}
@@ -59,7 +63,7 @@ if (FMODSTUDIO)
          llstreamingaudio_fmodstudio.h
          )
 endif (FMODSTUDIO)
-
+	
 if (OPENAL)
   list(APPEND llaudio_SOURCE_FILES
     llaudioengine_openal.cpp
@@ -84,6 +88,7 @@ target_link_libraries(
     ${LLMATH_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLVFS_LIBRARIES}
+    ${LLXML_LIBRARIES}
     ${VORBISENC_LIBRARIES}
     ${VORBISFILE_LIBRARIES}
     ${VORBIS_LIBRARIES}

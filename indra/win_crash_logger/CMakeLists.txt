@@ -100,6 +100,6 @@ target_link_libraries(windows-crash-logger
     Wldap32
     )
 
-if (LL_TESTS)
-  ll_deploy_sharedlibs_command(windows-crash-logger)
-endif (LL_TESTS)
+#if (LL_TESTS)
+#  ll_deploy_sharedlibs_command(windows-crash-logger)
+#endif (LL_TESTS)

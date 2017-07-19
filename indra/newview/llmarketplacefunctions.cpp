@@ -31,7 +31,6 @@
 #include "llmarketplacefunctions.h"
 
 #include "llagent.h"
-#include "llbufferstream.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryobserver.h"
 #include "llnotificationsutil.h"
@@ -43,14 +42,15 @@
 #include "llviewermedia.h"
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
-#include "reader.h" // JSON
-#include "writer.h" // JSON
 #include "lleventcoro.h"
 #include "llcoros.h"
 #include "llcorehttputil.h"
 
 #include "llsdutil.h"
-//
+
+#include <jsoncpp/reader.h> // JSON
+#include <jsoncpp/writer.h> // JSON
+ //
 // Helpers
 //
 

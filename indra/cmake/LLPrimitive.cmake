@@ -3,35 +3,36 @@
 # these should be moved to their own cmake file
 include(Prebuilt)
 include(Boost)
-include(ColladaDOM)
+include(LibXML2)
 
-
-use_prebuilt_binary(libxml2)
+use_prebuilt_binary(colladadom)
 
 set(LLPRIMITIVE_INCLUDE_DIRS
     ${LIBS_OPEN_DIR}/llprimitive
+    ${LIBXML2_INCLUDES}
     )
 if (WINDOWS)
     set(LLPRIMITIVE_LIBRARIES
-        llprimitive
-        ${COLLADADOM_LIBRARIES}
-        libxml2_a
+        debug llprimitive
+        optimized llprimitive
+        debug libcollada14dom23-sd
+        optimized libcollada14dom23-s
         ${BOOST_SYSTEM_LIBRARIES}
         )
 elseif (DARWIN)
     set(LLPRIMITIVE_LIBRARIES
         llprimitive
-        ${COLLADADOM_LIBRARIES}
+        collada14dom
         minizip
-        xml2
-        iconv           # Required by libxml2
         )
 elseif (LINUX)
     set(LLPRIMITIVE_LIBRARIES 
         llprimitive
-        ${COLLADADOM_LIBRARIES}
+        debug collada14dom-d
+        optimized collada14dom
         minizip
-        xml2
         )
 endif (WINDOWS)
-
+LIST(APPEND LLPRIMITIVE_LIBRARIES
+     ${LIBXML2_LIBRARIES}
+     )

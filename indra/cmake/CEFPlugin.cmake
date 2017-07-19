@@ -39,5 +39,10 @@ elseif (DARWIN)
        )
 
 elseif (LINUX)
+    set(CEF_PLUGIN_LIBRARIES
+       llceflib
+       cef_dll_wrapper
+       cef
+    )
 endif (WINDOWS)
 endif (ENABLE_MEDIA_PLUGINS)

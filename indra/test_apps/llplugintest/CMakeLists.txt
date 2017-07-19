@@ -14,7 +14,6 @@ include(LLMessage)
 include(LLRender)
 include(LLWindow)
 include(Glut)
-include(Glui)
 
 include_directories(
     ${LLPLUGIN_INCLUDE_DIRS}
@@ -317,7 +316,6 @@ if (DARWIN)
     libexception_handler.dylib
     libaprutil-1.0.dylib
     libapr-1.0.dylib
-    libexpat.1.5.2.dylib
     )
   copy_if_different(
     ${plugintest_release_src_dir}

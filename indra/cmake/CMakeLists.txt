@@ -2,12 +2,9 @@
 
 include(00-Common)
 
-project(cmake)
-
 set(cmake_SOURCE_FILES
     CMakeLists.txt
-    PVData.cmake
-    Variables.cmake
+
     00-Common.cmake
     APR.cmake
     Audio.cmake
@@ -15,25 +12,22 @@ set(cmake_SOURCE_FILES
     BuildVersion.cmake
     CEFPlugin.cmake
     CMakeCopyIfDifferent.cmake
-    ColladaDOM.cmake
     ConfigurePkgConfig.cmake
     CURL.cmake
     Copy3rdPartyLibs.cmake
+    CXXFeatureDetection.cmake
     DBusGlib.cmake
     DeploySharedLibs.cmake
     DragDrop.cmake
     EXPAT.cmake
-##  ExamplePlugin.cmake
     FindAPR.cmake
     FindAutobuild.cmake
-    FindFMODSTUDIO.cmake
     FindGoogleBreakpad.cmake
     FindGooglePerfTools.cmake
     FindHUNSPELL.cmake
     FindJsonCpp.cmake
     FindNDOF.cmake
     FindOpenJPEG.cmake
-    FindSCP.cmake
     FindURIPARSER.cmake
     FindXmlRpcEpi.cmake
     FindZLIB.cmake
@@ -74,6 +68,7 @@ set(cmake_SOURCE_FILES
     LLVFS.cmake
     LLWindow.cmake
     LLXML.cmake
+    LibXML2.cmake
     Linking.cmake
     MediaPluginBase.cmake
     NDOF.cmake
@@ -85,13 +80,14 @@ set(cmake_SOURCE_FILES
     PluginAPI.cmake
     Prebuilt.cmake
     PulseAudio.cmake
+    PVData.cmake
     Python.cmake
-    QuickTimePlugin.cmake
     TemplateCheck.cmake
     Tut.cmake
     UI.cmake
     UnixInstall.cmake
     URIPARSER.cmake
+    Variables.cmake
     ViewerMiscLibs.cmake
     VisualLeakDetector.cmake
     LibVLCPlugin.cmake

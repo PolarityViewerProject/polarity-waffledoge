@@ -13,6 +13,7 @@ include(Linking)
 include(PluginAPI)
 include(MediaPluginBase)
 include(OpenGL)
+include(Variables)
 
 include(LibVLCPlugin)
 
@@ -33,12 +34,6 @@ include_directories(SYSTEM
 
 ### media_plugin_libvlc
 
-if(NOT WORD_SIZE EQUAL 32)
-  if(NOT WINDOWS)
-    add_definitions(-fPIC)
-  endif(NOT WINDOWS)
-endif(NOT WORD_SIZE EQUAL 32)
-
 set(media_plugin_libvlc_SOURCE_FILES
     media_plugin_libvlc.cpp
     )
@@ -48,7 +43,6 @@ add_library(media_plugin_libvlc
     ${media_plugin_libvlc_SOURCE_FILES}
 )
 
-
 target_link_libraries(media_plugin_libvlc
   ${LLPLUGIN_LIBRARIES}
   ${MEDIA_PLUGIN_BASE_LIBRARIES}
@@ -57,20 +51,22 @@ target_link_libraries(media_plugin_libvlc
   ${PLUGIN_API_WINDOWS_LIBRARIES}
 )
 
-#add_dependencies(media_plugin_libvlc
-#  ${LLPLUGIN_LIBRARIES}
-#  ${MEDIA_PLUGIN_BASE_LIBRARIES}
-#  ${LLCOMMON_LIBRARIES}
-#)
+set_target_properties(media_plugin_libvlc PROPERTIES POSITION_INDEPENDENT_CODE TRUE)
 
 if (WINDOWS)
-  set_target_properties(
-    media_plugin_libvlc
-    PROPERTIES
-    # <FS:Ansariel> Remove linker warning about LTCG switch to improve linker performance
-    #LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /LTCG /NODEFAULTLIB:LIBCMT"
-    LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO /NODEFAULTLIB:LIBCMT"
-    )
+  if (WORD_SIZE EQUAL 32)
+    set_target_properties(
+      media_plugin_libvlc
+      PROPERTIES
+      LINK_FLAGS "/MANIFEST:NO /SAFESEH:NO"
+      )
+  else (WORD_SIZE EQUAL 32)
+    set_target_properties(
+      media_plugin_libvlc
+      PROPERTIES
+      LINK_FLAGS "/MANIFEST:NO"
+      )
+  endif (WORD_SIZE EQUAL 32)
 endif (WINDOWS)
 
 if (DARWIN)
@@ -79,7 +75,7 @@ if (DARWIN)
     media_plugin_libvlc
     PROPERTIES
     PREFIX ""
-    BUILD_WITH_INSTALL_RPATH 1
+    BUILD_WITH_INSTALL_RPATH TRUE
     INSTALL_NAME_DIR "@executable_path"
     LINK_FLAGS "-exported_symbols_list ${CMAKE_CURRENT_SOURCE_DIR}/../base/media_plugin_base.exp"
   )

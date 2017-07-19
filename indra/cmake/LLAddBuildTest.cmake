@@ -132,7 +132,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
          MESSAGE("LL_ADD_PROJECT_UNIT_TESTS ${name}_test_additional_CFLAGS ${${name}_test_additional_CFLAGS}")
        ENDIF(LL_TEST_VERBOSE)
      ENDIF(NOT ${name}_test_additional_CFLAGS MATCHES NOTFOUND)
-     
+
     #
     # Setup test targets
     #
@@ -150,7 +150,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     IF(LL_TEST_VERBOSE)
       MESSAGE(STATUS "LL_ADD_PROJECT_UNIT_TESTS ${name} test_script  = ${TEST_SCRIPT_CMD}")
     ENDIF(LL_TEST_VERBOSE)
-    # Add test 
+    # Add test
     ADD_CUSTOM_COMMAND(
         OUTPUT ${TEST_OUTPUT}
         COMMAND ${TEST_SCRIPT_CMD}
@@ -160,7 +160,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
     # Why not add custom target and add POST_BUILD command?
     # Slightly less uncertain behavior
     # (OUTPUT commands run non-deterministically AFAIK) + poppy 2009-04-19
-    # > I did not use a post build step as I could not make it notify of a 
+    # > I did not use a post build step as I could not make it notify of a
     # > failure after the first time you build and fail a test. - daveh 2009-04-20
     LIST(APPEND ${project}_TEST_OUTPUT ${TEST_OUTPUT})
   ENDFOREACH (source)
@@ -171,7 +171,7 @@ MACRO(LL_ADD_PROJECT_UNIT_TESTS project sources)
   ADD_DEPENDENCIES(${project} ${project}_tests)
 ENDMACRO(LL_ADD_PROJECT_UNIT_TESTS)
 
-FUNCTION(LL_ADD_INTEGRATION_TEST 
+FUNCTION(LL_ADD_INTEGRATION_TEST
     testname
     additional_source_files
     library_dependencies
@@ -180,7 +180,7 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
   if(TEST_DEBUG)
     message(STATUS "Adding INTEGRATION_TEST_${testname} - debug output is on")
   endif(TEST_DEBUG)
-  
+
   SET(source_files
     tests/${testname}_test.cpp
     ${CMAKE_SOURCE_DIR}/test/test.cpp
@@ -207,9 +207,10 @@ FUNCTION(LL_ADD_INTEGRATION_TEST
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname} PROPERTIES COMPILE_FLAGS -I"${TUT_INCLUDE_DIR}")
   endif(USESYSTEMLIBS)
 
-  # The following was copied to llcorehttp/CMakeLists.txt's texture_load target. 
+  # The following was copied to llcorehttp/CMakeLists.txt's texture_load target.
   # Any changes made here should be replicated there.
   if (WINDOWS)
+    LIST(APPEND libraries ole32)
     SET_TARGET_PROPERTIES(INTEGRATION_TEST_${testname}
         PROPERTIES
         LINK_FLAGS "/debug /SUBSYSTEM:CONSOLE"

@@ -73,7 +73,6 @@ if (LINUX)
       ${LLMATH_LIBRARIES}
       ${LLRENDER_LIBRARIES}
       ${LLVFS_LIBRARIES}
-      ${LLWINDOW_LIBRARIES}
       ${LLXML_LIBRARIES}
       ${UI_LIBRARIES}     # for GTK
       ${SDL_LIBRARY}
@@ -119,41 +118,53 @@ if (DARWIN)
     llappdelegate-objc.h
     )
 
-  # We use a bunch of deprecated system APIs.
   set_source_files_properties(
       llkeyboardmacosx.cpp
       llwindowmacosx.cpp
       PROPERTIES
-      COMPILE_FLAGS "-Wno-deprecated-declarations -fpascal-strings"
+      COMPILE_FLAGS "-fpascal-strings"
       )
 endif (DARWIN)
 
 
 if (WINDOWS)
-  list(APPEND llwindow_SOURCE_FILES
-       llwindowwin32.cpp
-       llkeyboardwin32.cpp
-       lldragdropwin32.cpp
-       )
-  list(APPEND llwindow_HEADER_FILES
-       llwindowwin32.h
-       llkeyboardwin32.h
-       lldragdropwin32.h
-       )
+  if (LLWINDOW_SDL2)
+    list(APPEND llwindow_SOURCE_FILES
+         llwindowsdl2.cpp
+         llkeyboardsdl2.cpp
+         )
+    list(APPEND llwindow_HEADER_FILES
+         llwindowsdl2.h
+         llkeyboardsdl2.h
+         )
+    list(APPEND llwindow_LINK_LIBRARIES
+         ${SDL2_LIBRARY}
+         )
+  else ()
+    list(APPEND llwindow_SOURCE_FILES
+         llwindowwin32.cpp
+         llkeyboardwin32.cpp
+         lldragdropwin32.cpp
+         )
+    list(APPEND llwindow_HEADER_FILES
+         llwindowwin32.h
+         llkeyboardwin32.h
+         lldragdropwin32.h
+         )
+  endif ()
+
+  # <polarity> We don't use DxHardware right now.
+  #list(APPEND llwindow_SOURCE_FILES
+  #     lldxhardware.cpp
+  #     )
+  #list(APPEND llwindow_HEADER_FILES
+  #     lldxhardware.h
+  #     )
   list(APPEND llwindow_LINK_LIBRARIES
        comdlg32     # Common Dialogs for ChooseColor
        ole32
        )
 endif (WINDOWS)
-
-if (SOLARIS)
-  list(APPEND llwindow_SOURCE_FILES
-       llwindowsolaris.cpp
-       )
-  list(APPEND llwindow_HEADER_FILES
-       llwindowsolaris.h
-       )
-endif (SOLARIS)
 
 set_source_files_properties(${llwindow_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
@@ -188,11 +199,15 @@ endif (llwindow_HEADER_FILES)
     ${viewer_SOURCE_FILES}
     )
 
-if (SDL_FOUND)
+if (LLWINDOW_SDL2)
+  set_property(TARGET llwindow
+    PROPERTY COMPILE_DEFINITIONS LL_SDL2=1
+    )
+elseif (SDL_FOUND)
   set_property(TARGET llwindow
     PROPERTY COMPILE_DEFINITIONS LL_SDL=1
     )
-endif (SDL_FOUND)
+endif (LLWINDOW_SDL2)
 
   target_link_libraries (llwindow ${llwindow_LINK_LIBRARIES})
 

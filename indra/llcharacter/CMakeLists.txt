@@ -47,8 +47,8 @@ set(llcharacter_HEADER_FILES
     CMakeLists.txt
 
     llanimationstates.h
-    llbvhloader.h
     llbvhconsts.h
+    llbvhloader.h
     llcharacter.h
     lleditingmotion.h
     llgesture.h

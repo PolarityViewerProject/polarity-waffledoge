@@ -59,23 +59,17 @@ add_executable(SLPlugin
     ${SLPlugin_SOURCE_FILES}
 )
 
-if (DARWIN)
-  set_target_properties(SLPlugin
-    PROPERTIES
-    MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
-    )
-endif (DARWIN)
-
 target_link_libraries(SLPlugin
   ${LLPLUGIN_LIBRARIES}
   ${LLMESSAGE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
+  ${PTHREAD_LIBRARY}
 )
 
 if (DARWIN)
-  # Mac version needs to link against Carbon
   target_link_libraries(SLPlugin ${COCOA_LIBRARY})
+
   set_target_properties(SLPlugin
     PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
@@ -92,5 +86,5 @@ if (DARWIN)
 endif (DARWIN)
 
 if (LL_TESTS)
-  ll_deploy_sharedlibs_command(SLPlugin)
+  #ll_deploy_sharedlibs_command(SLPlugin)
 endif (LL_TESTS)

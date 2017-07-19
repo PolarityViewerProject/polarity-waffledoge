@@ -12,7 +12,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
 
         if (DEFINED ENV{revision})
            set(VIEWER_VERSION_REVISION $ENV{revision})
-           message("Revision (from environment): ${VIEWER_VERSION_REVISION}")
+           message(STATUS "Revision (from environment): ${VIEWER_VERSION_REVISION}")
 
         else (DEFINED ENV{revision})
           find_program(MERCURIAL
@@ -28,12 +28,12 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
                             OUTPUT_VARIABLE VIEWER_VERSION_REVISION
                             OUTPUT_STRIP_TRAILING_WHITESPACE)
             if (NOT ${hg_id_result} EQUAL 0)
-              message(FATAL_ERROR "Revision number generation failed with output:\n${hg_id_error}")
+              message(SEND_ERROR "Revision number generation failed with output:\n${hg_id_error}")
             else (NOT ${hg_id_result} EQUAL 0)
               string(REGEX REPLACE "[^0-9a-f]" "" VIEWER_VERSION_REVISION ${VIEWER_VERSION_REVISION})
             endif (NOT ${hg_id_result} EQUAL 0)
             if ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
-              message("Revision (from hg) ${VIEWER_VERSION_REVISION}")
+              message(STATUS "Revision (from hg) ${VIEWER_VERSION_REVISION}")
               # <polarity> get hash of the commit we're building
               set(BUILD_COMMIT_HASH "NaN")
               set(BUILD_COMMIT_HASH_LONG "NaN")
@@ -48,21 +48,21 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
                 OUTPUT_STRIP_TRAILING_WHITESPACE
                 )
             else ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
-              message("Revision not set (repository not found?); using 0")
+              message(STATUS "Revision not set (repository not found?); using 0")
               set(VIEWER_VERSION_REVISION 0 )
             endif ("${VIEWER_VERSION_REVISION}" MATCHES "^[0-9]+$")
            else (MERCURIAL)
-              message("Revision not set: mercurial not found; using 0")
+              message(STATUS "Revision not set: mercurial not found; using 0")
               set(VIEWER_VERSION_REVISION 0)
            endif (MERCURIAL)
         endif (DEFINED ENV{revision})
-        message("Starting build [${BUILD_NUMBER}] : '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} (Commit ${BUILD_COMMIT_HASH})")
+        message(STATUS "Starting build [${BUILD_NUMBER}] : '${VIEWER_CHANNEL}' Version ${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION} (Commit ${BUILD_COMMIT_HASH})")
     else ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
-        message(FATAL_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
+        message(SEND_ERROR "Cannot get viewer version from '${VIEWER_VERSION_BASE_FILE}'") 
     endif ( EXISTS ${VIEWER_VERSION_BASE_FILE} )
 
     if ("${VIEWER_VERSION_REVISION}" STREQUAL "")
-      message("Ultimate fallback, revision was blank or not set: will use 0")
+      message(STATUS "Ultimate fallback, revision was blank or not set: will use 0")
       set(VIEWER_VERSION_REVISION 0)
     endif ("${VIEWER_VERSION_REVISION}" STREQUAL "")
 
