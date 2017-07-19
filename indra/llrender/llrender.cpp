@@ -1689,8 +1689,15 @@ void LLRender::blendFunc(eBlendFactor color_sfactor, eBlendFactor color_dfactor,
 	}
 }
 
-LLTexUnit* LLRender::getTexUnit(U32 index)
+LLTexUnit* LLRender::getTexUnit(S32 index)
 {
+	// <polarity> speed up
+	if (index == -1)
+	{
+		return mDummyTexUnit;
+	}
+	// <polarity>
+
 	if (index < mTexUnits.size())
 	{
 		return mTexUnits[index];

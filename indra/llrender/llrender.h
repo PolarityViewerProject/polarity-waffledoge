@@ -420,7 +420,7 @@ public:
 	LLLightState* getLight(U32 index);
 	void setAmbientLightColor(const LLColor4& color);
 
-	LLTexUnit* getTexUnit(U32 index);
+	LLTexUnit* getTexUnit(S32 index);
 
 	U32	getCurrentTexUnitIndex(void) const { return mCurrTextureUnitIndex; }
 
