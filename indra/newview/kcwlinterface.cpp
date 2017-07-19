@@ -179,7 +179,7 @@ BOOL KCWindlightInterface::tick()
 
 void KCWindlightInterface::applySettings(const LLSD& settings)
 {
-	LL_WARNS() << "TRYING KCWL APPLYSETTINGS" << LL_ENDL;
+	LL_DEBUGS() << "TRYING KCWL APPLYSETTINGS" << LL_ENDL;
 	LLParcel* parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 	if (!settings.has("local_id") || (settings["local_id"].asInteger() == parcel->getLocalID()) )
 	{
@@ -243,7 +243,7 @@ void KCWindlightInterface::applySettings(const LLSD& settings)
 
 bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 {
-	LL_WARNS() << "TRYING KCWL APPLY SKY SETTINGS" << LL_ENDL;
+	LL_DEBUGS() << "TRYING KCWL APPLY SKY SETTINGS" << LL_ENDL;
 	if (settings.has("sky"))
 	{
 		LL_DEBUGS("KCWindlightInterface") << "Checking if agent is in a defined zone" << LL_ENDL;
@@ -276,7 +276,7 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 
 	if (mCurrentSpace != NO_ZONES)
 	{
-		LL_WARNS() << "TRYING KCWL APPLY SKY SETTINGS (NO ZONES)" << LL_ENDL;
+		LL_DEBUGS() << "TRYING KCWL APPLY SKY SETTINGS (NO ZONES)" << LL_ENDL;
 		mCurrentSpace = NO_ZONES;
 		// set notes on KCWindlightInterface::haveParcelOverride
 		if (settings.has("sky_default") && (!mHaveRegionSettings || mHasRegionOverride))
@@ -309,10 +309,10 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 
 void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 {
-	LL_WARNS() << "TRYING KCWL APPLY WINDLIGHT PRESET" << LL_ENDL;
+	LL_DEBUGS() << "TRYING KCWL APPLY WINDLIGHT PRESET" << LL_ENDL;
 	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
 	{
-		LL_WARNS() << "RLV SAID TO NOT APPLY WINDLIGHT PRESET" << LL_ENDL;
+		LL_DEBUGS() << "RLV SAID TO NOT APPLY WINDLIGHT PRESET" << LL_ENDL;
 		return;
 	}
 
@@ -321,22 +321,22 @@ void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 	LLWLParamKey key(preset, LLEnvKey::SCOPE_LOCAL);
 	if ( (preset != PARCEL_WL_DEFAULT) && (wlprammgr->hasParamSet(key)) )
 	{
-		LL_WARNS() << "PRESET IS NOT PARCEL DEFAULT" << LL_ENDL;
+		LL_DEBUGS() << "PRESET IS NOT PARCEL DEFAULT" << LL_ENDL;
 		LLEnvManagerNew::instance().setUseSkyPreset(preset);
 		setWL_Status(true);
 		mWeChangedIt = true;
 	}
 	else
 	{
-		LL_WARNS() << "PRESET IS PARCEL DEFAULT" << LL_ENDL;
+		LL_DEBUGS() << "PRESET IS PARCEL DEFAULT" << LL_ENDL;
 		if (!LLEnvManagerNew::instance().getUseRegionSettings())
 		{
-			LL_WARNS() << "SETTINGS SAYS TO NOT USE REGION SETTINGS, I AM SETTING THAT TO YES" << LL_ENDL;
+			LL_DEBUGS() << "SETTINGS SAYS TO NOT USE REGION SETTINGS, I AM SETTING THAT TO YES" << LL_ENDL;
 			LLEnvManagerNew::instance().setUseRegionSettings(true);
 		}
 		else
 		{
-			LL_WARNS() << "SETTINGS SAYS TO USE REGION SETTINGS, WHAT DO" << LL_ENDL;
+			LL_DEBUGS() << "SETTINGS SAYS TO USE REGION SETTINGS, WHAT DO" << LL_ENDL;
 		}
 		setWL_Status(false);
 		mWeChangedIt = false;
@@ -345,17 +345,17 @@ void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 
 void KCWindlightInterface::resetToRegion(bool force)
 {
-	LL_WARNS() << "TRYING TO RESET TO REGION" << LL_ENDL;
+	LL_DEBUGS() << "TRYING TO RESET TO REGION" << LL_ENDL;
 	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
 	{
-		LL_WARNS() << "RLV SAID TO NOT RESET TO REGION" << LL_ENDL;
+		LL_DEBUGS() << "RLV SAID TO NOT RESET TO REGION" << LL_ENDL;
 		return;
 	}
 
 	//TODO: clear per parcel
 	if (mWeChangedIt || force) //dont reset anything if we didnt do it
 	{
-		LL_WARNS() << "RESETTING TO PARCEL DEFAULT" << LL_ENDL;
+		LL_DEBUGS() << "RESETTING TO PARCEL DEFAULT" << LL_ENDL;
 		applyWindlightPreset(PARCEL_WL_DEFAULT);
 	}
 }
@@ -431,7 +431,7 @@ bool KCWindlightInterface::chatCommand(std::string message, std::string from_nam
 
 bool KCWindlightInterface::loadFromParcel(LLParcel *parcel)
 {
-	LL_WARNS() << "LOADING WINDLIGHT FROM PARCEL" << LL_ENDL;
+	LL_DEBUGS() << "LOADING WINDLIGHT FROM PARCEL" << LL_ENDL;
 	if (!parcel)
 	{
 		LL_WARNS() << "PARCEL IS INVALID, ABORTING" << LL_ENDL;
@@ -441,17 +441,17 @@ bool KCWindlightInterface::loadFromParcel(LLParcel *parcel)
 	LLSD payload;
 	if (parseParcelForWLSettings(parcel->getDesc(), payload))
 	{
-		LL_WARNS() << "WE HAVE PAYLOAD" << LL_ENDL;
+		LL_DEBUGS() << "WE HAVE PAYLOAD" << LL_ENDL;
 		const LLUUID owner_id = getOwnerID(parcel);
 		//basic auth for now
 		if (allowedLandOwners(owner_id))
 		{
-			LL_WARNS() << "WE ARE ALLOWED" << LL_ENDL;
+			LL_DEBUGS() << "WE ARE ALLOWED" << LL_ENDL;
 			applySettings(payload);
 		}
 		else
 		{
-			LL_WARNS() << "ASKING USER TO APPLY OR NOT" << LL_ENDL;
+			LL_DEBUGS() << "ASKING USER TO APPLY OR NOT" << LL_ENDL;
 			LLSD args;
 			args["PARCEL_NAME"] = parcel->getName();
 			args["OWNER_NAME"] = getOwnerName(parcel);
@@ -465,7 +465,7 @@ bool KCWindlightInterface::loadFromParcel(LLParcel *parcel)
 	}
 	
 	//if nothing defined, reset to region settings
-	LL_WARNS() << "ABOUT TO RESET TO REGION" << LL_ENDL;
+	LL_DEBUGS() << "ABOUT TO RESET TO REGION" << LL_ENDL;
 	resetToRegion();
 
 	return false;
@@ -473,7 +473,7 @@ bool KCWindlightInterface::loadFromParcel(LLParcel *parcel)
 
 bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLSD& settings) const
 {
-	LL_WARNS() << "PARSING PARCEL DESCRIPTION FOR WINDLIGHT" << LL_ENDL;
+	LL_DEBUGS() << "PARSING PARCEL DESCRIPTION FOR WINDLIGHT" << LL_ENDL;
 	bool found_settings = false;
 	try
 	{
@@ -484,7 +484,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 		const boost::regex Parcel_exp("(?i)\\/\\*(?:Windlight|WL)?([\\s\\S]*?)\\*\\/");
 		if(boost::regex_search(desc, mat_block, Parcel_exp))
 		{
-			LL_WARNS() << "REGEX MATCHED WINDLIGHT HEADER" << LL_ENDL;
+			LL_DEBUGS() << "REGEX MATCHED WINDLIGHT HEADER" << LL_ENDL;
 			//std::string data1(mat_block[1].first, mat_block[1].second);
 			//LL_INFOS() << "found parcel flags block: " << mat_block[1] << LL_ENDL;
 			
@@ -500,7 +500,7 @@ bool KCWindlightInterface::parseParcelForWLSettings(const std::string& desc, LLS
 			const boost::regex key_regex("(?i)(?:(?:(Sky|S)(?:\\s?@\\s?([\\d]+)m?\\s?(?:to|-)\\s?([\\d]+)m?)?)|(Water|W))\\s?:\\s?\"([^\"\\r\\n]+)\"|(RegionOverride|RO)");
 			while (boost::regex_search(start, end, match, key_regex, boost::match_default))
 			{
-				LL_WARNS() << "REGEX MATCHED WINDLIGHT PARAMETER" << LL_ENDL;
+				LL_DEBUGS() << "REGEX MATCHED WINDLIGHT PARAMETER" << LL_ENDL;
 				if (match[1].matched)
 				{
 					LL_DEBUGS("KCWindlightInterface") << "Sky Flags: type = " << match[1] << " from = " << match[2] << " to = " << match[3] << " preset = " << match[5] << LL_ENDL;
