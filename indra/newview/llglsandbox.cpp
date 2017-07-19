@@ -164,7 +164,7 @@ F32 gpu_benchmark(bool force_run)
 	LLRenderTarget dest[count];
 	U32 source[count];
 	LLImageGL::generateTextures(count, source);
-	U64Bytes result_sum(0); // <polarity/>
+	F64Bytes result_sum(0); // <polarity/>
 
 	//build a random 8-bit texture
 	U8* pixels = new U8[res*res * 4];
