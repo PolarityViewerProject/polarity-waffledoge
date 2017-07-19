@@ -220,9 +220,11 @@ LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 LLGLSLShader			gNormalMapGenProgram;
 
+#ifdef GAUSSIAN_BLUR
 // <polarity> Gaussian blur shader
 LLGLSLShader			gGaussianBlurProgram;
 // </polarity>
+#endif
 
 // Deferred materials shaders
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
@@ -777,9 +779,11 @@ void LLViewerShaderMgr::unloadShaders()
 	gDeferredSkinnedBumpProgram.unload();
 	gDeferredSkinnedAlphaProgram.unload();
 
+#ifdef GAUSSIAN_BLUR
 	// <polarity> Gaussian blur shader
 	gGaussianBlurProgram.unload();
 	// </polarity>gGaussianBlurProgram
+#endif
 
 	mVertexShaderLevel[SHADER_LIGHTING] = 0;
 	mVertexShaderLevel[SHADER_OBJECT] = 0;
@@ -1048,9 +1052,11 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 	{
 		gGlowProgram.unload();
 		gGlowExtractProgram.unload();
+#ifdef GAUSSIAN_BLUR
 		// <polarity> Gaussian blur shader
 		gGaussianBlurProgram.unload();
 		// </polarity>gGaussianBlurProgram
+#endif
 		return TRUE;
 	}
 
@@ -1082,6 +1088,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		}
 	}
 	
+#ifdef GAUSSIAN_BLUR
 	// <polarity> Gaussian blur shader
 	if (success)
 	{
@@ -1093,6 +1100,7 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		success = gGaussianBlurProgram.createShader(NULL, NULL);
 	}
 	// </polarity>
+#endif
 
 	return success;
 
@@ -1162,9 +1170,11 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialWaterProgram[i].unload();
 		}
 
+#ifdef GAUSSIAN_BLUR
 		// <polarity> Gaussian blur shader
 		gGaussianBlurProgram.unload();
 		// </polarity>
+#endif
 		return TRUE;
 	}
 

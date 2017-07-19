@@ -1274,8 +1274,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
 
+#ifdef GAUSSIAN_BLUR
 	// <polarity> Gaussian Blur
 	mReservedUniforms.push_back("exo_screen");
+#endif
 
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
@@ -1323,9 +1325,11 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_3");
 	mReservedUniforms.push_back("alpha_ramp");
 
+#ifdef GAUSSIAN_BLUR
 	// <polarity> Gaussian blur shader
 	mReservedUniforms.push_back("blur_direction");
 	// </polarity>
+#endif
 
 	mReservedUniforms.push_back("origin");
 	// <alchemy>

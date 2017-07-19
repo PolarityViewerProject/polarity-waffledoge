@@ -317,9 +317,11 @@ extern LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 extern LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 extern LLGLSLShader			gNormalMapGenProgram;
 
+#ifdef GAUSSIAN_BLUR
 // <polarity> Gaussian blur shader
 extern LLGLSLShader			gGaussianBlurProgram;
 // </polarity>
+#endif
 
 // Deferred materials shaders
 extern LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];

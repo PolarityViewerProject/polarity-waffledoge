@@ -169,9 +169,11 @@ public:
 		DEFERRED_PROJECTION,
 		DEFERRED_NORM_MATRIX,
 
+#ifdef GAUSSIAN_BLUR
 		// <polarity> Gaussian Blur
 		PV_RENDER_SCREEN,
 		// </polarity>
+#endif
 
 		GLOBAL_GAMMA,
 		TEXTURE_GAMMA,
@@ -219,9 +221,11 @@ public:
 		TERRAIN_DETAIL3,
 		TERRAIN_ALPHARAMP,
 
+#ifdef GAUSSIAN_BLUR
 		// <polarity> Gaussian blur shader
 		PLVR_BLUR_DIRECTION,
 		// </polarity>
+#endif
 		
 		SHINY_ORIGIN,
 

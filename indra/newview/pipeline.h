@@ -135,7 +135,10 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
+#ifdef GAUSSIAN_BLUR
 	static void BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader); // <polarity/> Gaussian Blur
+#endif
+
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -851,8 +854,10 @@ protected:
 public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
-	
+
+#ifdef GAUSSIAN_BLUR	
 	static BOOL				sRenderGaussianBlur; // <polarity> Gaussian blur shader
+#endif
 
 	// Determines which set of UVs to use in highlight display
 	//

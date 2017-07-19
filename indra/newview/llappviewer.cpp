@@ -4924,12 +4924,14 @@ void LLAppViewer::saveFinalSnapshot()
 		gViewerWindow->setCursor(UI_CURSOR_WAIT);
 		gAgentCamera.changeCameraToThirdPerson( FALSE );	// don't animate, need immediate switch
 		gSavedSettings.setBOOL("ShowParcelOwners", FALSE);
+#ifdef GAUSSIAN_BLUR
 		// <polarity> Gaussian blur shader
 		if (LLPipeline::sRenderDeferred)
 		{
 			LLPipeline::sRenderGaussianBlur = TRUE;
 		}
 		// </polarity>
+#endif
 		idle();
 
 		std::string snap_filename = gDirUtilp->getLindenUserDir();
@@ -4937,10 +4939,12 @@ void LLAppViewer::saveFinalSnapshot()
 		snap_filename += SCREEN_LAST_FILENAME;
 		// use full pixel dimensions of viewer window (not post-scale dimensions)
 		gViewerWindow->saveSnapshot(snap_filename, gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw(), FALSE, TRUE);
+#ifdef GAUSSIAN_BLUR
 		if (LLPipeline::sRenderGaussianBlur && LLPipeline::sRenderDeferred)
 		{
 			LLPipeline::sRenderGaussianBlur = FALSE; // <polarity> Gaussian blur shader
 		}
+#endif
 		mSavedFinalSnapshot = TRUE;
 	}
 }

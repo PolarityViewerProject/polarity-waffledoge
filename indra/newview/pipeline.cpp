@@ -289,9 +289,11 @@ static LLStaticHashedString sDelta("delta");
 static LLStaticHashedString sDistFactor("dist_factor");
 static LLStaticHashedString sKern("kern");
 static LLStaticHashedString sKernScale("kern_scale");
+#ifdef GAUSSIAN_BLUR
 //<polarity> Gaussian Blur
 static LLStaticHashedString sGaussian("gaussian");
 // </polarity>
+#endif
 
 //----------------------------------------
 std::string gPoolNames[] = 
@@ -407,7 +409,9 @@ S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs;
 
+#ifdef GAUSSIAN_BLUR
 BOOL	LLPipeline::sRenderGaussianBlur = FALSE; // <polarity> Gaussian blur shader
+#endif
 
 // [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
 bool	LLPipeline::sRenderTextures = true;
@@ -7125,6 +7129,7 @@ void validate_framebuffer_object()
 //	
 //}
 
+#ifdef GAUSSIAN_BLUR	
 // <polarity> Gaussian Blur
 // This function was adapted from Exodus' PostProcess
 void LLPipeline::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader)
@@ -7148,6 +7153,7 @@ void LLPipeline::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader)
 	shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, tgt->getWidth(), tgt->getHeight());
 }
 // <polarity>
+#endif
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
@@ -7204,7 +7210,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
-		
+#ifdef GAUSSIAN_BLUR		
 	// <polarity> Gaussian blur shader
 	static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
 	if (LLPipeline::sRenderGaussianBlur && blur_iterations > 0)
@@ -7268,7 +7274,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		}
 	}
 	// </polarity>
-	
+#endif
 	{
 		{
 			LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
