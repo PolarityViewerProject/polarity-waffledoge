@@ -7197,9 +7197,9 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	glClearColor(0,0,0,0);
 		
 	// <polarity> Gaussian blur shader
-	if (LLPipeline::sRenderGaussianBlur)
+	static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
+	if (LLPipeline::sRenderGaussianBlur && blur_iterations > 0)
 	{
-		static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
 		for (int i = 0; i < blur_iterations; ++i)
 		{
 			F32 vertical_dir[] = 
