@@ -43,7 +43,7 @@ set(llaudio_HEADER_FILES
     llwindgen.h
     )
 
-if (LINK_FMODSTUDIO)
+if (FMODSTUDIO)
     include_directories(
         ${FMODSTUDIO_INCLUDE_DIR}
         )
@@ -58,7 +58,7 @@ if (LINK_FMODSTUDIO)
          lllistener_fmodstudio.h
          llstreamingaudio_fmodstudio.h
          )
-endif (LINK_FMODSTUDIO)
+endif (FMODSTUDIO)
 
 if (OPENAL)
   list(APPEND llaudio_SOURCE_FILES

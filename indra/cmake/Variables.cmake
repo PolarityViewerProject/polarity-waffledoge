@@ -9,9 +9,7 @@
 #   LINUX   - Linux
 #   WINDOWS - Windows
 
-
 # Relative and absolute paths to subtrees.
-
 if(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)
 set(${CMAKE_CURRENT_LIST_FILE}_INCLUDED "YES")
 
@@ -20,7 +18,6 @@ if(NOT DEFINED COMMON_CMAKE_DIR)
 endif(NOT DEFINED COMMON_CMAKE_DIR)
 
 Include(PVData)
-
 set(LIBS_CLOSED_PREFIX)
 set(LIBS_OPEN_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
@@ -191,8 +188,10 @@ if(NOT DEFINED INTERNAL_BUILD)
 endif()
 
 # Third-party libraries
+
 # Audio Engine
 option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
+
 # Mallocs
 option(USE_TCMALLOC "Build with Google PerfTools support." OFF)
 option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
@@ -212,13 +211,6 @@ if(INSTALL_PROPRIETARY)
   set(NVAPI ON)
   # set(USE_TBBMALLOC ON)
 endif(INSTALL_PROPRIETARY)
-
-if(FMODSTUDIO)
-  set(LINK_FMODSTUDIO ON CACHE BOOL "Using FMOD Studio sound library.")
-endif(FMODSTUDIO)
-
-
-# set(BUILD_NUMBER ${BUILD_NUMBER} CACHE STRING "ID of this viewer build")
 
 # <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
 add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
