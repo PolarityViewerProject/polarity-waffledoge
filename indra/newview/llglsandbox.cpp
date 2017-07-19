@@ -157,7 +157,7 @@ F32 gpu_benchmark(bool force_run)
 	const U8 samples_discard = 4;
 
 	//pre-calculated ([resolution of textures/render targets] ^ 2) * number of textures
-	constexpr U64 res2_count = (res * res) * count;
+	constexpr F64 res2_count = (res * res) * count;
 
 	LLGLSLShader::initProfile();
 
@@ -165,6 +165,7 @@ F32 gpu_benchmark(bool force_run)
 	U32 source[count];
 	LLImageGL::generateTextures(count, source);
 	F64Bytes result_sum(0); // <polarity/>
+	F64 result_time(0); // <polarity/>
 
 	//build a random 8-bit texture
 	U8* pixels = new U8[res*res * 4];
@@ -211,6 +212,12 @@ F32 gpu_benchmark(bool force_run)
 	buff->setBuffer(LLVertexBuffer::MAP_VERTEX);
 	glFinish();
 
+	if (!gGLManager.mHasTimerQuery)
+	{
+		LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
+		return -1;
+	}
+
 	for (S32 c = -1; c < samples; ++c)
 	{
 		LLTimer timer;
@@ -242,19 +249,9 @@ F32 gpu_benchmark(bool force_run)
 
 		if (c > samples_discard) // ignore some initial samples as they tend to be artificially slow
 		{
-			//store result in bytes per second
 			// Note: Memory calculation is based off the assumtion of a Black and White, 8-bit texture.
-			F64Bytes bytesPerSecond = F64Bytes((8 * res2_count) / timer.getElapsedTimeF64());
-			if (!gGLManager.mHasTimerQuery && !busted_finish && bytesPerSecond > (U64Gigabytes)2048)
-			{ //unrealistically high bandwidth for a card without timer queries, glFinish is probably ignored
-				busted_finish = true;
-				LL_WARNS() << "GPU Benchmark detected GL driver with broken glFinish implementation." << LL_ENDL;
-			}
-			else
-			{
-				LL_DEBUGS() << "result[" << c << "] : " << (F64Gigabytes)bytesPerSecond << LL_ENDL;
-				result_sum += bytesPerSecond; // <polarity/>
-			}
+			result_sum += F64Bytes((res2_count));
+			result_time += timer.getElapsedTimeF64();
 		}
 	}
 
@@ -265,29 +262,31 @@ F32 gpu_benchmark(bool force_run)
 	LLImageGL::deleteTextures(count, source);
 
 	const F64 divider = (1 + samples - samples_discard);
+	F64Bytes bytesPerSecond = (F64Bytes)0;
+
+#ifdef GO_AWAY
+	/// CPU Timers
 	// Get the average value and apply another 8-bit offset to correct it
-	F64Gigabytes gbps = F64Bytes(8 * (result_sum / divider));
-	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << " GBytes/sec according to CPU timers" << LL_ENDL;
+	gBytesPerSec = F64Bytes(8 * (result_sum / divider) gBytesPerSec = F64Bits(8 * (((res2_count * divider) / (result_time)))););
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gBytesPerSec) << " GBytes/sec according to CPU timers" << LL_ENDL;
 
 	//#if LL_DARWIN
-	if (gbps > (U64Gigabytes)2048)
+	if (gBytesPerSec > (U64Gigabytes)2048)
 	{
 		LL_WARNS() << "Memory bandwidth is improbably high and likely incorrect; discarding result." << LL_ENDL;
 		//OSX is probably lying, discard result
-		gbps = (U64Bytes)0;
+		gBytesPerSec = (U64Bytes)0;
 	}
 	//#endif
+#endif
 
+	/// GPU Timers
 	LL_DEBUGS() << "gBenchmarkProgram.mTimeElapsed : " << gBenchmarkProgram.mTimeElapsed << LL_ENDL;
+	LL_DEBUGS() << "result_time : " << result_time << LL_ENDL;
+	
+	// <polarity/> leaner benchmark result math
+	bytesPerSecond = F64Bytes(64 * ((res2_count * divider) / result_time) * 0.000000001f);
 
-	// <polarity> leaner benchmark result math
-	//F32 ms = gBenchmarkProgram.mTimeElapsed / 1000000.f;
-	//F32 seconds = ms / 1000.f;
-	//F64 samples_drawn = res*res*count*samples;
-	//F64 samples_sec = (samples_drawn / 1000000000.0) / seconds;
-	//gbps = samples_sec * 8;
-	gbps = F64Bits(8 * ((res2_count * divider) / (F64(gBenchmarkProgram.mTimeElapsed) / 10000000000.f)));
-	// </polarity>
 
 	if (local_init)
 	{
@@ -304,12 +303,12 @@ F32 gpu_benchmark(bool force_run)
 		local_init = false;
 	}
 
-	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", gbps) << " GBytes/sec according to ARB_timer_query" << LL_ENDL;
+	LL_INFOS() << "Memory bandwidth is " << llformat("%.3f", bytesPerSecond) << " GBytes/sec according to ARB_timer_query" << LL_ENDL;
 
 	// Turn off subsequent benchmarking.
 	gSavedSettings.setBOOL("NoHardwareProbe", TRUE);
 	// <polarity> save GPU benchmark result and re-use it when possible
-	gSavedSettings.setF32("PVRender_SavedGPUBenchmarkBandwidth", (F32)gbps.value());
-	return gbps.value();
+	gSavedSettings.setF32("PVRender_SavedGPUBenchmarkBandwidth", (F32)bytesPerSecond.value());
+	return bytesPerSecond.value();
 }
 
