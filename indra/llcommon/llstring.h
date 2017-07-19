@@ -1271,7 +1271,7 @@ void LLStringUtilBase<T>::addCRLF(string_type& string)
 	if( count )
 	{
 		size_type size = len + count;
-		T *t = DBG_NEW T[size];
+		T *t = new T[size];
 		size_type j = 0;
 		for( i = 0; i < len; ++i )
 		{
@@ -1411,7 +1411,7 @@ void LLStringUtilBase<T>::stripNonprintable(string_type& string)
 	char* c_string = nullptr;
 	try
 	{
-		c_string = DBG_NEW char[src_size + 1];
+		c_string = new char[src_size + 1];
 	}
 	catch (const std::bad_alloc&)
 	{

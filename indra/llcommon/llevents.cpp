@@ -116,9 +116,9 @@ LLEventPump& LLEventPumps::obtain(const std::string& name)
     // Should this name be an LLEventQueue?
     PumpNames::const_iterator nfound = mQueueNames.find(name);
     if (nfound != mQueueNames.end())
-        newInstance = DBG_NEW LLEventQueue(name);
+        newInstance = new LLEventQueue(name);
     else
-        newInstance = DBG_NEW LLEventStream(name);
+        newInstance = new LLEventStream(name);
     // LLEventPump's constructor implicitly registers each new instance in
     // mPumpMap. But remember that we instantiated it (in mOurPumps) so we'll
     // delete it later.

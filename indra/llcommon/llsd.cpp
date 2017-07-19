@@ -403,7 +403,7 @@ namespace
 	{
 		if (shared())
 		{
-			ImplMap* i = DBG_NEW ImplMap(mData);
+			ImplMap* i = new ImplMap(mData);
 			Impl::assign(var, i);
 			return *i;
 		}
@@ -524,7 +524,7 @@ namespace
 	{
 		if (shared())
 		{
-			ImplArray* i = DBG_NEW ImplArray(mData);
+			ImplArray* i = new ImplArray(mData);
 			Impl::assign(var, i);
 			return *i;
 		}
@@ -672,14 +672,14 @@ const LLSD::Impl& LLSD::Impl::safe(const Impl* impl)
 
 ImplMap& LLSD::Impl::makeMap(Impl*& var)
 {
-	ImplMap* im = DBG_NEW ImplMap;
+	ImplMap* im = new ImplMap;
 	reset(var, im);
 	return *im;
 }
 
 ImplArray& LLSD::Impl::makeArray(Impl*& var)
 {
-	ImplArray* ia = DBG_NEW ImplArray;
+	ImplArray* ia = new ImplArray;
 	reset(var, ia);
 	return *ia;
 }
@@ -926,7 +926,7 @@ static const char *llsd_dump(const LLSD &llsd, bool useXMLFormat)
 		out_string = out.str();
 	}
 	int len = out_string.length();
-	sStorage = DBG_NEW char[len + 1];
+	sStorage = new char[len + 1];
 	memcpy(sStorage, out_string.c_str(), len);
 	sStorage[len] = '\0';
 	return sStorage;

@@ -135,7 +135,7 @@ void LLMetricsImpl::printTotals(LLSD metadata)
 
 LLMetrics::LLMetrics()
 {
-	mImpl = DBG_NEW LLMetricsImpl();
+	mImpl = new LLMetricsImpl();
 }
 
 LLMetrics::~LLMetrics()

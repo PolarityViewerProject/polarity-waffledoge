@@ -341,7 +341,7 @@ protected:
 
 	virtual void initSingleton()
 	{
-		mStaticScope = DBG_NEW ScopedRegistrar();
+		mStaticScope = new ScopedRegistrar();
 	}
 
 	virtual ~LLRegistrySingleton() 

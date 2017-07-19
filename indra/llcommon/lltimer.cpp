@@ -290,7 +290,7 @@ LLTimer::~LLTimer()
 // static
 void LLTimer::initClass()
 {
-	if (!sTimer) sTimer = DBG_NEW LLTimer;
+	if (!sTimer) sTimer = new LLTimer;
 }
 
 // static

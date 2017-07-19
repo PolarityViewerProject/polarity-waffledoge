@@ -75,7 +75,7 @@ void set_thread_name( DWORD dwThreadID, const char* threadName)
 // void run_func(LLThread* thread)
 // {
 // }
-// LLThread* thread = DBG_NEW LLThread();
+// LLThread* thread = new LLThread();
 // thread->run(run_func);
 // ...
 // thread->setQuitting();
@@ -355,7 +355,7 @@ void LLThreadSafeRefCount::initThreadSafeRefCount()
 {
 	if (!sMutex)
 	{
-		sMutex = DBG_NEW LLMutex();
+		sMutex = new LLMutex();
 	}
 }
 

@@ -32,16 +32,10 @@
 // Files included here are included in every library .cpp file and
 // are not precompiled.
 
-#define CHECK_MEMORY_LEAK 0
-#if defined(LL_WINDOWS) && (defined(_DEBUG) || CHECK_MEMORY_LEAK) && (!LL_USE_TCMALLOC && !USE_TBBMALLOC)
-#define _CRTDBG_MAP_ALLOC  
-#include <stdlib.h>  
-#include <crtdbg.h>  
-#define DBG_NEW new ( _NORMAL_BLOCK , __FILE__ , __LINE__ )
-// Replace _NORMAL_BLOCK with _CLIENT_BLOCK if you want the
-// allocations to be of _CLIENT_BLOCK type
-#else
-#define DBG_NEW new
+#if defined(LL_WINDOWS) && defined(_DEBUG)
+#  define _CRTDBG_MAP_ALLOC
+#  include <stdlib.h>
+#  include <crtdbg.h>
 #endif
 
 #include "llpreprocessor.h"
@@ -63,4 +57,5 @@
 #include "lldefs.h"
 #include "llerror.h"
 #include "llfile.h"
+
 #endif

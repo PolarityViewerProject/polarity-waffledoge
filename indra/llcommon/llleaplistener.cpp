@@ -131,7 +131,7 @@ void LLLeapListener::newpump(const LLSD& request)
     LLEventPump * new_pump = NULL;
     if (type.asString() == "LLEventQueue")
     {
-        new_pump = DBG_NEW LLEventQueue(name, true); // tweak name for uniqueness
+        new_pump = new LLEventQueue(name, true); // tweak name for uniqueness
     }
     else
     {
@@ -139,7 +139,7 @@ void LLLeapListener::newpump(const LLSD& request)
         {
             reply.warn(STRINGIZE("unknown 'type' " << type << ", using LLEventStream"));
         }
-        new_pump = DBG_NEW LLEventStream(name, true); // tweak name for uniqueness
+        new_pump = new LLEventStream(name, true); // tweak name for uniqueness
     }
 
     name = new_pump->getName();

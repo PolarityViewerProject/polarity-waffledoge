@@ -342,7 +342,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 	{
 		if ( second_instance )  //BUG-5707 Firing teleport from a web browser causes second 
 		{
-			mExceptionHandler = DBG_NEW google_breakpad::ExceptionHandler(
+			mExceptionHandler = new google_breakpad::ExceptionHandler(
 															L"C:\\Temp\\",		
 															0,		//No filter
 															windows_post_minidump_callback,
@@ -363,7 +363,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 			{
 				if (mExceptionHandler != 0) delete mExceptionHandler;
 
-				mExceptionHandler = DBG_NEW google_breakpad::ExceptionHandler(
+				mExceptionHandler = new google_breakpad::ExceptionHandler(
 															wdump_path,		
 															NULL,		//No filter
 															windows_post_minidump_callback,
@@ -440,7 +440,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 
 	if(installHandler && (mExceptionHandler == 0))
 	{
-		mExceptionHandler = DBG_NEW google_breakpad::ExceptionHandler(mDumpPath, 0, &unix_post_minidump_callback, 0, true, 0);
+		mExceptionHandler = new google_breakpad::ExceptionHandler(mDumpPath, 0, &unix_post_minidump_callback, 0, true, 0);
 	}
 #elif LL_LINUX
 	if(installHandler && (mExceptionHandler == 0))
@@ -450,7 +450,7 @@ void LLApp::setupErrorHandling(bool second_instance)
 			mDumpPath = "/tmp";
 		}
 		google_breakpad::MinidumpDescriptor desc(mDumpPath);
-	    mExceptionHandler = DBG_NEW google_breakpad::ExceptionHandler(desc, NULL, unix_minidump_callback, NULL, true, -1);
+	    mExceptionHandler = new google_breakpad::ExceptionHandler(desc, NULL, unix_minidump_callback, NULL, true, -1);
 	}
 #endif
 
@@ -467,7 +467,7 @@ void LLApp::startErrorThread()
 	if(!mThreadErrorp)
 	{
 		LL_INFOS() << "Starting error thread" << LL_ENDL;
-		mThreadErrorp = DBG_NEW LLErrorThread();
+		mThreadErrorp = new LLErrorThread();
 		mThreadErrorp->setUserData((void *) this);
 		mThreadErrorp->start();
 	}

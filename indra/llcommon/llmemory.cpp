@@ -82,7 +82,7 @@ void LLMemory::initClass()
 {
 	if (!reserveMem)
 	{
-		reserveMem = DBG_NEW char[16*1024]; // reserve 16K for out of memory error handling
+		reserveMem = new char[16*1024]; // reserve 16K for out of memory error handling
 	}
 }
 

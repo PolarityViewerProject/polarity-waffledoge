@@ -53,7 +53,7 @@ Recording::Recording(EPlayState state)
 	mActiveBuffers(NULL)
 {
 	claim_alloc(gTraceMemStat, this);
-	mBuffers = DBG_NEW AccumulatorBufferGroup();
+	mBuffers = new AccumulatorBufferGroup();
 	claim_alloc(gTraceMemStat, mBuffers);
 	setPlayState(state);
 }

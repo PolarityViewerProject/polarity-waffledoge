@@ -61,7 +61,7 @@ void ThreadRecorder::init()
 
 	mNumTimeBlockTreeNodes = AccumulatorBuffer<TimeBlockAccumulator>::getDefaultBuffer()->size();
 
-	mTimeBlockTreeNodes = DBG_NEW TimeBlockTreeNode[mNumTimeBlockTreeNodes];
+	mTimeBlockTreeNodes = new TimeBlockTreeNode[mNumTimeBlockTreeNodes];
 
 	activate(&mThreadRecordingBuffers);
 
@@ -78,7 +78,7 @@ void ThreadRecorder::init()
 		it->getCurrentAccumulator().mParent = &root_time_block;
 	}
 
-	mRootTimer = DBG_NEW BlockTimer(root_time_block);
+	mRootTimer = new BlockTimer(root_time_block);
 	timer_stack->mActiveTimer = mRootTimer;
 
 	BlockTimer::getRootTimeBlock().getCurrentAccumulator().mActiveCount = 1;
@@ -139,7 +139,7 @@ TimeBlockTreeNode* ThreadRecorder::getTimeBlockTreeNode( S32 index )
 AccumulatorBufferGroup* ThreadRecorder::activate( AccumulatorBufferGroup* recording)
 {
 #if LL_TRACE_ENABLED
-	ActiveRecording* active_recording = DBG_NEW ActiveRecording(recording);
+	ActiveRecording* active_recording = new ActiveRecording(recording);
 	if (!mActiveRecordings.empty())
 	{
 		AccumulatorBufferGroup& prev_active_recording = mActiveRecordings.back()->mPartialRecording;

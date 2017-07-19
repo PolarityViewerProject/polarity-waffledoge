@@ -52,7 +52,7 @@ void ll_init_apr()
 
 	if(!LLAPRFile::sAPRFilePoolp)
 	{
-		LLAPRFile::sAPRFilePoolp = DBG_NEW LLVolatileAPRPool(FALSE) ;
+		LLAPRFile::sAPRFilePoolp = new LLVolatileAPRPool(FALSE) ;
 	}
 
 	gAPRInitialized = true;
@@ -68,9 +68,7 @@ void ll_cleanup_apr()
 {
 	gAPRInitialized = false;
 
-	//FIXME: chance of read access violation on _Tree_comp_alloc
-	// and a few other horrible things. - Xenhat
-	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL; 
+	LL_INFOS("APR") << "Cleaning up APR" << LL_ENDL;
 
 	if (gAPRPoolp)
 	{
@@ -152,7 +150,7 @@ LLVolatileAPRPool::LLVolatileAPRPool(BOOL is_local, apr_pool_t *parent, apr_size
 	//create mutex
 	if(!is_local) //not a local apr_pool, that is: shared by multiple threads.
 	{
-		mMutexp = DBG_NEW LLMutex();
+		mMutexp = new LLMutex();
 	}
 }
 

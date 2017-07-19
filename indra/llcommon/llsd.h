@@ -97,7 +97,7 @@
 
 		void method(const LLSD input) {
 		...
-		LLSD * xfer_tree = DBG_NEW LLSD();
+		LLSD * xfer_tree = new LLSD();
 		{
 			// Top-level values
 			(* xfer_tree)['label'] = "Some text";

@@ -217,7 +217,7 @@ namespace LLTrace
 			{
 				// this buffer is allowed to leak so that trace calls from global destructors have somewhere to put their data
 				// so as not to trigger an access violation
-				sDefaultBuffer = DBG_NEW AccumulatorBuffer(StaticAllocationMarker());
+				sDefaultBuffer = new AccumulatorBuffer(StaticAllocationMarker());
 				sInitialized = true;
 				sDefaultBuffer->resize(DEFAULT_ACCUMULATOR_BUFFER_SIZE);
 			}

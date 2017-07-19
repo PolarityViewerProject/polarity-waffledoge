@@ -131,7 +131,7 @@ private:
 	typedef T* pointer_t;
 	static LLPointer<LLTombStone>& getDefaultTombStone()
 	{
-		static LLPointer<LLTombStone> sDefaultTombStone = DBG_NEW LLTombStone;
+		static LLPointer<LLTombStone> sDefaultTombStone = new LLTombStone;
 		return sDefaultTombStone;
 	}
 };
@@ -167,7 +167,7 @@ public:
 			LLHandle<T>::mTombStone->setTarget(NULL);
 		}
 		// tombstone reference counted, so no paired delete
-		LLHandle<T>::mTombStone = DBG_NEW LLTombStone((void*)object);
+		LLHandle<T>::mTombStone = new LLTombStone((void*)object);
 	}
 
 	void unbind() 

@@ -85,7 +85,7 @@ LLCallStack::LLCallStack(S32 skip_count, bool verbose):
 {
     if (!s_impl)
     {
-        s_impl = DBG_NEW LLCallStackImpl;
+        s_impl = new LLCallStackImpl;
     }
     LLTimer t;
     s_impl->getStack(m_strings, m_skipCount, m_verbose);

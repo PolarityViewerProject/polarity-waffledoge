@@ -98,7 +98,7 @@ private:
 
 // This is a base class which any class with worker functions should derive from.
 // Example Usage:
-//  LLMyWorkerClass* foo = DBG_NEW LLMyWorkerClass();
+//  LLMyWorkerClass* foo = new LLMyWorkerClass();
 //  foo->fetchData(); // calls addWork()
 //  while(1) // main loop
 //  {

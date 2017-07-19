@@ -499,7 +499,7 @@ namespace LLError
 	void Settings::reset()
 	{
 		Globals::getInstance()->invalidateCallSites();
-		mSettingsConfig = DBG_NEW SettingsConfig();
+		mSettingsConfig = new SettingsConfig();
 	}
 
 	SettingsStoragePtr Settings::saveAndReset()
@@ -1394,8 +1394,8 @@ namespace LLError
    {
 	   if(sBuffer == NULL)
 	   {
-		   sBuffer = DBG_NEW char*[512] ;
-		   sBuffer[0] = DBG_NEW char[512 * 128] ;
+		   sBuffer = new char*[512] ;
+		   sBuffer[0] = new char[512 * 128] ;
 		   for(S32 i = 1 ; i < 512 ; i++)
 		   {
 			   sBuffer[i] = sBuffer[i-1] + 128 ;

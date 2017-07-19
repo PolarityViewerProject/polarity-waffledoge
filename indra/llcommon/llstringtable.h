@@ -124,7 +124,7 @@ public:
 			}
 		}
 		mTableSize = tablesize;
-		mStringList = DBG_NEW string_set_t[tablesize];
+		mStringList = new string_set_t[tablesize];
 	}
 	~LLStdStringTable()
 	{
@@ -163,7 +163,7 @@ public:
 		LLStdStringHandle result = lookup(hashval, s);
 		if (result == NULL)
 		{
-			result = DBG_NEW std::string(s);
+			result = new std::string(s);
 			mStringList[hashval].insert(result);
 		}
 		return result;

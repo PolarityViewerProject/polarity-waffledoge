@@ -74,12 +74,12 @@ void LLSDSerialize::serialize(const LLSD& sd, std::ostream& str, ELLSD_Serialize
 	{
 	case LLSD_BINARY:
 		str << "<? " << LLSD_BINARY_HEADER << " ?>\n";
-		f = DBG_NEW LLSDBinaryFormatter;
+		f = new LLSDBinaryFormatter;
 		break;
 
 	case LLSD_XML:
 		str << "<? " << LLSD_XML_HEADER << " ?>\n";
-		f = DBG_NEW LLSDXMLFormatter;
+		f = new LLSDXMLFormatter;
 		break;
 
 	default:
@@ -154,7 +154,7 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 	 */
 	if (legacy_no_header)
 	{	// Create a LLSD XML parser, and parse the first chunk read above
-		LLSDXMLParser* x = DBG_NEW LLSDXMLParser();
+		LLSDXMLParser* x = new LLSDXMLParser();
 		x->parsePart(hdr_buf, inbuf);	// Parse the first part that was already read
 		x->parseLines(str, sd);			// Parse the rest of it
 		delete x;
@@ -163,11 +163,11 @@ bool LLSDSerialize::deserialize(LLSD& sd, std::istream& str, S32 max_bytes)
 
 	if (header == LLSD_BINARY_HEADER)
 	{
-		p = DBG_NEW LLSDBinaryParser;
+		p = new LLSDBinaryParser;
 	}
 	else if (header == LLSD_XML_HEADER)
 	{
-		p = DBG_NEW LLSDXMLParser;
+		p = new LLSDXMLParser;
 	}
 	else
 	{
@@ -2142,7 +2142,7 @@ bool unzip_llsd(LLSD& data, std::istream& is, S32 size)
 		
 	const U32 CHUNK = 65536;
 
-	U8 *in = DBG_NEW U8[size];
+	U8 *in = new U8[size];
 	is.read((char*) in, size); 
 
 	U8 out[CHUNK];
@@ -2249,7 +2249,7 @@ U8* unzip_llsdNavMesh( bool& valid, unsigned int& outsize, std::istream& is, S32
 		
 	const U32 CHUNK = 0x4000;
 
-	U8 *in = DBG_NEW U8[size];
+	U8 *in = new U8[size];
 	is.read((char*) in, size); 
 
 	U8 out[CHUNK];

@@ -39,11 +39,11 @@
 LLWorkerThread::LLWorkerThread(const std::string& name, bool threaded, bool should_pause) :
 	LLQueuedThread(name, threaded, should_pause)
 {
-	mDeleteMutex = DBG_NEW LLMutex();
+	mDeleteMutex = new LLMutex();
 
 	if(!mLocalAPRFilePoolp)
 	{
-		mLocalAPRFilePoolp = DBG_NEW LLVolatileAPRPool() ;
+		mLocalAPRFilePoolp = new LLVolatileAPRPool() ;
 	}
 }
 
@@ -139,7 +139,7 @@ LLWorkerThread::handle_t LLWorkerThread::addWorkRequest(LLWorkerClass* workercla
 {
 	handle_t handle = generateHandle();
 	
-	WorkRequest* req = DBG_NEW WorkRequest(handle, priority, workerclass, param);
+	WorkRequest* req = new WorkRequest(handle, priority, workerclass, param);
 
 	bool res = addRequest(req);
 	if (!res)

@@ -143,7 +143,7 @@ private:
 
 void doOnIdleOneTime(nullary_func_t callable)
 {
-	OnIdleCallbackOneTime* cb_functor = DBG_NEW OnIdleCallbackOneTime(callable);
+	OnIdleCallbackOneTime* cb_functor = new OnIdleCallbackOneTime(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallbackOneTime::onIdle,cb_functor);
 }
 
@@ -178,7 +178,7 @@ private:
 
 void doOnIdleRepeating(bool_func_t callable)
 {
-	OnIdleCallbackRepeating* cb_functor = DBG_NEW OnIdleCallbackRepeating(callable);
+	OnIdleCallbackRepeating* cb_functor = new OnIdleCallbackRepeating(callable);
 	gIdleCallbacks.addFunction(&OnIdleCallbackRepeating::onIdle,cb_functor);
 }
 

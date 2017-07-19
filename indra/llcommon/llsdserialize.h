@@ -672,7 +672,7 @@ public:
 		std::ostream& str,
 		const LLSDOStreamer<Formatter>& formatter)
 	{
-		LLPointer<Formatter> f = DBG_NEW Formatter;
+		LLPointer<Formatter> f = new Formatter;
 		f->format(formatter.mSD, str, formatter.mOptions);
 		return str;
 	}
@@ -729,29 +729,29 @@ public:
 	 */
 	static S32 toNotation(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDNotationFormatter> f = DBG_NEW LLSDNotationFormatter;
+		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
 	static S32 toPrettyNotation(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDNotationFormatter> f = DBG_NEW LLSDNotationFormatter;
+		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
 	}
 	static S32 toPrettyBinaryNotation(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDNotationFormatter> f = DBG_NEW LLSDNotationFormatter;
+		LLPointer<LLSDNotationFormatter> f = new LLSDNotationFormatter;
 		return f->format(sd, str, 
 				LLSDFormatter::OPTIONS_PRETTY | 
 				LLSDFormatter::OPTIONS_PRETTY_BINARY);
 	}
 	static S32 fromNotation(LLSD& sd, std::istream& str, S32 max_bytes)
 	{
-		LLPointer<LLSDNotationParser> p = DBG_NEW LLSDNotationParser;
+		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
 		return p->parse(str, sd, max_bytes);
 	}
 	static LLSD fromNotation(std::istream& str, S32 max_bytes)
 	{
-		LLPointer<LLSDNotationParser> p = DBG_NEW LLSDNotationParser;
+		LLPointer<LLSDNotationParser> p = new LLSDNotationParser;
 		LLSD sd;
 		(void)p->parse(str, sd, max_bytes);
 		return sd;
@@ -762,12 +762,12 @@ public:
 	 */
 	static S32 toXML(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDXMLFormatter> f = DBG_NEW LLSDXMLFormatter;
+		LLPointer<LLSDXMLFormatter> f = new LLSDXMLFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
 	static S32 toPrettyXML(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDXMLFormatter> f = DBG_NEW LLSDXMLFormatter;
+		LLPointer<LLSDXMLFormatter> f = new LLSDXMLFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_PRETTY);
 	}
 
@@ -775,7 +775,7 @@ public:
 	{
 		// no need for max_bytes since xml formatting is not
 		// subvertable by bad sizes.
-		LLPointer<LLSDXMLParser> p = DBG_NEW LLSDXMLParser(emit_errors);
+		LLPointer<LLSDXMLParser> p = new LLSDXMLParser(emit_errors);
 		return p->parse(str, sd, LLSDSerialize::SIZE_UNLIMITED);
 	}
 	// Line oriented parser, 30% faster than fromXML(), but can
@@ -783,7 +783,7 @@ public:
 	// document available in the stream.
 	static S32 fromXMLDocument(LLSD& sd, std::istream& str, bool emit_errors=true)
 	{
-		LLPointer<LLSDXMLParser> p = DBG_NEW LLSDXMLParser(emit_errors);
+		LLPointer<LLSDXMLParser> p = new LLSDXMLParser(emit_errors);
 		return p->parseLines(str, sd);
 	}
 	static S32 fromXML(LLSD& sd, std::istream& str, bool emit_errors=true)
@@ -797,17 +797,17 @@ public:
 	 */
 	static S32 toBinary(const LLSD& sd, std::ostream& str)
 	{
-		LLPointer<LLSDBinaryFormatter> f = DBG_NEW LLSDBinaryFormatter;
+		LLPointer<LLSDBinaryFormatter> f = new LLSDBinaryFormatter;
 		return f->format(sd, str, LLSDFormatter::OPTIONS_NONE);
 	}
 	static S32 fromBinary(LLSD& sd, std::istream& str, S32 max_bytes)
 	{
-		LLPointer<LLSDBinaryParser> p = DBG_NEW LLSDBinaryParser;
+		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
 		return p->parse(str, sd, max_bytes);
 	}
 	static LLSD fromBinary(std::istream& str, S32 max_bytes)
 	{
-		LLPointer<LLSDBinaryParser> p = DBG_NEW LLSDBinaryParser;
+		LLPointer<LLSDBinaryParser> p = new LLSDBinaryParser;
 		LLSD sd;
 		(void)p->parse(str, sd, max_bytes);
 		return sd;
