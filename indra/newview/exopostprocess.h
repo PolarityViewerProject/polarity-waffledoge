@@ -67,7 +67,7 @@ public:
 	void ExodusRenderPostSettingsUpdate();
 	void ExodusGenerateLUT();
 
-	BOOL multisample;
+	// BOOL multisample;
 private:
 	LLVector2 etc1;
 	LLVector2 etc2;

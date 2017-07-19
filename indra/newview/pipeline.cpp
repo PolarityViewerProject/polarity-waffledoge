@@ -7386,9 +7386,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		// </Black Dragon:NiranV>
 
 		bool multisample = RenderFSAASamples > 1 && mFXAABuffer.isComplete();
-		// <Black Dragon:NiranV> Exodus post processing shaders
-		exoPostProcess::instance().multisample = multisample;
-		// </Black Dragon:NiranV>
 
 		gViewerWindow->setup3DViewport();
 				
