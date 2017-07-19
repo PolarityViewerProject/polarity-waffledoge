@@ -120,9 +120,6 @@
 #include "rlvlocks.h"
 // [/RLVa:KB]
 
-//BD - Exodus Post Process
-#include "exopostprocess.h"
-
 #include "llglmhelpers.h"
 
 #include <glm/vec3.hpp>
@@ -1381,9 +1378,6 @@ void LLPipeline::createGLBuffers()
 
 		createLUTBuffers();
 	}
-
-//	//BD - Exodus Post Process
-//	exoPostProcess::instance().ExodusGenerateLUT(); // Dead Code
 
 	gBumpImageList.restoreGL();
 }
@@ -7122,6 +7116,30 @@ void validate_framebuffer_object()
 //	
 //}
 
+// <polarity> Gaussian Blur
+// This function was adapted from Exodus' PostProcess
+void LLPipeline::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader)
+{
+	S32 channel = 0;
+	channel = shader->enableTexture(LLShaderMgr::PV_RENDER_SCREEN, tgt->getUsage());
+	if (channel > -1)
+	{
+		if (gPipeline.sRenderDeferred)
+		{
+			tgt->bindTexture(0, channel);
+			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
+		}
+		else
+		{
+			gGL.getTexUnit(channel)->activate();
+			gGL.getTexUnit(channel)->bind(tgt);
+			gGL.getTexUnit(0)->activate();
+		}
+	}
+	shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, tgt->getWidth(), tgt->getHeight());
+}
+// <polarity>
+
 static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
 void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
@@ -7178,10 +7196,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
 		
-	// <Black Dragon:NiranV> Exodus post processing shaders
-	//exoPostProcess::instance().ExodusRenderPostStack(&mScreen, &mScreen);
-	// </Black Dragon:NiranV>
-
 	// <polarity> Gaussian blur shader
 	if (LLPipeline::sRenderGaussian)
 	{
@@ -7205,7 +7219,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			mScreen.bindTarget();
 			shader->bind();
 			
-			exoShader::BindRenderTarget(&mScreen, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
 			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, vertical_dir);
 			
 			gGL.begin(LLRender::TRIANGLE_STRIP);
@@ -7226,7 +7240,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 			mScreen.bindTarget();
 			shader->bind();
 			
-			exoShader::BindRenderTarget(&mScreen, shader, LLShaderMgr::EXO_RENDER_SCREEN, 0);
+			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
 			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, horizontal_dir);
 			
 			gGL.begin(LLRender::TRIANGLE_STRIP);

@@ -106,17 +106,6 @@ include_directories(SYSTEM
     ${LLPHYSICSEXTENSIONS_INCLUDE_DIRS}
     )
 
-set(exodus_HEADER_FILES
-    exopostprocess.h
-    )
-set(exodus_SOURCE_FILES
-    exopostprocess.cpp
-    )
-source_group("Third Party/Exodus" FILES
-    ${exodus_HEADER_FILES}
-    ${exodus_SOURCE_FILES}
-    )
-
 set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
@@ -1443,14 +1432,12 @@ set(viewer_HEADER_FILES
 # These goes after the viewer files definition because some
 # of them need to go first, i.e ViewerInstall.cmake
 list(APPEND viewer_HEADER_FILES
-    ${exodus_HEADER_FILES}
     ${firestorm_HEADER_FILES}
     ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
 	${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
-    ${exodus_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
     ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}

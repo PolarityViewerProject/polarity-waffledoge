@@ -169,8 +169,8 @@ public:
 		DEFERRED_PROJECTION,
 		DEFERRED_NORM_MATRIX,
 
-		// <polarity> Exodus post-processing
-		EXO_RENDER_SCREEN,
+		// <polarity> Gaussian Blur
+		PV_RENDER_SCREEN,
 		// </polarity>
 
 		GLOBAL_GAMMA,

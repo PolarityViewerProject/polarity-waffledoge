@@ -38,9 +38,6 @@
 #include "llgl.h"
 #include "lldrawable.h"
 #include "llrendertarget.h"
-// <Black Dragon:NiranV> Exodus post processing shaders
-#include "exopostprocess.h"
-// </Black Dragon:NiranV>
 
 #include <stack>
 #include <glm/mat4x4.hpp>
@@ -138,6 +135,7 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
+	static void BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader); // <polarity/> Gaussian Blur
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -594,10 +592,6 @@ public:
 // [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
 	static bool				sRenderTextures;
 // [/SL:KB]
-
-//	//BD - Exodus Post Process
-	static BOOL             sExodusRenderShaderGamma;
-	static BOOL             sExodusRenderToneMapping;
 
 	static bool			sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
 

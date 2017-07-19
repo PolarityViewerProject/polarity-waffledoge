@@ -1274,7 +1274,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
 
-	// <polarity> Exodus post-processing
+	// <polarity> Gaussian Blur
 	mReservedUniforms.push_back("exo_screen");
 
 	mReservedUniforms.push_back("global_gamma");
