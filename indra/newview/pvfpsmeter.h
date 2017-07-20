@@ -50,7 +50,7 @@ public:
 	static bool start();
 	static bool stop();
 
-	static bool canRefresh();
+	static bool canUpdate();
 
 	static void preComputeFloorAndCeiling();
 
@@ -62,6 +62,8 @@ private:
 	static U32				mFPSNullZoneTargetLower;
 	static U32				mFPSNullZoneTarget;
 	static U32				mFPSNullZoneVSync;
+	static bool				mFPSDirty;
+	static std::string		sLastFPSMeterString;
 
 	static bool isCloseEnoughToTarget(const F32 value, const bool compare_with_refresh);
 };

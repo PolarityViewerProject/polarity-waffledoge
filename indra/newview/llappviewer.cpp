@@ -1510,21 +1510,17 @@ bool LLAppViewer::frame()
 			// logins, logouts and teleports take much longer to complete.
 			if (LLStartUp::getStartupState() == STATE_STARTED
 					&& !gTeleportDisplay
-					&& !logoutRequestSent())
+					&& !logoutRequestSent()
+					&& PVFPSMeter::update())
 			{
-				PVFPSMeter::update();
-				static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
-				if (fps_limiter_enabled)
+				// Sleep a while to limit frame rate.
+				static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+				F32 min_frame_time = 1.000f / (F32)fps_target;
+				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
+				if (milliseconds_to_sleep > 0)
 				{
-					// Sleep a while to limit frame rate.
-					static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-					F32 min_frame_time = 1.000f / (F32)fps_target;
-					S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
-					if (milliseconds_to_sleep > 0)
-					{
-						LL_RECORD_BLOCK_TIME(FTM_YIELD);
-						ms_sleep(milliseconds_to_sleep);
-					}
+					LL_RECORD_BLOCK_TIME(FTM_YIELD);
+					ms_sleep(milliseconds_to_sleep);
 				}
 			}
 			// </polarity> FPS Limiter

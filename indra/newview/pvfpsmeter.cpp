@@ -34,7 +34,6 @@
 #include "llwindowwin32.h"
 #include "llstatbar.h"
 
-constexpr F32 UPDATE_DELAY = 0.125f;
 constexpr U32 FRAME_NULL_ZONE = 1;
 
 static LLTrace::BlockTimerStatHandle FTM_PV_FPS_METER("!PVFPSMeter");
@@ -47,8 +46,10 @@ U32 PVFPSMeter::mFPSNullZoneTargetLower(0);
 U32 PVFPSMeter::mFPSNullZoneTarget(0);
 U32 PVFPSMeter::mFPSNullZoneVSync(0);
 F32 PVFPSMeter::mFPSMeterValue(0.f);
+bool PVFPSMeter::mFPSDirty(false);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
+std::string PVFPSMeter::sLastFPSMeterString("");
 
 bool PVFPSMeter::start()
 {
@@ -71,9 +72,11 @@ bool PVFPSMeter::stop()
 	return true;
 }
 
-bool PVFPSMeter::canRefresh()
+bool PVFPSMeter::canUpdate()
 {
-	return mStatusBarFPSCounterTimer.getElapsedTimeF32() >= UPDATE_DELAY;
+	llassert(mStatusBarFPSCounterTimer.getStarted());
+	mFPSDirty = (mStatusBarFPSCounterTimer.getElapsedTimeF32() > 1.f);
+	return mFPSDirty;
 }
 
 void PVFPSMeter::preComputeFloorAndCeiling()
@@ -101,22 +104,15 @@ bool PVFPSMeter::isCloseEnoughToTarget(const F32 value, const bool compare_with_
 bool PVFPSMeter::update()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER);
-	if (!mStatusBarFPSCounterTimer.getStarted())
-	{
-		//llassert(mStatusBarFPSCounterTimer.getStarted());
-		return false;
-	}
-
 	static LLCachedControl<bool> fps_limiter_enabled(gSavedSettings, "PVRender_FPSLimiterEnabled");
-	static LLCachedControl<U32> fps_limiter_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-
-	// TODO: boost callback instaid of cachedcontrol check?
-	static LLCachedControl<bool> fps_counter_visible(gSavedSettings, "PVUI_StatusBarShowFPSCounter");
-	if (fps_counter_visible)
+	if (canUpdate())
 	{
-		// Throttle a bit to avoid making faster FPS heavier to process
-		if (canRefresh())
-		{// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
+		static LLCachedControl<U32> fps_limiter_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+		// TODO: boost callback instaid of cachedcontrol check?
+		static LLCachedControl<bool> fps_counter_visible(gSavedSettings, "PVUI_StatusBarShowFPSCounter");
+		if (fps_counter_visible)
+		{
+			// Quick and Dirty FPS counter colors. Idea of NiranV Dean, from comments and leftover code in Nirans Viewer.
 			static auto color_fps_default = LLUIColorTable::instance().getColor("EmphasisColor");
 			static auto color_critical = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Critical", LLColor4::red);
 			static auto color_low = LLUIColorTable::instance().getColor("PVUI_FPSCounter_Low", LLColor4::orange);
@@ -184,21 +180,30 @@ bool PVFPSMeter::update()
 	}
 	return fps_limiter_enabled;
 }
+
+// Cap the amount of decimals we return
+const char * getAutomaticPrecision(const F32& fps_in)
+{
+	static const char * decimal_precision_0 = "%.0f";
+	static const char * decimal_precision_1 = "%.1f";
+	static const char * decimal_precision_2 = "%.2f";
+	if (fps_in > 100.f)
+	{
+		return decimal_precision_0;
+	}
+	if (fps_in > 10.f)
+	{
+		return decimal_precision_1;
+	}
+	return decimal_precision_2;
+}
+
 std::string PVFPSMeter::getValueWithRefreshRate()
 {
-	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER);
 	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER_GET_VAL);
-	// Cap the amount of decimals we return
-	auto decimal_precision = "%.2f";
-	if (mFPSMeterValue > 100.f)
+	if(mFPSDirty)
 	{
-		decimal_precision = "%.0f";
+		sLastFPSMeterString = (llformat(getAutomaticPrecision(mFPSMeterValue), mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
 	}
-	// else
-	if (mFPSMeterValue > 10.f)
-	{
-		decimal_precision = "%.1f ";
-	}
-	// else
-	return (llformat(decimal_precision, mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
+	return sLastFPSMeterString;
 }

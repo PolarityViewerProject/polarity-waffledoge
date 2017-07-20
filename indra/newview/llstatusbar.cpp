@@ -345,11 +345,8 @@ void LLStatusBar::refresh()
 	}
 	if (mStatusBarFPSCounter && mStatusBarFPSCounter->getVisible())
 	{
-		if (PVFPSMeter::canRefresh())
-		{
-			mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
-			mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
-		}
+		mStatusBarFPSCounter->setValue(PVFPSMeter::getValueWithRefreshRate());
+		mStatusBarFPSCounter->setColor(PVFPSMeter::getColor());
 	}
 }
 
