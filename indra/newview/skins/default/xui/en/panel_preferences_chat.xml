@@ -28,7 +28,7 @@
       name="ChatBehaviour" >
       <check_box
         control_name="PlayTypingAnim"
-        height="16"
+        height="18"
         initial_value="true"
         label="Send my typing status to others"
         layout="topleft"
@@ -40,21 +40,21 @@
       <check_box
         follows="left|top"
         control_name="UseChatBubbles"
-        height="16"
+        height="18"
         label="Show chat messages in name tag (Bubble Chat)"
         layout="topleft"
-        top_pad="4"
+        top_pad="0"
         name="bubble_text_chat"
         width="330">
       </check_box>
       <check_box
         enabled="false"
-        height="16"
+        height="18"
         label="Email me IMs when I'm offline"
         layout="topleft"
         left_delta="0"
         name="send_im_to_email"
-        top_pad="5"
+        top_pad="0"
         width="330">
       </check_box>
 
@@ -68,11 +68,11 @@
         layout="topleft"
         mouse_opaque="false"
         left="1"
-        name="status_bar_ribbon"
+        name="logging_ribbon"
         top_pad="5"
         width="515">
         <text
-          name="inventory_features_text"
+          name="logging_ribbon_text"
           follows="left|top"
           layout="topleft"
           top_pad="4"
