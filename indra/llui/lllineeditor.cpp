@@ -932,10 +932,6 @@ void LLLineEditor::removeChar()
 
 		setCursor(getCursor() - 1);
 	}
-	else
-	{
-		LLUI::reportBadKeystroke();
-	}
 }
 
 
@@ -1366,10 +1362,6 @@ BOOL LLLineEditor::handleSpecialKey(KEY key, MASK mask)
 			if( 0 < getCursor() )
 			{
 				removeChar();
-			}
-			else
-			{
-				LLUI::reportBadKeystroke();
 			}
 		}
 		handled = TRUE;
