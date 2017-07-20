@@ -2679,9 +2679,13 @@ void LLIMMgr::addMessage(
 		skip_message = !LLAvatarTracker::instance().isBuddy(other_participant_id);	// Skip non friends...
 		skip_message &= !(other_participant_id == gAgentID);	// You are your best friend... Don't skip yourself
 	}
-	
-	auto im_model_instance = LLIMModel::getInstance();
-	if(!hasSession(new_session_id))
+	bool new_session = !hasSession(new_session_id);
+	BOOL is_group_chat = FALSE;
+	if (!new_session && dialog != IM_NOTHING_SPECIAL)
+	{
+		is_group_chat = gAgent.isInGroup(new_session_id);
+	}
+	if(new_session)
 	{
 		LLAvatarName av_name;
 		if (LLAvatarNameCache::get(other_participant_id, &av_name) && !name_is_setted)
@@ -2689,18 +2693,10 @@ void LLIMMgr::addMessage(
 			fixed_session_name = av_name.getDisplayName();
 		}
 
-		//im_model_instance->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
-		LLIMModel::LLIMSession* session = nullptr;
+		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
-		for (auto tries = 0; tries < 5 && !session; tries++)
-		{
-			// cannot find session still, generate a new one.
-			//new_session_id = computeSessionID(dialog, other_participant_id);
-			im_model_instance->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
-			session = im_model_instance->findIMSession(new_session_id);
-		}
-		
-		if(!session)
+		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
+		if(session == NULL)
 		{
 			// still can't find session? Bail. This is a problem.
 			LL_WARNS() << "Failed to create IM session with " << other_participant_id << "(" << fixed_session_name << ")" << LL_ENDL;
@@ -2731,7 +2727,7 @@ void LLIMMgr::addMessage(
 			//<< "*** region_id: " << region_id << std::endl
 			//<< "*** position: " << position << std::endl;
 
-			im_model_instance->addMessage(new_session_id, from, other_participant_id, bonus_info.str());
+			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
 		}
 
 		// Logically it would make more sense to reject the session sooner, in another area of the
@@ -2748,7 +2744,6 @@ void LLIMMgr::addMessage(
 
 
 // <FS:PP> Option to automatically ignore and leave all conference (ad-hoc) chats
-        bool is_group_chat = false;
 		if (dialog != IM_NOTHING_SPECIAL)
 		{
 			is_group_chat = gAgent.isInGroup(new_session_id);
@@ -2783,7 +2778,7 @@ void LLIMMgr::addMessage(
 
 	if (!LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !skip_message)
 	{
-		im_model_instance->addMessage(new_session_id, from, other_participant_id, msg);
+		LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, msg);
 	}
 
 	// Open conversation floater if offline messages are present
