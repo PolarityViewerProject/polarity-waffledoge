@@ -4513,4 +4513,7 @@ Try enclosing path to the editor with double quotes.
   <string name="recompile_script_verb">Recompile</string>
   <string name="preproc_toggle_warning">Toggling the preprocessor will not take full effect until you close and reopen this editor.</string>
 
+<!-- FS:PP ignore Ad-Hock sessions -->
+  <string name="IgnoredAdHocSession">You've been invited to a conference (ad-hoc) chat, but viewer automatically ignored it because of your settings.</string>
+
 </strings>

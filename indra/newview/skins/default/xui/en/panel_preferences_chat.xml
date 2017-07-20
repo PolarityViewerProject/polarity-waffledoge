@@ -57,8 +57,59 @@
         top_pad="0"
         width="330">
       </check_box>
-
-
+      <!-- Privacy/Protection -->
+      <panel
+        follows="left|top|right"
+        height="22"
+        bg_visible="true"
+        bg_alpha_color="EmphasisColor_35"
+        layout="topleft"
+        mouse_opaque="false"
+        left="1"
+        name="privacy_ribbon"
+        top_pad="5"
+        width="515">
+        <text
+          name="privacy_ribbon_text"
+          follows="left|top"
+          layout="topleft"
+          top_pad="4"
+          left="5"
+          height="21"
+          width="300">
+          Privacy and Protection
+        </text>
+      </panel>
+      <check_box
+       layout="topleft"
+       follows="left|top"
+       top_pad="5"
+       width="30"
+       height="18"
+       name="PVChat_IgnoreAdHocEnabled"
+       control_name="PVChat_IgnoreAdHocEnabled"
+       label="Automatically ignore and leave all conference (ad-hoc) chats"/>
+      <check_box
+       layout="topleft"
+       follows="left|top"
+       left_delta="10"
+       enabled_control="PVChat_IgnoreAdHocEnabled"
+       top_pad="0"
+       width="30"
+       height="18"
+       name="PVChat_IgnoreAdHocReport"
+       control_name="PVChat_IgnoreAdHocReport"
+       label="Report ignored conference chats in nearby chat"/>
+      <check_box
+       layout="topleft"
+       follows="left|top"
+       enabled_control="PVChat_IgnoreAdHocEnabled"
+       top_pad="0"
+       width="30"
+       height="18"
+       name="PVChat_IgnoreAdHocAllowFromFriends"
+       control_name="PVChat_IgnoreAdHocAllowFromFriends"
+       label="Allow conference chats invitations from my friends"/>
       <!-- Log settings -->
       <panel
         follows="left|top|right"

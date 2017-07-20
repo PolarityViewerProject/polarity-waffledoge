@@ -71,6 +71,8 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
+#include "pvcommon.h"
+
 // [RLVa:KB] - Checked: 2013-05-10 (RLVa-1.4.9)
 #include "rlvactions.h"
 #include "rlvcommon.h"
@@ -2743,6 +2745,34 @@ void LLIMMgr::addMessage(
 			}
 			return;
 		}
+
+
+// <FS:PP> Option to automatically ignore and leave all conference (ad-hoc) chats
+        bool is_group_chat = false;
+		if (dialog != IM_NOTHING_SPECIAL)
+		{
+			is_group_chat = gAgent.isInGroup(new_session_id);
+		}
+		static LLCachedControl<bool> ignoreAdHocSessions(gSavedSettings, "PVChat_IgnoreAdHocEnabled");
+		if (dialog != IM_NOTHING_SPECIAL && !is_group_chat && ignoreAdHocSessions && !from_linden)
+		{
+			static LLCachedControl<bool> dontIgnoreAdHocFromFriends(gSavedSettings, "PVChat_IgnoreAdHocAllowFromFriends");
+			if (!dontIgnoreAdHocFromFriends || (dontIgnoreAdHocFromFriends && LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL))
+			{
+				static LLCachedControl<bool> reportIgnoredAdHocSession(gSavedSettings, "PVChat_IgnoreAdHocReport");
+				LL_INFOS() << "Ignoring conference (ad-hoc) chat from " << new_session_id.asString() << LL_ENDL;
+				if (!gIMMgr->leaveSession(new_session_id))
+				{
+					LL_WARNS() << "Ad-hoc session " << new_session_id.asString() << " does not exist." << LL_ENDL;
+				}
+				else if (reportIgnoredAdHocSession)
+				{
+					PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
+				}
+				return;
+			}
+		}
+		// </FS:PP>
 
         //Play sound for new conversations
 		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
