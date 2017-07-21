@@ -187,11 +187,11 @@ const char * getAutomaticPrecision(const F32& fps_in)
 	static const char * decimal_precision_0 = "%.0f";
 	static const char * decimal_precision_1 = "%.1f";
 	static const char * decimal_precision_2 = "%.2f";
-	if (fps_in > 100.f)
+	if (fps_in >= 100.f)
 	{
 		return decimal_precision_0;
 	}
-	if (fps_in > 10.f)
+	if (fps_in >= 10.f)
 	{
 		return decimal_precision_1;
 	}
