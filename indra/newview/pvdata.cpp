@@ -478,7 +478,7 @@ void PVDataOldAPI::addAgents(const LLSD& data_input)
 							// a value is required for the map to be considered valid but only the key is used.
 							// yes, this is kind of a hack.
 							// while at it, allow turning a flag off if the value is false
-							LL_INFOS() << flags_map_str << " : " << itr->first << "[" << itr->second << "]" << LL_ENDL;
+							LL_DEBUGS() << flags_map_str << " : " << itr->first << "[" << itr->second << "]" << LL_ENDL;
 							this_agent->flags = this_agent->flags | translateFlagsToBitSet(itr->first, itr->second);
 						}
 					}
