@@ -1349,9 +1349,7 @@ void LLAppViewer::checkMemory()
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MESSAGES("System Messages");
-static LLTrace::BlockTimerStatHandle FTM_SLEEP("Sleep");
-static LLTrace::BlockTimerStatHandle FTM_YIELD("Yield");
-
+static LLTrace::BlockTimerStatHandle FTM_YIELD("Background Yield");
 static LLTrace::BlockTimerStatHandle FTM_TEXTURE_CACHE("Texture Cache");
 static LLTrace::BlockTimerStatHandle FTM_DECODE("Image Decode");
 static LLTrace::BlockTimerStatHandle FTM_VFS("VFS Thread");
@@ -1501,46 +1499,39 @@ bool LLAppViewer::frame()
 
 		// Sleep and run background threads
 		{
-			LL_RECORD_BLOCK_TIME(FTM_SLEEP);
-			
-			// yield some time to the os based on command line option
-			//if(mYieldTime >= 0)
-			// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
-			// Only limit FPS when we are actually rendering something. Otherwise
-			// logins, logouts and teleports take much longer to complete.
-			if (LLStartUp::getStartupState() == STATE_STARTED
-					&& !gTeleportDisplay
-					&& !logoutRequestSent()
-					&& PVFPSMeter::update())
+			bool limiter_enabled = PVFPSMeter::update();
+			LL_RECORD_BLOCK_TIME(FTM_YIELD);
+			// Only limit FPS when we are actually rendering something. Otherwise logins, logouts
+			// and teleports take much longer to complete.
+			if(gViewerWindow && LLStartUp::getStartupState() == STATE_STARTED && !gTeleportDisplay && !logoutRequestSent())
 			{
-				// Sleep a while to limit frame rate.
-				static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-				F32 min_frame_time = 1.000f / (F32)fps_target;
-				S32 milliseconds_to_sleep = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0), 0, 1000);
-				if (milliseconds_to_sleep > 0)
+				S32 sleep_time = 0;
+				if(!gViewerWindow->getWindow()->getVisible() || !gFocusMgr.getAppHasFocus()) // Not visible or not focused
 				{
-					LL_RECORD_BLOCK_TIME(FTM_YIELD);
-					ms_sleep(milliseconds_to_sleep);
+					static LLCachedControl<bool> pause_background_threads(gSavedSettings, "BackgroundYieldPausesThreads",true, "Pause worker threads when yielding");
+					if(pause_background_threads)
+					{
+						// also pause worker threads during this wait period
+						LLAppViewer::getTextureCache()->pause();
+						LLAppViewer::getImageDecodeThread()->pause();
+					}
+					sleep_time = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 5000); // <polarity> Increase max yield time to 5 seconds
+					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
+					if(sleep_time > 0)
+					{
+						ms_sleep(sleep_time);
+					}
 				}
-			}
-			// </polarity> FPS Limiter
-
-			// yield cooperatively when not running as foreground window
-			if (   (gViewerWindow && !gViewerWindow->getWindow()->getVisible())
-					|| !gFocusMgr.getAppHasFocus())
-			{
-				// Sleep if we're not rendering, or the window is minimized.
-				S32 milliseconds_to_sleep = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 1000);
-				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads
-				// of equal priority on Windows
-				if (milliseconds_to_sleep > 0)
+				// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
+				if(limiter_enabled)
 				{
-					ms_sleep(milliseconds_to_sleep);
-					// also pause worker threads during this wait period
-					LLAppViewer::getTextureCache()->pause();
-					LLAppViewer::getImageDecodeThread()->pause();
+					static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+					F32 min_frame_time = 1.000f / (F32)fps_target;
+					ms_sleep((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0));
 				}
+				// </polarity> FPS Limiter
 			}
+			// End of Sleep
 			
 			if (mRandomizeFramerate)
 			{
