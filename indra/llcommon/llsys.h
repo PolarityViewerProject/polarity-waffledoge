@@ -76,7 +76,6 @@ public:
 
 	std::string getCPUString() const;
 
-	bool hasAltivec() const;
 	bool hasSSE() const;
 	bool hasSSE2() const;
 	F64 getMHz() const;
@@ -87,7 +86,6 @@ public:
 private:
 	bool mHasSSE;
 	bool mHasSSE2;
-	bool mHasAltivec;
 	F64 mCPUMHz;
 	std::string mFamily;
 	std::string mCPUString;
@@ -114,11 +112,6 @@ public:
 
 	U32Kilobytes getPhysicalMemoryKB() const; 
 	
-	/*! Memory size in bytes, if total memory is >= 4GB then U32_MAX will
-	**  be returned.
-	*/
-	U32Bytes getPhysicalMemoryClamped() const; ///< Memory size in clamped bytes
-
 	//get the available memory infomation in KiloBytes.
 	static void getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb);
 

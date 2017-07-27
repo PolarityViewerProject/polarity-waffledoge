@@ -27,17 +27,22 @@
  */
 
 #include "linden_common.h"
-#include "llwindowheadless.h"
+
+#include "llwindow.h"
 
 #if LL_MESA_HEADLESS
 #include "llwindowmesaheadless.h"
 #elif LL_SDL
 #include "llwindowsdl.h"
+#elif LL_SDL2
+#include "llwindowsdl2.h"
 #elif LL_WINDOWS
 #include "llwindowwin32.h"
 #elif LL_DARWIN
 #include "llwindowmacosx.h"
 #endif
+
+#include "llwindowheadless.h"
 
 #include "llerror.h"
 #include "llkeyboard.h"
@@ -47,8 +52,12 @@
 //
 // Globals
 //
+LLSplashScreen *gSplashScreenp = nullptr;
 BOOL gDebugClicks = FALSE;
 BOOL gDebugWindowProc = FALSE;
+#ifdef LL_DARWIN
+BOOL gUseMultGL = TRUE;
+#endif
 
 const S32 gURLProtocolWhitelistCount = 5;
 const std::string gURLProtocolWhitelist[] = { "secondlife:", "http:", "https:", "data:", "mailto:" };
@@ -63,19 +72,34 @@ const std::string gURLProtocolWhitelist[] = { "secondlife:", "http:", "https:", 
 
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 {
+	// Properly hide the splash screen when displaying the message box
+	BOOL was_visible = FALSE;
+	if (LLSplashScreen::isVisible())
+	{
+		was_visible = TRUE;
+		LLSplashScreen::hide();
+	}
+
 	S32 result = 0;
 #if LL_MESA_HEADLESS // !!! *FIX: (?)
 	LL_WARNS() << "OSMessageBox: " << text << LL_ENDL;
 	return OSBTN_OK;
+#elif LL_SDL2
+	result = OSMessageBoxSDL2(text, caption, type);
+#elif LL_SDL
+	result = OSMessageBoxSDL(text, caption, type);
 #elif LL_WINDOWS
 	result = OSMessageBoxWin32(text, caption, type);
 #elif LL_DARWIN
 	result = OSMessageBoxMacOSX(text, caption, type);
-#elif LL_SDL
-	result = OSMessageBoxSDL(text, caption, type);
 #else
 #error("OSMessageBox not implemented for this platform!")
 #endif
+
+	if (was_visible)
+	{
+		LLSplashScreen::show();
+	}
 
 	return result;
 }
@@ -85,27 +109,27 @@ S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type)
 // LLWindow
 //
 
-LLWindow::LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags)
+LLWindow::LLWindow(LLWindowCallbacks* callbacks, U32 window_mode, U32 flags)
 	: mCallbacks(callbacks),
 	  mPostQuit(TRUE),
-	  mFullscreen(fullscreen),
+	  mWindowMode(window_mode),
 	  mFullscreenWidth(0),
 	  mFullscreenHeight(0),
 	  mFullscreenBits(0),
 	  mFullscreenRefresh(0),
-	  mSupportedResolutions(NULL),
+	  mSupportedResolutions(nullptr),
 	  mNumSupportedResolutions(0),
 	  mCurrentCursor(UI_CURSOR_ARROW),
 	  mNextCursor(UI_CURSOR_ARROW),
 	  mCursorHidden(FALSE),
 	  mBusyCount(0),
 	  mIsMouseClipping(FALSE),
-	  mMinWindowWidth(0),
-	  mMinWindowHeight(0),
 	  mSwapMethod(SWAP_METHOD_UNDEFINED),
 	  mHideCursorPermanent(FALSE),
 	  mFlags(flags),
-	  mHighSurrogate(0)
+	  mHighSurrogate(0),
+      mMinWindowWidth(0),
+      mMinWindowHeight(0)
 {
 }
 
@@ -240,12 +264,14 @@ BOOL LLWindow::copyTextToPrimary(const LLWString &src)
 // static
 std::vector<std::string> LLWindow::getDynamicFallbackFontList()
 {
-#if LL_WINDOWS
+#if LL_SDL2
+	return LLWindowSDL2::getDynamicFallbackFontList();
+#elif LL_SDL
+	return LLWindowSDL::getDynamicFallbackFontList();
+#elif LL_WINDOWS
 	return LLWindowWin32::getDynamicFallbackFontList();
 #elif LL_DARWIN
 	return LLWindowMacOSX::getDynamicFallbackFontList();
-#elif LL_SDL
-	return LLWindowSDL::getDynamicFallbackFontList();
 #else
 	return std::vector<std::string>();
 #endif
@@ -299,6 +325,67 @@ void LLWindow::handleUnicodeUTF16(U16 utf16, MASK mask)
 }
 
 //
+// LLSplashScreen
+//
+
+// static
+bool LLSplashScreen::isVisible()
+{
+	return gSplashScreenp ? true: false;
+}
+
+// static
+LLSplashScreen *LLSplashScreen::create()
+{
+#if LL_MESA_HEADLESS || LL_SDL // !!! *FIX: (?)
+	return 0;
+#elif LL_SDL2
+	return new LLSplashScreenSDL2;
+#elif LL_WINDOWS
+	return new LLSplashScreenWin32;
+#elif LL_DARWIN
+	return new LLSplashScreenMacOSX;
+#else
+#error("LLSplashScreen not implemented on this platform!")
+#endif
+}
+
+
+//static
+void LLSplashScreen::show()
+{
+	if (!gSplashScreenp)
+	{
+		gSplashScreenp = LLSplashScreen::create();
+		if (gSplashScreenp)
+		{
+			gSplashScreenp->showImpl();
+		}
+	}
+}
+
+//static
+void LLSplashScreen::update(const std::string& str)
+{
+	LLSplashScreen::show();
+	if (gSplashScreenp)
+	{
+		gSplashScreenp->updateImpl(str);
+	}
+}
+
+//static
+void LLSplashScreen::hide()
+{
+	if (gSplashScreenp)
+	{
+		gSplashScreenp->hideImpl();
+	}
+	delete gSplashScreenp;
+	gSplashScreenp = nullptr;
+}
+
+//
 // LLWindowManager
 //
 
@@ -308,9 +395,9 @@ static std::set<LLWindow*> sWindowList;
 LLWindow* LLWindowManager::createWindow(
 	LLWindowCallbacks* callbacks,
 	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
-	BOOL fullscreen, 
+	U32 window_mode,
 	BOOL clearBg,
-	EVSyncSetting vsync_setting,
+	U32 vsync_setting/*= E_VSYNC_DISABLED*/,
 	BOOL use_gl,
 	BOOL ignore_pixel_depth,
 	U32 fsaa_samples)
@@ -322,33 +409,37 @@ LLWindow* LLWindowManager::createWindow(
 #if LL_MESA_HEADLESS
 		new_window = new LLWindowMesaHeadless(callbacks,
 			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth);
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth);
 #elif LL_SDL
 		new_window = new LLWindowSDL(callbacks,
 			title, x, y, width, height, flags, 
-			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth, fsaa_samples);
+#elif LL_SDL2
+		new_window = new LLWindowSDL2(callbacks,
+			title, name, x, y, width, height, flags,
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_WINDOWS
 		new_window = new LLWindowWin32(callbacks,
 			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, vsync_setting, use_gl, ignore_pixel_depth, fsaa_samples);
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth, fsaa_samples);
 #elif LL_DARWIN
 		new_window = new LLWindowMacOSX(callbacks,
 			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, disable_vsync, use_gl, ignore_pixel_depth, fsaa_samples);
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth, fsaa_samples);
 #endif
 	}
 	else
 	{
 		new_window = new LLWindowHeadless(callbacks,
 			title, name, x, y, width, height, flags, 
-			fullscreen, clearBg, vsync_setting, use_gl, ignore_pixel_depth);
+			window_mode, clearBg, vsync_setting, use_gl, ignore_pixel_depth);
 	}
 
 	if (FALSE == new_window->isValid())
 	{
 		delete new_window;
 		LL_WARNS() << "LLWindowManager::create() : Error creating window." << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 	sWindowList.insert(new_window);
 	return new_window;

@@ -1,4 +1,4 @@
-project(SLPlugin)
+project(PolarityPlugin)
 
 include(00-Common)
 include(LLCommon)
@@ -22,69 +22,65 @@ if (DARWIN)
 endif (DARWIN)
 
 
-### SLPlugin
+### PolarityPlugin
 
-set(SLPlugin_SOURCE_FILES
+set(PolarityPlugin_SOURCE_FILES
     slplugin.cpp
     )
 
 if (DARWIN)
-  list(APPEND SLPlugin_SOURCE_FILES
+  list(APPEND PolarityPlugin_SOURCE_FILES
     slplugin-objc.mm
   )
-  list(APPEND SLPlugin_HEADER_FILES
+  list(APPEND PolarityPlugin_HEADER_FILES
     slplugin-objc.h
   )
 endif (DARWIN)
 
-set_source_files_properties(${SLPlugin_HEADER_FILES}
+set_source_files_properties(${PolarityPlugin_HEADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
-if (SLPlugin_HEADER_FILES)
-  list(APPEND SLPlugin_SOURCE_FILES ${SLPlugin_HEADER_FILES})
-endif (SLPlugin_HEADER_FILES)
+if (PolarityPlugin_HEADER_FILES)
+  list(APPEND PolarityPlugin_SOURCE_FILES ${PolarityPlugin_HEADER_FILES})
+endif (PolarityPlugin_HEADER_FILES)
 
 if (WINDOWS)
-  if (SANDY_FIX)
-    set(manifest_file "compatibility_sandy.manifest")
-  else (SANDY_FIX)
-    set(manifest_file "compatibility.manifest")
-  endif (SANDY_FIX)
-  list(APPEND SLPlugin_SOURCE_FILES ${CMAKE_SOURCE_DIR}/tools/manifests/${manifest_file})
+  list(APPEND PolarityPlugin_SOURCE_FILES ${CMAKE_SOURCE_DIR}/tools/manifests/compatibility.manifest)
 endif (WINDOWS)
 
-add_executable(SLPlugin
+add_executable(PolarityPlugin
     WIN32
     MACOSX_BUNDLE
-    ${SLPlugin_SOURCE_FILES}
+    ${PolarityPlugin_SOURCE_FILES}
 )
 
-target_link_libraries(SLPlugin
+target_link_libraries(PolarityPlugin
   ${LLPLUGIN_LIBRARIES}
   ${LLMESSAGE_LIBRARIES}
   ${LLCOMMON_LIBRARIES}
   ${PLUGIN_API_WINDOWS_LIBRARIES}
   ${PTHREAD_LIBRARY}
 )
+if (WINDOWS)
+  target_link_libraries(PolarityPlugin wer)
+elseif (DARWIN)
+  target_link_libraries(PolarityPlugin ${COCOA_LIBRARY})
 
-if (DARWIN)
-  target_link_libraries(SLPlugin ${COCOA_LIBRARY})
-
-  set_target_properties(SLPlugin
+  set_target_properties(PolarityPlugin
     PROPERTIES
     MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/slplugin_info.plist
     )
 
   # Make sure the app bundle has a Resources directory (it will get populated by viewer-manifest.py later)
   add_custom_command(
-    TARGET SLPlugin POST_BUILD
+    TARGET PolarityPlugin POST_BUILD
     COMMAND mkdir
     ARGS
       -p
-      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/SLPlugin.app/Contents/Resources
+      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/PolarityPlugin.app/Contents/Resources
   )
-endif (DARWIN)
+endif (WINDOWS)
 
 if (LL_TESTS)
-  #ll_deploy_sharedlibs_command(SLPlugin)
+  #ll_deploy_sharedlibs_command(PolarityPlugin)
 endif (LL_TESTS)

@@ -69,23 +69,23 @@ namespace LLInitParam
 		mMergeFunc(merge_func),
 		mDeserializeFunc(deserialize_func),
 		mSerializeFunc(serialize_func),
+        mInspectFunc(inspect_func),
 		mValidationFunc(validation_func),
-		mInspectFunc(inspect_func),
 		mMinCount(min_count),
 		mMaxCount(max_count),
-		mUserData(NULL)
+		mUserData(nullptr)
 	{}
 
 	ParamDescriptor::ParamDescriptor()
 	:	mParamHandle(0),
-		mMergeFunc(NULL),
-		mDeserializeFunc(NULL),
-		mSerializeFunc(NULL),
-		mValidationFunc(NULL),
-		mInspectFunc(NULL),
+		mMergeFunc(nullptr),
+		mDeserializeFunc(nullptr),
+		mSerializeFunc(nullptr),
+        mInspectFunc(nullptr),
+		mValidationFunc(nullptr),
 		mMinCount(0),
 		mMaxCount(0),
-		mUserData(NULL)
+		mUserData(nullptr)
 	{}
 
 	ParamDescriptor::~ParamDescriptor()
@@ -155,7 +155,7 @@ namespace LLInitParam
 	BlockDescriptor::BlockDescriptor()
 	:	mMaxParamOffset(0),
 		mInitializationState(UNINITIALIZED),
-		mCurrentBlockPtr(NULL)
+		mCurrentBlockPtr(nullptr)
 	{}
 
 	// called by each derived class in least to most derived order
@@ -217,17 +217,11 @@ namespace LLInitParam
 		for (BlockDescriptor::param_validation_list_t::const_iterator it = block_data.mValidationList.begin(); it != block_data.mValidationList.end(); ++it)
 		{
 			const Param* param = getParamFromHandle(it->first);
-			
 			if (!it->second(param))
 			{
 				if (emit_errors)
 				{
-					auto param_name = getParamName(block_data, param);
-					// Workaround for spam, doesn't fix the param name resolution problem
-					if(!param_name.empty())
-					{
-						LL_WARNS() << "line " << param->getEnclosingBlockOffset() << ": Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
-					}
+					LL_WARNS() << "Invalid param \"" << getParamName(block_data, param) << "\"" << LL_ENDL;
 				}
 				return false;
 			}

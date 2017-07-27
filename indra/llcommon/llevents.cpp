@@ -43,9 +43,9 @@
 #include <algorithm>
 // std headers
 #include <typeinfo>
-#include <cmath>
 #include <cctype>
 // external library headers
+#include <boost/dcoroutine/exception.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -286,11 +286,13 @@ LLEventPump::LLEventPump(const std::string& name, bool tweak):
 
 LLEventPump::~LLEventPump()
 {
-    // Unregister this doomed instance from LLEventPumps
-	if (this != nullptr && LLEventPumps::instanceExists())
-	{
-		LLEventPumps::instance().unregister(*this);
-	}
+    // Unregister this doomed instance from LLEventPumps -- but only if
+    // LLEventPumps is still around!
+    LLEventPumps* registry = mRegistry.get();
+    if (registry)
+    {
+        registry->unregister(*this);
+    }
 }
 
 // static data member
@@ -521,7 +523,15 @@ bool LLEventStream::post(const LLSD& event)
     // Let caller know if any one listener handled the event. This is mostly
     // useful when using LLEventStream as a listener for an upstream
     // LLEventPump.
-    return (*signal)(event);
+	try
+	{
+		return (*signal)(event);
+	}
+	catch (const boost::dcoroutines::abnormal_exit& e)
+	{
+		LL_WARNS() << "Event coroutine exception: " << e.what() << LL_ENDL;
+		return false;
+	}
 }
 
 /*****************************************************************************

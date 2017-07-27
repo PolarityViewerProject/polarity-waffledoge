@@ -34,6 +34,8 @@
 #include "v4color.h"
 #include "llui.h"
 
+#include "lllineeditor.h"
+
 class LLCheckBoxCtrl;
 class LLSD;
 class LLUIImage;
@@ -78,8 +80,8 @@ public:
 			tool_tip("tool_tip", ""),
 			font("font", LLFontGL::getFontSansSerifSmall()),
 			font_color("font_color", LLColor4::black),
-			color("color", LLColor4::white),
-			font_halign("halign", LLFontGL::LEFT)
+			font_halign("halign", LLFontGL::LEFT),
+			color("color", LLColor4::white)
 		{
 			addSynonym(column, "name");
 			addSynonym(font_color, "font-color");
@@ -120,7 +122,7 @@ class LLScrollListSpacer : public LLScrollListCell
 public:
 	LLScrollListSpacer(const LLScrollListCell::Params& p) : LLScrollListCell(p) {}
 	/*virtual*/ ~LLScrollListSpacer() {};
-	/*virtual*/ void			draw(const LLColor4& color, const LLColor4& highlight_color) const {}
+	/*virtual*/ void			draw(const LLColor4& color, const LLColor4& highlight_color) const override {}
 };
 
 /*
@@ -132,22 +134,24 @@ public:
 	LLScrollListText(const LLScrollListCell::Params&);
 	/*virtual*/ ~LLScrollListText();
 
-	/*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color) const;
-	/*virtual*/ S32		getContentWidth() const;
-	/*virtual*/ S32		getHeight() const;
-	/*virtual*/ void	setValue(const LLSD& value);
-	/*virtual*/ const LLSD getValue() const;
-	/*virtual*/ BOOL	getVisible() const;
-	/*virtual*/ void	highlightText(S32 offset, S32 num_chars);
+	/*virtual*/ void    draw(const LLColor4& color, const LLColor4& highlight_color) const override;
+	/*virtual*/ S32		getContentWidth() const override;
+	/*virtual*/ S32		getHeight() const override;
+	/*virtual*/ void	setValue(const LLSD& value) override;
+	/*virtual*/ const LLSD getValue() const override;
+	/*virtual*/ BOOL	getVisible() const override;
+	/*virtual*/ void	highlightText(S32 offset, S32 num_chars) override;
 
-	/*virtual*/ void	setColor(const LLColor4&);
-	/*virtual*/ BOOL	isText() const;
-	/*virtual*/ const std::string &	getToolTip() const;
-	/*virtual*/ BOOL	needsToolTip() const;
+	/*virtual*/ void	setColor(const LLColor4&) override;
+	/*virtual*/ BOOL	isText() const override;
+	/*virtual*/ const std::string &	getToolTip() const override;
+	/*virtual*/ BOOL	needsToolTip() const override;
 
 	S32				getTextWidth() const { return mTextWidth;}
-	void			setTextWidth(S32 value) { mTextWidth = value;} 
-	virtual void	setWidth(S32 width) { LLScrollListCell::setWidth(width); mTextWidth = width; }
+	void			setTextWidth(S32 value) { mTextWidth = value;}
+
+	void	setWidth(S32 width) override
+	{ LLScrollListCell::setWidth(width); mTextWidth = width; }
 
 	void			setText(const LLStringExplicit& text);
 	void			setFontStyle(const U8 font_style);
@@ -176,17 +180,23 @@ class LLScrollListIcon : public LLScrollListCell
 public:
 	LLScrollListIcon(const LLScrollListCell::Params& p);
 	/*virtual*/ ~LLScrollListIcon();
-	/*virtual*/ void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
-	/*virtual*/ S32		getWidth() const;
-	/*virtual*/ S32		getHeight() const;
-	/*virtual*/ const LLSD		getValue() const;
-	/*virtual*/ void	setColor(const LLColor4&);
-	/*virtual*/ void	setValue(const LLSD& value);
+	/*virtual*/ void	draw(const LLColor4& color, const LLColor4& highlight_color) const override;
+	/*virtual*/ S32		getWidth() const override;
+	/*virtual*/ S32		getHeight() const override;
+	/*virtual*/ const LLSD		getValue() const override;
+	/*virtual*/ void	setColor(const LLColor4&) override;
+	/*virtual*/ void	setValue(const LLSD& value) override;
+
+	void setClickCallback(BOOL (*callback)(void*), void* user_data);
+	BOOL handleClick() override;
 
 private:
 	LLPointer<LLUIImage>	mIcon;
 	LLColor4				mColor;
 	LLFontGL::HAlign		mAlignment;
+
+	BOOL (*mCallback)(void*);
+	void* mUserData;
 };
 
 /*
@@ -197,14 +207,14 @@ class LLScrollListCheck : public LLScrollListCell
 public:
 	LLScrollListCheck( const LLScrollListCell::Params&);
 	/*virtual*/ ~LLScrollListCheck();
-	/*virtual*/ void	draw(const LLColor4& color, const LLColor4& highlight_color) const;
-	/*virtual*/ S32		getHeight() const			{ return 0; } 
-	/*virtual*/ const LLSD	getValue() const;
-	/*virtual*/ void	setValue(const LLSD& value);
-	/*virtual*/ void	onCommit();
+	/*virtual*/ void	draw(const LLColor4& color, const LLColor4& highlight_color) const override;
+	/*virtual*/ S32		getHeight() const override { return 0; } 
+	/*virtual*/ const LLSD	getValue() const override;
+	/*virtual*/ void	setValue(const LLSD& value) override;
+	/*virtual*/ void	onCommit() override;
 
-	/*virtual*/ BOOL	handleClick();
-	/*virtual*/ void	setEnabled(BOOL enable);
+	/*virtual*/ BOOL	handleClick() override;
+	/*virtual*/ void	setEnabled(BOOL enable) override;
 
 	LLCheckBoxCtrl*	getCheckBox()				{ return mCheckBox; }
 
@@ -216,11 +226,33 @@ class LLScrollListDate : public LLScrollListText
 {
 public:
 	LLScrollListDate( const LLScrollListCell::Params& p );
-	virtual void	setValue(const LLSD& value);
-	virtual const LLSD getValue() const;
+	void	setValue(const LLSD& value) override;
+	const LLSD getValue() const override;
 
 private:
 	LLDate		mDate;
+};
+
+class LLScrollListLineEditor : public LLScrollListCell
+{
+public:
+	LLScrollListLineEditor( const LLScrollListCell::Params&);
+	/*virtual*/ ~LLScrollListLineEditor();
+	void	draw(const LLColor4& color, const LLColor4& highlight_color) const override;
+	S32		getHeight() const override { return 0; }
+	const LLSD	getValue() const override { return mLineEditor->getValue(); }
+	void	setValue(const LLSD& value) override { mLineEditor->setValue(value); }
+	void	onCommit() override { mLineEditor->onCommit(); }
+	BOOL	handleClick() override;
+	virtual BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	virtual BOOL	handleUnicodeCharHere(llwchar uni_char );
+	void	setEnabled(BOOL enable) override { mLineEditor->setEnabled(enable); }
+
+	LLLineEditor*	getLineEditor()				{ return mLineEditor; }
+	BOOL	isText() const override { return FALSE; }
+
+private:
+	LLLineEditor* mLineEditor;
 };
 
 #endif

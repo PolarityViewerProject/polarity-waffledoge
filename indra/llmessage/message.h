@@ -292,14 +292,20 @@ public:
 
 
 	// methods for building, sending, receiving, and handling messages
-	void	setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL);
-	void	setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = NULL)
+	void	setHandlerFuncFast(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = nullptr);
+	void	setHandlerFunc(const char *name, void (*handler_func)(LLMessageSystem *msgsystem, void **user_data), void **user_data = nullptr)
 	{
 		setHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_func, user_data);
 	}
 
+	void addHandlerFuncFast(const char *name, std::function<void (LLMessageSystem *msgsystem)> handler_slot);
+	void addHandlerFunc(const char *name, std::function<void (LLMessageSystem *msgsystem)> handler_slot)
+	{
+		addHandlerFuncFast(LLMessageStringTable::getInstance()->getString(name), handler_slot);
+	}
+
 	// Set a callback function for a message system exception.
-	void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = NULL);
+	void setExceptionFunc(EMessageException exception, msg_exception_callback func, void* data = nullptr);
 	// Call the specified exception func, and return TRUE if a
 	// function was found and called. Otherwise return FALSE.
 	BOOL callExceptionFunc(EMessageException exception);
@@ -308,7 +314,7 @@ public:
 	// hashed message name and the time spent in the processing handler function
 	// measured in seconds.  JC
 	typedef void (*msg_timing_callback)(const char* hashed_name, F32 time, void* data);
-	void setTimingFunc(msg_timing_callback func, void* data = NULL);
+	void setTimingFunc(msg_timing_callback func, void* data = nullptr);
 	msg_timing_callback getTimingCallback() 
 	{ 
 		return mTimingCallback; 
@@ -326,7 +332,7 @@ public:
 	bool addCircuitCode(U32 code, const LLUUID& session_id);
 
 	BOOL	poll(F32 seconds); // Number of seconds that we want to block waiting for data, returns if data was received
-	BOOL	checkMessages( S64 frame_count = 0 );
+	BOOL	checkMessages( S64 frame_count = 0, bool faked_message = false, U8 fake_buffer[MAX_BUFFER_SIZE] = nullptr, LLHost fake_host = LLHost(), S32 fake_size = 0 );
 	void	processAcks(F32 collect_time = 0.f);
 
 	BOOL	isMessageFast(const char *msg);
@@ -365,7 +371,7 @@ public:
 public:
 	LLStoredMessagePtr getReceivedMessage() const; 
 	LLStoredMessagePtr getBuiltMessage() const;
-	S32 sendMessage(const LLHost &host, LLStoredMessagePtr message);
+	S32 sendMessage(const LLHost &host, LLStoredMessagePtr message) override;
 
 private:
 	LLSD getReceivedMessageLLSD() const;
@@ -440,8 +446,8 @@ public:
 	// you need to go to the next block type or need to start a new
 	// message. Specify the current blockname to check block counts,
 	// otherwise the method only checks against MTU.
-	BOOL isSendFull(const char* blockname = NULL);
-	BOOL isSendFullFast(const char* blockname = NULL);
+	BOOL isSendFull(const char* blockname = nullptr);
+	BOOL isSendFullFast(const char* blockname = nullptr);
 
 	BOOL removeLastBlock();
 
@@ -570,6 +576,7 @@ public:
 	void getCircuitInfo(LLSD& info) const;
 
 	U32 getOurCircuitCode();
+	LLCircuit* getCircuit();
 	
 	void	enableCircuit(const LLHost &host, BOOL trusted);
 	void	disableCircuit(const LLHost &host);
@@ -758,12 +765,11 @@ private:
 	void		logValidMsg(LLCircuitData *cdp, const LLHost& sender, BOOL recv_reliable, BOOL recv_resent, BOOL recv_acks );
 	void		logRanOffEndOfPacket( const LLHost& sender );
 
-	class LLMessageCountInfo
+	struct LLMessageCountInfo
 	{
-	public:
-		U32 mMessageNum;
-		U32 mMessageBytes;
-		BOOL mInvalid;
+		U32 mMessageNum = 0;
+		U32 mMessageBytes = 0;
+		bool mInvalid = false;
 	};
 
 	LLMessagePollInfo						*mPollInfop;
@@ -779,7 +785,7 @@ private:
 
 	F64Seconds										mResendDumpTime; // The last time we dumped resends
 
-	LLMessageCountInfo mMessageCountList[MAX_MESSAGE_COUNT_NUM];
+	std::array<LLMessageCountInfo, MAX_MESSAGE_COUNT_NUM> mMessageCountList;
 	S32 mNumMessageCounts;
 	F32Seconds mReceiveTime;
 	F32Seconds mMaxMessageTime; // Max number of seconds for processing messages

@@ -103,7 +103,7 @@ public:
 	// Used by the mechanics of the engine
 	//virtual void processQueue(const LLUUID &sound_guid);
 	virtual void setListener(const LLVector3& pos, const LLVector3& vel, const LLVector3& up, const LLVector3& at);
-	virtual void updateWind(LLVector3 direction) = 0;
+	virtual void updateWind(LLVector3 direction, F32 camera_height_above_water) = 0;
 	virtual void idle(F32 max_decode_time = 0.f);
 	virtual void updateChannels();
 
@@ -176,9 +176,6 @@ public:
 
 	bool updateBufferForData(LLAudioData *adp, const LLUUID &audio_uuid = LLUUID::null);
 
- 
-	// <FS:Ansariel> Asset blacklisting
-	void removeAudioData(const LLUUID& audio_uuid);
 
 	// Asset callback when we're retrieved a sound from the asset server.
 	void startNextTransfer();
@@ -252,22 +249,6 @@ protected:
 private:
 	void setDefaults();
 	LLStreamingAudioInterface *mStreamingAudioImpl;
-
-	// <FS:ND> Protect against corrupted sounds
-
-	std::map<LLUUID,U32> mCorruptData;
-
-public:
-	void markSoundCorrupt( LLUUID const & );
-	bool isCorruptSound( LLUUID const& ) const;
-
-	// </FS:ND>
-
-public:
-	static bool missingAudioWarnedAlready_;
-
-public:
-	inline static bool isInstanceMissing();
 };
 
 

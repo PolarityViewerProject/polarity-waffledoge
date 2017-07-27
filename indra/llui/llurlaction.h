@@ -28,7 +28,7 @@
 #ifndef LL_LLURLACTION_H
 #define LL_LLURLACTION_H
 
-#include <boost/function.hpp>
+#include <functional>
 
 ///
 /// The LLUrlAction class provides a number of static functions that
@@ -73,9 +73,6 @@ public:
 	/// copy a Url to the clipboard
 	static void copyURLToClipboard(std::string url);
 
-	/// copy the UUID for an URL to the clipboard
-	static void copyUUIDToClipboard(std::string url);
-
 	/// if the Url specifies an SL command in the form like 'app/{cmd}/{id}/*', show its profile
 	static void showProfile(std::string url);
 	static std::string getUserID(std::string url);
@@ -88,8 +85,8 @@ public:
 	static void unblockObject(std::string url);
 
 	/// specify the callbacks to enable this class's functionality
-	typedef boost::function<void (const std::string&)> url_callback_t;
-	typedef boost::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
+	typedef std::function<void (const std::string&)> url_callback_t;
+	typedef std::function<bool(const std::string& url, bool trusted_content)> execute_url_callback_t;
 
 	static void	setOpenURLCallback(url_callback_t cb);
 	static void	setOpenURLInternalCallback(url_callback_t cb);

@@ -81,16 +81,20 @@ bool LL_COMMON_API ll_apr_is_initialized();
 //
 //LL apr_pool
 //manage apr_pool_t, destroy allocated apr_pool in the destruction function.
+//
 class LL_COMMON_API LLAPRPool
 {
 public:
-	LLAPRPool(apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE) ;
+	LLAPRPool(apr_pool_t *parent = nullptr, apr_size_t size = 0, BOOL releasePoolFlag = TRUE) ;
 	virtual ~LLAPRPool() ;
+
 	virtual apr_pool_t* getAPRPool() ;
 	apr_status_t getStatus() {return mStatus ; }
+
 protected:
 	void releaseAPRPool() ;
 	void createAPRPool() ;
+
 protected:
 	apr_pool_t*  mPool ;              //pointing to an apr_pool
 	apr_pool_t*  mParent ;			  //parent pool
@@ -98,6 +102,7 @@ protected:
 	apr_status_t mStatus ;            //status when creating the pool
 	BOOL         mReleasePoolFlag ;   //if set, mPool is destroyed when LLAPRPool is deleted. default value is true.
 };
+
 //
 //volatile LL apr_pool
 //which clears memory automatically.
@@ -106,10 +111,10 @@ protected:
 class LL_COMMON_API LLVolatileAPRPool : public LLAPRPool
 {
 public:
-	LLVolatileAPRPool(BOOL is_local = TRUE, apr_pool_t *parent = NULL, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
+	LLVolatileAPRPool(BOOL is_local = TRUE, apr_pool_t *parent = nullptr, apr_size_t size = 0, BOOL releasePoolFlag = TRUE);
 	virtual ~LLVolatileAPRPool();
 
-	/*virtual*/ apr_pool_t* getAPRPool() ; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
+	/*virtual*/ apr_pool_t* getAPRPool() override; //define this virtual function to avoid any mistakenly calling LLAPRPool::getAPRPool().
 	apr_pool_t* getVolatileAPRPool() ;	
 	void        clearVolatileAPRPool() ;
 
@@ -155,23 +160,23 @@ private:
 
 public:
 	LLAPRFile() ;
-	LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL);
+	LLAPRFile(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = nullptr);
 	~LLAPRFile() ;
 	
 	LLAPRFile(const LLAPRFile&) = delete;
 	LLAPRFile& operator=(const LLAPRFile&) = delete;
 	
-	apr_status_t open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = NULL, S32* sizep = NULL);
+	apr_status_t open(const std::string& filename, apr_int32_t flags, LLVolatileAPRPool* pool = nullptr, apr_off_t* sizep = nullptr);
 	apr_status_t open(const std::string& filename, apr_int32_t flags, BOOL use_global_pool); //use gAPRPoolp.
 	apr_status_t close() ;
 
 	// Returns actual offset, -1 if seek fails
-	S32 seek(apr_seek_where_t where, S32 offset);
+	apr_off_t seek(apr_seek_where_t where, apr_off_t offset);
 	apr_status_t eof() { return apr_file_eof(mFile);}
 
 	// Returns bytes read/written, 0 if read/write fails:
-	S32 read(void* buf, S32 nbytes);
-	S32 write(const void* buf, S32 nbytes);
+	apr_size_t read(void* buf, apr_size_t nbytes);
+	apr_size_t write(const void* buf, apr_size_t nbytes);
 	
 	apr_file_t* getFileHandle() {return mFile;}	
 
@@ -188,19 +193,19 @@ public:
 private:
 	static apr_file_t* open(const std::string& filename, LLVolatileAPRPool* pool, apr_int32_t flags);
 	static apr_status_t close(apr_file_t* file, LLVolatileAPRPool* pool) ;
-	static S32 seek(apr_file_t* file, apr_seek_where_t where, S32 offset);
+	static apr_off_t seek(apr_file_t* file, apr_seek_where_t where, apr_off_t offset);
 public:
 	// returns false if failure:
-	static bool remove(const std::string& filename, LLVolatileAPRPool* pool = NULL);
-	static bool rename(const std::string& filename, const std::string& newname, LLVolatileAPRPool* pool = NULL);
-	static bool isExist(const std::string& filename, LLVolatileAPRPool* pool = NULL, apr_int32_t flags = APR_READ);
-	static S32 size(const std::string& filename, LLVolatileAPRPool* pool = NULL);
-	static bool makeDir(const std::string& dirname, LLVolatileAPRPool* pool = NULL);
-	static bool removeDir(const std::string& dirname, LLVolatileAPRPool* pool = NULL);
+	static bool remove(const std::string& filename, LLVolatileAPRPool* pool = nullptr);
+	static bool rename(const std::string& filename, const std::string& newname, LLVolatileAPRPool* pool = nullptr);
+	static bool isExist(const std::string& filename, LLVolatileAPRPool* pool = nullptr, apr_int32_t flags = APR_READ);
+	static apr_off_t size(const std::string& filename, LLVolatileAPRPool* pool = nullptr);
+	static bool makeDir(const std::string& dirname, LLVolatileAPRPool* pool = nullptr);
+	static bool removeDir(const std::string& dirname, LLVolatileAPRPool* pool = nullptr);
 
 	// Returns bytes read/written, 0 if read/write fails:
-	static S32 readEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL);	
-	static S32 writeEx(const std::string& filename, void *buf, S32 offset, S32 nbytes, LLVolatileAPRPool* pool = NULL); // offset<0 means append
+	static apr_size_t readEx(const std::string& filename, void *buf, apr_off_t offset, apr_size_t nbytes, LLVolatileAPRPool* pool = nullptr);
+	static apr_size_t writeEx(const std::string& filename, void *buf, apr_off_t offset, apr_size_t nbytes, LLVolatileAPRPool* pool = nullptr); // offset<0 means append
 //*******************************************************************************************************************************
 };
 

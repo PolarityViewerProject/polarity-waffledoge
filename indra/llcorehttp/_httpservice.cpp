@@ -28,9 +28,6 @@
 
 #include "_httpservice.h"
 
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
-
 #include "_httpoperation.h"
 #include "_httprequestqueue.h"
 #include "_httppolicy.h"
@@ -66,15 +63,15 @@ const HttpService::OptionDescriptor HttpService::sOptionDesc[] =
 	{	true,		true,		false,		true,		false	},		// PO_THROTTLE_RATE
 	{   false,		false,		true,		false,		true	}		// PO_SSL_VERIFY_CALLBACK
 };
-HttpService * HttpService::sInstance(NULL);
+HttpService * HttpService::sInstance(nullptr);
 volatile HttpService::EState HttpService::sState(NOT_INITIALIZED);
 
 HttpService::HttpService()
-	: mRequestQueue(NULL),
+	: mRequestQueue(nullptr),
 	  mExitRequested(0U),
-	  mThread(NULL),
-	  mPolicy(NULL),
-	  mTransport(NULL),
+	  mThread(nullptr),
+	  mPolicy(nullptr),
+	  mTransport(nullptr),
 	  mLastPolicy(0)
 {}
 
@@ -101,6 +98,7 @@ HttpService::~HttpService()
 				// Try to join for a tenth of a second
 				if (mThread->timedJoin(100))
 				{
+					LL_INFOS() << "Successfully joined thread: HttpThread" << LL_ENDL;
 					joined = true;
 					break;
 				}
@@ -122,19 +120,19 @@ HttpService::~HttpService()
 	if (mRequestQueue)
 	{
 		mRequestQueue->release();
-		mRequestQueue = NULL;
+		mRequestQueue = nullptr;
 	}
 
 	delete mTransport;
-	mTransport = NULL;
+	mTransport = nullptr;
 	
 	delete mPolicy;
-	mPolicy = NULL;
+	mPolicy = nullptr;
 
 	if (mThread)
 	{
 		mThread->release();
-		mThread = NULL;
+		mThread = nullptr;
 	}
 }
 	
@@ -173,7 +171,7 @@ void HttpService::term()
 		}
 
 		delete sInstance;
-		sInstance = NULL;
+		sInstance = nullptr;
 	}
 	sState = NOT_INITIALIZED;
 }
@@ -218,7 +216,7 @@ void HttpService::startThread()
 	mPolicy->start();
 	mTransport->start(mLastPolicy + 1);
 
-	mThread = new LLCoreInt::HttpThread(boost::bind(&HttpService::threadRun, this, _1));
+	mThread = new LLCoreInt::HttpThread(std::bind(&HttpService::threadRun, this, std::placeholders::_1));
 	sState = RUNNING;
 }
 

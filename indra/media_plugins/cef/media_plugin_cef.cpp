@@ -53,7 +53,7 @@ public:
 	~MediaPluginCEF();
 
 	/*virtual*/
-	void receiveMessage(const char* message_string);
+	void receiveMessage(const char* message_string) override;
 
 private:
 	bool init();
@@ -119,7 +119,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mWidth = 0;
 	mHeight = 0;
 	mDepth = 4;
-	mPixels = 0;
+	mPixels = nullptr;
 	mEnableMediaPluginDebugging = false;
 	mHostLanguage = "en";
 	mCookiesEnabled = true;
@@ -138,7 +138,7 @@ MediaPluginBase(host_send_func, host_user_data)
 	mPickedFile = "";
 	mLLCEFLib = new LLCEFLib();
 
-	mPopupBuffer = NULL;
+	mPopupBuffer = nullptr;
 	mPopupW = 0;
 	mPopupH = 0;
 	mPopupX = 0;
@@ -175,7 +175,7 @@ void MediaPluginCEF::onPageChangedCallback(unsigned char* pixels, int x, int y, 
 	if( is_popup )
 	{
 		delete mPopupBuffer;
-		mPopupBuffer = NULL;
+		mPopupBuffer = nullptr;
 		mPopupH = 0;
 		mPopupW = 0;
 		mPopupX = 0;
@@ -478,7 +478,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				{
 					if (mPixels == iter->second.mAddress)
 					{
-						mPixels = NULL;
+						mPixels = nullptr;
 						mTextureSegmentName.clear();
 					}
 					mSharedSegments.erase(iter);
@@ -518,9 +518,7 @@ void MediaPluginCEF::receiveMessage(const char* message_string)
 				LLCEFLib::LLCEFLibSettings settings;
 				settings.initial_width = 1024;
 				settings.initial_height = 1024;
-#if !LL_LINUX
 				settings.page_zoom_factor = message_in.getValueReal("factor");
-#endif
 				settings.plugins_enabled = mPluginsEnabled;
 				settings.media_stream_enabled = false; // MAINT-6060 - WebRTC media removed until we can add granualrity/query UI
 				settings.javascript_enabled = mJavascriptEnabled;

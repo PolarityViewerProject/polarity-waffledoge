@@ -52,7 +52,7 @@ typedef unsigned __int64		U64;
 #else
 typedef long long int			S64;
 typedef long long unsigned int		U64;
-#if LL_DARWIN || LL_LINUX || LL_SOLARIS
+#if LL_DARWIN || LL_LINUX
 #define S64L(a)				(a##LL)
 #define U64L(a)				(a##ULL)
 #endif
@@ -61,7 +61,7 @@ typedef long long unsigned int		U64;
 typedef float				F32;
 typedef double				F64;
 
-typedef S32				BOOL; //-V677
+typedef S32				BOOL;
 typedef U8				KEY;
 typedef U32				MASK;
 typedef U32             		TPACKETID;
@@ -101,9 +101,5 @@ typedef U32             		TPACKETID;
 typedef U8 LLPCode;
 
 #define	LL_ARRAY_SIZE( _kArray ) ( sizeof( (_kArray) ) / sizeof( _kArray[0] ) )
-
-#if LL_LINUX && __GNUC__ <= 2
-typedef int intptr_t;
-#endif
 
 #endif

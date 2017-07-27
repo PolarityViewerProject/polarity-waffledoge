@@ -87,9 +87,7 @@
 #include "llrefcount.h"
 #include "llsdparam.h"
 
-#if(LL_TESTS)
 #include "llnotificationslistener.h"
-#endif
 
 class LLAvatarName;
 typedef enum e_notification_priority
@@ -332,26 +330,26 @@ public:
 		Params()
 		:	name("name"),
 			id("id"),
+			substitutions("substitutions"),
+			form_elements("form"),
+			payload("payload"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
 			time_stamp("time"),
-			payload("payload"),
-			form_elements("form"),
-			substitutions("substitutions"),
 			expiry("expiry"),
 			offer_from_agent("offer_from_agent", false),
             is_dnd("is_dnd", false)
 		{
 			time_stamp = LLDate::now();
-			responder = NULL;
+			responder = nullptr;
 		}
 
 		Params(const std::string& _name) 
 		:	name("name"),
+			substitutions("substitutions"),
+			form_elements("form"),
+			payload("payload"),
 			priority("priority", NOTIFICATION_PRIORITY_UNSPECIFIED),
 			time_stamp("time"),
-			payload("payload"),
-			form_elements("form"),
-			substitutions("substitutions"),
 			expiry("expiry"),
 			offer_from_agent("offer_from_agent", false),
             is_dnd("is_dnd", false)
@@ -359,7 +357,7 @@ public:
 			functor.name = _name;
 			name = _name;
 			time_stamp = LLDate::now();
-			responder = NULL;
+			responder = nullptr;
 		}
 	};
 
@@ -522,10 +520,6 @@ public:
 	{
 		return mTimestamp;
 	}
-
-// [SL:KB] - Patch: UI-Notifications | Checked: 2011-04-11 (Catznip-2.5.0a) | Added: Catznip-2.5.0a
-	bool hasLabel() const;
-// [/SL:KB]
 
 	bool getOfferFromAgent() const
 	{
@@ -730,8 +724,8 @@ class LLNotificationChannelBase :
 	LOG_CLASS(LLNotificationChannelBase);
 public:
 	LLNotificationChannelBase(LLNotificationFilter filter) 
-	:	mFilter(filter), 
-		mItems() 
+	:	mItems(), 
+		mFilter(filter) 
 	{}
 	virtual ~LLNotificationChannelBase() {}
 	// you can also connect to a Channel, so you can be notified of
@@ -814,7 +808,7 @@ typedef boost::intrusive_ptr<LLNotificationChannel> LLNotificationChannelPtr;
 // manages a list of notifications
 // Note that if this is ever copied around, we might find ourselves with multiple copies
 // of a queue with notifications being added to different nonequivalent copies. So we 
-// make it inherit from boost::noncopyable, and then create a map of LLPointer to manage it.
+// make it noncopyable, and then create a map of LLPointer to manage it.
 //
 class LLNotificationChannel :
 	public LLNotificationChannelBase,
@@ -917,7 +911,7 @@ public:
 	/* virtual */ LLNotificationPtr add(const std::string& name, 
 						const LLSD& substitutions, 
 						const LLSD& payload, 
-						LLNotificationFunctorRegistry::ResponseFunctor functor);
+						LLNotificationFunctorRegistry::ResponseFunctor functor) override;
 	LLNotificationPtr add(const LLNotification::Params& p);
 
 	void add(const LLNotificationPtr pNotif);
@@ -964,7 +958,7 @@ public:
 	bool isVisibleByRules(LLNotificationPtr pNotification);
 	
 private:
-	/*virtual*/ void initSingleton();
+	/*virtual*/ void initSingleton() override;
 	
 	void loadPersistentNotifications();
 
@@ -989,9 +983,7 @@ private:
 
 	bool mIgnoreAllNotifications;
 
-#if(LL_TESTS)
 	boost::scoped_ptr<LLNotificationsListener> mListener;
-#endif
 
 	std::vector<LLNotificationChannelPtr> mDefaultChannels;
 };
@@ -1109,7 +1101,7 @@ private:
 		return handle_notification;
 	}
 
-	void onAdd(LLNotificationPtr p) 
+	void onAdd(LLNotificationPtr p) override
 	{
 		mHistory.push_back(p);
 	}

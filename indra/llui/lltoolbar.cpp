@@ -29,7 +29,6 @@
 
 #include "linden_common.h"
 
-#include <boost/foreach.hpp>
 #include "lltoolbar.h"
 
 #include "llcommandmanager.h"
@@ -77,20 +76,18 @@ namespace LLInitParam
 		declare("right",	SIDE_RIGHT);
 		declare("top",		SIDE_TOP);
 	}
-
-	void TypeValues<AlignmentType>::declareValues()
+	
+	void TypeValues<LayoutType>::declareValues()
 	{
-		declare("topleft", ALIGN_TOP_LEFT);
-		declare("center", ALIGN_CENTER);
-		declare("bottomright", ALIGN_BOTTOM_RIGHT);
+		declare("none",		LAYOUT_NONE);
+		declare("fill",		LAYOUT_FILL);
 	}
 }
 
 LLToolBar::Params::Params()
 :	button_display_mode("button_display_mode"),
-	commands("command"),
 	side("side", SIDE_TOP),
-	button_alignment("button_alignment", ALIGN_CENTER),
+	button_layout_mode("button_layout_mode", LLToolBarEnums::LAYOUT_NONE),
 	button_icon("button_icon"),
 	button_icon_small("button_icon_small"),
 	button_icon_and_text("button_icon_and_text"),
@@ -103,40 +100,43 @@ LLToolBar::Params::Params()
 	pad_bottom("pad_bottom"),
 	pad_between("pad_between"),
 	min_girth("min_girth"),
+	commands("command"),
 	button_panel("button_panel")
 {}
 
 LLToolBar::LLToolBar(const LLToolBar::Params& p)
 :	LLUICtrl(p),
 	mReadOnly(p.read_only),
-	mButtonType(p.button_display_mode),
-	mButtonAlignment(p.button_alignment),
 	mSideType(p.side),
 	mWrap(p.wrap),
-	mNeedsLayout(false),
-	mModified(false),
-	mLeftTopPanel(NULL),
-	mButtonPanel(NULL),
-	mCenteringStack(NULL),
-	mRightBottomPanel(NULL),
 	mPadLeft(p.pad_left),
 	mPadRight(p.pad_right),
 	mPadTop(p.pad_top),
 	mPadBottom(p.pad_bottom),
 	mPadBetween(p.pad_between),
 	mMinGirth(p.min_girth),
-	mPopupMenuHandle(),
-	mRightMouseTargetButton(NULL),
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
 	mHandleDropCallback(NULL),
+	mDragAndDropTarget(false),
+	mDragRank(0),
+	mDragx(0),
+	mDragy(0),
+	mDragGirth(0),
+	mButtonType(p.button_display_mode),
+	mLayoutType(p.button_layout_mode),
+	mCenteringStack(nullptr),
+	mCenterPanel(nullptr),
+	mButtonPanel(nullptr),
+	mPopupMenuHandle(),
+	mRightMouseTargetButton(nullptr),
+	mNeedsLayout(false),
+	mModified(false),
 	mButtonAddSignal(NULL),
 	mButtonEnterSignal(NULL),
 	mButtonLeaveSignal(NULL),
 	mButtonRemoveSignal(NULL),
-	mDragAndDropTarget(false),
-	mCaretIcon(NULL),
-	mCenterPanel(NULL)
+	mCaretIcon(nullptr)
 {
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_WITH_TEXT] = p.button_icon_and_text;
 	mButtonParams[LLToolBarEnums::BTNTYPE_ICONS_ONLY] = p.button_icon;
@@ -160,16 +160,18 @@ void LLToolBar::createContextMenu()
 		// Setup bindings specific to this instance for the context menu options
 
 		LLUICtrl::CommitCallbackRegistry::ScopedRegistrar commit_reg;
-		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onSettingEnable, this, _2));
+		commit_reg.add("Toolbars.EnableSetting", boost::bind(&LLToolBar::onButtonTypeChanged, this, _2));
+		commit_reg.add("Toolbars.ChangeLayout", boost::bind(&LLToolBar::onLayoutChanged, this, _2));
 		commit_reg.add("Toolbars.RemoveSelectedCommand", boost::bind(&LLToolBar::onRemoveSelectedCommand, this));
 
 		LLUICtrl::EnableCallbackRegistry::ScopedRegistrar enable_reg;
-		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isSettingChecked, this, _2));
-
+		enable_reg.add("Toolbars.CheckSetting", boost::bind(&LLToolBar::isButtonTypeChecked, this, _2));
+		enable_reg.add("Toolbars.CheckLayout", boost::bind(&LLToolBar::isLayoutChecked, this, _2));
+		enable_reg.add("Toolbars.CheckOrientation", boost::bind(&LLToolBar::checkOrientation, this, _2));
+		
 		// Create the context menu
 		llassert(LLMenuGL::sMenuContainer != NULL);
-		std::string toolbar_menu = (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL) ? "menu_toolbars_horizontal.xml" : "menu_toolbars_vertical.xml";
-		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>(toolbar_menu, LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
+		LLContextMenu* menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_toolbars.xml", LLMenuGL::sMenuContainer, LLMenuHolderGL::child_registry_t::instance());
 
 		if (menu)
 		{
@@ -208,14 +210,13 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	addChild(mCenteringStack);
 	
 	LLLayoutPanel::Params border_panel_p;
-	border_panel_p.name = "border_panel_top_left";
+	border_panel_p.name = "border_panel";
 	border_panel_p.rect = getLocalRect();
 	border_panel_p.auto_resize = true;
 	border_panel_p.user_resize = false;
 	border_panel_p.mouse_opaque = false;
 	
-	mLeftTopPanel = LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p);
-	mCenteringStack->addChild(mLeftTopPanel);
+	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
 	LLLayoutPanel::Params center_panel_p;
 	center_panel_p.name = "center_panel";
@@ -233,13 +234,9 @@ void LLToolBar::initFromParams(const LLToolBar::Params& p)
 	mCenterPanel->setButtonPanel(mButtonPanel);
 	mCenterPanel->addChild(mButtonPanel);
 	
-	border_panel_p.name = "border_panel_bottom_right";
-	mRightBottomPanel = LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p);
-	mCenteringStack->addChild(mRightBottomPanel);
+	mCenteringStack->addChild(LLUICtrlFactory::create<LLLayoutPanel>(border_panel_p));
 
-	setButtonAlignment(p.button_alignment);
-
-	BOOST_FOREACH(LLCommandId id, p.commands)
+	for (LLCommandId id : p.commands)
 	{
 		addCommand(id);
 	}
@@ -419,7 +416,7 @@ bool LLToolBar::flashCommand(const LLCommandId& commandId, bool flash, bool forc
 		if (it != mButtonMap.end())
 		{
 			command_button = it->second;
-			command_button->setFlashing((BOOL)(flash),(BOOL)(force_flashing));
+			command_button->setFlashing(flash, force_flashing);
 		}
 	}
 
@@ -437,7 +434,7 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 		// Determine which button the mouse was over during the click in case the context menu action
 		// is intended to affect the button.
 		mRightMouseTargetButton = NULL;
-		BOOST_FOREACH(LLToolBarButton* button, mButtons)
+		for (LLToolBarButton* button : mButtons)
 		{
 			LLRect button_rect;
 			button->localRectToOtherView(button->getLocalRect(), &button_rect, this);
@@ -464,7 +461,7 @@ BOOL LLToolBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 	return handle_it_here;
 }
 
-BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
+BOOL LLToolBar::isButtonTypeChecked(const LLSD& userdata)
 {
 	BOOL retval = FALSE;
 
@@ -486,23 +483,11 @@ BOOL LLToolBar::isSettingChecked(const LLSD& userdata)
 	{
 		retval = (mButtonType == BTNTYPE_TEXT_ONLY);
 	}
-	else if (setting_name == "align_top_left")
-	{
-		retval = (mButtonAlignment == ALIGN_TOP_LEFT);
-	}
-	else if (setting_name == "align_center")
-	{
-		retval = (mButtonAlignment == ALIGN_CENTER);
-	}
-	else if (setting_name == "align_bottom_right")
-	{
-		retval = (mButtonAlignment == ALIGN_BOTTOM_RIGHT);
-	}
 
 	return retval;
 }
 
-void LLToolBar::onSettingEnable(const LLSD& userdata)
+void LLToolBar::onButtonTypeChanged(const LLSD& userdata)
 {
 	llassert(!mReadOnly);
 
@@ -524,17 +509,56 @@ void LLToolBar::onSettingEnable(const LLSD& userdata)
 	{
 		setButtonType(BTNTYPE_TEXT_ONLY);
 	}
-	else if (setting_name == "align_top_left")
+}
+
+BOOL LLToolBar::isLayoutChecked(const LLSD& userdata)
+{
+	BOOL retval = FALSE;
+	
+	const std::string& layout_name = userdata.asString();
+	
+	if (layout_name == "fill")
 	{
-		setButtonAlignment(LLToolBarEnums::ALIGN_TOP_LEFT);
+		retval = (mLayoutType == LAYOUT_FILL);
 	}
-	else if (setting_name == "align_center")
+	else if (layout_name == "none")
 	{
-		setButtonAlignment(LLToolBarEnums::ALIGN_CENTER);
+		retval = (mLayoutType == LAYOUT_NONE);
 	}
-	else if (setting_name == "align_bottom_right")
+	
+	return retval;
+}
+
+BOOL LLToolBar::checkOrientation(const LLSD& userdata) const
+{
+	switch (getOrientation(mSideType))
 	{
-		setButtonAlignment(LLToolBarEnums::ALIGN_BOTTOM_RIGHT);
+		case LLLayoutStack::HORIZONTAL:
+			return userdata.asString() == "horizontal";
+		case LLLayoutStack::VERTICAL:
+			return userdata.asString() == "vertical";
+		default:
+			return FALSE;
+	}
+}
+
+void LLToolBar::onLayoutChanged(const LLSD& userdata)
+{
+	llassert(!mReadOnly);
+	
+	const std::string& layout_name = userdata.asString();
+	
+	if (layout_name == "fill")
+	{
+		setLayoutType(LAYOUT_FILL);
+	}
+	else if (layout_name == "none")
+	{
+		setLayoutType(LAYOUT_NONE);
+	}
+	else
+	{
+		LL_WARNS("Toolbar") << "Unrecognized layout '" << layout_name << "'" << LL_ENDL;
 	}
 }
 
@@ -562,20 +586,16 @@ void LLToolBar::setButtonType(LLToolBarEnums::ButtonType button_type)
 	}
 }
 
-void LLToolBar::setButtonAlignment(LLToolBarEnums::AlignmentType button_align)
+void LLToolBar::setLayoutType(LLToolBarEnums::LayoutType layout_type)
 {
-	mButtonAlignment = button_align;
-
-	mLeftTopPanel->setVisible(LLToolBarEnums::ALIGN_CENTER == button_align || LLToolBarEnums::ALIGN_BOTTOM_RIGHT == button_align);
-	mRightBottomPanel->setVisible(LLToolBarEnums::ALIGN_CENTER == button_align || LLToolBarEnums::ALIGN_TOP_LEFT == button_align);
-
+	mLayoutType = layout_type;
 	mNeedsLayout = true;
 }
 
 void LLToolBar::resizeButtonsInRow(std::vector<LLToolBarButton*>& buttons_in_row, S32 max_row_girth)
 {
 	// make buttons in current row all same girth
-	BOOST_FOREACH(LLToolBarButton* button, buttons_in_row)
+	for (LLToolBarButton* button : buttons_in_row)
 	{
 		if (getOrientation(mSideType) == LLLayoutStack::HORIZONTAL)
 		{
@@ -762,13 +782,37 @@ void LLToolBar::updateLayoutAsNeeded()
 	LLRect panel_rect = mButtonPanel->getLocalRect();
 
 	std::vector<LLToolBarButton*> buttons_in_row;
+	S32 equalized_width = 0;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	switch (mLayoutType)
 	{
-		button->reshape(button->mWidthRange.getMin(), button->mDesiredHeight);
+		case LLToolBarEnums::LAYOUT_FILL:
+			if (mButtons.size())
+			{
+				equalized_width = (max_length - mPadBetween * (mButtons.size() + 1)) / mButtons.size();
+			}
+			break;
+		case LLToolBarEnums::LAYOUT_NONE:
+			break;
+	}
+	
+	for (LLToolBarButton* button : mButtons)
+	{
+		if (equalized_width)
+		{
+			button->mWidthRange.setRange(button->mWidthRange.getMin(), equalized_width);
+			button->reshape(equalized_width, button->mDesiredHeight);
+		}
+		else
+		{
+			button->reshape(button->mWidthRange.getMin(), button->mDesiredHeight);
+		}
 		button->autoResize();
 
-		S32 button_clamped_width = button->mWidthRange.clamp(button->getRect().getWidth());
+		S32 button_clamped_width = equalized_width ? equalized_width
+				: button->mWidthRange.clamp(button->getRect().getWidth());
+		
+		
 		S32 button_length = (orientation == LLLayoutStack::HORIZONTAL)
 							? button_clamped_width
 							: button->getRect().getHeight();
@@ -777,8 +821,8 @@ void LLToolBar::updateLayoutAsNeeded()
 							: button_clamped_width;
 		
 		// wrap if needed
-		if (mWrap
-			&& row_running_length + button_length > max_length	// out of room...
+		if (mWrap && mLayoutType != LAYOUT_FILL					// if we aren't trying to fill the bar
+			&& row_running_length + button_length > max_length	// ...and out of room...
 			&& cur_start != row_pad_start)						// ...and not first button in row
 		{
 			if (orientation == LLLayoutStack::VERTICAL)
@@ -823,7 +867,10 @@ void LLToolBar::updateLayoutAsNeeded()
 	
 	max_row_length = llmax(max_row_length, row_running_length - mPadBetween + row_pad_end);
 
-	resizeButtonsInRow(buttons_in_row, max_row_girth);
+	if (equalized_width == 0)
+	{
+		resizeButtonsInRow(buttons_in_row, max_row_girth);
+	}
 
 	// grow and optionally shift toolbar to accommodate buttons
 	if (orientation == LLLayoutStack::HORIZONTAL)
@@ -948,7 +995,7 @@ void LLToolBar::createButtons()
 {
 	std::set<LLUUID> set_flashing;
 
-	BOOST_FOREACH(LLToolBarButton* button, mButtons)
+	for (LLToolBarButton* button : mButtons)
 	{
         if (button->getFlashTimer() && button->getFlashTimer()->isFlashingInProgress())
         {
@@ -966,7 +1013,7 @@ void LLToolBar::createButtons()
 	mButtonMap.clear();
 	mRightMouseTargetButton = NULL;
 	
-	BOOST_FOREACH(LLCommandId& command_id, mButtonCommands)
+	for (LLCommandId& command_id : mButtonCommands)
 	{
 		LLToolBarButton* button = createButton(command_id);
 		mButtons.push_back(button);
@@ -1159,17 +1206,17 @@ BOOL LLToolBar::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 
 LLToolBarButton::LLToolBarButton(const Params& p) 
 :	LLButton(p),
+	mId(""),
 	mMouseDownX(0),
 	mMouseDownY(0),
 	mWidthRange(p.button_width),
 	mDesiredHeight(p.desired_height),
-	mId(""),
-	mIsEnabledSignal(NULL),
-	mIsRunningSignal(NULL),
-	mIsStartingSignal(NULL),
 	mIsDragged(false),
 	mStartDragItemCallback(NULL),
 	mHandleDragItemCallback(NULL),
+	mIsEnabledSignal(NULL),
+	mIsRunningSignal(NULL),
+	mIsStartingSignal(NULL),
 	mOriginalImageSelected(p.image_selected),
 	mOriginalImageUnselected(p.image_unselected),
 	mOriginalImagePressed(p.image_pressed),
@@ -1200,7 +1247,7 @@ BOOL LLToolBarButton::handleHover(S32 x, S32 y, MASK mask)
 	BOOL handled = FALSE;
 		
 	S32 mouse_distance_squared = (x - mMouseDownX) * (x - mMouseDownX) + (y - mMouseDownY) * (y - mMouseDownY);
-	S32 drag_threshold = LLUI::sSettingGroups["config"]->getS32("DragAndDropDistanceThreshold");
+	static LLUICachedControl<S32> drag_threshold("DragAndDropDistanceThreshold", 3);
 	if (mouse_distance_squared > drag_threshold * drag_threshold
 		&& hasMouseCapture() && 
 		mStartDragItemCallback && mHandleDragItemCallback)
@@ -1324,7 +1371,7 @@ void LLToolBar::LLCenterLayoutPanel::handleReshape(const LLRect& rect, bool by_u
 {
 	LLLayoutPanel::handleReshape(rect, by_user);
 
-	if (!mReshapeCallback.empty())
+	if (mReshapeCallback != nullptr)
 	{
 		LLRect r;
 		localRectToOtherView(mButtonPanel->getRect(), &r, gFloaterView);

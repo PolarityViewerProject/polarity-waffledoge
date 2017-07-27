@@ -99,7 +99,7 @@ public:
 	void setColor( const LLColor4& color );
 
 	// Sets the shininess
-	void setSpecular(F32 shiny) { /*mSpecular = color;*/ mShiny = shiny; };
+	void setSpecular( const LLColor4& color, F32 shiny ) { /*mSpecular = color;*/ mShiny = shiny; };
 
 	// Sets the shape texture
 	void setTexture( LLGLTexture *texture );

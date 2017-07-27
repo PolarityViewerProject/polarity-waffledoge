@@ -32,21 +32,18 @@
 #include <boost/unordered_map.hpp>
 #include <list>
 
-#include "llerror.h"
-#include "v4color.h"
 #include "llstring.h"
 #include "stdtypes.h"
 #include "v4math.h"
 #include "llplane.h"
 #include "llgltypes.h"
-#include "llinstancetracker.h"
 
 #include "llglheaders.h"
 #include <glm/mat4x4.hpp>
 
 extern BOOL gDebugGL;
 extern BOOL gDebugSession;
-extern std::ofstream gFailLog;
+extern llofstream gFailLog;
 
 #define LL_GL_ERRS LL_ERRS("RenderState")
 
@@ -104,7 +101,6 @@ public:
 	BOOL mHasPointParameters;
 	BOOL mHasDrawBuffers;
 	BOOL mHasDepthClamp;
-	BOOL mHasTextureRectangle;
 	BOOL mHasTransformFeedback;
 	S32 mMaxSampleMaskWords;
 	S32 mMaxColorTextureSamples;
@@ -153,7 +149,7 @@ public:
 	std::string mDriverVersionVendorString;
 	std::string mGLVersionString;
 
-	S32 mVRAM; // <polarity> DEPRECATED, get value using PVGPUInfo::vRAMGetTotalOnboard() instead
+	S32 mVRAM; // VRAM in MB
 	S32 mGLMaxVertexRange;
 	S32 mGLMaxIndexRange;
 	S32 mGLMaxTextureSize;
@@ -406,9 +402,9 @@ public:
 	LLGLSyncFence();
 	virtual ~LLGLSyncFence();
 
-	void placeFence();
-	bool isCompleted();
-	void wait();
+	void placeFence() override;
+	bool isCompleted() override;
+	void wait() override;
 };
 
 extern LLMatrix4 gGLObliqueProjectionInverse;

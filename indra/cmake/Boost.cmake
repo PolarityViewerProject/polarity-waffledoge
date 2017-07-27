@@ -7,9 +7,12 @@ set(Boost_FIND_REQUIRED ON)
 if (USESYSTEMLIBS)
   include(FindBoost)
 
+  set(BOOST_CHRONO_LIBRARY boost_chrono-mt)
   set(BOOST_CONTEXT_LIBRARY boost_context-mt)
   set(BOOST_COROUTINE_LIBRARY boost_coroutine-mt)
+  set(BOOST_DATE_TIME_LIBRARY boost_date_time-mt)
   set(BOOST_FILESYSTEM_LIBRARY boost_filesystem-mt)
+  set(BOOST_IOSTREAMS_LIBRARY boost_iostreams-mt)
   set(BOOST_PROGRAM_OPTIONS_LIBRARY boost_program_options-mt)
   set(BOOST_REGEX_LIBRARY boost_regex-mt)
   set(BOOST_SIGNALS_LIBRARY boost_signals-mt)
@@ -19,7 +22,7 @@ if (USESYSTEMLIBS)
 else (USESYSTEMLIBS)
   use_prebuilt_binary(boost)
   set(Boost_INCLUDE_DIRS ${LIBS_PREBUILT_DIR}/include)
-  set(BOOST_VERSION "1.63.0")
+  set(BOOST_VERSION "1.59")
 
   if (WINDOWS)
     set(BOOST_CHRONO_LIBRARY
@@ -31,9 +34,15 @@ else (USESYSTEMLIBS)
     set(BOOST_COROUTINE_LIBRARY
         optimized libboost_coroutine-mt
         debug libboost_coroutine-mt-gd)
+    set(BOOST_DATE_TIME_LIBRARY
+        optimized libboost_date_time-mt
+        debug libboost_date_time-mt-gd)
     set(BOOST_FILESYSTEM_LIBRARY
         optimized libboost_filesystem-mt
         debug libboost_filesystem-mt-gd)
+    set(BOOST_IOSTREAMS_LIBRARY
+        optimized libboost_iostreams-mt
+        debug libboost_iostreams-mt-gd)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
         optimized libboost_program_options-mt
         debug libboost_program_options-mt-gd)
@@ -62,9 +71,15 @@ else (USESYSTEMLIBS)
     set(BOOST_COROUTINE_LIBRARY
         optimized boost_coroutine-mt
         debug boost_coroutine-mt-d)
+    set(BOOST_DATE_TIME_LIBRARY
+        optimized boost_date_time-mt
+        debug boost_date_time-mt-d)
     set(BOOST_FILESYSTEM_LIBRARY
         optimized boost_filesystem-mt
         debug boost_filesystem-mt-d)
+    set(BOOST_IOSTREAMS_LIBRARY
+        optimized boost_iostreams-mt
+        debug boost_iostreams-mt-d)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
         optimized boost_program_options-mt
         debug boost_program_options-mt-d)
@@ -93,9 +108,15 @@ else (USESYSTEMLIBS)
     set(BOOST_COROUTINE_LIBRARY
         optimized boost_coroutine-mt
         debug boost_coroutine-mt-d)
+    set(BOOST_DATE_TIME_LIBRARY
+        optimized boost_date_time-mt
+        debug boost_date_time-mt-d)
     set(BOOST_FILESYSTEM_LIBRARY
         optimized boost_filesystem-mt
         debug boost_filesystem-mt-d)
+    set(BOOST_IOSTREAMS_LIBRARY
+        optimized boost_iostreams-mt
+        debug boost_iostreams-mt-d)
     set(BOOST_PROGRAM_OPTIONS_LIBRARY
         optimized boost_program_options-mt
         debug boost_program_options-mt-d)
@@ -114,7 +135,7 @@ else (USESYSTEMLIBS)
     set(BOOST_WAVE_LIBRARY 
         optimized boost_wave-mt
         debug boost_wave-mt-d)
-  endif (WINDOWS)
+  endif ()
 endif (USESYSTEMLIBS)
 
 if (LINUX)

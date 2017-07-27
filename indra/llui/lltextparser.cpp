@@ -48,9 +48,9 @@ LLTextParser::LLTextParser()
 {}
 
 
-std::string::size_type LLTextParser::findPattern(const std::string &text, LLSD highlight)
+std::string::size_type LLTextParser::findPattern(const std::string &text, LLSD highlight) // <alchemy/>
 {
-	if (!highlight.has("pattern")) return -1;
+	if (!highlight.has("pattern")) return std::string::npos;
 	
 	std::string pattern=std::string(highlight["pattern"]);
 	std::string ltext=text;
@@ -76,7 +76,7 @@ std::string::size_type LLTextParser::findPattern(const std::string &text, LLSD h
 			break;
 		case ENDS_WITH:
 			std::string::size_type pos = ltext.rfind(pattern);
-			if (pos != std::string::npos && pos >= 0 && (ltext.length()-pattern.length() == pos)) found = pos;
+			if (ltext.length()-pattern.length() == pos) found = pos;
 			break;
 	}
 	return found;
@@ -182,7 +182,7 @@ bool LLTextParser::parseFullLineHighlights(const std::string &text, LLColor4 *co
 	{
 		if ((S32)mHighlights[i]["highlight"]==ALL || (S32)mHighlights[i]["condition"]==MATCHES)
 		{
-			if (findPattern(text,mHighlights[i])!=std::string::npos)
+			if (findPattern(text,mHighlights[i]) != std::string::npos)
 			{
 				LLSD color_llsd = mHighlights[i]["color"];
 				color->setValue(color_llsd);

@@ -51,9 +51,9 @@ LLImageFilter::LLImageFilter(const std::string& file_path) :
     mHistoBrightness(NULL),
     mStencilBlendMode(STENCIL_BLEND_MODE_BLEND),
     mStencilShape(STENCIL_SHAPE_UNIFORM),
-    mStencilGamma(1.0),
     mStencilMin(0.0),
-    mStencilMax(1.0)
+    mStencilMax(1.0),
+    mStencilGamma(1.0)
 {
     // Load filter description from file
 	llifstream filter_xml(file_path.c_str());
@@ -665,7 +665,7 @@ void LLImageFilter::computeHistograms()
 void LLImageFilter::filterGrayScale()
 {
     LLMatrix3 gray_scale;
-    LLVector3 luminosity(0.2125f, 0.7154f, 0.0721f);
+    LLVector3 luminosity(0.2125, 0.7154, 0.0721);
     gray_scale.setRows(luminosity, luminosity, luminosity);
     gray_scale.transpose();
     colorTransform(gray_scale);
@@ -674,9 +674,9 @@ void LLImageFilter::filterGrayScale()
 void LLImageFilter::filterSepia()
 {
     LLMatrix3 sepia;
-    sepia.setRows(LLVector3(0.3588f, 0.7044f, 0.1368f),
-                  LLVector3(0.2990f, 0.5870f, 0.1140f),
-                  LLVector3(0.2392f, 0.4696f, 0.0912f));
+    sepia.setRows(LLVector3(0.3588, 0.7044, 0.1368),
+                  LLVector3(0.2990, 0.5870, 0.1140),
+                  LLVector3(0.2392, 0.4696, 0.0912));
     sepia.transpose();
     colorTransform(sepia);
 }

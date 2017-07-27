@@ -71,7 +71,6 @@ public:
 
 		//other texture Categories
 		LOCAL = BOOST_MAX_LEVEL,
-		AVATAR_SCRATCH_TEX,
 		DYNAMIC_TEX,
 		MEDIA,
 		OTHER,
@@ -116,8 +115,8 @@ public:
 	//---------------------------------------------------------------------------------------------
 	//functions to access LLImageGL
 	//---------------------------------------------------------------------------------------------
-	/*virtual*/S32	       getWidth(S32 discard_level = -1) const;
-	/*virtual*/S32	       getHeight(S32 discard_level = -1) const;
+	/*virtual*/S32	       getWidth(S32 discard_level = -1) const override;
+	/*virtual*/S32	       getHeight(S32 discard_level = -1) const override;
 
 	BOOL       hasGLTexture() const ;
 	LLGLuint   getTexName() const ;		
@@ -139,7 +138,7 @@ public:
 	BOOL       getBoundRecently() const;
 	S32Bytes   getTextureMemory() const ;
 	LLGLenum   getPrimaryFormat() const;
-	BOOL       getIsAlphaMask() const ;
+	BOOL       getIsAlphaMask(const F32 max_rmse, const F32 max_mid) const ;
 	LLTexUnit::eTextureType getTarget(void) const ;
 	BOOL       getMask(const LLVector2 &tc);
 	F32        getTimePassedSinceLastBound();
@@ -155,7 +154,7 @@ public:
 	//---------------------------------------------------------------------------------------------
 
 	//-----------------
-	/*virtual*/ void setActive() ;
+	/*virtual*/ void setActive() override;
 	void forceActive() ;
 	void setNoDelete() ;
 	void dontDiscard() { mDontDiscard = 1; mTextureState = NO_DELETE; }
@@ -176,7 +175,7 @@ protected:
 	void setTexelsPerImage();
 
 	//note: do not make this function public.
-	/*virtual*/ LLImageGL* getGLTexture() const ;
+	/*virtual*/ LLImageGL* getGLTexture() const override;
 
 protected:
 	S32 mBoostLevel;				// enum describing priority level

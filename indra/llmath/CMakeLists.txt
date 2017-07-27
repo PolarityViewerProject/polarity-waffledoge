@@ -18,7 +18,6 @@ set(llmath_SOURCE_FILES
     llbbox.cpp
     llbboxlocal.cpp
     llcalc.cpp
-    llcalcparser.cpp
     llcamera.cpp
     llcoordframe.cpp
     llline.cpp
@@ -49,7 +48,7 @@ set(llmath_SOURCE_FILES
 set(llmath_HEADER_FILES
     CMakeLists.txt
 
-    #camera.h <polarity> Removed 2016.11.28
+    camera.h
     coordframe.h
     llbbox.h
     llbboxlocal.h
@@ -64,6 +63,7 @@ set(llmath_HEADER_FILES
     llmath.h
     llmatrix3a.h
     llmatrix3a.inl
+    llmatrix4a.h
     llmodularmath.h
     lloctree.h
     llperlin.h

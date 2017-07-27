@@ -293,6 +293,7 @@ void EventAccumulator::reset( const EventAccumulator* other )
 {
 	mNumSamples = 0;
 	mSum = 0;
+	// HACK: figure out if this needs to be a F64 instead of a F32
 	mMin = std::numeric_limits<float>::quiet_NaN();
 	mMax = std::numeric_limits<float>::quiet_NaN();
 	mMean = NaN;

@@ -32,6 +32,7 @@
 #include "llcallstack.h"
 #include "StackWalker.h"
 #include "llthreadlocalstorage.h"
+#include "lltimer.h"
 
 #if LL_WINDOWS
 class LLCallStackImpl: public StackWalker
@@ -57,7 +58,7 @@ public:
         }
     }
 protected:
-    virtual void OnOutput(LPCSTR szText)
+	void OnOutput(LPCSTR szText) override
     {
         m_stack.push_back(szText);
     }
@@ -77,11 +78,11 @@ public:
 };
 #endif
 
-LLCallStackImpl *LLCallStack::s_impl = NULL;
+LLCallStackImpl *LLCallStack::s_impl = nullptr;
 
 LLCallStack::LLCallStack(S32 skip_count, bool verbose):
-    m_skipCount(skip_count),
-    m_verbose(verbose)
+    m_verbose(verbose),
+    m_skipCount(skip_count)
 {
     if (!s_impl)
     {

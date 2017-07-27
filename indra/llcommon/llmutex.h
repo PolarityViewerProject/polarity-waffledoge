@@ -29,17 +29,17 @@
 
 #include "stdtypes.h"
 
-#define LL_BOOST_MUTEX 1
+#define AL_BOOST_MUTEX 1
 
-#if LL_BOOST_MUTEX
+#if AL_BOOST_MUTEX
 #include "fix_macros.h"
 #define BOOST_SYSTEM_NO_DEPRECATED
-#include <boost/thread.hpp>
+#include <boost/thread/thread.hpp>
 #include <boost/thread/recursive_mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 typedef boost::recursive_mutex LLMutexImpl;
 typedef boost::condition_variable_any LLConditionImpl;
-#elif LL_STD_MUTEX
+#elif AL_STD_MUTEX
 #include <mutex>
 #include <condition_variable>
 typedef std::recursive_mutex LLMutexImpl;
@@ -75,7 +75,7 @@ private:
 class LL_COMMON_API LLCondition : public LLConditionImpl, public LLMutex
 {
 public:
-	LLCondition() : LLMutex(), LLConditionImpl() {}
+	LLCondition() : LLConditionImpl(), LLMutex() {}
 	~LLCondition() {}
 
 	void wait() { LLConditionImpl::wait(*this); }

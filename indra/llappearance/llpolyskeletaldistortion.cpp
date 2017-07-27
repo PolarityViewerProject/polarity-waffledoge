@@ -29,7 +29,10 @@
 //-----------------------------------------------------------------------------
 // Header Files
 //-----------------------------------------------------------------------------
-#include "llpreprocessor.h"
+#include "linden_common.h"
+
+#include "llpolyskeletaldistortion.h"
+
 #include "llerror.h"
 #include "llavatarappearance.h"
 #include "llavatarjoint.h"
@@ -38,7 +41,6 @@
 #include "llfasttimer.h"
 #include "llcallstack.h"
 
-#include "llpolyskeletaldistortion.h"
 
 //-----------------------------------------------------------------------------
 // LLPolySkeletalDistortionInfo()
@@ -56,7 +58,7 @@ BOOL LLPolySkeletalDistortionInfo::parseXml(LLXmlTreeNode* node)
 
         LLXmlTreeNode* skeletalParam = node->getChildByName("param_skeleton");
 
-        if (NULL == skeletalParam)
+        if (nullptr == skeletalParam)
         {
                 LL_WARNS() << "Failed to getChildByName(\"param_skeleton\")"
                         << LL_ENDL;
@@ -143,7 +145,7 @@ BOOL LLPolySkeletalDistortion::setInfo(LLPolySkeletalDistortionInfo *info)
     }
     mInfo = info;
     mID = info->mID;
-    setWeight(getDefaultWeight());
+    setWeight(getDefaultWeight(), FALSE);
 
     LLPolySkeletalDistortionInfo::bone_info_list_t::iterator iter;
     for (iter = getInfo()->mBoneInfoList.begin(); iter != getInfo()->mBoneInfoList.end(); ++iter)

@@ -52,8 +52,8 @@ LLMultiGesture::LLMultiGesture()
 	mSteps(),
 	mPlaying(FALSE),
 	mCurrentStep(0),
-	mDoneCallback(NULL),
-	mCallbackData(NULL)
+	mDoneCallback(nullptr),
+	mCallbackData(nullptr)
 {
 	reset();
 }
@@ -184,7 +184,11 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 			{
 				LLGestureStepAnimation* step = new LLGestureStepAnimation();
 				BOOL ok = step->deserialize(dp);
-				if (!ok) return FALSE;
+				if (!ok)
+				{
+					delete step;
+					return FALSE;
+				}
 				mSteps.push_back(step);
 				break;
 			}
@@ -192,7 +196,11 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 			{
 				LLGestureStepSound* step = new LLGestureStepSound();
 				BOOL ok = step->deserialize(dp);
-				if (!ok) return FALSE;
+				if (!ok)
+				{
+					delete step;
+					return FALSE;
+				}
 				mSteps.push_back(step);
 				break;
 			}
@@ -200,7 +208,11 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 			{
 				LLGestureStepChat* step = new LLGestureStepChat();
 				BOOL ok = step->deserialize(dp);
-				if (!ok) return FALSE;
+				if (!ok)
+				{
+					delete step;
+					return FALSE;
+				}
 				mSteps.push_back(step);
 				break;
 			}
@@ -208,7 +220,11 @@ BOOL LLMultiGesture::deserialize(LLDataPacker& dp)
 			{
 				LLGestureStepWait* step = new LLGestureStepWait();
 				BOOL ok = step->deserialize(dp);
-				if (!ok) return FALSE;
+				if (!ok)
+				{
+					delete step;
+					return FALSE;
+				}
 				mSteps.push_back(step);
 				break;
 			}

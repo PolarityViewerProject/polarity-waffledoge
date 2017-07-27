@@ -39,7 +39,7 @@ public:
 	~LLUriParser();
 
 	const char * scheme() const;
-	void sheme (const std::string& s);
+	void scheme (const std::string& s);
 
 	const char * port() const;
 	void port (const std::string& s);
@@ -67,7 +67,7 @@ public:
 
 private:
 	S32 parse();
-	static void textRangeToString(UriTextRangeA& textRange, std::string& str);
+	void textRangeToString(UriTextRangeA& textRange, std::string& str);
 	std::string mScheme;
 	std::string mHost;
 	std::string mPort;

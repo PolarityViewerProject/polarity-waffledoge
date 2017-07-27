@@ -8,16 +8,15 @@ syntax: glob
 # Emacs temp files
 *~
 .*.swp
+*.pdb
+*.suo
 #OSX image cache file
 *.DS_Store
 LICENSES
 indra/.distcc
-build-linux-*
-build-darwin-*
-build-vc80/
-build-vc100/
-build-vc120*
-build-vc140*
+build-linux-*/
+build-darwin-*/
+build-vc*/
 indra/build-vc[0-9]*
 indra/CMakeFiles
 indra/lib/mono/1.0/*.dll
@@ -48,6 +47,7 @@ indra/temp
 indra/test/linden_file.dat
 indra/test_apps/llmediatest/dependencies/i686-win32
 indra/test_apps/terrain_mule/*.dll
+indra/tools/vstool/obj/
 indra/viewer-linux-*
 indra/web/doc/asset-upload/plugins/lsl_compiler/lslc
 indra/web/doc/asset-upload/plugins/verify-notecard

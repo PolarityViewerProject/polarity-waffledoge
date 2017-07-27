@@ -28,14 +28,16 @@
 #define LL_LLAPP_H
 
 #include <map>
+#include "llatomic.h"
 #include "llrun.h"
 #include "llsd.h"
-// Forward declarations
-class LLErrorThread;
-class LLLiveFile;
-#if LL_LINUX
+
+#if LL_LINUX || LL_DARWIN
 #include <signal.h>
 #endif
+
+class LLErrorThread;
+class LLLiveFile;
 
 typedef void (*LLAppErrorHandler)();
 
@@ -194,7 +196,7 @@ public:
 	static bool isQuitting();
 	static bool isError();
 	static bool isExiting(); // Either quitting or error (app is exiting, cleanly or not)
-	static S32  getPid();
+	static int getPid();
 
 	/** @name Error handling methods */
 	//@{

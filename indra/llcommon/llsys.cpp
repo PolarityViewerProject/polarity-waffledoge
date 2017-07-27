@@ -48,12 +48,9 @@
 #include "lltimer.h"
 #include "llsdserialize.h"
 #include "llsdutil.h"
-#include <boost/bind.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/regex.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/utility/enable_if.hpp>
 
 using namespace llsd;
 
@@ -62,6 +59,7 @@ using namespace llsd;
 #   include <psapi.h>               // GetPerformanceInfo() et al.
 #	include <VersionHelpers.h>
 #elif LL_DARWIN
+#   include "llsys_objc.h"
 #	include <errno.h>
 #	include <sys/sysctl.h>
 #	include <sys/utsname.h>
@@ -72,12 +70,6 @@ using namespace llsd;
 #	include <mach/mach_host.h>
 #	include <mach/task.h>
 #	include <mach/task_info.h>
-
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-
 #elif LL_LINUX
 #	include <errno.h>
 #	include <sys/utsname.h>
@@ -86,29 +78,22 @@ using namespace llsd;
 #   include <stdexcept>
 const char MEMINFO_FILE[] = "/proc/meminfo";
 #   include <gnu/libc-version.h>
-#elif LL_SOLARIS
-#	include <stdio.h>
-#	include <unistd.h>
-#	include <sys/utsname.h>
-#	define _STRUCTURED_PROC 1
-#	include <sys/procfs.h>
-#	include <sys/types.h>
-#	include <sys/stat.h>
-#	include <fcntl.h>
-#	include <errno.h>
-extern int errno;
 #endif
 
 LLCPUInfo gSysCPU;
 
 // Don't log memory info any more often than this. It also serves as our
 // framerate sample size.
-static const F32 MEM_INFO_THROTTLE = 120;
+static const F32 MEM_INFO_THROTTLE = 20;
 // Sliding window of samples. We intentionally limit the length of time we
 // remember "the slowest" framerate because framerate is very slow at login.
 // If we only triggered FrameWatcher logging when the session framerate
 // dropped below the login framerate, we'd have very little additional data.
 static const F32 MEM_INFO_WINDOW = 10*60;
+
+#if LL_WINDOWS
+#pragma warning(disable : 4996)
+#endif // LL_WINDOWS
 
 // Wrap boost::regex_match() with a function that doesn't throw.
 template <typename S, typename M, typename R>
@@ -197,25 +182,6 @@ LLOSInfo::LLOSInfo() :
 			service_pack = "Service Pack 1 ";
 		}
 	}
-	else if (IsWindowsVistaOrGreater())
-	{
-		if (is_server)
-		{
-			mOSStringSimple = "Microsoft Windows Server 2008 ";
-		}
-		else
-		{
-			mOSStringSimple = "Microsoft Windows Vista ";
-		}
-		if (IsWindowsVistaSP2OrGreater())
-		{
-			service_pack = "Service Pack 2 ";
-		}
-		else if (IsWindowsVistaSP1OrGreater())
-		{
-			service_pack = "Service Pack 1 ";
-		}
-	}
 	else
 	{
 		mOSStringSimple = "Microsoft Windows (unrecognized) ";
@@ -227,7 +193,7 @@ LLOSInfo::LLOSInfo() :
 	PGNSI pGNSI; //pointer object
 	ZeroMemory(&si, sizeof(SYSTEM_INFO)); //zero out the memory in information
 	pGNSI = (PGNSI)GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo"); //load kernel32 get function
-	if (NULL != pGNSI) //check if it has failed
+	if (nullptr != pGNSI) //check if it has failed
 		pGNSI(&si); //success
 	else
 		GetSystemInfo(&si); //if it fails get regular system info 
@@ -283,19 +249,16 @@ LLOSInfo::LLOSInfo() :
 	// Initialize mOSStringSimple to something like:
 	// "Mac OS X 10.6.7"
 	{
-		const char * DARWIN_PRODUCT_NAME = "Mac OS X";
-		
-		SInt32 major_version, minor_version, bugfix_version;
-		OSErr r1 = Gestalt(gestaltSystemVersionMajor, &major_version);
-		OSErr r2 = Gestalt(gestaltSystemVersionMinor, &minor_version);
-		OSErr r3 = Gestalt(gestaltSystemVersionBugFix, &bugfix_version);
+		S32 major_version, minor_version, bugfix_version = 0;
 
-		if((r1 == noErr) && (r2 == noErr) && (r3 == noErr))
+		if (LLSysDarwin::getOperatingSystemInfo(major_version, minor_version, bugfix_version))
 		{
 			mMajorVer = major_version;
 			mMinorVer = minor_version;
 			mBuild = bugfix_version;
 
+            const char * DARWIN_PRODUCT_NAME = mMinorVer > 11 ? "macOS" : "Mac OS X";
+            
 			std::stringstream os_version_string;
 			os_version_string << DARWIN_PRODUCT_NAME << " " << mMajorVer << "." << mMinorVer << "." << mBuild;
 			
@@ -543,24 +506,6 @@ U32 LLOSInfo::getProcessVirtualSizeKB()
 		}
 		fclose(status_filep);
 	}
-#elif LL_SOLARIS
-	char proc_ps[LL_MAX_PATH];
-	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	virtual_size = proc_psinfo.pr_size;
 #endif
 	return virtual_size;
 }
@@ -589,24 +534,6 @@ U32 LLOSInfo::getProcessResidentSizeKB()
 		}
 		fclose(status_filep);
 	}
-#elif LL_SOLARIS
-	char proc_ps[LL_MAX_PATH];
-	sprintf(proc_ps, "/proc/%d/psinfo", (int)getpid());
-	int proc_fd = -1;
-	if((proc_fd = open(proc_ps, O_RDONLY)) == -1){
-		LL_WARNS() << "unable to open " << proc_ps << LL_ENDL;
-		return 0;
-	}
-	psinfo_t proc_psinfo;
-	if(read(proc_fd, &proc_psinfo, sizeof(psinfo_t)) != sizeof(psinfo_t)){
-		LL_WARNS() << "Unable to read " << proc_ps << LL_ENDL;
-		close(proc_fd);
-		return 0;
-	}
-
-	close(proc_fd);
-
-	resident_size = proc_psinfo.pr_rssize;
 #endif
 	return resident_size;
 }
@@ -618,7 +545,6 @@ LLCPUInfo::LLCPUInfo()
 	// proc.WriteInfoTextFile("procInfo.txt");
 	mHasSSE = proc.hasSSE();
 	mHasSSE2 = proc.hasSSE2();
-	mHasAltivec = proc.hasAltivec();
 	mCPUMHz = (F64)proc.getCPUFrequency();
 	mFamily = proc.getCPUFamilyName();
 	mCPUString = "Unknown";
@@ -630,11 +556,6 @@ LLCPUInfo::LLCPUInfo()
 	}
 	mCPUString = out.str();
 	LLStringUtil::trim(mCPUString);
-}
-
-bool LLCPUInfo::hasAltivec() const
-{
-	return mHasAltivec;
 }
 
 bool LLCPUInfo::hasSSE() const
@@ -666,7 +587,6 @@ void LLCPUInfo::stream(std::ostream& s) const
 	// CPU's attributes regardless of platform
 	s << "->mHasSSE:     " << (U32)mHasSSE << std::endl;
 	s << "->mHasSSE2:    " << (U32)mHasSSE2 << std::endl;
-	s << "->mHasAltivec: " << (U32)mHasAltivec << std::endl;
 	s << "->mCPUMHz:     " << mCPUMHz << std::endl;
 	s << "->mCPUString:  " << mCPUString << std::endl;
 }
@@ -683,7 +603,7 @@ public:
 	// Store every integer type as LLSD::Integer.
 	template <class T>
 	void add(const LLSD::String& name, const T& value,
-			 typename boost::enable_if<std::is_integral<T> >::type* = 0)
+			 typename std::enable_if<std::is_integral<T>::value>::type* = nullptr)
 	{
 		mStats[name] = LLSD::Integer(value);
 	}
@@ -691,7 +611,7 @@ public:
 	// Store every floating-point type as LLSD::Real.
 	template <class T>
 	void add(const LLSD::String& name, const T& value,
-			 typename boost::enable_if<std::is_floating_point<T> >::type* = 0)
+			 typename std::enable_if<std::is_floating_point<T>::value>::type* = nullptr)
 	{
 		mStats[name] = LLSD::Real(value);
 	}
@@ -713,28 +633,10 @@ LLMemoryInfo::LLMemoryInfo()
 	refresh();
 }
 
-#if LL_WINDOWS
-static U32Kilobytes LLMemoryAdjustKBResult(U32Kilobytes inKB)
-{
-	// Moved this here from llfloaterabout.cpp
-
-	//! \bug
-	// For some reason, the reported amount of memory is always wrong.
-	// The original adjustment assumes it's always off by one meg, however
-	// errors of as much as 2520 KB have been observed in the value
-	// returned from the GetMemoryStatusEx function.  Here we keep the
-	// original adjustment from llfoaterabout.cpp until this can be
-	// fixed somehow.
-	inKB += U32Megabytes(1);
-
-	return inKB;
-}
-#endif
-
 U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 {
 #if LL_WINDOWS
-	return LLMemoryAdjustKBResult(U32Kilobytes(mStatsMap["Total Physical KB"].asInteger()));
+	return U32Kilobytes(mStatsMap["Total Physical KB"].asInteger());
 
 #elif LL_DARWIN
 	// This might work on Linux as well.  Someone check...
@@ -751,43 +653,22 @@ U32Kilobytes LLMemoryInfo::getPhysicalMemoryKB() const
 	phys = (U64)(getpagesize()) * (U64)(get_phys_pages());
 	return U64Bytes(phys);
 
-#elif LL_SOLARIS
-	U64 phys = 0;
-	phys = (U64)(getpagesize()) * (U64)(sysconf(_SC_PHYS_PAGES));
-	return U64Bytes(phys);
-
 #else
 	return 0;
 
 #endif
 }
 
-U32Bytes LLMemoryInfo::getPhysicalMemoryClamped() const
-{
-	// Return the total physical memory in bytes, but clamp it
-	// to no more than U32_MAX
-	
-	U32Kilobytes phys_kb = getPhysicalMemoryKB();
-	if (phys_kb >= U32Gigabytes(4))
-	{
-		return U32Bytes(U32_MAX);
-	}
-	else
-	{
-		return phys_kb;
-	}
-}
-
 //static
 void LLMemoryInfo::getAvailableMemoryKB(U32Kilobytes& avail_physical_mem_kb, U32Kilobytes& avail_virtual_mem_kb)
 {
 #if LL_WINDOWS
-	// Sigh, this shouldn't be a static method, then we wouldn't have to
-	// reload this data separately from refresh()
-	LLSD statsMap(loadStatsMap());
+	MEMORYSTATUSEX state;
+	state.dwLength = sizeof(state);
+	GlobalMemoryStatusEx(&state);
 
-	avail_physical_mem_kb = (U32Kilobytes)statsMap["Avail Physical KB"].asInteger();
-	avail_virtual_mem_kb  = (U32Kilobytes)statsMap["Avail Virtual KB"].asInteger();
+	avail_physical_mem_kb = U64Bytes(state.ullAvailPhys);
+	avail_virtual_mem_kb  = U64Bytes(state.ullAvailVirtual);
 
 #elif LL_DARWIN
 	// mStatsMap is derived from vm_stat, look for (e.g.) "kb free":
@@ -878,7 +759,7 @@ void LLMemoryInfo::stream(std::ostream& s) const
 
 	// Max key length
 	size_t key_width(0);
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const MapEntry& pair : inMap(mStatsMap))
 	{
 		size_t len(pair.first.length());
 		if (len > key_width)
@@ -888,14 +769,17 @@ void LLMemoryInfo::stream(std::ostream& s) const
 	}
 
 	// Now stream stats
-	BOOST_FOREACH(const MapEntry& pair, inMap(mStatsMap))
+	for (const MapEntry& pair : inMap(mStatsMap))
 	{
 		s << pfx << std::setw(key_width+1) << (pair.first + ':') << ' ';
 		LLSD value(pair.second);
 		if (value.isInteger())
 			s << std::setw(12) << value.asInteger();
 		else if (value.isReal())
-			s << std::fixed << std::setprecision(1) << value.asReal();
+		{
+			std::streamsize old_precision = s.precision();
+			s << std::fixed << std::setprecision(1) << value.asReal() << std::setprecision(old_precision) << std::defaultfloat;
+		}
 		else if (value.isDate())
 			value.asDate().toStream(s);
 		else
@@ -935,7 +819,7 @@ LLSD LLMemoryInfo::loadStatsMap()
 
 	DWORDLONG div = 1024;
 
-	stats.add("Percent Memory use", state.dwMemoryLoad/div);
+	stats.add("Percent Memory use", state.dwMemoryLoad);
 	stats.add("Total Physical KB",  state.ullTotalPhys/div);
 	stats.add("Avail Physical KB",  state.ullAvailPhys/div);
 	stats.add("Total page KB",      state.ullTotalPageFile/div);
@@ -984,27 +868,33 @@ LLSD LLMemoryInfo::loadStatsMap()
 	stats.add("PrivateUsage KB",               pmem.PrivateUsage/div);
 
 #elif LL_DARWIN
-
-	const vm_size_t pagekb(vm_page_size / 1024);
+	vm_size_t page_size_kb;
+	if (host_page_size(mach_host_self(), &page_size_kb) != KERN_SUCCESS)
+	{
+		LL_WARNS() << "Unable to get host page size. Using default value." << LL_ENDL;
+		page_size_kb = 4096;
+	}
 	
+	page_size_kb = page_size_kb / 1024;
+
 	//
 	// Collect the vm_stat's
 	//
 	
 	{
-		vm_statistics_data_t vmstat;
-		mach_msg_type_number_t vmstatCount = HOST_VM_INFO_COUNT;
+		vm_statistics64_data_t vmstat;
+		mach_msg_type_number_t vmstatCount = HOST_VM_INFO64_COUNT;
 
-		if (host_statistics(mach_host_self(), HOST_VM_INFO, (host_info_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
+		if (host_statistics64(mach_host_self(), HOST_VM_INFO64, (host_info64_t) &vmstat, &vmstatCount) != KERN_SUCCESS)
 	{
 			LL_WARNS("LLMemoryInfo") << "Unable to collect memory information" << LL_ENDL;
 		}
 		else
 		{
-			stats.add("Pages free KB",		pagekb * vmstat.free_count);
-			stats.add("Pages active KB",	pagekb * vmstat.active_count);
-			stats.add("Pages inactive KB",	pagekb * vmstat.inactive_count);
-			stats.add("Pages wired KB",		pagekb * vmstat.wire_count);
+			stats.add("Pages free KB",		page_size_kb * vmstat.free_count);
+			stats.add("Pages active KB",	page_size_kb * vmstat.active_count);
+			stats.add("Pages inactive KB",	page_size_kb * vmstat.inactive_count);
+			stats.add("Pages wired KB",		page_size_kb * vmstat.wire_count);
 
 			stats.add("Pages zero fill",		vmstat.zero_fill_count);
 			stats.add("Page reactivations",		vmstat.reactivations);
@@ -1053,31 +943,24 @@ LLSD LLMemoryInfo::loadStatsMap()
 	//
 
 		{
-		task_basic_info_64_data_t taskinfo;
-		unsigned taskinfoSize = sizeof(taskinfo);
-		
-		if (task_info(mach_task_self(), TASK_BASIC_INFO_64, (task_info_t) &taskinfo, &taskinfoSize) != KERN_SUCCESS)
+			mach_task_basic_info_data_t taskinfo;
+			mach_msg_type_number_t task_count = MACH_TASK_BASIC_INFO_COUNT;
+			if (task_info(mach_task_self(), MACH_TASK_BASIC_INFO, (task_info_t) &taskinfo, &task_count) != KERN_SUCCESS)
 			{
-			LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
-				}
-				else
-				{
-			stats.add("Basic suspend count",					taskinfo.suspend_count);
-			stats.add("Basic virtual memory KB",				taskinfo.virtual_size / 1024);
-			stats.add("Basic resident memory KB",				taskinfo.resident_size / 1024);
-			stats.add("Basic new thread policy",				taskinfo.policy);
-		}
+				LL_WARNS("LLMemoryInfo") << "Unable to collect task information" << LL_ENDL;
+			}
+			else
+			{
+				stats.add("Basic virtual memory KB", taskinfo.virtual_size / 1024);
+				stats.add("Basic resident memory KB", taskinfo.resident_size / 1024);
+				stats.add("Basic max resident memory KB", taskinfo.resident_size_max / 1024);
+				stats.add("Basic new thread policy", taskinfo.policy);
+				stats.add("Basic suspend count", taskinfo.suspend_count);
+			}
 	}
 
-#elif LL_SOLARIS
-	U64 phys = 0;
-
-	phys = (U64)(sysconf(_SC_PHYS_PAGES)) * (U64)(sysconf(_SC_PAGESIZE)/1024);
-
-	stats.add("Total Physical KB", phys);
-
 #elif LL_LINUX
-	std::ifstream meminfo(MEMINFO_FILE);
+	llifstream meminfo(MEMINFO_FILE);
 	if (meminfo.is_open())
 	{
 		// MemTotal:		4108424 kB
@@ -1174,9 +1057,11 @@ class FrameWatcher
 public:
     FrameWatcher():
         // Hooking onto the "mainloop" event pump gets us one call per frame.
+#if 0
         mConnection(LLEventPumps::instance()
                     .obtain("mainloop")
-                    .listen("FrameWatcher", boost::bind(&FrameWatcher::tick, this, _1))),
+					.listen("FrameWatcher", std::bind(&FrameWatcher::tick, this, std::placeholders::_1))),
+#endif
         // Initializing mSampleStart to an invalid timestamp alerts us to skip
         // trying to compute framerate on the first call.
         mSampleStart(-1),
@@ -1278,15 +1163,13 @@ public:
                     << " seconds ";
         }
 
-	S32 precision = LL_CONT.precision();
+		std::streamsize old_precision = LL_CONT.precision();
 
-        LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
-                << LLMemoryInfo();
+		LL_CONT << std::fixed << std::setprecision(1) << framerate << '\n'
+			<< LLMemoryInfo() << std::setprecision(old_precision) << std::defaultfloat << LL_ENDL;
 
-	LL_CONT.precision(precision);
-	LL_CONT << LL_ENDL;
-        return false;
-    }
+		return false;
+	}
 
 private:
     // Storing the connection in an LLTempBoundListener ensures it will be
@@ -1316,9 +1199,9 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 	std::string tmpfile;
 	const S32 UNCOMPRESS_BUFFER_SIZE = 32768;
 	BOOL retval = FALSE;
-	gzFile src = NULL;
+	gzFile src = nullptr;
 	U8 buffer[UNCOMPRESS_BUFFER_SIZE];
-	LLFILE *dst = NULL;
+	LLFILE *dst = nullptr;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
 #if LL_WINDOWS
@@ -1340,12 +1223,12 @@ BOOL gunzip_file(const std::string& srcfile, const std::string& dstfile)
 		}
 	} while(gzeof(src) == 0);
 	fclose(dst); 
-	dst = NULL;	
+	dst = nullptr;	
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
 	retval = TRUE;
 err:
-	if (src != NULL) gzclose(src);
-	if (dst != NULL) fclose(dst);
+	if (src != nullptr) gzclose(src);
+	if (dst != nullptr) fclose(dst);
 	return retval;
 }
 
@@ -1355,12 +1238,12 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	std::string tmpfile;
 	BOOL retval = FALSE;
 	U8 buffer[COMPRESS_BUFFER_SIZE];
-	gzFile dst = NULL;
-	LLFILE *src = NULL;
+	gzFile dst = nullptr;
+	LLFILE *src = nullptr;
 	S32 bytes = 0;
 	tmpfile = dstfile + ".t";
 #if LL_WINDOWS
-	dst = gzopen_w(utf8str_to_utf16str(tmpfile).c_str(), "wb");		/* Flawfinder: ignore */
+	dst = gzopen_w(utf8str_to_utf16str(tmpfile).c_str(), "wb");
 #else
 	dst = gzopen(tmpfile.c_str(), "wb");		/* Flawfinder: ignore */
 #endif
@@ -1368,11 +1251,11 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	src = LLFile::fopen(srcfile, "rb");		/* Flawfinder: ignore */
 	if (! src) goto err;
 
-	while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE, src)) > 0)
+	while ((bytes = (S32)fread(buffer, sizeof(U8), COMPRESS_BUFFER_SIZE * sizeof(U8), src)) > 0)
 	{
 		if (gzwrite(dst, buffer, bytes) <= 0)
 		{
-			LL_WARNS() << "gzwrite failed: " << gzerror(dst, NULL) << LL_ENDL;
+			LL_WARNS() << "gzwrite failed: " << gzerror(dst, nullptr) << LL_ENDL;
 			goto err;
 		}
 	}
@@ -1384,7 +1267,7 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	}
 
 	gzclose(dst);
-	dst = NULL;
+	dst = nullptr;
 #if LL_WINDOWS
 	// Rename in windows needs the dstfile to not exist.
 	LLFile::remove(dstfile);
@@ -1392,14 +1275,7 @@ BOOL gzip_file(const std::string& srcfile, const std::string& dstfile)
 	if (LLFile::rename(tmpfile, dstfile) == -1) goto err;		/* Flawfinder: ignore */
 	retval = TRUE;
  err:
-	if (src != NULL) fclose(src);
-	if (dst != NULL) gzclose(dst);
+	if (src != nullptr) fclose(src);
+	if (dst != nullptr) gzclose(dst);
 	return retval;
 }
-
-#if LL_DARWIN
-// disable warnings about Gestalt calls being deprecated
-// until Apple get's on the ball and provides an alternative
-//
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif

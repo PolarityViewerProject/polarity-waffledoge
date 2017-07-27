@@ -170,7 +170,10 @@ public:
 	
 	// Set all 4 elements to element i of v, with i NOT known at compile time
 	inline void splat(const LLVector4a& v, U32 i);
-	
+
+	// Sets element N to that of src's element N. Much cleaner than.. {LLVector4Logical mask; mask.clear(); mask.setElement<N>(); target.setSelectWithMask(mask,src,target);}
+	template <int N> inline void copyComponent(const LLVector4a& src);
+
 	// Select bits from sourceIfTrue and sourceIfFalse according to bits in mask
 	inline void setSelectWithMask( const LLVector4Logical& mask, const LLVector4a& sourceIfTrue, const LLVector4a& sourceIfFalse );
 	
@@ -240,7 +243,7 @@ public:
 	// Normalize this vector with respect to the x, y, and z components only. Accurate only to 10-12 bits of precision. W component is destroyed
 	// Same as above except substitutes default vector contents if the vector is non-finite or degenerate due to zero length.
 	//
-	inline void normalize3fast_checked(LLVector4a* d = 0);
+	inline void normalize3fast_checked(LLVector4a* d = nullptr);
 
 	// Return true if this vector is normalized with respect to x,y,z up to tolerance
 	inline LLBool32 isNormalized3( F32 tolerance = 1e-3 ) const;

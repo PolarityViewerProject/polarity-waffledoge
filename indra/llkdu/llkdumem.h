@@ -27,19 +27,22 @@
 #ifndef LL_LLKDUMEM_H
 #define LL_LLKDUMEM_H
 
-// Support classes for reading and writing from memory buffers in KDU
-#define KDU_NO_THREADS
-// don't *really* want to rebuild KDU so turn off specific warnings for this header
-#if LL_DARWIN
+// [CR] Clang doesn't like Kakadu!
+#if defined(LL_MSVC)
+#pragma warning (push)
+#pragma warning (disable : 4263)
+#pragma warning (disable : 4264)
+#elif defined(LL_CLANG)
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wself-assign-field"
-#pragma clang diagnostic ignored "-Wunused-private-field"
-#include "kdu_image.h"
-#pragma clang diagnostic pop
-#else
-#include "kdu_image.h"
+#pragma clang diagnostic ignored "-Woverloaded-virtual"
 #endif
 
+// Support classes for reading and writing from memory buffers in KDU
+#define KDU_NO_THREADS
+#define KDU_X86_INTRINSICS
+#define KDU_NO_AVX
+#define KDU_NO_AVX2
+#include "kdu_image.h"
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
@@ -47,6 +50,14 @@
 #include "kdu_sample_processing.h"
 #include "image_local.h"
 #include "stdtypes.h"
+
+#if defined(LL_MSVC)
+#pragma warning (pop)
+#elif defined(LL_CLANG)
+#pragma clang diagnostic pop
+#endif
+
+using namespace kd_supp_image_local;
 
 class LLKDUMemSource: public kdu_compressed_source
 {

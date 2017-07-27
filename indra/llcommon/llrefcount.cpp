@@ -35,7 +35,7 @@
 #include "llthread.h"
 #endif
 
-LLRefCount::LLRefCount(const LLRefCount& other) :	
+LLRefCount::LLRefCount(const LLRefCount& other) :
 #if LL_REF_COUNT_DEBUG
 	mMutex(),
 	mCrashAtUnlock(FALSE),

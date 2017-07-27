@@ -1,8 +1,8 @@
 /** 
- * @file llpidlock.h
- * @brief System information debugging classes.
+ * @file camera.h
+ * @brief Legacy wrapper header.
  *
- * $LicenseInfo:firstyear=2001&license=viewerlgpl$
+ * $LicenseInfo:firstyear=2000&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -24,37 +24,4 @@
  * $/LicenseInfo$
  */
 
-#ifndef LL_PIDLOCK_H
-#define LL_PIDLOCK_H
-#include "llnametable.h"
-
-class LLSD;
-class LLFrameTimer;
-
-#if !LL_WINDOWS	//For non-windows platforms.
-#include <signal.h>
-#endif
-
-namespace LLPidLock
-{
-    void initClass(); // { (void) LLPidLockFile::instance(); }
-
-    bool requestLock( LLNameTable<void *> *name_table=NULL, bool autosave=TRUE,
-                     bool force_immediate=FALSE, F32 timeout=300.0);
-    bool checkLock();
-    void releaseLock();
-    bool isClean();
-
-    //getters
-    LLNameTable<void *> * getNameTable();
-    bool getAutosave();
-    bool getClean();
-    std::string getSaveName();
-    S32 getPID();
-
-    //setters
-    void setClean(bool clean);
-    void setSaveName(std::string savename);
-};
-
-#endif // LL_PIDLOCK_H
+#include "llcamera.h"

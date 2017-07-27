@@ -1,9 +1,11 @@
+// This is an open source non-commercial project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 /** 
- * @file ctype_workaround.h
- * @brief The workaround is to create some legacy symbols that point
- * to the correct symbols, which avoids link errors.
+ * @file dummy_volume_catcher.cpp
+ * @brief A null implementation of the "VolumeCatcher" class for platforms where it's not implemented yet.
  *
- * $LicenseInfo:firstyear=2006&license=viewerlgpl$
+ * @cond
+ * $LicenseInfo:firstyear=2010&license=viewerlgpl$
  * Second Life Viewer Source Code
  * Copyright (C) 2010, Linden Research, Inc.
  * 
@@ -23,32 +25,36 @@
  * 
  * Linden Research, Inc., 945 Battery Street, San Francisco, CA  94111  USA
  * $/LicenseInfo$
+ * @endcond
  */
 
-#ifndef _CTYPE_WORKAROUND_H_
-#define _CTYPE_WORKAROUND_H_
+#include "volume_catcher.h"
 
-/**
- * the CTYPE_WORKAROUND is needed for linux dev stations that don't
- * have the broken libc6 packages needed by our out-of-date static
- * libs (such as libcrypto and libcurl).
- *
- * -- Leviathan 20060113
-*/
-#if LL_LINUX
-#include <cctype>
 
-__const unsigned short int *__ctype_b;
-__const __int32_t *__ctype_tolower;
-__const __int32_t *__ctype_toupper;
-
-// call this function at the beginning of main() 
-void ctype_workaround()
+class VolumeCatcherImpl
 {
-	__ctype_b = *(__ctype_b_loc());
-	__ctype_toupper = *(__ctype_toupper_loc());
-	__ctype_tolower = *(__ctype_tolower_loc());
+};
+
+/////////////////////////////////////////////////////
+
+VolumeCatcher::VolumeCatcher()
+{
+	pimpl = NULL;
 }
-#endif // LL_LINUX
-#endif
+
+VolumeCatcher::~VolumeCatcher()
+{
+}
+
+void VolumeCatcher::setVolume(F32 volume)
+{
+}
+
+void VolumeCatcher::setPan(F32 pan)
+{
+}
+
+void VolumeCatcher::pump()
+{
+}
 

@@ -29,12 +29,10 @@
 
 #include "llinitparam.h"
 #include "llsdparam.h"
-#include "llwin32headerslean.h"
+#include "llapr.h"
 #include "llexception.h"
-#include "apr_thread_proc.h"
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/optional.hpp>
-#include <boost/noncopyable.hpp>
 #include <iosfwd>                   // std::ostream
 
 #if LL_WINDOWS
@@ -68,7 +66,7 @@ typedef std::shared_ptr<LLProcess> LLProcessPtr;
  * indra/llcommon/tests/llprocess_test.cpp for an example of waiting for
  * child-process termination in a standalone test context.
  */
-class LL_COMMON_API LLProcess: public boost::noncopyable
+class LL_COMMON_API LLProcess
 {
 	LOG_CLASS(LLProcess);
 public:
@@ -226,15 +224,6 @@ public:
 		 * executable name.
 		 */
 		Optional<std::string> desc;
-
-		/**
-		   <FS:ND> HACK! libcef.so bleeds that intrusive tcmalloc hacks all over the process.
-		   This then causes awesome effects like crashes and memory corruption when the so is loaded dynamically.
-		   We uses this argument to force libcef.so be preloaded, which fixes this.
-		   The other solution would be to recompile CEF twice (x86/x64) for each CEF update. Which I really would like to avoid.
-		*/
-		Optional<std::string> preload;
-
 	};
 	typedef LLSDParamAdapter<Params> LLSDOrParams;
 
@@ -244,6 +233,9 @@ public:
 	 */
 	static LLProcessPtr create(const LLSDOrParams& params);
 	virtual ~LLProcess();
+	
+	LLProcess(const LLProcess&) = delete;
+	LLProcess& operator=(const LLProcess&) = delete;
 
 	/// Is child process still running?
 	bool isRunning() const;
@@ -457,7 +449,7 @@ public:
 		 * - "len" entire length of pending data, regardless of setLimit()
 		 * - "slot" this ReadPipe's FILESLOT, e.g. LLProcess::STDOUT
 		 * - "name" e.g. "stdout"
-		 * - "desc" e.g. "SLPlugin (pid) stdout"
+		 * - "desc" e.g. "PolarityPlugin (pid) stdout"
 		 * - "eof" @c true means there no more data will arrive on this pipe,
 		 *   therefore no more events on this pump
 		 *

@@ -154,6 +154,13 @@ inline void LLVector4a::splat(const LLVector4a& v, U32 i)
 	}
 }
 
+// Sets element N to that of src's element N
+template <int N> inline void LLVector4a::copyComponent(const LLVector4a& src)
+{
+	static const LLVector4Logical mask = _mm_load_ps((F32*)&S_V4LOGICAL_MASK_TABLE[N*4]);
+	setSelectWithMask(mask,src,mQ);
+}
+
 // Select bits from sourceIfTrue and sourceIfFalse according to bits in mask
 inline void LLVector4a::setSelectWithMask( const LLVector4Logical& mask, const LLVector4a& sourceIfTrue, const LLVector4a& sourceIfFalse )
 {
@@ -432,24 +439,24 @@ inline void LLVector4a::normalize3fast_checked(LLVector4a* d)
 // Return true if this vector is normalized with respect to x,y,z up to tolerance
 inline LLBool32 LLVector4a::isNormalized3( F32 tolerance ) const
 {
-	static LL_ALIGN_16(const U32 ones[4]) = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
+	const static LLVector4a ones(_mm_set_ps1(1.0f));
 	LLSimdScalar tol = _mm_load_ss( &tolerance );
 	tol = _mm_mul_ss( tol, tol );
 	LLVector4a lenSquared; lenSquared.setAllDot3( *this, *this );
-	lenSquared.sub( *reinterpret_cast<const LLVector4a*>(ones) );
-	lenSquared.setAbs(lenSquared); //-V678
+	lenSquared.sub(ones);
+	lenSquared.setAbs(lenSquared);
 	return _mm_comile_ss( lenSquared, tol );		
 }
 
 // Return true if this vector is normalized with respect to all components up to tolerance
 inline LLBool32 LLVector4a::isNormalized4( F32 tolerance ) const
 {
-	static LL_ALIGN_16(const U32 ones[4]) = { 0x3f800000, 0x3f800000, 0x3f800000, 0x3f800000 };
+	const static LLVector4a ones(_mm_set_ps1(1.0f));
 	LLSimdScalar tol = _mm_load_ss( &tolerance );
 	tol = _mm_mul_ss( tol, tol );
 	LLVector4a lenSquared; lenSquared.setAllDot4( *this, *this );
-	lenSquared.sub( *reinterpret_cast<const LLVector4a*>(ones) );
-	lenSquared.setAbs(lenSquared); //-V678
+	lenSquared.sub(ones);
+	lenSquared.setAbs(lenSquared);
 	return _mm_comile_ss( lenSquared, tol );		
 }
 
@@ -572,7 +579,7 @@ inline LLVector4Logical LLVector4a::equal(const LLVector4a& rhs) const
 inline bool LLVector4a::equals4(const LLVector4a& rhs, F32 tolerance ) const
 {
 	LLVector4a diff; diff.setSub( *this, rhs );
-	diff.setAbs( diff ); //-V678
+	diff.setAbs( diff );
 	const LLQuad tol = _mm_set1_ps( tolerance );
 	const LLQuad cmp = _mm_cmplt_ps( diff, tol );
 	return (_mm_movemask_ps( cmp ) & LLVector4Logical::MASK_XYZW) == LLVector4Logical::MASK_XYZW;

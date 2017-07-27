@@ -28,7 +28,6 @@
 #ifndef LL_STRING_TABLE_H
 #define LL_STRING_TABLE_H
 
-#include "linden_common.h"
 #include "lldefs.h"
 #include "llformat.h"
 #include "llstl.h"
@@ -137,7 +136,7 @@ public:
 		for (S32 i = 0; i<mTableSize; i++)
 		{
 			string_set_t& stringset = mStringList[i];
-			for (string_set_t::iterator iter = stringset.begin(); iter != stringset.end(); iter++)
+			for (string_set_t::iterator iter = stringset.begin(); iter != stringset.end(); ++iter)
 			{
 				delete *iter;
 			}
@@ -161,7 +160,7 @@ public:
 	{
 		U32 hashval = makehash(s);
 		LLStdStringHandle result = lookup(hashval, s);
-		if (result == NULL)
+		if (result == nullptr)
 		{
 			result = new std::string(s);
 			mStringList[hashval].insert(result);
@@ -196,7 +195,7 @@ private:
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 	

@@ -31,6 +31,8 @@
 // the HUD or a dialog box or a button.  It can also contain sub-views
 // and child widgets
 
+#include "llpreprocessor.h"
+
 #include "stdtypes.h"
 #include "llcoord.h"
 #include "llfontgl.h"
@@ -49,8 +51,8 @@
 #include "llfocusmgr.h"
 
 #include <list>
-#include <boost/function.hpp>
-#include <boost/noncopyable.hpp>
+#include <functional>
+#include <boost/container/flat_map.hpp> //<alchemy/>
 
 class LLSD;
 
@@ -229,14 +231,6 @@ public:
 	virtual void setRect(const LLRect &rect);
 	void		setFollows(U32 flags)			{ mReshapeFlags = flags; }
 
-	// deprecated, use setFollows() with FOLLOWS_LEFT | FOLLOWS_TOP, etc.
-	void		setFollowsNone()				{ mReshapeFlags = FOLLOWS_NONE; }
-	void		setFollowsLeft()				{ mReshapeFlags |= FOLLOWS_LEFT; }
-	void		setFollowsTop()					{ mReshapeFlags |= FOLLOWS_TOP; }
-	void		setFollowsRight()				{ mReshapeFlags |= FOLLOWS_RIGHT; }
-	void		setFollowsBottom()				{ mReshapeFlags |= FOLLOWS_BOTTOM; }
-	void		setFollowsAll()					{ mReshapeFlags |= FOLLOWS_ALL; }
-
 	void        setSoundFlags(U8 flags)			{ mSoundFlags = flags; }
 	void		setName(const std::string& name)			{ mName = name; }
 	void		setUseBoundingRect( BOOL use_bounding_rect );
@@ -377,9 +371,9 @@ public:
 	virtual void	setSnappedTo(const LLView* snap_view);
 
 	// inherited from LLFocusableElement
-	/* virtual */ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent);
-	/* virtual */ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent);
-	/* virtual */ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent);
+	/* virtual */ BOOL	handleKey(KEY key, MASK mask, BOOL called_from_parent) override;
+	/* virtual */ BOOL	handleKeyUp(KEY key, MASK mask, BOOL called_from_parent) override;
+	/* virtual */ BOOL	handleUnicodeChar(llwchar uni_char, BOOL called_from_parent) override;
 
 	virtual BOOL	handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 									  EDragAndDropType cargo_type,
@@ -416,25 +410,26 @@ public:
 	const child_list_t*	getChildList() const { return &mChildList; }
 	child_list_const_iter_t	beginChild() const { return mChildList.begin(); }
 	child_list_const_iter_t	endChild() const { return mChildList.end(); }
+	boost::container::flat_map<std::string, LLView*> mChildHashMap; // <alchemy/>
 
 	// LLMouseHandler functions
 	//  Default behavior is to pass events to children
-	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMiddleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMiddleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	/*virtual*/ BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) override;	
+	/*virtual*/ BOOL	handleToolTip(S32 x, S32 y, MASK mask) override;
 
-	/*virtual*/ const std::string& getName() const;
-	/*virtual*/ void	onMouseCaptureLost();
-	/*virtual*/ BOOL	hasMouseCapture();
-	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const;
-	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const;
+	/*virtual*/ const std::string& getName() const override;
+	/*virtual*/ void	onMouseCaptureLost() override;
+	/*virtual*/ BOOL	hasMouseCapture() override;
+	/*virtual*/ void	screenPointToLocal(S32 screen_x, S32 screen_y, S32* local_x, S32* local_y) const override;
+	/*virtual*/ void	localPointToScreen(S32 local_x, S32 local_y, S32* screen_x, S32* screen_y) const override;
 
 	virtual		LLView*	childFromPoint(S32 x, S32 y, bool recur=false);
 
@@ -480,7 +475,7 @@ public:
 			}
 			parent = parent->getParent();
 		}
-		return NULL;
+		return nullptr;
 	}
 
 	//////////////////////////////////////////////
@@ -620,7 +615,7 @@ private:
 	LLView& getDefaultWidgetContainer() const;
 
 	// This allows special mouse-event targeting logic for testing.
-	typedef boost::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
+	typedef std::function<bool(const LLView*, S32 x, S32 y)> DrilldownFunc;
 	static DrilldownFunc sDrilldown;
 
 public:
@@ -630,7 +625,7 @@ public:
 	//     LLView::TemporaryDrilldownFunc scoped_func(myfunctor);
 	//     // ... test with myfunctor ...
 	// } // exiting block restores original LLView::sDrilldown
-	class TemporaryDrilldownFunc: public boost::noncopyable
+	class TemporaryDrilldownFunc
 	{
 	public:
 		TemporaryDrilldownFunc(const DrilldownFunc& func):
@@ -643,6 +638,9 @@ public:
 		{
 			sDrilldown = mOldDrilldown;
 		}
+		
+		TemporaryDrilldownFunc(const TemporaryDrilldownFunc&) = delete;
+		TemporaryDrilldownFunc& operator=(const TemporaryDrilldownFunc&) = delete;
 
 	private:
 		DrilldownFunc mOldDrilldown;
@@ -706,7 +704,7 @@ template <class T> T* LLView::getChild(const std::string& name, BOOL recurse) co
 			else
 			{
 				LL_WARNS() << "Failed to create dummy " << typeid(T).name() << LL_ENDL;
-				return NULL;
+				return nullptr;
 			}
 
 			getDefaultWidgetContainer().addChild(result);

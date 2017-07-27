@@ -70,7 +70,7 @@ static const std::string HEADLESS_VENDOR_STRING("Linden Lab");
 static const std::string HEADLESS_RENDERER_STRING("Headless");
 static const std::string HEADLESS_VERSION_STRING("1.0");
 
-std::ofstream gFailLog;
+llofstream gFailLog;
 
 #if GL_ARB_debug_output
 
@@ -96,6 +96,7 @@ void APIENTRY gl_debug_callback(GLenum source,
 	{
 		LL_WARNS() << "----- GL WARNING -------" << LL_ENDL;
 	}
+	LL_WARNS() << "Source: " << std::hex << source << std::dec << LL_ENDL;
 	LL_WARNS() << "Type: " << std::hex << type << std::dec << LL_ENDL;
 	LL_WARNS() << "ID: " << std::hex << id << std::dec << LL_ENDL;
 	LL_WARNS() << "Severity: " << std::hex << severity << std::dec << LL_ENDL;
@@ -184,7 +185,6 @@ LLGLManager::LLGLManager() :
 	mHasPointParameters(FALSE),
 	mHasDrawBuffers(FALSE),
 	mHasDepthClamp(FALSE),
-	mHasTextureRectangle(FALSE),
 	mHasTransformFeedback(FALSE),
 	mMaxSampleMaskWords(0),
 	mMaxColorTextureSamples(0),
@@ -306,13 +306,6 @@ bool LLGLManager::initGL()
 
 	mGLVersion = mDriverVersionMajor + mDriverVersionMinor * .1f;
 
-	// In some cases, GLSL Version can be 0.0. In such case, force version to 1.0
-	if (mGLVersion < 1.0)
-	{
-		LL_WARNS() << "GLSL Version was less than 1.0, forcing to 1.0!" << LL_ENDL;
-		mGLVersion = 1.0;
-	}
-
 	if (mGLVersion >= 2.f)
 	{
 		parse_glsl_version(mGLSLVersionMajor, mGLSLVersionMinor);
@@ -408,7 +401,7 @@ bool LLGLManager::initGL()
 	initExtensions();
 	stop_glerror();
 
-	S32 fallback_vram = 256;
+	S32 old_vram = mVRAM;
 
 #if GLX_MESA_query_renderer
 	if (mHasMESAQueryRenderer)
@@ -419,37 +412,33 @@ bool LLGLManager::initGL()
 	}
 	else
 #endif
-
 	if (mHasATIMemInfo)
 	{ //ask the gl how much vram is free at startup and attempt to use no more than half of that
 		S32 meminfo[4];
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, meminfo);
-		LL_INFOS() << "Raw VRAM from GL_TEXTURE_FREE_MEMORY_ATI:" << meminfo << LL_ENDL;
+
 		mVRAM = meminfo[0]/1024;
 	}
 	else if (mHasNVXMemInfo)
 	{
 		S32 dedicated_memory;
 		glGetIntegerv(GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX, &dedicated_memory);
-		LL_INFOS() << "Raw VRAM from GL_GPU_MEMORY_INFO_DEDICATED_VIDMEM_NVX:" << dedicated_memory << LL_ENDL;
 		mVRAM = dedicated_memory/1024;
 	}
-	//VRAM detection should be accurate beyond this point
-	LL_WARNS() << "Graphic Card Video Memory = " << mVRAM << "MB" << LL_ENDL;
 
 	if (mVRAM < 256)
 	{ //something likely went wrong using the above extensions, fall back to old method
-		mVRAM = fallback_vram;
+		mVRAM = old_vram;
 	}
 
-	LL_INFOS("GL_DEBUG") << "Checking for GL error " << LL_ENDL;
+	stop_glerror();
+
 	stop_glerror();
 
 	if (mHasShaderObjects)
 	{
 		GLint num_tex_image_units;
 		glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS_ARB, &num_tex_image_units);
-		LL_DEBUGS("GL_DEBUG") << "Setting texture image units" << LL_ENDL;
 		mNumTextureImageUnits = llmin(num_tex_image_units, 32);
 
 		//According to the spec, the resulting value should never be less than 512. We need at least 1024 to use skinned shaders.
@@ -462,24 +451,20 @@ bool LLGLManager::initGL()
 
 	if (LLRender::sGLCoreProfile)
 	{
-		LL_WARNS("GL_DEBUG") << "Running in OpenGL Core profile!" << LL_ENDL;
 		mNumTextureUnits = llmin(mNumTextureImageUnits, MAX_GL_TEXTURE_UNITS);
 	}
 	else if (mHasMultitexture)
 	{
-		LL_INFOS("GL_DEBUG") << "Multitexture = YES" << LL_ENDL;
 		GLint num_tex_units;		
 		glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &num_tex_units);
 		mNumTextureUnits = llmin(num_tex_units, (GLint)MAX_GL_TEXTURE_UNITS);
 		if (mIsIntel)
 		{
-			LL_INFOS("GL_DEBUG") << "Hello, Intel!" << LL_ENDL;
 			mNumTextureUnits = llmin(mNumTextureUnits, 2);
 		}
 	}
 	else
 	{
-		LL_INFOS("GL_DEBUG") << "Multitexture = NO" << LL_ENDL;
 		mHasRequirements = FALSE;
 
 		// We don't support cards that don't support the GL_ARB_multitexture extension
@@ -501,7 +486,12 @@ bool LLGLManager::initGL()
 	if (mHasDebugOutput && gDebugGL)
 	{ //setup debug output callback
 		//glDebugMessageControlARB(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, GL_TRUE);
-		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, NULL);
+		glDebugMessageCallbackARB((GLDEBUGPROCARB) gl_debug_callback, nullptr);
+		if (mIsNVIDIA)
+		{
+			GLuint annoyingspam[1] = { 131185 };
+			glDebugMessageControlARB(GL_DEBUG_SOURCE_API_ARB, GL_DEBUG_TYPE_OTHER_ARB, GL_DONT_CARE, 1, annoyingspam, GL_FALSE);
+		}
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_ARB);
 	}
 #endif
@@ -524,7 +514,6 @@ bool LLGLManager::initGL()
 
 	stop_glerror();
 
-	LL_INFOS("GL_DEBUG") << "OpenGL Sucessfully Initialized." << LL_ENDL;
 	return true;
 }
 
@@ -696,7 +685,6 @@ void LLGLManager::initExtensions()
 	mHasOcclusionQuery = FALSE;
 	mHasPointParameters = FALSE;
 	mHasShaderObjects = FALSE;
-	mHasTextureRectangle = FALSE;
 #elif LL_DARWIN
     std::set<std::string> extensions;
     const auto extensionString = glGetString(GL_EXTENSIONS);
@@ -755,7 +743,6 @@ void LLGLManager::initExtensions()
     
     mHasDrawBuffers = extensions.find("GL_ARB_draw_buffers") != extensions.end();
     mHasBlendFuncSeparate = extensions.find("GL_EXT_blend_func_separate") != extensions.end();
-    mHasTextureRectangle = extensions.find("GL_ARB_texture_rectangle") != extensions.end();
     mHasDebugOutput = extensions.find("GL_ARB_debug_output") != extensions.end();
     mHasTransformFeedback = mGLVersion >= 4.f || extensions.find("GL_EXT_transform_feedback") != extensions.end();
 #if !LL_DARWIN
@@ -817,7 +804,6 @@ void LLGLManager::initExtensions()
 
 	mHasDrawBuffers = GLEW_ARB_draw_buffers;
 	mHasBlendFuncSeparate = GLEW_EXT_blend_func_separate;
-	mHasTextureRectangle = GLEW_ARB_texture_rectangle;
 	mHasDebugOutput = GLEW_ARB_debug_output;
 	mHasTransformFeedback = mGLVersion >= 4.f || GLEW_EXT_transform_feedback;
 #if !LL_DARWIN
@@ -899,7 +885,6 @@ void LLGLManager::initExtensions()
 		if (strchr(blacklist,'p')) mHasPointParameters = FALSE;//S
 		if (strchr(blacklist,'q')) mHasFramebufferObject = FALSE;//S
 		if (strchr(blacklist,'r')) mHasDrawBuffers = FALSE;//S
-		if (strchr(blacklist,'s')) mHasTextureRectangle = FALSE;
 		if (strchr(blacklist,'t')) mHasBlendFuncSeparate = FALSE;//S
 		if (strchr(blacklist,'u')) mHasDepthClamp = FALSE;
 		
@@ -1873,7 +1858,7 @@ LLGLUserClipPlane::~LLGLUserClipPlane()
 }
 
 LLGLDepthTest::LLGLDepthTest(GLboolean depth_enabled, GLboolean write_enabled, GLenum depth_func)
-: mPrevDepthEnabled(sDepthEnabled), mPrevDepthFunc(sDepthFunc), mPrevWriteEnabled(sWriteEnabled)
+: mPrevDepthFunc(sDepthFunc), mPrevDepthEnabled(sDepthEnabled), mPrevWriteEnabled(sWriteEnabled)
 {
 	stop_glerror();
 	
@@ -1982,7 +1967,7 @@ LLGLSquashToFarClip::~LLGLSquashToFarClip()
 LLGLSyncFence::LLGLSyncFence()
 {
 #ifdef GL_ARB_sync
-	mSync = 0;
+	mSync = nullptr;
 #endif
 }
 

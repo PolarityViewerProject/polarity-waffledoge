@@ -88,9 +88,9 @@ F32 const LLMaterialTable::DEFAULT_FRICTION = 0.5f;
 F32 const LLMaterialTable::DEFAULT_RESTITUTION = 0.4f;
 
 LLMaterialTable::LLMaterialTable()
-	: mCollisionSoundMatrix(NULL),
-	  mSlidingSoundMatrix(NULL),
-	  mRollingSoundMatrix(NULL)
+	: mCollisionSoundMatrix(nullptr),
+	  mSlidingSoundMatrix(nullptr),
+	  mRollingSoundMatrix(nullptr)
 {
 }
 
@@ -104,19 +104,19 @@ LLMaterialTable::~LLMaterialTable()
 	if (mCollisionSoundMatrix)
 	{
 		delete [] mCollisionSoundMatrix;
-		mCollisionSoundMatrix = NULL;
+		mCollisionSoundMatrix = nullptr;
 	}
 
 	if (mSlidingSoundMatrix)
 	{
 		delete [] mSlidingSoundMatrix;
-		mSlidingSoundMatrix = NULL;
+		mSlidingSoundMatrix = nullptr;
 	}
 
 	if (mRollingSoundMatrix)
 	{
 		delete [] mRollingSoundMatrix;
-		mRollingSoundMatrix = NULL;
+		mRollingSoundMatrix = nullptr;
 	}
 
 	for_each(mMaterialInfoList.begin(), mMaterialInfoList.end(), DeletePointer());
@@ -347,8 +347,15 @@ BOOL LLMaterialTable::add(U8 mcode, const std::string& name, const LLUUID &uuid)
 {
 	LLMaterialInfo *infop;
 
-	infop = new LLMaterialInfo(mcode,name,uuid);
-	if (!infop) return FALSE;
+	try
+	{
+		infop = new LLMaterialInfo(mcode, name, uuid);
+	}
+	catch (const std::bad_alloc& e)
+	{
+		LL_WARNS() << "Failed to allocate material info with exception: " << e.what() << LL_ENDL;
+		return FALSE;
+	}
 
 	// Add at the end so the order in menus matches the order in this
 	// file.  JNC 11.30.01

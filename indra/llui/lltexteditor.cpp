@@ -90,19 +90,22 @@ public:
 	{
 	}
 	virtual ~TextCmdInsert() {}
-	virtual BOOL execute( LLTextBase* editor, S32* delta )
+
+	BOOL execute( LLTextBase* editor, S32* delta ) override
 	{
 		*delta = insert(editor, getPosition(), mWString );
 		LLWStringUtil::truncate(mWString, *delta);
 		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
-	}	
-	virtual S32 undo( LLTextBase* editor )
+	}
+
+	S32 undo( LLTextBase* editor ) override
 	{
 		remove(editor, getPosition(), mWString.length() );
 		return getPosition();
 	}
-	virtual S32 redo( LLTextBase* editor )
+
+	S32 redo( LLTextBase* editor ) override
 	{
 		insert(editor, getPosition(), mWString );
 		return getPosition() + mWString.length();
@@ -120,25 +123,29 @@ public:
 		: TextCmd(pos, group_with_next, segment), mWString(1, wc), mBlockExtensions(FALSE)
 	{
 	}
-	virtual void blockExtensions()
+
+	void blockExtensions() override
 	{
 		mBlockExtensions = TRUE;
 	}
-	virtual BOOL canExtend(S32 pos) const
+
+	BOOL canExtend(S32 pos) const override
 	{
 		// cannot extend text with custom segments
 		if (!mSegments.empty()) return FALSE;
 
 		return !mBlockExtensions && (pos == getPosition() + (S32)mWString.length());
 	}
-	virtual BOOL execute( LLTextBase* editor, S32* delta )
+
+	BOOL execute( LLTextBase* editor, S32* delta ) override
 	{
 		*delta = insert(editor, getPosition(), mWString);
 		LLWStringUtil::truncate(mWString, *delta);
 		//mWString = wstring_truncate(mWString, *delta);
 		return (*delta != 0);
 	}
-	virtual BOOL extendAndExecute( LLTextBase* editor, S32 pos, llwchar wc, S32* delta )	
+
+	BOOL extendAndExecute( LLTextBase* editor, S32 pos, llwchar wc, S32* delta ) override
 	{ 
 		LLWString ws;
 		ws += wc;
@@ -150,12 +157,14 @@ public:
 		}
 		return (*delta != 0);
 	}
-	virtual S32 undo( LLTextBase* editor )
+
+	S32 undo( LLTextBase* editor ) override
 	{
 		remove(editor, getPosition(), mWString.length() );
 		return getPosition();
 	}
-	virtual S32 redo( LLTextBase* editor )
+
+	S32 redo( LLTextBase* editor ) override
 	{
 		insert(editor, getPosition(), mWString );
 		return getPosition() + mWString.length();
@@ -175,19 +184,21 @@ public:
 	TextCmdOverwriteChar( S32 pos, BOOL group_with_next, llwchar wc)
 		: TextCmd(pos, group_with_next), mChar(wc), mOldChar(0) {}
 
-	virtual BOOL execute( LLTextBase* editor, S32* delta )
+	BOOL execute( LLTextBase* editor, S32* delta ) override
 	{ 
 		mOldChar = editor->getWText()[getPosition()];
 		overwrite(editor, getPosition(), mChar);
 		*delta = 0;
 		return TRUE;
-	}	
-	virtual S32 undo( LLTextBase* editor )
+	}
+
+	S32 undo( LLTextBase* editor ) override
 	{
 		overwrite(editor, getPosition(), mOldChar);
 		return getPosition();
 	}
-	virtual S32 redo( LLTextBase* editor )
+
+	S32 redo( LLTextBase* editor ) override
 	{
 		overwrite(editor, getPosition(), mChar);
 		return getPosition()+1;
@@ -208,18 +219,21 @@ public:
 	{
 		std::swap(mSegments, segments);
 	}
-	virtual BOOL execute( LLTextBase* editor, S32* delta )
+
+	BOOL execute( LLTextBase* editor, S32* delta ) override
 	{ 
 		mWString = editor->getWText().substr(getPosition(), mLen);
 		*delta = remove(editor, getPosition(), mLen );
 		return (*delta != 0);
 	}
-	virtual S32 undo( LLTextBase* editor )
+
+	S32 undo( LLTextBase* editor ) override
 	{
 		insert(editor, getPosition(), mWString);
 		return getPosition() + mWString.length();
 	}
-	virtual S32 redo( LLTextBase* editor )
+
+	S32 redo( LLTextBase* editor ) override
 	{
 		remove(editor, getPosition(), mLen );
 		return getPosition();
@@ -236,11 +250,11 @@ LLTextEditor::Params::Params()
 	prevalidate_callback("prevalidate_callback"),
 	embedded_items("embedded_items", false),
 	ignore_tab("ignore_tab", true),
-	auto_indent("auto_indent", true),
-	default_color("default_color"),
-    commit_on_focus_lost("commit_on_focus_lost", false),
+	commit_on_focus_lost("commit_on_focus_lost", false),
 	show_context_menu("show_context_menu"),
-	enable_tooltip_paste("enable_tooltip_paste")
+    enable_tooltip_paste("enable_tooltip_paste"),
+	auto_indent("auto_indent", true),
+	default_color("default_color")
 {
 	addSynonym(prevalidate_callback, "text_type");
 }
@@ -248,22 +262,22 @@ LLTextEditor::Params::Params()
 LLTextEditor::LLTextEditor(const LLTextEditor::Params& p) :
 	LLTextBase(p),
 	mAutoreplaceCallback(),
-	mBaseDocIsPristine(TRUE),
-	mPristineCmd( NULL ),
-	mLastCmd( NULL ),
-	mDefaultColor( p.default_color() ),
-	mAutoIndent(p.auto_indent),
-	mCommitOnFocusLost( p.commit_on_focus_lost),
-	mAllowEmbeddedItems( p.embedded_items ),
 	mMouseDownX(0),
 	mMouseDownY(0),
+	mDefaultColor( p.default_color() ),
+	mAutoIndent(p.auto_indent),
+	mBaseDocIsPristine(TRUE),
+	mPristineCmd(nullptr ),
+	mLastCmd(nullptr ),
 	mTabsToNextField(p.ignore_tab),
-	mPrevalidateFunc(p.prevalidate_callback()),
-	mContextMenu(NULL),
+	mCommitOnFocusLost( p.commit_on_focus_lost),
+	mAllowEmbeddedItems( p.embedded_items ),
 	mShowContextMenu(p.show_context_menu),
 	mEnableTooltipPaste(p.enable_tooltip_paste),
 	mPassDelete(FALSE),
-	mKeepSelectionOnReturn(false)
+	mKeepSelectionOnReturn(false),
+	mPrevalidateFunc(p.prevalidate_callback()),
+	mContextMenuHandle()
 {
 	mSourceID.generate();
 
@@ -303,8 +317,13 @@ LLTextEditor::~LLTextEditor()
 	// Scrollbar is deleted by LLView
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 	mUndoStack.clear();
-	// context menu is owned by menu holder, not us
-	//delete mContextMenu;
+	// Mark the menu as dead or its retained in memory till shutdown.
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if(menu)
+	{
+		menu->die();
+		mContextMenuHandle.markDead();
+	}
 }
 
 ////////////////////////////////////////////////////////////
@@ -334,7 +353,10 @@ void LLTextEditor::setText(const LLStringExplicit &utf8str, const LLStyle::Param
 	resetDirty();
 }
 
-void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap)
+//void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap)
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insensitive, BOOL wrap, BOOL search_up)
+// [/SL:KB]
 {
 	if (search_text_in.empty())
 	{
@@ -355,21 +377,39 @@ void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insen
 		
 		if (selected_text == search_text)
 		{
-			// We already have this word selected, we are searching for the next.
-			setCursorPos(mCursorPos + search_text.size());
+//			// We already have this word selected, we are searching for the next.
+//			setCursorPos(mCursorPos + search_text.size());
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+			if (search_up)
+			{
+				// We already have this word selected, we are searching for the previous.
+				setCursorPos(llmax(0, mCursorPos - 1));
+			}
+			else
+			{
+				// We already have this word selected, we are searching for the next.
+				setCursorPos(mCursorPos + search_text.size());
+			}
+// [/SL:KB]
 		}
 	}
 	
-	LLWString::size_type loc = text.find(search_text,mCursorPos);
+//	S32 loc = text.find(search_text,mCursorPos);
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	size_t loc = (search_up) ? text.rfind(search_text, llmax(0, mCursorPos - (S32)search_text.size())) : text.find(search_text,mCursorPos);
+// [/SL:KB]
 	
 	// If Maybe we wrapped, search again
-	if (wrap && (LLWString::npos == loc))
+	if (wrap && (std::string::npos == loc))
 	{	
-		loc = text.find(search_text);
+//		loc = text.find(search_text);
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+		loc = (search_up) ? text.rfind(search_text) : text.find(search_text);
+// [/SL:KB]
 	}
 	
 	// If still -1, then search_text just isn't found.
-    if (LLWString::npos == loc)
+    if (std::string::npos == loc)
 	{
 		mIsSelecting = FALSE;
 		mSelectionEnd = 0;
@@ -378,14 +418,24 @@ void LLTextEditor::selectNext(const std::string& search_text_in, BOOL case_insen
 	}
 
 	setCursorPos(loc);
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	if (mReadOnly)
+	{
+		updateScrollFromCursor();
+	}
+// [/SL:KB]
 	
 	mIsSelecting = TRUE;
 	mSelectionEnd = mCursorPos;
 	mSelectionStart = llmin((S32)getLength(), (S32)(mCursorPos + search_text.size()));
 }
 
+//BOOL LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
+//							   BOOL case_insensitive, BOOL wrap)
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
 BOOL LLTextEditor::replaceText(const std::string& search_text_in, const std::string& replace_text,
-							   BOOL case_insensitive, BOOL wrap)
+							   BOOL case_insensitive, BOOL wrap, BOOL search_up)
+// [/SL:KB]
 {
 	BOOL replaced = FALSE;
 
@@ -413,7 +463,10 @@ BOOL LLTextEditor::replaceText(const std::string& search_text_in, const std::str
 		}
 	}
 
-	selectNext(search_text_in, case_insensitive, wrap);
+//	selectNext(search_text_in, case_insensitive, wrap);
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-10-29 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	selectNext(search_text_in, case_insensitive, wrap, search_up);
+// [/SL:KB]
 	return replaced;
 }
 
@@ -847,7 +900,7 @@ BOOL LLTextEditor::handleMouseUp(S32 x, S32 y, MASK mask)
 
 	if( hasMouseCapture()  )
 	{
-		gFocusMgr.setMouseCapture( NULL );
+		gFocusMgr.setMouseCapture(nullptr );
 		
 		handled = TRUE;
 	}
@@ -1058,6 +1111,33 @@ void LLTextEditor::removeChar()
 	}
 }
 
+// Remove a word (set of characters up to next space/punctuation) from the text
+void LLTextEditor::removeWord(bool prev)
+{
+	const S32 pos(mCursorPos);
+	if (prev ? pos > 0 : pos < getLength())
+	{
+		S32 new_pos(prev ? prevWordPos(pos) : nextWordPos(pos));
+		if (new_pos == pos) // Other character we don't jump over
+			new_pos = prev ? prevWordPos(new_pos-1) : nextWordPos(new_pos+1);
+
+		const S32 diff(llabs((pos - new_pos)));
+		if (prev)
+		{
+			remove(new_pos, diff, false);
+			setCursorPos(new_pos);
+		}
+		else
+		{
+			remove(pos, diff, false);
+		}
+	}
+	else
+	{
+		LLUI::reportBadKeystroke();
+	}
+}
+
 // Add a single character to the text
 S32 LLTextEditor::addChar(S32 pos, llwchar wc)
 {
@@ -1110,7 +1190,7 @@ void LLTextEditor::addChar(llwchar wc)
 
 	setCursorPos(mCursorPos + addChar( mCursorPos, wc ));
 
-	if (!mReadOnly && mAutoreplaceCallback != NULL)
+	if (!mReadOnly && mAutoreplaceCallback != nullptr)
 	{
 		// autoreplace the text, if necessary
 		S32 replacement_start;
@@ -1461,6 +1541,10 @@ void LLTextEditor::pasteHelper(bool is_primary)
 // Clean up string (replace tabs and remove characters that our fonts don't support).
 void LLTextEditor::cleanStringForPaste(LLWString & clean_string)
 {
+	std::string clean_string_utf = wstring_to_utf8str(clean_string);
+	std::replace( clean_string_utf.begin(), clean_string_utf.end(), '\r', '\n');
+	clean_string = utf8str_to_wstring(clean_string_utf);
+
 	LLWStringUtil::replaceTabsWithSpaces(clean_string, SPACES_PER_TAB);
 	if( mAllowEmbeddedItems )
 	{
@@ -1487,7 +1571,7 @@ void LLTextEditor::pasteTextWithLinebreaks(LLWString & clean_string)
 	std::basic_string<llwchar>::size_type start = 0;
 	std::basic_string<llwchar>::size_type pos = clean_string.find('\n',start);
 	
-	while((pos != std::basic_string<llwchar>::npos) && (pos != clean_string.length() - 1))
+	while((pos != std::basic_string<llwchar>::npos) && (pos != clean_string.length() -1))
 	{
 		if(pos!=start)
 		{
@@ -1643,7 +1727,10 @@ BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask)
 		else
 		if( 0 < mCursorPos )
 		{
-			removeCharOrTab();
+			if (mask == MASK_CONTROL)
+				removeWord(true);
+			else
+				removeCharOrTab();
 		}
 		else
 		{
@@ -1651,6 +1738,16 @@ BOOL LLTextEditor::handleSpecialKey(const KEY key, const MASK mask)
 		}
 		break;
 
+	case KEY_DELETE:
+		if (getEnabled() && mask == MASK_CONTROL)
+		{
+			removeWord(false);
+		}
+		else
+		{
+			handled = false;
+		}
+		break;
 
 	case KEY_RETURN:
 		if (mask == MASK_NONE)
@@ -1902,7 +1999,7 @@ void LLTextEditor::doDelete()
 void LLTextEditor::blockUndo()
 {
 	mBaseDocIsPristine = FALSE;
-	mLastCmd = NULL;
+	mLastCmd = nullptr;
 	std::for_each(mUndoStack.begin(), mUndoStack.end(), DeletePointer());
 	mUndoStack.clear();
 }
@@ -1910,7 +2007,7 @@ void LLTextEditor::blockUndo()
 // virtual
 BOOL LLTextEditor::canUndo() const
 {
-	return !mReadOnly && mLastCmd != NULL;
+	return !mReadOnly && mLastCmd != nullptr;
 }
 
 void LLTextEditor::undo()
@@ -1930,7 +2027,7 @@ void LLTextEditor::undo()
 		if (iter != mUndoStack.end())
 			mLastCmd = *iter;
 		else
-			mLastCmd = NULL;
+			mLastCmd = nullptr;
 
 		} while( mLastCmd && mLastCmd->groupWithNext() );
 
@@ -1964,7 +2061,7 @@ void LLTextEditor::redo()
 			if (iter != mUndoStack.begin())
 				mLastCmd = *(--iter);
 			else
-				mLastCmd = NULL;
+				mLastCmd = nullptr;
 		}
 
 			if( mLastCmd )
@@ -1994,7 +2091,7 @@ void LLTextEditor::focusLostHelper()
 	// Route menu back to the default
  	if( gEditMenuHandler == this )
 	{
-		gEditMenuHandler = NULL;
+		gEditMenuHandler = nullptr;
 	}
 
 	if (mCommitOnFocusLost)
@@ -2033,12 +2130,14 @@ void LLTextEditor::setEnabled(BOOL enabled)
 
 void LLTextEditor::showContextMenu(S32 x, S32 y)
 {
-	if (!mContextMenu)
+	LLContextMenu* menu = static_cast<LLContextMenu*>(mContextMenuHandle.get());
+	if (!menu)
 	{
 		llassert(LLMenuGL::sMenuContainer != NULL);
-		mContextMenu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_text_editor.xml", 
+		menu = LLUICtrlFactory::instance().createFromFile<LLContextMenu>("menu_text_editor.xml", 
 																				LLMenuGL::sMenuContainer, 
 																				LLMenuHolderGL::child_registry_t::instance());
+		mContextMenuHandle = menu->getHandle();
 	}
 
 	// Route menu to this class
@@ -2084,11 +2183,11 @@ void LLTextEditor::showContextMenu(S32 x, S32 y)
 		}
 	}
 
-	mContextMenu->setItemVisible("Suggestion Separator", (use_spellcheck) && (!mSuggestionList.empty()));
-	mContextMenu->setItemVisible("Add to Dictionary", (use_spellcheck) && (is_misspelled));
-	mContextMenu->setItemVisible("Add to Ignore", (use_spellcheck) && (is_misspelled));
-	mContextMenu->setItemVisible("Spellcheck Separator", (use_spellcheck) && (is_misspelled));
-	mContextMenu->show(screen_x, screen_y, this);
+	menu->setItemVisible("Suggestion Separator", (use_spellcheck) && (!mSuggestionList.empty()));
+	menu->setItemVisible("Add to Dictionary", (use_spellcheck) && (is_misspelled));
+	menu->setItemVisible("Add to Ignore", (use_spellcheck) && (is_misspelled));
+	menu->setItemVisible("Spellcheck Separator", (use_spellcheck) && (is_misspelled));
+	menu->show(screen_x, screen_y, this);
 }
 
 
@@ -2250,7 +2349,7 @@ void LLTextEditor::setFocus( BOOL new_state )
 		// Route menu back to the default
 		if( gEditMenuHandler == this )
 		{
-			gEditMenuHandler = NULL;
+			gEditMenuHandler = nullptr;
 		}
 
 		endSelection();
@@ -2463,6 +2562,8 @@ BOOL LLTextEditor::tryToRevertToPristineState()
 
 void LLTextEditor::updateLinkSegments()
 {
+	if (!mParseHTML) return;
+
 	LLWString wtext = getWText();
 
 	// update any segments that contain a link
@@ -2471,21 +2572,21 @@ void LLTextEditor::updateLinkSegments()
 		LLTextSegment *segment = *it;
 		if (segment && segment->getStyle() && segment->getStyle()->isLink())
 		{
-			LLStyleConstSP style = segment->getStyle();
-			LLStyleSP new_style(new LLStyle(*style));
+			std::string url_label_str; //XXX: Hack until we can get WString caching
 			LLWString url_label = wtext.substr(segment->getStart(), segment->getEnd()-segment->getStart());
 
 			segment_set_t::const_iterator next_it = mSegments.upper_bound(segment);
 			LLTextSegment *next_segment = *next_it;
 			if (next_segment)
 			{
-				LLWString next_url_label = wtext.substr(next_segment->getStart(), next_segment->getEnd()-next_segment->getStart());
-				std::string link_check = wstring_to_utf8str(url_label) + wstring_to_utf8str(next_url_label);
+				std::string next_url_label = wstring_to_utf8str(wtext.substr(next_segment->getStart(), next_segment->getEnd()-next_segment->getStart()));
+				url_label_str = wstring_to_utf8str(url_label);
+				std::string link_check = url_label_str + next_url_label;
 				LLUrlMatch match;
 
 				if ( LLUrlRegistry::instance().findUrl(link_check, match))
 				{
-					if(match.getQuery() == wstring_to_utf8str(next_url_label))
+					if(match.getQuery() == next_url_label)
 					{
 						continue;
 					}
@@ -2497,9 +2598,12 @@ void LLTextEditor::updateLinkSegments()
 			// This lets users edit Urls in-place.
 			if (LLUrlRegistry::instance().hasUrl(url_label))
 			{
-				std::string new_url = wstring_to_utf8str(url_label);
-				LLStringUtil::trim(new_url);
-				new_style->setLinkHREF(new_url);
+				//XXX: Hack until we can get WString caching
+				if (url_label_str.empty())
+					url_label_str = wstring_to_utf8str(url_label);
+				LLStringUtil::trim(url_label_str);
+				LLStyleSP new_style(new LLStyle(*segment->getStyle()));
+				new_style->setLinkHREF(url_label_str);
 				LLStyleConstSP sp(new_style);
 				segment->setStyle(sp);
 			}
@@ -2568,10 +2672,14 @@ BOOL LLTextEditor::importBuffer(const char* buffer, S32 length )
 
 	BOOL success = TRUE;
 
-	char* text = new char[ text_len + 1];
-	if (text == NULL)
+	char* text = nullptr;
+	try
 	{
-		LL_ERRS() << "Memory allocation failure." << LL_ENDL;			
+		text = new char[text_len + 1];
+	}
+	catch (const std::bad_alloc& e)
+	{
+		LL_ERRS() << "Memory allocation failure with exception: " << e.what() << LL_ENDL;			
 		return FALSE;
 	}
 	instream.get(text, text_len + 1, '\0');
@@ -2897,7 +3005,7 @@ BOOL LLTextEditor::isDirty() const
 	}
 	else
 	{
-		return ( NULL != mLastCmd );
+		return (nullptr != mLastCmd );
 	}
 }
 

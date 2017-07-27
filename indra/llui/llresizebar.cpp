@@ -38,10 +38,10 @@
 #include "llwindow.h"
 
 LLResizeBar::Params::Params()
-:	max_size("max_size", S32_MAX),
-	snapping_enabled("snapping_enabled", true),
-	resizing_view("resizing_view"),
+:	resizing_view("resizing_view"),
 	side("side"),
+	max_size("max_size", S32_MAX),
+	snapping_enabled("snapping_enabled", true),
 	allow_double_click_snapping("allow_double_click_snapping", true)
 {
 	name = "resize_bar";
@@ -62,31 +62,23 @@ LLResizeBar::LLResizeBar(const LLResizeBar::Params& p)
 	mResizeListener(NULL),
 	mImagePanel(NULL)
 {
-	setFollowsNone();
 	// set up some generically good follow code.
 	switch( mSide )
 	{
 	case LEFT:
-		setFollowsLeft();
-		setFollowsTop();
-		setFollowsBottom();
+		setFollows(FOLLOWS_LEFT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 		break;
 	case TOP:
-		setFollowsTop();
-		setFollowsLeft();
-		setFollowsRight();
+		setFollows(FOLLOWS_TOP | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 		break;
 	case RIGHT:
-		setFollowsRight();
-		setFollowsTop();
-		setFollowsBottom();
+		setFollows(FOLLOWS_RIGHT | FOLLOWS_TOP | FOLLOWS_BOTTOM);
 		break;
 	case BOTTOM:
-		setFollowsBottom();
-		setFollowsLeft();
-		setFollowsRight();
+		setFollows(FOLLOWS_BOTTOM | FOLLOWS_LEFT | FOLLOWS_RIGHT);
 		break;
 	default:
+		setFollows(FOLLOWS_NONE);
 		break;
 	}
 }

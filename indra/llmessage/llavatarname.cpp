@@ -55,14 +55,15 @@ bool LLAvatarName::sUseUsernames = true;
 const F64 MIN_ENTRY_LIFETIME = 60.0;
 
 LLAvatarName::LLAvatarName()
-:	mUsername(),
+:	mExpires(F64_MAX),
+	mNextUpdate(0.0),
+	mUsername(),
 	mDisplayName(),
 	mLegacyFirstName(),
 	mLegacyLastName(),
 	mIsDisplayNameDefault(false),
-	mIsTemporaryName(false),
-	mExpires(F64_MAX),
-	mNextUpdate(0.0)
+	mIsTemporaryName(false)
+
 { }
 
 bool LLAvatarName::operator<(const LLAvatarName& rhs) const
@@ -232,7 +233,7 @@ std::string LLAvatarName::getDisplayName(bool force_use_display_name) const
 std::string LLAvatarName::getUserName(bool lowercase) const
 {
 	std::string name;
-	if (mLegacyLastName.empty() || (mLegacyLastName == "Resident"))
+	if (mLegacyLastName.empty() /*|| (mLegacyLastName == "Resident")*/) // <alchemy/>
 	{
 		if (mLegacyFirstName.empty())
 		{
@@ -258,35 +259,6 @@ std::string LLAvatarName::getUserName(bool lowercase) const
 	    }
 	}
 	return name;
-}
-
-std::string LLAvatarName::getCompleteNameForced() const
-{
-	// NOTE: Should we prefer display name or user name here?
-	// For now: respect display name preferences but force the parenthesis format.
-	std::string name;
-	if (mUsername.empty() || mIsDisplayNameDefault)
-	{
-		// If this particular display name is defaulted (i.e. based on user name),
-		// then construct a full name from it.
-		name = mDisplayName;
-	}
-	else
-	{
-		name = mDisplayName;
-	}
-	name += " (" + mUsername + ")";
-	return name;
-}
-
-std::string LLAvatarName::getDisplayNameForced() const
-{
-	if (mDisplayName.empty())
-	{
-		return "Second Life";
-	}
-	return mDisplayName;
-
 }
 
 void LLAvatarName::dump() const

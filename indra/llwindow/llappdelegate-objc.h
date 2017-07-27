@@ -27,7 +27,12 @@
 #import <Cocoa/Cocoa.h>
 #import "llopenglview-objc.h"
 
-@interface LLAppDelegate : NSObject <NSApplicationDelegate> {
+@interface LLNSApplication : NSApplication
+@end
+
+@interface LLAppDelegate
+: NSObject <NSApplicationDelegate, NSUserNotificationCenterDelegate>
+{
 	LLNSWindow *window;
 	NSWindow *inputWindow;
 	LLNonInlineTextView *inputView;

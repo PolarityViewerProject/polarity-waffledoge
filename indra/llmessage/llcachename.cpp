@@ -39,8 +39,6 @@
 #include "lluuid.h"
 #include "message.h"
 
-#include <boost/regex.hpp>
-
 // llsd serialization constants
 static const std::string AGENTS("agents");
 static const std::string GROUPS("groups");
@@ -54,7 +52,7 @@ static const std::string NAME("name");
 const U32 PENDING_TIMEOUT_SECS = 5 * 60;
 
 // Globals
-LLCacheName* gCacheName = NULL;
+LLCacheName* gCacheName = nullptr;
 std::map<std::string, std::string> LLCacheName::sCacheName;
 
 /// ---------------------------------------------------------------------------
@@ -315,7 +313,7 @@ bool LLCacheName::importFile(std::istream& istr)
 	}
 
 	// We'll expire entries more than a week old
-	U32 now = (U32)time(NULL);
+	U32 now = (U32)time(nullptr);
 	const U32 SECS_PER_DAY = 60 * 60 * 24;
 	U32 delete_before_time = now - (7 * SECS_PER_DAY);
 
@@ -449,12 +447,6 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	fullname = buildFullName(first_name, last_name);
 	return res;
 }
-// <FS:CR> Returns first name, last name
-BOOL LLCacheName::getFirstLastName(const LLUUID& id, std::string& first, std::string& last)
-{
-	return impl.getName(id, first, last);
-}
-// </FS:CR>
 
 
 
@@ -473,7 +465,7 @@ BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 		// this group name was loaded from a name cache that did not
 		// bother to save the group name ==> we must ask for it
 		LL_DEBUGS() << "LLCacheName queuing HACK group request: " << id << LL_ENDL;
-		entry = NULL;
+		entry = nullptr;
 	}
 
 	if (entry)
@@ -574,7 +566,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 	if (open_paren != std::string::npos &&
 		close_paren == complete_name.length()-1)
 	{
-		size_t length = llmax(close_paren - open_paren - 2, (size_t) 0);
+		size_t length = llmax(close_paren - open_paren - 2, (size_t)0);
 		std::string legacy_name = complete_name.substr(open_paren+2, length);
 		
 		if (legacy_name.length() > 0)
@@ -607,7 +599,7 @@ std::string LLCacheName::buildLegacyName(const std::string& complete_name)
 
 // This is a little bit kludgy. LLCacheNameCallback is a slot instead of a function pointer.
 //  The reason it is a slot is so that the legacy get() function below can bind an old callback
-//  and pass it as a slot. The reason it isn't a boost::function is so that trackable behavior
+//  and pass it as a slot. The reason it isn't a std::function is so that trackable behavior
 //  doesn't get lost. As a result, we have to bind the slot to a signal to call it, even when
 //  we call it immediately. -Steve
 // NOTE: Even though passing first and last name is a bit of extra overhead, it eliminates the
@@ -660,34 +652,6 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
 	return res;
 }
 
-// NaCl - Sound explorer and Area Search
-BOOL LLCacheName::getIfThere(const LLUUID& id, std::string& fullname, BOOL& is_group)
-{
-	if(id.isNull())
-	{
-		fullname = "";
-		return FALSE;
-	}
-
-	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
-	if (entry)
-	{
-		if (entry->mIsGroup)
-		{
-			fullname = entry->mGroupName;
-		}
-		else
-		{
-			fullname = buildFullName(entry->mFirstName, entry->mLastName);
-		}
-		is_group = entry->mIsGroup;
-		return TRUE;
-	}
-	fullname = "";
-	return FALSE;
-}
-// NaCl end
-
 boost::signals2::connection LLCacheName::getGroup(const LLUUID& group_id,
 												  const LLCacheNameCallback& callback)
 {
@@ -720,7 +684,7 @@ void LLCacheName::processPending()
 
 void LLCacheName::deleteEntriesOlderThan(S32 secs)
 {
-	U32 now = (U32)time(NULL);
+	U32 now = (U32)time(nullptr);
 	U32 expire_time = now - secs;
 	for(Cache::iterator iter = impl.mCache.begin(); iter != impl.mCache.end(); )
 	{
@@ -898,7 +862,7 @@ void LLCacheName::Impl::sendRequest(
 
 bool LLCacheName::Impl::isRequestPending(const LLUUID& id)
 {
-	U32 now = (U32)time(NULL);
+	U32 now = (U32)time(nullptr);
 	U32 expire_time = now - PENDING_TIMEOUT_SECS;
 
 	PendingQueue::iterator iter = mPendingQueue.find(id);
@@ -986,7 +950,7 @@ void LLCacheName::Impl::processUUIDReply(LLMessageSystem* msg, bool isGroup)
 		mPendingQueue.erase(id);
 
 		entry->mIsGroup = isGroup;
-		entry->mCreateTime = (U32)time(NULL);
+		entry->mCreateTime = (U32)time(nullptr);
 		if (!isGroup)
 		{
 			msg->getStringFast(_PREHASH_UUIDNameBlock, _PREHASH_FirstName, entry->mFirstName, i);

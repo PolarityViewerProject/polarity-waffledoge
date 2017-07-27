@@ -28,13 +28,12 @@
 #define LL_FLASHTIMER_H
 
 #include "lleventtimer.h"
-#include <boost/function.hpp>
 
 class LLFlashTimer : public LLEventTimer
 {
 public:
 
-	typedef boost::function<void (bool)> callback_t;
+	typedef std::function<void (bool)> callback_t;
 
 	/**
 	 * Constructor.
@@ -46,7 +45,7 @@ public:
 	LLFlashTimer(callback_t cb = NULL, S32 count = 0, F32 period = 0.0);
 	~LLFlashTimer() {};
 
-	/*virtual*/ BOOL tick();
+	/*virtual*/ BOOL tick() override;
 
 	void startFlashing();
 	void stopFlashing();

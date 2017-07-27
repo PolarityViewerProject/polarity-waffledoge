@@ -70,10 +70,10 @@ LLUICtrl::ControlVisibility::ControlVisibility()
 }
 
 LLUICtrl::Params::Params()
-:	tab_stop("tab_stop", true),
+:	label("label"),
+	tab_stop("tab_stop", true),
 	chrome("chrome", false),
 	requests_front("requests_front", false),
-	label("label"),
 	initial_value("value"),
 	init_callback("init_callback"),
 	commit_callback("commit_callback"),
@@ -84,8 +84,8 @@ LLUICtrl::Params::Params()
 	font("font", LLFontGL::getFontSansSerif()),
 	font_halign("halign"),
 	font_valign("valign"),
-	length("length"), 	// ignore LLXMLNode cruft
-	type("type")   		// ignore LLXMLNode cruft
+	type("type"), 	// ignore LLXMLNode cruft
+	length("length")   		// ignore LLXMLNode cruft
 {
 	addSynonym(initial_value, "initial_value");
 }
@@ -101,25 +101,25 @@ const LLUICtrl::Params& LLUICtrl::getDefaultParams()
 
 LLUICtrl::LLUICtrl(const LLUICtrl::Params& p, const LLViewModelPtr& viewmodel) 
 :	LLView(p),
+	mCommitSignal(nullptr),
+	mValidateSignal(nullptr),
+	mMouseEnterSignal(nullptr),
+	mMouseLeaveSignal(nullptr),
+    mMouseDownSignal(nullptr),
+	mMouseUpSignal(nullptr),
+	mRightMouseDownSignal(nullptr),
+	mRightMouseUpSignal(nullptr),
+	mDoubleClickSignal(nullptr),
+	mViewModel(viewmodel),
+	mControlVariable(nullptr),
+	mEnabledControlVariable(nullptr),
+	mDisabledControlVariable(nullptr),
+	mMakeVisibleControlVariable(nullptr),
+	mMakeInvisibleControlVariable(nullptr),
 	mIsChrome(FALSE),
 	mRequestsFront(p.requests_front),
 	mTabStop(FALSE),
 	mTentative(FALSE),
-    mViewModel(viewmodel),
-	mControlVariable(NULL),
-	mEnabledControlVariable(NULL),
-	mDisabledControlVariable(NULL),
-	mMakeVisibleControlVariable(NULL),
-	mMakeInvisibleControlVariable(NULL),
-	mCommitSignal(NULL),
-	mValidateSignal(NULL),
-	mMouseEnterSignal(NULL),
-	mMouseLeaveSignal(NULL),
-	mMouseDownSignal(NULL),
-	mMouseUpSignal(NULL),
-	mRightMouseDownSignal(NULL),
-	mRightMouseUpSignal(NULL),
-	mDoubleClickSignal(NULL),
 	mTransparencyType(TT_DEFAULT)
 {
 	claimMem(viewmodel.get());
@@ -216,7 +216,7 @@ LLUICtrl::~LLUICtrl()
 
 	if( gFocusMgr.getTopCtrl() == this )
 	{
-		LL_WARNS() << "UI Control holding top ctrl deleted: " << LLView::getName() << ".  Top view removed." << LL_ENDL;
+		LL_WARNS() << "UI Control holding top ctrl deleted: " << getName() << ".  Top view removed." << LL_ENDL;
 		gFocusMgr.removeTopCtrlWithoutCallback( this );
 	}
 
@@ -262,9 +262,8 @@ LLUICtrl::commit_signal_t::slot_type LLUICtrl::initCommitCallback(const CommitCa
 		}
 		else if (!function_name.empty())
 		{
-			// <polarity> Drake said to ignore these. The menu calls work so I'll just do that.
-			LL_DEBUGS() << "No callback found for: '" << function_name << "' in control '" << getName() << "'! Clean me up." << LL_ENDL;
-		}
+			LL_WARNS() << "No callback found for: '" << function_name << "' in control: " << getName() << LL_ENDL;
+		}			
 	}
 	return default_commit_handler;
 }
@@ -316,7 +315,7 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 {
 
 	LL_DEBUGS() << "LLUICtrl::handleMouseDown calling	LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
-
+  
 	BOOL handled  = LLView::handleMouseDown(x,y,mask);
 	
 	if (mMouseDownSignal)
@@ -324,6 +323,7 @@ BOOL LLUICtrl::handleMouseDown(S32 x, S32 y, MASK mask)
 		(*mMouseDownSignal)(this,x,y,mask);
 	}
 	LL_DEBUGS() << "LLUICtrl::handleMousedown - handled is returning as: " << handled << "	  " << LL_ENDL;
+	
 	if (handled) {
 		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname());
 	}
@@ -335,6 +335,7 @@ BOOL LLUICtrl::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 
 	LL_DEBUGS() << "LLUICtrl::handleMouseUp calling LLView)'s handleMouseUp (first initialized xui to: " << getPathname() << " )" << LL_ENDL;
+
 	BOOL handled  = LLView::handleMouseUp(x,y,mask);
 	if (handled) {
 		LLViewerEventRecorder::instance().updateMouseEventInfo(x,y,-56,-56,getPathname()); 
@@ -475,7 +476,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
 		//RN: this will happen in practice, should we try to avoid it?
 		//LL_WARNS() << "setControlName called twice on same control!" << LL_ENDL;
 		mControlConnection.disconnect(); // disconnect current signal
-		mControlVariable = NULL;
+		mControlVariable = nullptr;
 	}
 	
 	if (control)
@@ -489,7 +490,7 @@ void LLUICtrl::setControlVariable(LLControlVariable* control)
 //virtual
 void LLUICtrl::setControlName(const std::string& control_name, LLView *context)
 {
-	if (context == NULL)
+	if (context == nullptr)
 	{
 		context = this;
 	}
@@ -507,7 +508,7 @@ void LLUICtrl::setEnabledControlVariable(LLControlVariable* control)
 	if (mEnabledControlVariable)
 	{
 		mEnabledControlConnection.disconnect(); // disconnect current signal
-		mEnabledControlVariable = NULL;
+		mEnabledControlVariable = nullptr;
 	}
 	if (control)
 	{
@@ -522,7 +523,7 @@ void LLUICtrl::setDisabledControlVariable(LLControlVariable* control)
 	if (mDisabledControlVariable)
 	{
 		mDisabledControlConnection.disconnect(); // disconnect current signal
-		mDisabledControlVariable = NULL;
+		mDisabledControlVariable = nullptr;
 	}
 	if (control)
 	{
@@ -537,7 +538,7 @@ void LLUICtrl::setMakeVisibleControlVariable(LLControlVariable* control)
 	if (mMakeVisibleControlVariable)
 	{
 		mMakeVisibleControlConnection.disconnect(); // disconnect current signal
-		mMakeVisibleControlVariable = NULL;
+		mMakeVisibleControlVariable = nullptr;
 	}
 	if (control)
 	{
@@ -552,7 +553,7 @@ void LLUICtrl::setMakeInvisibleControlVariable(LLControlVariable* control)
 	if (mMakeInvisibleControlVariable)
 	{
 		mMakeInvisibleControlConnection.disconnect(); // disconnect current signal
-		mMakeInvisibleControlVariable = NULL;
+		mMakeInvisibleControlVariable = nullptr;
 	}
 	if (control)
 	{
@@ -611,19 +612,19 @@ BOOL LLUICtrl::setLabelArg( const std::string& key, const LLStringExplicit& text
 // virtual
 LLCtrlSelectionInterface* LLUICtrl::getSelectionInterface()	
 { 
-	return NULL; 
+	return nullptr; 
 }
 
 // virtual
 LLCtrlListInterface* LLUICtrl::getListInterface()				
 { 
-	return NULL; 
+	return nullptr; 
 }
 
 // virtual
 LLCtrlScrollInterface* LLUICtrl::getScrollInterface()			
 { 
-	return NULL; 
+	return nullptr; 
 }
 
 BOOL LLUICtrl::hasFocus() const
@@ -649,7 +650,7 @@ void LLUICtrl::setFocus(BOOL b)
 	{
 		if( gFocusMgr.childHasKeyboardFocus(this))
 		{
-			gFocusMgr.setKeyboardFocus( NULL );
+			gFocusMgr.setKeyboardFocus(nullptr );
 		}
 	}
 }
@@ -750,12 +751,12 @@ BOOL LLUICtrl::focusFirstItem(BOOL prefer_text_fields, BOOL focus_flash)
 	// search for text field first
 	if(prefer_text_fields)
 	{
-		LLViewQuery ll_view_query = getTabOrderQuery();
-		ll_view_query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
-		child_list_t ll_views = ll_view_query(this);
-		if(ll_views.size() > 0)
+		LLViewQuery query = getTabOrderQuery();
+		query.addPreFilter(LLUICtrl::LLTextInputFilter::getInstance());
+		child_list_t result = query(this);
+		if(result.size() > 0)
 		{
-			LLUICtrl * ctrl = static_cast<LLUICtrl*>(ll_views.back());
+			LLUICtrl * ctrl = static_cast<LLUICtrl*>(result.back());
 			if(!ctrl->hasFocus())
 			{
 				ctrl->setFocus(TRUE);
@@ -816,7 +817,7 @@ BOOL LLUICtrl::focusPrevItem(BOOL text_fields_only)
 
 LLUICtrl* LLUICtrl::findRootMostFocusRoot()
 {
-	LLUICtrl* focus_root = NULL;
+	LLUICtrl* focus_root = nullptr;
 	LLUICtrl* next_view = this;
 	while(next_view && next_view->hasTabStop())
 	{
@@ -846,7 +847,7 @@ LLUICtrl* LLUICtrl::getParentUICtrl() const
 			parent =  parent->getParent();
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
@@ -863,7 +864,7 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 		{
 
 			LLView *child;
-			LLPanel *subpanel = NULL;
+			LLPanel *subpanel = nullptr;
 
 			// does the panel have a sub-panel with a help topic?
 			bfs_tree_iterator_t it = beginTreeBFS();
@@ -873,10 +874,10 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 			{
 				child = *it;
 				// do we have a panel with a help topic?
-				LLPanel *ll_panel = dynamic_cast<LLPanel *>(child);
-				if (ll_panel && ll_panel->isInVisibleChain() && !ll_panel->getHelpTopic().empty())
+				LLPanel *panel = dynamic_cast<LLPanel *>(child);
+				if (panel && panel->isInVisibleChain() && !panel->getHelpTopic().empty())
 				{
-					subpanel = ll_panel;
+					subpanel = panel;
 					break;
 				}
 			}
@@ -888,7 +889,7 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 			}
 
 			// does the panel have an active tab with a help topic?
-			LLPanel *tab_panel = NULL;
+			LLPanel *tab_panel = nullptr;
 
 			it = beginTreeBFS();
 			// skip ourselves
@@ -896,7 +897,7 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 			for (; it != endTreeBFS(); ++it)
 			{
 				child = *it;
-				LLPanel *curTabPanel = NULL;
+				LLPanel *curTabPanel = nullptr;
 
 				// do we have a tab container?
 				LLTabContainer *tab = dynamic_cast<LLTabContainer *>(child);
@@ -941,16 +942,16 @@ bool LLUICtrl::findHelpTopic(std::string& help_topic_out)
 }
 
 // *TODO: Deprecate; for backwards compatability only:
-boost::signals2::connection LLUICtrl::setCommitCallback( boost::function<void (LLUICtrl*,void*)> cb, void* data)
+boost::signals2::connection LLUICtrl::setCommitCallback( std::function<void (LLUICtrl*,void*)> cb, void* data)
 {
-	return setCommitCallback( boost::bind(cb, _1, data));
+	return setCommitCallback( std::bind(cb, std::placeholders::_1, data));
 }
-boost::signals2::connection LLUICtrl::setValidateBeforeCommit( boost::function<bool (const LLSD& data)> cb )
+boost::signals2::connection LLUICtrl::setValidateBeforeCommit( std::function<bool (const LLSD& data)> cb )
 {
 	if (!mValidateSignal) mValidateSignal = new enable_signal_t();
 	claimMem(mValidateSignal);
 
-	return mValidateSignal->connect(boost::bind(cb, _2));
+	return mValidateSignal->connect(std::bind(cb, std::placeholders::_2));
 }
 
 // virtual

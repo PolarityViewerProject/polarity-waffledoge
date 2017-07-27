@@ -39,7 +39,7 @@
 //-----------------------------------------------------------------------------
 
 LLDriverParamInfo::LLDriverParamInfo() :
-	mDriverParam(NULL)
+	mDriverParam(nullptr)
 {
 }
 
@@ -170,7 +170,7 @@ LLDriverParam::LLDriverParam(LLAvatarAppearance *appearance, LLWearable* wearabl
 	: LLViewerVisualParam(),
 	mDefaultVec(),
 	mDriven(),
-	mCurrentDistortionParam( NULL ), 
+	mCurrentDistortionParam(nullptr ), 
 	mAvatarAppearance(appearance), 
 	mWearablep(wearable)
 {
@@ -204,7 +204,7 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 	mID = info->mID;
 	info->mDriverParam = this;
 
-	setWeight(getDefaultWeight());
+	setWeight(getDefaultWeight(), FALSE );
 
 	return TRUE;
 }
@@ -215,7 +215,7 @@ BOOL LLDriverParam::setInfo(LLDriverParamInfo *info)
 	return new LLDriverParam(*this);
 }
 
-void LLDriverParam::setWeight(F32 weight)
+void LLDriverParam::setWeight(F32 weight, BOOL upload_bake)
 {
 	F32 min_weight = getMinWeight();
 	F32 max_weight = getMaxWeight();
@@ -274,7 +274,7 @@ void LLDriverParam::setWeight(F32 weight)
 					driven_weight = driven_min;
 				}
 				
-				setDrivenWeight(driven,driven_weight);
+				setDrivenWeight(driven,driven_weight,upload_bake);
 				continue;
 			}
 			else 
@@ -298,13 +298,13 @@ void LLDriverParam::setWeight(F32 weight)
 					driven_weight = driven_min;
 				}
 
-				setDrivenWeight(driven,driven_weight);
+				setDrivenWeight(driven,driven_weight,upload_bake);
 				continue;
 			}
 		}
 
 		driven_weight = getDrivenWeight(driven, mCurWeight);
-		setDrivenWeight(driven,driven_weight);
+		setDrivenWeight(driven,driven_weight, upload_bake);
 	}
 }
 
@@ -369,8 +369,8 @@ LLVector4a	LLDriverParam::getVertexDistortion(S32 index, LLPolyMesh *poly_mesh)
 
 const LLVector4a*	LLDriverParam::getFirstDistortion(U32 *index, LLPolyMesh **poly_mesh)
 {
-	mCurrentDistortionParam = NULL;
-	const LLVector4a* v = NULL;
+	mCurrentDistortionParam = nullptr;
+	const LLVector4a* v = nullptr;
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); ++iter )
 	{
 		LLDrivenEntry* driven = &(*iter);
@@ -390,10 +390,10 @@ const LLVector4a*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly
 	llassert( mCurrentDistortionParam );
 	if( !mCurrentDistortionParam )
 	{
-		return NULL;
+		return nullptr;
 	}
 
-	LLDrivenEntry* driven = NULL;
+	LLDrivenEntry* driven = nullptr;
 	entry_list_t::iterator iter;
 	
 	// Set mDriven iteration to the right point
@@ -409,7 +409,7 @@ const LLVector4a*	LLDriverParam::getNextDistortion(U32 *index, LLPolyMesh **poly
 	llassert(driven);
 	if (!driven)
 	{
-		return NULL; // shouldn't happen, but...
+		return nullptr; // shouldn't happen, but...
 	}
 
 	// We're already in the middle of a param's distortions, so get the next one.
@@ -442,7 +442,7 @@ const LLViewerVisualParam* LLDriverParam::getDrivenParam(S32 index) const
 {
 	if (0 > index || index >= mDriven.size())
 	{
-		return NULL;
+		return nullptr;
 	}
 	return mDriven[index].mParam;
 }
@@ -450,9 +450,9 @@ const LLViewerVisualParam* LLDriverParam::getDrivenParam(S32 index) const
 //-----------------------------------------------------------------------------
 // setAnimationTarget()
 //-----------------------------------------------------------------------------
-void LLDriverParam::setAnimationTarget( F32 target_value)
+void LLDriverParam::setAnimationTarget( F32 target_value, BOOL upload_bake )
 {
-	LLVisualParam::setAnimationTarget(target_value);
+	LLVisualParam::setAnimationTarget(target_value, upload_bake);
 
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); ++iter )
 	{
@@ -461,16 +461,16 @@ void LLDriverParam::setAnimationTarget( F32 target_value)
 
 		// this isn't normally necessary, as driver params handle interpolation of their driven params
 		// but texture params need to know to assume their final value at beginning of interpolation
-		driven->mParam->setAnimationTarget(driven_weight);
+		driven->mParam->setAnimationTarget(driven_weight, upload_bake);
 	}
 }
 
 //-----------------------------------------------------------------------------
 // stopAnimating()
 //-----------------------------------------------------------------------------
-void LLDriverParam::stopAnimating()
+void LLDriverParam::stopAnimating(BOOL upload_bake)
 {
-	LLVisualParam::stopAnimating();
+	LLVisualParam::stopAnimating(upload_bake);
 
 	for( entry_list_t::iterator iter = mDriven.begin(); iter != mDriven.end(); ++iter )
 	{
@@ -550,7 +550,7 @@ void LLDriverParam::updateCrossDrivenParams(LLWearableType::EType driven_type)
 		LLWearable *wearable = mAvatarAppearance->getWearableData()->getTopWearable(driver_type);
 		if (wearable)
 		{
-			wearable->setVisualParamWeight(mID, wearable->getVisualParamWeight(mID));
+			wearable->setVisualParamWeight(mID, wearable->getVisualParamWeight(mID), false);
 		}
 	}
 }
@@ -613,7 +613,7 @@ F32 LLDriverParam::getDrivenWeight(const LLDrivenEntry* driven, F32 input_weight
 	return driven_weight;
 }
 
-void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight)
+void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight, bool upload_bake)
 {
 	bool use_self = false;
 	if(mWearablep &&
@@ -630,10 +630,10 @@ void LLDriverParam::setDrivenWeight(LLDrivenEntry *driven, F32 driven_weight)
 	if (use_self)
 	{
 		// call setWeight through LLVOAvatarSelf so other wearables can be updated with the correct values
-		mAvatarAppearance->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight);
+		mAvatarAppearance->setVisualParamWeight( (LLVisualParam*)driven->mParam, driven_weight, upload_bake);
 	}
 	else
 	{
-		driven->mParam->setWeight( driven_weight);
+		driven->mParam->setWeight( driven_weight, upload_bake);
 	}
 }

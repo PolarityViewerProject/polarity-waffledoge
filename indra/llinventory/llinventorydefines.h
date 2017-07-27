@@ -97,4 +97,6 @@ public:
 	};
 };
 
+extern const std::string ROOT_AO_FOLDER;
+
 #endif // LL_LLINVENTORYDEFINES_H

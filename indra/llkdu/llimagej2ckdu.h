@@ -33,23 +33,27 @@
 // KDU core header files
 //
 #define KDU_NO_THREADS
+#define KDU_X86_INTRINSICS
+#define KDU_NO_AVX
+#define KDU_NO_AVX2
+#if LL_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-private-field"
+#pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #include "kdu_elementary.h"
 #include "kdu_messaging.h"
 #include "kdu_params.h"
-
-// don't *really* want to rebuild KDU so turn off specific warnings for this header
-#if LL_DARWIN
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wunused-private-field"
 #include "kdu_compressed.h"
 #pragma clang diagnostic pop
 #else
+#include "kdu_elementary.h"
+#include "kdu_messaging.h"
+#include "kdu_params.h"
 #include "kdu_compressed.h"
 #endif
 
 #include "kdu_sample_processing.h"
 #include <boost/scoped_ptr.hpp>
-#include <boost/noncopyable.hpp>
 
 class LLKDUDecodeState;
 class LLKDUMemSource;
@@ -95,9 +99,13 @@ private:
 	//
 	// Every RAII class must be noncopyable. For this we don't need move
 	// support.
-	class CodeStreamHolder: public boost::noncopyable
+	class CodeStreamHolder
 	{
 	public:
+		CodeStreamHolder() : mCodeStream() {}
+		CodeStreamHolder(const CodeStreamHolder&) = delete;
+		CodeStreamHolder& operator=(const CodeStreamHolder&) = delete;
+
 		~CodeStreamHolder()
 		{
 			reset();
@@ -111,17 +119,22 @@ private:
 			}
 		}
 
-		kdu_codestream* operator->() { return &mCodeStream; }
+		kdu_core::kdu_codestream* get()
+		{
+			return &mCodeStream;
+		}
+
+		kdu_core::kdu_codestream* operator->() { return &mCodeStream; }
 
 	private:
-		kdu_codestream mCodeStream;
+		kdu_core::kdu_codestream mCodeStream;
 	};
 
 	// Encode variable
 	boost::scoped_ptr<LLKDUMemSource> mInputp;
 	CodeStreamHolder mCodeStreamp;
-	boost::scoped_ptr<kdu_coords> mTPosp; // tile position
-	boost::scoped_ptr<kdu_dims> mTileIndicesp;
+	boost::scoped_ptr<kdu_core::kdu_coords> mTPosp; // tile position
+	boost::scoped_ptr<kdu_core::kdu_dims> mTileIndicesp;
 	int mBlocksSize;
 	int mPrecinctsSize;
 	int mLevels;

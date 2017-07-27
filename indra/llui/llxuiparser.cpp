@@ -40,8 +40,6 @@
 
 #include <fstream>
 #include <boost/tokenizer.hpp>
-#include <boost/bind.hpp>
-//#include <boost/spirit/include/qi.hpp>
 #include <boost/spirit/include/classic_core.hpp>
 
 #include "lluicolor.h"
@@ -253,9 +251,9 @@ struct ComplexType : public LLInitParam::Block<ComplexType, ComplexTypeContents>
 
 	ComplexType()
 	:	name("name"),
+		mixed("mixed"),
 		attribute("xs:attribute"),
-		elements("xs:element"),
-		mixed("mixed")
+		elements("xs:element")
 	{
 	}
 };
@@ -300,11 +298,11 @@ public:
 	void setNameSpace(const std::string& ns) {targetNamespace = ns; xmlns = ns;}
 
 	Schema(const std::string& ns = LLStringUtil::null)
-	:	attributeFormDefault("attributeFormDefault"),
-		elementFormDefault("elementFormDefault"),
-		xs("xmlns:xs"),
-		targetNamespace("targetNamespace"),
+	:	targetNamespace("targetNamespace"),
 		xmlns("xmlns"),
+		xs("xmlns:xs"),
+		attributeFormDefault("attributeFormDefault"),
+		elementFormDefault("elementFormDefault"),
 		root_element("xs:element")
 	{
 		attributeFormDefault = "unqualified";
@@ -1317,7 +1315,7 @@ void LLXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
+	LL_WARNS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1327,7 +1325,7 @@ void LLXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
     // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
+	LL_WARNS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), mCurReadNode->getLineNumber(), message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif
@@ -1355,9 +1353,9 @@ struct ScopedFile
 	{
 		if (!isOpen()) return 0;
 
-		S32 cur_pos = ftell(mFile);
+		size_t cur_pos = ftell(mFile);
 		fseek(mFile, 0L, SEEK_END);
-		S32 file_size = ftell(mFile);
+		size_t file_size = ftell(mFile);
 		fseek(mFile, cur_pos, SEEK_SET);
 		return file_size - cur_pos;
 	}
@@ -1368,7 +1366,9 @@ struct ScopedFile
 };
 LLSimpleXUIParser::LLSimpleXUIParser(LLSimpleXUIParser::element_start_callback_t element_cb)
 :	Parser(sSimpleXUIReadFuncs, sSimpleXUIWriteFuncs, sSimpleXUIInspectFuncs),
+	mParser(nullptr),
 	mCurReadDepth(0),
+	mCurAttributeValueBegin(nullptr),
 	mElementCB(element_cb)
 {
 	if (sSimpleXUIReadFuncs.empty())
@@ -1645,7 +1645,7 @@ void LLSimpleXUIParser::parserWarning(const std::string& message)
 {
 #ifdef LL_WINDOWS
 	// use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
+	LL_WARNS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserWarning(message);
 #endif
@@ -1655,7 +1655,7 @@ void LLSimpleXUIParser::parserError(const std::string& message)
 {
 #ifdef LL_WINDOWS
         // use Visual Studio friendly formatting of output message for easy access to originating xml
-	LL_INFOS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
+	LL_WARNS() << llformat("%s(%d):\t%s", mCurFileName.c_str(), LINE_NUMBER_HERE, message.c_str()) << LL_ENDL;
 #else
 	Parser::parserError(message);
 #endif

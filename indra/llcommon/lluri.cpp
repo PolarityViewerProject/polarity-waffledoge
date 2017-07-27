@@ -42,7 +42,8 @@
 #include <boost/algorithm/string/find_iterator.hpp>
 #include <boost/algorithm/string/finder.hpp>
 
-void encode_character(std::ostream& ostr, std::string::value_type val)
+// static
+void LLURI::encodeCharacter(std::ostream& ostr, std::string::value_type val)
 {
 	ostr << "%"
 
@@ -97,7 +98,7 @@ std::string LLURI::escape(
 			}
 			else
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 		}
 	}
@@ -108,7 +109,7 @@ std::string LLURI::escape(
 			c = *it;
 			if(allowed.find(c) == std::string::npos)
 			{
-				encode_character(ostr, c);
+				encodeCharacter(ostr, c);
 			}
 			else
 			{
@@ -248,7 +249,8 @@ void LLURI::parseAuthorityAndPathUsingOpaque()
 {
 	if (mScheme == "http" || mScheme == "https" ||
 		mScheme == "ftp" || mScheme == "secondlife" || 
-		mScheme == "x-grid-location-info")
+		mScheme == "x-grid-info" ||
+		mScheme == "x-grid-location-info") // legacy
 	{
 		if (mEscapedOpaque.substr(0,2) != "//")
 		{
@@ -422,6 +424,15 @@ LLURI LLURI::buildHTTP(const std::string& prefix,
 }
 
 // static
+LLURI LLURI::buildHTTP(const std::string& scheme,
+	const std::string& prefix,
+	const LLSD& path,
+	const LLSD& query)
+{
+	return buildHTTP(llformat("%s://%s", scheme.c_str(), prefix.c_str()), path, query);
+}
+
+// static
 LLURI LLURI::buildHTTP(const std::string& host,
 					   const U32& port,
 					   const LLSD& path)
@@ -505,6 +516,14 @@ std::string LLURI::hostName() const
 	return unescape(host);
 }
 
+std::string LLURI::hostNameAndPort() const
+{
+	std::string user, host, port;
+	findAuthorityParts(mEscapedAuthority, user, host, port);
+	return port.empty() ? unescape(host) : unescape(host + ":" + port);
+}
+
+
 std::string LLURI::userName() const
 {
 	std::string user, userPass, host, port;
@@ -548,7 +567,7 @@ U16 LLURI::hostPort() const
 			return 21;		
 		return 0;
 	}
-	return atoi(port.c_str());
+	return static_cast<U16>(std::stoi(port));
 }	
 
 std::string LLURI::path() const

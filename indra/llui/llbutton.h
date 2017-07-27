@@ -87,7 +87,7 @@ public:
 
 		Optional<std::string>	image_overlay_alignment;
 		Optional<bool>			image_overlay_enable;
-		
+
 		// colors
 		Optional<LLUIColor>		label_color,
 								label_color_selected,
@@ -150,25 +150,25 @@ public:
 
 	~LLButton();
 	// For backward compatability only
-	typedef boost::function<void(void*)> button_callback_t;
+	typedef std::function<void(void*)> button_callback_t;
 
 	void			addImageAttributeToXML(LLXMLNodePtr node, const std::string& imageName,
 										const LLUUID&	imageID,const std::string&	xmlTagName) const;
-	virtual BOOL	handleUnicodeCharHere(llwchar uni_char);
-	virtual BOOL	handleKeyHere(KEY key, MASK mask);
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask);	
-	virtual BOOL	handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual void	draw();
-	/*virtual*/ BOOL postBuild();
+	BOOL	handleUnicodeCharHere(llwchar uni_char) override;
+	BOOL	handleKeyHere(KEY key, MASK mask) override;
+	BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL	handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL	handleRightMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL	handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	void	draw() override;
+	/*virtual*/ BOOL postBuild() override;
 
-	virtual void	onMouseLeave(S32 x, S32 y, MASK mask);
-	virtual void	onMouseCaptureLost();
+	void	onMouseLeave(S32 x, S32 y, MASK mask) override;
+	void	onMouseCaptureLost() override;
 
-	virtual void	onCommit();
+	void	onCommit() override;
 
 	void			setUnselectedLabelColor( const LLColor4& c )		{ mUnselectedLabelColor = c; }
 	void			setSelectedLabelColor( const LLColor4& c )			{ mSelectedLabelColor = c; }
@@ -219,9 +219,8 @@ public:
 	const std::string	getLabelUnselected() const { return wstring_to_utf8str(mUnselectedLabel); }
 	const std::string	getLabelSelected() const { return wstring_to_utf8str(mSelectedLabel); }
 
-	void			setImageColor(const std::string& color_control);
 	void			setImageColor(const LLColor4& c);
-	/*virtual*/ void	setColor(const LLColor4& c);
+	/*virtual*/ void	setColor(const LLColor4& c) override;
 
 	void			setImages(const std::string &image_name, const std::string &selected_name);
 	
@@ -237,7 +236,7 @@ public:
 	void            autoResize();	// resize with label of current btn state 
 	void            resize(LLUIString label); // resize with label input
 	void			setLabel( const LLStringExplicit& label);
-	virtual BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text );
+	BOOL	setLabelArg( const std::string& key, const LLStringExplicit& text ) override;
 	void			setLabelUnselected(const LLStringExplicit& label);
 	void			setLabelSelected(const LLStringExplicit& label);
 	void			setDisabledLabelColor( const LLColor4& c )		{ mDisabledLabelColor = c; }
@@ -272,7 +271,6 @@ public:
 	void			setCommitOnReturn(BOOL commit) { mCommitOnReturn = commit; }
 	BOOL			getCommitOnReturn() const { return mCommitOnReturn; }
 
-	static void		onHeldDown(void *userdata);  // to be called by gIdleCallbacks
 	static void		toggleFloaterAndSetToggleState(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		setFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);
 	static void		setDockableFloaterToggle(LLUICtrl* ctrl, const LLSD& sdname);

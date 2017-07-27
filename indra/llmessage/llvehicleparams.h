@@ -27,7 +27,6 @@
 
 #ifndef LL_VEHICLE_PARAMS_H
 #define LL_VEHICLE_PARAMS_H
-#include "lldefs.h"
 
 /** 
  * The idea is that the various parameters that control vehicle

@@ -49,7 +49,6 @@ public:
 		TEXTURE_MATRIX3,
 		OBJECT_PLANE_S,
 		OBJECT_PLANE_T,
-		VIEWPORT,
 		LIGHT_POSITION,
 		LIGHT_DIRECTION,
 		LIGHT_ATTENUATION,
@@ -124,7 +123,8 @@ public:
 		DEFERRED_SSAO_FACTOR,
 		DEFERRED_SSAO_FACTOR_INV,
 		DEFERRED_SSAO_EFFECT,
-		DEFERRED_SCREEN_RES,
+		DEFERRED_KERN_SCALE,
+		DEFERRED_NOISE_SCALE,
 		DEFERRED_NEAR_CLIP,
 		DEFERRED_SHADOW_OFFSET,
 		DEFERRED_SHADOW_BIAS,
@@ -136,8 +136,8 @@ public:
 		DEFERRED_DEPTH_CUTOFF,
 		DEFERRED_NORM_CUTOFF,
 		DEFERRED_SHADOW_TARGET_WIDTH,
+		DEFERRED_DOWNSAMPLED_DEPTH_SCALE,
 
-		FXAA_TC_SCALE,
 		FXAA_RCP_SCREEN_RES,
 		FXAA_RCP_FRAME_OPT,
 		FXAA_RCP_FRAME_OPT2,
@@ -152,6 +152,7 @@ public:
 		DOF_HEIGHT,
 
 		DEFERRED_DEPTH,
+		DEFERRED_DOWNSAMPLED_DEPTH,
 		DEFERRED_SHADOW0,
 		DEFERRED_SHADOW1,
 		DEFERRED_SHADOW2,
@@ -168,12 +169,6 @@ public:
 		DEFERRED_BLOOM,
 		DEFERRED_PROJECTION,
 		DEFERRED_NORM_MATRIX,
-
-#ifdef GAUSSIAN_BLUR
-		// <polarity> Gaussian Blur
-		PV_RENDER_SCREEN,
-		// </polarity>
-#endif
 
 		GLOBAL_GAMMA,
 		TEXTURE_GAMMA,
@@ -220,17 +215,11 @@ public:
 		TERRAIN_DETAIL2,
 		TERRAIN_DETAIL3,
 		TERRAIN_ALPHARAMP,
-
-#ifdef GAUSSIAN_BLUR
-		// <polarity> Gaussian blur shader
-		PLVR_BLUR_DIRECTION,
-		// </polarity>
-#endif
 		
 		SHINY_ORIGIN,
-
+// <alchemy>
 		SECONDS60,
-
+// </alchemy>
 		END_RESERVED_UNIFORMS
 	} eGLSLReservedUniforms;
 
@@ -244,7 +233,7 @@ public:
 	void dumpShaderLog(GLuint ret, BOOL warns = TRUE, const std::string& filename = "");
 	BOOL linkProgram(GLuint program, BOOL suppress_errors = FALSE);
 	BOOL validateProgramObject(GLuint program);
-	GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines = NULL, S32 texture_index_channels = -1);
+	GLuint loadShaderFile(const std::string& filename, S32 & shader_level, GLenum type, boost::unordered_map<std::string, std::string>* defines = nullptr, S32 texture_index_channels = -1);
 	void cleanupShaderSources();
 
 	// Implemented in the application to actually point to the shader directory.
@@ -257,11 +246,12 @@ public:
 	// Map of shader names to compiled
 	struct CachedShaderObject
 	{
-		CachedShaderObject(GLuint handle, S32 level, GLenum type, boost::unordered_map<std::string, std::string> *definitions) :
-			mHandle(handle), mLevel(level), mType(type), mDefinitions(definitions ? *definitions : boost::unordered_map<std::string, std::string>()) {}
+		CachedShaderObject(GLuint handle, S32 level, GLenum type, S32 indexed_channels, boost::unordered_map<std::string, std::string> *definitions) :
+			mHandle(handle), mLevel(level), mType(type), mIndexedChannels(indexed_channels), mDefinitions(definitions ? *definitions : boost::unordered_map<std::string, std::string>()) {}
 		GLuint mHandle;
 		S32 mLevel;
 		GLenum mType;
+		S32 mIndexedChannels;
 		boost::unordered_map<std::string, std::string> mDefinitions;
 	};
 	std::multimap<std::string, CachedShaderObject> mShaderObjects;
@@ -272,9 +262,6 @@ public:
 	std::vector<std::string> mReservedAttribs;
 
 	std::vector<std::string> mReservedUniforms;
-
-	//preprocessor definitions (name/value)
-	std::map<std::string, std::string> mDefinitions;
 
 protected:
 

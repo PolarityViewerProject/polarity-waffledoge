@@ -68,7 +68,7 @@ class HttpService;
 /// via queue-like interfaces that are thread compatible
 /// and those interfaces establish the access rules.
 
-class HttpOperation : private boost::noncopyable,
+class HttpOperation :
     public boost::enable_shared_from_this<HttpOperation>
 {
 public:
@@ -82,6 +82,9 @@ public:
 	/// Threading:  called by any thread.
 	virtual ~HttpOperation();							// Use release()
 
+protected:
+	HttpOperation(const HttpOperation&) = delete;
+	HttpOperation& operator=(const HttpOperation&) = delete;
 
 public:
 	/// Register a reply queue and a handler for completion notifications.
@@ -226,10 +229,10 @@ public:
 
 private:
 	HttpOpStop(const HttpOpStop &) = delete;					// Not defined
-	void operator=(const HttpOpStop &) = delete;				// Not defined
+	HttpOpStop& operator=(const HttpOpStop &) = delete;			// Not defined
 
 public:
-	virtual void stageFromRequest(HttpService *);
+	void stageFromRequest(HttpService *) override;
 
 };  // end class HttpOpStop
 
@@ -248,10 +251,10 @@ public:
 
 private:
 	HttpOpNull(const HttpOpNull &) = delete;					// Not defined
-	void operator=(const HttpOpNull &) = delete;				// Not defined
+	HttpOpNull& operator=(const HttpOpNull &) = delete;			// Not defined
 
 public:
-	virtual void stageFromRequest(HttpService *);
+	void stageFromRequest(HttpService *) override;
 
 };  // end class HttpOpNull
 
@@ -270,10 +273,10 @@ public:
 
 private:
 	HttpOpSpin(const HttpOpSpin &) = delete;					// Not defined
-	void operator=(const HttpOpSpin &) = delete;				// Not defined
+	HttpOpSpin& operator=(const HttpOpSpin &) = delete;			// Not defined
 
 public:
-	virtual void stageFromRequest(HttpService *);
+	void stageFromRequest(HttpService *) override;
 
 protected:
 	int			mMode;

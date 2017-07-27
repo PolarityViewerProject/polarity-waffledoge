@@ -60,7 +60,6 @@
 #include "llhelp.h"
 #include "llmultifloater.h"
 #include "llsdutil.h"
-#include <boost/foreach.hpp>
 
 
 // use this to control "jumping" behavior when Ctrl-Tabbing
@@ -170,15 +169,18 @@ LLFloater::Params::Params()
 	single_instance("single_instance", false),
 	reuse_instance("reuse_instance", false),
 	can_resize("can_resize", false),
+	can_resize_height("can_resize_height", true),
+	can_resize_width("can_resize_width", true),
 	can_minimize("can_minimize", true),
 	can_close("can_close", true),
 	can_drag_on_left("can_drag_on_left", false),
 	can_tear_off("can_tear_off", true),
-	save_dock_state("save_dock_state", false),
 	save_rect("save_rect", false),
 	save_visibility("save_visibility", false),
+	save_dock_state("save_dock_state", false),
 	can_dock("can_dock", false),
 	show_title("show_title", true),
+	show_help("show_help", false),
 	positioning("positioning", LLFloaterEnums::POSITIONING_RELATIVE),
 	header_height("header_height", 0),
 	legacy_header_height("legacy_header_height", 0),
@@ -238,17 +240,21 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterFloaterParams(&typeid(LLFl
 
 LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 :	LLPanel(),	// intentionally do not pass params here, see initFromParams
- 	mDragHandle(NULL),
-	mTitle(p.title),
-	mShortTitle(p.short_title),
-	mSingleInstance(p.single_instance),
-	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance), // reuse single-instance floaters by default
+ 	mMinimizeSignal(NULL),
 	mKey(key),
+	mDragHandle(nullptr),
+	mTitle(p.title),
+	mShortTitle(p.short_title), // reuse single-instance floaters by default
+	mSingleInstance(p.single_instance),
+	mReuseInstance(p.reuse_instance.isProvided() ? p.reuse_instance : p.single_instance),
 	mCanTearOff(p.can_tear_off),
 	mCanMinimize(p.can_minimize),
 	mCanClose(p.can_close),
 	mDragOnLeft(p.can_drag_on_left),
 	mResizable(p.can_resize),
+	mResizableHeight(p.can_resize_height),
+	mResizableWidth(p.can_resize_width),
+	mShowHelp(p.show_help),
 	mPositioning(p.positioning),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
@@ -257,15 +263,14 @@ LLFloater::LLFloater(const LLSD& key, const LLFloater::Params& p)
 	mMinimized(FALSE),
 	mForeground(FALSE),
 	mFirstLook(TRUE),
-	mButtonScale(1.0f),
-	mAutoFocus(TRUE), // automatically take focus when opened
+	mButtonScale(1.0f), // automatically take focus when opened
+	mAutoFocus(TRUE),
 	mCanDock(false),
 	mDocked(false),
 	mTornOff(false),
 	mHasBeenDraggedWhileMinimized(FALSE),
 	mPreviousMinimizedBottom(0),
-	mPreviousMinimizedLeft(0),
-	mMinimizeSignal(NULL)
+	mPreviousMinimizedLeft(0)
 //	mNotificationContext(NULL)
 {
 	mPosition.setFloater(*this);
@@ -302,7 +307,7 @@ void LLFloater::initFloater(const Params& p)
 	}
 
 	// Help button: '?'
-	if ( !mHelpTopic.empty() )
+	if ( !mHelpTopic.empty() && mShowHelp)
 	{
 		mButtonsEnabled[BUTTON_HELP] = TRUE;
 	}
@@ -641,7 +646,7 @@ void LLFloater::onVisibilityChange ( BOOL new_visibility )
 
 void LLFloater::openFloater(const LLSD& key)
 {
-    LL_DEBUGS() << "Opening floater " << getName() << " full path: " << getPathname() << LL_ENDL;
+    LL_INFOS() << "Opening floater " << getName() << " full path: " << getPathname() << LL_ENDL;
 
 	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), true,"floater"); // Last param is event subtype or empty string
 
@@ -691,7 +696,7 @@ void LLFloater::openFloater(const LLSD& key)
 
 void LLFloater::closeFloater(bool app_quitting)
 {
-	LL_DEBUGS() << "Closing floater " << getName() << LL_ENDL;
+	LL_INFOS() << "Closing floater " << getName() << LL_ENDL;
 	LLViewerEventRecorder::instance().logVisibilityChange( getPathname(), getName(), false,"floater"); // Last param is event subtype or empty string
 	if (app_quitting)
 	{
@@ -2011,7 +2016,7 @@ void	LLFloater::setCanTearOff(BOOL can_tear_off)
 void LLFloater::setCanResize(BOOL can_resize)
 {
 	mResizable = can_resize;
-	enableResizeCtrls(can_resize);
+	enableResizeCtrls(can_resize, mResizableWidth, mResizableHeight);
 }
 
 void LLFloater::setCanDrag(BOOL can_drag)
@@ -2239,10 +2244,10 @@ static LLDefaultChildRegistry::Register<LLFloaterView> r("floater_view");
 LLFloaterView::LLFloaterView (const Params& p)
 :	LLUICtrl (p),
 	mFocusCycleMode(FALSE),
-	mMinimizePositionVOffset(0),
 	mSnapOffsetBottom(0),
 	mSnapOffsetRight(0),
-	mFrontChild(NULL)
+	mMinimizePositionVOffset(0),
+	mFrontChild(nullptr)
 {
 	mSnapView = getHandle();
 }
@@ -2297,7 +2302,7 @@ void LLFloaterView::reshape(S32 width, S32 height, BOOL called_from_parent)
 			//{
 			//	floaterp->translate(translate_x, translate_y);
 			//}
-			BOOST_FOREACH(LLHandle<LLFloater> dependent_floater, floaterp->mDependents)
+			for (LLHandle<LLFloater> dependent_floater : floaterp->mDependents)
 			{
 				if (dependent_floater.get())
 				{
@@ -2814,7 +2819,6 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	S32 delta_left = mToolbarLeftRect.notEmpty() ? mToolbarLeftRect.mRight - floater_rect.mRight : 0;
 	S32 delta_bottom = mToolbarBottomRect.notEmpty() ? mToolbarBottomRect.mTop - floater_rect.mTop : 0;
 	S32 delta_right = mToolbarRightRect.notEmpty() ? mToolbarRightRect.mLeft - floater_rect.mLeft : 0;
-	S32 delta_top = mToolbarTopRect.notEmpty() ? mToolbarTopRect.mBottom - floater_rect.mBottom : 0;
 
 	// move window fully onscreen
 	if (floater->translateIntoRect( snap_in_toolbars ? getSnapRect() : gFloaterView->getRect(), allow_partial_outside ? FLOATER_MIN_VISIBLE_PIXELS : S32_MAX ))
@@ -2832,10 +2836,6 @@ void LLFloaterView::adjustToFitScreen(LLFloater* floater, BOOL allow_partial_out
 	else if (delta_right < 0 && floater_rect.mTop < mToolbarRightRect.mTop	&& floater_rect.mBottom > mToolbarRightRect.mBottom)
 	{
 		floater->translate(delta_right, 0);
-	}
-	else if (delta_top < 0 && floater_rect.mLeft > mToolbarTopRect.mLeft && floater_rect.mRight < mToolbarTopRect.mRight)
-	{
-		floater->translate(0, delta_top);
 	}
 }
 
@@ -3133,6 +3133,8 @@ void LLFloater::initFromParams(const LLFloater::Params& p)
 	setCanMinimize(p.can_minimize);
 	setCanClose(p.can_close);
 	setCanDock(p.can_dock);
+	mResizableWidth = p.can_resize_width;
+	mResizableHeight = p.can_resize_height;
 	setCanResize(p.can_resize);
 	setResizeLimits(p.min_width, p.min_height);
 	

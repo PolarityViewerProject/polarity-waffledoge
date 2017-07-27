@@ -30,6 +30,7 @@
 #include "linden_common.h"
 
 #include "llcrashlock.h"
+
 #include "llapp.h"
 #include "lldir.h"
 #include "llsd.h"
@@ -47,8 +48,7 @@
 
 bool LLCrashLock::isProcessAlive(U32 pid, const std::string& pname)
 {
-	std::wstring wpname;
-	wpname = std::wstring(pname.begin(), pname.end());
+	std::wstring wpname = utf8str_to_utf16str(pname);
 
 	HANDLE snapshot;
 	PROCESSENTRY32 pe32;
@@ -67,7 +67,7 @@ bool LLCrashLock::isProcessAlive(U32 pid, const std::string& pname)
 		{
 			do {
 				std::wstring wexecname = pe32.szExeFile; 
-				if (!wpname.compare(pe32.szExeFile))
+				if (!wpname.compare(wexecname))
 				{
 					if (pid == (U32)pe32.th32ProcessID)
 					{
@@ -174,7 +174,11 @@ bool LLCrashLock::isWaiting()
 void LLCrashLock::releaseMaster()
 {
     //Yeeeeeeehaw
-    unlink(mMaster.c_str());
+#if LL_WINDOWS
+	_unlink(mMaster.c_str());
+#else
+	unlink(mMaster.c_str());
+#endif
 }
 
 LLSD LLCrashLock::getProcessList()
@@ -190,12 +194,20 @@ LLSD LLCrashLock::getProcessList()
 //static
 bool LLCrashLock::fileExists(std::string filename)
 {
-	return boost::filesystem::exists(filename.c_str());
+#if LL_WINDOWS
+	return boost::filesystem::exists(boost::filesystem::path(utf8str_to_utf16str(filename).c_str()));
+#else
+	return boost::filesystem::exists(boost::filesystem::path(filename.c_str()));
+#endif
 }
 
 void LLCrashLock::cleanupProcess(std::string proc_dir)
 {
-    boost::filesystem::remove_all(proc_dir);
+#if LL_WINDOWS
+	boost::filesystem::remove_all(boost::filesystem::path(utf8str_to_utf16str(proc_dir).c_str()));
+#else
+    boost::filesystem::remove_all(boost::filesystem::path(proc_dir));
+#endif
 }
 
 bool LLCrashLock::putProcessList(const LLSD& proc_sd)

@@ -40,7 +40,7 @@
 
 LLMultiFloater::LLMultiFloater(const LLSD& key, const LLFloater::Params& params)
 	: LLFloater(key),
-	  mTabContainer(NULL),
+	  mTabContainer(nullptr),
 	  mTabPos(LLTabContainer::TOP),
 	  mAutoResize(TRUE),
 	  mOrigMinWidth(params.min_width),
@@ -306,12 +306,16 @@ void LLMultiFloater::removeFloater(LLFloater* floaterp)
 	mTabContainer->removeTabPanel(floaterp);
 	floaterp->setBackgroundVisible(TRUE);
 	floaterp->setCanDrag(TRUE);
-	floaterp->setHost(NULL);
+	floaterp->setHost(nullptr);
 	floaterp->applyRectControl();
 
 	updateResizeLimits();
 
-	tabOpen((LLFloater*)mTabContainer->getCurrentPanel(), false);
+	LLFloater* tab_floaterp = dynamic_cast<LLFloater*>(mTabContainer->getCurrentPanel());
+	if(tab_floaterp)
+	{
+		tabOpen(tab_floaterp, false);
+	}
 }
 
 void LLMultiFloater::tabOpen(LLFloater* opened_floater, bool from_click)

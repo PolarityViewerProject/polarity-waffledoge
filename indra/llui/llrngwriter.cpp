@@ -31,7 +31,7 @@
 #include "llrngwriter.h"
 #include "lluicolor.h"
 
-#if LL_DARWIN
+#if LL_CLANG
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdelete-incomplete"
 #include "lluictrlfactory.h"
@@ -39,8 +39,6 @@
 #else
 #include "lluictrlfactory.h"
 #endif
-
-#include <boost/bind.hpp>
 
 static 	LLInitParam::Parser::parser_read_func_map_t sReadFuncs;
 static 	LLInitParam::Parser::parser_write_func_map_t sWriteFuncs;

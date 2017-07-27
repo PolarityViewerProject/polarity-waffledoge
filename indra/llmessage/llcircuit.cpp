@@ -73,8 +73,8 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPacketsOutID(0), 
 	mPacketsInID(in_id),
 	mHighestPacketID(in_id),
-	mTimeoutCallback(NULL),
-	mTimeoutUserData(NULL),
+	mTimeoutCallback(nullptr),
+	mTimeoutUserData(nullptr),
 	mTrusted(FALSE),
 	mbAllowTimeout(TRUE),
 	mbAlive(TRUE),
@@ -87,6 +87,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mLastPingID(0),
 	mPingDelay(INITIAL_PING_VALUE_MSEC), 
 	mPingDelayAveraged(INITIAL_PING_VALUE_MSEC), 
+	mAckCreationTime(0.f),
 	mUnackedPacketCount(0),
 	mUnackedPacketBytes(0),
 	mLastPacketInTime(0.0),
@@ -105,7 +106,6 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 	mPeakBPSOut(0.f),
 	mPeriodTime(0.0),
 	mExistenceTimer(),
-	mAckCreationTime(0.f),
 	mCurrentResendCount(0),
 	mLastPacketGap(0),
 	mHeartbeatInterval(circuit_heartbeat_interval), 
@@ -128,7 +128,7 @@ LLCircuitData::LLCircuitData(const LLHost &host, TPACKETID in_id,
 
 LLCircuitData::~LLCircuitData()
 {
-	LLReliablePacket *packetp = NULL;
+	LLReliablePacket *packetp = nullptr;
 
 	// Clean up all pending transfers.
 	gTransferManager.cleanupConnection(mHost);
@@ -431,7 +431,7 @@ S32 LLCircuitData::resendUnackedPackets(const F64Seconds now)
 
 
 LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Seconds circuit_timeout) 
-:	mLastCircuit(NULL),  
+:	mLastCircuit(nullptr),  
 	mHeartbeatInterval(circuit_heartbeat_interval), 
 	mHeartbeatTimeout(circuit_timeout)
 {}
@@ -439,11 +439,7 @@ LLCircuit::LLCircuit(const F32Seconds circuit_heartbeat_interval, const F32Secon
 LLCircuit::~LLCircuit()
 {
 	// delete pointers in the map.
-	std::for_each(mCircuitData.begin(),
-				  mCircuitData.end(),
-				  llcompose1(
-					  DeletePointerFunctor<LLCircuitData>(),
-					  llselect2nd<circuit_data_map::value_type>()));
+	delete_and_clear(mCircuitData);
 }
 
 LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
@@ -461,7 +457,7 @@ LLCircuitData *LLCircuit::addCircuitData(const LLHost &host, TPACKETID in_id)
 void LLCircuit::removeCircuitData(const LLHost &host)
 {
 	LL_INFOS() << "LLCircuit::removeCircuitData for " << host << LL_ENDL;
-	mLastCircuit = NULL;
+	mLastCircuit = nullptr;
 	circuit_data_map::iterator it = mCircuitData.find(host);
 	if(it != mCircuitData.end())
 	{
@@ -489,7 +485,7 @@ void LLCircuit::removeCircuitData(const LLHost &host)
 	// this circuit, and the setting of mLastCircuit.  We don't check
 	// if the host matches, but we don't really care because mLastCircuit
 	// is an optimization, and this happens VERY rarely.
-	mLastCircuit = NULL;
+	mLastCircuit = nullptr;
 }
 
 void LLCircuitData::setAlive(BOOL b_alive)
@@ -629,7 +625,7 @@ LLCircuitData* LLCircuit::findCircuit(const LLHost& host) const
 	circuit_data_map::const_iterator it = mCircuitData.find(host);
 	if(it == mCircuitData.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	mLastCircuit = it->second;
 	return mLastCircuit;
@@ -1150,18 +1146,16 @@ void LLCircuit::sendAcks(F32 collect_time)
 std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 {
 	F32 age = circuit.mExistenceTimer.getElapsedTimeF32();
-
-	using namespace std;
 	s << "Circuit " << circuit.mHost << " "
 		<< circuit.mRemoteID << " "
 		<< (circuit.mbAlive ? "Alive" : "Not Alive") << " "
 		<< (circuit.mbAllowTimeout ? "Timeout Allowed" : "Timeout Not Allowed")
-		<< endl;
+		<< std::endl;
 
 	s << " Packets Lost: " << circuit.mPacketsLost
 		<< " Measured Ping: " << circuit.mPingDelay
 		<< " Averaged Ping: " << circuit.mPingDelayAveraged
-		<< endl;
+		<< std::endl;
 
 	s << "Global In/Out " << S32(age) << " sec"
 		<< " KBytes: " << circuit.mBytesIn.valueInUnits<LLUnits::Kilobytes>() << "/" << circuit.mBytesOut.valueInUnits<LLUnits::Kilobytes>()
@@ -1170,7 +1164,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 		<< "/"
 		<< S32(circuit.mBytesOut.valueInUnits<LLUnits::Kilobits>() / circuit.mExistenceTimer.getElapsedTimeF32().value())
 		<< " Packets: " << circuit.mPacketsIn << "/" << circuit.mPacketsOut
-		<< endl;
+		<< std::endl;
 
 	s << "Recent In/Out   " << circuit.mLastPeriodLength
 		<< " KBytes: "
@@ -1185,7 +1179,7 @@ std::ostream& operator<<(std::ostream& s, LLCircuitData& circuit)
 		<< S32(circuit.mPeakBPSIn / 1024.f)
 		<< "/"
 		<< S32(circuit.mPeakBPSOut / 1024.f)
-		<< endl;
+		<< std::endl;
 
 	return s;
 }
@@ -1421,3 +1415,12 @@ F32 LLCircuitData::getAgeInSeconds() const
 {
 	return mExistenceTimer.getElapsedTimeF32();
 }
+
+std::vector<LLCircuitData*> LLCircuit::getCircuitDataList()
+{
+	std::vector<LLCircuitData*> list;
+	for (const auto& item : mCircuitData)
+		list.push_back(item.second);
+	return list;
+}
+

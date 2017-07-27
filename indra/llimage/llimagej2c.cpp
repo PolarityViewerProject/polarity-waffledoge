@@ -42,7 +42,7 @@
 LLImageJ2CImpl* fallbackCreateLLImageJ2CImpl();
 
 // Test data gathering handle
-LLImageCompressionTester* LLImageJ2C::sTesterp = NULL ;
+LLImageCompressionTester* LLImageJ2C::sTesterp = nullptr ;
 const std::string sTesterName("ImageCompressionTester");
 
 //static
@@ -56,10 +56,10 @@ std::string LLImageJ2C::getEngineInfo()
 
 LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 							mMaxBytes(0),
+							mAreaUsedForDataSizeCalcs(0),
 							mRawDiscardLevel(-1),
 							mRate(DEFAULT_COMPRESSION_RATE),
-							mReversible(false),
-							mAreaUsedForDataSizeCalcs(0)
+							mReversible(false)
 {
 	mImpl.reset(fallbackCreateLLImageJ2CImpl());
 	claimMem(mImpl);
@@ -77,7 +77,7 @@ LLImageJ2C::LLImageJ2C() : 	LLImageFormatted(IMG_CODEC_J2C),
 		if (!sTesterp->isValid())
 		{
 			delete sTesterp;
-			sTesterp = NULL;
+			sTesterp = nullptr;
 		}
 	}
 }
@@ -215,7 +215,7 @@ bool LLImageJ2C::decodeChannels(LLImageRaw *raw_imagep, F32 decode_time, S32 fir
 
 bool LLImageJ2C::encode(const LLImageRaw *raw_imagep, F32 encode_time)
 {
-	return encode(raw_imagep, NULL, encode_time);
+	return encode(raw_imagep, nullptr, encode_time);
 }
 
 
@@ -320,7 +320,7 @@ S32 LLImageJ2C::calcDiscardLevelBytes(S32 bytes)
 	{
 		return MAX_DISCARD_LEVEL;
 	}
-	while (1)
+	while (true)
 	{
 		S32 bytes_needed = calcDataSize(discard_level);
 		// Use TextureReverseByteRange percent (see settings.xml) of the optimal size to qualify as correct rendering for the given discard level
@@ -354,11 +354,10 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
 	
 	resetLastError();
 
-	S32 file_size = 0;
-	LLAPRFile infile ;
-	infile.open(filename, LL_APR_RB, NULL, &file_size);
-	apr_file_t* apr_file = infile.getFileHandle() ;
-	if (!apr_file)
+	apr_off_t file_size = 0;
+	LLAPRFile infile;
+	apr_status_t s = infile.open(filename, LL_APR_RB, nullptr, &file_size);
+	if (s != APR_SUCCESS)
 	{
 		setLastError("Unable to open file for reading", filename);
 		res = false;
@@ -371,11 +370,10 @@ bool LLImageJ2C::loadAndValidate(const std::string &filename)
 	else
 	{
 		U8 *data = (U8*)ll_aligned_malloc_16(file_size);
-		apr_size_t bytes_read = file_size;
-		apr_status_t s = apr_file_read(apr_file, data, &bytes_read); // modifies bytes_read	
-		infile.close() ;
+		apr_size_t bytes_read = infile.read(data, (apr_size_t) file_size);
+		infile.close();
 
-		if (s != APR_SUCCESS || (S32)bytes_read != file_size)
+		if ((bytes_read == 0) || (bytes_read != (apr_size_t) file_size))
 		{
 			ll_aligned_free_16(data);
 			setLastError("Unable to read entire file");
@@ -473,7 +471,7 @@ LLImageCompressionTester::LLImageCompressionTester() : LLMetricPerformanceTester
 LLImageCompressionTester::~LLImageCompressionTester()
 {
 	outputTestResults();
-	LLImageJ2C::sTesterp = NULL;
+	LLImageJ2C::sTesterp = nullptr;
 }
 
 //virtual 

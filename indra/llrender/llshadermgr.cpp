@@ -43,13 +43,7 @@
 #define UNIFORM_ERRS LL_ERRS("Shader")
 #endif
 
-// Lots of STL stuff in here, using namespace std to keep things more readable
-using std::vector;
-using std::pair;
-using std::make_pair;
-using std::string;
-
-LLShaderMgr * LLShaderMgr::sInstance = NULL;
+LLShaderMgr * LLShaderMgr::sInstance = nullptr;
 
 LLShaderMgr::LLShaderMgr()
 {
@@ -63,7 +57,7 @@ LLShaderMgr::~LLShaderMgr()
 // static
 LLShaderMgr * LLShaderMgr::instance()
 {
-	if(NULL == sInstance)
+	if(nullptr == sInstance)
 	{
 		LL_ERRS("Shaders") << "LLShaderMgr should already have been instantiated by the application!" << LL_ENDL;
 	}
@@ -567,7 +561,7 @@ void LLShaderMgr::dumpProgramLog(GLuint ret, BOOL warns, const std::string& file
 
 	if (log.length() > 0 || warns)
 	{
-        LL_DEBUGS("ShaderLoading") << "Shader loading ";
+        LL_WARNS("ShaderLoading") << "Shader loading ";
         
 		if (!filename.empty())
 		{
@@ -582,7 +576,8 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	auto range = mShaderObjects.equal_range(filename);
 	for (auto it = range.first; it != range.second; ++it)
 	{
-		if (it->second.mLevel == shader_level && it->second.mType == type && it->second.mDefinitions == (defines ? *defines : boost::unordered_map<std::string, std::string>()))
+		if (it->second.mLevel == shader_level && it->second.mType == type && it->second.mIndexedChannels == texture_index_channels
+			&& it->second.mDefinitions == (defines ? *defines : boost::unordered_map<std::string, std::string>()))
 			return it->second.mHandle;
 	}
 
@@ -605,7 +600,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 
 
 	//read in from file
-	LLFILE* file = NULL;
+	LLFILE* file = nullptr;
 
 	S32 try_gpu_class = shader_level;
 	S32 gpu_class;
@@ -626,7 +621,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		}
 	}
 	
-	if (file == NULL)
+	if (file == nullptr)
 	{
 		LL_WARNS("ShaderLoading") << "GLSL Shader file not found: " << filename << LL_ENDL;
 		return 0;
@@ -676,14 +671,45 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	{  
 		if (major_version < 4)
 		{
-			//set version to 1.30
-			text[count++] = strdup("#version 130\n");
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
-			if (minor_version == 50 && gGLManager.mHasGpuShader5)
+			if (minor_version <= 39)
+			{
+				//set version to 1.30
+				text[count++] = strdup("#version 130\n");
+				text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+				text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+			}
+			else if (minor_version <= 49)
+			{
+				//set version to 1.40
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 140 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 140 compatibility\n");
+				}
+				text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
+				text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+			}
+			else if(minor_version <= 59)
+			{
+				//set version to 1.50
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 150 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 150 compatibility\n");
+				}
+			}
+
+			if (gGLManager.mHasGpuShader5)
 			{
 				text[count++] = strdup("#extension GL_ARB_gpu_shader5 : enable\n");
 			}
+
 			//some implementations of GLSL 1.30 require integer precision be explicitly declared
 			text[count++] = strdup("precision mediump int;\n");
 			text[count++] = strdup("precision highp float;\n");
@@ -691,10 +717,84 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 			text[count++] = strdup("#define FXAA_GLSL_130 1\n");
 		}
 		else
-		{ //set version to 400
-			text[count++] = strdup("#version 400\n");
-			text[count++] = strdup("#extension GL_ARB_texture_rectangle : enable\n");
-			text[count++] = strdup("#extension GL_ARB_shader_texture_lod : enable\n");
+		{
+			if (minor_version <= 9)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 400 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 400 compatibility\n");
+				}
+			}
+			else if (minor_version <= 19)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 410 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 410 compatibility\n");
+				}
+			}
+			else if (minor_version <= 29)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 420 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 420 compatibility\n");
+				}
+			}
+			else if (minor_version <= 39)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 430 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 430 compatibility\n");
+				}
+			}
+			else if (minor_version <= 49)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 440 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 440 compatibility\n");
+				}
+			}
+			else if (minor_version <= 59)
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 450 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 450 compatibility\n");
+				}
+			}
+			else
+			{
+				if (LLRender::sGLCoreProfile)
+				{
+					text[count++] = strdup("#version 400 core\n");
+				}
+				else
+				{
+					text[count++] = strdup("#version 400 compatibility\n");
+				}
+			}
 
 			text[count++] = strdup("#define FXAA_GLSL_400 1\n");
 		}
@@ -727,7 +827,14 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 			text[count++] = strdup("#define shadow2DRect(a,b) vec2(texture(a,b))\n");
 		}
 	}
-	
+	if (type == GL_FRAGMENT_SHADER)
+	{
+		text[count++] = strdup("#define FRAGMENT_SHADER 1\n");
+	}
+	else
+	{
+		text[count++] = strdup("#define VERTEX_SHADER 1\n");
+	}
 	if (defines)
 	{
 		for (boost::unordered_map<std::string,std::string>::iterator iter = defines->begin(); iter != defines->end(); ++iter)
@@ -737,11 +844,6 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 		}
 	}
 
-	if( gGLManager.mIsATI )
-	{
-		text[ count++ ] = strdup( "#define IS_AMD_CARD 1\n" );
-	}
-	
 	if (texture_index_channels > 0 && type == GL_FRAGMENT_SHADER)
 	{
 		//use specified number of texture channels for indexed texture rendering
@@ -842,7 +944,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	}
 
 	//copy file into memory
-	while( fgets((char *)buff, 1024, file) != NULL && count < LL_ARRAY_SIZE(text) ) 
+	while( fgets((char *)buff, 1024, file) != nullptr && count < LL_ARRAY_SIZE(text) ) 
 	{
 		text[count++] = (GLchar*)strdup((char *)buff); 
 	}
@@ -864,7 +966,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	//load source
 	if(ret)
 	{
-		glShaderSource(ret, count, (const GLchar**) text, NULL);
+		glShaderSource(ret, count, (const GLchar**) text, nullptr);
 
 		if (gDebugGL)
 		{
@@ -959,7 +1061,7 @@ GLuint LLShaderMgr::loadShaderFile(const std::string& filename, S32 & shader_lev
 	if (ret)
 	{
 		// Add shader file to map
-		mShaderObjects.insert(make_pair(filename, CachedShaderObject(ret, try_gpu_class, type, defines)));
+		mShaderObjects.insert(make_pair(filename, CachedShaderObject(ret, try_gpu_class, type, texture_index_channels, defines)));
 		shader_level = try_gpu_class;
 	}
 	else
@@ -1132,8 +1234,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("object_plane_t");
 	llassert(mReservedUniforms.size() == LLShaderMgr::OBJECT_PLANE_T+1);
 
-	mReservedUniforms.push_back("viewport");
-
 	mReservedUniforms.push_back("light_position");
 	mReservedUniforms.push_back("light_direction");
 	mReservedUniforms.push_back("light_attenuation");
@@ -1224,7 +1324,8 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("ssao_factor");
 	mReservedUniforms.push_back("ssao_factor_inv");
 	mReservedUniforms.push_back("ssao_effect");
-	mReservedUniforms.push_back("screen_res");
+	mReservedUniforms.push_back("kern_scale");
+	mReservedUniforms.push_back("noise_scale");
 	mReservedUniforms.push_back("near_clip");
 	mReservedUniforms.push_back("shadow_offset");
 	mReservedUniforms.push_back("shadow_bias");
@@ -1236,10 +1337,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("depth_cutoff");
 	mReservedUniforms.push_back("norm_cutoff");
 	mReservedUniforms.push_back("shadow_target_width");
+	mReservedUniforms.push_back("downsampled_depth_scale");
 	
-	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH+1);
+	llassert(mReservedUniforms.size() == LLShaderMgr::DEFERRED_DOWNSAMPLED_DEPTH_SCALE+1);
 
-	mReservedUniforms.push_back("tc_scale");
 	mReservedUniforms.push_back("rcp_screen_res");
 	mReservedUniforms.push_back("rcp_frame_opt");
 	mReservedUniforms.push_back("rcp_frame_opt2");
@@ -1254,6 +1355,7 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("dof_height");
 
 	mReservedUniforms.push_back("depthMap");
+	mReservedUniforms.push_back("depthMapDownsampled");
 	mReservedUniforms.push_back("shadowMap0");
 	mReservedUniforms.push_back("shadowMap1");
 	mReservedUniforms.push_back("shadowMap2");
@@ -1273,11 +1375,6 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("bloomMap");
 	mReservedUniforms.push_back("projectionMap");
 	mReservedUniforms.push_back("norm_mat");
-
-#ifdef GAUSSIAN_BLUR
-	// <polarity> Gaussian Blur
-	mReservedUniforms.push_back("exo_screen");
-#endif
 
 	mReservedUniforms.push_back("global_gamma");
 	mReservedUniforms.push_back("texture_gamma");
@@ -1325,23 +1422,10 @@ void LLShaderMgr::initAttribsAndUniforms()
 	mReservedUniforms.push_back("detail_3");
 	mReservedUniforms.push_back("alpha_ramp");
 
-#ifdef GAUSSIAN_BLUR
-	// <polarity> Gaussian blur shader
-	mReservedUniforms.push_back("blur_direction");
-	// </polarity>
-#endif
-
 	mReservedUniforms.push_back("origin");
 	// <alchemy>
 	mReservedUniforms.push_back("seconds60");
-
 	// </alchemy>
-
-	if (mReservedUniforms.size() != END_RESERVED_UNIFORMS)
-	{
-		LL_ERRS() << "Amount of allocated uniforms does not match amount of allocatables! (Allocated: " << mReservedUniforms.size() << ", Total: " << END_RESERVED_UNIFORMS << ")" << LL_ENDL;
-	}
-
 	llassert(mReservedUniforms.size() == END_RESERVED_UNIFORMS);
 
 	std::set<std::string> dupe_check;

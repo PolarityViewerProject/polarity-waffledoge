@@ -33,10 +33,8 @@
 // Linden library includes 
 
 // Project includes
-#include "llcontrol.h"
 #include "llui.h"
 #include "lluictrlfactory.h"
-#include "lluiimage.h"
 
 static LLDefaultChildRegistry::Register<LLIconCtrl> r("icon");
 
@@ -44,21 +42,21 @@ LLIconCtrl::Params::Params()
 :	image("image_name"),
 	color("color"),
 	use_draw_context_alpha("use_draw_context_alpha", true),
-	scale_image("scale_image"),
 	min_width("min_width", 0),
-	min_height("min_height", 0)
+	min_height("min_height", 0),
+	scale_image("scale_image")
 {}
 
 LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 :	LLUICtrl(p),
-	mColor(p.color()),
-	mImagep(p.image),
-	mUseDrawContextAlpha(p.use_draw_context_alpha),
 	mPriority(0),
 	mMinWidth(p.min_width),
 	mMinHeight(p.min_height),
 	mMaxWidth(0),
-	mMaxHeight(0)
+	mMaxHeight(0),
+	mUseDrawContextAlpha(p.use_draw_context_alpha),
+	mColor(p.color()),
+	mImagep(p.image)
 {
 	if (mImagep.notNull())
 	{
@@ -68,7 +66,7 @@ LLIconCtrl::LLIconCtrl(const LLIconCtrl::Params& p)
 
 LLIconCtrl::~LLIconCtrl()
 {
-	mImagep = NULL;
+	mImagep = nullptr;
 }
 
 
@@ -115,12 +113,15 @@ void LLIconCtrl::setValue(const LLSD& value, S32 priority)
 	{
         S32 desired_draw_width = llmax(mMinWidth, mImagep->getWidth());
         S32 desired_draw_height = llmax(mMinHeight, mImagep->getHeight());
-        if (mMaxWidth && mMaxHeight)
+        if (mMaxWidth)
         {
             desired_draw_width = llmin(desired_draw_width, mMaxWidth);
+        }
+        if (mMaxHeight)
+        {
             desired_draw_height = llmin(desired_draw_height, mMaxHeight);
         }
-
+        
         mImagep->getImage()->setKnownDrawSize(desired_draw_width, desired_draw_height);
 	}
 }

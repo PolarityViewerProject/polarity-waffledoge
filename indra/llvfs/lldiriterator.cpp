@@ -74,7 +74,7 @@ LLDirIterator::Impl::Impl(const std::string &dirname, const std::string &mask)
 
 	if (!is_dir)
 	{
-		LL_WARNS() << "Invalid path: \"" << dir_path.string() << "\"" << LL_ENDL;
+		LL_WARNS() << "Invalid path: \"" << dir_path.string().c_str() << "\"" << LL_ENDL;
 		return;
 	}
 

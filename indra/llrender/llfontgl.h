@@ -33,7 +33,6 @@
 #include "llimagegl.h"
 #include "llpointer.h"
 #include "llrect.h"
-#include "v2math.h"
 
 class LLColor4;
 // Key used to request a font.
@@ -95,7 +94,7 @@ public:
 				HAlign halign = LEFT,  VAlign valign = BASELINE, 
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
-				F32* right_x=NULL, 
+				F32* right_x= nullptr, 
 				BOOL use_ellipses = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
@@ -104,7 +103,7 @@ public:
 				HAlign halign = LEFT,  VAlign valign = BASELINE, 
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX,
-				F32* right_x=NULL, 
+				F32* right_x= nullptr, 
 				BOOL use_ellipses = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, 
@@ -113,7 +112,7 @@ public:
 				HAlign halign = LEFT,  VAlign valign = BASELINE, 
 				U8 style = NORMAL, ShadowType shadow = NO_SHADOW, 
 				S32 max_chars = S32_MAX, S32 max_pixels = S32_MAX, 
-				F32* right_x=NULL, 
+				F32* right_x= nullptr, 
 				BOOL use_ellipses = FALSE) const;
 
 	S32 render(const LLWString &text, S32 begin_offset, F32 x, F32 y, const LLColor4 &color) const;
@@ -183,19 +182,10 @@ public:
 	static void setFontDisplay(BOOL flag) { sDisplayFont = flag; }
 		
 	static LLFontGL* getFontMonospace();
-	static LLFontGL* getFontSansSerifMicro();
-	static LLFontGL* getFontSansSerifTiny();
-	static LLFontGL* getFontSansSerifVerySmall();
 	static LLFontGL* getFontSansSerifSmall();
 	static LLFontGL* getFontSansSerif();
 	static LLFontGL* getFontSansSerifBig();
-	static LLFontGL* getFontSansSerifVeryBig();
-	static LLFontGL* getFontSansSerifLarge();
-	static LLFontGL* getFontSansSerifVeryLarge();
 	static LLFontGL* getFontSansSerifHuge();
-	static LLFontGL* getFontSansSerifVeryHuge();
-	static LLFontGL* getFontSansSerifHumongous();
-	static LLFontGL* getFontSansSerifGigantic();
 	static LLFontGL* getFontSansSerifBold();
 	static LLFontGL* getFontExtChar();
 	static LLFontGL* getFont(const LLFontDescriptor& desc);
@@ -224,8 +214,8 @@ private:
 	friend class LLTextBillboard;
 	friend class LLHUDText;
 
-	LLFontGL(const LLFontGL &source);
-	LLFontGL &operator=(const LLFontGL &source);
+	LLFontGL(const LLFontGL &source) = delete;
+	LLFontGL &operator=(const LLFontGL &source) = delete;
 
 	LLFontDescriptor mFontDescriptor;
 	LLPointer<LLFontFreetype> mFontFreetype;

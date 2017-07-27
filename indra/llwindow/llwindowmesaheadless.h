@@ -98,7 +98,7 @@ public:
 	LLWindowMesaHeadless(LLWindowCallbacks* callbacks,
                          const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 				  U32 flags,  BOOL fullscreen, BOOL clearBg,
-				EVSyncSetting vsync_setting, BOOL use_gl, BOOL ignore_pixel_depth);
+				  EVSyncSetting vsync_setting, BOOL use_gl, BOOL ignore_pixel_depth);
 	~LLWindowMesaHeadless();
 
 private:

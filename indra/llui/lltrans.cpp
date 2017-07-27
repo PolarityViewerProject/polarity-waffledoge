@@ -156,8 +156,7 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLStringUtil::
 	}
 	else
 	{
-		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: '" << xml_desc << "'" << LL_ENDL;
-		llassert(iter != sStringTemplates.end());
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
 		return "MissingString("+xml_desc+")";
 	}
 }
@@ -178,8 +177,7 @@ std::string LLTrans::getString(const std::string &xml_desc, const LLSD& msg_args
 	}
 	else
 	{
-		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: '" << xml_desc << "'" << LL_ENDL;
-		llassert(iter != sStringTemplates.end());
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;
 		return "MissingString("+xml_desc+")";
 	}
 }
@@ -201,8 +199,7 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 	}
 	else
 	{
-		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: '" << xml_desc << "'" << LL_ENDL;	
-		llassert(iter != sStringTemplates.end());
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;	
 		return false;
 	}
 }
@@ -222,8 +219,7 @@ bool LLTrans::findString(std::string &result, const std::string &xml_desc, const
 	}
 	else
 	{
-		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: '" << xml_desc << "'" << LL_ENDL;	
-		llassert(iter != sStringTemplates.end());
+		LL_WARNS_ONCE("configuration") << "Missing String in strings.xml: [" << xml_desc << "]" << LL_ENDL;	
 		return false;
 	}
 }

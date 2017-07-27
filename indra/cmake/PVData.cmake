@@ -30,34 +30,7 @@ if(INSTALL_PROPRIETARY)
   # set(USE_TBBMALLOC ON)
 endif(INSTALL_PROPRIETARY)
 
-# <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
-add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
 
-MESSAGE(STATUS "")
-MESSAGE(STATUS "======== *Configuration* ========")
-MESSAGE(STATUS "ROOT_PROJECT_NAME      ${ROOT_PROJECT_NAME}")
-MESSAGE(STATUS "Build No.              ${BUILD_NUMBER}")
-MESSAGE(STATUS "Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
-MESSAGE(STATUS "Incremental Link       ${INCREMENTAL_LINK}")
-MESSAGE(STATUS "Link-Time CodeGen      ${USE_LTO}")
-MESSAGE(STATUS "Internal Build         ${INTERNAL_BUILD}")
-MESSAGE(STATUS "========== *Libraries* ==========")
-MESSAGE(STATUS "FMOD Studio            ${FMODSTUDIO}")
-MESSAGE(STATUS "NVIDIA API             ${NVAPI}")
-MESSAGE(STATUS "Intel Building Blocks  ${USE_TBBMALLOC}")
-MESSAGE(STATUS "Licensed VLC Plugin    ${LIBVLCPLUGIN}")
-MESSAGE(STATUS "========== *PVData* =============")
-MESSAGE(STATUS "PVData System          ${PVDATA_SYSTEM}")
-MESSAGE(STATUS "=================================")
-# Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
-add_definitions(
-  /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DUSE_LTO=${USE_LTO}
-  /DINTERNAL_BUILD=${INTERNAL_BUILD}
-  /DLIBVLCPLUGIN=${LIBVLCPLUGIN}
-  /DBUILD_NUMBER=${BUILD_NUMBER}
-  /DENABLE_MEDIA_PLUGINS=${ENABLE_MEDIA_PLUGINS}
-  )
 if(PVDATA_UUID_LOCKDOWN)
   MESSAGE(AUTHOR_WARNING "THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
 endif(PVDATA_UUID_LOCKDOWN)

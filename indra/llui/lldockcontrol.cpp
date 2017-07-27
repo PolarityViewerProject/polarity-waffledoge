@@ -30,6 +30,9 @@
 
 #include "lldockcontrol.h"
 #include "lldockablefloater.h"
+#include "llui.h"
+
+static LLLayoutPanel* sToolbarPanel = nullptr;
 
 LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 		const LLUIImagePtr& dockTongue, DocAt dockAt, get_allowed_rect_callback_t get_allowed_rect_callback) :
@@ -40,7 +43,7 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 {
 	mDockAt = dockAt;
 
-	if (dockWidget != NULL)
+	if (dockWidget != nullptr)
 	{
 		mDockWidgetHandle = dockWidget->getHandle();
 	}
@@ -56,19 +59,19 @@ LLDockControl::LLDockControl(LLView* dockWidget, LLFloater* dockableFloater,
 
 	if (!(get_allowed_rect_callback))
 	{
-		mGetAllowedRectCallback = boost::bind(&LLDockControl::getAllowedRect, this, _1);
+		mGetAllowedRectCallback = std::bind(&LLDockControl::getAllowedRect, this, std::placeholders::_1);
 	}
 	else
 	{
 		mGetAllowedRectCallback = get_allowed_rect_callback;
 	}
 
-	if (dockWidget != NULL) 
+	if (dockWidget != nullptr) 
 	{
 		repositionDockable();
 	}
 
-	if (getDock() != NULL)
+	if (getDock() != nullptr)
 	{
 		mDockWidgetVisible = isDockVisible();
 	}
@@ -84,7 +87,7 @@ LLDockControl::~LLDockControl()
 
 void LLDockControl::setDock(LLView* dockWidget)
 {
-	if (dockWidget != NULL)
+	if (dockWidget != nullptr)
 	{
 		mDockWidgetHandle = dockWidget->getHandle();
 		repositionDockable();
@@ -99,7 +102,11 @@ void LLDockControl::setDock(LLView* dockWidget)
 
 void LLDockControl::getAllowedRect(LLRect& rect)
 {
-	rect = mDockableFloater->getRootView()->getChild<LLView>("non_toolbar_panel")->getRect();
+	if (sToolbarPanel == nullptr)
+	{
+		sToolbarPanel = LLUI::getRootView()->getChild<LLLayoutPanel>("non_toolbar_panel");
+	}
+	rect = sToolbarPanel->getRect();
 }
 
 void LLDockControl::repositionDockable()
@@ -126,7 +133,7 @@ void LLDockControl::repositionDockable()
 			off();
 			LLDockableFloater* dockable_floater =
 					dynamic_cast<LLDockableFloater*> (mDockableFloater);
-			if(dockable_floater != NULL)
+			if(dockable_floater != nullptr)
 			{
 				dockable_floater->onDockHidden();
 			}
@@ -139,7 +146,7 @@ void LLDockControl::repositionDockable()
 			}
 			LLDockableFloater* dockable_floater =
 					dynamic_cast<LLDockableFloater*> (mDockableFloater);
-			if(dockable_floater != NULL)
+			if(dockable_floater != nullptr)
 			{
 				dockable_floater->onDockShown();
 			}
@@ -157,7 +164,7 @@ bool LLDockControl::isDockVisible()
 {
 	bool res = true;
 
-	if (getDock() != NULL)
+	if (getDock() != nullptr)
 	{
 		//we should check all hierarchy
 		res = getDock()->isInVisibleChain();
@@ -203,7 +210,7 @@ void LLDockControl::moveDockable()
 	bool use_tongue = false;
 	LLDockableFloater* dockable_floater =
 			dynamic_cast<LLDockableFloater*> (mDockableFloater);
-	if (dockable_floater != NULL)
+	if (dockable_floater != nullptr)
 	{
 		use_tongue = dockable_floater->getUseTongue();
 	}
@@ -372,7 +379,7 @@ void LLDockControl::drawToungue()
 	bool use_tongue = false;
 	LLDockableFloater* dockable_floater =
 			dynamic_cast<LLDockableFloater*> (mDockableFloater);
-	if (dockable_floater != NULL)
+	if (dockable_floater != nullptr)
 	{
 		use_tongue = dockable_floater->getUseTongue();
 	}

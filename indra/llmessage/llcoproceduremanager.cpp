@@ -46,7 +46,7 @@ static std::map<std::string, U32> DefaultPoolSizes =
 #define DEFAULT_POOL_SIZE 5
 
 //=========================================================================
-class LLCoprocedurePool: private boost::noncopyable
+class LLCoprocedurePool
 {
 public:
     typedef LLCoprocedureManager::CoProcedure_t CoProcedure_t;
@@ -54,6 +54,11 @@ public:
     LLCoprocedurePool(const std::string &name, size_t size);
     virtual ~LLCoprocedurePool();
 
+protected:
+	LLCoprocedurePool(const LLCoprocedurePool&) = delete;
+	LLCoprocedurePool& operator=(const LLCoprocedurePool&) = delete;
+
+public:
     /// Places the coprocedure on the queue for processing. 
     /// 
     /// @param name Is used for debugging and should identify this coroutine.
@@ -285,8 +290,8 @@ LLCoprocedurePool::LLCoprocedurePool(const std::string &poolName, size_t size):
     mPendingCoprocs(),
     mShutdown(false),
     mWakeupTrigger("CoprocedurePool" + poolName, true),
-    mCoroMapping(),
-    mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID)
+    mHTTPPolicy(LLCore::HttpRequest::DEFAULT_POLICY_ID),
+    mCoroMapping()
 {
     for (size_t count = 0; count < mPoolSize; ++count)
     {
@@ -335,7 +340,7 @@ LLUUID LLCoprocedurePool::enqueueCoprocedure(const std::string &name, LLCoproced
 {
     LLUUID id(LLUUID::generateNewID());
 
-    mPendingCoprocs.push_back(QueuedCoproc::ptr_t(new QueuedCoproc(name, id, proc)));
+    mPendingCoprocs.push_back(boost::make_shared<QueuedCoproc>(name, id, proc));
     LL_INFOS() << "Coprocedure(" << name << ") enqueued with id=" << id.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
     mWakeupTrigger.post(LLSD());
@@ -386,8 +391,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
             mPendingCoprocs.pop_front();
             ActiveCoproc_t::iterator itActive = mActiveCoprocs.insert(ActiveCoproc_t::value_type(coproc->mId, httpAdapter)).first;
 
-            // <polarity> moved to debugs because spammy
-            LL_DEBUGS() << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
+            LL_INFOS() << "Dequeued and invoking coprocedure(" << coproc->mName << ") with id=" << coproc->mId.asString() << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
             try
             {
@@ -403,8 +407,7 @@ void LLCoprocedurePool::coprocedureInvokerCoro(LLCoreHttpUtil::HttpCoroutineAdap
                 throw;
             }
 
-            // <polarity> moved to debugs because spammy
-            LL_DEBUGS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
+            LL_INFOS() << "Finished coprocedure(" << coproc->mName << ")" << " in pool \"" << mPoolName << "\"" << LL_ENDL;
 
             mActiveCoprocs.erase(itActive);
         }

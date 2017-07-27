@@ -165,7 +165,7 @@ void LLPluginClassMedia::idle(void)
 		mPlugin->idle();
 	}
 
-	if((mMediaWidth == -1) || (!mTextureParamsReceived) || (mPlugin == NULL) || (mPlugin->isBlocked()) || (mOwner == NULL))
+	if((mMediaWidth == -1) || (!mTextureParamsReceived) || (mPlugin == nullptr) || (mPlugin->isBlocked()) || (mOwner == nullptr))
 	{
 		// Can't process a size change at this time
 	}
@@ -226,9 +226,7 @@ void LLPluginClassMedia::idle(void)
 				void *addr = mPlugin->getSharedMemoryAddress(mTextureSharedMemoryName);
 
 				// clear texture memory to avoid random screen visual fuzz from uninitialized texture data
-				// memset( addr, 0x00, newsize );
-				if( addr ) // <FS:ND/> check for valid pointer first
-					memset( addr, 0x00, newsize );
+				memset( addr, 0x00, newsize );
 
 				// We could do this to force an update, but textureValid() will still be returning false until the first roundtrip to the plugin,
 				// so it may not be worthwhile.
@@ -287,8 +285,8 @@ int LLPluginClassMedia::getTextureHeight() const
 
 unsigned char* LLPluginClassMedia::getBitsData()
 {
-	unsigned char *result = NULL;
-	if((mPlugin != NULL) && !mTextureSharedMemoryName.empty())
+	unsigned char *result = nullptr;
+	if((mPlugin != nullptr) && !mTextureSharedMemoryName.empty())
 	{
 		result = (unsigned char*)mPlugin->getSharedMemoryAddress(mTextureSharedMemoryName);
 	}
@@ -358,14 +356,6 @@ void LLPluginClassMedia::setSizeInternal(void)
 		mRequestedMediaWidth = nextPowerOf2(mRequestedMediaWidth);
 		mRequestedMediaHeight = nextPowerOf2(mRequestedMediaHeight);
 	}
-// High-resolution(HiDPI) media fix, courtesy of Sovereign Engineer
-#if 0
-	if(mRequestedMediaWidth > 2048)
-		mRequestedMediaWidth = 2048;
-
-	if(mRequestedMediaHeight > 2048)
-		mRequestedMediaHeight = 2048;
-#endif
 }
 
 void LLPluginClassMedia::setAutoScale(bool auto_scale)
@@ -387,7 +377,7 @@ bool LLPluginClassMedia::textureValid(void)
 		mMediaHeight <= 0 ||
 		mRequestedMediaWidth != mMediaWidth ||
 		mRequestedMediaHeight != mMediaHeight ||
-		getBitsData() == NULL
+		getBitsData() == nullptr
 	)
 		return false;
 
@@ -398,7 +388,7 @@ bool LLPluginClassMedia::getDirty(LLRect *dirty_rect)
 {
 	bool result = !mDirtyRect.isEmpty();
 
-	if(dirty_rect != NULL)
+	if(dirty_rect != nullptr)
 	{
 		*dirty_rect = mDirtyRect;
 	}
@@ -1292,7 +1282,7 @@ void LLPluginClassMedia::set_cookies(const std::string &cookies)
 
 void LLPluginClassMedia::enable_cookies(bool enable)
 {
-	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "cookies_enabled");
+	LLPluginMessage message(LLPLUGIN_MESSAGE_CLASS_MEDIA_BROWSER, "enable_cookies");
 	message.setValueBoolean("enable", enable);
 	sendMessage(message);
 }

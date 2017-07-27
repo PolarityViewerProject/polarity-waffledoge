@@ -52,6 +52,7 @@ LLXfer_Mem::~LLXfer_Mem ()
 
 void LLXfer_Mem::init ()
 {
+	mCallback = nullptr;
 	mRemoteFilename.clear();
 	mRemotePath = LL_PATH_NONE;
 	mDeleteRemoteOnCompletion = FALSE;
@@ -169,7 +170,7 @@ S32 LLXfer_Mem::initializeRequest(U64 xfer_id,
 	LL_INFOS() << "Requesting file: " << remote_filename << LL_ENDL;
 
 	delete [] mBuffer;
-	mBuffer = NULL;
+	mBuffer = nullptr;
 
 	mBufferLength = 0;
 	mPacketNum = 0;

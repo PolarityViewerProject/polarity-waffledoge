@@ -82,10 +82,10 @@ LLPanel::Params::Params()
 	bg_alpha_image("bg_alpha_image"),
 	min_width("min_width", 100),
 	min_height("min_height", 100),
-	strings("string"),
 	filename("filename"),
 	class_name("class"),
 	help_topic("help_topic"),
+	strings("string"),
 	visible_callback("visible_callback"),
 	accepts_badge("accepts_badge")
 {
@@ -98,6 +98,11 @@ LLPanel::Params::Params()
 LLPanel::LLPanel(const LLPanel::Params& p)
 :	LLUICtrl(p),
 	LLBadgeHolder(p.accepts_badge),
+	mCommitCallbackRegistrar(false),
+	mEnableCallbackRegistrar(false),
+	mVisibleSignal(NULL),
+	mHelpTopic(p.help_topic),
+	mXMLFilename(p.filename),
 	mBgVisible(p.background_visible),
 	mBgOpaque(p.background_opaque),
 	mBgOpaqueColor(p.bg_opaque_color()),
@@ -106,14 +111,9 @@ LLPanel::LLPanel(const LLPanel::Params& p)
 	mBgAlphaImageOverlay(p.bg_alpha_image_overlay),
 	mBgOpaqueImage(p.bg_opaque_image()),
 	mBgAlphaImage(p.bg_alpha_image()),
-	mDefaultBtn(NULL),
-	mBorder(NULL),
-	mLabel(p.label),
-	mHelpTopic(p.help_topic),
-	mCommitCallbackRegistrar(false),
-	mEnableCallbackRegistrar(false),
-	mXMLFilename(p.filename),
-	mVisibleSignal(NULL)
+	mBorder(nullptr),
+	mDefaultBtn(nullptr),
+	mLabel(p.label)
 	// *NOTE: Be sure to also change LLPanel::initFromParams().  We have too
 	// many classes derived from LLPanel to retrofit them all to pass in params.
 {
@@ -686,12 +686,12 @@ BOOL LLPanel::childHasFocus(const std::string& id)
 // Prefer getChild<LLUICtrl>("foo")->setCommitCallback(boost:bind(...)),
 // which takes a generic slot.  Or use mCommitCallbackRegistrar.add() with
 // a named callback and reference it in XML.
-void LLPanel::childSetCommitCallback(const std::string& id, boost::function<void (LLUICtrl*,void*)> cb, void* data)
+void LLPanel::childSetCommitCallback(const std::string& id, std::function<void (LLUICtrl*,void*)> cb, void* data)
 {
 	LLUICtrl* child = findChild<LLUICtrl>(id);
 	if (child)
 	{
-		child->setCommitCallback(boost::bind(cb, child, data));
+		child->setCommitCallback(std::bind(cb, child, data));
 	}
 }
 
@@ -783,12 +783,12 @@ void LLPanel::childSetAction(const std::string& id, const commit_signal_t::slot_
 	}
 }
 
-void LLPanel::childSetAction(const std::string& id, boost::function<void(void*)> function, void* value)
+void LLPanel::childSetAction(const std::string& id, std::function<void(void*)> function, void* value)
 {
 	LLButton* button = findChild<LLButton>(id);
 	if (button)
 	{
-		button->setClickedCallback(boost::bind(function, value));
+		button->setClickedCallback(std::bind(function, value));
 	}
 }
 
@@ -877,3 +877,9 @@ LLPanel* LLPanel::createFactoryPanel(const std::string& name)
 	LLPanel::Params panel_p;
 	return LLUICtrlFactory::create<LLPanel>(panel_p);
 }
+
+void set_child_visible(LLView* parent, const std::string& child_name, bool visible)
+{
+	parent->getChildView(child_name)->setVisible(visible);
+}
+

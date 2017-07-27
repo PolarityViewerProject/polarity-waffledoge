@@ -43,9 +43,8 @@ namespace LLCoreInt
 
 class RefCounted
 {
-private:
 	RefCounted() = delete;								// Not defined - may not be default constructed
-	void operator=(const RefCounted &) = delete;			// Not defined
+	RefCounted& operator=(const RefCounted &) = delete;		// Not defined
 	
 public:
 	explicit RefCounted(bool const implicit)
@@ -66,7 +65,7 @@ protected:
 	virtual void destroySelf();
 
 private:
-	mutable LLAtomic32<S32>			mRefCount;
+	mutable LLAtomicS32			mRefCount;
 
 }; // end class RefCounted
 

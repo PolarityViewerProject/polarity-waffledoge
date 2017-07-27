@@ -44,8 +44,6 @@ namespace LLAvatarNameCache
 	void initClass(bool running, bool usePeopleAPI);
 	void cleanupClass();
 
-	void clearCache(); // <FS:Ansariel/> Clear name cache
-
 	// Import/export the name cache to file.
 	bool importFile(std::istream& istr);
 	void exportFile(std::ostream& ostr);
@@ -84,15 +82,17 @@ namespace LLAvatarNameCache
 	void setUseUsernames(bool use);
 
 	void insert(const LLUUID& agent_id, const LLAvatarName& av_name);
-
-// [RLVa:KB] - Checked: 2010-12-08 (RLVa-1.4.0a) | Added: RLVa-1.2.2c
-	bool getForceDisplayNames();
-	void setForceDisplayNames(bool force);
-// [/RLVa:KB]
-
 	void erase(const LLUUID& agent_id);
 
-    /// Provide some fallback for agents that return errors.
+	// A way to find agent id by UUID, very slow, also unreliable
+	// since it doesn't request names, just serch exsisting ones
+	// that are likely not in cache.
+	//
+	// Todo: Find a way to remove this.
+	// Curently this method is used for chat history and in some cases notices.
+	LLUUID findIdByName(const std::string& name);
+
+	/// Provide some fallback for agents that return errors.
 	void handleAgentError(const LLUUID& agent_id);
 
 	// Compute name expiration time from HTTP Cache-Control header,

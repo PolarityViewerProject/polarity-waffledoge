@@ -33,7 +33,6 @@
 
 #include <boost/functional/hash.hpp>
 
-// This is used for the stl search_n function.
 bool eq_message_throttle_entry(LLMessageThrottleEntry a, LLMessageThrottleEntry b)
  		{ return a.getHash() == b.getHash(); }
 
@@ -105,13 +104,14 @@ BOOL LLMessageThrottle::addViewerAlert(const LLUUID& to, const std::string& mesg
 	std::ostringstream full_mesg;
 	full_mesg << to << mesg;
 
-	// Create an entry for this message.
+	// Create an entry for this message.o.o
 	size_t hash = boost::hash<std::string>()(full_mesg.str());
 	LLMessageThrottleEntry entry(hash, LLFrameTimer::getTotalTime());
 
 	// Check if this message is already in the list.
  	message_list_iterator_t found = std::search_n(message_list->begin(), message_list->end(),
  												  1, entry, eq_message_throttle_entry);
+
 	if (found == message_list->end())
 	{
 		// This message was not found.  Add it to the list.

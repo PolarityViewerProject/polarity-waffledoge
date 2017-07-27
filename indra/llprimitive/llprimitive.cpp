@@ -42,11 +42,6 @@
 #include "llprimtexturelist.h"
 #include "llmaterialid.h"
 
-#ifdef FULLBRIGHT_TOGGLE
-//BD - Disable Fullbrights
-#include "..\newview\llviewercontrol.h"
-#endif
-
 /**
  * exported constants
  */
@@ -67,9 +62,13 @@ const F32 OBJECT_TWIST_LINEAR_MIN	= -180.f;
 const F32 OBJECT_TWIST_LINEAR_MAX	=  180.f;
 const F32 OBJECT_TWIST_LINEAR_INC	=    9.f;
 
-const F32 OBJECT_MIN_HOLE_SIZE = 0.05f;
+const F32 SL_OBJECT_MIN_HOLE_SIZE = 0.05f;
+const F32 OS_OBJECT_MIN_HOLE_SIZE = 0.01f;
 const F32 OBJECT_MAX_HOLE_SIZE_X = 1.0f;
 const F32 OBJECT_MAX_HOLE_SIZE_Y = 0.5f;
+
+const F32 SL_OBJECT_MAX_HOLLOW_SIZE = 95.f;
+const F32 OS_OBJECT_MAX_HOLLOW_SIZE = 99.f;
 
 // Revolutions parameters.
 const F32 OBJECT_REV_MIN = 1.0f;
@@ -124,7 +123,7 @@ const F32	TEXTURE_ROTATION_PACK_FACTOR = ((F32) 0x08000);
 //static 
 // LEGACY: by default we use the LLVolumeMgr::gVolumeMgr global
 // TODO -- eliminate this global from the codebase!
-LLVolumeMgr* LLPrimitive::sVolumeManager = NULL;
+LLVolumeMgr* LLPrimitive::sVolumeManager = nullptr;
 
 // static
 void LLPrimitive::setVolumeManager( LLVolumeMgr* volume_manager )
@@ -144,7 +143,7 @@ bool LLPrimitive::cleanupVolumeManager()
 	{
 		res = sVolumeManager->cleanup();
 		delete sVolumeManager;
-		sVolumeManager = NULL;
+		sVolumeManager = nullptr;
 	}
 	return res;
 }
@@ -154,13 +153,13 @@ bool LLPrimitive::cleanupVolumeManager()
 LLPrimitive::LLPrimitive()
 :	mTextureList(),
 	mNumTEs(0),
-	mMiscFlags(0),
-	mNumBumpmapTEs(0)
+	mNumBumpmapTEs(0),
+	mMiscFlags(0)
 {
 	mPrimitiveCode = 0;
 
 	mMaterial = LL_MCODE_STONE;
-	mVolumep  = NULL;
+	mVolumep  = nullptr;
 
 	mChanged  = UNCHANGED;
 
@@ -179,13 +178,11 @@ LLPrimitive::~LLPrimitive()
 {
 	clearTextureList();
 	// Cleanup handled by volume manager
-	// <FS:ND/> During shutdown sVolumeManager can be 0
-	//	if (mVolumep)
-	if ( mVolumep && sVolumeManager )
+	if (mVolumep && sVolumeManager)
 	{
 		sVolumeManager->unrefVolume(mVolumep);
 	}
-	mVolumep = NULL;
+	mVolumep = nullptr;
 }
 
 void LLPrimitive::clearTextureList()
@@ -992,7 +989,7 @@ BOOL LLPrimitive::setVolume(const LLVolumeParams &volume_params, const S32 detai
 	return TRUE;
 }
 
-BOOL LLPrimitive::setMaterial(U8 material)
+BOOL LLPrimitive::setMaterial(const U8 material)
 {
 	if (material != mMaterial)
 	{
@@ -1161,13 +1158,7 @@ BOOL LLPrimitive::packTEMessage(LLMessageSystem *mesgsys) const
 			offset_s[face_index] = (S16) ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
-#ifdef FULLBRIGHT_TOGGLE			
-//			//BD - Only allow fullbrights if we wish to see them.
-			static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
-			bump[face_index] = !disable_fullbright ? te->getBumpShinyFullbright() : te->getBumpShiny();
-#else
 			bump[face_index] = te->getBumpShinyFullbright();
-#endif
 			media_flags[face_index] = te->getMediaTexGen();
 			glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1252,13 +1243,7 @@ BOOL LLPrimitive::packTEMessage(LLDataPacker &dp) const
 			offset_s[face_index] = (S16) ll_round((llclamp(te->mOffsetS,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			offset_t[face_index] = (S16) ll_round((llclamp(te->mOffsetT,-1.0f,1.0f) * (F32)0x7FFF)) ;
 			image_rot[face_index] = (S16) ll_round(((fmod(te->mRotation, F_TWO_PI)/F_TWO_PI) * TEXTURE_ROTATION_PACK_FACTOR));
-#ifdef FULLBRIGHT_TOGGLE
-//			//BD - Only allow fullbrights if we wish to see them.
-			static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
-			bump[face_index] = !disable_fullbright ? te->getBumpShinyFullbright() : te->getBumpShiny();
-#else
 			bump[face_index] = te->getBumpShinyFullbright();
-#endif
 			media_flags[face_index] = te->getMediaTexGen();
             glow[face_index] = (U8) ll_round((llclamp(te->getGlow(), 0.0f, 1.0f) * (F32)0xFF));
 
@@ -1379,13 +1364,7 @@ S32 LLPrimitive::applyParsedTEMessage(LLTEContents& tec)
 		retval |= setTEScale(i, tec.scale_s[i], tec.scale_t[i]);
 		retval |= setTEOffset(i, (F32)tec.offset_s[i] / (F32)0x7FFF, (F32) tec.offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)tec.image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
-#ifdef FULLBRIGHT_TOGGLE
-//		//BD - Only allow fullbrights if we wish to see them.
-		static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
-		retval |= (!disable_fullbright ? setTEBumpShinyFullbright(i, tec.bump[i]) : setTEBumpShiny(i, tec.bump[i]));
-#else
 		retval |= setTEBumpShinyFullbright(i, tec.bump[i]);
-#endif
 		retval |= setTEMediaTexGen(i, tec.media_flags[i]);
 		retval |= setTEGlow(i, (F32)tec.glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, tec.material_ids[i]);
@@ -1503,13 +1482,7 @@ S32 LLPrimitive::unpackTEMessage(LLDataPacker &dp)
 		retval |= setTEScale(i, scale_s[i], scale_t[i]);
 		retval |= setTEOffset(i, (F32)offset_s[i] / (F32)0x7FFF, (F32) offset_t[i] / (F32) 0x7FFF);
 		retval |= setTERotation(i, ((F32)image_rot[i] / TEXTURE_ROTATION_PACK_FACTOR) * F_TWO_PI);
-#ifdef FULLBRIGHT_TOGGLE
-//		//BD - Only allow fullbrights if we wish to see them.
-		static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
-		retval |= (!disable_fullbright ? setTEBumpShinyFullbright(i, bump[i]) : setTEBumpShiny(i, bump[i]));
-#else
 		retval |= setTEBumpShinyFullbright(i, bump[i]);
-#endif
 		retval |= setTEMediaTexGen(i, media_flags[i]);
 		retval |= setTEGlow(i, (F32)glow[i] / (F32)0xFF);
 		retval |= setTEMaterialID(i, material_ids[i]);

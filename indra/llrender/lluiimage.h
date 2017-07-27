@@ -30,7 +30,6 @@
 #include "v4color.h"
 #include "llpointer.h"
 #include "llrefcount.h"
-#include "llrefcount.h"
 #include "llrect.h"
 #include <boost/signals2.hpp>
 #include "llinitparam.h"
@@ -107,7 +106,7 @@ namespace LLInitParam
 	public:
 		Optional<std::string> name;
 
-		ParamValue(LLUIImage* const& image = NULL)
+		ParamValue(LLUIImage* const& image = nullptr)
 		:	super_t(image)
 		{
 			updateBlockFromValue(false);

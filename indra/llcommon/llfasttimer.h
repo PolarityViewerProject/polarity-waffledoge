@@ -27,9 +27,18 @@
 #ifndef LL_FASTTIMER_H
 #define LL_FASTTIMER_H
 
+#include "llpreprocessor.h"
 #include "llinstancetracker.h"
 #include "lltrace.h"
 #include "lltreeiterators.h"
+
+#if LL_WINDOWS
+#include <intrin.h>
+#endif
+
+#if LL_LINUX
+#include <x86intrin.h>
+#endif
 
 #define LL_FAST_TIMER_ON 1
 #define LL_FASTTIMER_USE_RDTSC 1
@@ -119,7 +128,7 @@ public:
 	// These use QueryPerformanceCounter, which is arguably fine and also works on AMD architectures.
 	static U32 getCPUClockCount32()
 	{
-		return (U32)(get_clock_count()>>8);
+		return (U32)(get_clock_count() >> 8);
 	}
 
 	static U64 getCPUClockCount64()
@@ -131,41 +140,38 @@ public:
 
 #endif
 
-
-#if (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
-	//
-	// Linux and Solaris implementation of CPU clock - non-x86.
-	// This is accurate but SLOW!  Only use out of desperation.
-	//
-	// Try to use the MONOTONIC clock if available, this is a constant time counter
-	// with nanosecond resolution (but not necessarily accuracy) and attempts are
-	// made to synchronize this value between cores at kernel start. It should not
-	// be affected by CPU frequency. If not available use the REALTIME clock, but
-	// this may be affected by NTP adjustments or other user activity affecting
-	// the system time.
-	static U64 getCPUClockCount64()
-	{
-		struct timespec tp;
-
-#ifdef CLOCK_MONOTONIC // MONOTONIC supported at build-time?
-		if (-1 == clock_gettime(CLOCK_MONOTONIC,&tp)) // if MONOTONIC isn't supported at runtime then ouch, try REALTIME
-#endif
-			clock_gettime(CLOCK_REALTIME,&tp);
-
-		return (tp.tv_sec*sClockResolution)+tp.tv_nsec;        
-	}
-
+#if (LL_LINUX || LL_DARWIN) && (defined(__i386__) || defined(__x86_64__) || defined(__amd64__))
+#if LL_LINUX && LL_GNUC
 	static U32 getCPUClockCount32()
 	{
-		return (U32)(getCPUClockCount64() >> 8);
+		unsigned long long time_stamp = __rdtsc();
+		time_stamp = time_stamp >> 8;
+		return static_cast<U32>(time_stamp);
 	}
 
-#endif // (LL_LINUX || LL_SOLARIS) && !(defined(__i386__) || defined(__amd64__))
+	// return full timer value, *not* shifted by 8 bits
+	static U64 getCPUClockCount64()
+	{
+		return static_cast<U64>(__rdtsc());
+	}
+#else
+#if defined(__x86_64__)
+	static U32 getCPUClockCount32()
+	{
+		U32 x, y;
+		__asm__ volatile (".byte 0x0f, 0x31" : "=a"(x), "=d"(y));
+		return (x >> 8) | (y << 24);
+	}
 
-
-#if (LL_LINUX || LL_SOLARIS || LL_DARWIN) && (defined(__i386__) || defined(__amd64__))
+	static U64 getCPUClockCount64()
+	{
+		U32 x, y;
+		__asm__ volatile (".byte 0x0f, 0x31" : "=a"(x), "=d"(y));
+		return ((U64)x) | (((U64)y) << 32);
+	}
+#else
 	//
-	// Mac+Linux+Solaris FAST x86 implementation of CPU clock
+	// Linux and Darwin FAST x86 implementation of RDTSC clock
 	static U32 getCPUClockCount32()
 	{
 		U64 x;
@@ -179,7 +185,8 @@ public:
 		__asm__ volatile (".byte 0x0f, 0x31": "=A"(x));
 		return x;
 	}
-
+#endif
+#endif
 #endif
 
 	static BlockTimerStatHandle& getRootTimeBlock();
@@ -212,15 +219,11 @@ private:
 	friend BlockTimer timeThisBlock(BlockTimerStatHandle&); 
 
 	BlockTimer(BlockTimerStatHandle& timer);
-#if !defined(MSC_VER) || MSC_VER < 1700
-	// Visual Studio 2010 has a bug where capturing an object returned by value
-	// into a local reference requires access to the copy constructor at the call site.
-	// This appears to be fixed in 2012.
-public:
-#endif
 
 	// noop-copy see timeThisBlock
-	BlockTimer(const BlockTimer& other) {};
+	BlockTimer(const BlockTimer& other)
+	:	mStartTime(0)
+	{ }
 
 private:
 	U64						mStartTime;
@@ -290,7 +293,6 @@ block_timer_tree_bf_iterator_t end_block_timer_tree_bf();
 
 LL_FORCE_INLINE BlockTimer::BlockTimer(BlockTimerStatHandle& timer)
 {
-	mStartTime = 0;
 #if LL_FAST_TIMER_ON
 	BlockTimerStackRecord* cur_timer_data = LLThreadLocalSingletonPointer<BlockTimerStackRecord>::getInstance();
 	if (!cur_timer_data)

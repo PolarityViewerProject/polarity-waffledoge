@@ -55,7 +55,7 @@ LLSD LLSpellChecker::sDictMap;
 LLSpellChecker::settings_change_signal_t LLSpellChecker::sSettingsChangeSignal;
 
 LLSpellChecker::LLSpellChecker()
-	: mHunspell(NULL)
+	: mHunspell(nullptr)
 {
 	// Load initial dictionary information
 	refreshDictionaryMap();
@@ -68,7 +68,7 @@ LLSpellChecker::~LLSpellChecker()
 
 bool LLSpellChecker::checkSpelling(const std::string& word) const
 {
-	if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word.c_str())) )
+	if ( (!mHunspell) || (word.length() < 3) || (0 != mHunspell->spell(word)) )
 	{
 		return true;
 	}
@@ -89,15 +89,7 @@ S32 LLSpellChecker::getSuggestions(const std::string& word, std::vector<std::str
 		return 0;
 	}
 
-	char** suggestion_list; int suggestion_cnt = 0;
-	if ( (suggestion_cnt = mHunspell->suggest(&suggestion_list, word.c_str())) != 0 )
-	{
-		for (int suggestion_index = 0; suggestion_index < suggestion_cnt; suggestion_index++)
-		{
-			suggestions.push_back(suggestion_list[suggestion_index]);
-		}
-		mHunspell->free_list(&suggestion_list, suggestion_cnt);	
-	}
+	suggestions = mHunspell->suggest(word);
 	return suggestions.size();
 }
 
@@ -201,7 +193,7 @@ void LLSpellChecker::addToCustomDictionary(const std::string& word)
 {
 	if (mHunspell)
 	{
-		mHunspell->add(word.c_str());
+		mHunspell->add(word);
 	}
 	addToDictFile(getDictionaryUserPath() + DICT_FILE_CUSTOM, word);
 	sSettingsChangeSignal();
@@ -320,7 +312,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 	if (mHunspell)
 	{
 		delete mHunspell;
-		mHunspell = NULL;
+		mHunspell = nullptr;
 		mDictLanguage.clear();
 		mDictFile.clear();
 		mIgnoreList.clear();
@@ -405,26 +397,7 @@ void LLSpellChecker::initHunspell(const std::string& dict_language)
 // static
 const std::string LLSpellChecker::getDictionaryAppPath()
 {
-	// <FS:LO> Copy dictionaries to a place where the viewer can find them if ran from visual studio
-	//std::string dict_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, DICT_DIR, "");
-	std::string dict_path;
-#if LL_WINDOWS
-	// On the windows dev builds, unpackaged, the dictionary files will 
-	// be located in indra/build-vc**/newview/<config>/app_settings.
-	dict_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, DICT_DIR, "");
-
-	if (!LLFile::isdir(dict_path.c_str()))
-	{
-		dict_path = gDirUtilp->getExpandedFilename(LL_PATH_EXECUTABLE, "app_settings" + gDirUtilp->getDirDelimiter() + DICT_DIR, "");
-	}
-	else
-	{
-		dict_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, DICT_DIR, "");
-	}
-#else			
-	dict_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, DICT_DIR, "");
-#endif
-	// </FS:LO>
+	std::string dict_path = gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, DICT_DIR, "");
 	return dict_path;
 }
 

@@ -79,7 +79,7 @@ public:
 		ItemReverseComparator(const ItemComparator& comparator) : mComparator(comparator) {};
 		virtual ~ItemReverseComparator() {};
 
-		virtual bool compare(const LLPanel* item1, const LLPanel* item2) const
+		bool compare(const LLPanel* item1, const LLPanel* item2) const override
 		{
 			return mComparator.compare(item2, item1);
 		}
@@ -113,7 +113,7 @@ public:
 	};
 	
 	// disable traversal when finding widget to hand focus off to
-	/*virtual*/ BOOL canFocusChildren() const { return FALSE; }
+	/*virtual*/ BOOL canFocusChildren() const override { return FALSE; }
 
 	/**
 	 * Connects callback to signal called when Return key is pressed.
@@ -121,15 +121,15 @@ public:
 	boost::signals2::connection setReturnCallback( const commit_signal_t::slot_type& cb ) { return mOnReturnSignal.connect(cb); }
 
 	/** Overridden LLPanel's reshape, height is ignored, the list sets its height to accommodate all items */
-	virtual void reshape(S32 width, S32 height, BOOL called_from_parent  = TRUE);
+	void reshape(S32 width, S32 height, BOOL called_from_parent  = TRUE) override;
 
 	/** Returns full rect of child panel */
 	const LLRect& getItemsRect() const;
 
-	LLRect getRequiredRect() { return getItemsRect(); }
+	LLRect getRequiredRect() override { return getItemsRect(); }
 
 	/** Returns distance between items */
-	const S32 getItemsPad() { return mItemPad; }
+	const S32 getItemsPad() const { return mItemPad; }
 
 	/**
 	 * Adds and item and LLSD value associated with it to the list at specified position
@@ -166,6 +166,12 @@ public:
 	 * @return the item as LLPanel if associated with value, NULL otherwise
 	 */
 	virtual LLPanel* getItemByValue(const LLSD& value) const;
+
+	/**
+	 * Check for item by value in list
+	 * @return bool whether item exists by value or not
+	 */
+	virtual bool valueExists(const LLSD& value) const;
 
 	template<class T>
 	T* getTypedItemByValue(const LLSD& value) const
@@ -270,7 +276,7 @@ public:
 	U32 size(const bool only_visible_items = true) const;
 
 	/** Removes all items from the list */
-	virtual void clear();
+	void clear() override;
 
 	/**
 	 * Removes all items that can be detached from the list but doesn't destroy
@@ -297,8 +303,9 @@ public:
 	void selectFirstItem	();
 	void selectLastItem		();
 
-	virtual S32	notify(const LLSD& info) ;
+	S32	notify(const LLSD& info) override;
 
+	virtual ~LLFlatListView();
 protected:
 
 	/** Pairs LLpanel representing a single item LLPanel and LLSD associated with it */
@@ -313,7 +320,7 @@ protected:
 	{
 		ComparatorAdaptor(const ItemComparator& comparator) : mComparator(comparator) {};
 
-		bool operator()(const item_pair_t* item_pair1, const item_pair_t* item_pair2)
+		bool operator()(const item_pair_t* item_pair1, const item_pair_t* item_pair2) const
 		{
 			return mComparator.compare(item_pair1->first, item_pair2->first);
 		}
@@ -344,8 +351,8 @@ protected:
 
 	virtual bool selectNextItemPair(bool is_up_direction, bool reset_selection);
 
-	virtual BOOL canSelectAll() const;
-	virtual void selectAll();
+	BOOL canSelectAll() const override;
+	void selectAll() override;
 
 	virtual bool isSelected(item_pair_t* item_pair) const;
 
@@ -362,15 +369,15 @@ protected:
 	 */
 	void notifyParentItemsRectChanged();
 
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	BOOL handleKeyHere(KEY key, MASK mask) override;
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
-	virtual void onFocusReceived();
+	void onFocusReceived() override;
 
-	virtual void onFocusLost();
+	void onFocusLost() override;
 
-	virtual void draw();
+	void draw() override;
 
 	LLRect getLastSelectedItemRect();
 
@@ -471,9 +478,6 @@ public:
 
 	// *WORKAROUND: two methods to overload appropriate Params due to localization issue:
 	// no_items_msg & no_filtered_items_msg attributes are not defined as translatable in VLT. See EXT-5931
-// [RLVa:KB] - Checked: RLVa-2.0.3
-	const std::string& getNoItemsMsg() const { return mNoItemsMsg; }
-// [/RLVa:KB]
 	void setNoItemsMsg(const std::string& msg) { mNoItemsMsg = msg; }
 	void setNoFilteredItemsMsg(const std::string& msg) { mNoFilteredItemsMsg = msg; }
 
@@ -485,7 +489,7 @@ public:
 	 * Sets up new filter string and filters the list.
 	 */
 	void setFilterSubString(const std::string& filter_str);
-	std::string getFilterSubString() { return mFilterSubString; }
+	std::string getFilterSubString() const { return mFilterSubString; }
 	
 	/**
 	 * Filters the list, rearranges and notifies parent about shape changes.

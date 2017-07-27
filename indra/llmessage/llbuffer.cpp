@@ -42,16 +42,16 @@
  * LLSegment
  */
 LLSegment::LLSegment() :
-	mChannel(0),
-	mData(NULL),
-	mSize(0)
+	mData(nullptr),
+	mSize(0),
+	mChannel(0)
 {
 }
 
 LLSegment::LLSegment(S32 channel, U8* data, S32 data_len) :
-	mChannel(channel),
 	mData(data),
-	mSize(data_len)
+	mSize(data_len),
+	mChannel(channel)
 {
 }
 
@@ -98,9 +98,9 @@ bool LLSegment::operator==(const LLSegment& rhs) const
  * LLHeapBuffer
  */
 LLHeapBuffer::LLHeapBuffer() :
-	mBuffer(NULL),
+	mBuffer(nullptr),
 	mSize(0),
-	mNextFree(NULL),
+	mNextFree(nullptr),
 	mReclaimedBytes(0)
 {
 	const S32 DEFAULT_HEAP_BUFFER_SIZE = 16384;
@@ -108,18 +108,18 @@ LLHeapBuffer::LLHeapBuffer() :
 }
 
 LLHeapBuffer::LLHeapBuffer(S32 size) :
-	mBuffer(NULL),
+	mBuffer(nullptr),
 	mSize(0),
-	mNextFree(NULL),
+	mNextFree(nullptr),
 	mReclaimedBytes(0)
 {
 	allocate(size);
 }
 
 LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len) :
-	mBuffer(NULL),
+	mBuffer(nullptr),
 	mSize(0),
-	mNextFree(NULL),
+	mNextFree(nullptr),
 	mReclaimedBytes(0)
 {
 	if((len > 0) && src)
@@ -136,9 +136,9 @@ LLHeapBuffer::LLHeapBuffer(const U8* src, S32 len) :
 LLHeapBuffer::~LLHeapBuffer()
 {
 	delete[] mBuffer;
-	mBuffer = NULL;
+	mBuffer = nullptr;
 	mSize = 0;
-	mNextFree = NULL;
+	mNextFree = nullptr;
 }
 
 S32 LLHeapBuffer::bytesLeft() const
@@ -206,12 +206,15 @@ bool LLHeapBuffer::containsSegment(const LLSegment& segment) const
 
 void LLHeapBuffer::allocate(S32 size)
 {
-	mReclaimedBytes = 0;	
-	mBuffer = new U8[size];
-	if(mBuffer)
+	mReclaimedBytes = 0;
+	try
 	{
+		mBuffer = new U8[size];
 		mSize = size;
 		mNextFree = mBuffer;
+	}
+	catch (...)
+	{
 	}
 }
 
@@ -221,7 +224,7 @@ void LLHeapBuffer::allocate(S32 size)
  */
 LLBufferArray::LLBufferArray() :
 	mNextBaseChannel(0),
-	mMutexp(NULL)
+	mMutexp(nullptr)
 {
 }
 
@@ -275,7 +278,7 @@ void LLBufferArray::setThreaded(bool threaded)
 		if(mMutexp)
 		{
 			delete mMutexp ;
-			mMutexp = NULL ;
+			mMutexp = nullptr ;
 		}
 	}
 }
@@ -656,7 +659,7 @@ U8* LLBufferArray::seek(
 			it = getSegment(start);
 			if((it == end) || !(*it).isOnChannel(channel))
 			{
-				rv = NULL;
+				rv = nullptr;
 			}
 		}
 		else
@@ -701,7 +704,7 @@ U8* LLBufferArray::seek(
 	{
 		// start is NULL, and delta indicates seeking backwards -
 		// return NULL.
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -730,7 +733,7 @@ U8* LLBufferArray::seek(
 		if(delta && (it == end))
 		{
 			// Whoops - sought past end.
-			rv = NULL;
+			rv = nullptr;
 		}
 	}
 	else //if(delta < 0)
@@ -761,7 +764,7 @@ U8* LLBufferArray::seek(
 		if(delta && (rit == rend))
 		{
 			// sought past the beginning.
-			rv = NULL;
+			rv = nullptr;
 		}
 	}
 	return rv;

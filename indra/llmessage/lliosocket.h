@@ -38,9 +38,7 @@
  */
 
 #include "lliopipe.h"
-#include "llwin32headerslean.h"
-#include "apr_pools.h"
-#include "apr_network_io.h"
+#include "llapr.h"
 #include "llchainio.h"
 
 extern const std::string CONTEXT_REMOTE_HOST;
@@ -222,12 +220,12 @@ protected:
 	 * @param context A data structure to pass structured data
 	 * @return STATUS_OK unless the preconditions are not met.
 	 */
-	virtual EStatus process_impl(
+	EStatus process_impl(
 		const LLChannelDescriptors& channels,
 		buffer_ptr_t& buffer,
 		bool& eos,
 		LLSD& context,
-		LLPumpIO* pump);
+		LLPumpIO* pump) override;
 	//@}
 
 protected:
@@ -268,12 +266,12 @@ protected:
 	 * @param context A data structure to pass structured data
 	 * @return A return code for the write.
 	 */
-	virtual EStatus process_impl(
+	EStatus process_impl(
 		const LLChannelDescriptors& channels,
 		buffer_ptr_t& buffer,
 		bool& eos,
 		LLSD& context,
-		LLPumpIO* pump);
+		LLPumpIO* pump) override;
 	//@}
 
 protected:
@@ -327,12 +325,12 @@ protected:
 	/** 
 	 * @brief Process the data in buffer
 	 */
-	virtual EStatus process_impl(
+	EStatus process_impl(
 		const LLChannelDescriptors& channels,
 		buffer_ptr_t& buffer,
 		bool& eos,
 		LLSD& context,
-		LLPumpIO* pump);
+		LLPumpIO* pump) override;
 	//@}
 
 protected:

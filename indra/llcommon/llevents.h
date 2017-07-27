@@ -42,11 +42,9 @@
 #include <boost/bind.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/utility.hpp>        // noncopyable
 #include <boost/optional/optional.hpp>
 #include <boost/visit_each.hpp>
 #include <boost/ref.hpp>            // reference_wrapper
-#include <boost/function.hpp>
 #include <boost/static_assert.hpp>
 #include "llsd.h"
 #include "llsingleton.h"
@@ -303,7 +301,7 @@ namespace LLEventDetail
     /// Any callable capable of connecting an LLEventListener to an
     /// LLStandardSignal to produce an LLBoundListener can be mapped to this
     /// signature.
-    typedef boost::function<LLBoundListener(const LLEventListener&)> ConnectFunc;
+    typedef std::function<LLBoundListener(const LLEventListener&)> ConnectFunc;
 
     /// overload of visit_and_connect() when we have a string identifier available
     template <typename LISTENER>
@@ -631,10 +629,10 @@ class LL_COMMON_API LLEventStream: public LLEventPump
 {
 public:
     LLEventStream(const std::string& name, bool tweak=false): LLEventPump(name, tweak) {}
-    virtual ~LLEventStream() {} // FIXME: Shutdown crash here
+    virtual ~LLEventStream() {}
 
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
+	bool post(const LLSD& event) override;
 };
 
 /*****************************************************************************
@@ -660,12 +658,12 @@ public:
     virtual ~LLEventMailDrop() {}
     
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
+	bool post(const LLSD& event) override;
     
 protected:
-    virtual LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
+	LLBoundListener listen_impl(const std::string& name, const LLEventListener&,
                                         const NameList& after,
-                                        const NameList& before);
+                                        const NameList& before) override;
 
 private:
     typedef std::list<LLSD> EventList;
@@ -686,11 +684,11 @@ public:
     virtual ~LLEventQueue() {}
 
     /// Post an event to all listeners
-    virtual bool post(const LLSD& event);
+	bool post(const LLSD& event) override;
 
 private:
     /// flush queued events
-    virtual void flush();
+	void flush() override;
 
 private:
     typedef std::deque<LLSD> EventQueue;

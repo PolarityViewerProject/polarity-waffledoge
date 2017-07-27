@@ -65,8 +65,6 @@
 
 #include "llbase32.h"
 
-#include <string>
-
 // bitter - base32.c starts here
 
 /*

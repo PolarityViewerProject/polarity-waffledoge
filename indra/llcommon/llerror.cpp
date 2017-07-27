@@ -44,7 +44,6 @@
 #include <vector>
 
 #include "llapp.h"
-#include "llapr.h"
 #include "llfile.h"
 #include "lllivefile.h"
 #include "llsd.h"
@@ -52,6 +51,7 @@
 #include "llsingleton.h"
 #include "llstl.h"
 #include "lltimer.h"
+#include "llwin32headerslean.h"
 
 namespace {
 #if LL_WINDOWS
@@ -130,9 +130,9 @@ namespace {
 		}
 		
 		bool okay() { return mFile.good(); }
-		
-		virtual void recordMessage(LLError::ELevel level,
-									const std::string& message)
+
+		void recordMessage(LLError::ELevel level,
+									const std::string& message) override
 		{
 			mFile << message << std::endl;
 		}
@@ -149,9 +149,9 @@ namespace {
 		{
 			mWantsTime = timestamp;
 		}
-		
-		virtual void recordMessage(LLError::ELevel level,
-					   const std::string& message)
+
+		void recordMessage(LLError::ELevel level,
+					   const std::string& message) override
 		{
 			if (ANSI_PROBE == mUseANSI)
 				mUseANSI = (checkANSI() ? ANSI_YES : ANSI_NO);
@@ -186,7 +186,7 @@ namespace {
 			ANSI_NO
 		}					mUseANSI;
 
-		void colorANSI(const std::string color)
+		void colorANSI(const std::string& color)
 		{
 			// ANSI color code escape sequence
 			fprintf(stderr, "\033[%sm", color.c_str() );
@@ -209,9 +209,9 @@ namespace {
 	{
 	public:
 		RecordToFixedBuffer(LLLineBuffer* buffer) : mBuffer(buffer) { }
-		
-		virtual void recordMessage(LLError::ELevel level,
-								   const std::string& message)
+
+		void recordMessage(LLError::ELevel level,
+								   const std::string& message) override
 		{
 			mBuffer->addLine(message);
 		}
@@ -227,8 +227,8 @@ namespace {
 		RecordToWinDebug()
 		{}
 
-		virtual void recordMessage(LLError::ELevel level,
-								   const std::string& message)
+		void recordMessage(LLError::ELevel level,
+								   const std::string& message) override
 		{
 			debugger_print(message);
 		}
@@ -315,8 +315,8 @@ namespace
 	
 	public:
 		static LogControlFile& fromDirectory(const std::string& dir);
-		
-		virtual bool loadFile();
+
+		bool loadFile() override;
 		
 	private:
 		LogControlFile(const std::string &filename)
@@ -471,8 +471,7 @@ namespace LLError
 		mFileLevelMap(),
 		mTagLevelMap(),
 		mUniqueLogMessages(),
-		mCrashFunction(NULL),
-		mTimeFunction(NULL),
+		mTimeFunction(nullptr),
 		mRecorders(),
 		mFileRecorder(),
 		mFixedBufferRecorder(),
@@ -537,11 +536,11 @@ namespace LLError
 		mLine(line),
 		mClassInfo(class_info), 
 		mFunction(function),
-		mCached(false), 
-		mShouldLog(false), 
-		mPrintOnce(printOnce),
 		mTags(new const char* [tag_count]),
-		mTagCount(tag_count)
+		mTagCount(tag_count),
+        mPrintOnce(printOnce),
+        mCached(false),
+        mShouldLog(false)
 	{
 		for (int i = 0; i < tag_count; i++)
 		{
@@ -574,7 +573,7 @@ namespace LLError
 		mFunctionString += std::string(mFunction) + ":";
 		for (size_t i = 0; i < mTagCount; i++)
 		{
-			mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? "" : ",");
+			mTagString += std::string("#") + mTags[i] + ((i == mTagCount - 1) ? " " : ",");
 		}
 	}
 
@@ -936,7 +935,7 @@ namespace
 			
 			std::ostringstream message_stream;
 
-			if (show_time && r->wantsTime() && s->mTimeFunction != NULL)
+			if (show_time && r->wantsTime() && s->mTimeFunction != nullptr)
 			{
 				message_stream << s->mTimeFunction() << " ";
 			}
@@ -946,9 +945,9 @@ namespace
 				message_stream << site.mLevelString << " ";
             }
 				
-			if (show_tags && r->wantsTags())
+			if (show_tags && r->wantsTags() && !site.mTagString.empty())
 			{
-				message_stream << site.mTagString;
+				message_stream << site.mTagString << " ";
 			}
 
             if (show_location && (r->wantsLocation() || level == LLError::LEVEL_ERROR || s->mPrintLocation))
@@ -968,8 +967,7 @@ namespace
 	}
 }
 
-LLMutex gLogMutex;
-LLMutex gCallStacksLogMutex;
+std::unique_ptr<LLMutex> gLogMutex;
 
 namespace {
 	bool checkLevelMap(const LevelMap& map, const std::string& key,
@@ -1025,10 +1023,14 @@ namespace {
 	LogLock::LogLock()
 		: mLocked(false), mOK(false)
 	{
+		if (gLogMutex == nullptr)
+		{
+			gLogMutex = std::make_unique<LLMutex>();
+		}
 		const int MAX_RETRIES = 5;
 		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
 		{
-			if (gLogMutex.try_lock())
+			if (gLogMutex->try_lock())
 			{
 				mLocked = true;
 				mOK = true;
@@ -1036,9 +1038,6 @@ namespace {
 			}
 
 			ms_sleep(1);
-			//apr_thread_yield();
-				// Just yielding won't necessarily work, I had problems with
-				// this on Linux - doug 12/02/04
 		}
 
 		// We're hosed, we can't get the mutex.  Blah.
@@ -1050,7 +1049,7 @@ namespace {
 	{
 		if (mLocked)
 		{
-			gLogMutex.unlock();
+			gLogMutex->unlock();
 		}
 	}
 }
@@ -1061,6 +1060,14 @@ namespace LLError
 	{
 		LogLock lock;
 		if (!lock.ok())
+		{
+			return false;
+		}
+
+		// If we hit a logging request very late during shutdown processing,
+		// when either of the relevant LLSingletons has already been deleted,
+		// DO NOT resurrect them.
+		if (Settings::wasDeleted() || Globals::wasDeleted())
 		{
 			return false;
 		}
@@ -1298,7 +1305,7 @@ namespace LLError
 	void crashAndLoop(const std::string& message)
 	{
 		// Now, we go kaboom!
-		int* make_me_crash = NULL;
+		int* make_me_crash = nullptr;
 
 		*make_me_crash = 0;
 
@@ -1308,7 +1315,12 @@ namespace LLError
 		}
 		
 		// this is an attempt to let Coverity and other semantic scanners know that this function won't be returning ever.
+#if LL_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunreachable-code"
 		exit(EXIT_FAILURE);
+#pragma clang diagnostic pop
+#endif
 	}
 #if LL_WINDOWS
 		#pragma optimize("", on)
@@ -1316,7 +1328,7 @@ namespace LLError
 
 	std::string utcTime()
 	{
-		time_t now = time(NULL);
+		time_t now = time(nullptr);
 		const size_t BUF_SIZE = 64;
 		char time_str[BUF_SIZE];	/* Flawfinder: ignore */
 		
@@ -1328,9 +1340,11 @@ namespace LLError
 	}
 }
 
+std::unique_ptr<LLMutex> gCallStacksLogMutex;
+
 namespace LLError
 {     
-	char** LLCallStacks::sBuffer = NULL ;
+	char** LLCallStacks::sBuffer = nullptr ;
 	S32    LLCallStacks::sIndex  = 0 ;
 
 #define SINGLE_THREADED 1
@@ -1362,10 +1376,14 @@ namespace LLError
 	CallStacksLogLock::CallStacksLogLock()
 		: mLocked(false), mOK(false)
 	{
+		if (gCallStacksLogMutexp == nullptr)
+		{
+			gCallStacksLogMutexp = std::make_unique<LLMutex>();
+		}
 		const int MAX_RETRIES = 5;
 		for (int attempts = 0; attempts < MAX_RETRIES; ++attempts)
 		{
-			if (gCallStacksLogMutex.try_lock())
+			if (gCallStacksLogMutexp->try_lock())
 			{
 				mLocked = true;
 				mOK = true;
@@ -1384,7 +1402,7 @@ namespace LLError
 	{
 		if (mLocked)
 		{
-			gCallStacksLogMutex.unlock();
+			gCallStacksLogMutexp->unlock();
 		}
 	}
 #endif
@@ -1392,7 +1410,7 @@ namespace LLError
 	//static
    void LLCallStacks::allocateStackBuffer()
    {
-	   if(sBuffer == NULL)
+	   if(sBuffer == nullptr)
 	   {
 		   sBuffer = new char*[512] ;
 		   sBuffer[0] = new char[512 * 128] ;
@@ -1406,11 +1424,11 @@ namespace LLError
 
    void LLCallStacks::freeStackBuffer()
    {
-	   if(sBuffer != NULL)
+	   if(sBuffer != nullptr)
 	   {
 		   delete [] sBuffer[0] ;
 		   delete [] sBuffer ;
-		   sBuffer = NULL ;
+		   sBuffer = nullptr ;
 	   }
    }
 
@@ -1423,7 +1441,7 @@ namespace LLError
            return;
        }
 
-	   if(sBuffer == NULL)
+	   if(sBuffer == nullptr)
 	   {
 		   allocateStackBuffer();
 	   }
@@ -1458,7 +1476,7 @@ namespace LLError
            return;
        }
 
-	   if(sBuffer == NULL)
+	   if(sBuffer == nullptr)
 	   {
 		   allocateStackBuffer();
 	   }
@@ -1480,7 +1498,7 @@ namespace LLError
            return;
        }
 
-	   if (sBuffer != NULL)
+	   if (sBuffer != nullptr)
 	   {
 		   if (sIndex > 0)
 		   {

@@ -146,7 +146,7 @@ std::string LLImageJ2CKDU::getEngineInfo() const
 class LLKDUDecodeState
 {
 public:
-	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap);
+	LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap, kdu_codestream &aStream);
 	~LLKDUDecodeState();
 	bool processTileDecode(F32 decode_time, bool limit_time = true);
 
@@ -187,7 +187,7 @@ public:
 		// const kdu_uint16* to a std::ostream will display only the hex value
 		// of the pointer.
 		LL_INFOS() << "KDU " << mType << ": "
-				   << utf16str_to_utf8str(llutf16string(s)) << LL_ENDL;
+				   << utf16str_to_utf8str(llutf16string((utf16strtype*) s)) << LL_ENDL;
 	}
 
 private:
@@ -260,6 +260,7 @@ LLImageJ2CKDU::~LLImageJ2CKDU()
 }
 
 // Stuff for new simple decode
+
 void transfer_bytes(kdu_byte *dest, kdu_line_buf &src, int gap, int precision);
 
 // This is called by the real (private) initDecode() (keep_codestream true)
@@ -513,6 +514,10 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 			return true; // done
 		}
 	}
+	
+	raw_image.mComment.assign(mCodeStreamp->get_comment().exists()
+							  ? mCodeStreamp->get_comment().get_text()
+							  : LLStringUtil::null);
 
 	// These can probably be grabbed from what's saved in the class.
 	kdu_dims dims;
@@ -562,7 +567,7 @@ bool LLImageJ2CKDU::decodeImpl(LLImageJ2C &base, LLImageRaw &raw_image, F32 deco
 					kdu_coords offset = tile_dims.pos - dims.pos;
 					int row_gap = channels*dims.size.x; // inter-row separation
 					kdu_byte *buf = buffer + offset.y*row_gap + offset.x*channels;
-					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap));
+					mDecodeState.reset(new LLKDUDecodeState(tile, buf, row_gap, *mCodeStreamp.get()));
 				}
 				// Do the actual processing
 				F32 remaining_time = decode_time - decode_timer.getElapsedTimeF32();
@@ -711,7 +716,7 @@ bool LLImageJ2CKDU::encodeImpl(LLImageJ2C &base, const LLImageRaw &raw_image, co
 			// cannot be open or are very blurry. Avoiding that last layer prevents the problem to happen.
 			if ((base.getWidth() >= 32) || (base.getHeight() >= 32))
 			{
-				if( nb_layers >= MAX_NB_LAYERS ) nb_layers = MAX_NB_LAYERS-1; // <FS:ND/> Adjust layer index in case we reached the arrays end.
+				if( nb_layers >= MAX_NB_LAYERS ) nb_layers = MAX_NB_LAYERS-1; // ND: Adjust layer index in case we reached the arrays end.
 				layer_bytes[nb_layers++] = 0;
 			}
 			codestream.access_siz()->parse_string("Creversible=yes");
@@ -1044,7 +1049,8 @@ void LLImageJ2CKDU::findDiscardLevelsBoundaries(LLImageJ2C &base)
 		// Clean-up
 		cleanupCodeStream();
 		codestream_out.destroy();
-		delete[] output_buffer;	
+		delete[] output_buffer;
+		delete[] layer_bytes;
 	}
 	return;
 }
@@ -1251,7 +1257,7 @@ all necessary level shifting, type conversion, rounding and truncation. */
 	}
 }
 
-LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap)
+LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap, kdu_codestream &aStream)
 {
 	S32 c;
 
@@ -1297,7 +1303,7 @@ LLKDUDecodeState::LLKDUDecodeState(kdu_tile tile, kdu_byte *buf, S32 row_gap)
 			mEngines[c] = kdu_synthesis(res,&mAllocator,use_shorts);
 		}
 	}
-	mAllocator.finalize(); // Actually creates buffering resources
+	mAllocator.finalize(aStream); // Actually creates buffering resources
 	for (c = 0; c < mNumComponents; c++)
 	{
 		mLines[c].create(); // Grabs resources from the allocator.

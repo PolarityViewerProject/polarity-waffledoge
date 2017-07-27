@@ -153,13 +153,12 @@ if (WINDOWS)
          )
   endif ()
 
-  # <polarity> We don't use DxHardware right now.
-  #list(APPEND llwindow_SOURCE_FILES
-  #     lldxhardware.cpp
-  #     )
-  #list(APPEND llwindow_HEADER_FILES
-  #     lldxhardware.h
-  #     )
+  list(APPEND llwindow_SOURCE_FILES
+       lldxhardware.cpp
+       )
+  list(APPEND llwindow_HEADER_FILES
+       lldxhardware.h
+       )
   list(APPEND llwindow_LINK_LIBRARIES
        comdlg32     # Common Dialogs for ChooseColor
        ole32

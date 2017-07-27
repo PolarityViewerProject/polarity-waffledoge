@@ -132,16 +132,14 @@ public:
 	// each line lasts this long after being added
 	void			setLinePersistTime(F32 seconds);
 
-	void			reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
-
-	static LLFontGL * getFontSize(const S32& size_index);
+	void			reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 
 	// -1 = monospace, 0 means small, font size = 1 means big
 	void			setFontSize(S32 size_index);
 
 	
 	// Overrides
-	/*virtual*/ void	draw();
+	/*virtual*/ void	draw() override;
 private:
 	void		update();
 

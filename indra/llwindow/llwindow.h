@@ -29,22 +29,13 @@
 
 #include "llrect.h"
 #include "llcoord.h"
-#include "llstring.h"
 #include "llcursortypes.h"
 #include "llinstancetracker.h"
 #include "llsd.h"
 
+class LLSplashScreen;
 class LLPreeditor;
 class LLWindowCallbacks;
-
-// <Alchemy:Drake> Adaptive V-Sync
-enum EVSyncSetting
-{
-	E_VSYNC_DISABLED = 0,
-	E_VSYNC_NORMAL,
-	E_VSYNC_ADAPTIVE
-};
-// </Alchemy:Drake>
 
 // Refer to llwindow_test in test/common/llwindow for usage example
 
@@ -56,6 +47,19 @@ public:
 	{
 		S32 mWidth;
 		S32 mHeight;
+	};
+	enum EWindowMode
+	{
+		E_WINDOW_WINDOWED = 0,
+		E_WINDOW_WINDOWED_FULLSCREEN,
+		E_WINDOW_FULLSCREEN_EXCLUSIVE
+
+	};
+	enum EVSyncSetting
+	{
+		E_VSYNC_DISABLED = 0,
+		E_VSYNC_NORMAL,
+		E_VSYNC_ADAPTIVE
 	};
 	enum ESwapMethod
 	{
@@ -77,25 +81,15 @@ public:
 	virtual BOOL maximize() = 0;
 	virtual void minimize() = 0;
 	virtual void restore() = 0;
-	BOOL getFullscreen()	{ return mFullscreen; };
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-04-13 (Catznip-2.1.2a) | Added: Catznip-2.0.0a
-	virtual BOOL getFullscreenWindow() = 0;
-	virtual void setFullscreenWindow(BOOL fFullscreen) = 0;
-// [/SL:KB]
+	virtual BOOL getFullscreen()	{ return mWindowMode == E_WINDOW_FULLSCREEN_EXCLUSIVE || mWindowMode == E_WINDOW_WINDOWED_FULLSCREEN; };
 	virtual BOOL getPosition(LLCoordScreen *position) = 0;
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
-	virtual BOOL getRestoredPosition(LLCoordScreen *position) = 0;
-// [/SL:KB]
 	virtual BOOL getSize(LLCoordScreen *size) = 0;
 	virtual BOOL getSize(LLCoordWindow *size) = 0;
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
-	virtual BOOL getRestoredSize(LLCoordScreen *size) = 0;
-// [/SL:KB]
 	virtual BOOL setPosition(LLCoordScreen position) = 0;
 	BOOL setSize(LLCoordScreen size);
 	BOOL setSize(LLCoordWindow size);
 	virtual void setMinSize(U32 min_width, U32 min_height, bool enforce_immediately = true);
-	virtual BOOL switchContext(BOOL fullscreen, const LLCoordScreen &size, EVSyncSetting vsync_setting, const LLCoordScreen * const posp = NULL) = 0;
+	virtual BOOL switchContext(U32 window_mode, const LLCoordScreen &size, U32 vsync_setting, const LLCoordScreen * const posp = nullptr) = 0;
 	virtual BOOL setCursorPosition(LLCoordWindow position) = 0;
 	virtual BOOL getCursorPosition(LLCoordWindow *position) = 0;
 	virtual void showCursor() = 0;
@@ -129,6 +123,7 @@ public:
 	virtual BOOL pasteTextFromPrimary(LLWString &dst);
 	virtual BOOL copyTextToPrimary(const LLWString &src);
  
+	virtual void setWindowTitle(const std::string& title) {}
 	virtual void flashIcon(F32 seconds) = 0;
 	virtual F32 getGamma() = 0;
 	virtual BOOL setGamma(const F32 gamma) = 0; // Set the gamma
@@ -142,7 +137,7 @@ public:
 	virtual void swapBuffers() = 0;
 	virtual void bringToFront() = 0;
 	virtual void focusClient() { };		// this may not have meaning or be required on other platforms, therefore, it's not abstract
-	virtual void setOldResize(bool oldresize) { };
+	
 	// handy coordinate space conversion routines
 	// NB: screen to window and vice verse won't work on width/height coordinate pairs,
 	// as the conversion must take into account left AND right border widths, etc.
@@ -178,20 +173,19 @@ public:
 	virtual void updateLanguageTextInputArea() {}
 	virtual void interruptLanguageTextInput() {}
 	virtual void spawnWebBrowser(const std::string& escaped_url, bool async) {};
+	virtual void updateUnreadCount(S32 num_conversations) {};
 
 	static std::vector<std::string> getDynamicFallbackFontList();
 	
 	// Provide native key event data
 	virtual LLSD getNativeKeyData() { return LLSD::emptyMap(); }
-
-//this needs to be overridden for all platforms
-	virtual void setTitle(const std::string& win_title) {};
+	
+	virtual float getScaleFactor() { return 1.0f; } //[CR:Retina]
 
 	// Get system UI size based on DPI (for 96 DPI UI size should be 1.0)
 	virtual F32 getSystemUISize() { return 1.0; }
-
 protected:
-	LLWindow(LLWindowCallbacks* callbacks, BOOL fullscreen, U32 flags);
+	LLWindow(LLWindowCallbacks* callbacks, U32 window_mode, U32 flags);
 	virtual ~LLWindow();
 	// Defaults to true
 	virtual BOOL isValid();
@@ -205,7 +199,7 @@ protected:
 	LLWindowCallbacks*	mCallbacks;
 
 	BOOL		mPostQuit;		// should this window post a quit message when destroyed?
-	BOOL		mFullscreen;
+	U32			mWindowMode;
 	S32			mFullscreenWidth;
 	S32			mFullscreenHeight;
 	S32			mFullscreenBits;
@@ -232,15 +226,39 @@ protected:
  	// variable.
 	void handleUnicodeUTF16(U16 utf16, MASK mask);
 
-// <FS:ND> Allow to query for window chrome sizes. Default it none, only win32 windows override this.
-public:
-	virtual void getWindowChrome( U32 &aChromeW, U32 &aChromeH )
-	{ aChromeW = aChromeH = 0; }
-// </FS:ND>
-
 	friend class LLWindowManager;
 };
 
+
+// LLSplashScreen
+// A simple, OS-specific splash screen that we can display
+// while initializing the application and before creating a GL
+// window
+
+
+class LLSplashScreen
+{
+public:
+	LLSplashScreen() { };
+	virtual ~LLSplashScreen() { };
+
+
+	// Call to display the window.
+	static LLSplashScreen * create();
+	static void show();
+	static void hide();
+	static void update(const std::string& string);
+
+	static bool isVisible();
+protected:
+	// These are overridden by the platform implementation
+	virtual void showImpl() = 0;
+	virtual void updateImpl(const std::string& string) = 0;
+	virtual void hideImpl() = 0;
+
+	static BOOL sVisible;
+
+};
 
 // Platform-neutral for accessing the platform specific message box
 S32 OSMessageBox(const std::string& text, const std::string& caption, U32 type);
@@ -264,9 +282,9 @@ public:
 		LLWindowCallbacks* callbacks,
 		const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height,
 		U32 flags = 0,
-		BOOL fullscreen = FALSE,
+		U32 window_mode = LLWindow::E_WINDOW_WINDOWED,
 		BOOL clearBg = FALSE,
-		EVSyncSetting vsync_setting = E_VSYNC_DISABLED,
+		U32 vsync_setting = LLWindow::E_VSYNC_DISABLED,
 		BOOL use_gl = TRUE,
 		BOOL ignore_pixel_depth = FALSE,
 		U32 fsaa_samples = 0);
@@ -278,12 +296,13 @@ public:
 // helper funcs
 //
 extern BOOL gDebugWindowProc;
+#ifdef LL_DARWIN
+extern BOOL gUseMultGL;
+#endif
 
 // Protocols, like "http" and "https" we support in URLs
 extern const S32 gURLProtocolWhitelistCount;
 extern const std::string gURLProtocolWhitelist[];
 //extern const std::string gURLProtocolWhitelistHandler[];
-
-void simpleEscapeString ( std::string& stringIn  );
 
 #endif // _LL_window_h_

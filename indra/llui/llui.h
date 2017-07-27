@@ -43,6 +43,7 @@
 #include "lluiimage.h"
 #include "llframetimer.h"
 #include "v2math.h"
+#include <functional>
 #include <limits>
 
 // for initparam specialization
@@ -197,8 +198,9 @@ public:
 		};
 
 		ClampedS32(const Params& p)
-		:	RangeS32(p)
-		{}
+		:	RangeS32(p), mValue(0)
+		{
+		}
 
 		ClampedS32(const RangeS32& range)
 		:	RangeS32(range)
@@ -232,15 +234,15 @@ public:
 	// Methods
 	//
 	typedef std::map<std::string, LLControlGroup*> settings_map_t;
-	typedef boost::function<void(LLView*)> add_popup_t;
-	typedef boost::function<void(LLView*)> remove_popup_t;
-	typedef boost::function<void(void)> clear_popups_t;
+	typedef std::function<void(LLView*)> add_popup_t;
+	typedef std::function<void(LLView*)> remove_popup_t;
+	typedef std::function<void(void)> clear_popups_t;
 
 	static void initClass(const settings_map_t& settings,
 						  LLImageProviderInterface* image_provider,
-						  LLUIAudioCallback audio_callback = NULL,
-						  LLUIAudioCallback deferred_audio_callback = NULL,
-						  const LLVector2 *scale_factor = NULL,
+						  LLUIAudioCallback audio_callback = nullptr,
+						  LLUIAudioCallback deferred_audio_callback = nullptr,
+						  const LLVector2 *scale_factor = nullptr,
 						  const std::string& language = LLStringUtil::null);
 	static void cleanupClass();
 	static void setPopupFuncs(const add_popup_t& add_popup, const remove_popup_t&, const clear_popups_t& );

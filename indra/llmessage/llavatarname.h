@@ -30,7 +30,7 @@
 
 class LLSD;
 
-class LL_COMMON_API LLAvatarName
+class LLAvatarName
 {
 public:
 	LLAvatarName();
@@ -82,14 +82,6 @@ public:
 	
 	// Returns "james.linden" or the legacy name for very old names
 	std::string getAccountName() const { return mUsername; }
-
-	// <polarity> returns the display name set by the server.
-	// Does not take preferences into account.
-	std::string getDisplayNameForced() const;
-
-	// <polarity> returns Bob♥Smith (bobsmith)
-	// Does not take preferences into account.
-	std::string getCompleteNameForced() const;
 
 	// Debug print of the object
 	void dump() const;

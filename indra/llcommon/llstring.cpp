@@ -576,78 +576,6 @@ std::string utf8str_truncate(const std::string& utf8str, const S32 max_len)
 	}
 }
 
-// [RLVa:KB] - Checked: RLVa-2.1.0
-std::string utf8str_substr(const std::string& utf8str, const S32 index, const S32 max_len)
-{
-	if (0 == max_len)
-	{
-		return std::string();
-	}
-	if (utf8str.length() - index  <= max_len)
-	{
-		return utf8str.substr(index, max_len);
-	}
-	else
-	{
-		S32 cur_char = max_len;
-
-		// If we're ASCII, we don't need to do anything
-		if ((U8)utf8str[index + cur_char] > 0x7f)
-		{
-			// If first two bits are (10), it's the tail end of a multibyte char.  We need to shift back
-			// to the first character
-			while (0x80 == (0xc0 & utf8str[index + cur_char]))
-			{
-				cur_char--;
-				// Keep moving forward until we hit the first char;
-				if (cur_char == 0)
-				{
-					// Make sure we don't trash memory if we've got a bogus string.
-					break;
-				}
-			}
-		}
-		// The byte index we're on is one we want to get rid of, so we only want to copy up to (cur_char-1) chars
-		return utf8str.substr(index, cur_char);
-	}
-}
-
-void utf8str_split(std::list<std::string>& split_list, const std::string& utf8str, size_t maxlen, char split_token)
-{
-	split_list.clear();
-
-	std::string::size_type lenMsg = utf8str.length(), lenIt = 0;
-
-	const char* pstrIt = utf8str.c_str(); std::string strTemp;
-	while (lenIt < lenMsg)
-	{
-		if (lenIt + maxlen < lenMsg)
-		{
-			// Find the last split character
-			const char* pstrTemp = pstrIt + maxlen;
-			while ( (pstrTemp > pstrIt) && (*pstrTemp != split_token) )
-				pstrTemp--;
-
-			if (pstrTemp > pstrIt)
-				strTemp = utf8str.substr(lenIt, pstrTemp - pstrIt);
-			else
-				strTemp = utf8str_substr(utf8str, lenIt, maxlen);
-		}
-		else
-		{
-			strTemp = utf8str.substr(lenIt, std::string::npos);
-		}
-
-		split_list.push_back(strTemp);
-
-		lenIt += strTemp.length();
-		pstrIt = utf8str.c_str() + lenIt;
-		if (*pstrIt == split_token)
-			lenIt++;
-	}
-}
-// [/RLVa:KB]
-
 std::string utf8str_symbol_truncate(const std::string& utf8str, const S32 symbol_len)
 {
     if (0 == symbol_len)
@@ -739,15 +667,15 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 			0,
 			in,
 			len_in,
-			NULL,
+			nullptr,
 			0,
-			0,
-			0);
+			nullptr,
+			nullptr);
 		// We will need two more bytes for the double NULL ending
 		// created in WideCharToMultiByte().
 		char* pout = new char [len_out + 2];
 		memset(pout, 0, len_out + 2);
-		if(pout) //-V668
+		if(pout)
 		{
 			WideCharToMultiByte(
 				code_page,
@@ -756,8 +684,8 @@ std::string ll_convert_wide_to_string(const wchar_t* in, unsigned int code_page)
 				len_in,
 				pout,
 				len_out,
-				0,
-				0);
+				nullptr,
+				nullptr);
 			out.assign(pout);
 			delete[] pout;
 		}
@@ -778,8 +706,8 @@ wchar_t* ll_convert_string_to_wide(const std::string& in, unsigned int code_page
 	// reserve place to NULL terminator
 	int output_str_len = in.length();
 	wchar_t* w_out = new wchar_t[output_str_len + 1];
-
 	memset(w_out, 0, output_str_len + 1);
+
 	int real_output_str_len = MultiByteToWideChar (code_page, 0, in.c_str(), in.length(), w_out, output_str_len);
 
 	//looks like MultiByteToWideChar didn't add null terminator to converted string, see EXT-4858.
@@ -800,7 +728,7 @@ std::string ll_convert_string_to_utf8_string(const std::string& in)
 
 long LLStringOps::sPacificTimeOffset = 0;
 long LLStringOps::sLocalTimeOffset = 0;
-bool LLStringOps::sPacificDaylightTime = 0;
+bool LLStringOps::sPacificDaylightTime = false;
 std::map<std::string, std::string> LLStringOps::datetimeToCodes;
 
 std::vector<std::string> LLStringOps::sWeekDayList;
@@ -830,7 +758,7 @@ void LLStringOps::setupDatetimeInfo (bool daylight)
 	time_t nowT, localT, gmtT;
 	struct tm * tmpT;
 
-	nowT = time (NULL);
+	nowT = time (nullptr);
 
 	tmpT = gmtime (&nowT);
 	gmtT = mktime (tmpT);
@@ -910,11 +838,11 @@ void LLStringOps::setupDayFormat(const std::string& data)
 }
 
 
-std::string LLStringOps::getDatetimeCode (std::string key)
+std::string LLStringOps::getDatetimeCode(const std::string& key)
 {
 	std::map<std::string, std::string>::iterator iter;
 
-	iter = datetimeToCodes.find (key);
+	iter = datetimeToCodes.find(key);
 	if (iter != datetimeToCodes.end())
 	{
 		return iter->second;
@@ -1415,16 +1343,6 @@ S32 LLStringUtil::format(std::string& s, const LLSD& substitutions)
 	output += std::string(s, start);
 	s = output;
 	return res;
-}
-
-bool LLStringUtil::findSubString(const std::string& str, const std::string& substr)
-{
-	size_t pos = str.find(substr);
-	if (pos != std::string::npos)
-	{
-		return true;
-	}
-	return false;
 }
 
 ////////////////////////////////////////////////////////////

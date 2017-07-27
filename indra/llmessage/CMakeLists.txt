@@ -32,6 +32,7 @@ include_directories(
     )
 
 set(llmessage_SOURCE_FILES
+    llaescipher.cpp
     llassetstorage.cpp
     llavatarname.cpp
     llavatarnamecache.cpp
@@ -58,6 +59,7 @@ set(llmessage_SOURCE_FILES
     llioutil.cpp
     llmessagebuilder.cpp
     llmessageconfig.cpp
+    llmessagelog.cpp
     llmessagereader.cpp
     llmessagetemplate.cpp
     llmessagetemplateparser.cpp
@@ -109,6 +111,7 @@ set(llmessage_SOURCE_FILES
 set(llmessage_HEADER_FILES
     CMakeLists.txt
 
+    llaescipher.h
     llassetstorage.h
     llavatarname.h
     llavatarnamecache.h
@@ -143,6 +146,7 @@ set(llmessage_HEADER_FILES
     llloginflags.h
     llmessagebuilder.h
     llmessageconfig.h
+    llmessagelog.h
     llmessagereader.h
     llmessagetemplate.h
     llmessagetemplateparser.h

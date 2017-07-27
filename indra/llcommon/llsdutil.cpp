@@ -33,9 +33,8 @@
 #include "llsdutil.h"
 
 #if LL_WINDOWS
-#	define WIN32_LEAN_AND_MEAN
-#	include <winsock2.h>	// for htonl
-#elif LL_LINUX || LL_SOLARIS
+#	include "llwin32headerslean.h"
+#elif LL_LINUX
 #	include <netinet/in.h>
 #elif LL_DARWIN
 #	include <arpa/inet.h>
@@ -178,7 +177,7 @@ char* ll_pretty_print_sd_ptr(const LLSD* sd)
 	{
 		return ll_pretty_print_sd(*sd);
 	}
-	return NULL;
+	return nullptr;
 }
 
 char* ll_pretty_print_sd(const LLSD& sd)

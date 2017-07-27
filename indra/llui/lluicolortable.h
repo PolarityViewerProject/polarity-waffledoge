@@ -27,6 +27,8 @@
 #ifndef LL_LLUICOLORTABLE_H_
 #define LL_LLUICOLORTABLE_H_
 
+#include <boost/unordered_map.hpp>
+
 #include "llinitparam.h"
 #include "llsingleton.h"
 
@@ -40,29 +42,7 @@ class LLUIColorTable : public LLSingleton<LLUIColorTable>
 	LOG_CLASS(LLUIColorTable);
 
 	// consider using sorted vector, can be much faster
-
-	// <FS:ND> Change from std::string to char*, avoind lots of unecessary string constructions
-
-	// typedef std::map<std::string, LLUIColor>  string_color_map_t;
-
-	struct ColorName
-	{
-		char *pName;
-		int nLen;
-
-		bool operator<( ColorName const &aRHS ) const
-		{
-			if( nLen == aRHS.nLen )
-				return strcmp( pName, aRHS.pName ) < 0;
-
-			return nLen < aRHS.nLen;
-		}
-	};
-
-	typedef std::map<ColorName, LLUIColor>  string_color_map_t;
-
-
-	// </FS:ND>
+	typedef boost::unordered_map<std::string, LLUIColor>  string_color_map_t;
 
 public:
 	struct ColorParams : LLInitParam::ChoiceBlock<ColorParams>
@@ -97,27 +77,17 @@ public:
 	// color lookup
 	LLUIColor getColor(const std::string& name, const LLColor4& default_color = LLColor4::magenta) const;
 
-	// <FS:ND> Change from std::string to char*, avoind lots of unecessary string constructions
-	LLUIColor getColor(char const *name, const LLColor4& default_color = LLColor4::magenta) const;
-	// </FS:ND>
-
 	// if the color is in the table, it's value is changed, otherwise it is added
 	void setColor(const std::string& name, const LLColor4& color);
 
 	// returns true if color_name exists in the table
-
-	// <FS:ND> Change from std::string to char*, avoind lots of unecessary string constructions
-
-	// bool colorExists(const std::string& color_name) const;
-	bool colorExists(char const *name) const;
-
-	// </FS:ND>
+	bool colorExists(const std::string& color_name) const;
 
 	// loads colors from settings files
 	bool loadFromSettings();
 
 	// saves colors specified by the user to the users skin directory
-	void saveUserSettings() const;
+	void saveUserSettings(const bool scrub = false) const;
 
 private:
 	bool loadFromFilename(const std::string& filename, string_color_map_t& table);

@@ -33,6 +33,12 @@
 
 typedef __m128	LLQuad;
 
+
+#if LL_WINDOWS
+#pragma warning(push)
+#pragma warning( disable : 4800 ) // Disable warning about casting int to bool for this class.
+#endif // LL_WINDOWS
+
 class LLBool32
 {
 public:
@@ -48,6 +54,10 @@ public:
 private:
 	int m_bool;
 };
+
+#if LL_WINDOWS
+#pragma warning(pop)
+#endif
 
 class LLSimdScalar
 {

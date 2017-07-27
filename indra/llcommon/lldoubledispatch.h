@@ -30,8 +30,6 @@
 #define LL_LLDOUBLEDISPATCH_H
 
 #include <list>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 /**
  * This class supports function calls which are virtual on the dynamic type of
@@ -157,7 +155,7 @@ public:
         {
             // Use boost::bind() to construct a param-swapping thunk. Don't
             // forget to reverse the parameters too.
-            insert(t2, t1, boost::bind(func, _2, _1));
+            insert(t2, t1, std::bind(func, std::placeholders::_2, std::placeholders::_1));
         }
     }
 
@@ -192,7 +190,7 @@ public:
         insert(Type<Type1>(), Type<Type2>(), func, insertion);
         if (symmetrical)
         {
-            insert(Type<Type2>(), Type<Type1>(), boost::bind(func, _2, _1), insertion);
+            insert(Type<Type2>(), Type<Type1>(), std::bind(func, std::placeholders::_2, std::placeholders::_1), insertion);
         }
     }
 
@@ -234,13 +232,13 @@ private:
     public:
         Entry(Functor func): mFunc(func) {}
         /// Is this entry appropriate for these arguments?
-        virtual bool matches(const ParamBaseType& param1, const ParamBaseType& param2) const
+	    bool matches(const ParamBaseType& param1, const ParamBaseType& param2) const override
         {
             return (dynamic_cast<const Type1*>(&param1) &&
                     dynamic_cast<const Type2*>(&param2));
         }
         /// invocation
-        virtual ReturnType operator()(ParamBaseType& param1, ParamBaseType& param2) const
+	    ReturnType operator()(ParamBaseType& param1, ParamBaseType& param2) const override
         {
             // We perform the downcast so callable can accept leaf param
             // types, instead of accepting ParamBaseType and downcasting
@@ -270,8 +268,8 @@ private:
     typename DispatchTable::iterator find(const ParamBaseType& param1, const ParamBaseType& param2)
     {
         return std::find_if(mDispatch.begin(), mDispatch.end(),
-                            boost::bind(&EntryBase::matches, _1,
-                                        std::ref(param1), std::ref(param2)));
+                            std::bind(&EntryBase::matches, std::placeholders::_1,
+									  std::ref(param1), std::ref(param2)));
     }
 
     /// Look up the first matching entry.

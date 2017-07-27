@@ -194,6 +194,7 @@
 #include <boost/function.hpp>
 #include <string>
 #include <curl/curl.h>
+#include <boost/make_shared.hpp>
 
 namespace LLCore
 {
@@ -296,28 +297,35 @@ enum HttpError
 struct HttpStatus
 {
 	typedef unsigned short type_enum_t;
-	
+	enum : type_enum_t
+	{
+		EXT_CURL_EASY = 0,  ///< mStatus is an error from a curl_easy_*() call
+		EXT_CURL_MULTI = 1, ///< mStatus is an error from a curl_multi_*() call
+		LLCORE = 2			///< mStatus is an HE_* error code
+							///< 100-999 directly represent HTTP status codes
+	};
+
 	HttpStatus()
 	{
-		mDetails = boost::shared_ptr<Details>(new Details(LLCORE, HE_SUCCESS));
+		mDetails = boost::make_shared<Details>(LLCORE, HE_SUCCESS);
     }
 
 	HttpStatus(type_enum_t type, short status)
 	{
-        mDetails = boost::shared_ptr<Details>(new Details(type, status));
+        mDetails = boost::make_shared<Details>(type, status);
 	}
 	
 	HttpStatus(int http_status)
 	{
-        mDetails = boost::shared_ptr<Details>(new Details(http_status, 
-			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        mDetails = boost::make_shared<Details>(http_status,
+                                               http_status >= 200 && http_status <= 299 ? HE_SUCCESS : HE_REPLY_ERROR);
 		llassert(http_status >= 100 && http_status <= 999);
 	}
 
 	HttpStatus(int http_status, const std::string &message)
 	{
-        mDetails = boost::shared_ptr<Details>(new Details(http_status,
-			(http_status >= 200 && http_status <= 299) ? HE_SUCCESS : HE_REPLY_ERROR));
+        mDetails = boost::make_shared<Details>(http_status,
+                                               http_status >= 200 && http_status <= 299 ? HE_SUCCESS : HE_REPLY_ERROR);
 		llassert(http_status >= 100 && http_status <= 999);
 		mDetails->mMessage = message;
 	}
@@ -339,14 +347,10 @@ struct HttpStatus
 
     HttpStatus & clone(const HttpStatus &rhs)
     {
-        mDetails = boost::shared_ptr<Details>(new Details(*rhs.mDetails));
+        mDetails = boost::make_shared<Details>(*rhs.mDetails);
         return *this;
     }
 	
-	static const type_enum_t EXT_CURL_EASY = 0;			///< mStatus is an error from a curl_easy_*() call
-	static const type_enum_t EXT_CURL_MULTI = 1;		///< mStatus is an error from a curl_multi_*() call
-	static const type_enum_t LLCORE = 2;				///< mStatus is an HE_* error code
-														///< 100-999 directly represent HTTP status codes
 	/// Test for successful status in the code regardless
 	/// of error source (internal, libcurl).
 	///
@@ -467,7 +471,7 @@ private:
 			mType(type),
 			mStatus(status),
 			mMessage(),
-			mErrorData(NULL)
+			mErrorData(nullptr)
 		{}
 
 		Details(const Details &rhs) :

@@ -48,11 +48,11 @@ struct PngError: public LLContinueError
 // ---------------------------------------------------------------------------
 
 LLPngWrapper::LLPngWrapper()
-	: mReadPngPtr( NULL ),
-	  mReadInfoPtr( NULL ),
-	  mWritePngPtr( NULL ),
-	  mWriteInfoPtr( NULL ),
-	  mRowPointers( NULL ),
+	: mReadPngPtr(nullptr ),
+	  mReadInfoPtr(nullptr ),
+	  mWritePngPtr(nullptr ),
+	  mWriteInfoPtr(nullptr ),
+	  mRowPointers(nullptr ),
 	  mWidth( 0 ),
 	  mHeight( 0 ),
 	  mBitDepth( 0 ),
@@ -100,6 +100,7 @@ void LLPngWrapper::readDataCallback(png_structp png_ptr, png_bytep dest, png_siz
 	PngDataInfo *dataInfo = (PngDataInfo *) png_get_io_ptr(png_ptr);
 	if(dataInfo->mOffset + length > dataInfo->mDataSize)
 	{
+		LL_WARNS() << "Failed to read png with length: " << length << " to buffer with offset: " << dataInfo->mOffset << " and total size: " << dataInfo->mDataSize << LL_ENDL;
 		png_error(png_ptr, "Data read error. Requested data size exceeds available data size.");
 		return;
 	}
@@ -114,6 +115,12 @@ void LLPngWrapper::readDataCallback(png_structp png_ptr, png_bytep dest, png_siz
 void LLPngWrapper::writeDataCallback(png_structp png_ptr, png_bytep src, png_size_t length)
 {
 	PngDataInfo *dataInfo = (PngDataInfo *) png_get_io_ptr(png_ptr);
+	if (dataInfo->mOffset + length > dataInfo->mDataSize)
+	{
+		LL_WARNS() << "Failed to write png with length: " << length << " to buffer with offset: " << dataInfo->mOffset << " and total size: " << dataInfo->mDataSize << LL_ENDL;
+		png_error(png_ptr, "Data write error. Requested data size exceeds available data size.");
+		return;
+	}
 	U8 *dest = &dataInfo->mData[dataInfo->mOffset];
 	memcpy(dest, src, length);
 	dataInfo->mOffset += static_cast<U32>(length);
@@ -137,8 +144,8 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 	{
 		// Create and initialize the png structures
 		mReadPngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-			this, &errorHandler, NULL);
-		if (mReadPngPtr == NULL)
+			this, &errorHandler, nullptr);
+		if (mReadPngPtr == nullptr)
 		{
 			LLTHROW(PngError("Problem creating png read structure"));
 		}
@@ -168,7 +175,7 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 
 		// If a raw object is supplied, read the PNG image into its
 		// data space
-		if (rawImage != NULL)
+		if (rawImage != nullptr)
 		{
 			rawImage->resize(static_cast<U16>(mWidth),
 				static_cast<U16>(mHeight), mChannels);
@@ -185,11 +192,11 @@ BOOL LLPngWrapper::readPng(U8* src, S32 dataSize, LLImageRaw* rawImage, ImageInf
 			png_read_image(mReadPngPtr, mRowPointers);
 
 			// Finish up, ensures all metadata are updated
-			png_read_end(mReadPngPtr, NULL);
+			png_read_end(mReadPngPtr, nullptr);
 		}
 
 		// If an info object is supplied, copy the relevant info
-		if (infop != NULL)
+		if (infop != nullptr)
 		{
 			infop->mHeight = static_cast<U16>(mHeight);
 			infop->mWidth = static_cast<U16>(mWidth);
@@ -260,6 +267,7 @@ void LLPngWrapper::normalizeImage()
 // Read out the image meta-data
 void LLPngWrapper::updateMetaData()
 {
+	png_set_interlace_handling(mReadPngPtr); // <alchemy/>
 	png_read_update_info(mReadPngPtr, mReadInfoPtr);
     mWidth = png_get_image_width(mReadPngPtr, mReadInfoPtr);
     mHeight = png_get_image_height(mReadPngPtr, mReadInfoPtr);
@@ -270,7 +278,7 @@ void LLPngWrapper::updateMetaData()
 
 // Method to write raw image into PNG at dest. The raw scanline begins
 // at the bottom of the image per SecondLife conventions.
-BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
+BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest, size_t destSize)
 {
 	try
 	{
@@ -299,7 +307,7 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
 		}
 
 		mWritePngPtr = png_create_write_struct(PNG_LIBPNG_VER_STRING,
-			NULL, &errorHandler, NULL);
+			nullptr, &errorHandler, nullptr);
 		if (!mWritePngPtr)
 		{
 			LLTHROW(PngError("Problem creating png write structure"));
@@ -311,6 +319,7 @@ BOOL LLPngWrapper::writePng(const LLImageRaw* rawImage, U8* dest)
 		PngDataInfo dataPtr;
 		dataPtr.mData = dest;
 		dataPtr.mOffset = 0;
+		dataPtr.mDataSize = destSize;
 		png_set_write_fn(mWritePngPtr, &dataPtr, &writeDataCallback, &writeFlush);
 
 		// Setup image params
@@ -362,22 +371,22 @@ void LLPngWrapper::releaseResources()
 {
 	if (mReadPngPtr || mReadInfoPtr)
 	{
-		png_destroy_read_struct(&mReadPngPtr, &mReadInfoPtr, NULL);
-		mReadPngPtr = NULL;
-		mReadInfoPtr = NULL;
+		png_destroy_read_struct(&mReadPngPtr, &mReadInfoPtr, nullptr);
+		mReadPngPtr = nullptr;
+		mReadInfoPtr = nullptr;
 	}
 
 	if (mWritePngPtr || mWriteInfoPtr)
 	{
 		png_destroy_write_struct(&mWritePngPtr, &mWriteInfoPtr);
-		mWritePngPtr = NULL;
-		mWriteInfoPtr = NULL;
+		mWritePngPtr = nullptr;
+		mWriteInfoPtr = nullptr;
 	}
 
 	if (mRowPointers)
 	{
 		delete[] mRowPointers;
-		mRowPointers = NULL;
+		mRowPointers = nullptr;
 	}
 }
 

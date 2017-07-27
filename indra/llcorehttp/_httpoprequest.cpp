@@ -120,6 +120,7 @@ namespace LLCore
 HttpOpRequest::HttpOpRequest()
 	: HttpOperation(),
 	  mProcFlags(0U),
+      mCallbackSSLVerify(NULL),
 	  mReqMethod(HOR_GET),
 	  mReqBody(NULL),
 	  mReqOffset(0),
@@ -138,11 +139,11 @@ HttpOpRequest::HttpOpRequest()
 	  mReplyLength(0),
 	  mReplyFullLength(0),
 	  mReplyHeaders(),
+	  mReplyRetryAfter(0),
 	  mPolicyRetries(0),
 	  mPolicy503Retries(0),
 	  mPolicyRetryAt(HttpTime(0)),
-	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT),
-	  mCallbackSSLVerify(NULL)
+	  mPolicyRetryLimit(HTTP_RETRY_COUNT_DEFAULT)
 {
 	// *NOTE:  As members are added, retry initialization/cleanup
 	// may need to be extended in @see prepareRequest().

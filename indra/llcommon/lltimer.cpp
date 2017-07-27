@@ -34,7 +34,7 @@
 
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
-#elif LL_LINUX || LL_SOLARIS || LL_DARWIN
+#elif LL_LINUX || LL_DARWIN
 #   include <errno.h>
 #	include <sys/time.h>
 #else 
@@ -51,7 +51,7 @@ const U64 SEC_TO_MICROSEC_U64 = 1000000;
 //---------------------------------------------------------------------------
 
 S32 gUTCOffset = 0; // viewer's offset from server UTC, in seconds
-LLTimer* LLTimer::sTimer = NULL;
+LLTimer* LLTimer::sTimer = nullptr;
 
 
 //
@@ -76,7 +76,7 @@ U32 micro_sleep(U64 us, U32 max_yields)
 	ms_sleep((U32)(us / 1000));
     return 0;
 }
-#elif LL_LINUX || LL_SOLARIS || LL_DARWIN
+#elif LL_LINUX || LL_DARWIN
 static void _sleep_loop(struct timespec& thiswait)
 {
 	struct timespec nextwait;
@@ -189,7 +189,7 @@ F64 calc_clock_frequency()
 #endif // LL_WINDOWS
 
 
-#if LL_LINUX || LL_DARWIN || LL_SOLARIS
+#if LL_LINUX || LL_DARWIN
 // Both Linux and Mac use gettimeofday for accurate time
 F64 calc_clock_frequency()
 {
@@ -242,7 +242,7 @@ U64MicrosecondsImplicit totalTime()
 		// Unix platforms use gettimeofday so they are synced, although this probably isn't a good assumption to
 		// make in the future.
 
-		get_timer_info().mTotalTimeClockCount = (U64)(time(NULL) * get_timer_info().mClockFrequency);
+		get_timer_info().mTotalTimeClockCount = (U64)(time(nullptr) * get_timer_info().mClockFrequency);
 #endif
 
 		// Update the last clock count
@@ -296,7 +296,7 @@ void LLTimer::initClass()
 // static
 void LLTimer::cleanupClass()
 {
-	delete sTimer; sTimer = NULL;
+	delete sTimer; sTimer = nullptr;
 }
 
 // static
@@ -436,7 +436,7 @@ BOOL LLTimer::knownBadTimer()
 							    L"\0"
 	};
 
-	HKEY hKey = NULL;
+	HKEY hKey = nullptr;
 	LONG nResult = ::RegOpenKeyEx(HKEY_LOCAL_MACHINE,L"SYSTEM\\CurrentControlSet\\Enum\\PCI", 0,
 								  KEY_EXECUTE | KEY_QUERY_VALUE | KEY_ENUMERATE_SUB_KEYS, &hKey);
 	
@@ -451,7 +451,7 @@ BOOL LLTimer::knownBadTimer()
 
 	while (nResult == ERROR_SUCCESS)
 	{
-		nResult = ::RegEnumKeyEx(hKey, key_num++, name, &name_len, NULL, NULL, NULL, &scrap);
+		nResult = ::RegEnumKeyEx(hKey, key_num++, name, &name_len, nullptr, nullptr, nullptr, &scrap);
 
 		if (nResult == ERROR_SUCCESS)
 		{
@@ -483,7 +483,7 @@ BOOL LLTimer::knownBadTimer()
 
 time_t time_corrected()
 {
-	return time(NULL) + gUTCOffset;
+	return time(nullptr) + gUTCOffset;
 }
 
 
@@ -491,7 +491,7 @@ time_t time_corrected()
 // observing daylight savings time?
 BOOL is_daylight_savings()
 {
-	time_t now = time(NULL);
+	time_t now = time(nullptr);
 
 	// Internal buffer to local server time
 	struct tm* internal_time = localtime(&now);

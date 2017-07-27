@@ -31,8 +31,6 @@
 
 #include "llerror.h"
 
-//#include <memory>
-
 #if LL_WINDOWS
 #	include "llwin32headerslean.h"
 #	define _interlockedbittestandset _renamed_interlockedbittestandset
@@ -44,22 +42,19 @@
 
 #include "llsd.h"
 
-// Moved to llpreprocessor.h
-/*
 #if LL_MSVC && _M_X64
 #      define LL_X86_64 1
 #      define LL_X86 1
 #elif LL_MSVC && _M_IX86
 #      define LL_X86 1
-#elif LL_GNUC && ( defined(__amd64__) || defined(__x86_64__) )
+#elif LL_GNUC || LL_CLANG || LL_INTELC && ( defined(__amd64__) || defined(__x86_64__) )
 #      define LL_X86_64 1
 #      define LL_X86 1
-#elif LL_GNUC && ( defined(__i386__) )
+#elif LL_GNUC || LL_CLANG || LL_INTELC  && ( defined(__i386__) )
 #      define LL_X86 1
 #elif LL_GNUC && ( defined(__powerpc__) || defined(__ppc__) )
 #      define LL_PPC 1
 #endif
-*/
 
 class LLProcessorInfoImpl; // foward declaration for the mImpl;
 
@@ -135,7 +130,6 @@ namespace
 		eMONTIOR_MWAIT=33,
 		eCPLDebugStore=34,
 		eThermalMonitor2=35,
-		eAltivec=36
 	};
 
 	const char* cpu_feature_names[] =
@@ -176,9 +170,7 @@ namespace
 		"SSE3 New Instructions", // 32
 		"MONITOR/MWAIT", 
 		"CPL Qualified Debug Store",
-		"Thermal Monitor 2",
-
-		"Altivec"
+		"Thermal Monitor 2"
 	};
 
 	std::string intel_CPUFamilyName(int composed_family) 
@@ -191,7 +183,7 @@ namespace
 		case 6: return "Intel Pentium Pro/2/3, Core";
 		case 7: return "Intel Itanium (IA-64)";
 		case 0xF: return "Intel Pentium 4";
-		case 0x10: return "Intel Itanium 2 (IA-64)";
+		case 0x1F: return "Intel Itanium 2 (IA-64)";
 		}
 		return "Unknown";
 	}
@@ -203,14 +195,19 @@ namespace
 		case 4: return "AMD 80486/5x86";
 		case 5: return "AMD K5/K6";
 		case 6: return "AMD K7";
-		case 0xF: return "AMD K8";
-		case 0x10: return "AMD K8L";
+		case 0x0F: return "AMD K8";
+		case 0x10: return "AMD K10";
+		case 0x11: return "AMD Turion X2 Ultra/Puma";
+		case 0x12: return "AMD Llano";
+		case 0x14: return "AMD Bobcat";
 		case 0x15: return "AMD Bulldozer";
+		case 0x16: return "AMD Jaguar";
+		case 0x17: return "AMD Zen";
 		}
    		return "Unknown";
 	}
 
-	std::string compute_CPUFamilyName(const char* cpu_vendor, int family, int ext_family) 
+	std::string compute_CPUFamilyName(const char* cpu_vendor, int family, int ext_family)
 	{
 		const char* intel_string = "GenuineIntel";
 		const char* amd_string = "AuthenticAMD";
@@ -259,11 +256,6 @@ public:
 		return hasExtension(cpu_feature_names[eSSE2_Ext]);
 	}
 
-	bool hasAltivec() const 
-	{
-		return hasExtension("Altivec"); 
-	}
-
 	std::string getCPUFamilyName() const { return getInfo(eFamilyName, "Unknown").asString(); }
 	std::string getCPUBrandName() const { return getInfo(eBrandName, "Unknown").asString(); }
 
@@ -277,7 +269,7 @@ public:
 		out << "//////////////////////////" << std::endl;
 		out << "Processor Name:   " << getCPUBrandName() << std::endl;
 		out << "Frequency:        " << getCPUFrequency() << " MHz" << std::endl;
-		out << "Vendor:			  " << getInfo(eVendor, "Unknown").asString() << std::endl;
+		out << "Vendor:           " << getInfo(eVendor, "Unknown").asString() << std::endl;
 		out << "Family:           " << getCPUFamilyName() << " (" << getInfo(eFamily, 0) << ")" << std::endl;
 		out << "Extended family:  " << getInfo(eExtendedFamily, 0) << std::endl;
 		out << "Model:            " << getInfo(eModel, 0) << std::endl;
@@ -404,7 +396,7 @@ static F64 calculate_cpu_frequency(U32 measure_msecs)
 	HANDLE hThread = GetCurrentThread();
 	unsigned long dwCurPriorityClass = GetPriorityClass(hProcess);
 	int iCurThreadPriority = GetThreadPriority(hThread);
-	DWORD_PTR dwProcessMask, dwSystemMask, dwNewMask = 1;
+	DWORD_PTR dwProcessMask, dwSystemMask, dwNewMask = 1; // <alchemy/>
 	GetProcessAffinityMask(hProcess, &dwProcessMask, &dwSystemMask);
 
 	SetPriorityClass(hProcess, REALTIME_PRIORITY_CLASS);
@@ -476,8 +468,7 @@ private:
 		unsigned int ids = (unsigned int)cpu_info[0];
 		setConfig(eMaxID, (S32)ids);
 
-		char cpu_vendor[0x20];
-		memset(cpu_vendor, 0, sizeof(cpu_vendor));
+		char cpu_vendor[0x20] = {0};
 		*((int*)cpu_vendor) = cpu_info[1];
 		*((int*)(cpu_vendor+4)) = cpu_info[3];
 		*((int*)(cpu_vendor+8)) = cpu_info[2];
@@ -543,8 +534,7 @@ private:
 		unsigned int ext_ids = cpu_info[0];
 		setConfig(eMaxExtID, 0);
 
-		char cpu_brand_string[0x40];
-		memset(cpu_brand_string, 0, sizeof(cpu_brand_string));
+		char cpu_brand_string[0x40] = {0};
 
 		// Get the information associated with each extended ID.
 		for(unsigned int i=0x80000000; i<=ext_ids; ++i)
@@ -625,16 +615,14 @@ private:
 	{
 		size_t len = 0;
 
-		char cpu_brand_string[0x40];
+		char cpu_brand_string[0x40] = {0};
 		len = sizeof(cpu_brand_string);
-		memset(cpu_brand_string, 0, len);
 		sysctlbyname("machdep.cpu.brand_string", (void*)cpu_brand_string, &len, NULL, 0);
 		cpu_brand_string[0x3f] = 0;
 		setInfo(eBrandName, cpu_brand_string);
 		
-		char cpu_vendor[0x20];
+		char cpu_vendor[0x20] = {0};
 		len = sizeof(cpu_vendor);
-		memset(cpu_vendor, 0, len);
 		sysctlbyname("machdep.cpu.vendor", (void*)cpu_vendor, &len, NULL, 0);
 		cpu_vendor[0x1f] = 0;
 		setInfo(eVendor, cpu_vendor);
@@ -722,8 +710,7 @@ private:
 		LLFILE* cpuinfo_fp = LLFile::fopen(CPUINFO_FILE, "rb");
 		if(cpuinfo_fp)
 		{
-			char line[MAX_STRING];
-			memset(line, 0, MAX_STRING);
+			char line[MAX_STRING] = {0};
 			while(fgets(line, MAX_STRING, cpuinfo_fp))
 			{
 				// /proc/cpuinfo on Linux looks like:
@@ -777,7 +764,7 @@ private:
 		LLPI_SET_INFO_INT(eModel, "model");
 
 		
-		S32 family;							 
+		S32 family = 0;							 
 		if (!cpuinfo["cpu family"].empty() 
 			&& LLStringUtil::convertToS32(cpuinfo["cpu family"], family))	
 		{ 
@@ -821,8 +808,7 @@ private:
 		LLFILE* cpuinfo = LLFile::fopen(CPUINFO_FILE, "rb");
 		if(cpuinfo)
 		{
-			char line[MAX_STRING];
-			memset(line, 0, MAX_STRING);
+			char line[MAX_STRING] = {0};
 			while(fgets(line, MAX_STRING, cpuinfo))
 			{
 				line[strlen(line)-1] = ' ';
@@ -846,7 +832,7 @@ private:
 
 //////////////////////////////////////////////////////
 // Interface definition
-LLProcessorInfo::LLProcessorInfo() : mImpl(NULL)
+LLProcessorInfo::LLProcessorInfo() : mImpl(nullptr)
 {
 	// *NOTE:Mani - not thread safe.
 	if(!mImpl)
@@ -869,7 +855,6 @@ LLProcessorInfo::~LLProcessorInfo() {}
 F64MegahertzImplicit LLProcessorInfo::getCPUFrequency() const { return mImpl->getCPUFrequency(); }
 bool LLProcessorInfo::hasSSE() const { return mImpl->hasSSE(); }
 bool LLProcessorInfo::hasSSE2() const { return mImpl->hasSSE2(); }
-bool LLProcessorInfo::hasAltivec() const { return mImpl->hasAltivec(); }
 std::string LLProcessorInfo::getCPUFamilyName() const { return mImpl->getCPUFamilyName(); }
 std::string LLProcessorInfo::getCPUBrandName() const { return mImpl->getCPUBrandName(); }
 std::string LLProcessorInfo::getCPUFeatureDescription() const { return mImpl->getCPUFeatureDescription(); }
