@@ -47,10 +47,10 @@ if (WINDOWS)
   set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Od /MDd ${CXX_JOBS} -D_SCL_SECURE_NO_WARNINGS=1"
       CACHE STRING "C++ compiler debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO 
-      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zo /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Od /Zi /MD ${CXX_JOBS} /Ob0 -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release-with-debug options" FORCE)
   set(CMAKE_CXX_FLAGS_RELEASE
-      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Ot /Oi /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
+      "${CMAKE_CXX_FLAGS_RELEASE} /O2 /Oi /Ot /Zo /MD ${CXX_JOBS} /Ob2 /Zc:inline -D_ITERATOR_DEBUG_LEVEL=0"
       CACHE STRING "C++ compiler release options" FORCE)
 
   if (WORD_SIZE EQUAL 32)
@@ -202,7 +202,7 @@ if (LINUX)
     elseif(HAS_STACK_PROTECTOR)
       add_compile_options(-fstack-protector)
     endif(HAS_STRONG_STACK_PROTECTOR)
-    add_definitions(-D_FORTIFY_SOURCE=2)
+    set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2")
   endif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
 
   if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
@@ -309,7 +309,6 @@ else (USESYSTEMLIBS)
   #add_definitions(-DOPENSSL_API_COMPAT=0x10100000L)
 
   set(${ARCH}_linux_INCLUDES
-      ELFIO
       atk-1.0
       cairo
       gdk-pixbuf-2.0
