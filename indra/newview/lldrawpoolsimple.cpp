@@ -415,7 +415,7 @@ void LLDrawPoolSimple::renderDeferred(S32 pass)
 	LLGLDisable alpha_test(GL_ALPHA_TEST);
 
 	{ //render simple
-		LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE_DEFERRED);
+		LL_RECORD_BLOCK_TIME(FTM_RENDER_SIMPLE_DEFERRED); // this is incredibly slow on AMD.
 		pushBatches(LLRenderPass::PASS_SIMPLE, getVertexDataMask() | LLVertexBuffer::MAP_TEXTURE_INDEX, TRUE, TRUE);
 	}
 }
