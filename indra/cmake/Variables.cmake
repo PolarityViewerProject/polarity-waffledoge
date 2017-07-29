@@ -23,11 +23,47 @@ set(LIBS_OPEN_PREFIX)
 set(SCRIPTS_PREFIX ../scripts)
 set(VIEWER_PREFIX)
 set(INTEGRATION_TESTS_PREFIX)
-set(LL_TESTS OFF CACHE BOOL "Build and run unit and integration tests (disable for build timing runs to reduce variation")
+option(LL_TESTS "Build and run unit and integration tests (disable for build timing runs to reduce variation" OFF)
 
 # Compiler and toolchain options
-option(INCREMENTAL_LINK "Use incremental linking or incremental LTCG for LTO on win32 builds (enable for faster links on some machines)" OFF)
+option(USESYSTEMLIBS "Use libraries from your system rather than Linden-supplied prebuilt libraries." OFF)
+option(INCREMENTAL_LINK "Use incremental linking on win32 builds (enable for faster links on some machines)" OFF)
+option(USE_PRECOMPILED_HEADERS "Enable use of precompiled header directives where supported." ON)
 option(USE_LTO "Enable Whole Program Optimization and related folding and binary reduction routines" OFF)
+option(USE_ASAN "Enable address sanitizer for detection of memory issues" OFF)
+option(USE_LEAKSAN "Enable address sanitizer for detection of memory leaks" OFF)
+option(USE_UBSAN "Enable undefined behavior sanitizer" OFF)
+option(USE_THDSAN "Enable thread sanitizer for detection of thread data races and mutexing issues" OFF)
+if(USE_ASAN AND USE_LEAKSAN)
+  message(FATAL_ERROR "You may only enable either USE_ASAN or USE_LEAKSAN not both")
+elseif((USE_ASAN OR USE_LEAKSAN) AND USE_THDSAN)
+  message(FATAL_ERROR "Address and Leak sanitizers are incompatible with thread sanitizer")
+endif(USE_ASAN AND USE_LEAKSAN)
+
+option(UNATTENDED "Disable use of uneeded tooling for automated builds" OFF)
+
+# Media Plugins
+option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
+option(LIBVLCPLUGIN "Turn off building support for libvlc plugin" OFF)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(LIBVLCPLUGIN OFF)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+# Mallocs
+option(USE_TCMALLOC "Build the viewer with google tcmalloc" OFF)
+option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
+if (USE_TCMALLOC AND USE_TBBMALLOC)
+  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
+endif (USE_TCMALLOC AND USE_TBBMALLOC)
+
+# Audio Engines
+option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" OFF)
+
+# Window implementation
+option(LLWINDOW_SDL2 "Use SDL2 for window and input handling" OFF)
+
+# Proprietary Library Features
+option(NVAPI "Use nvapi driver interface library" OFF)
 
 if(LIBS_CLOSED_DIR)
   file(TO_CMAKE_PATH "${LIBS_CLOSED_DIR}" LIBS_CLOSED_DIR)
@@ -49,8 +85,12 @@ set(AUTOBUILD_INSTALL_DIR ${CMAKE_BINARY_DIR}/packages)
 set(LIBS_PREBUILT_DIR ${AUTOBUILD_INSTALL_DIR} CACHE PATH
     "Location of prebuilt libraries.")
 
+if (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
+  # We use this as a marker that you can try to use the proprietary libraries.
+  set(INSTALL_PROPRIETARY ON CACHE BOOL "Install proprietary binaries")
+endif (EXISTS ${CMAKE_SOURCE_DIR}/Server.cmake)
 set(TEMPLATE_VERIFIER_OPTIONS "" CACHE STRING "Options for scripts/template_verifier.py")
-set(TEMPLATE_VERIFIER_MASTER_URL "http://bitbucket.org/lindenlab/master-message-template/raw/tip/message_template.msg" CACHE STRING "Location of the master message template")
+set(TEMPLATE_VERIFIER_MASTER_URL "https://bitbucket.org/alchemyviewer/master-message-template/raw/tip/message_template.msg" CACHE STRING "Location of the master message template")
 
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
@@ -64,13 +104,13 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     set(LL_ARCH ${ARCH}_win64)
     set(LL_ARCH_DIR ${ARCH}-win64)
     set(WORD_SIZE 64)
-    set(AUTOBUILD_PLATFORM_NAME "windows64")
+    set(AUTOBUILD_PLATFORM_NAME "windows64" CACHE STRING "Autobuild Platform Name")
   else (WORD_SIZE EQUAL 64)
     set(ARCH i686 CACHE STRING "Viewer Architecture")
     set(LL_ARCH ${ARCH}_win32)
     set(LL_ARCH_DIR ${ARCH}-win32)
     set(WORD_SIZE 32)
-    set(AUTOBUILD_PLATFORM_NAME "windows")
+    set(AUTOBUILD_PLATFORM_NAME "windows" CACHE STRING "Autobuild Platform Name")
   endif (WORD_SIZE EQUAL 64)
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 
@@ -82,22 +122,23 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
   if (WORD_SIZE EQUAL 32)
     #message(STATUS "WORD_SIZE is 32")
     set(ARCH i686)
-    set(AUTOBUILD_PLATFORM_NAME "linux")
+    set(AUTOBUILD_PLATFORM_NAME "linux" CACHE STRING "Autobuild Platform Name")
   elseif (WORD_SIZE EQUAL 64)
     #message(STATUS "WORD_SIZE is 64")
     set(ARCH x86_64)
-    set(AUTOBUILD_PLATFORM_NAME "linux64")
+    set(AUTOBUILD_PLATFORM_NAME "linux64" CACHE STRING "Autobuild Platform Name")
   else (WORD_SIZE EQUAL 32)
     #message(STATUS "WORD_SIZE is UNDEFINED")
-    execute_process(COMMAND uname -m COMMAND sed s/i.86/i686/
-                    OUTPUT_VARIABLE ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-    if (ARCH STREQUAL x86_64)
-      #message(STATUS "ARCH is detected as 64; ARCH is ${ARCH}")
+    if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+      message(STATUS "Size of void pointer is detected as 8; ARCH is 64-bit")
       set(WORD_SIZE 64)
-    else (ARCH STREQUAL x86_64)
-      #message(STATUS "ARCH is detected as 32; ARCH is ${ARCH}")
+      set(AUTOBUILD_PLATFORM_NAME "linux64" CACHE STRING "Autobuild Platform Name")
+    elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+      message(STATUS "Size of void pointer is detected as 4; ARCH is 32-bit")
       set(WORD_SIZE 32)
-    endif (ARCH STREQUAL x86_64)
+    else()
+      message(FATAL_ERROR "Unkown Architecture!")
+    endif (CMAKE_SIZEOF_VOID_P EQUAL 8)
   endif (WORD_SIZE EQUAL 32)
 
   if (WORD_SIZE EQUAL 32)
@@ -138,113 +179,62 @@ endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(DARWIN 1)
   
-  # now we only support Xcode 7.0 using 10.11 (El Capitan), minimum OS 10.7 (Lion)
-  set(XCODE_VERSION 7.0)
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.7)
-  set(CMAKE_OSX_SYSROOT macosx10.11)
+  if (XCODE_VERSION LESS 8.0.0)
+    message( FATAL_ERROR "Xcode 8.0.0 or greater is required." )
+  endif (XCODE_VERSION LESS 8.0.0)
+  message( "Building with " ${CMAKE_OSX_SYSROOT} )
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 10.8)
 
   set(CMAKE_XCODE_ATTRIBUTE_GCC_VERSION "com.apple.compilers.llvm.clang.1_0")
   set(CMAKE_XCODE_ATTRIBUTE_GCC_OPTIMIZATION_LEVEL 3)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_STRICT_ALIASING NO)
   set(CMAKE_XCODE_ATTRIBUTE_GCC_FAST_MATH NO)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS ssse3)
-  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libstdc++")
-  set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++14")
+  if (USE_AVX2)
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS avx2)
+  elseif (USE_AVX)
+    set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS avx)
+  else ()
+  set(CMAKE_XCODE_ATTRIBUTE_CLANG_X86_VECTOR_INSTRUCTIONS sse4.1)
+  endif ()
 
-  # Build only for i386 by default, system default on MacOSX 10.6+ is x86_64
+  if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf-with-dsym)
+  else (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+    set(CMAKE_XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT dwarf)
+  endif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+
+  set(WORD_SIZE 64)
   if (NOT CMAKE_OSX_ARCHITECTURES)
-    set(CMAKE_OSX_ARCHITECTURES "i386")
+    if (WORD_SIZE EQUAL 64)
+      set(CMAKE_OSX_ARCHITECTURES x86_64)
+    else (WORD_SIZE EQUAL 64)
+      set(CMAKE_OSX_ARCHITECTURES i386)
+    endif (WORD_SIZE EQUAL 64)
   endif (NOT CMAKE_OSX_ARCHITECTURES)
 
-  set(ARCH ${CMAKE_OSX_ARCHITECTURES})
+  if (WORD_SIZE EQUAL 64)
+    set(ARCH x86_64)
+  else (WORD_SIZE EQUAL 64)
+    set(ARCH i386)
+  endif (WORD_SIZE EQUAL 64)
   set(LL_ARCH ${ARCH}_darwin)
   set(LL_ARCH_DIR universal-darwin)
-  set(WORD_SIZE 32)
-  set(AUTOBUILD_PLATFORM_NAME "darwin")
+  set(AUTOBUILD_PLATFORM_NAME "darwin" CACHE STRING "Autobuild Platform Name")
 endif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 # Default deploy grid
 set(GRID agni CACHE STRING "Target Grid")
 
 set(VIEWER_CHANNEL "Polarity Test" CACHE STRING "Viewer Channel Name")
+set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
 
-set(ENABLE_SIGNING OFF CACHE BOOL "Enable signing the viewer")
+option(ENABLE_SIGNING "Enable signing the viewer" OFF)
 set(SIGNING_IDENTITY "" CACHE STRING "Specifies the signing identity to use, if necessary.")
 
-set(VERSION_BUILD "0" CACHE STRING "Revision number passed in from the outside")
-set(USESYSTEMLIBS OFF CACHE BOOL "Use libraries from your system rather than Linden-supplied prebuilt libraries.")
-
-set(USE_PRECOMPILED_HEADERS ON CACHE BOOL "Enable use of precompiled header directives where supported.")
-
-option(UNATTENDED "Disable use of uneeded tooling for automated builds" ON)
-
-# <polarity> Our feature list.
-# Build process tweaks
-set(COMPILER_JOBS "" CACHE STRING "Amount of simultaneous compiler jobs")
-option(INTERNAL_BUILD "Build reserved for internal testing" OFF)
-
-if(NOT DEFINED INTERNAL_BUILD)
-  set(INTERNAL_BUILD OFF)
-endif()
-
-# Third-party libraries
-
-# Audio Engine
-option(FMODSTUDIO "Build with support for the FMOD Studio audio engine" ON)
-
-# Mallocs
-option(USE_TCMALLOC "Build with Google PerfTools support." OFF)
-option(USE_TBBMALLOC "Build the viewer with intel tbbmalloc" OFF)
-if (USE_TCMALLOC AND USE_TBBMALLOC)
-  message(FATAL_ERROR "Only one malloc may be enabled at a time.")
-endif (USE_TCMALLOC AND USE_TBBMALLOC)
-# APIs
-option(NVAPI "Use nvapi driver interface library" OFF)
-
-# Media Plugins
-option(ENABLE_MEDIA_PLUGINS "Turn off building media plugins if they are imported by third-party library mechanism" ON)
-option(LINK_VLC_PLUGIN "Compile with the LibVLC Plugin. Requires MPEG-LA AVC/H.264 license to distribute." OFF) # Not handled by INSTALL_PROPRIETARY on purpose
-
-# option(INSTALL_PROPRIETARY "Install proprietary binaries" OFF) # Defined in autobuild.xml, don't define here until we have to.
-if(INSTALL_PROPRIETARY)
-  set(FMODSTUDIO ON)
-  set(NVAPI ON)
-  # set(USE_TBBMALLOC ON)
-endif(INSTALL_PROPRIETARY)
-
-# <polarity> automatically get APP_NAME from ROOT_PROJECT_NAME
-add_definitions(/DROOT_PROJECT_NAME=${ROOT_PROJECT_NAME})
-
-MESSAGE("")
-MESSAGE("======== *Configuration* ========")
-MESSAGE("ROOT_PROJECT_NAME      ${ROOT_PROJECT_NAME}")
-MESSAGE("Build No.              ${BUILD_NUMBER}")
-MESSAGE("Target Platform        ${AUTOBUILD_PLATFORM_NAME}")
-MESSAGE("Incremental Link       ${INCREMENTAL_LINK}")
-MESSAGE("Link-Time CodeGen      ${USE_LTO}")
-MESSAGE("Internal Build         ${INTERNAL_BUILD}")
-MESSAGE("========== *Libraries* ==========")
-MESSAGE("FMOD Studio            ${FMODSTUDIO}")
-MESSAGE("NVIDIA API             ${NVAPI}")
-MESSAGE("Intel Building Blocks  ${USE_TBBMALLOC}")
-MESSAGE("Licensed VLC Plugin    ${LINK_VLC_PLUGIN}")
-MESSAGE("========== *PVData* =============")
-MESSAGE("PVData System          ${PVDATA_SYSTEM}")
-MESSAGE("=================================")
-# Add these CMake flags to the C++ preprocessor to toggle code that way, or at least Intellisense to detect them.
-add_definitions(
-  /DINCREMENTAL_LINK=${INCREMENTAL_LINK}
-  /DUSE_LTO=${USE_LTO}
-  /DINTERNAL_BUILD=${INTERNAL_BUILD}
-  /DLINK_VLC_PLUGIN=${LINK_VLC_PLUGIN}
-  /DBUILD_NUMBER=${BUILD_NUMBER}
-  /DENABLE_MEDIA_PLUGINS=${ENABLE_MEDIA_PLUGINS}
-  )
-if(PVDATA_UUID_LOCKDOWN)
-  MESSAGE("THIS VIEWER WILL BE LOCKED DOWN TO '${PVDATA_UUID_LOCKTO}'")
-endif(PVDATA_UUID_LOCKDOWN)
-# </polarity>
-
 source_group("CMake Rules" FILES CMakeLists.txt)
+
+mark_as_advanced(AUTOBUILD_PLATFORM_NAME)
 
 endif(NOT DEFINED ${CMAKE_CURRENT_LIST_FILE}_INCLUDED)

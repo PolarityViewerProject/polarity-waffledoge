@@ -136,7 +136,7 @@
 #if ENABLE_MEDIA_PLUGINS
 #include "cef/llceflib.h"
 #endif
-#if LINK_VLC_PLUGIN
+#if LIBVLCPLUGIN
 #include "vlc/libvlc_version.h"
 #endif
 
@@ -3582,7 +3582,7 @@ LLSD LLAppViewer::getViewerInfo() const
 #endif
 
 
-#if LINK_VLC_PLUGIN
+#if LIBVLCPLUGIN
 	std::ostringstream ver_codec;
 	ver_codec << LIBVLC_VERSION_MAJOR;
 	ver_codec << ".";

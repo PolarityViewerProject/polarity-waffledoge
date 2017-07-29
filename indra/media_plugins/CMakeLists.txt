@@ -10,9 +10,9 @@ if (LINUX)
 endif (LINUX)
 
 if (WINDOWS)
-    if(LINK_VLC_PLUGIN)
+    if(LIBVLCPLUGIN)
     add_subdirectory(libvlc)
-    endif(LINK_VLC_PLUGIN)
+    endif(LIBVLCPLUGIN)
 endif (WINDOWS)
 
 add_subdirectory(cef)

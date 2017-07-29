@@ -1777,11 +1777,11 @@ endif (FMODSTUDIO)
 
 set_source_files_properties(llstartup.cpp PROPERTIES COMPILE_DEFINITIONS "${LLSTARTUP_COMPILE_DEFINITIONS}")
 
-if (LINK_VLC_PLUGIN)
+if (LIBVLCPLUGIN)
     set_source_files_properties(llappviewer.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=1")
-else (LINK_VLC_PLUGIN)
+else (LIBVLCPLUGIN)
     set_source_files_properties(llappviewer.cpp PROPERTIES COMPILE_DEFINITIONS "VLCPLUGIN=0")
-endif (LINK_VLC_PLUGIN)
+endif (LIBVLCPLUGIN)
 
 list(APPEND viewer_SOURCE_FILES ${viewer_HEADER_FILES})
 
@@ -1869,11 +1869,11 @@ if(WINDOWS)
       windows-crash-logger
       )
 
-    if(LINK_VLC_PLUGIN)
+    if(LIBVLCPLUGIN)
         list(APPEND COPY_INPUT_DEPENDENCIES
             media_plugin_libvlc
         )
-    endif(LINK_VLC_PLUGIN)
+    endif(LIBVLCPLUGIN)
 
     if(USE_TCMALLOC)
       # Configure a var for tcmalloc location, if used.

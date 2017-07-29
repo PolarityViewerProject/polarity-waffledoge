@@ -91,7 +91,7 @@ if (NOT DEFINED VIEWER_SHORT_VERSION) # will be true in indra/, false in indra/n
       string(REGEX REPLACE "^([0-9]+)\\.[0-9]+\\.[0-9]+" "\\1" LL_SOURCE_MAJOR ${BASE_TAG})
       string(REGEX REPLACE "^[0-9]+\\.([0-9]+)\\.[0-9]+" "\\1" LL_SOURCE_MINOR ${BASE_TAG})
       string(REGEX REPLACE "^[0-9]+\\.[0-9]+\\.([0-9]+)" "\\1" LL_SOURCE_PATCH ${BASE_TAG})
-      message("Latest Merge: Second Life Release ${BASE_TAG} (Commit ${LL_SOURCE_HASH})")
+      message(STATUS "Latest Merge: Second Life Release ${BASE_TAG} (Commit ${LL_SOURCE_HASH})")
       endif (NOT CUT_TOOL) # Cut
   endif (NOT DEFINED LL_SOURCE_HASH)
 
