@@ -27,6 +27,7 @@
 #ifndef LL_LLAISAPI_H
 #define LL_LLAISAPI_H
 
+#include "lluuid.h"
 #include "llhttpretrypolicy.h"
 #include "llviewerinventory.h"
 #include "llcorehttputil.h"
@@ -35,7 +36,7 @@
 class AISAPI
 {
 public:
-    typedef boost::function<void(const LLUUID &invItem)>    completion_t;
+    typedef std::function<void(const LLUUID &invItem)>    completion_t;
 
     static bool isAvailable();
     static void getCapNames(LLSD& capNames);
@@ -64,7 +65,7 @@ private:
     static const std::string INVENTORY_CAP_NAME;
     static const std::string LIBRARY_CAP_NAME;
 
-    typedef boost::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
+    typedef std::function < LLSD (LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t, LLCore::HttpRequest::ptr_t,
         const std::string, LLSD, LLCore::HttpOptions::ptr_t, LLCore::HttpHeaders::ptr_t) > invokationFn_t;
 
     static void EnqueueAISCommand(const std::string &procName, LLCoprocedureManager::CoProcedure_t proc);

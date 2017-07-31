@@ -43,6 +43,7 @@
 class LLInventoryItem;
 class LLVOAvatarSelf;
 class LLViewerWearable;
+class LLInitialWearablesFetch;
 class LLViewerObject;
 
 class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearableData
@@ -51,6 +52,7 @@ class LLAgentWearables : public LLInitClass<LLAgentWearables>, public LLWearable
 	// Constructors / destructors / Initializers
 	//--------------------------------------------------------------------
 public:
+	friend class LLInitialWearablesFetch;
 
 	LLAgentWearables();
 	virtual ~LLAgentWearables();
@@ -61,6 +63,9 @@ public:
 
 	// LLInitClass interface
 	static void initClass();
+protected:
+	void			createStandardWearablesDone(S32 type, U32 index/* = 0*/);
+	void			createStandardWearablesAllDone();
 	
 	//--------------------------------------------------------------------
 	// Queries
@@ -87,7 +92,7 @@ public:
 	// Note: False for shape, skin, eyes, and hair, unless you have MORE than 1.
 	bool			canWearableBeRemoved(const LLViewerWearable* wearable) const;
 
-	void			animateAllWearableParams(F32 delta);
+	void			animateAllWearableParams(F32 delta, BOOL upload_bake);
 
 	//--------------------------------------------------------------------
 	// Accessors
@@ -111,17 +116,17 @@ public:
 	// Setters
 	//--------------------------------------------------------------------
 private:
-	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed);
+	/*virtual*/void	wearableUpdated(LLWearable *wearable, BOOL removed) override;
 public:
-//	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
+	void			setWearableItem(LLInventoryItem* new_item, LLViewerWearable* wearable, bool do_append = false);
 	void			setWearableOutfit(const LLInventoryItem::item_array_t& items, const std::vector< LLViewerWearable* >& wearables);
 	void			setWearableName(const LLUUID& item_id, const std::string& new_name);
 	// *TODO: Move this into llappearance/LLWearableData ?
 	void			addLocalTextureObject(const LLWearableType::EType wearable_type, const LLAvatarAppearanceDefines::ETextureIndex texture_type, U32 wearable_index);
 
 protected:
-//	void			setWearableFinal(LLInventoryItem* new_item, LLViewerWearable* new_wearable, bool do_append = false);
-//	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLViewerWearable* wearable);
+	void			setWearableFinal(LLInventoryItem* new_item, LLViewerWearable* new_wearable, bool do_append = false);
+	static bool		onSetWearableDialog(const LLSD& notification, const LLSD& response, LLViewerWearable* wearable);
 
 	void			addWearableToAgentInventory(LLPointer<LLInventoryCallback> cb,
 												LLViewerWearable* wearable, 
@@ -161,10 +166,28 @@ private:
 	void			removeWearableFinal(const LLWearableType::EType type, bool do_remove_all /*= false*/, U32 index /*= 0*/);
 protected:
 	static bool		onRemoveWearableDialog(const LLSD& notification, const LLSD& response);
+	
+	//--------------------------------------------------------------------
+	// Server Communication
+	//--------------------------------------------------------------------
+public:
+	// Processes the initial wearables update message (if necessary, since the outfit folder makes it redundant)
+	static void		processAgentInitialWearablesUpdate(LLMessageSystem* mesgsys, void** user_data);
+
+protected:
+
+	/*virtual*/ void	invalidateBakedTextureHash(LLMD5& hash) const override;
+	void			sendAgentWearablesUpdate();
+	void			sendAgentWearablesRequest();
+	void			queryWearableCache();
+	void 			updateServer();
+	static void		onInitialWearableAssetArrived(LLViewerWearable* wearable, void* userdata);
 
 	//--------------------------------------------------------------------
 	// Outfits
 	//--------------------------------------------------------------------
+
+
 private:
 	void			makeNewOutfitDone(S32 type, U32 index); 
 
@@ -173,7 +196,7 @@ private:
 	//--------------------------------------------------------------------
 public:	
 	void			saveWearableAs(const LLWearableType::EType type, const U32 index, const std::string& new_name, const std::string& description, BOOL save_in_lost_and_found);
-	void			saveWearable(const LLWearableType::EType type, const U32 index,
+	void			saveWearable(const LLWearableType::EType type, const U32 index, BOOL send_update = TRUE,
 								 const std::string new_name = "");
 	void			saveAllWearables();
 	void			revertWearable(const LLWearableType::EType type, const U32 index);
@@ -187,8 +210,8 @@ public:
 	// Static UI hooks
 	//--------------------------------------------------------------------
 public:
-//	static void		userRemoveWearable(const LLWearableType::EType &type, const U32 &index);
-//	static void		userRemoveWearablesOfType(const LLWearableType::EType &type);
+	static void		userRemoveWearable(const LLWearableType::EType &type, const U32 &index);
+	static void		userRemoveWearablesOfType(const LLWearableType::EType &type);
 	
 	typedef std::vector<LLViewerObject*> llvo_vec_t;
 
@@ -199,17 +222,20 @@ public:
 	static void		userRemoveMultipleAttachments(llvo_vec_t& llvo_array);
 	static void		userAttachMultipleAttachments(LLInventoryModel::item_array_t& obj_item_array);
 
+	BOOL			itemUpdatePending(const LLUUID& item_id) const;
+	U32				itemUpdatePendingCount() const;
+
 	static llvo_vec_t getTempAttachments();
 
 	//--------------------------------------------------------------------
 	// Signals
 	//--------------------------------------------------------------------
 public:
-	typedef boost::function<void()>			loading_started_callback_t;
+	typedef std::function<void()>			loading_started_callback_t;
 	typedef boost::signals2::signal<void()>	loading_started_signal_t;
 	boost::signals2::connection				addLoadingStartedCallback(loading_started_callback_t cb);
 
-	typedef boost::function<void()>			loaded_callback_t;
+	typedef std::function<void()>			loaded_callback_t;
 	typedef boost::signals2::signal<void()>	loaded_signal_t;
 	boost::signals2::connection				addLoadedCallback(loaded_callback_t cb);
 // [SL:KB] - Patch: Appearance-InitialWearablesLoadedCallback | Checked: 2010-08-14 (Catznip-2.1)
@@ -239,6 +265,7 @@ private:
 	static bool		mInitialAttachmentsRequested;
 // [/RLVa:KB]
 	BOOL			mWearablesLoaded;
+	std::set<LLUUID>	mItemsAwaitingWearableUpdate;
 
 	/**
 	 * True if agent's outfit is being changed now.
@@ -250,6 +277,18 @@ private:
 	// Support classes
 	//--------------------------------------------------------------------------------
 private:
+
+	class createStandardWearablesAllDoneCallback : public LLRefCount
+	{
+	protected:
+		~createStandardWearablesAllDoneCallback();
+	};
+	class sendAgentWearablesUpdateCallback : public LLRefCount
+	{
+	protected:
+		~sendAgentWearablesUpdateCallback();
+	};
+
 	class AddWearableToAgentInventoryCallback : public LLInventoryCallback
 	{
 	public:
@@ -269,7 +308,7 @@ private:
 											LLViewerWearable* wearable,
 											U32 todo = CALL_NONE,
 											const std::string description = "");
-		virtual void fire(const LLUUID& inv_item);
+		void fire(const LLUUID& inv_item) override;
 	private:
 		LLWearableType::EType mType;
 		U32 mIndex;

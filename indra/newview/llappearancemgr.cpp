@@ -28,8 +28,6 @@
  
 #include "llviewerprecompiledheaders.h"
 
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
 #include "llaccordionctrltab.h"
 #include "llagent.h"
 #include "llagentcamera.h"
@@ -486,7 +484,7 @@ private:
 class LLTrackPhaseWrapper : public LLInventoryCallback
 {
 public:
-	LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = NULL):
+	LLTrackPhaseWrapper(const std::string& phase_name, LLPointer<LLInventoryCallback> cb = nullptr):
 		mTrackingPhase(phase_name),
 		mCB(cb)
 	{
@@ -646,6 +644,8 @@ public:
 	
 	void onWearableAssetFetch(LLViewerWearable *wearable);
 	void onAllComplete();
+
+// <polarity> TODO: Clean up these old patches if they aren't needed anymore
 
 // [SL:KB] - Patch: Appearance-COFCorruption | Checked: 2010-04-14 (Catznip-2.0)
 	bool pollStopped();
@@ -1642,7 +1642,7 @@ void LLAppearanceMgr::removeOutfitPhoto(const LLUUID& outfit_id)
         sub_cat_array,
         outfit_item_array,
         LLInventoryModel::EXCLUDE_TRASH);
-    BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+    for(LLViewerInventoryItem* outfit_item : outfit_item_array)
     {
         LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
         if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
@@ -2333,7 +2333,8 @@ void LLAppearanceMgr::updateCOF(LLInventoryModel::item_array_t& body_items_new,
 		base_contents["type"] = LLAssetType::AT_LINK_FOLDER; 
 		contents.append(base_contents);
 	}
-	if (gSavedSettings.getBOOL("DebugAvatarAppearanceMessage"))
+	static LLCachedControl<bool> debug_ava_appr_msg(gSavedSettings, "DebugAvatarAppearanceMessage");
+	if (debug_ava_appr_msg)
 	{
 		dump_sequential_xml(gAgentAvatarp->getFullname() + "_slam_request", contents);
 	}
@@ -3544,7 +3545,7 @@ void update_base_outfit_after_ordering()
 								sub_cat_array,
 								outfit_item_array,
 								LLInventoryModel::EXCLUDE_TRASH);
-	BOOST_FOREACH(LLViewerInventoryItem* outfit_item, outfit_item_array)
+	for(LLViewerInventoryItem* outfit_item : outfit_item_array)
 	{
 		LLViewerInventoryItem* linked_item = outfit_item->getLinkedItem();
 		if (linked_item != NULL && linked_item->getActualType() == LLAssetType::AT_TEXTURE)
@@ -3787,7 +3788,7 @@ LLSD LLAppearanceMgr::dumpCOF() const
 			LLUUID linked_asset_id(linked_item->getAssetUUID());
 			md5.update((unsigned char*)linked_asset_id.mData, 16);
 			U32 flags = linked_item->getFlags();
-			md5.update(boost::lexical_cast<std::string>(flags));
+			md5.update(std::to_string(flags));
 		}
 		else if (LLAssetType::AT_LINK_FOLDER != inv_item->getActualType())
 		{
@@ -4321,7 +4322,7 @@ bool LLAppearanceMgr::moveWearable(LLViewerInventoryItem* item, bool closer_to_b
 	bool result = false;
 	if ((result = gAgentWearables.moveWearable(item, closer_to_body)))
 	{
-		gAgentAvatarp->wearableUpdated(item->getWearableType());
+		gAgentAvatarp->wearableUpdated(item->getWearableType(), FALSE);
 	}
 
 	setOutfitDirty(true);
@@ -4641,7 +4642,7 @@ void wear_multiple(const uuid_vec_t& ids, bool replace)
     S32 other_count = 0;
     add_wearable_type_counts(ids, clothing_count, bodypart_count, object_count, other_count);
 
-    LLPointer<LLInventoryCallback> cb = NULL;
+    LLPointer<LLInventoryCallback> cb = nullptr;
     if (clothing_count > 0 || bodypart_count > 0)
     {
         cb = new LLUpdateAppearanceOnDestroy;

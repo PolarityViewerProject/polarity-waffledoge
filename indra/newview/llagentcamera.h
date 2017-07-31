@@ -62,6 +62,13 @@ enum ECameraPreset
 	/* Used by RLVa */
 	CAMERA_RLV_SETCAM_VIEW
 // [/RLVa:KB]
+
+/** "To the right of the Avatar, jaw height, facing forward and relatively close to the shoulder.
+	More "Cinematic" view and doesn't get in the way of the scenery as much as Rear view does.*/
+	CAMERA_PRESET_SHOULDER_VIEW,
+	
+	/** End variable for sanity checking CameraPreset's */ // <alchemy/>
+	CAMERA_PRESET_END
 };
 
 //------------------------------------------------------------------------
@@ -81,7 +88,7 @@ public:
 	void			init();
 	void			cleanup();
 	void		    setAvatarObject(LLVOAvatarSelf* avatar);
-	bool			isInitialized() { return mInitialized; }
+	bool			isInitialized() const { return mInitialized; }
 private:
 	bool			mInitialized;
 
@@ -133,18 +140,17 @@ private:
 public:
 	LLVector3d		getCameraPositionGlobal() const;
 	const LLVector3 &getCameraPositionAgent() const;
-	LLVector3d		calcCameraPositionTargetGlobal(BOOL *hit_limit = NULL); // Calculate the camera position target
-	F32				getCameraMinOffGround(); 		// Minimum height off ground for this mode, meters
+	LLVector3d		calcCameraPositionTargetGlobal(BOOL *hit_limit = nullptr); // Calculate the camera position target
+	F32				getCameraMinOffGround() const; 		// Minimum height off ground for this mode, meters
 	void			setCameraCollidePlane(const LLVector4 &plane) { mCameraCollidePlane = plane; }
 	BOOL			calcCameraMinDistance(F32 &obj_min_distance);
-	F32				getCurrentCameraBuildOffset() 	{ return (F32)mCameraFocusOffset.length(); }
+	F32				getCurrentCameraBuildOffset() const { return static_cast<F32>(mCameraFocusOffset.length()); }
 	void			clearCameraLag() { mCameraLag.clearVec(); }
 private:
 	F32				mCurrentCameraDistance;	 		// Current camera offset from avatar
 	F32				mTargetCameraDistance;			// Target camera offset from avatar
 	F32				mCameraFOVZoomFactor;			// Amount of fov zoom applied to camera when zeroing in on an object
 	F32				mCameraCurrentFOVZoomFactor;	// Interpolated fov zoom
-	F32				mCameraFOVDefault;				// Default field of view that is basis for FOV zoom effect
 	LLVector4		mCameraCollidePlane;			// Colliding plane for camera
 	F32				mCameraZoomFraction;			// Mousewheel driven fraction of zoom
 	LLVector3		mCameraPositionAgent;			// Camera position in agent coordinates
@@ -159,8 +165,7 @@ private:
 	// Follow
 	//--------------------------------------------------------------------
 public:
-	void			setUsingFollowCam(bool using_follow_cam);
-	bool 			isfollowCamLocked();
+	bool 			isfollowCamLocked() const;
 private:
 	LLFollowCam 	mFollowCam; 			// Ventrella
 
@@ -169,7 +174,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void			setupSitCamera();
-	BOOL			sitCameraEnabled() 		{ return mSitCameraEnabled; }
+	BOOL			sitCameraEnabled() const { return mSitCameraEnabled; }
 	void			setSitCamera(const LLUUID &object_id, 
 								 const LLVector3 &camera_pos = LLVector3::zero, const LLVector3 &camera_focus = LLVector3::zero);
 private:
@@ -183,7 +188,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void			setCameraAnimating(BOOL b)			{ mCameraAnimating = b; }
-	BOOL			getCameraAnimating()				{ return mCameraAnimating; }
+	BOOL			getCameraAnimating() const			{ return mCameraAnimating; }
 	void			setAnimationDuration(F32 seconds);
 	void			startCameraAnimation();
 	void			stopCameraAnimation();
@@ -199,7 +204,7 @@ private:
 	//--------------------------------------------------------------------
 public:
 	LLVector3d		calcFocusPositionTargetGlobal();
-	LLVector3		calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y);
+	LLVector3		calcFocusOffset(LLViewerObject *object, LLVector3 pos_agent, S32 x, S32 y) const;
 	BOOL			getFocusOnAvatar() const		{ return mFocusOnAvatar; }
 	LLPointer<LLViewerObject>&	getFocusObject() 	{ return mFocusObject; }
 	F32				getFocusObjectDist() const		{ return mFocusObjectDist; }
@@ -225,7 +230,6 @@ private:
 	LLPointer<LLViewerObject> mFocusObject;
 	F32				mFocusObjectDist;
 	LLVector3		mFocusObjectOffset;
-	F32				mFocusDotRadius; 				// Meters
 	BOOL			mTrackFocusObject;
 	
 	//--------------------------------------------------------------------
@@ -233,11 +237,11 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void			updateLookAt(const S32 mouse_x, const S32 mouse_y);
-	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+	BOOL			setLookAt(ELookAtType target_type, LLViewerObject *object = nullptr, LLVector3 position = LLVector3::zero);
 	ELookAtType		getLookAtType();
 	void			lookAtLastChat();
 	void 			slamLookAt(const LLVector3 &look_at); // Set the physics data
-	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = NULL, LLVector3 position = LLVector3::zero);
+	BOOL			setPointAt(EPointAtType target_type, LLViewerObject *object = nullptr, LLVector3 position = LLVector3::zero);
 	EPointAtType	getPointAtType();
 public:
 	LLPointer<LLHUDEffectLookAt> mLookAt;

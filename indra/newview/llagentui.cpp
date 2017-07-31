@@ -54,12 +54,15 @@ void LLAgentUI::buildFullname(std::string& name)
 //static
 void LLAgentUI::buildSLURL(LLSLURL& slurl, const bool escaped /*= true*/)
 {
-      LLSLURL return_slurl;
-      LLViewerRegion *regionp = gAgent.getRegion();
-      if (regionp)
-      {
-		  return_slurl = LLSLURL(regionp->getName(), gAgent.getPositionGlobal());
-      }
+	LLSLURL return_slurl;
+	LLViewerRegion *regionp = gAgent.getRegion();
+	if (regionp)
+	{
+		LLVector3d pos_global = gAgent.getPositionGlobal();
+		pos_global[0] = fmod(pos_global[0], regionp->getWidth());
+		pos_global[1] = fmod(pos_global[1], regionp->getWidth());
+		return_slurl = LLSLURL(regionp->getHGGrid(), regionp->getName(), pos_global);
+	}
 	slurl = return_slurl;
 }
 
