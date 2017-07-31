@@ -24,8 +24,11 @@
 */
 
 #pragma once
-#if !PV_TEMPLATE_LIB_H
-#define PV_TEMPLATE_LIB_H 1
+
+#ifndef PV_TEMPLATE_LIB_H
+#define PV_TEMPLATE_LIB_H
+#include <string>
+#include <iostream>
 
 // re-usable algorithm by Sebastian Mach (http://stackoverflow.com/a/6693128/1570096)
 // Follow the signature of std::getline. Allows us to stay completely

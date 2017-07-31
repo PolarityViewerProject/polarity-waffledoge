@@ -21,6 +21,8 @@
  * $/LicenseInfo$
  */
 
+#pragma once
+
 #ifndef PV_CONSTANTS_H
 #define PV_CONSTANTS_H
 #include <string>
