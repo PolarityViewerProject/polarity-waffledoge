@@ -358,46 +358,58 @@ namespace VSTool
             string version;
             System.IO.StreamReader solutionStreamReader = null;
             string firstLine;
+            string format;
 
             try
             {
-                solutionStreamReader = new System.IO.StreamReader(solutionFullFileName);
-                do
+                // Short-circuit here and chech for Visual Studio 15 2017 marker because the solution
+                // version is the same as VS 14 2015
+                format = System.IO.File.ReadLines(solutionFullFileName).Skip(1).Take(1).First();
+                if (format == "# Visual Studio 15")
                 {
-                    firstLine = solutionStreamReader.ReadLine();
+                    version = "VC141";
                 }
-                while (firstLine == "");
-
-                string format = firstLine.Substring(firstLine.LastIndexOf(" ")).Trim();
-
-                switch (format)
+                else
                 {
-                    case "7.00":
-                        version = "VC70";
-                        break;
+                    Console.WriteLine("Solution generator: " + format);
+                    solutionStreamReader = new System.IO.StreamReader(solutionFullFileName);
+                    do
+                    {
+                        firstLine = solutionStreamReader.ReadLine();
+                    }
+                    while (firstLine == "");
 
-                    case "8.00":
-                        version = "VC71";
-                        break;
+                    format = firstLine.Substring(firstLine.LastIndexOf(" ")).Trim();
 
-                    case "9.00":
-                        version = "VC80";
-                        break;
+                    switch (format)
+                    {
+                        case "7.00":
+                            version = "VC70";
+                            break;
 
-                    case "10.00":
-                        version = "VC90";
-                        break;
+                        case "8.00":
+                            version = "VC71";
+                            break;
 
-                    case "11.00":
-                        version = "VC100";
-                        break;
+                        case "9.00":
+                            version = "VC80";
+                            break;
 
-                    case "12.00":
-                        version = "VC140";
-                        break;
+                        case "10.00":
+                            version = "VC90";
+                            break;
 
-                    default:
-                        throw new ApplicationException("Unknown .sln version: " + format);
+                        case "11.00":
+                            version = "VC100";
+                            break;
+
+                        case "12.00":
+                            version = "VC140";
+                            break;
+
+                        default:
+                            throw new ApplicationException("Unknown .sln version: " + format);
+                    }
                 }
             }
             finally
@@ -438,6 +450,10 @@ namespace VSTool
 
                 case "VC140":
                     progid = "VisualStudio.DTE.14.0";
+                    break;
+
+                case "VC141":
+                    progid = "VisualStudio.DTE.15.0";
                     break;
 
                 default:
