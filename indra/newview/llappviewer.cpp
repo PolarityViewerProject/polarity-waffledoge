@@ -1499,26 +1499,24 @@ bool LLAppViewer::frame()
 
 		// Sleep and run background threads
 		{
+			// <polarity> TODO: Investigate consistency of performance for this function call
 			bool limiter_enabled = PVFPSMeter::update();
 			LL_RECORD_BLOCK_TIME(FTM_YIELD);
-			// Only limit FPS when we are actually rendering something. Otherwise logins, logouts
-			// and teleports take much longer to complete.
+			// Only limit FPS when we are actually rendering something. Otherwise logins, logouts and teleports take much longer to complete.
 			if(gViewerWindow && LLStartUp::getStartupState() == STATE_STARTED && !gTeleportDisplay && !logoutRequestSent())
 			{
 				S32 sleep_time = 0;
 				if(!gViewerWindow->getWindow()->getVisible() || !gFocusMgr.getAppHasFocus()) // Not visible or not focused
 				{
-					static LLCachedControl<bool> pause_background_threads(gSavedSettings, "BackgroundYieldPausesThreads",true, "Pause worker threads when yielding");
-					if(pause_background_threads)
+					
+					static LLCachedControl<S32> yield_time(gSavedSettings, "BackgroundYieldTime);
+					sleep_time = llclamp((S32)yield_time, 0, 5000); // <polarity> Increase max yield time to 5 seconds
+					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
+					if(sleep_time > 0)
 					{
 						// also pause worker threads during this wait period
 						LLAppViewer::getTextureCache()->pause();
 						LLAppViewer::getImageDecodeThread()->pause();
-					}
-					sleep_time = llclamp(gSavedSettings.getS32("BackgroundYieldTime"), 0, 5000); // <polarity> Increase max yield time to 5 seconds
-					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
-					if(sleep_time > 0)
-					{
 						ms_sleep(sleep_time);
 					}
 				}
