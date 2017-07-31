@@ -257,19 +257,6 @@
       <integer>0</integer>
     </map>
   -->
-    <key>ObsidianNavigationBarStyle</key>
-    <map>
-      <key>Comment</key>
-      <string>
-        0 = none, 1 = mini, 2 = navigation
-      </string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>U32</string>
-      <key>Value</key>
-      <integer>2</integer>
-    </map>
     <key>ObsidianRevokeObjectPerms</key>
     <map>
       <key>Comment</key>
