@@ -1509,7 +1509,7 @@ bool LLAppViewer::frame()
 				if(!gViewerWindow->getWindow()->getVisible() || !gFocusMgr.getAppHasFocus()) // Not visible or not focused
 				{
 					
-					static LLCachedControl<S32> yield_time(gSavedSettings, "BackgroundYieldTime);
+					static LLCachedControl<S32> yield_time(gSavedSettings, "BackgroundYieldTime");
 					sleep_time = llclamp((S32)yield_time, 0, 5000); // <polarity> Increase max yield time to 5 seconds
 					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
 					if(sleep_time > 0)
