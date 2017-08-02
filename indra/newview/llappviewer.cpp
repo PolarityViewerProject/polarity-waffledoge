@@ -3008,15 +3008,18 @@ void LLAppViewer::initStrings()
 		// translation strings into this one.
 		LLTrans::setDefaultArg(brackets, LLTrans::getString(nobrackets));
 	}
-	LLTrans::setDefaultArg("[APP_NAME]", app_name_str);
-	std::string capitalized_app_name = app_name_str;
-	// This function really should return something instead of being void...
-	LLStringUtil::toUpper(capitalized_app_name);
-	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
+	static std::string capitalized_app_name = "";
+	if(capitalized_app_name =="")
+	{
+		capitalized_app_name = app_name_str;
+		LLStringUtil::toUpper(capitalized_app_name);
+	}
 	static const std::string project_str = PROJECT_STRING;
 	static const std::string project_domain_str = PROJECT_DOMAIN;
 	static const std::string project_homepage_str = PROJECT_HOMEPAGE;
 	static const std::string project_update_url_str = PROJECT_UPDATE_URL;
+	LLTrans::setDefaultArg("[APP_NAME]", app_name_str);
+	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
 	LLTrans::setDefaultArg("[PROJECT_STRING]", project_str);
 	LLTrans::setDefaultArg("[PROJECT_DOMAIN]", project_domain_str);
 	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]", project_homepage_str);
@@ -3491,9 +3494,9 @@ LLSD LLAppViewer::getViewerInfo() const
 			LLVector3d pos = gAgent.getPositionGlobal();
 			info["POSITION"] = ll_sd_from_vector3d(pos);
 			info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-			info["REGION"] = gAgent.getRegion()->getName();
-			info["HOSTNAME"] = gAgent.getRegion()->getHost().getHostName();
-			info["HOSTIP"] = gAgent.getRegion()->getHost().getString();
+			info["REGION"] = region->getName();
+			info["HOSTNAME"] = region->getHost().getHostName();
+			info["HOSTIP"] = region->getHost().getString();
 //			info["SERVER_VERSION"] = gLastVersionChannel;
 			LLSLURL slurl;
 			LLAgentUI::buildSLURL(slurl);
