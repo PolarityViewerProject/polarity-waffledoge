@@ -1769,8 +1769,7 @@ bool LLAppViewer::cleanup()
     // Give any remaining SLPlugin instances a chance to exit cleanly.
     LLPluginProcessParent::shutdown();
 
-	// <FS:Ansariel> Cut down wait on logout; Need to terminate voice earlier because we need gServicePump!
-	//LLVoiceClient::getInstance()->terminate();
+	LLVoiceClient::getInstance()->terminate();
 	
 	disconnectViewer();
 
