@@ -1791,7 +1791,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 			if (mat)
 			{
-				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
+				//order is important here LLRender::DIFFUSE_MAP should be last, because it changes 
 				//(gGL).mCurrTextureUnitIndex
                 LLViewerTexture* specular = NULL;
                 if (LLPipeline::sImpostorRender && avatar->isVisuallyMuted())
