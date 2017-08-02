@@ -3283,7 +3283,7 @@ bool LLAppViewer::initWindow()
 	int watchdog_enabled_setting = gSavedSettings.getS32("WatchdogEnabled");
 	if (watchdog_enabled_setting == -1)
 	{
-		use_watchdog = LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
+		use_watchdog = !LLFeatureManager::getInstance()->isFeatureAvailable("WatchdogDisabled");
 	}
 	else
 	{
