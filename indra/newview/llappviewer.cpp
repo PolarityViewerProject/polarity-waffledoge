@@ -1680,8 +1680,13 @@ bool LLAppViewer::frame()
 			}
 		}
 
-		// <FS:Ansariel> Cut down wait on logout; Need to terminate voice here because we need gServicePump!
-		LLVoiceClient::getInstance()->terminate();
+	// stop our FPS meter logic
+	PVFPSMeter::stop();
+
+#ifdef PVDATA_SYSTEM
+	// stop PVData refresh timer
+	// gPVOldAPI->cleanup();
+#endif
 
 		delete gServicePump;
 
@@ -1728,13 +1733,6 @@ void LLAppViewer::flushVFSIO()
 
 bool LLAppViewer::cleanup()
 {
-	// stop our FPS meter logic
-	PVFPSMeter::stop();
-
-#ifdef PVDATA_SYSTEM
-	// stop PVData refresh timer
-	// gPVOldAPI->cleanup();
-#endif
 	//ditch LLVOAvatarSelf instance
 	gAgentAvatarp = NULL;
 
