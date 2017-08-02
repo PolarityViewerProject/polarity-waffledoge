@@ -39,7 +39,7 @@
 #include "llviewercontrol.h"
 #include "llwin32headerslean.h"
 
-#if LL_LINUX || LL_SOLARIS || LL_DARWIN
+#if LL_LINUX || LL_DARWIN
 # include "llfilepicker.h"
 #endif
 
@@ -66,7 +66,7 @@ bool LLDirPicker::check_local_file_access_enabled()
 	if ( ! local_file_system_browsing_enabled )
 	{
 		mDir.clear();	// Windows
-		mFileName = NULL; // Mac/Linux
+		mFileName = nullptr; // Mac/Linux
 		return false;
 	}
 
@@ -76,7 +76,7 @@ bool LLDirPicker::check_local_file_access_enabled()
 #if LL_WINDOWS
 
 LLDirPicker::LLDirPicker() :
-	mFileName(NULL),
+	mFileName(nullptr),
 	mLocked(false)
 {
 }
@@ -109,13 +109,13 @@ BOOL LLDirPicker::getDir(std::string* filename)
 
    bi.ulFlags   = BIF_USENEWUI;
    bi.hwndOwner = (HWND)gViewerWindow->getPlatformWindow();
-   bi.lpszTitle = NULL;
+   bi.lpszTitle = nullptr;
 
-   ::OleInitialize(NULL);
+   ::OleInitialize(nullptr);
 
    LPITEMIDLIST pIDL = ::SHBrowseForFolder(&bi);
 
-   if(pIDL != NULL)
+   if(pIDL != nullptr)
    {
       WCHAR buffer[_MAX_PATH] = {'\0'};
 
@@ -181,7 +181,7 @@ std::string LLDirPicker::getDirName()
 	return mFilePicker->getFirstFile();
 }
 
-#elif LL_LINUX || LL_SOLARIS
+#elif LL_LINUX
 
 LLDirPicker::LLDirPicker() :
 	mFileName(NULL),

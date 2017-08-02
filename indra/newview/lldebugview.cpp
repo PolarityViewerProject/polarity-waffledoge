@@ -46,7 +46,7 @@
 // Globals
 //
 
-LLDebugView* gDebugView = NULL;
+LLDebugView* gDebugView = nullptr;
 
 //
 // Methods
@@ -55,18 +55,18 @@ static LLDefaultChildRegistry::Register<LLDebugView> r("debug_view");
 
 LLDebugView::LLDebugView(const LLDebugView::Params& p)
 :	LLView(p),
-	mFastTimerView(NULL),
-	mDebugConsolep(NULL),
-	mFloaterSnapRegion(NULL)
+	mFastTimerView(nullptr),
+	mDebugConsolep(nullptr),
+	mFloaterSnapRegion(nullptr)
 {}
 
 LLDebugView::~LLDebugView()
 {
 	// These have already been deleted.  Fix the globals appropriately.
-	gDebugView = NULL;
-	gTextureView = NULL;
-	gSceneView = NULL;
-	gSceneMonitorView = NULL;
+	gDebugView = nullptr;
+	gTextureView = nullptr;
+	gSceneView = nullptr;
+	gSceneMonitorView = nullptr;
 }
 
 void LLDebugView::init()
@@ -94,15 +94,13 @@ void LLDebugView::init()
 	mFastTimerView = dynamic_cast<LLFastTimerView*>(LLFloaterReg::getInstance("block_timers"));
 
 	gSceneView = new LLSceneView(r);
-	gSceneView->setFollowsTop();
-	gSceneView->setFollowsLeft();
+	gSceneView->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 	gSceneView->setVisible(FALSE);
 	addChild(gSceneView);
 	gSceneView->setRect(rect);
 	
 	gSceneMonitorView = new LLSceneMonitorView(r);
-	gSceneMonitorView->setFollowsTop();
-	gSceneMonitorView->setFollowsLeft();
+	gSceneMonitorView->setFollows(FOLLOWS_TOP | FOLLOWS_LEFT);
 	gSceneMonitorView->setVisible(FALSE);
 	addChild(gSceneMonitorView);
 	gSceneMonitorView->setRect(rect);
@@ -110,7 +108,7 @@ void LLDebugView::init()
 	r.setLeftTopAndSize(25, rect.getHeight() - 50, (S32) (gViewerWindow->getWindowRectScaled().getWidth() * 0.75f), 
 									 (S32) (gViewerWindow->getWindowRectScaled().getHeight() * 0.75f));
 
-	r.set(150, rect.getHeight() - 50, 1030, 100);
+	r.set(150, rect.getHeight() - 50, 820, 100);
 	LLTextureView::Params tvp;
 	tvp.name("gTextureView");
 	tvp.rect(r);
@@ -123,7 +121,7 @@ void LLDebugView::init()
 
 void LLDebugView::draw()
 {
-	if (mFloaterSnapRegion == NULL)
+	if (mFloaterSnapRegion == nullptr)
 	{
 		mFloaterSnapRegion = getRootView()->getChildView("floater_snap_region");
 	}

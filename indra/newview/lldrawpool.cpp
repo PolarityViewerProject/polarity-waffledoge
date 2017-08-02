@@ -59,7 +59,7 @@ S32 LLDrawPool::sNumDrawPools = 0;
 //=============================
 LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 {
-	LLDrawPool *poolp = NULL;
+	LLDrawPool *poolp = nullptr;
 	switch (type)
 	{
 	case POOL_SIMPLE:
@@ -113,7 +113,7 @@ LLDrawPool *LLDrawPool::createPool(const U32 type, LLViewerTexture *tex0)
 		break;
 	default:
 		LL_ERRS() << "Unknown draw pool type!" << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 
 	llassert(poolp->mType == type);
@@ -136,7 +136,7 @@ LLDrawPool::~LLDrawPool()
 
 LLViewerTexture *LLDrawPool::getDebugTexture()
 {
-	return NULL;
+	return nullptr;
 }
 
 //virtual
@@ -294,7 +294,7 @@ void LLFacePool::resetDrawOrders()
 
 LLViewerTexture *LLFacePool::getTexture()
 {
-	return NULL;
+	return nullptr;
 }
 
 void LLFacePool::removeFaceReference(LLFace *facep)
@@ -383,12 +383,12 @@ LLRenderPass::~LLRenderPass()
 
 LLDrawPool* LLRenderPass::instancePool()
 {
-#ifdef LL_RELEASE_FOR_DOWNLOAD
+#if LL_RELEASE_FOR_DOWNLOAD
 	LL_WARNS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
 #else
 	LL_ERRS() << "Attempting to instance a render pass.  Invalid operation." << LL_ENDL;
 #endif
-	return NULL;
+	return nullptr;
 }
 
 void LLRenderPass::renderGroup(LLSpatialGroup* group, U32 type, U32 mask, BOOL texture)

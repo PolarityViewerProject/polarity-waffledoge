@@ -52,6 +52,18 @@ static const S32 msg_left_offset = 10;
 static const S32 msg_right_offset = 10;
 static const S32 msg_height_pad = 5;
 
+// <alchemy>
+void set_view_width(LLView* view, const LLSD& value)
+{
+ LLRect rect(view->getRect());
+ int width_diff(value.asInteger() - rect.getWidth());
+ if (!width_diff)
+   return;
+ rect.mRight += width_diff;
+ view->reshape(value, rect.getHeight(), true);
+}
+//<alchemy>
+
 //*******************************************************************************************************************
 // LLObjectHandler
 //*******************************************************************************************************************
@@ -62,7 +74,7 @@ class LLObjectHandler : public LLCommandHandler
 public:
 	LLObjectHandler() : LLCommandHandler("object", UNTRUSTED_BLOCK) { }
 
-	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web)
+	bool handle(const LLSD& params, const LLSD& query_map, LLMediaCtrl* web) override
 	{
 		if (params.size() < 2) return false;
 
@@ -129,6 +141,11 @@ void	LLFloaterIMNearbyChatToastPanel::reshape		(S32 width, S32 height, BOOL call
 
 BOOL LLFloaterIMNearbyChatToastPanel::postBuild()
 {
+	// <alchemy>
+	LLControlVariable* ctrl = gSavedSettings.getControl("AlchemyNearbyChatToastWidth");
+	ctrl->getSignal()->connect(boost::bind(set_view_width, this, _2));
+	set_view_width(this, ctrl->getValue());
+	// </alchemy>
 	return LLPanel::postBuild();
 }
 
@@ -144,6 +161,15 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 	
 	// <polarity> Centralize font size selection
 	//S32 font_size = notification["font_size"].asInteger();
+	//
+	//LLFontGL*       messageFont;
+	//switch(font_size)
+	//{
+	//	case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
+	//	default:
+	//	case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
+	//	case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+	//}
 	LLFontGL*       messageFont = LLConsole::getFontSize(notification["font_size"].asInteger());
 	// </polarity>
 
@@ -195,7 +221,16 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 	S32 font_size = notification["font_size"].asInteger();
 
 	// <polarity/> Centralize font size selection
+	//LLFontGL*       messageFont;
+	//switch(font_size)
+	//{
+	//	case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
+	//	default:
+	//	case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
+	//	case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+	//}
 	LLFontGL*       messageFont = LLConsole::getFontSize(font_size);
+	// <polarity>
 	
 	mMsgText = getChild<LLChatMsgBox>("msg_text", false);
 	mMsgText->setContentTrusted(false);
@@ -414,3 +449,4 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 		mIsDirty = false;
 	}
 }
+

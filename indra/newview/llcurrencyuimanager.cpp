@@ -28,9 +28,9 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include "lluictrlfactory.h"
 #include "lltextbox.h"
 #include "lllineeditor.h"
+#include "llpanel.h"
 #include "llresmgr.h" // for LLLocale
 #include "lltrans.h"
 #include "llviewercontrol.h"
@@ -46,7 +46,7 @@
 #include "llviewchildren.h"
 #include "llxmlrpctransaction.h"
 #include "llviewernetwork.h"
-#include "llpanel.h"
+#include "llviewerregion.h"
 
 
 const F64 CURRENCY_ESTIMATE_FREQUENCY = 2.0;
@@ -138,7 +138,7 @@ LLCurrencyUIManager::Impl::Impl(LLPanel& dialog)
 	mUserEnteredCurrencyBuy(false),
 	mSupportsInternationalBilling(false),
 	mBought(false),
-	mTransactionType(TransactionNone), mTransaction(0),
+	mTransactionType(TransactionNone), mTransaction(nullptr),
 	mCurrencyChanged(false)
 {
 	clearEstimate();
@@ -284,7 +284,9 @@ void LLCurrencyUIManager::Impl::startTransaction(TransactionType type,
 	static std::string transactionURI;
 	if (transactionURI.empty())
 	{
-		transactionURI = LLGridManager::getInstance()->getHelperURI() + "currency.php";
+		LLViewerRegion* region = gAgent.getRegion();
+		transactionURI = (region != nullptr) ? region->getBuyCurrencyServerURL()
+						 : LLGridManager::getInstance()->getHelperURI() + "currency.php";
 	}
 
 	delete mTransaction;
@@ -345,7 +347,7 @@ bool LLCurrencyUIManager::Impl::checkTransaction()
 		return false;
 	}
 
-	if (mTransaction->status(NULL) != LLXMLRPCTransaction::StatusComplete)
+	if (mTransaction->status(nullptr) != LLXMLRPCTransaction::StatusComplete)
 	{
 		setError(mTransaction->statusMessage(), mTransaction->statusURI());
 	}
@@ -359,7 +361,7 @@ bool LLCurrencyUIManager::Impl::checkTransaction()
 	}
 	
 	delete mTransaction;
-	mTransaction = NULL;
+	mTransaction = nullptr;
 	mTransactionType = TransactionNone;
 	
 	return true;
@@ -421,7 +423,8 @@ void LLCurrencyUIManager::Impl::currencyKey(S32 value)
 void LLCurrencyUIManager::Impl::onCurrencyKey(
 		LLLineEditor* caller, void* data)
 {
-	S32 value = atoi(caller->getText().c_str());
+    const std::string& input = caller->getText();
+    S32 value = (!input.empty()) ? std::stoi(input) : 0;
 	LLCurrencyUIManager::Impl* self = (LLCurrencyUIManager::Impl*)data;
 	self->currencyKey(value);
 }

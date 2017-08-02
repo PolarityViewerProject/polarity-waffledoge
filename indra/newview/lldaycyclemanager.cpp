@@ -198,7 +198,7 @@ void LLDayCycleManager::loadPresets(const std::string& dir)
 {
 	LLDirIterator dir_iter(dir, "*.xml");
 
-	while (1)
+	while (true)
 	{
 		std::string file;
 		if (!dir_iter.next(file)) break; // no more files
@@ -225,7 +225,6 @@ bool LLDayCycleManager::addPreset(const std::string& name, const LLSD& data)
 {
 	if (name.empty())
 	{
-		//llassert(name.empty());
 		return false;
 	}
 

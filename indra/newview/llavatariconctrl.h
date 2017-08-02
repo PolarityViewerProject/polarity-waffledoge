@@ -29,7 +29,6 @@
 
 #include "lliconctrl.h"
 #include "llavatarpropertiesprocessor.h"
-#include "llviewermenu.h"
 
 class LLAvatarName;
 
@@ -114,10 +113,10 @@ public:
 	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
 // [/SL:KB]
 
-	virtual void setValue(const LLSD& value);
+	void setValue(const LLSD& value) override;
 
 	// LLAvatarPropertiesProcessor observer trigger
-	virtual void processProperties(void* data, EAvatarProcessorType type);
+	void processProperties(void* data, EAvatarProcessorType type) override;
 
 	const LLUUID&		getAvatarId() const	{ return mAvatarId; }
 	const std::string&	getFullName() const { return mFullName; }
@@ -141,6 +140,7 @@ private:
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	boost::signals2::connection mAvatarNameCacheConnection;
+	LLCachedControl<bool> mUseDefaultImage;
 };
 
 #endif  // LL_LLAVATARICONCTRL_H

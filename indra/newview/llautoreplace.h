@@ -22,8 +22,6 @@
 #ifndef LLAUTOREPLACE_H
 #define LLAUTOREPLACE_H
 
-#include "lllineeditor.h"
-
 class LLAutoReplace;
 
 /** The configuration data for the LLAutoReplace object
@@ -203,7 +201,7 @@ public:
     void setSettings(const LLAutoReplaceSettings& settings);
 
 private:
-    /*virtual*/ void initSingleton();
+    /*virtual*/ void initSingleton() override;
 
     LLAutoReplaceSettings mSettings; ///< configuration information
 	

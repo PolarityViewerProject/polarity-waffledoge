@@ -64,7 +64,7 @@ static U32 sDataMask = LLDrawPoolAvatar::VERTEX_DATA_MASK;
 static U32 sBufferUsage = GL_STREAM_DRAW_ARB;
 static U32 sShaderLevel = 0;
 
-LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = NULL;
+LLGLSLShader* LLDrawPoolAvatar::sVertexProgram = nullptr;
 BOOL	LLDrawPoolAvatar::sSkipOpaque = FALSE;
 BOOL	LLDrawPoolAvatar::sSkipTransparent = FALSE;
 S32 LLDrawPoolAvatar::sDiffuseChannel = 0;
@@ -337,7 +337,7 @@ void LLDrawPoolAvatar::endDeferredRiggedAlpha()
 	sDiffuseChannel = 0;
 	normal_channel = -1;
 	specular_channel = -1;
-	sVertexProgram = NULL;
+	sVertexProgram = nullptr;
 }
 
 void LLDrawPoolAvatar::endPostDeferredPass(S32 pass)
@@ -454,7 +454,7 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 	{
 		LLVertexBuffer::unbind();
 		sVertexProgram->unbind();
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
@@ -547,11 +547,11 @@ void LLDrawPoolAvatar::render(S32 pass)
 	LL_RECORD_BLOCK_TIME(FTM_RENDER_CHARACTERS);
 	if (LLPipeline::sImpostorRender)
 	{
-		renderAvatars(NULL, pass+2);
+		renderAvatars(nullptr, pass+2);
 		return;
 	}
 
-	renderAvatars(NULL, pass); // render all avatars
+	renderAvatars(nullptr, pass); // render all avatars
 }
 
 void LLDrawPoolAvatar::beginRenderPass(S32 pass)
@@ -689,7 +689,7 @@ void LLDrawPoolAvatar::beginRigid()
 			sVertexProgram = &gObjectAlphaMaskNoColorProgram;
 		}
 		
-		if (sVertexProgram != NULL)
+		if (sVertexProgram != nullptr)
 		{	//eyeballs render with the specular shader
 			sVertexProgram->bind();
 			sVertexProgram->setMinimumAlpha(LLDrawPoolAvatar::sMinimumAlpha);
@@ -697,14 +697,14 @@ void LLDrawPoolAvatar::beginRigid()
 	}
 	else
 	{
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
 void LLDrawPoolAvatar::endRigid()
 {
 	sShaderLevel = mVertexShaderLevel;
-	if (sVertexProgram != NULL)
+	if (sVertexProgram != nullptr)
 	{
 		sVertexProgram->unbind();
 	}
@@ -733,7 +733,7 @@ void LLDrawPoolAvatar::endDeferredImpostor()
 	sVertexProgram->disableTexture(LLViewerShaderMgr::SPECULAR_MAP);
 	sVertexProgram->disableTexture(LLViewerShaderMgr::DIFFUSE_MAP);
 	gPipeline.unbindDeferredShader(*sVertexProgram);
-   sVertexProgram = NULL;
+   sVertexProgram = nullptr;
    sDiffuseChannel = 0;
 }
 
@@ -866,7 +866,7 @@ void LLDrawPoolAvatar::endRiggedSimple()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->unbind();
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
@@ -984,7 +984,7 @@ void LLDrawPoolAvatar::endRiggedFullbright()
 	if (sShaderLevel > 0 || gPipeline.canUseVertexShaders())
 	{
 		sVertexProgram->unbind();
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
@@ -1027,7 +1027,7 @@ void LLDrawPoolAvatar::endRiggedShinySimple()
 	{
 		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
@@ -1086,7 +1086,7 @@ void LLDrawPoolAvatar::endRiggedFullbrightShiny()
 	{
 		LLDrawPoolBump::unbindCubeMap(sVertexProgram, 2, sDiffuseChannel, cube_channel);
 		sVertexProgram->unbind();
-		sVertexProgram = NULL;
+		sVertexProgram = nullptr;
 	}
 }
 
@@ -1102,7 +1102,7 @@ void LLDrawPoolAvatar::endDeferredRiggedSimple()
 {
 	LLVertexBuffer::unbind();
 	sVertexProgram->unbind();
-	sVertexProgram = NULL;
+	sVertexProgram = nullptr;
 }
 
 void LLDrawPoolAvatar::beginDeferredRiggedBump()
@@ -1121,7 +1121,7 @@ void LLDrawPoolAvatar::endDeferredRiggedBump()
 	sVertexProgram->unbind();
 	normal_channel = -1;
 	sDiffuseChannel = 0;
-	sVertexProgram = NULL;
+	sVertexProgram = nullptr;
 }
 
 void LLDrawPoolAvatar::beginDeferredRiggedMaterial(S32 pass)
@@ -1163,7 +1163,7 @@ void LLDrawPoolAvatar::endDeferredRiggedMaterial(S32 pass)
 	sVertexProgram->unbind();
 	normal_channel = -1;
 	sDiffuseChannel = 0;
-	sVertexProgram = NULL;
+	sVertexProgram = nullptr;
 }
 
 void LLDrawPoolAvatar::beginDeferredSkinned()
@@ -1810,42 +1810,49 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 			{
 				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
 				//(gGL).mCurrTextureUnitIndex
-                LLViewerTexture* specular = NULL;
+                LLViewerTexture* specular = nullptr;
                 if (LLPipeline::sImpostorRender && avatar->isVisuallyMuted())
                 {
                     specular = LLViewerTextureManager::findFetchedTexture(gBlackSquareID, TEX_LIST_STANDARD);
                 }
                 else
                 {
-                    specular = face->getTexture(LLRender::SPECULAR_MAP);
+                    specular = face->getViewerObject()->getTESpecularMap(face->getTEOffset());
                 }
                 
 				gGL.getTexUnit(specular_channel)->bind(specular);
-				gGL.getTexUnit(normal_channel)->bind(face->getTexture(LLRender::NORMAL_MAP));
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(LLRender::DIFFUSE_MAP), false, true);
+				gGL.getTexUnit(normal_channel)->bind(face->getViewerObject()->getTENormalMap(face->getTEOffset()));
+				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture(), false, true);
 
-
-				LLColor4 col = mat->getSpecularLightColor();
-				F32 spec = mat->getSpecularLightExponent()/255.f;
-
-				F32 env = mat->getEnvironmentIntensity()/255.f;
-
-				if (mat->getSpecularID().isNull())
+				static const float alpha[4] =
 				{
-					env = te->getShiny()*0.25f;
-					col.set(env,env,env,0);
-					spec = env;
+					0.00f,
+					0.25f,
+					0.5f,
+					0.75f
+				};
+				float spec = alpha[te->getShiny() & TEM_SHINY_MASK];
+				LLColor4 specColor(spec, spec, spec, spec);
+				F32 env = spec;
+
+				if (!mat->getSpecularID().isNull())
+				{
+					specColor.mV[0] = mat->getSpecularLightColor().mV[0] * (1.f / 255.f);
+					specColor.mV[1] = mat->getSpecularLightColor().mV[1] * (1.f / 255.f);
+					specColor.mV[2] = mat->getSpecularLightColor().mV[2] * (1.f / 255.f);
+					specColor.mV[3] = mat->getSpecularLightExponent() * (1.f / 255.f);
+					env = mat->getEnvironmentIntensity() * (1.f / 255.f);
 				}
-		
+
 				BOOL fullbright = te->getFullbright();
 
 				sVertexProgram->uniform1f(LLShaderMgr::EMISSIVE_BRIGHTNESS, fullbright ? 1.f : 0.f);
-				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, col.mV[0], col.mV[1], col.mV[2], spec);
+				sVertexProgram->uniform4f(LLShaderMgr::SPECULAR_COLOR, specColor.mV[0], specColor.mV[1], specColor.mV[2], specColor.mV[3]);
 				sVertexProgram->uniform1f(LLShaderMgr::ENVIRONMENT_INTENSITY, env);
 
 				if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
 				{
-					sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff()/255.f);
+					sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff() * (1.f / 255.f));
 				}
 				else
 				{
@@ -2193,12 +2200,12 @@ LLViewerTexture *LLDrawPoolAvatar::getDebugTexture()
 {
 	if (mReferences.empty())
 	{
-		return NULL;
+		return nullptr;
 	}
 	LLFace *face = mReferences[0];
 	if (!face->getDrawable())
 	{
-		return NULL;
+		return nullptr;
 	}
 	const LLViewerObject *objectp = face->getDrawable()->getVObj();
 
@@ -2227,11 +2234,13 @@ void LLDrawPoolAvatar::addRiggedFace(LLFace* facep, U32 type)
 	facep->setRiggedIndex(type, mRiggedFace[type].size());
 	facep->setPool(this);
 	mRiggedFace[type].push_back(facep);
+
+	facep->mShinyInAlpha = type == RIGGED_DEFERRED_SIMPLE || type == RIGGED_DEFERRED_BUMP || type == RIGGED_FULLBRIGHT_SHINY || type == RIGGED_SHINY;
 }
 
 void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 {
-	facep->setPool(NULL);
+	facep->setPool(nullptr);
 
 	for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
 	{

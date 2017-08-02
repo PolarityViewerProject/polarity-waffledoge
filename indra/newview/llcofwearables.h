@@ -28,7 +28,6 @@
 #define LL_LLCOFWEARABLES_H
 
 // llui
-#include "llflatlistview.h"
 #include "llpanel.h"
 
 #include "llappearancemgr.h"
@@ -36,6 +35,7 @@
 
 class LLAccordionCtrl;
 class LLAccordionCtrlTab;
+class LLFlatListView;
 class LLListContextMenu;
 class LLPanelClothingListItem;
 class LLPanelBodyPartsListItem;
@@ -54,7 +54,7 @@ public:
 		LLCOFCallbacks() {};
 		virtual ~LLCOFCallbacks() {};
 		
-		typedef boost::function<void ()> cof_callback_t;
+		typedef std::function<void ()> cof_callback_t;
 
 		cof_callback_t mAddWearable;
 		cof_callback_t mMoveWearableCloser;
@@ -68,7 +68,7 @@ public:
 	LLCOFWearables();
 	virtual ~LLCOFWearables();
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 	
 	LLUUID getSelectedUUID();
 	bool getSelectedUUIDs(uuid_vec_t& selected_ids);
@@ -77,8 +77,8 @@ public:
 	void getSelectedItems(std::vector<LLPanel*>& selected_items) const;
 
 	/* Repopulate the COF wearables list if the COF category has been changed since the last refresh */
-	void refresh();
-	void clear();
+	void refresh() override;
+	void clear() override;
 
 	LLAssetType::EType getExpandedAccordionAssetType();
 	LLAssetType::EType getSelectedAccordionAssetType();

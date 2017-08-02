@@ -30,7 +30,6 @@
 #include "llchat.h"
 #include "llchatmsgbox.h"
 #include "llpanel.h"
-#include "llscrollbar.h"
 #include "llviewerchat.h"
 #include "lltoastpanel.h"
 
@@ -45,9 +44,9 @@ class LLFloaterIMNearbyChatToastPanel : public LLPanel
 {
 protected:
         LLFloaterIMNearbyChatToastPanel()
-		: 
-	mIsDirty(false),
-	mSourceType(CHAT_SOURCE_OBJECT)
+		:	mSourceType(CHAT_SOURCE_OBJECT),
+			mMsgText(nullptr),
+			mIsDirty(false)
 	{};
 public:
 	~LLFloaterIMNearbyChatToastPanel(){}
@@ -63,22 +62,22 @@ public:
 
 	bool	canAddText	();
 
-	void	onMouseLeave	(S32 x, S32 y, MASK mask);
-	void	onMouseEnter	(S32 x, S32 y, MASK mask);
-	BOOL	handleMouseDown	(S32 x, S32 y, MASK mask);
-	BOOL	handleMouseUp	(S32 x, S32 y, MASK mask);
+	void	onMouseLeave	(S32 x, S32 y, MASK mask) override;
+	void	onMouseEnter	(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseDown	(S32 x, S32 y, MASK mask) override;
+	BOOL	handleMouseUp	(S32 x, S32 y, MASK mask) override;
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
-	void	reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	void	reshape		(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 
 	void	setHeaderVisibility(EShowItemHeader e);
-	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask);
+	BOOL	handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 
 	virtual void init(LLSD& data);
 	virtual void addMessage(LLSD& data);
 
-	virtual void draw();
+	void draw() override;
 
 	//*TODO REMOVE, why a dup of getFromID?
 	const LLUUID&	messageID() const { return mFromID;}

@@ -51,11 +51,11 @@
 #include "llresmgr.h"
 
 #include "llbutton.h"
+#include "llscrolllistctrl.h"
 #include "lldir.h"
 #include "llnotificationsutil.h"
 #include "llviewerstats.h"
 #include "llvfile.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 
 #include "llselectmgr.h"
@@ -67,6 +67,8 @@
 // <polarity> LSL PreProc
 #include "pvscriptpreproc.h"
 // </polarity>
+
+#define LSL_PREPROCESSOR 1
 
 namespace
 {
@@ -82,16 +84,16 @@ namespace
         typedef boost::shared_ptr<ObjectInventoryFetcher> ptr_t;
 
         ObjectInventoryFetcher(LLEventPump &pump, LLViewerObject* object, void* user_data) :
-            mPump(pump),
-            LLVOInventoryListener()
+            LLVOInventoryListener(),
+            mPump(pump)
         {
             registerVOInventoryListener(object, this);
         }
 
-        virtual void inventoryChanged(LLViewerObject* object,
+	    void inventoryChanged(LLViewerObject* object,
             LLInventoryObject::object_list_t* inventory,
             S32 serial_num,
-            void* user_data);
+            void* user_data) override;
 
         void fetchInventory() 
         {
@@ -108,28 +110,37 @@ namespace
     class HandleScriptUserData
     {
     public:
-        // <FS:Ansariel> [LSL PreProc]
-        //HandleScriptUserData(const std::string &pumpname) :
-        //    mPumpname(pumpname)
-        //{ }
-        HandleScriptUserData(const std::string &pumpname, LLScriptQueueData* data) :
-            mPumpname(pumpname),
-            mData(data)
+        
+		HandleScriptUserData(const std::string &pumpname
+#ifdef LSL_PREPROCESSOR
+		// <FS:Ansariel> [LSL PreProc]
+		, LLScriptQueueData* data
+		// </FS:Ansariel>
+#endif
+		) : mPumpname(pumpname)
         { }
-        HandleScriptUserData()
+
+            mPumpname(pumpname)
+#ifdef LSL_PREPROCESSOR
+            ,mData(data) // <FS:Ansariel/>
+#endif
         { }
-        // </FS:Ansariel>
+
+	// Wat?
+	// HandleScriptUserData()
+    // { }     
 
         const std::string &getPumpName() const { return mPumpname; }
-
+#ifdef LSL_PREPROCESSOR
         // <FS:Ansariel> [LSL PreProc]
         LLScriptQueueData* getData() const { return mData; }
-
+#endif
     private:
         std::string mPumpname;
-
+#ifdef LSL_PREPROCESSOR
         // <FS:Ansariel> [LSL PreProc]
         LLScriptQueueData* mData;
+#endif
     };
 
 
@@ -144,14 +155,14 @@ public:
     LLQueuedScriptAssetUpload(LLUUID taskId, LLUUID itemId, LLUUID assetId, TargetType_t targetType,
             bool isRunning, std::string scriptName, LLUUID queueId, LLUUID exerienceId, taskUploadFinish_f finish) :
         LLScriptAssetUpload(taskId, itemId, targetType, isRunning, 
-            exerienceId, std::string(), finish),
-        mScriptName(scriptName),
-        mQueueId(queueId)
+                            exerienceId, std::string(), finish),
+        mQueueId(queueId),
+        mScriptName(scriptName)
     {
         setAssetId(assetId);
     }
 
-    virtual LLSD prepareUpload()
+	LLSD prepareUpload() override
     {
         /* *NOTE$: The parent class (LLScriptAssetUpload will attempt to save 
          * the script buffer into to the VFS.  Since the resource is already in 
@@ -189,20 +200,18 @@ private:
 ///----------------------------------------------------------------------------
 
 // <FS:KC> [LSL PreProc] moved to header
-#if 0
-struct LLScriptQueueData
-{
-	LLUUID mQueueID;
-	LLUUID mTaskId;
-	LLPointer<LLInventoryItem> mItem;
-	LLHost mHost;
-	LLUUID mExperienceId;
-	std::string mExperiencename;
-	LLScriptQueueData(const LLUUID& q_id, const LLUUID& task_id, LLInventoryItem* item) :
-		mQueueID(q_id), mTaskId(task_id), mItem(new LLInventoryItem(item)) {}
-
-};
-#endif
+//struct LLScriptQueueData
+//{
+//	LLUUID mQueueID;
+//	LLUUID mTaskId;
+//	LLPointer<LLInventoryItem> mItem;
+//	LLHost mHost;
+//	LLUUID mExperienceId;
+//	std::string mExperiencename;
+//	LLScriptQueueData(const LLUUID& q_id, const LLUUID& task_id, LLInventoryItem* item) :
+//		mQueueID(q_id), mTaskId(task_id), mItem(new LLInventoryItem(item)) {}
+//
+//};
 // </FS:KC>
 
 ///----------------------------------------------------------------------------
@@ -212,6 +221,8 @@ struct LLScriptQueueData
 // Default constructor
 LLFloaterScriptQueue::LLFloaterScriptQueue(const LLSD& key) :
 	LLFloater(key),
+	mMessages(nullptr),
+	mCloseBtn(nullptr),
 	mDone(false),
 	mMono(false)
 {
@@ -231,11 +242,13 @@ BOOL LLFloaterScriptQueue::postBuild()
 	return TRUE;
 }
 
+#ifdef LSL_PREPROCESSOR
 //nonstatic
 void LLFloaterScriptQueue::Close()
 {
 	this->closeFloater();
 }
+#endif
 
 // static
 void LLFloaterScriptQueue::onCloseBtn(void* user_data)
@@ -252,6 +265,7 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
 
 BOOL LLFloaterScriptQueue::start()
 {
+
 	LLNotificationsUtil::add("ConfirmScriptModify", LLSD(), LLSD(), boost::bind(&LLFloaterScriptQueue::onScriptModifyConfirmation, this, _1, _2));
 	return true;
 	/*
@@ -345,6 +359,7 @@ LLFloaterCompileQueue::LLFloaterCompileQueue(const LLSD& key)
 LLFloaterCompileQueue::~LLFloaterCompileQueue()
 { 
 	// <FS:Ansariel> [LSL PreProc]
+	mLSLProc = nullptr;
 	delete mLSLProc;
 }
 
@@ -943,21 +958,21 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         for (object_data_list_t::iterator itObj(objectList.begin()); (itObj != objectList.end()); ++itObj)
         {
             bool firstForObject = true;
-			auto object_ptr = (*itObj);
-            LLUUID object_id = object_ptr.mObjectId;
+			auto object_ptr = (*itObj); // <polarity/>
+            LLUUID object_id = object_ptr.mObjectId; // <polarity/>
             LL_INFOS("SCRIPTQ") << "Next object in queue with ID=" << object_id.asString() << LL_ENDL;
 
             LLPointer<LLViewerObject> obj = gObjectList.findObject(object_id);
             LLInventoryObject::object_list_t inventory;
             if (obj)
             {
-                ObjectInventoryFetcher::ptr_t fetcher(new ObjectInventoryFetcher(maildrop, obj, NULL));
+                ObjectInventoryFetcher::ptr_t fetcher(new ObjectInventoryFetcher(maildrop, obj, nullptr));
 
                 fetcher->fetchInventory();
 
                 LLStringUtil::format_map_t args;
-				auto object_name = object_ptr.mObjectName;
-                args["[OBJECT_NAME]"] = object_name;
+				auto object_name = object_ptr.mObjectName; // <polarity/>
+                args["[OBJECT_NAME]"] = object_name; // <polarity/>
                 floater->addStringMessage(floater->getString("LoadingObjInv", args));
 
                 LLSD result = llcoro::suspendUntilEventOnWithTimeout(maildrop, fetch_timeout,
@@ -969,7 +984,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                         ". Skipping to next object." << LL_ENDL;
 
                     LLStringUtil::format_map_t args;
-                    args["[OBJECT_NAME]"] = object_name;
+                    args["[OBJECT_NAME]"] = object_name; // <polarity/>
                     floater->addStringMessage(floater->getString("Timeout", args));
 
                     continue;
@@ -996,18 +1011,18 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 // note, we have a smart pointer to the obj above... but if we didn't we'd check that 
                 // it still exists here.
 
-				auto script_ptr = (*itInv);
+				auto script_ptr = (*itInv); // <polarity/>
 
-                if ((script_ptr->getType() == LLAssetType::AT_LSL_TEXT))
+                if ((script_ptr->getType() == LLAssetType::AT_LSL_TEXT)) // <polarity/>
                 {
-                    LL_DEBUGS("SCRIPTQ") << "Inventory item " << script_ptr->getUUID().asString() << "\"" << script_ptr->getName() << "\"" << LL_ENDL;
+                    LL_DEBUGS("SCRIPTQ") << "Inventory item " << script_ptr->getUUID().asString() << "\"" << script_ptr->getName() << "\"" << LL_ENDL; // <polarity/>
                     if (firstForObject)
                     {
                         //floater->addStringMessage(objName + ":");
                         firstForObject = false;
                     }
 
-                    if (!func(obj, script_ptr, maildrop))
+                    if (!func(obj, script_ptr, maildrop)) // <polarity/>
                     {
                         continue;
                     }

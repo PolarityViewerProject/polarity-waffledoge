@@ -28,8 +28,8 @@
 #define LL_LLCONVERSATIONMODEL_H
 
 #include "llavatarname.h"
-#include "../llui/llfolderviewitem.h"
-#include "../llui/llfolderviewmodel.h"
+#include "llfolderviewitem.h"
+#include "llfolderviewmodel.h"
 #include "llviewerfoldertype.h"
 
 // Implementation of conversations list
@@ -232,7 +232,7 @@ public:
 		SO_DISTANCE = 0x3,					// Sort by distance (valid only for participants in nearby chat)
 	};
 	// Default sort order is by type for sessions and by date for participants
-	static const U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
+	static constexpr U32 SO_DEFAULT = (SO_SESSION_TYPE << 16) | (SO_DATE);
 	
 	LLConversationFilter() { mEmpty.clear(); }
 	~LLConversationFilter() {}

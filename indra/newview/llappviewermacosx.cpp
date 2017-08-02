@@ -53,6 +53,7 @@
 #include <vector>
 #include <exception>
 
+#include "llsys_objc.h"
 #include "lldir.h"
 #include <signal.h>
 #include <CoreAudio/CoreAudio.h>	// for systemwide mute
@@ -210,29 +211,12 @@ bool LLAppViewerMacOSX::initParseCommandLine(LLCommandLineParser& clp)
 		return false;
 	}
 
-	// Get the user's preferred language string based on the Mac OS localization mechanism.
-	// To add a new localization:
-		// go to the "Resources" section of the project
-		// get info on "language.txt"
-		// in the "General" tab, click the "Add Localization" button
-		// create a new localization for the language you're adding
-		// set the contents of the new localization of the file to the string corresponding to our localization
-		//   (i.e. "en", "ja", etc.  Use the existing ones as a guide.)
-	CFURLRef url = CFBundleCopyResourceURL(CFBundleGetMainBundle(), CFSTR("language"), CFSTR("txt"), NULL);
-	char path[MAX_PATH];
-	if(CFURLGetFileSystemRepresentation(url, false, (UInt8 *)path, sizeof(path)))
+	std::string lang(LLSysDarwin::getPreferredLanguage());
+	LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
+	if(c)
 	{
-		std::string lang;
-		if(_read_file_into_string(lang, path))		/* Flawfinder: ignore*/
-		{
-            LLControlVariable* c = gSavedSettings.getControl("SystemLanguage");
-            if(c)
-            {
-                c->setValue(lang, false);
-            }
-		}
+		c->setValue(lang, false);
 	}
-	CFRelease(url);
 	
     return true;
 }
@@ -262,7 +246,7 @@ bool LLAppViewerMacOSX::restoreErrorTrap()
 	unsigned int reset_count = 0;
 	
 #define SET_SIG(S) 	sigaction(SIGABRT, &act, &old_act); \
-					if((unsigned int)act.sa_sigaction != (unsigned int) old_act.sa_sigaction) \
+					if((uintptr_t)act.sa_sigaction != (uintptr_t) old_act.sa_sigaction) \
 						++reset_count;
 	// Synchronous signals
 	SET_SIG(SIGABRT)
@@ -304,7 +288,7 @@ void LLAppViewerMacOSX::initCrashReporting(bool reportFreeze)
     std::string appname = gDirUtilp->getExecutableFilename();
     std::string str[] = { "-pid", pid_str.str(), "-dumpdir", logdir, "-procname", appname.c_str() };
     std::vector< std::string > args( str, str + ( sizeof ( str ) /  sizeof ( std::string ) ) );
-    LL_WARNS() << "about to launch mac-crash-logger" << pid_str << " " << logdir << " " << appname << LL_ENDL;
+    LL_WARNS() << "about to launch mac-crash-logger" << pid_str.str() << " " << logdir << " " << appname << LL_ENDL;
     launchApplication(&command_str, &args);
 }
 

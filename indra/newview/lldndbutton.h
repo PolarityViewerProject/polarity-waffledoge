@@ -47,7 +47,7 @@ public:
 
 	LLDragAndDropButton(const Params& params);
 
-	typedef boost::function<bool (
+	typedef std::function<bool (
 		S32 /*x*/, S32 /*y*/, MASK /*mask*/, BOOL /*drop*/,
 		EDragAndDropType /*cargo_type*/,
 		void* /*cargo_data*/,
@@ -70,7 +70,7 @@ public:
 		EDragAndDropType cargo_type,
 		void* cargo_data,
 		EAcceptance* accept,
-		std::string& tooltip_msg);
+		std::string& tooltip_msg) override;
 
 private:
 	drag_drop_handler_t mDragDropHandler;

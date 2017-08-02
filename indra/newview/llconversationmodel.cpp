@@ -39,8 +39,6 @@
 #include "llimview.h" //For LLIMModel
 #include "lltrans.h"
 
-#include <boost/foreach.hpp>
-
 //
 // Conversation items : common behaviors
 //
@@ -49,8 +47,8 @@ LLConversationItem::LLConversationItem(std::string display_name, const LLUUID& u
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(display_name),
 	mUUID(uuid),
-	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
+	mNeedsRefresh(true),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
 	mDisplayGroupBanOptions(false),
@@ -62,8 +60,8 @@ LLConversationItem::LLConversationItem(const LLUUID& uuid, LLFolderViewModelInte
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
 	mUUID(uuid),
-	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
+	mNeedsRefresh(true),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
 	mDisplayGroupBanOptions(false),
@@ -75,8 +73,8 @@ LLConversationItem::LLConversationItem(LLFolderViewModelInterface& root_view_mod
 	LLFolderViewModelItemCommon(root_view_model),
 	mName(""),
 	mUUID(),
-	mNeedsRefresh(true),
 	mConvType(CONV_UNKNOWN),
+	mNeedsRefresh(true),
 	mLastActiveTime(0.0),
 	mDisplayModeratorOptions(false),
 	mDisplayGroupBanOptions(false),
@@ -131,11 +129,13 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("voice_call"));
 		items.push_back(std::string("remove_friends"));
+		items.push_back(std::string("separator_utilities"));
+		items.push_back(std::string("avatar_tools_menu"));
 	}
 	else 
 	{
 		items.push_back(std::string("view_profile"));
-		items.push_back(std::string("copy_info"));
+		items.push_back(std::string("copy_info")); // <polarity/>
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));
@@ -170,6 +170,9 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 		items.push_back(std::string("pay"));
 		items.push_back(std::string("block_unblock"));
 		items.push_back(std::string("MuteText"));
+		items.push_back(std::string("ReportAbuse"));
+		items.push_back(std::string("separator_utilities"));
+		items.push_back(std::string("avatar_tools_menu"));
 
 		if ((getType() != CONV_SESSION_1_ON_1) && mDisplayModeratorOptions)
 		{
@@ -278,8 +281,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 		// In the case of a P2P conversation, we need to grab the name of the other participant in the session instance itself
 		// as we do not create participants for such a session.
 
-		LLFolderViewModelItem * itemp;
-		BOOST_FOREACH(itemp, mChildren)
+		for (LLFolderViewModelItem* itemp : mChildren)
 		{
 			LLConversationItem* current_participant = dynamic_cast<LLConversationItem*>(itemp);
 			// Add the avatar uuid to the list (except if it's the own agent uuid)
@@ -304,7 +306,7 @@ void LLConversationItemSession::updateName(LLConversationItemParticipant* partic
 		std::string new_session_name;
 		LLAvatarActions::buildResidentsString(temp_uuids, new_session_name);
 		renameItem(new_session_name);
-		postEvent("update_session", this, NULL);
+		postEvent("update_session", this, nullptr);
 	}
 }
 
@@ -336,7 +338,7 @@ LLConversationItemParticipant* LLConversationItemSession::findParticipant(const 
 {
 	// This is *not* a general tree parsing algorithm. It assumes that a session contains only 
 	// items (LLConversationItemParticipant) that have themselve no children.
-	LLConversationItemParticipant* participant = NULL;
+	LLConversationItemParticipant* participant = nullptr;
 	child_list_t::iterator iter;
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
 	{
@@ -412,6 +414,8 @@ void LLConversationItemSession::buildContextMenu(LLMenuGL& menu, U32 flags)
         items.push_back(std::string("group_profile"));
         items.push_back(std::string("activate_group"));
         items.push_back(std::string("leave_group"));
+	items.push_back(std::string("separator_utilities"));
+	items.push_back(std::string("group_tools_menu"));
     }
     else if(this->getType() == CONV_SESSION_AD_HOC)
     {
@@ -446,7 +450,7 @@ const bool LLConversationItemSession::getTime(F64& time) const
 {
 	F64 most_recent_time = mLastActiveTime;
 	bool has_time = (most_recent_time > 0.1);
-	LLConversationItemParticipant* participant = NULL;
+	LLConversationItemParticipant* participant = nullptr;
 	child_list_t::const_iterator iter;
 	for (iter = mChildren.begin(); iter != mChildren.end(); iter++)
 	{
@@ -492,7 +496,7 @@ void LLConversationItemSession::onAvatarNameCache(const LLAvatarName& av_name)
 	}
 
 	renameItem(av_name.getDisplayName());
-	postEvent("update_session", this, NULL);
+	postEvent("update_session", this, nullptr);
 }
 
 //
@@ -552,10 +556,10 @@ void LLConversationItemParticipant::updateName(const LLAvatarName& av_name)
 	}
 	
 	renameItem(mDisplayName);
-	if (mParent != NULL)
+	if (mParent != nullptr)
 	{
 		LLConversationItemSession* parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
-		if (parent_session != NULL)
+		if (parent_session != nullptr)
 		{
 			parent_session->requestSort();
 			parent_session->updateName(this);
@@ -576,7 +580,7 @@ void LLConversationItemParticipant::buildContextMenu(LLMenuGL& menu, U32 flags)
 
 LLConversationItemSession* LLConversationItemParticipant::getParentSession()
 {
-	LLConversationItemSession* parent_session = NULL;
+	LLConversationItemSession* parent_session = nullptr;
 	if (hasParent())
 	{
 		parent_session = dynamic_cast<LLConversationItemSession*>(mParent);
@@ -605,12 +609,12 @@ bool LLConversationItemParticipant::isVoiceMuted()
 
 void LLConversationItemParticipant::muteVoice(bool mute_voice)
 {
-	std::string name;
-	gCacheName->getFullName(mUUID, name);
+	LLAvatarName av_name;
+	LLAvatarNameCache::get(mUUID, &av_name);
 	LLMuteList * mute_listp = LLMuteList::getInstance();
-	bool voice_already_muted = mute_listp->isMuted(mUUID, name);
+	bool voice_already_muted = mute_listp->isMuted(mUUID, av_name.getUserName());
 
-	LLMute mute(mUUID, name, LLMute::AGENT);
+	LLMute mute(mUUID, av_name.getUserName(), LLMute::AGENT);
 	if (voice_already_muted && !mute_voice)
 	{
 		mute_listp->remove(mute);

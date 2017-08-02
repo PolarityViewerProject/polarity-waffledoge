@@ -43,11 +43,13 @@
 #define LL_LLAPPVIEWER_H
 
 #include "llallocator.h"
+#include "llapp.h"
 #include "llapr.h"
 #include "llcontrol.h"
 #include "llsys.h"			// for LLOSInfo
 #include "lltimer.h"
 #include "llappcorehttp.h"
+#include "lltrace.h"
 
 class LLCommandLineParser;
 class LLFrameTimer;
@@ -82,9 +84,9 @@ public:
 	//
 	// Main application logic
 	//
-	virtual bool init();			// Override to do application initialization
-	virtual bool cleanup();			// Override to do application cleanup
-	virtual bool frame(); // Override for application body logic
+	bool init() override;			// Override to do application initialization
+	bool cleanup() override;			// Override to do application cleanup
+	bool frame() override; // Override for application body logic
 
 	// Application control
 	void flushVFSIO(); // waits for vfs transfers to complete
@@ -116,7 +118,6 @@ public:
 	                                     // return false if the error trap needed restoration.
 	virtual void initCrashReporting(bool reportFreeze = false) = 0; // What to do with crash report?
 	static void handleViewerCrash(); // Hey! The viewer crashed. Do this, soon.
-    void checkForCrash();
     
 	// Thread accessors
 	static LLTextureCache* getTextureCache() { return sTextureCache; }
@@ -154,11 +155,6 @@ public:
     virtual void forceErrorSoftwareException();
     virtual void forceErrorDriverCrash();
 
-	// The list is found in app_settings/settings_files.xml
-	// but since they are used explicitly in code,
-	// the follow consts should also do the trick.
-	static const std::string sGlobalSettingsName; 
-
 	LLCachedControl<bool> mRandomizeFramerate; 
 	LLCachedControl<bool> mPeriodicSlowFrame; 
 
@@ -177,7 +173,6 @@ public:
 	// llworld, send_agent_pause() also controls pause/resume.
 
 	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-
 	// void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 	void initMainloopTimeout( char const *state, F32 secs = -1.0f);
 
@@ -187,7 +182,6 @@ public:
 	void pauseMainloopTimeout();
 
 	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-
 	// void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
 	// void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 	void resumeMainloopTimeout( char const *state = "", F32 secs = -1.0f);
@@ -215,7 +209,7 @@ public:
 	login_completed_signal_t mOnLoginCompleted;
 	boost::signals2::connection setOnLoginCompletedCallback( const login_completed_signal_t::slot_type& cb ) { return mOnLoginCompleted.connect(cb); } 
 
-	void addOnIdleCallback(const boost::function<void()>& cb); // add a callback to fire (once) when idle
+	void addOnIdleCallback(const std::function<void()>& cb); // add a callback to fire (once) when idle
 
 	void purgeCache(); // Clear the local cache. 
 	void purgeCacheImmediate(); //clear local cache immediately.
@@ -236,6 +230,7 @@ protected:
 	virtual bool initWindow(); // Initialize the viewer's window.
 	virtual void initLoggingAndGetLastDuration(); // Initialize log files, logging system
 	virtual void initConsole() {}; // Initialize OS level debugging console.
+	virtual bool initHardwareTest() { return true; } // A false result indicates the app should quit.
 	virtual bool initSLURLHandler();
 	virtual bool sendURLToOtherInstance(const std::string& url);
 
@@ -329,7 +324,7 @@ private:
 	// for tracking viewer<->region circuit death
 	bool mAgentRegionLastAlive;
 	LLUUID mAgentRegionLastID;
-	
+
     LLAllocator mAlloc;
 
 	LLFrameTimer mMemCheckTimer;

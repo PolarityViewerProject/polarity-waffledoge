@@ -41,8 +41,8 @@
 #include "llnotificationstorage.h"
 #include "llscriptfloater.h"
 #include "llsd.h"
-#include "llsingleton.h"
 #include "lluuid.h"
+#include "llviewercontrol.h"
 
 static const F32 DND_TIMER = 3.0;
 const char * LLDoNotDisturbNotificationStorage::toastName = "IMToast";
@@ -197,7 +197,7 @@ void LLDoNotDisturbNotificationStorage::loadNotifications()
 		{
 			notification = (LLNotificationPtr) new LLNotification(notification_params.with("is_dnd", true));
 			LLNotificationResponderInterface* responder = createResponder(notification_params["responder_sd"]["responder_type"], notification_params["responder_sd"]);
-			if (responder == NULL)
+			if (responder == nullptr)
 			{
 				LL_WARNS("LLDoNotDisturbNotificationStorage") << "cannot create responder for notification of type '"
 					<< notification->getType() << "'" << LL_ENDL;

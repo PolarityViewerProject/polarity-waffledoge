@@ -32,12 +32,12 @@
 #include "v3dmath.h"	// LLVector3d
 
 // For Flags in AvatarPropertiesReply
-const U32 AVATAR_ALLOW_PUBLISH			= 0x1 << 0;	// whether profile is externally visible or not
-const U32 AVATAR_MATURE_PUBLISH			= 0x1 << 1;	// profile is "mature"
-const U32 AVATAR_IDENTIFIED				= 0x1 << 2;	// whether avatar has provided payment info
-const U32 AVATAR_TRANSACTED				= 0x1 << 3;	// whether avatar has actively used payment info
-const U32 AVATAR_ONLINE					= 0x1 << 4; // the online status of this avatar, if known.
-const U32 AVATAR_AGEVERIFIED			= 0x1 << 5;	// whether avatar has been age-verified
+constexpr U32 AVATAR_ALLOW_PUBLISH			= 0x1 << 0;	// whether profile is externally visible or not
+constexpr U32 AVATAR_MATURE_PUBLISH			= 0x1 << 1;	// profile is "mature"
+constexpr U32 AVATAR_IDENTIFIED				= 0x1 << 2;	// whether avatar has provided payment info
+constexpr U32 AVATAR_TRANSACTED				= 0x1 << 3;	// whether avatar has actively used payment info
+constexpr U32 AVATAR_ONLINE					= 0x1 << 4; // the online status of this avatar, if known.
+constexpr U32 AVATAR_AGEVERIFIED			= 0x1 << 5;	// whether avatar has been age-verified
 
 /*
 *TODO Vadim: This needs some refactoring:
@@ -54,6 +54,7 @@ enum EAvatarProcessorType
 	APT_PICKS,
 	APT_PICK_INFO,
 	APT_TEXTURES,
+	APT_INTERESTS,
 	APT_CLASSIFIEDS,
 	APT_CLASSIFIED_INFO
 };
@@ -175,6 +176,17 @@ struct LLAvatarClassifiedInfo
 	S32 price_for_listing;
 };
 
+struct LLAvatarInterests
+{
+	LLUUID      agent_id;
+	LLUUID      avatar_id; //target id
+	U32         want_to_mask;
+	std::string want_to_text;
+	U32         skills_mask;
+	std::string skills_text;
+	std::string languages_text;
+};
+
 class LLAvatarPropertiesObserver
 {
 public:
@@ -212,6 +224,8 @@ public:
 	void sendPickInfoUpdate(const LLPickData* new_pick);
 
 	void sendClassifiedInfoUpdate(const LLAvatarClassifiedInfo* c_data);
+	
+	void sendInterestsUpdate(const LLAvatarInterests* i_data);
 
 	void sendFriendRights(const LLUUID& avatar_id, S32 rights);
 

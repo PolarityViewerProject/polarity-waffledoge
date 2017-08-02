@@ -294,7 +294,7 @@ set(polarity_HEADER_FILES
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
-    pvchathistory.cpp
+    #pvchathistory.cpp
     pvcommon.cpp
     pvfloaterprogressview.cpp
     pvfpsmeter.cpp
