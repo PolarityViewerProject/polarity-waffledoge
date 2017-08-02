@@ -1491,7 +1491,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
     LLVolume* volume,
     const LLVolumeFace& vol_face)
 {
-	static LLCachedControl<bool> skip_broken_face(gSavedSettings, "PVDebug_SkipOutOfBoundsFaces", false);
+	static LLCachedControl<bool> skip_broken_face(gSavedSettings, "PVDebug_SkipOutOfBoundsFaces", true);
 	// <FS:ND> FIRE-14261 try to skip broken or out of bounds faces
 	if(skip_broken_face && (vol_face.mNumVertices > 0x10000 || vol_face.mNumVertices < 0 || vol_face.mNumIndices < 0 ))
 	{
