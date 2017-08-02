@@ -274,7 +274,7 @@ void LLHUDEffectLookAt::packData(LLMessageSystem *mesgsys)
 	ELookAtType target_type = mTargetType;
 	LLViewerObject* objectp = mTargetObject;
 	LLVector3d pos = mTargetOffsetGlobal;
-	static LLCachedControl<bool> is_lookat_private(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", false);
+	static LLCachedControl<bool> is_lookat_private(gSavedSettings, "PVPrivacy_LookAtPrivate", false);
 	if (is_lookat_private && gAgent.getID() == mSourceObject->getID())
 	{
 		target_type = LOOKAT_TARGET_NONE;

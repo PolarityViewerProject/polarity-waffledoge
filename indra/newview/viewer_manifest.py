@@ -339,52 +339,6 @@ class WindowsManifest(ViewerManifest):
     def final_exe(self):
         return self.app_name_oneword()+".exe"
 
-    def test_msvcrt_and_copy_action(self, src, dst):
-        # This is used to test a dll manifest.
-        # It is used as a temporary override during the construct method
-        from test_win32_manifest import test_assembly_binding
-        if src and (os.path.exists(src) or os.path.islink(src)):
-            # ensure that destination path exists
-            self.cmakedirs(os.path.dirname(dst))
-            self.created_paths.append(dst)
-            if not os.path.isdir(src):
-                if(self.args['configuration'].lower() == 'debug'):
-                    test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "8.0.50727.4053")
-                else:
-                    test_assembly_binding(src, "Microsoft.VC80.CRT", "8.0.50727.4053")
-                self.ccopy(src,dst)
-            else:
-                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
-        else:
-            print "Doesn't exist:", src
-
-    def test_for_no_msvcrt_manifest_and_copy_action(self, src, dst):
-        # This is used to test that no manifest for the msvcrt exists.
-        # It is used as a temporary override during the construct method
-        from test_win32_manifest import test_assembly_binding
-        from test_win32_manifest import NoManifestException, NoMatchingAssemblyException
-        if src and (os.path.exists(src) or os.path.islink(src)):
-            # ensure that destination path exists
-            self.cmakedirs(os.path.dirname(dst))
-            self.created_paths.append(dst)
-            if not os.path.isdir(src):
-                try:
-                    if(self.args['configuration'].lower() == 'debug'):
-                        test_assembly_binding(src, "Microsoft.VC80.DebugCRT", "")
-                    else:
-                        test_assembly_binding(src, "Microsoft.VC80.CRT", "")
-                    raise Exception("Unknown condition")
-                except NoManifestException, err:
-                    pass
-                except NoMatchingAssemblyException, err:
-                    pass
-
-                self.ccopy(src,dst)
-            else:
-                raise Exception("Directories are not supported by test_CRT_and_copy_action()")
-        else:
-            print "Doesn't exist:", src
-
     def construct(self):
         super(WindowsManifest, self).construct()
 
@@ -403,7 +357,7 @@ class WindowsManifest(ViewerManifest):
         # Plugin host application
         self.path2basename(os.path.join(os.pardir,
                                         'llplugin', 'slplugin', self.args['configuration']),
-                           "slplugin.exe")
+                           "PolarityPlugin.exe")
 
         self.path2basename("../viewer_components/updater/scripts/windows", "update_install.bat")
         # Get shared libs from the shared libs staging directory
@@ -428,6 +382,13 @@ class WindowsManifest(ViewerManifest):
                 print err.message
                 print "Skipping GLOD library (assumming linked statically)"
 
+            # Get fmodex dll, continue if missing
+            try:
+                self.path("alut.dll")
+                self.path("OpenAL32.dll")
+            except:
+                print "Skipping openal audio library(assuming other audio engine)"
+
             # For textures
             if self.args['configuration'].lower() == 'debug':
                 self.path("openjpegd.dll")
@@ -435,12 +396,14 @@ class WindowsManifest(ViewerManifest):
                 self.path("openjpeg.dll")
 
             # Vivox runtimes
-            self.path("SLVoice.exe")
-            self.path("vivoxsdk.dll")
-            self.path("ortp.dll")
-            self.path("libsndfile-1.dll")
-            self.path("vivoxoal.dll")
-            self.path("ca-bundle.crt")
+            if self.prefix(src="", dst="voice"):
+                self.path("SLVoice.exe")
+                self.path("vivoxsdk.dll")
+                self.path("ortp.dll")
+                self.path("libsndfile-1.dll")
+                self.path("vivoxoal.dll")
+                self.path("ca-bundle.crt")
+                self.end_prefix()
 
             # Hunspell
             self.path("libhunspell.dll")
@@ -457,11 +420,11 @@ class WindowsManifest(ViewerManifest):
             # For Intel threading building blocks
             try:
                 if self.args['configuration'].lower() == 'debug':
-                    self.path('tbbmalloc_proxy_debug.dll')
                     self.path('tbbmalloc_debug.dll')
+                    self.path('tbbmalloc_proxy_debug.dll')
                 else:
-                    self.path('tbbmalloc_proxy.dll')
                     self.path('tbbmalloc.dll')
+                    self.path('tbbmalloc_proxy.dll')
             except:
                 print "Skipping tbbmalloc dlls"
 
@@ -480,7 +443,6 @@ class WindowsManifest(ViewerManifest):
         if self.prefix(src='../media_plugins/libvlc/%s' % self.args['configuration'], dst="llplugin"):
             self.path("media_plugin_libvlc.dll")
             self.end_prefix()
-
 
         # CEF runtime files - debug
         if self.args['configuration'].lower() == 'debug':
@@ -632,8 +594,28 @@ class WindowsManifest(ViewerManifest):
                 prev = d
 
         return result
+	
+    def sign_command(self, *argv):
+        return [
+            "signtool.exe", "sign", "/v",
+            "/n", self.args['signature'],
+            "/p", os.environ['VIEWER_SIGNING_PWD'],
+            "/d","%s" % self.channel(),
+            "/t","http://timestamp.comodoca.com/authenticode"
+        ] + list(argv)
+	
+    def sign(self, *argv):
+        subprocess.check_call(self.sign_command(*argv))
 
     def package_finish(self):
+        if 'signature' in self.args and 'VIEWER_SIGNING_PWD' in os.environ:
+            try:
+                self.sign(self.args['configuration']+"\\"+self.final_exe())
+                self.sign(self.args['configuration']+"\\PolarityPlugin.exe")
+                self.sign(self.args['configuration']+"\\SLVoice.exe")
+            except:
+                print "Couldn't sign binaries. Tried to sign %s" % self.args['configuration'] + "\\" + self.final_exe()
+		
         # a standard map of strings for replacing in the templates
         substitution_strings = {
             'version' : '.'.join(self.args['version']),
@@ -648,13 +630,6 @@ class WindowsManifest(ViewerManifest):
 
         installer_file = self.installer_base_name() + '_Setup.exe'
         substitution_strings['installer_file'] = installer_file
-
-        version_vars = """
-        #!define INSTEXE  "%(final_exe)s"
-        #!define VERSION "%(version_short)s"
-        #!define VERSION_LONG "%(version)s"
-        #!define VERSION_DASHES "%(version_dashes)s"
-        """ % substitution_strings
 
         if self.channel_type() == 'release':
             substitution_strings['caption'] = CHANNEL_VENDOR_BASE
@@ -675,16 +650,16 @@ class WindowsManifest(ViewerManifest):
                 !define VENDORSTR "Polarity Viewer Project ><(((°>"
                 """
 
-            tempfile = "polarity_setup_tmp.nsi"
-            # the following replaces strings in the nsi template
-            # it also does python-style % substitution
-            self.replace_in("installers/windows/installer_template.nsi", tempfile, {
-                     "%%SOURCE%%":self.get_src_prefix(),
-                     "%%INST_VARS%%":inst_vars_template % substitution_strings,
-                     "%%INSTALL_FILES%%":self.nsi_file_commands(True),
-                     "%%DELETE_FILES%%":self.nsi_file_commands(False),
-                     "%%WIN64_BIN_BUILD%%":"!define WIN64_BIN_BUILD 1" if self.is_win64() else "",
-                     })
+        tempfile = "polarity_setup_tmp.nsi"
+        # the following replaces strings in the nsi template
+        # it also does python-style % substitution
+        self.replace_in("installers/windows/installer_template.nsi", tempfile, {
+                "%%SOURCE%%":self.get_src_prefix(),
+                "%%INST_VARS%%":inst_vars_template % substitution_strings,
+                "%%INSTALL_FILES%%":self.nsi_file_commands(True),
+                "%%DELETE_FILES%%":self.nsi_file_commands(False),
+                "%%WIN64_BIN_BUILD%%":"!define WIN64_BIN_BUILD 1" if self.is_win64() else "",
+                })
 
         # We use the Unicode version of NSIS, available from
         # http://www.scratchpaper.com/
@@ -739,21 +714,6 @@ class WindowsManifest(ViewerManifest):
                 else:
                     print >> sys.stderr, "Maximum WinRAR attempts exceeded; giving up"
                     # raise
-        # Remove the temporary NSIS script
-        self.remove(self.dst_path_of(tempfile))
-        # If we're on a build machine, sign the code using our Authenticode certificate. JC
-        #sign_py = os.path.expandvars("${SIGN}")
-        #if not sign_py or sign_py == "${SIGN}":
-        #    sign_py = 'C:\\buildscripts\\code-signing\\sign.py'
-        #else:
-        #    sign_py = sign_py.replace('\\', '\\\\\\\\')
-        #python = os.path.expandvars("${PYTHON}")
-        #if not python or python == "${PYTHON}":
-        #    python = 'python'
-        #if os.path.exists(sign_py):
-        #    self.run_command("%s %s %s" % (python, sign_py, self.dst_path_of(installer_file).replace('\\', '\\\\\\\\')))
-        #else:
-        #    print "Skipping code signing,", sign_py, "does not exist"
         self.created_path(self.dst_path_of(installer_file))
         self.package_file = installer_file
         # Darl wanted this.
@@ -780,6 +740,7 @@ class Windows_i686_Manifest(WindowsManifest):
                     self.path("fmod.dll")
             except:
                 print "Skipping fmodstudio audio library(assuming other audio engine)"
+
             self.end_prefix()
 
         if self.prefix(src=os.path.join(self.args['build'], os.pardir, 'packages', 'bin'), dst="redist"):
@@ -807,13 +768,15 @@ class Windows_x86_64_Manifest(WindowsManifest):
                     self.path("fmod64.dll")
             except:
                 print "Skipping fmodstudio audio library(assuming other audio engine)"
+
             self.end_prefix()
-            
+
         if self.prefix(src=os.path.join(self.args['build'], os.pardir, 'packages', 'bin'), dst="redist"):
             self.path("vc_redist.x64.exe")
             self.end_prefix()
 
-class Darwin_i386_Manifest(ViewerManifest):
+
+class DarwinManifest(ViewerManifest):
     def is_packaging_viewer(self):
         # darwin requires full app bundle packaging even for debugging.
         return True
@@ -831,7 +794,6 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             # copy additional libs in <bundle>/Contents/MacOS/
             self.path(os.path.join(relpkgdir, "libndofdev.dylib"), dst="Resources/libndofdev.dylib")
-            self.path(os.path.join(relpkgdir, "libhunspell-1.3.0.dylib"), dst="Resources/libhunspell-1.3.0.dylib")
 
             if self.prefix(dst="MacOS"):
                 self.path2basename("../viewer_components/updater/scripts/darwin", "*.py")
@@ -839,22 +801,20 @@ class Darwin_i386_Manifest(ViewerManifest):
 
             # most everything goes in the Resources directory
             if self.prefix(src="", dst="Resources"):
-                super(Darwin_i386_Manifest, self).construct()
+                super(DarwinManifest, self).construct()
 
                 if self.prefix("cursors_mac"):
                     self.path("*.tif")
                     self.end_prefix("cursors_mac")
 
-                self.path("licenses-mac.txt", dst="licenses.txt")
                 self.path("featuretable_mac.txt")
-                self.path("SecondLife.nib")
 
                 icon_path = self.icon_path()
                 if self.prefix(src=icon_path, dst="") :
-                    self.path("secondlife.icns")
+                    self.path("polarity.icns")
                     self.end_prefix(icon_path)
 
-                self.path("SecondLife.nib")
+                self.path("Polarity.nib")
 
                 # Translations
                 self.path("English.lproj/language.txt")
@@ -944,7 +904,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # our apps
                 for app_bld_dir, app in (("mac_crash_logger", "mac-crash-logger.app"),
                                          # plugin launcher
-                                         (os.path.join("llplugin", "slplugin"), "SLPlugin.app"),
+                                         (os.path.join("llplugin", "slplugin"), "PolarityPlugin.app"),
                                          ):
                     self.path2basename(os.path.join(os.pardir,
                                                     app_bld_dir, self.args['configuration']),
@@ -962,8 +922,8 @@ class Darwin_i386_Manifest(ViewerManifest):
                         except OSError as err:
                             print "Can't symlink %s -> %s: %s" % (src, dst, err)
 
-                # LLCefLib helper apps go inside SLPlugin.app
-                if self.prefix(src="", dst="SLPlugin.app/Contents/Frameworks"):
+                # LLCefLib helper apps go inside PolarityPlugin.app
+                if self.prefix(src="", dst="PolarityPlugin.app/Contents/Frameworks"):
                     for helperappfile in ('LLCefLib Helper.app',
                                           'LLCefLib Helper EH.app'):
                         self.path2basename(relpkgdir, helperappfile)
@@ -972,7 +932,7 @@ class Darwin_i386_Manifest(ViewerManifest):
 
                     self.end_prefix()
 
-                # SLPlugin plugins
+                # PolarityPlugin plugins
                 if self.prefix(src="", dst="llplugin"):
                     self.path2basename("../media_plugins/cef/" + self.args['configuration'],
                                        "media_plugin_cef.dylib")
@@ -996,10 +956,7 @@ class Darwin_i386_Manifest(ViewerManifest):
                 # Real Framework folder:
                 #   Polarity.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 # Location of symlink and why it'ds relative 
-                #   Polarity.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                # Real Frameworks folder, with the symlink inside the bundled SLPlugin.app (and why it's relative)
-                #   <top level>.app/Contents/Frameworks/Chromium Embedded Framework.framework/
-                #   <top level>.app/Contents/Resources/SLPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework ->
+                #   Polarity.app/Contents/Resources/PolarityPlugin.app/Contents/Frameworks/Chromium Embedded Framework.framework/
                 frameworkpath = os.path.join(os.pardir, os.pardir, os.pardir, os.pardir, "Frameworks", "Chromium Embedded Framework.framework")
                 try:
                     symlinkf(frameworkpath, pluginframeworkpath)
@@ -1119,18 +1076,9 @@ class Darwin_i386_Manifest(ViewerManifest):
                 if identity == '':
                     identity = 'Developer ID Application'
 
-                # Look for an environment variable set via build.sh when running in Team City.
-                try:
-                    build_secrets_checkout = os.environ['build_secrets_checkout']
-                except KeyError:
-                    pass
-                else:
-                    # variable found so use it to unlock keychain followed by codesign
-                    home_path = os.environ['HOME']
-                    keychain_pwd_path = os.path.join(build_secrets_checkout,'code-signing-osx','password.txt')
-                    keychain_pwd = open(keychain_pwd_path).read().rstrip()
-
-                    self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % ( keychain_pwd, home_path ) )
+                home_path = os.environ['HOME']
+                if 'VIEWER_SIGNING_PWD' in os.environ:
+                    self.run_command('security unlock-keychain -p "%s" "%s/Library/Keychains/viewer.keychain"' % (os.environ['VIEWER_SIGNING_PWD'], home_path ) )
                     signed=False
                     sign_attempts=3
                     sign_retry_wait=15
@@ -1138,11 +1086,11 @@ class Darwin_i386_Manifest(ViewerManifest):
                         try:
                             sign_attempts-=1;
                             self.run_command(
-                               'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
-                                   'home_path' : home_path,
-                                   'identity': identity,
-                                   'bundle': app_in_dmg
-                                   })
+                                'codesign --verbose --deep --force --keychain "%(home_path)s/Library/Keychains/viewer.keychain" --sign %(identity)r %(bundle)r' % {
+                                    'home_path' : home_path,
+                                    'identity': identity,
+                                    'bundle': app_in_dmg
+                                    })
                             signed=True # if no exception was raised, the codesign worked
                         except ManifestError, err:
                             if sign_attempts:
@@ -1168,6 +1116,22 @@ class Darwin_i386_Manifest(ViewerManifest):
         self.package_file = finalname
         self.remove(sparsename)
 
+
+class Darwin_i386_Manifest(DarwinManifest):
+    def construct(self):
+        super(Darwin_i386_Manifest, self).construct()
+
+
+class Darwin_universal_Manifest(DarwinManifest):
+    def construct(self):
+        super(Darwin_universal_Manifest, self).construct()
+
+
+class Darwin_x86_64_Manifest(DarwinManifest):
+    def construct(self):
+        super(Darwin_x86_64_Manifest, self).construct()
+
+
 class LinuxManifest(ViewerManifest):
     def construct(self):
         super(LinuxManifest, self).construct()
@@ -1176,7 +1140,6 @@ class LinuxManifest(ViewerManifest):
         relpkgdir = os.path.join(pkgdir, "lib", "release")
         debpkgdir = os.path.join(pkgdir, "lib", "debug")
 
-        self.path("licenses-linux.txt","licenses.txt")
         if self.prefix("linux_tools", dst=""):
             self.path("client-readme.txt","README-linux.txt")
             self.path("client-readme-voice.txt","README-linux-voice.txt")
@@ -1194,7 +1157,7 @@ class LinuxManifest(ViewerManifest):
         if self.prefix(src="", dst="bin"):
             self.path("polarity-bin","do-not-directly-run-polarity-bin")
             self.path("../linux_crash_logger/linux-crash-logger","linux-crash-logger.bin")
-            self.path2basename("../llplugin/slplugin", "SLPlugin")
+            self.path2basename("../llplugin/slplugin", "PolarityPlugin")
             self.path2basename("../viewer_components/updater/scripts/linux", "update_install")
             self.end_prefix("bin")
 
@@ -1207,9 +1170,9 @@ class LinuxManifest(ViewerManifest):
         icon_path = self.icon_path()
         print "DEBUG: icon_path '%s'" % icon_path
         if self.prefix(src=icon_path, dst="") :
-            self.path("secondlife_256.png","secondlife_icon.png")
+            self.path("polarity_256.png","polarity_icon.png")
             if self.prefix(src="",dst="res-sdl") :
-                self.path("secondlife_256.BMP","ll_icon.BMP")
+                self.path("polarity_256.BMP","ll_icon.BMP")
                 self.end_prefix("res-sdl")
             self.end_prefix(icon_path)
 
@@ -1327,7 +1290,7 @@ class LinuxManifest(ViewerManifest):
                 find %(dst)s -type f -perm 0600 | xargs --no-run-if-empty chmod 0644;
                 find %(dst)s -type f -perm 0400 | xargs --no-run-if-empty chmod 0444;
                 true""" %  {'dst':self.get_dst_prefix() })
-        self.package_file = installer_name + '.tar.bz2'
+        self.package_file = installer_name + '.tar.xz'
 
         # temporarily move directory tree so that it has the right
         # name in the tarfile
@@ -1339,13 +1302,13 @@ class LinuxManifest(ViewerManifest):
             if self.args['buildtype'].lower() == 'release':
                 # --numeric-owner hides the username of the builder for
                 # security etc.
-                self.run_command('tar -C %(dir)s --numeric-owner -cjf '
-                                 '%(inst_path)s.tar.bz2 %(inst_name)s' % {
+                self.run_command('tar -C %(dir)s --numeric-owner -cJf '
+                                 '%(inst_path)s.tar.xz %(inst_name)s' % {
                         'dir': self.get_build_prefix(),
                         'inst_name': installer_name,
                         'inst_path':self.build_path_of(installer_name)})
             else:
-                print "Skipping %s.tar.bz2 for non-Release build (%s)" % \
+                print "Skipping %s.tar.xz for non-Release build (%s)" % \
                       (installer_name, self.args['buildtype'])
         finally:
             self.run_command("mv %(inst)s %(dst)s" % {
@@ -1355,7 +1318,10 @@ class LinuxManifest(ViewerManifest):
     def strip_binaries(self):
         if self.args['buildtype'].lower() == 'release' and self.is_packaging_viewer():
             print "* Going strip-crazy on the packaged binaries, since this is a RELEASE build"
-            self.run_command(r"find %(d)r/bin %(d)r/lib -type f \! -name update_install \! -name *.dat | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} ) # makes some small assumptions about our packaged dir structure
+            # makes some small assumptions about our packaged dir structure
+            self.run_command(r"find %(d)r/lib %(d)r/lib32 %(d)r/lib64 -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} )
+            self.run_command(r"find %(d)r/bin -executable -type f \! -name update_install | xargs --no-run-if-empty strip -S" % {'d': self.get_dst_prefix()} )
+
 
 class Linux_i686_Manifest(LinuxManifest):
     def construct(self):
@@ -1368,24 +1334,18 @@ class Linux_i686_Manifest(LinuxManifest):
         if self.prefix(relpkgdir, dst="lib"):
             self.path("libapr-1.so")
             self.path("libapr-1.so.0")
-            self.path("libapr-1.so.0.4.5")
+            self.path("libapr-1.so.0.5.2")
             self.path("libaprutil-1.so")
             self.path("libaprutil-1.so.0")
-            self.path("libaprutil-1.so.0.4.1")
+            self.path("libaprutil-1.so.0.5.4")
             self.path("libcef.so")
             self.path("libexpat.so.*")
             self.path("libGLOD.so")
             self.path("libSDL-1.2.so.*")
-            self.path("libdirectfb-1.*.so.*")
-            self.path("libfusion-1.*.so.*")
-            self.path("libdirect-1.*.so.*")
             self.path("libopenjpeg.so*")
-            self.path("libdirectfb-1.4.so.5")
-            self.path("libfusion-1.4.so.5")
-            self.path("libdirect-1.4.so.5*")
-            self.path("libhunspell-1.3.so*")
-            self.path("libalut.so*")
-            self.path("libopenal.so*")
+            self.path("libhunspell-1.6.so*")
+            self.path("libalut.so")
+            self.path("libopenal.so", "libopenal.so.1")
             self.path("libopenal.so", "libvivoxoal.so.1") # vivox's sdk expects this soname
             # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
             # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
@@ -1437,15 +1397,79 @@ class Linux_i686_Manifest(LinuxManifest):
             self.path("libvivoxplatform.so")
             self.end_prefix("lib")
 
-            self.strip_binaries()
-
 
 class Linux_x86_64_Manifest(LinuxManifest):
     def construct(self):
         super(Linux_x86_64_Manifest, self).construct()
 
-        # support file for valgrind debug tool
-        self.path("secondlife-i686.supp")
+        pkgdir = os.path.join(self.args['build'], os.pardir, 'packages')
+        relpkgdir = os.path.join(pkgdir, "lib", "release")
+        debpkgdir = os.path.join(pkgdir, "lib", "debug")
+
+        if self.prefix(relpkgdir, dst="lib64"):
+            self.path("libapr-1.so")
+            self.path("libapr-1.so.0")
+            self.path("libapr-1.so.0.5.2")
+            self.path("libaprutil-1.so")
+            self.path("libaprutil-1.so.0")
+            self.path("libaprutil-1.so.0.5.4")
+            self.path("libexpat.so*")
+            self.path("libGLOD.so")
+            self.path("libSDL-1.2.so.*")
+            self.path("libopenjpeg.so*")
+            self.path("libhunspell-1.6.so*")
+            self.path("libalut.so*")
+            self.path("libopenal.so*")
+            # KLUDGE: As of 2012-04-11, the 'fontconfig' package installs
+            # libfontconfig.so.1.4.4, along with symlinks libfontconfig.so.1
+            # and libfontconfig.so. Before we added support for library-file
+            # wildcards, though, this self.path() call specifically named
+            # libfontconfig.so.1.4.4 WITHOUT also copying the symlinks. When I
+            # (nat) changed the call to self.path("libfontconfig.so.*"), we
+            # ended up with the libfontconfig.so.1 symlink in the target
+            # directory as well. But guess what! At least on Ubuntu 10.04,
+            # certain viewer fonts look terrible with libfontconfig.so.1
+            # present in the target directory. Removing that symlink suffices
+            # to improve them. I suspect that means we actually do better when
+            # the viewer fails to find our packaged libfontconfig.so*, falling
+            # back on the system one instead -- but diagnosing and fixing that
+            # is a bit out of scope for the present project. Meanwhile, this
+            # particular wildcard specification gets us exactly what the
+            # previous call did, without having to explicitly state the
+            # version number.
+            self.path("libfontconfig.so.*.*")
+
+            # Include libfreetype.so. but have it work as libfontconfig does.
+            self.path("libfreetype.so*")
+
+            try:
+                self.path("libtcmalloc.so*") #formerly called google perf tools
+                pass
+            except:
+                print "tcmalloc files not found, skipping"
+                pass
+
+            try:
+                self.path("libfmod.so*")
+                pass
+            except:
+                print "Skipping libfmod.so - not found"
+                pass
+
+            self.end_prefix("lib64")
+
+        # Vivox runtimes
+        if self.prefix(src=relpkgdir, dst="bin"):
+            self.path("SLVoice")
+            self.end_prefix("bin")
+        if self.prefix(src=relpkgdir, dst="lib32"):
+            self.path("libortp.so")
+            self.path("libsndfile.so.1")
+            self.path("libvivoxoal.so.1")
+            self.path("libvivoxsdk.so")
+            self.path("libvivoxplatform.so")
+            self.end_prefix("lib32")
+
         # plugin runtime
         if self.prefix(src=relpkgdir, dst="lib64"):
             self.path("libcef.so")

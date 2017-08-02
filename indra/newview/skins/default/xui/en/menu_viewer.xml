@@ -1548,10 +1548,10 @@
          name="isable Camera Server Push">
             <menu_item_check.on_check
              function="CheckControl"
-             parameter="PVCamera_DisableSimConstraint" />
+             parameter="PVCamera_DisableSimCamConstraint" />
             <menu_item_check.on_click
              function="ToggleControl"
-             parameter="PVCamera_DisableSimConstraint" />
+             parameter="PVCamera_DisableSimCamConstraint" />
         </menu_item_check>
         <menu_item_separator></menu_item_separator>
         <menu_item_check

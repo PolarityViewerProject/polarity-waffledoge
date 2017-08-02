@@ -3485,7 +3485,7 @@ class OSSetNavigationBar : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		const U32 val = userdata.asInteger();
-		gSavedSettings.setU32("ObsidianNavigationBarStyle", val);
+		gSavedSettings.setU32("NavigationBarStyle", val);
 		return true;
 	}
 };
@@ -3494,8 +3494,8 @@ class OSCheckNavigationBar : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		static LLCachedControl<U32> ObsidianNavigationBarStyle(gSavedSettings, "ObsidianNavigationBarStyle");
-		return userdata.asInteger() == ObsidianNavigationBarStyle;
+		static LLCachedControl<U32> NavigationBarStyle(gSavedSettings, "NavigationBarStyle");
+		return userdata.asInteger() == NavigationBarStyle;
 	}
 };
 

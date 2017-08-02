@@ -960,7 +960,7 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("RestrainedLove")->getSignal()->connect(boost::bind(&RlvSettings::onChangedSettingMain, _2));
 // [/RLVa:KB]
 
-	gSavedSettings.getControl("ObsidianNavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
+	gSavedSettings.getControl("NavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
 	
 
 	//BD - Special Debugs and handles

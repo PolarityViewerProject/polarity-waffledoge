@@ -109,6 +109,133 @@ include_directories(SYSTEM
     ${LIBS_PREBUILT_DIR}/include/collada/1.4
     )
 
+set(alchemy_HEADER_FILES
+    alavatarcolormgr.h
+    alchatcommand.h
+    alpanelmusicticker.h
+    alfloaterregiontracker.h
+    alpanelquicksettings.h
+    alpanelquicksettingspulldown.h
+    alviewermenu.h
+    lladdgridhandler.h
+    llagentwearablesfetch.h
+    llaoengine.h
+    llaoset.h
+    llchatutilities.h
+    llcheatcodes.h
+    lldesktopnotifications.h
+    lldroptarget.h
+    lleasymessagereader.h
+    lleasymessagesender.h
+    llfloaterao.h
+    llfloateravatarrendersettings.h
+    llfloaterdirectory.h
+    llfloaterdisplayname.h
+    llfloatergenerictext.h
+    llfloatergridstatus.h
+    llfloatergroupprofile.h
+    llfloaterlegacyprofile.h
+    llfloaterlinkreplace.h
+    llfloatermessagebuilder.h
+    llfloatermessagelog.h
+    llfloatermessagerewriter.h
+    llfloaterparticleeditor.h
+    llfloaterpreferenceproxy.h
+    llfloaterpreviewtrash.h
+    llfloatersearchreplace.h
+    llfloatertaskinfo.h
+    llfloatertexturezoom.h
+    llfloatertransactionlog.h
+    lllightshare.h
+    llpanelaomini.h
+    llpanelaopulldown.h
+    llpanelavcomplexitypulldown.h
+    llpanelenvironmenttools.h
+    llpaneleventinfo.h
+    llpanelenvironmenttools.h
+    llpaneleventinfo.h
+    llpanellogin.h
+    llpanelmenubarpulldown.h
+    llpanelprofilelegacy.h
+    llpanelradaralert.h
+    llpanelsearchbase.h
+    llpanelsearchclassifieds.h
+    llpanelsearchevents.h
+    llpanelsearchgroups.h
+    llpanelsearchlandsales.h
+    llpanelsearchpeople.h
+    llpanelsearchplaces.h
+    llpanelsearchweb.h
+    llpanelstreaminfo.h
+    llpickitem.h
+    llstreaminfo.h
+    llunzip.h
+    llviewerdisplayname.h
+    )
+set(alchemy_SOURCE_FILES
+    alavatarcolormgr.cpp
+    alchatcommand.cpp
+    alpanelmusicticker.cpp
+    alfloaterregiontracker.cpp
+    alpanelquicksettings.cpp
+    alpanelquicksettingspulldown.cpp
+    alviewermenu.cpp
+    lladdgridhandler.cpp
+    llagentwearablesfetch.cpp
+    llaoengine.cpp
+    llaoset.cpp
+    llchatutilities.cpp
+    llcheatcodes.cpp
+    lldesktopnotifications.cpp
+    lldroptarget.cpp
+    lleasymessagereader.cpp
+    lleasymessagesender.cpp
+    llfloaterao.cpp
+    llfloateravatarrendersettings.cpp
+    llfloaterdirectory.cpp
+    llfloaterdisplayname.cpp
+    llfloatergenerictext.cpp
+    llfloatergridstatus.cpp
+    llfloatergroupprofile.cpp
+    llfloaterlegacyprofile.cpp
+    llfloaterlinkreplace.cpp
+    llfloatermessagebuilder.cpp
+    llfloatermessagelog.cpp
+    llfloatermessagerewriter.cpp
+    llfloaterparticleeditor.cpp
+    llfloaterpreferenceproxy.cpp
+    llfloaterpreviewtrash.cpp
+    llfloatersearchreplace.cpp
+    llfloatertaskinfo.cpp
+    llfloatertexturezoom.cpp
+    llfloatertransactionlog.cpp
+    lllightshare.cpp
+    llpanelaomini.cpp
+    llpanelaopulldown.cpp
+    llpanelavcomplexitypulldown.cpp
+    llpanelenvironmenttools.cpp
+    llpaneleventinfo.cpp
+    llpanelenvironmenttools.cpp
+    llpaneleventinfo.cpp
+    llpanellogin.cpp
+    llpanelmenubarpulldown.cpp
+    llpanelprofilelegacy.cpp
+    llpanelradaralert.cpp
+    llpanelsearchbase.cpp
+    llpanelsearchclassifieds.cpp
+    llpanelsearchevents.cpp
+    llpanelsearchgroups.cpp
+    llpanelsearchlandsales.cpp
+    llpanelsearchpeople.cpp
+    llpanelsearchplaces.cpp
+    llpanelsearchweb.cpp
+    llpanelstreaminfo.cpp
+    llpickitem.cpp
+    llstreaminfo.cpp
+    llunzip.cpp
+    llviewerdisplayname.cpp
+    )
+
 set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
@@ -269,12 +396,13 @@ set(viewer_SOURCE_FILES
     llcallingcard.cpp
     llchannelmanager.cpp
     llchatbar.cpp
-    #llchathistory.cpp # <polarity> Replaced with pvchathistory
+    llchathistory.cpp
     llchatitemscontainerctrl.cpp
     llchatmsgbox.cpp
     llchiclet.cpp
     llchicletbar.cpp
     llclassifiedinfo.cpp
+    llclassifieditem.cpp
     llcofwearables.cpp
     llcolorswatch.cpp
     llcommanddispatcherlistener.cpp
@@ -374,7 +502,6 @@ set(viewer_SOURCE_FILES
     llfloatergroups.cpp
     llfloaterhandler.cpp
     llfloaterhelpbrowser.cpp
-    llfloaterhoverheight.cpp
     llfloaterhud.cpp
     llfloaterimagepreview.cpp
     llfloaterimcontainer.cpp
@@ -386,7 +513,6 @@ set(viewer_SOURCE_FILES
     llfloaterimsessiontab.cpp
     llfloaterinspect.cpp
     llfloaterjoystick.cpp
-    llfloaterlagmeter.cpp
     llfloaterland.cpp
     llfloaterlandholdings.cpp
     llfloatermarketplacelistings.cpp
@@ -563,7 +689,7 @@ set(viewer_SOURCE_FILES
     llpanelgrouproles.cpp
     llpanelhome.cpp
     llpanelland.cpp
-    llpanellandaudio.cpp
+    #llpanellandaudio.cpp
     llpanellandmarkinfo.cpp
     llpanellandmarks.cpp
     llpanellandmedia.cpp
@@ -982,7 +1108,6 @@ set(viewer_HEADER_FILES
     llfloatergroups.h
     llfloaterhandler.h
     llfloaterhelpbrowser.h
-    llfloaterhoverheight.h
     llfloaterhud.h
     llfloaterimagepreview.h
     llfloaterimcontainer.h
@@ -993,7 +1118,6 @@ set(viewer_HEADER_FILES
     llfloaterimsessiontab.h
     llfloaterinspect.h
     llfloaterjoystick.h
-    llfloaterlagmeter.h
     llfloaterland.h
     llfloaterlandholdings.h
     llfloatermap.h
@@ -1165,7 +1289,6 @@ set(viewer_HEADER_FILES
     llpanelgrouproles.h
     llpanelhome.h
     llpanelland.h
-    llpanellandaudio.h
     llpanellandmarkinfo.h
     llpanellandmarks.h
     llpanellandmedia.h
@@ -1429,12 +1552,9 @@ set(viewer_HEADER_FILES
     llworldmipmap.h
     llxmlrpclistener.h
     llxmlrpctransaction.h
-    macmain.h
     noise.h
     pipeline.h
     roles_constants.h
-    VertexCache.h
-    VorbisFramework.h
     )
 
 # These goes after the viewer files definition because some
@@ -1460,20 +1580,32 @@ file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/viewer_version.txt"
            "${VIEWER_SHORT_VERSION}.${VIEWER_VERSION_REVISION}\n")
 
 set_source_files_properties(
-    llversioninfo.cpp tests/llversioninfo_test.cpp
-    PROPERTIES
+   llversioninfo.cpp tests/llversioninfo_test.cpp 
+   PROPERTIES
    COMPILE_DEFINITIONS "${VIEWER_CHANNEL_VERSION_DEFINES}" # see BuildVersion.cmake
-    )
+   )
 
 if (DARWIN)
-    list(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
-    list(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.mm)
-    list(APPEND viewer_HEADER_FILES llappviewermacosx-objc.h)
-    list(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
-    list(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
+  LIST(APPEND viewer_SOURCE_FILES lldesktopnotificationsmacosx.mm)
+  LIST(APPEND viewer_HEADER_FILES lldesktopnotificationsmacosx.h)
+elseif (LINUX)
+  LIST(APPEND viewer_SOURCE_FILES lldesktopnotificationsnotify.cpp)
+  LIST(APPEND viewer_HEADER_FILES lldesktopnotificationsnotify.h)
+else ()
+# For platforms not implemented
+  LIST(APPEND viewer_SOURCE_FILES lldesktopnotificationsnope.cpp)
+  LIST(APPEND viewer_HEADER_FILES lldesktopnotificationsnope.h)
+endif ()
+
+if (DARWIN)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx.cpp)
+  LIST(APPEND viewer_SOURCE_FILES llappviewermacosx-objc.mm)
+  LIST(APPEND viewer_HEADER_FILES llappviewermacosx-objc.h)
+  LIST(APPEND viewer_SOURCE_FILES llfilepicker_mac.mm)
+  LIST(APPEND viewer_HEADER_FILES llfilepicker_mac.h)
 
   # This should be compiled with the viewer.
-  list(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
+  LIST(APPEND viewer_SOURCE_FILES llappdelegate-objc.mm)
 
   find_library(AGL_LIBRARY AGL)
   find_library(APPKIT_LIBRARY AppKit)
@@ -1492,10 +1624,9 @@ if (DARWIN)
 
   # Add resource files to the project.
   set(viewer_RESOURCE_FILES
-    secondlife.icns
-    macview.r
-    Info-SecondLife.plist
-    SecondLife.xib/
+    polarity.icns
+    Info-Polarity.plist
+    Polarity.xib
     # CMake doesn't seem to support Xcode language variants well just yet
     English.lproj/InfoPlist.strings
     English.lproj/language.txt
@@ -1509,32 +1640,30 @@ if (DARWIN)
     HEADER_FILE_ONLY TRUE
     #MACOSX_PACKAGE_LOCATION Resources #don't do this! this tells cmake to copy the files.
     )
-  source_group("Resources" FILES ${viewer_RESOURCE_FILES})
+  SOURCE_GROUP("Resources" FILES ${viewer_RESOURCE_FILES})
   list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
 endif (DARWIN)
 
-if(LINUX)
-    list(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
-    list(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
+if (LINUX)
+    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux.cpp)
+    LIST(APPEND viewer_SOURCE_FILES llappviewerlinux_api_dbus.cpp)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--as-needed")
 
     set(viewer_LIBRARIES
         Xinerama
         )
 endif (LINUX)
 
-if(WINDOWS)
+if (WINDOWS)
     list(APPEND viewer_SOURCE_FILES
-        llappviewerwin32.cpp
-        llwindebug.cpp
-        )
+         llappviewerwin32.cpp
+         )
 
     list(APPEND viewer_HEADER_FILES
-        llappviewerwin32.h
-        llwindebug.h
-        )
+         llappviewerwin32.h
+         )
 
-  if(NVAPI)
+  if (NVAPI)
     list(APPEND APPVWRW32_COMPILE_DEFINITIONS "-DUSE_NVAPI=1")
   else (NVAPI)
     list(APPEND APPVWRW32_COMPILE_DEFINITIONS "-UUSE_NVAPI")
@@ -1573,17 +1702,17 @@ if(WINDOWS)
     message("Copying icons for ${ICON_PATH}")
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife.ico"
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/polarity.ico"
         "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.ico"
       )
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/polarity_256.BMP"
         "${CMAKE_CURRENT_SOURCE_DIR}/res/ll_icon.BMP"
       )
     execute_process(
       COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/secondlife_256.BMP"
+        "${CMAKE_CURRENT_SOURCE_DIR}/icons/${ICON_PATH}/polarity_256.BMP"
         "${CMAKE_CURRENT_SOURCE_DIR}/res-sdl/ll_icon.BMP"
       )
 
@@ -1656,7 +1785,7 @@ if(WINDOWS)
 
     source_group("Resource Files" FILES ${viewer_RESOURCE_FILES})
 
-    if(NOT USESYSTEMLIBS)
+    if (NOT USESYSTEMLIBS)
         list(APPEND viewer_SOURCE_FILES ${viewer_RESOURCE_FILES})
     endif (NOT USESYSTEMLIBS)
 
@@ -1681,11 +1810,11 @@ set(viewer_XUI_FILES
     skins/default/textures/textures.xml
     )
 file(GLOB DEFAULT_XUI_FILE_GLOB_LIST
-    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_XUI_FILE_GLOB_LIST})
 
 file(GLOB DEFAULT_WIDGET_FILE_GLOB_LIST
-    ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
+     ${CMAKE_CURRENT_SOURCE_DIR}/skins/*/xui/en/widgets/*.xml)
 list(APPEND viewer_XUI_FILES ${DEFAULT_WIDGET_FILE_GLOB_LIST})
 
 # Cannot append empty lists in CMake, wait until we have files here.
@@ -1707,16 +1836,19 @@ set(viewer_APPSETTINGS_FILES
     app_settings/cmd_line.xml
     app_settings/commands.xml
     app_settings/grass.xml
+    app_settings/grids_default.xml
     app_settings/ignorable_dialogs.xml
     app_settings/keys.xml
     app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/settings.xml
+    app_settings/settings_alchemy.xml
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
     app_settings/settings_obsidian.xml
     app_settings/settings_per_account.xml
     app_settings/settings_polarity.xml
+    app_settings/settings_per_account_alchemy.xml
     app_settings/settings_rlva.xml
     app_settings/std_bump.ini
     app_settings/toolbars.xml
@@ -1733,10 +1865,14 @@ set_source_files_properties(${viewer_APPSETTINGS_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
 
 list(APPEND viewer_SOURCE_FILES ${viewer_APPSETTINGS_FILES})
+
 file(GLOB_RECURSE viewer_SHADER_FILES app_settings/shaders/*)
+
 source_group("Shaders" FILES ${viewer_SHADER_FILES})
+
 set_source_files_properties(${viewer_SHADER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
+
 list(APPEND viewer_SOURCE_FILES ${viewer_SHADER_FILES})
 
 set(viewer_CHARACTER_FILES
@@ -1751,11 +1887,11 @@ source_group("Character File" FILES ${viewer_CHARACTER_FILES})
 
 set_source_files_properties(${viewer_CHARACTER_FILES}
                             PROPERTIES HEADER_FILE_ONLY TRUE)
-if(NOT USESYSTEMLIBS)
+if (NOT USESYSTEMLIBS)
     list(APPEND viewer_SOURCE_FILES ${viewer_CHARACTER_FILES})
 endif (NOT USESYSTEMLIBS)
 
-if(WINDOWS)
+if (WINDOWS)
   file(GLOB viewer_INSTALLER_FILES installers/windows/*.nsi)
 
   source_group("Installer Files" FILES ${viewer_INSTALLER_FILES})
@@ -1766,11 +1902,11 @@ if(WINDOWS)
   list(APPEND viewer_SOURCE_FILES ${viewer_INSTALLER_FILES})
 endif (WINDOWS)
 
-if(OPENAL)
+if (OPENAL)
   list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_OPENAL=1")
 endif (OPENAL)
 
-if(FMODSTUDIO)
+if (FMODSTUDIO)
   list(APPEND LLSTARTUP_COMPILE_DEFINITIONS "LL_FMODSTUDIO=1")
   set(FMODWRAPPER_LIBRARY ${FMODSTUDIO_LIBRARY})
 endif (FMODSTUDIO)
@@ -1794,7 +1930,7 @@ add_executable(${VIEWER_BINARY_NAME}
     ${viewer_SOURCE_FILES}
     )
 
-if(SDL_FOUND)
+if (SDL_FOUND)
   set_property(TARGET ${VIEWER_BINARY_NAME}
     PROPERTY COMPILE_DEFINITIONS LL_SDL=1
     )
@@ -1802,12 +1938,12 @@ endif (SDL_FOUND)
 
 # add package files
 file(GLOB EVENT_HOST_SCRIPT_GLOB_LIST
-    ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
+     ${CMAKE_CURRENT_SOURCE_DIR}/../viewer_components/*.py)
 list(APPEND EVENT_HOST_SCRIPTS ${EVENT_HOST_SCRIPT_GLOB_LIST})
 
 option(PACKAGE "Add a package target that builds an installer package." ON)
 
-if(WINDOWS)
+if (WINDOWS)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS "/debug /SUBSYSTEM:WINDOWS ${TCMALLOC_LINK_FLAGS} ${TBBMALLOC_LINK_FLAGS}"
@@ -1864,18 +2000,18 @@ if(WINDOWS)
       ${ARCH_PREBUILT_DIRS_RELEASE}/ssleay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/libeay32.dll
       ${ARCH_PREBUILT_DIRS_DEBUG}/ssleay32.dll
-      SLPlugin
+      PolarityPlugin
       media_plugin_cef
       windows-crash-logger
       )
 
     if(LIBVLCPLUGIN)
-        list(APPEND COPY_INPUT_DEPENDENCIES
-            media_plugin_libvlc
-        )
+      list(APPEND COPY_INPUT_DEPENDENCIES
+	    media_plugin_libvlc
+	    )
     endif(LIBVLCPLUGIN)
 
-    if(USE_TCMALLOC)
+	if(USE_TCMALLOC)
       # Configure a var for tcmalloc location, if used.
       # Note the need to specify multiple names explicitly.
       list(APPEND COPY_INPUT_DEPENDENCIES
@@ -1888,7 +2024,7 @@ if(WINDOWS)
     if(USE_TBBMALLOC)
       # Configure a var for tbbmalloc location, if used.
       # Note the need to specify multiple names explicitly.
-      MESSAGE("Adding TBBMalloc DLLs...")
+      MESSAGE(STATUS "Adding TBBMalloc DLLs...")
       list(APPEND COPY_INPUT_DEPENDENCIES
         ${SHARED_LIB_STAGING_DIR}/Release/tbbmalloc.dll
         ${SHARED_LIB_STAGING_DIR}/RelWithDebInfo/tbbmalloc.dll
@@ -1899,7 +2035,7 @@ if(WINDOWS)
         )
     endif(USE_TBBMALLOC)
 	  
-    if(FMODSTUDIO)
+    if (FMODSTUDIO)
       if (WORD_SIZE EQUAL 32)
         list(APPEND COPY_INPUT_DEPENDENCIES
              ${SHARED_LIB_STAGING_DIR}/Release/fmod.dll
@@ -1944,31 +2080,31 @@ if(WINDOWS)
 
     add_dependencies(${VIEWER_BINARY_NAME} stage_third_party_libs llcommon copy_w_viewer_manifest)
 
-    if(EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
+    if (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
       add_dependencies(${VIEWER_BINARY_NAME} copy_win_scripts)
     endif (EXISTS ${CMAKE_SOURCE_DIR}/copy_win_scripts)
 
     add_dependencies(${VIEWER_BINARY_NAME}
-      SLPlugin
+      PolarityPlugin
       windows-crash-logger
       )
 
     # sets the 'working directory' for debugging from visual studio.
     if (NOT UNATTENDED)
-    add_custom_command(
-        TARGET ${VIEWER_BINARY_NAME} POST_BUILD
-        COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
-        ARGS
-          --solution
-          ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
-          --workingdir
-          ${VIEWER_BINARY_NAME}
-          "${CMAKE_CURRENT_SOURCE_DIR}"
+        add_custom_command(
+            TARGET ${VIEWER_BINARY_NAME} POST_BUILD
+            COMMAND ${CMAKE_SOURCE_DIR}/tools/vstool/vstool.exe
+            ARGS
+              --solution
+              ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.sln
+              --workingdir
+              ${VIEWER_BINARY_NAME}
+              "${CMAKE_CURRENT_SOURCE_DIR}"
             COMMENT "Setting the ${VIEWER_BINARY_NAME} working directory for debugging."
-        )
+            )
     endif (NOT UNATTENDED)
 
-    if(PACKAGE)
+    if (PACKAGE)
       add_custom_command(
         OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2
         COMMAND ${PYTHON_EXECUTABLE}
@@ -2015,7 +2151,7 @@ if(WINDOWS)
         #${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/event_host.tar.bz2)
 
     endif (PACKAGE)
-elseif(DARWIN)
+elseif (DARWIN)
     set_target_properties(${VIEWER_BINARY_NAME}
         PROPERTIES
         LINK_FLAGS_RELEASE "${LINK_FLAGS_RELEASE} -Xlinker -dead_strip -Xlinker -map -Xlinker ${CMAKE_CURRENT_BINARY_DIR}/${VIEWER_BINARY_NAME}.MAP"
@@ -2041,7 +2177,7 @@ endif (WINDOWS)
 # one of these being libz where you can find four or more versions in play
 # at once.  On Linux, libz can be found at link and run time via a number
 # of paths:
-#
+#     
 #      => -lfreetype
 #        => libz.so.1 (on install machine, not build)
 #      => -lSDL
@@ -2083,14 +2219,16 @@ target_link_libraries(${VIEWER_BINARY_NAME}
     ${HUNSPELL_LIBRARY}
     ${GLEW_LIBRARIES}
     ${viewer_LIBRARIES}
+    # Boost
+    # TODO: Re-order these correctly. DRAKE IF YOU READ THIS, HELP ME PLZ <3
+    ${BOOST_CONTEXT_LIBRARY}
     ${BOOST_COROUTINE_LIBRARY}
-    #${BOOST_CONTEXT_LIBRARY} # order-sensitive
     ${BOOST_DATE_TIME_LIBRARY}
     ${BOOST_PROGRAM_OPTIONS_LIBRARY}
     ${BOOST_REGEX_LIBRARY}
-    ${BOOST_WAVE_LIBRARY} # Required for Firestorm code
     ${BOOST_THREAD_LIBRARY} # Required for Firestorm code
-    ${BOOST_CONTEXT_LIBRARY} # Required for Firestorm code
+    ${BOOST_WAVE_LIBRARY} # Required for Firestorm code
+    # end Boost
     ${DBUSGLIB_LIBRARIES}
     ${OPENGL_LIBRARIES}
     ${FMODWRAPPER_LIBRARY} # must come after LLAudio
@@ -2123,10 +2261,10 @@ if(LINUX)
   set(COPY_INPUT_DEPENDENCIES
     ${VIEWER_BINARY_NAME}
     linux-crash-logger
-    SLPlugin
+    PolarityPlugin
     media_plugin_gstreamer010
     llcommon
-        )
+    )
 
   add_custom_command(
       OUTPUT ${product}.tar.xz
@@ -2151,6 +2289,7 @@ if(LINUX)
 
   if (PACKAGE)
   endif (PACKAGE)
+
   add_custom_command(
     OUTPUT  ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched
     COMMAND ${PYTHON_EXECUTABLE}
@@ -2175,7 +2314,7 @@ if(LINUX)
 
   add_custom_target(copy_l_viewer_manifest ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/.${product}.copy_touched)
 
-  if(PACKAGE)
+  if (PACKAGE)
     add_custom_target(llpackage ALL DEPENDS ${product}.tar.xz)
     # Make sure we don't run two instances of viewer_manifest.py at the same time.
     add_dependencies(llpackage copy_l_viewer_manifest)
@@ -2183,7 +2322,7 @@ if(LINUX)
   endif (PACKAGE)
 endif (LINUX)
 
-if(DARWIN)
+if (DARWIN)
   # These all get set with PROPERTIES
   set(product "Polarity")
   set(MACOSX_BUNDLE_INFO_STRING "Polarity Viewer")
@@ -2193,21 +2332,21 @@ if(DARWIN)
   set(MACOSX_BUNDLE_BUNDLE_NAME "Polarity")
   set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${VIEWER_SHORT_VERSION}")
   set(MACOSX_BUNDLE_BUNDLE_VERSION "${VIEWER_SHORT_VERSION}${VIEWER_MACOSX_PHASE}${VIEWER_REVISION}")
-  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2014-2017 Polarity Viewer Project")
-  set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "SecondLife.nib")
-  set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "NSApplication")
-
+  set(MACOSX_BUNDLE_COPYRIGHT "Copyright © 2013-2017 Alchemy Viewer Project")
+  set(MACOSX_BUNDLE_NSMAIN_NIB_FILE "Alchemy")
+  set(MACOSX_BUNDLE_NSPRINCIPAL_CLASS "LLNSApplication")
+  
   set_target_properties(
     ${VIEWER_BINARY_NAME}
     PROPERTIES
     RESOURCE "${viewer_RESOURCE_FILES}"
     OUTPUT_NAME "${product}"
     MACOSX_BUNDLE_INFO_PLIST
-    "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Info-Polarity.plist"
     )
 
   configure_file(
-     "${CMAKE_CURRENT_SOURCE_DIR}/Info-SecondLife.plist"
+     "${CMAKE_CURRENT_SOURCE_DIR}/Info-Polarity.plist"
      "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${product}.app/Contents/Info.plist"
     )
 
@@ -2232,9 +2371,9 @@ if(DARWIN)
       ${CMAKE_CURRENT_SOURCE_DIR}/viewer_manifest.py
     )
   if (WORD_SIZE EQUAL 32)
-      add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_cef mac-crash-logger)
+      add_dependencies(${VIEWER_BINARY_NAME} PolarityPlugin media_plugin_cef mac-crash-logger)
   elseif (WORD_SIZE EQUAL 64)
-     add_dependencies(${VIEWER_BINARY_NAME} SLPlugin media_plugin_cef mac-crash-logger)
+     add_dependencies(${VIEWER_BINARY_NAME} PolarityPlugin media_plugin_cef mac-crash-logger)
   endif (WORD_SIZE EQUAL 32)
 
   if (ENABLE_SIGNING)
@@ -2279,8 +2418,8 @@ if (PACKAGE)
   if(WINDOWS)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-windows.tar.bz2")
-    # SLPlugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
-    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} SLPlugin.exe")
+    # PolarityPlugin.exe failing symbols dump - need to debug, might have to do with updated version of google breakpad
+    # set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX} PolarityPlugin.exe")
     set(VIEWER_EXE_GLOBS "${VIEWER_BINARY_NAME}${CMAKE_EXECUTABLE_SUFFIX}")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}")
     set(VIEWER_COPY_MANIFEST copy_w_viewer_manifest)
@@ -2292,13 +2431,13 @@ if (PACKAGE)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/mac_crash_logger/${CMAKE_CFG_INTDIR}")
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_BINARY_DIR}/media_plugins/gstreamer010/${CMAKE_CFG_INTDIR}")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-darwin.tar.bz2")
-    set(VIEWER_EXE_GLOBS "'Polarity' SLPlugin mac-crash-logger")
+    set(VIEWER_EXE_GLOBS "'Polarity' PolarityPlugin mac-crash-logger")
     set(VIEWER_LIB_GLOB "*.dylib")
   endif (DARWIN)
   if (LINUX)
     list(APPEND SYMBOL_SEARCH_DIRS "${CMAKE_CURRENT_BINARY_DIR}/packaged")
     set(VIEWER_SYMBOL_FILE "${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}/polarity-symbols-linux.tar.bz2")
-    set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin SLPlugin")
+    set(VIEWER_EXE_GLOBS "do-not-directly-run-polarity-bin PolarityPlugin")
     set(VIEWER_LIB_GLOB "*${CMAKE_SHARED_MODULE_SUFFIX}*")
     set(VIEWER_COPY_MANIFEST copy_l_viewer_manifest)
   endif (LINUX)
@@ -2436,6 +2575,7 @@ if(LL_TESTS AND LL_VIEWER_NETWORK_TESTS)
     ${LLVFS_LIBRARIES}
     ${LLMATH_LIBRARIES}
     ${LLXML_LIBRARIES}
+    ${LLUI_LIBRARIES}
     ${LLMESSAGE_LIBRARIES}
     ${LLLOGIN_LIBRARIES}
     ${LLCOREHTTP_LIBRARIES}

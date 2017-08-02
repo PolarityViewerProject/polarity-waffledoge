@@ -3291,7 +3291,7 @@ void LLFloaterPreferenceProxy::onChangeSocksSettings()
 // <polarity> Lookat preferences logic
 bool LLFloaterPreference::confirmNosyLookAt()
 {
-	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtBroadcastDisabled", true);
+	static LLCachedControl<bool> lookat_local_disabled(gSavedSettings, "PVPrivacy_LookAtPrivate", true);
 	static LLCachedControl<bool> show_lookat(gSavedSettings, "PVPrivacy_LookAtShow", false);
 	static LLCachedControl<bool> nosy(gSavedSettings, "PVPrivacy_LookAtShowAnyway", false);
 	if (!nosy)

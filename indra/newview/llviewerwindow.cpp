@@ -2080,7 +2080,7 @@ void LLViewerWindow::initWorldUI()
 	nav_bar_container->addChild(navbar);
 	nav_bar_container->setVisible(TRUE);
 	
-	const U32 navigation_bar = gSavedSettings.getU32("ObsidianNavigationBarStyle");
+	const U32 navigation_bar = gSavedSettings.getU32("NavigationBarStyle");
 	if (navigation_bar != 2)
 	{
 		navbar->setVisible(FALSE);
@@ -2437,8 +2437,8 @@ void LLViewerWindow::setNormalControlsVisible( BOOL visible )
 	{
 		// when it's time to show navigation bar we need to ensure that the user wants to see it
 		// i.e. NavigationBarStyle option is set to 2(Navigation Bar)
-		static LLCachedControl<U32> ObsidianNavigationBarStyle(gSavedSettings, "ObsidianNavigationBarStyle");
-		navbarp->setVisible(visible && (ObsidianNavigationBarStyle == 2));
+		static LLCachedControl<U32> NavigationBarStyle(gSavedSettings, "NavigationBarStyle");
+		navbarp->setVisible(visible && (NavigationBarStyle == 2));
 	}
 }
 
@@ -5512,7 +5512,7 @@ void LLViewerWindow::setUIVisibility(bool visible)
 		gToolBarView->setToolBarsVisible(visible);
 	}
 
-	static LLCachedControl<U32> navigation_bar(gSavedSettings, "ObsidianNavigationBarStyle");
+	static LLCachedControl<U32> navigation_bar(gSavedSettings, "NavigationBarStyle");
 	LLNavigationBar::getInstance()->setVisible(visible && (navigation_bar == 2));
 	LLPanelTopInfoBar::getInstance()->setVisible(visible && (navigation_bar == 1));
 	mRootView->getChildView("status_bar_container")->setVisible(visible);

@@ -203,7 +203,7 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>PVCamera_DisableSimConstraint</key>
+    <key>PVCamera_DisableSimCamConstraint</key>
     <map>
       <key>Comment</key>
       <string>Disable the push the simulator applies when camera collides with objects </string>
@@ -778,7 +778,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVMovement_DoNotStandUpOnAppearanceMode</key>
+    <key>PVMovement_IgnoreForcedStand</key>
     <map>
       <key>Comment</key>
       <string>Do not force standing up when entering appearance mode.</string>
@@ -966,7 +966,7 @@
       <key>Value</key>
       <integer>1</integer>
     </map>
-    <key>PVPrivacy_LookAtBroadcastDisabled</key>
+    <key>PVPrivacy_LookAtPrivate</key>
     <map>
       <key>Comment</key>
       <string>Do not broadcast own LookAt data to other users. </string>

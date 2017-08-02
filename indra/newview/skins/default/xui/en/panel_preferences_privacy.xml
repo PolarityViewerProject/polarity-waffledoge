@@ -344,7 +344,7 @@
 		 top_pad="10"
 		 width="350" />
 		<check_box
-		 control_name="PVPrivacy_LookAtBroadcastDisabled"
+		 control_name="PVPrivacy_LookAtPrivate"
 		 height="16"
 		 label="Do not broadcast my camera target to other residents"
 		 layout="topleft"
