@@ -460,10 +460,17 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
 	// NaCl - Faster Avatar Shadows
 	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-	if (0 == PVRender_AttachmentShadowDetail || mDrawFace.empty())
+	if (0 == PVRender_AttachmentShadowDetail)
+	{
+		return;
+	}
+	// <polarity> Yes, I know this is technically bad to omit the frametimer from a code path
+	// But shadows are slow enough that we need every cycle we can get. - Xenhat 2017.08.02
+	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+
+	if (mDrawFace.empty())
 	{
 		return;
 	}
@@ -481,12 +488,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 
 	BOOL impostor = avatarp->isImpostor();
-	if (impostor 
-		// <FS:Ansariel> Fix LL impostor hacking; No shadow for impostors
-		//&& LLVOAvatar::AV_DO_NOT_RENDER != avatarp->getVisualMuteSettings()
-		//&& LLVOAvatar::AV_ALWAYS_RENDER != avatarp->getVisualMuteSettings())
-		)
-		// </FS:Ansariel>
+	if (impostor)
 	{
 		return;
 	}
@@ -1265,12 +1267,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 
 	BOOL impostor = avatarp->isImpostor() && !single_avatar;
 
-	// <FS:Ansariel> Fix LL impostor hacking; Don't render impostored avatars unless it needs an update
-	//if (( avatarp->isInMuteList()
-	//	  || impostor 
-	//	  || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()) ) && pass != 0)
-	if (impostor && !avatarp->needsImpostorUpdate() && pass != 0)
-	// </FS:Ansariel>
+	if (impostor && pass != 0)
 	{ //don't draw anything but the impostor for impostored avatars
 		return;
 	}
@@ -1287,10 +1284,7 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 			LLVOAvatar::sNumVisibleAvatars++;
 		}
 
-		// <FS:Ansariel> Fix LL impostor hacking
-		//if (impostor || (LLVOAvatar::AV_DO_NOT_RENDER == avatarp->getVisualMuteSettings() && !avatarp->needsImpostorUpdate()))
-		if (impostor && !avatarp->needsImpostorUpdate())
-		// </FS:Ansariel>
+		if (impostor)
 		{
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
 			{
@@ -1497,7 +1491,7 @@ void LLDrawPoolAvatar::getRiggedGeometry(
     LLVolume* volume,
     const LLVolumeFace& vol_face)
 {
-	static LLCachedControl<bool> skip_broken_face(gSavedSettings, "PVDebug_SkipOutOfBoundsFaces", false);
+	static LLCachedControl<bool> skip_broken_face(gSavedSettings, "PVDebug_SkipOutOfBoundsFaces", true);
 	// <FS:ND> FIRE-14261 try to skip broken or out of bounds faces
 	if(skip_broken_face && (vol_face.mNumVertices > 0x10000 || vol_face.mNumVertices < 0 || vol_face.mNumIndices < 0 ))
 	{
@@ -1554,17 +1548,6 @@ void LLDrawPoolAvatar::getRiggedGeometry(
 	{
 		face->setPoolType(LLDrawPool::POOL_AVATAR);
 	}
-
-	//let getGeometryVolume know if a texture matrix is in play
-	if (face->mTextureMatrix)
-	{
-		face->setState(LLFace::TEXTURE_ANIM);
-	}
-	else
-	{
-		face->clearState(LLFace::TEXTURE_ANIM);
-	}
-
 
 	//LL_INFOS() << "Rebuilt face " << face->getTEOffset() << " of " << face->getDrawable() << " at " << gFrameTimeSeconds << LL_ENDL;
 
@@ -1808,7 +1791,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 
 			if (mat)
 			{
-				//order is important here LLRender::DIFFUSE_MAP should be last, becouse it change 
+				//order is important here LLRender::DIFFUSE_MAP should be last, because it changes 
 				//(gGL).mCurrTextureUnitIndex
                 LLViewerTexture* specular = nullptr;
                 if (LLPipeline::sImpostorRender && avatar->isVisuallyMuted())
