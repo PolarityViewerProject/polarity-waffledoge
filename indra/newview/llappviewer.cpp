@@ -1506,28 +1506,27 @@ bool LLAppViewer::frame()
 			if(gViewerWindow && LLStartUp::getStartupState() == STATE_STARTED && !gTeleportDisplay && !logoutRequestSent())
 			{
 				S32 sleep_time = 0;
+				// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
+				if(limiter_enabled)
+				{
+					static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
+					F32 min_frame_time = 1.000f / (F32)fps_target;
+					sleep_time = llclamp((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0),0,5000);
+				}
+				else // </polarity> FPS Limiter
 				if(!gViewerWindow->getWindow()->getVisible() || !gFocusMgr.getAppHasFocus()) // Not visible or not focused
 				{
-					
 					static LLCachedControl<S32> yield_time(gSavedSettings, "BackgroundYieldTime");
 					sleep_time = llclamp((S32)yield_time, 0, 5000); // <polarity> Increase max yield time to 5 seconds
-					// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
-					if(sleep_time > 0)
+				}
+				// don't sleep when BackgroundYieldTime set to 0, since this will still yield to other threads of equal priority on Windows
+				if(sleep_time > 0)
 					{
 						// also pause worker threads during this wait period
 						LLAppViewer::getTextureCache()->pause();
 						LLAppViewer::getImageDecodeThread()->pause();
 						ms_sleep(sleep_time);
 					}
-				}
-				// <polarity> FPS Limiter. Originally from LL merge error fix from Ansariel/Firestorm.
-				if(limiter_enabled)
-				{
-					static LLCachedControl<U32> fps_target(gSavedSettings, "PVRender_FPSLimiterTarget");
-					F32 min_frame_time = 1.000f / (F32)fps_target;
-					ms_sleep((S32)((min_frame_time - frameTimer.getElapsedTimeF64()) * 1000.0));
-				}
-				// </polarity> FPS Limiter
 			}
 			// End of Sleep
 			
