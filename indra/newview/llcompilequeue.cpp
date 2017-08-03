@@ -63,12 +63,12 @@
 
 #include "llviewerassetupload.h"
 #include "llcorehttputil.h"
+#ifdef LSL_PREPROCESSOR
 #include "llsdutil.h" // for LLSDMap()
 // <polarity> LSL PreProc
 #include "pvscriptpreproc.h"
 // </polarity>
-
-#define LSL_PREPROCESSOR 1
+#endif
 
 namespace
 {
@@ -265,6 +265,7 @@ void LLFloaterScriptQueue::addObject(const LLUUID& id, std::string name)
 
 BOOL LLFloaterScriptQueue::start()
 {
+#ifdef LSL_PREPROCESSOR
 
 	LLNotificationsUtil::add("ConfirmScriptModify", LLSD(), LLSD(), boost::bind(&LLFloaterScriptQueue::onScriptModifyConfirmation, this, _1, _2));
 	return true;
@@ -289,13 +290,15 @@ bool LLFloaterScriptQueue::onScriptModifyConfirmation(const LLSD& notification, 
 	{
 		return true;
 	}
+#endif
 	std::string buffer;
 
 	LLStringUtil::format_map_t args;
 	args["[START]"] = mStartString;
 	args["[COUNT]"] = llformat ("%d", mObjectList.size());
 	buffer = getString ("Starting", args);
-	
+
+#ifdef LSL_PREPROCESSOR
 	// <FS:Ansariel> Improve log output
 	//getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
 	addStringMessage(buffer);
@@ -303,6 +306,7 @@ bool LLFloaterScriptQueue::onScriptModifyConfirmation(const LLSD& notification, 
 
 	LLButton* butt = getChild<LLButton>("close");
 	butt->setLabel(LLTrans::getString("Cancel"));
+#endif
 	return startQueue();
 }
 
@@ -310,14 +314,19 @@ void LLFloaterScriptQueue::addProcessingMessage(const std::string &message, cons
 {
     std::string buffer(LLTrans::getString(message, args));
 
+#ifdef LSL_PREPROCESSOR
     // <FS:Ansariel> Improve log output
     //getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
     addStringMessage(buffer);
     // </FS:Ansariel>
+#else
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(buffer, ADD_BOTTOM);
+#endif
 }
 
 void LLFloaterScriptQueue::addStringMessage(const std::string &message)
 {
+#ifdef LSL_PREPROCESSOR
     // <FS:Ansariel> Improve log output
     //getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, ADD_BOTTOM);
     LLScrollListCtrl* ctrl = getChild<LLScrollListCtrl>("queue output");
@@ -328,6 +337,9 @@ void LLFloaterScriptQueue::addStringMessage(const std::string &message)
         ctrl->setScrollPos(ctrl->getScrollPos() + 1);
     }
     // </FS:Ansariel>
+#else
+    getChild<LLScrollListCtrl>("queue output")->addSimpleElement(message, ADD_BOTTOM);
+#endif
 }
 
 
@@ -341,12 +353,14 @@ BOOL LLFloaterScriptQueue::isDone() const
 ///----------------------------------------------------------------------------
 LLFloaterCompileQueue::LLFloaterCompileQueue(const LLSD& key)
   : LLFloaterScriptQueue(key)
+#ifdef LSL_PREPROCESSOR
   , mLSLProc(NULL) // <FS:Ansariel> [LSL PreProc]
+#endif
 {
 	setTitle(LLTrans::getString("CompileQueueTitle"));
 	setStartString(LLTrans::getString("CompileQueueStart"));
 														 															 
-	
+#ifdef LSL_PREPROCESSOR
 	// <FS:KC> [LSL PreProc]
 	static LLCachedControl<bool> _NACL_LSLPreprocessor(gSavedSettings, "_NACL_LSLPreprocessor");
 	if(_NACL_LSLPreprocessor)
@@ -354,13 +368,16 @@ LLFloaterCompileQueue::LLFloaterCompileQueue(const LLSD& key)
 		mLSLProc = new FSLSLPreprocessor();
 	}
 	// </FS:KC>
+#endif
 }
 
 LLFloaterCompileQueue::~LLFloaterCompileQueue()
 { 
+#ifdef LSL_PREPROCESSOR
 	// <FS:Ansariel> [LSL PreProc]
 	mLSLProc = nullptr;
 	delete mLSLProc;
+#endif
 }
 
 void LLFloaterCompileQueue::experienceIdsReceived( const LLSD& content )
@@ -412,11 +429,13 @@ void LLFloaterCompileQueue::handleScriptRetrieval(LLVFS *vfs, const LLUUID& asse
         {
             result["message"] = LLTrans::getString("CompileQueueUnknownFailure");
         }
-
+#ifdef LSL_PREPROCESSOR
         // <FS:Ansariel> [LSL PreProc]
         // LSL PreProc error case
         delete ((HandleScriptUserData *)userData)->getData();
+#endif
     }
+#ifdef LSL_PREPROCESSOR
     // <FS:KC> [LSL PreProc]
     else if (gSavedSettings.getBOOL("_NACL_LSLPreprocessor"))
     {
@@ -438,7 +457,7 @@ void LLFloaterCompileQueue::handleScriptRetrieval(LLVFS *vfs, const LLUUID& asse
         result["preproc"] = true;
     }
     // </FS:KC> LSL Preprocessor
-
+#endif
     LLEventPumps::instance().post(((HandleScriptUserData *)userData)->getPumpName(), result);
 
 }
@@ -506,19 +525,23 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     // Attempt to retrieve the experience
     LLUUID experienceId;
     {
+#ifdef LSL_PREPROCESSOR
         if (object->getRegion() && object->getRegion()->isCapabilityAvailable("GetMetadata"))
         {
+#endif
         LLExperienceCache::instance().fetchAssociatedExperience(inventory->getParentUUID(), inventory->getUUID(),
             boost::bind(&LLFloaterCompileQueue::handleHTTPResponse, pump.getName(), _1));
 
         result = llcoro::suspendUntilEventOnWithTimeout(pump, fetch_timeout,
             LLSDMap("timeout", LLSD::Boolean(true)));
+#ifdef LSL_PREPROCESSOR
         }
         else
         {
             result = LLSD();
         }
         // </FS:Ansariel>
+#endif
 
         if (result.has("timeout"))
         {   // A timeout filed in the result will always be true if present.
@@ -544,6 +567,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
     }
 
     {
+#ifdef LSL_PREPROCESSOR
         // <FS:Ansariel> [LSL PreProc]
         //HandleScriptUserData    userData(pump.getName());
         HandleScriptUserData userData;
@@ -558,7 +582,9 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
             userData = HandleScriptUserData(pump.getName(), NULL);
         }
         // </FS:Ansariel>
-
+#else
+        HandleScriptUserData    userData(pump.getName());
+#endif
         // request the asset
         gAssetStorage->getInvItemAsset(LLHost(),
             gAgent.getID(),
@@ -598,7 +624,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         }
         return true;
     }
-
+#ifdef LSL_PREPROCESSOR
     // <FS:Ansariel> [LSL PreProc]
     if (result.has("preproc"))
     {
@@ -606,7 +632,7 @@ bool LLFloaterCompileQueue::processScript(LLHandle<LLFloaterCompileQueue> hfloat
         return true;
     }
     // </FS:Ansariel>
-
+#endif
     LLUUID assetId = result["asset_id"];
 
     std::string url = object->getRegion()->getCapability("UpdateScriptTask");
@@ -689,11 +715,15 @@ bool LLFloaterCompileQueue::startQueue()
 
             LLCoreHttpUtil::HttpCoroutineAdapter::callbackHttpGet(lookup_url,
                 success, failure);
+#ifdef LSL_PREPROCESSOR
             return true;
         }
         else
         {
             processExperienceIdResults(LLSD(), getKey().asUUID());
+#else
+	return TRUE
+#endif
         }
     }
 
@@ -887,19 +917,20 @@ LLFloaterDeleteQueue::~LLFloaterDeleteQueue()
 { 
 }
 
-/// This is a utility function to be bound and called from objectScriptProcessingQueueCoro.
-/// Do not call directly. It may throw a LLCheckedHandle<>::Stale exception.
-bool LLFloaterDeleteQueue::deleteObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater, 
-    const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
+bool LLFloaterDeleteQueue::deleteObjectScripts(LLHandle<LLFloaterScriptQueue> hfloater,
+	const LLPointer<LLViewerObject> &object, LLInventoryObject* inventory, LLEventPump &pump)
 {
-    LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
-    // Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
-    // which is caught in objectScriptProcessingQueueCoro
+	LLCheckedHandle<LLFloaterScriptQueue> floater(hfloater);
+	// Dereferencing floater may fail. If they do they throw LLExeceptionStaleHandle.
+	// which is caught in objectScriptProcessingQueueCoro
 
-    std::string buffer;
-    buffer = floater->getString("Deleting") + (": ") + inventory->getName();
-    floater->addStringMessage(buffer);
+	std::string buffer;
+	buffer = floater->getString("Deleting") + (": ") + inventory->getName();
+	floater->addStringMessage(buffer);
 
+#ifdef LSL_PREPROCESSOR_OLD_CODE
+	auto inv_uuid = inventory->getUUID();
+	const_cast<LLViewerObject*>(object.get())->removeInventory(inv_uuid);
     LLMessageSystem* msg = gMessageSystem;
     msg->newMessageFast(_PREHASH_RemoveTaskInventory);
     msg->nextBlockFast(_PREHASH_AgentData);
@@ -907,27 +938,28 @@ bool LLFloaterDeleteQueue::deleteObjectScripts(LLHandle<LLFloaterScriptQueue> hf
     msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
     msg->nextBlockFast(_PREHASH_InventoryData);
     msg->addU32Fast(_PREHASH_LocalID, object->getLocalID());
-    msg->addUUIDFast(_PREHASH_ItemID, inventory->getUUID());
+    msg->addUUIDFast(_PREHASH_ItemID, inv_uuid);
     msg->sendReliable(object->getRegion()->getHost());
-
-    return true;
+#else
+	const_cast<LLViewerObject*>(object.get())->removeInventory(inventory->getUUID());
+#endif
+	return true;
 }
-
 
 bool LLFloaterDeleteQueue::startQueue()
 {
-    LLHandle<LLFloaterScriptQueue> hFloater(getDerivedHandle<LLFloaterScriptQueue>());
+	LLHandle<LLFloaterScriptQueue> hFloater(getDerivedHandle<LLFloaterScriptQueue>());
 
-    fnQueueAction_t fn = boost::bind(&LLFloaterDeleteQueue::deleteObjectScripts, hFloater, _1, _2, _3);
-    LLCoros::instance().launch("ScriptDeleteQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
-        mStartString,
-        hFloater,
-        mObjectList,
-        fn));
+	fnQueueAction_t fn = boost::bind(&LLFloaterDeleteQueue::deleteObjectScripts, hFloater, _1, _2, _3);
+	LLCoros::instance().launch("ScriptDeleteQueue", boost::bind(LLFloaterScriptQueue::objectScriptProcessingQueueCoro,
+		mStartString,
+		hFloater,
+		mObjectList,
+		fn));
 
-    return true;
+	return true;
 }
-// </FS> Delete scripts
+
 
 ///----------------------------------------------------------------------------
 /// Local function definitions
@@ -1012,7 +1044,6 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
                 // it still exists here.
 
 				auto script_ptr = (*itInv); // <polarity/>
-
                 if ((script_ptr->getType() == LLAssetType::AT_LSL_TEXT)) // <polarity/>
                 {
                     LL_DEBUGS("SCRIPTQ") << "Inventory item " << script_ptr->getUUID().asString() << "\"" << script_ptr->getName() << "\"" << LL_ENDL; // <polarity/>
@@ -1055,7 +1086,7 @@ void LLFloaterScriptQueue::objectScriptProcessingQueueCoro(std::string action, L
         LL_DEBUGS("SCRIPTQ") << "LLExeceptionStaleHandle caught! Floater has most likely been closed." << LL_ENDL;
     }
 }
-
+#ifdef LSL_PREPROCESSOR
 // <FS:KC> [LSL PreProc]
 class LLScriptAssetUploadWithId: public LLScriptAssetUpload
 {
@@ -1189,3 +1220,4 @@ void LLFloaterCompileQueue::scriptLogMessage(LLScriptQueueData* data, std::strin
 	}
 }
 // </FS:KC>
+#endif
