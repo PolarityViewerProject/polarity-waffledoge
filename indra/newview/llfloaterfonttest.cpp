@@ -35,7 +35,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llfloaterfonttest.h"
-#include "lluictrlfactory.h"
 
 
 LLFloaterFontTest::LLFloaterFontTest(const LLSD& key)

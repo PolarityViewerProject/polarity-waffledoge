@@ -124,13 +124,16 @@ BOOL LLChatBar::handleKeyHere( KEY key, MASK mask )
 
 	if( KEY_RETURN == key )
 	{
-		if (mask == MASK_CONTROL && gSavedSettings.getBool("AlchemyEnableKeyboardShout"))
+		// <polarity> Allow user to disable keyboard shortcuts for shout and whisper
+		static LLCachedControl<bool> kb_shout(gSavedSettings, "PVChat_EnableKeyboardShout", false);
+		static LLCachedControl<bool> kb_whisper(gSavedSettings, "PVChat_EnableKeyboardWhisper", false);
+		if (mask == MASK_CONTROL && kb_shout)
 		{
 			// shout
 			sendChat(CHAT_TYPE_SHOUT);
 			handled = TRUE;
 		}
-		else if (mask == MASK_SHIFT && gSavedSettings.getBool("AlchemyEnableKeyboardWhisper"))
+		else if (mask == MASK_SHIFT && kb_whisper)
 		{
 			sendChat(CHAT_TYPE_WHISPER);
 			handled = TRUE;

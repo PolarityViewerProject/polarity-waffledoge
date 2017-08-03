@@ -29,9 +29,9 @@
 
 #include "llfloater.h"
 
+class LLCheckBoxCtrl; // <alchemy/>
 class LLComboBox;
 class LLRadioGroup;
-class LLCheckBoxCtrl;
 
 class LLFloaterEnvironmentSettings : public LLFloater
 {
@@ -39,11 +39,12 @@ class LLFloaterEnvironmentSettings : public LLFloater
 
 public:
 	LLFloaterEnvironmentSettings(const LLSD &key);
-	/*virtual*/	BOOL	postBuild();	
-	/*virtual*/ void	onOpen(const LLSD& key);
+	/*virtual*/	BOOL	postBuild() override;	
+	/*virtual*/ void	onOpen(const LLSD& key) override;
 
 private:
 	void onSwitchRegionSettings();
+	void onSwitchDayCycle();
 
 	void onSelectWaterPreset();
 	void onSelectSkyPreset();
@@ -51,7 +52,7 @@ private:
 
 	void onBtnCancel();
 
-	void refresh(); /// update controls with user prefs
+	void refresh() override; /// update controls with user prefs
 	void apply();
 	void applyWater();
 	void applySky();

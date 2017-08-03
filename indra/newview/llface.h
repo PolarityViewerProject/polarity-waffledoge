@@ -203,7 +203,7 @@ public:
 	S32			getReferenceIndex() 		const	{ return mReferenceIndex; }
 	void		setReferenceIndex(const S32 index)	{ mReferenceIndex = index; }
 
-	BOOL		verify(const U32* indices_array = NULL) const;
+	BOOL		verify(const U32* indices_array = nullptr) const;
 	void		printDebugInfo() const;
 
 	void		setGeomIndex(U16 idx); 
@@ -258,6 +258,8 @@ public:
 	F32			mLastMoveTime;
 	LLMatrix4*	mTextureMatrix;
 	LLDrawInfo* mDrawInfo;
+
+	bool		mShinyInAlpha;
 
 private:
 	LLPointer<LLVertexBuffer> mVertexBuffer;

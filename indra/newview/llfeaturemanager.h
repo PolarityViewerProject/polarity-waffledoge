@@ -31,6 +31,7 @@
 
 #include "llsingleton.h"
 #include "llstring.h"
+#include <map>
 #include "llcoros.h"
 #include "lleventcoro.h"
 
@@ -48,15 +49,13 @@ typedef enum EGPUClass
 typedef enum EGPUClassBandwidth
 {
 	GPU_BW_UNKNOWN = -1,
-	GPU_BW_0 = 40,
-	GPU_BW_1 = 60,
-	GPU_BW_2 = 80,
-	GPU_BW_3 = 100,
-	GPU_BW_4 = 200,
-	GPU_BW_5 = 300,
+	GPU_BW_0 = 2,
+	GPU_BW_1 = 5,
+	GPU_BW_2 = 16,
+	GPU_BW_3 = 40,
+	GPU_BW_4 = 80,
+	GPU_BW_5 = 150,
 } EGPUClassBandwidth;
-
-// I can't bother moving the function to a class.
 
 class LLFeatureInfo
 {
@@ -121,7 +120,6 @@ public:
 
 	EGPUClass getGPUClass() 			{ return mGPUClass; }
 	std::string& getGPUString() 		{ return mGPUString; }
-	BOOL isGPUSupported()				{ return mGPUSupported; }
 	F32 getExpectedGLVersion()			{ return mExpectedGLVersion; }
 	
 	void cleanupFeatureTables();
@@ -158,7 +156,6 @@ public:
 
 	// load the dynamic GPU/feature table from a website
 	void fetchHTTPTables();
-	// void fetchFallbackHTTPTable();
 
 	LLSD getRecommendedSettingsMap();
 
@@ -180,7 +177,6 @@ protected:
 	EGPUClass	mGPUClass;
 	F32			mExpectedGLVersion;		//expected GL version according to gpu table
 	std::string	mGPUString;
-	BOOL		mGPUSupported;
 };
 
 inline
@@ -191,8 +187,7 @@ LLFeatureManager::LLFeatureManager()
 	mTableVersion(0),
 	mSafe(FALSE),
 	mGPUClass(GPU_CLASS_UNKNOWN),
-	mExpectedGLVersion(0.f),
-	mGPUSupported(FALSE)
+	mExpectedGLVersion(0.f)
 {
 }
 

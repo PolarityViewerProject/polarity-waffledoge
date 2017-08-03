@@ -33,18 +33,11 @@
 #ifndef LL_LLFILEPICKER_H
 #define LL_LLFILEPICKER_H
 
-#include "stdtypes.h"
-
 #if LL_DARWIN
-#include <Carbon/Carbon.h>
-
 // AssertMacros.h does bad things.
 #undef verify
 #undef check
 #undef require
-
-#include <vector>
-#include "llstring.h"
 
 #endif
 
@@ -77,18 +70,16 @@ public:
 		FFLOAD_WAV = 2,
 		FFLOAD_IMAGE = 3,
 		FFLOAD_ANIM = 4,
-#ifdef _CORY_TESTING
-		FFLOAD_GEOMETRY = 5,
-#endif
-		FFLOAD_XML = 6,
-		FFLOAD_SLOBJECT = 7,
-		FFLOAD_RAW = 8,
-		FFLOAD_MODEL = 9,
-		FFLOAD_COLLADA = 10,
-		FFLOAD_SCRIPT = 11,
-		FFLOAD_DICTIONARY = 12,
-        FFLOAD_DIRECTORY = 13,   // To call from lldirpicker.
-        FFLOAD_EXE = 14          // Note: EXE will be treated as ALL on Windows and Linux but not on Darwin
+		FFLOAD_XML = 5,
+		FFLOAD_RAW = 6,
+		FFLOAD_MODEL = 7,
+		FFLOAD_COLLADA = 8,
+		FFLOAD_FBX = 9,
+		FFLOAD_SCRIPT = 10,
+		FFLOAD_DICTIONARY = 11,
+		FFLOAD_DIRECTORY = 12,   //To call from lldirpicker.
+		FFLOAD_EXE = 13,
+		FFLOAD_ZIP = 14
 	};
 
 	enum ESaveFilter
@@ -99,27 +90,23 @@ public:
 		FFSAVE_BMP = 5,
 		FFSAVE_AVI = 6,
 		FFSAVE_ANIM = 7,
-#ifdef _CORY_TESTING
-		FFSAVE_GEOMETRY = 8,
-#endif
+		FFSAVE_BVH = 8,
 		FFSAVE_XML = 9,
-		FFSAVE_COLLADA = 10,
-		FFSAVE_RAW = 11,
-		FFSAVE_J2C = 12,
-		FFSAVE_PNG = 13,
-		FFSAVE_JPEG = 14,
-		FFSAVE_SCRIPT = 15,
-		FFSAVE_TGAPNG = 16
+		FFSAVE_CSV = 10,
+		FFSAVE_COLLADA = 11,
+		FFSAVE_FBX = 12,
+		FFSAVE_RAW = 13,
+		FFSAVE_J2C = 14,
+		FFSAVE_PNG = 15,
+		FFSAVE_JPEG = 16,
+		FFSAVE_SCRIPT = 17,
+		FFSAVE_TGAPNG = 18
 	};
 
 	// open the dialog. This is a modal operation
-// <FS:CR Threaded Filepickers>
-	//BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null );
-	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null, bool blocking = true );
+	BOOL getSaveFile( ESaveFilter filter = FFSAVE_ALL, const std::string& filename = LLStringUtil::null );
 	BOOL getOpenFile( ELoadFilter filter = FFLOAD_ALL, bool blocking = true  );
-	//BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL );
-	BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL, bool blocking = true );
-// </FS:CR Threaded Filepickers>
+	BOOL getMultipleOpenFiles( ELoadFilter filter = FFLOAD_ALL );
 
 	// Get the filename(s) found. getFirstFile() sets the pointer to
 	// the start of the structure and allows the start of iteration.
@@ -171,7 +158,7 @@ private:
 	
 	bool doNavChooseDialog(ELoadFilter filter);
 	bool doNavSaveDialog(ESaveFilter filter, const std::string& filename);
-    std::vector<std::string>* navOpenFilterProc(ELoadFilter filter);
+    std::vector<std::string> navOpenFilterProc(ELoadFilter filter);
 #endif
 
 #if LL_GTK

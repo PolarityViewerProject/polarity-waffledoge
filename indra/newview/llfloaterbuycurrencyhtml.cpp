@@ -36,6 +36,7 @@
 //
 LLFloaterBuyCurrencyHTML::LLFloaterBuyCurrencyHTML( const LLSD& key ):
 	LLFloater( key ),
+	mBrowser(nullptr),
 	mSpecificSumRequested( false ),
 	mMessage( "" ),
 	mSum( 0 )

@@ -34,14 +34,15 @@
 #include "lluuid.h"
 
 #include "llfloater.h"
-#include "llscrolllistctrl.h"
+
+class LLScrollListCtrl;
 
 class LLFloaterBulkPermission : public LLFloater, public LLVOInventoryListener
 {
 	friend class LLFloaterReg;
 public:
 
-	BOOL postBuild();
+	BOOL postBuild() override;
 
 private:
 	
@@ -57,7 +58,7 @@ private:
 	/*virtual*/ void inventoryChanged(LLViewerObject* obj,
 								 LLInventoryObject::object_list_t* inv,
 								 S32 serial_num,
-								 void* queue);
+								 void* queue) override;
 	
 	// This is called by inventoryChanged
 	void handleInventory(LLViewerObject* viewer_obj,
@@ -84,10 +85,6 @@ private:
 	void doCheckUncheckAll(BOOL check);
 
 private:
-	// UI
-	LLScrollListCtrl* mMessages;
-	LLButton* mCloseBtn;
-
 	// Object Queue
 	std::vector<LLUUID> mObjectIDs;
 	LLUUID mCurrentObjectID;
@@ -109,8 +106,6 @@ private:
 	bool mBulkChangeNextOwnerTransfer;
 
 	LLUUID mID;
-
-	const char* mStartString;
 };
 
 #endif

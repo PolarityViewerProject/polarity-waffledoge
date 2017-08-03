@@ -56,7 +56,7 @@ int DebugDetailMap = 0;
 
 S32 LLDrawPoolTerrain::sDetailMode = 1;
 F32 LLDrawPoolTerrain::sDetailScale = DETAIL_SCALE;
-static LLGLSLShader* sShader = NULL;
+static LLGLSLShader* sShader = nullptr;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TERRAIN("Terrain Shadow");
 
 
@@ -64,15 +64,16 @@ LLDrawPoolTerrain::LLDrawPoolTerrain(LLViewerTexture *texturep) :
 	LLFacePool(POOL_TERRAIN),
 	mTexturep(texturep)
 {
-	U32 format = GL_ALPHA8;
-	U32 int_format = GL_ALPHA;
+	
 
 	// Hack!
 	static LLCachedControl<F32> RenderTerrainScale(gSavedSettings, "RenderTerrainScale");
 	static LLCachedControl<S32> RenderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
-	sDetailScale = 1.f/RenderTerrainScale;
+	sDetailScale = 1.f/(static_cast<F32>(RenderTerrainScale));
 	sDetailMode = static_cast<S32>(RenderTerrainDetail);
 
+	static const U32 format = GL_ALPHA8;
+	static const U32 int_format = GL_ALPHA;
 
 	m2DAlphaRampImagep = LLViewerTextureManager::getFetchedTextureFromFile("alpha_gradient_2d.j2c", 
 													FTT_LOCAL_FILE,
@@ -119,8 +120,9 @@ U32 LLDrawPoolTerrain::getVertexDataMask()
 void LLDrawPoolTerrain::prerender()
 {
 	mVertexShaderLevel = LLViewerShaderMgr::instance()->getVertexShaderLevel(LLViewerShaderMgr::SHADER_ENVIRONMENT);
-	static LLCachedControl<S32> render_terrain_detail(gSavedSettings, "RenderTerrainDetail", 1);
-	sDetailMode = static_cast<S32>(render_terrain_detail);
+
+	static LLCachedControl<S32> renderTerrainDetail(gSavedSettings, "RenderTerrainDetail");
+	sDetailMode = (S32)renderTerrainDetail;
 }
 
 void LLDrawPoolTerrain::beginRenderPass( S32 pass )
@@ -214,10 +216,10 @@ void LLDrawPoolTerrain::render(S32 pass)
 	}
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
-	if (show_parcel_owners)
+	static LLCachedControl<bool> showParcelOwners(gSavedSettings, "ShowParcelOwners");
+	if (showParcelOwners)
 	{
-		highlightParcelOwners();
+		renderParcelOwnersOverlay();
 	}
 }
 
@@ -249,10 +251,9 @@ void LLDrawPoolTerrain::renderDeferred(S32 pass)
 	renderFullShader();
 
 	// Special-case for land ownership feedback
-	static LLCachedControl<bool> show_parcel_owners(gSavedSettings, "ShowParcelOwners", false);
-	if (show_parcel_owners)
+	if (gSavedSettings.getBOOL("ShowParcelOwners"))
 	{
-		highlightParcelOwners();
+		renderParcelOwnersOverlay();
 	}
 
 }
@@ -449,7 +450,7 @@ void LLDrawPoolTerrain::renderFullShader()
 	gGL.matrixMode(LLRender::MM_MODELVIEW);
 }
 
-void LLDrawPoolTerrain::highlightParcelOwners()
+void LLDrawPoolTerrain::renderParcelOwnersOverlay()
 {
 	if (mVertexShaderLevel > 1)
 	{ //use fullbright shader for highlighting

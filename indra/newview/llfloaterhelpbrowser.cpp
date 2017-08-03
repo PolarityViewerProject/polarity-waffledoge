@@ -46,6 +46,7 @@
 
 LLFloaterHelpBrowser::LLFloaterHelpBrowser(const LLSD& key)
 	: LLFloater(key)
+	, mBrowser(nullptr)
 {
 }
 

@@ -27,6 +27,7 @@
 
 #include "llviewerprecompiledheaders.h"
 
+#include "llavatarnamecache.h"
 #include "llconversationlog.h"
 #include "llfloaterconversationpreview.h"
 #include "llimview.h"
@@ -41,15 +42,16 @@ const std::string LL_FCP_ACCOUNT_NAME("user_name");
 
 LLFloaterConversationPreview::LLFloaterConversationPreview(const LLSD& session_id)
 :	LLFloater(session_id),
-	mChatHistory(NULL),
+	mMutex(),
+	mPageSpinner(nullptr),
+	mChatHistory(nullptr),
 	mSessionID(session_id.asUUID()),
 	mCurrentPage(0),
 	mPageSize(gSavedSettings.getS32("ConversationHistoryPageSize")),
+	mMessages(nullptr),
 	mAccountName(session_id[LL_FCP_ACCOUNT_NAME]),
 	mCompleteName(session_id[LL_FCP_COMPLETE_NAME]),
-	mMutex(),
 	mShowHistory(false),
-	mMessages(NULL),
 	mHistoryThreadsBusy(false),
 	mOpened(false)
 {
@@ -196,7 +198,7 @@ void LLFloaterConversationPreview::showHistory()
 {
 	// additional protection to avoid changes of mMessages in setPages
 	LLMutexLock lock(&mMutex);
-	if(mMessages == NULL || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
+	if(mMessages == nullptr || !mMessages->size() || mCurrentPage * mPageSize >= mMessages->size())
 	{
 		return;
 	}
@@ -221,7 +223,7 @@ void LLFloaterConversationPreview::showHistory()
 		else
  		{
 			std::string legacy_name = gCacheName->buildLegacyName(from);
- 			gCacheName->getUUID(legacy_name, from_id);
+			from_id = LLAvatarNameCache::findIdByName(legacy_name);
  		}
 
 		LLChat chat;

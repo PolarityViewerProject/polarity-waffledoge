@@ -52,7 +52,7 @@
 #include "llvolume.h"
 #include "llvolumemessage.h"
 
-bool ALChatCommand::parseCommand(std::string data)
+bool ALChatCommand::parseCommand(std::string data) nyanyanya merge additions to oschatcommand into this then remove it
 {
 	static LLCachedControl<bool> enableChatCmd(gSavedSettings, "AlchemyChatCommandEnable", true);
 	if (enableChatCmd)

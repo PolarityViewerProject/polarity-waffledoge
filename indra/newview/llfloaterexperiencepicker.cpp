@@ -53,7 +53,7 @@ LLFloaterExperiencePicker* LLFloaterExperiencePicker::show( select_callback_t ca
 	if (!floater)
 	{
 		LL_WARNS() << "Cannot instantiate experience picker" << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 
 	if (floater->mSearchPanel)
@@ -87,35 +87,28 @@ void LLFloaterExperiencePicker::drawFrustum()
 		{
 			gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 			LLGLEnable(GL_CULL_FACE);
-			gGL.begin(LLRender::QUADS);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
 			{
-				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
-				gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
-				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
 				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-				gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
 				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
-
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 				gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
-				gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
-
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 				gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 				gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
 			}
 			gGL.end();
 		}
@@ -139,7 +132,7 @@ void LLFloaterExperiencePicker::draw()
 
 LLFloaterExperiencePicker::LLFloaterExperiencePicker( const LLSD& key )
 	:LLFloater(key)
-	,mSearchPanel(NULL)
+	,mSearchPanel(nullptr)
 	,mContextConeOpacity(0.f)
 	,mContextConeInAlpha(0.f)
 	,mContextConeOutAlpha(0.f)

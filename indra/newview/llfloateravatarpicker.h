@@ -31,8 +31,6 @@
 #include "lleventcoro.h"
 #include "llcoros.h"
 
-#include <vector>
-
 class LLAvatarName;
 class LLScrollListCtrl;
 
@@ -43,19 +41,19 @@ public:
 	typedef validate_signal_t::slot_type validate_callback_t;
 
 	// The callback function will be called with an avatar name and UUID.
-	typedef boost::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
+	typedef std::function<void (const uuid_vec_t&, const std::vector<LLAvatarName>&)> select_callback_t;
 	// Call this to select an avatar.	
 	static LLFloaterAvatarPicker* show(select_callback_t callback, 
 									   BOOL allow_multiple = FALSE,
 									   BOOL closeOnSelect = FALSE,
 									   BOOL skip_agent = FALSE,
                                        const std::string& name = "",
-                                       LLView * frustumOrigin = NULL);
+                                       LLView * frustumOrigin = nullptr);
 
 	LLFloaterAvatarPicker(const LLSD& key);
 	virtual ~LLFloaterAvatarPicker();
-	
-	virtual	BOOL postBuild();
+
+	BOOL postBuild() override;
 
 	void setOkBtnEnableCb(validate_callback_t cb);
 
@@ -65,7 +63,7 @@ public:
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg);
+						   std::string& tooltip_msg) override;
 
 	void openFriendsTab();
 	BOOL isExcludeAgentFromSearchResults() {return mExcludeAgentFromSearchResults;}
@@ -89,11 +87,11 @@ private:
     static void findCoro(std::string url, LLUUID mQueryID, std::string mName);
 	void find();
 	void setAllowMultiple(BOOL allow_multiple);
-	LLScrollListCtrl* getActiveList();
+	LLScrollListCtrl* getActiveList() const;
 
     void drawFrustum();
-	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
+	void draw() override;
+	BOOL handleKeyHere(KEY key, MASK mask) override;
 
 	LLUUID				mQueryID;
 	int				    mNumResultsReturned;

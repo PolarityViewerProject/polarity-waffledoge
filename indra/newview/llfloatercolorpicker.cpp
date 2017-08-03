@@ -73,6 +73,15 @@
 
 LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show_apply_immediate )
 	: LLFloater(LLSD()),
+	  origR(1.f),
+	  origG(1.f),
+	  origB(1.f),
+	  curR(1.f),
+	  curG(1.f),
+	  curB(1.f),
+	  curH(0.f), 
+	  curS(0.f),
+	  curL(1.f),
 	  mComponents			( 3 ),
 	  mMouseDownInLumRegion	( FALSE ),
 	  mMouseDownInHueRegion	( FALSE ),
@@ -92,33 +101,37 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
 	  mSwatchRegionTop		( 190 ),
 	  mSwatchRegionWidth	( 116 ),
 	  mSwatchRegionHeight	( 60 ),
-	  mSwatchView			( NULL ),
+	  mSwatchView			(nullptr ),
 	  // *TODO: Specify this in XML
 	  numPaletteColumns		( 16 ),
-	  numPaletteRows		( 4 ),
+	  numPaletteRows		( 4 ), // <polarity/>
 	  highlightEntry		( -1 ),
 	  mPaletteRegionLeft	( 11 ),
 	  mPaletteRegionTop		( 100 - 8 ),
-	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - 6 ),
-	  mPaletteRegionHeight	( 60 ),
+	  mPaletteRegionWidth	( mLumRegionLeft + mLumRegionWidth - 6 ), // <polarity/>
+	  mPaletteRegionHeight	( 60 ), // <polarity/>
 	  mSwatch				( swatch ),
 	  mActive				( TRUE ),
+	  mApplyImmediateCheck(nullptr),
 	  mCanApplyImmediately	( show_apply_immediate ),
+	  mSelectBtn(nullptr),
+	  mCancelBtn(nullptr),
+	  mPipetteBtn(nullptr),
 	  mContextConeOpacity	( 0.f ),
       mContextConeInAlpha   ( 0.f ),
       mContextConeOutAlpha   ( 0.f ),
       mContextConeFadeTime   ( 0.f )
+	  // <polarity> Enhanced color picker
+	  ,mCopyLSLBtn(nullptr)
+	  ,mCopyLLColor4Panel = getChild<LLPanel>("copy_llcolor4_panel")
+	  ,mCopyLLColor4Btn = getChild<LLButton>("copy_llcolor4_btn")
+	  ,mCopyHexBtn = getChild<LLButton>("copy_hex_btn")
+	  // </polarity>
 {
 	buildFromFile ( "floater_color_picker.xml");
 
 	// create user interface for this picker
 	createUI ();
-
-	if (!mCanApplyImmediately)
-	{
-		mApplyImmediateCheck->setEnabled(FALSE);
-		mApplyImmediateCheck->set(FALSE);
-	}
 
     mContextConeInAlpha = gSavedSettings.getF32("ContextConeInAlpha");
     mContextConeOutAlpha = gSavedSettings.getF32("ContextConeOutAlpha");
@@ -208,10 +221,10 @@ void LLFloaterColorPicker::showUI ()
 BOOL LLFloaterColorPicker::postBuild()
 {
 	mCancelBtn = getChild<LLButton>( "cancel_btn" );
-    mCancelBtn->setClickedCallback ( onClickCancel, this );
+	mCancelBtn->setCommitCallback(boost::bind(&LLFloaterColorPicker::onClickCancel, this));
 
 	mSelectBtn = getChild<LLButton>( "select_btn");
-    mSelectBtn->setClickedCallback ( onClickSelect, this );
+    mSelectBtn->setCommitCallback(boost::bind(&LLFloaterColorPicker::onClickSelect, this));
 	mSelectBtn->setFocus ( TRUE );
 
 	mPipetteBtn = getChild<LLButton>("color_pipette" );
@@ -222,7 +235,7 @@ BOOL LLFloaterColorPicker::postBuild()
 
 	mApplyImmediateCheck = getChild<LLCheckBoxCtrl>("apply_immediate");
 	mApplyImmediateCheck->set(gSavedSettings.getBOOL("ApplyColorImmediately"));
-	mApplyImmediateCheck->setCommitCallback(onImmediateCheck, this);
+	mApplyImmediateCheck->setCommitCallback(boost::bind(&LLFloaterColorPicker::onImmediateCheck, this));
 
 	childSetCommitCallback("rspin", onTextCommit, (void*)this );
 	childSetCommitCallback("gspin", onTextCommit, (void*)this );
@@ -300,7 +313,7 @@ void LLFloaterColorPicker::destroyUI ()
 	{
 		this->removeChild ( mSwatchView );
 		mSwatchView->die();;
-		mSwatchView = NULL;
+		mSwatchView = nullptr;
 	}
 }
 
@@ -412,38 +425,22 @@ void LLFloaterColorPicker::getCurHsl ( F32& curHOut, F32& curSOut, F32& curLOut 
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'cancel' clicked
-void LLFloaterColorPicker::onClickCancel ( void* data )
+void LLFloaterColorPicker::onClickCancel()
 {
-	if (data)
+	if(getRevertOnCancel())
 	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-
-		if ( self )
-		{
-		    if(self->getRevertOnCancel())
-		    {
-		        self->cancelSelection ();
-		    }
-			self->closeFloater();
-		}
+		cancelSelection();
 	}
+	closeFloater();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 // called when 'select' clicked
-void LLFloaterColorPicker::onClickSelect ( void* data )
+void LLFloaterColorPicker::onClickSelect()
 {
-	if (data)
-	{
-		LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-
-		if ( self )
-		{
-			// apply to selection
-			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_SELECT );
-			self->closeFloater();
-		}
-	}
+	// apply to selection
+	LLColorSwatchCtrl::onColorChanged(getSwatch(), LLColorSwatchCtrl::COLOR_SELECT);
+	closeFloater();
 }
 
 void LLFloaterColorPicker::onClickPipette( )
@@ -474,16 +471,13 @@ void LLFloaterColorPicker::onTextCommit ( LLUICtrl* ctrl, void* data )
 	}
 }
 
-void LLFloaterColorPicker::onImmediateCheck( LLUICtrl* ctrl, void* data)
+void LLFloaterColorPicker::onImmediateCheck()
 {
-	LLFloaterColorPicker* self = ( LLFloaterColorPicker* )data;
-	if (self)
+	gSavedSettings.setBOOL("ApplyColorImmediately", mApplyImmediateCheck->get());
+
+	if (mApplyImmediateCheck->get() && isColorChanged())
 	{
-		gSavedSettings.setBOOL("ApplyColorImmediately", self->mApplyImmediateCheck->get());
-		if (self->mApplyImmediateCheck->get() && self->isColorChanged())
-		{
-			LLColorSwatchCtrl::onColorChanged ( self->getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
-		}
+		LLColorSwatchCtrl::onColorChanged ( getSwatch(), LLColorSwatchCtrl::COLOR_CHANGE );
 	}
 }
 
@@ -522,35 +516,28 @@ void LLFloaterColorPicker::draw()
 	{
 		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
 		LLGLEnable(GL_CULL_FACE);
-		gGL.begin(LLRender::QUADS);
+		gGL.begin(LLRender::TRIANGLE_STRIP);
 		{
-			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
-			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
 			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
 			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 			gGL.vertex2i(local_rect.mRight, local_rect.mTop);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mTop);
-			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
-
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
 			gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
 			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mRight, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
 			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mBottom);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+			gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+			gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+			gGL.vertex2i(swatch_rect.mLeft, swatch_rect.mTop);
 		}
 		gGL.end();
 	}
@@ -986,6 +973,11 @@ BOOL LLFloaterColorPicker::handleMouseDown ( S32 x, S32 y, MASK mask )
 
 			selectCurRgb ( selected [ 0 ], selected [ 1 ], selected [ 2 ] );
 
+			if (mApplyImmediateCheck->get())
+			{
+				LLColorSwatchCtrl::onColorChanged ( getSwatch (), LLColorSwatchCtrl::COLOR_CHANGE );
+			}
+
 			updateTextEntry ();
 		}
 
@@ -1133,7 +1125,7 @@ BOOL LLFloaterColorPicker::handleMouseUp ( S32 x, S32 y, MASK mask )
 
 	if (hasMouseCapture())
 	{
-		gFocusMgr.setMouseCapture(NULL);
+		gFocusMgr.setMouseCapture(nullptr);
 	}
 
 	// dispatch to base class for the rest of things

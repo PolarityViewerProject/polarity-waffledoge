@@ -332,28 +332,6 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
-    <key>AlchemyEnableKeyboardShout</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables shouting with the Control(CTRL) + Enter key combinaison.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
-    <key>AlchemyEnableKeyboardWhisper</key>
-    <map>
-      <key>Comment</key>
-      <string>Enables whispering with the Shift + Enter key combinaison.</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>AlchemyDisableMinZoomDist</key>
     <map>
       <key>Comment</key>

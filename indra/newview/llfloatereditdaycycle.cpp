@@ -54,15 +54,15 @@ const F32 LLFloaterEditDayCycle::sHoursPerDay = 24.0f;
 
 LLFloaterEditDayCycle::LLFloaterEditDayCycle(const LLSD &key)
 :	LLFloater(key)
-,	mDayCycleNameEditor(NULL)
-,	mDayCyclesCombo(NULL)
-,	mTimeSlider(NULL)
-,	mKeysSlider(NULL)
-,	mSkyPresetsCombo(NULL)
-,	mTimeCtrl(NULL)
-,	mMakeDefaultCheckBox(NULL)
-,	mSaveButton(NULL)
-,  mDeleteButton(NULL)
+,	mDayCycleNameEditor(nullptr)
+,	mDayCyclesCombo(nullptr)
+,	mTimeSlider(nullptr)
+,	mKeysSlider(nullptr)
+,	mSkyPresetsCombo(nullptr)
+,	mTimeCtrl(nullptr)
+,	mMakeDefaultCheckBox(nullptr)
+,	mSaveButton(nullptr)
+,  mDeleteButton(nullptr)
 {
 }
 
@@ -115,7 +115,15 @@ void LLFloaterEditDayCycle::onOpen(const LLSD& key)
 }
 
 // virtual
+void LLFloaterEditDayCycle::onClose(bool app_quitting)
+{
+	if (!app_quitting) // there's no point to change environment if we're quitting
+	{
+		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current day cycle
+	}
+}
 
+// virtual
 void LLFloaterEditDayCycle::draw()
 {
 	syncTimeSlider();
@@ -124,7 +132,7 @@ void LLFloaterEditDayCycle::draw()
 
 void LLFloaterEditDayCycle::initCallbacks(void)
 {
-	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), NULL);
+	mDayCycleNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this), nullptr);
 	mDayCyclesCombo->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleSelected, this));
 	mDayCyclesCombo->setTextEntryCallback(boost::bind(&LLFloaterEditDayCycle::onDayCycleNameEdited, this));
 	mTimeSlider->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onTimeSliderMoved, this));
@@ -732,6 +740,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 	if (selected_day.scope == LLEnvKey::SCOPE_REGION)
 	{
 		saveRegionDayCycle();
+		//closeFloater(); // <polarity/>
 		return;
 	}
 
@@ -797,6 +806,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
 
+	//closeFloater(); // <polarity/>
 }
 
 void LLFloaterEditDayCycle::onDayCycleListChange()

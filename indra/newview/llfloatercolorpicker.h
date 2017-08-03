@@ -27,12 +27,9 @@
 #ifndef LL_LLFLOATERCOLORPICKER_H
 #define LL_LLFLOATERCOLORPICKER_H
 
-#include <vector>
-
 #include "llfloater.h"
 #include "llpointer.h"
 #include "llcolorswatch.h"
-#include "llspinctrl.h"
 
 class LLButton;
 class LLLineEditor;
@@ -48,12 +45,12 @@ class LLFloaterColorPicker
 		virtual ~LLFloaterColorPicker ();
 
 		// overrides
-		virtual BOOL postBuild ();
-		virtual void draw ();
-		virtual BOOL handleMouseDown ( S32 x, S32 y, MASK mask );
-		virtual BOOL handleMouseUp ( S32 x, S32 y, MASK mask );
-		virtual BOOL handleHover ( S32 x, S32 y, MASK mask );
-		virtual void onMouseCaptureLost();
+	BOOL postBuild () override;
+	void draw () override;
+	BOOL handleMouseDown ( S32 x, S32 y, MASK mask ) override;
+	BOOL handleMouseUp ( S32 x, S32 y, MASK mask ) override;
+	BOOL handleHover ( S32 x, S32 y, MASK mask ) override;
+	void onMouseCaptureLost() override;
 		virtual F32  getSwatchTransparency();
 
 		// implicit methods
@@ -120,11 +117,11 @@ class LLFloaterColorPicker
 
 	protected:
 		// callbacks
-		static void onClickCancel ( void* data );
-		static void onClickSelect ( void* data );
+			   void onClickCancel();
+			   void onClickSelect();
 			   void onClickPipette ( );
 		static void onTextCommit ( LLUICtrl* ctrl, void* data );
-		static void onImmediateCheck ( LLUICtrl* ctrl, void* data );
+			   void onImmediateCheck ();
 			   void onColorSelect( const class LLTextureEntry& te );
 	private:
 		// mutators for color values, can raise event to preview changes at object

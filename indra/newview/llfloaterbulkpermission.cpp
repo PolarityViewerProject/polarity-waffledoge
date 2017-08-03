@@ -46,16 +46,30 @@
 #include "llbutton.h"
 #include "lldir.h"
 #include "llviewerstats.h"
-#include "lluictrlfactory.h"
 #include "llselectmgr.h"
 #include "llcheckboxctrl.h"
+#include "llscrolllistctrl.h"
 
 #include "roles_constants.h" // for GP_OBJECT_MANIPULATE
 
 
 LLFloaterBulkPermission::LLFloaterBulkPermission(const LLSD& seed) 
-:	LLFloater(seed),
-	mDone(FALSE)
+	: LLFloater(seed),
+	mDone(FALSE),
+	mBulkChangeIncludeAnimations(false),
+	mBulkChangeIncludeBodyParts(false),
+	mBulkChangeIncludeClothing(false),
+	mBulkChangeIncludeGestures(false),
+	mBulkChangeIncludeNotecards(false),
+	mBulkChangeIncludeObjects(false),
+	mBulkChangeIncludeScripts(false),
+	mBulkChangeIncludeSounds(false),
+	mBulkChangeIncludeTextures(false),
+	mBulkChangeShareWithGroup(false),
+	mBulkChangeEveryoneCopy(false),
+	mBulkChangeNextOwnerModify(false),
+	mBulkChangeNextOwnerCopy(false),
+	mBulkChangeNextOwnerTransfer(false)
 {
 	mID.generate();
 	mCommitCallbackRegistrar.add("BulkPermission.Ok",		boost::bind(&LLFloaterBulkPermission::onOkBtn, this));
@@ -98,7 +112,8 @@ void LLFloaterBulkPermission::doApply()
 	{
 	public:
 		ModifiableGatherer(std::vector<LLUUID>& q) : mQueue(q) { mQueue.reserve(32); }
-		virtual bool apply(LLSelectNode* node)
+
+		bool apply(LLSelectNode* node) override
 		{
 			if( node->allowOperationOnNode(PERM_MODIFY, GP_OBJECT_MANIPULATE) )
 			{
@@ -330,7 +345,7 @@ void LLFloaterBulkPermission::handleInventory(LLViewerObject* viewer_obj, LLInve
 				// it is difficult to design the best messaging. Therefore in this initial implementation
 				// we'll always try to set the requested permissions and consider all cases successful
 				// and perhaps later try to implement a smarter, friendlier solution. -MG
-				if(true
+				if(/* DISABLES CODE */ (true)
 					//gAgent.allowOperation(PERM_MODIFY, perm, GP_OBJECT_MANIPULATE) // for group and everyone masks
 					//|| something else // for next owner perms
 					)

@@ -40,7 +40,6 @@
 #include "llpanelblockedlist.h"
 #include "llscrolllistctrl.h"
 #include "lltrans.h"
-#include "lluictrlfactory.h"
 #include "llviewermessage.h"
 #include "llviewermenu.h"
 #include "llviewerobjectlist.h"
@@ -51,7 +50,9 @@
 
 // Default constructor
 LLFloaterBump::LLFloaterBump(const LLSD& key) 
-:	LLFloater(key)
+:	LLFloater(key),
+	mList(nullptr),
+	mPopupMenuHandle()
 {
 	mCommitCallbackRegistrar.add("Avatar.SendIM", boost::bind(&LLFloaterBump::startIM, this));
 	mCommitCallbackRegistrar.add("Avatar.ReportAbuse", boost::bind(&LLFloaterBump::reportAbuse, this));
@@ -71,6 +72,12 @@ LLFloaterBump::LLFloaterBump(const LLSD& key)
 // Destroys the object
 LLFloaterBump::~LLFloaterBump()
 {
+	auto menu = mPopupMenuHandle.get();
+	if (menu)
+	{
+		menu->die();
+		mPopupMenuHandle.markDead();
+	}
 }
 
 BOOL LLFloaterBump::postBuild()
@@ -79,11 +86,15 @@ BOOL LLFloaterBump::postBuild()
 	mList->setAllowMultipleSelection(false);
 	mList->setRightMouseDownCallback(boost::bind(&LLFloaterBump::onScrollListRightClicked, this, _1, _2, _3));
 
-	mPopupMenu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_avatar_other.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
-	mPopupMenu->setItemVisible(std::string("Normal"), false);
-	mPopupMenu->setItemVisible(std::string("Always use impostor"), false);
-	mPopupMenu->setItemVisible(std::string("Never use impostor"), false);
-	mPopupMenu->setItemVisible(std::string("Impostor seperator"), false);
+	auto menu = LLUICtrlFactory::getInstance()->createFromFile<LLContextMenu>("menu_avatar_other.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
+	if (menu)
+	{
+		mPopupMenuHandle = menu->getHandle();
+		menu->setItemVisible(std::string("Normal"), false);
+		menu->setItemVisible(std::string("Always use impostor"), false);
+		menu->setItemVisible(std::string("Never use impostor"), false);
+		menu->setItemVisible(std::string("Impostor seperator"), false);
+	}
 
 	return TRUE;
 }
@@ -178,18 +189,18 @@ void LLFloaterBump::onScrollListRightClicked(LLUICtrl* ctrl, S32 x, S32 y)
 	if (!gMeanCollisionList.empty())
 	{
 		LLScrollListItem* item = mList->hitItem(x, y);
-		if (item && mPopupMenu)
+		auto menu = mPopupMenuHandle.get();
+		if (item && menu)
 		{
 			mItemUUID = item->getUUID();
-			mPopupMenu->buildDrawLabels();
-			mPopupMenu->updateParent(LLMenuGL::sMenuContainer);
+			menu->buildDrawLabels();
 
 			std::string mute_msg = (LLMuteList::getInstance()->isMuted(mItemUUID, mNames[mItemUUID])) ? "UnmuteAvatar" : "MuteAvatar";
-			mPopupMenu->getChild<LLUICtrl>("Avatar Mute")->setValue(LLTrans::getString(mute_msg));
-			mPopupMenu->setItemEnabled(std::string("Zoom In"), (gObjectList.findObject(mItemUUID) != nullptr));
+			menu->getChild<LLUICtrl>("Avatar Mute")->setValue(LLTrans::getString(mute_msg));
+			menu->setItemEnabled(LLStringExplicit("Zoom In"), (gObjectList.findObject(mItemUUID) != nullptr));
 
-			((LLContextMenu*)mPopupMenu)->show(x, y);
-			LLMenuGL::showPopup(ctrl, mPopupMenu, x, y);
+			menu->show(x, y);
+			LLMenuGL::showPopup(ctrl, menu, x, y);
 		}
 	}
 }

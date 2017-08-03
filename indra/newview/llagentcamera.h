@@ -60,7 +60,7 @@ enum ECameraPreset
 
 // [RLVa:KB] - Checked: RLVa-2.0.0
 	/* Used by RLVa */
-	CAMERA_RLV_SETCAM_VIEW
+	CAMERA_RLV_SETCAM_VIEW,
 // [/RLVa:KB]
 
 /** "To the right of the Avatar, jaw height, facing forward and relatively close to the shoulder.

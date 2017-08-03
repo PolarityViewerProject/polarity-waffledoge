@@ -51,11 +51,11 @@
 
 LLFloaterEditWater::LLFloaterEditWater(const LLSD &key)
 :	LLFloater(key)
-,	mWaterPresetNameEditor(NULL)
-,	mWaterPresetCombo(NULL)
-,	mMakeDefaultCheckBox(NULL)
-,	mSaveButton(NULL)
-,  mDeleteButton(NULL)
+,	mWaterPresetNameEditor(nullptr)
+,	mWaterPresetCombo(nullptr)
+,	mMakeDefaultCheckBox(nullptr)
+,	mSaveButton(nullptr)
+,	mDeleteButton(nullptr)
 {
 }
 
@@ -96,14 +96,26 @@ void LLFloaterEditWater::onOpen(const LLSD& key)
 	// Update floater title.
 	setTitle(floater_title);
 
+	// Update the hint at the top.
+	getChild<LLUICtrl>("hint")->setValue(hint);
 
+	// Hide the hint to the right of the combo if we're invoked to create a new preset.
+	getChildView("note")->setVisible(!new_preset);
 
 	// Switch between the water presets combobox and preset name input field.
 	mWaterPresetCombo->setVisible(!new_preset);
 	mWaterPresetNameEditor->setVisible(new_preset);
 
 	reset();
+}
 
+// virtual
+void LLFloaterEditWater::onClose(bool app_quitting)
+{
+	if (!app_quitting) // there's no point to change environment if we're quitting
+	{
+		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
+	}
 }
 
 // virtual
@@ -115,7 +127,7 @@ void LLFloaterEditWater::draw()
 
 void LLFloaterEditWater::initCallbacks(void)
 {
-	mWaterPresetNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditWater::onWaterPresetNameEdited, this), NULL);
+	mWaterPresetNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditWater::onWaterPresetNameEdited, this), nullptr);
 	mWaterPresetCombo->setCommitCallback(boost::bind(&LLFloaterEditWater::onWaterPresetSelected, this));
 	mWaterPresetCombo->setTextEntryCallback(boost::bind(&LLFloaterEditWater::onWaterPresetNameEdited, this));
 
@@ -673,6 +685,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseWaterPreset(name);
 	}
 
+	//closeFloater();
 }
 
 void LLFloaterEditWater::onBtnSave()
@@ -723,10 +736,21 @@ void LLFloaterEditWater::onBtnCancel()
 
 void LLFloaterEditWater::onWaterPresetListChange()
 {
+	std::string name;
+	LLEnvKey::EScope scope;
+	getSelectedPreset(name, scope); // preset being edited
 
+	if (scope == LLEnvKey::SCOPE_LOCAL && !LLWaterParamManager::instance().hasParamSet(name))
+	{
+		// Preset we've been editing doesn't exist anymore. Close the floater.
+		//closeFloater(false);
+	}
+	else
+	{
 		// A new preset has been added.
 		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
 		refreshWaterPresetsList();
+	}
 }
 
 void LLFloaterEditWater::onRegionSettingsChange()

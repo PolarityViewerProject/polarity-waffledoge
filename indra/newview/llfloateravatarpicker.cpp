@@ -79,7 +79,7 @@ LLFloaterAvatarPicker* LLFloaterAvatarPicker::show(select_callback_t callback,
 	if (!floater)
 	{
 		LL_WARNS() << "Cannot instantiate avatar picker" << LL_ENDL;
-		return NULL;
+		return nullptr;
 	}
 	
 	floater->mSelectionCallback = callback;
@@ -125,24 +125,27 @@ LLFloaterAvatarPicker::LLFloaterAvatarPicker(const LLSD& key)
 
 BOOL LLFloaterAvatarPicker::postBuild()
 {
-	getChild<LLLineEditor>("Edit")->setKeystrokeCallback( boost::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2),NULL);
+	getChild<LLLineEditor>("Edit")->setKeystrokeCallback( boost::bind(&LLFloaterAvatarPicker::editKeystroke, this, _1, _2), nullptr);
 
 	childSetAction("Find", boost::bind(&LLFloaterAvatarPicker::onBtnFind, this));
 	getChildView("Find")->setEnabled(FALSE);
 	childSetAction("Refresh", boost::bind(&LLFloaterAvatarPicker::onBtnRefresh, this));
 	getChild<LLUICtrl>("near_me_range")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onRangeAdjust, this));
 	
-	LLScrollListCtrl* searchresults = getChild<LLScrollListCtrl>("SearchResults");
-	searchresults->setDoubleClickCallback( boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-	searchresults->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("SearchResults");
+	list->setDoubleClickCallback( boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	list->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+	list->setContextMenu(LLScrollListCtrl::MENU_AVATAR_MINI);
 	getChildView("SearchResults")->setEnabled(FALSE);
 	
-	LLScrollListCtrl* nearme = getChild<LLScrollListCtrl>("NearMe");
-	nearme->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
-	nearme->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+	list = getChild<LLScrollListCtrl>("NearMe");
+	list->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	list->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
+	list->setContextMenu(LLScrollListCtrl::MENU_AVATAR_MINI);
 
-	LLScrollListCtrl* friends = getChild<LLScrollListCtrl>("Friends");
-	friends->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	list = getChild<LLScrollListCtrl>("Friends");
+	list->setDoubleClickCallback(boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
+	list->setContextMenu(LLScrollListCtrl::MENU_AVATAR_MINI);
 	getChild<LLUICtrl>("Friends")->setCommitCallback(boost::bind(&LLFloaterAvatarPicker::onList, this));
 
 	childSetAction("ok_btn", boost::bind(&LLFloaterAvatarPicker::onBtnSelect, this));
@@ -203,10 +206,10 @@ static void getSelectedAvatarData(const LLScrollListCtrl* from, uuid_vec_t& avat
 		{
 			avatar_ids.push_back(item->getUUID());
 
-			std::map<LLUUID, LLAvatarName>::iterator iter = sAvatarNameMap.find(item->getUUID());
-			if (iter != sAvatarNameMap.end())
+			std::map<LLUUID, LLAvatarName>::iterator itr = sAvatarNameMap.find(item->getUUID());
+			if (itr != sAvatarNameMap.end())
 			{
-				avatar_names.push_back(iter->second);
+				avatar_names.push_back(itr->second);
 			}
 			else
 			{
@@ -230,7 +233,7 @@ void LLFloaterAvatarPicker::onBtnSelect()
 	if(mSelectionCallback)
 	{
 		std::string acvtive_panel_name;
-		LLScrollListCtrl* list =  NULL;
+		LLScrollListCtrl* list = nullptr;
 		LLPanel* active_panel = getChild<LLTabContainer>("ResidentChooserTabs")->getCurrentPanel();
 		if(active_panel)
 		{
@@ -314,10 +317,10 @@ void LLFloaterAvatarPicker::populateNearMe()
 	near_me_scroller->deleteAllItems();
 
 	uuid_vec_t avatar_ids;
-	LLWorld::getInstance()->getAvatars(&avatar_ids, NULL, gAgent.getPositionGlobal(), gSavedSettings.getF32("NearMeRange"));
-	for(U32 i=0; i<avatar_ids.size(); i++)
+	LLWorld::getInstance()->getAvatars(&avatar_ids, nullptr, gAgent.getPositionGlobal(), gSavedSettings.getF32("AvatarPickerRange"));
+	for (auto it = avatar_ids.cbegin(), it_end = avatar_ids.cend(); it != it_end; ++it)
 	{
-		LLUUID& av = avatar_ids[i];
+		const LLUUID& av = *it;
 		if(av == gAgent.getID()) continue;
 		LLSD element;
 		element["id"] = av; // value
@@ -371,11 +374,11 @@ void LLFloaterAvatarPicker::populateFriend()
 	LLAvatarTracker::instance().applyFunctor(collector);
 	LLCollectAllBuddies::buddy_map_t::iterator it;
 	
-	for(it = collector.mOnline.begin(); it!=collector.mOnline.end(); it++)
+	for (it = collector.mOnline.begin(); it!=collector.mOnline.end(); ++it)
 	{
 		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}
-	for(it = collector.mOffline.begin(); it!=collector.mOffline.end(); it++)
+	for (it = collector.mOffline.begin(); it!=collector.mOffline.end(); ++it)
 	{
 		friends_scroller->addStringUUIDItem(it->second, it->first);
 	}
@@ -394,38 +397,31 @@ void LLFloaterAvatarPicker::drawFrustum()
         if (hasFocus() && frustumOrigin->isInVisibleChain() && mContextConeOpacity > 0.001f)
         {
             gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-            LLGLEnable(GL_CULL_FACE);
-            gGL.begin(LLRender::QUADS);
-            {
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
-                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-                gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
-                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
-                gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
-
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-                gGL.vertex2i(local_rect.mRight, local_rect.mTop);
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-                gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
-                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
-
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
-                gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
-                gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
-                gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
-                gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
-                gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
-            }
-            gGL.end();
+			LLGLEnable(GL_CULL_FACE);
+			gGL.begin(LLRender::TRIANGLE_STRIP);
+			{
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mRight, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mRight, origin_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mBottom);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeOutAlpha * mContextConeOpacity);
+				gGL.vertex2i(local_rect.mLeft, local_rect.mTop);
+				gGL.color4f(0.f, 0.f, 0.f, mContextConeInAlpha * mContextConeOpacity);
+				gGL.vertex2i(origin_rect.mLeft, origin_rect.mTop);
+			}
+			gGL.end();
         }
 
         if (gFocusMgr.childHasMouseCapture(getDragHandle()))
@@ -572,10 +568,10 @@ void LLFloaterAvatarPicker::setAllowMultiple(BOOL allow_multiple)
 	getChild<LLScrollListCtrl>("Friends")->setAllowMultipleSelection(allow_multiple);
 }
 
-LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList()
+LLScrollListCtrl* LLFloaterAvatarPicker::getActiveList() const
 {
 	std::string acvtive_panel_name;
-	LLScrollListCtrl* list = NULL;
+	LLScrollListCtrl* list = nullptr;
 	LLPanel* active_panel = getChild<LLTabContainer>("ResidentChooserTabs")->getCurrentPanel();
 	if(active_panel)
 	{
@@ -641,7 +637,7 @@ BOOL LLFloaterAvatarPicker::handleDragAndDrop(S32 x, S32 y, MASK mask,
 void LLFloaterAvatarPicker::openFriendsTab()
 {
 	LLTabContainer* tab_container = getChild<LLTabContainer>("ResidentChooserTabs");
-	if (tab_container == NULL)
+	if (tab_container == nullptr)
 	{
 		llassert(tab_container != NULL);
 		return;
@@ -665,13 +661,20 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 	// Not for us
 	if (agent_id != gAgent.getID()) return;
 	
-	LLFloaterAvatarPicker* floater = LLFloaterReg::findTypedInstance<LLFloaterAvatarPicker>("avatar_picker");
-
-	// floater is closed or these are not results from our last request
-	if (NULL == floater || query_id != floater->mQueryID)
+	bool found = false;
+	LLFloaterAvatarPicker* floater = nullptr;
+	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("avatar_picker");
+	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
+		 iter != inst_list.end(); ++iter)
 	{
-		return;
+		floater = dynamic_cast<LLFloaterAvatarPicker*>(*iter);
+		if (floater && floater->mQueryID == query_id)
+		{
+			found = true;
+			break;
+		}
 	}
+	if (!found) return;
 
 	LLScrollListCtrl* search_results = floater->getChild<LLScrollListCtrl>("SearchResults");
 
@@ -708,8 +711,8 @@ void LLFloaterAvatarPicker::processAvatarPickerReply(LLMessageSystem* msg, void*
 
 				LLAvatarName av_name;
 				av_name.fromString(avatar_name);
-				const LLUUID& agent_id = avatar_id;
-				sAvatarNameMap[agent_id] = av_name;
+				const LLUUID& id = avatar_id;
+				sAvatarNameMap[id] = av_name;
 
 			}
 			LLSD element;
@@ -767,11 +770,11 @@ void LLFloaterAvatarPicker::processResponse(const LLUUID& query_id, const LLSD& 
 		{
 			LLStringUtil::format_map_t map;
 			map["[TEXT]"] = getChild<LLUICtrl>("Edit")->getValue().asString();
-			LLSD item;
-			item["id"] = LLUUID::null;
-			item["columns"][0]["column"] = "name";
-			item["columns"][0]["value"] = getString("not_found", map);
-			search_results->addElement(item);
+			LLSD element;
+			element["id"] = LLUUID::null;
+			element["columns"][0]["column"] = "name";
+			element["columns"][0]["value"] = getString("not_found", map);
+			search_results->addElement(element);
 			search_results->setEnabled(false);
 			getChildView("ok_btn")->setEnabled(false);
 		}
@@ -812,7 +815,7 @@ BOOL LLFloaterAvatarPicker::handleKeyHere(KEY key, MASK mask)
 		}
 		return TRUE;
 	}
-	else if (key == KEY_ESCAPE && mask == MASK_NONE)
+	if (key == KEY_ESCAPE && mask == MASK_NONE)
 	{
 		closeFloater();
 		return TRUE;
@@ -828,7 +831,7 @@ bool LLFloaterAvatarPicker::isSelectBtnEnabled()
 	if ( ret_val )
 	{
 		std::string acvtive_panel_name;
-		LLScrollListCtrl* list =  NULL;
+		LLScrollListCtrl* list = nullptr;
 		LLPanel* active_panel = getChild<LLTabContainer>("ResidentChooserTabs")->getCurrentPanel();
 
 		if(active_panel)

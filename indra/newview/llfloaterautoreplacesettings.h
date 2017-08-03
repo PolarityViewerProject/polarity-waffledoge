@@ -28,19 +28,20 @@
 
 #include "llfloater.h"
 #include "llmediactrl.h"
-#include "llscrolllistctrl.h"
-#include "lllineeditor.h"
 
 #include "llviewerinventory.h"
 #include "llautoreplace.h"
+
+class LLLineEditor;
+class LLScrollListCtrl;
 
 class LLFloaterAutoReplaceSettings : public LLFloater
 {
 public:
 	LLFloaterAutoReplaceSettings(const LLSD& key);
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onClose(bool app_quitting);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onClose(bool app_quitting) override;
 
 	void setData(void * data);
 

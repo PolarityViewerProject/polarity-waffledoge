@@ -33,12 +33,16 @@
 #include "lltracerecording.h"
 #include <deque>
 
+class LLComboBox;
+class LLLayoutPanel;
+class LLPanel;
+
 class LLFastTimerView : public LLFloater
 {
 public:
 	LLFastTimerView(const LLSD&);
 	~LLFastTimerView();
-	BOOL postBuild();
+	BOOL postBuild() override;
 
 	static BOOL sAnalyzePerformance;
 
@@ -53,16 +57,16 @@ private:
 
 public:
 
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleDoubleClick(S32 x, S32 y, MASK mask);
-	virtual BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual BOOL handleToolTip(S32 x, S32 y, MASK mask);
-	virtual BOOL handleScrollWheel(S32 x, S32 y, S32 clicks);
-	virtual void draw();
-	virtual void onOpen(const LLSD& key);
-	virtual void onClose(bool app_quitting);
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleDoubleClick(S32 x, S32 y, MASK mask) override;
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
+	BOOL handleToolTip(S32 x, S32 y, MASK mask) override;
+	BOOL handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	void draw() override;
+	void onOpen(const LLSD& key) override;
+	void onClose(bool app_quitting) override;
 	LLTrace::BlockTimerStatHandle* getLegendID(S32 y);
 
 private:	
@@ -83,11 +87,10 @@ private:
 		:	mTotalTime(0),
 			mSelfTime(0),
 			mTimeBlock(nullptr),
-			mVisible(false),
-			mStartFraction(0.f),
-			mEndFraction(1.f),
 			mFirstChild(false),
-			mLastChild(false)
+			mLastChild(false),
+			mStartFraction(0.f),
+			mEndFraction(1.f)
 		{}
 		F32Seconds			mTotalTime,
 							mSelfTime,
@@ -96,8 +99,7 @@ private:
 							mSelfStart,
 							mSelfEnd;
 		LLTrace::BlockTimerStatHandle* mTimeBlock;
-		bool				mVisible,
-							mFirstChild,
+		bool				mFirstChild,
 							mLastChild;
 		F32					mStartFraction,
 							mEndFraction;
@@ -108,8 +110,9 @@ private:
 		TimerBarRow() 
 		:	mBottom(0),
 			mTop(0),
-			mBars(NULL)
+			mBars(nullptr)
 		{}
+		~TimerBarRow();
 		S32			mBottom,
 					mTop;
 		TimerBar*	mBars;
@@ -146,6 +149,15 @@ private:
 	LLTrace::PeriodicRecording		mRecording;
 	
 	S32 mScrollPos;
+
+	// Widgets
+	LLComboBox*						mMetricCombo;
+	LLComboBox*						mTimeScaleCombo;
+
+	LLLayoutPanel*					mBarsPanel;
+	LLLayoutPanel*					mLinesPanel;
+
+	LLPanel*						mLegendPanel;
 };
 
 #endif

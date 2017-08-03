@@ -42,7 +42,7 @@
 #include "llviewerregion.h"
 
 S32 LLDrawPoolTree::sDiffTex = 0;
-static LLGLSLShader* shader = NULL;
+static LLGLSLShader* shader = nullptr;
 static LLTrace::BlockTimerStatHandle FTM_SHADOW_TREE("Tree Shadow");
 
 LLDrawPoolTree::LLDrawPoolTree(LLViewerTexture *texturep) :
@@ -179,11 +179,9 @@ void LLDrawPoolTree::endDeferredPass(S32 pass)
 void LLDrawPoolTree::beginShadowPass(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
-
-	static LLCachedControl<F32> render_def_tree_shad_offset(gSavedSettings, "RenderDeferredTreeShadowOffset", 1.f);
-	static LLCachedControl<F32> render_def_tree_shad_bias(gSavedSettings, "RenderDeferredTreeShadowBias", 1.f);
-	glPolygonOffset(render_def_tree_shad_offset,
-		render_def_tree_shad_bias);
+	static LLCachedControl<F32> tree_shadow_offset(gSavedSettings, "RenderDeferredTreeShadowOffset");
+	static LLCachedControl<F32> tree_shadow_bias(gSavedSettings, "RenderDeferredTreeShadowBias");
+	glPolygonOffset(tree_shadow_offset, tree_shadow_bias);
 
 	gDeferredTreeShadowProgram.bind();
 	gDeferredTreeShadowProgram.setMinimumAlpha(0.5f);
@@ -197,11 +195,10 @@ void LLDrawPoolTree::renderShadow(S32 pass)
 void LLDrawPoolTree::endShadowPass(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_TREE);
-
-	static LLCachedControl<F32> render_def_spot_shad_offset(gSavedSettings, "RenderDeferredSpotShadowOffset", 0.8f);
-	static LLCachedControl<F32> render_def_spot_shad_bias(gSavedSettings, "RenderDeferredSpotShadowBias", -64.f);
-	glPolygonOffset(render_def_spot_shad_offset,
-		render_def_spot_shad_bias);
+	
+	static LLCachedControl<F32> spot_shadow_offset(gSavedSettings, "RenderDeferredSpotShadowOffset");
+	static LLCachedControl<F32> spot_shadow_bias(gSavedSettings, "RenderDeferredSpotShadowBias");
+	glPolygonOffset(spot_shadow_offset, spot_shadow_bias);
 	gDeferredTreeShadowProgram.unbind();
 }
 

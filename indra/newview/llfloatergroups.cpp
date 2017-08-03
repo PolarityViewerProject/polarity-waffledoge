@@ -45,7 +45,6 @@
 #include "llscrolllistctrl.h"
 #include "llstartup.h"
 #include "lltextbox.h"
-#include "lluictrlfactory.h"
 #include "lltrans.h"
 
 using namespace LLOldEvents;
@@ -59,8 +58,8 @@ void init_group_list(LLScrollListCtrl* ctrl, const LLUUID& highlight_id, U64 pow
 
 LLFloaterGroupPicker::LLFloaterGroupPicker(const LLSD& seed)
 : 	LLFloater(seed),
-	mPowersMask(GP_ALL_POWERS),
-	mID(seed.asUUID())
+	mID(seed.asUUID()),
+	mPowersMask(GP_ALL_POWERS)
 {
 // 	LLUICtrlFactory::getInstance()->buildFloater(this, "floater_choose_group.xml");
 }

@@ -46,7 +46,6 @@
 #include "llselectmgr.h"
 #include "llscrolllistctrl.h"
 #include "llviewerobject.h"
-#include "lluictrlfactory.h"
 #include "llviewerwindow.h"
 #include "lltrans.h"
 
@@ -76,7 +75,7 @@ BOOL LLFloaterBuy::postBuild()
 
 LLFloaterBuy::~LLFloaterBuy()
 {
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 }
 
 void LLFloaterBuy::reset()
@@ -188,7 +187,7 @@ void LLFloaterBuy::show(const LLSaleInfo& sale_info)
 	// sometimes the inventory is already there and 
 	// the callback is called immediately.
 	LLViewerObject* obj = selection->getFirstRootObject();
-	floater->registerVOInventoryListener(obj,NULL);
+	floater->registerVOInventoryListener(obj, nullptr);
 	floater->requestVOInventory();
 }
 

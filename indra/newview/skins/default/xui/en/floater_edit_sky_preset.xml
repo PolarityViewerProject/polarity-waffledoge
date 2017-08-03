@@ -58,7 +58,7 @@ width="700">
 	 label="Reset"
 	 layout="topleft"
 	 left_pad="3"
-	 name="really_cancel"
+	 name="reset"
 	 width="70"/>
 
 	 <button

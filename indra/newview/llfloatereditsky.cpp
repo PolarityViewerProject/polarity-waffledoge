@@ -66,11 +66,11 @@ static F32 time24_to_sun_pos(F32 time24)
 
 LLFloaterEditSky::LLFloaterEditSky(const LLSD &key)
 :	LLFloater(key)
-,	mSkyPresetNameEditor(NULL)
-,	mSkyPresetCombo(NULL)
-,	mMakeDefaultCheckBox(NULL)
-,	mSaveButton(NULL)
-,  mDeleteButton(NULL)
+,	mSkyPresetNameEditor(nullptr)
+,	mSkyPresetCombo(nullptr)
+,	mMakeDefaultCheckBox(nullptr)
+,	mSaveButton(nullptr)
+, 	mDeleteButton(nullptr)
 {
 }
 
@@ -112,14 +112,26 @@ void LLFloaterEditSky::onOpen(const LLSD& key)
 	// Update floater title.
 	setTitle(floater_title);
 
+	// Update the hint at the top.
+	getChild<LLUICtrl>("hint")->setValue(hint);
 
+	// Hide the hint to the right of the combo if we're invoked to create a new preset.
+	getChildView("note")->setVisible(!new_preset);
 
 	// Switch between the sky presets combobox and preset name input field.
 	mSkyPresetCombo->setVisible(!new_preset);
 	mSkyPresetNameEditor->setVisible(new_preset);
 
 	reset();
+}
 
+// virtual
+void LLFloaterEditSky::onClose(bool app_quitting)
+{
+	if (!app_quitting) // there's no point to change environment if we're quitting
+	{
+		LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
+	}
 }
 
 // virtual
@@ -133,14 +145,14 @@ void LLFloaterEditSky::initCallbacks(void)
 {
 	// *TODO: warn user if a region environment update comes while we're editing a region sky preset.
 
-	mSkyPresetNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetNameEdited, this), NULL);
+	mSkyPresetNameEditor->setKeystrokeCallback(boost::bind(&LLFloaterEditSky::onSkyPresetNameEdited, this), nullptr);
 	mSkyPresetCombo->setCommitCallback(boost::bind(&LLFloaterEditSky::onSkyPresetSelected, this));
 	mSkyPresetCombo->setTextEntryCallback(boost::bind(&LLFloaterEditSky::onSkyPresetNameEdited, this));
 
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnSave, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnCancel, this));
 	// <polarity> Change windlight editor cancel behavior
-	getChild<LLButton>("really_cancel")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnReset, this));
+	getChild<LLButton>("reset")->setCommitCallback(boost::bind(&LLFloaterEditSky::onBtnReset, this));
 	// </polarity>
 	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterEditSky::onDeletePreset, this));
 
@@ -727,6 +739,14 @@ void LLFloaterEditSky::refreshSkyPresetsList()
 
 void LLFloaterEditSky::enableEditing(bool enable)
 {
+	// Enable/disable the tab and their contents.
+	LLTabContainer* tab_container = getChild<LLTabContainer>("WindLight Tabs");
+	tab_container->setEnabled(enable);
+	for (S32 i = 0; i < tab_container->getTabCount(); ++i)
+	{
+		tab_container->enableTabButton(i, enable);
+		tab_container->getPanelByIndex(i)->setCtrlsEnabled(enable);
+	}
 
 	// Enable/disable saving.
 	mSaveButton->setEnabled(enable);
@@ -804,7 +824,7 @@ void LLFloaterEditSky::onSkyPresetSelected()
 	mMakeDefaultCheckBox->setEnabled(key.scope == LLEnvKey::SCOPE_LOCAL);
 
 	// Switch to the new preset
-	LLEnvManagerNew::instance().usePrefs();
+	//LLEnvManagerNew::instance().usePrefs();
 }
 
 bool LLFloaterEditSky::onSaveAnswer(const LLSD& notification, const LLSD& response)
@@ -845,6 +865,7 @@ void LLFloaterEditSky::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseSkyPreset(key.name);
 	}
 
+	//closeFloater(); // <polarity/>
 }
 
 void LLFloaterEditSky::onBtnSave()
@@ -887,25 +908,28 @@ void LLFloaterEditSky::onBtnSave()
 
 void LLFloaterEditSky::onBtnCancel()
 {
-	// <polarity> No.
-	// LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
-	// </polarity>
 	closeFloater();
 }
 
 void LLFloaterEditSky::onBtnReset()
 {
 	LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
-	// <polarity> No.
-	// closeFloater();
-	// </polarity>
-	}
+}
 
 void LLFloaterEditSky::onSkyPresetListChange()
 {
-	// A new preset has been added or deleted.
-	// Refresh the presets list, though it may not make sense as the floater is about to be closed.
-	refreshSkyPresetsList();
+	LLWLParamKey key = getSelectedSkyPreset(); // preset being edited
+	if (!LLWLParamManager::instance().hasParamSet(key))
+	{
+		// Preset we've been editing doesn't exist anymore. Close the floater.
+		closeFloater(false);
+	}
+	else
+	{
+		// A new preset has been added.
+		// Refresh the presets list, though it may not make sense as the floater is about to be closed.
+		refreshSkyPresetsList();
+	}
 }
 
 void LLFloaterEditSky::onRegionSettingsChange()

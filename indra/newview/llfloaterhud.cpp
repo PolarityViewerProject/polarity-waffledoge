@@ -36,7 +36,6 @@
 
 // Linden libs
 #include "llnotificationsutil.h"
-#include "lluictrlfactory.h"
 
 
 ///----------------------------------------------------------------------------
@@ -47,7 +46,7 @@
 // Default constructor
 LLFloaterHUD::LLFloaterHUD(const LLSD& key)
 :	LLFloater(key),
-	mWebBrowser(0)
+	mWebBrowser(nullptr)
 {
 	// do not build the floater if there the url is empty
 	if (gSavedSettings.getString("TutorialURL").empty())

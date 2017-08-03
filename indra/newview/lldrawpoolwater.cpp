@@ -103,7 +103,7 @@ void LLDrawPoolWater::restoreGL()
 LLDrawPool *LLDrawPoolWater::instancePool()
 {
 	LL_ERRS() << "Should never be calling instancePool on a water pool!" << LL_ENDL;
-	return NULL;
+	return nullptr;
 }
 
 
@@ -340,7 +340,7 @@ void LLDrawPoolWater::renderOpaqueLegacyWater()
 {
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
-	LLGLSLShader* shader = NULL;
+	LLGLSLShader* shader = nullptr;
 	if (LLGLSLShader::sNoFixedFunction)
 	{
 		if (LLPipeline::sUnderWaterRender)
@@ -482,7 +482,7 @@ void LLDrawPoolWater::shade()
 
 	LLVOSky *voskyp = gSky.mVOSkyp;
 
-	if(voskyp == NULL) 
+	if(voskyp == nullptr) 
 	{
 		return;
 	}
@@ -581,8 +581,8 @@ void LLDrawPoolWater::shade()
 
 	mWaterNormp->addTextureStats(1024.f*1024.f);
 	gGL.getTexUnit(bumpTex)->bind(mWaterNormp) ;
-	static LLCachedControl<bool> render_water_mip_normal(gSavedSettings, "RenderWaterMipNormal", true);
-	if (render_water_mip_normal)
+	static LLCachedControl<bool> renderWaterMipNormal(gSavedSettings, "RenderWaterMipNormal");
+	if (renderWaterMipNormal)
 	{
 		mWaterNormp->setFilteringOption(LLTexUnit::TFO_ANISOTROPIC);
 	}
@@ -611,12 +611,6 @@ void LLDrawPoolWater::shade()
 		shader->uniform4fv(LLShaderMgr::WATER_FOGCOLOR, 1, sWaterFogColor.mV);
 	}
 
-	F32 screenRes[] = 
-	{
-		1.f/gGLViewport[2],
-		1.f/gGLViewport[3]
-	};
-	shader->uniform2fv(LLShaderMgr::DEFERRED_SCREEN_RES, 1, screenRes);
 	stop_glerror();
 	
 	S32 diffTex = shader->enableTexture(LLShaderMgr::DIFFUSE_MAP);

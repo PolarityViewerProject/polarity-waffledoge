@@ -110,6 +110,13 @@ public:
 	validate_signal_t* getValidateSignal() { return &mValidateSignal; }
 
 	bool isDefault() { return (mValues.size() == 1); }
+
+	// [RLVa:KB] - Patch: RLVa-2.1.0
+	bool hasUnsavedValue() {
+		return mValues.size() > 2;
+	}
+	// [/RLVa:KB]
+
 	bool shouldSave(bool nondefault_only);
 	bool isPersisted() { return mPersist != PERSIST_NO; }
 	bool isHiddenFromSettingsEditor() { return mHideFromSettingsEditor; }
