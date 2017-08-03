@@ -30,7 +30,6 @@
 
 #include "llfloatermemleak.h"
 
-#include "lluictrlfactory.h"
 #include "llbutton.h"
 #include "llspinctrl.h"
 #include "llresmgr.h"
@@ -129,7 +128,7 @@ void LLFloaterMemLeak::idle()
 		return ;
 	}
 
-	char* p = NULL ;
+	char* p = nullptr ;
 	if(sMemLeakingSpeed > 0 && sTotalLeaked < sMaxLeakedMem)
 	{
 		p = new char[sMemLeakingSpeed] ;

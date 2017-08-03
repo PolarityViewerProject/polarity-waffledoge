@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<context_menu
+ layout="topleft"
+ name="Attachment Pie">
+    <menu_item_call
+     enabled="false"
+     label="Touch"
+     layout="topleft"
+     name="Attachment Object Touch">
+        <menu_item_call.on_click
+         function="Object.Touch" />
+        <menu_item_call.on_enable
+         function="Object.EnableTouch"
+         name="EnableTouch"/>
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Edit"
+     layout="topleft"
+     name="Edit...">
+        <menu_item_call.on_click
+         function="Object.Edit" />
+        <menu_item_call.on_enable
+         function="EnableEdit" />
+    </menu_item_call>
+    <menu_item_call
+     enabled="false"
+     label="Detach"
+     layout="topleft"
+     name="Detach">
+        <menu_item_call.on_click
+         function="Attachment.Detach" />
+        <menu_item_call.on_enable
+         function="Attachment.EnableDetach" />
+    </menu_item_call>
+  <menu_item_separator
+    layout="topleft" />
+
+    <menu_item_call
+     label="Sit Down"
+     layout="topleft"
+     visible="true"
+     name="Sit Down Here">
+        <menu_item_call.on_click
+         function="Self.SitDown"
+         parameter="" />
+        <menu_item_call.on_visible
+         function="Self.EnableSitDown" />
+    </menu_item_call>
+
+  <menu_item_call
+     label="Stand Up"
+     layout="topleft"
+     visible="true"
+     name="Stand Up">
+    <menu_item_call.on_click
+     function="Self.StandUp"
+     parameter="" />
+    <menu_item_call.on_visible
+     function="Self.EnableStandUp" />
+  </menu_item_call>
+   <menu_item_separator />
+   <context_menu
+    label="Copy Data..."
+    layout="topleft"
+    name="copy_info">
+      <menu_item_call
+       label="SLURL"
+       name="Copy SLURL">
+          <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_slurl" />
+      </menu_item_call>
+      <menu_item_call
+        label="Display name"
+        name="Copy Display Name">
+        <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_displayname">
+        </menu_item_call.on_click>
+      </menu_item_call>
+      <menu_item_call
+       label="Username"
+       name="Copy Name">
+          <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_name" />
+      </menu_item_call>
+      <menu_item_call
+       label="Key"
+       name="Copy Key">
+          <menu_item_call.on_click
+          function="Polarity.Common.CopyData"
+          parameter="copy_key" />
+      </menu_item_call>
+    </context_menu>
+   <context_menu
+    label="Manage my..."
+    layout="topleft"
+    name="Appearance&gt;">
+    <menu_item_call
+      label="Outfits"
+      name="ChangeOutfit">
+      <menu_item_call.on_click
+        function="CustomizeAvatar">
+      </menu_item_call.on_click>
+      <menu_item_call.on_enable
+        function="Edit.EnableCustomizeAvatar">
+      </menu_item_call.on_enable>
+    </menu_item_call>
+    <menu_item_call
+      label="Current Outfit"
+      layout="topleft"
+      name="Edit Outfit">
+      <menu_item_call.on_click
+        function="EditOutfit">
+      </menu_item_call.on_click>
+      <menu_item_call.on_enable
+        function="Edit.EnableCustomizeAvatar">
+      </menu_item_call.on_enable>
+    </menu_item_call>
+    <menu_item_call
+      label="Current Shape"
+      layout="topleft"
+      name="EditMy Shape">
+      <menu_item_call.on_click
+        function="EditShape">
+      </menu_item_call.on_click>
+      <menu_item_call.on_enable
+        function="Edit.EnableEditShape">
+      </menu_item_call.on_enable>
+    </menu_item_call>
+    <menu_item_separator></menu_item_separator>
+    <menu_item_call
+      label="Friends"
+      layout="topleft"
+      name="Friends...">
+      <menu_item_call.on_click
+        function="SideTray.PanelPeopleTab"
+        parameter="friends_panel">
+      </menu_item_call.on_click>
+    </menu_item_call>
+    <menu_item_call
+      label="Groups"
+      layout="topleft"
+      name="Groups...">
+      <menu_item_call.on_click
+        function="SideTray.PanelPeopleTab"
+        parameter="groups_panel">
+      </menu_item_call.on_click>
+    </menu_item_call>
+  </context_menu>
+    <menu_item_call label="Reset Skeleton"
+      layout="topleft"
+      name="Reset Skeleton">
+      <menu_item_call.on_click
+        function="Avatar.ResetSkeleton">
+      </menu_item_call.on_click>
+    </menu_item_call>
+    <menu_item_call label="Reset Anims"
+      layout="topleft"
+      name="ResetSkeleton And Animations">
+      <menu_item_call.on_click
+        function="Avatar.ResetSkeletonAndAnimations">
+      </menu_item_call.on_click>
+    </menu_item_call>
+  <menu_item_call
+    label="Hover Height"
+    layout="topleft"
+    name="HoverHeight">
+    <menu_item_call.on_click
+      function="HoverHeight">
+    </menu_item_call.on_click>
+    <menu_item_call.on_enable
+      function="Edit.EnableHoverHeight">
+    </menu_item_call.on_enable>
+  </menu_item_call>
+  <menu_item_call
+    label="My Profile"
+    layout="topleft"
+    name="Profile...">
+    <menu_item_call.on_click
+      function="ShowAgentProfile"
+      parameter="agent">
+    </menu_item_call.on_click>
+  </menu_item_call>
+  <menu_item_call
+    label="Debug Textures"
+    name="Debug...">
+    <menu_item_call.on_click
+      function="Avatar.Debug">
+    </menu_item_call.on_click>
+    <menu_item_call.on_visible
+      function="IsGodCustomerService">
+    </menu_item_call.on_visible>
+  </menu_item_call>
+  <menu_item_call
+    label="Dump XML"
+    name="Dump XML">
+    <menu_item_call.on_click
+      function="Advanced.AppearanceToXML">
+    </menu_item_call.on_click>
+    <menu_item_call.on_visible
+      function="Advanced.EnableAppearanceToXML">
+    </menu_item_call.on_visible>
+  </menu_item_call>
+ <menu_item_separator layout="topleft" />
+ <menu_item_call
+  label="Inspect"
+  name="Object_Inspect_Floater">
+  <menu_item_call.on_click
+   function="Floater.Show"
+   parameter="inspect" />
+ </menu_item_call>
+  <context_menu
+  label="Scripts"
+  name="Scripts">
+    <menu_item_call
+       label="Recompile Scripts (Mono)"
+       name="Mono">
+      <menu_item_call.on_click
+       function="Tools.SelectedScriptAction"
+       parameter="compile mono" />
+      <menu_item_call.on_enable
+       function="EditableSelectedMono" />
+    </menu_item_call>
+    <menu_item_call
+       label="Recompile Scripts (LSL)"
+       name="LSL">
+      <menu_item_call.on_click
+       function="Tools.SelectedScriptAction"
+       parameter="compile lsl" />
+      <menu_item_call.on_enable
+       function="EditableSelected" />
+    </menu_item_call>
+    <menu_item_call
+       label="Reset Scripts"
+       name="Reset Scripts">
+      <menu_item_call.on_click
+       function="Tools.SelectedScriptAction"
+       parameter="reset" />
+      <menu_item_call.on_enable
+       function="EditableSelected" />
+    </menu_item_call>
+    <menu_item_call
+       label="Set Scripts to Running"
+       name="Set Scripts to Running">
+      <menu_item_call.on_click
+       function="Tools.SelectedScriptAction"
+       parameter="start" />
+      <menu_item_call.on_enable
+       function="EditableSelected" />
+    </menu_item_call>
+    <menu_item_call
+       label="Set Scripts to Not Running"
+       name="Set Scripts to Not Running">
+      <menu_item_call.on_click
+       function="Tools.SelectedScriptAction"
+       parameter="stop" />
+      <menu_item_call.on_enable
+       function="EditableSelected" />
+    </menu_item_call>
+    <menu_item_call
+       label="Delete Scripts"
+       name="Remove Scripts From Selection">
+      <menu_item_call.on_click
+        function="Tools.SelectedScriptAction"
+        parameter="delete" />
+      <menu_item_call.on_enable
+        function="EditableSelected" />
+    </menu_item_call>
+    </context_menu>
+  <menu_item_separator
+  layout="topleft" />
+  <menu_item_call
+ enabled="true"
+ label="Drop"
+ layout="topleft"
+ name="Drop">
+    <menu_item_call.on_click
+     function="Attachment.Drop" />
+    <menu_item_call.on_visible
+     function="Attachment.EnableDrop" />
+  </menu_item_call>
+  <menu_item_call
+     enabled="false"
+     label="Block Particle Owner"
+     name="Mute Particle">
+    <menu_item_call.on_click
+     function="Particle.Mute" />
+    <menu_item_call.on_visible
+     function="EnableMuteParticle" />
+  </menu_item_call>
+  <menu_item_call
+     enabled="true"
+     label="Refresh Att. Textures"
+     name="Texture Refresh">
+    <menu_item_call.on_click
+     function="Polarity.Object.TextureRefresh" />
+  </menu_item_call>
+</context_menu>

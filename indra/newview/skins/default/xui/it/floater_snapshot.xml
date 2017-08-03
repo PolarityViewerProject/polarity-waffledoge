@@ -50,6 +50,7 @@
 		</combo_box>
 		<check_box label="Interfaccia" name="ui_check"/>
 		<check_box label="HUD" name="hud_check"/>
+		<check_box label="Congela il frame (tutto schermo)" name="freeze_frame_check"/>
 		<check_box label="Aggiornamento automatico" name="auto_snapshot_check"/>
 		<text name="filter_list_label">
 			Filtro:

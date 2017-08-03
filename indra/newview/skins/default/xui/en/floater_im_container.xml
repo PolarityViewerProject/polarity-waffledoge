@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <multi_floater
- can_close="true"
+ can_close="true"  
  can_minimize="true"
  can_resize="true"
  height="210"
@@ -12,7 +12,7 @@
  save_visibility="true"
  single_instance="true"
  reuse_instance="true"
- title="Conversations"
+ title="CONVERSATIONS"
  bottom="-50"
  right="-5"
  width="450"
@@ -24,8 +24,8 @@
      name="expand_icon"
      value="Conv_toolbar_expand"/>
     <layout_stack
-     animate="true"
-     bottom="-2"
+     animate="true" 
+     bottom="-5"
      drag_handle_gap="6"
      drag_handle_first_indent="27"
      drag_handle_second_indent="10"
@@ -39,14 +39,14 @@
      top="0">
         <layout_panel
          auto_resize="false"
-         user_resize="true"
+         user_resize="true"        
          name="conversations_layout_panel"
-         min_dim="40"
+         min_dim="43"
          expanded_min_dim="140">
             <layout_stack
-             animate="false"
+             animate="false" 
              follows="left|top|right"
-             height="24"
+             height="27"
              layout="topleft"
              left="0"
              name="conversations_pane_buttons_stack"
@@ -58,7 +58,7 @@
                  name="conversations_pane_buttons_expanded">
                     <menu_button
                      follows="top|left"
-                     height="22"
+                     height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
                      image_overlay="Conv_toolbar_sort"
                      image_selected="Toolbar_Middle_Selected"
@@ -68,34 +68,34 @@
                      left="5"
                      name="sort_btn"
                      tool_tip="View/sort options"
-                     top="0"
-                     width="28" />
+                     top="1"
+                     width="31" />
                     <button
                      follows="top|left"
-                     height="22"
+                     height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
                      image_overlay="Conv_toolbar_plus"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
-                     top="0"
+                     top="1"
                      left_pad="2"
                      name="add_btn"
                      tool_tip="Start a new conversation"
-                     width="28"/>
+                     width="31"/>
                     <button
                      follows="top|left"
-                     height="22"
+                     height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
                      image_overlay="Command_Speak_Icon"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
-                     top="0"
+                     top="1"
                      left_pad="2"
                      name="speak_btn"
                      tool_tip="Speak with people using your microphone"
-                     width="28"/>
+                     width="31"/>	
                 </layout_panel>
                 <layout_panel
                  auto_resize="false"
@@ -103,20 +103,21 @@
                  width="35">
                     <button
                      follows="right|top"
-                     height="22"
+                     height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
                      image_overlay="Conv_toolbar_collapse"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
-                     top="0"
+                     top="1"
                      left="4"
                      name="expand_collapse_btn"
                      tool_tip="Collapse/Expand this list"
-                     width="28" />
+                     width="35" />
                 </layout_panel>
             </layout_stack>
             <panel
+             bottom="-1"
              follows="all"
              layout="topleft"
              name="conversations_list_panel"
@@ -130,6 +131,7 @@
          name="messages_layout_panel"
          expanded_min_dim="212">
             <panel_container
+             bottom="-1"
              follows="all"
              layout="topleft"
              left="0"
@@ -137,6 +139,7 @@
              right="-1"
              top="0">
                 <panel
+                 bottom="-1"
                  follows="all"
                  layout="topleft"
                  name="stub_panel"
@@ -145,17 +148,17 @@
                  right="-1">
                     <button
                      follows="right|top"
-                     height="22"
+                     height="25"
                      image_hover_unselected="Toolbar_Middle_Over"
                      image_overlay="Conv_toolbar_collapse"
                      image_selected="Toolbar_Middle_Selected"
                      image_unselected="Toolbar_Middle_Off"
                      layout="topleft"
-                     top="0"
+                     top="1"
                      right="-10"
                      name="stub_collapse_btn"
                      tool_tip="Collapse this pane"
-                     width="28" />
+                     width="31" />
                     <text
                      type="string"
                      clip_partial="false"
@@ -169,7 +172,7 @@
                      valign="center"
                      parse_urls="true"
                      wrap="true">
-                         This conversation is in a separate window.  [secondlife:/// Bring it back.]
+                         This conversation is in a separate window.   [secondlife:/// Bring it back.]
                     </text>
                 </panel>
             </panel_container>

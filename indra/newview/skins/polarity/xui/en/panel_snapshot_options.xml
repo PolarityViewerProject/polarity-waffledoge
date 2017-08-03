@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ follows="all"
+ height="240"
+ layout="topleft"
+ name="panel_snapshot_options"
+ width="208">
+ <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Download"
+   image_overlay_alignment="left"
+   image_top_pad="-0"
+   imgoverlay_label_space="10"
+   label="Save to Disk"
+   layout="topleft"
+   left="9"
+   name="save_to_computer_btn"
+   top_pad="9">
+    <button.commit_callback
+     function="Snapshot.SaveToComputer" />
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Inventory"
+   image_overlay_alignment="left"
+   image_top_pad="-1"
+   imgoverlay_label_space="10"
+   label="Save to Inventory (L$[AMOUNT])"
+   layout="topleft"
+   left_delta="0"
+   name="save_to_inventory_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToInventory" />
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Profile"
+   image_overlay_alignment="left"
+   image_top_pad="-1"
+   imgoverlay_label_space="10"
+   label="Upload to Profile"
+   layout="topleft"
+   name="save_to_profile_btn"
+   left_delta="0"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToProfile" />
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Facebook"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Facebook"
+   layout="topleft"
+   left_delta="0"
+   name="send_to_facebook_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SendToFacebook"/>
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Command_Twitter_Icon"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Twitter"
+   layout="topleft"
+   left_delta="0"
+   name="send_to_twitter_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SendToTwitter"/>
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Command_Flickr_Icon"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Upload to Flickr"
+   layout="topleft"
+   left_delta="0"
+   name="send_to_flickr_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SendToFlickr"/>
+  </button>
+  <button
+   follows="left|top"
+   font="SansSerif"
+   halign="left"
+   height="22"
+   image_overlay="Snapshot_Email"
+   image_overlay_alignment="left"
+   image_top_pad="0"
+   imgoverlay_label_space="10"
+   label="Send via E-mail"
+   layout="topleft"
+   left_delta="0"
+   name="save_to_email_btn"
+   top_pad="5">
+    <button.commit_callback
+     function="Snapshot.SaveToEmail" />
+  </button>
+</panel>

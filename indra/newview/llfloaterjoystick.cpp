@@ -38,7 +38,6 @@
 #include "lltrace.h"
 
 // project includes
-#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 #include "llappviewer.h"
 #include "llviewerjoystick.h"
@@ -62,6 +61,9 @@ static LLTrace::SampleStatHandle<>* sJoystickAxes[6] =
 
 LLFloaterJoystick::LLFloaterJoystick(const LLSD& data)
 	: LLFloater(data)
+	, mCheckJoystickEnabled(nullptr)
+	, mCheckFlycamEnabled(nullptr)
+	, mAxisStatsBar({ {nullptr,nullptr,nullptr,nullptr,nullptr,nullptr} })
 {
 	initFromSettings();
 }
@@ -92,17 +94,6 @@ void LLFloaterJoystick::draw()
 		}
 	}
 
-	// <NiranV:Black Dragon> Custom Joystick Mapping
-	for (U32 i = 0; i < 16; i++)
-	{
-		U32 value = joystick->getJoystickButton(i);
-		if(!mAxisButton[i]->getEnabled() && joystick->getJoystickButton(i))
-		{
-			mAxisButton[i]->setEnabled(TRUE);
-		}
-		mAxisButton[i]->setToggleState(value);
-	}
-
 	LLFloater::draw();
 }
 
@@ -122,13 +113,6 @@ BOOL LLFloaterJoystick::postBuild()
 			mAxisStatsBar[i]->setRange(-range, range);
 		}
 	}
-
-	// <NiranV:Black Dragon> Custom Joystick Mapping
-	for (U32 i = 0; i < 16; i++)
-	{
-		std::string btn_name = llformat("btn%d", i);
-		mAxisButton[i] = getChild<LLButton>(btn_name);
-	}
 	
 	mCheckJoystickEnabled = getChild<LLCheckBoxCtrl>("enable_joystick");
 	childSetCommitCallback("enable_joystick",onCommitJoystickEnabled,this);
@@ -136,7 +120,7 @@ BOOL LLFloaterJoystick::postBuild()
 	childSetCommitCallback("JoystickFlycamEnabled",onCommitJoystickEnabled,this);
 
 	childSetAction("SpaceNavigatorDefaults", onClickRestoreSNDefaults, this);
-	childSetAction("Xbox360Defaults", onClickRestoreX360Defaults, this);
+	childSetAction("Xbox360Defaults", onClickRestoreXbox360Defaults, this);
 	childSetAction("cancel_btn", onClickCancel, this);
 	childSetAction("ok_btn", onClickOK, this);
 
@@ -320,6 +304,11 @@ void LLFloaterJoystick::onClickRestoreSNDefaults(void *joy_panel)
 	setSNDefaults();
 }
 
+void LLFloaterJoystick::onClickRestoreXbox360Defaults(void *joy_panel)
+{
+	setXbox360Defaults();
+}
+
 void LLFloaterJoystick::onClickCancel(void *joy_panel)
 {
 	if (joy_panel)
@@ -347,6 +336,14 @@ void LLFloaterJoystick::onClickOK(void *joy_panel)
 	}
 }
 
+void LLFloaterJoystick::onClose(bool app_quitting)
+{
+	if (app_quitting)
+	{
+		cancel();
+	}
+}
+
 void LLFloaterJoystick::onClickCloseBtn(bool app_quitting)
 {
 	cancel();
@@ -358,21 +355,7 @@ void LLFloaterJoystick::setSNDefaults()
 	LLViewerJoystick::getInstance()->setSNDefaults();
 }
 
-void LLFloaterJoystick::onClose(bool app_quitting)
-{
-	if (app_quitting)
-	{
-		cancel();
-	}
-}
-
 void LLFloaterJoystick::setXbox360Defaults()
 {
 	LLViewerJoystick::getInstance()->setXbox360Defaults();
 }
-
-void LLFloaterJoystick::onClickRestoreX360Defaults(void *joy_panel)
-{
-	setXbox360Defaults();
-}
-

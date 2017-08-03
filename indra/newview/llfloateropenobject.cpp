@@ -48,18 +48,13 @@
 #include "llselectmgr.h"
 #include "lluiconstants.h"
 #include "llviewerobject.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 
 
 LLFloaterOpenObject::LLFloaterOpenObject(const LLSD& key)
 :	LLFloater(key),
-	mPanelInventoryObject(NULL),
+	mPanelInventoryObject(nullptr),
 	mDirty(TRUE)
 {
-	mCommitCallbackRegistrar.add("OpenObject.MoveToInventory",	boost::bind(&LLFloaterOpenObject::onClickMoveToInventory, this));
-	mCommitCallbackRegistrar.add("OpenObject.MoveAndWear",		boost::bind(&LLFloaterOpenObject::onClickMoveAndWear, this));
-	mCommitCallbackRegistrar.add("OpenObject.ReplaceOutfit",	boost::bind(&LLFloaterOpenObject::onClickReplace, this));
 	mCommitCallbackRegistrar.add("OpenObject.Cancel",			boost::bind(&LLFloaterOpenObject::onClickCancel, this));
 }
 
@@ -73,6 +68,7 @@ BOOL LLFloaterOpenObject::postBuild()
 {
 	getChild<LLUICtrl>("object_name")->setTextArg("[DESC]", std::string("Object") ); // *Note: probably do not want to translate this
 	mPanelInventoryObject = getChild<LLPanelObjectInventory>("object_contents");
+	getChild<LLUICtrl>("copy_flyout")->setCommitCallback(boost::bind(&LLFloaterOpenObject::onClickCopy, this, _1));
 	
 	refresh();
 	return TRUE;
@@ -191,7 +187,7 @@ void LLFloaterOpenObject::moveToInventory(bool wear, bool replace)
 		if (!success)
 		{
 			delete data;
-			data = NULL;
+			data = nullptr;
 
 			LLNotificationsUtil::add("OpenObjectCannotCopy");
 		}
@@ -216,7 +212,7 @@ void LLFloaterOpenObject::callbackCreateInventoryCategory(const LLUUID& category
 	if (!success)
 	{
 		delete wear_data;
-		wear_data = NULL;
+		wear_data = nullptr;
 		
 		LLNotificationsUtil::add("OpenObjectCannotCopy");
 	}
@@ -239,21 +235,15 @@ void LLFloaterOpenObject::callbackMoveInventory(S32 result, void* data)
 	delete cat;
 }
 
-void LLFloaterOpenObject::onClickMoveToInventory()
+void LLFloaterOpenObject::onClickCopy(LLUICtrl* ctrl)
 {
-	moveToInventory(false);
-	closeFloater();
-}
-
-void LLFloaterOpenObject::onClickMoveAndWear()
-{
-	moveToInventory(true, false);
-	closeFloater();
-}
-
-void LLFloaterOpenObject::onClickReplace()
-{
-	moveToInventory(true, true);
+	const std::string& action = ctrl->getValue().asString();
+	if (action == "replace")
+		moveToInventory(true, true);
+	else if (action == "add")
+		moveToInventory(true, false);
+	else
+		moveToInventory(false);
 	closeFloater();
 }
 

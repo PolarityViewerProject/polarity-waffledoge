@@ -53,7 +53,7 @@
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
 ///----------------------------------------------------------------------------
-LLOutfitSnapshotFloaterView* gOutfitSnapshotFloaterView = NULL;
+LLOutfitSnapshotFloaterView* gOutfitSnapshotFloaterView = nullptr;
 
 const S32 OUTFIT_SNAPSHOT_WIDTH = 256;
 const S32 OUTFIT_SNAPSHOT_HEIGHT = 256;
@@ -98,8 +98,7 @@ LLSnapshotModel::ESnapshotLayerType LLFloaterOutfitSnapshot::Impl::getLayerType(
 void LLFloaterOutfitSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 {
     LLSnapshotModel::ESnapshotType shot_type = getActiveSnapshotType(floater);
-    static LLCachedControl<S32> snapshot_format(gSavedSettings, "SnapshotFormat");
-    LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)static_cast<S32>(snapshot_format);
+    LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)gSavedSettings.getS32("SnapshotFormat");
     LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
     LLSnapshotLivePreview* previewp = getPreviewView();
@@ -219,7 +218,7 @@ void LLFloaterOutfitSnapshot::Impl::updateResolution(void* data)
 // Default constructor
 LLFloaterOutfitSnapshot::LLFloaterOutfitSnapshot(const LLSD& key)
 : LLFloaterSnapshotBase(key),
-mOutfitGallery(NULL)
+mOutfitGallery(nullptr)
 {
     impl = new Impl(this);
 }
@@ -242,6 +241,9 @@ BOOL LLFloaterOutfitSnapshot::postBuild()
 
     childSetCommitCallback("hud_check", ImplBase::onClickHUDCheck, this);
     getChild<LLUICtrl>("hud_check")->setValue(gSavedSettings.getBOOL("RenderHUDInSnapshot"));
+
+    getChild<LLUICtrl>("freeze_frame_check")->setValue(gSavedSettings.getBOOL("UseFreezeFrame"));
+    childSetCommitCallback("freeze_frame_check", ImplBase::onCommitFreezeFrame, this);
 
     getChild<LLUICtrl>("auto_snapshot_check")->setValue(gSavedSettings.getBOOL("AutoSnapshot"));
     childSetCommitCallback("auto_snapshot_check", ImplBase::onClickAutoSnap, this);
@@ -321,7 +323,7 @@ void LLFloaterOutfitSnapshot::onExtendFloater()
 void LLFloaterOutfitSnapshot::update()
 {
     LLFloaterOutfitSnapshot* inst = findInstance();
-    if (inst != NULL)
+    if (inst != nullptr)
     {
         inst->impl->updateLivePreview();
     }

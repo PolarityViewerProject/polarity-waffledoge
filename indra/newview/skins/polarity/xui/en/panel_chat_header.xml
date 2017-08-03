@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+    background_visible="true"
+    bevel_style="in"
+    bg_alpha_color="ChatHeaderAlphaBackground"
+    bg_opaque_color="ChatHeaderOpaqueBackground"
+    follows="top|left|right"
+    height="20"
+    label="im_header"
+    layout="topleft"
+    name="im_header"
+    width="310">
+    <avatar_icon
+        follows="left"
+        height="14"
+        image_name="Generic_Person"
+        layout="topleft"
+        left="3"
+        mouse_opaque="true"
+        name="avatar_icon"
+        top="3"
+        width="14">
+    </avatar_icon>
+    <text
+        allow_scroll="false"
+        follows="left|right"
+        font.style="BOLD"
+        height="16"
+        layout="topleft"
+        left_pad="3"
+        name="user_name"
+        parse_urls="false"
+        read_only="true"
+        right="-120"
+        top="0"
+        translate="false"
+        use_ellipses="true"
+        v_pad="4"
+        valign="top"
+        value="TestString PleaseIgnore">
+    </text>
+    <text
+        allow_scroll="false"
+        follows="right"
+        font="SansSerif"
+        font.size="Small"
+        halign="right"
+        layout="topleft"
+        left_pad="5"
+        name="time_box"
+        right="-4"
+        top="4"
+        value="23:30"
+        width="110">
+    </text>
+</panel>

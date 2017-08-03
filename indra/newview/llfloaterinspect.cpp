@@ -50,10 +50,9 @@
 #include "rlvui.h"
 // [/RLVa:KB]
 
-//LLFloaterInspect* LLFloaterInspect::sInstance = NULL;
-
 LLFloaterInspect::LLFloaterInspect(const LLSD& key)
   : LLFloater(key),
+	mObjectList(nullptr),
 	mDirty(FALSE),
 	mOwnerNameCacheConnection(),
 	mCreatorNameCacheConnection()
@@ -113,12 +112,11 @@ void LLFloaterInspect::onOpen(const LLSD& key)
 	refresh();
 }
 
-// [RLVa:KB] - Checked: RLVa-2.0.1
-const LLSelectNode* LLFloaterInspect::getSelectedNode() /*const*/
+void LLFloaterInspect::onClickCreatorProfile()
 {
 	if(mObjectList->getAllSelected().size() == 0)
 	{
-		return NULL;
+		return;
 	}
 	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
 
@@ -128,34 +126,39 @@ const LLSelectNode* LLFloaterInspect::getSelectedNode() /*const*/
 		{
 			LLUUID obj_id;
 			f(const LLUUID& id) : obj_id(id) {}
-			virtual bool apply(LLSelectNode* node)
+
+			bool apply(LLSelectNode* node) override
 			{
 				return (obj_id == node->getObject()->getID());
 			}
 		} func(first_selected->getUUID());
-		return mObjectSelection->getFirstNode(&func);
-	}
-	return NULL;
-}
-
-void LLFloaterInspect::onClickCreatorProfile()
-{
-		const LLSelectNode* node = getSelectedNode();
+		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
-			// Only anonymize the creator if they're also the owner or if they're a nearby avie
-			const LLUUID& idCreator = node->mPermissions->getCreator();
-			if ( (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, idCreator)) && ((node->mPermissions->getOwner() == idCreator) || (RlvUtil::isNearbyAgent(idCreator))) )
-			{
-				return;
-			}
-			LLAvatarActions::showProfile(idCreator);
+			LLAvatarActions::showProfile(node->mPermissions->getCreator());
 		}
+	}
 }
 
 void LLFloaterInspect::onClickOwnerProfile()
 {
-		const LLSelectNode* node = getSelectedNode();
+	if(mObjectList->getAllSelected().size() == 0) return;
+	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
+
+	if (first_selected)
+	{
+		LLUUID selected_id = first_selected->getUUID();
+		struct f : public LLSelectedNodeFunctor
+		{
+			LLUUID obj_id;
+			f(const LLUUID& id) : obj_id(id) {}
+
+			bool apply(LLSelectNode* node) override
+			{
+				return (obj_id == node->getObject()->getID());
+			}
+		} func(selected_id);
+		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
 		if(node)
 		{
 			if(node->mPermissions->isGroupOwned())
@@ -196,78 +199,7 @@ void LLFloaterInspect::onSelectObject()
 		}
 	}
 }
-// [/RLVa:KB]
 
-//void LLFloaterInspect::onClickCreatorProfile()
-//{
-//	if(mObjectList->getAllSelected().size() == 0)
-//	{
-//		return;
-//	}
-//	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
-//
-//	if (first_selected)
-//	{
-//		struct f : public LLSelectedNodeFunctor
-//		{
-//			LLUUID obj_id;
-//			f(const LLUUID& id) : obj_id(id) {}
-//			virtual bool apply(LLSelectNode* node)
-//			{
-//				return (obj_id == node->getObject()->getID());
-//			}
-//		} func(first_selected->getUUID());
-//		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
-//		if(node)
-//		{
-//			LLAvatarActions::showProfile(node->mPermissions->getCreator());
-//		}
-//	}
-//}
-
-//void LLFloaterInspect::onClickOwnerProfile()
-//{
-//	if(mObjectList->getAllSelected().size() == 0) return;
-//	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
-//
-//	if (first_selected)
-//	{
-//		LLUUID selected_id = first_selected->getUUID();
-//		struct f : public LLSelectedNodeFunctor
-//		{
-//			LLUUID obj_id;
-//			f(const LLUUID& id) : obj_id(id) {}
-//			virtual bool apply(LLSelectNode* node)
-//			{
-//				return (obj_id == node->getObject()->getID());
-//			}
-//		} func(selected_id);
-//		LLSelectNode* node = mObjectSelection->getFirstNode(&func);
-//		if(node)
-//		{
-//			if(node->mPermissions->isGroupOwned())
-//			{
-//				const LLUUID& idGroup = node->mPermissions->getGroup();
-//				LLGroupActions::show(idGroup);
-//			}
-//			else
-//			{
-//				const LLUUID& owner_id = node->mPermissions->getOwner();
-//				LLAvatarActions::showProfile(owner_id);
-//			}
-//
-//		}
-//	}
-//}
-
-//void LLFloaterInspect::onSelectObject()
-//{
-//	if(LLFloaterInspect::getSelectedUUID() != LLUUID::null)
-//	{
-//		getChildView("button owner")->setEnabled(true);
-//		getChildView("button creator")->setEnabled(true);
-//	}
-//}
 
 LLUUID LLFloaterInspect::getSelectedUUID()
 {
@@ -455,3 +387,29 @@ void LLFloaterInspect::draw()
 
 	LLFloater::draw();
 }
+
+// [RLVa:KB] - Checked: RLVa-2.0.1
+const LLSelectNode* LLFloaterInspect::getSelectedNode() /*const*/
+{
+	if(mObjectList->getAllSelected().size() == 0)
+	{
+		return NULL;
+	}
+	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
+
+	if (first_selected)
+	{
+		struct f : public LLSelectedNodeFunctor
+		{
+			LLUUID obj_id;
+			f(const LLUUID& id) : obj_id(id) {}
+			virtual bool apply(LLSelectNode* node)
+			{
+				return (obj_id == node->getObject()->getID());
+			}
+		} func(first_selected->getUUID());
+		return mObjectSelection->getFirstNode(&func);
+	}
+	return NULL;
+}
+// [/RLVa:KB]

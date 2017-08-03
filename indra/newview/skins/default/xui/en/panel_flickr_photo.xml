@@ -14,85 +14,23 @@
              tool_tip="Image resolution"
              height="21"
              width="124">
-             <!-- Don't forget to copy-paste to panel_snapshot_local.xml -->
-        <combo_box.item
-         label="Current Window"
-         name="CurrentWindow"
-         value="[i0,i0]" />
-        <combo_box.item value="snapshot_hd" label="-High Definition-" enabled="false" />
-        <combo_box.item
-         label="HD"
-         name="1280x720"
-         value="[i1280,i720]" />
-        <combo_box.item
-         label="Full HD"
-         name="1920x1080"
-         value="[i1920,i1080]" />
-        <combo_box.item
-         label="WQHD (1440p)"
-         name="2560x1440"
-         value="[i2560,i1440]" />
-        <combo_box.item
-         label="4K UHD"
-         name="3840x2160"
-         value="[i3840,i2160]" />
-        <combo_box.item
-         label="DCI 4K (1.90:1)"
-         name="4096x2160"
-         value="[i4096,i2160]" />
-        <combo_box.item
-         label="8K UHD"
-         name="7680x4320"
-         value="[i7680,i4320]" />
-        <combo_box.item value="snapshot_xga" label="-Extended Graphics Array-" enabled="false" />
-        <combo_box.item
-         label="WXGA"
-         name="1440x900"
-         value="[i1440,i900]" />
-        <combo_box.item
-         label="UXGA"
-         name="1600x1200"
-         value="[i1600,i1200]" />
-        <combo_box.item
-         label="WUXGA"
-         name="1920x1200"
-         value="[i1920,i1200]" />
-        <combo_box.item value="21:9" label="-Quad Extended Graphics Array-" enabled="false" />
-        <combo_box.item
-         label="WQXGA"
-         name="2560x1600"
-         value="[i2560,i1600]" />
-        <combo_box.item value="21:9" label="-Hyper Extended Graphics Array-" enabled="false" />
-         <!-- This one is math-perfect, leave it alone :T -->
-        <combo_box.item
-         label="'4K 21:9' (2160p)"
-         name="5040x2160"
-         value="[i5040,i2160]" />
-         <!-- LEAVE IT. ALONE. :T -->
-        <combo_box.item
-         label="'8K 21:9'"
-         name="10080x4320"
-         value="[i10080,i4320]" />
-        <combo_box.item value="screenshot_surround" label="-Surround (3 panels)-" enabled="false" />
-        <combo_box.item
-         label="3 x 1080p"
-         name="5760x1080"
-         value="[i5760,i1080]" />
-        <combo_box.item
-         label="3 x 1080p (Bezel-Compensated)"
-         name="5940x1080"
-         value="[i5940,i1080]" />
-         <!-- I have no idea what kind of GPU can render this. -->
-        <combo_box.item
-         label="3 x 4K"
-         name="11520x2160"
-         value="[i11520,i2160]" />
-        <combo_box.item value="separator" label="-" enabled="false" />
-        <combo_box.item
-         label="Custom"
-         name="Custom"
-         value="[i-1,i-1]" />
-    </combo_box>
+              <combo_box.item
+               label="Current Window"
+               name="CurrentWindow"
+               value="[i0,i0]" />
+              <combo_box.item
+               label="640x480"
+               name="640x480"
+               value="[i640,i480]" />
+              <combo_box.item
+               label="800x600"
+               name="800x600"
+               value="[i800,i600]" />
+              <combo_box.item
+               label="1024x768"
+               name="1024x768"
+               value="[i1024,i768]" />
+            </combo_box>
             <combo_box
                control_name="FlickrPhotoFilters"
                follows="left|top"
@@ -227,7 +165,7 @@
              follows="left|top"
 			 layout="topleft"
              initial_value="true"
-             label="Include SL location at end of description"
+             label="Include location at end of description"
              name="add_location_cb"
               left="9"
               height="16"
@@ -248,8 +186,7 @@
               length="1"
               follows="top|left"
 			  layout="topleft"
-              font="SansSerif"
-              font.size="Small"
+              font="SansSerifSmall"
               text_color="White_50"
               height="30"
               name="tags_help_label"
@@ -300,7 +237,7 @@ Use "" for multi-word tags
            top_pad="7"
            left="10"
            height="23"
-           label="Upload"
+           label="Share"
            name="post_photo_btn"
            width="100">
             <button.commit_callback

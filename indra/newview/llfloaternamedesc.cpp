@@ -64,8 +64,7 @@ const S32 PREVIEW_HPAD = PREVIEW_RESIZE_HANDLE_SIZE;
 // LLFloaterNameDesc()
 //-----------------------------------------------------------------------------
 LLFloaterNameDesc::LLFloaterNameDesc(const LLSD& filename )
-	: LLFloater(filename),
-	  mIsAudio(FALSE)	  
+	: LLFloater(filename)  
 {
 	mFilenameAndPath = filename.asString();
 	mFilename = gDirUtilp->getBaseFileName(mFilenameAndPath, false);
@@ -163,12 +162,12 @@ void LLFloaterNameDesc::onBtnOK( )
 {
 	getChildView("ok_btn")->setEnabled(FALSE); // don't allow inadvertent extra uploads
 	
-	LLAssetStorage::LLStoreAssetCallback callback = NULL;
+	LLAssetStorage::LLStoreAssetCallback callback = nullptr;
 	S32 expected_upload_cost = LLGlobalEconomy::getInstance()->getPriceUpload(); // kinda hack - assumes that unsubclassed LLFloaterNameDesc is only used for uploading chargeable assets, which it is right now (it's only used unsubclassed for the sound upload dialog, and THAT should be a subclass).
 
     if (can_afford_transaction(expected_upload_cost))
     {
-        void *nruserdata = NULL;
+        void *nruserdata = nullptr;
 
         LLResourceUploadInfo::ptr_t uploadInfo(new LLNewFileResourceUploadInfo(
             mFilenameAndPath,
@@ -208,7 +207,6 @@ void LLFloaterNameDesc::onBtnCancel()
 LLFloaterSoundPreview::LLFloaterSoundPreview(const LLSD& filename )
 	: LLFloaterNameDesc(filename)
 {
-	mIsAudio = TRUE;
 }
 
 BOOL LLFloaterSoundPreview::postBuild()
@@ -248,7 +246,6 @@ BOOL LLFloaterAnimPreview::postBuild()
 LLFloaterScriptPreview::LLFloaterScriptPreview(const LLSD& filename )
 	: LLFloaterNameDesc(filename)
 {
-	mIsText = TRUE;
 }
 
 BOOL LLFloaterScriptPreview::postBuild()

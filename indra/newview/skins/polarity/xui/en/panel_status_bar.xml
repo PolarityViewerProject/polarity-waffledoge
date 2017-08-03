@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<panel
+ background_opaque="true"
+ background_visible="true"
+ bg_opaque_color="DkGray"
+ chrome="true"
+ follows="top|right"
+ height="19"
+ layout="topleft"
+ left="0"
+ mouse_opaque="false"
+ name="status"
+ top="19"
+ tab_stop="false"
+ width="1000">
+    <panel.string
+     name="packet_loss_tooltip">
+        Packet Loss
+    </panel.string>
+    <panel.string
+     name="bandwidth_tooltip">
+        Bandwidth
+    </panel.string>
+    <panel.string
+     name="time">
+        [hour12, datetime, slt]:[min, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="timePrecise">
+        [hour12, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [ampm, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="time24">
+        [hour24, datetime, slt]:[min, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="time24Precise">
+        [hour24, datetime, slt]:[min, datetime, slt]:[second, datetime, slt] [timezone,datetime, slt]
+    </panel.string>
+    <panel.string
+     name="timeTooltip">
+        [weekday, datetime, slt], [day, datetime, slt] [month, datetime, slt] [year, datetime, slt]
+    </panel.string>
+	<panel.string
+     name="buycurrencylabel">
+        L$ [AMT]
+    </panel.string>
+  <panel
+    height="18"
+    left="-416"
+    width="140"
+    top="1"
+    follows="right|top" 
+    visibility_control="PVUI_ShowCurrencyBalanceInStatusBar"
+    name="balance_bg">
+    <text
+     halign="center"
+     font="SansSerif"
+     font.size="Small"
+     follows="all"
+     height="18"
+     left="0" 
+     name="balance"
+     tool_tip="Click to refresh your L$ balance"
+     v_pad="4"
+     top="0"
+     wrap="false" 
+     value="L$??" 
+     width="40" />
+    <button
+     halign="center"
+     font="SansSerif"
+     font.size="Small"
+     follows="right|top|bottom"
+     image_hover_unselected="PushButton_Over"
+     image_unselected="PushButton_Off"
+     image_pressed="PushButton_Press"
+     height="18"
+     label="Buy L$"
+     label_color="White"
+     left_pad="0"
+     label_shadow="true"
+     name="buyL"
+     pad_right="0"
+     tool_tip="Click to buy more L$"
+     top="0"
+     width="55" />
+    <button
+     halign="left"
+     font="SansSerif"
+     font.size="Small"
+     follows="right|top|bottom"
+     imgoverlay_label_space="7"
+     image_overlay="Command_MiniCart_Icon"
+     image_overlay_alignment="left"
+     image_hover_unselected="PushButton_Over"
+     image_unselected="PushButton_Off"
+     image_pressed="PushButton_Press"
+     height="18"
+     label="Shop"
+     label_color="White"
+     left_pad="0"
+     label_shadow="true"
+     name="goShop"
+     tool_tip="Open Second Life Marketplace"
+     top="0"
+     width="65" />
+  </panel>
+    <text
+     type="string"
+     font="SansSerif"
+     font.size="Small"
+     text_readonly_color="TimeTextColor"
+     follows="right|top"
+     halign="right"
+     height="16"
+     top="5"
+     layout="topleft"
+     left_pad="0"
+     name="TimeText"
+     tool_tip="Current time (Pacific)"
+     width="145">
+        24:00 AM PST
+    </text>
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="Play_Off"
+     image_unselected="Pause_Off"
+     image_pressed="Pause_Press"
+     image_pressed_selected="Play_Press"
+     is_toggle="true"
+     left_pad="5"
+     top="1"
+     name="media_toggle_btn"
+     tool_tip="Start/Stop All Media (Music, Video, Web pages)"
+     width="16" >
+    </button>
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="AudioMute_Off"
+     image_pressed="Audio_Press"
+     image_unselected="Audio_Off"
+     is_toggle="true"
+     left_pad="5"
+     top="2"
+     name="volume_btn"
+     width="16" />
+    <button
+     follows="right|top"
+     height="16"
+     image_selected="Icon_Gear_Background"
+     image_pressed="Icon_Gear_Background"
+     image_unselected="Icon_Gear_Foreground"
+     left_pad="5"
+     top="2"
+     name="quick_settings_btn"
+     width="16">
+     <click_callback
+      function="Floater.ToggleOrBringToFront"
+      parameter="quick_settings" />
+    </button>
+    <text
+    visibility_control="PVUI_StatusBarShowFPSCounter"
+    type="string"
+    font="SansSerif"
+    font.size="Small"
+    follows="right|top"
+    halign="left"
+    height="16"
+    top="4"
+    layout="topleft"
+    left_pad="5"
+    name="FPS_count"
+    tool_tip="Frames per second/Refresh rate"
+    width="65">
+999.0/120
+	 </text>
+</panel>

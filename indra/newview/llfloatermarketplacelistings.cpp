@@ -44,6 +44,7 @@
 #include "llnotificationsutil.h"
 #include "llsidepaneliteminfo.h"
 #include "lltextbox.h"
+#include "lltexteditor.h"
 #include "lltrans.h"
 
 ///----------------------------------------------------------------------------
@@ -53,9 +54,11 @@
 static LLPanelInjector<LLPanelMarketplaceListings> t_panel_status("llpanelmarketplacelistings");
 
 LLPanelMarketplaceListings::LLPanelMarketplaceListings()
-: mRootFolder(NULL)
-, mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
+: mRootFolder(nullptr)
+, mAuditBtn(nullptr)
+, mFilterEditor(nullptr)
 , mFilterListingFoldersOnly(false)
+, mSortOrder(LLInventoryFilter::SO_FOLDERS_BY_NAME)
 {
 	mCommitCallbackRegistrar.add("Marketplace.ViewSort.Action",  boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemClicked,  this, _2));
 	mEnableCallbackRegistrar.add("Marketplace.ViewSort.CheckItem",	boost::bind(&LLPanelMarketplaceListings::onViewSortMenuItemCheck,	this, _2));
@@ -82,7 +85,7 @@ BOOL LLPanelMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL
                        std::string& tooltip_msg)
 {
     LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-    BOOL handled = (handled_view != NULL);
+    BOOL handled = (handled_view != nullptr);
     // Special case the drop zone
     if (handled && (handled_view->getName() == "marketplace_drop_zone"))
     {
@@ -323,7 +326,7 @@ public:
 	{
 	}
 	
-	void done()
+	void done() override
 	{
 		for (cat_vec_t::iterator it = mAddedCategories.begin(); it != mAddedCategories.end(); ++it)
 		{
@@ -348,15 +351,15 @@ private:
 
 LLFloaterMarketplaceListings::LLFloaterMarketplaceListings(const LLSD& key)
 : LLFloater(key)
-, mCategoriesObserver(NULL)
-, mCategoryAddedObserver(NULL)
+, mCategoriesObserver(nullptr)
+, mCategoryAddedObserver(nullptr)
+, mInventoryStatus(nullptr)
+, mInventoryInitializationInProgress(nullptr)
+, mInventoryPlaceholder(nullptr)
+, mInventoryText(nullptr)
+, mInventoryTitle(nullptr)
 , mRootFolderId(LLUUID::null)
-, mInventoryStatus(NULL)
-, mInventoryInitializationInProgress(NULL)
-, mInventoryPlaceholder(NULL)
-, mInventoryText(NULL)
-, mInventoryTitle(NULL)
-, mPanelListings(NULL)
+, mPanelListings(nullptr)
 , mPanelListingsSet(false)
 {
 }
@@ -458,7 +461,7 @@ void LLFloaterMarketplaceListings::setRootFolder()
 	{
 		gInventory.removeObserver(mCategoryAddedObserver);
 		delete mCategoryAddedObserver;
-		mCategoryAddedObserver = NULL;
+		mCategoryAddedObserver = nullptr;
 	}
 	llassert(!mCategoryAddedObserver);
     
@@ -541,7 +544,8 @@ void LLFloaterMarketplaceListings::updateView()
     }
 
     // Update the bottom initializing status and progress dial if we are initializing or if we're a merchant and still loading
-    if ((mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING) || (is_merchant && (data_fetched <= MarketplaceFetchCodes::MARKET_FETCH_LOADING)) )
+    if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING
+        || (is_merchant && data_fetched <= MarketplaceFetchCodes::MARKET_FETCH_LOADING))
     {
         // Just show the loading indicator in that case and fetch the data (fetch will be skipped if it's already loading)
         mInventoryInitializationInProgress->setVisible(true);
@@ -585,13 +589,6 @@ void LLFloaterMarketplaceListings::updateView()
             title = LLTrans::getString("InventoryMarketplaceListingsNoItemsTitle");
             tooltip = LLTrans::getString("InventoryMarketplaceListingsNoItemsTooltip");
         }
-        else if (mkt_status <= MarketplaceStatusCodes::MARKET_PLACE_INITIALIZING)
-        {
-            // "Initializing!" message strings
-            text = LLTrans::getString("InventoryOutboxInitializing", subs);
-            title = LLTrans::getString("InventoryOutboxInitializingTitle");
-            tooltip = LLTrans::getString("InventoryOutboxInitializingTooltip");
-        }
         else if (mkt_status == MarketplaceStatusCodes::MARKET_PLACE_NOT_MERCHANT)
         {
             // "Not a merchant!" message strings
@@ -605,6 +602,7 @@ void LLFloaterMarketplaceListings::updateView()
             text = LLTrans::getString("InventoryMarketplaceError", subs);
             title = LLTrans::getString("InventoryOutboxErrorTitle");
             tooltip = LLTrans::getString("InventoryOutboxErrorTooltip");
+            LL_WARNS() << "Marketplace status code: " << mkt_status << LL_ENDL;
         }
     
         mInventoryText->setValue(text);
@@ -634,7 +632,7 @@ BOOL LLFloaterMarketplaceListings::handleDragAndDrop(S32 x, S32 y, MASK mask, BO
     
     // Pass to the children
 	LLView * handled_view = childrenHandleDragAndDrop(x, y, mask, drop, cargo_type, cargo_data, accept, tooltip_msg);
-	BOOL handled = (handled_view != NULL);
+	BOOL handled = (handled_view != nullptr);
     
 	// If no one handled it or it was not accepted and we drop on an empty panel, we try to accept it at the floater level
     // as if it was dropped on the marketplace listings root folder
@@ -786,7 +784,7 @@ void LLFloaterAssociateListing::cancel()
 
 LLFloaterMarketplaceValidation::LLFloaterMarketplaceValidation(const LLSD& key)
 :	LLFloater(key),
-mEditor(NULL)
+mEditor(nullptr)
 {
 }
 
@@ -947,5 +945,9 @@ void LLFloaterItemProperties::onOpen(const LLSD& key)
     // Tell the panel which item it needs to visualize
     LLSidepanelItemInfo* panel = getChild<LLSidepanelItemInfo>("item_panel");
     panel->setItemID(key["id"].asUUID());
+	if (key.has("object"))
+	{
+		panel->setObjectID(key["object"].asUUID());
+	}
 }
 

@@ -79,7 +79,6 @@
 #include "lldir.h"
 #include "llselectmgr.h"
 #include "llversioninfo.h"
-#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 #include "llviewernetwork.h"
 
@@ -102,13 +101,13 @@ class LLARScreenShotUploader : public LLResourceUploadInfo
 public:
     LLARScreenShotUploader(LLSD report, LLUUID assetId, LLAssetType::EType assetType);
 
-    virtual LLSD        prepareUpload();
-    virtual LLSD        generatePostBody();
-    virtual S32         getEconomyUploadCost();
-    virtual LLUUID      finishUpload(LLSD &result);
+	LLSD        prepareUpload() override;
+	LLSD        generatePostBody() override;
+	S32         getEconomyUploadCost() override;
+	LLUUID      finishUpload(LLSD &result) override;
 
-    virtual bool        showInventoryPanel() const { return false; }
-    virtual std::string getDisplayName() const { return "Abuse Report"; }
+	bool        showInventoryPanel() const override { return false; }
+	std::string getDisplayName() const override { return "Abuse Report"; }
 
 private:
 
@@ -300,7 +299,7 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 	if (LLUUID::null != mObjectID)
 	{
 		// get object info for the user's benefit
-		LLViewerObject* objectp = NULL;
+		LLViewerObject* objectp = nullptr;
 		objectp = gObjectList.findObject( mObjectID );
 		if (objectp)
 		{
@@ -315,14 +314,6 @@ void LLFloaterReporter::getObjectInfo(const LLUUID& object_id)
 			if (regionp)
 			{
 				getChild<LLUICtrl>("sim_field")->setValue(regionp->getName());
-// [RLVa:KB] - Checked: 2009-07-04 (RLVa-1.0.0a)
-/*
-				if ( (rlv_handler_t::isEnabled()) && (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)) )
-				{
-					childSetText("sim_field", RlvStrings::getString(RLV_STRING_HIDDEN_REGION));
-				}
-*/
-// [/RLVa:KB]
 				LLVector3d global_pos;
 				global_pos.setVec(objectp->getPositionRegion());
 				setPosBox(global_pos);
@@ -619,13 +610,13 @@ bool LLFloaterReporter::validateReport()
 		return false;
 	};
 
-	if (getChild<LLUICtrl>("abuse_location_edit")->getValue().asString().empty())
+	if ( getChild<LLUICtrl>("abuse_location_edit")->getValue().asString().empty() )
 	{
 		LLNotificationsUtil::add("HelpReportAbuseAbuserLocationEmpty");
 		return false;
 	};
 
-	if (getChild<LLUICtrl>("abuse_location_edit")->getValue().asString().empty())
+	if ( getChild<LLUICtrl>("abuse_location_edit")->getValue().asString().empty() )
 	{
 		LLNotificationsUtil::add("HelpReportAbuseAbuserLocationEmpty");
 		return false;
@@ -655,7 +646,7 @@ LLSD LLFloaterReporter::gatherReport()
 	mCopyrightWarningSeen = FALSE;
 
 	std::ostringstream summary;
-	if (!LLGridManager::getInstance()->isInProductionGrid())
+	if (LLGridManager::getInstance()->isInSLBeta())
 	{
 		summary << "Preview ";
 	}
@@ -673,9 +664,6 @@ LLSD LLFloaterReporter::gatherReport()
 	const char* platform = "Mac";
 #elif LL_LINUX
 	const char* platform = "Lnx";
-#elif LL_SOLARIS
-	const char* platform = "Sol";
-	const char* short_platform = "O:S";
 #else
 	const char* platform = "???";
 #endif

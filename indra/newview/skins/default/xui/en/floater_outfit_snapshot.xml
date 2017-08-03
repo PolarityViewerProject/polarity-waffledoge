@@ -12,7 +12,7 @@
  help_topic="snapshot"
  save_rect="true"
  save_visibility="false"
- title="Outfit Snapshot"
+ title="OUTFIT SNAPSHOT"
  width="624"
  min_height="455">
   <floater.string
@@ -125,15 +125,13 @@
          width="180"
          name="hud_check" />
         <check_box
-         label="Freeze World"
-         initial_value="false"
-         control_name="PVRender_FreezeWorld"
+         label="Freeze frame (fullscreen)"
          layout="topleft"
-     height="16"
+		 height="16"
          left="10"
          top_pad="1"
          width="180"
-         name="freeze_world_check" />
+         name="freeze_frame_check" />
         <check_box
          label="Auto-refresh"
          layout="topleft"
@@ -203,8 +201,7 @@
 	<panel
        background_visible="false"
        follows="left|top"
-       font="SansSerif"
-       font.size="Large"
+       font="SansSerifLarge"
        halign="center"
        height="20"
        layout="topleft"
@@ -235,8 +232,7 @@
       <panel
        background_visible="false"
        follows="left|top"
-       font="SansSerif"
-       font.size="Large"
+       font="SansSerifLarge"
        halign="center"
        height="20"
        layout="topleft"
@@ -325,8 +321,7 @@
    left_delta="0"/>
    <text
     type="string"
-    font="SansSerif"
-    font.size="Small"
+    font="SansSerifSmall"
     length="1"
     follows="left|top|right"
     height="14"
@@ -341,8 +336,7 @@
    </text>
    <text
     follows="right|top"
-    font="SansSerif"
-    font.size="Small"
+    font="SansSerifSmall"
     height="14"
     layout="topleft"
     left="-65"

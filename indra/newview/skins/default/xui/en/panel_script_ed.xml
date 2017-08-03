@@ -14,7 +14,7 @@
   </panel.string>
   <panel.string
     name="can_not_view">
-    You can not view or edit this script, since it has been set with restricted permissions. You need full permissions to view or edit a script inside an object.
+    You can not view or edit this script, since it has been set as &quot;no copy&quot;. You need full permissions to view or edit a script inside an object.
   </panel.string>
   <panel.string
     name="public_objects_can_not_run">
@@ -70,10 +70,25 @@
         label="Save to file..."
         layout="topleft"
         name="SaveToFile" />
+          <menu_item_separator
+           layout="topleft" />
+          <menu_item_check
+           label="Compile scripts using Mono"
+           name="AlchemyInventoryScriptsMono">
+            <menu_item_check.on_check
+             control="AlchemyInventoryScriptsMono" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="AlchemyInventoryScriptsMono" />
+          </menu_item_check>
           <menu_item_call
-           label="Script Editor Preferences..."
+           label="Colors..."
            layout="topleft"
-           name="ScriptPrefs" />
+           name="Colors">
+            <menu_item_call.on_click
+             function="Floater.Toggle"
+             parameter="script_colors"/>
+          </menu_item_call>
     </menu>
     <menu
       top="0"
@@ -150,194 +165,16 @@
         label="Keyword Help..."
         layout="topleft"
         name="Keyword Help..." />
-            <menu_item_call
-             label="Script Library..."
-             name="Script Library">
-             <menu_item_call.on_click
-              function="PromptShowURL"
-              name="script_library_url"
-              parameter="WebLaunchExternalTarget,http://wiki.secondlife.com/wiki/LSL_Library" />
-            </menu_item_call>
+      <menu_item_call
+         label="LSL Tutorial"
+         name="LSL Tutorial">
+         <menu_item_call.on_click
+            function="Advanced.ShowURL"
+            parameter="http://wiki.secondlife.com/wiki/LSL_101/A_Gentle_Introduction"/>
+      </menu_item_call>
     </menu>
   </menu_bar>
-    <layout_stack
-        animate="false"
-        clip="false"
-        follows="left|top|right"
-        name="script_editor_button_bar"
-        layout="topleft"
-        orientation="vertical"
-        top_pad="0"
-        width="497"
-    left="0"
-        height="20">
-        <layout_panel
-         auto_resize="false"
-         follows="left|top"
-         name="script_editor_buttons_panel"
-         layout="topleft"
-         width="497"
-         height="20">
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Save"
-             image_selected="Script_Save"
-             image_pressed="Script_Save"
-             tool_tip="Save script"
-             label=""
-             layout="topleft"
-             name="save_btn"
-             left="7"
-             top="2"
-             width="18" />
-            <button
-    follows="left|top"
-             height="18"
-             image_unselected="Script_Editor"
-             image_selected="Script_Editor"
-             image_pressed="Script_Editor"
-             tool_tip="External Script Editor"
-             label=""
-             layout="topleft"
-             name="Edit_btn"
-             left_pad="3"
-             width="18" />
-            
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Disk_Load"
-             image_selected="Script_Disk_Load"
-             image_pressed="Script_Disk_Load"
-             tool_tip="Load a Script from your Hard Disk"
-             label=""
-    layout="topleft"
-             name="load_disk_btn"
-             left_pad="14"
-             width="18" />
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Disk_Save"
-             image_selected="Script_Disk_Save"
-             image_pressed="Script_Disk_Save"
-             tool_tip="Save a Script to your Hard Disk"
-             label=""
-             layout="topleft"
-             name="save_disk_btn"
-             left_pad="3"
-             width="18" />
-            
-            <button
-    follows="left|top"
-             height="18"
-             image_unselected="Script_Cut"
-             image_selected="Script_Cut"
-             image_pressed="Script_Cut"
-             tool_tip="Cut"
-             label=""
-             layout="topleft"
-             name="cut_btn"
-             left_pad="14"
-             width="18" />
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Copy"
-             image_selected="Script_Copy"
-             image_pressed="Script_Copy"
-             tool_tip="Copy"
-             label=""
-    layout="topleft"
-             name="copy_btn"
-             left_pad="3"
-             width="18" />
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Paste"
-             image_selected="Script_Paste"
-             image_pressed="Script_Paste"
-             tool_tip="Paste"
-             label=""
-             layout="topleft"
-             name="paste_btn"
-             left_pad="3"
-             width="18" />
-            
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Undo"
-             image_selected="Script_Undo"
-             image_pressed="Script_Undo"
-             tool_tip="Undo"
-             label=""
-             layout="topleft"
-             name="undo_btn"
-             left_pad="14"
-             width="18" />
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Redo"
-             image_selected="Script_Redo"
-             image_pressed="Script_Redo"
-             tool_tip="Redo"
-             label=""
-             layout="topleft"
-             name="redo_btn"
-             left_pad="3"
-             width="18" />
-            
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Search"
-             image_selected="Script_Search"
-             image_pressed="Script_Search"
-             tool_tip="Search/Replace"
-             label=""
-             layout="topleft"
-             name="search_btn"
-             left_pad="14"
-             width="18" />
-            <button
-             follows="left|top"
-             height="18"
-             image_unselected="Script_Config"
-             image_selected="Script_Config"
-             image_pressed="Script_Config"
-             tool_tip="Script Editor Preferences"
-             label=""
-             layout="topleft"
-             name="prefs_btn"
-             left_pad="14"
-             width="18" />
-            
-            <loading_indicator
-             top="2"
-             right="-10"
-             height="18"
-             width="18"
-             layout="topleft"
-             follows="top|right"
-             name="progress_indicator"
-             visible="false" />
-            <icon
-             top="2"
-             right="-10"
-             height="18"
-             width="18"
-             layout="topleft"
-             follows="top|right"
-             name="status_indicator"
-             image_name="Script_NotRunning"
-             visible="true" />
-        </layout_panel>
-    </layout_stack>
-   <script_editor
+    <script_editor
     left="0"
     type="string"
     length="1"
@@ -346,30 +183,36 @@
      height="376"
     ignore_tab="false"
     layout="topleft"
-    max_length="262144"
+     max_length="262144"
     name="Script Editor"
-    text_color="ScriptText"
+     width="487"
+     text_color="ScriptText"
      default_color="ScriptText"
      bg_writeable_color="ScriptBackground"
      bg_focus_color="ScriptBackground"
-    text_readonly_color="ScriptText"
+     text_readonly_color="ScriptText"
      bg_readonly_color="ScriptBackground"
-     bg_selected_color="ScriptSelectedColor"
      cursor_color="ScriptCursorColor"
-     width="487"
     enable_tooltip_paste="true"
      word_wrap="true"
      show_context_menu="true">
     Loading...
-  </script_editor>
+    </script_editor>
   <scroll_list
     top_pad="10"
     left="0"
-   follows="left|right|bottom"
-   height="60"
-   layout="topleft"
-   name="lsl errors"
+    follows="left|right|bottom"
+    height="60"
+    layout="topleft"
+    name="lsl errors"
      width="487" />
+  <text
+    follows="left|bottom"
+    height="12"
+    layout="topleft"
+     left="0"
+    name="line_col"
+    width="128" />
   <combo_box
     follows="left|bottom"
     height="23"
@@ -377,32 +220,24 @@
     layout="topleft"
     name="Insert..."
      width="128" />
-    <text
-     follows="left|bottom"
+  <button
+    follows="right|bottom"
     height="23"
+    label="Save"
+    label_selected="Save"
     layout="topleft"
-     left_pad="8"
-     top_delta="4"
-     name="line_col"
-     value="Line 0, Column 0"
-     width="128" />
- <button
-  enabled="false"
-  follows="right|bottom"
+    top_pad="-35"
+     right="487"
+    name="Save_btn"
+    width="81" />
+  <button
+    enabled="false"
+    follows="right|bottom"
     height="23"
     label="Edit..."
-  layout="topleft"
-     top_delta="-4"
-     right="-104"
-     name="edit_btn_2"
-     width="90" />
- <button
-  follows="right|bottom"
-     height="23"
-  label="Save"
-  label_selected="Save"
-  layout="topleft"
-     left_pad="4"
-     name="save_btn_2"
-     width="90" />
+    layout="topleft"
+    top_pad="-23"
+     right="400"
+    name="Edit_btn"
+    width="81" />
 </panel>

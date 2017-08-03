@@ -9,43 +9,6 @@
         <menu_item_call.on_click
          function="Avatar.Profile" />
     </menu_item_call>
-    <context_menu
-      label="Copy Data..."
-      layout="topleft"
-      name="copy_info">
-      <menu_item_call
-        label="SLURL"
-        name="Copy SLURL">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_slurl">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Display name"
-        name="Copy Display Name">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_displayname">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Username"
-        name="Copy Name">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_name">
-        </menu_item_call.on_click>
-      </menu_item_call>
-      <menu_item_call
-        label="Key"
-        name="Copy Key">
-        <menu_item_call.on_click
-          function="Polarity.Common.CopyData"
-          parameter="copy_key">
-        </menu_item_call.on_click>
-      </menu_item_call>
-    </context_menu>
     <menu_item_call
      label="IM"
      layout="topleft"
@@ -128,6 +91,16 @@
     </menu_item_call>
     <menu_item_separator name="separator_invite_to_group"/>
     <menu_item_call
+     label="Teleport To"
+     layout="topleft"
+     name="teleport_to">
+      <menu_item_call.on_click
+       function="Avatar.TeleportTo" />
+      <menu_item_call.on_enable
+       function="Avatar.EnableItem"
+       parameter="can_teleport_to"/>
+    </menu_item_call>
+    <menu_item_call
      label="Zoom In"
      layout="topleft"
      name="zoom_in">
@@ -180,27 +153,142 @@
          function="Avatar.EnableItem"
          parameter="can_block" />
     </menu_item_check>
-    <menu_item_call
+    <menu_item_separator name="separator_utilities" />
+    <menu
+     label="Manage"
+     name="manage_menu">
+     <menu_item_call
          label="Freeze"
          name="freeze">
         <menu_item_call.on_click
          function="Avatar.Freeze" />
         <menu_item_call.on_visible
          function="Avatar.EnableFreezeEject"/>
-    </menu_item_call>
-    <menu_item_call
+     </menu_item_call>
+     <menu_item_call
          label="Eject"
          name="eject">
         <menu_item_call.on_click
          function="Avatar.Eject" />
         <menu_item_call.on_visible
          function="Avatar.EnableFreezeEject"/>
+     </menu_item_call>
+     <menu_item_call
+         label="Teleport Home"
+         name="estate_tphome">
+        <menu_item_call.on_click
+         function="Avatar.EstateTPHome" />
+        <menu_item_call.on_visible
+         function="Avatar.EnableEstateManage"/>
+     </menu_item_call>
+     <menu_item_call
+         label="Estate Kick"
+         name="estate_kick">
+        <menu_item_call.on_click
+         function="Avatar.EstateKick" />
+        <menu_item_call.on_visible
+         function="Avatar.EnableEstateManage"/>
+     </menu_item_call>
+     <menu_item_call
+         label="Estate Ban"
+         name="estate_ban">
+        <menu_item_call.on_click
+         function="Avatar.EstateBan" />
+        <menu_item_call.on_visible
+         function="Avatar.EnableEstateManage"/>
+     </menu_item_call>
+     <menu_item_call
+         label="God Freeze"
+         name="god_freeze">
+        <menu_item_call.on_click
+         function="Avatar.GodFreeze" />
+        <menu_item_call.on_visible
+         function="IsGodCustomerService"/>
+     </menu_item_call>
+     <menu_item_call
+           label="God Unfreeze"
+           name="god_unfreeze">
+        <menu_item_call.on_click
+         function="Avatar.GodUnfreeze" />
+        <menu_item_call.on_visible
+         function="IsGodCustomerService"/>
+     </menu_item_call>
+     <menu_item_call
+           label="Log Out"
+           name="god_kick">
+        <menu_item_call.on_click
+         function="Avatar.GodKick" />
+        <menu_item_call.on_visible
+         function="IsGodCustomerService"/>
+     </menu_item_call>
+    </menu>
+    <menu
+    label="Tools"
+    name="tools_menu">
+    <menu_item_call
+     label="Copy Name"
+     layout="topleft"
+     name="copy_name">
+        <menu_item_call.on_click
+         function="Avatar.CopyName" />
     </menu_item_call>
     <menu_item_call
-         enabled="true"
-         label="Refresh Appearance"
-         name="refresh">
+     label="Copy SLURL"
+     layout="topleft"
+     name="copy_slurl">
         <menu_item_call.on_click
-         function="Polarity.Avatar.TextureRefresh" />
+         function="Avatar.CopySLURL" />
     </menu_item_call>
+    <menu_item_call
+     label="Copy Key"
+     layout="topleft"
+     name="copy_uuid">
+        <menu_item_call.on_click
+         function="Avatar.CopyKey" />
+    </menu_item_call>
+    </menu>
+  <menu
+   label="Tag Color"
+   name="tag_color">
+    <menu_item_call
+     label="Color 1"
+     name="Color 1"
+     enabled_color="AvatarCustomColor1">
+      <menu_item_call.on_click
+      function="Avatar.Colorize"
+      parameter="color1" />
+    </menu_item_call>
+    <menu_item_call
+     label="Color 2"
+     name="Color 2"
+     enabled_color="AvatarCustomColor2">
+      <menu_item_call.on_click
+      function="Avatar.Colorize"
+      parameter="color2" />
+    </menu_item_call>
+    <menu_item_call
+     label="Color 3"
+     name="Color 3"
+     enabled_color="AvatarCustomColor3">
+      <menu_item_call.on_click
+      function="Avatar.Colorize"
+      parameter="color3" />
+    </menu_item_call>
+    <menu_item_call
+     label="Color 4"
+     name="Color 4"
+     enabled_color="AvatarCustomColor4">
+      <menu_item_call.on_click
+      function="Avatar.Colorize"
+      parameter="color4" />
+    </menu_item_call>
+    <menu_item_separator />
+    <menu_item_call
+     label="Clear Color"
+     name="clear_color">
+      <menu_item_call.on_click
+      function="Avatar.Colorize"
+      parameter="clear" />
+    </menu_item_call>
+  </menu>
 </context_menu>

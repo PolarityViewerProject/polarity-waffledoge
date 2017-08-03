@@ -32,7 +32,6 @@
      width="308" />
     <texture_picker
      allow_no_texture="true"
-     border_enabled="true"
      fallback_image="default_land_picture.j2c"
      enabled="false"
      follows="left|top"
@@ -47,8 +46,7 @@
      width="90" />
     <text
      follows="top|left|right"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="15"
      layout="topleft"
      left="110"
@@ -61,8 +59,7 @@
      word_wrap="false" />
     <expandable_text
      follows="top|left|right"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="55"
      layout="topleft"
      left="103"
@@ -70,8 +67,7 @@
      textbox.max_length="1024"
      textbox.show_context_menu="false" 
      top_pad="0"
-     width="178"
-     word_wrap="true" />
+     width="178" />
          <button
      follows="right"
      height="20"

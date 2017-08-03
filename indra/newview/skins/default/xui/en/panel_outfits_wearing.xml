@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <panel
- background_visible="false"
+ background_visible="true"
+ bg_alpha_color="DkGray"
  follows="all"
  height="430"
  layout="topleft"
@@ -13,15 +14,16 @@
     No attachments worn.
    </panel.string>
      <accordion
-     background_visible="false"
      fit_parent="true"
      follows="all"
      height="400"
      layout="topleft"
      left="0"
-     name="wearables_accordion"
      single_expansion="true"
      top="0"
+     name="wearables_accordion"
+     background_visible="true"
+     bg_alpha_color="DkGray2"
      width="309">
      <accordion_tab
      layout="topleft"
@@ -44,7 +46,6 @@
      name="tab_temp_attachments"
      title="Temporary attachments">
     <scroll_list
-     background_visible="false"
      draw_heading="false"
      left="3"
      width="309"
@@ -61,7 +62,7 @@
      </accordion_tab>
      </accordion>
     <panel
-     background_visible="false"
+     background_visible="true"
      follows="bottom|left|right"
      height="28"
      layout="topleft"

@@ -65,15 +65,15 @@ const S32 MAP_PADDING_BOTTOM = 0;
 
 LLFloaterMap::LLFloaterMap(const LLSD& key) 
 	: LLFloater(key),
-	  mTextBoxEast(NULL),
-	  mTextBoxNorth(NULL),
-	  mTextBoxWest(NULL),
-	  mTextBoxSouth(NULL),
-	  mTextBoxSouthEast(NULL),
-	  mTextBoxNorthEast(NULL),
-	  mTextBoxNorthWest(NULL),
-	  mTextBoxSouthWest(NULL),
-	  mMap(NULL)
+	  mTextBoxEast(nullptr),
+	  mTextBoxNorth(nullptr),
+	  mTextBoxWest(nullptr),
+	  mTextBoxSouth(nullptr),
+	  mTextBoxSouthEast(nullptr),
+	  mTextBoxNorthEast(nullptr),
+	  mTextBoxNorthWest(nullptr),
+	  mTextBoxSouthWest(nullptr),
+	  mMap(nullptr)
 {
 }
 
@@ -128,7 +128,7 @@ BOOL LLFloaterMap::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 	LLVector3d pos_global = mMap->viewPosToGlobal(x, y);
 	
-	LLTracker::stopTracking(NULL);
+	LLTracker::getInstance()->stopTracking();
 	LLFloaterWorldMap* world_map = LLFloaterWorldMap::getInstance();
 	if (world_map)
 	{
@@ -168,7 +168,7 @@ void LLFloaterMap::setDirectionPos( LLTextBox* text_box, F32 rotation )
 
 void LLFloaterMap::updateMinorDirections()
 {
-	if (mTextBoxNorthEast == NULL)
+	if (mTextBoxNorthEast == nullptr)
 	{
 		return;
 	}
@@ -206,16 +206,16 @@ void LLFloaterMap::draw()
 	setDirectionPos( mTextBoxSouthEast, rotation + F_PI + F_PI_BY_TWO + F_PI_BY_TWO / 2);
 
 	// Note: we can't just gAgent.check cameraMouselook() because the transition states are wrong.
-	//if(!isMinimized() || gAgentCamera.cameraMouselook()) // <polarity/> PLVR-70 Mini-map minimized state looks wrong
-//	{
-//		setMouseOpaque(FALSE);
-//		getDragHandle()->setMouseOpaque(FALSE);
-//	}
-//	else
-//	{
-//		setMouseOpaque(TRUE);
-//		//getDragHandle()->setMouseOpaque(TRUE);
-//	}
+	if(gAgentCamera.cameraMouselook())
+	{
+		setMouseOpaque(FALSE);
+		getDragHandle()->setMouseOpaque(FALSE);
+	}
+	else
+	{
+		setMouseOpaque(TRUE);
+		getDragHandle()->setMouseOpaque(TRUE);
+	}
 	
 	LLFloater::draw();
 }

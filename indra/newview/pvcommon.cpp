@@ -149,38 +149,6 @@ std::string applyAutoCloseOoc(const std::string& message)
 
 	return utf8_text;
 }
-std::string applyMuPose(const std::string& message)
-{
-#ifdef MU_POSE
-	std::string utf8_text(message);
-
-	static LLCachedControl<bool> mu_pose(gSavedSettings, "PVChat_AllowMUpose", true);
-	if (!mu_pose)
-	{
-		return utf8_text;
-	}
-
-	// Convert MU*s style poses into IRC emotes here.
-	if (utf8_text.find(":") == 0 && utf8_text.length() > 3)
-	{
-		if (isValidWord(std::string(utf8_text, 4))) // the first 4 characters should be enough to determine if it's a word or gibberish
-		{
-			if(utf8_text.find(":'") == 0) // don't break /me's and such
-			{
-				utf8_text.replace(0, 1, "/me");
-			}
-			else
-			{
-				utf8_text.replace(0, 1, "/me ");
-			}
-		}
-	}
-
-	return utf8_text;
-#else
-	return message;
-#endif
-}
 
 bool isValidWord(const std::string& message)
 {

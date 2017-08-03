@@ -14,13 +14,12 @@
  name="floater_voice_volume"
  single_instance="true"
  sound_flags="0"
- title="Voice Volume"
+ title="VOICE VOLUME"
  visible="true"
  width="245">
     <text
      follows="top|left|right"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="21"
      left="10"
      name="avatar_name"

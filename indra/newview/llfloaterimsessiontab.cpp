@@ -51,24 +51,41 @@
 const F32 REFRESH_INTERVAL = 1.0f;
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
-:	LLTransientDockableFloater(NULL, false, session_id),
+:	LLTransientDockableFloater(nullptr, false, session_id),
+	mFloaterExtraWidth(0),
+	mIsNearbyChat(false),
 	mIsP2PChat(false),
-	mExpandCollapseBtn(NULL),
-	mTearOffBtn(NULL),
-	mCloseBtn(NULL),
+	mMessagePaneExpanded(true),
+	mIsParticipantListExpanded(true),
 	mSessionID(session_id.asUUID()),
-	mConversationsRoot(NULL),
-	mScroller(NULL),
-	mChatHistory(NULL),
-	mInputEditor(NULL),
-	mInputEditorPad(0),
-	mRefreshTimer(new LLTimer()),
+	mContentsView(nullptr),
+	mBodyStack(nullptr),
+	mParticipantListAndHistoryStack(nullptr),
+	mParticipantListPanel(nullptr),
+	mRightPartPanel(nullptr),
+	mContentPanel(nullptr),
+	mToolbarPanel(nullptr),
+	mInputButtonPanel(nullptr),
+	mConversationsRoot(nullptr),
+	mScroller(nullptr),
+	mChatHistory(nullptr),
+	mInputEditor(nullptr),
+	mChatLayoutPanel(nullptr),
+	mInputPanels(nullptr),
+	mExpandCollapseLineBtn(nullptr),
+	mExpandCollapseBtn(nullptr),
+	mTearOffBtn(nullptr),
+	mCloseBtn(nullptr),
+	mGearBtn(nullptr),
+	mAddBtn(nullptr),
+	mVoiceButton(nullptr),
+	mTranslationCheckBox(nullptr),
 	mIsHostAttached(false),
 	mHasVisibleBeenInitialized(false),
-	mIsParticipantListExpanded(true),
-	mChatLayoutPanel(NULL),
-	mInputPanels(NULL),
-	mChatLayoutPanelHeight(0)
+	mRefreshTimer(new LLTimer()),
+	mInputEditorPad(0),
+	mChatLayoutPanelHeight(0),
+	mFloaterHeight(0)
 {
     setAutoFocus(FALSE);
 	mSession = LLIMModel::getInstance()->findIMSession(mSessionID);
@@ -138,9 +155,9 @@ void LLFloaterIMSessionTab::setVisible(BOOL visible)
 			LLFloaterReg::getTypedInstance<LLFloaterIMContainer>("im_container")->setVisible(true);
 		}
 		LLFloaterIMSessionTab::addToHost(mSessionID);
-		LLFloaterIMSessionTab* conversp = LLFloaterIMSessionTab::getConversation(mSessionID);
+		LLFloaterIMSessionTab* conversp = getConversation(mSessionID);
 
-		if (conversp && conversp->isNearbyChat() && gSavedPerAccountSettings.getBOOL("NearbyChatIsNotCollapsed"))
+		if (conversp && conversp->isNearbyChat() && gSavedPerAccountSettings.getBool("NearbyChatIsNotCollapsed"))
 		{
 			onCollapseToLine(this);
 		}
@@ -198,7 +215,7 @@ void LLFloaterIMSessionTab::addToHost(const LLUUID& session_id)
 				// LLFloater::mHostHandle = NULL (a current host), but
 				// LLFloater::mLastHostHandle = floater_container (a "future" host)
 				conversp->setHost(floater_container);
-				conversp->setHost(NULL);
+				conversp->setHost(nullptr);
 
 				conversp->forceReshape();
 			}
@@ -229,6 +246,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 {
 	BOOL result;
 
+	mContentsView = getChild<LLView>("contents_view"); // <alchemy/>
 	mBodyStack = getChild<LLLayoutStack>("main_stack");
     mParticipantListAndHistoryStack = getChild<LLLayoutStack>("im_panels");
 
@@ -262,7 +280,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	LLScrollContainer::Params scroller_params(LLUICtrlFactory::getDefaultParams<LLFolderViewScrollContainer>());
 	scroller_params.rect(scroller_view_rect);
 	mScroller = LLUICtrlFactory::create<LLFolderViewScrollContainer>(scroller_params);
-	mScroller->setFollowsAll();
+	mScroller->setFollows(FOLLOWS_ALL);
 
 	// Insert that scroller into the panel widgets hierarchy
 	mParticipantListPanel->addChild(mScroller);	
@@ -305,7 +323,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
     p.parent_panel = mParticipantListPanel;
     p.listener = base_item;
     p.view_model = &mConversationViewModel;
-    p.root = NULL;
+    p.root = nullptr;
     p.use_ellipses = true;
     p.options_menu = "menu_conversation.xml";
     p.name = "root";
@@ -314,7 +332,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	// Attach that root to the scroller
 	mScroller->addChild(mConversationsRoot);
 	mConversationsRoot->setScrollContainer(mScroller);
-	mConversationsRoot->setFollowsAll();
+	mConversationsRoot->setFollows(FOLLOWS_ALL);
 	mConversationsRoot->addChild(mConversationsRoot->mStatusTextBox);
 
 	setMessagePaneExpanded(true);
@@ -327,7 +345,7 @@ BOOL LLFloaterIMSessionTab::postBuild()
 	mRefreshTimer->start();
 	initBtns();
 
-	if (mIsParticipantListExpanded != (bool)gSavedSettings.getBOOL("IMShowControlPanel"))
+	if (mIsParticipantListExpanded != gSavedSettings.getBool("IMShowControlPanel"))
 	{
 		LLFloaterIMSessionTab::onSlide(this);
 	}
@@ -607,7 +625,7 @@ void LLFloaterIMSessionTab::refreshConversation()
 	}
 	
 	mConversationViewModel.requestSortAll();
-	if(mConversationsRoot != NULL)
+	if(mConversationsRoot != nullptr)
 	{
 		mConversationsRoot->arrangeAll();
 		mConversationsRoot->update();
@@ -674,42 +692,15 @@ bool LLFloaterIMSessionTab::onIMShowModesMenuItemCheck(const LLSD& userdata)
 bool LLFloaterIMSessionTab::onIMShowModesMenuItemEnable(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	// I like my logic to be sane and readable. - Xenhat
-	bool enabled = true;
-	static LLCachedControl<bool> use_plain_text_chat_history(gSavedSettings, "PlainTextChatHistory");
-	static LLCachedControl<bool> im_show_time(gSavedSettings, "IMShowTime");
-	
-	if (!use_plain_text_chat_history)
-	{
-		if (item == "IMShowTime")
-		{
-			enabled = false;
-		}
-		if (item == "IMShowNamesForP2PConv")
-		{
-			enabled = true;
-		}
-	}
-	else // if (PlainTextChatHistory)
-	{
-		if (item == "IMShowNamesForP2PConv" && !mIsP2PChat)
-		{
-			enabled = false;
-		}
-	}
-	if (item == "PVChat_ShowSeconds" && (!im_show_time && use_plain_text_chat_history))
-	{
-		enabled = false;
-	}
-
-	return enabled; //(is_plain_text_mode && (is_not_names || mIsP2PChat));
+	bool plain_text = gSavedSettings.getBOOL("PlainTextChatHistory");
+	bool is_not_names = (item != "IMShowNamesForP2PConv");
+	return (plain_text && (is_not_names || mIsP2PChat));
 }
 
 void LLFloaterIMSessionTab::hideOrShowTitle()
 {
 	const LLFloater::Params& default_params = LLFloater::getDefaultParams();
 	S32 floater_header_size = default_params.header_height;
-	LLView* floater_contents = getChild<LLView>("contents_view");
 
 	LLRect floater_rect = getLocalRect();
 	S32 top_border_of_contents = floater_rect.mTop - (isTornOff()? floater_header_size : 0);
@@ -717,7 +708,7 @@ void LLFloaterIMSessionTab::hideOrShowTitle()
 	LLRect contents_rect (0, top_border_of_contents, floater_rect.mRight, floater_rect.mBottom);
 	mDragHandle->setShape(handle_rect);
 	mDragHandle->setVisible(isTornOff());
-	floater_contents->setShape(contents_rect);
+	mContentsView->setShape(contents_rect); // <alchemy/>
 }
 
 void LLFloaterIMSessionTab::updateSessionName(const std::string& name)
@@ -965,7 +956,8 @@ void LLFloaterIMSessionTab::onOpen(const LLSD& key)
 	{
 		LLFloaterIMContainer* host_floater = dynamic_cast<LLFloaterIMContainer*>(getHost());
 		// Show the messages pane when opening a floater hosted in the Conversations
-		host_floater->collapseMessagesPane(false);
+		if (host_floater)
+            host_floater->collapseMessagesPane(false);
 	}
 
 	mInputButtonPanel->setVisible(isTornOff());
@@ -1117,7 +1109,7 @@ void LLFloaterIMSessionTab::getSelectedUUIDs(uuid_vec_t& selected_uuids)
 
 LLConversationItem* LLFloaterIMSessionTab::getCurSelectedViewModelItem()
 {
-	LLConversationItem *conversationItem = NULL;
+	LLConversationItem *conversationItem = nullptr;
 
 	if(mConversationsRoot && 
         mConversationsRoot->getCurSelectedItem() && 
@@ -1141,6 +1133,30 @@ void LLFloaterIMSessionTab::saveCollapsedState()
 LLView* LLFloaterIMSessionTab::getChatHistory()
 {
 	return mChatHistory;
+}
+
+// virtual
+void LLFloaterIMSessionTab::applyMUPose(std::string& text)
+{
+	static LLCachedControl<bool> useMUPose(gSavedSettings, "AlchemyChatMUPose", false);
+	if (!useMUPose)
+		return;
+
+	if (text.at(0) == ':'
+		&& text.length() > 3)
+	{
+		if (text.find(":'") == 0)
+		{
+			text.replace(0, 1, "/me");
+ 		}
+		// Account for emotes and smilies
+		else if (!isdigit(text.at(1))
+				 && !ispunct(text.at(1))
+				 && !isspace(text.at(1)))
+		{
+			text.replace(0, 1, "/me ");
+		}
+	}
 }
 
 BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )

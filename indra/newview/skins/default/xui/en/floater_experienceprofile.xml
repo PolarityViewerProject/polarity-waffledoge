@@ -6,7 +6,7 @@
   enabled="true"
   can_resize="true"
   help_topic="floater_experienceprofile"
-  title="Experience Profile"
+  title="EXPERIENCE PROFILE"
   save_rect="true"
   min_width="325"
   min_height="325"
@@ -153,8 +153,7 @@
               auto_resize="false">
               <text
                 follows="left|top|right"
-                font="SansSerif"
-                font.size="Large"
+                font="SansSerifLarge"
                 height="14"
                 layout="topleft"
                 left="10"

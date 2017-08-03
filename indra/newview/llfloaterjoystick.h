@@ -38,18 +38,18 @@ class LLFloaterJoystick : public LLFloater
 
 public:
 
-	virtual BOOL postBuild();
-	virtual void refresh();
+	BOOL postBuild() override;
+	void refresh() override;
 	virtual void apply();	// Apply the changed values.
 	virtual void cancel();	// Cancel the changed values.
-	virtual void draw();
+	void draw() override;
 	static  void setSNDefaults();
-	static void setXbox360Defaults();
+	static  void setXbox360Defaults();
 
 protected:
 
-	void onClose(bool app_quitting);
-	void onClickCloseBtn(bool app_quitting);
+	void onClose(bool app_quitting) override;
+	void onClickCloseBtn(bool app_quitting) override;
 
 private:
 
@@ -60,7 +60,7 @@ private:
 	
 	static void onCommitJoystickEnabled(LLUICtrl*, void*);
 	static void onClickRestoreSNDefaults(void*);
-	static void onClickRestoreX360Defaults(void*);
+	static void onClickRestoreXbox360Defaults(void*);
 	static void onClickCancel(void*);
 	static void onClickOK(void*);
 
@@ -91,10 +91,7 @@ private:
 	LLCheckBoxCtrl	*mCheckFlycamEnabled;
 
 	// stats view 
-	LLStatBar* mAxisStatsBar[6];
-
-	// <NiranV:Black Dragon> Custom Joystick Mapping
-	LLButton* mAxisButton[16];
+	std::array<LLStatBar*, 6> mAxisStatsBar;
 };
 
 #endif

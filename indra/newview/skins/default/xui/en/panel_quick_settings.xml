@@ -21,7 +21,7 @@
    follows="left|top|right"
    layout="topleft"
    max_val="512"
-   min_val="0"
+   min_val="64"
    left="93"
    right="-68"
    name="draw_dist_slider_bar"
@@ -32,9 +32,10 @@
    label=""
    label_width="0"
    right="-8"
+   decimal_digits="0"
    follows="top|right"
    layout="topleft"
-   max_val="1024"
+   max_val="512"
    min_val="64"
    width="55"
    increment="32"
@@ -55,7 +56,7 @@
    initial_value="96"
    follows="left|top|right"
    layout="topleft"
-   max_val="4.0"
+   max_val="2"
    min_val="0.0"
    left="93"
    right="-68"
@@ -130,7 +131,7 @@
    left="93"
    right="-68"
    name="max_avatar_slider_bar"
-   control_name="RenderAvatarMaxNonImpostors"/>
+   control_name="RenderAvatarMaxVisible"/>
   <spinner
    top_pad="-21"
    height="20"
@@ -144,7 +145,7 @@
    width="55"
    increment="1"
    name="max_avatar_spinner"
-   control_name="RenderAvatarMaxNonImpostors" />
+   control_name="RenderAvatarMaxVisible" />
   <text
    follows="left|top"
    height="15"
@@ -160,7 +161,7 @@
    initial_value="96"
    follows="left|top|right"
    layout="topleft"
-   max_val="10000"
+   max_val="3000"
    min_val="100"
    left="93"
    right="-68"
@@ -194,7 +195,6 @@
    height="20"
    left="93"
    right="-68"
-   decimal_digits="3"
    follows="left|top|right"
    layout="topleft"
    increment="0.001"

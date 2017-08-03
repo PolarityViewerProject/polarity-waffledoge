@@ -38,8 +38,7 @@
 	      Angela Tester
     	</text>
 	<text
-        font="SansSerif"
-        font.size="Small"
+        font="SansSerifSmall"
          follows="right"
          height="13"
          layout="topleft"
@@ -52,8 +51,7 @@
 	</panel>
  <text_editor
  bg_readonly_color="DkGray"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      top="65"
      left="5"
      right="-5"

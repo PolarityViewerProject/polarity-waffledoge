@@ -44,13 +44,12 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
      left="10"
      name="desc_label"
-     top_pad="25"
+     top_pad="22"
      font.style="BOLD"
      width="105">
         Description:
@@ -59,22 +58,21 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="94"
+     left_delta="89"
      name="desc"
-     top_delta="-4"
-     width="170" />
+     top_delta="-1"
+     width="175" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
      left="10"
      font.style="BOLD"
      name="trigger_label"
-     top_pad="10"
+     top_pad="5"
      width="100">
         Trigger:
     </text>
@@ -85,21 +83,20 @@
      left_delta="89"
      max_length_bytes="31"
      name="trigger_editor"
-     top_delta="-4"
+     top_delta="-1"
      width="175" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      height="10"
      layout="topleft"
      left="10"
      font.style="BOLD"
      name="replace_text"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture!"
-     top_pad="10"
+     top_pad="5"
      width="215">
         Replace with:
     </text>
@@ -107,24 +104,23 @@
      follows="left|top"
      height="20"
      layout="topleft"
-     left_delta="104"
+     left_delta="89"
      max_length_bytes="31"
      name="replace_editor"
      tool_tip="Replace the trigger word(s) with these words. For example, trigger &apos;hello&apos; replace with &apos;howdy&apos; will turn the chat &apos;I wanted to say hello&apos; into &apos;I wanted to say howdy&apos; as well as playing the gesture"
-     top_delta="-4"
-     width="160" />
+     top_delta="-1"
+     width="175" />
     <text
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
-     height="10"
+     font="SansSerifSmall"
+     height="12"
      layout="topleft"
      left="10"
      font.style="BOLD"
      name="key_label"
-     top_pad="10"
+     top_pad="5"
      width="130">
         Shortcut Key:
     </text>
@@ -134,7 +130,7 @@
      layout="topleft"
      left_delta="135"
      name="modifier_combo"
-     top_delta="-4"
+     top_delta="0"
      width="55" />
     <combo_box
      height="20"
@@ -148,14 +144,13 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
-     height="10"
+     font="SansSerifSmall"
+     height="12"
      layout="topleft"
      left="10"
      font.style="BOLD"
      name="library_label"
-     top_delta="25"
+     top_pad="0"
      width="100">
         Library:
     </text>
@@ -165,7 +160,7 @@
      layout="topleft"
      left="10"
      name="library_list"
-     top_delta="15"
+     top_pad="25"
      width="180">
         <scroll_list.rows
          name="action_animation"
@@ -193,20 +188,19 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
-     height="10"
+     font="SansSerifSmall"
+     height="12"
      layout="topleft"
      left="10"
      font.style="BOLD"
      name="steps_label"
-     top_pad="50"
+     top_pad="60"
      width="100">
         Steps:
     </text>
     <scroll_list
      follows="top|left"
-     height="85"
+     height="84"
      layout="topleft"
      left="10"
      name="step_list"
@@ -219,7 +213,7 @@
      layout="topleft"
      left_pad="10"
      name="up_btn"
-     top_delta="-1"
+     top_delta="0"
      width="70" />
     <button
      follows="top|left"
@@ -228,7 +222,7 @@
      layout="topleft"
      left_delta="0"
      name="down_btn"
-     top_pad="10"
+     top_pad="12"
      width="70" />
     <button
      follows="top|left"
@@ -237,7 +231,7 @@
      layout="topleft"
      left_delta="0"
      name="delete_btn"
-     top_pad="10"
+     top_pad="12"
      width="70" />
     <text
      follows="top|left"
@@ -255,7 +249,7 @@
      layout="topleft"
      left_delta="15"
      name="animation_list"
-     top="330"
+     top="332"
      width="100"/>
     <combo_box
      follows="top|left"
@@ -263,7 +257,7 @@
      layout="topleft"
      left_delta="0"
      name="sound_list"
-     top="330"
+     top="332"
      width="100" />
     <line_editor
      follows="top|left"
@@ -272,7 +266,7 @@
      left_delta="0"
      max_length_bytes="127"
      name="chat_editor"
-     top="330"
+     top="332"
      width="100" />
     <radio_group
      draw_border="false"
@@ -281,7 +275,7 @@
      layout="topleft"
      left_pad="8"
      name="animation_trigger_type"
-     top="330"
+     top="332"
      width="80">
         <radio_item
          height="16"
@@ -331,9 +325,8 @@
      type="string"
      length="1"
      follows="top|left"
-     font="SansSerif"
-     font.size="Small"
-     height="30"
+     font="SansSerifSmall"
+     height="32"
      layout="topleft"
      left="10"
      name="help_label"

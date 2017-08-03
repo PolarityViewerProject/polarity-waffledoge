@@ -28,7 +28,6 @@
 #ifndef LL_LLFLOATERREGIONINFO_H
 #define LL_LLFLOATERREGIONINFO_H
 
-#include <vector>
 #include "llassettype.h"
 #include "llfloater.h"
 #include "llhost.h"
@@ -78,8 +77,8 @@ class LLFloaterRegionInfo : public LLFloater
 public:
 
 
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ void onOpen(const LLSD& key) override;
+	/*virtual*/ BOOL postBuild() override;
 
 	static void processEstateOwnerRequest(LLMessageSystem* msg, void**);
 
@@ -98,7 +97,7 @@ public:
 	static LLPanelRegionGeneralInfo* getPanelGeneral();
 
 	// from LLPanel
-	virtual void refresh();
+	void refresh() override;
 	
 	void requestRegionInfo();
 	void requestMeshRezInfo();
@@ -139,8 +138,8 @@ public:
 	
 	virtual bool refreshFromRegion(LLViewerRegion* region);
 	virtual bool estateUpdate(LLMessageSystem* msg) { return true; }
-	
-	virtual BOOL postBuild();
+
+	BOOL postBuild() override;
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	
 	void enableButton(const std::string& btn_name, BOOL enable = TRUE);
@@ -176,23 +175,20 @@ class LLPanelRegionGeneralInfo : public LLPanelRegionInfo
 	
 public:
 	LLPanelRegionGeneralInfo()
-		: LLPanelRegionInfo(),
-		  mObjBonusFactor(0)
-	{
-	}
-
+		:	LLPanelRegionInfo(),
+			mObjBonusFactor(0.f) {}
 	~LLPanelRegionGeneralInfo() {}
-	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+
+	bool refreshFromRegion(LLViewerRegion* region) override;
 	
 	// LLPanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	
 	void onBtnSet();
 	void setObjBonusFactor(F32 object_bonus_factor) {mObjBonusFactor = object_bonus_factor;}
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	void onClickKick();
 	void onKickCommit(const uuid_vec_t& ids);
 	static void onClickKickAll(void* userdata);
@@ -214,12 +210,12 @@ public:
 		:	LLPanelRegionInfo(), mTargetAvatar() {}
 	~LLPanelRegionDebugInfo() {}
 	// LLPanel
-	virtual BOOL postBuild();
-	
-	virtual bool refreshFromRegion(LLViewerRegion* region);
+	BOOL postBuild() override;
+
+	bool refreshFromRegion(LLViewerRegion* region) override;
 	
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 
 	void onClickChooseAvatar();
 	void callbackAvatarID(const uuid_vec_t& ids, const std::vector<LLAvatarName> names);
@@ -243,20 +239,23 @@ class LLPanelRegionTerrainInfo : public LLPanelRegionInfo
 	LOG_CLASS(LLPanelRegionTerrainInfo);
 
 public:
-	LLPanelRegionTerrainInfo() : LLPanelRegionInfo() {}
+	LLPanelRegionTerrainInfo()
+		: LLPanelRegionInfo(),
+		mConfirmedTextureHeights(false),
+		mAskedTextureHeights(false) {}
 	~LLPanelRegionTerrainInfo() {}
-	
-	virtual BOOL postBuild();												// LLPanel
-	
-	virtual bool refreshFromRegion(LLViewerRegion* region);					// refresh local settings from region update from simulator
+
+	BOOL postBuild() override;												// LLPanel
+
+	bool refreshFromRegion(LLViewerRegion* region) override;					// refresh local settings from region update from simulator
 	void setEnvControls(bool available);									// Whether environment settings are available for this region
 
 	BOOL validateTextureSizes();
 	BOOL validateTextureHeights();
 
 	//static void onChangeAnything(LLUICtrl* ctrl, void* userData);			// callback for any change, to enable commit button
-	
-	virtual BOOL sendUpdate();
+
+	BOOL sendUpdate() override;
 
 	static void onClickDownloadRaw(void*);
 	static void onClickUploadRaw(void*);
@@ -278,6 +277,7 @@ public:
 	
 	void onChangeFixedSun();
 	void onChangeUseGlobalTime();
+	void onChangeAccessOverride();
 	
 	void onClickEditSky();
 	void onClickEditSkyHelp();	
@@ -325,13 +325,13 @@ public:
 	static void updateEstateName(const std::string& name);
 	static void updateEstateOwnerName(const std::string& name);
 
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	bool refreshFromRegion(LLViewerRegion* region) override;
+	bool estateUpdate(LLMessageSystem* msg) override;
 	
 	// LLPanel
-	virtual BOOL postBuild();
-	virtual void updateChild(LLUICtrl* child_ctrl);
-	virtual void refresh();
+	BOOL postBuild() override;
+	void updateChild(LLUICtrl* child_ctrl) override;
+	void refresh() override;
 
 	void refreshFromEstate();
 	
@@ -341,7 +341,7 @@ public:
 	void setOwnerName(const std::string& name);
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	// confirmation dialog callback
 	bool callbackChangeLindenEstate(const LLSD& notification, const LLSD& response);
 
@@ -363,16 +363,16 @@ public:
 	~LLPanelEstateCovenant() {}
 	
 	// LLPanel
-	virtual BOOL postBuild();
-	virtual void updateChild(LLUICtrl* child_ctrl);
-	virtual bool refreshFromRegion(LLViewerRegion* region);
-	virtual bool estateUpdate(LLMessageSystem* msg);
+	BOOL postBuild() override;
+	void updateChild(LLUICtrl* child_ctrl) override;
+	bool refreshFromRegion(LLViewerRegion* region) override;
+	bool estateUpdate(LLMessageSystem* msg) override;
 
 	// LLView overrides
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask,
 						   BOOL drop, EDragAndDropType cargo_type,
 						   void *cargo_data, EAcceptance *accept,
-						   std::string& tooltip_msg);
+						   std::string& tooltip_msg) override;
 	static bool confirmChangeCovenantCallback(const LLSD& notification, const LLSD& response);
 	static void resetCovenantID(void* userdata);
 	static bool confirmResetCovenantCallback(const LLSD& notification, const LLSD& response);
@@ -406,7 +406,7 @@ public:
 	} EAssetStatus;
 
 protected:
-	virtual BOOL sendUpdate();
+	BOOL sendUpdate() override;
 	LLTextBox*				mEstateNameText;
 	LLTextBox*				mEstateOwnerText;
 	LLTextBox*				mLastModifiedText;
@@ -426,17 +426,17 @@ public:
 	LLPanelEnvironmentInfo();
 
 	// LLPanel
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 	// LLView
-	/*virtual*/ void onVisibilityChange(BOOL new_visibility);
+	/*virtual*/ void onVisibilityChange(BOOL new_visibility) override;
 
 	// LLPanelRegionInfo
-	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region);
+	/*virtual*/ bool refreshFromRegion(LLViewerRegion* region) override;
 
 private:
-	void refresh();
+	void refresh() override;
 	void setControlsEnabled(bool enabled);
 	void setApplyProgress(bool started);
 	void setDirty(bool dirty);
@@ -483,15 +483,19 @@ class LLPanelRegionExperiences : public LLPanelRegionInfo
 	LOG_CLASS(LLPanelEnvironmentInfo);
 
 public:
-	LLPanelRegionExperiences(){}
-	/*virtual*/ BOOL postBuild();
-	virtual BOOL sendUpdate();
+	LLPanelRegionExperiences()
+		: mTrusted(nullptr)
+		, mAllowed(nullptr)
+		, mBlocked(nullptr)
+	{}
+	/*virtual*/ BOOL postBuild() override;
+	BOOL sendUpdate() override;
 	
 	static bool experienceCoreConfirm(const LLSD& notification, const LLSD& response);
 	static void sendEstateExperienceDelta(U32 flags, const LLUUID& agent_id);
 
 	static void infoCallback(LLHandle<LLPanelRegionExperiences> handle, const LLSD& content);
-	bool refreshFromRegion(LLViewerRegion* region);
+	bool refreshFromRegion(LLViewerRegion* region) override;
 	void sendPurchaseRequest()const;
 	void processResponse( const LLSD& content );
 private:

@@ -322,6 +322,43 @@
         </menu_item_call>
     </menu>
     <menu
+     label="Use as default for"
+     layout="topleft"
+     name="upload_def">
+      <menu_item_call
+       label="Image uploads"
+       layout="topleft"
+       name="Image uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="texture" />
+      </menu_item_call>
+      <menu_item_call
+       label="Sound uploads"
+       layout="topleft"
+       name="Sound uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="sound" />
+      </menu_item_call>
+      <menu_item_call
+       label="Animation uploads"
+       layout="topleft"
+       name="Animation uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="animation" />
+      </menu_item_call>
+      <menu_item_call
+       label="Model uploads"
+       layout="topleft"
+       name="Model uploads">
+        <menu_item_call.on_click
+         function="Inventory.FileUploadLocation"
+         parameter="model" />
+      </menu_item_call>
+    </menu>
+    <menu
      label="Change Type"
      layout="topleft"
      name="Change Type">
@@ -482,7 +519,7 @@
      name="Purge Item">
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
-         parameter="purge" />
+         parameter="purge"/>
     </menu_item_call>
     <menu_item_call
      label="Restore Item"
@@ -532,14 +569,6 @@
          function="Inventory.DoToSelected"
          parameter="copy_uuid" />
     </menu_item_call>
-    <menu_item_call
-     label="Move to Default Folder"
-     layout="topleft"
-     name="Move To Default">
-        <menu_item_call.on_click
-         function="Inventory.DoToSelected"
-         parameter="move_to_default_folder" />
-    </menu_item_call>
     <menu_item_separator
      layout="topleft" 
      name="Copy Separator" />
@@ -574,6 +603,14 @@
         <menu_item_call.on_click
          function="Inventory.DoToSelected"
          parameter="paste_link" />
+    </menu_item_call>
+    <menu_item_call
+     label="Replace Links"
+     layout="topleft"
+     name="Replace Links">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="replace_links" />
     </menu_item_call>
     <menu_item_separator
      layout="topleft" 
@@ -731,14 +768,14 @@
      layout="topleft" 
      name="Wearable And Object Separator"/>
     <menu_item_call
-	 label="Edit"
-	 layout="topleft"
-	 name="Edit Object">
-		<menu_item_call.on_click
-		 function="Inventory.DoToSelected"
-		 parameter="edit_object" />
-	</menu_item_call>
-	<menu_item_call
+     label="Edit"
+     layout="topleft"
+     name="Edit Object">
+        <menu_item_call.on_click
+         function="Inventory.DoToSelected"
+         parameter="edit_object" />
+    </menu_item_call>
+    <menu_item_call
      label="Detach From Yourself"
      layout="topleft"
      name="Detach From Yourself">
@@ -746,8 +783,6 @@
          function="Inventory.DoToSelected"
          parameter="detach" />
     </menu_item_call>
-	<!-- COMMENTED OUT for DEV-32347 -->
-	<!--
     <menu_item_call
      label="Restore to Last Position"
      layout="topleft"
@@ -756,7 +791,6 @@
          function="Inventory.DoToSelected"
          parameter="restoreToWorld" />
     </menu_item_call>
-	-->
     <menu_item_call
      label="Wear"
      layout="topleft"

@@ -72,30 +72,31 @@ void LLFloaterPathfindingLinksets::openLinksetsWithSelectedObjects()
 
 LLFloaterPathfindingLinksets::LLFloaterPathfindingLinksets(const LLSD& pSeed)
 	: LLFloaterPathfindingObjects(pSeed),
-	mFilterByName(NULL),
-	mFilterByDescription(NULL),
-	mFilterByLinksetUse(NULL),
-	mEditLinksetUse(NULL),
-	mEditLinksetUseWalkable(NULL),
-	mEditLinksetUseStaticObstacle(NULL),
-	mEditLinksetUseDynamicObstacle(NULL),
-	mEditLinksetUseMaterialVolume(NULL),
-	mEditLinksetUseExclusionVolume(NULL),
-	mEditLinksetUseDynamicPhantom(NULL),
-	mLabelWalkabilityCoefficients(NULL),
-	mLabelEditA(NULL),
-	mLabelSuggestedUseA(NULL),
-	mEditA(NULL),
-	mLabelEditB(NULL),
-	mLabelSuggestedUseB(NULL),
-	mEditB(NULL),
-	mLabelEditC(NULL),
-	mLabelSuggestedUseC(NULL),
-	mEditC(NULL),
-	mLabelEditD(NULL),
-	mLabelSuggestedUseD(NULL),
-	mEditD(NULL),
-	mApplyEditsButton(NULL),
+	mFilterByName(nullptr),
+	mFilterByDescription(nullptr),
+	mFilterByLinksetUse(nullptr),
+	mEditLinksetUse(nullptr),
+	mEditLinksetUseUnset(nullptr),
+	mEditLinksetUseWalkable(nullptr),
+	mEditLinksetUseStaticObstacle(nullptr),
+	mEditLinksetUseDynamicObstacle(nullptr),
+	mEditLinksetUseMaterialVolume(nullptr),
+	mEditLinksetUseExclusionVolume(nullptr),
+	mEditLinksetUseDynamicPhantom(nullptr),
+	mLabelWalkabilityCoefficients(nullptr),
+	mLabelEditA(nullptr),
+	mLabelSuggestedUseA(nullptr),
+	mEditA(nullptr),
+	mLabelEditB(nullptr),
+	mLabelSuggestedUseB(nullptr),
+	mEditB(nullptr),
+	mLabelEditC(nullptr),
+	mLabelSuggestedUseC(nullptr),
+	mEditC(nullptr),
+	mLabelEditD(nullptr),
+	mLabelSuggestedUseD(nullptr),
+	mEditD(nullptr),
+	mApplyEditsButton(nullptr),
 	mBeaconColor(),
 	mPreviousValueA(LLPathfindingLinkset::MAX_WALKABILITY_VALUE),
 	mPreviousValueB(LLPathfindingLinkset::MAX_WALKABILITY_VALUE),
@@ -508,7 +509,7 @@ bool LLFloaterPathfindingLinksets::isShowUnmodifiablePhantomWarning(LLPathfindin
 	if (pLinksetUse != LLPathfindingLinkset::kUnknown)
 	{
 		LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
-		if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+		if ((selectedObjects != nullptr) && !selectedObjects->isEmpty())
 		{
 			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
 			isShowWarning = linksetList->isShowUnmodifiablePhantomWarning(pLinksetUse);
@@ -525,7 +526,7 @@ bool LLFloaterPathfindingLinksets::isShowPhantomToggleWarning(LLPathfindingLinks
 	if (pLinksetUse != LLPathfindingLinkset::kUnknown)
 	{
 		LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
-		if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+		if ((selectedObjects != nullptr) && !selectedObjects->isEmpty())
 		{
 			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
 			isShowWarning = linksetList->isShowPhantomToggleWarning(pLinksetUse);
@@ -542,7 +543,7 @@ bool LLFloaterPathfindingLinksets::isShowCannotBeVolumeWarning(LLPathfindingLink
 	if (pLinksetUse != LLPathfindingLinkset::kUnknown)
 	{
 		LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
-		if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+		if ((selectedObjects != nullptr) && !selectedObjects->isEmpty())
 		{
 			const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
 			isShowWarning = linksetList->isShowCannotBeVolumeWarning(pLinksetUse);
@@ -586,7 +587,7 @@ void LLFloaterPathfindingLinksets::updateStateOnEditLinksetUse()
 	BOOL useDynamicPhantom = FALSE;
 
 	LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
-	if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+	if ((selectedObjects != nullptr) && !selectedObjects->isEmpty())
 	{
 		const LLPathfindingLinksetList *linksetList = dynamic_cast<const LLPathfindingLinksetList *>(selectedObjects.get());
 		linksetList->determinePossibleStates(useWalkable, useStaticObstacle, useDynamicObstacle, useMaterialVolume, useExclusionVolume, useDynamicPhantom);
@@ -658,18 +659,13 @@ void LLFloaterPathfindingLinksets::handleApplyEdit(const LLSD &pNotification, co
 void LLFloaterPathfindingLinksets::doApplyEdit()
 {
 	LLPathfindingObjectListPtr selectedObjects = getSelectedObjects();
-	if ((selectedObjects != NULL) && !selectedObjects->isEmpty())
+	if ((selectedObjects != nullptr) && !selectedObjects->isEmpty())
 	{
 		LLPathfindingLinkset::ELinksetUse linksetUse = getEditLinksetUse();
-		const std::string &aString = mEditA->getText();
-		const std::string &bString = mEditB->getText();
-		const std::string &cString = mEditC->getText();
-		const std::string &dString = mEditD->getText();
-		S32 aValue = static_cast<S32>(atoi(aString.c_str()));
-		S32 bValue = static_cast<S32>(atoi(bString.c_str()));
-		S32 cValue = static_cast<S32>(atoi(cString.c_str()));
-		S32 dValue = static_cast<S32>(atoi(dString.c_str()));
-
+		S32 aValue = std::stoi(mEditA->getText());
+		S32 bValue = std::stoi(mEditB->getText());
+		S32 cValue = std::stoi(mEditC->getText());
+		S32 dValue = std::stoi(mEditD->getText());
 
 		requestSetLinksets(selectedObjects, linksetUse, aValue, bValue, cValue, dValue);
 	}

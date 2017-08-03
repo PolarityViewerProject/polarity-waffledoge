@@ -23,7 +23,7 @@
     width="16"/>
    <text
      follows="left|top|right"
-     font="DejaVu"
+     font="SansSerifSmall"
      height="16"
      layout="topleft"
      left_pad="11"
@@ -100,8 +100,7 @@
     />
   <text
     follows="right|top"
-    font="SansSerif"
-    font.size="Small"
+    font="SansSerifSmall"
     halign="right"
     height="18"
     name="damage_text"

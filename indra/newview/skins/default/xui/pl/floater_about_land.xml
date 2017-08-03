@@ -356,27 +356,10 @@ Jedynie większe działki mogą być umieszczone w bazie wyszukiwarki.
 			<text name="Options:">
 				Opcje:
 			</text>
-			<check_box label="Odtwarzanie mediów w pętli" name="media_loop" tool_tip="Powtarzaj odtwarzanie mediów w pętli. Po wyświetleniu materiału odtwarzanie rozpocznie się od początku." />
-		</panel>
-		<panel label="DŹWIĘK" name="land_audio_panel">
-			<text name="MusicURL:">
-				URL muzyki:
-			</text>
-			<text name="Sound:">
-				Dźwięk:
-			</text>
-			<check_box label="Ogranicz dźwięki gestów i obiektów do obszaru tej działki" name="check sound local" />
-			<text name="Avatar Sounds:">
-				Dźwięki awatarów:
-			</text>
-			<check_box label="Wszyscy" name="all av sound check" />
-			<check_box label="Grupa" name="group av sound check" />
-			<text name="Voice settings:">
-				Rozmowy głosowe:
-			</text>
-			<check_box label="Rozmowy włączone" name="parcel_enable_voice_channel" />
-			<check_box label="Rozmowy włączone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled" />
-			<check_box label="Ogranicz komunikację głosową do obszaru tej działki" name="parcel_enable_voice_channel_local" />
+			<check_box label="Powtórka Odtwarzania" name="media_loop" tool_tip="Odtwarzaj media z powtórką. Po wyświetleniu materialu, rozpocznie się odtwarzanie od początku."/>
+			<check_box label="Rozmowy dozwolone" name="parcel_enable_voice_channel"/>
+			<check_box label="Rozmowy dozwolone (ustawione przez Majątek)" name="parcel_enable_voice_channel_is_estate_disabled"/>
+			<check_box label="Ogranicz komunikację głosową w tej Posiadłości." name="parcel_enable_voice_channel_local"/>
 		</panel>
 		<panel label="DOSTĘP" name="land_access_panel">
 			<panel.string name="access_estate_defined">
