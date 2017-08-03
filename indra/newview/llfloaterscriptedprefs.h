@@ -37,16 +37,18 @@ class LLFloaterScriptEdPrefs : public LLFloater
 {
 public:
 	LLFloaterScriptEdPrefs(const LLSD& key);
-	BOOL postBuild();
+	BOOL postBuild() override;
 	
 private:
 	~LLFloaterScriptEdPrefs() {};
 	
 	void applyUIColor(LLUICtrl* ctrl, const LLSD& param);
 	void getUIColor(LLUICtrl* ctrl, const LLSD& param);
-	
+
+#ifdef LSL_PREPROCESSOR	
 	// <FS:Ansariel> Port old FS script prefs
 	void setPreprocInclude();
+#endif
 
 	LLScriptEditor* mEditor;
 };

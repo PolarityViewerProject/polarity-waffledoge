@@ -27,14 +27,15 @@
  * $/LicenseInfo$
  */
 
+#ifdef LSL_PREPROCESSOR
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterscriptedprefs.h"
 
 #include "llcolorswatch.h"
 #include "llscripteditor.h"
+
 #include "lldirpicker.h"
 #include "llviewercontrol.h"
-
 #include "llfloaterreg.h"
 #include "llpreviewscript.h"
 
@@ -110,3 +111,44 @@ void LLFloaterScriptEdPrefs::setPreprocInclude()
 	}
 }
 // </FS:Ansariel>
+#else
+
+#include "llviewerprecompiledheaders.h"
+#include "llfloaterscriptedprefs.h"
+
+#include "llcolorswatch.h"
+#include "llscripteditor.h"
+
+
+LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
+:	LLFloater(key)
+,	mEditor(nullptr)
+{
+	mCommitCallbackRegistrar.add("ScriptPref.applyUIColor",	boost::bind(&LLFloaterScriptEdPrefs::applyUIColor, this ,_1, _2));
+	mCommitCallbackRegistrar.add("ScriptPref.getUIColor",	boost::bind(&LLFloaterScriptEdPrefs::getUIColor, this ,_1, _2));
+}
+
+BOOL LLFloaterScriptEdPrefs::postBuild()
+{
+	mEditor = getChild<LLScriptEditor>("Script Preview");
+	if (mEditor)
+	{
+		mEditor->initKeywords();
+		mEditor->loadKeywords();
+	}
+	return TRUE;
+}
+
+void LLFloaterScriptEdPrefs::applyUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLUIColorTable::instance().setColor(param.asString(), LLColor4(ctrl->getValue()));
+	mEditor->initKeywords();
+	mEditor->loadKeywords();
+}
+
+void LLFloaterScriptEdPrefs::getUIColor(LLUICtrl* ctrl, const LLSD& param)
+{
+	LLColorSwatchCtrl* color_swatch = dynamic_cast<LLColorSwatchCtrl*>(ctrl);
+	color_swatch->setOriginal(LLUIColorTable::instance().getColor(param.asString()));
+}
+#endif

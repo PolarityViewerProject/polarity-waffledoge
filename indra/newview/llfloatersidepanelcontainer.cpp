@@ -41,10 +41,6 @@
 //static
 const std::string LLFloaterSidePanelContainer::sMainPanelName("main_panel");
 
-// [RLVa:KB] - Checked: 2012-02-07 (RLVa-1.4.5) | Added: RLVa-1.4.5
-LLFloaterSidePanelContainer::validate_signal_t LLFloaterSidePanelContainer::mValidateSignal;
-// [/RLVa:KB]
-
 LLFloaterSidePanelContainer::LLFloaterSidePanelContainer(const LLSD& key, const Params& params)
 :	LLFloater(key, params)
 {
@@ -96,14 +92,14 @@ void LLFloaterSidePanelContainer::closeFloater(bool app_quitting)
 LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_name, const LLSD& params)
 {
 	LLView* view = findChildView(panel_name, true);
-	if (!view) return NULL;
+	if (!view) return nullptr;
 
 	if (!getVisible())
 	{
 	openFloater();
 	}
 
-	LLPanel* panel = NULL;
+	LLPanel* panel = nullptr;
 
 	LLSideTrayPanelContainer* container = dynamic_cast<LLSideTrayPanelContainer*>(view->getParent());
 	if (container)
@@ -111,7 +107,7 @@ LLPanel* LLFloaterSidePanelContainer::openChildPanel(const std::string& panel_na
 		container->openPanel(panel_name, params);
 		panel = container->getCurrentPanel();
 	}
-	else if ((panel = dynamic_cast<LLPanel*>(view)) != NULL)
+	else if ((panel = dynamic_cast<LLPanel*>(view)) != nullptr)
 	{
 		panel->onOpen(params);
 	}
@@ -164,5 +160,5 @@ LLPanel* LLFloaterSidePanelContainer::getPanel(const std::string& floater_name, 
 		return floaterp->findChild<LLPanel>(panel_name, true);
 	}
 
-	return NULL;
+	return nullptr;
 }

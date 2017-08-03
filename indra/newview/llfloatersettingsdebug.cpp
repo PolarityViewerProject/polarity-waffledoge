@@ -60,8 +60,8 @@ LLFloaterSettingsDebug::LLFloaterSettingsDebug(const LLSD& key)
 	// make sure that the first filter update succeeds
 	mOldSearchTerm = std::string("---");
 	// proper initialisation
-	mCurrentControlVariable = NULL;
-	mOldControlVariable = NULL;
+	mCurrentControlVariable = nullptr;
+	mOldControlVariable = nullptr;
 }
 
 LLFloaterSettingsDebug::~LLFloaterSettingsDebug()

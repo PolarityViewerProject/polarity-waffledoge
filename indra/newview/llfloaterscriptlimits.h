@@ -28,7 +28,6 @@
 #ifndef LL_LLFLOATERSCRIPTLIMITS_H
 #define LL_LLFLOATERSCRIPTLIMITS_H
 
-#include <vector>
 #include "llfloater.h"
 #include "llhost.h"
 #include "llpanel.h"
@@ -38,6 +37,7 @@
 
 class LLPanelScriptLimitsInfo;
 class LLTabContainer;
+class LLAvatarName;
 
 class LLPanelScriptLimitsRegionMemory;
 
@@ -46,10 +46,10 @@ class LLFloaterScriptLimits : public LLFloater
 	friend class LLFloaterReg;
 public:
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 
 	// from LLPanel
-	virtual void refresh();
+	void refresh() override;
 
 private:
 
@@ -69,8 +69,8 @@ class LLPanelScriptLimitsInfo : public LLPanel
 {
 public:
 	LLPanelScriptLimitsInfo();
-	
-	virtual BOOL postBuild();
+
+	BOOL postBuild() override;
 	virtual void updateChild(LLUICtrl* child_ctrl);
 	
 protected:
@@ -90,25 +90,18 @@ class LLPanelScriptLimitsRegionMemory : public LLPanelScriptLimitsInfo, LLRemote
 	
 public:
 	LLPanelScriptLimitsRegionMemory()
-	:	LLPanelScriptLimitsInfo(),
-		LLRemoteParcelInfoObserver(),
+		: LLPanelScriptLimitsInfo(), LLRemoteParcelInfoObserver(),
 
 		mParcelId(LLUUID()),
 		mGotParcelMemoryUsed(false),
 		mGotParcelMemoryMax(false),
 		mParcelMemoryMax(0),
-		mParcelMemoryUsed(0),
-		mGotParcelURLsUsed(false),
-		mGotParcelURLsMax(false),
-		mParcelURLsMax(0),
-		mParcelURLsUsed(0)
-	{
-	};
+		mParcelMemoryUsed(0) {};
 
 	~LLPanelScriptLimitsRegionMemory();
 	
 	// LLPanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	void setRegionDetails(LLSD content);
 	void setRegionSummary(LLSD content);
@@ -123,6 +116,8 @@ public:
 	void checkButtonsEnabled();
 
 private:
+	void onAvatarNameCache(const LLUUID& id,
+						 const LLAvatarName& av_name);
 	void onNameCache(const LLUUID& id,
 						 const std::string& name);
 
@@ -147,9 +142,9 @@ private:
 protected:
 
 // LLRemoteParcelInfoObserver interface:
-/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
-/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-/*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
+/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data) override;
+/*virtual*/ void setParcelID(const LLUUID& parcel_id) override;
+/*virtual*/ void setErrorStatus(S32 status, const std::string& reason) override;
 	
 	static void onClickRefresh(void* userdata);
 	static void onClickHighlight(void* userdata);
@@ -179,7 +174,7 @@ public:
 	};
 	
 	// LLPanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	void setAttachmentDetails(LLSD content);
 
