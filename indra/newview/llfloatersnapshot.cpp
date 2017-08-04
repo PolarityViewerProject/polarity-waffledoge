@@ -218,7 +218,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 		gpu_limit->setValue(LLTrans::getString("gpu_absolute_texture_size", args));
 		gpu_limit->setToolTip(LLTrans::getString("gpu_max_texture_size_side", args));
 		// Recommend half the texture maximum to prevent TDR
-		args["RESOLUTION"] = (gGLManager.mGLMaxTextureSize * 3 / 4);
+		static const std::string recommended_texture_size = llformat("%d", (gGLManager.mGLMaxTextureSize * 3 / 4));
+		args["RESOLUTION"] = recommended_texture_size;
 		gpu_suggest->setValue(LLTrans::getString("gpu_recommended_texture_size", args));
 	}
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(snapshot_format);
