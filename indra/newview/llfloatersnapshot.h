@@ -186,7 +186,7 @@ public:
 	{}
 
 	void applyKeepAspectCheck(LLFloaterSnapshotBase* view, BOOL checked);
-	void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE, bool only_do_update = false);
+	void updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update = TRUE);
 	static void onCommitLayerTypes(LLUICtrl* ctrl, void*data);
 	void onImageQualityChange(LLFloaterSnapshotBase* view, S32 quality_val);
 	void onImageFormatChange(LLFloaterSnapshotBase* view);
