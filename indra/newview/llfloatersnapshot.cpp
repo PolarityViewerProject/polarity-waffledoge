@@ -62,7 +62,7 @@ const S32 MAX_TEXTURE_SIZE = 512 ; //max upload texture size 512 * 512
 
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
 
-const S32 minimum_texture_size = 64;
+constexpr S32 minimum_texture_size = 64;
 
 // virtual
 LLPanelSnapshot* LLFloaterSnapshot::Impl::getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found)
@@ -207,16 +207,6 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 	LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)static_cast<S32>(snapshot_format);
 	LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
-	// <polarity> Save the value to a setting to get it later. Should probably be a member value
-	// but being able to get it as a setting is helpful
-	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
-	static S32 limit = -1;
-	if (limit < minimum_texture_size)
-	{
-		limit = gGLManager.mGLMaxTextureSize;
-		gSavedSettings.setU32("PVDebug_GLMaxTextureSize", limit);
-	}
-
 	LLTextBox* gpu_limit = floater->getChild<LLTextBox>("gpu_texture_size_limit");
 	LLTextBox* gpu_suggest = floater->getChild<LLTextBox>("gpu_texture_size_suggested");
 
@@ -224,11 +214,11 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 	{
 		// Ugh. Not efficient but it works.
 		LLSD args;
-		args["RESOLUTION"] = limit;
+		args["RESOLUTION"] = gGLManager.mGLMaxTextureSize;
 		gpu_limit->setValue(LLTrans::getString("gpu_absolute_texture_size", args));
 		gpu_limit->setToolTip(LLTrans::getString("gpu_max_texture_size_side", args));
 		// Recommend half the texture maximum to prevent TDR
-		args["RESOLUTION"] = (limit * 3 / 4);
+		args["RESOLUTION"] = (gGLManager.mGLMaxTextureSize * 3 / 4);
 		gpu_suggest->setValue(LLTrans::getString("gpu_recommended_texture_size", args));
 	}
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(snapshot_format);
@@ -284,8 +274,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 		}
 		else
 		{
-			width_ctrl->setMaxValue(limit);
-			height_ctrl->setMaxValue(limit);
+			width_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
+			height_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
 		}
 	}
 		
@@ -633,6 +623,8 @@ void LLFloaterSnapshot::Impl::setFinished(bool finished, bool ok, const std::str
 }
 
 // Apply a new resolution selected from the given combobox.
+// <polarity> TODO: Reduce the amount of times this gets called every time the snapshot floater is open
+// (currently 4-8)
 void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
 {
 	LLComboBox* combobox = (LLComboBox*)ctrl;
@@ -653,8 +645,6 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 	S32 height = sdres[1];
 	
 	LLSnapshotLivePreview* previewp = getPreviewView();
-	// PLVR-9 Snapshot floater has no safeguards against negative custom value
-	static const S32 max_gl_texture_size = gSavedSettings.getS32("PVDebug_GLMaxTextureSize");
 	if (previewp && combobox->getCurrentIndex() >= 0)
 	{
 		S32 original_width = 0 , original_height = 0 ;
@@ -662,7 +652,6 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 		// <polarity> Speed up
 		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
 		static LLCachedControl<bool> render_hud(gSavedSettings, "RenderHUDInSnapshot");
-		
 		if (render_ui || render_hud)
 		{ //clamp snapshot resolution to window size when showing UI or HUD in snapshot
 			width = llmin(width, gViewerWindow->getWindowWidthRaw());
@@ -697,9 +686,11 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			// use the resolution from the selected pre-canned drop-down choice
 			LL_DEBUGS() << "Setting preview res selected from combo: " << width << "x" << height << LL_ENDL;
 		}
+
+		// PLVR-9 Snapshot floater has no safeguards against negative custom value
+		width = llclamp(width,minimum_texture_size,gGLManager.mGLMaxTextureSize);
+		height = llclamp(height,minimum_texture_size,gGLManager.mGLMaxTextureSize);
 		llassert(width > 0 && height > 0);
-		width = llclamp(width,minimum_texture_size,max_gl_texture_size);
-		height = llclamp(height,minimum_texture_size,max_gl_texture_size);
 		previewp->setSize(width, height);
 		checkAspectRatio(view, width) ;
 
