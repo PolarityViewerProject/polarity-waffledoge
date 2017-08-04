@@ -532,6 +532,19 @@
       <key>Value</key>
       <integer>0</integer>
     </map>
+    <key>PVDebug_GLMaxTextureSize</key>
+    <map>
+      <key>Comment</key>
+      <string>Value of GLMaxTextureSize</string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>HideFromEditor</key>
+      <integer>0</integer>
+      <key>Type</key>
+      <string>S32</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
     <key>PVDebug_LogMissingAssets</key>
     <map>
       <key>Comment</key>
