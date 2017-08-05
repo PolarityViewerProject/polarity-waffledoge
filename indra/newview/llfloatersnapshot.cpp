@@ -62,6 +62,8 @@ const S32 MAX_TEXTURE_SIZE = 1024 ; //max upload texture size 512 * 512 // <alch
 
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
 
+constexpr S32 minimum_texture_size = 64;
+
 // virtual
 LLPanelSnapshot* LLFloaterSnapshot::Impl::getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found)
 {
@@ -207,21 +209,19 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 	LLSnapshotModel::ESnapshotFormat shot_format = (LLSnapshotModel::ESnapshotFormat)static_cast<S32>(snapshot_format);
 	LLSnapshotModel::ESnapshotLayerType layer_type = getLayerType(floater);
 
-	// TODO: verify if texture fits with GL_PROXY_TEXTURE_2D
-	auto limit = gGLManager.mGLMaxTextureSize;
-
 	LLTextBox* gpu_limit = floater->getChild<LLTextBox>("gpu_texture_size_limit");
 	LLTextBox* gpu_suggest = floater->getChild<LLTextBox>("gpu_texture_size_suggested");
-	
+
 	if(gpu_limit && gpu_suggest) // I'm lazy.
 	{
 		// Ugh. Not efficient but it works.
 		LLSD args;
-		args["RESOLUTION"] = limit;
+		args["RESOLUTION"] = gGLManager.mGLMaxTextureSize;
 		gpu_limit->setValue(LLTrans::getString("gpu_absolute_texture_size", args));
 		gpu_limit->setToolTip(LLTrans::getString("gpu_max_texture_size_side", args));
 		// Recommend half the texture maximum to prevent TDR
-		args["RESOLUTION"] = (limit * 3 / 4);
+		static const std::string recommended_texture_size = llformat("%d", (gGLManager.mGLMaxTextureSize * 3 / 4));
+		args["RESOLUTION"] = recommended_texture_size;
 		gpu_suggest->setValue(LLTrans::getString("gpu_recommended_texture_size", args));
 	}
 	floater->getChild<LLComboBox>("local_format_combo")->selectNthItem(snapshot_format);
@@ -277,8 +277,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 		}
 		else
 		{
-			width_ctrl->setMaxValue(limit);
-			height_ctrl->setMaxValue(limit);
+			width_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
+			height_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
 		}
 	}
 		
@@ -651,6 +651,8 @@ void LLFloaterSnapshot::Impl::setFinished(bool finished, bool ok, const std::str
 }
 
 // Apply a new resolution selected from the given combobox.
+// <polarity> TODO: Reduce the amount of times this gets called every time the snapshot floater is open
+// (currently 4-8)
 void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL do_update)
 {
 	LLComboBox* combobox = (LLComboBox*)ctrl;
@@ -675,7 +677,6 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 	{
 		S32 original_width = 0 , original_height = 0 ;
 		previewp->getSize(original_width, original_height) ;
-		
 		// <polarity> Speed up
 		static LLCachedControl<bool> render_ui(gSavedSettings, "RenderUIInSnapshot");
 		static LLCachedControl<bool> render_hud(gSavedSettings, "RenderHUDInSnapshot");
@@ -684,66 +685,58 @@ void LLFloaterSnapshot::Impl::updateResolution(LLUICtrl* ctrl, void* data, BOOL 
 			width = llmin(width, gViewerWindow->getWindowWidthRaw());
 			height = llmin(height, gViewerWindow->getWindowHeightRaw());
 		}
-
-		if (width == 0 || height == 0)
+		if (width < minimum_texture_size || height < minimum_texture_size)
 		{
-			// take resolution from current window size
-			LL_DEBUGS() << "Setting preview res from window: " << gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << LL_ENDL;
-			previewp->setSize(gViewerWindow->getWindowWidthRaw(), gViewerWindow->getWindowHeightRaw());
-		}
-		else if (width == -1 || height == -1)
-		{
-			// PLVR-9 Snapshot floater has no safeguards against negative render size
-			// This is sort of savage, but fairly fool-proof. We should revisit this later.
-			if (height < 64 || width < 64) // this should never be smaller than this. Assuming user or code error.
-			{
-				// Enforce valid positive value; 64 is small enough to return almost instantly on modern hardware.
-				width = height = 64;
-			}
-
 			// load last custom value
-			S32 new_width = 0, new_height = 0;
 			LLPanelSnapshot* spanel = getActivePanel(view);
 			if (spanel)
 			{
 				LL_DEBUGS() << "Loading typed res from panel " << spanel->getName() << LL_ENDL;
-				new_width = spanel->getTypedPreviewWidth();
-				new_height = spanel->getTypedPreviewHeight();
-
+				width = spanel->getTypedPreviewWidth();
+				height = spanel->getTypedPreviewHeight();
 				// Limit custom size for inventory snapshots to 512x512 px.
 				if (getActiveSnapshotType(view) == LLSnapshotModel::SNAPSHOT_TEXTURE)
 				{
-					new_width = llmin(new_width, MAX_TEXTURE_SIZE);
-					new_height = llmin(new_height, MAX_TEXTURE_SIZE);
+					width = llmin(width, MAX_TEXTURE_SIZE);
+					height = llmin(height, MAX_TEXTURE_SIZE);
 				}
 			}
 			else
 			{
-				LL_DEBUGS() << "No custom res chosen, setting preview res from window: "
+				LL_DEBUGS() << "Invalid or undefined custom res chosen, setting preview res from window: "
 					<< gViewerWindow->getWindowWidthRaw() << "x" << gViewerWindow->getWindowHeightRaw() << LL_ENDL;
-				new_width = gViewerWindow->getWindowWidthRaw();
-				new_height = gViewerWindow->getWindowHeightRaw();
+				width = gViewerWindow->getWindowWidthRaw();
+				height = gViewerWindow->getWindowHeightRaw();
 			}
-
-			llassert(new_width > 0 && new_height > 0);
-			previewp->setSize(new_width, new_height);
 		}
 		else
 		{
 			// use the resolution from the selected pre-canned drop-down choice
 			LL_DEBUGS() << "Setting preview res selected from combo: " << width << "x" << height << LL_ENDL;
-			previewp->setSize(width, height);
 		}
 
+		// PLVR-9 Snapshot floater has no safeguards against negative custom value
+		width = llclamp(width,minimum_texture_size,gGLManager.mGLMaxTextureSize);
+		height = llclamp(height,minimum_texture_size,gGLManager.mGLMaxTextureSize);
+		llassert(width > 0 && height > 0);
+		previewp->setSize(width, height);
 		checkAspectRatio(view, width) ;
 
-		previewp->getSize(width, height);
+		// Why are we getting this back when we already have it now?
+		//previewp->getSize(width, height);
 
 		//BD
-		if (gSavedSettings.getBOOL("RenderSnapshotAutoAdjustMultiplier"))
+		// <polarity> This is faster, right?
+		static LLCachedControl<bool> auto_snapshot_adjust(gSavedSettings, "RenderSnapshotAutoAdjustMultiplier", true);
+		static LLCachedControl<F32> saved_multiplier(gSavedSettings, "RenderSnapshotMultiplier");
+		static F32 result = 1.f;
+		if (auto_snapshot_adjust)
 		{
-			F32 multiplier = (F32)height / (F32)gViewerWindow->getWindowHeightRaw();
-			gSavedSettings.setF32("RenderSnapshotMultiplier", multiplier);
+			result = (F32)height / (F32)gViewerWindow->getWindowHeightRaw();
+			if (static_cast<F32>(saved_multiplier) != result)
+			{
+				gSavedSettings.setF32("RenderSnapshotMultiplier", result);
+			}
 		}
 
 		// We use the height spinner here because we come here via the aspect ratio
