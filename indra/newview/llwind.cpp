@@ -45,17 +45,17 @@
 // viewer
 #include "noise.h"
 #include "v4color.h"
-#include "llagent.h"
+#include "llagent.h"	// for gAgent
 #include "llworld.h"
+#include "llviewerregion.h"	// for getRegion()
 
-const F32 WIND_RELATIVE_ALTITUDE			= 25.f;
+#include <numeric>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
 LLWind::LLWind()
-:	mSize(16)
 {
 	init();
 }
@@ -63,8 +63,6 @@ LLWind::LLWind()
 
 LLWind::~LLWind()
 {
-	delete [] mVelX;
-	delete [] mVelY;
 }
 
 
@@ -75,25 +73,18 @@ LLWind::~LLWind()
 
 void LLWind::init()
 {
-	LL_DEBUGS("Wind") << "initializing wind size: "<< mSize << LL_ENDL;
+	LL_DEBUGS("Wind") << "initializing wind size: "<< WIND_SIZE << LL_ENDL;
 	
 	// Initialize vector data
-	mVelX = new F32[mSize*mSize];
-	mVelY = new F32[mSize*mSize];
-
-	S32 i;
-	for (i = 0; i < mSize*mSize; i++)
-	{
-		mVelX[i] = 0.5f;
-		mVelY[i] = 0.5f;
-	}
+	mVelX.fill(0.5f);
+	mVelY.fill(0.5f);
 }
 
 
 void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 {
 	LLPatchHeader  patch_header;
-	S32 buffer[16*16];
+	S32 buffer[ARRAY_SIZE];
 
 	init_patch_decompressor(group_headerp->patch_size);
 
@@ -105,70 +96,24 @@ void LLWind::decompress(LLBitPack &bitpack, LLGroupHeader *group_headerp)
 	// X component
 	decode_patch_header(bitpack, &patch_header);
 	decode_patch(bitpack, buffer);
-	decompress_patch(mVelX, buffer, &patch_header);
+	decompress_patch(mVelX.data(), buffer, &patch_header);
 
 	// Y component
 	decode_patch_header(bitpack, &patch_header);
 	decode_patch(bitpack, buffer);
-	decompress_patch(mVelY, buffer, &patch_header);
-
-	S32 i, j, k;
-
-	for (j=1; j<mSize-1; j++)
-	{
-		for (i=1; i<mSize-1; i++)
-		{
-			k = i + j * mSize;
-			*(mVelX + k) = *(mVelX + k);
-			*(mVelY + k) = *(mVelY + k);
-		}
-	}
-
-	i = mSize - 1;
-	for (j=1; j<mSize-1; j++)
-	{
-		k = i + j * mSize;
-		*(mVelX + k) = *(mVelX + k);
-		*(mVelY + k) = *(mVelY + k);
-	}
-	i = 0;
-	for (j=1; j<mSize-1; j++)
-	{
-		k = i + j * mSize;
-		*(mVelX + k) = *(mVelX + k);
-		*(mVelY + k) = *(mVelY + k);
-	}
-	j = mSize - 1;
-	for (i=1; i<mSize-1; i++)
-	{
-		k = i + j * mSize;
-		*(mVelX + k) = *(mVelX + k);
-		*(mVelY + k) = *(mVelY + k);
-	}
-	j = 0;
-	for (i=1; i<mSize-1; i++)
-	{
-		k = i + j * mSize;
-		*(mVelX + k) = *(mVelX + k);
-		*(mVelY + k) = *(mVelY + k);
-	}
+	decompress_patch(mVelY.data(), buffer, &patch_header);
 }
 
 
 LLVector3 LLWind::getAverage()
 {
+	constexpr F32 scalar = 1.f/((F32)(ARRAY_SIZE)) * WIND_SCALE_HACK;
 	//  Returns in average_wind the average wind velocity 
-	LLVector3 average(0.0f, 0.0f, 0.0f);	
-	S32 i, grid_count;
-	grid_count = mSize * mSize;
-	for (i = 0; i < grid_count; i++)
-	{
-		average.mV[VX] += mVelX[i];
-		average.mV[VY] += mVelY[i];
-	}
-
-	average *= 1.f/((F32)(grid_count)) * WIND_SCALE_HACK;
-	return average;
+	return LLVector3(
+		std::accumulate(mVelX.begin(), mVelX.end(), 0.0f) * scalar,
+		std::accumulate(mVelY.begin(), mVelY.end(), 0.0f) * scalar,
+		0.0f
+	);
 }
 
 
@@ -204,7 +149,6 @@ LLVector3 LLWind::getVelocityNoisy(const LLVector3 &pos_region, const F32 dim)
 
 LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
 {
-	llassert(mSize == 16);
 	// Resolves value of wind at a location relative to SW corner of region
 	//  
 	// Returns wind magnitude in X,Y components of vector3
@@ -214,7 +158,7 @@ LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
 
 	LLVector3 pos_clamped_region(pos_region);
 	
-	F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
+	F32 region_width_meters = gAgent.getRegion()->getWidth();
 
 	if (pos_clamped_region.mV[VX] < 0.f)
 	{
@@ -235,23 +179,23 @@ LLVector3 LLWind::getVelocity(const LLVector3 &pos_region)
 	}
 	
 	
-	S32 i = llfloor(pos_clamped_region.mV[VX] * mSize / region_width_meters);
-	S32 j = llfloor(pos_clamped_region.mV[VY] * mSize / region_width_meters);
-	k = i + j*mSize;
-	dx = ((pos_clamped_region.mV[VX] * mSize / region_width_meters) - (F32) i);
-	dy = ((pos_clamped_region.mV[VY] * mSize / region_width_meters) - (F32) j);
+	S32 i = llfloor(pos_clamped_region.mV[VX] * WIND_SIZE / region_width_meters);
+	S32 j = llfloor(pos_clamped_region.mV[VY] * WIND_SIZE / region_width_meters);
+	k = i + j*WIND_SIZE;
+	dx = ((pos_clamped_region.mV[VX] * WIND_SIZE / region_width_meters) - (F32) i);
+	dy = ((pos_clamped_region.mV[VY] * WIND_SIZE / region_width_meters) - (F32) j);
 
-	if ((i < mSize-1) && (j < mSize-1))
+	if ((i < WIND_SIZE-1) && (j < WIND_SIZE-1))
 	{
 		//  Interior points, no edges
 		r_val.mV[VX] =  mVelX[k]*(1.0f - dx)*(1.0f - dy) + 
 						mVelX[k + 1]*dx*(1.0f - dy) + 
-						mVelX[k + mSize]*dy*(1.0f - dx) + 
-						mVelX[k + mSize + 1]*dx*dy;
+						mVelX[k + WIND_SIZE]*dy*(1.0f - dx) + 
+						mVelX[k + WIND_SIZE + 1]*dx*dy;
 		r_val.mV[VY] =  mVelY[k]*(1.0f - dx)*(1.0f - dy) + 
 						mVelY[k + 1]*dx*(1.0f - dy) + 
-						mVelY[k + mSize]*dy*(1.0f - dx) + 
-						mVelY[k + mSize + 1]*dx*dy;
+						mVelY[k + WIND_SIZE]*dy*(1.0f - dx) + 
+						mVelY[k + WIND_SIZE + 1]*dx*dy;
 	}
 	else 
 	{
@@ -268,38 +212,4 @@ void LLWind::setOriginGlobal(const LLVector3d &origin_global)
 	mOriginGlobal = origin_global;
 }
 
-void LLWind::renderVectors()
-{
-	// Renders the wind as vectors (used for debug)
-	S32 i, j;
-	F32 x, y;
 
-	F32 region_width_meters = LLWorld::getInstance()->getRegionWidthInMeters();
-
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	gGL.pushMatrix();
-	LLVector3 origin_agent;
-	origin_agent = gAgent.getPosAgentFromGlobal(mOriginGlobal);
-	gGL.translatef(origin_agent.mV[VX], origin_agent.mV[VY], gAgent.getPositionAgent().mV[VZ] + WIND_RELATIVE_ALTITUDE);
-	for (j = 0; j < mSize; j++)
-	{
-		for (i = 0; i < mSize; i++)
-		{
-			x = mVelX[i + j*mSize] * WIND_SCALE_HACK;
-			y = mVelY[i + j*mSize] * WIND_SCALE_HACK;
-			gGL.pushMatrix();
-			gGL.translatef((F32)i * region_width_meters / mSize, (F32)j * region_width_meters / mSize, 0.0);
-			gGL.color3f(0, 1, 0);
-			gGL.begin(LLRender::POINTS);
-			gGL.vertex3f(0, 0, 0);
-			gGL.end();
-			gGL.color3f(1, 0, 0);
-			gGL.begin(LLRender::LINES);
-			gGL.vertex3f(x * 0.1f, y * 0.1f, 0.f);
-			gGL.vertex3f(x, y, 0.f);
-			gGL.end();
-			gGL.popMatrix();
-		}
-	}
-	gGL.popMatrix();
-}

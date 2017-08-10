@@ -33,10 +33,9 @@
 #include "llselectmgr.h"
 #include "llmaterialmgr.h"
 
-#include <unordered_set>
-
 // library includes
 #include "llcachename.h"
+#include "llavatarnamecache.h"
 #include "lldbstrings.h"
 #include "lleconomy.h"
 #include "llgl.h"
@@ -73,12 +72,11 @@
 #include "llmeshrepository.h"
 #include "llmutelist.h"
 #include "llnotificationsutil.h"
-#include "llparcel.h" // <FS:KC> Rez under Land Group
+#include "llparcel.h" //<alchemy> Rez under Land Group
 #include "llsidepaneltaskinfo.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
-#include "lltexturecache.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "lltool.h"
 #include "lltooldraganddrop.h"
 #include "lltoolmgr.h"
@@ -92,22 +90,16 @@
 #include "llviewermenu.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "llviewerparcelmgr.h" // <FS:KC> Rez under Land Group
+#include "llviewerparcelmgr.h" //<alchemy> Rez under Land Group
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llvoavatarself.h"
 #include "llvovolume.h"
+#include "llworld.h"
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "llpanelface.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-// [/RLVa:KB]
 #include "llglheaders.h"
-
-#include "fsareasearch.h"
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -118,7 +110,7 @@ const F32 SILHOUETTE_UPDATE_THRESHOLD_SQUARED = 0.02f;
 const S32 MAX_SILS_PER_FRAME = 50;
 const S32 MAX_OBJECTS_PER_PACKET = 254;
 // For linked sets
-const S32 MAX_CHILDREN_PER_TASK = 255;
+//const S32 MAX_CHILDREN_PER_TASK = 255;
 
 //
 // Globals
@@ -180,10 +172,10 @@ template class LLSelectMgr* LLSingleton<class LLSelectMgr>::getInstance();
 // LLSelectMgr()
 //-----------------------------------------------------------------------------
 LLSelectMgr::LLSelectMgr()
- : mHideSelectedObjects(LLCachedControl<bool>(gSavedSettings, "HideSelectedObjects", FALSE)),
-   mRenderHighlightSelections(LLCachedControl<bool>(gSavedSettings, "RenderHighlightSelections", TRUE)),
-   mAllowSelectAvatar( LLCachedControl<bool>(gSavedSettings, "AllowSelectAvatar", FALSE)),
-   mDebugSelectMgr(LLCachedControl<bool>(gSavedSettings, "DebugSelectMgr", FALSE))
+ : mHideSelectedObjects(LLCachedControl<bool>(gSavedSettings, "HideSelectedObjects", false)),
+   mRenderHighlightSelections(LLCachedControl<bool>(gSavedSettings, "RenderHighlightSelections", true)),
+   mAllowSelectAvatar( LLCachedControl<bool>(gSavedSettings, "AllowSelectAvatar", false)),
+   mDebugSelectMgr(LLCachedControl<bool>(gSavedSettings, "DebugSelectMgr", false))
 {
 	mTEMode = FALSE;
 	mTextureChannel = LLRender::DIFFUSE_MAP;
@@ -571,11 +563,12 @@ bool LLSelectMgr::linkObjects()
 	}
 
 	S32 object_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
-	if (object_count > MAX_CHILDREN_PER_TASK + 1)
+	S32 max_objects = LLWorld::getInstance()->getRegionMaxLinkObjects();
+	if (object_count > max_objects + 1)
 	{
 		LLSD args;
 		args["COUNT"] = llformat("%d", object_count);
-		int max = MAX_CHILDREN_PER_TASK+1;
+		int max = max_objects + 1;
 		args["MAX"] = llformat("%d", max);
 		LLNotificationsUtil::add("UnableToLinkObjects", args);
 		return true;
@@ -610,6 +603,12 @@ bool LLSelectMgr::linkObjects()
 		return true;
 	}
 
+	if (!LLSelectMgr::getInstance()->selectGetSameRegion())
+	{
+		LLNotificationsUtil::add("CannotLinkAcrossRegions");
+		return true;
+	}
+
 	LLSelectMgr::getInstance()->sendLink();
 
 	return true;
@@ -617,31 +616,8 @@ bool LLSelectMgr::linkObjects()
 
 bool LLSelectMgr::unlinkObjects()
 {
-	S32 min_objects_for_confirm = gSavedSettings.getS32("MinObjectsForUnlinkConfirm");
-	S32 unlink_object_count = mSelectedObjects->getObjectCount(); // clears out nodes with NULL objects
-	if (unlink_object_count >= min_objects_for_confirm
-		&& unlink_object_count > mSelectedObjects->getRootObjectCount())
-	{
-		// total count > root count means that there are childer inside and that there are linksets that will be unlinked
-		LLNotificationsUtil::add("ConfirmUnlink", LLSD(), LLSD(), boost::bind(&LLSelectMgr::confirmUnlinkObjects, this, _1, _2));
-		return true;
-	}
-
 	LLSelectMgr::getInstance()->sendDelink();
 	return true;
-}
-
-void LLSelectMgr::confirmUnlinkObjects(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-	// if Cancel pressed
-	if (option == 1)
-	{
-		return;
-	}
-
-	LLSelectMgr::getInstance()->sendDelink();
-	return;
 }
 
 // in order to link, all objects must have the same owner, and the
@@ -676,16 +652,6 @@ bool LLSelectMgr::enableLinkObjects()
 			new_value = LLSelectMgr::getInstance()->getSelection()->applyToRootObjects(&func, firstonly);
 		}
 	}
-// [RLVa:KB] - Checked: 2011-03-19 (RLVa-1.3.0f) | Modified: RLVa-0.2.0g
-	if ( (new_value) && ((rlv_handler_t::isEnabled()) && (!RlvActions::canStand())) )
-	{
-		// Allow only if the avie isn't sitting on any of the selected objects
-		LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
-		RlvSelectIsSittingOn f(gAgentAvatarp);
-		if (hSel->getFirstRootNode(&f, TRUE) != NULL)
-			new_value = false;
-	}
-// [/RLVa:KB]
 	return new_value;
 }
 
@@ -698,16 +664,7 @@ bool LLSelectMgr::enableUnlinkObjects()
 		first_editable_object &&
 		!first_editable_object->isAttachment() && !first_editable_object->isPermanentEnforced() &&
 		((root_object == NULL) || !root_object->isPermanentEnforced());
-// [RLVa:KB] - Checked: 2011-03-19 (RLVa-1.3.0f) | Modified: RLVa-0.2.0g
-	if ( (new_value) && ((rlv_handler_t::isEnabled()) && (!RlvActions::canStand())) )
-	{
-		// Allow only if the avie isn't sitting on any of the selected objects
-		LLObjectSelectionHandle hSel = LLSelectMgr::getInstance()->getSelection();
-		RlvSelectIsSittingOn f(gAgentAvatarp);
-		if (hSel->getFirstRootNode(&f, TRUE) != NULL)
-			new_value = false;
-	}
-// [/RLVa:KB]
+
 	return new_value;
 }
 
@@ -1697,15 +1654,15 @@ void LLSelectMgr::selectionSetImage(const LLUUID& imageid)
 			if (!mItem)
 			{
 				object->sendTEUpdate();
-				LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
-				if (PVPrivacy_HideEditBeam)
-				return false;
-				// 1 particle effect per object				
-				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-				effectp->setSourceObject(gAgentAvatarp);
-				effectp->setTargetObject(object);
-				effectp->setDuration(LL_HUD_DUR_SHORT);
-				effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+				if (!gSavedSettings.getBOOL("AlchemyPointAtDisable"))
+				{
+					// 1 particle effect per object				
+					LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+					effectp->setSourceObject(gAgentAvatarp);
+					effectp->setTargetObject(object);
+					effectp->setDuration(LL_HUD_DUR_SHORT);
+					effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+				}
 			}
 			return true;
 		}
@@ -2520,7 +2477,7 @@ void LLSelectMgr::logNoOp(LLSelectNode* node, void *)
 // static
 void LLSelectMgr::logAttachmentRequest(LLSelectNode* node, void *)
 {
-//    LLAttachmentsMgr::instance().onAttachmentRequested(node->mItemID);
+    LLAttachmentsMgr::instance().onAttachmentRequested(node->mItemID);
 }
 
 // static
@@ -2796,6 +2753,35 @@ BOOL LLSelectMgr::selectGetRootsModify()
 	return TRUE;
 }
 
+//-----------------------------------------------------------------------------
+// selectGetSameRegion() - return TRUE if all objects are in same region
+//-----------------------------------------------------------------------------
+BOOL LLSelectMgr::selectGetSameRegion()
+{
+    if (getSelection()->isEmpty())
+    {
+        return TRUE;
+    }
+    LLViewerObject* object = getSelection()->getFirstObject();
+    if (!object)
+    {
+        return FALSE;
+    }
+    LLViewerRegion* current_region = object->getRegion();
+
+    for (LLObjectSelection::root_iterator iter = getSelection()->root_begin();
+        iter != getSelection()->root_end(); iter++)
+    {
+        LLSelectNode* node = *iter;
+        object = node->getObject();
+        if (!node->mValid || !object || current_region != object->getRegion())
+        {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // selectGetNonPermanentEnforced() - return TRUE if all objects are not
@@ -3524,16 +3510,6 @@ BOOL LLSelectMgr::selectGetPermissions(LLPermissions& result_perm)
 
 void LLSelectMgr::selectDelete()
 {
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Added: RLVa-1.2.0a
-	if ( (rlv_handler_t::isEnabled()) && (!rlvCanDeleteOrReturn()) )
-	{
-		make_ui_sound("UISndInvalidOp");
-		if (!gFloaterTools->getVisible())
-			deselectAll();
-		return;
-	}
-// [/RLVa:KB]
-
 	S32 deleteable_count = 0;
 
 	BOOL locked_but_deleteable_object = FALSE;
@@ -3656,8 +3632,7 @@ bool LLSelectMgr::confirmDelete(const LLSD& notification, const LLSD& response, 
                                                           (void*) &info,
                                                           SEND_ONLY_ROOTS);
 			// VEFFECT: Delete Object - one effect for all deletes
-			static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
-			if ((PVPrivacy_HideEditBeam) && (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD))
+			if (!gSavedSettings.getBOOL("AlchemyPointAtDisable") && (LLSelectMgr::getInstance()->mSelectedObjects->mSelectType != SELECT_TYPE_HUD))
 			{
 				LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
 				effectp->setPositionGlobal( LLSelectMgr::getInstance()->getSelectionCenterGlobal() );
@@ -3845,39 +3820,9 @@ struct LLDuplicateData
 	U32			flags;
 };
 
-LLUUID LLSelectMgr::getGroupIDToRezUnder()
-{
-	// Rez under Land Group. Inspired by Kadah Coba's code.
-	static LLCachedControl<bool> rez_under_land_group(gSavedSettings, "PVTools_RezUnderLandGroup", false);
-	// Group to rez the item under. Defaults to current group.
-	LLUUID rez_group_id = gAgent.getGroupID();
-	if (rez_under_land_group)
-	{
-		// Get the parcel
-		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();       
-		LLUUID parcel_group_id = land_parcel->getGroupID();
-		LLUUID parcel_owner_id = land_parcel->getOwnerID();
-
-		// Check if agent is in the land's group
-		if (gAgent.isInGroup(parcel_group_id))
-		{
-			rez_group_id = parcel_group_id;
-		}
-		else if (gAgent.isInGroup(parcel_owner_id))
-		{
-			rez_group_id = parcel_owner_id;
-		}
-	}
-
-	return rez_group_id;
-}
-
 void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 {
-//	if (mSelectedObjects->isAttachment())
-// [RLVa:KB] - Checked: 2010-03-24 (RLVa-1.2.0e) | Added: RLVa-1.2.0a
-	if ( (mSelectedObjects->isAttachment()) || ((rlv_handler_t::isEnabled()) && (!rlvCanDeleteOrReturn())) )
-// [/RLVa:KB]
+	if (mSelectedObjects->isAttachment())
 	{
 		//RN: do not duplicate attachments
 		make_ui_sound("UISndInvalidOp");
@@ -4040,7 +3985,22 @@ void LLSelectMgr::packDuplicateOnRayHead(void *user_data)
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->addUUIDFast(_PREHASH_GroupID, getGroupIDToRezUnder());
+
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
+
+	msg->addUUIDFast(_PREHASH_GroupID, group_id );
 	msg->addVector3Fast(_PREHASH_RayStart, data->mRayStartRegion );
 	msg->addVector3Fast(_PREHASH_RayEnd, data->mRayEndRegion );
 	msg->addBOOLFast(_PREHASH_BypassRaycast, data->mBypassRaycast );
@@ -4334,35 +4294,10 @@ void LLSelectMgr::convertTransient()
 
 void LLSelectMgr::deselectAllIfTooFar()
 {
-// [RLVa:KB] - Checked: RLVa-1.3.0
-	if ( (!mSelectedObjects->isEmpty()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_EDIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_EDITOBJ))) )
-	{
-		struct NotTransientOrFocusedMediaOrEditable : public LLSelectedNodeFunctor
-		{
-			bool apply(LLSelectNode* pNode)
-			{
-				const LLViewerObject* pObj = pNode->getObject();
-				return (!pNode->isTransient()) && (pObj) && (!RlvActions::canEdit(pObj)) && (pObj->getID() != LLViewerMediaFocus::getInstance()->getFocusedObjectID());
-			}
-		} f;
-		if (mSelectedObjects->getFirstRootNode(&f, TRUE))
-			deselectAll();
-	}
-// [/RLVa:KB]
-
 	if (mSelectedObjects->isEmpty() || mSelectedObjects->mSelectType == SELECT_TYPE_HUD)
 	{
 		return;
 	}
-
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	// [Fall-back code] Don't allow an active selection (except for HUD attachments - see above) when @interact restricted
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT))
-	{
-		deselectAll();
-		return;
-	}
-// [/RLVa:KB]
 
 	// HACK: Don't deselect when we're navigating to rate an object's
 	// owner or creator.  JC
@@ -4372,22 +4307,13 @@ void LLSelectMgr::deselectAllIfTooFar()
 	}
 
 	LLVector3d selectionCenter = getSelectionCenterGlobal();
-//	if (gSavedSettings.getBOOL("LimitSelectDistance")
-// [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e) | Modified: RLVa-0.2.0f
-	static RlvCachedBehaviourModifier<float> s_nFartouchDist(RLV_MODIFIER_FARTOUCHDIST);
-
-	BOOL fRlvFartouch = gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH) && gFloaterTools->getVisible();
-	if ( (gSavedSettings.getBOOL("LimitSelectDistance") || (fRlvFartouch) )
-// [/RLVa:KB]
+	if (gSavedSettings.getBOOL("LimitSelectDistance")
 		&& (!mSelectedObjects->getPrimaryObject() || !mSelectedObjects->getPrimaryObject()->isAvatar())
 		&& (mSelectedObjects->getPrimaryObject() != LLViewerMediaFocus::getInstance()->getFocusedObject())
 		&& !mSelectedObjects->isAttachment()
 		&& !selectionCenter.isExactlyZero())
 	{
-//		F32 deselect_dist = gSavedSettings.getF32("MaxSelectDistance");
-// [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e) | Modified: RLVa-0.2.0f
-		F32 deselect_dist = (!fRlvFartouch) ? gSavedSettings.getF32("MaxSelectDistance") : s_nFartouchDist;
-// [/RLVa:KB]
+		F32 deselect_dist = gSavedSettings.getF32("MaxSelectDistance");
 		F32 deselect_dist_sq = deselect_dist * deselect_dist;
 
 		LLVector3d select_delta = gAgent.getPositionGlobal() - selectionCenter;
@@ -4413,7 +4339,7 @@ void LLSelectMgr::selectionSetObjectName(const std::string& name)
 	std::string name_copy(name);
 
 	// we only work correctly if 1 object is selected.
-	if(mSelectedObjects->getRootObjectCount() == 1)
+	if(mSelectedObjects->getRootObjectCount() >= 1) // <alchemy/>
 	{
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
@@ -4422,7 +4348,7 @@ void LLSelectMgr::selectionSetObjectName(const std::string& name)
 						  (void*)(&name_copy),
 						  SEND_ONLY_ROOTS);
 	}
-	else if(mSelectedObjects->getObjectCount() == 1)
+	else if(mSelectedObjects->getObjectCount() >= 1) // <alchemy/>
 	{
 		sendListToRegions("ObjectName",
 						  packAgentAndSessionID,
@@ -4438,7 +4364,7 @@ void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 	std::string desc_copy(desc);
 
 	// we only work correctly if 1 object is selected.
-	if(mSelectedObjects->getRootObjectCount() == 1)
+	if(mSelectedObjects->getRootObjectCount() >= 1) // <alchemy/>
 	{
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
@@ -4447,7 +4373,7 @@ void LLSelectMgr::selectionSetObjectDescription(const std::string& desc)
 						  (void*)(&desc_copy),
 						  SEND_ONLY_ROOTS);
 	}
-	else if(mSelectedObjects->getObjectCount() == 1)
+	else if(mSelectedObjects->getObjectCount() >= 1) // <alchemy/>
 	{
 		sendListToRegions("ObjectDescription",
 						  packAgentAndSessionID,
@@ -4807,76 +4733,6 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 	mSavedSelectionBBox = getBBoxOfSelection();
 }
 
-// <polarity> PLVR-32 Refresh texture on objects and avatars
-void LLSelectMgr::refreshSelectionTextures(std::unordered_set<LLUUID>& textures_to_refresh)
-{
-	for (LLSelectNode* node : *this->getSelection().get())
-	{
-		LLViewerObject* objectp = node->getObject();
-		U8 texture_entry_count = objectp->getNumTEs();
-		for (U8 index = 0; index < texture_entry_count; ++index)
-		{
-			// LLTextureEntry* texture_entry = objectp->getTE(index);
-			LLViewerTexture* diffuse_map = objectp->getTEImage(index);
-			LLViewerTexture* normal_map = objectp->getTENormalMap(index);
-			LLViewerTexture* specular_map = objectp->getTESpecularMap(index);
-			LLViewerTexture* default_image = (LLViewerTexture*)LLViewerFetchedTexture::sDefaultImagep;
-
-			if (diffuse_map != default_image)
-			{
-				textures_to_refresh.insert(diffuse_map->getID());
-			}
-
-			if (normal_map != default_image)
-			{
-				textures_to_refresh.insert(normal_map->getID());
-			}
-
-			if (specular_map != default_image)
-			{
-				textures_to_refresh.insert(specular_map->getID());
-			}
-		}
-
-		if (objectp->isSculpted())
-		{
-			LLSculptParams* sculpt_params = (LLSculptParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-			if (sculpt_params)
-			{
-				textures_to_refresh.insert(sculpt_params->getSculptTexture());
-			}
-		}
-	}
-
-	for (LLUUID texture_id : textures_to_refresh)
-	{
-		LLViewerFetchedTexture* texture = LLViewerTextureManager::getFetchedTexture(texture_id);
-		if (texture->getFTType() == FTT_LOCAL_FILE)
-		{
-			// Skip reloading local textures
-			continue;
-		}
-
-		texture->clearFetchedResults();
-		LLAppViewer::getTextureCache()->removeFromCache(texture_id);
-
-		S32 num_volumes = texture->getNumVolumes();
-		if (num_volumes > 0)
-		{
-			const LLViewerTexture::ll_volume_list_t* volumes = texture->getVolumeList();
-			for (S32 volume_index = 0; volume_index < num_volumes; ++volume_index)
-			{
-				LLVOVolume* volume = volumes->at(volume_index);
-				if (volume)
-				{
-					volume->notifyMeshLoaded();
-				}
-			}
-		}
-	}
-}
-// </polarity> PLVR-32 Refresh texture on objects and avatars
-
 struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 {
 	LLSelectMgrApplyFlags(U32 flags, BOOL state) : mFlags(flags), mState(state) {}
@@ -4970,7 +4826,19 @@ void LLSelectMgr::packAgentAndSessionAndGroupID(void* user_data)
 // static
 void LLSelectMgr::packDuplicateHeader(void* data)
 {
-	LLUUID group_id(getGroupIDToRezUnder());
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
 	packAgentAndSessionAndGroupID(&group_id);
 
 	LLDuplicateData* dup_data = (LLDuplicateData*) data;
@@ -5119,7 +4987,7 @@ void LLSelectMgr::packPermissions(LLSelectNode* node, void *user_data)
 	gMessageSystem->addU32Fast(_PREHASH_ObjectLocalID, node->getObject()->getLocalID());
 
 	gMessageSystem->addU8Fast(_PREHASH_Field,	data->mField);
-	gMessageSystem->addBOOLFast(_PREHASH_Set,		data->mSet);
+	gMessageSystem->addU8Fast(_PREHASH_Set,		(U8)data->mSet);
 	gMessageSystem->addU32Fast(_PREHASH_Mask,		data->mMask);
 }
 
@@ -5435,15 +5303,7 @@ void LLSelectMgr::processObjectProperties(LLMessageSystem* msg, void** user_data
 
 		if (!node)
 		{
-			// <FS:Techwolf Lupindo> area search
-			FSAreaSearch* area_search_floater = LLFloaterReg::getTypedInstance<FSAreaSearch>("area_search");
-			if(!(area_search_floater && area_search_floater->isActive())) // Don't spam the log when areasearch is active.
-			{
-			// </FS:Techwolf Lupindo>
 			LL_WARNS() << "Couldn't find object " << id << " selected." << LL_ENDL;
-			// <FS:Techwolf Lupindo> area search
-			}
-			// </FS:Techwolf Lupindo>
 		}
 		else
 		{
@@ -5562,9 +5422,9 @@ void LLSelectMgr::processObjectPropertiesFamily(LLMessageSystem* msg, void** use
 		LLFloaterReporter *reporterp = LLFloaterReg::findTypedInstance<LLFloaterReporter>("reporter");
 		if (reporterp)
 		{
-			std::string fullname;
-			gCacheName->getFullName(owner_id, fullname);
-			reporterp->setPickedObjectProperties(name, fullname, owner_id);
+			LLAvatarName av_name;
+			LLAvatarNameCache::get(owner_id, &av_name);
+			reporterp->setPickedObjectProperties(name, av_name.getUserName(), owner_id);
 		}
 	}
 	else if (request_flags & OBJECT_PAY_REQUEST)
@@ -5637,8 +5497,6 @@ void LLSelectMgr::processForceObjectSelect(LLMessageSystem* msg, void**)
 	// Don't select, just highlight
 	LLSelectMgr::getInstance()->highlightObjectAndFamily(objects);
 }
-
-extern F32	gGLModelView[16];
 
 void LLSelectMgr::updateSilhouettes()
 {
@@ -5967,7 +5825,7 @@ void LLSelectMgr::renderSilhouettes(BOOL for_hud)
 		}
 
 		LLUUID focus_item_id = LLViewerMediaFocus::getInstance()->getFocusedObjectID();
-		for (S32 pass = 0; pass < 2; pass++)
+		//for (S32 pass = 0; pass < 2; pass++)
 		{
 			for (LLObjectSelection::iterator iter = mSelectedObjects->begin();
 				 iter != mSelectedObjects->end(); iter++)
@@ -6232,7 +6090,7 @@ void LLSelectNode::saveShinyColors()
 			const LLMaterialPtr mat = mObject->getTE(i)->getMaterialParams();
 			if (!mat.isNull())
 			{
-				mSavedShinyColors.push_back(mat->getSpecularLightColor());
+				mSavedShinyColors.push_back(LLColor4(mat->getSpecularLightColor()));
 			}
 			else
 			{
@@ -6429,6 +6287,9 @@ void pushWireframe(LLDrawable* drawable)
 
 void LLSelectNode::renderOneWireframe(const LLColor4& color)
 {
+	//Need to because crash on ATI 3800 (and similar cards) MAINT-5018 
+	LLGLDisable multisample(LLPipeline::RenderFSAASamples > 0 ? GL_MULTISAMPLE_ARB : 0);
+
 	LLViewerObject* objectp = getObject();
 	if (!objectp)
 	{
@@ -6483,8 +6344,8 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 			{
 				LLGLEnable fog(GL_FOG);
 				glFogi(GL_FOG_MODE, GL_LINEAR);
-				float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
-				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+				float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
+				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);
 				glFogf(GL_FOG_START, d);
 				glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
 				glFogfv(GL_FOG_COLOR, fogCol.mV);
@@ -6505,9 +6366,9 @@ void LLSelectNode::renderOneWireframe(const LLColor4& color)
 	
 	LLGLEnable offset(GL_POLYGON_OFFSET_LINE);
 	glPolygonOffset(3.f, 3.f);
-	glLineWidth(3.f);
+	gGL.setLineWidth(3.f);
 	pushWireframe(drawable);
-	glLineWidth(1.f);
+	gGL.setLineWidth(1.f);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	gGL.popMatrix();
 
@@ -6605,8 +6466,8 @@ void LLSelectNode::renderOneSilhouette(const LLColor4 &color)
 			{
 				LLGLEnable fog(GL_FOG);
 				glFogi(GL_FOG_MODE, GL_LINEAR);
-				float d = (LLViewerCamera::getInstance()->getPointOfInterest()-LLViewerCamera::getInstance()->getOrigin()).magVec();
-				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal()-gAgentCamera.getCameraPositionGlobal()).magVec()/(LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec()*4), 0.0, 1.0);
+				float d = (LLViewerCamera::getInstance()->getPointOfInterest() - LLViewerCamera::getInstance()->getOrigin()).magVec();
+				LLColor4 fogCol = color * (F32)llclamp((LLSelectMgr::getInstance()->getSelectionCenterGlobal() - gAgentCamera.getCameraPositionGlobal()).magVec() / (LLSelectMgr::getInstance()->getBBoxOfSelection().getExtentLocal().magVec() * 4), 0.0, 1.0);
 				glFogf(GL_FOG_START, d);
 				glFogf(GL_FOG_END, d*(1 + (LLViewerCamera::getInstance()->getView() / LLViewerCamera::getInstance()->getDefaultFOV())));
 				glFogfv(GL_FOG_COLOR, fogCol.mV);
@@ -6712,11 +6573,11 @@ void dialog_refresh_all()
 
 	gMenuObject->needsArrange();
 
-	if( gMenuAttachmentSelf->getVisible() )
+	if (gMenuAttachmentSelf->getVisible())
 	{
 		gMenuAttachmentSelf->needsArrange();
 	}
-	if( gMenuAttachmentOther->getVisible() )
+	if (gMenuAttachmentOther->getVisible())
 	{
 		gMenuAttachmentOther->needsArrange();
 	}
@@ -6790,7 +6651,7 @@ void LLSelectMgr::updateSelectionCenter()
 	{
 		mSelectedObjects->mSelectType = getSelectTypeForObject(object);
 
-		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid())
+		if (mSelectedObjects->mSelectType == SELECT_TYPE_ATTACHMENT && isAgentAvatarValid() && object->getParent() != NULL)
 		{
 			mPauseRequest = gAgentAvatarp->requestPause();
 		}
@@ -6980,10 +6841,7 @@ BOOL LLSelectMgr::canDoDelete() const
 			can_delete = true;
 		}
 	}
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Added: RLVa-1.2.0a
-	can_delete &= (!rlv_handler_t::isEnabled()) || (rlvCanDeleteOrReturn());
-// [/RLVa:KB]
-
+	
 	return can_delete;
 }
 
@@ -7015,12 +6873,7 @@ void LLSelectMgr::deselect()
 //-----------------------------------------------------------------------------
 BOOL LLSelectMgr::canDuplicate() const
 {
-//	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstCopyableObject() != NULL; // HACK: casting away constness - MG
-// [RLVa:KB] - Checked: 2010-03-24 (RLVa-1.2.0e) | Added: RLVa-1.2.0a
-	return 
-		(const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstCopyableObject() != NULL) &&
-		( (!rlv_handler_t::isEnabled()) || (rlvCanDeleteOrReturn()) );
-// [/RLVa:KB]
+	return const_cast<LLSelectMgr*>(this)->mSelectedObjects->getFirstCopyableObject() != NULL; // HACK: casting away constness - MG
 }
 //-----------------------------------------------------------------------------
 // duplicate()

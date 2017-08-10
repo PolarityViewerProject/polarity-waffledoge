@@ -37,6 +37,7 @@
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llnotifications.h"
+#include "lltextbox.h"
 #include "llviewertexteditor.h"
 
 #include "llavatarnamecache.h"
@@ -55,7 +56,7 @@ const S32 LLToastGroupNotifyPanel::DEFAULT_MESSAGE_MAX_LINE_COUNT	= 7;
 
 LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notification)
 :	LLToastPanel(notification),
-	mInventoryOffer(NULL)
+	mInventoryOffer(nullptr)
 {
 	buildFromFile( "panel_group_notify.xml");
 	const LLSD& payload = notification->getPayload();
@@ -86,18 +87,14 @@ LLToastGroupNotifyPanel::LLToastGroupNotifyPanel(const LLNotificationPtr& notifi
 	//message body
 	const std::string& message = payload["message"].asString();
 
-	// <FS:Ansariel> FIRE-17649: Localizable date formats for group notices
-	//std::string timeStr = "["+LLTrans::getString("TimeWeek")+"], ["
-	//						+LLTrans::getString("TimeMth")+"] ["
-	//						+LLTrans::getString("TimeDay")+"] ["
-	//						+LLTrans::getString("TimeYear")+"] ["
-	//						+LLTrans::getString("TimeHour12")+"]:["
-	//						+LLTrans::getString("TimeMin")+"]:["
-	//						+LLTrans::getString("TimeSec")+"] ["
-	//						+LLTrans::getString("TimeAMPM")+"] ["
-	//						+LLTrans::getString("TimeTimezone")+"]";
-	std::string timeStr = LLTrans::getString("GroupNoticesToastDateString");
-	// </FS:Ansariel>
+	std::string timeStr = "["+LLTrans::getString("UTCTimeWeek")+"],["
+							+LLTrans::getString("UTCTimeDay")+"] ["
+							+LLTrans::getString("UTCTimeMth")+"] ["
+							+LLTrans::getString("UTCTimeYr")+"] ["
+							+LLTrans::getString("UTCTimeHr")+"]:["
+							+LLTrans::getString("UTCTimeMin")+"]:["
+							+LLTrans::getString("UTCTimeSec")+"] ["
+							+LLTrans::getString("UTCTimeTimezone")+"]";
 	const LLDate timeStamp = notification->getDate();
 	LLDate notice_date = timeStamp.notNull() ? timeStamp : payload["received_time"].asDate();
 	LLSD substitution;
@@ -169,10 +166,10 @@ void LLToastGroupNotifyPanel::close()
 	// The group notice dialog may be an inventory offer.
 	// If it has an inventory save button and that button is still enabled
 	// Then we need to send the inventory declined message
-	if(mInventoryOffer != NULL)
+	if(mInventoryOffer != nullptr)
 	{
 		mInventoryOffer->forceResponse(IOR_DECLINE);
-		mInventoryOffer = NULL;
+		mInventoryOffer = nullptr;
 	}
 
 	die();
@@ -187,7 +184,7 @@ void LLToastGroupNotifyPanel::onClickOk()
 
 void LLToastGroupNotifyPanel::onClickAttachment()
 {
-	if (mInventoryOffer != NULL) {
+	if (mInventoryOffer != nullptr) {
 		mInventoryOffer->forceResponse(IOR_ACCEPT);
 
 		LLTextBox * pAttachLink = getChild<LLTextBox> ("attachment");
@@ -204,7 +201,7 @@ void LLToastGroupNotifyPanel::onClickAttachment()
 			LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
 		}
 
-		mInventoryOffer = NULL;
+		mInventoryOffer = nullptr;
 	}
 }
 

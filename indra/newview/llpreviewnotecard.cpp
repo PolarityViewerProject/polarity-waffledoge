@@ -37,6 +37,9 @@
 #include "llviewerwindow.h"
 #include "llbutton.h"
 #include "llfloaterreg.h"
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0)
+#include "llfloatersearchreplace.h"
+// [/SL:KB]
 #include "llinventorydefines.h"
 #include "llinventorymodel.h"
 #include "lllineeditor.h"
@@ -56,7 +59,6 @@
 #include "llviewercontrol.h"		// gSavedSettings
 #include "llappviewer.h"		// app_abort_quit()
 #include "lllineeditor.h"
-#include "lluictrlfactory.h"
 #include "llviewerassetupload.h"
 
 ///----------------------------------------------------------------------------
@@ -141,6 +143,14 @@ BOOL LLPreviewNotecard::handleKeyHere(KEY key, MASK mask)
 		return TRUE;
 	}
 
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	if(('F' == key) && (MASK_CONTROL == (mask & MASK_CONTROL)))
+	{
+		LLFloaterSearchReplace::show(getEditor());
+		return TRUE;
+	}
+// [/SL:KB]
+
 	return LLPreview::handleKeyHere(key, mask);
 }
 
@@ -170,12 +180,19 @@ const LLInventoryItem* LLPreviewNotecard::getDragItem()
 	{
 		return editor->getDragItem();
 	}
-	return NULL;
+	return nullptr;
 }
+
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+LLTextEditor* LLPreviewNotecard::getEditor()
+{
+	return getChild<LLViewerTextEditor>("Notecard Editor");
+}
+// [/SL:KB]
 
 bool LLPreviewNotecard::hasEmbeddedInventory()
 {
-	LLViewerTextEditor* editor = NULL;
+	LLViewerTextEditor* editor = nullptr;
 	editor = getChild<LLViewerTextEditor>("Notecard Editor");
 	if (!editor) return false;
 	return editor->hasEmbeddedInventory();
@@ -240,7 +257,6 @@ void LLPreviewNotecard::loadAsset()
 				LLSD* user_data = nullptr;
 				if (mObjectUUID.notNull())
 				{
-					user_data = new LLSD();
 					LLViewerObject *objectp = gObjectList.findObject(mObjectUUID);
 					if (objectp && objectp->getRegion())
 					{
@@ -255,14 +271,14 @@ void LLPreviewNotecard::loadAsset()
 						editor->makePristine();
 						editor->setEnabled(FALSE);
 						mAssetStatus = PREVIEW_ASSET_LOADED;
-						delete user_data;
 						return;
 					}
+					user_data = new LLSD();
 					user_data->with("taskid", mObjectUUID).with("itemid", mItemUUID);
 				}
 				else
 				{
-				    user_data = new LLSD(mItemUUID);
+				    user_data =  new LLSD(mItemUUID);
 				}
 
 				gAssetStorage->getInvItemAsset(source_sim,
@@ -351,10 +367,6 @@ void LLPreviewNotecard::onLoadComplete(LLVFS *vfs,
 
 			previewEditor->makePristine();
 			BOOL modifiable = preview->canModify(preview->mObjectID, preview->getItem());
-			// <FS:Ansariel> Force spell checker to check again after saving a NC,
-			//               or misspelled words wouldn't be shown
-			previewEditor->onSpellCheckSettingsChange();
-
 			preview->setEnabled(modifiable);
 			preview->mAssetStatus = PREVIEW_ASSET_LOADED;
 		}
@@ -442,8 +454,6 @@ void LLPreviewNotecard::finishInventoryUpload(LLUUID itemId, LLUUID newAssetId, 
         {
             nc->refreshFromInventory(newItemId);
         }
-        // <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-        nc->checkCloseAfterSave();
     }
 }
 
@@ -462,8 +472,6 @@ void LLPreviewNotecard::finishTaskUpload(LLUUID itemId, LLUUID newAssetId, LLUUI
         }
         nc->setAssetId(newAssetId);
         nc->refreshFromInventory();
-        // <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-        nc->checkCloseAfterSave();
     }
 }
 
@@ -507,14 +515,14 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 
                 if (mObjectUUID.isNull() && !agent_url.empty())
                 {
-                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
-                        boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _2, _3)));
+                    uploadInfo = boost::static_pointer_cast<LLResourceUploadInfo>(boost::make_shared<LLBufferedAssetUploadInfo>(mItemUUID, LLAssetType::AT_NOTECARD, buffer,
+                                                                                                                                boost::bind(&LLPreviewNotecard::finishInventoryUpload, _1, _2, _3)));
                     url = agent_url;
                 }
                 else if (!mObjectUUID.isNull() && !task_url.empty())
                 {
-                    uploadInfo = LLResourceUploadInfo::ptr_t(new LLBufferedAssetUploadInfo(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer, 
-                        boost::bind(&LLPreviewNotecard::finishTaskUpload, _1, _3, mObjectUUID)));
+                    uploadInfo = boost::static_pointer_cast<LLResourceUploadInfo>(boost::make_shared<LLBufferedAssetUploadInfo>(mObjectUUID, mItemUUID, LLAssetType::AT_NOTECARD, buffer,
+                                                                                                                                boost::bind(&LLPreviewNotecard::finishTaskUpload, _1, _3, mObjectUUID)));
                     url = task_url;
                 }
 
@@ -549,20 +557,17 @@ bool LLPreviewNotecard::saveIfNeeded(LLInventoryItem* copyitem)
 												&onSaveComplete,
 												(void*)info,
 												FALSE);
-				// <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-				//return true;
+				return true;
 			}
 			else // !gAssetStorage
 			{
 				LL_WARNS() << "Not connected to an asset storage system." << LL_ENDL;
 				return false;
 			}
-			// <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-			//if(mCloseAfterSave)
-			//{
-			//	closeFloater();
-			//}
-			// </FS:Ansariel>
+			if(mCloseAfterSave)
+			{
+				closeFloater();
+			}
 		}
 	}
 	return true;
@@ -601,7 +606,7 @@ void LLPreviewNotecard::onSaveComplete(const LLUUID& asset_uuid, void* user_data
 		else
 		{
 			LLViewerObject* object = gObjectList.findObject(info->mObjectUUID);
-			LLViewerInventoryItem* item = NULL;
+			LLViewerInventoryItem* item = nullptr;
 			if(object)
 			{
 				item = (LLViewerInventoryItem*)object->getInventoryObject(info->mItemUUID);
@@ -689,7 +694,7 @@ bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, cons
 	{
 		// move item from agent's inventory into trash
 		LLViewerInventoryItem* item = gInventory.getItem(mItemUUID);
-		if (item != NULL)
+		if (item != nullptr)
 		{
 			const LLUUID trash_id = gInventory.findCategoryUUIDForType(LLFolderType::FT_TRASH);
 			gInventory.changeItemParent(item, trash_id, FALSE);
@@ -702,7 +707,7 @@ bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, cons
 		if(object)
 		{
 			LLViewerInventoryItem* item = dynamic_cast<LLViewerInventoryItem*>(object->getInventoryObject(mItemUUID));
-			if (item != NULL)
+			if (item != nullptr)
 			{
 				object->removeInventory(mItemUUID);
 			}
@@ -714,15 +719,5 @@ bool LLPreviewNotecard::handleConfirmDeleteDialog(const LLSD& notification, cons
 	closeFloater();
 	return false;
 }
-
-// <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-void LLPreviewNotecard::checkCloseAfterSave()
-{
-	if (mCloseAfterSave)
-	{
-		closeFloater();
-	}
-}
-// </FS:Ansariel>
 
 // EOF

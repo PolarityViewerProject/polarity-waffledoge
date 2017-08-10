@@ -41,17 +41,11 @@
 #include "llavatariconctrl.h"
 #include "lloutputmonitorctrl.h"
 #include "lltooldraganddrop.h"
-
 #include "llviewercontrol.h" // <alchemy/>
 
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-#include "rlvcommon.h"
-// [/RLVa:KB]
 
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
@@ -96,10 +90,7 @@ LLAvatarListItem::LLAvatarListItem(bool not_from_ui_factory/* = true*/)
 	mHovered(false),
 	mShowCompleteName(false),
 	mGreyOutUsername(""),
-	mAvatarNameCacheConnection(),
-	// [RLVa:KB] - Checked: RLVa-1.2.0
-	mRlvCheckShowNames(false)
-	// [/RLVa:KB]
+	mAvatarNameCacheConnection()
 {
 	if (not_from_ui_factory)
 	{
@@ -204,14 +195,9 @@ S32 LLAvatarListItem::notifyParent(const LLSD& info)
 
 void LLAvatarListItem::onMouseEnter(S32 x, S32 y, MASK mask)
 {
-	getChildView("hovered_icon")->setVisible( true);
-//	mInfoBtn->setVisible(mShowInfoBtn);
-//	mProfileBtn->setVisible(mShowProfileBtn);
-// [RLVa:KB] - Checked: RLVa-1.2.0
-	bool fRlvCanShowName = (!mRlvCheckShowNames) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mAvatarId));
-	mInfoBtn->setVisible( (mShowInfoBtn) && (fRlvCanShowName) );
-	mProfileBtn->setVisible( (mShowProfileBtn) && (fRlvCanShowName) );
-// [/RLVa:KB]
+	mIconHovered->setVisible( true);
+	mInfoBtn->setVisible(mShowInfoBtn);
+	mProfileBtn->setVisible(mShowProfileBtn);
 
 	mHovered = true;
 	LLPanel::onMouseEnter(x, y, mask);
@@ -411,18 +397,12 @@ void LLAvatarListItem::onProfileBtnClick()
 
 BOOL LLAvatarListItem::handleDoubleClick(S32 x, S32 y, MASK mask)
 {
-//	if(mInfoBtn->getRect().pointInRect(x, y))
-// [RVLa:KB] - Checked: RLVa-1.2.2
-	if ( (mInfoBtn->getVisible()) && (mInfoBtn->getEnabled()) && (mInfoBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mInfoBtn->getRect().pointInRect(x, y))
 	{
 		onInfoBtnClick();
 		return TRUE;
 	}
-//	if(mProfileBtn->getRect().pointInRect(x, y))
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	if ( (mProfileBtn->getVisible()) && (mProfileBtn->getEnabled()) && (mProfileBtn->getRect().pointInRect(x, y)) )
-// [/SL:KB]
+	if(mProfileBtn->getRect().pointInRect(x, y))
 	{
 		onProfileBtnClick();
 		return TRUE;
@@ -482,16 +462,8 @@ void LLAvatarListItem::onAvatarNameCache(const LLAvatarName& av_name)
 	    mGreyOutUsername = "[ " + av_name.getUserName(true) + " ]";
 	    LLStringUtil::toLower(mGreyOutUsername);
 	}
-//	setAvatarName(name_string);
-//	setAvatarToolTip(av_name.getUserName());
-// [RLVa:KB] - Checked: RLVa-1.2.2
-	bool fRlvCanShowName = (!mRlvCheckShowNames) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, mAvatarId));
-
-	setAvatarName( (fRlvCanShowName) ?  name_string : RlvStrings::getAnonym(av_name) );
-	setAvatarToolTip( (fRlvCanShowName) ? av_name.getUserName() : RlvStrings::getAnonym(av_name) );
-	// TODO-RLVa: bit of a hack putting this here. Maybe find a better way?
-	mAvatarIcon->setDrawTooltip(fRlvCanShowName);
-// [/RLVa:KB]
+	setAvatarName(name_string);
+	setAvatarToolTip(av_name.getUserName());
 
 	//requesting the list to resort
 	notifyParent(LLSD().with("sort", LLSD()));

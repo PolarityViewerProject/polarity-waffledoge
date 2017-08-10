@@ -28,11 +28,8 @@
 #define LL_LLPANELPICKS_H
 
 #include "llpanel.h"
-#include "v3dmath.h"
-#include "lluuid.h"
-#include "llavatarpropertiesprocessor.h"
 #include "llpanelavatar.h"
-#include "llregistry.h"
+#include "llclassifieditem.h"
 
 class LLAccordionCtrlTab;
 class LLPanelProfile;
@@ -50,10 +47,6 @@ class LLToggleableMenu;
 class LLPanelClassifiedInfo;
 class LLPanelClassifiedEdit;
 
-// *TODO
-// Panel Picks has been consolidated with Classifieds (EXT-2095), give LLPanelPicks
-// and corresponding files (cpp, h, xml) a new name. (new name is TBD at the moment)
-
 class LLPanelPicks 
 	: public LLPanelProfileTab
 {
@@ -63,20 +56,16 @@ public:
 
 	static void* create(void* data);
 
-	/*virtual*/ BOOL postBuild(void);
-
-	/*virtual*/ void onOpen(const LLSD& key);
-
-	/*virtual*/ void onClosePanel();
-
-	void processProperties(void* data, EAvatarProcessorType type);
-
-	void updateData();
+	BOOL postBuild() override;
+	void onOpen(const LLSD& key) override;
+	void onClosePanel() override;
+	void processProperties(void* data, EAvatarProcessorType type) override;
+	void updateData() override;
 
 	// returns the selected pick item
-	LLPickItem* getSelectedPickItem();
-	LLClassifiedItem* getSelectedClassifiedItem();
-	LLClassifiedItem* findClassifiedById(const LLUUID& classified_id);
+	LLPickItem* getSelectedPickItem() const;
+	LLClassifiedItem* getSelectedClassifiedItem() const;
+	LLClassifiedItem* findClassifiedById(const LLUUID& classified_id) const;
 
 	//*NOTE top down approch when panel toggling is done only by 
 	// parent panels failed to work (picks related code was in my profile panel)
@@ -86,7 +75,7 @@ public:
 	void createNewClassified();
 
 protected:
-	/*virtual*/void updateButtons();
+	void updateButtons() override;
 
 private:
 	void onClickDelete();
@@ -137,14 +126,14 @@ private:
 	virtual void onDoubleClickClassifiedItem(LLUICtrl* item);
 	virtual void onRightMouseUpItem(LLUICtrl* item, S32 x, S32 y, MASK mask);
 
-	LLPanelProfile* getProfilePanel();
+	LLPanelProfile* getProfilePanel() const;
 
 	void createPickInfoPanel();
 	void createPickEditPanel();
 	void createClassifiedInfoPanel();
 	void createClassifiedEditPanel(LLPanelClassifiedEdit** panel);
 
-	LLMenuGL* mPopupMenu;
+	LLHandle<LLView> mPopupMenuHandle;
 	LLPanelProfile* mProfilePanel;
 	LLPanelPickInfo* mPickPanel;
 	LLFlatListView* mPicksList;
@@ -152,11 +141,8 @@ private:
 	LLPanelPickInfo* mPanelPickInfo;
 	LLPanelClassifiedInfo* mPanelClassifiedInfo;
 	LLPanelPickEdit* mPanelPickEdit;
-	LLToggleableMenu* mPlusMenu;
+	LLHandle<LLToggleableMenu> mPlusMenuHandle;
 	LLUICtrl* mNoItemsLabel;
-
-	// <classified_id, edit_panel>
-	typedef std::map<LLUUID, LLPanelClassifiedEdit*> panel_classified_edit_map_t;
 
 	// This map is needed for newly created classifieds. The purpose of panel is to
 	// sit in this map and listen to LLPanelClassifiedEdit::processProperties callback.
@@ -169,146 +155,6 @@ private:
 	bool mNoPicks;
 	//true if classifieds list is empty after processing classifieds
 	bool mNoClassifieds;
-};
-
-class LLPickItem : public LLPanel, public LLAvatarPropertiesObserver
-{
-public:
-
-	LLPickItem();
-
-	static LLPickItem* create();
-
-	void init(LLPickData* pick_data);
-
-	void setPickName(const std::string& name);
-
-	void setPickDesc(const std::string& descr);
-
-	void setPickId(const LLUUID& id);
-
-	void setCreatorId(const LLUUID& id) {mCreatorID = id;};
-
-	void setSnapshotId(const LLUUID& id) {mSnapshotID = id;};
-
-	void setNeedData(bool need){mNeedData = need;};
-
-	const LLUUID& getPickId(); 
-
-	const std::string& getPickName();
-
-	const LLUUID& getCreatorId();
-
-	const LLUUID& getSnapshotId();
-
-	const LLVector3d& getPosGlobal();
-
-	const std::string getDescription();
-
-	const std::string& getSimName() { return mSimName; }
-
-	const std::string& getUserName() { return mUserName; }
-
-	const std::string& getOriginalName() { return mOriginalName; }
-
-	const std::string& getPickDesc() { return mPickDescription; }
-
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
-	void update();
-
-	~LLPickItem();
-
-	/*virtual*/ BOOL postBuild();
-
-	/** setting on/off background icon to indicate selected state */
-	/*virtual*/ void setValue(const LLSD& value);
-
-protected:
-
-	LLUUID mPickID;
-	LLUUID mCreatorID;
-	LLUUID mParcelID;
-	LLUUID mSnapshotID;
-	LLVector3d mPosGlobal;
-	bool mNeedData;
-
-	std::string mPickName;
-	std::string mUserName;
-	std::string mOriginalName;
-	std::string mPickDescription;
-	std::string mSimName;
-};
-
-class LLClassifiedItem : public LLPanel, public LLAvatarPropertiesObserver
-{
-public:
-
-	LLClassifiedItem(const LLUUID& avatar_id, const LLUUID& classified_id);
-	
-	virtual ~LLClassifiedItem();
-
-	/*virtual*/ void processProperties(void* data, EAvatarProcessorType type);
-
-	/*virtual*/ BOOL postBuild();
-
-	/*virtual*/ void setValue(const LLSD& value);
-
-	void fillIn(LLPanelClassifiedEdit* panel);
-
-	LLUUID getAvatarId() {return mAvatarId;}
-	
-	void setAvatarId(const LLUUID& avatar_id) {mAvatarId = avatar_id;}
-
-	LLUUID getClassifiedId() {return mClassifiedId;}
-
-	void setClassifiedId(const LLUUID& classified_id) {mClassifiedId = classified_id;}
-
-	void setPosGlobal(const LLVector3d& pos) { mPosGlobal = pos; }
-
-	const LLVector3d getPosGlobal() { return mPosGlobal; }
-
-	void setLocationText(const std::string location) { mLocationText = location; }
-
-	std::string getLocationText() { return mLocationText; }
-
-	void setClassifiedName (const std::string& name);
-
-	std::string getClassifiedName() { return getChild<LLUICtrl>("name")->getValue().asString(); }
-
-	void setDescription(const std::string& desc);
-
-	std::string getDescription() { return getChild<LLUICtrl>("description")->getValue().asString(); }
-
-	void setSnapshotId(const LLUUID& snapshot_id);
-
-	LLUUID getSnapshotId();
-
-	void setCategory(U32 cat) { mCategory = cat; }
-
-	U32 getCategory() { return mCategory; }
-
-	void setContentType(U32 ct) { mContentType = ct; }
-
-	U32 getContentType() { return mContentType; }
-
-	void setAutoRenew(U32 renew) { mAutoRenew = renew; }
-
-	bool getAutoRenew() { return mAutoRenew; }
-
-	void setPriceForListing(S32 price) { mPriceForListing = price; }
-
-	S32 getPriceForListing() { return mPriceForListing; }
-
-private:
-	LLUUID mAvatarId;
-	LLUUID mClassifiedId;
-	LLVector3d mPosGlobal;
-	std::string mLocationText;
-	U32 mCategory;
-	U32 mContentType;
-	bool mAutoRenew;
-	S32 mPriceForListing;
 };
 
 #endif // LL_LLPANELPICKS_H

@@ -57,8 +57,9 @@ public:
         FILTERTYPE_MARKETPLACE_INACTIVE = 0x1 << 7,		// pass if folder is a marketplace inactive folder
         FILTERTYPE_MARKETPLACE_UNASSOCIATED = 0x1 << 8,	// pass if folder is a marketplace non associated (no market ID) folder
         FILTERTYPE_MARKETPLACE_LISTING_FOLDER = 0x1 << 9,	// pass iff folder is a listing folder
-        FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10 ,        // pass iff folder is not under the marketplace
-		FILTERTYPE_WORN = 0x1 << 11,	// <FS> search by wearable type
+        FILTERTYPE_NO_MARKETPLACE_ITEMS = 0x1 << 10,         // pass iff folder is not under the marketplace
+		FILTERTYPE_WORN = 0x1 << 11		// search by worn items
+
 	};
 
 	enum EFilterDateDirection
@@ -114,7 +115,8 @@ public:
 			Optional<U32>				types;
 			Optional<U64>				object_types,
 										wearable_types,
-										category_types;
+										category_types,
+										worn_items;
 			Optional<EFilterLink>		links;
 			Optional<LLUUID>			uuid;
 			Optional<DateRange>			date_range;
@@ -128,6 +130,7 @@ public:
 				object_types("object_types", 0xffffFFFFffffFFFFULL),
 				wearable_types("wearable_types", 0xffffFFFFffffFFFFULL),
 				category_types("category_types", 0xffffFFFFffffFFFFULL),
+				worn_items("worn_items", 0xffffFFFFffffFFFFULL),
 				links("links", FILTERLINK_INCLUDE_LINKS),
 				uuid("uuid"),
 				date_range("date_range"),
@@ -143,8 +146,9 @@ public:
 		U32 			mFilterTypes;
 		U64				mFilterObjectTypes,   // For _OBJECT
 						mFilterWearableTypes,
-						mFilterLinks,
-						mFilterCategoryTypes; // For _CATEGORY
+						mFilterCategoryTypes, // For _CATEGORY
+						mFilterWornItems;
+		EFilterLink		mFilterLinks;
 		LLUUID      	mFilterUUID; 		  // for UUID
 
 		time_t			mMinDate,
@@ -182,6 +186,7 @@ public:
 	U64 				getFilterObjectTypes() const;
 	U64					getFilterCategoryTypes() const;
 	U64					getFilterWearableTypes() const;
+	U64					getFilterWornItems() const;
 	bool 				isFilterObjectTypesWith(LLInventoryType::EType t) const;
 	void 				setFilterObjectTypes(U64 types);
 	void 				setFilterCategoryTypes(U64 types);
@@ -192,9 +197,9 @@ public:
 	void				setFilterMarketplaceInactiveFolders();
 	void				setFilterMarketplaceUnassociatedFolders();
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
-    void                setFilterNoMarketplaceFolder();      
-	void				removeFilterEmptySystemFolders(); // <FS:Ansariel> Optional hiding of empty system folders
+    void                setFilterNoMarketplaceFolder();
 	void				updateFilterTypes(U64 types, U64& current_types);
+	void				setFilterWornItems();
 
 	void 				setFilterSubString(const std::string& string);
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
@@ -220,27 +225,24 @@ public:
 	void				setDateSearchDirection(U32 direction);
 	U32					getDateSearchDirection() const;
 
-	void 				setFilterLinks(U64 filter_link);
-	U64					getFilterLinks() const;
+	void 				setFilterLinks(EFilterLink filter_link);
+	EFilterLink			getFilterLinks() const;
 
 	// sets params for Link-only search and backs up search settings for future restoration
 	void				setFindAllLinksMode(const std::string &search_name, const LLUUID& search_id);
 
-	void				setFilterWorn(BOOL sl);
-	BOOL				getFilterWorn() const { return mFilterOps.mFilterTypes & FILTERTYPE_WORN; }
-
 	// +-------------------------------------------------------------------+
 	// + Execution And Results
 	// +-------------------------------------------------------------------+
-	bool				check(const LLFolderViewModelItem* listener);
+	bool				check(const LLFolderViewModelItem* listener) override;
 	bool				check(const LLInventoryItem* item);
-	bool				checkFolder(const LLFolderViewModelItem* listener) const;
+	bool				checkFolder(const LLFolderViewModelItem* listener) const override;
 	bool				checkFolder(const LLUUID& folder_id) const;
 
-	bool				showAllResults() const;
+	bool				showAllResults() const override;
 
-	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const;
-	std::string::size_type getFilterStringSize() const;
+	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const override;
+	std::string::size_type getFilterStringSize() const override;
 	// <FS:Zi> Extended Inventory Search
 	void setFilterSubStringTarget(const std::string& targetName);
 	EFilterSubstringTarget getFilterSubStringTarget() const;
@@ -252,41 +254,41 @@ public:
 	void 				setShowFolderState( EFolderShow state);
 	EFolderShow 		getShowFolderState() const;
 
-	void 				setEmptyLookupMessage(const std::string& message);
-	std::string			getEmptyLookupMessage() const;
+	void 				setEmptyLookupMessage(const std::string& message) override;
+	std::string			getEmptyLookupMessage() const override;
 
 	// +-------------------------------------------------------------------+
 	// + Status
 	// +-------------------------------------------------------------------+
-	bool 				isActive() const;
-	bool 				isModified() const;
+	bool 				isActive() const override;
+	bool 				isModified() const override;
 	bool 				isSinceLogoff() const;
-	void 				clearModified();
-	const std::string& 	getName() const { return mName; }
-	const std::string& 	getFilterText();
+	void 				clearModified() override;
+	const std::string& 	getName() const override { return mName; }
+	const std::string& 	getFilterText() override;
 	//RN: this is public to allow system to externally force a global refilter
-	void 				setModified(EFilterModified behavior = FILTER_RESTART);
+	void 				setModified(EFilterModified behavior = FILTER_RESTART) override;
 
 	// +-------------------------------------------------------------------+
 	// + Time
 	// +-------------------------------------------------------------------+
-	void 				resetTime(S32 timeout);
-    bool                isTimedOut();
+	void 				resetTime(S32 timeout) override;
+    bool                isTimedOut() override;
     
 	// +-------------------------------------------------------------------+
 	// + Default
 	// +-------------------------------------------------------------------+
-	bool 				isDefault() const;
-	bool 				isNotDefault() const;
-	void 				markDefault();
-	void 				resetDefault();
+	bool 				isDefault() const override;
+	bool 				isNotDefault() const override;
+	void 				markDefault() override;
+	void 				resetDefault() override;
 
 	// +-------------------------------------------------------------------+
 	// + Generation
 	// +-------------------------------------------------------------------+
-	S32 				getCurrentGeneration() const;
-	S32 				getFirstSuccessGeneration() const;
-	S32 				getFirstRequiredGeneration() const;
+	S32 				getCurrentGeneration() const override;
+	S32 				getFirstSuccessGeneration() const override;
+	S32 				getFirstRequiredGeneration() const override;
 
 
 	// +-------------------------------------------------------------------+

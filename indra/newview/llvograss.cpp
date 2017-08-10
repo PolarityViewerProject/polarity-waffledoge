@@ -72,7 +72,7 @@ S32 LLVOGrass::sMaxGrassSpecies = 0;
 LLVOGrass::LLVOGrass(const LLUUID &id, const LLPCode pcode, LLViewerRegion *regionp)
 :	LLAlphaObject(id, pcode, regionp)
 {
-	mPatch               = NULL;
+	mPatch               = nullptr;
 	mLastPatchUpdateTime = 0;
 	mGrassVel.clearVec();
 	mGrassBend.clearVec();
@@ -137,6 +137,7 @@ void LLVOGrass::initClass()
 		}
 		F32 F32_val;
 		LLUUID id;
+		std::string name;
 
 		BOOL success = TRUE;
 
@@ -168,6 +169,10 @@ void LLVOGrass::initClass()
 		static LLStdStringHandle blade_sizey_string = LLXmlTree::addAttributeString("blade_size_y");
 		success &= grass_def->getFastAttributeF32(blade_sizey_string, F32_val);
 		newGrass->mBladeSizeY = F32_val;
+		
+		static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
+		grass_def->getFastAttributeString(name_string, name);
+		newGrass->mName = name;
 
 		if (sSpeciesTable.count(species))
 		{
@@ -184,9 +189,6 @@ void LLVOGrass::initClass()
 
 		if (!success)
 		{
-			std::string name;
-			static LLStdStringHandle name_string = LLXmlTree::addAttributeString("name");
-			grass_def->getFastAttributeString(name_string, name);
 			LL_WARNS() << "Incomplete definition of grass " << name << LL_ENDL;
 		}
 	}
@@ -212,7 +214,7 @@ void LLVOGrass::initClass()
 
 	for (S32 i = 0; i < GRASS_MAX_BLADES; ++i)
 	{
-		if (1)   //(i%2 == 0)			Uncomment for X blading
+		if (/* DISABLES CODE */ (true))   //(i%2 == 0)			Uncomment for X blading
 		{
 			F32 u = sqrt(-2.0f * log(ll_frand()));
 			F32 v = 2.0f * F_PI * ll_frand();
@@ -452,7 +454,7 @@ void LLVOGrass::plantBlades()
 	
 	if (mDrawable->getNumFaces() < 1)
 	{
-		mDrawable->setNumFaces(1, NULL, getTEImage(0));
+		mDrawable->setNumFaces(1, nullptr, getTEImage(0));
 	}
 		
 	LLFace *face = mDrawable->getFace(0);
@@ -461,7 +463,7 @@ void LLVOGrass::plantBlades()
 		face->setTexture(getTEImage(0));
 		face->setState(LLFace::GLOBAL);
 		face->setSize(mNumBlades * 8, mNumBlades * 12);
-		face->setVertexBuffer(NULL);
+		face->setVertexBuffer(nullptr);
 		face->setTEOffset(0);
 		face->mCenterLocal = mPosition + mRegionp->getOriginAgent();
 	}
@@ -898,18 +900,18 @@ BOOL LLVOGrass::lineSegmentIntersect(const LLVector4a& start, const LLVector4a& 
 					getTEImage(0)->getMask(hit_tc))
 				{
 					closest_t = t;
-					if (intersection != NULL)
+					if (intersection != nullptr)
 					{
 						dir.mul(closest_t);
 						intersection->setAdd(start, dir);
 					}
 
-					if (tex_coord != NULL)
+					if (tex_coord != nullptr)
 					{
 						*tex_coord = hit_tc;
 					}
 
-					if (normal != NULL)
+					if (normal != nullptr)
 					{
 						normal->load3(normal1.mV);
 					}

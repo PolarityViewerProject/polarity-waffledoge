@@ -44,9 +44,8 @@ const LLStyle::Params &LLStyleMap::lookupAgent(const LLUUID &source)
 		LLStyle::Params style_params;
 		if (source != LLUUID::null)
 		{
-			static const std::string color_str = "HTMLLinkColor";
-			style_params.color.control = color_str;
-			style_params.readonly_color.control = color_str;
+			style_params.color.control = "HTMLLinkColor";
+			style_params.readonly_color.control = "HTMLLinkColor";
 			style_params.link_href = LLSLURL("agent", source, "inspect").getSLURLString();
 		}
 		mMap[source] = style_params;
@@ -65,9 +64,8 @@ const LLStyle::Params &LLStyleMap::lookup(const LLUUID& id, const std::string& l
 
 		if (id != LLUUID::null && !link.empty())
 		{
-			static const std::string color_str = "HTMLLinkColor";
-			style_params.color.control = color_str;
-			style_params.readonly_color.control = color_str;
+			style_params.color.control = "HTMLLinkColor";
+			style_params.readonly_color.control = "HTMLLinkColor";
 			style_params.link_href = link;
 		}
 		else

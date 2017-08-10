@@ -36,7 +36,6 @@
 #include "llinventoryfilter.h"
 #include "llinventorymodel.h"
 #include "llscrollcontainer.h"
-#include "lluictrlfactory.h"
 #include <set>
 
 class LLInvFVBridge;
@@ -148,26 +147,26 @@ public:
 	LLFolderViewModelInventory& getRootViewModel() { return mInventoryViewModel; }
 
 	// LLView methods
-	void draw();
-	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask );
-	BOOL handleHover(S32 x, S32 y, MASK mask);
+	void draw() override;
+	/*virtual*/ BOOL handleKeyHere( KEY key, MASK mask ) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
 	BOOL handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 								   EDragAndDropType cargo_type,
 								   void* cargo_data,
 								   EAcceptance* accept,
-								   std::string& tooltip_msg);
+								   std::string& tooltip_msg) override;
 	// LLUICtrl methods
-	 /*virtual*/ void onFocusLost();
-	 /*virtual*/ void onFocusReceived();
+	 /*virtual*/ void onFocusLost() override;
+	 /*virtual*/ void onFocusReceived() override;
 
 	// LLBadgeHolder methods
-	bool addBadge(LLBadge * badge);
+	bool addBadge(LLBadge * badge) override;
 
 	// Call this method to set the selection.
 	void openAllFolders();
 	void closeAllFolders();
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
-	void setSelectCallback(const boost::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
+	void setSelectCallback(const std::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 	void clearSelection();
 	bool isSelectionRemovable();
 	LLInventoryFilter& getFilter();
@@ -187,7 +186,7 @@ public:
 	void setHoursAgo(U32 hours);
 	void setDateSearchDirection(U32 direction);
 	BOOL getSinceLogoff();
-	void setFilterLinks(U64 filter_links);
+	void setFilterLinks(LLInventoryFilter::EFilterLink filter_links);
 	U64 getFilterLinks();		// ## Zi: Filter Links Menu
 
 	void setShowFolderState(LLInventoryFilter::EFolderShow show);
@@ -208,6 +207,7 @@ public:
 	void doCreate(const LLSD& userdata);
 	bool beginIMSession();
 	void fileUploadLocation(const LLSD& userdata);
+	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
 
@@ -241,6 +241,8 @@ public:
     
     // Clean up stuff when the folder root gets deleted
     void clearFolderRoot();
+
+    void callbackPurgeSelectedItems(const LLSD& notification, const LLSD& response);
 
 protected:
 	void openStartFolderOrMyInventory(); // open the first level of inventory
@@ -302,7 +304,7 @@ protected:
 
 	// Specific inventory colors
 	static bool                 sColorSetInitialized;
-	static LLUIColor			sFolderColor;
+	static LLUIColor			sDefaultColor;
 	static LLUIColor			sDefaultHighlightColor;
 	static LLUIColor			sLibraryColor;
 	static LLUIColor			sItemColor; // <polarity>
@@ -317,9 +319,6 @@ protected:
 private:
 	bool				mBuildDefaultHierarchy; // default inventory hierarchy should be created in postBuild()
 	bool				mViewsInitialized; // Views have been generated
-
-public:
-	void setWorn(BOOL sl);
 };
 
 #endif // LL_LLINVENTORYPANEL_H

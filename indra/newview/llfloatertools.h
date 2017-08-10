@@ -56,7 +56,7 @@ class LLFloaterTools
 : public LLFloater
 {
 public:
-	virtual	BOOL	postBuild();
+	BOOL	postBuild() override;
 	static	void*	createPanelPermissions(void*	vdata);
 	static	void*	createPanelObject(void*	vdata);
 	static	void*	createPanelVolume(void*	vdata);
@@ -67,11 +67,11 @@ public:
 	LLFloaterTools(const LLSD& key);
 	virtual ~LLFloaterTools();
 
-	/*virtual*/ void onOpen(const LLSD& key);
-	/*virtual*/ BOOL canClose();
-	/*virtual*/ void onClose(bool app_quitting);
-	/*virtual*/ void draw();
-	/*virtual*/ void onFocusReceived();
+	/*virtual*/ void onOpen(const LLSD& key) override;
+	/*virtual*/ BOOL canClose() override;
+	/*virtual*/ void onClose(bool app_quitting) override;
+	/*virtual*/ void draw() override;
+	/*virtual*/ void onFocusReceived() override;
 
 	// call this once per frame to handle visibility, rect location,
 	// button highlights, etc.
@@ -112,7 +112,7 @@ public:
 	LLPanelFace* getPanelFace() { return mPanelFace; }
 
 private:
-	void refresh();
+	void refresh() override;
 	void refreshMedia();
 	void getMediaState();
 	void updateMediaSettings();
@@ -120,8 +120,11 @@ private:
 	static bool multipleFacesSelectedConfirm(const LLSD& notification, const LLSD& response);
 	static void setObjectType( LLPCode pcode );
 	void onClickGridOptions();
+	void buildTreeGrassCombo();
+	void onSelectTreeGrassCombo();
 
 public:
+	LLCheckBoxCtrl*  mAlchEditRootAxis;
 	LLButton		*mBtnFocus;
 	LLButton		*mBtnMove;
 	LLButton		*mBtnEdit;
@@ -132,6 +135,7 @@ public:
 
 	// Focus buttons
 	LLRadioGroup*	mRadioGroupFocus;
+	LLSlider*		mZoomSlider;
 
 	// Move buttons
 	LLRadioGroup*	mRadioGroupMove;
@@ -149,10 +153,6 @@ public:
 	LLCheckBoxCtrl*	mCheckStretchUniform;
 	LLCheckBoxCtrl*	mCheckStretchTexture;
 
-	// !HACK! Replacement of mCheckStretchUniform label because LLCheckBoxCtrl
-	//  doesn't support word_wrap of its label. Need to fix truncation bug EXT-6658
-	LLTextBox*		mCheckStretchUniformLabel;
-
 	LLButton	*mBtnRotateLeft;
 	LLButton	*mBtnRotateReset;
 	LLButton	*mBtnRotateRight;
@@ -160,6 +160,7 @@ public:
 	LLButton	*mBtnDelete;
 	LLButton	*mBtnDuplicate;
 	LLButton	*mBtnDuplicateInPlace;
+	LLComboBox*		mTreeGrassCombo;
 
 	// Create buttons
 	LLCheckBoxCtrl	*mCheckSticky;
@@ -171,6 +172,9 @@ public:
 	LLRadioGroup*	mRadioGroupLand;
 	LLSlider		*mSliderDozerSize;
 	LLSlider		*mSliderDozerForce;
+	LLTextBox*		mTextDozer;
+	LLTextBox*		mTextDozerSize;
+	LLTextBox*		mTextDozerStrength;
 
 	LLButton		*mBtnApplyToSelection;
 
@@ -184,6 +188,9 @@ public:
 	LLPanelFace				*mPanelFace;
 	LLPanelLandInfo			*mPanelLandInfo;
 
+	LLTextBox*				mTextRemainingCapacity;
+	LLTextBox*				mTextSelectionCount;
+	LLTextBox*				mTextSelectionEmpty;
 	LLViewBorder*			mCostTextBorder;
 
 	LLTabContainer*			mTabLand;

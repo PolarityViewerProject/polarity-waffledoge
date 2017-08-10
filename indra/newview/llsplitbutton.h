@@ -27,14 +27,12 @@
 // A control that displays the name of the chosen item, which when clicked
 // shows a scrolling box of choices.
 
+#ifndef LL_LLSPLITBUTTON_H
+#define LL_LLSPLITBUTTON_H
 
 #include "llbutton.h"
 #include "llpanel.h"
 #include "lluictrl.h"
-
-
-#ifndef LL_LLSPLITBUTTON_H
-#define LL_LLSPLITBUTTON_H
 
 class LLSplitButton
 	:	public LLUICtrl
@@ -70,9 +68,9 @@ public:
 	virtual ~LLSplitButton() {};
 
 	//Overridden
-	virtual void	onFocusLost();
-	virtual void	setFocus(BOOL b);
-	virtual void	setEnabled(BOOL enabled);
+	void	onFocusLost() override;
+	void	setFocus(BOOL b) override;
+	void	setEnabled(BOOL enabled) override;
 
 	//Callbacks
 	void	onArrowBtnDown();
@@ -80,7 +78,7 @@ public:
 	void	onItemSelected(LLUICtrl* ctrl);
 	void	setSelectionCallback(commit_callback_t cb) { mSelectionCallback = cb; }
 
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
 
 	virtual void	showButtons();
 	virtual void	hideButtons();

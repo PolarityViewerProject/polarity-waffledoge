@@ -29,11 +29,13 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llappviewer.h"
+#include "llchatbar.h"
 #include "llfloaterreg.h"
 #include "llviewerkeyboard.h"
 #include "llmath.h"
 #include "llagent.h"
 #include "llagentcamera.h"
+#include "llfloaterimcontainer.h"
 #include "llfloaterimnearbychat.h"
 #include "llviewercontrol.h"
 #include "llfocusmgr.h"
@@ -44,9 +46,6 @@
 #include "llvoavatarself.h"
 #include "llfloatercamera.h"
 #include "llinitparam.h"
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 //
 // Constants
@@ -60,7 +59,7 @@ const S32 NUDGE_FRAMES = 2;
 const F32 ORBIT_NUDGE_RATE = 0.05f;  // fraction of normal speed
 
 struct LLKeyboardActionRegistry 
-:	public LLRegistrySingleton<std::string, boost::function<void (EKeystate keystate)>, LLKeyboardActionRegistry>
+:	public LLRegistrySingleton<std::string, std::function<void (EKeystate keystate)>, LLKeyboardActionRegistry>
 {
 	LLSINGLETON_EMPTY_CTOR(LLKeyboardActionRegistry);
 };
@@ -70,16 +69,14 @@ LLViewerKeyboard gViewerKeyboard;
 void agent_jump( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
+	static LLCachedControl<bool> sAutomaticFly(gSavedSettings, "PVMovement_AutomaticFly");
 	F32 time = gKeyboard->getCurKeyElapsedTime();
 	S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 
 	if( time < FLY_TIME 
 		|| frame_count <= FLY_FRAMES 
 		|| gAgent.upGrabbed()
-		// <polarity> Ditch AutomaticFly because it's not granular enough
-		// || !gSavedSettings.getBOOL("AutomaticFly"))
-		|| !gSavedSettings.getBOOL("PVMovement_AutomaticFly"))
-		// </polarity>
+		|| !sAutomaticFly())
 	{
 		gAgent.moveUp(1);
 	}
@@ -90,26 +87,36 @@ void agent_jump( EKeystate s )
 	}
 }
 
+void agent_toggle_down( EKeystate s )
+{
+	if( KEYSTATE_UP == s ) return;
+	
+	static LLCachedControl<bool> sCrouchToggle(gSavedSettings, "AlchemyCrouchToggle");
+	if (KEYSTATE_DOWN == s
+		&& !gAgent.getFlying()
+		&& sCrouchToggle())
+	{
+		gAgent.toggleCrouch();
+	}
+	gAgent.moveUp(-1);
+}
+
 void agent_push_down( EKeystate s )
 {
-	if( KEYSTATE_UP == s  ) return;
+	if( KEYSTATE_UP == s ) return;
 	gAgent.moveUp(-1);
 }
 
 static void agent_check_temporary_run(LLAgent::EDoubleTapRunMode mode)
 {
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	if ( (gAgent.mDoubleTapRunMode == mode) && (gAgent.getTempRun()) )
-		gAgent.clearTempRun();
-// [/RLVa:KB]
-//	if (gAgent.mDoubleTapRunMode == mode &&
-//		gAgent.getRunning() &&
-//		!gAgent.getAlwaysRun())
-//	{
-//		// Turn off temporary running.
-//		gAgent.clearRunning();
-//		gAgent.sendWalkRun(gAgent.getRunning());
-//	}
+	if (gAgent.mDoubleTapRunMode == mode &&
+		gAgent.getRunning() &&
+		!gAgent.getAlwaysRun())
+	{
+		// Turn off temporary running.
+		gAgent.clearRunning();
+		gAgent.sendWalkRun(gAgent.getRunning());
+	}
 }
 
 static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode mode)
@@ -129,11 +136,8 @@ static void agent_handle_doubletap_run(EKeystate s, LLAgent::EDoubleTapRunMode m
 		{
 			// Same walk-key was pushed again quickly; this is a
 			// double-tap so engage temporary running.
-//			gAgent.setRunning();
-//			gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-			gAgent.setTempRun();
-// [/RLVa:KB]
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
 		}
 
 		// Pressing any walk-key resets the double-tap timer
@@ -590,7 +594,16 @@ void start_chat( EKeystate s )
     }
     
 	// start chat
-	LLFloaterIMNearbyChat::startChat(NULL);
+	static LLCachedControl<U32> sChatInWindow(gSavedSettings, "NearbyChatInput", 0);
+	if (sChatInWindow
+		|| (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->isChatVisible())
+	{
+		LLFloaterIMNearbyChat::startChat(nullptr);
+	}
+	else
+	{
+		LLChatBar::startChat(nullptr);
+	}
 }
 
 void start_gesture( EKeystate s )
@@ -599,22 +612,39 @@ void start_gesture( EKeystate s )
 	if (KEYSTATE_UP == s &&
 		! (focus_ctrlp && focus_ctrlp->acceptsTextInput()))
 	{
- 		if ((LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->getCurrentChat().empty())
- 		{
- 			// No existing chat in chat editor, insert '/'
- 			LLFloaterIMNearbyChat::startChat("/");
- 		}
- 		else
- 		{
- 			// Don't overwrite existing text in chat editor
- 			LLFloaterIMNearbyChat::startChat(NULL);
- 		}
+		static LLCachedControl<U32> sChatInWindow(gSavedSettings, "NearbyChatInput", 0);
+		if (sChatInWindow
+			|| (LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->isChatVisible())
+		{
+			if ((LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->getCurrentChat().empty())
+			{
+				// No existing chat in chat editor, insert '/'
+				LLFloaterIMNearbyChat::startChat("/");
+			}
+			else
+			{
+				// Don't overwrite existing text in chat editor
+				LLFloaterIMNearbyChat::startChat(nullptr);
+			}
+		}
+		else
+		{
+			if ((LLFloaterReg::getTypedInstance<LLChatBar>("chatbar"))->getCurrentChat().empty())
+			{
+				LLChatBar::startChat("/");
+			}
+			else
+			{
+				LLChatBar::startChat(nullptr);
+			}
+		}
 	}
 }
 
 #define REGISTER_KEYBOARD_ACTION(KEY, ACTION) LLREGISTER_STATIC(LLKeyboardActionRegistry, KEY, ACTION);
 REGISTER_KEYBOARD_ACTION("jump", agent_jump);
 REGISTER_KEYBOARD_ACTION("push_down", agent_push_down);
+REGISTER_KEYBOARD_ACTION("toggle_down", agent_toggle_down);
 REGISTER_KEYBOARD_ACTION("push_forward", agent_push_forward);
 REGISTER_KEYBOARD_ACTION("push_backward", agent_push_backward);
 REGISTER_KEYBOARD_ACTION("look_up", agent_look_up);
@@ -753,8 +783,8 @@ BOOL LLViewerKeyboard::handleKeyUp(KEY translated_key, MASK translated_mask)
 BOOL LLViewerKeyboard::bindKey(const S32 mode, const KEY key, const MASK mask, const std::string& function_name)
 {
 	S32 index;
-	typedef boost::function<void(EKeystate)> function_t;
-	function_t function = NULL;
+	typedef std::function<void(EKeystate)> function_t;
+	function_t function;
 
 	// Allow remapping of F2-F12
 	if (function_name[0] == 'F')

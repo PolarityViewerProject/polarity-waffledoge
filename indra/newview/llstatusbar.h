@@ -41,9 +41,12 @@ class LLUICtrl;
 class LLUUID;
 class LLFrameTimer;
 class LLStatGraph;
+class ALPanelQuickSettingsPulldown;
+class LLPanelAOPulldown;
 class LLPanelVolumePulldown;
+class LLPanelAvatarComplexityPulldown;
 class LLPanelNearByMedia;
-class OSPanelQuickSettingsPulldown;
+class LLIconCtrl;
 
 class LLStatusBar
 :	public LLPanel
@@ -52,10 +55,10 @@ public:
 	LLStatusBar(const LLRect& rect );
 	/*virtual*/ ~LLStatusBar();
 	
-	/*virtual*/ void draw();
+	/*virtual*/ void draw() override;
 
-	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL postBuild() override;
 
 	// MANIPULATORS
 	void		setBalance(S32 balance);
@@ -66,12 +69,14 @@ public:
 	static void sendMoneyBalanceRequest();
 
 	void		setHealth(S32 percent);
+	void		setAvComplexity(S32 complexity, F32 muted_pct);
 
-	void setLandCredit(S32 credit);
-	void setLandCommitted(S32 committed);
-	void		refresh();
-	void setVisibleForMouselook(bool visible);
-		// some elements should hide in mouselook
+	void		setLandCredit(S32 credit);
+	void		setLandCommitted(S32 committed);
+
+	void		refresh() override;
+	void		setVisibleForMouselook(bool visible);
+	// some elements should hide in mouselook
 
 	// ACCESSORS
 	S32			getBalance() const;
@@ -82,19 +87,21 @@ public:
 	S32 getSquareMetersCommitted() const;
 	S32 getSquareMetersLeft() const;
 
-	LLPanelNearByMedia* getNearbyMediaPanel() { return mPanelNearByMedia; }
+	LLPanelNearByMedia* getNearbyMediaPanel() const { return mPanelNearByMedia; }
 
 	void showBalance(bool show); // <polarity> PLVR-7 Hide currency balance in snapshots
 private:
-	
-	void onClickBuyCurrency();
+	void onClickBuyCurrency() const;
 	void onVolumeChanged(const LLSD& newvalue);
 
 	void onMouseEnterQuickSettings();
+	void onMouseEnterAO();
 	void onMouseEnterVolume();
-	void onMouseEnterNearbyMedia() const;
-	static void onClickScreen(S32 x, S32 y);
+	void onMouseEnterAvatarComplexity();
+	void onMouseEnterNearbyMedia();
 
+	static void onClickAOBtn(void* data);
+	static void onClickVolume(void* data);
 	static void onClickMediaToggle(void* data);
 
 	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
@@ -106,20 +113,27 @@ private:
 
 	static void onClickBalance(void* data);
 
-private:
+	void onAOStateChanged();
+
 	void updateNetstatVisibility(const LLSD& data);
 	LLTextBox	*mTextTime;
 
-	LLTextBox	*mStatusBarFPSCounter; // <polarity/>
-private:
+	LLTextBox	*mTextFPS; // <polarity/>
+
 	U32			mRefreshRate;
+	LLView		*mBtnStats;
+
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
 
-	LLView		*mBtnStats;
+	LLView		*mPanelPopupHolder;
 	LLButton	*mBtnQuickSettings;
+	LLButton	*mBtnAO;
 	LLButton	*mBtnVolume;
 	LLTextBox	*mBoxBalance;
+	LLButton	*mBtnBuyL;
+	LLIconCtrl	*mAvComplexity;
+	LLUICtrl	*mPanelFlycam;
 	LLButton	*mMediaToggle;
 	LLButton	*mBandwidthButton; // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 	LLView		*mScriptOut;
@@ -131,9 +145,15 @@ private:
 	S32				mSquareMetersCommitted;
 	LLFrameTimer*	mBalanceTimer;
 	LLFrameTimer*	mHealthTimer;
-	OSPanelQuickSettingsPulldown* mPanelQuickSettingsPulldown;
+	ALPanelQuickSettingsPulldown* mPanelQuickSettingsPulldown;
+	LLPanelAOPulldown* mPanelAOPulldown;
 	LLPanelVolumePulldown* mPanelVolumePulldown;
+	LLPanelAvatarComplexityPulldown* mPanelAvatarComplexityPulldown;
 	LLPanelNearByMedia*	mPanelNearByMedia;
+
+	LLPointer<LLUIImage> mImgAvComplex;
+	LLPointer<LLUIImage> mImgAvComplexWarn;
+	LLPointer<LLUIImage> mImgAvComplexHeavy;
 };
 
 // *HACK: Status bar owns your cached money balance. JC

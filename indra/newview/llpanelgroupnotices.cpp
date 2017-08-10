@@ -58,8 +58,6 @@
 #include "llnotificationsutil.h"
 #include "llgiveinventory.h"
 
-#include "llnotificationlistitem.h"
-
 static LLPanelInjector<LLPanelGroupNotices> t_panel_group_notices("panel_group_notices");
 
 
@@ -193,6 +191,25 @@ BOOL LLGroupDropTarget::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 //-----------------------------------------------------------------------------
 // LLPanelGroupNotices
 //-----------------------------------------------------------------------------
+std::string build_notice_date(const U32& the_time)
+{
+	// ISO 8601 date format
+
+	time_t t = (time_t)the_time;
+	
+	if (!t)
+	{
+		time(&t);
+	}
+	
+	std::string dateStr = "["+LLTrans::getString("LTimeMthNum")+"]/["
+								+LLTrans::getString("LTimeDay")+"]/["
+								+LLTrans::getString("LTimeYear")+"]";
+	LLSD substitution;
+	substitution["datetime"] = (S32) t;
+	LLStringUtil::format (dateStr, substitution);
+	return dateStr;
+}
 
 LLPanelGroupNotices::LLPanelGroupNotices() :
 	LLPanelGroupTab(),
@@ -229,14 +246,14 @@ BOOL LLPanelGroupNotices::postBuild()
 
 	mNoticesList = getChild<LLScrollListCtrl>("notice_list",recurse);
 	mNoticesList->setCommitOnSelectionChange(TRUE);
-	mNoticesList->setCommitCallback(onSelectNotice, this);
+	mNoticesList->setCommitCallback(boost::bind(&LLPanelGroupNotices::onSelectNotice, this));
 
 	mBtnNewMessage = getChild<LLButton>("create_new_notice",recurse);
-	mBtnNewMessage->setClickedCallback(onClickNewMessage, this);
+	mBtnNewMessage->setCommitCallback(boost::bind(&LLPanelGroupNotices::onClickNewMessage, this));
 	mBtnNewMessage->setEnabled(gAgent.hasPowerInGroup(mGroupID, GP_NOTICES_SEND));
 
 	mBtnGetPastNotices = getChild<LLButton>("refresh_notices",recurse);
-	mBtnGetPastNotices->setClickedCallback(onClickRefreshNotices, this);
+	mBtnGetPastNotices->setClickedCallback(boost::bind(&LLPanelGroupNotices::onClickRefreshNotices, this));
 
 	// Create
 	mCreateSubject = getChild<LLLineEditor>("create_subject",recurse);
@@ -246,15 +263,11 @@ BOOL LLPanelGroupNotices::postBuild()
 	mCreateInventoryName->setTabStop(FALSE);
 	mCreateInventoryName->setEnabled(FALSE);
 
-	// <FS:Ansariel> Doesn't exist as of 2015-11-27
-	//mCreateInventoryIcon = getChild<LLIconCtrl>("create_inv_icon",recurse);
-	//mCreateInventoryIcon->setVisible(FALSE);
-
 	mBtnSendMessage = getChild<LLButton>("send_notice",recurse);
-	mBtnSendMessage->setClickedCallback(onClickSendMessage, this);
+	mBtnSendMessage->setClickedCallback(boost::bind(&LLPanelGroupNotices::onClickSendMessage, this));
 
 	mBtnRemoveAttachment = getChild<LLButton>("remove_attachment",recurse);
-	mBtnRemoveAttachment->setClickedCallback(onClickRemoveAttachment, this);
+	mBtnRemoveAttachment->setClickedCallback(boost::bind(&LLPanelGroupNotices::onClickRemoveAttachment, this));
 	mBtnRemoveAttachment->setEnabled(FALSE);
 
 	// View
@@ -265,12 +278,8 @@ BOOL LLPanelGroupNotices::postBuild()
 	mViewInventoryName->setTabStop(FALSE);
 	mViewInventoryName->setEnabled(FALSE);
 
-	// <FS:Ansariel> Doesn't exist as of 2015-11-27
-	//mViewInventoryIcon = getChild<LLIconCtrl>("view_inv_icon",recurse);
-	//mViewInventoryIcon->setVisible(FALSE);
-
 	mBtnOpenAttachment = getChild<LLButton>("open_attachment",recurse);
-	mBtnOpenAttachment->setClickedCallback(onClickOpenAttachment, this);
+	mBtnOpenAttachment->setClickedCallback(boost::bind(&LLPanelGroupNotices::onClickOpenAttachment, this));
 
 	mNoNoticesStr = getString("no_notices_text");
 
@@ -312,22 +321,6 @@ void LLPanelGroupNotices::setItem(LLPointer<LLInventoryItem> inv_item)
 {
 	mInventoryItem = inv_item;
 
-	BOOL item_is_multi = FALSE;
-	if ( inv_item->getFlags() & LLInventoryItemFlags::II_FLAGS_OBJECT_HAS_MULTIPLE_ITEMS )
-	{
-		item_is_multi = TRUE;
-	};
-
-	//std::string icon_name = 
-		LLInventoryIcon::getIconName(inv_item->getType(),
-										inv_item->getInventoryType(),
-										inv_item->getFlags(),
-										item_is_multi );
-
-	// <FS:Ansariel> Doesn't exist as of 2015-11-27
-	//mCreateInventoryIcon->setValue(icon_name);
-	//mCreateInventoryIcon->setVisible(TRUE);
-
 	std::stringstream ss;
 	ss << "        " << mInventoryItem->getName();
 
@@ -340,7 +333,6 @@ void LLPanelGroupNotices::onClickRemoveAttachment(void* data)
 	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
 	self->mInventoryItem = NULL;
 	self->mCreateInventoryName->clear();
-	//self->mCreateInventoryIcon->setVisible(FALSE); // <FS:Ansariel> Doesn't exist as of 2015-11-27
 	self->mBtnRemoveAttachment->setEnabled(FALSE);
 }
 
@@ -376,8 +368,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	std::string subj = self->mCreateSubject->getText();
 	std::string name ;
 	LLAgentUI::buildFullname(name);
-	//U32 timestamp = 0;
-	LLDate timestamp = LLDate::now();
+	U32 timestamp = 0;
 
 	LLSD row;
 	row["id"] = id;
@@ -391,7 +382,7 @@ void LLPanelGroupNotices::onClickSendMessage(void* data)
 	row["columns"][2]["value"] = name;
 
 	row["columns"][3]["column"] = "date";
-	row["columns"][3]["value"] = LLNotificationListItem::buildNotificationDate(timestamp);
+	row["columns"][3]["value"] = build_notice_date(timestamp);
 
 	row["columns"][4]["column"] = "sort";
 	row["columns"][4]["value"] = llformat( "%u", timestamp);
@@ -494,8 +485,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 	LLUUID id;
 	std::string subj;
 	std::string name;
-	//U32 timestamp;
-	LLDate timestamp;
+	U32 timestamp;
 	BOOL has_attachment;
 	U8 asset_type;
 
@@ -531,9 +521,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		msg->getString("Data","FromName",name,i);
 		msg->getBOOL("Data","HasAttachment",has_attachment,i);
 		msg->getU8("Data","AssetType",asset_type,i);
-		U32 temp_stamp;
-		msg->getU32("Data","Timestamp", temp_stamp,i);
-		timestamp = (LLDate)temp_stamp; // Let's hope this works
+		msg->getU32("Data","Timestamp",timestamp,i);
 
 		// we only have the legacy name here, convert it to a username
 		name = LLCacheName::buildUsername(name);
@@ -558,7 +546,7 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 		row["columns"][2]["value"] = name;
 
 		row["columns"][3]["column"] = "date";
-		row["columns"][3]["value"] = LLNotificationListItem::buildNotificationDate(timestamp);
+		row["columns"][3]["value"] = build_notice_date(timestamp);
 
 		row["columns"][4]["column"] = "sort";
 		row["columns"][4]["value"] = llformat( "%u", timestamp);
@@ -570,12 +558,9 @@ void LLPanelGroupNotices::processNotices(LLMessageSystem* msg)
 	mNoticesList->updateSort();
 }
 
-void LLPanelGroupNotices::onSelectNotice(LLUICtrl* ctrl, void* data)
+void LLPanelGroupNotices::onSelectNotice()
 {
-	LLPanelGroupNotices* self = (LLPanelGroupNotices*)data;
-
-	if(!self) return;
-	LLScrollListItem* item = self->mNoticesList->getFirstSelected();
+	LLScrollListItem* item = mNoticesList->getFirstSelected();
 	if (!item) return;
 	
 	LLMessageSystem* msg = gMessageSystem;
@@ -612,14 +597,6 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	{
 		mInventoryOffer = inventory_offer;
 
-		//std::string icon_name = 
-			LLInventoryIcon::getIconName(mInventoryOffer->mType,
-												LLInventoryType::IT_TEXTURE);
-
-		// <FS:Ansariel> Doesn't exist as of 2015-11-27
-		//mViewInventoryIcon->setValue(icon_name);
-		//mViewInventoryIcon->setVisible(TRUE);
-
 		std::stringstream ss;
 		ss << "        " << inventory_name;
 
@@ -629,7 +606,6 @@ void LLPanelGroupNotices::showNotice(const std::string& subject,
 	else
 	{
 		mViewInventoryName->clear();
-		//mViewInventoryIcon->setVisible(FALSE); // <FS:Ansariel> Doesn't exist as of 2015-11-27
 		mBtnOpenAttachment->setEnabled(FALSE);
 	}
 }

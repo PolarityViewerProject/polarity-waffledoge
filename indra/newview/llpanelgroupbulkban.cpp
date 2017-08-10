@@ -48,11 +48,6 @@
 #include "lltextbox.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
-
-#include <boost/foreach.hpp>
-
 #include "roles_constants.h"
 
 LLPanelGroupBulkBan::LLPanelGroupBulkBan(const LLUUID& group_id) : LLPanelGroupBulk(group_id)
@@ -71,7 +66,7 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	if ( mImplementation->mBulkAgentList )
 	{
 		mImplementation->mBulkAgentList->setCommitOnSelectionChange(TRUE);
-		mImplementation->mBulkAgentList->setCommitCallback(LLPanelGroupBulkImpl::callbackSelect, mImplementation);
+		mImplementation->mBulkAgentList->setCommitCallback(boost::bind(&LLPanelGroupBulkImpl::callbackSelect, mImplementation));
 	}
 
 	LLButton* button = getChild<LLButton>("add_button", recurse);
@@ -79,14 +74,14 @@ BOOL LLPanelGroupBulkBan::postBuild()
 	{
 		// default to opening avatarpicker automatically
 		// (*impl::callbackClickAdd)((void*)this);
-		button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickAdd, this);
+		button->setCommitCallback(boost::bind(&LLPanelGroupBulkImpl::callbackClickAdd, this));
 	}
 
 	mImplementation->mRemoveButton = 
 		getChild<LLButton>("remove_button", recurse);
 	if ( mImplementation->mRemoveButton )
 	{
-		mImplementation->mRemoveButton->setClickedCallback(LLPanelGroupBulkImpl::callbackClickRemove, mImplementation);
+		mImplementation->mRemoveButton->setCommitCallback(boost::bind(&LLPanelGroupBulkImpl::callbackClickRemove, mImplementation));
 		mImplementation->mRemoveButton->setEnabled(FALSE);
 	}
 
@@ -94,14 +89,14 @@ BOOL LLPanelGroupBulkBan::postBuild()
 		getChild<LLButton>("ban_button", recurse);
 	if ( mImplementation->mOKButton )
 	{
-		mImplementation->mOKButton->setClickedCallback(LLPanelGroupBulkBan::callbackClickSubmit, this);
+		mImplementation->mOKButton->setCommitCallback(boost::bind(&LLPanelGroupBulkBan::callbackClickSubmit, this));
 		mImplementation->mOKButton->setEnabled(FALSE);
 	}
 
 	button = getChild<LLButton>("cancel_button", recurse);
 	if ( button )
 	{
-		button->setClickedCallback(LLPanelGroupBulkImpl::callbackClickCancel, mImplementation);
+		button->setCommitCallback(boost::bind(&LLPanelGroupBulkImpl::callbackClickCancel, mImplementation));
 	}
 
 	mImplementation->mTooManySelected = getString("ban_selection_too_large");
@@ -176,7 +171,7 @@ void LLPanelGroupBulkBan::submit()
 	}
 	if (group_datap)
 	{
-		BOOST_FOREACH(const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair, group_datap->mBanList)
+		for (const LLGroupMgrGroupData::ban_list_t::value_type& group_ban_pair : group_datap->mBanList)
 		{
 			const LLUUID& group_ban_agent_id = group_ban_pair.first;
 			std::vector<LLUUID>::iterator conflict = std::find(banned_agent_list.begin(), banned_agent_list.end(), group_ban_agent_id);

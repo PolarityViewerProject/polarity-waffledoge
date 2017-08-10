@@ -37,7 +37,7 @@
 #include "llkeyboard.h"
 #include "lltoolmgr.h"
 #include "llselectmgr.h"
-//#include "llviewermenu.h"
+#include "llviewermenu.h"
 #include "llagent.h"
 #include "llagentcamera.h"
 #include "llfocusmgr.h"
@@ -139,7 +139,7 @@ void LLViewerJoystick::HotPlugRemovalCallback(NDOF_Device *dev)
 // -----------------------------------------------------------------------------
 LLViewerJoystick::LLViewerJoystick()
 :	mDriverState(JDS_UNINITIALIZED),
-	mNdofDev(NULL),
+	mNdofDev(nullptr),
 	mResetFlag(false),
 	mCameraUpdated(true),
 	mOverrideCamera(false),
@@ -176,8 +176,8 @@ void LLViewerJoystick::init(bool autoenable)
 	{
 		// Note: The HotPlug callbacks are not actually getting called on Windows
 		if (ndof_libinit(HotPlugAddCallback, 
-						 HotPlugRemovalCallback, 
-						 NULL))
+						 HotPlugRemovalCallback,
+						 nullptr))
 		{
 			mDriverState = JDS_UNINITIALIZED;
 		}
@@ -214,7 +214,7 @@ void LLViewerJoystick::init(bool autoenable)
 			mNdofDev->absolute = 1;
 
 			// init & use the first suitable NDOF device found on the USB chain
-			if (ndof_init_first(mNdofDev, NULL))
+			if (ndof_init_first(mNdofDev, nullptr))
 			{
 				mDriverState = JDS_UNINITIALIZED;
 				LL_WARNS() << "ndof_init_first FAILED" << LL_ENDL;
@@ -352,11 +352,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 		if (1 == mJoystickRun)
 		{
 			++mJoystickRun;
-//			gAgent.setRunning();
-//			gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-			gAgent.setTempRun();
-// [/RLVa:KB]
+			gAgent.setRunning();
+			gAgent.sendWalkRun(gAgent.getRunning());
 		}
 		else if (0 == mJoystickRun)
 		{
@@ -371,11 +368,8 @@ void LLViewerJoystick::handleRun(F32 inc)
 			--mJoystickRun;
 			if (0 == mJoystickRun)
 			{
-//				gAgent.clearRunning();
-//				gAgent.sendWalkRun(gAgent.getRunning());
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-				gAgent.clearTempRun();
-// [/RLVa:KB]
+				gAgent.clearRunning();
+				gAgent.sendWalkRun(gAgent.getRunning());
 			}
 		}
 	}

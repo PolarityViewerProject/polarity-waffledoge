@@ -70,9 +70,13 @@ U32			gAgentPauseSerialNum = 0;
 //
 const S32 WORLD_PATCH_SIZE = 16;
 
+const S32 SL_MAX_LINK_OBJECTS = 255;
+const S32 OS_MAX_LINK_OBJECTS = 8191;	// Magic and arbitrary
+
 extern LLColor4U MAX_WATER_COLOR;
 
-const U32 LLWorld::mWidth = 256;
+U32 LLWorld::mWidth = 256;
+U32 LLWorld::mLength = 256;
 
 // meters/point, therefore mWidth * mScale = meters per edge
 const F32 LLWorld::mScale = 1.f;
@@ -85,6 +89,7 @@ F32 LLWorld::mWidthInMeters = mWidth * mScale;
 
 // allocate the stack
 LLWorld::LLWorld() :
+	mRefreshLimits(true),
 	mLandFarClip(DEFAULT_FAR_PLANE),
 	mLastPacketsIn(0),
 	mLastPacketsOut(0),
@@ -93,7 +98,7 @@ LLWorld::LLWorld() :
 {
 	for (S32 i = 0; i < 8; i++)
 	{
-		mEdgeWaterObjects[i] = NULL;
+		mEdgeWaterObjects[i] = nullptr;
 	}
 
 	LLPointer<LLImageRaw> raw = new LLImageRaw(1,1,4);
@@ -123,10 +128,10 @@ void LLWorld::destroyClass()
 	
 	LLViewerPartSim::getInstance()->destroyClass();
 
-	mDefaultWaterTexturep = NULL ;
+	mDefaultWaterTexturep = nullptr ;
 	for (S32 i = 0; i < 8; i++)
 	{
-		mEdgeWaterObjects[i] = NULL;
+		mEdgeWaterObjects[i] = nullptr;
 	}
 
 	//make all visible drawbles invisible.
@@ -135,6 +140,12 @@ void LLWorld::destroyClass()
 	LLSceneMonitor::deleteSingleton();
 }
 
+void LLWorld::setRegionSize(const U32& width, const U32& length)
+{
+	mWidth = width ? width : 256; // Width of 0 is really 256
+	mLength = length ? length : 256; // Length of 0 is really 256
+	mWidthInMeters = mWidth * mScale;
+}
 
 LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 {
@@ -178,8 +189,8 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	U32 iindex = 0;
 	U32 jindex = 0;
 	from_region_handle(region_handle, &iindex, &jindex);
-	S32 x = (S32)(iindex/mWidth);
-	S32 y = (S32)(jindex/mWidth);
+	S32 x = (S32)(iindex/256);
+	S32 y = (S32)(jindex/256);
 	LL_INFOS() << "Adding new region (" << x << ":" << y << ")" 
 		<< " on host: " << host << LL_ENDL;
 
@@ -227,17 +238,50 @@ LLViewerRegion* LLWorld::addRegion(const U64 &region_handle, const LLHost &host)
 	{
 		adj_x = region_x + width * gDirAxes[dir][0];
 		adj_y = region_y + width * gDirAxes[dir][1];
-		to_region_handle(adj_x, adj_y, &adj_handle);
 
-		neighborp = getRegionFromHandle(adj_handle);
-		if (neighborp)
+		if (mWidth == 256 && mLength == 256)
 		{
-			//LL_INFOS() << "Connecting " << region_x << ":" << region_y << " -> " << adj_x << ":" << adj_y << LL_ENDL;
-			regionp->connectNeighbor(neighborp, dir);
+			to_region_handle(adj_x, adj_y, &adj_handle);
+			neighborp = getRegionFromHandle(adj_handle);
+			if (neighborp)
+			{
+				//LL_INFOS() << "Connecting " << region_x << ":" << region_y << " -> " << adj_x << ":" << adj_y << LL_ENDL;
+				regionp->connectNeighbor(neighborp, dir);
+			}
+		}
+		else // Unconventional region size
+		{
+			LLViewerRegion* last_neighborp = nullptr;
+			if(gDirAxes[dir][0] < 0) adj_x = region_x - WORLD_PATCH_SIZE;
+			if(gDirAxes[dir][1] < 0) adj_y = region_y - WORLD_PATCH_SIZE;
+
+			for (S32 offset = 0; offset < width; offset += WORLD_PATCH_SIZE)
+			{
+				to_region_handle(adj_x, adj_y, &adj_handle);
+				neighborp = getRegionFromHandle(adj_handle);
+
+				if (neighborp && last_neighborp != neighborp)
+				{
+					//LL_INFOS() << "Connecting " << region_x << ":" << region_y << " -> " << adj_x << ":" << adj_y << LL_ENDL;
+					regionp->connectNeighbor(neighborp, dir);
+					last_neighborp = neighborp;
+				}
+
+				if (dir == NORTH || dir == SOUTH)
+					adj_x += WORLD_PATCH_SIZE;
+				else if (dir == EAST || dir == WEST)
+					adj_y += WORLD_PATCH_SIZE;
+				else if (dir == NORTHEAST || dir == NORTHWEST || dir == SOUTHWEST || dir == SOUTHEAST)
+					break;
+
+			}
 		}
 	}
 
 	updateWaterObjects();
+	
+	if (mRefreshLimits)
+		refreshLimits();
 
 	return regionp;
 }
@@ -312,7 +356,7 @@ LLViewerRegion* LLWorld::getRegion(const LLHost &host)
 			return regionp;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 LLViewerRegion* LLWorld::getRegionFromPosAgent(const LLVector3 &pos)
@@ -331,7 +375,7 @@ LLViewerRegion* LLWorld::getRegionFromPosGlobal(const LLVector3d &pos)
 			return regionp;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 
@@ -423,7 +467,7 @@ LLViewerRegion* LLWorld::getRegionFromHandle(const U64 &handle)
 			return regionp;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
@@ -437,7 +481,7 @@ LLViewerRegion* LLWorld::getRegionFromID(const LLUUID& region_id)
 			return regionp;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void LLWorld::updateAgentOffset(const LLVector3d &offset_global)
@@ -488,7 +532,7 @@ LLViewerRegion* LLWorld::resolveRegionGlobal(LLVector3 &pos_region, const LLVect
 		return regionp;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -503,7 +547,7 @@ LLViewerRegion* LLWorld::resolveRegionAgent(LLVector3 &pos_region, const LLVecto
 		return regionp;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -539,7 +583,7 @@ F32 LLWorld::resolveStepHeightGlobal(const LLVOAvatar* avatarp, const LLVector3d
 	// initialize return value to null
 	if (viewerObjectPtr)
 	{
-		*viewerObjectPtr = NULL;
+		*viewerObjectPtr = nullptr;
 	}
 
 	LLViewerRegion *regionp = getRegionFromPosGlobal(point_a);
@@ -602,7 +646,7 @@ LLSurfacePatch * LLWorld::resolveLandPatchGlobal(const LLVector3d &pos_global)
 	LLViewerRegion *regionp = getRegionFromPosGlobal(pos_global);
 	if (!regionp)
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	return regionp->getLand().resolvePatchGlobal(pos_global);
@@ -752,6 +796,32 @@ void LLWorld::clearAllVisibleObjects()
 	}
 }
 
+void LLWorld::refreshLimits()
+{
+	mRefreshLimits = false;
+
+	if (LLGridManager::getInstance()->isInOpenSim())
+	{
+		mRegionMaxHeight = OS_MAX_OBJECT_Z; //llmath/xform.h
+		mRegionMinPrimScale = OS_MIN_PRIM_SCALE;
+		mRegionMaxPrimScale = OS_DEFAULT_MAX_PRIM_SCALE;
+		mRegionMaxPrimScaleNoMesh = OS_DEFAULT_MAX_PRIM_SCALE; // no restrictions here
+		mRegionMaxHollowSize = OS_OBJECT_MAX_HOLLOW_SIZE;
+		mRegionMinHoleSize = OS_OBJECT_MIN_HOLE_SIZE;
+		mRegionMaxLinkObjects = OS_MAX_LINK_OBJECTS;
+	}
+	else
+	{
+		mRegionMaxHeight = SL_MAX_OBJECT_Z;
+		mRegionMinPrimScale = SL_MIN_PRIM_SCALE;
+		mRegionMaxPrimScale = SL_DEFAULT_MAX_PRIM_SCALE;
+		mRegionMaxPrimScaleNoMesh = SL_DEFAULT_MAX_PRIM_SCALE_NO_MESH;
+		mRegionMaxHollowSize = SL_OBJECT_MAX_HOLLOW_SIZE;
+		mRegionMinHoleSize = SL_OBJECT_MIN_HOLE_SIZE;
+		mRegionMaxLinkObjects = SL_MAX_LINK_OBJECTS;
+	}
+}
+
 void LLWorld::updateParticles()
 {
 	LLViewerPartSim::getInstance()->updateSimulation();
@@ -820,7 +890,7 @@ void LLWorld::printPacketsLost()
 	LL_INFOS() << "Simulators:" << LL_ENDL;
 	LL_INFOS() << "----------" << LL_ENDL;
 
-	LLCircuitData *cdp = NULL;
+	LLCircuitData *cdp = nullptr;
 	for (region_list_t::iterator iter = mActiveRegionList.begin();
 		 iter != mActiveRegionList.end(); ++iter)
 	{
@@ -852,7 +922,7 @@ F32 LLWorld::getLandFarClip() const
 
 void LLWorld::setLandFarClip(const F32 far_clip)
 {
-	static S32 const rwidth = (S32)REGION_WIDTH_U32;
+	S32 const rwidth = (S32)getRegionWidthInMeters();
 	S32 const n1 = (llceil(mLandFarClip) - 1) / rwidth;
 	S32 const n2 = (llceil(far_clip) - 1) / rwidth;
 	bool need_water_objects_update = n1 != n2;
@@ -898,12 +968,14 @@ void LLWorld::updateWaterObjects()
 	S32 max_y = 0;
 	U32 region_x, region_y;
 
-	S32 rwidth = 256;
+	LLViewerRegion const* regionp = gAgent.getRegion();
+
+	// Region width in meters.
+	S32 const rwidth = (S32)regionp->getWidth();
 
 	// We only want to fill in water for stuff that's near us, say, within 256 or 512m
 	S32 range = LLViewerCamera::getInstance()->getFar() > 256.f ? 512 : 256;
 
-	LLViewerRegion* regionp = gAgent.getRegion();
 	from_region_handle(regionp->getHandle(), &region_x, &region_y);
 
 	min_x = (S32)region_x - range;
@@ -964,10 +1036,10 @@ void LLWorld::updateWaterObjects()
 	center_y = min_y + (wy >> 1);
 
 	S32 add_boundary[4] = {
-		static_cast<S32>(512 - (max_x - (rwidth - 256) - region_x)),
-		static_cast<S32>(512 - (max_y - (rwidth - 256) - region_y)),
-		512 - ((S32)region_x - min_x),
-		512 - ((S32)region_y - min_y) };
+        static_cast<S32>(512 - (max_x - (rwidth - 256) - region_x)),
+        static_cast<S32>(512 - (max_y - (rwidth - 256) - region_y)),
+        512 - ((S32)region_x - min_x),
+        512 - ((S32)region_y - min_y) };
 		
 	S32 dir;
 	for (dir = 0; dir < 8; dir++)
@@ -1123,6 +1195,14 @@ void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 
 	// Viewer trusts the simulator.
 	msg->enableCircuit(sim, TRUE);
+	if (LLGridManager::getInstance()->isInOpenSim())
+	{
+		U32 region_size_x = 256;
+		msg->getU32Fast(_PREHASH_SimulatorInfo, _PREHASH_RegionSizeX, region_size_x);
+		U32 region_size_y = 256;
+		msg->getU32Fast(_PREHASH_SimulatorInfo, _PREHASH_RegionSizeY, region_size_y);
+		LLWorld::getInstance()->setRegionSize(region_size_x, region_size_y);
+	}
 	LLWorld::getInstance()->addRegion(handle, sim);
 
 	// give the simulator a message it can use to get ip and port
@@ -1139,8 +1219,8 @@ class LLEstablishAgentCommunication : public LLHTTPNode
 {
 	LOG_CLASS(LLEstablishAgentCommunication);
 public:
- 	virtual void describe(Description& desc) const
-	{
+	void describe(Description& desc) const override
+	 {
 		desc.shortInfo("seed capability info for a region");
 		desc.postAPI();
 		desc.input(
@@ -1148,7 +1228,7 @@ public:
 		desc.source(__FILE__, __LINE__);
 	}
 
-	virtual void post(ResponsePtr response, const LLSD& context, const LLSD& input) const
+	void post(ResponsePtr response, const LLSD& context, const LLSD& input) const override
 	{
 		if (!input["body"].has("agent-id") ||
 			!input["body"].has("sim-ip-and-port") ||
@@ -1234,6 +1314,37 @@ void send_agent_pause()
 	LLViewerStats::instance().getRecording().stop();
 }
 
+CapUrlMatches LLWorld::getCapURLMatches(const std::string &cap_url)
+{
+	std::set<std::string> url_capnames;
+	std::set<LLViewerRegion*> url_capregions;
+
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		std::set<std::string> new_url_capnames = regionp->getCapURLNames(cap_url);
+
+		if(new_url_capnames.size() > 0)
+		{
+			url_capregions.insert(regionp);
+			url_capnames.insert(new_url_capnames.begin(), new_url_capnames.end());
+		}
+	}
+
+	return CapUrlMatches(url_capregions, url_capnames);
+}
+
+
+bool LLWorld::isCapURLMapped(const std::string &cap_url)
+{
+	for (LLViewerRegion* regionp : LLWorld::getInstance()->getRegionList())
+	{
+		if(regionp->isCapURLMapped(cap_url))
+			return true;
+	}
+	return false;
+}
 
 void send_agent_resume()
 {
@@ -1282,11 +1393,11 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 {
 	F32 radius_squared = radius * radius;
 	
-	if(avatar_ids != NULL)
+	if(avatar_ids != nullptr)
 	{
 		avatar_ids->clear();
 	}
-	if(positions != NULL)
+	if(positions != nullptr)
 	{
 		positions->clear();
 	}
@@ -1305,11 +1416,11 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			if (!uuid.isNull()
 				&& dist_vec_squared(pos_global, relative_to) <= radius_squared)
 			{
-				if(positions != NULL)
+				if(positions != nullptr)
 				{
 					positions->push_back(pos_global);
 				}
-				if(avatar_ids !=NULL)
+				if(avatar_ids != nullptr)
 				{
 					avatar_ids->push_back(uuid);
 				}
@@ -1330,9 +1441,9 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 			{
 				LLUUID uuid = regionp->mMapAvatarIDs.at(i);
 				// if this avatar doesn't already exist in the list, add it
-				if(uuid.notNull() && avatar_ids != NULL && std::find(avatar_ids->begin(), avatar_ids->end(), uuid) == avatar_ids->end())
+				if(uuid.notNull() && avatar_ids != nullptr && std::find(avatar_ids->begin(), avatar_ids->end(), uuid) == avatar_ids->end())
 				{
-					if (positions != NULL)
+					if (positions != nullptr)
 					{
 						positions->push_back(pos_global);
 					}
@@ -1343,34 +1454,106 @@ void LLWorld::getAvatars(uuid_vec_t* avatar_ids, std::vector<LLVector3d>* positi
 	}
 }
 
-// [RLVa:KB] - Checked: RLVa-2.0.1
-bool LLWorld::getAvatar(const LLUUID& idAvatar, LLVector3d& posAvatar) const
+void LLWorld::getAvatars(pos_map_t* umap, const LLVector3d& relative_to, F32 radius) const
 {
-	for (const LLCharacter* pCharacter : LLCharacter::sInstances)
+	F32 radius_squared = radius * radius;
+	
+	if (!umap->empty())
 	{
-		const LLVOAvatar* pAvatar = static_cast<const LLVOAvatar*>(pCharacter);
-		if ( (!pAvatar->isDead()) && (!pAvatar->mIsDummy) && (!pAvatar->isOrphaned()) && (idAvatar == pAvatar->getID()) )
-		{
-			posAvatar = pAvatar->getPositionGlobal();
-			return true;
-		}
+		umap->clear();
 	}
-
-	for (const LLViewerRegion* pRegion : LLWorld::getInstance()->getRegionList())
+	// get the list of avatars from the character list first, so distances are correct
+	// when agent is above 1020m and other avatars are nearby
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		 iter != LLCharacter::sInstances.end(); ++iter)
 	{
-		for (S32 idxAgent = 0, cntAgent = pRegion->mMapAvatarIDs.size(); idxAgent < cntAgent; ++idxAgent)
+		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
+		
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
 		{
-			if (idAvatar == pRegion->mMapAvatarIDs[idxAgent])
+			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
+			LLUUID uuid = pVOAvatar->getID();
+			
+			if (!uuid.isNull()
+				&& dist_vec_squared(pos_global, relative_to) <= radius_squared)
 			{
-				posAvatar = unpackLocalToGlobalPosition(pRegion->mMapAvatars[idxAgent], pRegion->getOriginGlobal());
-				return true;
+				umap->emplace(uuid, pos_global);
 			}
 		}
 	}
-
-	return false;
+	// region avatars added for situations where radius is greater than RenderFarClip
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		 iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		const LLVector3d& origin_global = regionp->getOriginGlobal();
+		S32 count = regionp->mMapAvatars.size();
+		for (S32 i = 0; i < count; i++)
+		{
+			LLVector3d pos_global = unpackLocalToGlobalPosition(regionp->mMapAvatars.at(i), origin_global);
+			if(dist_vec_squared(pos_global, relative_to) <= radius_squared)
+			{
+				LLUUID uuid = regionp->mMapAvatarIDs.at(i);
+				// if this avatar doesn't already exist in the list, add it
+				if(uuid.notNull())
+				{
+					umap->emplace(uuid, pos_global);
+				}
+			}
+		}
+	}
 }
-// [/RLVa:KB]
+
+void LLWorld::getAvatars(region_gpos_map_t* umap, const LLVector3d& relative_to, F32 radius) const
+{
+	F32 radius_squared = radius * radius;
+
+	if (!umap->empty())
+	{
+		umap->clear();
+	}
+	// get the list of avatars from the character list first, so distances are correct
+	// when agent is above 1020m and other avatars are nearby
+	for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+		iter != LLCharacter::sInstances.end(); ++iter)
+	{
+		LLVOAvatar* pVOAvatar = (LLVOAvatar*) *iter;
+
+		if (!pVOAvatar->isDead() && !pVOAvatar->mIsDummy)
+		{
+			LLUUID uuid = pVOAvatar->getID();
+			auto region = pVOAvatar->getRegion();
+			LLVector3d pos_global = pVOAvatar->getPositionGlobal();
+
+			if (uuid.notNull() && region
+				&& dist_vec_squared(pos_global, relative_to) <= radius_squared)
+			{
+				umap->emplace(uuid, regionp_gpos_pair_t(region, pos_global));
+			}
+		}
+	}
+	// region avatars added for situations where radius is greater than RenderFarClip
+	for (LLWorld::region_list_t::const_iterator iter = LLWorld::getInstance()->getRegionList().begin();
+		iter != LLWorld::getInstance()->getRegionList().end(); ++iter)
+	{
+		LLViewerRegion* regionp = *iter;
+		const LLVector3d& origin_global = regionp->getOriginGlobal();
+		S32 count = regionp->mMapAvatars.size();
+		for (S32 i = 0; i < count; i++)
+		{
+			LLVector3d pos_global = unpackLocalToGlobalPosition(regionp->mMapAvatars.at(i), origin_global);
+			if (dist_vec_squared(pos_global, relative_to) <= radius_squared)
+			{
+				LLUUID uuid = regionp->mMapAvatarIDs.at(i);
+				// if this avatar doesn't already exist in the list, add it
+				if (uuid.notNull())
+				{
+					umap->emplace(uuid, regionp_gpos_pair_t(regionp, pos_global));
+				}
+			}
+		}
+	}
+}
 
 bool LLWorld::isRegionListed(const LLViewerRegion* region) const
 {

@@ -48,10 +48,6 @@
 #include "llslurl.h"
 #include "llurlaction.h"
 
-// [RLVa:KB] - Checked: RLVa-2.0.3
-#include "rlvactions.h"
-// [/RLVa:KB]
-
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
 
@@ -61,7 +57,7 @@ public:
 	LLGroupComparator() {};
 
 	/** Returns true if item1 < item2, false otherwise */
-	/*virtual*/ bool compare(const LLPanel* item1, const LLPanel* item2) const
+	/*virtual*/ bool compare(const LLPanel* item1, const LLPanel* item2) const override
 	{
 		std::string name1 = static_cast<const LLGroupListItem*>(item1)->getGroupName();
 		std::string name2 = static_cast<const LLGroupListItem*>(item2)->getGroupName();
@@ -185,7 +181,7 @@ void LLGroupList::refresh()
 		const LLGroupData& group_data = gAgent.mGroups.at(i);
 		if (have_filter && !findInsensitive(group_data.mName, mNameFilter))
 			continue;
-		addNewItem(id, group_data.mName, group_data.mInsigniaID, ADD_BOTTOM);
+		addNewItem(id, group_data.mName, group_data.mInsigniaID, group_data.mListInProfile, ADD_BOTTOM);
 	}
 
 	// Sort the list.
@@ -196,7 +192,7 @@ void LLGroupList::refresh()
 	if (!have_filter && count > 0)
 	{
 		std::string loc_none = LLTrans::getString("GroupsNone");
-		addNewItem(LLUUID::null, loc_none, LLUUID::null, ADD_TOP);
+		addNewItem(LLUUID::null, loc_none, LLUUID::null, false, ADD_TOP);
 	}
 
 	selectItemByUUID(highlight_id);
@@ -224,7 +220,8 @@ void LLGroupList::toggleIcons()
 // PRIVATE Section
 //////////////////////////////////////////////////////////////////////////
 
-void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id, EAddPosition pos)
+void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LLUUID& icon_id,
+							 const bool visible_in_profile, EAddPosition pos)
 {
 	LLGroupListItem* item = new LLGroupListItem();
 
@@ -234,6 +231,7 @@ void LLGroupList::addNewItem(const LLUUID& id, const std::string& name, const LL
 
 	item->getChildView("info_btn")->setVisible( false);
 	item->getChildView("profile_btn")->setVisible( false);
+	item->getChildView("visible_btn")->setVisible(visible_in_profile);
 	item->setGroupIconVisible(mShowIcons);
 
 	addItem(item, id, pos);
@@ -275,22 +273,26 @@ bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
 	{
 		LLGroupActions::activate(selected_group);
 	}
+	else if (action == "copy_name")
+	{
+		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_NAME);
+	}
+	else if (action == "copy_displayname")
+	{
+		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_DISPLAYNAME);
+	}
+	else if (action == "copy_slurl")
+	{
+		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_SLURL);
+	}
+	else if (action == "copy_uuid")
+	{
+		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_UUID);
+	}
 	else if (action == "leave")
 	{
 		LLGroupActions::leave(selected_group);
 	}
-	// <FS:Ansariel> FIRE-20146: Add "Copy URI" to menu choices when right clicking a group name
-	else if (action == "copy_slurl")
-	{
-		LLUrlAction::copyURLToClipboard(LLSLURL("group", selected_group, "about").getSLURLString());
-	}
-	// </FS:Ansariel>
-	// <polarity>
-	else if (action == "copy_uuid")
-	{
-		LLUrlAction::copyURLToClipboard(selected_group.asString());
-	}
-	// </polarity>
 
 	return true;
 }
@@ -301,14 +303,8 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 	bool real_group_selected = selected_group_id.notNull(); // a "real" (not "none") group is selected
 
 	// each group including "none" can be activated
-// [RLVa:KB] - Checked: RLVa-1.3.0
 	if (userdata.asString() == "activate")
-		return (gAgent.getGroupID() != selected_group_id) && (RlvActions::canChangeActiveGroup());
-	else if (userdata.asString() == "leave")
-		return (real_group_selected) && ((gAgent.getGroupID() != selected_group_id) || (RlvActions::canChangeActiveGroup()));
-// [/RLVa:KB]
-//	if (userdata.asString() == "activate")
-//		return gAgent.getGroupID() != selected_group_id;
+		return gAgent.getGroupID() != selected_group_id;
 
 	if (userdata.asString() == "call")
 	  return real_group_selected && LLVoiceClient::getInstance()->voiceEnabled() && LLVoiceClient::getInstance()->isVoiceWorking();
@@ -322,10 +318,10 @@ bool LLGroupList::onContextMenuItemEnable(const LLSD& userdata)
 
 LLGroupListItem::LLGroupListItem()
 :	LLPanel(),
-mGroupIcon(NULL),
-mGroupNameBox(NULL),
-mInfoBtn(NULL),
+mGroupNameBox(nullptr),
 mGroupID(LLUUID::null),
+mGroupIcon(nullptr),
+mInfoBtn(nullptr),
 mGroupName(LLStringUtil::null)
 {
 	buildFromFile( "panel_group_list_item.xml");

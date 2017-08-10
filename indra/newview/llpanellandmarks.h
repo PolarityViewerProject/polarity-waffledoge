@@ -52,13 +52,13 @@ public:
 	LLLandmarksPanel();
 	virtual ~LLLandmarksPanel();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onSearchEdit(const std::string& string);
-	/*virtual*/ void onShowOnMap();
-	/*virtual*/ void onShowProfile();
-	/*virtual*/ void onTeleport();
-	/*virtual*/ void updateVerbs();
-	/*virtual*/ bool isSingleItemSelected();
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onSearchEdit(const std::string& string) override;
+	/*virtual*/ void onShowOnMap() override;
+	/*virtual*/ void onShowProfile() override;
+	/*virtual*/ void onTeleport() override;
+	/*virtual*/ void updateVerbs() override;
+	/*virtual*/ bool isSingleItemSelected() override;
 
 	void onSelectionChange(LLPlacesInventoryPanel* inventory_list, const std::deque<LLFolderViewItem*> &items, BOOL user_action);
 	void onSelectorButtonClicked();
@@ -104,13 +104,14 @@ protected:
 	void updateSortOrder(LLInventoryPanel* panel, bool byDate);
 
 	//LLRemoteParcelInfoObserver interface
-	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data);
-	/*virtual*/ void setParcelID(const LLUUID& parcel_id);
-	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason);
+	/*virtual*/ void processParcelInfo(const LLParcelData& parcel_data) override;
+	/*virtual*/ void setParcelID(const LLUUID& parcel_id) override;
+	/*virtual*/ void setErrorStatus(S32 status, const std::string& reason) override;
 	
 private:
 	void initFavoritesInventoryPanel();
 	void initLandmarksInventoryPanel();
+	//void initMyInventoryPanel();
 	void initLandmarksPanel(LLPlacesInventoryPanel* inventory_list);
 	LLAccordionCtrlTab* initAccordion(const std::string& accordion_tab_name, LLPlacesInventoryPanel* inventory_list, bool expand_tab);
 	void onAccordionExpandedCollapsed(const LLSD& param, LLPlacesInventoryPanel* inventory_list);
@@ -164,6 +165,7 @@ private:
 private:
 	LLPlacesInventoryPanel*		mFavoritesInventoryPanel;
 	LLPlacesInventoryPanel*		mLandmarksInventoryPanel;
+	//LLPlacesInventoryPanel*		mMyInventoryPanel;
 	LLMenuButton*				mGearButton;
 	LLToggleableMenu*			mGearLandmarkMenu;
 	LLToggleableMenu*			mGearFolderMenu;

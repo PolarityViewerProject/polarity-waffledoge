@@ -38,7 +38,7 @@ class LLInventoryItem;
 class LLLandmarkList
 {
 public:
-	typedef boost::function<void(LLLandmark*)> loaded_callback_t;
+	typedef std::function<void(LLLandmark*)> loaded_callback_t;
 
 	LLLandmarkList() {}
 	~LLLandmarkList();
@@ -48,7 +48,7 @@ public:
 	//const LLLandmark*	getNext()	{ return mList.getNextData(); }
 
 	BOOL assetExists(const LLUUID& asset_uuid);
-	LLLandmark* getAsset(const LLUUID& asset_uuid, loaded_callback_t cb = NULL);
+	LLLandmark* getAsset(const LLUUID& asset_uuid, loaded_callback_t cb = nullptr);
 	static void processGetAssetReply(
 		LLVFS *vfs,
 		const LLUUID& uuid,

@@ -33,7 +33,6 @@
 #include "llviewertexture.h"
 #include "llui.h"
 #include <list>
-#include <set>
 #include "lluiimage.h"
 
 const U32 LL_IMAGE_REZ_LOSSLESS_CUTOFF = 128;
@@ -130,7 +129,7 @@ public:
 	S32Megabytes getMaxTotalTextureMem() const   { return mMaxTotalTextureMemInMegaBytes;}
 	S32 getNumImages()					{ return mImageList.size(); }
 
-	void updateMaxResidentTexMem(S32 mem);
+	void updateMaxResidentTexMem(S32Megabytes mem);
 	
 	void doPreloadImages();
 	void doPrefetchImages();
@@ -240,9 +239,9 @@ class LLUIImageList : public LLImageProviderInterface, public LLSingleton<LLUIIm
 	LLSINGLETON_EMPTY_CTOR(LLUIImageList);
 public:
 	// LLImageProviderInterface
-	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority);
-	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority);
-	void cleanUp();
+	/*virtual*/ LLPointer<LLUIImage> getUIImageByID(const LLUUID& id, S32 priority) override;
+	/*virtual*/ LLPointer<LLUIImage> getUIImage(const std::string& name, S32 priority) override;
+	void cleanUp() override;
 
 	bool initFromFile();
 

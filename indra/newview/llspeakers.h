@@ -34,6 +34,7 @@
 #include "llcoros.h"
 
 class LLSpeakerMgr;
+class LLAvatarName;
 
 // data for a given participant in a voice channel
 class LLSpeaker : public LLRefCount, public LLOldEvents::LLObservable, public LLHandleProvider<LLSpeaker>, public boost::signals2::trackable
@@ -61,7 +62,7 @@ public:
 	~LLSpeaker() {};
 	void lookupName();
 
-	void onNameCache(const LLUUID& id, const std::string& full_name, bool is_group);
+	void onNameCache(const LLUUID& id, const LLAvatarName& full_name);
 
 	bool isInVoiceChannel();
 
@@ -85,7 +86,7 @@ class LLSpeakerUpdateSpeakerEvent : public LLOldEvents::LLEvent
 {
 public:
 	LLSpeakerUpdateSpeakerEvent(LLSpeaker* source);
-	/*virtual*/ LLSD getValue();
+	/*virtual*/ LLSD getValue() override;
 private:
 	const LLUUID& mSpeakerID;
 };
@@ -94,7 +95,7 @@ class LLSpeakerUpdateModeratorEvent : public LLOldEvents::LLEvent
 {
 public:
 	LLSpeakerUpdateModeratorEvent(LLSpeaker* source);
-	/*virtual*/ LLSD getValue();
+	/*virtual*/ LLSD getValue() override;
 private:
 	const LLUUID& mSpeakerID;
 	BOOL mIsModerator;
@@ -104,21 +105,21 @@ class LLSpeakerTextModerationEvent : public LLOldEvents::LLEvent
 {
 public:
 	LLSpeakerTextModerationEvent(LLSpeaker* source);
-	/*virtual*/ LLSD getValue();
+	/*virtual*/ LLSD getValue() override;
 };
 
 class LLSpeakerVoiceModerationEvent : public LLOldEvents::LLEvent
 {
 public:
 	LLSpeakerVoiceModerationEvent(LLSpeaker* source);
-	/*virtual*/ LLSD getValue();
+	/*virtual*/ LLSD getValue() override;
 };
 
 class LLSpeakerListChangeEvent : public LLOldEvents::LLEvent
 {
 public:
 	LLSpeakerListChangeEvent(LLSpeakerMgr* source, const LLUUID& speaker_id);
-	/*virtual*/ LLSD getValue();
+	/*virtual*/ LLSD getValue() override;
 
 private:
 	const LLUUID& mSpeakerID;
@@ -137,7 +138,7 @@ private:
 class LLSpeakerActionTimer : public LLEventTimer
 {
 public:
-	typedef boost::function<bool(const LLUUID&)>	action_callback_t;
+	typedef std::function<bool(const LLUUID&)>	action_callback_t;
 	typedef std::map<LLUUID, LLSpeakerActionTimer*> action_timers_map_t;
 	typedef action_timers_map_t::value_type			action_value_t;
 	typedef action_timers_map_t::const_iterator		action_timer_const_iter_t;
@@ -158,7 +159,7 @@ public:
 	 *
 	 * If action callback is not specified returns true. Instance will be deleted by LLEventTimer::updateClass().
 	 */
-	virtual BOOL tick();
+	BOOL tick() override;
 
 	/**
 	 * Clears the callback.
@@ -235,13 +236,13 @@ public:
 					LLSpeaker::ESpeakerStatus status = LLSpeaker::STATUS_TEXT_ONLY, 
 					LLSpeaker::ESpeakerType = LLSpeaker::SPEAKER_AGENT);
 
-	BOOL isVoiceActive();
+	BOOL isVoiceActive() const;
 
 	typedef std::vector<LLPointer<LLSpeaker> > speaker_list_t;
 	void getSpeakerList(speaker_list_t* speaker_list, BOOL include_text);
 	LLVoiceChannel* getVoiceChannel() { return mVoiceChannel; }
-	const LLUUID getSessionID();
-	bool isSpeakerToBeRemoved(const LLUUID& speaker_id);
+	const LLUUID getSessionID() const;
+	bool isSpeakerToBeRemoved(const LLUUID& speaker_id) const;
 
 	/**
 	 * Removes avaline speaker.
@@ -326,7 +327,7 @@ public:
 	void processSessionUpdate(const LLSD& session_update);
 
 protected:
-	virtual void updateSpeakerList();
+	void updateSpeakerList() override;
 
 	void moderateVoiceSession(const LLUUID& session_id, bool disallow_voice);
 
@@ -345,7 +346,7 @@ class LLActiveSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLActiveSpeak
 	LOG_CLASS(LLActiveSpeakerMgr);
 
 protected:
-	virtual void updateSpeakerList();
+	void updateSpeakerList() override;
 };
 
 class LLLocalSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLLocalSpeakerMgr>
@@ -354,7 +355,7 @@ class LLLocalSpeakerMgr : public LLSpeakerMgr, public LLSingleton<LLLocalSpeaker
 	~LLLocalSpeakerMgr ();
 	LOG_CLASS(LLLocalSpeakerMgr);
 protected:
-	virtual void updateSpeakerList();
+	void updateSpeakerList() override;
 };
 
 #endif // LL_LLSPEAKERS_H

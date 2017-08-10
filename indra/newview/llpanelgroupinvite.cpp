@@ -44,9 +44,6 @@
 #include "lltextbox.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
-
 #include "roles_constants.h"
 
 class LLPanelGroupInvite::impl
@@ -102,14 +99,14 @@ public:
 LLPanelGroupInvite::impl::impl(const LLUUID& group_id):
 	mGroupID( group_id ),
 	mLoadingText (),
-	mInvitees ( NULL ),
-	mRoleNames( NULL ),
-	mOKButton ( NULL ),
-	mRemoveButton( NULL ),
-	mGroupName( NULL ),
+	mInvitees (nullptr ),
+	mRoleNames(nullptr ),
+	mOKButton (nullptr ),
+	mRemoveButton(nullptr ),
+	mGroupName(nullptr ),
 	mConfirmedOwnerInvite( false ),
-	mCloseCallback( NULL ),
-	mCloseCallbackUserData( NULL ),
+	mCloseCallback(nullptr ),
+	mCloseCallbackUserData(nullptr ),
 	mAvatarNameCacheConnection()
 {
 }
@@ -262,7 +259,7 @@ void LLPanelGroupInvite::impl::addRoleNames(LLGroupMgrGroupData* gdatap)
 												 GP_ROLE_ASSIGN_MEMBER);
 	bool can_assign_limited = gAgent.hasPowerInGroup(mGroupID,
 													 GP_ROLE_ASSIGN_MEMBER_LIMITED);
-	LLGroupMemberData* member_data = NULL;
+	LLGroupMemberData* member_data = nullptr;
 	//get the member data for the agent if it exists
 	if (agent_iter != gdatap->mMembers.end())
 	{
@@ -619,7 +616,7 @@ void LLPanelGroupInvite::updateLists()
 	else
 	{
 		mPendingUpdate = FALSE;
-		if (mImplementation->mOKButton && mImplementation->mRoleNames->getItemCount()) 
+		if (mImplementation->mOKButton && mImplementation->mRoleNames && mImplementation->mRoleNames->getItemCount())
 		{
 			mImplementation->mOKButton->setEnabled(TRUE);
 		}
@@ -647,14 +644,14 @@ BOOL LLPanelGroupInvite::postBuild()
 	{
 		// default to opening avatarpicker automatically
 		// (*impl::callbackClickAdd)((void*)this);
-		button->setClickedCallback(impl::callbackClickAdd, this);
+		button->setCommitCallback(boost::bind(impl::callbackClickAdd, this));
 	}
 
 	mImplementation->mRemoveButton = 
 			getChild<LLButton>("remove_button", recurse);
 	if ( mImplementation->mRemoveButton )
 	{
-		mImplementation->mRemoveButton->setClickedCallback(impl::callbackClickRemove, mImplementation);
+		mImplementation->mRemoveButton->setCommitCallback(boost::bind(impl::callbackClickRemove, mImplementation));
 		mImplementation->mRemoveButton->setEnabled(FALSE);
 	}
 
@@ -662,14 +659,14 @@ BOOL LLPanelGroupInvite::postBuild()
 		getChild<LLButton>("invite_button", recurse);
 	if ( mImplementation->mOKButton )
  	{
-		mImplementation->mOKButton->setClickedCallback(impl::callbackClickOK, mImplementation);
+		mImplementation->mOKButton->setCommitCallback(boost::bind(impl::callbackClickOK, mImplementation));
 		mImplementation->mOKButton->setEnabled(FALSE);
  	}
 
 	button = getChild<LLButton>("cancel_button", recurse);
 	if ( button )
 	{
-		button->setClickedCallback(impl::callbackClickCancel, mImplementation);
+		button->setCommitCallback(boost::bind(impl::callbackClickCancel, mImplementation));
 	}
 
 	mImplementation->mOwnerWarning = getString("confirm_invite_owner_str");

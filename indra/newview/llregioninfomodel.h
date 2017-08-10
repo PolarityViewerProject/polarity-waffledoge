@@ -29,8 +29,6 @@
 
 class LLMessageSystem;
 
-#include "llsingleton.h"
-
 /**
  * Contains region info, notifies interested parties of its changes.
  */
@@ -49,16 +47,11 @@ public:
 
 	void setUseFixedSun(bool fixed);
 
-	// *FIXME: Duplicated code from LLPanelRegionInfo
-	static void sendEstateOwnerMessage(
-		LLMessageSystem* msg,
-		const std::string& request,
-		const LLUUID& invoice,
-		const std::vector<std::string>& strings);
-
 	// *TODO: Add getters and make the data private.
 	U8			mSimAccess;
 	U8			mAgentLimit;
+
+	S32			mHardAgentLimit;
 
 	U64			mRegionFlags;
 	U32			mEstateID;
@@ -92,6 +85,15 @@ protected:
 private:
 	void reset();
 
+public: // <Alchemy />
+	// *FIXME: Duplicated code from LLPanelRegionInfo
+	static void sendEstateOwnerMessage(
+		LLMessageSystem* msg,
+		const std::string& request,
+		const LLUUID& invoice,
+		const std::vector<std::string>& strings);
+
+private: // <Alchemy />
 	update_signal_t mUpdateSignal;
 };
 

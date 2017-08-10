@@ -46,6 +46,7 @@
 #include "lliconctrl.h"
 #include "lllineeditor.h"
 #include "llcombobox.h"
+#include "lllogininstance.h"
 #include "lltexturectrl.h"
 #include "lltexteditor.h"
 #include "llviewerparcelmgr.h"
@@ -72,17 +73,17 @@ LLPanelClassifiedInfo::panel_list_t LLPanelClassifiedInfo::sAllPanels;
 class LLDispatchClassifiedClickThrough : public LLDispatchHandler
 {
 public:
-	virtual bool operator()(
+	bool operator()(
 		const LLDispatcher* dispatcher,
 		const std::string& key,
 		const LLUUID& invoice,
-		const sparam_t& strings)
+		const sparam_t& strings) override
 	{
 		if (strings.size() != 4) return false;
 		LLUUID classified_id(strings[0]);
-		S32 teleport_clicks = atoi(strings[1].c_str());
-		S32 map_clicks = atoi(strings[2].c_str());
-		S32 profile_clicks = atoi(strings[3].c_str());
+		S32 teleport_clicks = std::stoi(strings[1]);
+		S32 map_clicks = std::stoi(strings[2]);
+		S32 profile_clicks = std::stoi(strings[3]);
 
 		LLPanelClassifiedInfo::setClickThrough(
 			classified_id, teleport_clicks, map_clicks, profile_clicks, false);
@@ -96,21 +97,23 @@ static LLDispatchClassifiedClickThrough sClassifiedClickThrough;
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
+static LLPanelInjector<LLPanelClassifiedInfo> t_classified_info("panel_classified_info");
+
 LLPanelClassifiedInfo::LLPanelClassifiedInfo()
  : LLPanel()
+ , mSnapshotStreched(false)
+ , mSnapshotCtrl(nullptr)
  , mInfoLoaded(false)
- , mScrollingPanel(NULL)
- , mScrollContainer(NULL)
+ , mScrollContainer(nullptr)
+ , mScrollingPanel(nullptr)
  , mScrollingPanelMinHeight(0)
  , mScrollingPanelWidth(0)
- , mSnapshotStreched(false)
  , mTeleportClicksOld(0)
  , mMapClicksOld(0)
  , mProfileClicksOld(0)
  , mTeleportClicksNew(0)
  , mMapClicksNew(0)
  , mProfileClicksNew(0)
- , mSnapshotCtrl(NULL)
 {
 	sAllPanels.push_back(this);
 }
@@ -184,7 +187,7 @@ void LLPanelClassifiedInfo::onOpen(const LLSD& key)
 	LLUUID avatar_id = key["classified_creator_id"];
 	if(avatar_id.isNull())
 	{
-		return;
+		//return;
 	}
 
 	if(getAvatarId().notNull())
@@ -284,6 +287,10 @@ void LLPanelClassifiedInfo::processProperties(void* data, EAvatarProcessorType t
 			std::string date_str = date_fmt;
 			LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->creation_date));
 			getChild<LLUICtrl>("creation_date")->setValue(date_str);
+
+			date_str = date_fmt;
+			LLStringUtil::format(date_str, LLSD().with("datetime", (S32) c_info->expiration_date));
+			getChild<LLUICtrl>("expiration_date")->setValue(date_str);
 
 			setInfoLoaded(true);
 		}
@@ -590,7 +597,7 @@ void LLPanelClassifiedInfo::onTeleportClick()
 void LLPanelClassifiedInfo::onExit()
 {
 	LLAvatarPropertiesProcessor::getInstance()->removeObserver(getAvatarId(), this);
-	gGenericDispatcher.addHandler("classifiedclickthrough", NULL); // deregister our handler
+	gGenericDispatcher.addHandler("classifiedclickthrough", nullptr); // deregister our handler
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -605,7 +612,7 @@ LLPanelClassifiedEdit::LLPanelClassifiedEdit()
  , mIsNew(false)
  , mIsNewWithErrors(false)
  , mCanClose(false)
- , mPublishFloater(NULL)
+ , mPublishFloater(nullptr)
 {
 }
 
@@ -634,7 +641,7 @@ BOOL LLPanelClassifiedEdit::postBuild()
 	edit_icon->setVisible(false);
 
 	LLLineEditor* line_edit = getChild<LLLineEditor>("classified_name");
-	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	line_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this), nullptr);
 
 	LLTextEditor* text_edit = getChild<LLTextEditor>("classified_desc");
 	text_edit->setKeystrokeCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
@@ -650,9 +657,9 @@ BOOL LLPanelClassifiedEdit::postBuild()
 
 	combobox->setCommitCallback(boost::bind(&LLPanelClassifiedEdit::onChange, this));
 
-	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
-	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
-	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onChange, this), NULL);
+	childSetCommitCallback("content_type", boost::bind(&LLPanelClassifiedEdit::onChange, this), nullptr);
+	childSetCommitCallback("price_for_listing", boost::bind(&LLPanelClassifiedEdit::onChange, this), nullptr);
+	childSetCommitCallback("auto_renew", boost::bind(&LLPanelClassifiedEdit::onChange, this), nullptr);
 
 	childSetAction("save_changes_btn", boost::bind(&LLPanelClassifiedEdit::onSaveClick, this));
 	childSetAction("set_to_curr_location_btn", boost::bind(&LLPanelClassifiedEdit::onSetLocationClick, this));
@@ -843,7 +850,15 @@ void LLPanelClassifiedEdit::resetControls()
 	getChild<LLComboBox>("category")->setCurrentByIndex(0);
 	getChild<LLComboBox>("content_type")->setCurrentByIndex(0);
 	getChild<LLUICtrl>("auto_renew")->setValue(false);
-	getChild<LLUICtrl>("price_for_listing")->setValue(MINIMUM_PRICE_FOR_LISTING);
+	if (LLLoginInstance::getInstance()->hasResponse("classified_fee"))
+	{
+		getChild<LLUICtrl>("price_for_listing")->setValue(LLLoginInstance::getInstance()->
+														  getResponse("classified_fee").asInteger());
+	}
+	else
+	{
+		getChild<LLUICtrl>("price_for_listing")->setValue(MINIMUM_PRICE_FOR_LISTING);
+	}
 	getChildView("price_for_listing")->setEnabled(TRUE);
 }
 

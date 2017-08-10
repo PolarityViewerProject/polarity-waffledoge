@@ -106,12 +106,11 @@ class LLViewerPartSourceScript : public LLViewerPartSource
 {
 public:
 	LLViewerPartSourceScript(LLViewerObject *source_objp);
-	/*virtual*/ void update(const F32 dt);
+	/*virtual*/ void update(const F32 dt) override;
 
-	/*virtual*/ void setDead();
+	/*virtual*/ void setDead() override;
 
-	// unused
-	// BOOL updateFromMesg();
+	BOOL updateFromMesg();
 
 	// Returns a new particle source to attach to an object...
 	static LLPointer<LLViewerPartSourceScript> unpackPSS(LLViewerObject *source_objp, LLPointer<LLViewerPartSourceScript> pssp, const S32 block_num);
@@ -140,9 +139,9 @@ class LLViewerPartSourceSpiral : public LLViewerPartSource
 public:
 	LLViewerPartSourceSpiral(const LLVector3 &pos);
 
-	/*virtual*/ void setDead();
+	/*virtual*/ void setDead() override;
 
-	/*virtual*/ void update(const F32 dt);
+	/*virtual*/ void update(const F32 dt) override;
 
 	void setSourceObject(LLViewerObject *objp);
 	void setColor(const LLColor4 &color);
@@ -164,15 +163,14 @@ class LLViewerPartSourceBeam : public LLViewerPartSource
 public:
 	LLViewerPartSourceBeam();
 
-	void setDead() override;
+	/*virtual*/ void setDead() override;
 
-	void update(const F32 dt) override;
+	/*virtual*/ void update(const F32 dt) override;
 
 	void setSourceObject(LLViewerObject *objp);
 	void setTargetObject(LLViewerObject *objp);
-	// unused
-	// void setSourcePosGlobal(const LLVector3d &pos_global);
-	// void setTargetPosGlobal(const LLVector3d &pos_global);
+	void setSourcePosGlobal(const LLVector3d &pos_global);
+	void setTargetPosGlobal(const LLVector3d &pos_global);
 	void setColor(const LLColor4 &color);
 
 	static void updatePart(LLViewerPart &part, const F32 dt);
@@ -195,9 +193,9 @@ class LLViewerPartSourceChat : public LLViewerPartSource
 public:
 	LLViewerPartSourceChat(const LLVector3 &pos);
 
-	/*virtual*/ void setDead();
+	/*virtual*/ void setDead() override;
 
-	/*virtual*/ void update(const F32 dt);
+	/*virtual*/ void update(const F32 dt) override;
 
 	void setSourceObject(LLViewerObject *objp);
 	void setColor(const LLColor4 &color);

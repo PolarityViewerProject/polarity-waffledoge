@@ -27,7 +27,7 @@
 #ifndef LL_LLIMVIEW_H
 #define LL_LLIMVIEW_H
 
-#include "../llui/lldockablefloater.h"
+#include "lldockablefloater.h"
 #include "lleventtimer.h"
 #include "llinstantmessage.h"
 
@@ -50,7 +50,7 @@ class LLSessionTimeoutTimer : public LLEventTimer
 public:
 	LLSessionTimeoutTimer(const LLUUID& session_id, F32 period) : LLEventTimer(period), mSessionId(session_id) {}
 	virtual ~LLSessionTimeoutTimer() {};
-	/* virtual */ BOOL tick();
+	/* virtual */ BOOL tick() override;
 
 private:
 	LLUUID mSessionId;
@@ -89,9 +89,9 @@ public:
 		static void chatFromLogFile(LLLogChat::ELogLineType type, const LLSD& msg, void* userdata);
 
 		bool isOutgoingAdHoc() const;
-		bool isAdHoc();
-		bool isP2P();
-		bool isOtherParticipantAvaline();
+		bool isAdHoc() const;
+		bool isP2P() const;
+		bool isOtherParticipantAvaline() const;
 
 		bool isP2PSessionType() const { return mSessionType == P2P_SESSION;}
 		bool isAdHocSessionType() const { return mSessionType == ADHOC_SESSION;}
@@ -400,12 +400,12 @@ public:
 	void autoStartCallOnStartup(const LLUUID& session_id);
 
 	// Calc number of all unread IMs
-	S32 getNumberOfUnreadIM();
+	S32 getNumberOfUnreadIM() const;
 
 	/**
 	 * Calculates number of unread IMs from real participants in all stored sessions
 	 */
-	S32 getNumberOfUnreadParticipantMessages();
+	S32 getNumberOfUnreadParticipantMessages() const;
 
 	// This method is used to go through all active sessions and
 	// disable all of them. This method is usally called when you are
@@ -447,11 +447,11 @@ public:
 	 **/
 	bool endCall(const LLUUID& session_id);
 
-	bool isVoiceCall(const LLUUID& session_id);
+	bool isVoiceCall(const LLUUID& session_id) const;
 
 	void updateDNDMessageStatus();
 
-	bool isDNDMessageSend(const LLUUID& session_id);
+	bool isDNDMessageSend(const LLUUID& session_id) const;
 
 	void setDNDMessageSent(const LLUUID& session_id, bool is_send);
 
@@ -475,7 +475,7 @@ private:
 
 	void processIMTypingCore(const LLIMInfo* im_info, BOOL typing);
 
-	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const std::string& name, bool is_group);
+	static void onInviteNameLookup(LLSD payload, const LLUUID& id, const LLAvatarName& name);
 
 	void notifyObserverSessionAdded(const LLUUID& session_id, const std::string& name, const LLUUID& other_participant_id, bool has_offline_msg);
     //Triggers when a session has already been added
@@ -525,13 +525,13 @@ public:
 	LLCallDialog(const LLSD& payload);
 	virtual ~LLCallDialog();
 
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	void dockToToolbarButton(const std::string& toolbarButtonName);
 	
 	// check timer state
-	/*virtual*/ void draw();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ void draw() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 	
 protected:
 	// lifetime timer for a notification
@@ -555,7 +555,7 @@ protected:
 	LLSD mPayload;
 
 private:
-	LLDockControl::DocAt getDockControlPos(const std::string& toolbarButtonName);
+	LLDockControl::DocAt getDockControlPos(const std::string& toolbarButtonName) const;
 };
 
 class LLIncomingCallDialog : public LLCallDialog
@@ -570,8 +570,8 @@ public:
 		}
 	}
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 	static void onAccept(void* user_data);
 	static void onReject(void* user_data);
@@ -588,7 +588,7 @@ private:
 
 	boost::signals2::connection mAvatarNameCacheConnection;
 
-	/*virtual*/ void onLifetimeExpired();
+	/*virtual*/ void onLifetimeExpired() override;
 };
 
 class LLOutgoingCallDialog : public LLCallDialog
@@ -596,7 +596,7 @@ class LLOutgoingCallDialog : public LLCallDialog
 public:
 	LLOutgoingCallDialog(const LLSD& payload);
 
-	/*virtual*/ BOOL postBuild();
+	/*virtual*/ BOOL postBuild() override;
 	void show(const LLSD& key);
 
 	static void onCancel(void* user_data);

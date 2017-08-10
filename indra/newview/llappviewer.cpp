@@ -95,14 +95,6 @@
 #include "llprogressview.h"
 #include "llvocache.h"
 #include "llvopartgroup.h"
-// [SL:KB] - Patch: Appearance-Misc | Checked: 2013-02-12 (Catznip-3.4)
-#include "llappearancemgr.h"
-// [/SL:KB]
-// [RLVa:KB] - Checked: 2010-05-03 (RLVa-1.2.0g)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
-
 #include "llweb.h"
 #include "llupdaterservice.h"
 #include "llfloatertexturefetchdebugger.h"
@@ -135,12 +127,10 @@
 #include "stringize.h"
 #include "llcoros.h"
 #include "llexception.h"
-#if ENABLE_MEDIA_PLUGINS
 #include "cef/llceflib.h"
-#endif
-#if LIBVLCPLUGIN
+#if VLCPLUGIN
 #include "vlc/libvlc_version.h"
-#endif
+#endif // LL_WINDOWS
 
 // Third party library includes
 #include <boost/algorithm/string.hpp>
@@ -265,7 +255,7 @@
 
 #if LL_LINUX  && LL_GTK
 #include "glib.h"
-#endif // (LL_LINUX || LL_SOLARIS) && LL_GTK
+#endif // LL_LINUX && LL_GTK
 
 #include "llhasheduniqueid.h"
 
@@ -276,8 +266,6 @@
 #include "pvconstants.h"
 #include "pvfpsmeter.h"
 #include "pvgpuinfo.h"
-
-#include "llstring.h" // for boost::bind unknown override specifier
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 
@@ -541,12 +529,7 @@ void idle_afk_check()
 {
 	// check idle timers
 	F32 current_idle = gAwayTriggerTimer.getElapsedTimeF32();
-	// <polarity> Speedup and RLVa support
-	static F32 afk_timeout = 0.f;
-	static LLCachedControl<S32> afk_timeout_setting(gSavedSettings, "AFKTimeout");
-	// Enforce an idle time of 30 minutes if @allowidle=n restricted
-	afk_timeout = (!gRlvHandler.hasBehaviour(RLV_BHVR_ALLOWIDLE)) ? afk_timeout_setting : 60 * 30;
-	// <polarity>
+	static LLCachedControl<S32> afk_timeout(gSavedSettings, "AFKTimeout");
 	if (afk_timeout && (current_idle > (S32)afk_timeout) && ! gAgent.getAFK())
 	{
 		LL_INFOS("IdleAway") << "Idle more than " << afk_timeout << " seconds: automatically changing to Away status" << LL_ENDL;
@@ -2967,21 +2950,6 @@ bool LLAppViewer::initConfiguration()
 		LLEventPumps::instance().obtain("LLControlGroup").post(LLSDMap("init", *ki));
 	}
 
-// [RLVa:KB] - Patch: RLVa-2.1.0
-	if (LLControlVariable* pControl = gSavedSettings.getControl(RLV_SETTING_MAIN))
-	{
-		if ( (pControl->getValue().asBoolean()) && (pControl->hasUnsavedValue()) )
-		{
-			pControl->resetToDefault();
-			pControl->setValue(false);
-
-			std::ostringstream msg;
-			msg << LLTrans::getString("RLVaToggleMessageLogin", LLSD().with("[STATE]", LLTrans::getString("RLVaToggleDisabled")));
-			OSMessageBox(msg.str(), LLStringUtil::null, OSMB_OK);
-		}
-	}
-// [/RLVa:KB]
-
 	return true; // Config was successful.
 }
 
@@ -3520,28 +3488,16 @@ LLSD LLAppViewer::getViewerInfo() const
 	LLViewerRegion* region = gAgent.getRegion();
 	if (region)
 	{
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		if (RlvActions::canShowLocation())
-		{
-// [/RLVa:KB]
-			LLVector3d pos = gAgent.getPositionGlobal();
-			info["POSITION"] = ll_sd_from_vector3d(pos);
-			info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
-			info["REGION"] = region->getName();
-			info["HOSTNAME"] = region->getHost().getHostName();
-			info["HOSTIP"] = region->getHost().getString();
-//			info["SERVER_VERSION"] = gLastVersionChannel;
-			LLSLURL slurl;
-			LLAgentUI::buildSLURL(slurl);
-			info["SLURL"] = slurl.getSLURLString();
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		}
-		else
-		{
-			info["REGION"] = RlvStrings::getString(RLV_STRING_HIDDEN_REGION);
-		}
+		LLVector3d pos = gAgent.getPositionGlobal();
+		info["POSITION"] = ll_sd_from_vector3d(pos);
+		info["POSITION_LOCAL"] = ll_sd_from_vector3(gAgent.getPosAgentFromGlobal(pos));
+		info["REGION"] = region->getName();
+		info["HOSTNAME"] = region->getHost().getHostName();
+		info["HOSTIP"] = region->getHost().getString();
 		info["SERVER_VERSION"] = gLastVersionChannel;
-// [/RLVa:KB]
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl);
+		info["SLURL"] = slurl.getSLURLString();
 	}
 
 	// CPU
@@ -3552,19 +3508,8 @@ LLSD LLAppViewer::getViewerInfo() const
 	info["GRAPHICS_CARD_VENDOR"] = (const char*)(glGetString(GL_VENDOR));
 	info["GRAPHICS_CARD"] = (const char*)(glGetString(GL_RENDERER));
 
-#if LL_WINDOWS && defined(MAKE_ABOUT_FLOATER_HANG)
-	LLSD driver_info = gDXHardware.getDisplayInfo();
-	if (driver_info.has("DriverVersion"))
-	{
-		info["GRAPHICS_DRIVER_VERSION"] = driver_info["DriverVersion"];
-	}
-#endif
+	info["OPENGL_VERSION"] = (const char*) (glGetString(GL_VERSION));
 
-// [RLVa:KB] - Checked: 2010-04-18 (RLVa-1.2.0)
-	info["RLV_VERSION"] = (rlv_handler_t::isEnabled()) ? RlvStrings::getVersionAbout() : "(disabled)";
-// [/RLVa:KB]
-	info["OPENGL_VERSION"] = (const char*)(glGetString(GL_VERSION));
-	info["LIBCURL_VERSION"] = LLCore::LLHttp::getCURLVersion();
     // Settings
 
     LLRect window_rect = gViewerWindow->getWindowRectRaw();
@@ -3602,7 +3547,7 @@ LLSD LLAppViewer::getViewerInfo() const
 		info["VOICE_VERSION"] = LLTrans::getString("NotConnected");
 	}
 
-#if ENABLE_MEDIA_PLUGINS
+#if 1
 	info["LLCEFLIB_VERSION"] = LLCEFLIB_VERSION;
 #else
 	info["LLCEFLIB_VERSION"] = "Undefined";
@@ -3618,7 +3563,7 @@ LLSD LLAppViewer::getViewerInfo() const
 	ver_codec << LIBVLC_VERSION_REVISION;
 	info["LIBVLC_VERSION"] = ver_codec.str();
 #else
-	info["LIBVLC_VERSION"] = "Not present";
+	info["LIBVLC_VERSION"] = "Undefined";
 #endif
 
 	S32 packets_in = LLViewerStats::instance().getRecording().getSum(LLStatViewer::PACKETS_IN);
@@ -3698,10 +3643,8 @@ std::string LLAppViewer::getViewerInfoString(bool detailed) const
 	support << LLTrans::getString("AboutHeader", args);
 	if (detailed && info.has("REGION"))
 	{
-// [RLVa:KB] - Checked: 2014-02-24 (RLVa-1.4.10)
-		support << "\n" << LLTrans::getString( (RlvActions::canShowLocation()) ? "AboutPosition" : "AboutPositionRLVShowLoc", args) << "\n";
-// [/RLVa:KB]
-//		support << "\n\n" << LLTrans::getString("AboutPosition", args);
+
+		support << "\n" << LLTrans::getString("AboutPosition", args) << "\n"; // <polarity/>
 	}
 	support << "\n" << LLTrans::getString("AboutSystem", args);
 #if MAKE_ABOUT_FLOATER_HANG
@@ -3760,13 +3703,8 @@ void LLAppViewer::cleanupSavedSettings()
 	// as we don't track it in callbacks
 	if(nullptr != gViewerWindow)
 	{
-		//	BOOL maximized = gViewerWindow->mWindow->getMaximized();
-		//	if (!maximized)
-// [SL:KB] - Patch: Viewer-FullscreenWindow | Checked: 2010-08-26 (Catznip-2.1.2a) | Added: Catznip-2.1.2a
-#ifndef LL_WINDOWS
-		if ((!gViewerWindow->mWindow->getMaximized()) || (!gViewerWindow->mWindow->getFullscreenWindow()))
-#endif // !LL_WINDOWS
-// [/SL:KB]
+		BOOL maximized = gViewerWindow->getWindow()->getMaximized();
+		if (!maximized)
 		{
 			LLCoordScreen window_pos;
 			

@@ -54,9 +54,6 @@
 #include "llviewercontrol.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-// [RLVa:KB] - Checked: 2010-09-02 (RLVa-1.2.1b)
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 const F64 COVENANT_REFRESH_TIME_SEC = 60.0f;
 
@@ -83,11 +80,11 @@ static std::string icon_see_avs_off;
 
 LLPanelPlaceProfile::LLPanelPlaceProfile()
 :	LLPanelPlaceInfo(),
-	mNextCovenantUpdateTime(0),
-	mForSalePanel(NULL),
-	mYouAreHerePanel(NULL),
 	mSelectedParcelID(-1),
-	mAccordionCtrl(NULL)
+	mNextCovenantUpdateTime(0),
+	mForSalePanel(nullptr),
+	mYouAreHerePanel(nullptr),
+	mAccordionCtrl(nullptr)
 {}
 
 // virtual
@@ -287,7 +284,7 @@ void LLPanelPlaceProfile::setInfoType(EInfoType type)
 		break;
 	}
 
-	if (mAccordionCtrl != NULL)
+	if (mAccordionCtrl != nullptr)
 	{
 		mAccordionCtrl->expandDefaultTab();
 	}
@@ -568,11 +565,11 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 			mSaleToText->setText(getString("anyone"));
 		}
 
-		const U8* sign = (U8*)getString("price_text").c_str();
-		const U8* sqm = (U8*)getString("area_text").c_str();
+		const std::string sign = getString("price_text");
+		const std::string sqm = getString("area_text");
 
-		mSalesPriceText->setText(llformat("%s%d ", sign, parcel->getSalePrice()));
-		mAreaText->setText(llformat("%d %s", area, sqm));
+		mSalesPriceText->setText(llformat("%s%d ", sign.c_str(), parcel->getSalePrice()));
+		mAreaText->setText(llformat("%d %s", area, sqm.c_str()));
 		mTrafficText->setText(llformat("%.0f", dwell));
 
 		// Can't have more than region max tasks, regardless of parcel
@@ -580,10 +577,10 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 		S32 primitives = llmin(ll_round(parcel->getMaxPrimCapacity() * parcel->getParcelPrimBonus()),
 							   (S32)region->getMaxTasks());
 
-		const U8* available = (U8*)getString("available").c_str();
-		const U8* allocated = (U8*)getString("allocated").c_str();
+		const std::string available = getString("available");
+		const std::string allocated = getString("allocated");
 
-		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, available, parcel->getPrimCount(), allocated));
+		mPrimitivesText->setText(llformat("%d %s, %d %s", primitives, available.c_str(), parcel->getPrimCount(), allocated.c_str()));
 
 		if (parcel->getAllowOtherScripts())
 		{
@@ -622,10 +619,7 @@ void LLPanelPlaceProfile::displaySelectedParcelInfo(LLParcel* parcel,
 	mLastSelectedRegionID = region->getRegionID();
 	LLPanelPlaceInfo::processParcelInfo(parcel_data);
 
-//	mYouAreHerePanel->setVisible(is_current_parcel);
-// [RLVa:KB] - Checked: 2010-09-02 (RLVa-1.4.5) | Added: RLVa-1.2.1
-	mYouAreHerePanel->setVisible(is_current_parcel && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)));
-// [/RLVa:KB]
+	mYouAreHerePanel->setVisible(is_current_parcel);
 	getChild<LLAccordionCtrlTab>("sales_tab")->setVisible(for_sale);
 	mAccordionCtrl->arrange();
 }
@@ -693,9 +687,6 @@ void LLPanelPlaceProfile::updateYouAreHereBanner(void* userdata)
 		BOOL display_banner = gAgent.getRegion()->getRegionID() == self->mLastSelectedRegionID &&
 										LLAgentUI::checkAgentDistance(self->mPosRegion, radius);
 
-//		self->mYouAreHerePanel->setVisible(display_banner);
-// [RLVa:KB] - Checked: 2010-09-02 (RLVa-1.4.5) | Added: RLVa-1.2.1
-		self->mYouAreHerePanel->setVisible(display_banner && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC)));
-// [/RLVa:KB]
+		self->mYouAreHerePanel->setVisible(display_banner);
 	}
 }

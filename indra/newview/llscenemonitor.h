@@ -27,7 +27,6 @@
 #ifndef LL_LLSCENE_MONITOR_H
 #define LL_LLSCENE_MONITOR_H
 
-#include "llsingleton.h"
 #include "llmath.h"
 #include "llfloater.h"
 #include "llcharacter.h"
@@ -112,13 +111,13 @@ class LLSceneMonitorView : public LLFloater
 public:
 	LLSceneMonitorView(const LLRect& rect);
 	~LLSceneMonitorView();
-	virtual void draw();
+	void draw() override;
 
-	virtual void onVisibilityChange(BOOL visible);
+	void onVisibilityChange(BOOL visible) override;
 
 protected:
-	virtual void onClose(bool app_quitting=false);
-	virtual void onClickCloseBtn(bool app_quitting=false);
+	void onClose(bool app_quitting=false) override;
+	void onClickCloseBtn(bool app_quitting=false) override;
 	void onTeleportFinished();
 	boost::signals2::connection sTeleportFinishConnection;
 };

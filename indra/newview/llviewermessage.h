@@ -216,7 +216,7 @@ class LLViewerMessage : public  LLSingleton<LLViewerMessage>
 {
 	LLSINGLETON_EMPTY_CTOR(LLViewerMessage);
 public:
-	typedef boost::function<void()> teleport_started_callback_t;
+	typedef std::function<void()> teleport_started_callback_t;
 	typedef boost::signals2::signal<void()> teleport_started_signal_t;
 	boost::signals2::connection setTeleportStartedCallback(teleport_started_callback_t cb);
 
@@ -248,9 +248,9 @@ public:
 	bool mPersist;
 
 	// LLNotificationResponderInterface implementation
-	/*virtual*/ LLSD asLLSD();
-	/*virtual*/ void fromLLSD(const LLSD& params);
-	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response);
+	/*virtual*/ LLSD asLLSD() override;
+	/*virtual*/ void fromLLSD(const LLSD& params) override;
+	/*virtual*/ void handleRespond(const LLSD& notification, const LLSD& response) override;
 
 	void send_auto_receive_response(void);
 
@@ -262,7 +262,7 @@ private:
 
 	void initRespondFunctionMap();
 
-	typedef boost::function<bool (const LLSD&, const LLSD&)> respond_function_t;
+	typedef std::function<bool (const LLSD&, const LLSD&)> respond_function_t;
 	typedef std::map<std::string, respond_function_t> respond_function_map_t;
 
 	respond_function_map_t mRespondFunctions;

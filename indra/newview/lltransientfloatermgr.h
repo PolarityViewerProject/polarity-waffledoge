@@ -28,7 +28,6 @@
 #define LL_LLTRANSIENTFLOATERMGR_H
 
 #include "llui.h"
-#include "llsingleton.h"
 #include "llfloater.h"
 
 class LLTransientFloater;
@@ -71,6 +70,9 @@ private:
  */
 class LLTransientFloater
 {
+public:
+    virtual ~LLTransientFloater() {}
+    
 protected:
 	/**
 	 * Class initialization method.

@@ -31,14 +31,15 @@
 
 #include "llsyswellitem.h"
 
-#include "llwindow.h"
 #include "v4color.h"
+#include "llbutton.h"
+#include "lltextbox.h"
 #include "lluicolortable.h"
 
 //---------------------------------------------------------------------------------
 LLSysWellItem::LLSysWellItem(const Params& p) : LLPanel(p),
-												mTitle(NULL),
-												mCloseBtn(NULL)
+												mTitle(nullptr),
+												mCloseBtn(nullptr)
 {
 	buildFromFile( "panel_sys_well_item.xml");
 
@@ -58,7 +59,7 @@ LLSysWellItem::~LLSysWellItem()
 }
 
 //---------------------------------------------------------------------------------
-void LLSysWellItem::setTitle( std::string title )
+void LLSysWellItem::setTitle( const std::string& title )
 {
 	mTitle->setValue(title);
 }

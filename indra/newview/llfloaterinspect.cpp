@@ -43,12 +43,6 @@
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewerobject.h"
-#include "lluictrlfactory.h"
-// [RLVa:KB] - Checked: RLVa-2.0.1
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "rlvui.h"
-// [/RLVa:KB]
 
 LLFloaterInspect::LLFloaterInspect(const LLSD& key)
   : LLFloater(key),
@@ -169,37 +163,21 @@ void LLFloaterInspect::onClickOwnerProfile()
 			else
 			{
 				const LLUUID& owner_id = node->mPermissions->getOwner();
-				if (!RlvActions::canShowName(RlvActions::SNC_DEFAULT, owner_id))
-					return;
 				LLAvatarActions::showProfile(owner_id);
 			}
 
 		}
+	}
 }
 
 void LLFloaterInspect::onSelectObject()
 {
 	if(LLFloaterInspect::getSelectedUUID() != LLUUID::null)
 	{
-		if (!RlvActions::isRlvEnabled())
-		{
-			getChildView("button owner")->setEnabled(true);
-			getChildView("button creator")->setEnabled(true);
-		}
-		else
-		{
-			const LLSelectNode* node = getSelectedNode();
-			const LLUUID& idOwner = (node) ? node->mPermissions->getOwner() : LLUUID::null;
-			const LLUUID& idCreator = (node) ? node->mPermissions->getCreator() : LLUUID::null;
-
-			// See LLFloaterInspect::onClickCreatorProfile()
-			getChildView("button owner")->setEnabled( (RlvActions::canShowName(RlvActions::SNC_DEFAULT, idOwner)) || ((node) && (node->mPermissions->isGroupOwned())) );
-			// See LLFloaterInspect::onClickOwnerProfile()
-			getChildView("button creator")->setEnabled( ((idOwner != idCreator) && (!RlvUtil::isNearbyAgent(idCreator))) || (RlvActions::canShowName(RlvActions::SNC_DEFAULT, idCreator)) );
-		}
+		getChildView("button owner")->setEnabled(true);
+		getChildView("button creator")->setEnabled(true);
 	}
 }
-
 
 LLUUID LLFloaterInspect::getSelectedUUID()
 {
@@ -282,11 +260,7 @@ void LLFloaterInspect::refresh()
 			// actual name and set a placeholder.
 			if (LLAvatarNameCache::get(idOwner, &av_name))
 			{
-// [RLVa:KB] - Checked: RLVa-2.0.1
-				bool fRlvCanShowName = (RlvActions::canShowName(RlvActions::SNC_DEFAULT, idOwner)) || (obj->mPermissions->isGroupOwned());
-				owner_name = (fRlvCanShowName) ? av_name.getCompleteName() : RlvStrings::getAnonym(av_name);
-// [/RLVa:KB]
-//				owner_name = av_name.getCompleteName();
+				owner_name = av_name.getCompleteName();
 			}
 			else
 			{
@@ -301,12 +275,7 @@ void LLFloaterInspect::refresh()
 
 		if (LLAvatarNameCache::get(idCreator, &av_name))
 		{
-// [RLVa:KB] - Checked: RLVa-2.0.1
-			const LLUUID& idCreator = obj->mPermissions->getCreator();
-			bool fRlvCanShowName = (RlvActions::canShowName(RlvActions::SNC_DEFAULT, idCreator)) || ( (obj->mPermissions->getOwner() != idCreator) && (!RlvUtil::isNearbyAgent(idCreator)) );
-			creator_name = (fRlvCanShowName) ? av_name.getCompleteName() : RlvStrings::getAnonym(av_name);
-// [/RLVa:KB]
-//			creator_name = av_name.getCompleteName();
+			creator_name = av_name.getCompleteName();
 		}
 		else
 		{
@@ -387,29 +356,3 @@ void LLFloaterInspect::draw()
 
 	LLFloater::draw();
 }
-
-// [RLVa:KB] - Checked: RLVa-2.0.1
-const LLSelectNode* LLFloaterInspect::getSelectedNode() /*const*/
-{
-	if(mObjectList->getAllSelected().size() == 0)
-	{
-		return NULL;
-	}
-	LLScrollListItem* first_selected =mObjectList->getFirstSelected();
-
-	if (first_selected)
-	{
-		struct f : public LLSelectedNodeFunctor
-		{
-			LLUUID obj_id;
-			f(const LLUUID& id) : obj_id(id) {}
-			virtual bool apply(LLSelectNode* node)
-			{
-				return (obj_id == node->getObject()->getID());
-			}
-		} func(first_selected->getUUID());
-		return mObjectSelection->getFirstNode(&func);
-	}
-	return NULL;
-}
-// [/RLVa:KB]

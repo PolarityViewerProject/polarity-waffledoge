@@ -44,11 +44,10 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/regex.hpp>
 #include <boost/regex/v4/match_results.hpp>
-#include <boost/foreach.hpp>
+
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/date_time/local_time_adjustor.hpp>
-#include "llstartup.h"
 
 const S32 LOG_RECALL_SIZE = 2048;
 
@@ -58,7 +57,8 @@ const std::string LL_IM_FROM("from");
 const std::string LL_IM_FROM_ID("from_id");
 const std::string LL_TRANSCRIPT_FILE_EXTENSION("txt");
 
-const static std::string IM_SEPARATOR(": ");
+const static char IM_SYMBOL_SEPARATOR(':');
+const static std::string IM_SEPARATOR(std::string() + IM_SYMBOL_SEPARATOR + " ");
 const static std::string NEW_LINE("\n");
 const static std::string NEW_LINE_SPACE_PREFIX("\n ");
 const static std::string TWO_SPACES("  ");
@@ -80,12 +80,6 @@ const static std::string MULTI_LINE_PREFIX(" ");
  */
 const static boost::regex TIMESTAMP_AND_STUFF("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}\\]\\s+)?(.*)$");
 const static boost::regex TIMESTAMP("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}\\]|\\[\\d{1,2}:\\d{2}\\]).*");
-// <FS:Ansariel> Timestamps in chat
-// Note: In contrast to the TIMESTAMP_AND_STUFF regex, for the TIMESTAMP_AND_STUFF_SEC regex the match
-// on the timestamp is NOT optional. We need this to decide during parsing if we have timestamps or not.
-const static boost::regex TIMESTAMP_AND_STUFF_SEC("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}:\\d{2}\\]\\s+|\\[\\d{1,2}:\\d{2}:\\d{2}\\]\\s+)(.*)$");
-const static boost::regex TIMESTAMP_AND_SEC("^(\\[\\d{4}/\\d{1,2}/\\d{1,2}\\s+\\d{1,2}:\\d{2}:\\d{2}\\]|\\[\\d{1,2}:\\d{2}:\\d{2}\\]).*");
-// </FS:Ansariel>
 
 /**
  *  Regular expression suitable to match names like
@@ -109,10 +103,6 @@ const static std::string NAME_TEXT_DIVIDER(": ");
 // is used for timestamps adjusting
 const static char* DATE_FORMAT("%Y/%m/%d %H:%M");
 const static char* TIME_FORMAT("%H:%M");
-// <FS:Ansariel> Seconds in timestamps
-const static char* DATE_FORMAT_SEC("%Y/%m/%d %H:%M:%S");
-const static char* TIME_FORMAT_SEC("%H:%M:%S");
-// </FS:Ansariel>
 
 const static int IDX_TIMESTAMP = 1;
 const static int IDX_STUFF = 2;
@@ -136,12 +126,11 @@ class LLLogChatTimeScanner: public LLSingleton<LLLogChatTimeScanner>
 	LLSINGLETON(LLLogChatTimeScanner);
 
 public:
-
 	date getTodayPacificDate()
 	{
 		typedef	boost::date_time::local_adjustor<ptime, -8, no_dst> pst;
 		typedef boost::date_time::local_adjustor<ptime, -7, no_dst> pdt;
-		time_t t_time = time(NULL);
+		time_t t_time = time(nullptr);
 		ptime p_time = LLStringOps::getPacificDaylightTime()
 			? pdt::utc_to_local(from_time_t(t_time))
 			: pst::utc_to_local(from_time_t(t_time));
@@ -195,61 +184,10 @@ public:
 			<< LL_ENDL;
 	}
 
-	// <FS:Ansariel> Seconds in timestamps
-	void checkAndCutOffDateWithSec(std::string& time_str)
-	{
-		// Cuts off the "%Y/%m/%d" from string for todays timestamps.
-		// Assume that passed string has at least "%H:%M:%S" time format.
-		date log_date(not_a_date_time);
-		date today(getTodayPacificDate());
-
-		// Parse the passed date
-		mDateSecStream.str(LLStringUtil::null);
-		mDateSecStream << time_str;
-		mDateSecStream >> log_date;
-		mDateSecStream.clear();
-
-		days zero_days(0);
-		days days_alive = today - log_date;
-
-		if ( days_alive == zero_days )
-		{
-			// Yep, today's so strip "%Y/%m/%d" info
-			ptime stripped_time(not_a_date_time);
-
-			mTimeSecStream.str(LLStringUtil::null);
-			mTimeSecStream << time_str;
-			mTimeSecStream >> stripped_time;
-			mTimeSecStream.clear();
-
-			time_str.clear();
-
-			mTimeSecStream.str(LLStringUtil::null);
-			mTimeSecStream << stripped_time;
-			mTimeSecStream >> time_str;
-			mTimeSecStream.clear();
-		}
-
-		LL_DEBUGS("LLChatLogParser")
-			<< " log_date: "
-			<< log_date
-			<< " today: "
-			<< today
-			<< " days alive: "
-			<< days_alive
-			<< " new time: "
-			<< time_str
-			<< LL_ENDL;
-	}
-	// </FS:Ansariel>
 
 private:
 	std::stringstream mDateStream;
 	std::stringstream mTimeStream;
-	// <FS:Ansariel> Seconds in timestamps
-	std::stringstream mDateSecStream;
-	std::stringstream mTimeSecStream;
-	// </FS:Ansariel>
 };
 
 inline
@@ -259,19 +197,13 @@ LLLogChatTimeScanner::LLLogChatTimeScanner()
 	mDateStream.imbue(std::locale(mDateStream.getloc(), new date_input_facet(DATE_FORMAT)));
 	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_facet(TIME_FORMAT)));
 	mTimeStream.imbue(std::locale(mTimeStream.getloc(), new time_input_facet(DATE_FORMAT)));
-	
-	// <FS:Ansariel> Seconds in timestamps
-	mDateSecStream.imbue(std::locale(mDateSecStream.getloc(), new date_input_facet(DATE_FORMAT_SEC)));
-	mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_facet(TIME_FORMAT_SEC)));
-	mTimeSecStream.imbue(std::locale(mTimeSecStream.getloc(), new time_input_facet(DATE_FORMAT_SEC)));
-	// </FS:Ansariel>
 }
 
-LLLogChat::save_history_signal_t * LLLogChat::sSaveHistorySignal = NULL;
+LLLogChat::save_history_signal_t * LLLogChat::sSaveHistorySignal = nullptr;
 
 std::map<LLUUID,LLLoadHistoryThread *> LLLogChat::sLoadHistoryThreads;
 std::map<LLUUID,LLDeleteHistoryThread *> LLLogChat::sDeleteHistoryThreads;
-LLMutex* LLLogChat::sHistoryThreadsMutex = NULL;
+LLMutex* LLLogChat::sHistoryThreadsMutex = nullptr;
 
 
 //static
@@ -328,24 +260,20 @@ std::string LLLogChat::cleanFileName(std::string filename)
 
 std::string LLLogChat::timestamp(bool withdate)
 {
-	static LLCachedControl<bool> seconds_in_timestamps(gSavedSettings, "PVChat_SecondsinTimestamps", true);
-
-	// <polarity> Taken from Firestorm, reduced code duplication.
-	std::string timeStr = "[";
+	std::string timeStr;
 	if (withdate)
 	{
-		timeStr +=	LLTrans::getString ("TimeYear")	+ "]/["
+		timeStr = "[" + LLTrans::getString ("TimeYear") + "]/["
 				  + LLTrans::getString ("TimeMonth") + "]/["
-				  + LLTrans::getString ("TimeDay")	+ "]/[";
+				  + LLTrans::getString ("TimeDay") + "] ["
+				  + LLTrans::getString ("TimeHour") + "]:["
+				  + LLTrans::getString ("TimeMin") + "]";
 	}
-	timeStr += LLTrans::getString ("TimeHour") + "]:["
-			 + LLTrans::getString ("TimeMin") + "]";
-	
-	if (seconds_in_timestamps)
+	else
 	{
-		timeStr += ":[" + LLTrans::getString ("TimeSec") + "]";
+		timeStr = "[" + LLTrans::getString("TimeHour") + "]:["
+				  + LLTrans::getString ("TimeMin")+"]";
 	}
-	// <polarity>
 
 	LLSD substitution;
 	substitution["datetime"] = (S32)time_corrected();
@@ -361,10 +289,6 @@ void LLLogChat::saveHistory(const std::string& filename,
 							const LLUUID& from_id,
 							const std::string& line)
 {
-	if(LLStartUp::getStartupState() <= STATE_LOGIN_CLEANUP)
-	{
-		return;
-	}
 	std::string tmp_filename = filename;
 	LLStringUtil::trim(tmp_filename);
 	if (tmp_filename.empty())
@@ -404,7 +328,7 @@ void LLLogChat::saveHistory(const std::string& filename,
 
 	file.close();
 
-	if (NULL != sSaveHistorySignal)
+	if (nullptr != sSaveHistorySignal)
 	{
 		(*sSaveHistorySignal)();
 	}
@@ -433,7 +357,7 @@ void LLLogChat::loadChatHistory(const std::string& file_name, std::list<LLSD>& m
 
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 	char *bptr;
-	S32 len;
+	size_t len;  // <alchemy/>
 	bool firstline = TRUE;
 
 	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
@@ -513,7 +437,7 @@ LLLoadHistoryThread* LLLogChat::getLoadHistoryThread(LLUUID session_id)
 	{
 		return it->second;
 	}
-	return NULL;
+	return nullptr;
 }
 
 // static
@@ -525,7 +449,7 @@ LLDeleteHistoryThread* LLLogChat::getDeleteHistoryThread(LLUUID session_id)
 	{
 		return it->second;
 	}
-	return NULL;
+	return nullptr;
 }
 
 // static
@@ -580,7 +504,7 @@ void LLLogChat::cleanupHistoryThreads()
 //static
 LLMutex* LLLogChat::historyThreadsMutex()
 {
-	if (sHistoryThreadsMutex == NULL)
+	if (!sHistoryThreadsMutex)
 	{
 		sHistoryThreadsMutex = new LLMutex();
 	}
@@ -626,7 +550,7 @@ std::string LLLogChat::oldLogFileName(std::string filename)
 }
 
 // static
-void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string>& list_of_transcriptions)
+void LLLogChat::findTranscriptFiles(const std::string& pattern, std::vector<std::string>& list_of_transcriptions)
 {
 	// get Users log directory
 	std::string dirname = gDirUtilp->getPerAccountChatLogsDir();
@@ -641,9 +565,9 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 		std::string fullname = gDirUtilp->add(dirname, filename);
 
 		LLFILE * filep = LLFile::fopen(fullname, "rb");
-		if (NULL != filep)
+		if (nullptr != filep)
 		{
-			if(makeLogFileName("chat")== fullname)
+			if(makeLogFileName("chat") == fullname)
 			{
 				//Add Nearby chat history to the list of transcriptions
 				list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
@@ -653,7 +577,7 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 			char buffer[LOG_RECALL_SIZE];
 
 			fseek(filep, 0, SEEK_END);			// seek to end of file
-			S32 bytes_to_read = ftell(filep);	// get current file pointer
+			size_t bytes_to_read = ftell(filep);	// get current file pointer
 			fseek(filep, 0, SEEK_SET);			// seek back to beginning of file
 
 			// limit the number characters to read from file
@@ -662,14 +586,11 @@ void LLLogChat::findTranscriptFiles(std::string pattern, std::vector<std::string
 				bytes_to_read = LOG_RECALL_SIZE - 1;
 			}
 
-			if (bytes_to_read > 0 && NULL != fgets(buffer, bytes_to_read, filep))
+			if (bytes_to_read > 0 && nullptr != fgets(buffer, bytes_to_read, filep))
 			{
 				//matching a timestamp
 				boost::match_results<std::string::const_iterator> matches;
-				// <FS:Ansariel> Seconds in timestamp
-				//if (boost::regex_match(std::string(buffer), matches, TIMESTAMP))
-				if (boost::regex_match(std::string(buffer), matches, TIMESTAMP) || boost::regex_match(std::string(buffer), matches, TIMESTAMP_AND_SEC))
-				// </FS:Ansariel>
+				if (boost::regex_match(std::string(buffer), matches, TIMESTAMP))
 				{
 					list_of_transcriptions.push_back(gDirUtilp->add(dirname, filename));
 				}
@@ -698,7 +619,7 @@ void LLLogChat::getListOfTranscriptBackupFiles(std::vector<std::string>& list_of
 //static
 boost::signals2::connection LLLogChat::setSaveHistorySignal(const save_history_signal_t::slot_type& cb)
 {
-	if (NULL == sSaveHistorySignal)
+	if (nullptr == sSaveHistorySignal)
 	{
 		sSaveHistorySignal = new save_history_signal_t();
 	}
@@ -717,7 +638,7 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 	std::string backupFileName;
 	unsigned backupFileCount;
 
-	BOOST_FOREACH(const std::string& fullpath, listOfFilesToMove)
+	for (const std::string& fullpath : listOfFilesToMove)
 	{
 		backupFileCount = 0;
 		newFullPath = targetDirectory + fullpath.substr(originDirectory.length(), std::string::npos);
@@ -731,7 +652,7 @@ bool LLLogChat::moveTranscripts(const std::string originDirectory,
 			while(LLFile::isfile(backupFileName))
 			{
 				++backupFileCount;
-				backupFileName = newFullPath + ".backup" + boost::lexical_cast<std::string>(backupFileCount);
+				backupFileName = newFullPath + ".backup" + std::to_string(backupFileCount);
 			}
 
 			//Rename the file to its backup name so it is not overwritten
@@ -788,7 +709,7 @@ void LLLogChat::deleteTranscripts()
 	getListOfTranscriptFiles(list_of_transcriptions);
 	getListOfTranscriptBackupFiles(list_of_transcriptions);
 
-	BOOST_FOREACH(const std::string& fullpath, list_of_transcriptions)
+	for (const std::string& fullpath : list_of_transcriptions)
 	{
 		S32 retry_count = 0;
 		while (retry_count < 5)
@@ -825,54 +746,47 @@ void LLLogChat::deleteTranscripts()
 // static
 bool LLLogChat::isTranscriptExist(const LLUUID& avatar_id, bool is_group)
 {
-// <FS:Ansariel> FIRE-13725 / CHUIBUG-222: Viewer freezes when opening preferences or right-clicking on friends' names
-	std::vector<std::string> list_of_transcriptions;
-	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
-
-	std::string file_name;
-	if (!is_group)
+	if (is_group)
 	{
-		LLAvatarName avatar_name;
-		LLAvatarNameCache::get(avatar_id, &avatar_name);
-		std::string avatar_user_name = avatar_name.getAccountName();
-		std::replace(avatar_user_name.begin(), avatar_user_name.end(), '.', '_');
-		file_name = makeLogFileName(avatar_user_name);
+		std::string file_name;
+		gCacheName->getGroupName(avatar_id, file_name);
+		file_name = makeLogFileName(file_name);
+		return gDirUtilp->fileExists(file_name);
 	}
 	else
 	{
-		gCacheName->getGroupName(avatar_id, file_name);
+		std::string file_name;
+		LLAvatarName avatar_name;
+		LLAvatarNameCache::get(avatar_id, &avatar_name);
+		if (gSavedSettings.getBOOL("UseLegacyLogNames"))
+		{
+			file_name = avatar_name.getUserName();
+			file_name = file_name.substr(0, file_name.find(" Resident"));
+		}
+		else
+		{
+			std::string file_name = avatar_name.getAccountName();
+			std::replace(file_name.begin(), file_name.end(), '.', '_');
+		}
 		file_name = makeLogFileName(file_name);
+		return gDirUtilp->fileExists(file_name);
 	}
-	if ((!file_name.empty()) && (LLFile::isfile(file_name)))
-	{
-		return true;
-	}
-	// </FS:Ansariel>
-
-	return false;
 }
 
 bool LLLogChat::isNearbyTranscriptExist()
 {
-	// <FS:Ansariel> FIRE-13725 / CHUIBUG-222: Viewer freezes when opening preferences or right-clicking on friends' names
-	//std::vector<std::string> list_of_transcriptions;
-	//LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
+	std::vector<std::string> list_of_transcriptions;
+	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
 
-	//std::string file_name;
-	//file_name = makeLogFileName("chat");
-	//BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
-	//{
-	//   	if (transcript_file_name == file_name)
-	//   	{
-	//		return true;
-	//	 }
-	//}
-	std::string strFilePath = makeLogFileName("chat");
-	if ( (!strFilePath.empty()) && (LLFile::isfile(strFilePath)) )
+	std::string file_name;
+	file_name = makeLogFileName("chat");
+	for (std::string& transcript_file_name : list_of_transcriptions)
 	{
-		return true;
+	   	if (transcript_file_name == file_name)
+	   	{
+			return true;
+		 }
 	}
-	// </FS:Ansariel>
 	return false;
 }
 
@@ -882,7 +796,7 @@ bool LLLogChat::isAdHocTranscriptExist(std::string file_name)
 	LLLogChat::getListOfTranscriptFiles(list_of_transcriptions);
 
 	file_name = makeLogFileName(file_name);
-	BOOST_FOREACH(std::string& transcript_file_name, list_of_transcriptions)
+	for(std::string& transcript_file_name : list_of_transcriptions)
 	{
 	   	if (transcript_file_name == file_name)
 	   	{
@@ -904,7 +818,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	}
 
 	if (im[LL_IM_TIME].isDefined())
-{
+	{
 		std::string timestamp = im[LL_IM_TIME].asString();
 		boost::trim(timestamp);
 		ostr << '[' << timestamp << ']' << TWO_SPACES;
@@ -917,9 +831,29 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 	{
 		std::string from = im[LL_IM_FROM].asString();
 		boost::trim(from);
-		if (from.size())
+
+		std::size_t found = from.find(IM_SYMBOL_SEPARATOR);
+		std::size_t len = from.size();
+		std::size_t start = 0;
+		while (found != std::string::npos)
 		{
-			ostr << from << IM_SEPARATOR;
+			std::size_t sub_len = found - start;
+			if (sub_len > 0)
+			{
+				ostr << from.substr(start, sub_len);
+			}
+			LLURI::encodeCharacter(ostr, IM_SYMBOL_SEPARATOR);
+			start = found + 1;
+			found = from.find(IM_SYMBOL_SEPARATOR, start);
+		}
+		if (start < len)
+		{
+			std::string str_end = from.substr(start, len - start);
+			ostr << str_end;
+		}
+		if (len > 0)
+		{
+			ostr << IM_SEPARATOR;
 		}
 	}
 
@@ -931,7 +865,7 @@ void LLChatLogFormatter::format(const LLSD& im, std::ostream& ostr) const
 		boost::replace_all(im_text, NEW_LINE, NEW_LINE_SPACE_PREFIX);
 		ostr << im_text;
 	}
-	}
+}
 
 bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params)
 {
@@ -942,26 +876,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 
 	//matching a timestamp
 	boost::match_results<std::string::const_iterator> matches;
-	// <FS:Ansariel> Seconds in timestamps
-	// Logic here: First try to get a full match for timestamps with seconds. If we fail,
-	// this means we either have a timestamp without seconds or no timestamp at all.
-	// So we use the original regex for timestamps without seconds to find out what
-	// case it is. For this to work, the timestamp part in the TIMESTAMP_AND_STUFF_SEC
-	// regex is NOT optional!
-	//if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
-	bool has_sec = false;
-	if (boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF_SEC))
-	{
-		has_sec = true;
-	}
-	else
-	{
-		if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF))
-		{
-			return false;
-		}
-	}
-	// </FS:Ansariel>
+	if (!boost::regex_match(raw, matches, TIMESTAMP_AND_STUFF)) return false;
 	
 	bool has_timestamp = matches[IDX_TIMESTAMP].matched;
 	if (has_timestamp)
@@ -974,17 +889,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 
 		if (cut_off_todays_date)
 		{
-			// <FS:Ansariel> Seconds in timestamps
-			//LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
-			if (has_sec)
-			{
-				LLLogChatTimeScanner::instance().checkAndCutOffDateWithSec(timestamp);
-			}
-			else
-			{
-				LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
-			}
-			// </FS:Ansariel>
+			LLLogChatTimeScanner::instance().checkAndCutOffDate(timestamp);
 		}
 
 		im[LL_IM_TIME] = timestamp;
@@ -1007,7 +912,7 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	if (!boost::regex_match(stuff, name_and_text, NAME_AND_TEXT)) return false;
 
 	bool has_name = name_and_text[IDX_NAME].matched;
-	std::string name = name_and_text[IDX_NAME];
+	std::string name = LLURI::unescape(name_and_text[IDX_NAME]);
 
 	//we don't need a name/text separator
 	if (has_name && name.length() && name[name.length()-1] == ':')
@@ -1025,10 +930,10 @@ bool LLChatLogParser::parse(std::string& raw, LLSD& im, const LLSD& parse_params
 	//possibly a case of complex object names consisting of 3+ words
 	if (!has_name)
 	{
-		size_t divider_pos = stuff.find(NAME_TEXT_DIVIDER);
+		std::string::size_type divider_pos = stuff.find(NAME_TEXT_DIVIDER);
 		if (divider_pos != std::string::npos && divider_pos < (stuff.length() - NAME_TEXT_DIVIDER.length()))
 		{
-			im[LL_IM_FROM] = stuff.substr(0, divider_pos);
+			im[LL_IM_FROM] = LLURI::unescape(stuff.substr(0, divider_pos));
 			im[LL_IM_TEXT] = stuff.substr(divider_pos + NAME_TEXT_DIVIDER.length());
 			return true;
 		}
@@ -1072,23 +977,23 @@ LLDeleteHistoryThread::~LLDeleteHistoryThread()
 }
 void LLDeleteHistoryThread::run()
 {
-	if (mLoadThread != NULL)
+	if (mLoadThread != nullptr)
 	{
 		mLoadThread->waitFinished();
 	}
-	if (NULL != mMessages)
+	if (nullptr != mMessages)
 	{
 		delete mMessages;
 	}
-	mMessages = NULL;
+	mMessages = nullptr;
 	setFinished();
 }
 
 LLActionThread::LLActionThread(const std::string& name)
 	: LLThread(name),
+	mFinished(false),
 	mMutex(),
-	mRunCondition(),
-	mFinished(false)
+	mRunCondition()
 {
 }
 
@@ -1120,11 +1025,11 @@ void LLActionThread::setFinished()
 
 LLLoadHistoryThread::LLLoadHistoryThread(const std::string& file_name, std::list<LLSD>* messages, const LLSD& load_params)
 	: LLActionThread("load chat history"),
-	mMessages(messages),
 	mFileName(file_name),
+	mMessages(messages),
 	mLoadParams(load_params),
 	mNewLoad(true),
-	mLoadEndSignal(NULL)
+	mLoadEndSignal(nullptr)
 {
 }
 
@@ -1168,7 +1073,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 	char buffer[LOG_RECALL_SIZE];		/*Flawfinder: ignore*/
 
 	char *bptr;
-	size_t len;
+	size_t len;  // <alchemy/>
 	bool firstline = TRUE;
 
 	if (load_all_history || fseek(fptr, (LOG_RECALL_SIZE - 1) * -1  , SEEK_END))
@@ -1227,7 +1132,7 @@ void LLLoadHistoryThread::loadHistory(const std::string& file_name, std::list<LL
 	
 boost::signals2::connection LLLoadHistoryThread::setLoadEndSignal(const load_end_signal_t::slot_type& cb)
 {
-	if (NULL == mLoadEndSignal)
+	if (nullptr == mLoadEndSignal)
 	{
 		mLoadEndSignal = new load_end_signal_t();
 	}
@@ -1237,10 +1142,10 @@ boost::signals2::connection LLLoadHistoryThread::setLoadEndSignal(const load_end
 
 void LLLoadHistoryThread::removeLoadEndSignal(const load_end_signal_t::slot_type& cb)
 {
-	if (NULL != mLoadEndSignal)
+	if (nullptr != mLoadEndSignal)
 	{
 		mLoadEndSignal->disconnect_all_slots();
 		delete mLoadEndSignal;
 	}
-	mLoadEndSignal = NULL;
+	mLoadEndSignal = nullptr;
 }

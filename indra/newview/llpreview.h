@@ -32,7 +32,6 @@
 #include "llpointer.h"
 #include "lluuid.h"
 #include "llinventoryobserver.h"
-#include "llextendedstatus.h"
 
 class LLInventoryItem;
 class LLLineEditor;
@@ -44,9 +43,9 @@ class LLMultiPreview : public LLMultiFloater
 public:
 	LLMultiPreview();
 
-	/*virtual*/void onOpen(const LLSD& key);
-	/*virtual*/void tabOpen(LLFloater* opened_floater, bool from_click);
-	/*virtual*/ void handleReshape(const LLRect& new_rect, bool by_user = false);
+	void onOpen(const LLSD& key) override;
+	void tabOpen(LLFloater* opened_floater, bool from_click) override;
+	void handleReshape(const LLRect& new_rect, bool by_user = false) override;
 
 };
 
@@ -62,11 +61,11 @@ public:
 		PREVIEW_ASSET_LOADING,
 		PREVIEW_ASSET_LOADED
 	} EAssetStatus;
-public:
+
 	LLPreview(const LLSD& key );
 	virtual ~LLPreview();
 		
-	/*virtual*/ BOOL postBuild();
+	BOOL postBuild() override;
 	
 	virtual void setObjectID(const LLUUID& object_id);
 	void setItem( LLInventoryItem* item );
@@ -76,33 +75,30 @@ public:
 
 	static void hide(const LLUUID& item_uuid, BOOL no_saving = FALSE );
 	static void	dirty(const LLUUID& item_uuid);
-	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL handleMouseUp(S32 x, S32 y, MASK mask);
-	virtual BOOL handleHover(S32 x, S32 y, MASK mask);
-	virtual void onOpen(const LLSD& key);
+
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL handleMouseUp(S32 x, S32 y, MASK mask) override;
+	BOOL handleHover(S32 x, S32 y, MASK mask) override;
+	void onOpen(const LLSD& key) override;
 	
 	void setAuxItem( const LLInventoryItem* item );
 
 	static void			onBtnCopyToInv(void* userdata);
 
-	void				addKeepDiscardButtons();
 	static void			onKeepBtn(void* data);
 	static void			onDiscardBtn(void* data);
-	/*virtual*/ void	handleReshape(const LLRect& new_rect, bool by_user = false);
+	void				handleReshape(const LLRect& new_rect, bool by_user = false) override;
 
 	void userResized() { mUserResized = TRUE; };
 
 	virtual void loadAsset() { mAssetStatus = PREVIEW_ASSET_LOADED; }
 	virtual EAssetStatus getAssetStatus() { return mAssetStatus;}
 
-	static LLPreview* getFirstPreviewForSource(const LLUUID& source_id);
-
 	// Why is this at the LLPreview level?  JC
 	void setNotecardInfo(const LLUUID& notecard_inv_id, const LLUUID& object_id);
 
 	// llview
-	/*virtual*/ void draw();
+	/*virtual*/ void draw() override;
 	void refreshFromItem();
 
 	// We can't modify Item or description in preview if either in-world Object
@@ -110,18 +106,15 @@ public:
 	static BOOL canModify(const LLUUID taskUUID, const LLInventoryItem* item);
 
 protected:
-	virtual void onCommit();
-
-	void addDescriptionUI();
+	void onCommit() override;
 
 	static void onText(LLUICtrl*, void* userdata);
 	static void onRadio(LLUICtrl*, void* userdata);
 	
 	// for LLInventoryObserver 
-	virtual void changed(U32 mask);	
+	void changed(U32 mask) override;	
 	BOOL mDirty;
 	
-protected:
 	LLUUID mItemUUID;
 
 	// mObjectUUID will have a value if it is associated with a task in

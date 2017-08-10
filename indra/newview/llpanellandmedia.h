@@ -28,10 +28,11 @@
 #ifndef LLPANELLANDMEDIA_H
 #define LLPANELLANDMEDIA_H
 
-#include "lllineeditor.h"
 #include "llpanel.h"
 #include "llparcelselection.h"
 #include "lluifwd.h"	// widget pointer types
+
+class LLLineEditor;
 
 class LLPanelLandMedia
 :	public LLPanel
@@ -39,15 +40,16 @@ class LLPanelLandMedia
 public:
 	LLPanelLandMedia(LLSafeHandle<LLParcelSelection>& parcelp);
 	/*virtual*/ ~LLPanelLandMedia();
-	/*virtual*/ BOOL postBuild();
-	void refresh();
+	/*virtual*/ BOOL postBuild() override;
+	void refresh() override;
 	void setMediaType(const std::string& media_type);
 	void setMediaURL(const std::string& media_type);
 	std::string getMediaURL();
 
 private:
 	void populateMIMECombo();
-	static void onCommitAny(LLUICtrl* ctrl, void *userdata);
+	void onCommitAny();
+	void onCommitMusicUrl();
 	static void onCommitType(LLUICtrl* ctrl, void *userdata);
 	static void onSetBtn(void* userdata);
 	static void onResetBtn(void* userdata);
@@ -64,7 +66,14 @@ private:
 	LLCheckBoxCtrl*	mMediaAutoScaleCheck;
 	LLCheckBoxCtrl*	mMediaLoopCheck;
 	LLHandle<LLFloater>	mURLEntryFloater;
-
+	
+	LLCheckBoxCtrl* mCheckSoundLocal;
+	LLCheckBoxCtrl* mCheckParcelEnableVoice;
+	LLCheckBoxCtrl* mCheckEstateDisabledVoice;
+	LLCheckBoxCtrl* mCheckParcelVoiceLocal;
+	LLComboBox*		mMusicURLEdit;
+	LLCheckBoxCtrl* mCheckAVSoundAny;
+	LLCheckBoxCtrl* mCheckAVSoundGroup;
 
 	
 	LLSafeHandle<LLParcelSelection>&	mParcel;

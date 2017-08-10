@@ -64,7 +64,7 @@
 
 extern F32 texmem_lower_bound_scale;
 
-LLTextureView *gTextureView = NULL;
+LLTextureView *gTextureView = nullptr;
 
 #define HIGH_PRIORITY 100000000.f
 
@@ -109,9 +109,9 @@ public:
 		mTextureView(p.texture_view)
 	{}
 
-	virtual void draw();
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
+	void draw() override;
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	LLRect getRequiredRect() override;	// Return the height of this object, given the set options.
 
 // Used for sorting
 	struct sort
@@ -413,9 +413,9 @@ public:
 		mTextureView(p.texture_view)
 	{}
 
-	virtual void draw();	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
+	void draw() override;
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	LLRect getRequiredRect() override;	// Return the height of this object, given the set options.
 
 private:
 	LLTextureView* mTextureView;
@@ -514,9 +514,9 @@ public:
 		mTextureView(p.texture_view)
 	{}
 
-	virtual void draw();	
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual LLRect getRequiredRect();	// Return the height of this object, given the set options.
+	void draw() override;
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	LLRect getRequiredRect() override;	// Return the height of this object, given the set options.
 
 private:
 	LLTextureView* mTextureView;
@@ -1049,18 +1049,18 @@ LLTextureView::LLTextureView(const LLTextureView::Params& p)
 	setVisible(FALSE);
 	
 	setDisplayChildren(TRUE);
-	mGLTexMemBar = 0;
-	mAvatarTexBar = 0;
+	mGLTexMemBar = nullptr;
+	mAvatarTexBar = nullptr;
 }
 
 LLTextureView::~LLTextureView()
 {
 	// Children all cleaned up by default view destructor.
 	delete mGLTexMemBar;
-	mGLTexMemBar = 0;
+	mGLTexMemBar = nullptr;
 	
 	delete mAvatarTexBar;
-	mAvatarTexBar = 0;
+	mAvatarTexBar = nullptr;
 }
 
 typedef std::pair<F32,LLViewerFetchedTexture*> decode_pair_t;
@@ -1095,14 +1095,14 @@ void LLTextureView::draw()
 		{
 			removeChild(mGLTexMemBar);
 			mGLTexMemBar->die();
-			mGLTexMemBar = 0;
+			mGLTexMemBar = nullptr;
 		}
 
 		if (mAvatarTexBar)
 		{
 			removeChild(mAvatarTexBar);
 			mAvatarTexBar->die();
-			mAvatarTexBar = 0;
+			mAvatarTexBar = nullptr;
 		}
 
 		typedef std::multiset<decode_pair_t, compare_decode_pair > display_list_t;
@@ -1168,7 +1168,8 @@ void LLTextureView::draw()
 					{
 						LLViewerFetchedTexture* mImage;
 						f(LLViewerFetchedTexture* image) : mImage(image) {}
-						virtual bool apply(LLViewerObject* object, S32 te)
+
+						bool apply(LLViewerObject* object, S32 te) override
 						{
 							return (mImage == object->getTEImage(te));
 						}
@@ -1214,7 +1215,7 @@ void LLTextureView::draw()
 			
 	 		if (pri > 0.0f)
 			{
-				display_image_list.insert(std::make_pair(pri, imagep));
+				display_image_list.emplace(pri, imagep);
 			}
 		}
 		

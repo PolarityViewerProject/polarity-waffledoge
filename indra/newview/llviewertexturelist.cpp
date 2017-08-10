@@ -156,12 +156,14 @@ void LLViewerTextureList::doPreloadImages()
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
+	// <polarity> TGA
 	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);	
 		mImagePreloads.insert(image);
 	}
+	// <polarity> TGA
 	image = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.tga", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI);
 	if (image) 
 	{
@@ -183,14 +185,14 @@ void LLViewerTextureList::doPreloadImages()
 	}
 	// Invisiprim alpha replacement
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
-		0, 0, LLUUID("e97cf410-8e61-7005-ec06-629eba4cd1fb"));
+		0, 0, IMG_ALPHA_GRAD);
 	if (image)
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
 		mImagePreloads.insert(image);
 	}
 	image = LLViewerTextureManager::getFetchedTextureFromFile("transparent.j2c", FTT_LOCAL_FILE, MIPMAP_YES, LLViewerFetchedTexture::BOOST_UI, LLViewerTexture::FETCHED_TEXTURE,
-		0, 0, LLUUID("38b86f85-2575-52a9-a531-23108d8da837"));
+		0, 0, IMG_ALPHA_GRAD_2D);
 	if (image)
 	{
 		image->setAddressMode(LLTexUnit::TAM_WRAP);
@@ -292,7 +294,7 @@ void LLViewerTextureList::shutdown()
 		if (desired >= 0 && desired < MAX_DISCARD_LEVEL)
 		{
 			S32 pixel_area = image->getWidth(desired) * image->getHeight(desired);
-			image_area_list.insert(std::make_pair(pixel_area, image));
+			image_area_list.emplace(pixel_area, image);
 		}
 	}
 	
@@ -350,6 +352,7 @@ void LLViewerTextureList::dump()
 		<< " size " << image->getWidth() << "x" << image->getHeight()
 		<< " discard " << image->getDiscardLevel()
 		<< " desired " << image->getDesiredDiscardLevel()
+		<< " references " << image->getNumRefs()
 		<< " http://asset.siva.lindenlab.com/" << image->getID() << ".texture"
 		<< LL_ENDL;
 	}
@@ -967,9 +970,9 @@ void LLViewerTextureList::updateImagesDecodePriorities()
 			if ((decode_priority_test < old_priority_test * .8f) ||
 				(decode_priority_test > old_priority_test * 1.25f))
 			{
-				mImageList.erase(imagep) ;
+				removeImageFromList(imagep);
 				imagep->setDecodePriority(decode_priority);
-				mImageList.insert(imagep);
+				addImageToList(imagep);
 			}
 		}
 	}
@@ -1228,7 +1231,7 @@ void LLViewerTextureList::decodeAllImages(F32 max_time)
 	}
 	// Run threads
 	S32 fetch_pending = 0;
-	while (1)
+	while (true)
 	{
 		LLAppViewer::instance()->getTextureCache()->update(1); // unpauses the texture cache thread
 		LLAppViewer::instance()->getImageDecodeThread()->update(1); // unpauses the image thread
@@ -1346,7 +1349,7 @@ LLPointer<LLImageJ2C> LLViewerTextureList::convertToUploadFile(LLPointer<LLImage
 // Returns min setting for TextureMemory (in MB), NOT VRAM
 S32Megabytes LLViewerTextureList::getMinVideoRamSetting()
 {
-	return S32Megabytes(32); // <polarity />
+	return S32Megabytes(64); // <polarity />
 }
 
 //static
@@ -1368,7 +1371,7 @@ S32Megabytes LLViewerTextureList::getMaxVideoRamSetting(const bool get_recommend
 		LL_DEBUGS() << "GETTING RECOMMENDED" << LL_ENDL;
 		if (gGLManager.mIsATI)
 		{
-			leave_vram_for_os = true; // forced in ATI's case. Sorry guys, you swap too hard.
+			adjusted_max_vram = adjusted_max_vram * 0.75f;
 		}
 		if (leave_vram_for_os)
 		{
@@ -1405,9 +1408,8 @@ const S32Megabytes VIDEO_CARD_FRAMEBUFFER_MEM(12);
 const S32Megabytes MIN_MEM_FOR_NON_TEXTURE(256); // <polarity>
 
 // Updates TextureMemory based on user selection and current limits
-void LLViewerTextureList::updateMaxResidentTexMem(S32 mem)
+void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 {
-	LL_DEBUGS() << "ENTERING FUNCTION" << LL_ENDL;
 	// Initialize the image pipeline VRAM settings
 	S32Megabytes cur_mem(gSavedSettings.getS32("TextureMemory"));
 

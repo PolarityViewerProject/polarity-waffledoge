@@ -291,14 +291,12 @@ void LLLandmarkActions::createLandmarkHere()
 
 void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slurl_callback_t cb, bool escaped /* = true */)
 {
+	
 	std::string sim_name;
-	bool gotSimName = LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name);
-	if (gotSimName)
+	if (LLWorldMap::getInstance()->simNameFromPosGlobal(global_pos, sim_name))
 	{
-	  std::string slurl = LLSLURL(sim_name, global_pos).getSLURLString();
+		std::string slurl = LLSLURL(sim_name, global_pos).getSLURLString();
 		cb(slurl);
-
-		return;
 	}
 	else
 	{
@@ -310,7 +308,7 @@ void LLLandmarkActions::getSLURLfromPosGlobal(const LLVector3d& global_pos, slur
 														escaped,
 														_2);
 
-		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, std::string("unused"), false);
+		LLWorldMapMessage::getInstance()->sendHandleRegionRequest(new_region_handle, url_cb, LLStringExplicit("unused"), false);
 	}
 }
 
@@ -377,7 +375,7 @@ bool LLLandmarkActions::getLandmarkGlobalPos(const LLUUID& landmarkInventoryItem
 
 	const LLUUID& asset_id = item->getAssetUUID();
 
-	LLLandmark* landmark = gLandmarkList.getAsset(asset_id, NULL);
+	LLLandmark* landmark = gLandmarkList.getAsset(asset_id);
 	if (NULL == landmark)
 		return false;
 

@@ -28,10 +28,9 @@
 #define LL_LLOUTPUTMONITORCTRL_H
 
 #include "v4color.h"
-#include "../llui/llview.h"
+#include "llview.h"
 #include "llmutelist.h"
 #include "llspeakingindicatormanager.h"
-//#include "../llui/lluiimage.h"
 
 class LLTextBox;
 class LLUICtrlFactory;
@@ -67,8 +66,8 @@ public:
 	virtual ~LLOutputMonitorCtrl();
 
 	// llview overrides
-	virtual void	draw();
-	virtual BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
+	void	draw() override;
+	BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
 
 	void			setPower(F32 val);
 	F32				getPower(F32 val) const { return mPower; }
@@ -92,7 +91,7 @@ public:
 	void			setSpeakerId(const LLUUID& speaker_id, const LLUUID& session_id = LLUUID::null, bool show_other_participants_speaking = false);
 
 	//called by mute list
-	virtual void onChange();
+	void onChange() override;
 
 	/**
 	 * Implementation of LLSpeakingIndicator interface.
@@ -104,7 +103,7 @@ public:
 	 * Otherwise it marks an instance as dirty and stores necessary visibility.
 	 * It will be applied in next draw and parent will be notified.
 	 */
-	virtual void	switchIndicator(bool switch_on);
+	void	switchIndicator(bool switch_on) override;
     bool getIndicatorToggled() { return mIndicatorToggled;}
     void setIndicatorToggled(bool value) { mIndicatorToggled = value;}
 

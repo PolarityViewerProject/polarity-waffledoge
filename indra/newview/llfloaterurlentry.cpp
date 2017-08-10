@@ -37,18 +37,18 @@
 #include "llmimetypes.h"
 #include "llnotificationsutil.h"
 #include "llurlhistory.h"
-#include "lluictrlfactory.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llcorehttputil.h"
 
-static LLFloaterURLEntry* sInstance = NULL;
+static LLFloaterURLEntry* sInstance = nullptr;
 
 //-----------------------------------------------------------------------------
-// LLFloaterURLEntry()
+// LLFloaterURLEntry() 
 //-----------------------------------------------------------------------------
 LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 	: LLFloater(LLSD()),
+	  mMediaURLEdit(nullptr),
 	  mPanelLandMediaHandle(parent)
 {
 	buildFromFile("floater_url_entry.xml");
@@ -59,7 +59,7 @@ LLFloaterURLEntry::LLFloaterURLEntry(LLHandle<LLPanel> parent)
 //-----------------------------------------------------------------------------
 LLFloaterURLEntry::~LLFloaterURLEntry()
 {
-	sInstance = NULL;
+	sInstance = nullptr;
 }
 
 BOOL LLFloaterURLEntry::postBuild()
@@ -90,18 +90,16 @@ void LLFloaterURLEntry::buildURLHistory()
 	if (url_list)
 	{
 		url_list->operateOnAll(LLCtrlListInterface::OP_DELETE);
-	}
 
-	// Get all of the entries in the "parcel" collection
-	LLSD parcel_history = LLURLHistory::getURLHistory("parcel");
+		// Get all of the entries in the "parcel" collection
+		LLSD parcel_history = LLURLHistory::getURLHistory("parcel");
 
-	LLSD::array_iterator iter_history =
-		parcel_history.beginArray();
-	LLSD::array_iterator end_history =
-		parcel_history.endArray();
-	for(; iter_history != end_history; ++iter_history)
-	{
-		url_list->addSimpleElement((*iter_history).asString());
+		LLSD::array_iterator iter_history = parcel_history.beginArray();
+		LLSD::array_iterator end_history = parcel_history.endArray();
+		for(; iter_history != end_history; ++iter_history)
+		{
+			url_list->addSimpleElement((*iter_history).asString());
+		}
 	}
 }
 
@@ -114,16 +112,7 @@ void LLFloaterURLEntry::headerFetchComplete(S32 status, const std::string& mime_
 		panel_media->setMediaType(mime_type);
 		panel_media->setMediaURL(mMediaURLEdit->getValue().asString());
 	}
-	else
-	{
-		LLPanelFace* panel_face = dynamic_cast<LLPanelFace*>(mPanelLandMediaHandle.get());
-		if(panel_face)
-		{
-			panel_face->setMediaType(mime_type);
-			panel_face->setMediaURL(mMediaURLEdit->getValue().asString());
-		}
 
-	}
 	// Decrement the cursor
 	getWindow()->decBusyCount();
 	getChildView("loading_label")->setVisible( false);
@@ -216,7 +205,7 @@ void LLFloaterURLEntry::getMediaTypeCoro(std::string url, LLHandle<LLFloater> pa
     LLCoreHttpUtil::HttpCoroutineAdapter::ptr_t
         httpAdapter(new LLCoreHttpUtil::HttpCoroutineAdapter("getMediaTypeCoro", httpPolicy));
     LLCore::HttpRequest::ptr_t httpRequest(new LLCore::HttpRequest);
-    LLCore::HttpOptions::ptr_t httpOpts = LLCore::HttpOptions::ptr_t(new LLCore::HttpOptions);
+    LLCore::HttpOptions::ptr_t httpOpts = boost::make_shared<LLCore::HttpOptions>();
 
     httpOpts->setHeadersOnly(true);
 

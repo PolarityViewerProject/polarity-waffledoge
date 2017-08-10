@@ -37,7 +37,6 @@
 #include "llframetimer.h"
 #include "llfontgl.h"
 #include <set>
-#include <vector>
 
 // Renders a 2D icon billboard floating at the location specified.
 class LLViewerTexture;
@@ -47,9 +46,9 @@ class LLHUDIcon : public LLHUDObject
 friend class LLHUDObject;
 
 public:
-	/*virtual*/ void render();
-	/*virtual*/ void markDead();
-	/*virtual*/ F32 getDistance() const { return mDistance; }
+	/*virtual*/ void render() override;
+	/*virtual*/ void markDead() override;
+	/*virtual*/ F32 getDistance() const override { return mDistance; }
 
 	void setImage(LLViewerTexture* imagep);
 	void setScale(F32 fraction_of_fov);

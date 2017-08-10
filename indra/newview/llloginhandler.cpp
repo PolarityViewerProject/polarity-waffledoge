@@ -63,10 +63,9 @@ bool LLLoginHandler::parseDirectLogin(std::string url)
 
 void LLLoginHandler::parse(const LLSD& queryMap)
 {
-	
 	if (queryMap.has("grid"))
 	{
-	  LLGridManager::getInstance()->setGridChoice(queryMap["grid"].asString());
+	  LLGridManager::getInstance()->setGridChoice(queryMap["grid"].asString(), false);
 	}
 	
 	
@@ -95,6 +94,33 @@ bool LLLoginHandler::handle(const LLSD& tokens,
 	if (LLLoginInstance::getInstance()->authSuccess())
 	{
 		LL_WARNS_ONCE("SLURL") << "Already logged in! Ignoring login SLapp." << LL_ENDL;
+		return true;
+	}
+
+	if (tokens.size() == 1
+		&& tokens[0].asString() == "show")
+	{
+		// We're using reg-in-client, so show the XUI login widgets
+		LLPanelLogin::showLoginWidgets();
+		return true;
+	}
+
+	if (tokens.size() == 1
+		&& tokens[0].asString() == "reg")
+	{
+		LLWindow* window = gViewerWindow->getWindow();
+		window->incBusyCount();
+		window->setCursor(UI_CURSOR_ARROW);
+
+		// Do this first, as it may be slow and we want to keep something
+		// on the user's screen as long as possible
+		LLWeb::loadURLExternal( "http://join.eniac15.lindenlab.com/" );
+
+		window->decBusyCount();
+		window->setCursor(UI_CURSOR_ARROW);
+
+		// Then hide the window
+		window->minimize();
 		return true;
 	}
 
@@ -139,12 +165,12 @@ LLPointer<LLCredential> LLLoginHandler::initializeLoginInfo()
 {                                                                                                                           
 	LLPointer<LLCredential> result = NULL;                                                                               
 	// so try to load it from the UserLoginInfo                                                                          
-	result = loadSavedUserLoginInfo();
-	// <FS:CR> Login Manager
-	//if (result.isNull())
-	//{
-	//	result =  gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid());
-	//}
+	result = loadSavedUserLoginInfo();                                                                                   
+	if (result.isNull())                                                                                                 
+	{                                                                                                                    
+		result = gSecAPIHandler->loadCredential(LLGridManager::getInstance()->getGrid(),
+                                                gSavedSettings.getString("LastUsername"));
+	}                                                                                                                    
 	
 	return result;                                                                                                       
 } 
@@ -154,10 +180,9 @@ LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
 {
   // load the saved user login info into a LLCredential.
   // perhaps this should be moved.
-	LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfoCmdLine"); // Login Manager
+	LLSD cmd_line_login = gSavedSettings.getLLSD("UserLoginInfo");
 	if (cmd_line_login.size() == 3) 
 	{
-	
 		LLMD5 pass((unsigned char*)cmd_line_login[2].asString().c_str());
 		char md5pass[33];               /* Flawfinder: ignore */
 		pass.hex_digest(md5pass);
@@ -171,12 +196,8 @@ LLPointer<LLCredential> LLLoginHandler::loadSavedUserLoginInfo()
 		authenticator["algorithm"] = "md5";
 		authenticator["secret"] = md5pass;
 		// yuck, we'll fix this with mani's changes.
-		return gSecAPIHandler->createCredential(identifier["first_name"].asString() + " " + identifier["last_name"].asString() + "@" +LLGridManager::getInstance()->getGrid(),
-												identifier, authenticator);
+		return gSecAPIHandler->createCredential(LLGridManager::getInstance()->getGrid(), 
+													   identifier, authenticator);
 	}
-	// <FS:Zi> Fix --autologin by loading the currently selected credentials if the above fails.
-	//         UserLoginInfo contains "First Last @ Grid" and gets set in LLPanelLogin::onClickConnect()
-	// return NULL;
-	return gSecAPIHandler->loadCredential(gSavedSettings.getLLSD("UserLoginInfo"));
-	// </FS:Zi>
+	return NULL;
 }

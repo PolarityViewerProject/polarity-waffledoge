@@ -41,16 +41,20 @@
 #include "message.h"
 #include "llnotificationsutil.h"
 #include <boost/regex.hpp>
-#include "llviewercontrol.h"
 
 LLNotificationListItem::LLNotificationListItem(const Params& p) : LLPanel(p),
     mParams(p),
-    mTitleBox(NULL),
-    mExpandBtn(NULL),
-    mCondenseBtn(NULL),
-    mCloseBtn(NULL),
-    mCondensedViewPanel(NULL),
-    mExpandedViewPanel(NULL),
+    mTitleBox(nullptr),
+    mTitleBoxExp(nullptr),
+    mNoticeTextExp(nullptr),
+    mTimeBox(nullptr),
+    mTimeBoxExp(nullptr),
+    mExpandBtn(nullptr),
+    mCondenseBtn(nullptr),
+    mCloseBtn(nullptr),
+    mCloseBtnExp(nullptr),
+    mCondensedViewPanel(nullptr),
+    mExpandedViewPanel(nullptr),
     mCondensedHeight(0),
     mExpandedHeight(0),
     mExpandedHeightResize(0),
@@ -99,8 +103,8 @@ BOOL LLNotificationListItem::postBuild()
     std::string expanded_height_str = getString("item_expanded_height");
     std::string condensed_height_str = getString("item_condensed_height");
 
-    mExpandedHeight = (S32)atoi(expanded_height_str.c_str());
-    mCondensedHeight = (S32)atoi(condensed_height_str.c_str());
+	mExpandedHeight = std::stoi(expanded_height_str);
+	mCondensedHeight = std::stoi(condensed_height_str);
     
     setExpanded(FALSE);
 
@@ -112,25 +116,37 @@ LLNotificationListItem::~LLNotificationListItem()
 }
 
 //static
-std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp)
+std::string LLNotificationListItem::buildNotificationDate(const LLDate& time_stamp, ETimeType time_type)
 {
-	std::string timeStr;
-	static LLCachedControl<U32> notification_zone(gSavedSettings, "PVUI_NotificationStampZone", SLT);
-	switch (notification_zone)
+    std::string timeStr;
+	switch(time_type)
 	{
-	case UTC: //3
-		timeStr = LLTrans::getString("NotificationItemDateStringUTC");
-		break;
-	case Local: // 2
-		timeStr = LLTrans::getString("NotificationItemDateStringLocal");
-		break;
-	default:
-		// @todo offset, need code in formatDatetime::@if (code == "%Z") {
-	case SLT: // 1
-		timeStr = LLTrans::getString("NotificationItemDateStringSLT");
-		break;
+		case Local:
+			timeStr = "[" + LLTrans::getString("LTimeMthNum") + "]/["
+        		+LLTrans::getString("LTimeDay")+"]/["
+				+LLTrans::getString("LTimeYear")+"] ["
+				+LLTrans::getString("LTimeHour")+"]:["
+				+LLTrans::getString("LTimeMin")+ "]";
+			break;
+		case UTC:
+			timeStr = "[" + LLTrans::getString("UTCTimeMth") + "]/["
+		      	+LLTrans::getString("UTCTimeDay")+"]/["
+				+LLTrans::getString("UTCTimeYr")+"] ["
+				+LLTrans::getString("UTCTimeHr")+"]:["
+				+LLTrans::getString("UTCTimeMin")+"] ["
+				+LLTrans::getString("UTCTimeTimezone")+"]";
+			break;
+		case SLT:
+		default:
+			timeStr = "[" + LLTrans::getString("TimeMonth") + "]/["
+			   	+LLTrans::getString("TimeDay")+"]/["
+				+LLTrans::getString("TimeYear")+"] ["
+				+LLTrans::getString("TimeHour")+"]:["
+				+LLTrans::getString("TimeMin")+"]";
+			break;
 	}
-	LLSD substitution; substitution["datetime"] = time_stamp;
+    LLSD substitution;
+    substitution["datetime"] = time_stamp;
     LLStringUtil::format(timeStr, substitution);
     return timeStr;
 }
@@ -256,13 +272,21 @@ std::set<std::string> LLTransactionNotificationListItem::getTypes()
 }
 
 LLGroupNotificationListItem::LLGroupNotificationListItem(const Params& p)
-    : LLNotificationListItem(p),
-    mSenderOrFeeBox(NULL)
+    : LLNotificationListItem(p)
+    , mGroupIcon(nullptr)
+    , mGroupIconExp(nullptr)
+    , mSenderOrFeeBox(nullptr) 
+    , mSenderOrFeeBoxExp(nullptr)
+    , mGroupNameBoxExp(nullptr)
 {
 }
 
 LLGroupInviteNotificationListItem::LLGroupInviteNotificationListItem(const Params& p)
     : LLGroupNotificationListItem(p)
+    , mInviteButtonPanel(nullptr)
+    , mJoinBtn(nullptr)
+    , mDeclineBtn(nullptr)
+    , mInfoBtn(nullptr)
 {
     buildFromFile("panel_notification_list_item.xml");
 }
@@ -279,7 +303,7 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
 
     //invitation with any non-default group role, doesn't have newline characters at the end unlike simple invitations
     std::string invitation_desc = mNoticeTextExp->getValue().asString();
-    boost::regex pattern = boost::regex("\n\n$", boost::regex::perl|boost::regex::icase);
+	static const boost::regex pattern = boost::regex("\n\n$", boost::regex::perl | boost::regex::icase);
     boost::match_results<std::string::const_iterator> matches;
     if(!boost::regex_search(invitation_desc, matches, pattern))
     {
@@ -292,7 +316,7 @@ BOOL LLGroupInviteNotificationListItem::postBuild()
     mInfoBtn->setClickedCallback(boost::bind(&LLGroupInviteNotificationListItem::onClickInfoBtn,this));
 
     std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
-    mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
+	mExpandedHeightResize = std::stoi(expanded_height_resize_str);
 
     return rv;
 }
@@ -358,11 +382,11 @@ void LLGroupInviteNotificationListItem::setFee(S32 fee)
 
 LLGroupNoticeNotificationListItem::LLGroupNoticeNotificationListItem(const Params& p)
     : LLGroupNotificationListItem(p),
-    mAttachmentPanel(NULL),
-    mAttachmentTextBox(NULL),
-    mAttachmentIcon(NULL),
-    mAttachmentIconExp(NULL),
-    mInventoryOffer(NULL)
+    mAttachmentPanel(nullptr),
+    mAttachmentTextBox(nullptr),
+    mAttachmentIcon(nullptr),
+    mAttachmentIconExp(nullptr),
+    mInventoryOffer(nullptr)
 {
     if (mParams.inventory_offer.isDefined())
     {
@@ -375,6 +399,15 @@ LLGroupNoticeNotificationListItem::LLGroupNoticeNotificationListItem(const Param
 LLGroupNotificationListItem::~LLGroupNotificationListItem()
 {
 	LLGroupMgr::getInstance()->removeObserver(this);
+}
+
+LLGroupNoticeNotificationListItem::~LLGroupNoticeNotificationListItem()
+{
+	if (mInventoryOffer != nullptr)
+	{
+		mInventoryOffer->forceResponse(IOR_DECLINE);
+		mInventoryOffer = nullptr;
+	}
 }
 
 BOOL LLGroupNoticeNotificationListItem::postBuild()
@@ -392,27 +425,17 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
     mTitleBoxExp->setValue(mParams.subject);
     mNoticeTextExp->setValue(mParams.message);
 
-	// <FS:Ansariel> FIRE-17313: Display group notices in SLT
-    //mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, UTC));
-    //mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, UTC));
-    ////Workaround: in case server timestamp is 0 - we use the time when notification was actually received
-    //if (mParams.time_stamp.isNull())
-    //{
-    //    mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
-    //    mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
-    //}
-    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp));
-    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp));
+    mTimeBox->setValue(buildNotificationDate(mParams.time_stamp, UTC));
+    mTimeBoxExp->setValue(buildNotificationDate(mParams.time_stamp, UTC));
     //Workaround: in case server timestamp is 0 - we use the time when notification was actually received
     if (mParams.time_stamp.isNull())
     {
-        mTimeBox->setValue(buildNotificationDate(mParams.received_time));
-        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time));
+        mTimeBox->setValue(buildNotificationDate(mParams.received_time, UTC));
+        mTimeBoxExp->setValue(buildNotificationDate(mParams.received_time, UTC));
     }
-	// </FS:Ansariel>
     setSender(mParams.sender);
 
-    if (mInventoryOffer != NULL)
+    if (mInventoryOffer != nullptr)
     {
         mAttachmentTextBox->setValue(mInventoryOffer->mDesc);
         mAttachmentTextBox->setVisible(TRUE);
@@ -427,7 +450,7 @@ BOOL LLGroupNoticeNotificationListItem::postBuild()
             &LLGroupNoticeNotificationListItem::onClickAttachment, this));
 
         std::string expanded_height_resize_str = getString("expanded_height_resize_for_attachment");
-        mExpandedHeightResize = (S32)atoi(expanded_height_resize_str.c_str());
+		mExpandedHeightResize = std::stoi(expanded_height_resize_str);
 
         mAttachmentPanel->setVisible(TRUE);
     }
@@ -535,18 +558,16 @@ void LLGroupNoticeNotificationListItem::close()
     // The group notice dialog may be an inventory offer.
     // If it has an inventory save button and that button is still enabled
     // Then we need to send the inventory declined message
-    if (mInventoryOffer != NULL)
+    if (mInventoryOffer != nullptr)
     {
         mInventoryOffer->forceResponse(IOR_DECLINE);
-        mInventoryOffer = NULL;
+        mInventoryOffer = nullptr;
     }
 }
 
 void LLGroupNoticeNotificationListItem::onClickAttachment()
 {
-    if (mInventoryOffer != NULL) {
-        mInventoryOffer->forceResponse(IOR_ACCEPT);
-
+    if (mInventoryOffer != nullptr) {
         static const LLUIColor textColor = LLUIColorTable::instance().getColor(
             "GroupNotifyDimmedTextColor");
         mAttachmentTextBox->setColor(textColor);
@@ -557,7 +578,8 @@ void LLGroupNoticeNotificationListItem::onClickAttachment()
             LLNotifications::instance().add("AttachmentSaved", LLSD(), LLSD());
         }
 
-        mInventoryOffer = NULL;
+        mInventoryOffer->forceResponse(IOR_ACCEPT);
+        mInventoryOffer = nullptr;
     }
 }
 
@@ -580,7 +602,8 @@ bool LLGroupNoticeNotificationListItem::isAttachmentOpenable(LLAssetType::EType 
 
 LLTransactionNotificationListItem::LLTransactionNotificationListItem(const Params& p)
     : LLNotificationListItem(p),
-    mAvatarIcon(NULL)
+    mAvatarIcon(nullptr),
+    mAvatarIconExp(nullptr)
 {
     buildFromFile("panel_notification_list_item.xml");
 }
@@ -617,19 +640,12 @@ BOOL LLTransactionNotificationListItem::postBuild()
 
 LLSystemNotificationListItem::LLSystemNotificationListItem(const Params& p)
     : LLNotificationListItem(p),
-    mSystemNotificationIcon(NULL),
+    mSystemNotificationIcon(nullptr),
+    mSystemNotificationIconExp(nullptr),
     mIsCaution(false)
 {
     buildFromFile("panel_notification_list_item.xml");
     mIsCaution = p.notification_priority >= NOTIFICATION_PRIORITY_HIGH;
-    if (mIsCaution)
-    {
-        mTitleBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-        mTitleBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-        mNoticeTextExp->setReadOnlyColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-        mTimeBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-        mTimeBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
-    }
 }
 
 BOOL LLSystemNotificationListItem::postBuild()
@@ -641,5 +657,14 @@ BOOL LLSystemNotificationListItem::postBuild()
         mSystemNotificationIcon->setVisible(TRUE);
     if (mSystemNotificationIconExp)
         mSystemNotificationIconExp->setVisible(TRUE);
+
+	if (mIsCaution)
+	{
+		mTitleBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+		mTitleBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+		mNoticeTextExp->setReadOnlyColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+		mTimeBox->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+		mTimeBoxExp->setColor(LLUIColorTable::instance().getColor("NotifyCautionBoxColor"));
+	}
     return rv;
 }

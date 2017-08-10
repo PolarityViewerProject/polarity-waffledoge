@@ -27,7 +27,7 @@
 #ifndef LL_LLVIEWERMENU_H
 #define LL_LLVIEWERMENU_H
 
-#include "../llui/llmenugl.h"
+#include "llmenugl.h"
 #include "llsafehandle.h"
 
 class LLMessageSystem;
@@ -37,10 +37,8 @@ class LLView;
 class LLParcelSelection;
 class LLObjectSelection;
 class LLSelectNode;
-
-// [RLVa:KB] - Checked: RLVa-2.0.0
-void set_use_wireframe(BOOL useWireframe);
-// [/RLVa:KB]
+class LLViewerObject;
+class LLVOAvatar;
 
 void initialize_edit_menu();
 void initialize_spellcheck_menu();
@@ -76,16 +74,11 @@ BOOL enable_deselect(void*);
 BOOL enable_undo(void*);
 BOOL enable_redo(void*);
 
-BOOL is_agent_mappable(const LLUUID& agent_id);
-
 void confirm_replace_attachment(S32 option, void* user_data);
 void handle_detach_from_avatar(const LLSD& user_data);
 void attach_label(std::string& label, const LLSD&);
 void detach_label(std::string& label, const LLSD&);
 void handle_detach(void*);
-// [SL:KB] - Patch: Inventory-AttachmentEdit - Checked: 2010-08-25 (Catznip-2.2.0a) | Added: Catznip-2.1.2a
-void handle_attachment_edit(const LLUUID& idItem);
-// [/SL:KB]
 BOOL enable_god_full(void* user_data);
 BOOL enable_god_liaison(void* user_data);
 BOOL enable_god_basic(void* user_data);

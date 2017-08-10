@@ -50,6 +50,7 @@
 #include "llviewerregion.h"
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
+#include "llviewernetwork.h"
 #include "lltabcontainer.h"
 #include "lltexteditor.h"
 
@@ -57,25 +58,25 @@ static LLPanelInjector<LLTwitterPhotoPanel> t_panel_photo("lltwitterphotopanel")
 static LLPanelInjector<LLTwitterAccountPanel> t_panel_account("lltwitteraccountpanel");
 
 const std::string DEFAULT_PHOTO_LOCATION_URL = "http://maps.secondlife.com/";
-const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=twitter&utm_medium=photo&utm_campaign=slshare";
-const std::string DEFAULT_STATUS_TEXT = " #SecondLife #PolarityViewer";
 
 ///////////////////////////
 //LLTwitterPhotoPanel///////
 ///////////////////////////
 
 LLTwitterPhotoPanel::LLTwitterPhotoPanel() :
-mResolutionComboBox(NULL),
-mRefreshBtn(NULL),
-mBtnPreview(NULL),
-mWorkingLabel(NULL),
-mThumbnailPlaceholder(NULL),
-mStatusCounterLabel(NULL),
-mStatusTextBox(NULL),
-mLocationCheckbox(NULL),
-mPhotoCheckbox(NULL),
-mBigPreviewFloater(NULL),
-mPostButton(NULL)
+mResolutionComboBox(nullptr),
+mFilterComboBox(nullptr),
+mRefreshBtn(nullptr),
+mWorkingLabel(nullptr),
+mThumbnailPlaceholder(nullptr),
+mStatusCounterLabel(nullptr),
+mStatusTextBox(nullptr),
+mLocationCheckbox(nullptr),
+mPhotoCheckbox(nullptr),
+mPostButton(nullptr),
+mCancelButton(nullptr),
+mBtnPreview(nullptr),
+mBigPreviewFloater(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.SendPhoto", boost::bind(&LLTwitterPhotoPanel::onSend, this));
 	mCommitCallbackRegistrar.add("SocialSharing.RefreshPhoto", boost::bind(&LLTwitterPhotoPanel::onClickNewSnapshot, this));
@@ -105,7 +106,7 @@ BOOL LLTwitterPhotoPanel::postBuild()
 	mThumbnailPlaceholder = getChild<LLUICtrl>("thumbnail_placeholder");
 	mStatusCounterLabel = getChild<LLUICtrl>("status_counter_label");
 	mStatusTextBox = getChild<LLUICtrl>("photo_status");
-	mStatusTextBox->setValue(DEFAULT_STATUS_TEXT);
+	mStatusTextBox->setValue(llformat("#%s", LLGridManager::getInstance()->getGridLabel().c_str()));
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mLocationCheckbox->setCommitCallback(boost::bind(&LLTwitterPhotoPanel::onAddLocationToggled, this));
 	mPhotoCheckbox = getChild<LLUICtrl>("add_photo_cb");
@@ -359,9 +360,6 @@ void LLTwitterPhotoPanel::sendPhoto()
 			slurl_string = DEFAULT_PHOTO_LOCATION_URL;
 		}
 
-		// Add query parameters so Google Analytics can track incoming clicks!
-		slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
-
 		// Add it to the status (pretty crude, but we don't have a better option with photos)
 		if (status.empty())
 			status = slurl_string;
@@ -390,7 +388,7 @@ void LLTwitterPhotoPanel::sendPhoto()
 
 void LLTwitterPhotoPanel::clearAndClose()
 {
-	mStatusTextBox->setValue(DEFAULT_STATUS_TEXT);
+	mStatusTextBox->setValue(llformat("#%s", LLGridManager::getInstance()->getGridId().c_str()));
 
 	LLFloater* floater = getParentByType<LLFloater>();
 	if (floater)
@@ -545,11 +543,11 @@ LLUICtrl* LLTwitterPhotoPanel::getRefreshBtn()
 ///////////////////////////
 
 LLTwitterAccountPanel::LLTwitterAccountPanel() : 
-mAccountCaptionLabel(NULL),
-mAccountNameLabel(NULL),
-mPanelButtons(NULL),
-mConnectButton(NULL),
-mDisconnectButton(NULL)
+mAccountCaptionLabel(nullptr),
+mAccountNameLabel(nullptr),
+mPanelButtons(nullptr),
+mConnectButton(nullptr),
+mDisconnectButton(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Connect", boost::bind(&LLTwitterAccountPanel::onConnect, this));
 	mCommitCallbackRegistrar.add("SocialSharing.Disconnect", boost::bind(&LLTwitterAccountPanel::onDisconnect, this));
@@ -703,10 +701,10 @@ void LLTwitterAccountPanel::onDisconnect()
 ////////////////////////
 
 LLFloaterTwitter::LLFloaterTwitter(const LLSD& key) : LLFloater(key),
-    mTwitterPhotoPanel(NULL),
-    mStatusErrorText(NULL),
-    mStatusLoadingText(NULL),
-    mStatusLoadingIndicator(NULL)
+    mTwitterPhotoPanel(nullptr),
+    mStatusErrorText(nullptr),
+    mStatusLoadingText(nullptr),
+    mStatusLoadingIndicator(nullptr)
 {
 	mCommitCallbackRegistrar.add("SocialSharing.Cancel", boost::bind(&LLFloaterTwitter::onCancel, this));
 }

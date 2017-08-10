@@ -27,8 +27,6 @@
 #ifndef LL_LLTELEPORTHISTORY_H
 #define LL_LLTELEPORTHISTORY_H
 
-#include "llsingleton.h" // for LLSingleton
-
 #include "llteleporthistorystorage.h"
 
 
@@ -76,7 +74,7 @@ class LLTeleportHistory: public LLSingleton<LLTeleportHistory>
 public:
 	
 	typedef std::vector<LLTeleportHistoryItem>	slurl_list_t;
-	typedef boost::function<void()>				history_callback_t;
+	typedef std::function<void()>				history_callback_t;
 	typedef boost::signals2::signal<void()>		history_signal_t;
 	
 	/**
@@ -229,10 +227,6 @@ private:
 	 * Using this connection we get notified when a teleport fails.
 	 */
 	boost::signals2::connection	mTeleportFailedConn;
-
-// [RLVa:KB] - Checked: 2010-09-03 (RLVa-1.2.1b) | Added: RLVa-1.2.1b
-	friend class RlvUIEnabler;
-// [/RLVa:KB]
 };
 
 #endif

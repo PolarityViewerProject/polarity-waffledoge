@@ -34,10 +34,10 @@
 #include "llappviewer.h"
 #include "llavataractions.h"
 #include "llbutton.h"
-#include "lldate.h"
 #include "llfirstuse.h"
 #include "llfloaterreg.h"
 #include "llfloatersidepanelcontainer.h"
+#include "llfloatertaskinfo.h"
 #include "llfoldertype.h"
 #include "llfolderview.h"
 #include "llinventorybridge.h"
@@ -51,15 +51,9 @@
 #include "llpanelmaininventory.h"
 #include "llpanelmarketplaceinbox.h"
 #include "llselectmgr.h"
-#include "llsidepaneliteminfo.h"
-#include "llsidepaneltaskinfo.h"
-#include "llstring.h"
 #include "lltabcontainer.h"
-#include "lltextbox.h"
 #include "lltrans.h"
 #include "llviewermedia.h"
-#include "llviewernetwork.h"
-#include "llweb.h"
 
 static LLPanelInjector<LLSidepanelInventory> t_inventory("sidepanel_inventory");
 
@@ -87,17 +81,16 @@ public:
 	{
 	}
 	
-	void done()
+	void done() override
 	{
-		for (cat_vec_t::iterator it = mAddedCategories.begin(); it != mAddedCategories.end(); ++it)
-		{
-			LLViewerInventoryCategory* added_category = *it;
-			
+		for (auto added_category : mAddedCategories)
+		{	
 			LLFolderType::EType added_category_type = added_category->getPreferredType();
 			
 			switch (added_category_type)
 			{
 				case LLFolderType::FT_INBOX:
+					mSidepanelInventory->enableInbox(true);
 					mSidepanelInventory->observeInboxModifications(added_category->getUUID());
 					break;
 				default:
@@ -116,20 +109,12 @@ private:
 
 LLSidepanelInventory::LLSidepanelInventory()
 	: LLPanel()
-	, mItemPanel(NULL)
-	, mPanelMainInventory(NULL)
+	, mInventoryPanel(nullptr)
+	, mPanelMainInventory(nullptr)
 	, mInboxEnabled(false)
-	, mCategoriesObserver(NULL)
-	, mInboxAddedObserver(NULL)
-	// , mInfoBtn(NULL)
-	// , mWearBtn(NULL)
-	// , mShareBtn(NULL)
-	// , mShopBtn(NULL)
-	// , mTeleportBtn(NULL)
-	// , mPlayBtn(NULL)
-	// , mOverflowBtn(NULL)
+	, mCategoriesObserver(nullptr)
+	, mInboxAddedObserver(nullptr)
 {
-	//buildFromFile( "panel_inventory.xml"); // Called from LLRegisterPanelClass::defaultPanelClassBuilder()
 }
 
 LLSidepanelInventory::~LLSidepanelInventory()
@@ -152,66 +137,27 @@ LLSidepanelInventory::~LLSidepanelInventory()
 	delete mInboxAddedObserver;
 }
 
+void handleInventoryDisplayInboxChanged()
+{
+	LLSidepanelInventory* sidepanel_inventory = LLFloaterSidePanelContainer::getPanel<LLSidepanelInventory>("inventory");
+	if (sidepanel_inventory)
+	{
+		sidepanel_inventory->enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
+	}
+}
+
 BOOL LLSidepanelInventory::postBuild()
 {
 	// UI elements from inventory panel
 	{
 		mInventoryPanel = getChild<LLPanel>("sidepanel_inventory_panel");
 
-		//@TODO reduce dummy elements creation by only creating buttons in relevant panels
-		// mInfoBtn = mInventoryPanel->getChild<LLButton>("info_btn");
-		// mInfoBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onInfoButtonClicked, this));
-		
-		// mShareBtn = mInventoryPanel->getChild<LLButton>("share_btn");
-		// mShareBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShareButtonClicked, this));
-		
-		// mShopBtn = mInventoryPanel->getChild<LLButton>("shop_btn");
-		// mShopBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onShopButtonClicked, this));
-
-		// mWearBtn = mInventoryPanel->getChild<LLButton>("wear_btn");
-		// mWearBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onWearButtonClicked, this));
-		
-		// mPlayBtn = mInventoryPanel->getChild<LLButton>("play_btn");
-		// mPlayBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onPlayButtonClicked, this));
-		
-		// mTeleportBtn = mInventoryPanel->getChild<LLButton>("teleport_btn");
-		// mTeleportBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onTeleportButtonClicked, this));
-		
-		// mOverflowBtn = mInventoryPanel->getChild<LLButton>("overflow_btn");
-		// mOverflowBtn->setClickedCallback(boost::bind(&LLSidepanelInventory::onOverflowButtonClicked, this));
-		
 		mPanelMainInventory = mInventoryPanel->getChild<LLPanelMainInventory>("panel_main_inventory");
 		mPanelMainInventory->setSelectCallback(boost::bind(&LLSidepanelInventory::onSelectionChange, this, _1, _2));
 		LLTabContainer* tabs = mPanelMainInventory->getChild<LLTabContainer>("inventory filter tabs");
 		tabs->setCommitCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
 
-		/* 
-		   EXT-4846 : "Can we suppress the "Landmarks" and "My Favorites" folder since they have their own Task Panel?"
-		   Deferring this until 2.1.
-		LLInventoryPanel *my_inventory_panel = mPanelMainInventory->getChild<LLInventoryPanel>("All Items");
-		my_inventory_panel->addHideFolderType(LLFolderType::FT_LANDMARK);
-		my_inventory_panel->addHideFolderType(LLFolderType::FT_FAVORITE);
-		*/
-
 		LLOutfitObserver::instance().addCOFChangedCallback(boost::bind(&LLSidepanelInventory::updateVerbs, this));
-	}
-
-	// UI elements from item panel
-	{
-		mItemPanel = getChild<LLSidepanelItemInfo>("sidepanel__item_panel");
-		
-		LLButton* back_btn = mItemPanel->getChild<LLButton>("back_btn");
-		back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
-	}
-
-	// UI elements from task panel
-	{
-		mTaskPanel = findChild<LLSidepanelTaskInfo>("sidepanel__task_panel");
-		if (mTaskPanel)
-		{
-			LLButton* back_btn = mTaskPanel->getChild<LLButton>("back_btn");
-			back_btn->setClickedCallback(boost::bind(&LLSidepanelInventory::onBackButtonClicked, this));
-		}
 	}
 	
 	// Received items inbox setup
@@ -238,6 +184,8 @@ BOOL LLSidepanelInventory::postBuild()
 		LLAppViewer::instance()->setOnLoginCompletedCallback(boost::bind(&LLSidepanelInventory::updateInbox, this));
 	}
 
+	gSavedSettings.getControl("InventoryDisplayInbox")->getCommitSignal()->connect(boost::bind(&handleInventoryDisplayInboxChanged));
+
 	// Update the verbs buttons state.
 	updateVerbs();
 
@@ -263,6 +211,9 @@ void LLSidepanelInventory::updateInbox()
         // We shouldn't have to do that but with a client/server system relying on a "well known folder" convention,
         // things can get messy and conventions broken. This call puts everything back together in its right place.
         gInventory.consolidateForType(inbox_id, LLFolderType::FT_INBOX);
+        
+		// Enable the display of the inbox if it exists
+		enableInbox(gSavedSettings.getBOOL("InventoryDisplayInbox"));
 
 		observeInboxModifications(inbox_id);
 	}
@@ -274,7 +225,7 @@ void LLSidepanelInventory::observeInboxCreation()
 	// Set up observer to track inbox folder creation
 	//
 	
-	if (mInboxAddedObserver == NULL)
+	if (mInboxAddedObserver == nullptr)
 	{
 		mInboxAddedObserver = new LLInboxAddedObserver(this);
 		
@@ -289,7 +240,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 	// (this can happen multiple times on the initial session that creates the inbox)
 	//
 
-	if (mInventoryPanelInbox.get() != NULL)
+	if (mInventoryPanelInbox.get() != nullptr)
 	{
 		return;
 	}
@@ -304,7 +255,7 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 		return;
 	}
 
-	if (mCategoriesObserver == NULL)
+	if (mCategoriesObserver == nullptr)
 	{
 		mCategoriesObserver = new LLInventoryCategoriesObserver();
 		gInventory.addObserver(mCategoriesObserver);
@@ -325,6 +276,14 @@ void LLSidepanelInventory::observeInboxModifications(const LLUUID& inboxID)
 	LLPanelMarketplaceInbox * inbox = getChild<LLPanelMarketplaceInbox>(MARKETPLACE_INBOX_PANEL);
     LLInventoryPanel* inventory_panel = inbox->setupInventoryPanel();
 	mInventoryPanelInbox = inventory_panel->getInventoryPanelHandle();
+}
+
+void LLSidepanelInventory::enableInbox(bool enabled)
+{
+	mInboxEnabled = enabled;
+	
+	LLLayoutPanel * inbox_layout_panel = getChild<LLLayoutPanel>(INBOX_LAYOUT_PANEL_NAME);
+	inbox_layout_panel->setVisible(enabled);
 }
 
 void LLSidepanelInventory::openInbox()
@@ -396,116 +355,21 @@ void LLSidepanelInventory::onOpen(const LLSD& key)
 	}
 #endif
 
-	if(key.size() == 0)
-		return;
-
-	mItemPanel->reset();
+	if(key.size() == 0) return;
 
 	if (key.has("id"))
 	{
-		mItemPanel->setItemID(key["id"].asUUID());
-		if (key.has("object"))
-		{
-			mItemPanel->setObjectID(key["object"].asUUID());
-		}
-		showItemInfoPanel();
+		LLFloaterReg::showInstance("item_properties", key, TRUE);
 	}
 	if (key.has("task"))
 	{
-		if (mTaskPanel)
-			mTaskPanel->setObjectSelection(LLSelectMgr::getInstance()->getSelection());
-		showTaskInfoPanel();
+		LLFloaterTaskInfo::showTask();
 	}
-}
-
-void LLSidepanelInventory::onInfoButtonClicked()
-{
-	LLInventoryItem *item = getSelectedItem();
-	if (item)
-	{
-		mItemPanel->reset();
-		mItemPanel->setItemID(item->getUUID());
-		showItemInfoPanel();
-	}
-}
-
-void LLSidepanelInventory::onShareButtonClicked()
-{
-	LLAvatarActions::shareWithAvatars(this);
-}
-
-void LLSidepanelInventory::onShopButtonClicked()
-{
-	LLWeb::loadURL(gSavedSettings.getString("MarketplaceURL"));
-}
-
-void LLSidepanelInventory::performActionOnSelection(const std::string &action)
-{
-	LLFolderViewItem* current_item = mPanelMainInventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
-	if (!current_item)
-	{
-		if (mInventoryPanelInbox.get() && mInventoryPanelInbox.get()->getRootFolder())
-		{
-			current_item = mInventoryPanelInbox.get()->getRootFolder()->getCurSelectedItem();
-		}
-
-		if (!current_item)
-		{
-			return;
-		}
-	}
-
-	static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->performAction(mPanelMainInventory->getActivePanel()->getModel(), action);
-}
-
-void LLSidepanelInventory::onWearButtonClicked()
-{
-	// Get selected items set.
-	const std::set<LLUUID> selected_uuids_set = LLAvatarActions::getInventorySelectedUUIDs();
-	if (selected_uuids_set.empty()) return; // nothing selected
-
-	// Convert the set to a vector.
-	uuid_vec_t selected_uuids_vec;
-	for (std::set<LLUUID>::const_iterator it = selected_uuids_set.begin(); it != selected_uuids_set.end(); ++it)
-	{
-		selected_uuids_vec.push_back(*it);
-	}
-
-	// Wear all selected items.
-	wear_multiple(selected_uuids_vec, true);
-}
-
-void LLSidepanelInventory::onPlayButtonClicked()
-{
-	const LLInventoryItem *item = getSelectedItem();
-	if (!item)
-	{
-		return;
-	}
-
-	switch(item->getInventoryType())
-	{
-	case LLInventoryType::IT_GESTURE:
-		performActionOnSelection("play");
-		break;
-	default:
-		performActionOnSelection("open");
-		break;
-	}
-}
-
-void LLSidepanelInventory::onTeleportButtonClicked()
-{
-	performActionOnSelection("teleport");
-}
-
-void LLSidepanelInventory::onOverflowButtonClicked()
-{
 }
 
 void LLSidepanelInventory::onBackButtonClicked()
 {
-	showInventoryPanel();
+	updateVerbs();
 }
 
 void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*> &items, BOOL user_action)
@@ -513,86 +377,8 @@ void LLSidepanelInventory::onSelectionChange(const std::deque<LLFolderViewItem*>
 	updateVerbs();
 }
 
-void LLSidepanelInventory::showItemInfoPanel()
-{
-	mItemPanel->setVisible(TRUE);
-	if (mTaskPanel)
-		mTaskPanel->setVisible(FALSE);
-	mInventoryPanel->setVisible(FALSE);
-
-	mItemPanel->dirty();
-	mItemPanel->setIsEditing(FALSE);
-}
-
-void LLSidepanelInventory::showTaskInfoPanel()
-{
-	mItemPanel->setVisible(FALSE);
-	mInventoryPanel->setVisible(FALSE);
-
-	if (mTaskPanel)
-	{
-		mTaskPanel->setVisible(TRUE);
-		mTaskPanel->dirty();
-		mTaskPanel->setIsEditing(FALSE);
-	}
-}
-
-void LLSidepanelInventory::showInventoryPanel()
-{
-	mItemPanel->setVisible(FALSE);
-	if (mTaskPanel)
-		mTaskPanel->setVisible(FALSE);
-	mInventoryPanel->setVisible(TRUE);
-	updateVerbs();
-}
-
 void LLSidepanelInventory::updateVerbs()
 {
-	// mInfoBtn->setEnabled(FALSE);
-	// if(mShareBtn)mShareBtn->setEnabled(FALSE);
-
-	// if(mWearBtn)mWearBtn->setVisible(FALSE);
-	// if(mWearBtn)mWearBtn->setEnabled(FALSE);
-	// if(mPlayBtn)mPlayBtn->setVisible(FALSE);
-	// if(mPlayBtn)mPlayBtn->setEnabled(FALSE);
- 	// if(mTeleportBtn)mTeleportBtn->setVisible(FALSE);
- 	// if(mTeleportBtn)mTeleportBtn->setEnabled(FALSE);
- 	// if(mShopBtn)mShopBtn->setVisible(TRUE);
-
-	// if(mShareBtn)mShareBtn->setEnabled(canShare());
-
-	const LLInventoryItem *item = getSelectedItem();
-	if (!item)
-		return;
-
-	// bool is_single_selection = getSelectedCount() == 1;
-
-	// mInfoBtn->setEnabled(is_single_selection);
-
-	switch(item->getInventoryType())
-	{
-		case LLInventoryType::IT_WEARABLE:
-		case LLInventoryType::IT_OBJECT:
-		case LLInventoryType::IT_ATTACHMENT:
-			// if(mWearBtn)mWearBtn->setVisible(TRUE);
-			// if(mWearBtn)mWearBtn->setEnabled(canWearSelected());
-		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
-			break;
-		case LLInventoryType::IT_SOUND:
-		case LLInventoryType::IT_GESTURE:
-		case LLInventoryType::IT_ANIMATION:
-			// if(mPlayBtn)mPlayBtn->setVisible(TRUE);
-			// if(mPlayBtn)mPlayBtn->setEnabled(TRUE);
-		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
-			break;
-		case LLInventoryType::IT_LANDMARK:
-			// if(mTeleportBtn)mTeleportBtn->setVisible(TRUE);
-			// if(mTeleportBtn)mTeleportBtn->setEnabled(TRUE);
-		 	// if(mShopBtn)mShopBtn->setVisible(FALSE);
-			break;
-		default:
-			break;
-	}
 }
 
 bool LLSidepanelInventory::canShare()
@@ -610,74 +396,17 @@ bool LLSidepanelInventory::canShare()
 			|| (inbox ? LLAvatarActions::canShareSelectedItems(inbox) : false) );
 }
 
-
-bool LLSidepanelInventory::canWearSelected()
-{
-
-	std::set<LLUUID> selected_uuids = LLAvatarActions::getInventorySelectedUUIDs();
-
-	if (selected_uuids.empty())
-		return false;
-
-	for (std::set<LLUUID>::const_iterator it = selected_uuids.begin();
-		it != selected_uuids.end();
-		++it)
-	{
-		if (!get_can_item_be_worn(*it)) return false;
-	}
-
-	return true;
-}
-
-LLInventoryItem *LLSidepanelInventory::getSelectedItem()
-{
-	LLFolderViewItem* current_item = mPanelMainInventory->getActivePanel()->getRootFolder()->getCurSelectedItem();
-	
-	if (!current_item)
-	{
-		if (mInventoryPanelInbox.get() && mInventoryPanelInbox.get()->getRootFolder())
-		{
-			current_item = mInventoryPanelInbox.get()->getRootFolder()->getCurSelectedItem();
-		}
-
-		if (!current_item)
-		{
-			return NULL;
-		}
-	}
-	const LLUUID &item_id = static_cast<LLFolderViewModelItemInventory*>(current_item->getViewModelItem())->getUUID();
-	LLInventoryItem *item = gInventory.getItem(item_id);
-	return item;
-}
-
-U32 LLSidepanelInventory::getSelectedCount()
-{
-	int count = 0;
-
-	std::set<LLFolderViewItem*> selection_list = mPanelMainInventory->getActivePanel()->getRootFolder()->getSelectionList();
-	count += selection_list.size();
-
-	if ((count == 0) && mInboxEnabled && mInventoryPanelInbox.get() && mInventoryPanelInbox.get()->getRootFolder())
-	{
-		selection_list = mInventoryPanelInbox.get()->getRootFolder()->getSelectionList();
-
-		count += selection_list.size();
-	}
-
-	return count;
-}
-
-LLInventoryPanel *LLSidepanelInventory::getActivePanel()
+LLInventoryPanel *LLSidepanelInventory::getActivePanel() const
 {
 	if (!getVisible())
 	{
-		return NULL;
+		return nullptr;
 	}
 	if (mInventoryPanel->getVisible())
 	{
 		return mPanelMainInventory->getActivePanel();
 	}
-	return NULL;
+	return nullptr;
 }
 
 BOOL LLSidepanelInventory::isMainInventoryPanelActive() const
@@ -705,7 +434,7 @@ void LLSidepanelInventory::clearSelections(bool clearMain, bool clearInbox)
 	updateVerbs();
 }
 
-std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList()
+std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList() const
 {
 	std::set<LLFolderViewItem*> inventory_selected_uuids;
 	
@@ -715,17 +444,4 @@ std::set<LLFolderViewItem*> LLSidepanelInventory::getInboxSelectionList()
 	}
 	
 	return inventory_selected_uuids;
-}
-
-void LLSidepanelInventory::cleanup()
-{
-	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("inventory");
-	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin(); iter != inst_list.end();)
-	{
-		LLFloaterSidePanelContainer* iv = dynamic_cast<LLFloaterSidePanelContainer*>(*iter++);
-		if (iv)
-		{
-			iv->cleanup();
-		}
-	}
 }

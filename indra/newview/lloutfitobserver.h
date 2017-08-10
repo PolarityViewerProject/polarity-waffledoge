@@ -27,7 +27,6 @@
 #ifndef LL_OUTFITOBSERVER_H
 #define LL_OUTFITOBSERVER_H
 
-#include "llsingleton.h"
 #include "llmd5.h"
 
 /**
@@ -41,7 +40,7 @@ class LLOutfitObserver: public LLInventoryObserver, public LLSingleton<LLOutfitO
 
 public:
 
-	virtual void changed(U32 mask);
+	void changed(U32 mask) override;
 
 	void notifyOutfitLockChanged() { mOutfitLockChanged();  }
 

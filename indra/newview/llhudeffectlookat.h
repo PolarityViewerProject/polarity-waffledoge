@@ -55,25 +55,25 @@ class LLHUDEffectLookAt : public LLHUDEffect
 public:
 	friend class LLHUDObject;
 
-	/*virtual*/ void markDead();
-	/*virtual*/ void setSourceObject(LLViewerObject* objectp);
+	/*virtual*/ void markDead() override;
+	/*virtual*/ void setSourceObject(LLViewerObject* objectp) override;
 
 	BOOL setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position);
 	void clearLookAtTarget();
 
-	ELookAtType getLookAtType() { return mTargetType; }
-	const LLVector3& getTargetPos() { return mTargetPos; }
-	const LLVector3d& getTargetOffset() { return mTargetOffsetGlobal; }
+	ELookAtType getLookAtType() const { return mTargetType; }
+	const LLVector3& getTargetPos() const { return mTargetPos; }
+	const LLVector3d& getTargetOffset() const { return mTargetOffsetGlobal; }
 	bool calcTargetPosition();
 
 protected:
 	LLHUDEffectLookAt(const U8 type);
 	~LLHUDEffectLookAt();
 
-	/*virtual*/ void update();
-	/*virtual*/ void render();
-	/*virtual*/ void packData(LLMessageSystem *mesgsys);
-	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum);
+	/*virtual*/ void update() override;
+	/*virtual*/ void render() override;
+	/*virtual*/ void packData(LLMessageSystem *mesgsys) override;
+	/*virtual*/ void unpackData(LLMessageSystem *mesgsys, S32 blocknum) override;
 	
 	// lookat behavior has either target position or target object with offset
 	void setTargetObjectAndOffset(LLViewerObject *objp, LLVector3d offset);

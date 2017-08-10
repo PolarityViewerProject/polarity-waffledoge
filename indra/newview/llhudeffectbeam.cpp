@@ -88,8 +88,7 @@ void LLHUDEffectBeam::packData(LLMessageSystem *mesgsys)
 
 	// Pack the type-specific data.  Uses a fun packed binary format.  Whee!
 	// 16 + 24 + 1 = 41
-	U8 packed_data[41];
-	memset(packed_data, 0, 41);
+	U8 packed_data[41] = {0};
 	if (mSourceObject)
 	{
 		htonmemcpy(packed_data, mSourceObject->mID.mData, MVT_LLUUID, 16);
@@ -175,7 +174,7 @@ void LLHUDEffectBeam::setSourceObject(LLViewerObject *objp)
 	if (objp->isDead())
 	{
 		LL_WARNS() << "HUDEffectBeam: Source object is dead!" << LL_ENDL;
-		mSourceObject = NULL;
+		mSourceObject = nullptr;
 		return;
 	}
 
@@ -221,7 +220,7 @@ void LLHUDEffectBeam::setTargetObject(LLViewerObject *objp)
 void LLHUDEffectBeam::setTargetPos(const LLVector3d &pos_global)
 {
 	mTargetPos = pos_global;
-	mTargetObject = NULL;
+	mTargetObject = nullptr;
 }
 
 void LLHUDEffectBeam::render()

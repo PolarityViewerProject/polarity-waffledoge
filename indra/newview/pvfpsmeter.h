@@ -56,7 +56,7 @@ public:
 
 private:
 	static LLColor4			mFPSMeterColor;
-	static LLFrameTimer		mStatusBarFPSCounterTimer;
+	static LLFrameTimer		mTextFPSTimer;
 	static F32				mFPSMeterValue;
 	static U32				mFPSNullZoneVSyncLower;
 	static U32				mFPSNullZoneTargetLower;

@@ -60,7 +60,7 @@ LLVOWater::LLVOWater(const LLUUID &id,
 {
 	// Terrain must draw during selection passes so it can block objects behind it.
 	mbCanSelect = FALSE;
-	setScale(LLVector3(256.f, 256.f, 0.f)); // Hack for setting scale for bounding boxes/visibility.
+	setScale(LLVector3(mRegionp->getWidth(), mRegionp->getWidth(), 0.f)); // Hack for setting scale for bounding boxes/visibility.
 
 	mUseTexture = TRUE;
 	mIsEdgePatch = FALSE;
@@ -126,7 +126,7 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 	if (drawable->getNumFaces() < 1)
 	{
 		LLDrawPoolWater *poolp = (LLDrawPoolWater*) gPipeline.getPool(LLDrawPool::POOL_WATER);
-		drawable->addFace(poolp, NULL);
+		drawable->addFace(poolp, nullptr);
 	}
 	face = drawable->getFace(0);
 	if (!face)
@@ -184,13 +184,6 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 
 	F32 size_inv = 1.f / size;
 
-	F32 z_fudge = 0.f;
-
-	if (getIsEdgePatch())
-	{ //bump edge patches down 10 cm to prevent aliasing along edges
-		z_fudge = -0.1f;
-	}
-
 	for (y = 0; y < size; y++)
 	{
 		for (x = 0; x < size; x++)
@@ -199,7 +192,6 @@ BOOL LLVOWater::updateGeometry(LLDrawable *drawable)
 			position_agent = getPositionAgent() - getScale() * 0.5f;
 			position_agent.mV[VX] += (x + 0.5f) * step_x;
 			position_agent.mV[VY] += (y + 0.5f) * step_y;
-			position_agent.mV[VZ] += z_fudge;
 
 			*verticesp++  = position_agent - right + up;
 			*verticesp++  = position_agent - right - up;

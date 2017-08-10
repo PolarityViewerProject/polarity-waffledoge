@@ -33,6 +33,7 @@
 #include "llavataractions.h"
 #include "llfloaterreg.h"
 #include "llcommandhandler.h"
+#include "lllogininstance.h"
 #include "llnotificationsutil.h"
 #include "llpanelpicks.h"
 #include "lltabcontainer.h"
@@ -62,7 +63,7 @@ public:
 	LLProfileHandler() : LLCommandHandler("profile", UNTRUSTED_THROTTLE) { }
 
 	bool handle(const LLSD& params, const LLSD& query_map,
-		LLMediaCtrl* web)
+		LLMediaCtrl* web) override
 	{
 		if (params.size() < 1) return false;
 		std::string agent_name = params[0];
@@ -82,7 +83,7 @@ public:
 	LLAgentHandler() : LLCommandHandler("agent", UNTRUSTED_THROTTLE) { }
 
 	bool handle(const LLSD& params, const LLSD& query_map,
-		LLMediaCtrl* web)
+		LLMediaCtrl* web) override
 	{
 		if (params.size() < 2) return false;
 		LLUUID avatar_id;
@@ -188,7 +189,7 @@ LLAgentHandler gAgentHandler;
 
 //-- LLPanelProfile::ChildStack begins ----------------------------------------
 LLPanelProfile::ChildStack::ChildStack()
-:	mParent(NULL)
+:	mParent(nullptr)
 {
 }
 
@@ -389,7 +390,7 @@ void LLPanelProfile::onOpen(const LLSD& key)
 void LLPanelProfile::onTabSelected(const LLSD& param)
 {
 	std::string tab_name = param.asString();
-	if (NULL != getTabContainer()[tab_name])
+	if (nullptr != getTabContainer()[tab_name])
 	{
 		getTabContainer()[tab_name]->onOpen(getAvatarId());
 	}

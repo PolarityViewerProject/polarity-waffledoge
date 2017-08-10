@@ -35,24 +35,24 @@
 
 #include "llagentwearables.h"
 #include "llappearancemgr.h"
+#include "llfloaterreg.h"
 #include "llinventoryfunctions.h"
 #include "llinventoryicon.h"
 #include "llgesturemgr.h"
+#include "llselectmgr.h"
+#include "lltoolcomp.h"
+#include "lltoolmgr.h"
 #include "lltransutil.h"
 #include "llviewerattachmenu.h"
 #include "llvoavatarself.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvactions.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
 
 class LLFindOutfitItems : public LLInventoryCollectFunctor
 {
 public:
 	LLFindOutfitItems() {}
 	virtual ~LLFindOutfitItems() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item);
+	bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item) override;
 };
 
 bool LLFindOutfitItems::operator()(LLInventoryCategory* cat,
@@ -102,7 +102,7 @@ LLPanelWearableListItem::LLPanelWearableListItem(LLViewerInventoryItem* item, co
 LLPanelWearableOutfitItem* LLPanelWearableOutfitItem::create(LLViewerInventoryItem* item,
 															 bool worn_indication_enabled)
 {
-	LLPanelWearableOutfitItem* list_item = NULL;
+	LLPanelWearableOutfitItem* list_item = nullptr;
 	if (item)
 	{
 		const LLPanelInventoryListItemBase::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelInventoryListItemBase>();
@@ -159,7 +159,7 @@ LLPanelClothingListItem::Params::Params()
 // static
 LLPanelClothingListItem* LLPanelClothingListItem::create(LLViewerInventoryItem* item)
 {
-	LLPanelClothingListItem* list_item = NULL;
+	LLPanelClothingListItem* list_item = nullptr;
 	if(item)
 	{
 		const LLPanelClothingListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLPanelClothingListItem>();
@@ -236,15 +236,15 @@ static LLWidgetNameRegistry::StaticRegistrar sRegisterPanelBodyPartsListItem(&ty
 
 LLPanelBodyPartsListItem::Params::Params()
 :	edit_btn("edit_btn"),
-	edit_panel("edit_panel"),
 	lock_panel("lock_panel"),
+	edit_panel("edit_panel"),
 	lock_icon("lock_icon")
 {}
 
 // static
 LLPanelBodyPartsListItem* LLPanelBodyPartsListItem::create(LLViewerInventoryItem* item)
 {
-	LLPanelBodyPartsListItem* list_item = NULL;
+	LLPanelBodyPartsListItem* list_item = nullptr;
 	if(item)
 	{
 		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelBodyPartsListItem>();
@@ -311,7 +311,7 @@ LLPanelDeletableWearableListItem::Params::Params()
 // static
 LLPanelDeletableWearableListItem* LLPanelDeletableWearableListItem::create(LLViewerInventoryItem* item)
 {
-	LLPanelDeletableWearableListItem* list_item = NULL;
+	LLPanelDeletableWearableListItem* list_item = nullptr;
 	if(item)
 	{
 		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelDeletableWearableListItem>();
@@ -352,7 +352,7 @@ BOOL LLPanelDeletableWearableListItem::postBuild()
 // static
 LLPanelAttachmentListItem* LLPanelAttachmentListItem::create(LLViewerInventoryItem* item)
 {
-	LLPanelAttachmentListItem* list_item = NULL;
+	LLPanelAttachmentListItem* list_item = nullptr;
 	if(item)
 	{
 		const Params& params = LLUICtrlFactory::getDefaultParams<LLPanelDeletableWearableListItem>();
@@ -427,7 +427,7 @@ LLWearableType::EType LLPanelDummyClothingListItem::getWearableType() const
 }
 
 LLPanelDummyClothingListItem::LLPanelDummyClothingListItem(LLWearableType::EType w_type, const LLPanelDummyClothingListItem::Params& params)
-:	LLPanelWearableListItem(NULL, params), 
+:	LLPanelWearableListItem(nullptr, params), 
 	mWearableType(w_type)
 {
 	LLPanel::Params panel_params(params.add_panel);
@@ -665,7 +665,7 @@ LLPanel* LLWearableItemsList::createNewItem(LLViewerInventoryItem* item)
     {
         LL_WARNS() << "No inventory item. Couldn't create flat list item." << LL_ENDL;
         llassert(item != NULL);
-        return NULL;
+        return nullptr;
     }
 
     return LLPanelWearableOutfitItem::create(item, mWornIndicationEnabled);
@@ -778,7 +778,7 @@ void LLWearableItemsList::setSortOrder(ESortOrder sort_order, bool sort_now)
 //////////////////////////////////////////////////////////////////////////
 
 LLWearableItemsList::ContextMenu::ContextMenu()
-:	mParent(NULL)
+:	mParent(nullptr)
 {
 }
 
@@ -786,7 +786,7 @@ void LLWearableItemsList::ContextMenu::show(LLView* spawning_view, const uuid_ve
 {
 	mParent = dynamic_cast<LLWearableItemsList*>(spawning_view);
 	LLListContextMenu::show(spawning_view, uuids, x, y);
-	mParent = NULL; // to avoid dereferencing an invalid pointer
+	mParent = nullptr; // to avoid dereferencing an invalid pointer
 }
 
 // virtual
@@ -812,6 +812,7 @@ LLContextMenu* LLWearableItemsList::ContextMenu::createMenu()
 	// Register handlers for body parts.
 
 	// Register handlers for attachments.
+	registrar.add("Attachment.Edit", boost::bind(&handleAttachmentEdit, ids));
 	registrar.add("Attachment.Detach", 
 				  boost::bind(&LLAppearanceMgr::removeItemsFromAvatar, LLAppearanceMgr::getInstance(), ids));
 	registrar.add("Attachment.Profile", boost::bind(show_item_profile, selected_id));
@@ -845,13 +846,6 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	U32 n_editable = 0;				// number of editable items among the selected ones
 
 	bool can_be_worn = true;
-
-// [RLVa:KB] - Checked: 2010-09-04 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	// We'll enable a menu option if at least one item in the selection is wearable/removable
-	bool rlvCanWearReplace = !RlvActions::isRlvEnabled();
-	bool rlvCanWearAdd = !RlvActions::isRlvEnabled();
-	bool rlvCanRemove = !RlvActions::isRlvEnabled();
-// [/RLVa:KB]
 
 	for (uuid_vec_t::const_iterator it = ids.begin(); it != ids.end(); ++it)
 	{
@@ -893,29 +887,6 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 		{
 			can_be_worn = get_can_item_be_worn(item->getLinkedUUID());
 		}
-
-// [RLVa:KB] - Checked: 2010-09-04 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-		if (RlvActions::isRlvEnabled())
-		{
-			ERlvWearMask eWearMask = RLV_WEAR_LOCKED;
-			switch (item->getType())
-			{
-				case LLAssetType::AT_BODYPART:
-				case LLAssetType::AT_CLOTHING:
-					eWearMask = gRlvWearableLocks.canWear(item);
-					rlvCanRemove |= (is_worn) ? gRlvWearableLocks.canRemove(item) : false;
-					break;
-				case LLAssetType::AT_OBJECT:
-					eWearMask = gRlvAttachmentLocks.canAttach(item);
-					rlvCanRemove |= (is_worn) ? gRlvAttachmentLocks.canDetach(item) : false;
-					break;
-				default:
-					break;
-			}
-			rlvCanWearReplace |= ((eWearMask & RLV_WEAR_REPLACE) == RLV_WEAR_REPLACE);
-			rlvCanWearAdd |= ((eWearMask & RLV_WEAR_ADD) == RLV_WEAR_ADD);
-		}
-// [/RLVa:KB]
 	} // for
 
 	bool standalone = mParent ? mParent->isStandalone() : false;
@@ -923,18 +894,14 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 
 	// *TODO: eliminate multiple traversals over the menu items
 	setMenuItemVisible(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && can_be_worn);
-//	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
+	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0);
 	setMenuItemVisible(menu, "wear_add",			wear_add_visible);
-//	setMenuItemEnabled(menu, "wear_add",			LLAppearanceMgr::instance().canAddWearables(ids));
+	setMenuItemEnabled(menu, "wear_add",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "wear_replace",		n_worn == 0 && n_already_worn != 0 && can_be_worn);
-// [RLVa:KB] - Checked: 2010-09-04 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	setMenuItemEnabled(menu, "wear_wear", 			n_already_worn == 0 && n_worn == 0 && rlvCanWearReplace);
-	setMenuItemEnabled(menu, "wear_add",			LLAppearanceMgr::instance().canAddWearables(ids) && rlvCanWearAdd);
-	setMenuItemEnabled(menu, "wear_replace",		rlvCanWearReplace);
-// [/RLVa:KB]
 	//visible only when one item selected and this item is worn
 	setMenuItemVisible(menu, "edit",				!standalone && mask & (MASK_CLOTHING|MASK_BODYPART) && n_worn == n_items && n_worn == 1);
 	setMenuItemEnabled(menu, "edit",				n_editable == 1 && n_worn == 1 && n_items == 1);
+	setMenuItemVisible(menu, "edit_attachment", 		mask == MASK_ATTACHMENT && n_worn == n_items);
 	setMenuItemVisible(menu, "create_new",			mask & (MASK_CLOTHING|MASK_BODYPART) && n_items == 1);
 	setMenuItemEnabled(menu, "create_new",			LLAppearanceMgr::instance().canAddWearables(ids));
 	setMenuItemVisible(menu, "show_original",		!standalone);
@@ -942,12 +909,7 @@ void LLWearableItemsList::ContextMenu::updateItemsVisibility(LLContextMenu* menu
 	setMenuItemVisible(menu, "take_off",			mask == MASK_CLOTHING && n_worn == n_items);
 	setMenuItemVisible(menu, "detach",				mask == MASK_ATTACHMENT && n_worn == n_items);
 	setMenuItemVisible(menu, "take_off_or_detach",	mask == (MASK_ATTACHMENT|MASK_CLOTHING));
-//	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
-// [RLVa:KB] - Checked: 2010-09-04 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	setMenuItemEnabled(menu, "take_off",			rlvCanRemove);
-	setMenuItemEnabled(menu, "detach",				rlvCanRemove);
-	setMenuItemEnabled(menu, "take_off_or_detach",	(n_worn == n_items) && (rlvCanRemove));
-// [/RLVa:KB]
+	setMenuItemEnabled(menu, "take_off_or_detach",	n_worn == n_items);
 	setMenuItemVisible(menu, "object_profile",		!standalone);
 	setMenuItemEnabled(menu, "object_profile",		n_items == 1);
 	setMenuItemVisible(menu, "--no options--", 		FALSE);
@@ -1047,6 +1009,36 @@ void LLWearableItemsList::ContextMenu::createNewWearable(const LLUUID& item_id)
 	if (!item || !item->isWearableType()) return;
 
 	LLAgentWearables::createWearable(item->getWearableType(), true);
+}
+
+void LLWearableItemsList::ContextMenu::handleAttachmentEdit(const uuid_vec_t& item_uuids)
+{
+	std::vector<LLViewerObject*> object_list;
+	object_list.reserve(item_uuids.size());
+
+	for (const auto& id : item_uuids)
+	{
+		if (id.isNull())
+			continue;
+
+		if (LLInventoryItem* itemp = gInventory.getItem(id))
+		{
+			LLViewerObject* objectp = gAgentAvatarp->getWornAttachment(itemp->getLinkedUUID());
+			if (objectp)
+			{
+				object_list.push_back(objectp);
+			}
+		}
+	}
+
+	if (!object_list.empty())
+	{
+		LLSelectMgr::getInstance()->deselectAll();
+		LLFloaterReg::showInstance("build");
+		LLToolMgr::getInstance()->setCurrentToolset(gBasicToolset);
+		LLToolMgr::getInstance()->getCurrentToolset()->selectTool(LLToolCompTranslate::getInstance());
+		LLSelectMgr::getInstance()->selectObjectAndFamily(object_list);
+	}
 }
 
 // EOF

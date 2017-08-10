@@ -31,7 +31,6 @@
 
 #include "llview.h"
 #include "v4color.h"
-#include "llstring.h"
 #include "llfontgl.h"
 #include "lllineeditor.h"
 
@@ -65,8 +64,8 @@ public:
 
 
 	// Take/return agent UUIDs
-	virtual void	setValue( const LLSD& value );
-	virtual LLSD	getValue() const;
+	void	setValue( const LLSD& value ) override;
+	LLSD	getValue() const override;
 
 private:
 	static std::set<LLNameEditor*> sInstances;

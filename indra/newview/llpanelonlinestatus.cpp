@@ -30,6 +30,7 @@
 
 #include "llnotifications.h"
 #include "llpanelonlinestatus.h"
+#include "lltextbox.h"
 #include "llviewercontrol.h" // for gSavedSettings
 
 LLPanelOnlineStatus::LLPanelOnlineStatus(

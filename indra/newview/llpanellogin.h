@@ -24,8 +24,6 @@
  * $/LicenseInfo$
  */
 
-#include "pvpanellogin.h"
-#if 0
 #ifndef LL_LLPANELLOGIN_H
 #define LL_LLPANELLOGIN_H
 
@@ -39,10 +37,11 @@ class LLUIImage;
 class LLPanelLoginListener;
 class LLSLURL;
 class LLCredential;
+class LLLayoutStack;
 
-class LLPanelLogin:	
-	public LLPanel,
-	public LLViewerMediaObserver
+class LLPanelLogin
+:	public LLPanel
+,	public LLViewerMediaObserver
 {
 	LOG_CLASS(LLPanelLogin);
 public:
@@ -51,49 +50,52 @@ public:
 				void *callback_data);
 	~LLPanelLogin();
 
-	virtual void setFocus( BOOL b );
+	BOOL handleKeyHere(KEY key, MASK mask) override;
+	void draw() override;
+	void setFocus( BOOL b ) override;
+
+	// Show the XUI first name, last name, and password widgets.  They are
+	// hidden on startup for reg-in-client
+	static void showLoginWidgets();
 
 	static void show(const LLRect &rect,
 		void (*callback)(S32 option, void* user_data), 
 		void* callback_data);
 
-	static void setFields(LLPointer<LLCredential> credential, BOOL remember);
-
 	static void getFields(LLPointer<LLCredential>& credential, BOOL& remember);
+
+	static LLSD getIdentifier();
+	static void selectUser(LLPointer<LLCredential> credential, BOOL remember);
 
 	static BOOL areCredentialFieldsDirty();
 	static void setLocation(const LLSLURL& slurl);
-	static void autologinToLocation(const LLSLURL& slurl);
 	
 	/// Call when preferences that control visibility may have changed
 	static void updateLocationSelectorsVisibility();
 
 	static void closePanel();
 
-	void setSiteIsAlive( bool alive );
-
-	void showLoginWidgets();
-
 	static void loadLoginPage();	
 	static void giveFocus();
 	static void setAlwaysRefresh(bool refresh); 
 	
 	// inherited from LLViewerMediaObserver
-	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event);
+	/*virtual*/ void handleMediaEvent(LLPluginClassMedia* self, EMediaEvent event) override;
 	static void updateServer();  // update the combo box, change the login page to the new server, clear the combo
 
 	/// to be called from LLStartUp::setStartSLURL
 	static void onUpdateStartSLURL(const LLSLURL& new_start_slurl);
 
-	// called from prefs when initializing panel
-	static bool getShowFavorites();
-
 private:
 	friend class LLPanelLoginListener;
+	void reshapeBrowser();
 	void addFavoritesToStartLocation();
-	void addUsersWithFavoritesToUsername();
 	void onSelectServer();
 	void onLocationSLURL();
+	void onSelectUser();
+	bool onRemoveUser(const LLSD& value);
+	void onRemoveUserResponse(const LLSD& notification, const LLSD& response);
+	void refreshGridList();
 
 	static void onClickConnect(void*);
 	static void onClickNewAccount(void*);
@@ -101,27 +103,24 @@ private:
 	static void onClickForgotPassword(void*);
 	static void onClickHelp(void*);
 	static void onPassKey(LLLineEditor* caller, void* user_data);
-	static void updateServerCombo();
 
-private:
+	static void connectCallback(const LLSD& notification, const LLSD& response);
+	static void connect();
+
+	LLPointer<LLUIImage> mLogoImage;
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
-
-	void updateLoginButtons();
 
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
 	BOOL            mPasswordModified;
-	bool			mShowFavorites;
+
+	LLLayoutStack*		mLoginWidgetStack;
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
-	bool			mFirstLoginThisInstall;
-
-	unsigned int mUsernameLength;
-	unsigned int mPasswordLength;
-	unsigned int mLocationLength;
+	
+	boost::signals2::connection mGridListChangedConnection;
 };
 
-#endif
 #endif

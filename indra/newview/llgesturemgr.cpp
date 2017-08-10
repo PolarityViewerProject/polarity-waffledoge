@@ -34,6 +34,8 @@
 #include <functional>
 #include <algorithm>
 
+#include <boost/tokenizer.hpp>
+
 // library
 #include "llaudioengine.h"
 #include "lldatapacker.h"
@@ -49,19 +51,16 @@
 
 // newview
 #include "llagent.h"
+#include "llchatutilities.h"
 #include "lldelayedgestureerror.h"
 #include "llinventorymodel.h"
 #include "llviewermessage.h"
 #include "llvoavatarself.h"
 #include "llviewerstats.h"
-#include "llfloaterimnearbychat.h"
 #include "llappearancemgr.h"
 #include "llgesturelistener.h"
-#include "oschatcommand.h"
 
-// [RLVa:KB] - Checked: RLVa-2.0.0
-#include "rlvactions.h"
-// [/RLVa:KB]
+#include "alchatcommand.h"
 
 // Longest time, in seconds, to wait for all animations to stop playing
 const F32 MAX_WAIT_ANIM_SECS = 30.f;
@@ -69,10 +68,10 @@ const F32 MAX_WAIT_ANIM_SECS = 30.f;
 // Lightweight constructor.
 // init() does the heavy lifting.
 LLGestureMgr::LLGestureMgr()
-:	mValid(FALSE),
+:	mActive(),
+	mLoadingCount(0),
 	mPlaying(),
-	mActive(),
-	mLoadingCount(0)
+	mValid(FALSE)
 {
 	gInventory.addObserver(this);
 	mListener.reset(new LLGestureListener());
@@ -88,7 +87,7 @@ LLGestureMgr::~LLGestureMgr()
 		LLMultiGesture* gesture = (*it).second;
 
 		delete gesture;
-		gesture = NULL;
+		gesture = nullptr;
 	}
 	gInventory.removeObserver(this);
 }
@@ -278,7 +277,7 @@ void LLGestureMgr::activateGestureWithAsset(const LLUUID& item_id,
 
 	// For now, put NULL into the item map.  We'll build a gesture
 	// class object when the asset data arrives.
-	mActive[base_item_id] = NULL;
+	mActive[base_item_id] = nullptr;
 
 	// Copy the UUID
 	if (asset_id.notNull())
@@ -327,7 +326,7 @@ void LLGestureMgr::deactivateGesture(const LLUUID& item_id)
 		stopGesture(gesture);
 
 		delete gesture;
-		gesture = NULL;
+		gesture = nullptr;
 	}
 
 	mActive.erase(it);
@@ -381,7 +380,7 @@ void LLGestureMgr::deactivateSimilarGestures(LLMultiGesture* in, const LLUUID& i
 			stopGesture(gest);
 
 			delete gest;
-			gest = NULL;
+			gest = nullptr;
 
 			mActive.erase(it++);
 			gInventory.addChangedMask(LLInventoryObserver::LABEL, item_id);
@@ -491,7 +490,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, LLMultiGesture* new_ges
 	mActive[base_item_id] = new_gesture;
 
 	delete old_gesture;
-	old_gesture = NULL;
+	old_gesture = nullptr;
 
 	if (asset_id.notNull())
 	{
@@ -518,7 +517,7 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset
 {
 	const LLUUID& base_item_id = gInventory.getLinkedItemID(item_id);
 
-	item_map_t::iterator it = LLGestureMgr::instance().mActive.find(base_item_id);
+	item_map_t::iterator it = mActive.find(base_item_id);
 	if (it == mActive.end())
 	{
 		LL_WARNS() << "replaceGesture for inactive gesture " << base_item_id << LL_ENDL;
@@ -527,17 +526,12 @@ void LLGestureMgr::replaceGesture(const LLUUID& item_id, const LLUUID& new_asset
 
 	// mActive owns this gesture pointer, so clean up memory.
 	LLMultiGesture* gesture = (*it).second;
-	LLGestureMgr::instance().replaceGesture(base_item_id, gesture, new_asset_id);
+	replaceGesture(base_item_id, gesture, new_asset_id);
 }
 
 void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 {
 	if (!gesture) return;
-
-// [RLVa:KB] - Checked: RLVa-2.0.0 | Handles: @sendgesture
-	if (!RlvActions::canPlayGestures())
-		return;
-// [/RLVa:KB]
 
 	// Reset gesture to first step
 	gesture->mCurrentStep = 0;
@@ -588,7 +582,7 @@ void LLGestureMgr::playGesture(LLMultiGesture* gesture)
 					gAssetStorage->getAssetData(sound_id,
 									LLAssetType::AT_SOUND,
 									onAssetLoadComplete,
-									NULL,
+									nullptr,
 									TRUE);
 				}
 				break;
@@ -646,7 +640,7 @@ BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
 	for( token_iter = tokens.begin(); token_iter != tokens.end(); ++token_iter)
 	{
 		const char* cur_token = token_iter->c_str();
-		LLMultiGesture* gesture = NULL;
+		LLMultiGesture* gesture = nullptr;
 
 		// Only pay attention to the first gesture in the string.
 		if( !found_gestures )
@@ -666,7 +660,7 @@ BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
 					matching.push_back(gesture);
 				}
 				
-				gesture = NULL;
+				gesture = nullptr;
 			}
 
 			
@@ -718,7 +712,7 @@ BOOL LLGestureMgr::triggerAndReviseString(const std::string &utf8str, std::strin
 		}
 
 		first_token = FALSE;
-		gesture = NULL;
+		gesture = nullptr;
 	}
 	return found_gestures;
 }
@@ -764,14 +758,6 @@ S32 LLGestureMgr::getPlayingCount() const
 }
 
 
-struct IsGesturePlaying : public std::unary_function<LLMultiGesture*, bool>
-{
-	bool operator()(const LLMultiGesture* gesture) const
-	{
-		return gesture->mPlaying ? true : false;
-	}
-};
-
 void LLGestureMgr::update()
 {
 	S32 i;
@@ -783,9 +769,8 @@ void LLGestureMgr::update()
 	// Clear out gestures that are done, by moving all the
 	// ones that are still playing to the front.
 	std::vector<LLMultiGesture*>::iterator new_end;
-	new_end = std::partition(mPlaying.begin(),
-							 mPlaying.end(),
-							 IsGesturePlaying());
+	new_end = std::partition(mPlaying.begin(), mPlaying.end(),
+		[](const LLMultiGesture* gesture) { return gesture->mPlaying ? true : false; });
 
 	// Something finished playing
 	if (new_end != mPlaying.end())
@@ -802,7 +787,7 @@ void LLGestureMgr::update()
 
 				// callback might have deleted gesture, can't
 				// rely on this pointer any more
-				gesture = NULL;
+				gesture = nullptr;
 			}
 		}
 
@@ -872,7 +857,7 @@ void LLGestureMgr::stepGesture(LLMultiGesture* gesture)
 	{
 		// Get the current step, if there is one.
 		// Otherwise enter the waiting at end state.
-		LLGestureStep* step = NULL;
+		LLGestureStep* step = nullptr;
 		if (gesture->mCurrentStep < (S32)gesture->mSteps.size())
 		{
 			step = gesture->mSteps[gesture->mCurrentStep];
@@ -1013,10 +998,9 @@ void LLGestureMgr::runStep(LLMultiGesture* gesture, LLGestureStep* step)
 
 			const BOOL animate = FALSE;
 
-			if(!OSChatCommand::instance().parseCommand(chat_text))
+			if(chat_text.empty() || !ALChatCommand::parseCommand(chat_text))
 			{
-				(LLFloaterReg::getTypedInstance<LLFloaterIMNearbyChat>("nearby_chat"))->
-						sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
+				LLChatUtilities::sendChatFromViewer(chat_text, CHAT_TYPE_NORMAL, animate);
 			}
 
 			gesture->mCurrentStep++;
@@ -1065,7 +1049,7 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 	BOOL deactivate_similar = info->mDeactivateSimilar;
 
 	delete info;
-	info = NULL;
+	info = nullptr;
 	LLGestureMgr& self = LLGestureMgr::instance();
 	self.mLoadingCount--;
 
@@ -1152,7 +1136,7 @@ void LLGestureMgr::onLoadComplete(LLVFS *vfs,
 			self.mActive.erase(item_id);
 			
 			delete gesture;
-			gesture = NULL;
+			gesture = nullptr;
 		}
 	}
 	else
@@ -1299,7 +1283,7 @@ void LLGestureMgr::stopGesture(LLMultiGesture* gesture)
 
 		// callback might have deleted gesture, can't
 		// rely on this pointer any more
-		gesture = NULL;
+		gesture = nullptr;
 	}
 
 	notifyObservers();

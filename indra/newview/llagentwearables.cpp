@@ -53,10 +53,6 @@
 #include "llviewerwearable.h"
 #include "llwearablelist.h"
 #include "llfloaterperms.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
 
 #include <boost/scoped_ptr.hpp>
 
@@ -65,12 +61,6 @@
 LLAgentWearables gAgentWearables;
 
 BOOL LLAgentWearables::mInitialWearablesUpdateReceived = FALSE;
-// [SL:KB] - Patch: Appearance-InitialWearablesLoadedCallback | Checked: 2010-08-14 (Catznip-2.1)
-bool LLAgentWearables::mInitialWearablesLoaded = false;
-// [/SL:KB]
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-bool LLAgentWearables::mInitialAttachmentsRequested = false;
-// [/RLVa:KB]
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -805,34 +795,6 @@ const LLUUID LLAgentWearables::getWearableItemID(LLWearableType::EType type, U32
 		return LLUUID();
 }
 
-// [RLVa:KB] - Checked: 2011-03-31 (RLVa-1.3.0)
-void LLAgentWearables::getWearableItemIDs(uuid_vec_t& idItems) const
-{
-	for (wearableentry_map_t::const_iterator itWearableType = mWearableDatas.begin(); 
-			itWearableType != mWearableDatas.end(); ++itWearableType)
-	{
-		getWearableItemIDs(itWearableType->first, idItems);
-	}
-}
-
-void LLAgentWearables::getWearableItemIDs(LLWearableType::EType eType, uuid_vec_t& idItems) const
-{
-	wearableentry_map_t::const_iterator itWearableType = mWearableDatas.find(eType);
-	if (mWearableDatas.end() != itWearableType)
-	{
-		for (wearableentry_vec_t::const_iterator itWearable = itWearableType->second.begin();
-				itWearable != itWearableType->second.end(); ++itWearable)
-		{
-			const LLViewerWearable* pWearable = dynamic_cast<LLViewerWearable*>(*itWearable);
-			if (pWearable)
-			{
-				idItems.push_back(pWearable->getItemID());
-			}
-		}
-	}
-}
-// [/RLVa:KB]
-
 const LLUUID LLAgentWearables::getWearableAssetID(LLWearableType::EType type, U32 index) const
 {
 	const LLViewerWearable *wearable = getViewerWearable(type,index);
@@ -1314,11 +1276,7 @@ void LLAgentWearables::removeWearableFinal(const LLWearableType::EType type, boo
 				old_wearable->removeFromAvatar(TRUE);
 			}
 		}
-//		clearWearableType(type);
-// [RLVa:KB] - Checked: 2010-05-14 (RLVa-1.2.0)
-		// The line above shouldn't be needed
-		RLV_VERIFY(0 == getWearableCount(type));
-// [/RLVa:KB]
+		clearWearableType(type);
 	}
 	else
 	{
@@ -1489,14 +1447,6 @@ void LLAgentWearables::setWearableOutfit(const LLInventoryItem::item_array_t& it
 	// Start rendering & update the server
 	mWearablesLoaded = TRUE; 
 	checkWearablesLoaded();
-
-// [SL:KB] - Patch: Appearance-InitialWearablesLoadedCallback | Checked: 2010-09-22 (Catznip-2.2)
-	if (!mInitialWearablesLoaded)
-	{
-		mInitialWearablesLoaded = true;
-		mInitialWearablesLoadedSignal();
-	}
-// [/SL:KB]
 	notifyLoadingFinished();
 
 	// Copy wearable params to avatar.
@@ -1843,34 +1793,6 @@ void LLAgentWearables::userRemoveMultipleAttachments(llvo_vec_t& objects_to_remo
 {
 	if (!isAgentAvatarValid()) return;
 
-// [RLVa:KB] - Checked: 2010-03-04 (RLVa-1.2.0)
-	// RELEASE-RLVa: [SL-3.4] Check our callers and verify that erasing elements from the passed vector won't break random things
-	if ( (rlv_handler_t::isEnabled()) && (gRlvAttachmentLocks.hasLockedAttachmentPoint(RLV_LOCK_REMOVE)) )
-	{
-		llvo_vec_t::iterator itObj = objects_to_remove.begin();
-		while (objects_to_remove.end() != itObj)
-		{
-			const LLViewerObject* pAttachObj = *itObj;
-			if (gRlvAttachmentLocks.isLockedAttachment(pAttachObj))
-			{
-				itObj = objects_to_remove.erase(itObj);
-
-				// Fall-back code: re-add the attachment if it got removed from COF somehow (compensates for possible bugs elsewhere)
-				bool fInCOF = LLAppearanceMgr::instance().isLinkedInCOF(pAttachObj->getAttachmentItemID());
-				RLV_ASSERT(fInCOF);
-				if (!fInCOF)
-				{
-					LLAppearanceMgr::instance().registerAttachment(pAttachObj->getAttachmentItemID());
-				}
-			}
-			else
-			{
-				++itObj;
-			}
-		}
-	}
-// [/RLVa:KB]
-
 	if (objects_to_remove.empty())
 		return;
 
@@ -2131,13 +2053,6 @@ bool LLAgentWearables::changeInProgress() const
 {
 	return mCOFChangeInProgress;
 }
-
-// [SL:KB] - Patch: Appearance-InitialWearablesLoadedCallback | Checked: 2010-08-14 (Catznip-2.1)
-boost::signals2::connection LLAgentWearables::addInitialWearablesLoadedCallback(const loaded_callback_t& cb)
-{
-	return mInitialWearablesLoadedSignal.connect(cb);
-}
-// [/SL:KB]
 
 void LLAgentWearables::notifyLoadingStarted()
 {

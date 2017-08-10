@@ -48,6 +48,7 @@
 #include "llinventorybridge.h"
 #include "llinventorydefines.h"
 #include "llinventoryfunctions.h"
+#include "llparcel.h" //<alchemy> Rez under Land Group
 #include "llpreviewnotecard.h"
 #include "llrootview.h"
 #include "llselectmgr.h"
@@ -56,16 +57,13 @@
 #include "lltooltip.h"
 #include "lltrans.h"
 #include "llviewerobjectlist.h"
+#include "llviewerparcelmgr.h" //<alchemy> Rez under Land Group
 #include "llviewerregion.h"
 #include "llviewerstats.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
 #include "llworld.h"
 #include "llpanelface.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
 
 // syntactic sugar
 #define callMemberFunction(object,ptrToMember)  ((object).*(ptrToMember))
@@ -75,8 +73,9 @@ class LLNoPreferredType : public LLInventoryCollectFunctor
 public:
 	LLNoPreferredType() {}
 	virtual ~LLNoPreferredType() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item)
+
+	bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item) override
 	{
 		if (cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
 		{
@@ -91,8 +90,9 @@ class LLNoPreferredTypeOrItem : public LLInventoryCollectFunctor
 public:
 	LLNoPreferredTypeOrItem() {}
 	virtual ~LLNoPreferredTypeOrItem() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item)
+
+	bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item) override
 	{
 		if (item) return true;
 		if (cat && (cat->getPreferredType() == LLFolderType::FT_NONE))
@@ -109,8 +109,8 @@ public:
 	LLDroppableItem(BOOL is_transfer) :
 		mCountLosing(0), mIsTransfer(is_transfer) {}
 	virtual ~LLDroppableItem() {}
-	virtual bool operator()(LLInventoryCategory* cat,
-							LLInventoryItem* item);
+	bool operator()(LLInventoryCategory* cat,
+							LLInventoryItem* item) override;
 	S32 countNoCopy() const { return mCountLosing; }
 
 protected:
@@ -146,7 +146,7 @@ class LLDropCopyableItems : public LLInventoryCollectFunctor
 public:
 	LLDropCopyableItems() {}
 	virtual ~LLDropCopyableItems() {}
-	virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item);
+	bool operator()(LLInventoryCategory* cat, LLInventoryItem* item) override;
 };
 
 
@@ -179,7 +179,8 @@ public:
 		LLInventoryFetchComboObserver(folder_ids, item_ids)
 	{}
 	~LLCategoryFireAndForget() {}
-	virtual void done()
+
+	void done() override
 	{
 		/* no-op: it's fire n forget right? */
 		LL_DEBUGS() << "LLCategoryFireAndForget::done()" << LL_ENDL;
@@ -197,7 +198,7 @@ public:
 		mSource(src)
 	{}
 	~LLCategoryDropObserver() {}
-	virtual void done();
+	void done() override;
 
 protected:
 	LLUUID mObjectID;
@@ -211,7 +212,7 @@ void LLCategoryDropObserver::done()
 	if (dst_obj)
 	{
 		// *FIX: coalesce these...
- 		LLInventoryItem* item = NULL;
+ 		LLInventoryItem* item = nullptr;
   		uuid_vec_t::iterator it = mComplete.begin();
   		uuid_vec_t::iterator end = mComplete.end();
   		for(; it < end; ++it)
@@ -229,6 +230,66 @@ void LLCategoryDropObserver::done()
 	}
 	delete this;
 }
+/* Doesn't seem to be used anymore.
+class LLCategoryDropDescendentsObserver : public LLInventoryFetchDescendentsObserver
+{
+public:
+	LLCategoryDropDescendentsObserver(
+		const LLUUID& obj_id, LLToolDragAndDrop::ESource src) :
+		mObjectID(obj_id),
+		mSource(src)
+	{}
+	~LLCategoryDropDescendentsObserver() {}
+	virtual void done();
+
+protected:
+	LLUUID mObjectID;
+	LLToolDragAndDrop::ESource mSource;
+};
+
+void LLCategoryDropDescendentsObserver::done()
+{
+
+	gInventory.removeObserver(this);
+	uuid_vec_t::iterator it = mComplete.begin();
+	uuid_vec_t::iterator end = mComplete.end();
+	LLViewerInventoryCategory::cat_array_t cats;
+	LLViewerInventoryItem::item_array_t items;
+	for(; it != end; ++it)
+	{
+		gInventory.collectDescendents(
+			(*it),
+			cats,
+			items,
+			LLInventoryModel::EXCLUDE_TRASH);
+	}
+
+	S32 count = items.size();
+	if (count)
+	{
+		std::set<LLUUID> unique_ids;
+		for(S32 i = 0; i < count; ++i)
+		{
+			unique_ids.insert(items.get(i)->getUUID());
+		}
+		uuid_vec_t ids;
+		std::back_insert_iterator<uuid_vec_t> copier(ids);
+		std::copy(unique_ids.begin(), unique_ids.end(), copier);
+		LLCategoryDropObserver* dropper;
+		dropper = new LLCategoryDropObserver(ids, mObjectID, mSource);
+		dropper->startFetch();
+		if (dropper->isDone())
+		{
+			dropper->done();
+		}
+		else
+		{
+			gInventory.addObserver(dropper);
+		}
+	}
+	delete this;
+}
+*/
 
 S32 LLToolDragAndDrop::sOperationId = 0;
 
@@ -281,7 +342,7 @@ LLToolDragAndDrop::LLDragAndDropDictionary::LLDragAndDropDictionary()
 };
 
 LLToolDragAndDrop::LLToolDragAndDrop()
-:	LLTool(std::string("draganddrop"), NULL),
+:	LLTool(std::string("draganddrop"), nullptr),
 	mCargoCount(0),
 	mDragStartX(0),
 	mDragStartY(0),
@@ -318,7 +379,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 {
 	if (type == DAD_NONE)
 	{
-		LL_DEBUGS() << "Attempted to start drag without a cargo type" << LL_ENDL;
+		LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 		return;
 	}
 	mCargoTypes.clear();
@@ -345,7 +406,7 @@ void LLToolDragAndDrop::beginDrag(EDragAndDropType type,
 			LLNoPreferredTypeOrItem is_not_preferred;
 			uuid_vec_t folder_ids;
 			uuid_vec_t item_ids;
-			if (is_not_preferred(cat, NULL))
+			if (is_not_preferred(cat, nullptr))
 			{
 				folder_ids.push_back(cargo_id);
 			}
@@ -390,7 +451,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	{
 		if (DAD_NONE == *types_it)
 		{
-			LL_DEBUGS() << "Attempted to start drag without a cargo type" << LL_ENDL;
+			LL_WARNS() << "Attempted to start drag without a cargo type" << LL_ENDL;
 			return;
 		}
 	}
@@ -405,7 +466,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 	if ((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
 	{
 		// find categories (i.e. inventory folders) in the cargo.
-		LLInventoryCategory* cat = NULL;
+		LLInventoryCategory* cat = nullptr;
 		S32 count = llmin(cargo_ids.size(), types.size());
 		std::set<LLUUID> cat_ids;
 		for(S32 i = 0; i < count; ++i)
@@ -416,7 +477,7 @@ void LLToolDragAndDrop::beginMultiDrag(
 				LLViewerInventoryCategory::cat_array_t cats;
 				LLViewerInventoryItem::item_array_t items;
 				LLNoPreferredType is_not_preferred;
-				if (is_not_preferred(cat, NULL))
+				if (is_not_preferred(cat, nullptr))
 				{
 					cat_ids.insert(cat->getUUID());
 				}
@@ -805,7 +866,7 @@ void LLToolDragAndDrop::dragOrDrop3D( S32 x, S32 y, MASK mask, BOOL drop, EAccep
 
 void LLToolDragAndDrop::pickCallback(const LLPickInfo& pick_info)
 {
-	if (getInstance() != NULL)
+	if (getInstance() != nullptr)
 	{
 		getInstance()->pick(pick_info);
 	}
@@ -820,7 +881,7 @@ void LLToolDragAndDrop::pick(const LLPickInfo& pick_info)
 	LLSelectMgr::getInstance()->unhighlightAll();
 	bool highlight_object = false;
 	// Treat attachments as part of the avatar they are attached to.
-	if (hit_obj != NULL)
+	if (hit_obj != nullptr)
 	{
 		// don't allow drag and drop on grass, trees, etc.
 		if (pick_info.mPickType == LLPickInfo::PICK_FLORA)
@@ -1162,7 +1223,7 @@ void LLToolDragAndDrop::dropTextureOneFace(LLViewerObject* hit_obj,
 			break;
 		}
 	}
-	else
+	else if (hit_obj)
 	{
 		hit_obj->setTEImage(hit_face, image);
 	}
@@ -1242,15 +1303,6 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 		return;
 	}
 
-
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Modified: RLVa-1.2.0a
-	// Fallback in case there's a new code path that leads here (see behaviour notes)
-	if ( (rlv_handler_t::isEnabled()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_REZ)) || (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT))) )
-	{
-		return;
-	}
-// [/RLVa:KB]
-
 	//LL_INFOS() << "Rezzing object" << LL_ENDL;
 	make_ui_sound("UISndObjectRezIn");
 	LLViewerInventoryItem* item;
@@ -1327,7 +1379,22 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID,  gAgent.getID());
 	msg->addUUIDFast(_PREHASH_SessionID,  gAgent.getSessionID());
-	msg->addUUIDFast(_PREHASH_GroupID, LLSelectMgr::getInstance()->getGroupIDToRezUnder());
+
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
+
+	msg->addUUIDFast(_PREHASH_GroupID, group_id);
 
 	msg->nextBlock("RezData");
 	// if it's being rezzed from task inventory, we need to enable
@@ -1487,7 +1554,7 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	//							  gAgent.getGroupID())
 	//			 && (obj->mPermModify || obj->mFlagAllowInventoryAdd));
 	BOOL worn = FALSE;
-	LLVOAvatarSelf* my_avatar = NULL;
+	LLVOAvatarSelf* my_avatar = nullptr;
 	switch(item->getType())
 	{
 	case LLAssetType::AT_OBJECT:
@@ -1522,23 +1589,6 @@ EAcceptance LLToolDragAndDrop::willObjectAcceptInventory(LLViewerObject* obj, LL
 	BOOL volume = (LL_PCODE_VOLUME == obj->getPCode());
 	BOOL attached = obj->isAttachment();
 	BOOL unrestricted = ((perm.getMaskBase() & PERM_ITEM_UNRESTRICTED) == PERM_ITEM_UNRESTRICTED) ? TRUE : FALSE;
-
-// [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c) | Modified: RLVa-1.0.0c
-	if (rlv_handler_t::isEnabled())
-	{
-		const LLViewerObject* pObjRoot = obj->getRootEdit();
-		if (gRlvAttachmentLocks.isLockedAttachment(pObjRoot))
-		{
-			return ACCEPT_NO_LOCKED;		// Disallow inventory drops on a locked attachment
-		}
-		else if ( (gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_SITTP)) )
-		{
-			if ( (isAgentAvatarValid()) && (gAgentAvatarp->isSitting()) && (gAgentAvatarp->getRoot() == pObjRoot) )
-				return ACCEPT_NO_LOCKED;	// ... or on a linkset the avie is sitting on under @unsit=n/@sittp=n
-		}
-	}
-// [/RLVa:KB]
-
 	if(attached && !unrestricted)
 	{
 		return ACCEPT_NO_LOCKED;
@@ -1569,7 +1619,7 @@ static void give_inventory_cb(const LLSD& notification, const LLSD& response)
 	const LLUUID& agent_id = payload["agent_id"];
 	LLViewerInventoryItem * inv_item =  gInventory.getItem(payload["item_id"]);
 	LLViewerInventoryCategory * inv_cat =  gInventory.getCategory(payload["item_id"]);
-	if (NULL == inv_item && NULL == inv_cat)
+	if (nullptr == inv_item && nullptr == inv_cat)
 	{
 		llassert( FALSE );
 		return;
@@ -1616,12 +1666,12 @@ static void show_object_sharing_confirmation(const std::string name,
 }
 
 static void get_name_cb(const LLUUID& id,
-						const std::string& full_name,
+						const LLAvatarName& av_name,
 						LLInventoryObject* inv_obj,
 						const LLSD& dest,
 						const LLUUID& dest_agent)
 {
-	show_object_sharing_confirmation(full_name,
+	show_object_sharing_confirmation(av_name.getUserName(),
 								     inv_obj,
 								     dest,
 						  		     id,
@@ -1664,19 +1714,19 @@ bool LLToolDragAndDrop::handleGiveDragAndDrop(LLUUID dest_agent, LLUUID session_
 				LLIMModel::LLIMSession * session = LLIMModel::instance().findIMSession(session_id);
 
 				// If no IM session found get the destination agent's name by id.
-				if (NULL == session)
+				if (nullptr == session)
 				{
-					std::string fullname;
+					LLAvatarName av_name;
 
 					// If destination agent's name is found in cash proceed to showing the confirmation dialog.
 					// Otherwise set up a callback to show the dialog when the name arrives.
-					if (gCacheName->getFullName(dest_agent, fullname))
+					if (LLAvatarNameCache::get(dest_agent, &av_name))
 					{
-						show_object_sharing_confirmation(fullname, inv_obj, dest, dest_agent, LLUUID::null);
+						show_object_sharing_confirmation(av_name.getUserName(), inv_obj, dest, dest_agent, LLUUID::null);
 					}
 					else
 					{
-						gCacheName->get(dest_agent, false, boost::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
+						LLAvatarNameCache::get(dest_agent, boost::bind(&get_name_cb, _1, _2, inv_obj, dest, dest_agent));
 					}
 
 					return true;
@@ -1757,23 +1807,12 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 		return ACCEPT_NO;
 	}
 
-// [RLVa:KB] - Checked: 2013-02-13 (RLVa-1.4.8)
-	bool fReplace = !(mask & MASK_CONTROL);
-	if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item, (fReplace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
-	{
-		return ACCEPT_NO_LOCKED;
-	}
-// [/RLVa:KB]
 
 	if( drop )
 	{
 		if(mSource == SOURCE_LIBRARY)
 		{
-//			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0));
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2010-09-28 (Catznip-2.2)
-			// Make this behave consistent with dad3dWearItem
-			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)0, fReplace));
-// [/SL:KB]
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, (LLViewerJointAttachment*)nullptr));
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),
@@ -1784,11 +1823,7 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 		}
 		else
 		{
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2010-09-28 (Catznip-2.2)
-			// Make this behave consistent with dad3dWearItem
-			rez_attachment(item, 0, !(mask & MASK_CONTROL));
-// [/SL:KB]
-//			rez_attachment(item, 0);
+			rez_attachment(item, nullptr);
 		}
 	}
 	return ACCEPT_YES_SINGLE;
@@ -1798,14 +1833,6 @@ EAcceptance LLToolDragAndDrop::dad3dRezAttachmentFromInv(
 EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Modified: RLVa-1.1.0l
-	// RELEASE-RLVa: [SL-2.2.0] Make sure the code below is the only code path to LLToolDragAndDrop::dad3dRezFromObjectOnLand()
-	if ( (rlv_handler_t::isEnabled()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_REZ)) || (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT))) )
-	{
-		return ACCEPT_NO_LOCKED;
-	}
-// [/RLVa:KB]
-
 	if (mSource == SOURCE_WORLD)
 	{
 		return dad3dRezFromObjectOnLand(obj, face, mask, drop);
@@ -1868,18 +1895,6 @@ EAcceptance LLToolDragAndDrop::dad3dRezObjectOnLand(
 EAcceptance LLToolDragAndDrop::dad3dRezObjectOnObject(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Modified: RLVa-1.1.0l
-	// NOTE: if (mask & MASK_CONTROL) then it's a drop rather than a rez, so we let that pass through when @rez=n restricted
-	// (but not when @interact=n restricted unless the drop target is a HUD attachment)
-	// RELEASE-RLVa: [SL-2.2.0] Make sure the code below is the only code path to LLToolDragAndDrop::dad3dRezFromObjectOnObject()
-	if ( (rlv_handler_t::isEnabled()) &&
-		 ( ( (gRlvHandler.hasBehaviour(RLV_BHVR_REZ)) && ((mask & MASK_CONTROL) == 0) ) ||
-		   ( (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT)) && (((mask & MASK_CONTROL) == 0) || (!obj->isHUDAttachment())) ) ) )
-	{
-		return ACCEPT_NO_LOCKED;
-	}
-// [/RLVa:KB]
-
 	// handle objects coming from object inventory
 	if (mSource == SOURCE_WORLD)
 	{
@@ -2110,22 +2125,11 @@ EAcceptance LLToolDragAndDrop::dad3dWearItem(
 			return ACCEPT_NO;
 		}
 
-// [RLVa:KB] - Checked: 2013-02-13 (RLVa-1.4.8)
-		bool fReplace = (!(mask & MASK_CONTROL)) || (LLAssetType::AT_BODYPART == item->getType());	// Body parts should always replace
-		if ( (rlv_handler_t::isEnabled()) && (!rlvPredCanWearItem(item, (fReplace) ? RLV_WEAR_REPLACE : RLV_WEAR_ADD)) )
-		{
-			return ACCEPT_NO_LOCKED;
-		}
-// [/RLVa:KB]
-
 		if( drop )
 		{
 			// TODO: investigate wearables may not be loaded at this point EXT-8231
 
-// [RLVa:KB] - Checked: 2013-02-13 (RLVa-1.4.8)
-			LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(), true, fReplace);
-// [/RLVa:KB]
-//			LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(),true, !(mask & MASK_CONTROL));
+			LLAppearanceMgr::instance().wearItemOnAvatar(item->getUUID(),true, !(mask & MASK_CONTROL));
 		}
 		return ACCEPT_YES_MULTI;
 	}
@@ -2297,7 +2301,7 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	LL_DEBUGS() << "LLToolDragAndDrop::dad3dUpdateInventoryCategory()" << LL_ENDL;
-	if (obj == NULL)
+	if (obj == nullptr)
 	{
 		LL_WARNS() << "obj is NULL; aborting func with ACCEPT_NO" << LL_ENDL;
 		return ACCEPT_NO;
@@ -2312,8 +2316,8 @@ EAcceptance LLToolDragAndDrop::dad3dUpdateInventoryCategory(
 		return ACCEPT_NO_LOCKED;
 	}
 
-	LLViewerInventoryItem* item = NULL;
-	LLViewerInventoryCategory* cat = NULL;
+	LLViewerInventoryItem* item = nullptr;
+	LLViewerInventoryCategory* cat = nullptr;
 	locateInventory(item, cat);
 	if (!cat) 
 	{
@@ -2498,8 +2502,8 @@ EAcceptance LLToolDragAndDrop::dad3dRezFromObjectOnLand(
 	LLViewerObject* obj, S32 face, MASK mask, BOOL drop)
 {
 	LL_DEBUGS() << "LLToolDragAndDrop::dad3dRezFromObjectOnLand()" << LL_ENDL;
-	LLViewerInventoryItem* item = NULL;
-	LLViewerInventoryCategory* cat = NULL;
+	LLViewerInventoryItem* item = nullptr;
+	LLViewerInventoryCategory* cat = nullptr;
 	locateInventory(item, cat);
 	if (!item || !item->isFinished()) return ACCEPT_NO;
 
@@ -2623,13 +2627,13 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 	LLViewerInventoryItem*& item,
 	LLViewerInventoryCategory*& cat)
 {
-	item = NULL;
-	cat = NULL;
+	item = nullptr;
+	cat = nullptr;
 
 	if (mCargoIDs.empty()
 		|| (mSource == SOURCE_PEOPLE)) ///< There is no inventory item for people drag and drop.
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	if((mSource == SOURCE_AGENT) || (mSource == SOURCE_LIBRARY))
@@ -2670,7 +2674,7 @@ LLInventoryObject* LLToolDragAndDrop::locateInventory(
 
 	if(item) return item;
 	if(cat) return cat;
-	return NULL;
+	return nullptr;
 }
 
 /*

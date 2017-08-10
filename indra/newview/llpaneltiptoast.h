@@ -24,11 +24,10 @@
  * $/LicenseInfo$
  */
 
-
-#include "lltoastpanel.h"
-
 #ifndef LL_PANELTOASTTIP_H
 #define LL_PANELTOASTTIP_H
+
+#include "lltoastpanel.h"
 
 /**
  * Base class for tip toast panels.
@@ -39,8 +38,8 @@ class LLPanelTipToast : public LLToastPanel
 {
 	LOG_CLASS(LLPanelTipToast);
 public:
-	LLPanelTipToast(const LLNotificationPtr& notification): LLToastPanel(notification) {}
-	virtual BOOL postBuild();
+	LLPanelTipToast(const LLNotificationPtr& notification) : LLToastPanel(notification), mMessageText(nullptr) {}
+	BOOL postBuild() override;
 private:
 	void onMessageTextClick();
 	void onPanelClick(S32 x, S32 y, MASK mask);

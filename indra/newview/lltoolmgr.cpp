@@ -59,31 +59,28 @@
 #include "llviewerjoystick.h"
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
-// [RLVa:KB] - Checked: RLVa-2.1.0
-#include "llfloatertools.h"
-#include "rlvactions.h"
-// [/RLVa:KB]
+
 
 // Used when app not active to avoid processing hover.
-LLTool*			gToolNull	= NULL;
+LLTool*			gToolNull	= nullptr;
 
-LLToolset*		gBasicToolset		= NULL;
-LLToolset*		gCameraToolset		= NULL;
+LLToolset*		gBasicToolset		= nullptr;
+LLToolset*		gCameraToolset		= nullptr;
 //LLToolset*		gLandToolset		= NULL;
-LLToolset*		gMouselookToolset	= NULL;
-LLToolset*		gFaceEditToolset	= NULL;
+LLToolset*		gMouselookToolset	= nullptr;
+LLToolset*		gFaceEditToolset	= nullptr;
 
 /////////////////////////////////////////////////////
 // LLToolMgr
 
 LLToolMgr::LLToolMgr()
 	:
-	mBaseTool(NULL), 
-	mSavedTool(NULL),
-	mTransientTool( NULL ),
-	mOverrideTool( NULL ),
-	mSelectedTool( NULL ),
-	mCurrentToolset( NULL )
+	mBaseTool(nullptr), 
+	mSavedTool(nullptr),
+	mTransientTool(nullptr ),
+	mOverrideTool(nullptr ),
+	mSelectedTool(nullptr ),
+	mCurrentToolset(nullptr )
 {
 	// Not a panel, register these callbacks globally.
 	LLUICtrl::EnableCallbackRegistry::currentRegistrar().add("Build.Active", boost::bind(&LLToolMgr::inEdit, this));
@@ -133,19 +130,19 @@ void LLToolMgr::initTools()
 LLToolMgr::~LLToolMgr()
 {
 	delete gBasicToolset;
-	gBasicToolset = NULL;
+	gBasicToolset = nullptr;
 
 	delete gMouselookToolset;
-	gMouselookToolset = NULL;
+	gMouselookToolset = nullptr;
 
 	delete gFaceEditToolset;
-	gFaceEditToolset = NULL;
+	gFaceEditToolset = nullptr;
 
 	delete gCameraToolset;
-	gCameraToolset = NULL;
+	gCameraToolset = nullptr;
 	
 	delete gToolNull;
-	gToolNull = NULL;
+	gToolNull = nullptr;
 }
 
 BOOL LLToolMgr::usingTransientTool()
@@ -182,24 +179,24 @@ void LLToolMgr::setCurrentTool( LLTool* tool )
 {
 	if (mTransientTool)
 	{
-		mTransientTool = NULL;
+		mTransientTool = nullptr;
 	}
 
 	mBaseTool = tool;
 	updateToolStatus();
 
-	mSavedTool = NULL;
+	mSavedTool = nullptr;
 }
 
 LLTool* LLToolMgr::getCurrentTool()
 {
 	MASK override_mask = gKeyboard ? gKeyboard->currentMask(TRUE) : 0;
 
-	LLTool* cur_tool = NULL;
+	LLTool* cur_tool = nullptr;
 	// always use transient tools if available
 	if (mTransientTool)
 	{
-		mOverrideTool = NULL;
+		mOverrideTool = nullptr;
 		cur_tool = mTransientTool;
 	}
 	// tools currently grabbing mouse input will stay active
@@ -267,10 +264,7 @@ bool LLToolMgr::inEdit()
 
 bool LLToolMgr::canEdit()
 {
-// [RLVa:KB] - Patch: RLVa-2.1.0
-	return LLViewerParcelMgr::getInstance()->allowAgentBuild() && RlvActions::canBuild();
-// [/RLVa:KB]
-//	return LLViewerParcelMgr::getInstance()->allowAgentBuild();
+	return LLViewerParcelMgr::getInstance()->allowAgentBuild();
 }
 
 bool LLToolMgr::buildEnabledOrActive()
@@ -280,43 +274,17 @@ bool LLToolMgr::buildEnabledOrActive()
 
 void LLToolMgr::toggleBuildMode(const LLSD& sdname)
 {
-//	const std::string& param = sdname.asString();
-//
-//	LLFloaterReg::toggleInstanceOrBringToFront("build");
-//	if (param == "build" && !canEdit())
-//	{
-//		return;
-//	}
-//
-//	bool build_visible = LLFloaterReg::instanceVisible("build");
-//	if (build_visible)
-//	{
-// [RLVa:KB] - Checked: RLVa-2.1.0
-	if (gFloaterTools)
-	{
-		if (gFloaterTools->isShown())
-			leaveBuildMode();
-		else
-			enterBuildMode("build" == sdname.asString());
-	}
-}
+	const std::string& param = sdname.asString();
 
-void LLToolMgr::enterBuildMode(bool verify_canedit /*=false*/)
-{
-	if (!gFloaterTools)
-		return;
-	if (!gFloaterTools->isShown())
-		gFloaterTools->openFloater();
-	if (!gFloaterTools->isFrontmost())
-		gFloaterTools->setVisibleAndFrontmost(true);
-
-	if (verify_canedit && !canEdit())
+	LLFloaterReg::toggleInstanceOrBringToFront("build");
+	if (param == "build" && !canEdit())
 	{
 		return;
 	}
 
+	bool build_visible = LLFloaterReg::instanceVisible("build");
+	if (build_visible)
 	{
-// [/RLVa:KB]
 		ECameraMode camMode = gAgentCamera.getCameraMode();
 		if (CAMERA_MODE_MOUSELOOK == camMode ||	CAMERA_MODE_CUSTOMIZE_AVATAR == camMode)
 		{
@@ -355,20 +323,7 @@ void LLToolMgr::enterBuildMode(bool verify_canedit /*=false*/)
 		LLViewerJoystick::getInstance()->setNeedsReset();
 
 	}
-// [RLVa:KB] - Checked: RLVa-2.1.0
-}
-// [/RLVa:KB]
-//	else
-// [RLVa:KB] - Checked: RLVa-2.1.0
-void LLToolMgr::leaveBuildMode()
-{
-	if ( (!gFloaterTools) || (!gFloaterTools->getVisible()) )
-	{
-		return;
-	}
-
-	gFloaterTools->closeFloater();
-// [/RLVa:KB]
+	else
 	{
 		if (gSavedSettings.getBOOL("EditCameraMovement"))
 		{
@@ -427,7 +382,7 @@ void LLToolMgr::setTransientTool(LLTool* tool)
 	{
 		if (mTransientTool)
 		{
-			mTransientTool = NULL;
+			mTransientTool = nullptr;
 		}
 
 		mTransientTool = tool;
@@ -440,7 +395,7 @@ void LLToolMgr::clearTransientTool()
 {
 	if (mTransientTool)
 	{
-		mTransientTool = NULL;
+		mTransientTool = nullptr;
 		if (!mBaseTool)
 		{
 			LL_WARNS() << "mBaseTool is NULL" << LL_ENDL;
@@ -473,7 +428,7 @@ void LLToolMgr::onAppFocusGained()
 
 void LLToolMgr::clearSavedTool()
 {
-	mSavedTool = NULL;
+	mSavedTool = nullptr;
 }
 
 /////////////////////////////////////////////////////
@@ -522,7 +477,7 @@ void LLToolset::selectFirstTool()
 
 void LLToolset::selectNextTool()
 {
-	LLTool* next = NULL;
+	LLTool* next = nullptr;
 	for( tool_list_t::iterator iter = mToolList.begin();
 		 iter != mToolList.end(); )
 	{
@@ -547,7 +502,7 @@ void LLToolset::selectNextTool()
 
 void LLToolset::selectPrevTool()
 {
-	LLTool* prev = NULL;
+	LLTool* prev = nullptr;
 	for( tool_list_t::reverse_iterator iter = mToolList.rbegin();
 		 iter != mToolList.rend(); )
 	{

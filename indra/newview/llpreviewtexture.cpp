@@ -39,10 +39,14 @@
 #include "llfloaterreg.h"
 #include "llimagetga.h"
 #include "llimagepng.h"
+#include "llimagejpeg.h"
+#include "llimagej2c.h"
+#include "llimagebmp.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
 #include "llnotificationsutil.h"
 #include "llresmgr.h"
+#include "llslurl.h"
 #include "lltrans.h"
 #include "lltextbox.h"
 #include "lltextureview.h"
@@ -50,8 +54,6 @@
 #include "llviewerinventory.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 #include "lllineeditor.h"
 
 const S32 CLIENT_RECT_VPAD = 4;
@@ -403,6 +405,18 @@ void LLPreviewTexture::onFileLoadedForSave(BOOL success,
 		{
 			image = new LLImageTGA;
 		}
+		else if(extension == "jpg" || extension == "jpeg")
+		{
+			image = new LLImageJPEG;
+		}
+		else if(extension == "j2c")
+		{
+			image = new LLImageJ2C;
+		}
+		else if(extension == "bmp")
+		{
+			image = new LLImageBMP;
+		}
 
 		if( image && !image->encode( src, 0 ) )
 		{
@@ -454,8 +468,19 @@ void LLPreviewTexture::updateDimensions()
 	}
 	
 	// Update the width/height display every time
-	getChild<LLUICtrl>("dimensions")->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
-	getChild<LLUICtrl>("dimensions")->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
+	LLUICtrl* dimensions = getChild<LLUICtrl>("dimensions");
+	if (mImage->getUploader().notNull())
+	{
+		LLStringUtil::format_map_t args;
+		args["UPLOADER"] = LLSLURL("agent", mImage->getUploader(), "inspect").getSLURLString();
+		args["DATE"] = mImage->getUploadTime().toHTTPDateString(LLStringExplicit("%d %b %Y"));
+		std::string info = getString("UploadInfo", args);
+		dimensions->setTextArg("[UPLOAD_INFO]", info);
+	}
+	else
+		dimensions->setTextArg("[UPLOAD_INFO]", LLStringUtil::null);
+	dimensions->setTextArg("[WIDTH]",  llformat("%d", mImage->getFullWidth()));
+	dimensions->setTextArg("[HEIGHT]", llformat("%d", mImage->getFullHeight()));
 
 	// Reshape the floater only when required
 	if (mUpdateDimensions)

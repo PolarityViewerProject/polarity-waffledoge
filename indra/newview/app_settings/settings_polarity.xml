@@ -159,17 +159,6 @@
       <string></string>
     </map>
     <!-- Auto Mute -->
-    <key>PVAutoMute_AlwaysRenderFriends</key>
-    <map>
-      <key>Comment</key>
-      <string>Exclude avatars in your friend list from automute logic</string>
-      <key>Persist</key>
-      <integer>1</integer>
-      <key>Type</key>
-      <string>Boolean</string>
-      <key>Value</key>
-      <integer>1</integer>
-    </map>
     <key>PVAutoMute_AlwaysRenderSelf</key>
     <map>
       <key>Comment</key>
@@ -1608,6 +1597,17 @@
     <map>
       <key>Comment</key>
       <string>Makes agent effects rainbows. </string>
+      <key>Persist</key>
+      <integer>1</integer>
+      <key>Type</key>
+      <string>Boolean</string>
+      <key>Value</key>
+      <integer>0</integer>
+    </map>
+    <key>PVTools_EditBeamBoundingBox</key>
+    <map>
+      <key>Comment</key>
+      <string>Wrap the edit beam around the object's bounding box. </string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

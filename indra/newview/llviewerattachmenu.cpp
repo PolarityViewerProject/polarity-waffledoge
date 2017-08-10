@@ -95,7 +95,7 @@ void LLViewerAttachMenu::populateMenus(const std::string& attach_to_menu_name, c
 // static
 void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::string& joint_name)
 {
-	LLViewerJointAttachment* attachmentp = NULL;
+	LLViewerJointAttachment* attachmentp = nullptr;
 	for (LLVOAvatar::attachment_map_t::iterator iter = gAgentAvatarp->mAttachmentPoints.begin(); 
 		 iter != gAgentAvatarp->mAttachmentPoints.end(); )
 	{
@@ -107,7 +107,7 @@ void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::strin
 			break;
 		}
 	}
-	if (attachmentp == NULL)
+	if (attachmentp == nullptr)
 	{
 		return;
 	}
@@ -123,10 +123,7 @@ void LLViewerAttachMenu::attachObjects(const uuid_vec_t& items, const std::strin
 		else if(item && item->isFinished())
 		{
 			// must be in library. copy it to our inventory and put it on.
-//			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, attachmentp));
-// [SL:KB] - Patch: Appearance-DnDWear | Checked: 2013-02-04 (Catznip-3.4)
-			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, attachmentp, false));
-// [/SL;KB]
+			LLPointer<LLInventoryCallback> cb = new LLBoostFuncInventoryCallback(boost::bind(rez_attachment_cb, _1, attachmentp));
 			copy_inventory_item(gAgent.getID(),
 								item->getPermissions().getOwner(),
 								item->getUUID(),

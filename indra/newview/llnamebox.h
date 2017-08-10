@@ -30,7 +30,6 @@
 #include <set>
 
 #include "llview.h"
-#include "llstring.h"
 #include "llfontgl.h"
 #include "lltextbox.h"
 
@@ -45,7 +44,7 @@ public:
 
 		Params()
 		:	is_group("is_group", false)
-		,	link("link", false)
+		,	link("link", true) // <alchemy/>
 		{}
 	};
 

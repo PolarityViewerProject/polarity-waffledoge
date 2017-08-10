@@ -29,6 +29,7 @@
 
 #include "llbutton.h"
 #include "llnotifications.h"
+#include "lltextbox.h"
 #include "lltoastscriptquestion.h"
 
 const int LEFT_PAD = 10;

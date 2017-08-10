@@ -48,34 +48,34 @@ U32 PVFPSMeter::mFPSNullZoneVSync(0);
 F32 PVFPSMeter::mFPSMeterValue(0.f);
 bool PVFPSMeter::mFPSDirty(false);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
-LLFrameTimer PVFPSMeter::mStatusBarFPSCounterTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
+LLFrameTimer PVFPSMeter::mTextFPSTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
 std::string PVFPSMeter::sLastFPSMeterString("");
 
 bool PVFPSMeter::start()
 {
-	if (mStatusBarFPSCounterTimer.getStarted())
+	if (mTextFPSTimer.getStarted())
 	{
 		return false;
 	}
-	mStatusBarFPSCounterTimer.start();
+	mTextFPSTimer.start();
 
 	return true;
 }
 
 bool PVFPSMeter::stop()
 {
-	if (!mStatusBarFPSCounterTimer.getStarted())
+	if (!mTextFPSTimer.getStarted())
 	{
 		return false;
 	}
-	mStatusBarFPSCounterTimer.stop();
+	mTextFPSTimer.stop();
 	return true;
 }
 
 bool PVFPSMeter::canUpdate()
 {
-	llassert(mStatusBarFPSCounterTimer.getStarted());
-	mFPSDirty = (mStatusBarFPSCounterTimer.getElapsedTimeF32() > 1.f);
+	llassert(mTextFPSTimer.getStarted());
+	mFPSDirty = (mTextFPSTimer.getElapsedTimeF32() > 1.f);
 	return mFPSDirty;
 }
 
@@ -175,7 +175,7 @@ bool PVFPSMeter::update()
 				// all else fails, fallback to default color to prevent blackness
 				mFPSMeterColor = color_fps_default;
 			}
-			mStatusBarFPSCounterTimer.reset(); // Reset the FPS timer so that we can count again
+			mTextFPSTimer.reset(); // Reset the FPS timer so that we can count again
 		}
 	}
 	return fps_limiter_enabled;

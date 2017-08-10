@@ -37,19 +37,14 @@
 #include "lldir.h"
 #include "lldockablefloater.h"
 #include "lldockcontrol.h"
+#include "llfloaterreg.h"
 #include "llimview.h"
 #include "lltransientfloatermgr.h"
 #include "lltoolbar.h"
 #include "lltooldraganddrop.h"
 #include "llxmlnode.h"
 
-#include "llagent.h"  // HACK for destinations guide on startup
-#include "llfloaterreg.h"  // HACK for destinations guide on startup
-#include "llviewercontrol.h"  // HACK for destinations guide on startup
-
-#include <boost/foreach.hpp>
-
-LLToolBarView* gToolBarView = NULL;
+LLToolBarView* gToolBarView = nullptr;
 
 static LLDefaultChildRegistry::Register<LLToolBarView> r("toolbar_view");
 
@@ -60,7 +55,7 @@ bool isToolDragged()
 
 LLToolBarView::Toolbar::Toolbar()
 :	button_display_mode("button_display_mode"),
-	button_alignment("button_alignment"),
+	button_layout_mode("button_layout_mode"),
 	commands("command")
 {}
 
@@ -74,16 +69,16 @@ LLToolBarView::ToolbarSet::ToolbarSet()
 
 LLToolBarView::LLToolBarView(const LLToolBarView::Params& p)
 :	LLUICtrl(p),
-	mDragStarted(false),
-	mShowToolbars(true),
-	mDragToolbarButton(NULL),
-	mDragItem(NULL),
 	mToolbarsLoaded(false),
-	mBottomToolbarPanel(NULL)
+	mDragStarted(false),
+	mDragToolbarButton(nullptr),
+	mDragItem(nullptr),
+	mShowToolbars(true),
+	mBottomToolbarPanel(nullptr)
 {
 	for (S32 i = 0; i < LLToolBarEnums::TOOLBAR_COUNT; i++)
 	{
-		mToolbars[i] = NULL;
+		mToolbars[i] = nullptr;
 	}
 }
 
@@ -234,7 +229,7 @@ bool LLToolBarView::loadToolbars(bool force_default)
 	}
 	
 	LLXMLNodePtr root;
-	if(!LLXMLNode::parseFile(toolbar_file, root, NULL))
+	if(!LLXMLNode::parseFile(toolbar_file, root, nullptr))
 	{
 		LL_WARNS() << "Unable to load toolbars from file: " << toolbar_file << LL_ENDL;
 		err = true;
@@ -288,12 +283,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.left_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->setButtonType(button_type);
 		}
-		if (toolbar_set.left_toolbar.button_alignment.isProvided())
+		if (toolbar_set.left_toolbar.button_layout_mode.isProvided())
 		{
-			LLToolBarEnums::AlignmentType alignment_type = toolbar_set.left_toolbar.button_alignment;
-			mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->setButtonAlignment(alignment_type);
+			LLToolBarEnums::LayoutType layout_type = toolbar_set.left_toolbar.button_layout_mode;
+			mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->setLayoutType(layout_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.left_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.left_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_LEFT]))
 			{
@@ -308,12 +303,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.right_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->setButtonType(button_type);
 		}
-		if (toolbar_set.right_toolbar.button_alignment.isProvided())
+		if (toolbar_set.right_toolbar.button_layout_mode.isProvided())
 		{
-			LLToolBarEnums::AlignmentType alignment_type = toolbar_set.right_toolbar.button_alignment;
-			mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->setButtonAlignment(alignment_type);
+			LLToolBarEnums::LayoutType layout_type = toolbar_set.right_toolbar.button_layout_mode;
+			mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->setLayoutType(layout_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.right_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.right_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]))
 			{
@@ -328,12 +323,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.bottom_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->setButtonType(button_type);
 		}
-		if (toolbar_set.bottom_toolbar.button_alignment.isProvided())
+		if (toolbar_set.bottom_toolbar.button_layout_mode.isProvided())
 		{
-			LLToolBarEnums::AlignmentType alignment_type = toolbar_set.bottom_toolbar.button_alignment;
-			mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->setButtonAlignment(alignment_type);
+			LLToolBarEnums::LayoutType layout_type = toolbar_set.bottom_toolbar.button_layout_mode;
+			mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->setLayoutType(layout_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.bottom_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.bottom_toolbar.commands)
 		{
 			if (!addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]))
 			{
@@ -348,12 +343,12 @@ bool LLToolBarView::loadToolbars(bool force_default)
 			LLToolBarEnums::ButtonType button_type = toolbar_set.top_toolbar.button_display_mode;
 			mToolbars[LLToolBarEnums::TOOLBAR_TOP]->setButtonType(button_type);
 		}
-		if (toolbar_set.top_toolbar.button_alignment.isProvided())
+		if (toolbar_set.top_toolbar.button_layout_mode.isProvided())
 		{
-			LLToolBarEnums::AlignmentType alignment_type = toolbar_set.top_toolbar.button_alignment;
-			mToolbars[LLToolBarEnums::TOOLBAR_TOP]->setButtonAlignment(alignment_type);
+			LLToolBarEnums::LayoutType layout_type = toolbar_set.top_toolbar.button_layout_mode;
+			mToolbars[LLToolBarEnums::TOOLBAR_TOP]->setLayoutType(layout_type);
 		}
-		BOOST_FOREACH(const LLCommandId::Params& command_params, toolbar_set.top_toolbar.commands)
+		for (const LLCommandId::Params& command_params : toolbar_set.top_toolbar.commands)
 		{
 			if (addCommandInternal(LLCommandId(command_params), mToolbars[LLToolBarEnums::TOOLBAR_TOP]))
 			{
@@ -422,25 +417,25 @@ void LLToolBarView::saveToolbars() const
 	if (mToolbars[LLToolBarEnums::TOOLBAR_LEFT])
 	{
 		toolbar_set.left_toolbar.button_display_mode = mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->getButtonType();
-		toolbar_set.left_toolbar.button_alignment = mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->getAlignmentType();
+		toolbar_set.left_toolbar.button_layout_mode = mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->getLayoutType();
 		addToToolset(mToolbars[LLToolBarEnums::TOOLBAR_LEFT]->getCommandsList(), toolbar_set.left_toolbar);
 	}
 	if (mToolbars[LLToolBarEnums::TOOLBAR_RIGHT])
 	{
 		toolbar_set.right_toolbar.button_display_mode = mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->getButtonType();
-		toolbar_set.right_toolbar.button_alignment = mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->getAlignmentType();
+		toolbar_set.right_toolbar.button_layout_mode = mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->getLayoutType();
 		addToToolset(mToolbars[LLToolBarEnums::TOOLBAR_RIGHT]->getCommandsList(), toolbar_set.right_toolbar);
 	}
 	if (mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM])
 	{
 		toolbar_set.bottom_toolbar.button_display_mode = mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->getButtonType();
-		toolbar_set.bottom_toolbar.button_alignment = mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->getAlignmentType();
+		toolbar_set.bottom_toolbar.button_layout_mode = mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->getLayoutType();
 		addToToolset(mToolbars[LLToolBarEnums::TOOLBAR_BOTTOM]->getCommandsList(), toolbar_set.bottom_toolbar);
 	}
 	if (mToolbars[LLToolBarEnums::TOOLBAR_TOP])
 	{
 		toolbar_set.top_toolbar.button_display_mode = mToolbars[LLToolBarEnums::TOOLBAR_TOP]->getButtonType();
-		toolbar_set.top_toolbar.button_alignment = mToolbars[LLToolBarEnums::TOOLBAR_TOP]->getAlignmentType();
+		toolbar_set.top_toolbar.button_layout_mode = mToolbars[LLToolBarEnums::TOOLBAR_TOP]->getLayoutType();
 		addToToolset(mToolbars[LLToolBarEnums::TOOLBAR_TOP]->getCommandsList(), toolbar_set.top_toolbar);
 	}
 	
@@ -454,7 +449,7 @@ void LLToolBarView::saveToolbars() const
 	{
 		const std::string& filename = gDirUtilp->getExpandedFilename(LL_PATH_PER_SL_ACCOUNT, "toolbars.xml");
 		LLFILE *fp = LLFile::fopen(filename, "w");
-		if (fp != NULL)
+		if (fp != nullptr)
 		{
 			LLXMLNode::writeHeaderToFile(fp);
 			output_node->writeToFile(fp);
@@ -499,11 +494,10 @@ void LLToolBarView::onToolBarButtonAdded(LLView* button)
 		
 		if (incoming_floater && incoming_floater->isShown())
 		{
-			LLCallDialog* incoming = dynamic_cast<LLCallDialog *>(incoming_floater);
-			llassert(incoming);
+			LLCallDialog* incoming = static_cast<LLCallDialog *>(incoming_floater);
 			
 			LLDockControl* dock_control = incoming->getDockControl();
-			if (dock_control->getDock() == NULL)
+			if (dock_control->getDock() == nullptr)
 			{
 				incoming->dockToToolbarButton("speak");
 			}
@@ -511,11 +505,10 @@ void LLToolBarView::onToolBarButtonAdded(LLView* button)
 		
 		if (outgoing_floater && outgoing_floater->isShown())
 		{
-			LLCallDialog* outgoing = dynamic_cast<LLCallDialog *>(outgoing_floater);
-			llassert(outgoing);
+			LLCallDialog* outgoing = static_cast<LLCallDialog *>(outgoing_floater);
 			
 			LLDockControl* dock_control = outgoing->getDockControl();
-			if (dock_control->getDock() == NULL)
+			if (dock_control->getDock() == nullptr)
 			{
 				outgoing->dockToToolbarButton("speak");
 			}
@@ -548,7 +541,7 @@ void LLToolBarView::onToolBarButtonRemoved(LLView* button)
 			llassert(incoming);
 
 			LLDockControl* dock_control = incoming->getDockControl();
-			dock_control->setDock(NULL);
+			dock_control->setDock(nullptr);
 		}
 		
 		if (outgoing_floater && outgoing_floater->isShown())
@@ -557,7 +550,7 @@ void LLToolBarView::onToolBarButtonRemoved(LLView* button)
 			llassert(outgoing);
 
 			LLDockControl* dock_control = outgoing->getDockControl();
-			dock_control->setDock(NULL);
+			dock_control->setDock(nullptr);
 		}
 	}
 	else if (button->getName() == "voice")
@@ -675,7 +668,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 			// Suppress the command from the toolbars (including the one it's dropped in, 
 			// this will handle move position).
 			S32 old_toolbar_loc = gToolBarView->hasCommand(command_id);
-			LLToolBar* old_toolbar = NULL;
+			LLToolBar* old_toolbar = nullptr;
 
 			if (old_toolbar_loc != LLToolBarEnums::TOOLBAR_NONE)
 			{
@@ -708,7 +701,7 @@ BOOL LLToolBarView::handleDropTool( void* cargo_data, S32 x, S32 y, LLToolBar* t
 		}
 	}
 
-	resetDragTool(NULL);
+	resetDragTool(nullptr);
 	return handled;
 }
 

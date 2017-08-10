@@ -39,6 +39,7 @@
 #include "llstring.h"
 #include "llvolume.h"
 #include "m3math.h"
+#include "llsdutil_math.h"// <alchemy/>
 
 // project includes
 #include "llagent.h"
@@ -59,22 +60,19 @@
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "llui.h"
+#include "llviewernetwork.h"
 #include "llviewerobject.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
+#include "llvoavatarself.h"
 #include "llvovolume.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 //#include "llfirstuse.h"
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
-#include "llvoavatarself.h"
-// [/RLVa:KB]
 
 #include "lldrawpool.h"
-
+#include "llviewerjointattachment.h"
 //
 // Constants
 //
@@ -133,6 +131,8 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Pos Y",onCommitPosition,this);
 	mCtrlPosZ = getChild<LLSpinCtrl>("Pos Z");
 	childSetCommitCallback("Pos Z",onCommitPosition,this);
+	mBtnPosCopy = getChild<LLButton>("copy_pos_btn");
+	mBtnPosPaste = getChild<LLButton>("paste_pos_btn");
 
 	// Scale
 	mLabelSize = getChild<LLTextBox>("label size");
@@ -147,6 +147,10 @@ BOOL	LLPanelObject::postBuild()
 	mCtrlScaleZ = getChild<LLSpinCtrl>("Scale Z");
 	childSetCommitCallback("Scale Z",onCommitScale,this);
 
+	// Scale Copy
+	mBtnScaleCopy = getChild<LLButton>("copy_scale_btn");
+	mBtnScalePaste = getChild<LLButton>("paste_scale_btn");
+
 	// Rotation
 	mLabelRotation = getChild<LLTextBox>("label rotation");
 	mCtrlRotX = getChild<LLSpinCtrl>("Rot X");
@@ -155,6 +159,8 @@ BOOL	LLPanelObject::postBuild()
 	childSetCommitCallback("Rot Y",onCommitRotation,this);
 	mCtrlRotZ = getChild<LLSpinCtrl>("Rot Z");
 	childSetCommitCallback("Rot Z",onCommitRotation,this);
+	mBtnRotCopy = getChild<LLButton>("copy_rot_btn");
+	mBtnRotPaste = getChild<LLButton>("paste_rot_btn");
 
 	//--------------------------------------------------------
 		
@@ -286,14 +292,25 @@ BOOL	LLPanelObject::postBuild()
 
 LLPanelObject::LLPanelObject()
 :	LLPanel(),
+	mBtnPosCopy(nullptr),
+	mBtnPosPaste(nullptr),
+	mBtnScaleCopy(nullptr),
+	mBtnScalePaste(nullptr),
+	mSizeChanged(FALSE),
+	mBtnRotCopy(nullptr),
+	mBtnRotPaste(nullptr),
 	mIsPhysical(FALSE),
 	mIsTemporary(FALSE),
 	mIsPhantom(FALSE),
 	mSelectedType(MI_BOX),
 	mSculptTextureRevert(LLUUID::null),
 	mSculptTypeRevert(0),
-	mSizeChanged(FALSE)
+	mRegionMaxHeight(256.f),
+	mRegionMaxDepth(0.f),
+	mUpdateLimits(true)
 {
+	mCommitCallbackRegistrar.add("Build.Copy", boost::bind(&LLPanelObject::onClickBtnCopyData, this, _2));
+	mCommitCallbackRegistrar.add("Build.Paste", boost::bind(&LLPanelObject::onClickBtnPasteData, this, _2));
 }
 
 
@@ -327,7 +344,7 @@ void LLPanelObject::getState( )
 
 	LLCalc* calcp = LLCalc::getInstance();
 
-	LLVOVolume *volobjp = NULL;
+	LLVOVolume *volobjp = nullptr;
 	if ( objectp && (objectp->getPCode() == LL_PCODE_VOLUME))
 	{
 		volobjp = (LLVOVolume *)objectp;
@@ -338,7 +355,7 @@ void LLPanelObject::getState( )
 		//forfeit focus
 		if (gFocusMgr.childHasKeyboardFocus(this))
 		{
-			gFocusMgr.setKeyboardFocus(NULL);
+			gFocusMgr.setKeyboardFocus(nullptr);
 		}
 
 		// Disable all text input fields
@@ -347,10 +364,12 @@ void LLPanelObject::getState( )
 		return;
 	}
 
+	bool is_attachment = objectp->isAttachment();
+
 	// can move or rotate only linked group with move permissions, or sub-object with move and modify perms
-	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && !objectp->isAttachment() && (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
-	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
-	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == NULL) || !root_objectp->isPermanentEnforced()) && ( (objectp->permModify() && !objectp->isAttachment()) || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_move	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == nullptr) || !root_objectp->isPermanentEnforced()) && /*!objectp->isAttachment() &&*/ (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
+	BOOL enable_scale	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == nullptr) || !root_objectp->isPermanentEnforced()) && objectp->permModify();
+	BOOL enable_rotate	= objectp->permMove() && !objectp->isPermanentEnforced() && ((root_objectp == nullptr) || !root_objectp->isPermanentEnforced()) && /*!objectp->isAttachment() &&*/ (objectp->permModify() || !gSavedSettings.getBOOL("EditLinkedParts"));
 
 	S32 selected_count = LLSelectMgr::getInstance()->getSelection()->getObjectCount();
 	BOOL single_volume = (LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME ))
@@ -362,14 +381,6 @@ void LLPanelObject::getState( )
 		enable_scale = FALSE;
 		enable_rotate = FALSE;
 	}
-
-// [RLVa:KB] - Checked: 2010-03-31 (RLVa-1.2.0c) | Modified: RLVa-1.0.0g
-	if ( (rlv_handler_t::isEnabled()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_UNSIT)) || (gRlvHandler.hasBehaviour(RLV_BHVR_SITTP))) )
-	{
-		if ( (isAgentAvatarValid()) && (gAgentAvatarp->isSitting()) && (gAgentAvatarp->getRoot() == objectp->getRootEdit()) )
-			enable_move = enable_scale = enable_rotate = FALSE;
-	}
-// [/RLVa:KB]
 
 	LLVector3 vec;
 	if (enable_move)
@@ -397,6 +408,17 @@ void LLPanelObject::getState( )
 	mCtrlPosX->setEnabled(enable_move);
 	mCtrlPosY->setEnabled(enable_move);
 	mCtrlPosZ->setEnabled(enable_move);
+	mBtnPosCopy->setEnabled(enable_move);
+	mBtnPosPaste->setEnabled(enable_move && mCopiedObjectData.has("position"));
+
+	LLViewerRegion* regionp = objectp->getRegion();
+	F32 width = regionp != nullptr ? regionp->getWidth() : REGION_WIDTH_METERS;
+	mCtrlPosX->setMinValue(is_attachment ? -MAX_ATTACHMENT_DIST : -width);
+	mCtrlPosX->setMaxValue(is_attachment ? MAX_ATTACHMENT_DIST : width);
+	mCtrlPosY->setMinValue(is_attachment ? -MAX_ATTACHMENT_DIST : -width);
+	mCtrlPosY->setMaxValue(is_attachment ? MAX_ATTACHMENT_DIST : width);
+	mCtrlPosZ->setMinValue(is_attachment ? -MAX_ATTACHMENT_DIST : mRegionMaxDepth);
+	mCtrlPosZ->setMaxValue(is_attachment ? MAX_ATTACHMENT_DIST : mRegionMaxHeight);
 
 	if (enable_scale)
 	{
@@ -422,6 +444,8 @@ void LLPanelObject::getState( )
 	mCtrlScaleX->setEnabled( enable_scale );
 	mCtrlScaleY->setEnabled( enable_scale );
 	mCtrlScaleZ->setEnabled( enable_scale );
+	mBtnScaleCopy->setEnabled(enable_scale);
+	mBtnScalePaste->setEnabled(enable_scale && mCopiedObjectData.has("scale"));
 
 	LLQuaternion object_rot = objectp->getRotationEdit();
 	object_rot.getEulerAngles(&(mCurEulerDegrees.mV[VX]), &(mCurEulerDegrees.mV[VY]), &(mCurEulerDegrees.mV[VZ]));
@@ -453,6 +477,8 @@ void LLPanelObject::getState( )
 	mCtrlRotX->setEnabled( enable_rotate );
 	mCtrlRotY->setEnabled( enable_rotate );
 	mCtrlRotZ->setEnabled( enable_rotate );
+	mBtnRotCopy->setEnabled(enable_rotate);
+	mBtnRotPaste->setEnabled(enable_rotate && mCopiedObjectData.has("rotation"));
 
 	LLUUID owner_id;
 	std::string owner_name;
@@ -461,20 +487,6 @@ void LLPanelObject::getState( )
 	// BUG? Check for all objects being editable?
 	S32 roots_selected = LLSelectMgr::getInstance()->getSelection()->getRootObjectCount();
 	BOOL editable = root_objectp->permModify();
-
-	// Select Single Message
-	getChildView("select_single")->setVisible( FALSE);
-	getChildView("edit_object")->setVisible( FALSE);
-	if (!editable || single_volume || selected_count <= 1)
-	{
-		getChildView("edit_object")->setVisible( TRUE);
-		getChildView("edit_object")->setEnabled(TRUE);
-	}
-	else
-	{
-		getChildView("select_single")->setVisible( TRUE);
-		getChildView("select_single")->setEnabled(TRUE);
-	}
 
 	BOOL is_flexible = volobjp && volobjp->isFlexible();
 	BOOL is_permanent = root_objectp->flagObjectPermanent();
@@ -923,9 +935,9 @@ void LLPanelObject::getState( )
 		mSpinScaleY->set( scale_y );
 		calcp->setVar(LLCalc::X_HOLE, scale_x);
 		calcp->setVar(LLCalc::Y_HOLE, scale_y);
-		mSpinScaleX->setMinValue(OBJECT_MIN_HOLE_SIZE);
+		mSpinScaleX->setMinValue(mMinHoleSize);
 		mSpinScaleX->setMaxValue(OBJECT_MAX_HOLE_SIZE_X);
-		mSpinScaleY->setMinValue(OBJECT_MIN_HOLE_SIZE);
+		mSpinScaleY->setMinValue(mMinHoleSize);
 		mSpinScaleY->setMaxValue(OBJECT_MAX_HOLE_SIZE_Y);
 		break;
 	default:
@@ -961,7 +973,7 @@ void LLPanelObject::getState( )
 	else 
 	{
 		mSpinHollow->setMinValue(0.f);
-		mSpinHollow->setMaxValue(95.f);
+		mSpinHollow->setMaxValue(mMaxHollowSize);
 	}
 
 	// Update field enablement
@@ -1114,15 +1126,14 @@ void LLPanelObject::getState( )
 			BOOL sculpt_mirror = sculpt_type & LL_SCULPT_FLAG_MIRROR;
 			isMesh = (sculpt_stitching == LL_SCULPT_TYPE_MESH);
 
-			LLTextureCtrl*  mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
-			if(mTextureCtrl)
+			if(mCtrlSculptTexture)
 			{
-				mTextureCtrl->setTentative(FALSE);
-				mTextureCtrl->setEnabled(editable && !isMesh);
+				mCtrlSculptTexture->setTentative(FALSE);
+				mCtrlSculptTexture->setEnabled(editable && !isMesh);
 				if (editable)
-					mTextureCtrl->setImageAssetID(sculpt_params->getSculptTexture());
+					mCtrlSculptTexture->setImageAssetID(sculpt_params->getSculptTexture());
 				else
-					mTextureCtrl->setImageAssetID(LLUUID::null);
+					mCtrlSculptTexture->setImageAssetID(LLUUID::null);
 			}
 
 			mComboBaseType->setEnabled(!isMesh);
@@ -1492,11 +1503,11 @@ void LLPanelObject::getVolumeParams(LLVolumeParams& volume_params)
 	{
 		scale_x = llclamp(
 			scale_x,
-			OBJECT_MIN_HOLE_SIZE,
+			mMinHoleSize,
 			OBJECT_MAX_HOLE_SIZE_X);
 		scale_y = llclamp(
 			scale_y,
-			OBJECT_MIN_HOLE_SIZE,
+			mMinHoleSize,
 			OBJECT_MAX_HOLE_SIZE_Y);
 
 		// Limit radius offset, based on taper and hole size y.
@@ -1599,7 +1610,7 @@ void LLPanelObject::sendRotation(BOOL btn_down)
 
 		if (mRootObject != mObject)
 		{
-			rotation = rotation * ~mRootObject->getRotationRegion();
+			rotation = rotation * (mObject->isAttachment() ? ~mRootObject->getRotationEdit() : ~mRootObject->getRotationRegion()); // <alchemy/>
 		}
 		std::vector<LLVector3>& child_positions = mObject->mUnselectedChildrenPositions ;
 		std::vector<LLQuaternion> child_rotations;
@@ -1670,15 +1681,16 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 	if (mObject.isNull()) return;
 
 	LLVector3 newpos(mCtrlPosX->get(), mCtrlPosY->get(), mCtrlPosZ->get());
+	LLVector3d new_pos_global;
 	LLViewerRegion* regionp = mObject->getRegion();
-
-	// Clamp the Z height
-	const F32 height = newpos.mV[VZ];
-	const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
-	const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
 
 	if (!mObject->isAttachment())
 	{
+		// Clamp the Z height
+		const F32 height = newpos.mV[VZ];
+		const F32 min_height = LLWorld::getInstance()->getMinAllowedZ(mObject, mObject->getPositionGlobal());
+		const F32 max_height = LLWorld::getInstance()->getRegionMaxHeight();
+
 		if ( height < min_height)
 		{
 			newpos.mV[VZ] = min_height;
@@ -1695,13 +1707,46 @@ void LLPanelObject::sendPosition(BOOL btn_down)
 		{
 			mCtrlPosZ->set(LLWorld::getInstance()->resolveLandHeightAgent(newpos) + 1.f);
 		}
+
+		// Make sure new position is in a valid region, so the object
+		// won't get dumped by the simulator.
+		new_pos_global = regionp->getPosGlobalFromRegion(newpos);
 	}
 
-	// Make sure new position is in a valid region, so the object
-	// won't get dumped by the simulator.
-	LLVector3d new_pos_global = regionp->getPosGlobalFromRegion(newpos);
+	if (mObject->isAttachment())
+	{	
+		const LLVector3& old_pos_local = mObject->getPosition();
 
-	if ( LLWorld::getInstance()->positionRegionValidGlobal(new_pos_global) )
+		if (mRootObject != mObject)
+		{
+			newpos = newpos - mRootObject->getPosition();
+			newpos = newpos * ~mRootObject->getRotation();
+			mObject->setPositionParent(newpos);
+		}
+		else
+		{
+			mObject->setPosition(newpos);
+		}
+
+		LLManip::rebuild(mObject);
+		gAgentAvatarp->clampAttachmentPositions();
+
+		// for individually selected roots, we need to counter-translate all unselected children
+		if (mObject->isRootEdit())
+		{
+			const LLVector3& delta = mObject->getPosition();
+			// counter-translate child objects if we are moving the root as an individual
+			mObject->resetChildrenPosition(old_pos_local - delta, TRUE);
+		}
+
+		if (!btn_down)
+		{
+			LLSelectMgr::getInstance()->sendMultipleUpdate(UPD_POSITION);
+		}
+
+		LLSelectMgr::getInstance()->updateSelectionCenter();
+	}
+	else if ( LLWorld::getInstance()->positionRegionValidGlobal(new_pos_global) )
 	{
 		// send only if the position is changed, that is, the delta vector is not zero
 		LLVector3d old_pos_global = mObject->getPositionGlobal();
@@ -1786,24 +1831,48 @@ void LLPanelObject::sendSculpt()
 
 void LLPanelObject::refresh()
 {
+	if (mUpdateLimits)
+		refreshLimits();
+	
 	getState();
 	if (mObject.notNull() && mObject->isDead())
 	{
-		mObject = NULL;
+		mObject = nullptr;
 	}
 
 	if (mRootObject.notNull() && mRootObject->isDead())
 	{
-		mRootObject = NULL;
+		mRootObject = nullptr;
 	}
 	
 	F32 max_scale = get_default_max_prim_scale(LLPickInfo::isFlora(mObject));
 
-	getChild<LLSpinCtrl>("Scale X")->setMaxValue(max_scale);
-	getChild<LLSpinCtrl>("Scale Y")->setMaxValue(max_scale);
-	getChild<LLSpinCtrl>("Scale Z")->setMaxValue(max_scale);
+	mCtrlScaleX->setMaxValue(max_scale);
+	mCtrlScaleY->setMaxValue(max_scale);
+	mCtrlScaleZ->setMaxValue(max_scale);
 }
 
+void LLPanelObject::refreshLimits()
+{
+	mUpdateLimits = false;
+
+	mRegionMaxHeight = LLWorld::getInstance()->getRegionMaxHeight();
+	mRegionMaxDepth = LLGridManager::getInstance()->isInOpenSimulator() ? -256.f : 0.f; // OpenSim is derp
+	mCtrlPosZ->setMaxValue(mRegionMaxHeight);
+	mMinScale = LLWorld::getInstance()->getRegionMinPrimScale();
+	mMaxScale = LLWorld::getInstance()->getRegionMaxPrimScale();
+	mCtrlScaleX->setMinValue(mMinScale);
+	mCtrlScaleX->setMaxValue(mMaxScale);
+	mCtrlScaleY->setMinValue(mMinScale);
+	mCtrlScaleY->setMaxValue(mMaxScale);
+	mCtrlScaleZ->setMinValue(mMinScale);
+	mCtrlScaleZ->setMaxValue(mMaxScale);
+	mMaxHollowSize = LLWorld::getInstance()->getRegionMaxHollowSize();
+	mSpinHollow->setMaxValue(mMaxHollowSize);
+	mMinHoleSize = LLWorld::getInstance()->getRegionMinHoleSize();
+	mSpinScaleX->setMinValue(mMinHoleSize);
+	mSpinScaleY->setMinValue(mMinHoleSize);
+}
 
 void LLPanelObject::draw()
 {
@@ -1903,10 +1972,6 @@ void LLPanelObject::clearCtrls()
 	mLabelRadiusOffset->setEnabled( FALSE );
 	mLabelRevolutions->setEnabled( FALSE );
 
-	getChildView("select_single")->setVisible( FALSE);
-	getChildView("edit_object")->setVisible( TRUE);	
-	getChildView("edit_object")->setEnabled(FALSE);
-	
 	getChildView("scale_hole")->setEnabled(FALSE);
 	getChildView("scale_taper")->setEnabled(FALSE);
 	getChildView("advanced_cut")->setEnabled(FALSE);
@@ -1978,11 +2043,8 @@ void LLPanelObject::onCommitPhantom( LLUICtrl* ctrl, void* userdata )
 
 void LLPanelObject::onSelectSculpt(const LLSD& data)
 {
-    LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
-
-	if (mTextureCtrl)
 	{
-		mSculptTextureRevert = mTextureCtrl->getImageAssetID();
+		mSculptTextureRevert = mCtrlSculptTexture->getImageAssetID();
 	}
 	
 	sendSculpt();
@@ -1996,13 +2058,10 @@ void LLPanelObject::onCommitSculpt( const LLSD& data )
 
 BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)
 {
-    LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
-
-	if (mTextureCtrl)
 	{
 		LLUUID asset = item->getAssetUUID();
 
-		mTextureCtrl->setImageAssetID(asset);
+		mCtrlSculptTexture->setImageAssetID(asset);
 		mSculptTextureRevert = asset;
 	}
 
@@ -2012,15 +2071,11 @@ BOOL LLPanelObject::onDropSculpt(LLInventoryItem* item)
 
 void LLPanelObject::onCancelSculpt(const LLSD& data)
 {
-	LLTextureCtrl* mTextureCtrl = getChild<LLTextureCtrl>("sculpt texture control");
-	if(!mTextureCtrl)
-		return;
-
 	if(mSculptTextureRevert == LLUUID::null)
 	{
 		mSculptTextureRevert = LLUUID(SCULPT_DEFAULT_TEXTURE);
 	}
-	mTextureCtrl->setImageAssetID(mSculptTextureRevert);
+	mCtrlSculptTexture->setImageAssetID(mSculptTextureRevert);
 	
 	sendSculpt();
 }
@@ -2031,4 +2086,81 @@ void LLPanelObject::onCommitSculptType(LLUICtrl *ctrl, void* userdata)
 	LLPanelObject* self = (LLPanelObject*) userdata;
 
 	self->sendSculpt();
+}
+
+void LLPanelObject::onClickBtnCopyData(const LLSD& userdata)
+{
+	const std::string param_data = userdata.asString();
+	if (param_data == "position")
+	{
+		mCopiedObjectData[param_data] = ll_sd_from_vector3(mObject->getPositionEdit());
+		mBtnPosPaste->setEnabled(TRUE);
+	}
+	else if(param_data == "scale")
+	{
+		mCopiedObjectData[param_data] = ll_sd_from_vector3(mObject->getScale());
+		mBtnScalePaste->setEnabled(TRUE);
+	}
+	else if (param_data == "rotation")
+	{
+		mCopiedObjectData[param_data] = ll_sd_from_quaternion(mObject->getRotationEdit());
+		mBtnRotPaste->setEnabled(TRUE);
+	}
+}
+
+void LLPanelObject::onClickBtnPasteData(const LLSD& userdata)
+{
+	const std::string param_data = userdata.asString();
+	if ((!mCopiedObjectData.has(param_data)) || (mCopiedObjectData[param_data].isUndefined()))
+		return;
+
+	if (param_data == "position")
+	{
+		const LLVector3 position = ll_vector3_from_sd(mCopiedObjectData[param_data]);
+		mCtrlPosX->set(position.mV[VX]);
+		mCtrlPosY->set(position.mV[VY]);
+		mCtrlPosZ->set(position.mV[VZ]);
+
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->setVar(LLCalc::X_POS, position.mV[VX]);
+		calcp->setVar(LLCalc::Y_POS, position.mV[VY]);
+		calcp->setVar(LLCalc::Z_POS, position.mV[VZ]);
+
+		sendPosition(FALSE);
+	}
+	else if (param_data == "scale")
+	{
+		const LLVector3 scale = ll_vector3_from_sd(mCopiedObjectData[param_data]);
+		mCtrlScaleX->set(scale.mV[VX]);
+		mCtrlScaleY->set(scale.mV[VY]);
+		mCtrlScaleZ->set(scale.mV[VZ]);
+
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->setVar(LLCalc::X_SCALE, scale.mV[VX]);
+		calcp->setVar(LLCalc::Y_SCALE, scale.mV[VY]);
+		calcp->setVar(LLCalc::Z_SCALE, scale.mV[VZ]);
+
+		sendScale(FALSE);
+	}
+	else if (param_data == "rotation")
+	{
+		LLVector3 euler_angles;
+		const LLQuaternion rotation_data = ll_quaternion_from_sd(mCopiedObjectData[param_data]);
+		rotation_data.getEulerAngles(&(euler_angles.mV[VX]), &(euler_angles.mV[VY]), &(euler_angles.mV[VZ]));
+		euler_angles *= RAD_TO_DEG;
+		euler_angles.mV[VX] = ll_round(fmodf(euler_angles.mV[VX] + 360.f, 360.f), OBJECT_ROTATION_PRECISION);
+		euler_angles.mV[VY] = ll_round(fmodf(euler_angles.mV[VY] + 360.f, 360.f), OBJECT_ROTATION_PRECISION);
+		euler_angles.mV[VZ] = ll_round(fmodf(euler_angles.mV[VZ] + 360.f, 360.f), OBJECT_ROTATION_PRECISION);
+
+		mCtrlRotX->set(euler_angles.mV[VX]);
+		mCtrlRotY->set(euler_angles.mV[VY]);
+		mCtrlRotZ->set(euler_angles.mV[VZ]);
+
+		LLCalc* calcp = LLCalc::getInstance();
+		calcp->setVar(LLCalc::X_ROT, euler_angles.mV[VX]);
+		calcp->setVar(LLCalc::Y_ROT, euler_angles.mV[VY]);
+		calcp->setVar(LLCalc::Z_ROT, euler_angles.mV[VZ]);
+
+		sendRotation(FALSE);
+	}
 }

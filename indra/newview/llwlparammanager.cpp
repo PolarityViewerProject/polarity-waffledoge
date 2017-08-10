@@ -52,8 +52,6 @@
 #include "llagent.h"
 #include "llviewerregion.h"
 
-#include "lldaycyclemanager.h"
-#include "llenvmanager.h"
 #include "llwlparamset.h"
 
 #include "llviewershadermgr.h"
@@ -62,18 +60,14 @@
 #include "curl/curl.h"
 #include "llstreamtools.h"
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-#include <boost/algorithm/string.hpp>
-// [/RLVa:KB]
-
 LLWLParamManager::LLWLParamManager() :
 
 	//set the defaults for the controls
 
 	/// Sun Delta Terrain tweak variables.
 	mSunDeltaYaw(180.0f),
-	mSceneLightStrength(2.0f),
 	mWLGamma(1.0f, "gamma"),
+	mSceneLightStrength(2.0f),
 
 	mBlueHorizon(0.25f, 0.25f, 1.0f, 1.0f, "blue_horizon", "WLBlueHorizon"),
 	mHazeDensity(1.0f, "haze_density"),
@@ -257,13 +251,13 @@ void LLWLParamManager::addAllSkies(const LLWLParamKey::EScope scope, const LLSD&
 	}
 }
 
-void LLWLParamManager::refreshRegionPresets()
+void LLWLParamManager::refreshRegionPresets(const LLSD& region_sky_presets)
 {
 	// Remove all region sky presets because they may belong to a previously visited region.
 	clearParamSetsOfScope(LLEnvKey::SCOPE_REGION);
 
 	// Add all sky presets belonging to the current region.
-	addAllSkies(LLEnvKey::SCOPE_REGION, LLEnvManagerNew::instance().getRegionSettings().getSkyMap());
+	addAllSkies(LLEnvKey::SCOPE_REGION, region_sky_presets);
 }
 
 void LLWLParamManager::loadAllPresets()
@@ -280,7 +274,7 @@ void LLWLParamManager::loadPresetsFromDir(const std::string& dir)
 	LL_INFOS("AppInit", "Shaders") << "Loading sky presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
-	while (1)
+	while (true)
 	{
 		std::string file;
 		if (!dir_iter.next(file))
@@ -492,38 +486,23 @@ bool LLWLParamManager::applyDayCycleParams(const LLSD& params, LLEnvKey::EScope 
 	return true;
 }
 
-bool LLWLParamManager::applySkyParams(const LLSD& params, bool interpolate /*= false*/)
+void LLWLParamManager::setDefaultDay()
 {
-	if (params.size() == 0)
-	{
-		LL_WARNS() << "Undefined sky params" << LL_ENDL;
-		return false;
-	}
+	mDay.loadDayCycleFromFile("Default.xml");
+}
 
-	if (interpolate)
-	{
-		LL_DEBUGS("Windlight") << "DEBUG: APPLYSKYPARAMS WITH INTERPOLATION" << LL_ENDL;
-		if (mAnimator.getIsRunning())
-		{
-			LL_DEBUGS("Windlight") << "DEBUG: ANIMATOR IS RUNNING, RESETTING IT" << LL_ENDL;
-			resetAnimator(0.f, true);
-		}
-		
-		if (!params.has("mName") || mCurParams.mName != params["mName"])
-		{
-			LL_DEBUGS("Windlight") << "DEBUG: CALLING STARTINTERPOLATIONSKY" << LL_ENDL;
-			LLWLParamManager::getInstance()->mAnimator.startInterpolationSky(params);
-		}
-	}
-	else
-	{
-		LL_DEBUGS("Windlight") << "DEBUG: INTERPOLATION WAS OFF, DEACTIVATING ANIMATOR AND USING SETALL" << LL_ENDL;
-		mAnimator.deactivate();
-		mCurParams.setAll(params);
-	}
-
+bool LLWLParamManager::applySkyParams(const LLSD& params)
+{
+	mAnimator.deactivate();
+	mCurParams.setAll(params);
 	return true;
 }
+
+void LLWLParamManager::setDefaultSky()
+{
+	getParamSet(LLWLParamKey("Default", LLWLParamKey::SCOPE_LOCAL), mCurParams);
+}
+
 
 void LLWLParamManager::resetAnimator(F32 curTime, bool run)
 {
@@ -646,6 +625,18 @@ bool LLWLParamManager::isSystemPreset(const std::string& preset_name) const
 	return gDirUtilp->fileExists(getSysDir() + escapeString(preset_name) + ".xml");
 }
 
+bool LLWLParamManager::presetExists(const std::string& name) const
+{
+	for (const auto& preset : mParamList)
+	{
+		if (LLStringUtil::compareInsensitive(preset.first.name, name))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void LLWLParamManager::getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const
 {
 	region.clear();
@@ -675,7 +666,7 @@ void LLWLParamManager::getPresetNames(preset_name_list_t& region, preset_name_li
 	}
 }
 
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
+// (Kept for Parcel Windlignt) [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
 const std::string& LLWLParamManager::findPreset(const std::string& strPresetName, LLEnvKey::EScope eScope)
 {
 	for (std::map<LLWLParamKey, LLWLParamSet>::const_iterator itList = mParamList.begin(); itList != mParamList.end(); itList++)

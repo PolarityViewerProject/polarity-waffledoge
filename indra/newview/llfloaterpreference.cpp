@@ -126,11 +126,6 @@
 
 #include <jsoncpp/reader.h>
 
-// [RLVa:KB] - Checked: 2010-03-18 (RLVa-1.2.0a)
-#include "rlvactions.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
-
 const F32 BANDWIDTH_UPDATER_TIMEOUT = 0.5f;
 char const* const VISIBILITY_DEFAULT = "default";
 char const* const VISIBILITY_HIDDEN = "hidden";
@@ -504,11 +499,6 @@ void LLFloaterPreference::saveAvatarProperties( void )
 
 BOOL LLFloaterPreference::postBuild()
 {
-	// <polarity> Change the font size on the fly
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
-	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
-	// </polarity>
-
 	gSavedSettings.getControl("ChatBubbleOpacity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onNameTagOpacityChange, this, _2));
 
 	gSavedSettings.getControl("PreferredMaturity")->getSignal()->connect(boost::bind(&LLFloaterPreference::onChangeMaturity, this));

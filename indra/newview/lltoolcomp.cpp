@@ -53,9 +53,11 @@
 #include "llagentcamera.h"
 #include "llfloatertools.h"
 #include "llviewercontrol.h"
+#include "llviewercamera.h"
+#include "lleventtimer.h"
 
 // we use this in various places instead of NULL
-static LLPointer<LLTool> sNullTool(new LLTool(std::string("null"), NULL)); 
+static LLPointer<LLTool> sNullTool(new LLTool(std::string("null"), nullptr)); 
 
 //-----------------------------------------------------------------------
 // LLToolComposite
@@ -83,7 +85,7 @@ LLToolComposite::LLToolComposite(const std::string& name)
 	  mCur(sNullTool), 
 	  mDefault(sNullTool), 
 	  mSelected(FALSE),
-	  mMouseDown(FALSE), mManip(NULL), mSelectRect(NULL)
+	  mMouseDown(FALSE), mManip(nullptr), mSelectRect(nullptr)
 {
 }
 
@@ -143,7 +145,7 @@ LLToolCompInspect::LLToolCompInspect()
 LLToolCompInspect::~LLToolCompInspect()
 {
 	delete mSelectRect;
-	mSelectRect = NULL;
+	mSelectRect = nullptr;
 }
 
 BOOL LLToolCompInspect::handleMouseDown(S32 x, S32 y, MASK mask)
@@ -248,10 +250,10 @@ LLToolCompTranslate::LLToolCompTranslate()
 LLToolCompTranslate::~LLToolCompTranslate()
 {
 	delete mManip;
-	mManip = NULL;
+	mManip = nullptr;
 
 	delete mSelectRect;
-	mSelectRect = NULL;
+	mSelectRect = nullptr;
 }
 
 BOOL LLToolCompTranslate::handleHover(S32 x, S32 y, MASK mask)
@@ -681,6 +683,8 @@ void LLToolCompRotate::render()
 
 LLToolCompGun::LLToolCompGun()
 	: LLToolComposite(std::string("Mouselook"))
+	, mRightMouseDown(false)
+	, mTimerFOV()
 {
 	mGun = new LLToolGun(this);
 	mGrab = new LLToolGrabBase(this);
@@ -688,20 +692,23 @@ LLToolCompGun::LLToolCompGun()
 
 	setCurrentTool(mGun);
 	mDefault = mGun;
+
+	mTimerFOV.stop();
+	mStartFOV = mOriginalFOV = mTargetFOV = LLViewerCamera::getInstance()->getAndSaveDefaultFOV();
 }
 
 
 LLToolCompGun::~LLToolCompGun()
 {
 	delete mGun;
-	mGun = NULL;
+	mGun = nullptr;
 
 	delete mGrab;
-	mGrab = NULL;
+	mGrab = nullptr;
 
 	// don't delete a static object
 	// delete mNull;
-	mNull = NULL;
+	mNull = nullptr;
 }
 
 BOOL LLToolCompGun::handleHover(S32 x, S32 y, MASK mask)
@@ -776,26 +783,37 @@ BOOL LLToolCompGun::handleDoubleClick(S32 x, S32 y, MASK mask)
 
 BOOL LLToolCompGun::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	/* JC - suppress context menu 8/29/2002
+	mRightMouseDown = true;
 
-	// On right mouse, go through some convoluted steps to
-	// make the build menu appear.
-	setCurrentTool( (LLTool*) mNull );
+	if (!mTimerFOV.getStarted())
+	{
+		mStartFOV = LLViewerCamera::getInstance()->getAndSaveDefaultFOV();
+		mOriginalFOV = mStartFOV;
+	}
+	else
+		mStartFOV = LLViewerCamera::getInstance()->getDefaultFOV();
 
-	// This should return FALSE, meaning the context menu will
-	// be shown.
-	return FALSE;
-	*/
+	mTargetFOV = gSavedPerAccountSettings.getF32("AlchemyAlternativeFOV");
+	mTimerFOV.start();
 
-	// Returning true will suppress the context menu
 	return TRUE;
 }
 
+BOOL LLToolCompGun::handleRightMouseUp(S32 x, S32 y, MASK mask)
+{
+	mRightMouseDown = false;
+
+	mStartFOV = LLViewerCamera::getInstance()->getDefaultFOV();
+	mTargetFOV = mOriginalFOV;
+	mTimerFOV.start();
+
+	return TRUE;
+}
 
 BOOL LLToolCompGun::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	gAgent.setControlFlags(AGENT_CONTROL_ML_LBUTTON_UP);
-	setCurrentTool( (LLTool*) mGun );
+	setCurrentTool((LLTool*) mGun);
 	return TRUE;
 }
 
@@ -818,16 +836,54 @@ void	LLToolCompGun::handleSelect()
 void	LLToolCompGun::handleDeselect()
 {
 	LLToolComposite::handleDeselect();
+	if (mRightMouseDown || mTimerFOV.getStarted())
+	{
+		LLViewerCamera::getInstance()->loadDefaultFOV();
+		mRightMouseDown = false;
+		mTimerFOV.stop();
+	}
 	setMouseCapture(FALSE);
 }
 
 
 BOOL LLToolCompGun::handleScrollWheel(S32 x, S32 y, S32 clicks)
 {
-	if (clicks > 0)
+	if(mRightMouseDown)
+	{
+		mStartFOV = LLViewerCamera::getInstance()->getDefaultFOV();
+
+		gSavedPerAccountSettings.setF32(
+			"AlchemyAlternativeFOV",
+			mTargetFOV = clicks > 0 ?
+				llclamp(mTargetFOV += (0.05f * clicks), 0.1f, 3.0f) :
+				llclamp(mTargetFOV -= (0.05f * -clicks), 0.1f, 3.0f)
+		);
+
+		mTimerFOV.start();
+	}
+	else if (clicks > 0)
 	{
 		gAgentCamera.changeCameraToDefault();
-
 	}
 	return TRUE;
+}
+
+void LLToolCompGun::draw()
+{
+	if(mTimerFOV.getStarted())
+	{
+		if(!LLViewerCamera::getInstance()->mSavedFOVLoaded && mStartFOV != mTargetFOV)
+		{
+			F32 timer = mTimerFOV.getElapsedTimeF32();
+
+			if(timer > 0.15f)
+			{
+				LLViewerCamera::getInstance()->setDefaultFOV(mTargetFOV);
+				mTimerFOV.stop();
+			}
+			else LLViewerCamera::getInstance()->setDefaultFOV(lerp(mStartFOV, mTargetFOV, timer * 6.66f));
+		}
+		else mTimerFOV.stop();
+	}
+	LLToolComposite::draw();
 }

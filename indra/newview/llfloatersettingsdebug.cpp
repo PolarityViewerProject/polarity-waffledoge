@@ -343,22 +343,7 @@ void LLFloaterSettingsDebug::updateControl()
 
 	if (mCurrentControlVariable)
 	{
-// [RLVa:KB] - Checked: 2011-05-28 (RLVa-1.4.0a) | Modified: RLVa-1.4.0a
-		// If "HideFromEditor" was toggled while the floater is open then we need to manually disable access to the control
-		// NOTE: this runs per-frame so there's no need to explictly handle onCommitSettings() or onClickDefault()
-		mOldVisibility=mCurrentControlVariable->isHiddenFromSettingsEditor();
-		mSpinner1->setEnabled(!mOldVisibility);
-		mSpinner2->setEnabled(!mOldVisibility);
-		mSpinner3->setEnabled(!mOldVisibility);
-		mSpinner4->setEnabled(!mOldVisibility);
-		mColorSwatch->setEnabled(!mOldVisibility);
-		mValText->setEnabled(!mOldVisibility);
-		mBooleanCombo->setEnabled(!mOldVisibility);
-		mDefaultButton->setEnabled(!mOldVisibility);
-// [/RLVa:KB]
-
-
-		
+	
 		mCopyButton->setEnabled(TRUE);
 		mSanityButton->setVisible(!mCurrentControlVariable->isSane());
 

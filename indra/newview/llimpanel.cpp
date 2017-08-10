@@ -54,6 +54,7 @@
 #include "llavataractions.h"
 #include "llinventory.h"
 #include "llinventorymodel.h"
+#include "llfloaterinventory.h"
 #include "lliconctrl.h"
 #include "llkeyboard.h"
 #include "lllineeditor.h"

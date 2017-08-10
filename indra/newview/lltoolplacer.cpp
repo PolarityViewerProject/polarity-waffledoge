@@ -36,19 +36,18 @@
 #include "llviewercontrol.h"
 //#include "llfirstuse.h"
 #include "llfloatertools.h"
+#include "llparcel.h" //<alchemy> Rez under Land Group
+#include "llgroupactions.h" //<alchemy> Rez under Land Group
 #include "llselectmgr.h"
 #include "llstatusbar.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
 #include "llviewerobject.h"
+#include "llviewerparcelmgr.h" //<alchemy> Rez under Land Group
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
 #include "llworld.h"
 #include "llui.h"
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0a)
-#include "rlvhandler.h"
-#include "rlvhelper.h"
-// [/RLVa:KB]
 
 //Headers added for functions moved from viewer.cpp
 #include "llvograss.h"
@@ -74,6 +73,26 @@ const LLVector3 DEFAULT_OBJECT_SCALE(0.5f, 0.5f, 0.5f);
 //static 
 LLPCode	LLToolPlacer::sObjectType = LL_PCODE_CUBE;
 
+template<class P>
+U32 get_selected_plant(const std::map<U32, P*>& list, const std::string& type, S32 max) // MC
+{
+	if (!type.empty() && !list.empty())
+	{
+		std::string last_selected = gSavedSettings.getString("LastSelected"+type);
+		if (!last_selected.empty())
+		{
+			for (U32 i = 0; i < list.size(); ++i)
+			{
+				if (list.at(i) && list.at(i)->mName == last_selected)
+				{
+					return i;
+				}
+			}
+		}
+	}
+	return rand() % max;
+}
+
 LLToolPlacer::LLToolPlacer()
 :	LLTool( "Create" )
 {
@@ -92,7 +111,7 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 	// representations (if any) are NOT the same as their viewer representation.
 	if (pick.mPickType == LLPickInfo::PICK_FLORA)
 	{
-		*hit_obj = NULL;
+		*hit_obj = nullptr;
 		*hit_face = -1;
 	}
 	else
@@ -128,16 +147,6 @@ BOOL LLToolPlacer::raycastForNewObjPos( S32 x, S32 y, LLViewerObject** hit_obj, 
 	{
 		return FALSE;
 	}
-
-// [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e) | Modified: RLVa-0.2.0f
-	// NOTE: don't use surface_pos_global since for prims it will be the center of the prim while we need center + offset
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_FARTOUCH))
-	{
-		static RlvCachedBehaviourModifier<float> s_nFartouchDist(RLV_MODIFIER_FARTOUCHDIST);
-		if (dist_vec_squared(gAgent.getPositionGlobal(), pick.mPosGlobal) > s_nFartouchDist * s_nFartouchDist)
-			return FALSE;
-	}
-// [/RLVa:KB]
 
 	// Find the sim where the surface lives.
 	LLViewerRegion *regionp = LLWorld::getInstance()->getRegionFromPosGlobal(surface_pos_global);
@@ -175,10 +184,10 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 {
 	LLVector3 ray_start_region;
 	LLVector3 ray_end_region;
-	LLViewerRegion* regionp = NULL;
+	LLViewerRegion* regionp = nullptr;
 	BOOL b_hit_land = FALSE;
 	S32 hit_face = -1;
-	LLViewerObject* hit_obj = NULL;
+	LLViewerObject* hit_obj = nullptr;
 	U8 state = 0;
 	BOOL success = raycastForNewObjPos( x, y, &hit_obj, &hit_face, &b_hit_land, &ray_start_region, &ray_end_region, &regionp );
 	if( !success )
@@ -192,7 +201,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 		return FALSE;
 	}
 
-	if (NULL == regionp)
+	if (nullptr == regionp)
 	{
 		LL_WARNS() << "regionp was NULL; aborting function." << LL_ENDL;
 		return FALSE;
@@ -215,13 +224,13 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	case LL_PCODE_LEGACY_GRASS:
 		//  Randomize size of grass patch 
 		scale.setVec(10.f + ll_frand(20.f), 10.f + ll_frand(20.f),  1.f + ll_frand(2.f));
-		state = rand() % LLVOGrass::sMaxGrassSpecies;
+		state = get_selected_plant(LLVOGrass::sSpeciesTable, "Grass", LLVOGrass::sMaxGrassSpecies);
 		break;
 
 
 	case LL_PCODE_LEGACY_TREE:
 	case LL_PCODE_TREE_NEW:
-		state = rand() % LLVOTree::sMaxTreeSpecies;
+		state = get_selected_plant(LLVOTree::sSpeciesTable, "Tree", LLVOTree::sMaxTreeSpecies);
 		break;
 
 	case LL_PCODE_SPHERE:
@@ -247,7 +256,21 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	gMessageSystem->nextBlockFast(_PREHASH_AgentData);
 	gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-	gMessageSystem->addUUIDFast(_PREHASH_GroupID, LLSelectMgr::getInstance()->getGroupIDToRezUnder());
+
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
+	gMessageSystem->addUUIDFast(_PREHASH_GroupID, group_id);
 	gMessageSystem->nextBlockFast(_PREHASH_ObjectData);
 	gMessageSystem->addU8Fast(_PREHASH_Material,	material);
 
@@ -256,10 +279,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	{
 		flags |= FLAGS_USE_PHYSICS;
 	}
-//	if (create_selected)
-// [RLVa:KB] - Checked: 2010-04-11 (RLVa-1.2.0e) | Added: RLVa-1.0.0b
-	if ( (create_selected) && (!gRlvHandler.hasBehaviour(RLV_BHVR_EDIT)) )
-// [/RLVa:KB]
+	if (create_selected)
 	{
 		flags |= FLAGS_CREATE_SELECTED;
 	}
@@ -407,7 +427,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 		break;
 
 	default:
-		LLVolumeMessage::packVolumeParams(0, gMessageSystem);
+		LLVolumeMessage::packVolumeParams(nullptr, gMessageSystem);
 		volume_pcode = pcode;
 		break;
 	}
@@ -445,12 +465,16 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 		gViewerWindow->getWindow()->incBusyCount();
 	}
 
-	// VEFFECT: AddObject
-	LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
-	effectp->setSourceObject((LLViewerObject*)gAgentAvatarp);
-	effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
-	effectp->setDuration(LL_HUD_DUR_SHORT);
-	effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
+	if (PVPrivacy_HideEditBeam)
+	{
+		// VEFFECT: AddObject
+		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);
+		effectp->setSourceObject((LLViewerObject*)gAgentAvatarp);
+		effectp->setPositionGlobal(regionp->getPosGlobalFromRegion(ray_end_region));
+		effectp->setDuration(LL_HUD_DUR_SHORT);
+		effectp->setColor(LLColor4U(gAgent.getEffectColor()));
+	}
 
 	add(LLStatViewer::OBJECT_CREATE, 1);
 
@@ -463,10 +487,10 @@ BOOL LLToolPlacer::addDuplicate(S32 x, S32 y)
 {
 	LLVector3 ray_start_region;
 	LLVector3 ray_end_region;
-	LLViewerRegion* regionp = NULL;
+	LLViewerRegion* regionp = nullptr;
 	BOOL b_hit_land = FALSE;
 	S32 hit_face = -1;
-	LLViewerObject* hit_obj = NULL;
+	LLViewerObject* hit_obj = nullptr;
 	BOOL success = raycastForNewObjPos( x, y, &hit_obj, &hit_face, &b_hit_land, &ray_start_region, &ray_end_region, &regionp );
 	if( !success )
 	{
@@ -517,13 +541,6 @@ BOOL LLToolPlacer::placeObject(S32 x, S32 y, MASK mask)
 {
 	BOOL added = TRUE;
 	
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0e) | Modified: RLVa-1.1.0l
-	if ( (rlv_handler_t::isEnabled()) && ((gRlvHandler.hasBehaviour(RLV_BHVR_REZ)) || (gRlvHandler.hasBehaviour(RLV_BHVR_INTERACT))) )
-	{
-		return TRUE; // Callers seem to expect a "did you handle it?" so we return TRUE rather than FALSE
-	}
-// [/RLVa:KB]
-
 	if (gSavedSettings.getBOOL("CreateToolCopySelection"))
 	{
 		added = addDuplicate(x, y);

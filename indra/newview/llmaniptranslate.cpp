@@ -64,9 +64,6 @@
 #include "pipeline.h"
 #include "llviewershadermgr.h"
 #include "lltrans.h"
-// [RLVa:KB] - Checked: 2010-03-23 (RLVa-1.2.0a)
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 #include <glm/vec4.hpp> // glm::vec4, glm::ivec4
 #include <glm/mat4x4.hpp> // glm::mat4
@@ -691,7 +688,7 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 		}
 
 		LLViewerObject* root_object = (object == NULL) ? NULL : object->getRootEdit();
-		if (object->permMove() && !object->isPermanentEnforced() &&
+		if (object && object->permMove() && !object->isPermanentEnforced() &&
 			((root_object == NULL) || !root_object->isPermanentEnforced()))
 		{
 			// handle attachments in local space
@@ -731,9 +728,9 @@ BOOL LLManipTranslate::handleHover(S32 x, S32 y, MASK mask)
 				}
 
 				// For safety, cap heights where objects can be dragged
-				if (new_position_global.mdV[VZ] > MAX_OBJECT_Z)
+				if (new_position_global.mdV[VZ] > LLWorld::getInstance()->getRegionMaxHeight())
 				{
-					new_position_global.mdV[VZ] = MAX_OBJECT_Z;
+					new_position_global.mdV[VZ] = LLWorld::getInstance()->getRegionMaxHeight();
 				}
 
 				// Grass is always drawn on the ground, so clamp its position to the ground
@@ -1648,8 +1645,7 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	LLGLSLShader* shader = LLGLSLShader::sCurBoundShaderPtr;
 
 	
-	U32 types[] = { LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT, LLRenderPass::PASS_SHINY };
-	U32 num_types = LL_ARRAY_SIZE(types);
+	static const std::array<U32, 4> types{{ LLRenderPass::PASS_SIMPLE, LLRenderPass::PASS_ALPHA, LLRenderPass::PASS_FULLBRIGHT, LLRenderPass::PASS_SHINY }};
 
 	GLuint stencil_mask = 0xFFFFFFFF;
 	//stencil in volumes
@@ -1704,16 +1700,16 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 		//stencil in volumes
 		glStencilOp(GL_INCR, GL_INCR, GL_INCR);
 		glCullFace(GL_FRONT);
-		for (U32 i = 0; i < num_types; i++)
+		for (const U32 type : types)
 		{
-			gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+			gPipeline.renderObjects(type, LLVertexBuffer::MAP_VERTEX, FALSE);
 		}
 
 		glStencilOp(GL_DECR, GL_DECR, GL_DECR);
 		glCullFace(GL_BACK);
-		for (U32 i = 0; i < num_types; i++)
+		for (const U32 type : types)
 		{
-			gPipeline.renderObjects(types[i], LLVertexBuffer::MAP_VERTEX, FALSE);
+			gPipeline.renderObjects(type, LLVertexBuffer::MAP_VERTEX, FALSE);
 		}
 		
 		if (particles)
@@ -1743,12 +1739,6 @@ void LLManipTranslate::highlightIntersection(LLVector3 normal,
 	{
 		shader->bind();
 	}
-        // <alchemy> - LL Merge Derp.
-	//if (shader)
-	//{
-	//	shader->bind();
-	//}
-        // </alchemy>
 
 	//draw volume/plane intersections
 	{

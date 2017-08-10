@@ -44,6 +44,7 @@
 #include "lllandmarkactions.h"
 #include "lllocationhistory.h"
 #include "lllocationinputctrl.h"
+#include "llnotificationsutil.h"
 #include "llpaneltopinfobar.h"
 #include "llteleporthistory.h"
 #include "llresizebar.h"
@@ -57,6 +58,7 @@
 #include "llworldmapmessage.h"
 #include "llappviewer.h"
 #include "llviewercontrol.h"
+#include "llviewernetwork.h"
 #include "llweb.h"
 #include "llhints.h"
 
@@ -66,8 +68,6 @@
 #include "llfavoritesbar.h"
 #include "llagentui.h"
 #include "llurlaction.h"
-
-#include <boost/regex.hpp>
 
 //-- LLTeleportHistoryMenuItem -----------------------------------------------
 
@@ -106,9 +106,9 @@ public:
 		{}
 	};
 
-	/*virtual*/ void	draw();
-	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask);
-	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask);
+	/*virtual*/ void	draw() override;
+	/*virtual*/ void	onMouseEnter(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ void	onMouseLeave(S32 x, S32 y, MASK mask) override;
 
 private:
 	LLTeleportHistoryMenuItem(const Params&);
@@ -125,7 +125,7 @@ static LLDefaultChildRegistry::Register<LLTeleportHistoryMenuItem> r("teleport_h
 
 LLTeleportHistoryMenuItem::LLTeleportHistoryMenuItem(const Params& p)
 :	LLMenuItemCallGL(p),
-	mArrowIcon(NULL)
+	mArrowIcon(nullptr)
 {
 	// Set appearance depending on the item type.
 	if (p.item_type == TYPE_BACKWARD)
@@ -266,15 +266,15 @@ TODO:
 */
 
 LLNavigationBar::LLNavigationBar()
-:	mTeleportHistoryMenu(NULL),
-	mBtnBack(NULL),
-	mBtnForward(NULL),
-	mBtnHome(NULL),
-	mCmbLocation(NULL),
-	mSaveToLocationHistory(false),
-	mNavigationPanel(NULL),
-	mFavoritePanel(NULL),
-	mNavPanWidth(0)
+:	mNavPanWidth(0),
+	mTeleportHistoryMenu(nullptr),
+	mBtnBack(nullptr),
+	mBtnForward(nullptr),
+	mBtnHome(nullptr),
+	mCmbLocation(nullptr),
+	mNavigationPanel(nullptr),
+	mFavoritePanel(nullptr),
+	mSaveToLocationHistory(false)
 {
 	buildFromFile( "panel_navigation_bar.xml");
 
@@ -362,7 +362,7 @@ void LLNavigationBar::draw()
 
 BOOL LLNavigationBar::handleRightMouseDown(S32 x, S32 y, MASK mask)
 {
-	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != NULL;
+	BOOL handled = childrenHandleRightMouseDown( x, y, mask) != nullptr;
 	if(!handled && !gMenuHolder->hasVisibleMenu())
 	{
 		show_navbar_context_menu(this,x,y);
@@ -486,32 +486,41 @@ void LLNavigationBar::onLocationSelection()
 	  region_name = slurl.getRegion();
 	  local_coords = slurl.getPosition();
 	}
+// <alchemy>
 	else if (slurl.getType() == LLSLURL::APP)
 	{
 		LLUrlAction::executeSLURL(typed_location);
 		return;
 	}
+// </alchemy>
 	else if(!slurl.isValid())
 	{
-	  // we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too  
-	  // but we need to know whether typed_location is a simple http url.
-	  if (LLUrlRegistry::instance().isUrl(typed_location)) 
-	    {
-		// display http:// URLs in the media browser, or
-		// anything else is sent to the search floater
-		LLWeb::loadURL(typed_location);
-		return;
-	  }
-	  else
-	  {
-	      // assume that an user has typed the {region name} or possible {region_name, parcel}
-	      region_name  = typed_location.substr(0,typed_location.find(','));
-	    }
+		// we have to do this check after previous, because LLUrlRegistry contains handlers for slurl too
+		// but we need to know whether typed_location is a simple http url.
+		if (LLUrlRegistry::instance().isUrl(typed_location))
+		{
+			// display http:// URLs in the media browser, or
+			// anything else is sent to the search floater
+			LLWeb::loadURL(typed_location);
+			return;
+		}
+		else
+		{
+			// assume that an user has typed the {region name} or possible {region_name, parcel}
+			region_name  = typed_location.substr(0,typed_location.find(','));
+		}
 	}
 	else
 	{
-	  // was an app slurl, home, whatever.  Bail - We support app slurls here now. LD
-	  return;
+		// was an app slurl, home, whatever.  Bail // <alchemy/> - We support app slurls here now.
+		return;
+	}
+	
+	const std::string& grid = slurl.getGrid();
+	const std::string& current_grid = LLGridManager::getInstance()->getGrid();
+	if (grid != current_grid)
+	{
+		region_name.insert(0, llformat("%s:", grid.c_str()));
 	}
 	
 	// Resolve the region name to its global coordinates.
@@ -648,7 +657,7 @@ void	LLNavigationBar::showTeleportHistoryMenu(LLUICtrl* btn_ctrl)
 	
 	rebuildTeleportHistoryMenu();
 
-	if (mTeleportHistoryMenu == NULL)
+	if (mTeleportHistoryMenu == nullptr)
 		return;
 	
 	mTeleportHistoryMenu->updateParent(LLMenuGL::sMenuContainer);
@@ -684,7 +693,7 @@ void LLNavigationBar::onNavigationButtonHeldUp(LLButton* nav_button)
 	{
 		// we had passed mouseCapture in  showTeleportHistoryMenu()
 		// now we MUST release mouseCapture to continue a proper mouseevent workflow. 
-		gFocusMgr.setMouseCapture(NULL);
+		gFocusMgr.setMouseCapture(nullptr);
 	}
 	//gMenuHolder is using to display bunch of menus. Disconnect signal to avoid unnecessary calls.    
 	mHistoryMenuConnection.disconnect();
@@ -707,15 +716,6 @@ void LLNavigationBar::resizeLayoutPanel()
 	nav_bar_rect.setLeftTopAndSize(nav_bar_rect.mLeft, nav_bar_rect.mTop, nav_panel_width, nav_bar_rect.getHeight());
 	mNavigationPanel->handleReshape(nav_bar_rect,true);
 }
-
-// [RLVa:KB] - Checked: 2014-03-23 (RLVa-1.4.10)
-void LLNavigationBar::refreshLocationCtrl()
-{
-	if (mCmbLocation)
-		mCmbLocation->refresh();
-}
-// [/RLVa:KB]
-
 void LLNavigationBar::invokeSearch(std::string search_text)
 {
 	LLFloaterReg::showInstance("search", LLSD().with("category", "all").with("query", LLSD(search_text)));

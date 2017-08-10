@@ -40,7 +40,6 @@
 #include "llsliderctrl.h"
 #include "llspinctrl.h"
 #include "llcheckboxctrl.h"
-#include "lluictrlfactory.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
 #include "llcombobox.h"
@@ -69,13 +68,13 @@ LLWaterParamManager::LLWaterParamManager() :
 	mFogDensity(4, "waterFogDensity", 2),
 	mUnderWaterFogMod(0.25, "underWaterFogMod"),
 	mNormalScale(2.f, 2.f, 2.f, "normScale"),
+	mWave1Dir(.5f, .5f, "wave1Dir"),
+	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mFresnelScale(0.5f, "fresnelScale"),
 	mFresnelOffset(0.4f, "fresnelOffset"),
 	mScaleAbove(0.025f, "scaleAbove"),
 	mScaleBelow(0.2f, "scaleBelow"),
 	mBlurMultiplier(0.1f, "blurMultiplier"),
-	mWave1Dir(.5f, .5f, "wave1Dir"),
-	mWave2Dir(.5f, .5f, "wave2Dir"),
 	mDensitySliderValue(1.0f),
 	mWaterFogKS(1.0f)
 {
@@ -99,7 +98,7 @@ void LLWaterParamManager::loadPresetsFromDir(const std::string& dir)
 	LL_DEBUGS("AppInit", "Shaders") << "Loading water presets from " << dir << LL_ENDL;
 
 	LLDirIterator dir_iter(dir, "*.xml");
-	while (1)
+	while (true)
 	{
 		std::string file;
 		if (!dir_iter.next(file))
@@ -200,7 +199,7 @@ shader->uniform3fv(LLShaderMgr::WL_CAMPOSLOCAL, 1, LLViewerCamera::getInstance()
 		shader->uniform4fv(LLShaderMgr::WATER_WATERPLANE, 1, mWaterPlane.mV);
 		shader->uniform1f(LLShaderMgr::WATER_FOGDENSITY, getFogDensity());
 		shader->uniform1f(LLShaderMgr::WATER_FOGKS, mWaterFogKS);
-		shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0);
+		shader->uniform1f(LLViewerShaderMgr::DISTANCE_MULTIPLIER, 0.f); // <alchemy/>
 	}
 }
 
@@ -428,7 +427,6 @@ void LLWaterParamManager::initSingleton()
 {
 	LL_DEBUGS("Windlight") << "Initializing water" << LL_ENDL;
 	loadAllPresets();
-	LLEnvManagerNew::instance().usePrefs();
 }
 
 // static

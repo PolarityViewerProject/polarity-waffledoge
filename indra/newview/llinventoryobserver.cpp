@@ -215,7 +215,7 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 			body[0]["items"].append(items_llsd[i]);
 			continue;
 		}
-		else if (items_llsd[i]["owner_id"].asString() == ALEXANDRIA_LINDEN_ID.asString())
+		else if (items_llsd[i]["owner_id"].asString() == gInventory.getLibraryOwnerID().asString())
 		{
 			body[1]["items"].append(items_llsd[i]);
 			continue;
@@ -243,11 +243,35 @@ void fetch_items_from_llsd(const LLSD& items_llsd)
 			gInventory.requestPost(true, url, body[i], handler, (i ? "Library Item" : "Inventory Item"));
 			continue;
 		}
-        else
-        {
-            LL_WARNS("INVENTORY") << "Failed to get capability." << LL_ENDL;
-        }
-
+		else
+		{
+		LLMessageSystem* msg = gMessageSystem;
+		BOOL start_new_message = TRUE;
+		for (S32 j=0; j<body[i]["items"].size(); j++)
+		{
+			LLSD item_entry = body[i]["items"][j];
+			if (start_new_message)
+			{
+				start_new_message = FALSE;
+				msg->newMessageFast(_PREHASH_FetchInventory);
+				msg->nextBlockFast(_PREHASH_AgentData);
+				msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
+				msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
+			}
+			msg->nextBlockFast(_PREHASH_InventoryData);
+			msg->addUUIDFast(_PREHASH_OwnerID, item_entry["owner_id"].asUUID());
+			msg->addUUIDFast(_PREHASH_ItemID, item_entry["item_id"].asUUID());
+			if (msg->isSendFull(nullptr))
+			{
+				start_new_message = TRUE;
+				gAgent.sendReliableMessage();
+			}
+		}
+		if (!start_new_message)
+		{
+			gAgent.sendReliableMessage();
+		}
+		}
 	}
 }
 
@@ -473,17 +497,21 @@ void LLInventoryAddItemByAssetObserver::changed(U32 mask)
 	for (uuid_set_t::iterator it = added.begin(); it != added.end(); ++it)
 	{
 		LLInventoryItem *item = gInventory.getItem(*it);
+		if (!item)
+			continue;
+
+		const LLUUID& item_uuid = item->getUUID();
 		const LLUUID& asset_uuid = item->getAssetUUID();
-		if (item && item->getUUID().notNull() && asset_uuid.notNull())
+		if (item_uuid.notNull() && asset_uuid.notNull())
 		{
 			if (isAssetWatched(asset_uuid))
 			{
 				LL_DEBUGS("Inventory_Move") << "Found asset UUID: " << asset_uuid << LL_ENDL;
-				mAddedItems.push_back(item->getUUID());
+				mAddedItems.push_back(item_uuid);
 			}
 		}
 	}
-	
+
 	if (mAddedItems.size() == mWatchedAssets.size())
 	{
 		LL_DEBUGS("Inventory_Move") << "All watched items are added & processed." << LL_ENDL;
@@ -718,11 +746,11 @@ void LLInventoryCategoriesObserver::removeCategory(const LLUUID& cat_id)
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents)
 	
-	: mCatID(cat_id)
-	, mCallback(cb)
+	: mCallback(cb)
 	, mVersion(version)
 	, mDescendentsCount(num_descendents)
 	, mIsNameHashInitialized(false)
+	, mCatID(cat_id)
 {
 	mItemNameHash.finalize();
 }
@@ -730,12 +758,12 @@ LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 LLInventoryCategoriesObserver::LLCategoryData::LLCategoryData(
 	const LLUUID& cat_id, callback_t cb, S32 version, S32 num_descendents, LLMD5 name_hash)
 
-	: mCatID(cat_id)
-	, mCallback(cb)
+	: mCallback(cb)
 	, mVersion(version)
 	, mDescendentsCount(num_descendents)
-	, mIsNameHashInitialized(true)
 	, mItemNameHash(name_hash)
+	, mIsNameHashInitialized(true)
+	, mCatID(cat_id)
 {
 }
 

@@ -67,7 +67,7 @@ void LLViewerParcelMedia::initClass()
 void LLViewerParcelMedia::cleanupClass()
 {
 	// This needs to be destroyed before global destructor time.
-	sMediaImpl = NULL;
+	sMediaImpl = nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -138,25 +138,6 @@ void LLViewerParcelMedia::update(LLParcel* parcel)
 			stop();
 		}
 	}
-	/*
-	else
-	{
-		// no audio player, do a first use dialog if there is media here
-		if (parcel)
-		{
-			std::string mediaUrl = std::string ( parcel->getMediaURL () );
-			if (!mediaUrl.empty ())
-			{
-				if (gWarningSettings.getBOOL("QuickTimeInstalled"))
-				{
-					gWarningSettings.setBOOL("QuickTimeInstalled", FALSE);
-
-					LLNotificationsUtil::add("NoQuickTime" );
-				};
-			}
-		}
-	}
-	*/
 }
 
 // static
@@ -200,7 +181,7 @@ void LLViewerParcelMedia::play(LLParcel* parcel)
 			// Since the texture id is different, we need to generate a new impl
 
 			// Delete the old one first so they don't fight over the texture.
-			sMediaImpl = NULL;
+			sMediaImpl = nullptr;
 			
 			// A new impl will be created below.
 		}
@@ -242,7 +223,7 @@ void LLViewerParcelMedia::stop()
 	LLViewerMediaFocus::getInstance()->clearFocus();
 
 	// This will unload & kill the media instance.
-	sMediaImpl = NULL;
+	sMediaImpl = nullptr;
 }
 
 // static

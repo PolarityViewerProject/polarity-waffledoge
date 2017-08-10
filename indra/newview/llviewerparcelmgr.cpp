@@ -49,7 +49,6 @@
 //#include "llfirstuse.h"
 #include "llfloaterbuyland.h"
 #include "llfloatergroups.h"
-#include "llglsandbox.h"
 #include "llpanelnearbymedia.h"
 #include "llfloatersellland.h"
 #include "llfloatertools.h"
@@ -59,7 +58,6 @@
 #include "llsdutil_math.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
-#include "llsurface.h"
 #include "llui.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"
@@ -71,10 +69,10 @@
 #include "roles_constants.h"
 #include "llweb.h"
 #include "llvieweraudio.h"
-#include "kcwlinterface.h"
+#include "llcorehttputil.h"
 
 const F32 PARCEL_COLLISION_DRAW_SECS = 1.f;
-const F32 PARCEL_POST_HEIGHT = 0.666f;
+
 
 // Globals
 
@@ -138,7 +136,7 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	mHoverParcel = new LLParcel();
 	mCollisionParcel = new LLParcel();
 
-	mParcelsPerEdge = S32(	REGION_WIDTH_METERS / PARCEL_GRID_STEP_METERS );
+	mParcelsPerEdge = S32(8192.f / PARCEL_GRID_STEP_METERS); // 8192 is the maximum region size on Aurora
 	mHighlightSegments = new U8[(mParcelsPerEdge+1)*(mParcelsPerEdge+1)];
 	resetSegments(mHighlightSegments);
 
@@ -148,8 +146,8 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 	// JC: Resolved a merge conflict here, eliminated
 	// mBlockedImage->setAddressMode(LLTexUnit::TAM_WRAP);
 	// because it is done in llviewertexturelist.cpp
-	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.tga", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
-	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.tga", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
+	mBlockedImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryLines.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
+	mPassImage = LLViewerTextureManager::getFetchedTextureFromFile("world/NoEntryPassLines.png", FTT_LOCAL_FILE, TRUE, LLGLTexture::BOOST_UI);
 
 	S32 overlay_size = mParcelsPerEdge * mParcelsPerEdge / PARCEL_OVERLAY_CHUNKS;
 	sPackedOverlay = new U8[overlay_size];
@@ -161,9 +159,14 @@ LLViewerParcelMgr::LLViewerParcelMgr()
 		mAgentParcelOverlay[i] = 0;
 	}
 
+	mParcelsPerEdge = S32(REGION_WIDTH_METERS / PARCEL_GRID_STEP_METERS);
 	mTeleportInProgress = TRUE; // the initial parcel update is treated like teleport
 }
 
+void LLViewerParcelMgr::init(F32 region_size)
+{
+	mParcelsPerEdge = S32(region_size / PARCEL_GRID_STEP_METERS);
+}
 
 LLViewerParcelMgr::~LLViewerParcelMgr()
 {
@@ -443,9 +446,9 @@ LLParcelSelectionHandle LLViewerParcelMgr::selectParcelInRectangle()
 void LLViewerParcelMgr::selectCollisionParcel()
 {
 	// BUG: Claim to be in the agent's region
-	mWestSouth = gAgent.getRegion()->getOriginGlobal();
+	mWestSouth = getSelectionRegion()->getOriginGlobal();
 	mEastNorth = mWestSouth;
-	mEastNorth += LLVector3d(PARCEL_GRID_STEP_METERS, PARCEL_GRID_STEP_METERS, 0.0);
+	mEastNorth += LLVector3d(getSelectionRegion()->getWidth()/REGION_WIDTH_METERS * PARCEL_GRID_STEP_METERS, getSelectionRegion()->getWidth()/REGION_WIDTH_METERS * PARCEL_GRID_STEP_METERS, 0.0);
 
 	// BUG: must be in the sim you are in
 	LLMessageSystem *msg = gMessageSystem;
@@ -1403,7 +1406,7 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 		return;
 	}
 
-	static const S32 expected_size = 1024;
+	S32 expected_size = 1024;
 	if (packed_overlay_size != expected_size)
 	{
 		LL_WARNS() << "Got parcel overlay size " << packed_overlay_size
@@ -1430,123 +1433,134 @@ void LLViewerParcelMgr::processParcelOverlay(LLMessageSystem *msg, void **user)
 // static
 void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **user)
 {
-	S32		request_result;
-	S32		sequence_id;
-	BOOL	snap_selection = FALSE;
-	S32		self_count = 0;
-	S32		other_count = 0;
-	S32		public_count = 0;
-	S32		local_id;
-	LLUUID	owner_id;
-	BOOL	is_group_owned;
-	U32 auction_id = 0;
-	S32		claim_price_per_meter = 0;
-	S32		rent_price_per_meter = 0;
-	S32		claim_date = 0;
-	LLVector3	aabb_min;
-	LLVector3	aabb_max;
-	S32		area = 0;
-	S32		sw_max_prims = 0;
-	S32		sw_total_prims = 0;
-	//LLUUID	buyer_id;
-	U8 status = 0;
-	S32		max_prims = 0;
-	S32		total_prims = 0;
-	S32		owner_prims = 0;
-	S32		group_prims = 0;
-	S32		other_prims = 0;
-	S32		selected_prims = 0;
-	F32		parcel_prim_bonus = 1.f;
-	BOOL	region_push_override = false;
-	BOOL	region_deny_anonymous_override = false;
-	BOOL	region_deny_identified_override = false; // Deprecated
-	BOOL	region_deny_transacted_override = false; // Deprecated
-	BOOL	region_deny_age_unverified_override = false;
+    S32		request_result;
+    S32		sequence_id;
+    BOOL	snap_selection = FALSE;
+    S32		self_count = 0;
+    S32		other_count = 0;
+    S32		public_count = 0;
+    S32		local_id;
+    LLUUID	owner_id;
+    BOOL	is_group_owned;
+    U32 auction_id = 0;
+    S32		claim_price_per_meter = 0;
+    S32		rent_price_per_meter = 0;
+    S32		claim_date = 0;
+    LLVector3	aabb_min;
+    LLVector3	aabb_max;
+    S32		area = 0;
+    S32		sw_max_prims = 0;
+    S32		sw_total_prims = 0;
+    //LLUUID	buyer_id;
+    U8 status = 0;
+    S32		max_prims = 0;
+    S32		total_prims = 0;
+    S32		owner_prims = 0;
+    S32		group_prims = 0;
+    S32		other_prims = 0;
+    S32		selected_prims = 0;
+    F32		parcel_prim_bonus = 1.f;
+    BOOL	region_push_override = false;
+    BOOL	region_deny_anonymous_override = false;
+    BOOL	region_deny_identified_override = false; // Deprecated
+    BOOL	region_deny_transacted_override = false; // Deprecated
+    BOOL	region_deny_age_unverified_override = false;
+    BOOL    region_allow_access_override = true;
     BOOL	agent_parcel_update = false; // updating previous(existing) agent parcel
 
-	S32		other_clean_time = 0;
+    S32		other_clean_time = 0;
 
-	LLViewerParcelMgr& parcel_mgr = LLViewerParcelMgr::instance();
+    LLViewerParcelMgr& parcel_mgr = LLViewerParcelMgr::instance();
+    LLViewerRegion* msg_region = LLWorld::getInstance()->getRegion(msg->getSender());
+    if(msg_region)
+        parcel_mgr.mParcelsPerEdge = S32(msg_region->getWidth() / PARCEL_GRID_STEP_METERS);
+    else
+        parcel_mgr.mParcelsPerEdge = S32(gAgent.getRegion()->getWidth() / PARCEL_GRID_STEP_METERS);
 
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RequestResult, request_result );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SequenceID, sequence_id );
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RequestResult, request_result);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SequenceID, sequence_id);
 
-	if (request_result == PARCEL_RESULT_NO_DATA)
-	{
-		// no valid parcel data
-		LL_INFOS() << "no valid parcel data" << LL_ENDL;
-		return;
-	}
+    if (request_result == PARCEL_RESULT_NO_DATA)
+    {
+        // no valid parcel data
+        LL_INFOS() << "no valid parcel data" << LL_ENDL;
+        return;
+    }
 
-	// Decide where the data will go.
-	LLParcel* parcel = NULL;
-	if (sequence_id == SELECTED_PARCEL_SEQ_ID)
-	{
-		// ...selected parcels report this sequence id
-		parcel_mgr.mRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mCurrentParcel;
-	}
-	else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
-	{
-		parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mHoverParcel;
-	}
-	else if (sequence_id == COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID ||
-			 sequence_id == COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID ||
-			 sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
-	{
-		parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
-		parcel = parcel_mgr.mCollisionParcel;
-	}
-	else if (sequence_id == 0 || sequence_id > parcel_mgr.mAgentParcelSequenceID)
-	{
-		// new agent parcel
-		parcel_mgr.mAgentParcelSequenceID = sequence_id;
-		parcel = parcel_mgr.mAgentParcel;
-	}
-	else
-	{
-		LL_INFOS() << "out of order agent parcel sequence id " << sequence_id
-			<< " last good " << parcel_mgr.mAgentParcelSequenceID
-			<< LL_ENDL;
-		return;
-	}
+    // Decide where the data will go.
+    LLParcel* parcel = NULL;
+    if (sequence_id == SELECTED_PARCEL_SEQ_ID)
+    {
+        // ...selected parcels report this sequence id
+        parcel_mgr.mRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mCurrentParcel;
+    }
+    else if (sequence_id == HOVERED_PARCEL_SEQ_ID)
+    {
+        parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mHoverParcel;
+    }
+    else if (sequence_id == COLLISION_NOT_IN_GROUP_PARCEL_SEQ_ID ||
+        sequence_id == COLLISION_NOT_ON_LIST_PARCEL_SEQ_ID ||
+        sequence_id == COLLISION_BANNED_PARCEL_SEQ_ID)
+    {
+        parcel_mgr.mHoverRequestResult = PARCEL_RESULT_SUCCESS;
+        parcel = parcel_mgr.mCollisionParcel;
+    }
+    else if (sequence_id == 0 || sequence_id > parcel_mgr.mAgentParcelSequenceID)
+    {
+        // new agent parcel
+        parcel_mgr.mAgentParcelSequenceID = sequence_id;
+        parcel = parcel_mgr.mAgentParcel;
+    }
+    else
+    {
+        LL_INFOS() << "out of order agent parcel sequence id " << sequence_id
+            << " last good " << parcel_mgr.mAgentParcelSequenceID
+            << LL_ENDL;
+        return;
+    }
 
-	msg->getBOOL("ParcelData", "SnapSelection", snap_selection);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelfCount, self_count);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherCount, other_count);
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_PublicCount, public_count);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_LocalID,		local_id );
-	msg->getUUIDFast(_PREHASH_ParcelData, _PREHASH_OwnerID,		owner_id);
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_IsGroupOwned, is_group_owned);
-	msg->getU32Fast(_PREHASH_ParcelData, _PREHASH_AuctionID, auction_id);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_ClaimDate,	claim_date);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_ClaimPrice,	claim_price_per_meter);
-	msg->getS32Fast( _PREHASH_ParcelData, _PREHASH_RentPrice,	rent_price_per_meter);
-	msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMin, aabb_min);
-	msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMax, aabb_max);
-	msg->getS32Fast(	_PREHASH_ParcelData, _PREHASH_Area, area );
-	//msg->getUUIDFast(	_PREHASH_ParcelData, _PREHASH_BuyerID, buyer_id);
-	msg->getU8("ParcelData", "Status", status);
-	msg->getS32("ParcelData", "SimWideMaxPrims", sw_max_prims );
-	msg->getS32("ParcelData", "SimWideTotalPrims", sw_total_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_MaxPrims, max_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_TotalPrims, total_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OwnerPrims, owner_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_GroupPrims, group_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherPrims, other_prims );
-	msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelectedPrims, selected_prims );
-	msg->getF32Fast(_PREHASH_ParcelData, _PREHASH_ParcelPrimBonus, parcel_prim_bonus );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionPushOverride, region_push_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override );
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override ); // Deprecated
-	msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override ); // Deprecated
-	if (msg->getNumberOfBlocksFast(_PREHASH_AgeVerificationBlock))
-	{
-		// this block was added later and may not be on older sims, so we have to test its existence first
-		msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override );
-	}
+    msg->getBOOL("ParcelData", "SnapSelection", snap_selection);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelfCount, self_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherCount, other_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_PublicCount, public_count);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_LocalID, local_id);
+    msg->getUUIDFast(_PREHASH_ParcelData, _PREHASH_OwnerID, owner_id);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_IsGroupOwned, is_group_owned);
+    msg->getU32Fast(_PREHASH_ParcelData, _PREHASH_AuctionID, auction_id);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_ClaimDate, claim_date);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_ClaimPrice, claim_price_per_meter);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_RentPrice, rent_price_per_meter);
+    msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMin, aabb_min);
+    msg->getVector3Fast(_PREHASH_ParcelData, _PREHASH_AABBMax, aabb_max);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_Area, area);
+    //msg->getUUIDFast(	_PREHASH_ParcelData, _PREHASH_BuyerID, buyer_id);
+    msg->getU8("ParcelData", "Status", status);
+    msg->getS32("ParcelData", "SimWideMaxPrims", sw_max_prims);
+    msg->getS32("ParcelData", "SimWideTotalPrims", sw_total_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_MaxPrims, max_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_TotalPrims, total_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OwnerPrims, owner_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_GroupPrims, group_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_OtherPrims, other_prims);
+    msg->getS32Fast(_PREHASH_ParcelData, _PREHASH_SelectedPrims, selected_prims);
+    msg->getF32Fast(_PREHASH_ParcelData, _PREHASH_ParcelPrimBonus, parcel_prim_bonus);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionPushOverride, region_push_override);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyAnonymous, region_deny_anonymous_override);
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyIdentified, region_deny_identified_override); // Deprecated
+    msg->getBOOLFast(_PREHASH_ParcelData, _PREHASH_RegionDenyTransacted, region_deny_transacted_override); // Deprecated
+    if (msg->getNumberOfBlocksFast(_PREHASH_AgeVerificationBlock))
+    {
+        // this block was added later and may not be on older sims, so we have to test its existence first
+        msg->getBOOLFast(_PREHASH_AgeVerificationBlock, _PREHASH_RegionDenyAgeUnverified, region_deny_age_unverified_override);
+    }
 
+    if (msg->getNumberOfBlocks(_PREHASH_RegionAllowAccessBlock))
+    {
+        msg->getBOOLFast(_PREHASH_RegionAllowAccessBlock, _PREHASH_RegionAllowAccessOverride, region_allow_access_override);
+    }
+	
 	msg->getS32("ParcelData", "OtherCleanTime", other_clean_time );
 
 	// Actually extract the data.
@@ -1588,6 +1602,7 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 		parcel->setRegionPushOverride(region_push_override);
 		parcel->setRegionDenyAnonymousOverride(region_deny_anonymous_override);
 		parcel->setRegionDenyAgeUnverifiedOverride(region_deny_age_unverified_override);
+        parcel->setRegionAllowAccessOverride(region_allow_access_override);
 		parcel->unpackMessage(msg);
 
 		if (parcel == parcel_mgr.mAgentParcel)
@@ -1621,8 +1636,6 @@ void LLViewerParcelMgr::processParcelProperties(LLMessageSystem *msg, void **use
 					instance->mTeleportFinishedSignal(instance->mTeleportInProgressPosition, false);
 				}
 			}
-			//KC: check for parcel changes for WL settings
-			KCWindlightInterface::instance().parcelChange();
 		}
 		else if (agent_parcel_update)
 		{
@@ -1879,7 +1892,7 @@ void LLViewerParcelMgr::processParcelAccessListReply(LLMessageSystem *msg, void 
 		parcel->unpackAccessEntries(msg, &(parcel->mRenterList) );
 	}*/
 
-	LLViewerParcelMgr::getInstance()->notifyObservers();
+	LLViewerParcelMgr::getInstance()->mParcelMsgSignal();
 }
 
 
@@ -1901,7 +1914,7 @@ void LLViewerParcelMgr::processParcelDwellReply(LLMessageSystem* msg, void**)
 	if (local_id == LLViewerParcelMgr::getInstance()->mCurrentParcel->getLocalID())
 	{
 		LLViewerParcelMgr::getInstance()->mSelectedDwell = dwell;
-		LLViewerParcelMgr::getInstance()->notifyObservers();
+		LLViewerParcelMgr::getInstance()->mParcelMsgSignal();
 	}
 }
 
@@ -2491,13 +2504,6 @@ boost::signals2::connection LLViewerParcelMgr::setTeleportFailedCallback(telepor
 	return mTeleportFailedSignal.connect(cb);
 }
 
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-boost::signals2::connection LLViewerParcelMgr::setTeleportDoneCallback(teleport_done_callback_t cb)
-{
-	return mTeleportDoneSignal.connect(cb);
-}
-// [/SL:KB]
-
 /* Ok, we're notified that teleport has been finished.
  * We should now propagate the notification via mTeleportFinishedSignal
  * to all interested parties.
@@ -2524,404 +2530,4 @@ void LLViewerParcelMgr::onTeleportFinished(bool local, const LLVector3d& new_pos
 void LLViewerParcelMgr::onTeleportFailed()
 {
 	mTeleportFailedSignal();
-}
-
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-void LLViewerParcelMgr::onTeleportDone()
-{
-	mTeleportDoneSignal();
-}
-// [/SL:KB]
-
-// north = a wall going north/south.  Need that info to set up texture
-// coordinates correctly.
-// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-//void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp)
-void LLViewerParcelMgr::renderOneSegment(F32 x1, F32 y1, F32 x2, F32 y2, F32 height, U8 direction, LLViewerRegion* regionp, bool absolute_height /* = false */)
-// </FS:Ansariel>
-{
-	// HACK: At edge of last region of world, we need to make sure the region
-	// resolves correctly so we can get a height value.
-	const F32 BORDER = REGION_WIDTH_METERS - 0.1f;
-
-	F32 clamped_x1 = x1;
-	F32 clamped_y1 = y1;
-	F32 clamped_x2 = x2;
-	F32 clamped_y2 = y2;
-
-	if (clamped_x1 > BORDER) clamped_x1 = BORDER;
-	if (clamped_y1 > BORDER) clamped_y1 = BORDER;
-	if (clamped_x2 > BORDER) clamped_x2 = BORDER;
-	if (clamped_y2 > BORDER) clamped_y2 = BORDER;
-
-	F32 z;
-	F32 z1;
-	F32 z2;
-
-	z1 = regionp->getLand().resolveHeightRegion( LLVector3( clamped_x1, clamped_y1, 0.f ) );
-	z2 = regionp->getLand().resolveHeightRegion( LLVector3( clamped_x2, clamped_y2, 0.f ) );
-
-	// Convert x1 and x2 from region-local to agent coords.
-	LLVector3 origin = regionp->getOriginAgent();
-	x1 += origin.mV[VX];
-	x2 += origin.mV[VX];
-	y1 += origin.mV[VY];
-	y2 += origin.mV[VY];
-
-	if (height < 1.f)
-	{
-		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-		//z = z1+height;
-		z = absolute_height ? height : z1+height;
-		// </FS:Ansariel>
-		gGL.vertex3f(x1, y1, z);
-
-		gGL.vertex3f(x1, y1, z1);
-
-		gGL.vertex3f(x2, y2, z2);
-
-		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-		//z = z2+height;
-		z = absolute_height ? height : z2+height;
-		// </FS:Ansariel>
-		gGL.vertex3f(x2, y2, z);
-	}
-	else
-	{
-		F32 tex_coord1;
-		F32 tex_coord2;
-
-		if (WEST_MASK == direction)
-		{
-			tex_coord1 = y1;
-			tex_coord2 = y2;
-		}
-		else if (SOUTH_MASK == direction)
-		{
-			tex_coord1 = x1;
-			tex_coord2 = x2;
-		}
-		else if (EAST_MASK == direction)
-		{
-			tex_coord1 = y2;
-			tex_coord2 = y1;
-		}
-		else /* (NORTH_MASK == direction) */
-		{
-			tex_coord1 = x2;
-			tex_coord2 = x1;
-		}
-
-
-		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z1*0.5f);
-		gGL.vertex3f(x1, y1, z1);
-
-		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z2*0.5f);
-		gGL.vertex3f(x2, y2, z2);
-
-		// top edge stairsteps
-		// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-		//z = llmax(z2+height, z1+height);
-		z = absolute_height ? height : llmax(z2+height, z1+height);
-		// </FS:Ansariel>
-		gGL.texCoord2f(tex_coord2*0.5f+0.5f, z*0.5f);
-		gGL.vertex3f(x2, y2, z);
-
-		gGL.texCoord2f(tex_coord1*0.5f+0.5f, z*0.5f);
-		gGL.vertex3f(x1, y1, z);
-	}
-}
-
-// Used by lltoolselectland
-void LLViewerParcelMgr::renderRect(const LLVector3d &west_south_bottom_global,
-	const LLVector3d &east_north_top_global)
-{
-	LLGLSUIDefault gls_ui;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	LLGLDepthTest gls_depth(GL_TRUE);
-
-	LLVector3 west_south_bottom_agent = gAgent.getPosAgentFromGlobal(west_south_bottom_global);
-	F32 west = west_south_bottom_agent.mV[VX];
-	F32 south = west_south_bottom_agent.mV[VY];
-	//	F32 bottom	= west_south_bottom_agent.mV[VZ] - 1.f;
-
-	LLVector3 east_north_top_agent = gAgent.getPosAgentFromGlobal(east_north_top_global);
-	F32 east = east_north_top_agent.mV[VX];
-	F32 north = east_north_top_agent.mV[VY];
-	//	F32 top		= east_north_top_agent.mV[VZ] + 1.f;
-
-	// HACK: At edge of last region of world, we need to make sure the region
-	// resolves correctly so we can get a height value.
-	const F32 FUDGE = 0.01f;
-
-	F32 sw_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(west, south, 0.f));
-	F32 se_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(east - FUDGE, south, 0.f));
-	F32 ne_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(east - FUDGE, north - FUDGE, 0.f));
-	F32 nw_bottom = LLWorld::getInstance()->resolveLandHeightAgent(LLVector3(west, north - FUDGE, 0.f));
-
-	F32 sw_top = sw_bottom + PARCEL_POST_HEIGHT;
-	F32 se_top = se_bottom + PARCEL_POST_HEIGHT;
-	F32 ne_top = ne_bottom + PARCEL_POST_HEIGHT;
-	F32 nw_top = nw_bottom + PARCEL_POST_HEIGHT;
-
-	LLUI::setLineWidth(2.f);
-	gGL.color4f(1.f, 1.f, 0.f, 1.f);
-
-	// Cheat and give this the same pick-name as land
-	gGL.begin(LLRender::LINES);
-
-	gGL.vertex3f(west, north, nw_bottom);
-	gGL.vertex3f(west, north, nw_top);
-
-	gGL.vertex3f(east, north, ne_bottom);
-	gGL.vertex3f(east, north, ne_top);
-
-	gGL.vertex3f(east, south, se_bottom);
-	gGL.vertex3f(east, south, se_top);
-
-	gGL.vertex3f(west, south, sw_bottom);
-	gGL.vertex3f(west, south, sw_top);
-
-	gGL.end();
-
-	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
-	gGL.begin(LLRender::QUADS);
-
-	gGL.vertex3f(west, north, nw_bottom);
-	gGL.vertex3f(west, north, nw_top);
-	gGL.vertex3f(east, north, ne_top);
-	gGL.vertex3f(east, north, ne_bottom);
-
-	gGL.vertex3f(east, north, ne_bottom);
-	gGL.vertex3f(east, north, ne_top);
-	gGL.vertex3f(east, south, se_top);
-	gGL.vertex3f(east, south, se_bottom);
-
-	gGL.vertex3f(east, south, se_bottom);
-	gGL.vertex3f(east, south, se_top);
-	gGL.vertex3f(west, south, sw_top);
-	gGL.vertex3f(west, south, sw_bottom);
-
-	gGL.vertex3f(west, south, sw_bottom);
-	gGL.vertex3f(west, south, sw_top);
-	gGL.vertex3f(west, north, nw_top);
-	gGL.vertex3f(west, north, nw_bottom);
-
-	gGL.end();
-
-	LLUI::setLineWidth(1.f);
-}
-
-void LLViewerParcelMgr::renderHighlightSegments(const U8* segments, LLViewerRegion* regionp)
-{
-	S32 x, y;
-	F32 x1, y1;	// start point
-	F32 x2, y2;	// end point
-	bool has_segments = false;
-
-	LLGLSUIDefault gls_ui;
-	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-	// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-	//LLGLDepthTest gls_depth(GL_TRUE);
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-	LLGLDisable cull(GL_CULL_FACE);
-
-	static LLCachedControl<bool> render_parcel_selection_to_mbh(gSavedSettings, "PVTools_RenderParcelSelectionToMaxBuildHeight");
-	F32 height = render_parcel_selection_to_mbh ? MAX_OBJECT_Z + PARCEL_POST_HEIGHT : PARCEL_POST_HEIGHT;
-	// </FS:Ansariel>
-
-	gGL.color4f(1.f, 1.f, 0.f, 0.2f);
-
-	const S32 STRIDE = (mParcelsPerEdge + 1);
-
-	// Cheat and give this the same pick-name as land
-
-
-	for (y = 0; y < STRIDE; y++)
-	{
-		for (x = 0; x < STRIDE; x++)
-		{
-			U8 segment_mask = segments[x + y*STRIDE];
-
-			if (segment_mask & SOUTH_MASK)
-			{
-				x1 = x * PARCEL_GRID_STEP_METERS;
-				y1 = y * PARCEL_GRID_STEP_METERS;
-
-				x2 = x1 + PARCEL_GRID_STEP_METERS;
-				y2 = y1;
-
-				if (!has_segments)
-				{
-					has_segments = true;
-					gGL.begin(LLRender::QUADS);
-				}
-				// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-				//renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, SOUTH_MASK, regionp);
-				renderOneSegment(x1, y1, x2, y2, height, SOUTH_MASK, regionp, render_parcel_selection_to_mbh);
-				// </FS:Ansariel>
-			}
-
-			if (segment_mask & WEST_MASK)
-			{
-				x1 = x * PARCEL_GRID_STEP_METERS;
-				y1 = y * PARCEL_GRID_STEP_METERS;
-
-				x2 = x1;
-				y2 = y1 + PARCEL_GRID_STEP_METERS;
-
-				if (!has_segments)
-				{
-					has_segments = true;
-					gGL.begin(LLRender::QUADS);
-				}
-				// <FS:Ansariel> FIRE-10546: Show parcel boundary up to max. build level
-				//renderOneSegment(x1, y1, x2, y2, PARCEL_POST_HEIGHT, WEST_MASK, regionp);
-				renderOneSegment(x1, y1, x2, y2, height, WEST_MASK, regionp, render_parcel_selection_to_mbh);
-				// </FS:Ansariel>
-			}
-		}
-	}
-
-	if (has_segments)
-	{
-		gGL.end();
-	}
-}
-
-
-void LLViewerParcelMgr::renderCollisionSegments(U8* segments, BOOL use_pass, LLViewerRegion* regionp)
-{
-
-	S32 x, y;
-	F32 x1, y1;	// start point
-	F32 x2, y2;	// end point
-	F32 alpha = 0;
-	F32 dist = 0;
-	F32 dx, dy;
-	F32 collision_height;
-
-	const S32 STRIDE = (mParcelsPerEdge + 1);
-
-	LLVector3 pos = gAgent.getPositionAgent();
-
-	F32 pos_x = pos.mV[VX];
-	F32 pos_y = pos.mV[VY];
-
-	LLGLSUIDefault gls_ui;
-	LLGLDepthTest gls_depth(GL_TRUE, GL_FALSE);
-	LLGLDisable cull(GL_CULL_FACE);
-
-	if (mCollisionBanned == BA_BANNED ||
-		regionp->getRegionFlag(REGION_FLAGS_BLOCK_FLYOVER))
-	{
-		collision_height = BAN_HEIGHT;
-	}
-	else
-	{
-		collision_height = PARCEL_HEIGHT;
-	}
-
-
-	if (use_pass && (mCollisionBanned == BA_NOT_ON_LIST))
-	{
-		gGL.getTexUnit(0)->bind(mPassImage);
-	}
-	else
-	{
-		gGL.getTexUnit(0)->bind(mBlockedImage);
-	}
-
-	gGL.begin(LLRender::QUADS);
-
-	for (y = 0; y < STRIDE; y++)
-	{
-		for (x = 0; x < STRIDE; x++)
-		{
-			U8 segment_mask = segments[x + y*STRIDE];
-			U8 direction;
-			const F32 MAX_ALPHA = 0.95f;
-			const S32 DIST_OFFSET = 5;
-			const S32 MIN_DIST_SQ = DIST_OFFSET*DIST_OFFSET;
-			const S32 MAX_DIST_SQ = 169;
-
-			if (segment_mask & SOUTH_MASK)
-			{
-				x1 = x * PARCEL_GRID_STEP_METERS;
-				y1 = y * PARCEL_GRID_STEP_METERS;
-
-				x2 = x1 + PARCEL_GRID_STEP_METERS;
-				y2 = y1;
-
-				dy = (pos_y - y1) + DIST_OFFSET;
-
-				if (pos_x < x1)
-					dx = pos_x - x1;
-				else if (pos_x > x2)
-					dx = pos_x - x2;
-				else
-					dx = 0;
-
-				dist = dx*dx + dy*dy;
-
-				if (dist < MIN_DIST_SQ)
-					alpha = MAX_ALPHA;
-				else if (dist > MAX_DIST_SQ)
-					alpha = 0.0f;
-				else
-					alpha = 30 / dist;
-
-				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
-
-				gGL.color4f(1.f, 1.f, 1.f, alpha);
-
-				if ((pos_y - y1) < 0) direction = SOUTH_MASK;
-				else 		direction = NORTH_MASK;
-
-				// avoid Z fighting
-				renderOneSegment(x1 + 0.1f, y1 + 0.1f, x2 + 0.1f, y2 + 0.1f, collision_height, direction, regionp);
-
-			}
-
-			if (segment_mask & WEST_MASK)
-			{
-				x1 = x * PARCEL_GRID_STEP_METERS;
-				y1 = y * PARCEL_GRID_STEP_METERS;
-
-				x2 = x1;
-				y2 = y1 + PARCEL_GRID_STEP_METERS;
-
-				dx = (pos_x - x1) + DIST_OFFSET;
-
-				if (pos_y < y1)
-					dy = pos_y - y1;
-				else if (pos_y > y2)
-					dy = pos_y - y2;
-				else
-					dy = 0;
-
-				dist = dx*dx + dy*dy;
-
-				if (dist < MIN_DIST_SQ)
-					alpha = MAX_ALPHA;
-				else if (dist > MAX_DIST_SQ)
-					alpha = 0.0f;
-				else
-					alpha = 30 / dist;
-
-				alpha = llclamp(alpha, 0.0f, MAX_ALPHA);
-
-				gGL.color4f(1.f, 1.f, 1.f, alpha);
-
-				if ((pos_x - x1) > 0) direction = WEST_MASK;
-				else 		direction = EAST_MASK;
-
-				// avoid Z fighting
-				renderOneSegment(x1 + 0.1f, y1 + 0.1f, x2 + 0.1f, y2 + 0.1f, collision_height, direction, regionp);
-
-			}
-		}
-	}
-
-	gGL.end();
 }

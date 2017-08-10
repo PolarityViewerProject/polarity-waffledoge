@@ -56,8 +56,8 @@ public:
 
     void setContainer(LLView* container) { mViewContainer = container; }
 
-	/*virtual*/ void draw();
-	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent);
+	/*virtual*/ void draw() override;
+	/*virtual*/ void reshape(S32 width, S32 height, BOOL called_from_parent) override;
 
 	void setSize(S32 w, S32 h);
 	void setWidth(S32 w) { mWidth[mCurImageIndex] = w; }
@@ -73,25 +73,7 @@ public:
 	S32  getMaxImageSize() {return mMaxImageSize ;}
 
     LLSnapshotModel::ESnapshotType getSnapshotType() const { return mSnapshotType; }
-    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const {
-		auto fmt_str = "undefined";
-		switch (mSnapshotFormat)
-		{
-			case LLSnapshotModel::SNAPSHOT_FORMAT_PNG:
-			fmt_str = "PNG";
-			break;
-			case LLSnapshotModel::SNAPSHOT_FORMAT_JPEG:
-			fmt_str = "JPEG";
-			break;
-			case LLSnapshotModel::SNAPSHOT_FORMAT_BMP:
-			fmt_str = "BMP";
-			break;
-			default:
-			break;
-		}
-		LL_INFOS() << "Snapshot format is " << fmt_str << LL_ENDL;
-		return mSnapshotFormat;
-	}
+    LLSnapshotModel::ESnapshotFormat getSnapshotFormat() const { return mSnapshotFormat; }
 	BOOL getSnapshotUpToDate() const { return mSnapshotUpToDate; }
 	BOOL isSnapshotActive() { return mSnapshotActive; }
 	LLViewerTexture* getThumbnailImage() const { return mThumbnailImage ; }
@@ -118,11 +100,7 @@ public:
     std::string  getFilter() const { return mFilterName; }
 	void updateSnapshot(BOOL new_snapshot, BOOL new_thumbnail = FALSE, F32 delay = 0.f);
     void saveTexture(BOOL outfit_snapshot = FALSE, std::string name = "");
-	// <FS:Ansariel> Threaded filepickers
-	//BOOL saveLocal();
-	void saveLocal(boost::function<void(bool)> callback);
-	void saveLocalCallback(bool success, boost::function<void(bool)> callback);
-	// </FS:Ansariel>
+	BOOL saveLocal();
 
 	LLPointer<LLImageFormatted>	getFormattedImage();
 	LLPointer<LLImageRaw>		getEncodedImage();
@@ -131,8 +109,9 @@ public:
 	void setThumbnailPlaceholderRect(const LLRect& rect) {mThumbnailPlaceholderRect = rect; }
 	BOOL setThumbnailImageSize() ;
 	void generateThumbnailImage(BOOL force_update = FALSE) ;
-	void resetThumbnailImage() { mThumbnailImage = NULL ; }
+	void resetThumbnailImage() { mThumbnailImage = nullptr ; }
 	void drawPreviewRect(S32 offset_x, S32 offset_y) ;
+	void prepareFreezeFrame();
     
 	LLViewerTexture* getBigThumbnailImage();
 	S32  getBigThumbnailWidth() const { return mBigThumbnailWidth ; }

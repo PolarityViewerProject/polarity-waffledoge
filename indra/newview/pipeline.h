@@ -97,9 +97,6 @@ public:
 	LLPipeline();
 	~LLPipeline();
 
-//	//BD - Shadow Map Allocation
-	bool allocateShadowMaps(const U32 shadow_detail = 0, const bool force_allocate = false);
-
 	void destroyGL();
 	void restoreGL();
 	void resetVertexBuffers();
@@ -147,11 +144,11 @@ public:
 
 	/// @brief Get a draw pool from pool type (POOL_SIMPLE, POOL_MEDIA) and texture.
 	/// @return Draw pool, or NULL if not found.
-	LLDrawPool *findPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
+	LLDrawPool *findPool(const U32 pool_type, LLViewerTexture *tex0 = nullptr);
 
 	/// @brief Get a draw pool for faces of the appropriate type and texture.  Create if necessary.
 	/// @return Always returns a draw pool.
-	LLDrawPool *getPool(const U32 pool_type, LLViewerTexture *tex0 = NULL);
+	LLDrawPool *getPool(const U32 pool_type, LLViewerTexture *tex0 = nullptr);
 
 	/// @brief Figures out draw pool type from texture entry. Creates pool if necessary.
 	static LLDrawPool* getPoolFromTE(const LLTextureEntry* te, LLViewerTexture* te_image);
@@ -186,10 +183,10 @@ public:
 												BOOL pick_transparent,
 												BOOL pick_rigged,
 												S32* face_hit,                          // return the face hit
-												LLVector4a* intersection = NULL,         // return the intersection point
-												LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-												LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-												LLVector4a* tangent = NULL             // return the surface tangent at the intersection point  
+												LLVector4a* intersection = nullptr,         // return the intersection point
+												LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+												LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+												LLVector4a* tangent = nullptr             // return the surface tangent at the intersection point  
 		);
 
 	//get the closest particle to start between start and end, returns the LLVOPartGroup and particle index
@@ -200,10 +197,10 @@ public:
 	LLViewerObject* lineSegmentIntersectInHUD(const LLVector4a& start, const LLVector4a& end,
 											  BOOL pick_transparent,
 											  S32* face_hit,                          // return the face hit
-											  LLVector4a* intersection = NULL,         // return the intersection point
-											  LLVector2* tex_coord = NULL,            // return the texture coordinates of the intersection point
-											  LLVector4a* normal = NULL,               // return the surface normal at the intersection point
-											  LLVector4a* tangent = NULL             // return the surface tangent at the intersection point
+											  LLVector4a* intersection = nullptr,         // return the intersection point
+											  LLVector2* tex_coord = nullptr,            // return the texture coordinates of the intersection point
+											  LLVector4a* normal = nullptr,               // return the surface normal at the intersection point
+											  LLVector4a* tangent = nullptr             // return the surface tangent at the intersection point
 		);
 
 	// Something about these textures has changed.  Dirty them.
@@ -226,10 +223,7 @@ public:
 	BOOL		canUseVertexShaders();
 	BOOL		canUseWindLightShaders() const;
 	BOOL		canUseWindLightShadersOnObjects() const;
-
-#ifdef AA_CHECK_IS_FUNCTION
 	BOOL		canUseAntiAliasing() const;
-#endif // #ifdef AA_CHECK_IS_FUNCTION
 
 	// phases
 	void resetFrameStats();
@@ -241,7 +235,7 @@ public:
 	BOOL visibleObjectsInFrustum(LLCamera& camera);
 	BOOL getVisibleExtents(LLCamera& camera, LLVector3 &min, LLVector3& max);
 	BOOL getVisiblePointCloud(LLCamera& camera, LLVector3 &min, LLVector3& max, std::vector<LLVector3>& fp, LLVector3 light_dir = LLVector3(0,0,0));
-	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = NULL);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
+	void updateCull(LLCamera& camera, LLCullResult& result, S32 water_clip = 0, LLPlane* plane = nullptr);  //if water_clip is 0, ignore water plane, 1, cull to above plane, -1, cull to below plane
 	void createObjects(F32 max_dtime);
 	void createObject(LLViewerObject* vobj);
 	void processPartitionQ();
@@ -282,10 +276,10 @@ public:
 	void renderGeomDeferred(LLCamera& camera);
 	void renderGeomPostDeferred(LLCamera& camera, bool do_occlusion=true);
 	void renderGeomShadow(LLCamera& camera);
-	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
+	void bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = nullptr, LLRenderTarget* light_source = nullptr);
 	void setupSpotLight(LLGLSLShader& shader, LLDrawable* drawablep);
 
-	void unbindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = NULL, LLRenderTarget* light_source = NULL);
+	void unbindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffuse_source = nullptr, LLRenderTarget* light_source = nullptr);
 	void renderDeferredLighting();
 	void renderDeferredLightingToRT(LLRenderTarget* target);
 	
@@ -428,6 +422,8 @@ private:
 	void connectRefreshCachedSettingsSafe(const std::string& name);
 	void hideDrawable( LLDrawable *pDrawable );
 	void unhideDrawable( LLDrawable *pDrawable );
+
+	void drawFullScreenRect();
 public:
 	enum {GPU_CLASS_MAX = 3 };
 
@@ -569,7 +565,6 @@ public:
 	static BOOL				sAutoMaskAlphaNonDeferred;
 	static BOOL				sDisableShaders; // if TRUE, rendering will be done without shaders
 	static BOOL				sRenderBump;
-	static BOOL				sBakeSunlight;
 	static BOOL				sNoAlpha;
 	static BOOL				sUseTriStrips;
 	static BOOL				sUseFarClip;
@@ -592,12 +587,6 @@ public:
 	static F32				sMinRenderSize;
 	static BOOL				sRenderingHUDs;
 
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-	static bool				sRenderTextures;
-// [/SL:KB]
-
-	static bool			sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
-
 	static LLTrace::EventStatHandle<S64> sStatBatchSize;
 
 	//screen texture
@@ -610,12 +599,13 @@ public:
 	LLRenderTarget			mDeferredScreen;
 	LLRenderTarget			mFXAABuffer;
 	LLRenderTarget			mDeferredDepth;
+	LLRenderTarget			mDeferredDownsampledDepth;
 	LLRenderTarget			mDeferredLight;
 	LLRenderTarget			mHighlight;
 	LLRenderTarget			mPhysicsDisplay;
 
 	//utility buffer for rendering post effects, gets abused by renderDeferredLighting
-	LLPointer<LLVertexBuffer> mDeferredVB;
+	LLPointer<LLVertexBuffer> mAuxScreenRectVB;
 
 	//utility buffer for rendering cubes, 8 vertices are corners of a cube [-1, 1]
 	LLPointer<LLVertexBuffer> mCubeVB;
@@ -639,7 +629,6 @@ public:
 	LLVector4				mSunClipPlanes;
 	LLVector4				mSunOrthoClipPlanes;
 
-	LLVector2				mScreenScale;
 
 	//water reflection texture
 	LLRenderTarget				mWaterRef;
@@ -648,11 +637,10 @@ public:
 	LLRenderTarget				mWaterDis;
 
 	//texture for making the glow
-	LLRenderTarget				mGlow[3];
+	LLRenderTarget				mGlow[2];
 
 	//noise map
 	U32					mNoiseMap;
-	U32					mTrueNoiseMap;
 	U32					mLightFunc;
 
 	LLColor4				mSunDiffuse;
@@ -726,10 +714,7 @@ protected:
 	LLSpatialGroup::sg_vector_t		mMeshDirtyGroup; //groups that need rebuildMesh called
 	U32 mMeshDirtyQueryObject;
 
-	// <FS:ND> A vector is much better suited for the use case of mPartitionQ
-	// LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
-	LLDrawable::drawable_vector_t	mPartitionQ; //drawables that need to update their spatial partition radius 
-	// </FS:ND>
+	LLDrawable::drawable_list_t		mPartitionQ; //drawables that need to update their spatial partition radius 
 
 	bool mGroupQ2Locked;
 	bool mGroupQ1Locked;
@@ -813,7 +798,6 @@ protected:
 	LLRenderPass*				mAlphaMaskPool;
 	LLRenderPass*				mFullbrightAlphaMaskPool;
 	LLRenderPass*				mFullbrightPool;
-	LLDrawPool*					mInvisiblePool;
 	LLDrawPool*					mGlowPool;
 	LLDrawPool*					mBumpPool;
 	LLDrawPool*					mMaterialsPool;
@@ -866,9 +850,6 @@ public:
 	//debug use
 	static U32              sCurRenderPoolType ;
 
-	//BD
-	LLVector3 PrevDoFFocusPoint;
-
 	//cached settings
 	static BOOL WindLightUseAtmosShaders;
 	static BOOL VertexShaderEnable;
@@ -880,6 +861,7 @@ public:
 	static BOOL RenderUIBuffer;
 	static S32 RenderShadowDetail;
 	static BOOL RenderDeferredSSAO;
+	static F32 RenderDeferredSSAOResolutionScale;
 	static F32 RenderShadowResolutionScale;
 	static BOOL RenderLocalLights;
 	static BOOL RenderDelayCreation;
@@ -905,11 +887,12 @@ public:
 	static F32 RenderGlowWarmthAmount;
 	static LLVector3 RenderGlowLumWeights;
 	static LLVector3 RenderGlowWarmthWeights;
-	static S32 RenderGlowResolutionPow; // <polarity/>
+	static S32 RenderGlowResolutionPow;
 	static S32 RenderGlowIterations;
 	static F32 RenderGlowWidth;
 	static F32 RenderGlowStrength;
 	static BOOL RenderDepthOfField;
+	static BOOL RenderDepthOfFieldInEditMode;
 	static F32 CameraFocusTransitionTime;
 	static F32 CameraFNumber;
 	static F32 CameraFocalLength;
@@ -935,6 +918,7 @@ public:
 	static F32 RenderHighlightFadeTime;
 	static LLVector3 RenderShadowClipPlanes;
 	static LLVector3 RenderShadowOrthoClipPlanes;
+	static LLVector3 RenderShadowNearDist;
 	static F32 RenderFarClip;
 	static LLVector3 RenderShadowSplitExponent;
 	static F32 RenderShadowErrorCutoff;
@@ -943,6 +927,10 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
+
+	static BOOL RenderDeferredAlwaysSoftenShadows;
+	static BOOL RenderAggressiveBatching;
+	static BOOL RenderDeferredFullbright;
 
 //	//BD - Special Options
 	static BOOL CameraFreeDoFFocus;
@@ -956,7 +944,6 @@ public:
 	// </polarity>
 };
 
-void render_bbox(const LLVector3 &min, const LLVector3 &max);
 void render_hud_elements();
 
 extern LLPipeline gPipeline;

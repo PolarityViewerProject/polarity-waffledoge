@@ -58,11 +58,6 @@ enum ECameraPreset
 	/** "Above and to the left, over the shoulder, pulled back a little on the zoom" */
 	CAMERA_PRESET_GROUP_VIEW,
 
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	/* Used by RLVa */
-	CAMERA_RLV_SETCAM_VIEW,
-// [/RLVa:KB]
-
 /** "To the right of the Avatar, jaw height, facing forward and relatively close to the shoulder.
 	More "Cinematic" view and doesn't get in the way of the scenery as much as Rear view does.*/
 	CAMERA_PRESET_SHOULDER_VIEW,
@@ -121,10 +116,10 @@ private:
 	//--------------------------------------------------------------------
 public:
 	void switchCameraPreset(ECameraPreset preset);
-//private:
+private:
 	/** Determines default camera offset depending on the current camera preset */
 	LLVector3 getCameraOffsetInitial();
-private:
+
 	/** Camera preset in Third Person Mode */
 	ECameraPreset mCameraPreset; 
 
@@ -211,9 +206,9 @@ public:
 	void			updateFocusOffset();
 	void			validateFocusObject();
 	void			setFocusGlobal(const LLPickInfo& pick);
-	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null, const bool animate = true); // <polarity/> Allow setting camera focus without animation
+	void			setFocusGlobal(const LLVector3d &focus, const LLUUID &object_id = LLUUID::null);
 	void			setFocusOnAvatar(BOOL focus, BOOL animate);
-	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id, const bool animate = true); // <polarity/> Allow moving camera without animation
+	void			setCameraPosAndFocusGlobal(const LLVector3d& pos, const LLVector3d& focus, const LLUUID &object_id);
 	void			clearFocusObject();
 	void			setFocusObject(LLViewerObject* object);
 	void			setAllowChangeToFollow(BOOL focus) 	{ mAllowChangeToFollow = focus; }
@@ -309,18 +304,6 @@ public:
 	F32				mHUDTargetZoom;	// Target zoom level for HUD objects (used when editing)
 	F32				mHUDCurZoom; 	// Current animated zoom level for HUD objects
 
-// [RLVa:KB] - Checked: RLVa-2.0.0
-	//--------------------------------------------------------------------
-	// RLVa
-	//--------------------------------------------------------------------
-protected:
-	bool allowFocusOffsetChange(const LLVector3d& offsetFocus);
-	bool clampCameraPosition(LLVector3d& posCamGlobal, const LLVector3d posCamRefGlobal, float nDistMin, float nDistMax);
-
-	bool m_fRlvMaxDist;				// True if the camera is at max distance
-	bool m_fRlvMinDist;				// True if the camera is at min distance
-	LLVector3d m_posRlvRefGlobal;		// Current reference point for distance calculations
-// [/RLVa:KB]
 
 /********************************************************************************
  **                                                                            **

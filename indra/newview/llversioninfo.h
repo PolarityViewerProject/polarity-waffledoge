@@ -28,8 +28,6 @@
 #ifndef LL_LLVERSIONINFO_H
 #define LL_LLVERSIONINFO_H
 
-#include "stdtypes.h"
-
 ///
 /// This API provides version information for the viewer.  This
 /// includes access to the major, minor, patch, and build integer
@@ -59,7 +57,7 @@ public:
 	static const std::string &getShortVersion();
 
 	/// return the viewer version and channel as a string
-	/// like "Polarity Release 2.0.0.200030"
+	/// like "Second Life Release 2.0.0.200030"
 	static const std::string &getChannelAndVersion();
 
 	// <polarity> PVData

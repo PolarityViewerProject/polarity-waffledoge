@@ -265,14 +265,10 @@ source_group("Third Party/Firestorm" FILES
 
 set(obsidian_HEADER_FILES
     oschatcommand.h
-    ospanelquicksettings.h
-    ospanelquicksettingspulldown.h
     # osscriptruntimeperms.h
     )
 set(obsidian_SOURCE_FILES
     oschatcommand.cpp
-    ospanelquicksettings.cpp
-    ospanelquicksettingspulldown.cpp
     )
 source_group("Third Party/Obsidian" FILES
     ${obsidian_HEADER_FILES}

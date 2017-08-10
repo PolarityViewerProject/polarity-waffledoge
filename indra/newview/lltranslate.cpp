@@ -154,7 +154,7 @@ void LLTranslationAPIHandler::verifyKeyCoro(LLTranslate::EService service, std::
     if (!status)
         bOk = false;
 
-    if (!fnc.empty())
+    if (fnc != nullptr)
         fnc(service, bOk);
 }
 
@@ -208,7 +208,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         LLStringUtil::replaceString(translation, "&amp;", "&");
         LLStringUtil::replaceString(translation, "&apos;", "'");
 
-        if (!success.empty())
+        if (success != nullptr)
             success(translation, detected_lang);
     }
     else
@@ -219,7 +219,7 @@ void LLTranslationAPIHandler::translateMessageCoro(LanguagePair_t fromTo, std::s
         }
 
         LL_WARNS() << "Translation request failed: " << err_msg << LL_ENDL;
-        if (!failure.empty())
+        if (failure != nullptr)
             failure(status, err_msg);
     }
 
@@ -236,18 +236,18 @@ public:
     /*virtual*/ std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
-        const std::string &text) const;
+        const std::string &text) const override;
     /*virtual*/ std::string getKeyVerificationURL(
-        const std::string &key) const;
+        const std::string &key) const override;
     /*virtual*/ bool parseResponse(
         int& status,
         const std::string& body,
         std::string& translation,
         std::string& detected_lang,
-        std::string& err_msg) const;
-    /*virtual*/ bool isConfigured() const;
+        std::string& err_msg) const override;
+    /*virtual*/ bool isConfigured() const override;
 
-    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc) override;
 
 private:
     static void parseErrorResponse(
@@ -398,18 +398,18 @@ public:
     /*virtual*/ std::string getTranslateURL(
         const std::string &from_lang,
         const std::string &to_lang,
-        const std::string &text) const;
+        const std::string &text) const override;
     /*virtual*/ std::string getKeyVerificationURL(
-        const std::string &key) const;
+        const std::string &key) const override;
     /*virtual*/ bool parseResponse(
         int& status,
         const std::string& body,
         std::string& translation,
         std::string& detected_lang,
-        std::string& err_msg) const;
-    /*virtual*/ bool isConfigured() const;
+        std::string& err_msg) const override;
+    /*virtual*/ bool isConfigured() const override;
 
-    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc);
+    /*virtual*/ void verifyKey(const std::string &key, LLTranslate::KeyVerificationResult_fn fnc) override;
 private:
     static std::string getAPIKey();
     static std::string getAPILanguageCode(const std::string& lang);

@@ -62,7 +62,7 @@ const S32 MAX_TEXTURE_SIZE = 1024 ; //max upload texture size 512 * 512 // <alch
 
 static LLDefaultChildRegistry::Register<LLSnapshotFloaterView> r("snapshot_floater_view");
 
-constexpr S32 minimum_texture_size = 64;
+constexpr S32 minimum_texture_size = 64; // <polarity/>
 
 // virtual
 LLPanelSnapshot* LLFloaterSnapshot::Impl::getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found)
@@ -192,6 +192,66 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 	{
 		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
 	}
+
+	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
+
+	if (use_freeze_frame)
+	{
+		// stop all mouse events at fullscreen preview layer
+		floaterp->getParent()->setMouseOpaque(TRUE);
+		
+		// shrink to smaller layout
+		// *TODO: unneeded?
+		floaterp->reshape(floaterp->getRect().getWidth(), floaterp->getRect().getHeight());
+
+		// can see and interact with fullscreen preview now
+		if (previewp)
+		{
+			previewp->setVisible(TRUE);
+			previewp->setEnabled(TRUE);
+		}
+
+		//RN: freeze all avatars
+		LLCharacter* avatarp;
+		for (std::vector<LLCharacter*>::iterator iter = LLCharacter::sInstances.begin();
+			iter != LLCharacter::sInstances.end(); ++iter)
+		{
+			avatarp = *iter;
+			floaterp->impl->mAvatarPauseHandles.push_back(avatarp->requestPause());
+		}
+
+		// freeze everything else
+		gSavedSettings.setBOOL("FreezeTime", TRUE);
+
+		if (LLToolMgr::getInstance()->getCurrentToolset() != gCameraToolset)
+		{
+			floaterp->impl->mLastToolset = LLToolMgr::getInstance()->getCurrentToolset();
+			LLToolMgr::getInstance()->setCurrentToolset(gCameraToolset);
+		}
+	}
+	else // turning off freeze frame mode
+	{
+		floaterp->getParent()->setMouseOpaque(FALSE);
+		// *TODO: unneeded?
+		floaterp->reshape(floaterp->getRect().getWidth(), floaterp->getRect().getHeight());
+		if (previewp)
+		{
+			previewp->setVisible(FALSE);
+			previewp->setEnabled(FALSE);
+		}
+
+		//RN: thaw all avatars
+		floaterp->impl->mAvatarPauseHandles.clear();
+
+		// thaw everything else
+		gSavedSettings.setBOOL("FreezeTime", FALSE);
+
+		// restore last tool (e.g. pie menu, etc)
+		if (floaterp->impl->mLastToolset)
+		{
+			LLToolMgr::getInstance()->setCurrentToolset(floaterp->impl->mLastToolset);
+		}
+	}
 }
 
 // This is the main function that keeps all the GUI controls in sync with the saved settings.
@@ -277,8 +337,8 @@ void LLFloaterSnapshot::Impl::updateControls(LLFloaterSnapshotBase* floater)
 		}
 		else
 		{
-			width_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
-			height_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize);
+			width_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize); // <polarity/>
+			height_ctrl->setMaxValue(gGLManager.mGLMaxTextureSize); // <polarity/>
 		}
 	}
 		
@@ -644,9 +704,10 @@ void LLFloaterSnapshot::Impl::setFinished(bool finished, bool ok, const std::str
 		std::string result_text = mFloater->getString(msg + "_" + (ok ? "succeeded_str" : "failed_str"));
 		finished_lbl->setValue(result_text);
 
-		LLSideTrayPanelContainer* panel_container = mFloater->getChild<LLSideTrayPanelContainer>("panel_container");
-		panel_container->openPreviousPanel();
-		panel_container->getCurrentPanel()->onOpen(LLSD());
+		// <polarity> Do not automatically go back to the previous panel
+		//LLSideTrayPanelContainer* panel_container = mFloater->getChild<LLSideTrayPanelContainer>("panel_container");
+		//panel_container->openPreviousPanel();
+		//panel_container->getCurrentPanel()->onOpen(LLSD());
 	}
 }
 

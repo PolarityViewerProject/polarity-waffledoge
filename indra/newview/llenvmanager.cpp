@@ -37,10 +37,7 @@
 #include "llwaterparammanager.h"
 #include "llwlhandlers.h"
 #include "llwlparammanager.h"
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-#include <boost/algorithm/string.hpp>
-#include "rlvhandler.h"
-// [/RLVa:KB]
+
 #include "kcwlinterface.h"
 
 std::string LLEnvPrefs::getWaterPresetName() const
@@ -242,7 +239,7 @@ bool LLEnvManagerNew::useDayCycle(const std::string& name, LLEnvKey::EScope scop
 
 		if (!LLDayCycleManager::instance().getPreset(name, params))
 		{
-			LL_WARNS("Windlight") << "No day cycle named " << name << LL_ENDL;
+			LL_WARNS() << "No day cycle named " << name << LL_ENDL;
 			return false;
 		}
 	}
@@ -499,10 +496,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	if (!KCWindlightInterface::instance().haveParcelOverride(new_settings))
 	{
 		// If using server settings, update managers.
-//	if (getUseRegionSettings())
-// [RLVa:KB] - Checked: 2011-08-29 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
 	if ( (getUseRegionSettings()) && (LLWLParamManager::getInstance()->mAnimator.getIsRunning()) )
-// [/RLVa:KB]
 		{
 			LL_DEBUGS("Windlight") << "Updating WL managers from prefs" << LL_ENDL;
 			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
@@ -646,13 +640,6 @@ void LLEnvManagerNew::updateWaterFromPrefs(bool interpolate)
 void LLEnvManagerNew::updateManagersFromPrefs(bool interpolate)
 {
 	LL_DEBUGS("Windlight")<<LL_ENDL;
-// [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-	{
-		return;
-	}
-// [/RLVa:KB]
-
 	// Apply water settings.
 	updateWaterFromPrefs(interpolate);
 

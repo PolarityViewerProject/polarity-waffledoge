@@ -37,7 +37,6 @@
 #include "v3math.h"
 #include "v3dmath.h"
 #include "lldrawpool.h"		// TODO: eliminate, unused below
-#include <list>
 
 class LLViewerCamera;
 class LLFontGL;
@@ -75,10 +74,6 @@ public:
 	static void reshapeAll();
 
 	static void cleanupHUDObjects();
-
-	// Used to clean up the dirty viewer effect spam that can occur.
-	// This includes: LOOKAT, POINTAT, SPIRAL, POINT, EDIT, BEAM, SPHERE
-	static void markViewerEffectsDead();
 
 	enum
 	{
@@ -122,6 +117,12 @@ protected:
 private:
 	typedef std::list<LLPointer<LLHUDObject> > hud_object_list_t;
 	static hud_object_list_t sHUDObjects;
+	// <Alchemy>
+public:
+	// Used to clean up the dirty viewer effect spam that can occur.
+	// This includes: LOOKAT, POINTAT, SPIRAL, POINT, EDIT, BEAM, SPHERE
+	static void markViewerEffectsDead();
+	// </Alchemy>
 };
 
 #endif // LL_LLHUDOBJECT_H

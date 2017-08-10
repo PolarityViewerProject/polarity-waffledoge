@@ -30,6 +30,8 @@
 #include "lltoastnotifypanel.h"
 #include "llnotificationptr.h"
 
+class LLTextBox;
+
 /**
  * Toast panel for scripted llTextbox notifications.
  */
@@ -48,9 +50,12 @@ public:
 
 private:
 
+	LLTextBox* mInfoText;
+
 	void onClickSubmit();
 	void onClickIgnore();
 
+	void snapToMessageHeight();
 	static const S32 DEFAULT_MESSAGE_MAX_LINE_COUNT;
 };
 

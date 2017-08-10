@@ -57,18 +57,18 @@ class LLPanelSnapshotPostcard
 
 public:
 	LLPanelSnapshotPostcard();
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void onOpen(const LLSD& key);
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void onOpen(const LLSD& key) override;
 
 private:
-	/*virtual*/ std::string getWidthSpinnerName() const		{ return "postcard_snapshot_width"; }
-	/*virtual*/ std::string getHeightSpinnerName() const	{ return "postcard_snapshot_height"; }
-	/*virtual*/ std::string getAspectRatioCBName() const	{ return "postcard_keep_aspect_check"; }
-	/*virtual*/ std::string getImageSizeComboName() const	{ return "postcard_size_combo"; }
-	/*virtual*/ std::string getImageSizePanelName() const	{ return "postcard_image_size_lp"; }
-	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
-	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType();
-	/*virtual*/ void updateControls(const LLSD& info);
+	/*virtual*/ std::string getWidthSpinnerName() const override { return "postcard_snapshot_width"; }
+	/*virtual*/ std::string getHeightSpinnerName() const override { return "postcard_snapshot_height"; }
+	/*virtual*/ std::string getAspectRatioCBName() const override { return "postcard_keep_aspect_check"; }
+	/*virtual*/ std::string getImageSizeComboName() const override { return "postcard_size_combo"; }
+	/*virtual*/ std::string getImageSizePanelName() const override { return "postcard_image_size_lp"; }
+	/*virtual*/ LLSnapshotModel::ESnapshotFormat getImageFormat() const override { return LLSnapshotModel::SNAPSHOT_FORMAT_JPEG; }
+	/*virtual*/ LLSnapshotModel::ESnapshotType getSnapshotType() override;
+	/*virtual*/ void updateControls(const LLSD& info) override;
 
 	bool missingSubjMsgAlertCallback(const LLSD& notification, const LLSD& response);
 	static void sendPostcardFinished(LLSD result);
@@ -108,6 +108,14 @@ BOOL LLPanelSnapshotPostcard::postBuild()
 // virtual
 void LLPanelSnapshotPostcard::onOpen(const LLSD& key)
 {
+	LLUICtrl* name_form = getChild<LLUICtrl>("name_form");
+	if (name_form && name_form->getValue().asString().empty())
+	{
+		std::string name_string;
+		LLAgentUI::buildFullname(name_string);
+		getChild<LLUICtrl>("name_form")->setValue(LLSD(name_string));
+	}
+
 	LLPanelSnapshot::onOpen(key);
 }
 

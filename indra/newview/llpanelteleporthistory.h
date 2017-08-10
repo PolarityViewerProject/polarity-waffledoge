@@ -28,11 +28,8 @@
 #ifndef LL_LLPANELTELEPORTHISTORY_H
 #define LL_LLPANELTELEPORTHISTORY_H
 
-#include "lluictrlfactory.h"
-
 #include "llpanelplacestab.h"
 #include "llteleporthistory.h"
-#include "llmenugl.h"
 
 class LLTeleportHistoryStorage;
 class LLAccordionCtrl;
@@ -48,33 +45,34 @@ public:
 	{
 	public:
 		ContextMenu();
+		~ContextMenu();
 		void show(LLView* spawning_view, S32 index, S32 x, S32 y);
 
 	private:
-		LLContextMenu* createMenu();
+		LLHandle<LLContextMenu> createMenu();
 		void onTeleport();
 		void onInfo();
 		void onCopyToClipboard();
 
 		static void gotSLURLCallback(const std::string& slurl);
 
-		LLContextMenu* mMenu;
+		LLHandle<LLContextMenu> mMenuHandle;
 		S32 mIndex;
 	};
 
 	LLTeleportHistoryPanel();
 	virtual ~LLTeleportHistoryPanel();
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void draw() override;
 
-	/*virtual*/ void onSearchEdit(const std::string& string);
-	/*virtual*/ void onShowOnMap();
-	/*virtual*/ void onShowProfile();
-	/*virtual*/ void onTeleport();
+	/*virtual*/ void onSearchEdit(const std::string& string) override;
+	/*virtual*/ void onShowOnMap() override;
+	/*virtual*/ void onShowProfile() override;
+	/*virtual*/ void onTeleport() override;
 	///*virtual*/ void onCopySLURL();
-	/*virtual*/ void updateVerbs();
-	/*virtual*/ bool isSingleItemSelected();
+	/*virtual*/ void updateVerbs() override;
+	/*virtual*/ bool isSingleItemSelected() override;
 
 private:
 
@@ -88,7 +86,7 @@ private:
 	void onClearTeleportHistory();
 	bool onClearTeleportHistoryDialog(const LLSD& notification, const LLSD& response);
 
-	void refresh();
+	void refresh() override;
 	void getNextTab(const LLDate& item_date, S32& curr_tab, LLDate& tab_date);
 	void onTeleportHistoryChange(S32 removed_index);
 	void replaceItem(S32 removed_index);
@@ -116,7 +114,7 @@ private:
 	item_containers_t mItemContainers;
 
 	ContextMenu mContextMenu;
-	LLContextMenu*			mAccordionTabMenu;
+	LLHandle<LLContextMenu>	mAccordionTabMenuHandle;
 	LLHandle<LLView>		mGearMenuHandle;
 	LLMenuButton*			mMenuGearButton;
 

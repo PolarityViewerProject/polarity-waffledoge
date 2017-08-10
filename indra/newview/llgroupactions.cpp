@@ -35,25 +35,22 @@
 
 #include "llagent.h"
 #include "llcommandhandler.h"
+#include "llclipboard.h"
 #include "llfloaterreg.h"
+#include "llfloatergroupprofile.h"
 #include "llfloatersidepanelcontainer.h"
 #include "llgroupmgr.h"
 #include "llfloaterimcontainer.h"
 #include "llimview.h" // for gIMMgr
 #include "llnotificationsutil.h"
+#include "llpanelgroup.h"
+#include "llslurl.h"
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "groupchatlistener.h"
 
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
-
-// [RLVa:KB] - Checked: 2011-03-28 (RLVa-1.3.0)
-#include "llslurl.h"
-#include "rlvactions.h"
-#include "rlvcommon.h"
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 //
 // Globals
@@ -66,7 +63,7 @@ public:
 	// requires trusted browser to trigger
 	LLGroupHandler() : LLCommandHandler("group", UNTRUSTED_THROTTLE) { }
 	bool handle(const LLSD& tokens, const LLSD& query_map,
-				LLMediaCtrl* web)
+				LLMediaCtrl* web) override
 	{
 		if (!LLUI::sSettingGroups["config"]->getBOOL("EnableGroupInfo"))
 		{
@@ -135,9 +132,9 @@ class LLFetchGroupMemberData : public LLGroupMgrObserver
 {
 public:
 	LLFetchGroupMemberData(const LLUUID& group_id) : 
+		LLGroupMgrObserver(group_id),
 		mGroupId(group_id),
-		mRequestProcessed(false),
-		LLGroupMgrObserver(group_id) 
+		mRequestProcessed(false) 
 	{
 		LL_INFOS() << "Sending new group member request for group_id: "<< group_id << LL_ENDL;
 		LLGroupMgr* mgr = LLGroupMgr::getInstance();
@@ -160,7 +157,7 @@ public:
 		LLGroupMgr::getInstance()->removeObserver(this);
 	}
 
-	void changed(LLGroupChange gc)
+	void changed(LLGroupChange gc) override
 	{
 		if (gc == GC_PROPERTIES && !mRequestProcessed)
 		{
@@ -178,7 +175,7 @@ public:
 		}
 	}
 
-	LLUUID getGroupId() { return mGroupId; }
+	LLUUID getGroupId() const { return mGroupId; }
 	virtual void processGroupData() = 0;
 protected:
 	LLUUID mGroupId;
@@ -192,13 +189,13 @@ public:
 	 LLFetchLeaveGroupData(const LLUUID& group_id)
 		 : LLFetchGroupMemberData(group_id)
 	 {}
-	 void processGroupData()
+	 void processGroupData() override
 	 {
 		 LLGroupActions::processLeaveGroupDataResponse(mGroupId);
 	 }
 };
 
-LLFetchLeaveGroupData* gFetchLeaveGroupData = NULL;
+LLFetchLeaveGroupData* gFetchLeaveGroupData = nullptr;
 
 // static
 void LLGroupActions::search()
@@ -217,15 +214,6 @@ void LLGroupActions::startCall(const LLUUID& group_id)
 		LL_WARNS() << "Error getting group data" << LL_ENDL;
 		return;
 	}
-
-// [RLVa:KB] - Checked: 2013-05-09 (RLVa-1.4.9)
-	if (!RlvActions::canStartIM(group_id))
-	{
-		make_ui_sound("UISndInvalidOp");
-		RlvUtil::notifyBlocked(RLV_STRING_BLOCKED_STARTIM, LLSD().with("RECIPIENT", LLSLURL("group", group_id, "about").getSLURLString()));
-		return;
-	}
-// [/RLVa:KB]
 
 	LLUUID session_id = gIMMgr->addSession(gdata.mName, IM_SESSION_GROUP_START, group_id, true);
 	if (session_id == LLUUID::null)
@@ -257,7 +245,6 @@ void LLGroupActions::join(const LLUUID& group_id)
 			// PLVR TODO: Show notification or something.
 			return; // abort, do not join
 		}
-
 	}
 #endif
 
@@ -312,10 +299,7 @@ bool LLGroupActions::onJoinGroup(const LLSD& notification, const LLSD& response)
 // static
 void LLGroupActions::leave(const LLUUID& group_id)
 {
-//	if (group_id.isNull())
-// [RLVa:KB] - Checked: RLVa-1.3.0
-	if ( (group_id.isNull()) || ((gAgent.getGroupID() == group_id) && (!RlvActions::canChangeActiveGroup())) )
-// [/RLVa:KB]
+	if (group_id.isNull())
 	{
 		return;
 	}
@@ -326,10 +310,10 @@ void LLGroupActions::leave(const LLUUID& group_id)
 		LLGroupMgrGroupData* gdatap = LLGroupMgr::getInstance()->getGroupData(group_id);
 		if (!gdatap || !gdatap->isMemberDataComplete())
 		{
-			if (gFetchLeaveGroupData != NULL)
+			if (gFetchLeaveGroupData != nullptr)
 			{
 				delete gFetchLeaveGroupData;
-				gFetchLeaveGroupData = NULL;
+				gFetchLeaveGroupData = nullptr;
 			}
 			gFetchLeaveGroupData = new LLFetchLeaveGroupData(group_id);
 		}
@@ -367,13 +351,6 @@ void LLGroupActions::processLeaveGroupDataResponse(const LLUUID group_id)
 // static
 void LLGroupActions::activate(const LLUUID& group_id)
 {
-// [RLVa:KB] - Checked: RLVa-1.3.0
-	if ( (!RlvActions::canChangeActiveGroup()) && (gRlvHandler.getAgentGroup() != group_id) )
-	{
-		return;
-	}
-// [/RLVa:KB]
-
 	LLMessageSystem* msg = gMessageSystem;
 	msg->newMessageFast(_PREHASH_ActivateGroup);
 	msg->nextBlockFast(_PREHASH_AgentData);
@@ -383,15 +360,13 @@ void LLGroupActions::activate(const LLUUID& group_id)
 	gAgent.sendReliableMessage();
 }
 
-static bool isGroupUIVisible()
+#if 0 // this isn't used!!!! <alchemy>
+static bool isGroupUIVisible(const LLUUID& group_id)
 {
-	static LLPanel* panel = 0;
-	if(!panel)
-		panel = LLFloaterSidePanelContainer::getPanel("people", "panel_group_info_sidetray");
-	if(!panel)
-		return false;
-	return panel->isInVisibleChain();
+	auto* floaterp = LLFloaterReg::findInstance("group_profile", LLSD(group_id));
+	return LLFloater::isVisible(floaterp);
 }
+#endif
 
 // static 
 void LLGroupActions::inspect(const LLUUID& group_id)
@@ -402,86 +377,56 @@ void LLGroupActions::inspect(const LLUUID& group_id)
 // static
 void LLGroupActions::show(const LLUUID& group_id)
 {
-	if (group_id.isNull())
-		return;
-
-	LLSD params;
-	params["group_id"] = group_id;
-	params["open_tab_name"] = "panel_group_info_sidetray";
-
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	if (group_id.isNull()) return;
+	LLFloaterReg::showTypedInstance<LLFloaterGroupProfile>("group_profile", group_id, TAKE_FOCUS_YES);
 }
 
+// static
 void LLGroupActions::refresh_notices()
 {
-	if(!isGroupUIVisible())
-		return;
-
-	LLSD params;
-	params["group_id"] = LLUUID::null;
-	params["open_tab_name"] = "panel_group_info_sidetray";
-	params["action"] = "refresh_notices";
-
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	for (auto panel : sGroupPanelInstances)
+	{
+		panel.second->refreshNotices();
+	}
 }
 
 //static 
 void LLGroupActions::refresh(const LLUUID& group_id)
 {
-	if(!isGroupUIVisible())
-		return;
-
-	LLSD params;
-	params["group_id"] = group_id;
-	params["open_tab_name"] = "panel_group_info_sidetray";
-	params["action"] = "refresh";
-
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	auto panels = sGroupPanelInstances.equal_range(group_id);
+	std::for_each(panels.first, panels.second, [](panel_multimap_t::value_type& p)
+	{
+		p.second->refreshData();
+	});
 }
 
 //static 
 void LLGroupActions::createGroup()
 {
-	LLSD params;
-	params["group_id"] = LLUUID::null;
-	params["open_tab_name"] = "panel_group_info_sidetray";
-	params["action"] = "create";
-
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
-
+	auto profile = LLFloaterReg::showTypedInstance<LLFloaterGroupProfile>("group_profile", LLUUID::null, TAKE_FOCUS_YES);
+	profile->createGroup();
 }
+
 //static
 void LLGroupActions::closeGroup(const LLUUID& group_id)
 {
-	if(!isGroupUIVisible())
-		return;
-
-	LLSD params;
-	params["group_id"] = group_id;
-	params["open_tab_name"] = "panel_group_info_sidetray";
-	params["action"] = "close";
-
-	LLFloaterSidePanelContainer::showPanel("people", "panel_group_info_sidetray", params);
+	auto* floaterp = LLFloaterReg::findInstance("group_profile", LLSD(group_id));
+	if (floaterp)
+	{
+		floaterp->closeFloater();
+	}
 }
-
 
 // static
 LLUUID LLGroupActions::startIM(const LLUUID& group_id)
 {
 	if (group_id.isNull()) return LLUUID::null;
 
-// [RLVa:KB] - Checked: 2013-05-09 (RLVa-1.4.9)
-	if (!RlvActions::canStartIM(group_id))
-	{
-		make_ui_sound("UISndInvalidOp");
-		RlvUtil::notifyBlocked(RLV_STRING_BLOCKED_STARTIM, LLSD().with("RECIPIENT", LLSLURL("group", group_id, "about").getSLURLString()));
-		return LLUUID::null;
-	}
-// [/RLVa:KB]
-
 	LLGroupData group_data;
 	if (gAgent.getGroupData(group_id, group_data))
 	{
+		// Unmute the group if the user tries to start a session with it.
+		LLMuteList::instance().removeGroup(group_id);
 		LLUUID session_id = gIMMgr->addSession(
 			group_data.mName,
 			IM_SESSION_GROUP_START,
@@ -493,13 +438,10 @@ LLUUID LLGroupActions::startIM(const LLUUID& group_id)
 		make_ui_sound("UISndStartIM");
 		return session_id;
 	}
-	else
-	{
-		// this should never happen, as starting a group IM session
-		// relies on you belonging to the group and hence having the group data
-		make_ui_sound("UISndInvalidOp");
-		return LLUUID::null;
-	}
+	// this should never happen, as starting a group IM session
+	// relies on you belonging to the group and hence having the group data
+	make_ui_sound("UISndInvalidOp");
+	return LLUUID::null;
 }
 
 // static
@@ -543,6 +485,34 @@ bool LLGroupActions::isAvatarMemberOfGroup(const LLUUID& group_id, const LLUUID&
 	}
 
 	return true;
+}
+
+// static
+void LLGroupActions::copyData(const LLUUID& group_id, ECopyDataType data_type)
+{
+	if (group_id.notNull())
+	{
+		std::string tmp;
+		switch (data_type)
+		{
+		case E_DATA_NAME:
+			tmp = LLGroupMgr::getInstance()->getGroupData(group_id)->mName;
+			break;
+		case E_DATA_SLURL:
+			tmp = LLSLURL("group", group_id, "about").getSLURLString();
+			break;
+		case E_DATA_UUID:
+			tmp = group_id.asString();
+			break;
+		default:
+			break;
+		}
+		if (!tmp.empty())
+		{
+			LLWString wstr = utf8str_to_wstring(tmp);
+			LLClipboard::instance().copyToClipboard(wstr, 0, wstr.length());
+		}
+	}
 }
 
 //-- Private methods ----------------------------------------------------------

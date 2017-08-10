@@ -28,9 +28,9 @@
 #define LL_LLSYSWELLITEM_H
 
 #include "llpanel.h"
-#include "lltextbox.h"
-#include "llbutton.h"
-#include "lliconctrl.h"
+
+class LLButton;
+class LLTextBox;
 
 class LLSysWellItem : public LLPanel
 {
@@ -47,18 +47,18 @@ public:
 	virtual	~LLSysWellItem();
 
 	// title
-	void setTitle( std::string title );
+	void setTitle( const std::string& title );
 
 	// get item's ID
 	LLUUID getID() { return mID; }
 
 	// handlers
-	virtual BOOL handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual void onMouseEnter(S32 x, S32 y, MASK mask);
-	virtual void onMouseLeave(S32 x, S32 y, MASK mask);
+	BOOL handleMouseDown(S32 x, S32 y, MASK mask) override;
+	void onMouseEnter(S32 x, S32 y, MASK mask) override;
+	void onMouseLeave(S32 x, S32 y, MASK mask) override;
 
 	//callbacks
-	typedef boost::function<void (LLSysWellItem* item)> syswell_item_callback_t;
+	typedef std::function<void (LLSysWellItem* item)> syswell_item_callback_t;
 	typedef boost::signals2::signal<void (LLSysWellItem* item)> syswell_item_signal_t;
 	syswell_item_signal_t mOnItemClose;	
 	syswell_item_signal_t mOnItemClick;	

@@ -36,6 +36,11 @@
 #include "llresmgr.h"
 #include "lltextbox.h"
 #include "llfloaterreg.h"
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0)
+#include "llfloatersearchreplace.h"
+#include "llpreviewnotecard.h"
+#include "llpreviewscript.h"
+// [/SL:KB]
 #include "llfocusmgr.h"
 #include "lltooldraganddrop.h"
 #include "llradiogroup.h"
@@ -57,14 +62,14 @@
 
 LLPreview::LLPreview(const LLSD& key)
 :	LLFloater(key),
-	mItemUUID(key.has("itemid") ? key.get("itemid").asUUID() : key.asUUID()),
-	mObjectUUID(),			// set later by setObjectID()
-	mCopyToInvBtn( NULL ),
+	mDirty(TRUE),
+	mItemUUID(key.has("itemid") ? key.get("itemid").asUUID() : key.asUUID()),			// set later by setObjectID()
+	mObjectUUID(),
+	mCopyToInvBtn(nullptr ),
 	mForceClose(FALSE),
 	mUserResized(FALSE),
 	mCloseAfterSave(FALSE),
-	mAssetStatus(PREVIEW_ASSET_UNLOADED),
-	mDirty(TRUE)
+	mAssetStatus(PREVIEW_ASSET_UNLOADED)
 {
 	mAuxItem = new LLInventoryItem;
 	// don't necessarily steal focus on creation -- sometimes these guys pop up without user action
@@ -109,7 +114,7 @@ void LLPreview::setItem( LLInventoryItem* item )
 
 const LLInventoryItem *LLPreview::getItem() const
 {
-	const LLInventoryItem *item = NULL;
+	const LLInventoryItem *item = nullptr;
 	if (mItem.notNull())
 	{
 		item = mItem;
@@ -317,7 +322,7 @@ BOOL LLPreview::handleMouseUp(S32 x, S32 y, MASK mask)
 {
 	if(hasMouseCapture())
 	{
-		gFocusMgr.setMouseCapture(NULL);
+		gFocusMgr.setMouseCapture(nullptr);
 		return TRUE;
 	}
 	return LLFloater::handleMouseUp(x, y, mask);
@@ -404,7 +409,7 @@ void LLPreview::onBtnCopyToInv(void* userdata)
 		}
 		else
 		{
-			LLPointer<LLInventoryCallback> cb = NULL;
+			LLPointer<LLInventoryCallback> cb = nullptr;
 			copy_inventory_item(
 				gAgent.getID(),
 				item->getPermissions().getOwner(),
@@ -526,13 +531,37 @@ void LLMultiPreview::tabOpen(LLFloater* opened_floater, bool from_click)
 	{
 		opened_preview->loadAsset();
 	}
+
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	LLFloaterSearchReplace* pSearchFloater = LLFloaterReg::getTypedInstance<LLFloaterSearchReplace>("search_replace");
+	if ( (pSearchFloater) && (pSearchFloater->getDependee() == this) )
+	{
+		LLPreviewNotecard* pPreviewNotecard = nullptr; LLPreviewLSL* pPreviewScript = nullptr; LLLiveLSLEditor* pPreviewScriptLive = nullptr;
+		if ((pPreviewNotecard = dynamic_cast<LLPreviewNotecard*>(opened_preview)) != nullptr)
+		{
+			LLFloaterSearchReplace::show(pPreviewNotecard->getEditor());
+		}
+		else if ((pPreviewScript = dynamic_cast<LLPreviewLSL*>(opened_preview)) != nullptr)
+		{
+			LLFloaterSearchReplace::show(pPreviewScript->getEditor());
+		}
+		else if ((pPreviewScriptLive = dynamic_cast<LLLiveLSLEditor*>(opened_preview)) != nullptr)
+		{
+			LLFloaterSearchReplace::show(pPreviewScriptLive->getEditor());
+		}
+		else
+		{
+			pSearchFloater->setVisible(FALSE);
+		}
+	}
+// [/SL:KB]
 }
 
 
 void LLPreview::setAssetId(const LLUUID& asset_id)
 {
 	const LLViewerInventoryItem* item = dynamic_cast<const LLViewerInventoryItem*>(getItem());
-	if(NULL == item)
+	if(nullptr == item)
 	{
 		return;
 	}
@@ -549,7 +578,7 @@ void LLPreview::setAssetId(const LLUUID& asset_id)
 	{
 		// Update object inventory asset_id.
 		LLViewerObject* object = gObjectList.findObject(mObjectUUID);
-		if(NULL == object)
+		if(nullptr == object)
 		{
 			return;
 		}

@@ -49,6 +49,7 @@
 #include "llviewercamera.h"
 #include "llviewerjoint.h"
 #include "llviewerobject.h"
+#include "llviewerregion.h"	// getRegion()
 #include "llviewerwindow.h"
 #include "llvoavatar.h"
 #include "llworld.h"		// for LLWorld::getInstance()
@@ -209,7 +210,7 @@ void LLManip::handleDeselect()
 {
 	mHighlightedPart = LL_NO_PART;
 	mManipPart = LL_NO_PART;
-	mObjectSelection = NULL;
+	mObjectSelection = nullptr;
 }
 
 LLObjectSelectionHandle LLManip::getSelection()
@@ -357,9 +358,10 @@ LLVector3 LLManip::getSavedPivotPoint() const
 
 LLVector3 LLManip::getPivotPoint()
 {
-	if (mObjectSelection->getFirstObject() && mObjectSelection->getObjectCount() == 1 && mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
+	static LLCachedControl<bool> editRootAxis(gSavedSettings, "AlchemyEditRootAxis", false);
+	if (mObjectSelection->getFirstRootObject(TRUE) && (mObjectSelection->getObjectCount() == 1 || editRootAxis) && mObjectSelection->getSelectType() != SELECT_TYPE_HUD)
 	{
-		return mObjectSelection->getFirstObject()->getPivotPositionAgent();
+		return mObjectSelection->getFirstRootObject(TRUE)->getPivotPositionAgent();
 	}
 	return LLSelectMgr::getInstance()->getBBoxOfSelection().getCenterAgent();
 }
@@ -391,7 +393,7 @@ void LLManip::renderGuidelines(BOOL draw_x, BOOL draw_y, BOOL draw_z)
 		grid_rot.getAngleAxis(&angle_radians, &x, &y, &z);
 		gGL.rotatef(angle_radians * RAD_TO_DEG, x, y, z);
 
-		F32 region_size = LLWorld::getInstance()->getRegionWidthInMeters();
+		F32 region_size = object->getRegion()->getWidth();
 
 		const F32 LINE_ALPHA = 0.33f;
 
@@ -561,9 +563,6 @@ void LLManip::renderTickValue(const LLVector3& pos, F32 value, const std::string
 			render_pos = pos * zoom_amt;
 			gGL.scalef(inv_zoom_amt, inv_zoom_amt, inv_zoom_amt);
 		}
-
-		LLColor4 shadow_color = LLColor4::black;
-		shadow_color.mV[VALPHA] = color.mV[VALPHA] * 0.5f;
 
 		if (fractional_portion != 0)
 		{

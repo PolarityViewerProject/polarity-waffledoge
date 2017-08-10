@@ -39,8 +39,14 @@
 #include "llbitpack.h"
 
 const	char	LAND_LAYER_CODE					= 'L';
+const	char	WATER_LAYER_CODE				= 'W';
 const	char	WIND_LAYER_CODE					= '7';
 const	char	CLOUD_LAYER_CODE				= '8';
+
+const	char	AURORA_LAND_LAYER_CODE			= 'M';
+const	char	AURORA_WATER_LAYER_CODE			= 'X';
+const	char	AURORA_WIND_LAYER_CODE			= '9';
+const	char	AURORA_CLOUD_LAYER_CODE			= ':';
 
 LLVLManager gVLManager;
 
@@ -56,15 +62,19 @@ LLVLManager::~LLVLManager()
 
 void LLVLManager::addLayerData(LLVLData *vl_datap, const S32Bytes mesg_size)
 {
-	if (LAND_LAYER_CODE == vl_datap->mType)
+	if (LAND_LAYER_CODE == vl_datap->mType || AURORA_LAND_LAYER_CODE == vl_datap->mType)
 	{
 		mLandBits += mesg_size;
 	}
-	else if (WIND_LAYER_CODE == vl_datap->mType)
+	else if (WATER_LAYER_CODE == vl_datap->mType || AURORA_WATER_LAYER_CODE == vl_datap->mType)
+	{
+		mWaterBits += mesg_size;
+	}
+	else if (WIND_LAYER_CODE == vl_datap->mType || AURORA_WIND_LAYER_CODE == vl_datap->mType)
 	{
 		mWindBits += mesg_size;
 	}
-	else if (CLOUD_LAYER_CODE == vl_datap->mType)
+	else if (CLOUD_LAYER_CODE == vl_datap->mType || AURORA_CLOUD_LAYER_CODE == vl_datap->mType)
 	{
 		mCloudBits += mesg_size;
 	}
@@ -93,12 +103,21 @@ void LLVLManager::unpackData(const S32 num_packets)
 		{
 			datap->mRegionp->getLand().decompressDCTPatch(bit_pack, &goph, FALSE);
 		}
-		else if (WIND_LAYER_CODE == datap->mType)
+		else if (AURORA_LAND_LAYER_CODE == datap->mType)
+		{
+			datap->mRegionp->getLand().decompressDCTPatch(bit_pack, &goph, TRUE);
+		}
+		else if (WIND_LAYER_CODE == datap->mType || AURORA_WIND_LAYER_CODE == datap->mType)
+
 		{
 			datap->mRegionp->mWind.decompress(bit_pack, &goph);
 
 		}
-		else if (CLOUD_LAYER_CODE == datap->mType)
+		else if (CLOUD_LAYER_CODE == datap->mType || AURORA_CLOUD_LAYER_CODE == datap->mType)
+		{
+
+		}
+		else if (WATER_LAYER_CODE == datap->mType || AURORA_WATER_LAYER_CODE == datap->mType)
 		{
 
 		}
@@ -132,9 +151,14 @@ U32Bits LLVLManager::getCloudBits() const
 	return mCloudBits;
 }
 
+U32Bits LLVLManager::getWaterBits() const
+{
+	return mWaterBits;
+}
+
 S32Bytes LLVLManager::getTotalBytes() const
 {
-	return mLandBits + mWindBits + mCloudBits;
+	return mLandBits + mWindBits + mCloudBits + mWaterBits;
 }
 
 void LLVLManager::cleanupData(LLViewerRegion *regionp)
@@ -165,6 +189,6 @@ LLVLData::LLVLData(LLViewerRegion *regionp, const S8 type, U8 *data, const S32 s
 LLVLData::~LLVLData()
 {
 	delete [] mData;
-	mData = NULL;
-	mRegionp = NULL;
+	mData = nullptr;
+	mRegionp = nullptr;
 }

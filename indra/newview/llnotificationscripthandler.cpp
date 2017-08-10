@@ -40,6 +40,7 @@
 #include "llfacebookconnect.h"
 #include "llavatarname.h"
 #include "llavatarnamecache.h"
+#include "lldesktopnotifications.h"
 
 using namespace LLNotificationsUI;
 
@@ -91,6 +92,12 @@ void LLScriptHandler::addToastWithNotification(const LLNotificationPtr& notifica
 	{
 		channel->addToast(p);
 	}
+
+	static LLCachedControl<bool> sDesktopNotifications(gSavedSettings, "DesktopNotifications", false);
+	if (sDesktopNotifications)
+		gDesktopNotificationsp->sendNotification(notification->getName(),
+											 	 notification->getMessage(),
+												 gSavedSettings.getBOOL("DesktopNotificationsAudioAlert"));
 }
 
 //--------------------------------------------------------------------------

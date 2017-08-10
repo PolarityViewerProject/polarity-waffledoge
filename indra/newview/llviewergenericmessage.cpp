@@ -36,6 +36,7 @@
 #include "message.h"
 
 #include "llagent.h"
+#include "lllightshare.h"
 
 
 LLDispatcher gGenericDispatcher;
@@ -57,7 +58,7 @@ void send_generic_message(const std::string& method,
 	if(strings.empty())
 	{
 		msg->nextBlock("ParamList");
-		msg->addString("Parameter", NULL);
+		msg->addString("Parameter", nullptr);
 	}
 	else
 	{
@@ -75,7 +76,7 @@ void send_generic_message(const std::string& method,
 
 
 void process_generic_message(LLMessageSystem* msg, void**)
-{
+{	
 	LLUUID agent_id;
 	msg->getUUID("AgentData", "AgentID", agent_id);
 	if (agent_id != gAgent.getID())

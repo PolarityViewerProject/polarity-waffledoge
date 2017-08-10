@@ -43,7 +43,6 @@
 #include "lltoolmgr.h"
 #include "llviewerobject.h"
 #include "llviewerobjectlist.h"
-#include "lluictrlfactory.h"
 
 LLFloaterTelehub::LLFloaterTelehub(const LLSD& key)
 :	LLFloater(key),
@@ -87,7 +86,7 @@ void LLFloaterTelehub::onOpen(const LLSD& key)
 LLFloaterTelehub::~LLFloaterTelehub()
 {
 	// no longer interested in this message
-	gMessageSystem->setHandlerFunc("TelehubInfo", NULL);
+	gMessageSystem->setHandlerFunc("TelehubInfo", nullptr);
 }
 
 void LLFloaterTelehub::draw()
@@ -105,7 +104,7 @@ void LLFloaterTelehub::refresh()
 	const BOOL children_ok = TRUE;
 	LLViewerObject* object = mObjectSelection->getFirstRootObject(children_ok);
 	
-	BOOL have_selection = (object != NULL);
+	BOOL have_selection = (object != nullptr);
 	BOOL all_volume = LLSelectMgr::getInstance()->selectionAllPCode( LL_PCODE_VOLUME );
 	getChildView("connect_btn")->setEnabled(have_selection && all_volume);
 
@@ -118,7 +117,7 @@ void LLFloaterTelehub::refresh()
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("spawn_points_list");
 	if (list)
 	{
-		BOOL enable_remove = (list->getFirstSelected() != NULL);
+		BOOL enable_remove = (list->getFirstSelected() != nullptr);
 		getChildView("remove_spawn_point_btn")->setEnabled(enable_remove);
 	}
 }

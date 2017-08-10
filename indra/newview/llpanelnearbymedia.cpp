@@ -74,12 +74,24 @@ const F32 AUTO_CLOSE_FADE_TIME_END = 3.0f;
 
 
 LLPanelNearByMedia::LLPanelNearByMedia()
-:	mMediaList(NULL),
-	  mEnableAllCtrl(NULL),
-	  mAllMediaDisabled(false),
-	  mDebugInfoVisible(false),
-	  mParcelMediaItem(NULL),
-	  mParcelAudioItem(NULL)
+	: mNearbyMediaPanel(nullptr)
+	, mMediaList(nullptr)
+	, mEnableAllCtrl(nullptr)
+	, mDisableAllCtrl(nullptr)
+	, mShowCtrl(nullptr)
+	, mStopCtrl(nullptr)
+	, mPlayCtrl(nullptr)
+	, mPauseCtrl(nullptr)
+	, mMuteCtrl(nullptr)
+	, mVolumeSliderCtrl(nullptr)
+	, mZoomCtrl(nullptr)
+	, mUnzoomCtrl(nullptr)
+	, mVolumeSlider(nullptr)
+	, mMuteBtn(nullptr)
+	, mAllMediaDisabled(false)
+	, mDebugInfoVisible(false)
+	, mParcelMediaItem(nullptr)
+	, mParcelAudioItem(nullptr)
 {
 	mHoverTimer.stop();
 
@@ -280,7 +292,7 @@ bool LLPanelNearByMedia::getParcelAudioAutoStart()
 
 LLScrollListItem* LLPanelNearByMedia::addListItem(const LLUUID &id)
 {
-	if (NULL == mMediaList) return NULL;
+	if (nullptr == mMediaList) return nullptr;
 	
 	// Just set up the columns -- the values will be filled in by updateListItem().
 	
@@ -312,7 +324,7 @@ LLScrollListItem* LLPanelNearByMedia::addListItem(const LLUUID &id)
 	}
 	
 	LLScrollListItem* new_item = mMediaList->addElement(row);
-	if (NULL != new_item)
+	if (nullptr != new_item)
 	{
 		LLScrollListCheck* scroll_list_check = dynamic_cast<LLScrollListCheck*>(new_item->getColumn(CHECKBOX_COLUMN));
 		if (scroll_list_check)
@@ -361,7 +373,7 @@ void LLPanelNearByMedia::updateListItem(LLScrollListItem* item, LLViewerMediaImp
 		
 		//			s += llformat("%g/", (float)impl->getCPUUsage());
 		//			s += llformat("%g/", (float)impl->getApproximateTextureInterest());
-		debug_str += llformat("%g/", (float)(NULL == impl->getSomeObject()) ? 0.0 : impl->getSomeObject()->getPixelArea());
+		debug_str += llformat("%g/", (float)(nullptr == impl->getSomeObject()) ? 0.0 : impl->getSomeObject()->getPixelArea());
 		
 		debug_str += LLPluginClassMedia::priorityToString(impl->getPriority());
 		
@@ -523,7 +535,7 @@ void LLPanelNearByMedia::updateListItem(LLScrollListItem* item,
 						 
 void LLPanelNearByMedia::removeListItem(const LLUUID &id)
 {
-	if (NULL == mMediaList) return;
+	if (nullptr == mMediaList) return;
 	
 	mMediaList->deleteSingleItem(mMediaList->getItemIndex(id));
 }
@@ -547,22 +559,22 @@ void LLPanelNearByMedia::refreshParcelItems()
 	if (gSavedSettings.getBOOL("AudioStreamingMedia") &&should_include && LLViewerMedia::hasParcelMedia())
 	{
 		// Yes, there is parcel media.
-		if (NULL == mParcelMediaItem)
+		if (nullptr == mParcelMediaItem)
 		{
 			mParcelMediaItem = addListItem(PARCEL_MEDIA_LIST_ITEM_UUID);
 			mMediaList->setNeedsSort(true);
 		}
 	}
 	else {
-		if (NULL != mParcelMediaItem) {
+		if (nullptr != mParcelMediaItem) {
 			removeListItem(PARCEL_MEDIA_LIST_ITEM_UUID);
-			mParcelMediaItem = NULL;
+			mParcelMediaItem = nullptr;
 			mMediaList->setNeedsSort(true);	
 		}
 	}
 	
 	// ... then update it
-	if (NULL != mParcelMediaItem)
+	if (nullptr != mParcelMediaItem)
 	{
 		std::string name, url, tooltip;
 		getNameAndUrlHelper(LLViewerParcelMedia::getParcelMedia(), name, url, "");
@@ -579,9 +591,9 @@ void LLPanelNearByMedia::refreshParcelItems()
 					   mParcelMediaName,
 					   tooltip,
 					   -2, // Proximity closer than anything else, before Parcel Audio
-					   impl == NULL || impl->isMediaDisabled(),
-					   impl != NULL && !LLViewerParcelMedia::getURL().empty(),
-					   impl != NULL && impl->isMediaTimeBased() &&	impl->isMediaPlaying(),
+					   impl == nullptr || impl->isMediaDisabled(),
+					   impl != nullptr && !LLViewerParcelMedia::getURL().empty(),
+					   impl != nullptr && impl->isMediaTimeBased() &&	impl->isMediaPlaying(),
 					   MEDIA_CLASS_ALL,
 					   "parcel media");
 	}
@@ -590,22 +602,22 @@ void LLPanelNearByMedia::refreshParcelItems()
 	if (should_include && LLViewerMedia::hasParcelAudio() && gSavedSettings.getBOOL("AudioStreamingMusic"))
 	{
 		// Yes, there is parcel audio.
-		if (NULL == mParcelAudioItem)
+		if (nullptr == mParcelAudioItem)
 		{
 			mParcelAudioItem = addListItem(PARCEL_AUDIO_LIST_ITEM_UUID);
 			mMediaList->setNeedsSort(true);
 		}
 	}
 	else {
-		if (NULL != mParcelAudioItem) {
+		if (nullptr != mParcelAudioItem) {
 			removeListItem(PARCEL_AUDIO_LIST_ITEM_UUID);
-			mParcelAudioItem = NULL;
+			mParcelAudioItem = nullptr;
 			mMediaList->setNeedsSort(true);
 		}
 	}
 	
 	// ... then update it
-	if (NULL != mParcelAudioItem)
+	if (nullptr != mParcelAudioItem)
 	{
 		bool is_playing = LLViewerMedia::isParcelAudioPlaying();
 	
@@ -642,8 +654,8 @@ void LLPanelNearByMedia::refreshList()
 
 		// Clear all items so the list gets regenerated.
 		mMediaList->deleteAllItems();
-		mParcelAudioItem = NULL;
-		mParcelMediaItem = NULL;
+		mParcelAudioItem = nullptr;
+		mParcelMediaItem = nullptr;
 		all_items_deleted = true;
 		
 		updateColumns();
@@ -875,8 +887,9 @@ void LLPanelNearByMedia::onClickParcelAudioPlay()
 	// User *explicitly* started the internet stream, so keep the stream
 	// playing and updated as they cross to other parcels etc.
 	mParcelAudioAutoStart = true;
-	if (LLAudioEngine::isInstanceMissing())
+	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -897,8 +910,9 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 	// re-start audio when i.e. they move to another parcel, until
 	// they explicitly start it again.
 	mParcelAudioAutoStart = false;
-	if (LLAudioEngine::isInstanceMissing())
+	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -907,8 +921,9 @@ void LLPanelNearByMedia::onClickParcelAudioStop()
 
 void LLPanelNearByMedia::onClickParcelAudioPause()
 {
-	if (LLAudioEngine::isInstanceMissing())
+	if (!gAudiop)
 	{
+		LL_WARNS("AudioEngine") << "LLAudioEngine instance doesn't exist!" << LL_ENDL;
 		return;
 	}
 
@@ -1002,7 +1017,7 @@ void LLPanelNearByMedia::updateControls()
 		}
 		else {
 			LLViewerMediaImpl* impl = LLViewerParcelMedia::getParcelMedia();
-			if (NULL == impl)
+			if (nullptr == impl)
 			{
 				// Just means it hasn't started yet
 				showBasicControls(false, false, false, false, 0);
@@ -1028,7 +1043,7 @@ void LLPanelNearByMedia::updateControls()
 	else {
 		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
 		
-		if (NULL == impl || !gSavedSettings.getBOOL("AudioStreamingMedia"))
+		if (nullptr == impl || !gSavedSettings.getBOOL("AudioStreamingMedia"))
 		{
 			showDisabledControls();
 		}
@@ -1113,7 +1128,7 @@ void LLPanelNearByMedia::onClickSelectedMediaPlay()
 	{
 		LLViewerMediaImpl *impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl)
+		if (nullptr != impl)
 		{
 			if (impl->isMediaTimeBased() && impl->isMediaPaused())
 			{
@@ -1142,7 +1157,7 @@ void LLPanelNearByMedia::onClickSelectedMediaPause()
 	}
 	else {
 		LLViewerMediaImpl* impl = LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl && impl->isMediaTimeBased() && impl->isMediaPlaying())
+		if (nullptr != impl && impl->isMediaTimeBased() && impl->isMediaPlaying())
 		{
 			impl->pause();
 		}
@@ -1159,7 +1174,7 @@ void LLPanelNearByMedia::onClickSelectedMediaMute()
 	else {
 		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl)
+		if (nullptr != impl)
 		{
 			F32 volume = impl->getVolume();
 			if(volume > 0.0)
@@ -1190,7 +1205,7 @@ void LLPanelNearByMedia::onCommitSelectedMediaVolume()
 	else {
 		LLViewerMediaImpl* impl = (selected_media_id == PARCEL_MEDIA_LIST_ITEM_UUID) ?
 			((LLViewerMediaImpl*)LLViewerParcelMedia::getParcelMedia()) : LLViewerMedia::getMediaImplFromTextureID(selected_media_id);
-		if (NULL != impl)
+		if (nullptr != impl)
 		{
 			impl->setVolume(mVolumeSlider->getValueF32());
 		}
@@ -1214,7 +1229,7 @@ void LLPanelNearByMedia::onClickSelectedMediaUnzoom()
 // static
 void LLPanelNearByMedia::getNameAndUrlHelper(LLViewerMediaImpl* impl, std::string& name, std::string & url, const std::string &defaultName)
 {
-	if (NULL == impl) return;
+	if (nullptr == impl) return;
 	
 	name = impl->getName();
 	url = impl->getCurrentMediaURL();	// This is the URL the media impl actually has loaded

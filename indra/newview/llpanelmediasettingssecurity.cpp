@@ -36,7 +36,6 @@
 #include "llnotificationsutil.h"
 #include "llscrolllistctrl.h"
 #include "llscrolllistitem.h"
-#include "lluictrlfactory.h"
 #include "llwindow.h"
 #include "llviewerwindow.h"
 #include "llsdutil.h"
@@ -49,7 +48,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
 LLPanelMediaSettingsSecurity::LLPanelMediaSettingsSecurity() :
-	mParent( NULL )
+	mParent(nullptr )
 {
 	mCommitCallbackRegistrar.add("Media.whitelistAdd",		boost::bind(&LLPanelMediaSettingsSecurity::onBtnAdd, this));
 	mCommitCallbackRegistrar.add("Media.whitelistDelete",	boost::bind(&LLPanelMediaSettingsSecurity::onBtnDel, this));	
@@ -103,7 +102,7 @@ void LLPanelMediaSettingsSecurity::initValues( void* userdata, const LLSD& media
 	{
 		{ LLMediaEntry::WHITELIST_ENABLE_KEY,	self->mEnableWhiteList,		"LLCheckBoxCtrl" },
 		{ LLMediaEntry::WHITELIST_KEY,			self->mWhiteListList,		"LLScrollListCtrl" },
-		{ "", NULL , "" }
+		{ "", nullptr , "" }
 	};
 
 	for( int i = 0; data_set[ i ].key_name.length() > 0; ++i )

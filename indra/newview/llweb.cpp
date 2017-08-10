@@ -53,7 +53,7 @@
 #include "llnotificationsutil.h"
 #include "lluriparser.h"
 #include "uriparser/Uri.h"
-#include "string.h" // for boost::bind unknown override specifier
+
 #include <boost/regex.hpp>
 
 bool on_load_url_external_response(const LLSD& notification, const LLSD& response, bool async );
@@ -61,7 +61,7 @@ bool on_load_url_external_response(const LLSD& notification, const LLSD& respons
 
 class URLLoader : public LLToastAlertPanel::URLLoader
 {
-	virtual void load(const std::string& url , bool force_open_externally)
+	void load(const std::string& url , bool force_open_externally) override
 	{
 		if (force_open_externally)
 		{
@@ -114,16 +114,16 @@ void LLWeb::loadURLInternal(const std::string &url, const std::string& target, c
 }
 
 // static
-//void LLWeb::loadURLExternal(const std::string& url)
-//{
-//	loadURLExternal(url, true);
-//}
+void LLWeb::loadURLExternal(const std::string& url, const std::string& uuid)
+{
+	loadURLExternal(url, true, uuid);
+}
 
 // static
-void LLWeb::loadURLExternal(const std::string& url, bool async)
+void LLWeb::loadURLExternal(const std::string& url, bool async, const std::string& uuid)
 {
 	// Act like the proxy window was closed, since we won't be able to track targeted windows in the external browser.
-	LLViewerMedia::proxyWindowClosed(LLStringUtil::null);
+	LLViewerMedia::proxyWindowClosed(uuid);
 	
 	if(gSavedSettings.getBOOL("DisableExternalBrowser"))
 	{

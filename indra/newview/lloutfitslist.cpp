@@ -50,11 +50,6 @@
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
 
-#include "llviewercontrol.h" // <FS:ND/> for gSavedSettings
-#include "llresmgr.h"
-#include "lltextbox.h"
-#include "lleconomy.h"
-
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
 static const LLOutfitTabNameComparator OUTFIT_TAB_NAME_COMPARATOR;
@@ -108,8 +103,8 @@ static LLPanelInjector<LLOutfitsList> t_outfits_list("outfits_list");
 
 LLOutfitsList::LLOutfitsList()
     :   LLOutfitListBase()
-    ,   mAccordion(NULL)
-	,	mListCommands(NULL)
+    ,   mAccordion(nullptr)
+	,	mListCommands(nullptr)
 	,	mItemSelected(false)
 {
 }
@@ -165,11 +160,7 @@ void LLOutfitsList::updateAddedCategory(LLUUID cat_id)
 
     // *TODO: LLUICtrlFactory::defaultBuilder does not use "display_children" from xml. Should be investigated.
     tab->setDisplayChildren(false);
-
-    // <FS:ND> Calling this when there's a lot of outfits causes horrible perfomance and disconnects, due to arrange eating so many cpu cycles.
-    //mAccordion->addCollapsibleCtrl(tab);
     mAccordion->addCollapsibleCtrl(tab, false);
-    // </FS:ND>
 
     // Start observing the new outfit category.
     LLWearableItemsList* list = tab->getChild<LLWearableItemsList>("wearable_items_list");
@@ -251,14 +242,13 @@ void LLOutfitsList::updateRemovedCategory(LLUUID cat_id)
     	mAccordion->removeCollapsibleCtrl(tab);
 
     	// kill removed tab
-    	if (tab != NULL)
+    	if (tab != nullptr)
     	{
     		tab->die();
     	}
     }
 }
 
-// <FS:Ansariel> Arrange accordions after all have been added
 //virtual
 void LLOutfitsList::arrange()
 {
@@ -267,7 +257,6 @@ void LLOutfitsList::arrange()
 		mAccordion->arrange();
 	}
 }
-// </FS:Ansariel>
 
 //virtual
 void LLOutfitsList::onHighlightBaseOutfit(LLUUID base_id, LLUUID prev_id)
@@ -333,7 +322,7 @@ void LLOutfitsList::onSetSelectedOutfitByUUID(const LLUUID& outfit_uuid)
 			tab->setFocus(TRUE);
 			ChangeOutfitSelection(list, outfit_uuid);
 
-			tab->setDisplayChildren(true);
+			tab->changeOpenClose(false);
 		}
 	}
 }
@@ -497,7 +486,7 @@ void LLOutfitsList::onChangeOutfitSelection(LLWearableItemsList* list, const LLU
 		mSelectedListsMap.clear();
 	}
 
-	mItemSelected = list && (list->getSelectedItem() != NULL);
+	mItemSelected = list && (list->getSelectedItem() != nullptr);
 
 	mSelectedListsMap.insert(wearables_lists_map_value_t(category_id, list));
 }
@@ -1153,7 +1142,7 @@ void LLOutfitContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
 
 LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     :   mOutfitList(olist),
-        mMenu(NULL)
+        mMenu(nullptr)
 {
     llassert_always(mOutfitList);
 
@@ -1224,7 +1213,7 @@ LLViewerInventoryCategory* LLOutfitListGearMenuBase::getSelectedOutfit()
     const LLUUID& selected_outfit_id = getSelectedOutfitID();
     if (selected_outfit_id.isNull())
     {
-        return NULL;
+        return nullptr;
     }
 
     LLViewerInventoryCategory* cat = gInventory.getCategory(selected_outfit_id);

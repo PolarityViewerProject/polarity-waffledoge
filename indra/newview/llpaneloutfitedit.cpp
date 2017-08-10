@@ -65,7 +65,6 @@
 #include "lltextbox.h"
 #include "lltoggleablemenu.h"
 #include "lltrans.h"
-#include "lluictrlfactory.h"
 #include "llsdutil.h"
 #include "llsidepanelappearance.h"
 #include "lltoggleablemenu.h"
@@ -74,9 +73,6 @@
 #include "llwearableitemslist.h"
 #include "llwearabletype.h"
 #include "llweb.h"
-// [RLVa:KB] - Checked: 2010-09-16 (RLVa-1.2.1a)
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 static LLPanelInjector<LLPanelOutfitEdit> t_outfit_edit("panel_outfit_edit");
 
@@ -360,7 +356,7 @@ public:
 
 	virtual ~LLCOFDragAndDropObserver();
 
-	virtual void done();
+	void done() override;
 
 private:
 	LLInventoryModel* mModel;
@@ -369,7 +365,7 @@ private:
 inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* model):
 		mModel(model)
 {
-	if (model != NULL)
+	if (model != nullptr)
 	{
 		model->addObserver(this);
 	}
@@ -377,7 +373,7 @@ inline LLCOFDragAndDropObserver::LLCOFDragAndDropObserver(LLInventoryModel* mode
 
 inline LLCOFDragAndDropObserver::~LLCOFDragAndDropObserver()
 {
-	if (mModel != NULL && mModel->containsObserver(this))
+	if (mModel != nullptr && mModel->containsObserver(this))
 	{
 		mModel->removeObserver(this);
 	}
@@ -393,21 +389,36 @@ void LLCOFDragAndDropObserver::done()
 ///////////////////////////////////////////////////////////////////////////////
 
 LLPanelOutfitEdit::LLPanelOutfitEdit()
-:	LLPanel(), 
-	mSearchFilter(NULL),
-	mCOFWearables(NULL),
-	mInventoryItemsPanel(NULL),
-	mGearMenu(NULL),
-	mAddWearablesGearMenu(NULL),
-	mCOFDragAndDropObserver(NULL),
+	: LLPanel(),
+	mOutfitLoadingIndicator(nullptr),
+	mCurrentOutfitName(nullptr),
+	mStatus(nullptr),
+	mInventoryItemsPanel(nullptr),
+	mSearchFilter(nullptr),
+	mEditWearableBtn(nullptr),
+	mFolderViewBtn(nullptr),
+	mListViewBtn(nullptr),
+	mFilterBtn(nullptr),
+	mShowAddWearableBtn(nullptr),
+	mPlusBtn(nullptr),
+	mRevertBtn(nullptr),
+	mAddWearablesPanel(nullptr),
+	mAddWearablesButtonBarPanel(nullptr),
+	mNoAddWearablesButtonBarPanel(nullptr),
+	mFilterPanel(nullptr),
+	mOutfitNameStatusPanel(nullptr),
+	mFolderViewFilterCmbBox(nullptr),
+	mListViewFilterCmbBox(nullptr),
+	mWearableListManager(nullptr),
+	mWearableItemsList(nullptr),
+	mWearablesListViewPanel(nullptr),
+	mWearableListViewItemsComparator(nullptr),
+	mCOFDragAndDropObserver(nullptr),
+	mCOFWearables(nullptr),
 	mInitialized(false),
-	mAddWearablesPanel(NULL),
-	mFolderViewFilterCmbBox(NULL),
-	mListViewFilterCmbBox(NULL),
-	mWearableListManager(NULL),
-	mPlusBtn(NULL),
-	mWearablesGearMenuBtn(NULL),
-	mGearMenuBtn(NULL)
+	mSaveComboBtn(),
+	mWearablesGearMenuBtn(nullptr),
+	mGearMenuBtn(nullptr)
 {
 	mSavedFolderState = new LLSaveFolderState();
 	mSavedFolderState->setApply(FALSE);
@@ -434,7 +445,7 @@ LLPanelOutfitEdit::~LLPanelOutfitEdit()
 {
 	delete mWearableListManager;
 	delete mSavedFolderState;
-
+	delete mWearableListViewItemsComparator;
 	delete mCOFDragAndDropObserver;
 
 	while (!mListViewItemTypes.empty()) {
@@ -473,19 +484,28 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("tattoo"), new LLFindActualWearablesOfType(LLWearableType::WT_TATTOO)));
 	mListViewItemTypes.push_back(new LLFilterItem(LLTrans::getString("physics"), new LLFindActualWearablesOfType(LLWearableType::WT_PHYSICS)));
 
+	mOutfitNameStatusPanel = getChild<LLPanel>("outfit_name_and_status");
+	mOutfitLoadingIndicator = getChild<LLLoadingIndicator>("edit_outfit_loading_indicator");
+
+	mAddWearablesButtonBarPanel = getChild<LLPanel>("add_wearables_button_bar");
+	mNoAddWearablesButtonBarPanel = getChild<LLPanel>("no_add_wearables_button_bar");
+	mFilterPanel = getChild<LLPanel>("filter_panel");
+
 	mCurrentOutfitName = getChild<LLTextBox>("curr_outfit_name"); 
 	mStatus = getChild<LLTextBox>("status");
 
 	mFolderViewBtn = getChild<LLButton>("folder_view_btn");
+	mFolderViewBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this));
+	mFolderViewBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveListSelection, this));
 	mListViewBtn = getChild<LLButton>("list_view_btn");
+	mListViewBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesListView, this));
+	mListViewBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::saveListSelection, this));
 
-	childSetCommitCallback("filter_button", boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this), NULL);
-	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesFolderView, this), NULL);
-	childSetCommitCallback("folder_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::showWearablesListView, this), NULL);
-	childSetCommitCallback("list_view_btn", boost::bind(&LLPanelOutfitEdit::saveListSelection, this), NULL);
-	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
-	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), NULL);
+	mFilterBtn = getChild<LLButton>("filter_button");
+	mFilterBtn->setCommitCallback(boost::bind(&LLPanelOutfitEdit::showWearablesFilter, this));
+
+	childSetCommitCallback("shop_btn_1", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), nullptr);
+	childSetCommitCallback("shop_btn_2", boost::bind(&LLPanelOutfitEdit::onShopButtonClicked, this), nullptr);
 
 	setVisibleCallback(boost::bind(&LLPanelOutfitEdit::onVisibilityChanged, this, _2));
 
@@ -532,10 +552,13 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mSearchFilter = getChild<LLFilterEditor>("look_item_filter");
 	mSearchFilter->setCommitCallback(boost::bind(&LLPanelOutfitEdit::onSearchEdit, this, _2));
 
-	childSetAction("show_add_wearables_btn", boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
+	mShowAddWearableBtn = getChild<LLButton>("show_add_wearables_btn");
+	mShowAddWearableBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onAddMoreButtonClicked, this));
 
 	mPlusBtn = getChild<LLButton>("plus_btn");
 	mPlusBtn->setClickedCallback(boost::bind(&LLPanelOutfitEdit::onPlusBtnClicked, this));
+
+	mRevertBtn = getChild<LLButton>(REVERT_BTN);
 	
 	mEditWearableBtn = getChild<LLButton>("edit_wearable_btn");
 	mEditWearableBtn->setEnabled(FALSE);
@@ -565,11 +588,11 @@ BOOL LLPanelOutfitEdit::postBuild()
 	mWearableItemsList->setComparator(mWearableListViewItemsComparator);
 
 	// Creating "Add Wearables" panel gear menu after initialization of mWearableItemsList and mInventoryItemsPanel.
-	mAddWearablesGearMenu = LLAddWearablesGearMenu::create(mWearableItemsList, mInventoryItemsPanel);
-	mWearablesGearMenuBtn->setMenu(mAddWearablesGearMenu);
+	LLToggleableMenu* menu = LLAddWearablesGearMenu::create(mWearableItemsList, mInventoryItemsPanel);
+	mWearablesGearMenuBtn->setMenu(menu, LLMenuButton::MP_TOP_LEFT, true);
 
-	mGearMenu = LLPanelOutfitEditGearMenu::create();
-	mGearMenuBtn->setMenu(mGearMenu);
+	menu = LLPanelOutfitEditGearMenu::create();
+	mGearMenuBtn->setMenu(menu, LLMenuButton::MP_TOP_LEFT, true);
 
 	mSaveComboBtn.reset(new LLSaveOutfitComboBtn(this));
 	return TRUE;
@@ -583,7 +606,6 @@ void LLPanelOutfitEdit::onOpen(const LLSD& key)
 		// *TODO: this method is called even panel is not visible to user because its parent layout panel is hidden.
 		// So, we can defer initializing a bit.
 		mWearableListManager = new LLFilteredWearableListManager(mWearableItemsList, mListViewItemTypes[LVIT_ALL]->collector);
-		mWearableListManager->populateList();
 		displayCurrentOutfit();
 		mInitialized = true;
 	}
@@ -606,21 +628,17 @@ void LLPanelOutfitEdit::toggleAddWearablesPanel()
 
 void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 {
-// [RLVa:KB] - Checked: 2010-09-16 (RLVa-1.2.1a) | Added: RLVa-1.2.1a
-	show_add_wearables = (show_add_wearables) && (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWINV));
-// [/RLVa:KB]
-
 	mAddWearablesPanel->setVisible(show_add_wearables);
 	
-	getChild<LLUICtrl>("show_add_wearables_btn")->setValue(show_add_wearables);
+	mShowAddWearableBtn->setValue(show_add_wearables);
 
 	updateFiltersVisibility();
-	getChildView("filter_button")->setVisible( show_add_wearables);
+	mFilterBtn->setVisible( show_add_wearables);
 
 	//search filter should be disabled
 	if (!show_add_wearables)
 	{
-		getChild<LLUICtrl>("filter_button")->setValue(false);
+		mFilterBtn->setValue(false);
 
 		mFolderViewFilterCmbBox->setVisible(false);
 		mListViewFilterCmbBox->setVisible(false);
@@ -641,17 +659,21 @@ void LLPanelOutfitEdit::showAddWearablesPanel(bool show_add_wearables)
 		// Reset mWearableItemsList position to top. See EXT-8180.
 		mWearableItemsList->goToTop();
 	}
+	else
+	{
+		mWearableListManager->populateIfNeeded();
+	}
 
 	//switching button bars
-	getChildView("no_add_wearables_button_bar")->setVisible( !show_add_wearables);
-	getChildView("add_wearables_button_bar")->setVisible( show_add_wearables);
+	mNoAddWearablesButtonBarPanel->setVisible( !show_add_wearables);
+	mAddWearablesButtonBarPanel->setVisible( show_add_wearables);
 }
 
 void LLPanelOutfitEdit::showWearablesFilter()
 {
-	bool filter_visible = getChild<LLUICtrl>("filter_button")->getValue();
+	bool filter_visible = mFilterBtn->getValue().asBoolean();
 
-	getChildView("filter_panel")->setVisible( filter_visible);
+	mFilterPanel->setVisible( filter_visible);
 
 	if(!filter_visible)
 	{
@@ -670,6 +692,7 @@ void LLPanelOutfitEdit::showWearablesListView()
 	{
 		updateWearablesPanelVerbButtons();
 		updateFiltersVisibility();
+		mWearableListManager->populateIfNeeded();
 	}
 	mListViewBtn->setToggleState(TRUE);
 }
@@ -894,9 +917,9 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 {
 	selection_info_t result = std::make_pair(LLWearableType::WT_NONE, 0);
 
-	if (mAddWearablesPanel != NULL && mAddWearablesPanel->getVisible())
+	if (mAddWearablesPanel != nullptr && mAddWearablesPanel->getVisible())
 	{
-		if (mInventoryItemsPanel != NULL && mInventoryItemsPanel->getVisible())
+		if (mInventoryItemsPanel != nullptr && mInventoryItemsPanel->getVisible())
 		{
 			std::set<LLFolderViewItem*> selected_items =    mInventoryItemsPanel->getRootFolder()->getSelectionList();
 
@@ -907,7 +930,7 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 				result.first = getWearableTypeByItemUUID(static_cast<LLFolderViewModelItemInventory*>((*selected_items.begin())->getViewModelItem())->getUUID());
 			}
 		}
-		else if (mWearableItemsList != NULL && mWearableItemsList->getVisible())
+		else if (mWearableItemsList != nullptr && mWearableItemsList->getVisible())
 		{
 			std::vector<LLUUID> selected_uuids;
 			mWearableItemsList->getSelectedUUIDs(selected_uuids);
@@ -927,7 +950,7 @@ LLPanelOutfitEdit::selection_info_t LLPanelOutfitEdit::getAddMorePanelSelectionT
 LLWearableType::EType LLPanelOutfitEdit::getWearableTypeByItemUUID(const LLUUID& item_uuid) const
 {
 	LLViewerInventoryItem* item = gInventory.getLinkedItem(item_uuid);
-	return (item != NULL) ? item->getWearableType() : LLWearableType::WT_NONE;
+	return (item != nullptr) ? item->getWearableType() : LLWearableType::WT_NONE;
 }
 
 void LLPanelOutfitEdit::onRemoveFromOutfitClicked(void)
@@ -1166,7 +1189,7 @@ BOOL LLPanelOutfitEdit::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 										  EAcceptance* accept,
 										  std::string& tooltip_msg)
 {
-	if (cargo_data == NULL)
+	if (cargo_data == nullptr)
 	{
 		LL_WARNS() << "cargo_data is NULL" << LL_ENDL;
 		return TRUE;
@@ -1243,7 +1266,7 @@ void LLPanelOutfitEdit::updateVerbs()
 	bool has_baseoutfit = LLAppearanceMgr::getInstance()->getBaseOutfitUUID().notNull();
 
 	mSaveComboBtn->setSaveBtnEnabled(!outfit_locked && outfit_is_dirty);
-	getChildView(REVERT_BTN)->setEnabled(outfit_is_dirty && has_baseoutfit);
+	mRevertBtn->setEnabled(outfit_is_dirty && has_baseoutfit);
 
 	mSaveComboBtn->setMenuItemEnabled("save_outfit", !outfit_locked && outfit_is_dirty);
 
@@ -1268,7 +1291,7 @@ bool LLPanelOutfitEdit::switchPanels(LLPanel* switch_from_panel, LLPanel* switch
 
 void LLPanelOutfitEdit::resetAccordionState()
 {
-	if (mCOFWearables != NULL)
+	if (mCOFWearables != nullptr)
 	{
 		mCOFWearables->expandDefaultAccordionTab();
 	}
@@ -1290,7 +1313,7 @@ void LLPanelOutfitEdit::showFilteredWearablesListView(LLWearableType::EType type
 	showWearablesListView();
 
 	//e_list_view_item_type implicitly contains LLWearableType::EType starting from LVIT_SHAPE
-	applyListViewFilter((EListViewItemType) (LVIT_SHAPE + type));
+	applyListViewFilter(static_cast<EListViewItemType>(LVIT_SHAPE + type));
 }
 
 static void update_status_widget_rect(LLView * widget, S32 right_border)
@@ -1303,20 +1326,16 @@ static void update_status_widget_rect(LLView * widget, S32 right_border)
 
 void LLPanelOutfitEdit::onOutfitChanging(bool started)
 {
-	static LLLoadingIndicator* indicator = getChild<LLLoadingIndicator>("edit_outfit_loading_indicator");
-	static LLView* status_panel = getChild<LLView>("outfit_name_and_status");
-	static S32 indicator_delta = status_panel->getRect().getWidth() - indicator->getRect().mLeft;
+	const auto& outfit_status_rect = mOutfitNameStatusPanel->getRect();
+	S32 indicator_delta = outfit_status_rect.getWidth() - mOutfitLoadingIndicator->getRect().mLeft;
 
 	S32 delta = started ? indicator_delta : 0;
-	S32 right_border = status_panel->getRect().getWidth() - delta;
+	S32 right_border = outfit_status_rect.getWidth() - delta;
 
-	// This crashes here if you get RLV-sat on something with
-	// the outfit floater open (usually the outfit gallery)
-	// - Xenhat 2016.12.12
 	update_status_widget_rect(mCurrentOutfitName, right_border);
 	update_status_widget_rect(mStatus, right_border);
 
-	indicator->setVisible(started);
+	mOutfitLoadingIndicator->setVisible(started);
 }
 
 void LLPanelOutfitEdit::getCurrentItemUUID(LLUUID& selected_id)

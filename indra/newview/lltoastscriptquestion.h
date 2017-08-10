@@ -23,12 +23,12 @@
  * $/LicenseInfo$
  */
 
+#ifndef LLTOASTSCRIPTQUESTION_H_
+#define LLTOASTSCRIPTQUESTION_H_
+
 #include "llviewerprecompiledheaders.h"
 
 #include "lltoastpanel.h"
-
-#ifndef LLTOASTSCRIPTQUESTION_H_
-#define LLTOASTSCRIPTQUESTION_H_
 
 class LLToastScriptQuestion : public LLToastPanel
 {
@@ -36,10 +36,10 @@ class LLToastScriptQuestion : public LLToastPanel
 
 public:
 	LLToastScriptQuestion(const LLNotificationPtr& notification);
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 	virtual ~LLToastScriptQuestion(){};
 
-	/*virtual*/ void setFocus(BOOL b);
+	/*virtual*/ void setFocus(BOOL b) override;
 
 private:
 	void snapToMessageHeight();

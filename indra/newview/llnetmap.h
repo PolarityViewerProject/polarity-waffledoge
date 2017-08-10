@@ -35,6 +35,8 @@
 #include "llpointer.h"
 #include "llcoord.h"
 
+#include <boost/unordered_map.hpp>
+
 class LLColor4U;
 class LLImageRaw;
 class LLViewerTexture;
@@ -66,19 +68,18 @@ public:
 	static const F32 MAP_SCALE_MID;
 	static const F32 MAP_SCALE_MAX;
 
-	/*virtual*/ void	draw();
-	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks);
-	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleHover( S32 x, S32 y, MASK mask );
-	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask);
-	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE);
+	/*virtual*/ void	draw() override;
+	/*virtual*/ BOOL	handleScrollWheel(S32 x, S32 y, S32 clicks) override;
+	/*virtual*/ BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleMouseUp(S32 x, S32 y, MASK mask) override;
+	/*virtual*/ BOOL	handleHover( S32 x, S32 y, MASK mask ) override;
+	/*virtual*/ BOOL	handleToolTip( S32 x, S32 y, MASK mask) override;
+	/*virtual*/ void	reshape(S32 width, S32 height, BOOL called_from_parent = TRUE) override;
 
-	/*virtual*/ BOOL 	postBuild();
-	/*virtual*/ BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask );
-	/*virtual*/
-	static BOOL	handleClick(S32 x, S32 y, MASK mask);
-	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask );
+	/*virtual*/ BOOL 	postBuild() override;
+	/*virtual*/ BOOL	handleRightMouseDown( S32 x, S32 y, MASK mask ) override;
+	/*virtual*/ BOOL	handleClick(S32 x, S32 y, MASK mask);
+	/*virtual*/ BOOL	handleDoubleClick( S32 x, S32 y, MASK mask ) override;
 
 	void			setScale( F32 scale );
 	void			setToolTipMsg(const std::string& msg) { mToolTipMsg = msg; }
@@ -95,7 +96,7 @@ private:
 	void			drawTracking( const LLVector3d& pos_global, 
 								  const LLColor4& color,
 								  BOOL draw_arrow = TRUE);
-	BOOL			handleToolTipAgent(const LLUUID& avatar_id) const;
+	BOOL			handleToolTipAgent(const LLUUID& avatar_id);
 	static void		showAvatarInspector(const LLUUID& avatar_id);
 
 	void			createObjectImage();
@@ -127,15 +128,15 @@ private:
 	LLUUID			mClosestAgentAtLastRightClick;
 
 	std::string		mToolTipMsg;
-
+	
 public:
 	void			setSelected(uuid_vec_t uuids) { gmSelected=uuids; };
 
 private:
 	void handleZoom(const LLSD& userdata);
-	void handleStopTracking (const LLSD& userdata) const;
+	void handleStopTracking (const LLSD& userdata);
 
-	LLMenuGL*		mPopupMenu;
+	LLHandle<LLView>		mPopupMenuHandle;
 	uuid_vec_t		gmSelected;
 };
 

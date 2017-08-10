@@ -50,11 +50,12 @@ public:
 	LLPanelObject();
 	virtual ~LLPanelObject();
 
-	virtual BOOL	postBuild();
-	virtual void	draw();
-	virtual void 	clearCtrls();
+	BOOL	postBuild() override;
+	void	draw() override;
+	void 	clearCtrls() override;
 
-	void			refresh();
+	void			refresh() override;
+	void			refreshLimits();
 
 	static bool		precommitValidate(const LLSD& data);
 	
@@ -74,6 +75,11 @@ public:
 	void     		onSelectSculpt(const LLSD& data);
 	BOOL     		onDropSculpt(LLInventoryItem* item);
 	static void     onCommitSculptType(    LLUICtrl *ctrl, void* userdata);
+
+	// <alchemy>
+	void		onClickBtnCopyData(const LLSD& userdata);
+	void		onClickBtnPasteData(const LLSD& userdata);
+	// </alchemy>
 
 protected:
 	void			getState();
@@ -132,17 +138,23 @@ protected:
 	LLSpinCtrl*		mSpinRevolutions;
 
 	LLTextBox*		mLabelPosition;
+	LLButton*		mBtnPosCopy;
+	LLButton*		mBtnPosPaste;
 	LLSpinCtrl*		mCtrlPosX;
 	LLSpinCtrl*		mCtrlPosY;
 	LLSpinCtrl*		mCtrlPosZ;
 
 	LLTextBox*		mLabelSize;
+	LLButton*		mBtnScaleCopy;
+	LLButton*		mBtnScalePaste;
 	LLSpinCtrl*		mCtrlScaleX;
 	LLSpinCtrl*		mCtrlScaleY;
 	LLSpinCtrl*		mCtrlScaleZ;
 	BOOL			mSizeChanged;
 
 	LLTextBox*		mLabelRotation;
+	LLButton*		mBtnRotCopy;
+	LLButton*		mBtnRotPaste;
 	LLSpinCtrl*		mCtrlRotX;
 	LLSpinCtrl*		mCtrlRotY;
 	LLSpinCtrl*		mCtrlRotZ;
@@ -166,6 +178,16 @@ protected:
 
 	LLUUID          mSculptTextureRevert;   // so we can revert the sculpt texture on cancel
 	U8              mSculptTypeRevert;      // so we can revert the sculpt type on cancel
+	
+	F32				mRegionMaxHeight;
+	F32				mRegionMaxDepth;
+	F32				mMinScale;
+	F32				mMaxScale;
+	F32				mMaxHollowSize;
+	F32				mMinHoleSize;
+	bool			mUpdateLimits;
+
+	LLSD			mCopiedObjectData;
 
 	LLPointer<LLViewerObject> mObject;
 	LLPointer<LLViewerObject> mRootObject;

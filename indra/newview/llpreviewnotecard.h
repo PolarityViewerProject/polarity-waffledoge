@@ -39,6 +39,9 @@
 
 class LLViewerTextEditor;
 class LLButton;
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+class LLTextEditor;
+// [/SL:KB]
 
 class LLPreviewNotecard : public LLPreview
 {
@@ -49,19 +52,25 @@ public:
 	bool saveItem();
 
 	// llview
-	virtual void draw();
-	virtual BOOL handleKeyHere(KEY key, MASK mask);
-	virtual void setEnabled( BOOL enabled );
+	void draw() override;
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	bool hasAccelerators() const override { return true; }
+// [/SL:KB]
+	BOOL handleKeyHere(KEY key, MASK mask) override;
+	void setEnabled( BOOL enabled ) override;
 
 	// llfloater
-	virtual BOOL canClose();
+	BOOL canClose() override;
 
 	// llpanel
-	virtual BOOL postBuild();
+	BOOL postBuild() override;
 
 	// reach into the text editor, and grab the drag item
 	const LLInventoryItem* getDragItem();
 
+// [SL:KB] - Patch: UI-FloaterSearchReplace | Checked: 2010-11-05 (Catznip-3.0.0) | Added: Catznip-2.3.0
+	LLTextEditor* getEditor();
+// [/SL:KB]
 
 	// return true if there is any embedded inventory.
 	bool hasEmbeddedInventory();
@@ -71,14 +80,11 @@ public:
 	// asset system. :(
 	void refreshFromInventory(const LLUUID& item_id = LLUUID::null);
 
-	// <FS:Ansariel> FIRE-9039: Close notecard after choosing "Save" in close confirmation
-	void checkCloseAfterSave();
-
 protected:
 
-	void updateTitleButtons();
-	virtual void loadAsset();
-	bool saveIfNeeded(LLInventoryItem* copyitem = NULL);
+	void updateTitleButtons() override;
+	void loadAsset() override;
+	bool saveIfNeeded(LLInventoryItem* copyitem = nullptr);
 
 	void deleteNotecard();
 

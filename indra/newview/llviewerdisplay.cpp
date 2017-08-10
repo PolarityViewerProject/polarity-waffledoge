@@ -43,6 +43,8 @@
 #include "lldrawpoolalpha.h"
 #include "llfeaturemanager.h"
 //#include "llfirstuse.h"
+#include "llfloaterprogressview.h"
+#include "llfloaterreg.h"
 #include "llhudmanager.h"
 #include "llimagebmp.h"
 #include "llmemory.h"
@@ -50,8 +52,10 @@
 #include "llsky.h"
 #include "llstartup.h"
 #include "lltoolfocus.h"
+#include "lltoolmgr.h"
 #include "lltooldraganddrop.h"
 #include "lltoolpie.h"
+#include "lltracker.h"
 #include "lltrans.h"
 #include "llui.h"
 #include "llviewercamera.h"
@@ -59,15 +63,18 @@
 #include "llviewerparcelmgr.h"
 #include "llviewerwindow.h"
 #include "llvoavatarself.h"
+#include "llvograss.h"
 #include "llworld.h"
 #include "pipeline.h"
 #include "llspatialpartition.h"
 #include "llappviewer.h"
+#include "llstartup.h"
 #include "llviewershadermgr.h"
 #include "llfasttimer.h"
 #include "llfloatertools.h"
 #include "llviewertexturelist.h"
 #include "llfocusmgr.h"
+#include "llcubemap.h"
 #include "llviewerregion.h"
 #include "lldrawpoolwater.h"
 #include "lldrawpoolbump.h"
@@ -77,11 +84,6 @@
 //#include "llprogressview.h"
 #include "pvfloaterprogressview.h"
 #include "llfloaterreg.h"
-
-// [RLVa:KB] - Checked: 2011-05-22 (RLVa-1.3.1a)
-#include "rlvhandler.h"
-#include "rlvlocks.h"
-// [/RLVa:KB]
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -116,6 +118,7 @@ const F32 TELEPORT_EXPIRY_PER_ATTACHMENT = 3.f;
 U32 gRecentFrameCount = 0; // number of 'recent' frames
 LLFrameTimer gRecentFPSTime;
 LLFrameTimer gRecentMemoryTime;
+LLFrameTimer gAssetStorageLogTime;
 
 // Rendering stuff
 void pre_show_depth_buffer();
@@ -231,12 +234,18 @@ void display_stats()
 	static LLCachedControl<F32> mem_log_freq(gSavedSettings, "MemoryLogFrequency");
 	if (mem_log_freq > 0.f && gRecentMemoryTime.getElapsedTimeF32() >= mem_log_freq)
 	{
-		gMemoryAllocated = (U64Bytes)LLMemory::getCurrentRSS();
+		gMemoryAllocated = U64Bytes(LLMemory::getCurrentRSS());
 		U32Megabytes memory = gMemoryAllocated;
 		LL_INFOS() << llformat("MEMORY: %d MB", memory.value()) << LL_ENDL;
 		LLMemory::logMemoryInfo(TRUE) ;
 		gRecentMemoryTime.reset();
 	}
+    F32 asset_storage_log_freq = gSavedSettings.getF32("AssetStorageLogFrequency");
+    if (asset_storage_log_freq > 0.f && gAssetStorageLogTime.getElapsedTimeF32() >= asset_storage_log_freq)
+    {
+        gAssetStorageLogTime.reset();
+        gAssetStorage->logAssetStorageInfo();
+    }
 }
 
 static LLTrace::BlockTimerStatHandle FTM_PICK("Picking");
@@ -515,9 +524,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// No teleport in progress
 			pProgFloater->setVisible(FALSE);
 			gTeleportDisplay = FALSE;
-// [SL:KB] - Patch: Appearance-TeleportAttachKill | Checked: Catznip-4.0
-			LLViewerParcelMgr::getInstance()->onTeleportDone();
-// [/SL:KB]
 			break;
 		}
 	}
@@ -1094,18 +1100,14 @@ void render_hud_attachments()
 	glm::mat4 current_mod = glm_get_current_modelview();
 
 	// clamp target zoom level to reasonable values
-//	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
-// [RLVa:KB] - Checked: 2010-08-22 (RLVa-1.2.1a) | Modified: RLVa-1.0.0c
-	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, (!gRlvAttachmentLocks.hasLockedHUD()) ? 0.1f : 0.85f, 1.f);
-// [/RLVa:KB]
-
+	gAgentCamera.mHUDTargetZoom = llclamp(gAgentCamera.mHUDTargetZoom, 0.1f, 1.f);
 	// smoothly interpolate current zoom level
 	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLSmoothInterpolation::getInterpolant(0.03f));
 
 	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
 		LLPipeline::sRenderingHUDs = TRUE;
-		LLCamera hud_cam = static_cast<LLCamera>(*LLViewerCamera::getInstance());
+		LLCamera hud_cam = *LLViewerCamera::getInstance();
 		hud_cam.setOrigin(-1.f,0,0);
 		hud_cam.setAxes(LLVector3(1,0,0), LLVector3(0,1,0), LLVector3(0,0,1));
 		LLViewerCamera::updateFrustumPlanes(hud_cam, TRUE);

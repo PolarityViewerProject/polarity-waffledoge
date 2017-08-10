@@ -40,7 +40,7 @@ class LLPostCard
 	LOG_CLASS(LLPostCard);
 
 public:
-	typedef boost::function<void(bool ok)> result_callback_t;
+	typedef std::function<void(bool ok)> result_callback_t;
 
 	static void setPostResultCallback(result_callback_t cb) { mResultCallback = cb; }
 	static void reportPostResult(bool ok);
@@ -57,7 +57,7 @@ public:
         std::string subject, std::string message, LLVector3d globalPosition,
         LLPointer<LLImageFormatted> image, invnUploadFinish_f finish);
 
-    virtual LLSD generatePostBody();
+	LLSD generatePostBody() override;
 private:
     std::string mNameFrom;
     std::string mEmailTo;

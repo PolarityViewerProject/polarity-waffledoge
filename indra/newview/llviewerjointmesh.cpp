@@ -57,12 +57,6 @@
 #include "m4math.h"
 #include "llmatrix4a.h"
 
-#if !LL_DARWIN && !LL_LINUX && !LL_SOLARIS
-extern PFNGLWEIGHTPOINTERARBPROC glWeightPointerARB;
-extern PFNGLWEIGHTFVARBPROC glWeightfvARB;
-extern PFNGLVERTEXBLENDARBPROC glVertexBlendARB;
-#endif
-
 static const U32 sRenderMask = LLVertexBuffer::MAP_VERTEX |
 							   LLVertexBuffer::MAP_NORMAL |
 							   LLVertexBuffer::MAP_TEXCOORD0;
@@ -225,7 +219,7 @@ U32 LLViewerJointMesh::drawShape( F32 pixelArea, BOOL first_pass, BOOL is_dummy)
 	if (!mValid || !mMesh || !mFace || !mVisible || 
 		!mFace->getVertexBuffer() ||
 		mMesh->getNumFaces() == 0 ||
-		(LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShaderPtr == NULL))
+		(LLGLSLShader::sNoFixedFunction && LLGLSLShader::sCurBoundShaderPtr == nullptr))
 	{
 		return 0;
 	}

@@ -33,6 +33,7 @@
 #include "llagent.h"
 #include "llagentui.h"
 #include "llclipboard.h"
+#include "llfloaterreg.h" // <alchemy/>
 #include "llfloatersidepanelcontainer.h"
 #include "lllandmarkactions.h"
 #include "lllocationinputctrl.h"
@@ -46,9 +47,6 @@
 #include "llviewermenu.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-#include "rlvhandler.h"
-// [/RLVa:KB]
 
 class LLPanelTopInfoBar::LLParcelChangeObserver : public LLParcelObserver
 {
@@ -56,7 +54,7 @@ public:
 	LLParcelChangeObserver(LLPanelTopInfoBar* topInfoBar) : mTopInfoBar(topInfoBar) {}
 
 private:
-	/*virtual*/ void changed()
+	/*virtual*/ void changed() override
 	{
 		if (mTopInfoBar)
 		{
@@ -67,7 +65,7 @@ private:
 	LLPanelTopInfoBar* mTopInfoBar;
 };
 
-LLPanelTopInfoBar::LLPanelTopInfoBar(): mParcelChangedObserver(0)
+LLPanelTopInfoBar::LLPanelTopInfoBar(): mParcelChangedObserver(nullptr)
 {
 	buildFromFile( "panel_topinfo_bar.xml");
 }
@@ -457,47 +455,31 @@ void LLPanelTopInfoBar::onContextMenuItemClicked(const LLSD::String& item)
 {
 	if (item == "landmark")
 	{
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		{
-// [/RLVa:KB]
-			LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
+		LLViewerInventoryItem* landmark = LLLandmarkActions::findLandmarkForAgentPos();
 
-			if(landmark == NULL)
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
-			}
-			else
-			{
-				LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
-			}
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
+		if(landmark == nullptr)
+		{
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "create_landmark"));
 		}
-// [/RLVa:KB]
+		else
+		{
+			LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "landmark").with("id",landmark->getUUID()));
+		}
 	}
 	else if (item == "copy")
 	{
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-		if (!gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		{
-// [/RLVa:KB]
-			LLSLURL slurl;
-			LLAgentUI::buildSLURL(slurl, false);
-			LLUIString location_str(slurl.getSLURLString());
+		LLSLURL slurl;
+		LLAgentUI::buildSLURL(slurl, false);
+		LLUIString location_str(slurl.getSLURLString());
 
-			LLClipboard::instance().copyToClipboard(location_str,0,location_str.length());
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-		}
-// [/RLVa:KB]
+		LLClipboard::instance().copyToClipboard(location_str,0,location_str.length());
 	}
 }
 
 void LLPanelTopInfoBar::onInfoButtonClicked()
 {
-// [RLVa:KB] - Checked: 2012-02-08 (RLVa-1.4.5) | Added: RLVa-1.4.5
-	if (gRlvHandler.hasBehaviour(RLV_BHVR_SHOWLOC))
-		return;
-// [/RLVa:KB]
-
-	LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "agent"));
+	// <alchemy>
+	LLViewerParcelMgr::getInstance()->selectParcelAt(gAgent.getPositionGlobal());
+	LLFloaterReg::showInstance("about_land");
+	// </alchemy>
 }

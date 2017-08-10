@@ -50,8 +50,6 @@
 #include "llviewermessage.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
-#include "lluictrlfactory.h"
-#include "llviewerwindow.h"
 #include "llfloaterregioninfo.h"
 
 LLFloaterTopObjects::LLFloaterTopObjects(const LLSD& key)
@@ -80,7 +78,7 @@ BOOL LLFloaterTopObjects::postBuild()
 {
 	LLScrollListCtrl *objects_list = getChild<LLScrollListCtrl>("objects_list");
 	getChild<LLUICtrl>("objects_list")->setFocus(TRUE);
-	objects_list->setDoubleClickCallback(boost::bind(&LLFloaterTopObjects::onDoubleClickObjectsList, this));
+	objects_list->setDoubleClickCallback(onDoubleClickObjectsList, this);
 	objects_list->setCommitOnSelectionChange(TRUE);
 
 	setDefaultBtn("show_beacon_btn");
@@ -91,9 +89,12 @@ BOOL LLFloaterTopObjects::postBuild()
 
 	return TRUE;
 }
+// static
 void LLFloaterTopObjects::setMode(U32 mode)
 {
-	mCurrentMode = mode; 
+	LLFloaterTopObjects* instance = LLFloaterReg::getTypedInstance<LLFloaterTopObjects>("top_objects");
+	if(!instance) return;
+	instance->mCurrentMode = mode; 
 }
 
 // static 
@@ -299,11 +300,14 @@ void LLFloaterTopObjects::updateSelectionInfo()
 	}
 }
 
-void LLFloaterTopObjects::onDoubleClickObjectsList()
+// static
+void LLFloaterTopObjects::onDoubleClickObjectsList(void* data)
 {
-	showBeacon();
+	LLFloaterTopObjects* self = (LLFloaterTopObjects*)data;
+	self->showBeacon();
 }
 
+// static
 void LLFloaterTopObjects::onClickShowBeacon()
 {
 	showBeacon();
@@ -384,10 +388,12 @@ void LLFloaterTopObjects::onReturnAll()
 	LLNotificationsUtil::add("ReturnAllTopObjects", LLSD(), LLSD(), &callbackReturnAll);
 }
 
+
 void LLFloaterTopObjects::onReturnSelected()
 {
 	doToObjects(ACTION_RETURN, false);
 }
+
 
 //static
 bool LLFloaterTopObjects::callbackDisableAll(const LLSD& notification, const LLSD& response)
@@ -411,6 +417,7 @@ void LLFloaterTopObjects::onDisableSelected()
 {
 	doToObjects(ACTION_DISABLE, false);
 }
+
 
 void LLFloaterTopObjects::clearList()
 {
@@ -489,6 +496,7 @@ void LLFloaterTopObjects::onGetByParcelName()
 	onRefresh();
 }
 
+
 void LLFloaterTopObjects::showBeacon()
 {
 	LLScrollListCtrl* list = getChild<LLScrollListCtrl>("objects_list");
@@ -507,5 +515,5 @@ void LLFloaterTopObjects::showBeacon()
 	LLVector3 pos_agent(x, y, z);
 	LLVector3d pos_global = gAgent.getPosGlobalFromAgent(pos_agent);
 	std::string tooltip("");
-	LLTracker::trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
+	LLTracker::getInstance()->trackLocation(pos_global, name, tooltip, LLTracker::LOCATION_ITEM);
 }

@@ -36,15 +36,20 @@
 #include "llgl.h"
 #include "llglheaders.h"
 #include "llhost.h"
+#include "lliconctrl.h" // DEFAULT_ICON_SIZE
 #include "llimage.h"
+#include "llimagebmp.h"
 #include "llimagej2c.h"
+#include "llimagetga.h"
 #include "llstl.h"
+#include "llvfile.h"
 #include "llvfs.h"
 #include "message.h"
 #include "lltimer.h"
 
 // viewer includes
 #include "llimagegl.h"
+#include "lldateutil.h"
 #include "lldrawpool.h"
 #include "lltexturefetch.h"
 #include "llviewertexturelist.h"
@@ -65,11 +70,10 @@
 const S32Megabytes gMinVideoRam(32);
 #endif
 #ifdef LL_X86_64
-S32Megabytes gMaxVideoRam;
+/*const*/S32Megabytes gMaxVideoRam;
 #else
-S32Megabytes gMaxVideoRam(1024);
+/*const*/S32Megabytes gMaxVideoRam(1024);
 #endif
-
 
 // statics
 LLPointer<LLViewerTexture>        LLViewerTexture::sNullImagep = NULL;
@@ -80,9 +84,6 @@ LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sWhiteImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sSmokeImagep = NULL;
 LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sFlatNormalImagep = NULL;
-// [SL:KB] - Patch: Render-TextureToggle (Catznip-4.0)
-LLPointer<LLViewerFetchedTexture> LLViewerFetchedTexture::sDefaultDiffuseImagep = NULL;
-// [/SL:KB]
 LLViewerMediaTexture::media_map_t LLViewerMediaTexture::sMediaMap;
 LLTexturePipelineTester* LLViewerTextureManager::sTesterp = NULL;
 const std::string sTesterName("TextureTester");
@@ -95,7 +96,7 @@ F32 LLViewerTexture::sDesiredDiscardBias = 0.f;
 F32 LLViewerTexture::sDesiredDiscardScale = 1.1f;
 S32Megabytes LLViewerTexture::sMaxBoundTextureMemory;
 S32Megabytes LLViewerTexture::sMaxTotalTextureMem;
-#ifdef LL_X86_64
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
 S64Bytes LLViewerTexture::sBoundTextureMemory;
 S64Bytes LLViewerTexture::sTotalTextureMemory;
 S64Bytes LLViewerTexture::sMaxDesiredTextureMem;
@@ -110,7 +111,6 @@ S32 LLViewerTexture::sMaxSculptRez = 128; //max sculpt image size
 const S32 MAX_CACHED_RAW_IMAGE_AREA = 64 * 64;
 const S32 MAX_CACHED_RAW_SCULPT_IMAGE_AREA = LLViewerTexture::sMaxSculptRez * LLViewerTexture::sMaxSculptRez;
 const S32 MAX_CACHED_RAW_TERRAIN_IMAGE_AREA = 128 * 128;
-const S32 DEFAULT_ICON_DIMENTIONS = 32;
 S32 LLViewerTexture::sMinLargeImageSize = 65536; //256 * 256.
 S32 LLViewerTexture::sMaxSmallImageSize = MAX_CACHED_RAW_IMAGE_AREA;
 BOOL LLViewerTexture::sFreezeImageScalingDown = FALSE;
@@ -138,9 +138,9 @@ LLLoadedCallbackEntry::LLLoadedCallbackEntry(loaded_callback_func cb,
 	  mLastUsedDiscard(MAX_DISCARD_LEVEL+1),
 	  mDesiredDiscard(discard_level),
 	  mNeedsImageRaw(need_imageraw),
-	  mPaused(pause),
 	  mUserData(userdata),
-	  mSourceCallbackList(src_callback_list)
+	  mSourceCallbackList(src_callback_list),
+	  mPaused(pause)
 {
 	if(mSourceCallbackList)
 	{
@@ -502,7 +502,7 @@ bool LLViewerTexture::isMemoryForTextureLow()
 	LL_RECORD_BLOCK_TIME(FTM_TEXTURE_MEMORY_CHECK);
 
 	const S32Megabytes MIN_FREE_TEXTURE_MEMORY(20); //MB Changed to 20 MB per MAINT-6882
-	//const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
+	const S32Megabytes MIN_FREE_MAIN_MEMORY(100); //MB	
 
 	bool low_mem = false;
 	if (gGLManager.mHasATIMemInfo)
@@ -2292,48 +2292,28 @@ void LLViewerFetchedTexture::forceToDeleteRequest()
 
 void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 {
-	if (!is_missing)
+	if (is_missing == mIsMissingAsset)
 	{
-		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
+		return;
 	}
-	else
+	if (is_missing)
 	{
-		if (is_missing == mIsMissingAsset)
-		{
-			return;
-		}
-
 		notifyAboutMissingAsset();
 
-		mIsMissingAsset = is_missing;
-
-		//if (mUrl.empty())
-		//{
-		//	LL_DEBUGS() << mID << ": Marking image as missing" << LL_ENDL;
-		//}
-		//else
-		//{
-		//	// This may or may not be an error - it is normal to have no
-		//	// map tile on an empty region, but bad if we're failing on a
-		//	// server bake texture.
-		//	if (getFTType() != FTT_MAP_TILE)
-		//	{
-		//		LL_DEBUGS() << mUrl << ": Marking image as missing" << LL_ENDL;
-		//	}
-		//}
-		// <polarity>
-		std::string missing_asset;
-		if (!mUrl.empty() && getFTType() != FTT_MAP_TILE)
+		if (mUrl.empty())
 		{
-			missing_asset = mUrl;
+			LL_WARNS() << mID << ": Marking image as missing" << LL_ENDL;
 		}
 		else
 		{
-			missing_asset = mID.asString();
+			// This may or may not be an error - it is normal to have no
+			// map tile on an empty region, but bad if we're failing on a
+			// server bake texture.
+			if (getFTType() != FTT_MAP_TILE)
+			{
+				LL_WARNS() << mUrl << ": Marking image as missing" << LL_ENDL;
+			}
 		}
-		static LLCachedControl<bool> log_missing_assets(gSavedSettings, "PVDebug_LogMissingAssets", false);
-		LL_DEBUGS() << missing_asset << ": Marking image as missing" << LL_ENDL;
-
 		if (mHasFetcher)
 		{
 			LLAppViewer::getTextureFetch()->deleteRequest(getID(), true);
@@ -2344,6 +2324,11 @@ void LLViewerFetchedTexture::setIsMissingAsset(BOOL is_missing)
 			mFetchPriority = 0;
 		}
 	}
+	else
+	{
+		LL_INFOS() << mID << ": un-flagging missing asset" << LL_ENDL;
+	}
+	mIsMissingAsset = is_missing;
 }
 
 void LLViewerFetchedTexture::setLoadedCallback( loaded_callback_func loaded_callback,
@@ -2727,7 +2712,7 @@ bool LLViewerFetchedTexture::doLoadedCallbacks()
 				//llassert_always(mRawImage.notNull());
 				if(mNeedsAux && mAuxRawImage.isNull())
 				{
-					LL_DEBUGS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
+					LL_WARNS() << "Raw Image with no Aux Data for callback" << LL_ENDL;
 				}
 				BOOL final = mRawDiscardLevel <= entryp->mDesiredDiscard ? TRUE : FALSE;
 				//LL_INFOS() << "Running callback for " << getID() << LL_ENDL;
@@ -2929,8 +2914,8 @@ void LLViewerFetchedTexture::setCachedRawImage(S32 discard_level, LLImageRaw* im
     {
         if (mBoostLevel == LLGLTexture::BOOST_ICON)
         {
-            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+            S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_SIZE;
+            S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_SIZE;
             if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
             {
                 mCachedRawImage = new LLImageRaw(expected_width, expected_height, imageraw->getComponents());
@@ -3034,10 +3019,11 @@ void LLViewerFetchedTexture::saveRawImage()
 	}
 
 	mSavedRawDiscardLevel = mRawDiscardLevel;
+
     if (mBoostLevel == LLGLTexture::BOOST_ICON)
     {
-        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+        S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_SIZE;
+        S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_SIZE;
         if (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height)
         {
             mSavedRawImage = new LLImageRaw(expected_width, expected_height, mRawImage->getComponents());
@@ -3149,6 +3135,29 @@ BOOL LLViewerFetchedTexture::hasSavedRawImage() const
 F32 LLViewerFetchedTexture::getElapsedLastReferencedSavedRawImageTime() const
 { 
 	return sCurrentTime - mLastReferencedSavedRawImageTime;
+}
+
+LLUUID LLViewerFetchedTexture::getUploader()
+{
+	return (mComment.find('a') != mComment.end()) ? LLUUID(mComment['a']) : LLUUID::null;
+}
+
+LLDate LLViewerFetchedTexture::getUploadTime()
+{
+	if (mComment.find('z') != mComment.end())
+	{
+		struct tm t = {0};
+		sscanf(mComment['z'].c_str(), "%4d%2d%2d%2d%2d%2d",
+			   &t.tm_year, &t.tm_mon, &t.tm_mday, &t.tm_hour, &t.tm_min, &t.tm_sec);
+		std::string iso_date = llformat("%d-%d-%dT%d:%d:%dZ", t.tm_year, t.tm_mon, t.tm_mday, t.tm_hour, t.tm_min, t.tm_sec);
+		return LLDate(iso_date);
+	}
+	return LLDate();
+}
+
+std::string LLViewerFetchedTexture::getComment()
+{
+	return (mComment.find('K') != mComment.end()) ? mComment['K'] : LLStringUtil::null;
 }
 
 //----------------------------------------------------------------------------------------------
@@ -3266,8 +3275,8 @@ void LLViewerLODTexture::processTextureStats()
 		discard_level = floorf(discard_level);
 
 		F32 min_discard = 0.f;
-		if (mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE)
-			min_discard = 1.f;
+		if (mFullWidth > MAX_IMAGE_SIZE_DEFAULT || mFullHeight > MAX_IMAGE_SIZE_DEFAULT)
+			min_discard = 1.f; // MAX_IMAGE_SIZE_DEFAULT = 1024 and max size ever is 2048
 
 		discard_level = llclamp(discard_level, min_discard, (F32)MAX_DISCARD_LEVEL);
 		

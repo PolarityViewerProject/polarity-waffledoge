@@ -69,8 +69,8 @@
 class LLMaterialHttpHandler : public LLHttpSDHandler
 {
 public: 
-	typedef boost::function<void(bool, const LLSD&)> CallbackFunction;
-	typedef boost::shared_ptr<LLMaterialHttpHandler> ptr_t;
+	typedef std::function<void(bool, const LLSD&)> CallbackFunction;
+	typedef std::shared_ptr<LLMaterialHttpHandler> ptr_t;
 
 	LLMaterialHttpHandler(const std::string& method, CallbackFunction cback);
 
@@ -527,7 +527,6 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 		LL_WARNS("Materials") << "Cannot unzip LLSD binary content" << LL_ENDL;
 		return;
 	}
-#if DEBUG_MATERIAL_DATA_FROM_SERVER
 	else
 	{
 		llassert(response_data.isArray());
@@ -554,7 +553,6 @@ void LLMaterialMgr::onPutResponse(bool success, const LLSD& content)
 			// *TODO: do we really still need to process this?
 		}
 	}
-#endif
 }
 
 static LLTrace::BlockTimerStatHandle FTM_MATERIALS_IDLE("Idle Materials");
@@ -645,7 +643,7 @@ void LLMaterialMgr::processGetQueue()
 		{
 			material_queue_t::iterator itMaterial = loopMaterial++;
 			materialsData.append((*itMaterial).asLLSD());
-			markGetPending(region_id, *itMaterial);
+			markGetPending(region_id, *itMaterial); // <alchemy/> - crash blah
 			materials.erase(itMaterial);
 		}
 		if (materials.empty())

@@ -50,11 +50,6 @@
 #include "llviewerchat.h"
 #include "lltranslate.h"
 #include "llautoreplace.h"
-// [RLVa:KB] - Checked: 2010-02-27 (RLVa-1.2.0b)
-//#include "rlvactions.h"
-//#include "rlvcommon.h"
-//#include "rlvhandler.h"
-// [/RLVa:KB]
 
 #include "alchatcommand.h"
 

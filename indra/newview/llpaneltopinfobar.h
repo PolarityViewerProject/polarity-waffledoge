@@ -46,8 +46,8 @@ class LLPanelTopInfoBar : public LLPanel, public LLSingleton<LLPanelTopInfoBar>,
 public:
 	typedef boost::signals2::signal<void ()> resize_signal_t;
 
-	/*virtual*/ BOOL postBuild();
-	/*virtual*/ void draw();
+	/*virtual*/ BOOL postBuild() override;
+	/*virtual*/ void draw() override;
 
 	/**
 	 * Updates location and parcel icons on login complete
@@ -61,12 +61,6 @@ public:
 
 	boost::signals2::connection setResizeCallback( const resize_signal_t::slot_type& cb );
 
-// [RLVa:KB] - Checked: 2014-03-23 (RLVa-1.4.10)
-	/**
-	 * Shorthand to call updateParcelInfoText() and updateParcelIcons().
-	 */
-	void update();
-// [/RLV:KB]
 private:
 	class LLParcelChangeObserver;
 
@@ -89,7 +83,7 @@ private:
 	 */
 	void initParcelIcons();
 
-	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask);
+	BOOL handleRightMouseDown(S32 x, S32 y, MASK mask) override;
 
 	/**
 	 * Handles clicks on the parcel icons.
@@ -116,10 +110,10 @@ private:
 	 */
 	void onNavBarShowParcelPropertiesCtrlChanged();
 
-//	/**
-//	 * Shorthand to call updateParcelInfoText() and updateParcelIcons().
-//	 */
-//	void update();
+	/**
+	 * Shorthand to call updateParcelInfoText() and updateParcelIcons().
+	 */
+	void update();
 
 	/**
 	 * Updates parcel info text (mParcelInfoText).

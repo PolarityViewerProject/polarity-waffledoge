@@ -416,31 +416,19 @@ public:
 		DOUBLETAP_SLIDERIGHT
 	};
 
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	void			setAlwaysRun();
-	void			setTempRun();
-	void			clearAlwaysRun();
-	void			clearTempRun();
-	void 			sendWalkRun();
-	bool			getTempRun()			{ return mbTempRun; }
-	bool			getRunning() const 		{ return (mbAlwaysRun) || (mbTempRun); }
-// [/RLVa:KB]
-//	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
-//	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
-//	void			setRunning() 			{ mbRunning = true; }
-//	void			clearRunning() 			{ mbRunning = false; }
-//	void 			sendWalkRun(bool running);
+	void			setAlwaysRun() 			{ mbAlwaysRun = true; }
+	void			clearAlwaysRun() 		{ mbAlwaysRun = false; }
+	void			setRunning() 			{ mbRunning = true; }
+	void			clearRunning() 			{ mbRunning = false; }
+	void 			sendWalkRun(bool running);
 	bool			getAlwaysRun() const 	{ return mbAlwaysRun; }
-//	bool			getRunning() const 		{ return mbRunning; }
+	bool			getRunning() const 		{ return mbRunning; }
 public:
 	LLFrameTimer 	mDoubleTapRunTimer;
 	EDoubleTapRunMode mDoubleTapRunMode;
 private:
 	bool 			mbAlwaysRun; 			// Should the avatar run by default rather than walk?
-// [RLVa:KB] - Checked: 2011-05-11 (RLVa-1.3.0i) | Added: RLVa-1.3.0i
-	bool 			mbTempRun;
-// [/RLVa:KB]
-//	bool 			mbRunning;				// Is the avatar trying to run right now?
+	bool 			mbRunning;				// Is the avatar trying to run right now?
 	bool			mbTeleportKeepsLookAt;	// Try to keep look-at after teleport is complete
 
 	//--------------------------------------------------------------------
@@ -545,12 +533,12 @@ private:
 	// All turn off autopilot and make sure the camera is behind the avatar.
 	// Direction is either positive, zero, or negative
 public:
-	void			moveAt(S32 direction, bool reset_view = true);
+	void			moveAt(S32 direction, const bool reset_view = false);
 	void			moveAtNudge(S32 direction);
-	void			moveLeft(S32 direction);
+	void			moveLeft(S32 direction, const bool reset_view = false);
 	void			moveLeftNudge(S32 direction);
-	void			moveUp(S32 direction);
-	void			moveYaw(F32 mag, bool reset_view = true);
+	void			moveUp(S32 direction, const bool reset_view = false);
+	void			moveYaw(F32 mag, const bool reset_view = false);
 	void			movePitch(F32 mag);
 
 	BOOL			isMovementLocked() const				{ return mMovementKeysLocked; }

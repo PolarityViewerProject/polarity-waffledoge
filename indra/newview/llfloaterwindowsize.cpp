@@ -41,9 +41,6 @@
 // System libraries
 #include <boost/regex.hpp>
 
-// Settings
-#include "llviewercontrol.h"
-
 // Extract from strings of the form "<width> x <height>", e.g. "640 x 480".
 bool extractWindowSizeFromString(const std::string& instr, U32 *width, U32 *height)
 {
@@ -52,8 +49,8 @@ bool extractWindowSizeFromString(const std::string& instr, U32 *width, U32 *heig
 	const boost::regex expression("([0-9]+)[^0-9]+([0-9]+)");
 	if (boost::regex_match(instr.c_str(), what, expression))
 	{
-		*width = atoi(what[1].first);
-		*height = atoi(what[2].first);
+		*width = std::stoi(what[1].first);
+		*height = std::stoi(what[2].first);
 		return true;
 	}
 	
@@ -120,13 +117,6 @@ void LLFloaterWindowSize::onClickSet()
 	std::string resolution = ctrl_window_size->getValue().asString();
 	if (extractWindowSizeFromString(resolution, &width, &height))
 	{
-		// FS:TS FIRE-6182, from Niran's Viewer
-		//additionally set WindowHeight and WindowWidth to the set values to prevent
-		//the window size to go back to the set default after restart
-		gSavedSettings.setS32("WindowWidth",width);
-		gSavedSettings.setS32("WindowHeight",height);
-		// FS:TS FIRE-6182 end
-
 		LLViewerWindow::movieSize(width, height);
 	}
 	closeFloater();
