@@ -608,7 +608,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
 			chat["text_color"] = r_color_name;
 			chat["color_alpha"] = r_color_alpha;
-			chat["font_size"] = (S32)LLViewerChat::getChatFontSize();
+			chat["font_size"] = (S32)gSavedSettings.getS32("ChatFontSize");
 			chat["message"] = toast_msg;
 			channel->addChat(chat);
 		}
