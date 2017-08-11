@@ -69,9 +69,9 @@ BOOL check_for_card(const char* RENDERER, const char* bad_card)
 	if (!strnicmp(RENDERER, bad_card, strlen(bad_card)))
 	{
 		std::string buffer = llformat(
-			"Your video card appears to be a %s, which Alchemy does not support.\n"
+			"Your video card appears to be a %s, which Polarity does not support.\n"
 			"\n"
-			"Alchemy requires a video card with 32 Mb of memory or more, as well as\n"
+			"Polarity requires a video card with 32 Mb of memory or more, as well as\n"
 			"multitexture support.  We explicitly support nVidia GeForce 2 or better, \n"
 			"and ATI Radeon 8500 or better... A LOT better. lol\n"
 			"\n"

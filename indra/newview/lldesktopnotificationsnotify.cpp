@@ -48,7 +48,7 @@ LLDesktopNotificationsNotify::LLDesktopNotificationsNotify()
 	notify_init = (notify_init_t) dlsym(handle, "notify_init");
 	notify_notification_new = (notify_notification_new_t) dlsym(handle, "notify_notification_new");
 	notify_notification_show = (notify_notification_show_t) dlsym(handle, "notify_notification_show");
-	notify_init("Alchemy Viewer");
+	notify_init("Polarity Viewer");
     }
 }
 

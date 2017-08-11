@@ -101,7 +101,10 @@ LLWindowSDL2::LLWindowSDL2(LLWindowCallbacks* callbacks,
 	mWindowName = name;
 
 	if (title.empty())
-		mWindowTitle = "Alchemy Viewer";
+	{
+		static std::string app_name_str = APP_NAME;
+		mWindowTitle = app_name_str + " Viewer";
+	}
 	else
 		mWindowTitle = title;
 
