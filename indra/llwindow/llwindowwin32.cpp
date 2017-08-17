@@ -131,6 +131,7 @@ HKL		LLWindowWin32::sWinInputLocale = nullptr;
 DWORD	LLWindowWin32::sWinIMEConversionMode = IME_CMODE_NATIVE;
 DWORD	LLWindowWin32::sWinIMESentenceMode = IME_SMODE_AUTOMATIC;
 LLCoordWindow LLWindowWin32::sWinIMEWindowPosition(-1,-1);
+DWORD	LLWindowWin32::mRefreshRate = 0;
 
 // The following class LLWinImm delegates Windows IMM APIs.
 // We need this because some language versions of Windows,
@@ -542,16 +543,7 @@ LLWindowWin32::LLWindowWin32(LLWindowCallbacks* callbacks,
 	DEVMODE dev_mode;
 	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
 	dev_mode.dmSize = sizeof(DEVMODE);
-	DWORD current_refresh;
-	if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &dev_mode))
-	{
-		current_refresh = dev_mode.dmDisplayFrequency;
-		mNativeAspectRatio = ((F32)dev_mode.dmPelsWidth) / ((F32)dev_mode.dmPelsHeight);
-	}
-	else
-	{
-		current_refresh = 60;
-	}
+	DWORD current_refresh = getRefreshRate();
 
 	//-----------------------------------------------------------------------
 	// Drop resolution and go fullscreen
@@ -942,7 +934,7 @@ BOOL LLWindowWin32::switchContext(U32 window_mode, const LLCoordScreen &size, U3
 	DEVMODE dev_mode;
 	::ZeroMemory(&dev_mode, sizeof(DEVMODE));
 	dev_mode.dmSize = sizeof(DEVMODE);
-	DWORD	current_refresh;
+	DWORD	current_refresh = getRefreshRate();
 	DWORD	dw_ex_style;
 	DWORD	dw_style;
 	RECT	window_rect = {0, 0, 0, 0};
@@ -955,16 +947,6 @@ BOOL LLWindowWin32::switchContext(U32 window_mode, const LLCoordScreen &size, U3
 		auto_show = TRUE;
 		resetDisplayResolution();
 	}
-
-	if (EnumDisplaySettings(nullptr, ENUM_CURRENT_SETTINGS, &dev_mode))
-	{
-		current_refresh = dev_mode.dmDisplayFrequency;
-	}
-	else
-	{
-		current_refresh = 60;
-	}
-
 	gGLManager.shutdownGL();
 	//destroy gl context
 	if (mhRC)
@@ -4030,6 +4012,40 @@ F32 LLWindowWin32::getSystemUISize()
 	ReleaseDC(hWnd, hdc);
 	return scale_value;
 }
+
+DWORD LLWindowWin32::getRefreshRate(DEVMODE dev_mode)
+{
+	if (mRefreshRate == 0)
+	{
+		if (EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dev_mode))
+		{
+			mRefreshRate = dev_mode.dmDisplayFrequency;
+		}
+		else
+		{
+			// Fallback number in case things go wrong. Not 60 to make sure we know when it goes wrong
+			// since the common refresh rate of displays at the time of writng this is still 60.
+			mRefreshRate = 15;
+		}
+		llassert_always(mRefreshRate != 0); // That's impossible!
+		return mRefreshRate;
+	}
+	return mRefreshRate;
+}
+DWORD LLWindowWin32::getRefreshRate()
+{
+	if (mRefreshRate == 0)
+	{
+		DEVMODE dev_mode;
+		dev_mode.dmSize = sizeof(DEVMODE);
+		static const size_t dev_size = sizeof(DEVMODE);
+		::ZeroMemory(&dev_mode, dev_size);
+		dev_mode.dmSize = dev_size;
+		return getRefreshRate(dev_mode);
+	}
+	return mRefreshRate;
+}
+
 
 //static
 std::vector<std::string> LLWindowWin32::getDynamicFallbackFontList()

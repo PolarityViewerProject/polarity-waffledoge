@@ -109,6 +109,8 @@ public:
 
 	/*virtual*/ F32 getSystemUISize() override;
 
+	static DWORD getRefreshRate(DEVMODE dev_mode);
+	static DWORD getRefreshRate();
 	LLWindowCallbacks::DragNDropResult completeDragNDropRequest( const LLCoordGL gl_coord, const MASK mask, LLWindowCallbacks::DragNDropAction action, const std::string url );
 
 	static std::vector<std::string> getDynamicFallbackFontList();
@@ -211,6 +213,7 @@ protected:
 	U32				mRawWParam;
 	U32				mRawLParam;
 
+	static DWORD	mRefreshRate;
 	friend class LLWindowManager;
 };
 
