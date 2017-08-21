@@ -128,8 +128,7 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	gAgentCamera.mDrawDistance = draw_distance;
 	LLWorld::getInstance()->setLandFarClip(draw_distance);
 	// <polarity>
-	static LLCachedControl<bool> sync_far_clip(gSavedSettings, "PVRender_SyncFarClip", true);
-	if(sync_far_clip)
+	if(gSavedSettings.getBOOL("PVRender_SyncFarClip"))
 	{
 		gSavedSettings.setF32("RenderShadowFarClip", gAgentCamera.mDrawDistance + 96);
 	}
@@ -704,6 +703,7 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
+	static LLCachedControl<bool> render_alpha(gSavedSettings, "RenderEnableAlpha");
 ////////////////////////////////////////////////////////////////////////////
 
 // FPS Limiter
