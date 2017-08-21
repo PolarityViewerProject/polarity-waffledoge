@@ -11755,7 +11755,7 @@
       <key>Type</key>
       <string>String</string>
       <key>Value</key>
-      <string>default</string>
+      <string>polarity</string>
     </map>
     <key>SkinningSettingsFile</key>
     <map>
