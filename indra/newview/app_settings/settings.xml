@@ -1698,7 +1698,7 @@
     <key>ChatFontSize</key>
     <map>
       <key>Comment</key>
-      <string>Size of chat text in chat console (0 = small, 1 = big)</string>
+      <string>Size of chat text in chat console (0 = monospace, 1 = small, 2 = normal, 3 = big, 4 = huge)</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

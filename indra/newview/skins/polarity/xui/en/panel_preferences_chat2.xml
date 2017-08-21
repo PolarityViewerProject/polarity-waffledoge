@@ -287,27 +287,27 @@
         name="chat_font_size"
         top_delta="0"
         width="100">
-        <item
-          label="Monospace"
-          name="Monospace"
-          value="-5" >
-        </item>
-        <item
-          label="Small"
-          name="Small"
-          value="-1">
-        </item>
-        <item
-          label="Medium"
-          name="Medium"
-          value="0">
-        </item>
-        <item
-          label="Large"
-          name="Large"
-          value="1">
-        </item>
-      </combo_box>
+        <combo_box.item
+         label="Monospace"
+         name="Monospace Font"
+         value="0" />
+        <combo_box.item
+         label="Small"
+         name="Small Font"
+         value="1" />
+        <combo_box.item
+         label="Medium"
+         name="Medium Font"
+         value="2" />
+        <combo_box.item
+         label="Large"
+         name="Large Font"
+         value="3" />
+        <combo_box.item
+         label="Huge"
+         name="Huge Font"
+         value="4" />
+       </combo_box>
     </panel>
     <panel
       top_pad="1"
