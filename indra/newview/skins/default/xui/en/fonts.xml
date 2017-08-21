@@ -2,14 +2,18 @@
 <fonts>
 
   <font name="default" comment="default font files (global fallbacks)">
-    <file>SourceSansPro-Semibold.ttf</file>
-    <file>SourceHanSans-Normal.otf</file>
     <file>DejaVuSans.ttf</file>
     <os name="Windows">
+      <file>Symbola.ttf</file> <!-- Packaged -->
+      <file>Nirmala.ttf</file> <!-- Windows 10 -->
+      <file>NirmalaB.ttf</file> <!-- Windows 10 -->
+      <file>NirmalaS.ttf</file> <!-- Windows 10 -->
+      <file>ArialUni.ttf</file> <!-- Office -->
       <file>MSGOTHIC.TTC</file>
       <file>gulim.ttc</file>
       <file>simhei.ttf</file>
-      <file>ArialUni.ttf</file>
+      <file>symbol.ttf</file> <!-- If you hit this, you're fucked. -->
+
     </os>
     <os name="Mac">
       <file>ヒラギノ角ゴシック W3.ttc</file>  
@@ -25,7 +29,7 @@
 
   <font name="SansSerifBold"
 	comment="Name of bold sans-serif font">
-    <file>SourceSansPro-Bold.ttf</file>
+    <file>DejaVuSans-Bold.ttf</file>
     <os name="Windows">
       <file>arialbd.ttf</file>
       </os>
@@ -35,7 +39,7 @@
   </font>
 
   <font name="SansSerif" comment="Name of san-serif font (Truetype file name)">
-    <file>SourceSansPro-Semibold.ttf</file>
+    <file>DejaVuSans.ttf</file>
     <os name="Windows">
       <file>arial.ttf</file>
       </os>
@@ -47,24 +51,24 @@
   <font name="SansSerif"
 	comment="Name of bold sans-serif font"
 	font_style="BOLD">
-    <file>SourceSansPro-Bold.ttf</file>
+    <file>DejaVuSans-Bold.ttf</file>
   </font>
 
   <font name="SansSerif"
 	comment="Name of italic sans-serif font"
 	font_style="ITALIC">
-    <file>SourceSansPro-SemiboldIt.ttf</file>
+    <file>DejaVuSans-Oblique.ttf</file>
   </font>
 
   <font name="SansSerif"
 	comment="Name of bold italic sans-serif font"
 	font_style="BOLD|ITALIC">
-    <file>SourceSansPro-BoldIt.ttf</file>
+    <file>DejaVuSans-BoldOblique.ttf</file>
   </font>
 
   <font name="Monospace"
 	comment="Name of monospace font">
-    <file>SourceCodePro-Regular.ttf</file>
+    <file>DejaVuSansMono.ttf</file>
   </font>
 
   <font name="DejaVu"
@@ -145,22 +149,62 @@
 
   <font_size name="Monospace"
 	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-	     size="9.0"
+	     size="10.6"
 	     />
+  <font_size name="MonospaceSmall"
+       comment="Size for monospaced font (points, or 1/72 of an inch)"
+       size="5.0"
+       />
+  <font_size name="Gigantic"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="18.6"
+       />
+  <font_size name="Humongous"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="17.6"
+       />    
+  <font_size name="VeryHuge"
+       comment="Size of huge font (points, or 1/72 of an inch)"
+       size="16.6"
+       />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
-	     size="16.0"
+	     size="15.6"
 	     />
+  <font_size name="VeryLarge"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="14.6"
+       />
   <font_size name="Large"
-	     comment="Size of large font (points, or 1/72 of an inch)"
-	     size="11.6"
-	     />
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="13.6"
+       />
+  <font_size name="VeryBig"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="12.6"
+       />
+  <font_size name="Big"
+       comment="Size of large font (points, or 1/72 of an inch)"
+       size="11.6"
+       />
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
-	     size="10.4"
+	     size="10.6"
 	     />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
-	     size="9.4"
+	     size="9.6"
 	     />
+  <font_size name="VerySmall"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="8.6"
+       />
+  <font_size name="Tiny"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="7.6"
+       />
+  <font_size name="Micro"
+       comment="Size of small font (points, or 1/72 of an inch)"
+       size="6.6"
+       />
 </fonts>

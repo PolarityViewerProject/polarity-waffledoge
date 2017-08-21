@@ -240,19 +240,19 @@
    width="35">
     <text
      type="string"
-     font="SansSerifLarge"
+     font="SansSerifSmall"
      text_color="FPSTextColor"
      follows="right|top"
      halign="right"
-     height="16"
+     height="18"
      layout="topleft"
      top="0"
-     v_pad="-1"
+     v_pad="2"
      left="0"
      name="FPSText"
      tool_tip="Current FPS(Frames Per Second)"
      width="35">
-        00.0
+        00/60
     </text>
   </layout_panel>
   <layout_panel
