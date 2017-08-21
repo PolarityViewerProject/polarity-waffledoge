@@ -184,3 +184,23 @@ BOOL FSScrollListCtrl::handleDragAndDrop(S32 x, S32 y, MASK mask, BOOL drop,
 	
 }
 
+void FSScrollListCtrl::setFilterString(const std::string& str)
+{
+	mFilterString = str;
+	std::transform(mFilterString.begin(), mFilterString.end(), mFilterString.begin(), ::tolower);
+	mIsFiltered = (mFilterColumn > -1 && !mFilterString.empty());
+}
+
+bool FSScrollListCtrl::isFiltered(const LLScrollListItem* item) const
+{
+	if (mIsFiltered)
+	{
+		std::string filterColumnValue = item->getColumn(mFilterColumn)->getValue().asString();
+		std::transform(filterColumnValue.begin(), filterColumnValue.end(), filterColumnValue.begin(), ::tolower);
+		if (filterColumnValue.find(mFilterString) == std::string::npos)
+		{
+			return true;
+		}
+	}
+	return false;
+}
