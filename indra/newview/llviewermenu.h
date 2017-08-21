@@ -142,6 +142,10 @@ bool enable_pay_object();
 bool enable_buy_object();
 bool handle_go_to();
 
+// find avatar from object methods
+LLVOAvatar* find_avatar_from_object(LLViewerObject* object);
+LLVOAvatar* find_avatar_from_object(const LLUUID& object_id);
+
 // Export to XML or Collada
 void handle_export_selected( void * );
 
@@ -158,12 +162,12 @@ public:
 
 	LLViewerMenuHolderGL(const Params& p);
 
-	virtual BOOL hideMenus();
+	BOOL hideMenus() override;
 	
 	void setParcelSelection(LLSafeHandle<LLParcelSelection> selection);
 	void setObjectSelection(LLSafeHandle<LLObjectSelection> selection);
 
-	virtual const LLRect getMenuRect() const;
+	const LLRect getMenuRect() const override;
 
 protected:
 	LLSafeHandle<LLParcelSelection> mParcelSelection;
