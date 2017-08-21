@@ -1512,28 +1512,28 @@
              name="Product Website">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://www.alchemyviewer.org"/>
+                 parameter="https://www.polarityviewer.org"/>
         </menu_item_call>  
         <menu_item_call
              label="[APP_NAME] Repository"
              name="Product Repository">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://bitbucket.org/alchemyviewer/"/>
+                 parameter="https://bitbucket.org/polarityviewer/"/>
         </menu_item_call>  
         <menu_item_call
              label="[APP_NAME] Issue Tracker"
              name="Product Issue Tracker">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://alchemy.atlassian.net"/>
+                 parameter="https://polarityviewer.atlassian.net"/>
         </menu_item_call>  
         <menu_item_call
              label="[APP_NAME] Wiki"
              name="Product Wiki">
              <menu_item_call.on_click
                  function="Advanced.ShowURL"
-                 parameter="https://alchemy.atlassian.net/wiki"/>
+                 parameter="https://polarityviewer.atlassian.net/wiki"/>
         </menu_item_call>
 		<menu_item_separator/>
         <menu_item_call

@@ -34,5 +34,6 @@
 #define PROJECT_STRING "polarityviewer"
 #define PROJECT_DOMAIN "polarityviewer.org"
 #define PROJECT_HOMEPAGE "https://www.polarityviewer.org"
+#define PROJECT_DOWNLOAD_URL "https://www.polarityviewer.org/download"
 #define PROJECT_UPDATE_URL "https://update.polarityviewer.org/update"
 #endif

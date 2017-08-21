@@ -89,7 +89,7 @@ LLCrashLogger::LLCrashLogger() :
 	mCrashBehavior(CRASH_BEHAVIOR_ALWAYS_SEND),
 	mCrashInPreviousExec(false),
 	mCrashSettings("CrashSettings"),
-	mCrashHost("https://app.alchemyviewer.org/report/"),
+	mCrashHost("https://www.polarityviewer.org/report/"),
 	mSentCrashLogs(false)
 {
 }

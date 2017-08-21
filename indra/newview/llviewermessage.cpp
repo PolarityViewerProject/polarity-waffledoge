@@ -6808,7 +6808,9 @@ void process_script_question(LLMessageSystem* msg, void** user_data)
 			payload["item_id"] = itemid;
 			payload["object_name"] = object_name;
 
-			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
+			//args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
+			static const std::string download_url_str = PROJECT_DOWNLOAD_URL;
+			args["DOWNLOADURL"] = download_url_str;
 			LLNotificationsUtil::add("UnknownScriptQuestion", args, payload);
 		}
 

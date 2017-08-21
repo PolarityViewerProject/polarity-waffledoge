@@ -3007,12 +3007,14 @@ void LLAppViewer::initStrings()
 	static const std::string project_str = PROJECT_STRING;
 	static const std::string project_domain_str = PROJECT_DOMAIN;
 	static const std::string project_homepage_str = PROJECT_HOMEPAGE;
+	static const std::string project_download_url_str = PROJECT_DOWNLOAD_URL;
 	static const std::string project_update_url_str = PROJECT_UPDATE_URL;
 	LLTrans::setDefaultArg("[APP_NAME]", app_name_str);
 	LLTrans::setDefaultArg("[CAPITALIZED_APP_NAME]", capitalized_app_name);
 	LLTrans::setDefaultArg("[PROJECT_STRING]", project_str);
 	LLTrans::setDefaultArg("[PROJECT_DOMAIN]", project_domain_str);
 	LLTrans::setDefaultArg("[PROJECT_HOMEPAGE]", project_homepage_str);
+	LLTrans::setDefaultArg("[PROJECT_DOWNLOAD_URL]", project_download_url_str);
 	LLTrans::setDefaultArg("[PROJECT_UPDATE_URL]", project_update_url_str);
 }
 
