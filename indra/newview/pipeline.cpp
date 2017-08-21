@@ -9755,16 +9755,6 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	{
 		renderGeomShadow(shadow_cam);
 	}
-	static LLCachedControl<bool> shadows_const_path(gSavedSettings, "PVDebug_UseConstShadowMask", true);
-	static constexpr U32 const_alpha_mask = LLVertexBuffer::MAP_VERTEX | 
-					LLVertexBuffer::MAP_TEXCOORD0 | 
-					LLVertexBuffer::MAP_COLOR | 
-					LLVertexBuffer::MAP_TEXTURE_INDEX;
-	static constexpr U32 const_tree_alpha_mask = LLVertexBuffer::MAP_VERTEX | 
-					LLVertexBuffer::MAP_TEXCOORD0 | 
-					LLVertexBuffer::MAP_COLOR | 
-					LLVertexBuffer::MAP_TEXTURE_INDEX
-					& ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", true);
 	U32 mask = 0;
@@ -9774,17 +9764,11 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
-		if(shadows_const_path)
-		{
-			mask = const_alpha_mask;
-		}
-		else
-		{
-			mask = LLVertexBuffer::MAP_VERTEX | 
+
+		mask = LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
 					LLVertexBuffer::MAP_TEXTURE_INDEX;
-		}
 
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
@@ -9799,14 +9783,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	if (tree_shadows_from_alpha)
 	{
 		
-		if(shadows_const_path)
-		{
-			mask = const_tree_alpha_mask;
-		}
-		else
-		{
-			mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
-		}
+		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		gDeferredTreeShadowProgram.bind();
 		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
