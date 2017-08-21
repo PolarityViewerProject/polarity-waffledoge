@@ -108,36 +108,51 @@ LLFontGL* LLConsole::getFontSize(const S32& size_index)
 	LLFontGL* return_font = NULL;
 	switch (size_index)
 	{
+	case -5:
+		return_font = LLFontGL::getFontMonospace();
+		break;
+	case -4:
+		return_font = LLFontGL::getFontSansSerifMicro();
+		break;
+	case -3:
+		return_font = LLFontGL::getFontSansSerifTiny();
+		break;
+	case -2:
+		return_font = LLFontGL::getFontSansSerifVerySmall();
+		break;
 	case -1:
-		return_font = LLFontGL::getFontMonospace();		break;
+		return_font = LLFontGL::getFontSansSerifSmall();
+		break;
 	case 0:
-		return_font = LLFontGL::getFontSansSerifMicro(); break;
+		return_font = LLFontGL::getFontSansSerif();
+		break;
 	case 1:
-		return_font = LLFontGL::getFontSansSerifTiny(); break;
+		return_font = LLFontGL::getFontSansSerifBig();
+		break;
 	case 2:
-		return_font = LLFontGL::getFontSansSerifVerySmall(); break;
+		return_font = LLFontGL::getFontSansSerifVeryBig();
+		break;
 	case 3:
-		return_font = LLFontGL::getFontSansSerifSmall(); break;
+		return_font = LLFontGL::getFontSansSerifLarge();
+		break;
+	case 4:
+		return_font = LLFontGL::getFontSansSerifVeryLarge();
+		break;
+	case 5:
+		return_font = LLFontGL::getFontSansSerifHuge();
+		break;
+	case 6:
+		return_font = LLFontGL::getFontSansSerifVeryHuge();
+		break;
+	case 7:
+		return_font = LLFontGL::getFontSansSerifHumongous();
+		break;
+	case 8:
+		return_font = LLFontGL::getFontSansSerifGigantic();
+		break;
 	default:
 		LL_WARNS() << "Invalid font size : " << size_index << LL_ENDL;
-	case 4:
-		return_font = LLFontGL::getFontSansSerif();	    break;
-	case 5:
-		return_font = LLFontGL::getFontSansSerifBig();	break;
-	case 6:
-		return_font = LLFontGL::getFontSansSerifVeryBig();	break;
-	case 7:
-		return_font = LLFontGL::getFontSansSerifLarge();	break;
-	case 8:
-		return_font = LLFontGL::getFontSansSerifVeryLarge();	break;
-	case 9:
-		return_font = LLFontGL::getFontSansSerifHuge();	break;
-	case 10:
-		return_font = LLFontGL::getFontSansSerifVeryHuge();	break;
-	case 11:
-		return_font = LLFontGL::getFontSansSerifHumongous();	break;
-	case 12:
-		return_font = LLFontGL::getFontSansSerifGigantic();	break;
+		break;
 	}
 	// Make sure the font exists
 	if (return_font == NULL)
@@ -147,7 +162,7 @@ LLFontGL* LLConsole::getFontSize(const S32& size_index)
 	}
 	return return_font;
 }
-
+// </polarity>
 
 void LLConsole::setFontSize(S32 size_index)
 {
