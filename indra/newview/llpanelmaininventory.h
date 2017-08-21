@@ -138,8 +138,8 @@ protected:
 	void updateItemcountText();
 
 	// ## Zi: Inventory Collapse and Expand Buttons
-	void onCollapseButtonClicked();
-	void onExpandButtonClicked();
+//	void onCollapseButtonClicked();
+//	void onExpandButtonClicked();
 	// ## Zi: Inventory Collapse and Expand Buttons
 	void onFocusReceived() override;
 
@@ -204,8 +204,8 @@ private:
 	LLHandle<LLView>			mMenuAddHandle;
 
 	// ## Zi: Inventory Collapse and Expand Buttons
-	LLButton*				 mCollapseBtn;
-	LLButton*				 mExpandBtn;
+//	LLButton*				 mCollapseBtn;
+//	LLButton*				 mExpandBtn;
 	// ## Zi: Inventory Collapse and Expand Buttons
 
 	bool						mNeedUploadCost;

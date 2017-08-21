@@ -182,12 +182,12 @@ BOOL LLPanelMainInventory::postBuild()
 	gInventory.addObserver(this);
 	
 	// <FS:Zi> Inventory Collapse and Expand Buttons
-	mCollapseBtn = getChild<LLButton>("collapse_btn");
-	mCollapseBtn->setClickedCallback(boost::bind(&LLPanelMainInventory::onCollapseButtonClicked, this));
-	mExpandBtn = getChild<LLButton>("expand_btn");
-	mExpandBtn->setClickedCallback(boost::bind(&LLPanelMainInventory::onExpandButtonClicked, this));
+	//mCollapseBtn = getChild<LLButton>("collapse_btn");
+	//mCollapseBtn->setClickedCallback(boost::bind(&LLPanelMainInventory::onCollapseButtonClicked, this));
+	//mExpandBtn = getChild<LLButton>("expand_btn");
+	//mExpandBtn->setClickedCallback(boost::bind(&LLPanelMainInventory::onExpandButtonClicked, this));
 	// </FS:Zi> Inventory Collapse and Expand Buttons
-	mItemcountText=getChild<LLTextBox>("ItemcountText");
+	//mItemcountText=getChild<LLTextBox>("ItemcountText");
 	mFilterTabs = getChild<LLTabContainer>("inventory filter tabs");
 	mFilterTabs->setCommitCallback(boost::bind(&LLPanelMainInventory::onFilterSelected, this));
 	
@@ -435,6 +435,12 @@ void LLPanelMainInventory::closeAllFolders()
 	getPanel()->getRootFolder()->closeAllFolders();
 }
 
+// <alchemy>
+void LLPanelMainInventory::openAllFolders()
+{
+	getPanel()->getRootFolder()->openAllFolders();
+}
+// </alchemy>
 
 void LLPanelMainInventory::newWindow()
 {
@@ -1231,17 +1237,17 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 }
 
 // ## Zi: Inventory Collapse and Expand Buttons
-void LLPanelMainInventory::onCollapseButtonClicked()
-{
+//void LLPanelMainInventory::onCollapseButtonClicked()
+//{
 	// <polarity> Don't clear search filter.
 	//mFilterEditor->clear();
 	//onFilterEdit("");
-	getPanel()->closeAllFolders();
-}
-void LLPanelMainInventory::onExpandButtonClicked()
-{
-	getPanel()->openAllFolders();
-}
+//	getPanel()->closeAllFolders();
+//}
+//void LLPanelMainInventory::onExpandButtonClicked()
+//{
+//	getPanel()->openAllFolders();
+//}
 // ## Zi: Inventory Collapse and Expand Buttons
 //////////////////////////////////////////////////////////////////////////////////
 // List Commands                                                                //
