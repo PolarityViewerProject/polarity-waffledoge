@@ -58,6 +58,7 @@
 #include "llsdutil_math.h"
 #include "llslurl.h"
 #include "llstatusbar.h"
+#include "llsurface.h"
 #include "llui.h"
 #include "llviewertexture.h"
 #include "llviewertexturelist.h"

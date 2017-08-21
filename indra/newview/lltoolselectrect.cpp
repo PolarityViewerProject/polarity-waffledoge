@@ -46,7 +46,8 @@
 #include "llviewerobjectlist.h"
 #include "llviewerwindow.h"
 #include "llviewercamera.h"
-
+#include "llviewerregion.h"
+#include "llworld.h"
 #include "llglheaders.h"
 
 // Globals
