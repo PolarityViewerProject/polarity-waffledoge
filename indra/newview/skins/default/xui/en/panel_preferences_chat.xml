@@ -142,15 +142,6 @@
      left_delta="0"
      top_pad="6"
      width="350"/>
-    <check_box
-     control_name="AlchemyChatColorManager"
-     height="16"
-     label="Color chat names based on name tags"
-     layout="topleft"
-     name="username_tag_color"
-     left_delta="0"
-     top_pad="6"
-     width="350"/>
 
     <panel
      follows="all"
@@ -160,7 +151,7 @@
      width="212"
      border="false"
      name="chat_appearance">
-    <text
+<!--     <text
         layout="topleft"
         left="0"
         height="12"
@@ -169,34 +160,33 @@
         top_pad="20">
         Font Size:
     </text>
-    <combo_box
-        control_name="ChatFontSize"
-        height="20"
+ -->
+        <text
+        left="0"
+        top_pad="20"
+        follows="top|left"
         layout="topleft"
-        left_pad="32"
-        name="pass_combo"
+        width="141"
+        use_ellipses="false"
+        name="chat_appearance_text">
+         Chat font size:
+      </text>
+      <spinner
+        left_pad="16"
         top_delta="-1"
-        width="120">
-        <combo_box.item
-         label="Monospace"
-         name="Monospace Font"
-         value="3" />
-        <combo_box.item
-         label="Small"
-         name="Small Font"
-         value="0" />
-        <combo_box.item
-         label="Medium"
-         name="Medium Font"
-         value="1" />
-        <combo_box.item
-         label="Large"
-         name="Large Font"
-         value="2" />
-    </combo_box>
+        height="10"
+        width="55"
+        decimal_digits="0"
+        increment="1"
+        min_val="-5"
+        max_val="8"
+        follows="top|left"
+        layout="topleft"
+        name="chat_font_size"
+        control_name="ChatFontSize"/>
     <text
         left="0"
-        top_pad="3"
+        top_pad="15"
         follows="top|left"
         layout="topleft"
         width="92"

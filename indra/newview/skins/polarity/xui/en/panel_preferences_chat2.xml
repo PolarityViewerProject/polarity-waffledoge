@@ -290,22 +290,22 @@
         <item
           label="Monospace"
           name="Monospace"
-          value="3" >
+          value="-5" >
         </item>
         <item
           label="Small"
           name="Small"
-          value="0">
+          value="-1">
         </item>
         <item
           label="Medium"
           name="Medium"
-          value="1">
+          value="0">
         </item>
         <item
           label="Large"
           name="Large"
-          value="2">
+          value="1">
         </item>
       </combo_box>
     </panel>
