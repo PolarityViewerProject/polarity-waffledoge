@@ -188,7 +188,7 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
-#include "pvcommon.h"
+//#include "pvcommon.h"
 #include "pvfpsmeter.h"
 #ifdef PV_SEARCH_SEPARATOR
 #include "pvsearchseparator.h"
