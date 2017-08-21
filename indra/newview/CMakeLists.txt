@@ -268,18 +268,6 @@ source_group("Third Party/Firestorm" FILES
     ${firestorm_SOURCE_FILES}
     )
 
-#set(obsidian_HEADER_FILES
-#    # oschatcommand.h
-#    # osscriptruntimeperms.h
-#    )
-#set(obsidian_SOURCE_FILES
-#    # oschatcommand.cpp
-#    )
-#source_group("Third Party/Obsidian" FILES
-#    ${obsidian_HEADER_FILES}
-#    ${obsidian_SOURCE_FILES}
-#    )
-
 set(polarity_HEADER_FILES
     pvaligntool.h
     # pvcommon.h
@@ -328,34 +316,6 @@ source_group("Third Party/Polarity" FILES
     ${polarity_HEADER_FILES}
     ${polarity_SOURCE_FILES}
     )
-
-#set(rlva_SOURCE_FILES
-#    rlvactions.cpp
-#    rlvhandler.cpp
-#    rlvhelper.cpp
-#    rlvcommon.cpp
-#    rlvlocks.cpp
-#    rlvinventory.cpp
-#    rlvextensions.cpp
-#    rlvfloaters.cpp
-#    rlvui.cpp
-#    )
-#set(rlva_HEADER_FILES
-#    rlvactions.h
-#    rlvcommon.h
-#    rlvdefines.h
-#    rlvextensions.h
-#    rlvfloaters.h
-#    rlvhandler.h
-#    rlvhelper.h
-#    rlvinventory.h
-#    rlvlocks.h
-#    rlvui.h
-#    )
-#source_group("Third Party/Restrained Love API" FILES
-#    ${rlva_SOURCE_FILES}
-#    ${rlva_HEADER_FILES}
-#    )
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -1562,16 +1522,12 @@ set(viewer_HEADER_FILES
 list(APPEND viewer_HEADER_FILES
     ${alchemy_HEADER_FILES}
     ${firestorm_HEADER_FILES}
-    ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
-#    ${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${alchemy_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
-    ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}
-#    ${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
