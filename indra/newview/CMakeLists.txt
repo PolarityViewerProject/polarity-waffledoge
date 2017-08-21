@@ -122,7 +122,7 @@ set(alchemy_HEADER_FILES
     llaoengine.h
     llaoset.h
     llchatutilities.h
-    llcheatcodes.h
+    #llcheatcodes.h
     lldesktopnotifications.h
     lldroptarget.h
     lleasymessagereader.h
@@ -236,6 +236,11 @@ set(alchemy_SOURCE_FILES
     llviewerdisplayname.cpp
     )
 
+source_group("Third Party/Alchemy" FILES
+    ${alchemy_HEADER_FILES}
+    ${alchemy_SOURCE_FILES}
+    )
+
 set(firestorm_HEADER_FILES
     fsareasearch.h
     fsareasearchmenu.h
@@ -277,7 +282,7 @@ source_group("Third Party/Firestorm" FILES
 
 set(polarity_HEADER_FILES
     pvaligntool.h
-    pvcommon.h
+    # pvcommon.h
     # pvfloaterprogressview.h
     pvfpsmeter.h
     pvgpuinfo.h
@@ -290,7 +295,7 @@ set(polarity_HEADER_FILES
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
-    pvcommon.cpp
+    # pvcommon.cpp
     # pvfloaterprogressview.cpp
     pvfpsmeter.cpp
     pvgpuinfo.cpp
@@ -1555,16 +1560,18 @@ set(viewer_HEADER_FILES
 # These goes after the viewer files definition because some
 # of them need to go first, i.e ViewerInstall.cmake
 list(APPEND viewer_HEADER_FILES
+    ${alchemy_HEADER_FILES}
     ${firestorm_HEADER_FILES}
     ${obsidian_HEADER_FILES}
     ${polarity_HEADER_FILES}
-	${rlva_HEADER_FILES}
+#    ${rlva_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
+    ${alchemy_SOURCE_FILES}
     ${firestorm_SOURCE_FILES}
     ${obsidian_SOURCE_FILES}
     ${polarity_SOURCE_FILES}
-	${rlva_SOURCE_FILES}
+#    ${rlva_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
