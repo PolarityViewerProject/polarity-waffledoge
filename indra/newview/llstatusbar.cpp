@@ -308,9 +308,9 @@ void LLStatusBar::refresh()
 		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
 
-	if (show_fps && mTextFPS)
+	if (show_fps && mTextFPS && PVFPSMeter::canUpdate())
 	{
-		mTextFPS->setValue(PVFPSMeter::getValueWithRefreshRate());
+		mTextFPS->setValue(PVFPSMeter::getValue());
 		mTextFPS->setColor(PVFPSMeter::getColor());
 	}
 
@@ -755,14 +755,14 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 void LLStatusBar::onBandwidthGraphButtonClicked()
 {
-	if (gSavedSettings.getBOOL("PVUI_UseStatsInsteadOfLagMeter"))
-	{
+//	if (gSavedSettings.getBOOL("PVUI_UseStatsInsteadOfLagMeter"))
+//	{
 		LLFloaterReg::toggleInstance("stats");
-	}
-	else
-	{
-		LLFloaterReg::toggleInstance("lagmeter");
-	}
+//	}
+//	else
+//	{
+//		LLFloaterReg::toggleInstance("lagmeter");
+//	}
 }
 // </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 

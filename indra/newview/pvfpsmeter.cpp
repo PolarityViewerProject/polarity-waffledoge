@@ -46,7 +46,6 @@ U32 PVFPSMeter::mFPSNullZoneTargetLower(0);
 U32 PVFPSMeter::mFPSNullZoneTarget(0);
 U32 PVFPSMeter::mFPSNullZoneVSync(0);
 F32 PVFPSMeter::mFPSMeterValue(0.f);
-bool PVFPSMeter::mFPSDirty(false);
 LLColor4 PVFPSMeter::mFPSMeterColor(LLColor4::white);
 LLFrameTimer PVFPSMeter::mTextFPSTimer = LLFrameTimer(); // IF there is a better way, please enlighten me.
 std::string PVFPSMeter::sLastFPSMeterString("");
@@ -75,8 +74,8 @@ bool PVFPSMeter::stop()
 bool PVFPSMeter::canUpdate()
 {
 	llassert(mTextFPSTimer.getStarted());
-	mFPSDirty = (mTextFPSTimer.getElapsedTimeF32() > 1.f);
-	return mFPSDirty;
+	static LLCachedControl<F32> update_rate(gSavedSettings, "PVUI_FPSCounter_UpdateRate", 0.25f);
+	return (mTextFPSTimer.getElapsedTimeF32() > update_rate);
 }
 
 void PVFPSMeter::preComputeFloorAndCeiling()
@@ -198,12 +197,17 @@ const char * getAutomaticPrecision(const F32& fps_in)
 	return decimal_precision_2;
 }
 
+std::string PVFPSMeter::getValue()
+{
+	return llformat(getAutomaticPrecision(mFPSMeterValue), mFPSMeterValue);
+}
+
 std::string PVFPSMeter::getValueWithRefreshRate()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PV_FPS_METER_GET_VAL);
-	if(mFPSDirty)
+	if(canUpdate())
 	{
-		sLastFPSMeterString = (llformat(getAutomaticPrecision(mFPSMeterValue), mFPSMeterValue) + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
+		sLastFPSMeterString = (getValue() + "/" + std::to_string(LLWindowWin32::getRefreshRate()));
 	}
 	return sLastFPSMeterString;
 }

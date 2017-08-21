@@ -37,10 +37,7 @@ public:
 
 	static std::string getValueWithRefreshRate();
 
-	static F32 getValue()
-	{
-		return mFPSMeterValue;
-	}
+	static std::string getValue();
 
 	static LLColor4 getColor()
 	{
@@ -62,7 +59,6 @@ private:
 	static U32				mFPSNullZoneTargetLower;
 	static U32				mFPSNullZoneTarget;
 	static U32				mFPSNullZoneVSync;
-	static bool				mFPSDirty;
 	static std::string		sLastFPSMeterString;
 
 	static bool isCloseEnoughToTarget(const F32 value, const bool compare_with_refresh);
