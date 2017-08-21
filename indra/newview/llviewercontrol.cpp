@@ -123,8 +123,7 @@ static bool handleRenderFarClipChanged(const LLSD& newvalue)
 	gAgentCamera.mDrawDistance = draw_distance;
 	LLWorld::getInstance()->setLandFarClip(draw_distance);
 	// <polarity>
-	static LLCachedControl<bool> sync_far_clip(gSavedSettings, "PVRender_SyncFarClip", true);
-	if(sync_far_clip)
+	if(gSavedSettings.getBOOL("PVRender_SyncFarClip"))
 	{
 		gSavedSettings.setF32("RenderShadowFarClip", gAgentCamera.mDrawDistance + 96);
 	}
@@ -665,14 +664,12 @@ bool toggle_freeze_world(const LLSD& newvalue)
 // <Black Dragon:NiranV> Expose Attached Lights and Particles
 static bool handleRenderAttachedLightsChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> attached_lights(gSavedSettings, "RenderAttachedLights");
-	LLPipeline::sRenderAttachedLights = attached_lights;
+	LLPipeline::sRenderAttachedLights = gSavedSettings.getBOOL("RenderAttachedLights");
 	return true;
 }
 static bool handleRenderAttachedParticlesChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> attached_particles(gSavedSettings, "RenderAttachedParticles");
-	LLPipeline::sRenderAttachedParticles = attached_particles;
+	LLPipeline::sRenderAttachedParticles = gSavedSettings.getBOOL("RenderAttachedParticles");
 	return true;
 }
 
@@ -716,19 +713,16 @@ static bool handleShadowMapsChanged(const LLSD& newvalue)
 
 static bool handleTimeFactorChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> slow_mo_anim(gSavedSettings, "SlowMotionAnimation");
-	if (slow_mo_anim)
+	if (gSavedSettings.getBOOL("SlowMotionAnimation"))
 	{
-		static LLCachedControl<F32> slow_mo_anim(gSavedSettings, "SlowMotionTimeFactor");
-		gAgentAvatarp->setAnimTimeFactor(slow_mo_anim);
+		gAgentAvatarp->setAnimTimeFactor(gSavedSettings.getBOOL("SlowMotionTimeFactor"));
 	}
 	return true;
 }
 
 static bool handleFullbrightChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> disable_fullbright(gSavedSettings, "PVRender_DisableFullbright");
-	if (disable_fullbright)
+	if (gSavedSettings.getBOOL("PVRender_DisableFullbright"))
 	{
 		gObjectList.killAllFullbrights();
 	}
@@ -737,8 +731,7 @@ static bool handleFullbrightChanged(const LLSD& newvalue)
 
 static bool handleAlphaChanged(const LLSD& newvalue)
 {
-	static LLCachedControl<bool> render_alpha(gSavedSettings, "RenderEnableAlpha");
-	if (!render_alpha)
+	if (!gSavedSettings.getBOOL("RenderEnableAlpha"))
 	{
 		gObjectList.killAllAlphas();
 	}
