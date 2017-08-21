@@ -935,7 +935,6 @@ void settings_setup_listeners()
 #if ALCHEMY_TEST
 	gSavedSettings.getControl("CameraPreset")->getSignal()->connect(boost::bind(&handleCameraPresetChanged, _2)); // <alchemy/>
 #endif
-	//gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
 	// BD - Freeze World
 	//gSavedSettings.getControl("PVRender_FreezeWorld")->getSignal()->connect(boost::bind(&toggle_freeze_world, _2));
 	// <polarity> FPS Meter class and FPS Limiter
