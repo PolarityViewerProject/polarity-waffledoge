@@ -119,6 +119,9 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 		login_holder->addChild(this);
 	}
 
+	// Logo
+	mLogoImage = LLUI::getUIImage("startup_logo");
+
 	// <polarity> Do not use the first login layout.
 	//if (gSavedSettings.getBOOL("FirstLoginThisInstall"))
 	//{
