@@ -934,7 +934,6 @@ public:
 
 //	//BD - Special Options
 	static BOOL CameraFreeDoFFocus;
-	static BOOL RenderDepthOfFieldInEditMode;
 	static BOOL RenderSnapshotAutoAdjustMultiplier;
 	static F32 RenderChromaStrength;
 	static F32 RenderSnapshotMultiplier;

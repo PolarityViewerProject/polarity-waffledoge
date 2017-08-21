@@ -247,7 +247,7 @@ public:
 	void setDefaultDay();
 
 	/// apply specified fixed sky params
-	bool applySkyParams(const LLSD& params, bool interpolate = false);
+	bool applySkyParams(const LLSD& params);
 
 	void setDefaultSky();
 

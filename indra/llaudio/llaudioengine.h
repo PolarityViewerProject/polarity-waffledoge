@@ -246,9 +246,18 @@ protected:
 
 	LLFrameTimer mWindUpdateTimer;
 
+	// <FS:ND> Protect against corrupted sounds
 private:
 	void setDefaults();
 	LLStreamingAudioInterface *mStreamingAudioImpl;
+	std::map<LLUUID,U32> mCorruptData;
+
+public:
+	void markSoundCorrupt( LLUUID const & );
+	bool isCorruptSound( LLUUID const& ) const;
+	// <FS:Ansariel> Asset blacklisting
+	void removeAudioData(const LLUUID& audio_uuid);
+	// </FS:ND>
 };
 
 
@@ -481,3 +490,4 @@ struct SoundData
 extern LLAudioEngine* gAudiop;
 
 #endif
+

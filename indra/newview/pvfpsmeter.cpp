@@ -141,7 +141,7 @@ bool PVFPSMeter::update()
 			// FPS BAR HERE    . |  .       ||
 			//­­­­­­-------------------------------|
 			// ~/~
-			static LLCachedControl<U32> vsync_mode(gSavedSettings, "PVRender_VsyncMode");
+			static LLCachedControl<U32> vsync_mode(gSavedSettings, "RenderVerticalSync");
 			if (fps_limiter_enabled && isCloseEnoughToTarget(mFPSMeterValue, false))
 			{
 				mFPSMeterColor = color_limited;

@@ -30,6 +30,8 @@
 #include "llui.h"
 #include "llleap.h"
 
+#include "pvconstants.h"
+
 LLViewerEventRecorder::LLViewerEventRecorder() 
 {
 

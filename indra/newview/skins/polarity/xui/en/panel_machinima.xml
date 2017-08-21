@@ -893,10 +893,10 @@
 				┗
 			</text>
 			<check_box
-				control_name="PVRender_DisableFullbright"
+				control_name="RenderDeferredFullbright"
 				height="16"
-				label="Disable Fullbright on objects"
-				tool_tip="Scrubs the Fullbright property from prims being rendered. WARNING: Due to the nature of this hack, please disable before editing objects"
+				label="Allow objects to be Fullbright"
+				tool_tip="Disabling this will not show Fullbright as such."
 				layout="topleft"
 				left_pad="0"
 				name="disable_fullbright"

@@ -49,6 +49,8 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
+#include "llviewercontrol.h"
+#include "lleconomy.h"
 
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 

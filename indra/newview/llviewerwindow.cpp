@@ -1644,13 +1644,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 	LLViewerWindow::sMovieBaseName = "SLmovie";
 	resetSnapshotLoc();
 
-	// Note: Cannot be a cached control without a typecast, see createWindow below.
-	U32 vsync_mode = gSavedSettings.getU32("PVRender_VsyncMode");
-
-	// <polarity> cache more settings
-	// TODO QA: Can't we use pipeline::RenderDeferred here?
-	//static LLCachedControl<bool> renderDeferred(gSavedSettings, "RenderDeferred");
-	static LLCachedControl<U32> fsaa_samples(gSavedSettings, "RenderFSAASamples");
+	U32 vsync_mode = gSavedSettings.getU32("RenderVerticalSync");
 	/*
 	LLWindowCallbacks* callbacks,
 	const std::string& title, const std::string& name, S32 x, S32 y, S32 width, S32 height, U32 flags,
@@ -1947,17 +1941,6 @@ void LLViewerWindow::initBase()
 	cp.follows.flags(FOLLOWS_LEFT | FOLLOWS_RIGHT | FOLLOWS_BOTTOM);
 	gConsole = LLUICtrlFactory::create<LLConsole>(cp);
 	getRootView()->addChild(gConsole);
-
-	// optionally forward warnings to chat console/chat floater
-	// for qa runs and dev builds
-#if  !LL_RELEASE_FOR_DOWNLOAD
-	RecordToChatConsole::getInstance()->startRecorder();
-#else
-	if(gSavedSettings.getBOOL("QAMode"))
-	{
-		RecordToChatConsole::getInstance()->startRecorder();
-	}
-#endif
 
 	gDebugView = getRootView()->getChild<LLDebugView>("DebugView");
 	gDebugView->init();
@@ -2589,9 +2572,10 @@ void LLViewerWindow::draw()
 // <polarity> Dynamic window title
 void LLViewerWindow::setTitle(const std::string& win_title)
 {
-	mWindow->setTitle(win_title);
+	mWindow->setWindowTitle(win_title);
 }
 // </polarity>
+
 // Takes a single keyup event, usually when UI is visible
 BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 {
@@ -2799,8 +2783,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	// If "Pressing letter keys starts local chat" option is selected, we are not in mouselook, 
 	// no view has keyboard focus, this is a printable character key (and no modifier key is 
 	// pressed except shift), then give focus to nearby chat (STORM-560)
-	static LLCachedControl<bool> letter_keys_focus_chat_bar(gSavedSettings, "LetterKeysFocusChatBar", false);
-	if (letter_keys_focus_chat_bar && !gAgentCamera.cameraMouselook() &&
+	if ( gSavedSettings.getS32("LetterKeysFocusChatBar") && !gAgentCamera.cameraMouselook() && 
 		!keyboard_focus && key < 0x80 && (mask == MASK_NONE || mask == MASK_SHIFT) )
 	{
         static LLCachedControl<U32> sChatInWindow(gSavedSettings, "NearbyChatInput", 0);
@@ -4495,8 +4478,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		LLPipeline::toggleRenderDebugFeature((void*)LLPipeline::RENDER_DEBUG_FEATURE_UI);
 	}
 
-	static LLCachedControl<bool> show_hud(gSavedSettings, "RenderHUDInSnapshot");
-	BOOL hide_hud = !show_hud && LLPipeline::sShowHUDAttachments;
+	BOOL hide_hud = !gSavedSettings.getBOOL("RenderHUDInSnapshot") && LLPipeline::sShowHUDAttachments;
 	if (hide_hud)
 	{
 		LLPipeline::sShowHUDAttachments = FALSE;
@@ -4595,7 +4577,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 
-	S32 max_size = gGLManager.mGLMaxTextureSize;
+	//S32 max_size = gGLManager.mGLMaxTextureSize;
 
 	// TODO: Figure out if we can have non-square buffers with one side bigger than max_size
 	if(((image_buffer_x > max_size) || (image_buffer_y > max_size) /*|| !PVGPUInfo::hasEnoughVRAMForSnapshot(snapshot_width, snapshot_height)*/))
@@ -5418,6 +5400,11 @@ void LLViewerWindow::setUIVisibility(bool visible)
 bool LLViewerWindow::getUIVisibility()
 {
 	return mUIVisible;
+}
+
+void LLViewerWindow::setWindowTitle(const std::string& title)
+{
+	mWindow->setWindowTitle(title);
 }
 
 ////////////////////////////////////////////////////////////////////////////

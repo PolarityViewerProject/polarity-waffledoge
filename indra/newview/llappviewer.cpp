@@ -6274,7 +6274,7 @@ void LLAppViewer::PVGetDynamicWindowTitle()
 	{
 		LL_DEBUGS() << "Title was different, updating!" << LL_ENDL;
 		gWindowTitle = computed_title;
-		gViewerWindow->getWindow()->setTitle(gWindowTitle);
+		gViewerWindow->getWindow()->setWindowTitle(gWindowTitle);
 	}
 }
 // </polarity>

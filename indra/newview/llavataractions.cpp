@@ -40,9 +40,7 @@
 
 #include "llagent.h"
 #include "llappviewer.h"		// for gLastVersionChannel
-#include "llcachename.h"
 #include "llcallingcard.h"		// for LLAvatarTracker
-#include "llclipboard.h" // for CopyToClipboard
 #include "llconversationlog.h"
 #include "llfloateravatarpicker.h"	// for LLFloaterAvatarPicker
 #include "llfloaterconversationpreview.h"
@@ -62,7 +60,6 @@
 #include "llfloaterimcontainer.h"
 #include "llimview.h"			// for gIMMgr
 #include "llmutelist.h"
-#include "llnotificationsutil.h"	// for LLNotificationsUtil
 #include "llpaneloutfitedit.h"
 #include "llpanelprofile.h"
 #include "llrecentpeople.h"
@@ -75,8 +72,6 @@
 #include "llvoavatar.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
-#include "lltrans.h"
-#include "llcallingcard.h"
 #include "llslurl.h"			// IDEVO
 #include "llsidepanelinventory.h"
 #include "llavatarname.h"
@@ -88,6 +83,11 @@
 #include "llworld.h"
 #include "llfloaterlegacyprofile.h"
 // </alchemy>
+
+// <polarity>
+#include <unordered_set>
+#include "llselectmgr.h"
+// </polarity>
 
 // Flags for kick message
 const U32 KICK_FLAGS_DEFAULT	= 0x0;
@@ -446,6 +446,7 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 	{
 		LLMessageSystem* msg = gMessageSystem;
 
+		const LLUUID idRecipient = notification["substitutions"]["uuid"]; // <polarity/>
 		msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -453,7 +454,7 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 
 		msg->nextBlockFast(_PREHASH_MessageBlock);
 		msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-		msg->addUUIDFast(_PREHASH_ToAgentID, notification["substitutions"]["uuid"] );
+		msg->addUUIDFast(_PREHASH_ToAgentID, idRecipient); // </polarity/>
 		msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
 		msg->addU8Fast(_PREHASH_Dialog, IM_TELEPORT_REQUEST);
 		msg->addUUIDFast(_PREHASH_ID, LLUUID::null);
@@ -463,7 +464,8 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 		LLAgentUI::buildFullname(name);
 
 		msg->addStringFast(_PREHASH_FromAgentName, name);
-		msg->addStringFast(_PREHASH_Message, response["message"]);
+		std::string strMessage = response["message"];
+		msg->addStringFast(_PREHASH_Message, strMessage);
 		msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 		msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 		msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());

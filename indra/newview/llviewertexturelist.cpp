@@ -112,7 +112,7 @@ void LLViewerTextureList::init()
 	mMaxTotalTextureMemInMegaBytes = (U32Bytes)0;
 	
 	// Update how much texture RAM we're allowed to use.
-	updateMaxResidentTexMem(0); // 0 = use current
+	updateMaxResidentTexMem(S32Megabytes(0)); // 0 = use current
 	
 	doPreloadImages();
 }
@@ -1416,21 +1416,21 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 // ------------------------------------------------------------------
 // DirectX-less minimum VRAM fix
 //
-	if (mem <= 0 || cur_mem.value() <= 0) // convention for "use current"
+	if (mem <= (S32Megabytes)0 || cur_mem <= (S32Megabytes)0) // convention for "use current"
 	{
 		llassert(0); // This should not happen
-		mem = getMaxVideoRamSetting(true).value(); // recommended default
+		mem = getMaxVideoRamSetting(true); // recommended default
 	}
 
 	// disable clamping for now as it breaks on some systems, causing infinite loop.
 	//mem = llclamp(mem, getMinVideoRamSetting().value(), getMaxVideoRamSetting(false, mem_multiplier).value());
-	if (S32Megabytes(mem) != cur_mem)
+	if (mem != cur_mem)
 	{
-		if (S32Megabytes(mem) < getMinVideoRamSetting())
+		if (mem < getMinVideoRamSetting())
 		{
 			LL_WARNS() << "assigned memory value is lower than minimum value!" << LL_ENDL;
 		}
-		gSavedSettings.setS32("TextureMemory", mem);
+		gSavedSettings.setS32("TextureMemory", mem.value());
 		LL_DEBUGS() << "TEXTURE MEMORY SET" << LL_ENDL;
 
 		return; //listener will re-enter this function
@@ -1478,8 +1478,8 @@ void LLViewerTextureList::updateMaxResidentTexMem(S32Megabytes mem)
 	LL_INFOS() << "Maximum Resident Texture Memory set to: " << mMaxResidentTexMemInMegaBytes << LL_ENDL;
 #else
 
-	S32 fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM.value(), (mem / 4));
-	mMaxResidentTexMemInMegaBytes = S32Megabytes(mem - fb_mem);
+	S32Megabytes fb_mem = llmax(VIDEO_CARD_FRAMEBUFFER_MEM, (mem / 4));
+	mMaxResidentTexMemInMegaBytes = mem - fb_mem;
 	mMaxTotalTextureMemInMegaBytes = mMaxResidentTexMemInMegaBytes * 1.75f;
 
 	LL_INFOS() << "Available Video Memory set to: " << mMaxTotalTextureMemInMegaBytes << LL_ENDL;

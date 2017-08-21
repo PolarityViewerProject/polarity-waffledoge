@@ -86,6 +86,9 @@ public:
 	{
 		mHandleDaDCallback = func;
 	}
+	void			setFilterString(const std::string& str);
+	void			setFilterColumn(S32 col) { mFilterColumn = col; }
+	bool			isFiltered(const LLScrollListItem* item) const;
 
 protected:
 	friend class LLUICtrlFactory;
@@ -96,6 +99,10 @@ protected:
 	EContentType		mContentType;
 
 	handle_dad_callback_signal_t	mHandleDaDCallback;
+
+	std::string		mFilterString;
+	S32				mFilterColumn;
+	bool			mIsFiltered;
 };
 
 #endif // FS_SCROLLLISTCTRL_H

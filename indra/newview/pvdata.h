@@ -441,12 +441,14 @@ public:
 	// Returns the lockdown UUID constant as a string
 	static LLUUID getLockDownUUID();
 
+#if 0
 	/**
 	* \brief This returns the agent's name in the format defined by the viewer settings.
 	* \param av_name agent name
 	* \return preferred name
 	*/
 	static std::string getPreferredName(const LLAvatarName& av_name);
+#endif
 
 	std::string getToken();
 	std::string getEventMotdIfAny();

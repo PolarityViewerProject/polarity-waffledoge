@@ -74,6 +74,7 @@
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
+#include "lltexteditor.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
@@ -2796,9 +2797,9 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	shadow_text->setEnabled(enabled);
 
 	// Hardware settings
-	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	//F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 

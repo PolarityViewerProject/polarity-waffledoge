@@ -1052,7 +1052,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 					auto group_title_data_nv = hover_object->getNVPair("Title"); // current group title nvPair
 					if (group_title_data_nv )
 					{
-						auto group_title_string = group_title_data_nv->getString();
+						const std::string group_title_string = group_title_data_nv->getString();
 						// Don't write to string to read it back, this wastes RAM cycles.
 						// This looks a bit backward, but this should be efficient.
 						if (!group_title_string.empty())

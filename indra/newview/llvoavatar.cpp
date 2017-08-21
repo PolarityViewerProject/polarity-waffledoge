@@ -127,6 +127,7 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#include "pvmachinima.h"
 
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
@@ -212,12 +213,14 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
-enum ERenderName
-{
-	RENDER_NAME_NEVER,
-	RENDER_NAME_ALWAYS,	
-	RENDER_NAME_FADE
-};
+// <polarity> Moved to llvoavatar.h
+//enum ERenderName
+//{
+//	RENDER_NAME_NEVER,
+//	RENDER_NAME_ALWAYS,	
+//	RENDER_NAME_FADE
+//};
+// </polarity>
 
 //-----------------------------------------------------------------------------
 // Callback data
@@ -643,70 +646,67 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 					   LLViewerRegion* regionp) :
 	LLAvatarAppearance(&gAgentWearables),
 	LLViewerObject(id, pcode, regionp),
-	mAppearanceAnimating(FALSE),
+	mLastRezzedStatus(-1),
+	mFirstFullyVisible(TRUE),
+	mFullyLoaded(FALSE),
+	mPreviousFullyLoaded(FALSE),
+	mFullyLoadedInitialized(FALSE),
+	mFullyLoadedFrameCounter(0),
+	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
+	mLastSkeletonSerialNum( 0 ),
+	mSpecialRenderMode(0),
 	mAttachmentSurfaceArea(0.f),
-	mBelowWater(FALSE),
+	mNeedsSkin(FALSE),
+	mLastSkinTime(0.f),
+	mUpdatePeriod(1),
+	mNumInitFaces(0),
+	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
+	mVisualComplexityStale(true),
+    mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
 	mCachedInMuteList(false),
 	mCachedMuteListUpdateTime(0),
-	mColorLast(LLColor4::white),
-	mCulled( FALSE ),
-	mFirstAppearanceMessageReceived( FALSE ),
-	mFirstFullyVisible(TRUE),
-	mFirstTEMessageReceived( FALSE ),
-	mFullyLoaded(FALSE),
-	mFullyLoadedFrameCounter(0),
-	mFullyLoadedInitialized(FALSE),
-	mIsEditingAppearance(FALSE),
-	mIsSitting(FALSE),
-	mLastAppearanceBlendTime(0.f),
-	mLastRezzedStatus(-1),
-	mLastSkeletonSerialNum( 0 ),
-	mLastSkinTime(0.f),
-	mLastUpdateReceivedCOFVersion(-1),
-	mLastUpdateRequestCOFVersion(-1),
-	mLoadedCallbacksPaused(FALSE),
-	mMeshValid(FALSE),
-	mMutedAVColor(LLColor4::white /* used for "uninitialize" */),
-	mNameAlpha(0.f),
-	mNameAppearance(false),
-	// <polatity> Show ARW in nametag
-	mNameArc(0),
-	mNameArcColor(LLColor4::white),
-	// <polarity>
-	mNameAway(false),
-	mNameCloud(false),
-	mNameDoNotDisturb(false),
-	mNameFriend(false),
-	mNameIsSet(false),
-	mNameMute(false),
-	mNeedsSkin(FALSE),
-	mNumInitFaces(0),
-	mPreviousFullyLoaded(FALSE),
-	mRenderGroupTitles(sRenderGroupTitles),
+	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
+	mVisibilityRank(0),
+	mVisible(FALSE),
 	mRenderUnloadedAvatar(LLCachedControl<bool>(gSavedSettings, "RenderUnloadedAvatar", false)),
-	mReportedVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
-	mRipplePhase(0.f),
+	mRipplePhase( 0.f ),
+	mBelowWater(FALSE),
+	mWindFreq(0.f),
+	mCulled( FALSE ),
+	mLoadedCallbacksPaused(FALSE),
+	mFirstTEMessageReceived( FALSE ),
+	mFirstAppearanceMessageReceived( FALSE ),
+	mMeshValid(FALSE),
+	mAppearanceAnimating(FALSE),
+	mLastAppearanceBlendTime(0.f),
+	mIsEditingAppearance(FALSE),
+	mUseLocalAppearance(FALSE),
+	mUseServerBakes(FALSE),
+	mVisibleChat(FALSE),
+	mTurning(FALSE),
+	mIsSitting(FALSE),
+	mNameIsSet(false),
+	mTitle(),
+	mNameAway(false),
+	mNameDoNotDisturb(false),
+	mNameMute(false),
+	mNameAppearance(false),
+	mNameFriend(false),
+	mNameCloud(false),
+	mNameAlpha(0.f),
+	mRenderGroupTitles(sRenderGroupTitles),
+	mTimeVisible(),
+	mTyping(FALSE),
+	mTypingLast(false),
+	mColorLast(LLColor4::white),
+	mLastUpdateRequestCOFVersion(-1),
+	mLastUpdateReceivedCOFVersion(-1),
 	// <polatity> Show ARW in nametag
 	mShowComplexityString(false),
 	mSowComplexUnderThreshold(false),
-	// </polarity>
-	mSpecialRenderMode(0),
-	mTimeVisible(),
-	mTitle(),
-	mTurning(FALSE),
-	mTyping(FALSE),
-	mTypingLast(false),
-	mUpdatePeriod(1),
-	mUseLocalAppearance(FALSE),
-	mUseServerBakes(FALSE),
-	mVisibilityRank(0),
-	mVisible(FALSE),
-	mVisibleChat(FALSE),
-	mVisualComplexity(VISUAL_COMPLEXITY_UNKNOWN),
-	mVisualComplexityStale(true),
-	mVisuallyMuteSetting(AV_RENDER_NORMALLY),
-	mWindFreq(0.f),
-
+	mNameArc(0),
+	mNameArcColor(LLColor4::white)
+	// <polarity>
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -2881,12 +2881,12 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 	static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
 	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
 	static LLCachedControl<U32> nearby_chat_out(gSavedSettings, "AlchemyNearbyChatOutput");
-	BOOL visible_chat = (nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH) 
+	BOOL visible_chat = !PVMachinimaTools::isEnabled() && (nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH)
 		&& (mChats.size() || mTyping);
-	BOOL render_name =	visible_chat ||
+	BOOL render_name = !PVMachinimaTools::isEnabled() && (visible_chat ||
 		(visible_avatar &&
 		 ((sRenderName == RENDER_NAME_ALWAYS) ||
-		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
+		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME))));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
@@ -3110,7 +3110,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			line.resize( line.length() - 2 );
 			static LLUIColor status_color = LLUIColorTable::instance().getColor("NameTagStatusText", LLColor4::magenta);
 			addNameTagLine(line, status_color,
-				//LLFontGL::ITALIC, // Why is this not working?
+				LLFontGL::ITALIC, // Why is this not working?
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -3156,7 +3156,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			const LLFontGL* font = LLFontGL::getFontSansSerif();
 			std::string full_name = LLCacheName::buildFullName( firstname->getString(), lastname->getString() );
-			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font, true);
+			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
 		}
 
 		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
@@ -3172,7 +3172,9 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 
 			LLStringUtil::format_map_t label_args;
 			label_args["COMPLEXITY"] = complexity_string;
-			addNameTagLine(PVCommon::format_string(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
+			//addNameTagLine(formatString(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
+			LLStringUtil::format(complexity_label, label_args);
+			addNameTagLine(complexity_label, complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
 		}
 		// </FS:Ansariel>
 
@@ -3437,7 +3439,7 @@ bool LLVOAvatar::isVisuallyMuted()
 	// * if on the "always draw normally" list, draw them normally
 	// * if on the "always visually mute" list, mute them
 	// * check against the render cost and attachment limits
-	//if (!isSelf())
+	//if (!isSelf()) // <polarity> Self can be too complex
 	{
 		if (mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 		{
@@ -3452,8 +3454,6 @@ bool LLVOAvatar::isVisuallyMuted()
 			return isTooComplex();
 		}
 	}
-
-	return false;
 }
 
 bool LLVOAvatar::isInMuteList()
@@ -5353,12 +5353,7 @@ BOOL LLVOAvatar::processSingleAnimationStateChange( const LLUUID& anim_id, BOOL 
 	{
 		if (anim_id == ANIM_AGENT_TYPE)
 		{
-			if (!LLVOAvatar::sShowTyping)
-			{
-				// Do not play typing sounds if not desired
-				return result;
-			}
-			if (gAudiop)
+			if (gAudiop && gSavedSettings.getBOOL("AlchemyPlayTypingSound"))
 			{
 				LLVector3d char_pos_global = gAgent.getPosGlobalFromAgent(getCharacterPosition());
 				if (LLViewerParcelMgr::getInstance()->canHearSound(char_pos_global)

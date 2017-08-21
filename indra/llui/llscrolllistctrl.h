@@ -116,6 +116,8 @@ public:
 		Optional<S32>	search_column,
 						sort_column;
 		Optional<bool>	sort_ascending;
+		Optional<bool>	persist_sort_order; 	// <FS:Ansariel> Persists sort order of scroll lists
+		Optional<bool>	primary_sort_only;		// <FS:Ansariel> Option to only sort by one column
 
 		// colors
 		Optional<LLUIColor>	fg_unselected_color,
@@ -397,6 +399,11 @@ public:
 		return mSortCallback->connect(cb);
 	}
 
+	// <FS:Ansariel> For manually setting line height; we might need it at some time
+	void setLineHeight(S32 height) { mLineHeight = height; }
+
+	// <FS:Ansariel> Get list of the column init params so we can re-add them
+	std::vector<LLScrollListColumn::Params> getColumnInitParams() const { return mColumnInitParams; }
 
 protected:
 	// "Full" interface: use this when you're creating a list that has one or more of the following:
@@ -503,6 +510,8 @@ private:
 	S32				mNumDynamicWidthColumns;
 	S32				mTotalStaticColumnWidth;
 	S32				mTotalColumnPadding;
+	// <FS:Ansariel> Get list of the column init params so we can re-add them
+	std::vector<LLScrollListColumn::Params> mColumnInitParams;
 
 	mutable bool	mSorted;
 	

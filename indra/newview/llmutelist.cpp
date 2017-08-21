@@ -274,6 +274,7 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 			}
 		}
 #endif
+	}
 
 	S32 mute_list_limit = gSavedSettings.getS32("MuteListLimit");
 	if (getMutes().size() >= mute_list_limit)

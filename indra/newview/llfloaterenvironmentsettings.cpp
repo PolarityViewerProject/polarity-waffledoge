@@ -43,8 +43,8 @@
 
 LLFloaterEnvironmentSettings::LLFloaterEnvironmentSettings(const LLSD &key)
 : 	 LLFloater(key)
-	,mRegionSettingsCheckBox(nullptr) // <alchemy/>
-	,mDayCycleSettingsRadioGroup(nullptr)
+	,mRegionSettingsButton(nullptr) // BD
+	,mDayCycleSettingsCheck(nullptr)
 	,mWaterPresetCombo(nullptr)
 	,mSkyPresetCombo(nullptr)
 	,mDayCyclePresetCombo(nullptr)
@@ -58,7 +58,7 @@ BOOL LLFloaterEnvironmentSettings::postBuild()
 	mRegionSettingsButton->setCommitCallback(boost::bind(&LLFloaterEnvironmentSettings::onSwitchRegionSettings, this));
 
 	mDayCycleSettingsCheck = getChild<LLCheckBoxCtrl>("sky_dayc_settings_check");
-	mDayCycleSettingsCheck->setCommitCallback(setCommitCallback(boost::bind(&LLFloaterEnvironmentSettings::onSwitchDayCycle, this));
+	mDayCycleSettingsCheck->setCommitCallback(boost::bind(&LLFloaterEnvironmentSettings::onSwitchDayCycle, this));
 
 	// <polarity> Workaround for checkbox dying on us
 	//mDayCycleSettingsCheck->setEnabled(true);
@@ -102,7 +102,7 @@ void LLFloaterEnvironmentSettings::onSwitchRegionSettings()
 
 void LLFloaterEnvironmentSettings::onSwitchDayCycle()
 {
-	bool is_fixed_sky = mDayCycleSettingsRadioGroup->getSelectedIndex() == 0;
+	bool is_fixed_sky = mDayCycleSettingsCheck->getValue().asBoolean();
 
 	mSkyPresetCombo->setEnabled(is_fixed_sky);
 	mDayCyclePresetCombo->setEnabled(!is_fixed_sky);

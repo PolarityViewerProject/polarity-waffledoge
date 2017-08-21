@@ -31,21 +31,23 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "pvcommon.h"
-#include "llagent.h"
-#include "llavataractions.h"
-#include "llinventorymodel.h"
-#include "llnotificationmanager.h"
-#include "lltooldraganddrop.h"
-#include "llviewerinventory.h"
-#include "llviewerobject.h"
-#include "lltrans.h"
+#if FIXED_SMART_PTR_ERROR
+//#include "llagent.h"
+//#include "llavataractions.h"
+//#include "llconversationlog.h"
+//#include "llinventorymodel.h"
+//#include "llnotificationmanager.h"
+//#include "lltooldraganddrop.h"
+//#include "llviewerinventory.h"
+//#include "llviewerobject.h"
+//#include "lltrans.h"
 #include "material_codes.h"
-#include <boost/date_time/gregorian/gregorian.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <tchar.h>
-#include "llconversationlog.h"
-using namespace boost::posix_time;
-using namespace boost::gregorian;
+//#include <boost/date_time/gregorian/gregorian.hpp>
+//#include <boost/date_time/posix_time/posix_time.hpp>
+//#include <tchar.h>
+
+//using namespace boost::posix_time;
+//using namespace boost::gregorian;
 
 //PVCommon *gPVCommon = nullptr;
 
@@ -57,15 +59,15 @@ bool PVCommon::sAVXSupported = false;
 S32 PVCommon::sObjectAddMsg = 0;
 
 // Fancy little macro to output a variable's name
-#define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
+//#define VAR_NAME(stream,variable) (stream) <<#variable": "<<(variable) 
 
 void PVCommon::reportToNearbyChat(const std::string& message, const std::string &fromName /* = APP_NAME */, EChatSourceType CHAT_TYPE /* = CHAT_SOURCE_SYSTEM */)
 {
-	LLChat chat;
-	chat.mText = message;
-	chat.mFromName = fromName;
-	chat.mSourceType = CHAT_TYPE;
-	LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
+	// LLChat chat;
+	// chat.mText = message;
+	// chat.mFromName = fromName;
+	// chat.mSourceType = CHAT_TYPE;
+	// LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
 }
 
 // <polarity> OOC Auto-close breaks ASCII art
@@ -73,81 +75,83 @@ void PVCommon::reportToNearbyChat(const std::string& message, const std::string 
 // Todo: Write a test for this. Use the fish.
 int PVCommon::HasSpecialCharacters(const std::string& oocstring)
 {
-	bool hasSpecial = false; // return value
-
-	// Convert the C++ string to a c-style string (char array) to check for special characters presence.
-	const char * str = oocstring.c_str();
-	hasSpecial = (str[strspn(str, " !	\"\'#$%&*+,-./0123456789:;?@AaBbCcDdEeFfGgHhIiİJjKkLlMmNnOo\
-		PpQqRrSsTtUuVvWwXxYyZz|~¢£¤¦§¬®±²³¼½¾ßÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþÿĀāĂăĄą\
-		ĆćĈĉċĊČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğġĠĢģĤĥħĨĩĪīĬĭĮįŌōŎŏŐőŒœ‱€№℗℠™")] != 0);
-	// The above returns true (0x1) if it contains a character other than the ones in the string.
-	// P.S. Does not support Japanese and such.
-
-	if (hasSpecial)
-		LL_DEBUGS("PVCommon") << "\"" << oocstring << "\" is not a word! Not closing OOC parentheses." << LL_ENDL;
-	else
-		LL_DEBUGS("PVCommon") << "OOC parentheses closed after \"" << oocstring << "\"." << LL_ENDL;
-
-	return hasSpecial;
+	//bool hasSpecial = false; // return value
+	//
+	//// Convert the C++ string to a c-style string (char array) to check for special characters presence.
+	//auto str = oocstring.c_str();
+	//hasSpecial = (str[strspn(str, " !	\"\'#$%&*+,-./0123456789:;?@AaBbCcDdEeFfGgHhIiİJjKkLlMmNnOo\
+	//	PpQqRrSsTtUuVvWwXxYyZz|~¢£¤¦§¬®±²³¼½¾ßÀàÁáÂâÃãÄäÅåÆæÇçÈèÉéÊêËëÌìÍíÎîÏïÐðÑñÒòÓóÔôÕõÖöØøÙùÚúÛûÜüÝýÞþÿĀāĂăĄą\
+	//	ĆćĈĉċĊČčĎďĐđĒēĔĕĖėĘęĚěĜĝĞğġĠĢģĤĥħĨĩĪīĬĭĮįŌōŎŏŐőŒœ‱€№℗℠™")] != 0);
+	//// The above returns true (0x1) if it contains a character other than the ones in the string.
+	//// P.S. Does not support Japanese and such.
+	//
+	//if (hasSpecial)
+	//	LL_DEBUGS("PVCommon") << "\"" << oocstring << "\" is not a word! Not closing OOC parentheses." << LL_ENDL;
+	//else
+	//	LL_DEBUGS("PVCommon") << "OOC parentheses closed after \"" << oocstring << "\"." << LL_ENDL;
+	//
+	//return hasSpecial;
+	return false;
 }
 
 std::string applyAutoCloseOoc(const std::string& message)
 {
-	static LLCachedControl<bool> autoclose_ooc(gSavedSettings, "PVChat_AutoCloseOOC", true);
-	if (!autoclose_ooc)
-	{
-		return message;
-	}
-
-	std::string utf8_text(message);
-
-	// Try to find any unclosed OOC chat (i.e. an opening
-	// double parenthesis without a matching closing double
-	// parenthesis.
-	if (utf8_text.find("(( ") != std::string::npos && utf8_text.find("))") == std::string::npos)
-	{
-		// <polarity> OOC Auto-close breaks ASCII art
-		if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
-			return message;
-		// add the missing closing double parenthesis.
-		utf8_text += " ))";
-	}
-	else if (utf8_text.find("((") != std::string::npos && utf8_text.find("))") == std::string::npos)
-	{
-		if (utf8_text.at(utf8_text.length() - 1) == ')')
-		{
-			// cosmetic: add a space first to avoid a closing triple parenthesis
-			utf8_text += " ";
-		}
-		// <polarity> OOC Auto-close breaks ASCII art
-		if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
-			return message;
-		// add the missing closing double parenthesis.
-		utf8_text += "))";
-	}
-	else if (utf8_text.find("[[ ") != std::string::npos && utf8_text.find("]]") == std::string::npos)
-	{
-		// <polarity> OOC Auto-close breaks ASCII art
-		if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
-			return message;
-		// add the missing closing double parenthesis.
-		utf8_text += " ]]";
-	}
-	else if (utf8_text.find("[[") != std::string::npos && utf8_text.find("]]") == std::string::npos)
-	{
-		if (utf8_text.at(utf8_text.length() - 1) == ']')
-		{
-			// cosmetic: add a space first to avoid a closing triple parenthesis
-			utf8_text += " ";
-		}
-		// <polarity> OOC Auto-close breaks ASCII art
-		if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
-			return message;
-		// add the missing closing double parenthesis.
-		utf8_text += "]]";
-	}
-
-	return utf8_text;
+	//static LLCachedControl<bool> autoclose_ooc(gSavedSettings, "PVChat_AutoCloseOOC", true);
+	//if (!autoclose_ooc)
+	//{
+	//	return message;
+	//}
+	//
+	//std::string utf8_text(message);
+	//
+	//// Try to find any unclosed OOC chat (i.e. an opening
+	//// double parenthesis without a matching closing double
+	//// parenthesis.
+	//if (utf8_text.find("(( ") != std::string::npos && utf8_text.find("))") == std::string::npos)
+	//{
+	//	// <polarity> OOC Auto-close breaks ASCII art
+	//	if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
+	//		return message;
+	//	// add the missing closing double parenthesis.
+	//	utf8_text += " ))";
+	//}
+	//else if (utf8_text.find("((") != std::string::npos && utf8_text.find("))") == std::string::npos)
+	//{
+	//	if (utf8_text.at(utf8_text.length() - 1) == ')')
+	//	{
+	//		// cosmetic: add a space first to avoid a closing triple parenthesis
+	//		utf8_text += " ";
+	//	}
+	//	// <polarity> OOC Auto-close breaks ASCII art
+	//	if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
+	//		return message;
+	//	// add the missing closing double parenthesis.
+	//	utf8_text += "))";
+	//}
+	//else if (utf8_text.find("[[ ") != std::string::npos && utf8_text.find("]]") == std::string::npos)
+	//{
+	//	// <polarity> OOC Auto-close breaks ASCII art
+	//	if (PVCommon::HasSpecialCharacters(utf8_text.substr(4)))
+	//		return message;
+	//	// add the missing closing double parenthesis.
+	//	utf8_text += " ]]";
+	//}
+	//else if (utf8_text.find("[[") != std::string::npos && utf8_text.find("]]") == std::string::npos)
+	//{
+	//	if (utf8_text.at(utf8_text.length() - 1) == ']')
+	//	{
+	//		// cosmetic: add a space first to avoid a closing triple parenthesis
+	//		utf8_text += " ";
+	//	}
+	//	// <polarity> OOC Auto-close breaks ASCII art
+	//	if (PVCommon::HasSpecialCharacters(utf8_text.substr(3)))
+	//		return message;
+	//	// add the missing closing double parenthesis.
+	//	utf8_text += "]]";
+	//}
+	//
+	//return utf8_text;
+	return message;
 }
 
 bool isValidWord(const std::string& message)
@@ -171,12 +175,13 @@ std::string formatString(std::string text, const LLStringUtil::format_map_t& arg
 }
 LLSD PVCommon::populateGroupCount()
 {
-	LLStringUtil::format_map_t args;
-	S32 groupcount = gAgent.mGroups.size();
-	args["[COUNT]"] = llformat("%d", groupcount);
-	args["[REMAINING]"] = llformat("%d", gMaxAgentGroups - groupcount);
-	LLUIString groupcountstring = LLTrans::getString((gMaxAgentGroups ? "groupcountstring" : "groupcountunlimitedstring"), args);
-	return LLSD(groupcountstring);
+//	LLStringUtil::format_map_t args;
+//	S32 groupcount = gAgent.mGroups.size();
+//	args["[COUNT]"] = llformat("%d", groupcount);
+//	args["[REMAINING]"] = llformat("%d", gMaxAgentGroups - groupcount);
+//	LLUIString groupcountstring = LLTrans::getString((gMaxAgentGroups ? "groupcountstring" : "groupcountunlimitedstring"), args);
+//	return LLSD(groupcountstring);
+	return LLSD(0);
 }
 
 bool PVCommon::isDefaultTexture(const LLUUID& asset_id)
@@ -202,6 +207,7 @@ bool PVCommon::isDefaultTexture(const LLUUID& asset_id)
 	return false;
 }
 
+#if 0
 S32 PVCommon::secondsSinceEpochFromString(const std::string& format, const std::string& str)
 {
 	// LLDateUtil::secondsSinceEpochFromString does not handle time, only the date.
@@ -216,7 +222,7 @@ S32 PVCommon::secondsSinceEpochFromString(const std::string& format, const std::
 	time_duration diff = time_t_date - time_t_epoch;
 	return diff.total_seconds();
 }
-
+#endif
 
 bool PVCommon::isAVXSupported()
 {
@@ -263,14 +269,9 @@ bool PVCommon::isAVXSupported()
 	return sAVXSupported;
 }
 
-std::string PVCommon::format_string(std::string text, const LLStringUtil::format_map_t& args)
-{
-	LLStringUtil::format(text, args);
-	return text;
-}
-
 void PVCommon::getChatLogsDirOverride()
 {
+#if 0
 	const std::string log_location_from_settings = gSavedPerAccountSettings.getString("InstantMessageLogPath");
 	// ReSharper disable CppDeprecatedEntity // cross-platform needs std:: function
 	char* log_location_from_registry = getenv("PV_CHATLOGS_LOCATION_OVERRIDE");
@@ -311,11 +312,13 @@ void PVCommon::getChatLogsDirOverride()
 	}
 
 	gSavedPerAccountSettings.setString("InstantMessageLogPath", new_chat_logs_dir);
+#endif
 }
 
 // Copied from LLFloaterPreferences because we need to run this without a floater instance existing.
 bool PVCommon::moveTranscriptsAndLog(const std::string &userid) const
 {
+#if 0
 	std::string instantMessageLogPath(gSavedPerAccountSettings.getString("InstantMessageLogPath"));
 	std::string chatLogPath = gDirUtilp->add(instantMessageLogPath, userid);
 
@@ -376,4 +379,8 @@ bool PVCommon::moveTranscriptsAndLog(const std::string &userid) const
 	gDirUtilp->updatePerAccountChatLogsDir();
 
 	return true;
+#else
+return false;
+#endif
 }
+#endif

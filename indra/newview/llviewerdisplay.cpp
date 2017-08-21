@@ -81,8 +81,6 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llscenemonitor.h"
-//#include "llprogressview.h"
-#include "pvfloaterprogressview.h"
 #include "llfloaterreg.h"
 
 #include <glm/vec3.hpp>
@@ -90,6 +88,8 @@
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include "pvmachinima.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -1104,7 +1104,7 @@ void render_hud_attachments()
 	// smoothly interpolate current zoom level
 	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLSmoothInterpolation::getInterpolant(0.03f));
 
-	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
+	if (!PVMachinimaTools::isEnabled() && (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices()))
 	{
 		LLPipeline::sRenderingHUDs = TRUE;
 		LLCamera hud_cam = *LLViewerCamera::getInstance();

@@ -40,6 +40,7 @@
 
 #include "llagent.h"
 #include "llavatarnamecache.h"
+#include "lldateutil.h"
 #include "llfloaterabout.h"
 #include "llfloaterpreference.h"
 #include "llmutelist.h"
@@ -51,11 +52,9 @@
 #include "llviewercontrol.h"
 #include "llviewermedia.h"
 #include "noise.h"
-#include "pvpanellogin.h"
+#include "llpanellogin.h"
 #include "pvtl.h" // for vector_to_string
 #include "pvconstants.h"
-
-#include "rlvactions.h"
 
 #include <boost/regex.hpp>
 #include "llframetimer.h"
@@ -201,7 +200,7 @@ void PVDataOldAPI::downloadComplete(const LLSD& aData, std::string& aURL)
 	LLDate lastModified;
 	if (header.has("last-modified"))
 	{
-		lastModified.secondsSinceEpoch(PVCommon::secondsSinceEpochFromString("%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString()));
+		lastModified.secondsSinceEpoch(LLDateUtil::secondsSinceEpochFromString("%a, %d %b %Y %H:%M:%S %ZP", header["last-modified"].asString()));
 	}
 
 	LLSD data = aData;
@@ -259,7 +258,8 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 		LL_WARNS() << "Got SOMETHING we weren't expecting. what do?" << LL_ENDL;
 		gPVOldAPI->setErrorMessage("INVALID_URL");
 	}
-	LLPanelLogin::doLoginButtonLockUnlock();
+	// FIXME: alchemy-merge
+	//LLPanelLogin::doLoginButtonLockUnlock();
 }
 
 // ########     ###    ########   ######  ######## ########   ######
@@ -626,13 +626,25 @@ bool PVDataOldAPI::getAgentsDone()
 	return false;
 }
 
+static std::string getRandomLLSDElement(const LLSD* blob)
+{
+	// This assigns a random entry as the MOTD / Progress Tip message.
+	auto tip_iter = blob->beginArray();
+	auto random_index = blob->get(ll_rand(static_cast<S32>(blob->size())));
+	if (tip_iter > blob->endArray())
+		return "NO_DATA";
+	
+	std::string random_tip = random_index.asString();
+	return random_tip;
+}
+
 std::string PVDataOldAPI::getNewProgressTip()
 {
 	// Check for events MOTD first...
 	std::string return_tip = getEventMotdIfAny();
 	if (return_tip.empty())
 	{
-		return_tip = progress_tips_list_.getRandom();
+		return_tip = getRandomLLSDElement(&progress_tips_list_);
 	}
 	if (!return_tip.empty())
 	{
@@ -650,7 +662,7 @@ std::string PVDataOldAPI::getRandomWindowTitle()
 {
 	LL_DEBUGS() << "Getting random window title from this list:" << LL_ENDL;
 	Dump("window_titles_list_", gPVOldAPI->window_titles_list_);
-	std::string title = gPVOldAPI->window_titles_list_.getRandom();
+	std::string title = getRandomLLSDElement(&gPVOldAPI->window_titles_list_);
 	LL_DEBUGS() << "Returning  '" << title << "'" << LL_ENDL;
 	return title;
 }
@@ -896,9 +908,11 @@ void PVDataOldAPI::cleanup()
 	pvdata_refresh_timer_.stop();
 }
 
+#if 0
 //@todo replace with proper code fixes
 std::string PVDataOldAPI::getPreferredName(const LLAvatarName& av_name)
 {
+
 	static LLCachedControl<bool> show_username(gSavedSettings, "NameTagShowUsernames");
 	static LLCachedControl<bool> use_display_names(gSavedSettings, "UseDisplayNames");
 	// Fallback
@@ -926,6 +940,7 @@ std::string PVDataOldAPI::getPreferredName(const LLAvatarName& av_name)
 
 	return preferred_name;
 }
+#endif
 
 #if LL_WINDOWS
 // Microsoft's runtime library doesn't support the standard setenv() function.
@@ -1190,7 +1205,7 @@ LLColor4 PVAgent::getColor(const LLUUID& id, const LLColor4 &default_color, bool
 	LL_RECORD_BLOCK_TIME(FTM_PVAGENT_GETCOLOR);
 
 	static LLCachedControl<bool> use_color_manager(gSavedSettings, "PVChat_ColorManager");
-	if ((!show_buddy_status && !use_color_manager) || !RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id))
+	if ((!show_buddy_status && !use_color_manager) /*|| !RlvActions::canShowName(RlvActions::SNC_NAMETAG, id) || !RlvActions::canShowName(RlvActions::SNC_DEFAULT, id)*/)
 	{
 		return default_color;
 	}

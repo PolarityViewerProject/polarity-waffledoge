@@ -248,7 +248,7 @@ LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) :
 	mKillTime(0.f),
 // <alchemy>
 	mLastSendTime(0.f),
-	mDebugLookAt(LLCachedControl<bool> (gSavedSettings, "PVPrivacy_LookAtShow", false))
+	mDebugLookAt(gSavedSettings, "PVPrivacy_LookAtShow", false)
 // </alchemy>
 {
 	clearLookAtTarget();
@@ -514,7 +514,7 @@ void LLHUDEffectLookAt::render()
 	{
 		static LLCachedControl<bool> isOwnHidden(gSavedSettings, "PVPrivacy_LookAtHideSelf", false);
 		static LLCachedControl<bool> isPrivate(gSavedSettings, "PVPrivacy_LookAtDontSend", false);
-		if (!avatarp || ((lookat_local_disabled || lookat_hide_self) && avatarp->isSelf()))
+
 		if ((isOwnHidden || isPrivate) && static_cast<LLVOAvatar*>(mSourceObject.get())->isSelf())
 			return;
 
@@ -578,34 +578,17 @@ void LLHUDEffectLookAt::render()
 			const LLFontGL* fontp = LLFontGL::getFontSansSerif();
 			gGL.pushMatrix();
 			static LLCachedControl<bool> lookat_names_bold(gSavedSettings, "PVPrivacy_LookAtBoldNames", false);
-			if(lookat_names_bold)
-			{
-				hud_render_utf8text(
-					text,
-					target + LLVector3(0.f, 0.f, 0.15f),
-					*fontp,
-					LLFontGL::BOLD,
-					LLFontGL::DROP_SHADOW,
-					-0.5f * fontp->getWidthF32(text),
-					0.0f,
-					(*mAttentions)[mTargetType].mColor,
-					FALSE
-				);
-			}
-			else
-			{
-				hud_render_utf8text(
-					text,
-					target + LLVector3(0.f, 0.f, 0.15f),
-					*fontp,
-					LLFontGL::NORMAL,
-					LLFontGL::DROP_SHADOW,
-					-0.5f * fontp->getWidthF32(text),
-					0.0f,
-					(*mAttentions)[mTargetType].mColor,
-					FALSE
-				);
-			}
+			hud_render_utf8text(
+				text,
+				target + LLVector3(0.f, 0.f, 0.15f),
+				*fontp,
+				lookat_names_bold ? LLFontGL::BOLD : LLFontGL::NORMAL,
+				LLFontGL::DROP_SHADOW,
+				-0.5f * fontp->getWidthF32(text),
+				0.0f,
+				(*mAttentions)[mTargetType].mColor,
+				FALSE
+			);
 			gGL.popMatrix();
 		}
 	}

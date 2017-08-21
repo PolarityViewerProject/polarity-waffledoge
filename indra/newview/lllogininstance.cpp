@@ -472,6 +472,7 @@ bool MandatoryUpdateMachine::WaitingForDownload::onEvent(LLSD const & event)
 // LLLoginInstance
 //-----------------------------------------------------------------------------
 
+LLAtomic32<bool>login_failure_lock(false);
 
 LLLoginInstance::LLLoginInstance() :
 	mLoginModule(new LLLogin()),
@@ -491,6 +492,7 @@ LLLoginInstance::LLLoginInstance() :
 	mDispatcher.add("connect",    "", boost::bind(&LLLoginInstance::handleLoginSuccess, this, _1));
 	mDispatcher.add("disconnect", "", boost::bind(&LLLoginInstance::handleDisconnect, this, _1));
 	mDispatcher.add("indeterminate", "", boost::bind(&LLLoginInstance::handleIndeterminate, this, _1));
+	login_failure_lock = false;
 }
 
 void LLLoginInstance::setPlatformInfo(const std::string platform,
@@ -736,6 +738,7 @@ void LLLoginInstance::handleLoginFailure(const LLSD& event)
 		LL_INFOS() << "LLLoginInstance::handleLoginFailure attemptComplete" << LL_ENDL;
 		attemptComplete();
 	}	
+	login_failure_lock = false;
 }
 
 void LLLoginInstance::handleLoginSuccess(const LLSD& event)

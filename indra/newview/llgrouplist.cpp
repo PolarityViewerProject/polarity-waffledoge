@@ -277,10 +277,11 @@ bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
 	{
 		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_NAME);
 	}
-	else if (action == "copy_displayname")
-	{
-		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_DISPLAYNAME);
-	}
+	// Lol, groups don't have display names
+	//else if (action == "copy_displayname")
+	//{
+	//	LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_DISPLAYNAME);
+	//}
 	else if (action == "copy_slurl")
 	{
 		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_SLURL);

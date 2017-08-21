@@ -109,6 +109,8 @@ void LLFloaterEditSky::onOpen(const LLSD& key)
 		floater_title = getString(std::string("title_neutral"));
 	}
 
+	std::string hint = getString(std::string("hint_" + param));
+
 	// Update floater title.
 	setTitle(floater_title);
 

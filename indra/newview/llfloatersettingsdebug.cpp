@@ -236,7 +236,7 @@ void LLFloaterSettingsDebug::onCommitSettings() const
 
 	LLVector3 vector;
 	LLVector3d vectord;
-	LLVector4 vector4; // <Black Dragon:NiranV> Vector4
+	//LLVector4 vector4; // <Black Dragon:NiranV> Vector4
 	LLRect rect;
 	LLColor4 col4;
 	LLColor3 col3;
@@ -286,19 +286,19 @@ void LLFloaterSettingsDebug::onCommitSettings() const
 		mCurrentControlVariable->set(mColorSwatch->getValue());
 		break;
 	  // <Black Dragon:NiranV> Vector4
-	  case TYPE_VEC4:
-		vector4.mV[VX] = (F32)getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
-		vector4.mV[VY] = (F32)getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
-		vector4.mV[VZ] = (F32)getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
-		vector4.mV[VW] = (F32)getChild<LLUICtrl>("val_spinner_4")->getValue().asReal();
-		mCurrentControlVariable->set(vector4.getValue());
+	//  case TYPE_VEC4:
+	//	vector4.mV[VX] = (F32)getChild<LLUICtrl>("val_spinner_1")->getValue().asReal();
+	//	vector4.mV[VY] = (F32)getChild<LLUICtrl>("val_spinner_2")->getValue().asReal();
+	//	vector4.mV[VZ] = (F32)getChild<LLUICtrl>("val_spinner_3")->getValue().asReal();
+	//	vector4.mV[VW] = (F32)getChild<LLUICtrl>("val_spinner_4")->getValue().asReal();
+	//	mCurrentControlVariable->set(vector4.getValue());
 	  default:
 		break;
 	}
-	if (!mCurrentControlVariable->isSane())
-	{
-		onSanityCheck();
-}
+	//if (!mCurrentControlVariable->isSane())
+	//{
+	//	onSanityCheck();
+	//}
 }
 
 void LLFloaterSettingsDebug::onClickDefault()
@@ -345,7 +345,7 @@ void LLFloaterSettingsDebug::updateControl()
 	{
 	
 		mCopyButton->setEnabled(TRUE);
-		mSanityButton->setVisible(!mCurrentControlVariable->isSane());
+		//mSanityButton->setVisible(!mCurrentControlVariable->isSane());
 
 		eControlType type=mCurrentControlVariable->type();
 
@@ -566,40 +566,40 @@ void LLFloaterSettingsDebug::updateControl()
 			break;
 		  }
 		  // <Black Dragon:NiranV> Vector4
-		  case TYPE_VEC4:
-		  {
-			  LLVector4 v;
-			  v.setValue(sd);
-			  mSpinner1->setVisible(TRUE);
-			  mSpinner1->setLabel(std::string("X"));
-			  mSpinner2->setVisible(TRUE);
-			  mSpinner2->setLabel(std::string("Y"));
-			  mSpinner3->setVisible(TRUE);
-			  mSpinner3->setLabel(std::string("Z"));
-			  mSpinner4->setVisible(TRUE);
-			  mSpinner4->setLabel(std::string("W"));
-			  if (!mSpinner1->hasFocus())
-			  {
-				  mSpinner1->setPrecision(3);
-				  mSpinner1->setValue(v[VX]);
-			  }
-			  if (!mSpinner2->hasFocus())
-			  {
-				  mSpinner2->setPrecision(3);
-				  mSpinner2->setValue(v[VY]);
-			  }
-			  if (!mSpinner3->hasFocus())
-			  {
-				  mSpinner3->setPrecision(3);
-				  mSpinner3->setValue(v[VZ]);
-			  }
-			  if (!mSpinner4->hasFocus())
-			  {
-				  mSpinner4->setPrecision(3);
-				  mSpinner4->setValue(v[VW]);
-			  }
-			  break;
-		  }
+		//  case TYPE_VEC4:
+		//  {
+		//	  LLVector4 v;
+		//	  v.setValue(sd);
+		//	  mSpinner1->setVisible(TRUE);
+		//	  mSpinner1->setLabel(std::string("X"));
+		//	  mSpinner2->setVisible(TRUE);
+		//	  mSpinner2->setLabel(std::string("Y"));
+		//	  mSpinner3->setVisible(TRUE);
+		//	  mSpinner3->setLabel(std::string("Z"));
+		//	  mSpinner4->setVisible(TRUE);
+		//	  mSpinner4->setLabel(std::string("W"));
+		//	  if (!mSpinner1->hasFocus())
+		//	  {
+		//		  mSpinner1->setPrecision(3);
+		//		  mSpinner1->setValue(v[VX]);
+		//	  }
+		//	  if (!mSpinner2->hasFocus())
+		//	  {
+		//		  mSpinner2->setPrecision(3);
+		//		  mSpinner2->setValue(v[VY]);
+		//	  }
+		//	  if (!mSpinner3->hasFocus())
+		//	  {
+		//		  mSpinner3->setPrecision(3);
+		//		  mSpinner3->setValue(v[VZ]);
+		//	  }
+		//	  if (!mSpinner4->hasFocus())
+		//	  {
+		//		  mSpinner4->setPrecision(3);
+		//		  mSpinner4->setValue(v[VW]);
+		//	  }
+		//	  break;
+		//  }
 		  default:
 			mComment->setText(std::string("unknown"));
 			break;

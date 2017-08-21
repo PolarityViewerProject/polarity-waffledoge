@@ -110,25 +110,18 @@ namespace
     class HandleScriptUserData
     {
     public:
-        
-		HandleScriptUserData(const std::string &pumpname
-#ifdef LSL_PREPROCESSOR
-		// <FS:Ansariel> [LSL PreProc]
-		, LLScriptQueueData* data
-		// </FS:Ansariel>
-#endif
-		) : mPumpname(pumpname)
-        { }
 
-            mPumpname(pumpname)
+	HandleScriptUserData(const std::string &pumpname
 #ifdef LSL_PREPROCESSOR
-            ,mData(data) // <FS:Ansariel/>
+			// <FS:Ansariel> [LSL PreProc]
+			, LLScriptQueueData* data
+			// </FS:Ansariel>
+#endif
+        	) : mPumpname(pumpname)
+#ifdef LSL_PREPROCESSOR
+			,mData(data) // <FS:Ansariel/>
 #endif
         { }
-
-	// Wat?
-	// HandleScriptUserData()
-    // { }     
 
         const std::string &getPumpName() const { return mPumpname; }
 #ifdef LSL_PREPROCESSOR
@@ -242,13 +235,13 @@ BOOL LLFloaterScriptQueue::postBuild()
 	return TRUE;
 }
 
-#ifdef LSL_PREPROCESSOR
+//#ifdef LSL_PREPROCESSOR
 //nonstatic
 void LLFloaterScriptQueue::Close()
 {
 	this->closeFloater();
 }
-#endif
+//#endif
 
 // static
 void LLFloaterScriptQueue::onCloseBtn(void* user_data)
@@ -722,7 +715,7 @@ bool LLFloaterCompileQueue::startQueue()
         {
             processExperienceIdResults(LLSD(), getKey().asUUID());
 #else
-	return TRUE
+	return TRUE;
 #endif
         }
     }

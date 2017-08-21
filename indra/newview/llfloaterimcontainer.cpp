@@ -93,7 +93,7 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 
 	mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
 	
-	mCommitCallbackRegistrar.add("Polarity.Common.CopyData", boost::bind(&LLFloaterIMContainer::copyData, this, _2));'
+	//mCommitCallbackRegistrar.add("Polarity.Common.CopyData", boost::bind(&LLFloaterIMContainer::copyData, this, _2));'
 
 	// Firstly add our self to IMSession observers, so we catch session events
 	LLIMMgr::getInstance()->addSessionObserver(this);
@@ -1349,10 +1349,6 @@ void LLFloaterIMContainer::doToSelectedGroup(const LLSD& userdata)
 	else if (action == "copy_name")
 	{
 		LLGroupActions::copyData(mSelectedSession, LLGroupActions::E_DATA_NAME);
-	}
-	else if (action == "copy_displayname")
-	{
-		LLGroupActions::copyData(mSelectedSession, LLGroupActions::E_DATA_DISPLAYNAME);
 	}
 	else if (action == "copy_slurl")
 	{

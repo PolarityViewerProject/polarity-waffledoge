@@ -60,6 +60,9 @@
 #include "curl/curl.h"
 #include "llstreamtools.h"
 
+// for iequal
+#include <boost/algorithm/string/predicate.hpp>
+
 LLWLParamManager::LLWLParamManager() :
 
 	//set the defaults for the controls
@@ -723,6 +726,7 @@ void LLWLParamManager::initSingleton()
 
 	loadAllPresets();
 
+#if OLD_WL_CODE
 	// load the day
 	std::string preferred_day = LLEnvManagerNew::instance().getDayCycleName();
 	if (!LLDayCycleManager::instance().getPreset(preferred_day, mDay))
@@ -746,11 +750,12 @@ void LLWLParamManager::initSingleton()
 
 	// set it to noon
 	resetAnimator(0.5, LLEnvManagerNew::instance().getUseDayCycle());
-
+#endif
 	// but use linden time sets it to what the estate is
 	mAnimator.setTimeType(LLWLAnimator::TIME_LINDEN);
-
+#if OLD_WL_CODE
 	LLEnvManagerNew::instance().usePrefs();
+#endif
 }
 
 // static

@@ -1016,7 +1016,7 @@
           Vertical Sync:
         </text>
         <combo_box
-          control_name="PVRender_VsyncMode"
+          control_name="RenderVerticalSync"
           height="21"
           initial_value="false"
           label="Vertical Sync"
@@ -1309,11 +1309,11 @@
             width="110">
           </check_box>
           <check_box
-            control_name="PVRender_DisableFullBright"
+            control_name="RenderDeferredFullbright"
             height="16"
             initial_value="false"
             label="Disable Full Bright"
-            tool_tip="Disables rendering of full bright prims. Requires re-rezzing."
+            tool_tip="Forces Fullbright objects to not be fullbright. Local only."
             layout="topleft"
             left="5"
             name="DisableFullBright"
@@ -1324,7 +1324,7 @@
             control_name="PVRender_DisableFullBrightKeepOnGlow"
             height="16"
             initial_value="false"
-            label="Keep Fullbright on Glow"
+            label="Keep Fullbright on glowing objects"
             tool_tip="Can be useful to avoid breaking content that requires glow and fullbright e.g. lights"
             layout="topleft"
             left_pad="10"

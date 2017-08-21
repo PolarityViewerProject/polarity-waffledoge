@@ -67,6 +67,9 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
+#include "llviewerjoystick.h"
+#include "llfloatercamera.h"
+
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 LLNetMap::MAP_SCALE_MIN = 32.f;
@@ -399,8 +402,8 @@ void LLNetMap::draw()
 		bool unknown_relative_z;
 		LLColor4 color;
 
+		auto self_global_pos = gAgent.getPositionGlobal();
 		LLWorld::getInstance()->getAvatars(&positions, gAgentCamera.getCameraPositionGlobal());
-
 		// Draw avatars
 		for (const auto& pos_pair : positions)
 		{
@@ -424,13 +427,13 @@ void LLNetMap::draw()
 				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
 #endif
 
-				unknown_relative_z = fixed_pos.mdV[VZ] == COARSEUPDATE_MAX_Z &&
+				unknown_relative_z = position.mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
-
+				F32 fixed_z;
 				if (!LLViewerJoystick::getInstance()->getOverrideCamera() && !LLFloaterCamera::inFreeCameraMode() && gAgentCamera.getFocusOnAvatar())
 				{
 					// use global pos to rule out camera values.
-					fixed_z = fixed_pos.mdV[VZ] - self_global_pos.mdV[VZ];
+					fixed_z = position.mdV[VZ] - self_global_pos.mdV[VZ];
 				}
 				else
 				{

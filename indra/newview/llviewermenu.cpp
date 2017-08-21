@@ -81,6 +81,7 @@
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
+#include "llglsandbox.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhudeffecttrail.h"
@@ -145,6 +146,8 @@
 #include "pvmachinima.h"
 #include "pvperformancemaid.h"
 #include "fsassetblacklist.h"
+
+#include "llagentui.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -841,10 +844,10 @@ U32 feature_from_string(std::string feature)
 	{
 		return LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES;
 	}
-	else if ("foot shadows" == feature)
-	{
-		return LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS;
-	}
+	//else if ("foot shadows" == feature)
+	//{
+	//	return LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS;
+	//}
 	else if ("fog" == feature)
 	{
 		return LLPipeline::RENDER_DEBUG_FEATURE_FOG;
@@ -6016,6 +6019,20 @@ class LLWorldCreateLandmark : public view_listener_t
 	}
 };
 
+// <FS:Ansariel> Toggle teleport history panel directly
+void toggleTeleportHistory()
+{
+	if (LLFloaterReg::instanceVisible("places"))
+	{
+		LLFloaterReg::hideInstance("places");
+	}
+	else
+	{
+		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
+	}
+}
+// </FS:Ansariel> Toggle teleport history panel directly
+
 class LLWorldPlaceProfile : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
@@ -7477,8 +7494,6 @@ class LLAdvancedClickRenderProfile: public view_listener_t
 		return true;
 	}
 };
-
-F32 gpu_benchmark();
 
 class LLAdvancedClickRenderBenchmark: public view_listener_t
 {
@@ -9416,7 +9431,7 @@ void initialize_menus()
 	ALViewerMenu::initialize_menus();
 
 	// <polarity> PLVR-32 Refresh texture on objects and avatars
-	view_listener_t::addMenu(new PLVRObjectTextureRefresh(), "Polarity.Object.TextureRefresh");
+	//view_listener_t::addMenu(new PLVRObjectTextureRefresh(), "Polarity.Object.TextureRefresh"); // FIXME
 	view_listener_t::addMenu(new PLVRAvatarTextureRefresh(), "Polarity.Avatar.TextureRefresh");
 	view_listener_t::addMenu(new PLVRTerrainTextureRefresh(), "Polarity.Terrain.TextureRefresh");
 	// </polarity>

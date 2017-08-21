@@ -88,6 +88,12 @@
 #include "llfloaterimsessiontab.h"
 #include "llviewerchat.h"
 
+#if LL_WINDOWS
+#include "llwindowwin32.h"
+#endif
+
+#include "pvfpsmeter.h"
+
 // Third party library includes
 #include <boost/algorithm/string.hpp>
 
@@ -344,7 +350,7 @@ static bool handleMaxPartCountChanged(const LLSD& newvalue)
 
 static bool handleVideoMemoryChanged(const LLSD& newvalue)
 {
-	gTextureList.updateMaxResidentTexMem(newvalue.asInteger());
+	gTextureList.updateMaxResidentTexMem(S32Megabytes(newvalue.asInteger()));
 	return true;
 }
 
@@ -719,7 +725,12 @@ static bool handleFPSLimiterTargetChanged(const LLSD& val)
 	LL_WARNS() << "Got FPS Target of " << fps_limit << LL_ENDL;
 	if (fps_limit == 0)
 	{
+		// TODO: Implement for Linux
+#if LL_WINDOWS
 		fps_limit = LLWindowWin32::getRefreshRate();
+#else
+		fps_limit = 60;
+#endif
 	}
 
 	gSavedSettings.setU32("PVRender_FPSLimiterTarget", fps_limit);
@@ -911,36 +922,23 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLFloaterIMSessionTab::processChatHistoryStyleUpdate, false));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLChatBar::updateChatFont));
 	gSavedSettings.getControl("ChatFontSize")->getSignal()->connect(boost::bind(&LLViewerChat::signalChatFontChanged));
-	gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
+	gSavedSettings.getControl("RenderVerticalSync")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
 
-	gSavedSettings.getControl("NavigationBarStyle")->getSignal()->connect(boost::bind(&handleNavigationBarChanged, _2));
 	
 	//BD - Special Debugs and handles
-	gSavedSettings.getControl("UseEnvironmentFromRegion")->getSignal()->connect(boost::bind(&handleUseRegioLight, _2));
 //	//BD - Expose Attached Lights and Particles
-	gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
-	gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
+	//gSavedSettings.getControl("RenderAttachedLights")->getSignal()->connect(boost::bind(&handleRenderAttachedLightsChanged, _2));
+	//gSavedSettings.getControl("RenderAttachedParticles")->getSignal()->connect(boost::bind(&handleRenderAttachedParticlesChanged, _2));
 	gSavedSettings.getControl("RenderNormalMapScale")->getSignal()->connect(boost::bind(&handleResetVertexBuffersChanged, _2));
-
-	gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
-	gSavedSettings.getControl("PVRender_DisableFullbright")->getSignal()->connect(boost::bind(&handleFullbrightChanged, _2));
-
+	//gSavedSettings.getControl("SlowMotionTimeFactor")->getSignal()->connect(boost::bind(&handleTimeFactorChanged, _2));
 	gSavedSettings.getControl("AlchemyNearbyChatChannel")->getValidateSignal()->connect(boost::bind(&handleChatChannelChanged, _2));
-
 	gSavedSettings.getControl("AlchemyWLCloudTexture")->getSignal()->connect(boost::bind(&handleWindlightCloudChanged, _2));
 #if ALCHEMY_TEST
 	gSavedSettings.getControl("CameraPreset")->getSignal()->connect(boost::bind(&handleCameraPresetChanged, _2)); // <alchemy/>
 #endif
-
-	gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
+	//gSavedSettings.getControl("RenderEnableAlpha")->getSignal()->connect(boost::bind(&handleAlphaChanged, _2));
 	// BD - Freeze World
-	gSavedSettings.getControl("PVRender_FreezeWorld")->getSignal()->connect(boost::bind(&toggle_freeze_world, _2));
-
-	//gSavedSettings.getControl("CloudNoiseImageName")->getSignal()->connect(boost::bind(&handleCloudNoiseChanged, _2));
-
-	// <Alchemy:Drake> Adaptive V-Sync
-	//gSavedSettings.getControl("PVRender_VsyncMode")->getValidateSignal()->connect(boost::bind(validateVSync, _2));
-
+	//gSavedSettings.getControl("PVRender_FreezeWorld")->getSignal()->connect(boost::bind(&toggle_freeze_world, _2));
 	// <polarity> FPS Meter class and FPS Limiter
 	//gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getValidateSignal()->connect(boost::bind(&validateFPSLimiterTarget, _2, false));
 	//gSavedSettings.getControl("PVRender_FPSLimiterTarget")->getSignal()->connect(boost::bind(&handleFPSLimiterTargetChanged, _2));
@@ -954,10 +952,9 @@ void settings_setup_listeners()
 	gSavedSettings.getControl("PVWindow_TitleForceShortName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getValidateSignal()->connect(boost::bind(&validateDynamicTitleOptionsChanged, _2));
 	gSavedSettings.getControl("PVWindow_TitleShowUserName")->getSignal()->connect(boost::bind(&handleDynamicTitleOptionsChanged, _2));
-
 	// <polarity> Custom implementation of Niran's Shadow Map Allocation tweaks
 	//gSavedSettings.getControl("RenderShadowResolutionScale")->getValidateSignal()->connect(boost::bind(&validateShadowMapsChanged, _2));
-	gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
+	//gSavedSettings.getControl("RenderShadowResolutionScale")->getSignal()->connect(boost::bind(&handleShadowMapsChanged, _2));
 	// </polarity>
 }
 

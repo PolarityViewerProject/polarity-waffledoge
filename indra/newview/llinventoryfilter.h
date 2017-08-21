@@ -198,6 +198,7 @@ public:
 	void				setFilterMarketplaceUnassociatedFolders();
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
     void                setFilterNoMarketplaceFolder();
+	void				removeFilterEmptySystemFolders(); // <FS:Ansariel> Optional hiding of empty system folders
 	void				updateFilterTypes(U64 types, U64& current_types);
 	void				setFilterWornItems();
 

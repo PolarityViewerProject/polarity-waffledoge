@@ -448,7 +448,12 @@ BOOL LLCacheName::getFullName(const LLUUID& id, std::string& fullname)
 	return res;
 }
 
-
+// <FS:CR> Returns first name, last name
+BOOL LLCacheName::getFirstLastName(const LLUUID& id, std::string& first, std::string& last)
+{
+	return impl.getName(id, first, last);
+}
+// </FS:CR>
 
 BOOL LLCacheName::getGroupName(const LLUUID& id, std::string& group)
 {
@@ -651,6 +656,34 @@ boost::signals2::connection LLCacheName::get(const LLUUID& id, bool is_group, co
 	}
 	return res;
 }
+
+// NaCl - Sound explorer and Area Search
+BOOL LLCacheName::getIfThere(const LLUUID& id, std::string& fullname, BOOL& is_group)
+{
+	if(id.isNull())
+	{
+		fullname = "";
+		return FALSE;
+	}
+
+	LLCacheNameEntry* entry = get_ptr_in_map(impl.mCache, id );
+	if (entry)
+	{
+		if (entry->mIsGroup)
+		{
+			fullname = entry->mGroupName;
+		}
+		else
+		{
+			fullname = buildFullName(entry->mFirstName, entry->mLastName);
+		}
+		is_group = entry->mIsGroup;
+		return TRUE;
+	}
+	fullname = "";
+	return FALSE;
+}
+// NaCl end
 
 boost::signals2::connection LLCacheName::getGroup(const LLUUID& group_id,
 												  const LLCacheNameCallback& callback)

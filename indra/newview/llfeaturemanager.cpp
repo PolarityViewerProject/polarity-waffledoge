@@ -55,6 +55,7 @@
 
 #include "llstartup.h" // for getStartupState
 #include "pvgpuinfo.h" // to update vram immediately
+#include "llglsandbox.h"
 
 #if LL_WINDOWS
 #include "lldxhardware.h"
@@ -67,6 +68,7 @@ const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
+#endif
 #endif
 
 #if LL_DARWIN

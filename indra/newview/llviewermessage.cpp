@@ -133,7 +133,6 @@
 #include "fsareasearch.h"
 #include "fsassetblacklist.h"
 
-#include "pvfloaterprogressview.h"
 #include "pvconstants.h"
 
 extern void on_new_message(const LLSD& msg);
@@ -4861,8 +4860,8 @@ void process_sound_trigger(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ObjectID, object_id);
 
 	// <FS:ND> Protect against corrupted sounds
-	if( gAudiop->isCorruptSound( sound_id ) )
-		return;
+	//if( gAudiop->isCorruptSound( sound_id ) )
+	//	return;
 	// </FS:ND>
 
 	// <FS> Asset blacklist
@@ -4940,8 +4939,8 @@ void process_preload_sound(LLMessageSystem* msg, void** user_data)
 	// </FS>
 
 	// <FS:ND> Protect against corrupted sounds
-	if( gAudiop->isCorruptSound( sound_id ) )
-		return;
+	//if( gAudiop->isCorruptSound( sound_id ) )
+	//	return;
 	// </FS:ND>
 
 	LLViewerObject *objectp = gObjectList.findObject(object_id);

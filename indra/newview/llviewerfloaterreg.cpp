@@ -177,7 +177,6 @@
 
 #include "fsareasearch.h"
 #include "fsfloaterassetblacklist.h"
-#include "pvfloaterprogressview.h"
 
 // handle secondlife:///app/openfloater/{NAME} URLs
 class LLFloaterOpenHandler : public LLCommandHandler
@@ -271,7 +270,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterVoiceVolumeUtil::registerFloater();
 	LLNotificationsUI::registerFloater();
 	
-	LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
+	//LLFloaterReg::add("lagmeter", "floater_lagmeter.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLagMeter>);
 	LLFloaterReg::add("land_holdings", "floater_land_holdings.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLandHoldings>);
 	LLFloaterReg::add("linkreplace", "floater_linkreplace.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterLinkReplace>);
 	LLFloaterReg::add("mem_leaking", "floater_mem_leaking.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterMemLeak>);
@@ -321,7 +320,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("preview_sound", "floater_preview_sound.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewSound>, "preview");
 	LLFloaterReg::add("preview_texture", "floater_preview_texture.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLPreviewTexture>, "preview");
 	// <polarity> Custom progress view
-	LLFloaterReg::add("progress_view", "floater_progress_view.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProgressView>);
+	//LLFloaterReg::add("progress_view", "floater_progress_view.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProgressView>);
 	// <polarity>
 	LLFloaterReg::add("preview_trash", "floater_preview_trash.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterPreviewTrash>);
 	LLFloaterReg::add("properties", "floater_inventory_item_properties.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<LLFloaterProperties>);
@@ -388,7 +387,7 @@ void LLViewerFloaterReg::registerFloaters()
 	LLFloaterReg::add("fs_asset_blacklist", "floater_fs_asset_blacklist.xml", (LLFloaterBuildFunc)&LLFloaterReg::build<FSFloaterAssetBlacklist>);
 	
 	registerAlchemyFloaters();
-	
+
 	LLFloaterReg::registerControlVariables(); // Make sure visibility and rect controls get preserved when saving
 }
 

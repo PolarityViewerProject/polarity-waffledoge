@@ -65,7 +65,7 @@ bool LLInventoryPanel::sColorSetInitialized = false;
 LLUIColor LLInventoryPanel::sDefaultColor;
 LLUIColor LLInventoryPanel::sDefaultHighlightColor;
 LLUIColor LLInventoryPanel::sLibraryColor;
-LLUIColor LLInventoryPanel::sItemColor // <polarity>
+LLUIColor LLInventoryPanel::sItemColor; // <polarity>
 LLUIColor LLInventoryPanel::sLinkColor;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);

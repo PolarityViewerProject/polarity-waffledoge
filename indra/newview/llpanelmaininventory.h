@@ -33,6 +33,8 @@
 #include "lldndbutton.h"
 
 #include "llfolderview.h"
+#include "llcombobox.h" // Zi: Filter dropdown
+#include "llinventoryfilter.h" // Zi: Filter dropdown
 
 class LLFolderViewItem;
 class LLInventoryPanel;
@@ -45,6 +47,7 @@ class LLMenuGL;
 class LLToggleableMenu;
 class LLFloater;
 class LLComboBox;  // ## Zi: Filter dropdown
+class LLInventoryFilter; // ## Zi: Filter dropdown
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -125,6 +128,7 @@ protected:
 	// menu callbacks
 	void doToSelected(const LLSD& userdata);
 	void closeAllFolders();
+	void openAllFolders();
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);

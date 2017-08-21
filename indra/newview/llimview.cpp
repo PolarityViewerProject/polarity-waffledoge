@@ -2693,6 +2693,11 @@ void LLIMMgr::addMessage(
 	}
 
 	bool new_session = !hasSession(new_session_id);
+	BOOL is_group_chat = FALSE;
+	if (!new_session && dialog != IM_NOTHING_SPECIAL)
+	{
+		is_group_chat = gAgent.isInGroup(new_session_id);
+	}
 	if (new_session)
 	{
 		LLAvatarName av_name;
@@ -2772,7 +2777,7 @@ void LLIMMgr::addMessage(
 				}
 				else if (reportIgnoredAdHocSession)
 				{
-					PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
+					//PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
 				}
 				return;
 			}

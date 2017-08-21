@@ -263,43 +263,42 @@ source_group("Third Party/Firestorm" FILES
     ${firestorm_SOURCE_FILES}
     )
 
-set(obsidian_HEADER_FILES
-    oschatcommand.h
-    # osscriptruntimeperms.h
-    )
-set(obsidian_SOURCE_FILES
-    oschatcommand.cpp
-    )
-source_group("Third Party/Obsidian" FILES
-    ${obsidian_HEADER_FILES}
-    ${obsidian_SOURCE_FILES}
-    )
+#set(obsidian_HEADER_FILES
+#    # oschatcommand.h
+#    # osscriptruntimeperms.h
+#    )
+#set(obsidian_SOURCE_FILES
+#    # oschatcommand.cpp
+#    )
+#source_group("Third Party/Obsidian" FILES
+#    ${obsidian_HEADER_FILES}
+#    ${obsidian_SOURCE_FILES}
+#    )
 
 set(polarity_HEADER_FILES
     pvaligntool.h
     pvcommon.h
-    pvfloaterprogressview.h
+    # pvfloaterprogressview.h
     pvfpsmeter.h
     pvgpuinfo.h
     pvmachinima.h
-    pvpanellogin.h
+    # pvpanellogin.h
     pvperformancemaid.h
     pvrandom.h
-    pvscriptpreproc.h
+    # pvscriptpreproc.h
     pvtypes.h
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
-    #pvchathistory.cpp
     pvcommon.cpp
-    pvfloaterprogressview.cpp
+    # pvfloaterprogressview.cpp
     pvfpsmeter.cpp
     pvgpuinfo.cpp
     pvmachinima.cpp
-    pvpanellogin.cpp
+    # pvpanellogin.cpp
     pvperformancemaid.cpp
     pvrandom.cpp
-    pvscriptpreproc.cpp
+    # pvscriptpreproc.cpp
     )
 
 set(pvdata_HEADER_FILES
@@ -325,33 +324,33 @@ source_group("Third Party/Polarity" FILES
     ${polarity_SOURCE_FILES}
     )
 
-set(rlva_SOURCE_FILES
-    rlvactions.cpp
-    rlvhandler.cpp
-    rlvhelper.cpp
-    rlvcommon.cpp
-    rlvlocks.cpp
-    rlvinventory.cpp
-    rlvextensions.cpp
-    rlvfloaters.cpp
-    rlvui.cpp
-    )
-set(rlva_HEADER_FILES
-    rlvactions.h
-    rlvcommon.h
-    rlvdefines.h
-    rlvextensions.h
-    rlvfloaters.h
-    rlvhandler.h
-    rlvhelper.h
-    rlvinventory.h
-    rlvlocks.h
-    rlvui.h
-    )
-source_group("Third Party/Restrained Love API" FILES
-    ${rlva_SOURCE_FILES}
-    ${rlva_HEADER_FILES}
-    )
+#set(rlva_SOURCE_FILES
+#    rlvactions.cpp
+#    rlvhandler.cpp
+#    rlvhelper.cpp
+#    rlvcommon.cpp
+#    rlvlocks.cpp
+#    rlvinventory.cpp
+#    rlvextensions.cpp
+#    rlvfloaters.cpp
+#    rlvui.cpp
+#    )
+#set(rlva_HEADER_FILES
+#    rlvactions.h
+#    rlvcommon.h
+#    rlvdefines.h
+#    rlvextensions.h
+#    rlvfloaters.h
+#    rlvhandler.h
+#    rlvhelper.h
+#    rlvinventory.h
+#    rlvlocks.h
+#    rlvui.h
+#    )
+#source_group("Third Party/Restrained Love API" FILES
+#    ${rlva_SOURCE_FILES}
+#    ${rlva_HEADER_FILES}
+#    )
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -530,7 +529,7 @@ set(viewer_SOURCE_FILES
     llfloaterpay.cpp
     llfloaterperms.cpp
     llfloaterpreference.cpp
-    # pvfloaterprogressview.cpp
+    llfloaterprogressview.cpp
     llfloaterproperties.cpp
     llfloaterregiondebugconsole.cpp
     llfloaterregioninfo.cpp
@@ -1135,7 +1134,7 @@ set(viewer_HEADER_FILES
     llfloaterpay.h
     llfloaterperms.h
     llfloaterpreference.h
-    # pvfloaterprogressview.h
+    llfloaterprogressview.h
     llfloaterproperties.h
     llfloaterregiondebugconsole.h
     llfloaterregioninfo.h

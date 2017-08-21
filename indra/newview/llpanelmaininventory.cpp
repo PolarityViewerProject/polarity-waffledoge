@@ -63,6 +63,8 @@
 #include "pvdata.h"
 #endif
 
+#include "lluictrl.h"
+
 // <polarity> fix Major FPS drop by disabling filters.xml
 // const std::string FILTERS_FILENAME("filters.xml");
 
@@ -267,8 +269,9 @@ BOOL LLPanelMainInventory::postBuild()
 				worn_items_panel->getFilter().fromParams(p.filter);
 			}
 		}
-#endif
+
 	}
+#endif
 
 	mFilterEditor = getChild<LLFilterEditor>("inventory search editor");
 	if (mFilterEditor)
@@ -1227,6 +1230,19 @@ void LLFloaterInventoryFinder::selectNoTypes(void* user_data)
 	self->getChild<LLUICtrl>("check_snapshot")->setValue(FALSE);
 }
 
+// ## Zi: Inventory Collapse and Expand Buttons
+void LLPanelMainInventory::onCollapseButtonClicked()
+{
+	// <polarity> Don't clear search filter.
+	//mFilterEditor->clear();
+	//onFilterEdit("");
+	getPanel()->closeAllFolders();
+}
+void LLPanelMainInventory::onExpandButtonClicked()
+{
+	getPanel()->openAllFolders();
+}
+// ## Zi: Inventory Collapse and Expand Buttons
 //////////////////////////////////////////////////////////////////////////////////
 // List Commands                                                                //
 

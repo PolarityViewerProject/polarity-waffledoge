@@ -123,9 +123,9 @@ LLFloaterColorPicker::LLFloaterColorPicker (LLColorSwatchCtrl* swatch, BOOL show
       mContextConeFadeTime   ( 0.f )
 	  // <polarity> Enhanced color picker
 	  ,mCopyLSLBtn(nullptr)
-	  ,mCopyLLColor4Panel = getChild<LLPanel>("copy_llcolor4_panel")
-	  ,mCopyLLColor4Btn = getChild<LLButton>("copy_llcolor4_btn")
-	  ,mCopyHexBtn = getChild<LLButton>("copy_hex_btn")
+	  ,mCopyLLColor4Panel(nullptr)
+	  ,mCopyLLColor4Btn(nullptr)
+	  ,mCopyHexBtn(nullptr)
 	  // </polarity>
 {
 	buildFromFile ( "floater_color_picker.xml");

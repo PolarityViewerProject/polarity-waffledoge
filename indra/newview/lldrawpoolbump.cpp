@@ -1145,7 +1145,7 @@ void LLBumpImageList::generateNormalMapFromAlpha(LLImageRaw* src, LLImageRaw* nr
 
 	S32 src_cmp = src->getComponents();
 
-	static LLCachedControl<F32> RenderNormalMapScale(gSavedSettings, "RenderNormalMapScale");
+	static LLCachedControl<F32> norm_scale(gSavedSettings, "RenderNormalMapScale");
 	//F32 norm_scale = RenderNormalMapScale;
 
 	U32 idx = 0;
@@ -1380,8 +1380,8 @@ void LLBumpImageList::onSourceLoaded( BOOL success, LLViewerTexture *src_vi, LLI
 					static LLStaticHashedString sStepX("stepX");
 					static LLStaticHashedString sStepY("stepY");
 
-					static LLCachedControl<F32> RenderNormalMapScale(gSavedSettings, "RenderNormalMapScale");
-					gNormalMapGenProgram.uniform1f(sNormScale, RenderNormalMapScale);
+					static LLCachedControl<F32> norm_scale(gSavedSettings, "RenderNormalMapScale");
+					gNormalMapGenProgram.uniform1f(sNormScale, norm_scale);
 					gNormalMapGenProgram.uniform1f(sStepX, 1.f/bump->getWidth());
 					gNormalMapGenProgram.uniform1f(sStepY, 1.f/bump->getHeight());
 

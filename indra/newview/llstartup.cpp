@@ -875,7 +875,7 @@ bool idle_startup()
 			{
 					new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
 			}
-			gViewerWindow->getWindow()->setTitle(new_title);
+			gViewerWindow->getWindow()->setWindowTitle(new_title);
 			//LLPanelLogin::doLoginButtonLockUnlock();
 #endif
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
@@ -999,17 +999,17 @@ bool idle_startup()
 		//Default the path if one isn't set.
 		// *NOTE: unable to check variable differ from "InstantMessageLogPath" because it was
 		// provided in pre 2.0 viewer. See EXT-6661
-		//if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
-		//{
-		//	gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
-		//	gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
-		//}
-		//else
-		//{
-		//	gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
-		//}
-
-		gPVCommon->getChatLogsDirOverride();
+		if (gSavedPerAccountSettings.getString("InstantMessageLogPath").empty())
+		{
+			gDirUtilp->setChatLogsDir(gDirUtilp->getOSUserAppDir());
+			gSavedPerAccountSettings.setString("InstantMessageLogPath", gDirUtilp->getChatLogsDir());
+		}
+		else
+		{
+			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
+		}
+		// FIXME: Alchemy-merge
+		//gPVCommon->getChatLogsDirOverride();
 
 		gDirUtilp->setPerAccountChatLogsDir(userid, gridlabel);
 		
@@ -2355,17 +2355,17 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		std::string appname_str = APP_NAME;
-		PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer", CHAT_SOURCE_MOTD);
+		//std::string appname_str = APP_NAME;
+		//PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer", CHAT_SOURCE_MOTD);
 #ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
 		PVFPSMeter::preComputeFloorAndCeiling();
 		PVFPSMeter::start();
-		if(gSavedSettings.getBOOL("TextureLoadFullRes"))
-		{
-			PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
-		}
+		//if(gSavedSettings.getBOOL("TextureLoadFullRes"))
+		//{
+			//PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
+		//}
 
 		return TRUE;
 	}

@@ -75,6 +75,8 @@
 #include "llfloaterreg.h"
 #include "pvfpsmeter.h"
 
+#include "llweb.h" // Marketplace "Shop" button.
+
 //
 // Globals
 //
@@ -170,9 +172,9 @@ BOOL LLStatusBar::postBuild()
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
 	mTextFPS = getChild<LLTextBox>("FPS_count");
 
-	const std::string buy_currency_url = "https://secondlife.com/my/lindex/buy.php";
-	getChild<LLUICtrl>("buyL")->setCommitCallback(boost::bind(&LLWeb::loadURLExternal, buy_currency_url, true));
-
+	mBtnBuyL = getChild<LLButton>("buyL");
+	mBtnBuyL->setCommitCallback(boost::bind(&LLStatusBar::onClickBuyCurrency, this));
+	// <polarity> [VS Alchemy] Keep the shop button in the taskbar for now as we don't have any other reference to the Marketplace in the UI
 	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
 
 	mBoxBalance = getChild<LLTextBox>("balance");
@@ -204,8 +206,6 @@ BOOL LLStatusBar::postBuild()
 	gSavedSettings.getControl("MuteAudio")->getSignal()->connect(boost::bind(&LLStatusBar::onVolumeChanged, this, _2));
 	gSavedPerAccountSettings.getControl("UseAO")->getCommitSignal()->connect(boost::bind(&LLStatusBar::onAOStateChanged, this));
 
-	LLHints::registerHintTarget("linden_balance", getChild<LLView>("balance_bg")->getHandle());
-	
 	// Adding Net Stat Graph
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;

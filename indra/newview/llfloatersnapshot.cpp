@@ -49,6 +49,7 @@
 #include "lltoolfocus.h"
 #include "lltoolmgr.h"
 #include "llwebprofile.h"
+#include "lltrans.h"
 
 ///----------------------------------------------------------------------------
 /// Local function declarations, constants, enums, and typedefs
@@ -193,8 +194,12 @@ void LLFloaterSnapshotBase::ImplBase::updateLayout(LLFloaterSnapshotBase* floate
 		floaterp->reshape(floater_width, floaterp->getRect().getHeight());
 	}
 
-	bool use_freeze_frame = floaterp->getChild<LLUICtrl>("freeze_frame_check")->getValue().asBoolean();
-
+	bool use_freeze_frame = false;
+	auto freeze_frame_check = floaterp->getChild<LLUICtrl>("freeze_frame_check");
+	if(freeze_frame_check)
+	{
+		use_freeze_frame = freeze_frame_check->getValue().asBoolean();
+	}
 	if (use_freeze_frame)
 	{
 		// stop all mouse events at fullscreen preview layer

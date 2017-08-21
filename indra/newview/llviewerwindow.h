@@ -303,6 +303,9 @@ public:
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
+	// <polarity> Dynamic window title
+	void setTitle(const std::string& win_title);
+	// </polarity>
 	void			revealIntroPanel();
 	void			setStartupComplete();
 
@@ -379,13 +382,13 @@ public:
 									S32 this_face = -1,
 									BOOL pick_transparent = FALSE,
 									BOOL pick_rigged = FALSE,
-									S32* face_hit = NULL,
-									LLVector4a *intersection = NULL,
-									LLVector2 *uv = NULL,
-									LLVector4a *normal = NULL,
-									LLVector4a *tangent = NULL,
-									LLVector4a* start = NULL,
-									LLVector4a* end = NULL);
+									S32* face_hit = nullptr,
+									LLVector4a *intersection = nullptr,
+									LLVector2 *uv = nullptr,
+									LLVector4a *normal = nullptr,
+									LLVector4a *tangent = nullptr,
+									LLVector4a* start = nullptr,
+									LLVector4a* end = nullptr);
 	
 	
 	// Returns a pointer to the last object hit
@@ -414,10 +417,6 @@ public:
 	const LLVector2& getDisplayScale() const { return mDisplayScale; }
 	void			calcDisplayScale();
 	static LLRect 	calcScaledRect(const LLRect & rect, const LLVector2& display_scale);
-
-	void			setTitle(const std::string& win_title);	// <polarity/> Dynamic window title
-
-	//LLWindow*		mWindow;						// graphical window object
 
 	bool getSystemUIScaleFactorChanged() { return mSystemUIScaleFactorChanged; }
 	static void showSystemUIScaleFactorChanged();

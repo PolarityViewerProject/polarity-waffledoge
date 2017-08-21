@@ -1365,7 +1365,7 @@ void FSPanelAreaSearchList::onDoubleClick() const
 	if (objectp)
 	{
 		FSObjectProperties& details = mFSAreaSearch->mObjectDetails[object_id];
-		LLTracker::trackLocation(objectp->getPositionGlobal(), details.name, "", LLTracker::LOCATION_ITEM);
+		LLTracker::getInstance()->trackLocation(objectp->getPositionGlobal(), details.name, "", LLTracker::LOCATION_ITEM);
 
 		if (mFSAreaSearch->getPanelAdvanced()->mCheckboxClickBuy->get())
 		{

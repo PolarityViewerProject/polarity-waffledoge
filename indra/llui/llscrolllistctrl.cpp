@@ -252,10 +252,28 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		mBorder->reshape(getRect().getWidth(), getRect().getHeight());
 	}
 
-	if (p.sort_column >= 0)
-	{
-		sortByColumnIndex(p.sort_column, p.sort_ascending);
-	}
+	// <FS:Ansariel> addRow() will call updateLayout() that tries to access the the comment
+	//               textbox. So create it first before adding rows!
+	LLTextBox::Params text_p;
+	text_p.name("comment_text");
+	text_p.border_visible(false);
+	text_p.rect(mItemListRect);
+	text_p.follows.flags(FOLLOWS_ALL);
+	// word wrap was added accroding to the EXT-6841
+	text_p.wrap(true);
+	// set up label text color for empty lists in a way it's always readable -Zi
+	text_p.text_color = mFgUnselectedColor;
+	// show scroll bar when applicable -Sei
+	text_p.allow_scroll(true);
+	text_p.track_end(true);
+	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+	// </FS:Ansariel>
+	// <FS:Ansariel> Can only set sort column after we created the actual columns
+	//if (p.sort_column >= 0)
+	//{
+	//	sortByColumnIndex(p.sort_column, p.sort_ascending);
+	//}
+	// </FS:Ansariel>
 
 	if (p.remove_callback.isProvided())
 	{
@@ -267,8 +285,16 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		++row_it)
 	{
 		addColumn(*row_it);
+		// <FS:Ansariel> Get list of the column init params so we can re-add them
+		mColumnInitParams.push_back(*row_it);
 	}
 
+	// <FS:Ansariel> Can only set sort column after we created the actual columns
+	if (p.sort_column >= 0)
+	{
+		sortByColumnIndex(p.sort_column, p.sort_ascending);
+	}
+	// </FS:Ansariel>
 	for (LLInitParam::ParamIterator<LLScrollListItem::Params>::const_iterator row_it = p.contents.rows.begin();
 		row_it != p.contents.rows.end();
 		++row_it)
@@ -276,14 +302,18 @@ LLScrollListCtrl::LLScrollListCtrl(const LLScrollListCtrl::Params& p)
 		addRow(*row_it);
 	}
 
-	LLTextBox::Params text_p;
-	text_p.name("comment_text");
-	text_p.border_visible(false);
-	text_p.rect(mItemListRect);
-	text_p.follows.flags(FOLLOWS_ALL);
-	// word wrap was added accroding to the EXT-6841
-	text_p.wrap(true);
-	addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+	// <FS:Ansariel> Moved up
+	//LLTextBox::Params text_p;
+	//text_p.name("comment_text");
+	//text_p.border_visible(false);
+	//text_p.rect(mItemListRect);
+	//text_p.follows.flags(FOLLOWS_ALL);
+	//// word wrap was added accroding to the EXT-6841
+	//text_p.wrap(true);
+	//// set up label text color for empty lists in a way it's always readable -Zi
+	//text_p.text_color = mFgUnselectedColor;
+	//addChild(LLUICtrlFactory::create<LLTextBox>(text_p));
+	// </FS:Ansariel>
 }
 
 boost::signals2::connection LLScrollListCtrl::setRemoveCallback(const commit_signal_t::slot_type& cb)

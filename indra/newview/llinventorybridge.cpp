@@ -3297,12 +3297,13 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
 //#ifndef LL_RELEASE_FOR_DOWNLOAD // <polarity> Selectively enable this for some people
 	else if ("delete_system_folder" == action)
 	{
-	#ifdef PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized()) // <polarity> TODO: Add a flag for this
 		{
 			removeSystemFolder();
 		}
+#endif
 	}
 //#endif
 
@@ -4151,12 +4152,13 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 //#ifndef LL_RELEASE_FOR_DOWNLOAD // <polarity>
 	if (is_agent_inventory && LLFolderType::lookupIsProtectedType(type))
 	{
-	#ifdef PVDATA_SYSTEM
+#ifdef PVDATA_SYSTEM
 		auto pv_agent = PVAgent::find(gAgent.getID());
 		if (pv_agent && pv_agent->isPolarized())
 		{
 			items.push_back(std::string("Delete System Folder"));
 		}
+#endif
 //#endif // </polarity>
 	}
 

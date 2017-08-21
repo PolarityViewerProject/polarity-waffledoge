@@ -221,13 +221,12 @@ BOOL LLPipeline::RenderDeferredFullbright;
 
 //BD - Special Options
 BOOL LLPipeline::CameraFreeDoFFocus;
-BOOL LLPipeline::RenderDepthOfFieldInEditMode;
 BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
 F32 LLPipeline::RenderSnapshotMultiplier;
 
 F32 LLPipeline::RenderShadowFarClip; // </polarity>
 
-bool	LLPipeline::sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
+//bool	LLPipeline::sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
 
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
@@ -658,7 +657,6 @@ void LLPipeline::init()
 
 //	//BD - Special Options
 	connectRefreshCachedSettingsSafe("CameraFreeDoFFocus");
-	connectRefreshCachedSettingsSafe("RenderDepthOfFieldInEditMode");
 	connectRefreshCachedSettingsSafe("RenderSnapshotAutoAdjustMultiplier");
 	connectRefreshCachedSettingsSafe("RenderSnapshotMultiplier");
 
@@ -9757,7 +9755,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	{
 		renderGeomShadow(shadow_cam);
 	}
-	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVDebug_UseConstShadowMask", true);
+	static LLCachedControl<bool> shadows_const_path(gSavedSettings, "PVDebug_UseConstShadowMask", true);
 	static constexpr U32 const_alpha_mask = LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
@@ -9776,13 +9774,13 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
-		if(PVDebug_UseConstShadowMask)
+		if(shadows_const_path)
 		{
 			mask = const_alpha_mask;
 		}
 		else
 		{
-			U32 mask = LLVertexBuffer::MAP_VERTEX | 
+			mask = LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
 					LLVertexBuffer::MAP_TEXTURE_INDEX;
@@ -9797,11 +9795,11 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		gDeferredShadowAlphaMaskProgram.unbind();
 
 	}
-	static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", 1);
+	static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", true);
 	if (tree_shadows_from_alpha)
 	{
 		
-		if(PVDebug_UseConstShadowMask)
+		if(shadows_const_path)
 		{
 			mask = const_tree_alpha_mask;
 		}

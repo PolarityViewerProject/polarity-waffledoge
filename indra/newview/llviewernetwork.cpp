@@ -944,9 +944,10 @@ std::string LLGridManager::getUpdateServiceURL() const
 	}
 	else
 	{
-		update_url_base = ALCHEMY_UPDATE_SERVICE;
+		static const std::string update_url = PROJECT_UPDATE_URL;
+		update_url_base = update_url;
 	}
-			
+			 
 	return update_url_base;
 }
 

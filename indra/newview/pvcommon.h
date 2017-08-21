@@ -30,7 +30,7 @@
 #define PV_COMMON_H
 
 #pragma once
-
+#if FIXED_SMART_PTR_ERROR
 #include "llchat.h"
 #include "llsingleton.h" // for instance()
 #include "pvtypes.h"
@@ -77,7 +77,7 @@ public:
 	static LLSD populateGroupCount();
 
 	static bool isDefaultTexture(const LLUUID& asset_id);
-
+#if 0
 	/** \brief Convert a string of a specified date format into seconds since the Epoch.
 	 *
 	 * Many of the format flags are those used by strftime(...), but not all.
@@ -92,6 +92,7 @@ public:
 	 * @return Number of seconds since 01/01/1970 UTC.
 	 */
 	static S32 secondsSinceEpochFromString(const std::string& format, const std::string& str);
+#endif
 
 	static bool isAVXSupported();
 
@@ -99,7 +100,7 @@ public:
 	 *
 	 * I'm not sure we we need this yet.
 	 */
-	static std::string format_string(std::string text, const LLStringUtil::format_map_t& args);
+	//static std::string format_string(std::string text, const LLStringUtil::format_map_t& args);
 
 	/**
 	 * \brief Attempt to set the chat logs location from environment if available
@@ -115,5 +116,7 @@ private:
 
 /// <summary> Cached instance. Use this or findInstance() instead of getInstance if you can. </summary>
 extern PVCommon* gPVCommon;
+
+#endif
 
 #endif // PV_COMMON_H

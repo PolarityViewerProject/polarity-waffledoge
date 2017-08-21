@@ -210,7 +210,7 @@ bool LLEnvManagerNew::useSkyPreset(const std::string& name, bool interpolate /*=
 	}
 
 	LL_INFOS("Windlight") << "Displaying sky preset '" << name << "', interpolate : " << interpolate << LL_ENDL;
-	sky_mgr.applySkyParams(param_set.getAll(), interpolate);
+	sky_mgr.applySkyParams(param_set.getAll());
 	return true;
 
 }
@@ -496,7 +496,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 	if (!KCWindlightInterface::instance().haveParcelOverride(new_settings))
 	{
 		// If using server settings, update managers.
-	if ( (getUseRegionSettings()) && (LLWLParamManager::getInstance()->mAnimator.getIsRunning()) )
+		if ( (getUseRegionSettings()) && (LLWLParamManager::getInstance()->mAnimator.getIsRunning()) )
 		{
 			LL_DEBUGS("Windlight") << "Updating WL managers from prefs" << LL_ENDL;
 			LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
@@ -504,8 +504,7 @@ void LLEnvManagerNew::onRegionSettingsResponse(const LLSD& content)
 		}
 		//bit of a hacky override since I've repurposed many of the settings and methods here -KC
 		//NOTE* It might not be a good idea to do this if under RLV_BHVR_SETENV -KC
-		else if (gSavedSettings.getBOOL("PVWindlight_FromRegionAlways") 
-			&& !(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
+		else if (gSavedSettings.getBOOL("PVWindlight_FromRegionAlways"))
 		{
 			// reset all environmental settings to track the region defaults, make this reset 'sticky' like the other sun settings.
 			LL_DEBUGS("Windlight") << "Resetting user prefs" << LL_ENDL;

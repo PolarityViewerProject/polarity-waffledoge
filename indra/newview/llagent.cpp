@@ -100,7 +100,6 @@
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
-#include "pvfloaterprogressview.h"
 
 using namespace LLAvatarAppearanceDefines;
 
@@ -594,7 +593,7 @@ void LLAgent::moveAt(S32 direction, const bool reset_view)
 		setControlFlags(AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT);
 	}
 
-	if (reset && reset_view)
+	if (reset_view)
 	{
 		camera_reset_on_motion();
 	}

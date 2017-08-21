@@ -48,6 +48,7 @@
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
+#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -1071,6 +1072,7 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	S32 number_attachments = content["attachments"].size();
 
+	bool has_attachment_point_data = false;
 	for(int i = 0; i < number_attachments; i++)
 	{
 		std::string humanReadableLocation = "";
@@ -1158,7 +1160,11 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	// </polarity>
 	setAttachmentSummary(content);
 
-	getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
+	auto loading_text = getChild<LLUICtrl>("loading_text");
+	if (loading_text)
+	{
+		loading_text->setValue(LLSD(std::string("")));
+	}
 
 	LLButton* btn = getChild<LLButton>("refresh_list_btn");
 	if(btn)

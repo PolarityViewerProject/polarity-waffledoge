@@ -42,6 +42,7 @@
 #include "llmoveview.h"
 #include "llselectmgr.h"
 #include "llsmoothstep.h"
+#include "llstartup.h"
 #include "lltoolmgr.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"

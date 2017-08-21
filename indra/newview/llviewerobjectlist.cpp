@@ -49,6 +49,7 @@
 #include "llworld.h"
 #include "llstring.h"
 #include "llhudicon.h"
+#include "llhudtext.h"
 #include "llhudnametag.h"
 #include "lldrawable.h"
 #include "llflexibleobject.h"
@@ -1387,140 +1388,6 @@ void LLViewerObjectList::killObjects(LLViewerRegion *regionp)
 	cleanDeadObjects(FALSE);
 }
 
-//BD
-char itoc(int in)
-{
-	if (in < 0)
-	{
-		return (char)0;
-	}
-	if (in <= 9)
-	{
-		return (char)in + '0';
-	}
-	if (in >= 9)
-	{
-		return (char)in + 'a' - 10;
-	}
-	return (char)0;
-}
-
-int ctoi(char c)
-{
-	if (c >= '0' && c <= '9')
-	{
-		return c - '0';
-	}
-	return 0;
-}
-
-//BD - Fullbright Toggle
-void LLViewerObjectList::killAllFullbrights()
-{
-	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
-	{
-		objectp = *iter;
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			const LLTextureEntry* te = objectp->getTE(i);
-			if (te->getFullbrightFlag())
-			{
-				if (objectp != gAgentAvatarp)
-				{
-					LL_DEBUGS() << itoc(te->getFullbright()) << LL_ENDL;
-					objectp->setTEFullbright(i, 0);
-				}
-			}
-		}
-	}
-}
-
-//BD - Alpha Toggle
-void LLViewerObjectList::killAllAlphas()
-{
-	LLViewerObject *objectp;
-	for (vobj_list_t::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter)
-	{
-		objectp = *iter;
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp)
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 1.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 1.0);
-			}
-		}
-	}
-}
-
-//BD - DeAlpha
-void LLViewerObjectList::killAlpha(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 1.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 1.0);
-			}
-		}
-	}
-}
-
-//BD - ReAlpha
-void LLViewerObjectList::restoreAlpha(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				LLColor4 te_color = te->getColor();
-				te_color.mV[VW] = 0.0;
-				objectp->setTEColor(i, te_color);
-				objectp->setTEAlpha(i, 0.0);
-			}
-		}
-	}
-}
-
-//BD - DeBright
-void LLViewerObjectList::killFullbright(LLViewerObject *objectp)
-{
-	if (objectp)
-	{
-		for (S32 i = 0; i < objectp->getNumTEs(); i++)
-		{
-			if (objectp != gAgentAvatarp
-				&& LLSelectMgr::getInstance()->getSelection()->contains(objectp, i))
-			{
-				const LLTextureEntry* te = objectp->getTE(i);
-				if (te->getFullbrightFlag())
-				{
-					if (objectp != gAgentAvatarp)
-					{
-						LL_DEBUGS() << itoc(te->getFullbright()) << LL_ENDL;
-						objectp->setTEFullbright(i, 0);
-					}
-				}
-			}
-		}
-	}
-}
-
 void LLViewerObjectList::killAllObjects()
 {
 	// Used only on global destruction.
@@ -2433,6 +2300,7 @@ LLDebugBeacon::~LLDebugBeacon()
 }
 
 // <FS:ND> Helper function to purge the internal list of derendered objects on teleport.
+// <polarity> TODO: Does not work right now. Not hooked?
 void LLViewerObjectList::resetDerenderList(bool force /*= false*/)
 {
 	static LLCachedControl<bool> PVDerender_ClearTempOnTeleport(gSavedSettings, "PVDerender_ClearTempOnTeleport");

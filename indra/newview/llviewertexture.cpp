@@ -60,6 +60,7 @@
 #include "llviewercamera.h"
 #include "lltextureentry.h"
 #include "lltexturemanagerbridge.h"
+#include "llmediaentry.h"
 #include "llvovolume.h"
 #include "llviewermedia.h"
 #include "lltexturecache.h"
@@ -69,10 +70,10 @@
 #ifdef LL_VRAM_CODE
 const S32Megabytes gMinVideoRam(32);
 #endif
-#ifdef LL_X86_64
+#if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
 /*const*/S32Megabytes gMaxVideoRam;
 #else
-/*const*/S32Megabytes gMaxVideoRam(1024);
+/*const*/S32Megabytes gMaxVideoRam(512);
 #endif
 
 // statics
@@ -790,7 +791,7 @@ bool LLViewerTexture::bindDebugImage(const S32 stage)
 	return res;
 }
 
-bool LLViewerTexture::bindDefaultImage(S32 stage) 
+bool LLViewerTexture::bindDefaultImage(const S32 stage) 
 {
 	if (stage < 0) return false;
 
@@ -1071,9 +1072,11 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLUUID& id, FTType f_type, 
 	mFTType = f_type;
 	if (mFTType == FTT_HOST_BAKE)
 	{
-		LL_WARNS() << "Unsupported fetch type " << mFTType << LL_ENDL;
+		//LL_WARNS() << "Unsupported fetch type " << mFTType << LL_ENDL;
+		mCanUseHTTP = false;
 	}
 	generateGLTexture();
+	mGLTexturep->setNeedsAlphaAndPickMask(TRUE);
 }
 	
 LLViewerFetchedTexture::LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_type, BOOL usemipmaps)
@@ -1081,6 +1084,7 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const LLImageRaw* raw, FTType f_t
 {
 	init(TRUE);
 	mFTType = f_type;
+	mGLTexturep->setNeedsAlphaAndPickMask(TRUE);
 }
 	
 LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, FTType f_type, const LLUUID& id, BOOL usemipmaps)
@@ -1090,6 +1094,7 @@ LLViewerFetchedTexture::LLViewerFetchedTexture(const std::string& url, FTType f_
 	init(TRUE);
 	mFTType = f_type;
 	generateGLTexture();
+	mGLTexturep->setNeedsAlphaAndPickMask(TRUE);
 }
 
 void LLViewerFetchedTexture::init(bool firstinit)
@@ -1235,8 +1240,8 @@ void LLViewerFetchedTexture::loadFromFastCache()
 		{
             if (mBoostLevel == LLGLTexture::BOOST_ICON)
             {
-                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_SIZE;
+                S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_SIZE;
                 if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                 {
                     // scale oversized icon, no need to give more work to gl
@@ -1505,6 +1510,39 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		mOrigWidth = mFullWidth;
 		mOrigHeight = mFullHeight;
 	}
+	
+	if (!mRawImage->mComment.empty())
+	{
+		// a is for uploader
+		// z is for time
+		// K is the whole thing (just coz)
+		std::string comment = mRawImage->getComment();
+		mComment['K'] = comment;
+		size_t position = 0;
+		size_t length = comment.length();
+		while (position < length)
+		{
+			std::size_t equals_position = comment.find('=', position);
+			if (equals_position != std::string::npos)
+			{
+				S8 type = comment.at(equals_position - 1);
+				position = comment.find('&', position);
+				if (position != std::string::npos)
+				{
+					mComment[type] = comment.substr(equals_position + 1, position - (equals_position + 1));
+					position++;
+				}
+				else
+				{
+					mComment[type] = comment.substr(equals_position + 1, length - (equals_position + 1));
+				}
+			}
+			else
+			{
+				position = equals_position;
+			}
+		}
+	}
 
 	bool size_okay = true;
 	
@@ -1528,16 +1566,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 		// An inappropriately-sized image was uploaded (through a non standard client)
 		// We treat these images as missing assets which causes them to
 		// be renderd as 'missing image' and to stop requesting data
-
-		// <polarity> Make it more verbose, but don't spam the log
-		// LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
-		// I can't seem to be able to get the object this image is attached to, but dumping the ID should help whoever tries to correct the problem. - Xenhat
-		//@todo Try to handle this asset instead of displaying a broken blob
-		static LLCachedControl<bool> warn_invalid_texture(gSavedSettings, "PVDebug_WarnIfInvalidTexture", false);
-		if (warn_invalid_texture)
-		{
-			LL_WARNS("InvalidAsset") << "Invalid image size for texture '" << mID << "' (!size_ok, probably uploaded with old and/or broken OpenJPEG), setting as missing and ignoring future requests" << LL_ENDL;
-		}
+		LL_WARNS() << "!size_ok, setting as missing" << LL_ENDL;
 		setIsMissingAsset();
 		destroyRawImage();
 		return FALSE;
@@ -2067,8 +2096,8 @@ bool LLViewerFetchedTexture::updateFetch()
 
                 if (mBoostLevel == LLGLTexture::BOOST_ICON)
                 {
-                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_DIMENTIONS;
-                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_DIMENTIONS;
+                    S32 expected_width = mKnownDrawWidth > 0 ? mKnownDrawWidth : DEFAULT_ICON_SIZE;
+                    S32 expected_height = mKnownDrawHeight > 0 ? mKnownDrawHeight : DEFAULT_ICON_SIZE;
                     if (mRawImage && (mRawImage->getWidth() > expected_width || mRawImage->getHeight() > expected_height))
                     {
                         // scale oversized icon, no need to give more work to gl

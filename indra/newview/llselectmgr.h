@@ -45,6 +45,7 @@
 #include "llviewerobject.h"	// LLObjectSelection::getSelectedTEValue template
 #include "llmaterial.h"
 
+#include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include <boost/iterator/filter_iterator.hpp>
 
 class LLMessageSystem;
@@ -551,6 +552,9 @@ public:
 	void saveSelectedShinyColors();
 	void saveSelectedObjectTextures();
 
+	// <polarity> Refresh Textures
+	void refreshSelectionTextures(std::unordered_set<LLUUID>& additional_textures = std::unordered_set<LLUUID>()); // <polarity> PLVR-32 Refresh texture on objects and avatars
+
 	// Sets which texture channel to query for scale and rot of display
 	// and depends on UI state of LLPanelFace when editing
 	void setTextureChannel(LLRender::eTexIndex texIndex) { mTextureChannel = texIndex; }
@@ -806,6 +810,9 @@ private:
 
 	// Get the first ID that matches test and whether or not all ids are identical in selected objects.
 	void getFirst(LLSelectGetFirstTest* test);
+	
+	// Rez Under Land Group
+	static LLUUID getGroupIDToRezUnder();
 
 public:
 	// Observer/callback support for when object selection changes or

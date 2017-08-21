@@ -81,9 +81,9 @@ public:
 	virtual ~LLFloaterScriptQueue();
 
 	/*virtual*/ BOOL postBuild() override;
-#ifdef LSL_PREPROCESSOR
+//#ifdef LSL_PREPROCESSOR
 	void Close();
-#endif
+//#endif
 	void setMono(bool mono) { mMono = mono; }
 	
 	// addObject() accepts an object id.

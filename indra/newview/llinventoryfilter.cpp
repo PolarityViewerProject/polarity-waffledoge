@@ -91,7 +91,7 @@ LLInventoryFilter::LLInventoryFilter(const Params& p)
 	mFirstSuccessGeneration(0),
 	mFilterModified(FILTER_NONE),
 	mEmptyLookupMessage("InventoryNoMatchingItems"),
-	mFilterSubStringTarget(SUBST_TARGET_NAME),	// <FS:Zi> Extended Inventory Search
+	mFilterSubStringTarget(SUBST_TARGET_NAME)	// <FS:Zi> Extended Inventory Search
 {
 	// <FS:Zi> Begin Multi-substring inventory search
 	mSubStringMatchOffsets.clear();
@@ -1046,11 +1046,11 @@ void LLInventoryFilter::setFindAllLinksMode(const std::string &search_name, cons
 }
 
 // <FS>
-void LLInventoryFilter::setFilterWorn(BOOL sl)
-{
-	setModified();
-	mFilterOps.mFilterTypes |= FILTERTYPE_WORN;
-}
+//void LLInventoryFilter::setFilterWorn(BOOL sl)
+//{
+//	setModified();
+//	mFilterOps.mFilterTypes |= FILTERTYPE_WORN;
+//}
 // </FS>
 
 void LLInventoryFilter::markDefault()

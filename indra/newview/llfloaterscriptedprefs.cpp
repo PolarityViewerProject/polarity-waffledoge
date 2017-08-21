@@ -27,13 +27,14 @@
  * $/LicenseInfo$
  */
 
-#ifdef LSL_PREPROCESSOR
+
 #include "llviewerprecompiledheaders.h"
 #include "llfloaterscriptedprefs.h"
 
 #include "llcolorswatch.h"
 #include "llscripteditor.h"
 
+#ifdef LSL_PREPROCESSOR
 #include "lldirpicker.h"
 #include "llviewercontrol.h"
 #include "llfloaterreg.h"
@@ -112,13 +113,6 @@ void LLFloaterScriptEdPrefs::setPreprocInclude()
 }
 // </FS:Ansariel>
 #else
-
-#include "llviewerprecompiledheaders.h"
-#include "llfloaterscriptedprefs.h"
-
-#include "llcolorswatch.h"
-#include "llscripteditor.h"
-
 
 LLFloaterScriptEdPrefs::LLFloaterScriptEdPrefs(const LLSD& key)
 :	LLFloater(key)

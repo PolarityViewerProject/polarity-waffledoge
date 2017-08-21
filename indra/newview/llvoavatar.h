@@ -104,6 +104,14 @@ public:
 	static void			initClass(); // Initialize data that's only init'd once per class.
 	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
 	void 		initInstance() override; // Called after construction to initialize the class.
+	// <polarity> Moved to header file
+	enum ERenderName
+	{
+		RENDER_NAME_NEVER,
+		RENDER_NAME_ALWAYS,	
+		RENDER_NAME_FADE
+	};
+	// </polarity>
 protected:
 	virtual				~LLVOAvatar();
 

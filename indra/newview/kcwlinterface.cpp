@@ -41,7 +41,6 @@
 #include "llwaterparammanager.h"
 #include "llwlparammanager.h"
 #include <boost/regex.hpp>
-#include "rlvhandler.h"
 
 const F32 PARCEL_WL_CHECK_TIME = 1.f; // <polarity> Nobody ain't got time for this.
 const S32 PARCEL_WL_MIN_ALT_CHANGE = 3;
@@ -310,11 +309,6 @@ bool KCWindlightInterface::applySkySettings(const LLSD& settings)
 void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 {
 	LL_DEBUGS() << "TRYING KCWL APPLY WINDLIGHT PRESET" << LL_ENDL;
-	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-	{
-		LL_DEBUGS() << "RLV SAID TO NOT APPLY WINDLIGHT PRESET" << LL_ENDL;
-		return;
-	}
 
 	LLWLParamManager::getInstance()->mAnimator.stopInterpolation();
 	LLWLParamManager* wlprammgr = LLWLParamManager::getInstance();
@@ -346,11 +340,6 @@ void KCWindlightInterface::applyWindlightPreset(const std::string& preset)
 void KCWindlightInterface::resetToRegion(bool force)
 {
 	LL_DEBUGS() << "TRYING TO RESET TO REGION" << LL_ENDL;
-	if (rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV))
-	{
-		LL_DEBUGS() << "RLV SAID TO NOT RESET TO REGION" << LL_ENDL;
-		return;
-	}
 
 	//TODO: clear per parcel
 	if (mWeChangedIt || force) //dont reset anything if we didnt do it
@@ -716,8 +705,7 @@ bool KCWindlightInterface::checkSettings()
 {
 	static LLCachedControl<bool> parcel_windlight(gSavedSettings, "PVWindLight_Parcel_Enabled");
 	static LLCachedControl<bool> always_use_region(gSavedSettings, "PVWindlight_FromRegionAlways");
-	if (!parcel_windlight || !always_use_region ||
-		(rlv_handler_t::isEnabled() && gRlvHandler.hasBehaviour(RLV_BHVR_SETENV)))
+	if (!parcel_windlight || !always_use_region)
 	{
 		// The setting changed, clear everything
 		if (!mDisabled)
