@@ -17,11 +17,11 @@
       </menu_item_call>
       <menu_item_call
        label="Appearance..."
-       name="ChangeOutfit">
+	 name="ChangeOutfit"
+	 shortcut="alt|I">
         <menu_item_call.on_click
-         function="CustomizeAvatar" />
-        <menu_item_call.on_enable
-         function="Edit.EnableCustomizeAvatar" />
+		 function="Floater.ToggleOrBringToFront"
+		 parameter="appearance" />
       </menu_item_call>
       <menu_item_call
        label="Choose an avatar..."
@@ -40,7 +40,7 @@
          function="Floater.Visible"
          parameter="inventory" />
         <menu_item_check.on_click
-         function="Floater.Toggle"
+         function="Floater.ToggleOrBringToFront"
          parameter="inventory" />
       </menu_item_check>
       <menu_item_call
@@ -146,6 +146,16 @@
            function="Floater.ToggleOrBringToFront"
            parameter="moveview" />
         </menu_item_call>
+	<menu_item_check
+	 label="DoubleClick Teleport"
+	 name="DoubleClick Teleport"
+	 shortcut="control|shift|D">
+	 <on_check
+	  function="CheckControl"
+	  parameter="DoubleClickTeleport" />
+	 <on_click
+	  function="Advanced.ToggleDoubleClickTeleport"/>
+	</menu_item_check>
       </menu>
 
       <menu
@@ -255,7 +265,7 @@
          label="Toolbar buttons..."
          name="Toolbars">
             <menu_item_call.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="toybox" />
         </menu_item_call>
          <menu_item_call
@@ -335,7 +345,7 @@
             <menu_item_check.on_enable
              function="Conversation.IsConversationLoggingAllowed" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="conversation" />
         </menu_item_check>
         <menu_item_separator/>
@@ -343,21 +353,21 @@
         label="Facebook..."
         name="Facebook">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="facebook"/>
       </menu_item_call>
       <menu_item_call
         label="Twitter..."
         name="Twitter">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="twitter"/>
       </menu_item_call>
       <menu_item_call
         label="Flickr..."
         name="Flickr">
         <menu_item_call.on_click
-          function="Floater.Toggle"
+          function="Floater.ToggleOrBringToFront"
           parameter="flickr"/>
       </menu_item_call>
         <menu_item_separator/>
@@ -381,7 +391,7 @@
                  function="Floater.Visible"
                  parameter="voice_effect" />
                 <menu_item_check.on_click
-                 function="Floater.Toggle"
+                 function="Floater.ToggleOrBringToFront"
                  parameter="voice_effect" />
             </menu_item_check>
             <menu_item_call
@@ -405,7 +415,7 @@
              function="Floater.Visible"
              parameter="gestures" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="gestures" />
         </menu_item_check>
         <menu_item_separator/>
@@ -500,7 +510,7 @@
              function="Floater.Visible"
              parameter="world_map" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="world_map" />
         </menu_item_check>
         <menu_item_check
@@ -511,7 +521,7 @@
              function="Floater.Visible"
              parameter="mini_map" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="mini_map" />
         </menu_item_check>
         <menu_item_call
@@ -528,7 +538,7 @@
              function="Floater.Visible"
              parameter="region_tracker" />
             <menu_item_check.on_click
-             function="Floater.Toggle"
+             function="Floater.ToggleOrBringToFront"
              parameter="region_tracker" />
         </menu_item_check>
         <menu_item_check
@@ -562,6 +572,14 @@
             </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
+	 label="Teleport History"
+	 name="Teleport History"
+	 shortcut="alt|H">
+		<menu_item_call.on_click
+		 function="ToggleTeleportHistory"/>
+		</menu_item_call>
+	<menu_item_separator/>
+	<menu_item_call
          label="Snapshot"
          name="Take Snapshot"
          shortcut="control|shift|S">
@@ -639,7 +657,7 @@
                      function="Floater.Visible"
                      parameter="beacons" />
                     <menu_item_check.on_click
-                     function="Floater.Toggle"
+                     function="Floater.ToggleOrBringToFront"
                      parameter="beacons" />
                 </menu_item_check>
           <menu_item_check
@@ -744,8 +762,7 @@
             </menu_item_check>
             <menu_item_check
              label="Sunset"
-             name="Sunset"
-             shortcut="control|shift|N">
+             name="Sunset">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="sunset" />
@@ -755,7 +772,8 @@
             </menu_item_check>
             <menu_item_check
              label="Midnight"
-             name="Midnight">
+             name="Midnight"
+	     shortcut="control|shift|N">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="midnight" />
@@ -767,7 +785,7 @@
             <menu_item_check
              label="Use Region Settings"
              name="Use Region Settings"
-             shortcut="control|shift|J">
+	     shortcut="control|shift|J">
                 <menu_item_check.on_click
                  function="World.EnvSettings"
                  parameter="region" />
@@ -977,7 +995,8 @@
         </menu_item_call>
         <menu_item_check
              label="Edit Linked Parts"
-             name="Edit Linked Parts">
+             name="Edit Linked Parts"
+	     shortcut="control|shift|E">
                 <menu_item_check.on_check
                  control="EditLinkedParts" />
                 <menu_item_check.on_click
@@ -1684,15 +1703,6 @@
             <menu_item_call.on_click
                 function="Floater.ToggleOrBringToFront"
                 parameter="fs_asset_blacklist" >
-            </menu_item_call.on_click>
-        </menu_item_call>
-        <menu_item_call
-            enabled="false"
-            label="Region Tracker"
-            name="region_tracker">
-            <menu_item_call.on_click
-                function="Floater.ToggleOrBringToFront"
-                parameter="region_tracker" >
             </menu_item_call.on_click>
         </menu_item_call>
         <menu_item_call
