@@ -953,12 +953,12 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 					txt_color = name_color;
 				}
 			}
-			else
-			{
-				LLViewerChat::getChatColor(chat, txt_color);
-			}
-			// </polarity>
 		}
+		else
+		{
+			LLViewerChat::getChatColor(chat, txt_color);
+		}
+		// </polarity>
 #else
 		// untested!
 		LLColor4 name_color(default_name_color);
