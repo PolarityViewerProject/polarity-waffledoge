@@ -703,7 +703,6 @@ void toggle_updater_service_active(const LLSD& new_value)
     }
 }
 
-	static LLCachedControl<bool> render_alpha(gSavedSettings, "RenderEnableAlpha");
 ////////////////////////////////////////////////////////////////////////////
 
 // FPS Limiter
