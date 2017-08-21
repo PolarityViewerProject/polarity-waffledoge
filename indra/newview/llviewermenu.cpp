@@ -2423,8 +2423,7 @@ class PVMenuMachinimaSidebar : public view_listener_t
 
 	bool handleEvent(const LLSD& userdata)
 	{
-		static LLCachedControl<bool> sidebar_visible(gSavedSettings, "PVUI_MachinimaSidebar", false);
-		gSavedSettings.setBOOL("PVUI_MachinimaSidebar", !sidebar_visible);
+		gSavedSettings.setBOOL("PVUI_MachinimaSidebar", !gSavedSettings.getBOOL("PVUI_MachinimaSidebar"));
 		return true;
 	}
 };
