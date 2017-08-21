@@ -214,6 +214,44 @@ class ViewerManifest(LLManifest):
 
                 self.end_prefix("skins/default")
 
+            if self.prefix(src="skins/polarity"):
+                self.path("colors.xml")
+                # <polarity> automatically copy the right vendor icon from the icons folder
+                try:
+                    self.path(src="../icons/%s/secondlife_16.png" % self.channel_type(), dst="default/textures/icons/SL_Logo.png")
+                except IOError:
+                    print "There was a problem finding the channel icon. Using default instead"
+
+                # include the entire textures directory recursively
+                if self.prefix(src="textures"):
+                    self.path("*/*.tga")
+                    self.path("*/*.j2c")
+                    self.path("*/*.jpg")
+                    self.path("*/*.png")
+                    self.path("*.tga")
+                    self.path("*.j2c")
+                    self.path("*.jpg")
+                    self.path("*.png")
+                    # <polarity> url icons subfolder
+                    self.path("icons/*/*.png")
+                    self.path("textures.xml")
+                    self.end_prefix("textures")
+
+                # <polarity> Do not pack unsupported/unmaintained languages.
+                # Please contribute your translations to the source code to see your language included.
+                # self.path("*/xui/*/*.xml")
+                supported_languages = ["en","fr"];
+                for index, language in enumerate(supported_languages):
+                    lang = ("xui/%s" % language)
+                    if self.prefix(src=lang):
+                        print "Including XML for language '%s'" % language
+                        self.path("*.xml")
+                        self.path("widgets/*.xml")
+
+                    self.end_prefix(lang)
+
+                self.end_prefix("skins/polarity")                
+
             # local_assets dir (for pre-cached textures)
             if self.prefix(src="local_assets"):
                 self.path("*.j2c")
