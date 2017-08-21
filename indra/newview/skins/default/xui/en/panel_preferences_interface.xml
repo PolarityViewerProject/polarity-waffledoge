@@ -127,9 +127,9 @@
         label="Rez objects under land group"
         left_delta="0"
         top_pad="5"
-        name="PVTools_RezUnderLandGroup"
+        name="AlchemyRezUnderLandGroup"
         width="275"
-        control_name="PVTools_RezUnderLandGroup"/>
+        control_name="AlchemyRezUnderLandGroup"/>
     </panel>
     <panel
      label="Mouselook"

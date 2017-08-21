@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <floater
- legacy_header_height="22"
+ legacy_header_height="18"
  positioning="centered"
  default_tab_group="1"
- height="460"
+ height="512"
  layout="topleft"
  name="Preferences"
  help_topic="preferences"
  save_rect="true"
  single_instance="true"
- title="Preferences"
+ title="PREFERENCES"
  width="658">
-    <button
+   <button
      follows="right|bottom"
      height="23"
      label="OK"
      label_selected="OK"
      layout="topleft"
-     right="-95"
+     right="-105"
      name="OK"
-     top="435"
+     top="473"
      width="90">
         <button.commit_callback
          function="Pref.OK" />
@@ -32,7 +32,7 @@
      layout="topleft"
      left_pad="5"
      name="Cancel"
-     right="-2"
+     right="-10"
      width="90" >
         <button.commit_callback
          function="Pref.Cancel" />
@@ -40,7 +40,7 @@
     <tab_container
      follows="all"
      halign="left"
-     height="413"
+     height="440"
      layout="topleft"
      left="0"
      name="pref core"
@@ -49,51 +49,65 @@
      tab_width="140"
      tab_padding_right="0"
      top="21"
-     width="655">
+     width="658">
         <panel
-     class="panel_preference"
+	 class="panel_preference"
          filename="panel_preferences_general.xml"
          label="General"
          layout="topleft"
          help_topic="preferences_general_tab"
          name="general" />
         <panel
-     class="panel_preference_graphics"
+	 class="panel_preference_graphics"
          filename="panel_preferences_graphics1.xml"
          label="Graphics"
          layout="topleft"
          help_topic="preferences_display_tab"
          name="display" />
         <panel
-         class="panel_preference"
+         class="panel_preference_graphics2"
+         filename="panel_preferences_graphics2.xml"
+         label="Graphics 2"
+         layout="topleft"
+         help_topic="preferences_display_tab"
+         name="display2" />
+        <panel
+		 class="panel_preference"
          filename="panel_preferences_sound.xml"
          label="Sound &amp; Media"
          layout="topleft"
          help_topic="preferences_audio_tab"
          name="audio" />
         <panel
-         class="panel_preference"
+		 class="panel_preference"
          filename="panel_preferences_chat.xml"
          label="Chat"
          layout="topleft"
          help_topic="preferences_chat_tab"
          name="chat" />
         <panel
-         class="panel_preference"
+         class="panel_preference2"
+         filename="panel_preferences_chat2.xml"
+         label="Chat 2"
+         layout="topleft"
+         help_topic="preferences_chat_tab"
+         name="chat2" />
+        <panel
+		 class="panel_preference"
          filename="panel_preferences_move.xml"
          label="Move &amp; View"
          layout="topleft"
          help_topic="preferences_move_tab"
          name="move" />
         <panel
-         class="panel_preference"
+		 class="panel_preference"
          filename="panel_preferences_alerts.xml"
          label="Notifications"
          layout="topleft"
          help_topic="preferences_msgs_tab"
          name="msgs" />
         <panel
-         class="panel_preference"
+		 class="panel_preference"
          filename="panel_preferences_colors.xml"
          label="Colors"
          layout="topleft"
@@ -107,45 +121,48 @@
          help_topic="preferences_im_tab"
          name="im" />
         <panel
-         class="panel_preference"
+		 class="panel_preference"
          filename="panel_preferences_setup.xml"
          label="Setup"
          layout="topleft"
          help_topic="preferences_input_tab"
          name="input" />
         <panel
-         class="panel_preference"
+		 class="panel_preference"
          filename="panel_preferences_advanced.xml"
          label="Advanced"
          layout="topleft"
          help_topic="preferences_advanced1_tab"
          name="advanced1" />
-         <panel
+        <panel
+         class="panel_preference"
+         filename="panel_preferences_uploads.xml"
+         label="Uploads"
+         layout="topleft"
+         help_topic="preferences_uploads_tab"
+         name="uploads" />
+        <panel
          class="panel_preference"
          filename="panel_preferences_interface.xml"
          label="Interface"
          layout="topleft"
-         name="polarity" />
-         <panel
-         class="panel_preference"
-         filename="panel_preferences_rlva.xml"
-         label="Restrained Love"
-         layout="topleft"
-         name="rlva" />
-<!--        <panel
-         class="panel_preference_skins"
-         filename="panel_preferences_skins.xml"
-         label="Skins"
-         layout="topleft"
-         help_topic="preferences_skins_tab"
-         name="skins" />
+         name="alchemy" />
         <panel
-         class="panel_preference_backup"
-         filename="panel_preferences_backup.xml"
-         label="Backup"
+         class="panel_preference"
+         filename="panel_preferences_interface2.xml"
+         label="Interface 2"
          layout="topleft"
-         help_topic="preferences_backup_tab"
-         name="backup" /> -->
+         name="interface2" />
+        <panel
+         filename="panel_preferences_grids.xml"
+         label="Grids"
+         layout="topleft"
+         name="grids" />
+        <panel
+         filename="panel_preferences_skins.xml"
+         label="Skinning"
+         layout="topleft"
+         name="skins" />
     </tab_container>
 
 </floater>

@@ -170,7 +170,7 @@ BOOL LLStatusBar::postBuild()
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
 	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
-	mTextFPS = getChild<LLTextBox>("FPS_count");
+	mTextFPS = getChild<LLTextBox>("FPSText");
 
 	mBtnBuyL = getChild<LLButton>("buyL");
 	mBtnBuyL->setCommitCallback(boost::bind(&LLStatusBar::onClickBuyCurrency, this));

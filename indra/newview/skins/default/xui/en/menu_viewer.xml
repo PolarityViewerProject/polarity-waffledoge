@@ -1479,6 +1479,278 @@
              function="Edit.EnableRedo" />
         </menu_item_call>        
     </menu>
+    <!-- TODO: Move these items out of here and eliminate the "Polarity" menu -->
+      <menu
+        create_jump_keys="true"
+        label="Polarity"
+        name="Polarity"
+        tear_off="true">
+        <!-- help -->
+        <menu
+            create_jump_keys="true"
+            label="Halp!"
+            name="Character Tests"
+            tear_off="true">
+            <menu_item_call
+                label="I am crashing!"
+                name="Panic button">
+                <menu_item_call.on_click
+                    function="Polarity.PanicButton">
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Stop Anims"
+                name="Stop Animating My Avatar"
+                shortcut="alt|shift|A">
+                <menu_item_call.on_click
+                    function="Tools.StopAllAnimations" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Reset Shape"
+                name="Force Params to Default">
+                <menu_item_call.on_click
+                    function="Advanced.ForceParamsToDefault" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Release Controls/Keys"
+                name="Release Keys"
+                shortcut="control|alt|shift|K">
+                <menu_item_call.on_click
+                 function="Tools.ReleaseKeys"
+                 parameter="">
+               </menu_item_call.on_click>
+                <menu_item_call.on_enable
+                 function="Tools.EnableReleaseKeys"
+                 parameter="">
+               </menu_item_call.on_enable>
+            </menu_item_call>
+            <menu_item_separator></menu_item_separator>
+            <menu_item_call
+                label="Female Test Avatar"
+                name="Test Female">
+                <menu_item_call.on_click
+                    function="Advanced.TestFemale" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Male Test Avatar"
+                name="Test Male">
+                <menu_item_call.on_click
+                    function="Advanced.TestMale" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+        </menu>
+<!--         <menu_item_call
+          label="Toggle Borderless Window"
+          name="Toggle Borderless Window"
+          shortcut="alt|Enter">
+             <menu_item_call.on_click
+              function="View.Fullscreen" />
+             <menu_item_call.on_enable
+              function="View.EnableFullscreen" />
+        </menu_item_call> -->
+        <menu_item_separator></menu_item_separator>
+<!--         <menu_item_check
+         label="Limit Select Distance"
+         name="Limit Select Distance">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="LimitSelectDistance" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="LimitSelectDistance" />
+        </menu_item_check>
+        <menu_item_check
+         label="Disable Camera Constraints"
+         name="Disable Camera Distance">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="DisableCameraConstraints" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="DisableCameraConstraints" />
+        </menu_item_check>
+        <menu_item_check
+         label="Disable Camera Push"
+         name="isable Camera Server Push">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="PVCamera_DisableSimCamConstraint" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="PVCamera_DisableSimCamConstraint" />
+        </menu_item_check>
+        <menu_item_separator></menu_item_separator> -->
+<!--         <menu_item_check
+            label="High-res Snapshot"
+            name="HighResSnapshot">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="HighResSnapshot" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="HighResSnapshot" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check>
+        <menu_item_check
+            label="Quiet Snapshots to Disk"
+            name="QuietSnapshotsToDisk">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="QuietSnapshotsToDisk" >
+                <menu_item_check.on_click
+                    function="ToggleControl"
+                    parameter="QuietSnapshotsToDisk" >
+                </menu_item_check.on_click>
+            </menu_item_check.on_check>
+        </menu_item_check> -->
+        <menu_item_call
+            label="Cinematic Mode"
+            name="CinematicMode"
+            shortcut="alt|shift|c">
+            <menu_item_call.on_click
+                function="Polarity.CinematicMode" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu
+            create_jump_keys="true"
+            label="Animation Speed"
+            name="Animation Speed"
+            tear_off="true">
+            <menu_item_call
+                label="All Animations 10% Faster"
+                name="All Animations 10 Faster">
+                <menu_item_call.on_click
+                    function="Advanced.AnimTenFaster" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="All Animations 10% Slower"
+                name="All Animations 10 Slower">
+                <menu_item_call.on_click
+                    function="Advanced.AnimTenSlower" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_call
+                label="Reset All Animation Speed"
+                name="Reset All Animation Speed">
+                <menu_item_call.on_click
+                    function="Advanced.AnimResetAll" >
+                </menu_item_call.on_click>
+            </menu_item_call>
+            <menu_item_check
+                label="Slow Motion Animations"
+                name="Slow Motion Animations">
+                <menu_item_check.on_check
+                    function="CheckControl"
+                    parameter="SlowMotionAnimation" >
+                    <menu_item_check.on_click
+                        function="ToggleControl"
+                        parameter="SlowMotionAnimation" >
+                    </menu_item_check.on_click>
+                </menu_item_check.on_check>
+            </menu_item_check>
+        </menu>
+        <menu_item_check
+            label="Machinima Sidebar"
+            shortcut="F1"
+            name="Machinima Sidebar">
+            <menu_item_check.on_check
+                function="CheckControl"
+                parameter="PVUI_MachinimaSidebar">
+            </menu_item_check.on_check>
+            <menu_item_check.on_click
+                function="ToggleControl"
+                parameter="PVUI_MachinimaSidebar">
+            </menu_item_check.on_click>
+        </menu_item_check>
+        <menu_item_separator>
+        </menu_item_separator>
+        <menu_item_call
+            label="Area Search"
+            name="area_search"
+            shortcut="alt|F">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="area_search" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            label="Asset Blacklist"
+            name="asset_blacklist">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="fs_asset_blacklist" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            enabled="false"
+            label="Region Tracker"
+            name="region_tracker">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="region_tracker" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_call
+            label="Your script count"
+            name="script_limits"
+            shortcut="alt|Z">
+            <menu_item_call.on_click
+                function="Floater.ToggleOrBringToFront"
+                parameter="script_limits" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+<!--         <menu_item_check
+           label="RestrainedLove API"
+           name="RLV API">
+              <menu_item_check.on_check
+               function="CheckControl"
+               parameter="RestrainedLove" />
+              <menu_item_check.on_click
+               function="ToggleControl"
+               parameter="RestrainedLove" />
+              <menu_item_check.on_visible
+               function="RLV.MainToggleVisible" />
+        </menu_item_check> -->
+        <menu_item_separator></menu_item_separator>
+        <menu_item_call
+            label="Show Debug Settings"
+            shortcut="control|shift|;"
+            name="Debug Settings">
+            <menu_item_call.on_click
+                function="Advanced.ShowDebugSettings"
+                parameter="all" >
+            </menu_item_call.on_click>
+        </menu_item_call>
+        <menu_item_check
+           label="Advanced Menu"
+           name="Show Advanced Menu"
+           shortcut="control|alt|D">
+          <on_check
+             function="CheckControl"
+             parameter="UseDebugMenus" />
+          <on_click
+             function="ToggleControl"
+             parameter="UseDebugMenus" />
+        </menu_item_check>
+        <menu_item_check
+         label="Show Develop Menu"
+         name="Debug Mode"
+         shortcut="control|alt|Q">
+            <menu_item_check.on_check
+             function="CheckControl"
+             parameter="QAMode" />
+            <menu_item_check.on_click
+             function="ToggleControl"
+             parameter="QAMode" />
+        </menu_item_check>
+
+      </menu>
+
     <menu
      create_jump_keys="true"
      label="Help"
@@ -1487,7 +1759,7 @@
         <menu_item_call
          label="How to..."
          name="How To"
-         shortcut="F1">
+         shortcut="Control|F1">
             <menu_item_call.on_click
              function="Help.ToggleHowTo"
              parameter="" />
