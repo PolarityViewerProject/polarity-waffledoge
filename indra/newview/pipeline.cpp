@@ -9902,14 +9902,15 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	{
 		renderGeomShadow(shadow_cam);
 	}
-	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", 1);
+	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", true);
+	U32 mask = 0;
 	if (shadows_from_alpha)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
-		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, target_width);
+		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
-		static constexpr U32 mask = LLVertexBuffer::MAP_VERTEX | 
+		mask = LLVertexBuffer::MAP_VERTEX | 
 					LLVertexBuffer::MAP_TEXCOORD0 | 
 					LLVertexBuffer::MAP_COLOR | 
 					LLVertexBuffer::MAP_TEXTURE_INDEX;
@@ -9923,17 +9924,17 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		gDeferredShadowAlphaMaskProgram.unbind();
 
 	}
-	static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", 1);
+	static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", true);
 	if (tree_shadows_from_alpha)
 	{
-		static constexpr U32 treeMask = LLVertexBuffer::MAP_VERTEX | 
-					LLVertexBuffer::MAP_TEXCOORD0 | 
-					LLVertexBuffer::MAP_COLOR;
+		
+		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
+
 		gDeferredTreeShadowProgram.bind();
-		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, treeMask);
-		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, treeMask);
-		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, treeMask);
-		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, treeMask);
+		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
 
 		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
 
