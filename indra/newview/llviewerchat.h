@@ -30,6 +30,7 @@
 #include "llchat.h"
 #include "llfontgl.h"
 #include "v4color.h"
+#include "llconsole.h"
 
 
 class LLViewerChat 
