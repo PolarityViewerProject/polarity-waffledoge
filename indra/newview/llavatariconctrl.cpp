@@ -179,7 +179,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mSymbolSize(p.symbol_size),
 	mSymbolPos(p.symbol_pos),
 	mAvatarNameCacheConnection(),
-	mUseDefaultImage(gSavedSettings, "PVUI_LoadAvatarIcons", false)
+	mLoadAvatarIcons(gSavedSettings, "PVUI_LoadAvatarIcons", true)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 
@@ -278,7 +278,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	const LLUUID& icon_id = *icon_id_ptr;
 
 	// Update the avatar
-	if (icon_id.notNull() && !mUseDefaultImage)
+	if (icon_id.notNull() && mLoadAvatarIcons)
 	{
 		LLIconCtrl::setValue(icon_id);
 	}
