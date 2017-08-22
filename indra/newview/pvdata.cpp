@@ -258,8 +258,7 @@ void PVDataOldAPI::handleResponseFromServer(const LLSD& http_content,
 		LL_WARNS() << "Got SOMETHING we weren't expecting. what do?" << LL_ENDL;
 		gPVOldAPI->setErrorMessage("INVALID_URL");
 	}
-	// FIXME: alchemy-merge
-	//LLPanelLogin::doLoginButtonLockUnlock();
+	LLPanelLogin::doLoginButtonLockUnlock();
 }
 
 // ########     ###    ########   ######  ######## ########   ######

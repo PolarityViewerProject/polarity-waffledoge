@@ -79,6 +79,8 @@
 LLPanelLogin *LLPanelLogin::sInstance = nullptr;
 BOOL LLPanelLogin::sCapslockDidNotification = FALSE;
 
+bool LLPanelLogin::sLoginButtonEnabled = false;
+
 class LLLoginRefreshHandler : public LLCommandHandler
 {
 public:
@@ -194,7 +196,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 	auto web_browser = getChild<LLMediaCtrl>("login_html");
 	web_browser->addObserver(this);
 
-	reshapeBrowser();
+	// <polarity> Let XML decide of the layout
+	//reshapeBrowser();
 
 	loadLoginPage();
 
@@ -398,7 +401,8 @@ void LLPanelLogin::showLoginWidgets()
 		// It seems to be part of the defunct? reg-in-client project.
 		sInstance->getChildView("login_widgets")->setVisible( true);
 		auto web_browser = sInstance->getChild<LLMediaCtrl>("login_html");
-		sInstance->reshapeBrowser();
+		// <polarity> Let XML decide of the layout
+		//sInstance->reshapeBrowser();
 		// *TODO: Append all the usual login parameters, like first_login=Y etc.
 		std::string splash_screen_url = LLGridManager::getInstance()->getLoginPage();
 		web_browser->navigateTo( splash_screen_url, HTTP_CONTENT_TEXT_HTML );
@@ -450,6 +454,7 @@ void LLPanelLogin::selectUser(LLPointer<LLCredential> cred, BOOL remember)
 	}
 
 	sInstance->getChild<LLUICtrl>("remember_check")->setValue(remember);
+	sInstance->updateLoginButtons();
 }
 
 LLSD LLPanelLogin::getIdentifier()
@@ -630,6 +635,7 @@ void LLPanelLogin::onUpdateStartSLURL(const LLSLURL& new_start_slurl)
 				updateServer(); // to change the links and splash screen
 			}
 			location_combo->setTextEntry(new_start_slurl.getLocationString());
+			sInstance->updateLoginButtons();
 		}
 		else
 		{
@@ -741,6 +747,12 @@ void LLPanelLogin::onClickConnect(void *)
 {
 	if (sInstance && sInstance->mCallback)
 	{
+		// login button disabled
+		if (!sLoginButtonEnabled)
+		{
+			return;
+		}
+
 		// JC - Make sure the fields all get committed.
 		sInstance->setFocus(FALSE);
 
@@ -750,26 +762,27 @@ void LLPanelLogin::onClickConnect(void *)
 		// the grid definitions may come from a user-supplied grids.xml, so they may not be good
 		LL_DEBUGS("AppInit") << "grid " << combo_val.asString() << LL_ENDL;
 
-        const std::string username = sInstance->getChild<LLComboBox>("username_combo")->getSimple();
-        std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
-        
-		//LLGridManager::getInstance()->setGridChoice(combo_val.asString());
-
-		if (username.empty())
-		{
-			// user must type in something into the username field
-			LLNotificationsUtil::add("MustHaveAccountToLogIn");
-		}
-		else if (password.empty())
-		{
-			LLNotificationsUtil::add("MustEnterPasswordToLogIn");
-		}
-		else if (password.length() > 16 && LLGridManager::getInstance()->isInSecondlife())
-		{
-			LLNotificationsUtil::add("SecondLifePasswordTooLong");
-			password.erase(password.begin() + 16, password.end());
-		}
-		else
+		// <polarity> Moved to button update function
+//        const std::string username = sInstance->getChild<LLComboBox>("username_combo")->getSimple();
+//        std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
+//        
+//		//LLGridManager::getInstance()->setGridChoice(combo_val.asString());
+//
+//		if (username.empty())
+//		{
+//			// user must type in something into the username field
+//			LLNotificationsUtil::add("MustHaveAccountToLogIn");
+//		}
+//		else if (password.empty())
+//		{
+//			LLNotificationsUtil::add("MustEnterPasswordToLogIn");
+//		}
+//		else if (password.length() > 16 && LLGridManager::getInstance()->isInSecondlife())
+//		{
+//			LLNotificationsUtil::add("SecondLifePasswordTooLong");
+//			password.erase(password.begin() + 16, password.end());
+//		}
+//		else
 		{
 			string_vec_t login_uris;
 			LLGridManager::getInstance()->getLoginURIs(login_uris);
@@ -878,6 +891,7 @@ void LLPanelLogin::onPassKey(LLLineEditor* caller, void* user_data)
 		// *TODO: use another way to notify user about enabled caps lock, see EXT-6858
 		sCapslockDidNotification = TRUE;
 	}
+	self->updateLoginButtons();
 }
 
 
@@ -910,6 +924,67 @@ void LLPanelLogin::updateServer()
 
         // grid changed so show new splash screen (possibly)
         loadLoginPage();
+	}
+}
+
+void LLPanelLogin::updateLoginButtons()
+{
+	LLButton* login_btn = getChild<LLButton>("connect_btn");
+
+	sLoginButtonEnabled = true;
+#ifdef PVDATA_SYSTEM
+	if (gPVOldAPI->getDataDone())
+	{
+		if (!gPVOldAPI->isBlockedRelease())
+		{
+			sLoginButtonEnabled = true;
+		}
+		else
+		{
+			sLoginButtonEnabled = false;
+			static const std::string outdatedString = LLTrans::getString("Outdated");
+			login_btn->setLabel(outdatedString);
+			LLSD args;
+			args["REASON"] = gPVOldAPI->getErrorMessage();
+			LLNotificationsUtil::add("BlockedReleaseReason", args);
+		}
+	}
+	else
+	{
+		sLoginButtonEnabled = false;
+		static const std::string plzHoldString = LLTrans::getString("PleaseHold");
+		login_btn->setLabel(plzHoldString);
+	}
+#endif
+	const std::string username = sInstance->getChild<LLComboBox>("username_combo")->getSimple();
+	std::string password = sInstance->getChild<LLUICtrl>("password_edit")->getValue().asString();
+
+	if (username.empty() || password.empty())
+	{
+		sLoginButtonEnabled = false;
+		login_btn->setLabel(LLTrans::getString("EnterCredentials"));
+	}
+	else if (!username.empty() && password.length() > 16 && LLGridManager::getInstance()->isInSecondlife())
+	{
+		// LLNotificationsUtil::add("SecondLifePasswordTooLong");
+		login_btn->setLabel(LLTrans::getString("PW too long!"));
+		password.erase(password.begin() + 16, password.end());
+		sLoginButtonEnabled = true;
+	}
+	if (sLoginButtonEnabled)
+	{
+		static const std::string loginString = LLTrans::getString("Login");
+		login_btn->setLabel(loginString);
+	}
+	login_btn->setEnabled(sLoginButtonEnabled);
+}
+
+//static
+void LLPanelLogin::doLoginButtonLockUnlock()
+{
+	if (sInstance)
+	{
+		sInstance->updateLoginButtons();
 	}
 }
 

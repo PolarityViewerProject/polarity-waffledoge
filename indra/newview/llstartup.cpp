@@ -876,7 +876,6 @@ bool idle_startup()
 					new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
 			}
 			gViewerWindow->getWindow()->setWindowTitle(new_title);
-			//LLPanelLogin::doLoginButtonLockUnlock();
 #endif
 			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 #ifdef PVDATA_SYSTEM
