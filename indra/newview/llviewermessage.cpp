@@ -2488,7 +2488,7 @@ void process_improved_im(LLMessageSystem* msg, void** user_data)
 
 	case IM_TYPING_START:
 		{
-			static LLCachedControl<bool> sNotifyIncomingMessage(gSavedSettings, "AlchemyNotifyIncomingMessage");
+			static LLCachedControl<bool> sNotifyIncomingMessage(gSavedSettings, "PVChat_AnnounceIncomingIM");
 			if (sNotifyIncomingMessage &&
 				!gIMMgr->hasSession(session_id) &&
 				((accept_im_from_only_friend && (is_friend || is_linden)) ||

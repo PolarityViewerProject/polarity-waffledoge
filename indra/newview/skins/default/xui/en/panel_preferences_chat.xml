@@ -62,7 +62,7 @@
      top_pad="6"
      name="announce_im_toggle"
      width="275"
-     control_name="AlchemyNotifyIncomingMessage"/>
+     control_name="PVChat_AnnounceIncomingIM"/>
     <check_box
      follows="left|top"
      height="16"
