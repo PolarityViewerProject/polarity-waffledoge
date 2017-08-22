@@ -599,11 +599,7 @@ void LLViewerMedia::updateMedia(void *dummy_arg)
 	LLPluginProcessParent::setUseReadThread(pluginUseReadThread);
 
 	// HACK: we always try to keep a spare running webkit plugin around to improve launch times.
-	static LLCachedControl<bool> always_create_spare_mediathread(gSavedSettings, "PVDebug_AlwaysCreateSpareMediaThread", true);
-	if(always_create_spare_mediathread)
-	{
-		createSpareBrowserMediaSource();
-	}
+	createSpareBrowserMediaSource();
 
 	sAnyMediaShowing = false;
 	sAnyMediaPlaying = false;
