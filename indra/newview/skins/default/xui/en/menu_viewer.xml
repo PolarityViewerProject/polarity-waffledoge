@@ -572,14 +572,14 @@
             </menu_item_call>
         <menu_item_separator/>
         <menu_item_call
-	 label="Teleport History"
-	 name="Teleport History"
-	 shortcut="alt|H">
-		<menu_item_call.on_click
-		 function="ToggleTeleportHistory"/>
-		</menu_item_call>
-	<menu_item_separator/>
-	<menu_item_call
+      	 label="Teleport History"
+	       name="Teleport History"
+	       shortcut="alt|H">
+		      <menu_item_call.on_click
+		      function="ToggleTeleportHistory"/>
+		      </menu_item_call>
+	      <menu_item_separator/>
+	      <menu_item_call
          label="Snapshot"
          name="Take Snapshot"
          shortcut="control|shift|S">
