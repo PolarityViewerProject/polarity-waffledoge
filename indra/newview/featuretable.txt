@@ -481,7 +481,7 @@ RenderCompressTextures		1	0
 // Fallback for cards where OpenGL-based VRAM detection fails
 //
 list ATIVRAMFALLBACK
-PVDebug_ForcedVideoMemory 1 1024
+PVDebug_ForcedVideoMemory 1 128
 RenderCompressTextures		1	0
 
 //

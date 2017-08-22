@@ -30,6 +30,9 @@
 #include "llsingleton.h"
 #include "llunits.h"
 
+// fallback for cases where video memory is not detected properly
+static const S64Bytes HW_MIN_VRAM_AMNT = S64Megabytes(32);
+
 class PVGPUInfo : public LLSingleton<PVGPUInfo>
 {
 	LLSINGLETON(PVGPUInfo);
@@ -48,6 +51,11 @@ class PVGPUInfo : public LLSingleton<PVGPUInfo>
 	*/
 	static S64Bytes vram_used_by_others_;
 
+	/*
+	* \brief Computed "On-Board" memory. Should be the total range of the bar.
+	*/
+	static S64Bytes vram_on_board_;
+
 	static LLFrameTimer gpuInfoRefreshTimer;
 public:
 
@@ -61,7 +69,7 @@ public:
 	*/
 	static S64Bytes vRAMGetFree()
 	{
-		return vram_free_;
+		return llmax((S64Bytes)0, vram_free_);
 	}
 
 	/*
@@ -70,7 +78,7 @@ public:
 	 */
 	static S64Bytes vRAMGetUsedTotal()
 	{
-		return vram_used_total_;
+		return llmax((S64Bytes)0, vram_used_total_);
 	}
 
 	/*
@@ -78,7 +86,7 @@ public:
 	*/
 	static S64Bytes vRAMGetUsedViewer()
 	{
-		return vram_used_by_viewer_;
+		return llmax((S64Bytes)0, vram_used_by_viewer_);
 	}
 
 	/*
@@ -86,7 +94,7 @@ public:
 	*/
 	static S64Bytes vRAMGetUsedOthers()
 	{
-		return vram_used_by_others_;
+		return llmax((S64Bytes)0, vram_used_by_others_);
 	}
 
 	static bool hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y);
@@ -95,8 +103,14 @@ public:
 	 * \brief proprietary API-provided replacement for GLManager::mVRAM
 	 * \return S32Megabytes
 	 */
-	static S32Megabytes vRAMGetTotalOnboard();
+	// TODO: Do something about gGLManager.mVRAM being a duplicate of this.
+	static S64Bytes vRAMGetTotalOnboard()
+	{
+		return llmax(HW_MIN_VRAM_AMNT,vram_on_board_);
+	}
 	
+	static S64Bytes computeOnboardVRAM();
+
 	static void updateValues();
 
 	// Enables logging for this class

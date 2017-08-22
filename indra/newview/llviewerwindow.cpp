@@ -1665,7 +1665,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
 	// <polarity> Make sure the VRAM values are right and set up.
-	gGLManager.mVRAM = PVGPUInfo::vRAMGetTotalOnboard().valueInUnits<LLUnits::Megabytes>();
+	gGLManager.mVRAM = PVGPUInfo::computeOnboardVRAM().valueInUnits<LLUnits::Megabytes>();
 	LL_INFOS() << "Computed VRAM: " << PVGPUInfo::vRAMGetTotalOnboard() << LL_ENDL;
 	
 	if (!LLViewerShaderMgr::sInitialized)

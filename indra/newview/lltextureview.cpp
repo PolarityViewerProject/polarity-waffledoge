@@ -569,9 +569,7 @@ void LLGLTexMemBar::draw()
 	S64Bytes vram_var_fbo = S64Bytes(LLRenderTarget::sBytesAllocated);
 
 	PVGPUInfo::vram_used_by_viewer_ = vwr_total_text_mem + vwr_bound_text_mem;
-	PVGPUInfo::updateValues(); //@todo: move to idle frame loop
-	S64Bytes vram_used_others = PVGPUInfo::vRAMGetUsedOthers();
-	S64Bytes vram_free_total  = PVGPUInfo::vRAMGetFree();
+	PVGPUInfo::updateValues();
 	S64Bytes vram_used_total = PVGPUInfo::vRAMGetUsedTotal();
 
 	//----------------------------------------------------------------------------
@@ -584,7 +582,7 @@ void LLGLTexMemBar::draw()
 
 	if (!gGLManager.mIsIntel)
 	{
-		text = llformat("%d on-board, %d/%dMB Polarity/Others, %dMB free", vram_onboard_total, vram_used_viewer.valueInUnits<LLUnits::Megabytes>(), vram_used_others.valueInUnits<LLUnits::Megabytes>(), vram_free_total.valueInUnits<LLUnits::Megabytes>());
+		text = llformat("%d on-board, %d/%dMB Polarity/Others, %dMB free", vram_onboard_total, vram_used_viewer.valueInUnits<LLUnits::Megabytes>(), PVGPUInfo::vRAMGetUsedOthers().valueInUnits<LLUnits::Megabytes>(), PVGPUInfo::vRAMGetFree().valueInUnits<LLUnits::Megabytes>());
 	}
 	else
 	{
@@ -624,18 +622,18 @@ void LLGLTexMemBar::draw()
 
 	if(gGLManager.mIsNVIDIA)
 	{
-		vram_bar_data_progress_f = (vram_bar_total_used_f - vram_bar_total_mem_f - vram_bar_bound_mem_f) / vram_bar_onboard_total_f;
+		vram_bar_data_progress_f = (vram_bar_total_used_f - vram_bar_total_mem_f - vram_bar_fbo_f) / vram_bar_onboard_total_f;
 	}
 	else
 	{
-		vram_bar_data_progress_f = (vram_bar_total_mem_f - vram_bar_bound_mem_f) / vram_bar_onboard_total_f;
+		vram_bar_data_progress_f = (vram_bar_total_mem_f + vram_bar_bound_mem_f + vram_bar_fbo_f) / vram_bar_onboard_total_f;
 	}
 	if(vram_bar_data_progress_f < 0.f)
 	{
 		LL_DEBUGS() << "Bar is wrong! (Really this only exists to put a breakpoint on it, lol" << LL_ENDL;
 	}
-	// The bar will fail drawing when the vram_bar_data_progress value is not zero. it can have values such as -0.000976562500 or 1.121e-44.
-	//if (vram_bar_data_progress > 0.0f)
+	// The bar will fail drawing when the vram_bar_data_progress_f value is not zero. it can have values such as -0.000976562500 or 1.121e-44.
+	if (vram_bar_data_progress_f > 0.0f)
 	{
 		right = left + (vram_bar_data_progress_f * bar_width_f);
 		if (right > left)

@@ -37,6 +37,7 @@ S64Bytes PVGPUInfo::vram_free_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_total_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_others_ = S64Bytes(0);
 S64Bytes PVGPUInfo::vram_used_by_viewer_ = S64Bytes(0);
+S64Bytes PVGPUInfo::vram_on_board_ = S64Bytes(0);
 LLFrameTimer PVGPUInfo::gpuInfoRefreshTimer = LLFrameTimer();
 
 static LLTrace::BlockTimerStatHandle FTM_PV_GPU_INFO("!PVGPUInfo");
@@ -58,7 +59,10 @@ void PVGPUInfo::updateValues()
 	{
 		gpuInfoRefreshTimer.start();
 	}
-	
+
+	vram_used_by_viewer_ = LLViewerTexture::sTotalTextureMemory + LLViewerTexture::sBoundTextureMemory;
+
+	/// Vendor-Dependant functions.
 	GLint free_memory = 0; // in KB
 	if (gGLManager.mIsNVIDIA)
 	{
@@ -72,63 +76,44 @@ void PVGPUInfo::updateValues()
 		// glGetIntegerv(GL_VBO_FREE_MEMORY_ATI, &memInfoAMD);
 		glGetIntegerv(GL_TEXTURE_FREE_MEMORY_ATI, &free_memory);
 	}
-	vram_free_ = S64Kilobytes(free_memory);
-	if (!gGLManager.mIsIntel)
+	else
 	{
-		auto on_board = vRAMGetTotalOnboard();
-		// yes, there's a reason to buy real GPUs; WORKING API.
-		vram_used_total_ = on_board - vram_free_;
+		// TODO: Learn how to use the Intel driver API. Microsoft could, can't be that hard!
+	}
+	vram_free_ = S64Kilobytes(free_memory);
+	//if (!gGLManager.mIsIntel)
+	{
+		vram_used_total_ = vram_on_board_ - vram_free_;
 		//@todo make sure this is more or less accurate
-		vram_used_by_others_ = on_board - vram_free_ - vram_used_by_viewer_;
+		vram_used_by_others_ = vram_on_board_ - vram_free_ - vram_used_by_viewer_;
 	}
 	gpuInfoRefreshTimer.reset();
 }
 
-S32Megabytes PVGPUInfo::vRAMGetTotalOnboard()
+S64Bytes PVGPUInfo::computeOnboardVRAM()
 {
 	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO);
 	LL_RECORD_BLOCK_TIME(FTM_PV_GPU_INFO_GET_VRAM);
-	static const S64Megabytes MINIMUM_VRAM_AMOUNT = S64Megabytes(1024); // fallback for cases where video memory is not detected properly
-	static S64Megabytes vram_s64_megabytes = S64Megabytes(gGLManager.mVRAM);
+	// set internal vram value to forced one if present
+	static S64Bytes vram_s64B = llmax(HW_MIN_VRAM_AMNT,S64Bytes(S64Megabytes(gSavedSettings.getS32("PVDebug_ForcedVideoMemory"))));
+	if(vram_s64B == HW_MIN_VRAM_AMNT)
+	{
+		vram_s64B = llmax(HW_MIN_VRAM_AMNT, S64Bytes(S64Megabytes(gGLManager.mVRAM)));
+	}
+	
 	if (gGLManager.mIsIntel)
 	{
-		// sometimes things can go wrong
-		if (vram_s64_megabytes.valueInUnits<LLUnits::Megabits>() < 256)
-		{
-			return (S32Megabytes)256;
-		}
+		// Intel driver seriously lacks any reporting capability aside "in use", in DirectX.
+		// Method to obtain in use memory from OpenGL does not appear to exist or work right now.
+		// Hotwiring max VRAM on Intel gpus to half the system memory.
+		LLMemoryInfo gSysMemory;
+		static const S64Bytes phys_mem_mb = S64Bytes(gSysMemory.getPhysicalMemoryKB());
+		// Notify me me when Intel iGPU can use more than 2GB without becoming unbearably slow - Xenhat
+		vram_s64B = llmin(S64Bytes(gSysMemory.getPhysicalMemoryKB() * 0.5f), S64Bytes(INTEL_GPU_MAX_VRAM));
 	}
-	if (!gGLManager.mIsIntel)
-	{
-		// Global catch-all in case shit goes left still...
-		if (vram_s64_megabytes < MINIMUM_VRAM_AMOUNT)
-		{
-			LL_WARNS() << "VRAM amount not detected or less than " << MINIMUM_VRAM_AMOUNT << ", defaulting to " << MINIMUM_VRAM_AMOUNT << LL_ENDL;
-			vram_s64_megabytes = MINIMUM_VRAM_AMOUNT;
-			LL_DEBUGS() << "VRAM SUCESSFULLY OVERRIDED" << LL_ENDL;
-		}
-		// set internal vram value to forced one if present
-		static LLCachedControl<S32> forced_vram(gSavedSettings, "PVDebug_ForcedVideoMemory");
-		if (forced_vram > 0)
-		{
-			vram_s64_megabytes = S64Megabytes(forced_vram);
-		}
-		// return existing variable to avoid memory bloat
-		if (gGLManager.mVRAM != (S32)vram_s64_megabytes.value())
-		{
-			gGLManager.mVRAM = S32(vram_s64_megabytes.value());
-		}
-		return vram_s64_megabytes;
-	}
-
-	// Intel driver seriously lacks any reporting capability aside "in use", in DirectX.
-	// Method to obtain in use memory from OpenGL does not appear to exist or work right now.
-	// Hotwiring max VRAM on Intel gpus to half the system memory.
-	LLMemoryInfo gSysMemory;
-	const S64Bytes phys_mem_mb = S64Bytes(gSysMemory.getPhysicalMemoryKB());
-	const S64Bytes intel_half_sysram_clamped = llmin(S64Bytes(phys_mem_mb.value() / 2), S64Bytes(INTEL_GPU_MAX_VRAM)); // Raise me when Intel iGPU is usable above 2GB
-
-	return S64Megabytes(intel_half_sysram_clamped);
+	LL_DEBUGS() << "Computed On-Board VRAM: " << vram_s64B << LL_ENDL;
+	vram_on_board_ = vram_s64B;
+	return vram_s64B;
 }
 
 bool PVGPUInfo::hasEnoughVRAMForSnapshot(const S32 tentative_x, const S32 tentative_y)
