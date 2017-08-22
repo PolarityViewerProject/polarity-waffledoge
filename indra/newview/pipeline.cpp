@@ -9757,7 +9757,7 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 	}
 
 	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", true);
-	U32 mask = 0;
+	
 	if (shadows_from_alpha)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
@@ -9765,36 +9765,36 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
 
-		mask = LLVertexBuffer::MAP_VERTEX | 
-					LLVertexBuffer::MAP_TEXCOORD0 | 
-					LLVertexBuffer::MAP_COLOR | 
-					LLVertexBuffer::MAP_TEXTURE_INDEX;
+		U32 mask = LLVertexBuffer::MAP_VERTEX |
+			LLVertexBuffer::MAP_TEXCOORD0 |
+			LLVertexBuffer::MAP_COLOR |
+			LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
 
 		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
-		
+
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
 		gDeferredShadowAlphaMaskProgram.unbind();
 
-	}
-	static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", true);
-	if (tree_shadows_from_alpha)
-	{
-		
-		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
+		static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", true);
+		if (tree_shadows_from_alpha)
+		{
 
-		gDeferredTreeShadowProgram.bind();
-		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
-		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
-		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
-		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
+			mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
-		gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
+			gDeferredTreeShadowProgram.bind();
+			renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
+			renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
+			renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
+			renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
 
-		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
-		gDeferredTreeShadowProgram.unbind();
+			gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
+
+			renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
+			gDeferredTreeShadowProgram.unbind();
+		}
 	}
 
 	//glCullFace(GL_BACK);
