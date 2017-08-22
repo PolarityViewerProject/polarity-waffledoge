@@ -933,8 +933,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
 	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
 	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
-	LLColor4 name_color;
-	LLColor4 txt_color;
+	LLColor4 name_color = default_name_color;
+	LLColor4 txt_color = system_color;
 	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{
 #ifdef PVDATA_SYSTEM
@@ -956,7 +956,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		}
 		else
 		{
-			LLViewerChat::getChatColor(chat, txt_color);
+			LLViewerChat::getChatColor(chat, name_color);
 		}
 		// </polarity>
 #else
