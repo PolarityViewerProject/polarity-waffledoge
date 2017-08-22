@@ -265,7 +265,6 @@
 #endif
 #include "pvconstants.h"
 #include "pvfpsmeter.h"
-#include "pvgpuinfo.h"
 
 static LLAppViewerListener sAppViewerListener(LLAppViewer::instance);
 

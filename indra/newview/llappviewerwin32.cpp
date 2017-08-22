@@ -572,7 +572,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		gGLManager.mVRAM = gDXHardware.getVRAM();
 	}
 
-	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
+	LL_INFOS("AppInit") << "(DirectX) Detected VRAM: " << gDXHardware.getVRAM() << LL_ENDL;
 
 	return true;
 }

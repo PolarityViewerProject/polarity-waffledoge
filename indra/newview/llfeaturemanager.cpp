@@ -54,7 +54,6 @@
 #include "llcorehttputil.h"
 
 #include "llstartup.h" // for getStartupState
-#include "pvgpuinfo.h" // to update vram immediately
 #include "llglsandbox.h"
 
 #if LL_WINDOWS
@@ -793,9 +792,6 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("VertexUniformsLT1024");
 	}
-	// <polarity> prime the texture memory here to be sure we don't end up with a 0
-	gGLManager.mVRAM = PVGPUInfo::vRAMGetTotalOnboard().value();
-	gMaxVideoRam = LLViewerTextureList::getMaxVideoRamSetting(false);
 	llassert(gGLManager.mVRAM > 0);
 	if(gGLManager.mVRAM == 0)
 	{
