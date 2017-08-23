@@ -142,6 +142,14 @@ S32 LLFontGL::render(const LLWString &wstr, S32 begin_offset, F32 x, F32 y, cons
 	{
 		return 0;
 	} 
+	if(this == nullptr)
+	{
+		return 0;
+	}
+	if(!mFontFreetype)
+	{
+		return 0;
+	}
 
 	gGL.getTexUnit(0)->enable(LLTexUnit::TT_TEXTURE);
 
