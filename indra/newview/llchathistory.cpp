@@ -931,10 +931,10 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 	// <polarity>
 	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
-	static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
+	//static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
 	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
 	LLColor4 name_color = default_name_color;
-	LLColor4 txt_color = system_color;
+	LLColor4 txt_color;
 	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
 	{
 #ifdef PVDATA_SYSTEM
@@ -945,20 +945,20 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			{
 				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
 			}
-			if (chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
-			{
-				name_color = PVAgent::getColor(chat.mFromID, default_name_color);
-				if (color_pvagent_chat)
-				{
-					txt_color = name_color;
-				}
-			}
+			name_color = PVAgent::getColor(chat.mFromID, default_name_color);
 		}
 		else
 		{
 			LLViewerChat::getChatColor(chat, name_color);
 		}
-		// </polarity>
+		if(color_pvagent_chat)
+		{
+			txt_color = name_color;
+		}
+		else
+		{
+			LLViewerChat::getChatColor(chat, txt_color);
+		}
 #else
 		// untested!
 		LLColor4 name_color(default_name_color);
