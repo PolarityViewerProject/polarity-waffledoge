@@ -28,8 +28,7 @@
 #ifndef PV_ALIGN_TOOL_H
 #define PV_ALIGN_TOOL_H
 
-#pragma once
-
+#include "llsingleton.h"
 #include "lltool.h"
 #include "llbbox.h"
 
@@ -41,29 +40,28 @@ class QToolAlign
 :	public LLTool, public LLSingleton<QToolAlign>
 {
 	LLSINGLETON(QToolAlign);
-	virtual ~QToolAlign();
-
+	~QToolAlign() {}
+    
 public:
-	virtual void	handleSelect();
-	virtual void	handleDeselect();
-	virtual BOOL	handleMouseDown(S32 x, S32 y, MASK mask);
-	virtual BOOL	handleHover(S32 x, S32 y, MASK mask);
-	virtual void	render();
-	virtual BOOL	canAffectSelection();
+	void	handleSelect() override;
+	void	handleDeselect() override;
+	BOOL	handleMouseDown(S32 x, S32 y, MASK mask) override;
+	BOOL    handleHover(S32 x, S32 y, MASK mask) override;
+	void	render() override;
 
 	static void pickCallback(const LLPickInfo& pick_info);
 
 private:
-	void			align();
-	void			computeManipulatorSize();
-	void			renderManipulators();
-	BOOL			findSelectedManipulator(S32 x, S32 y);
-
-	LLBBox		mBBox;
-	F32			 mManipulatorSize;
-	S32			 mHighlightedAxis;
-	F32			 mHighlightedDirection;
-	BOOL			mForce;
+	void            align();
+	void            computeManipulatorSize();
+	void            renderManipulators();
+	BOOL            findSelectedManipulator(S32 x, S32 y);
+	
+	LLBBox          mBBox;
+	F32             mManipulatorSize;
+	S32             mHighlightedAxis;
+	F32             mHighlightedDirection;
+	bool            mForce;
 };
 
-#endif // PV_ALIGN_TOOL_H
+#endif // Q_QTOOLALIGN_H
