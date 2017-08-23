@@ -35,7 +35,7 @@ static const S64Bytes HW_MIN_VRAM_AMNT = S64Megabytes(32);
 
 class PVGPUInfo : public LLSingleton<PVGPUInfo>
 {
-	LLSINGLETON(PVGPUInfo);
+	LLSINGLETON_EMPTY_CTOR(PVGPUInfo);
 
 	/*
 	* \brief Fetched "Free" memory. Should be entire black bar, or the on-board VRAM minus the other bars.

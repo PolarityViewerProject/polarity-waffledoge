@@ -31,7 +31,7 @@
 
 class PVRandom: public LLSingleton<PVRandom>
 {
-	LLSINGLETON(PVRandom);
+	LLSINGLETON_EMPTY_CTOR(PVRandom);
 public:
 	// get random string from a std::vector<std::string>
 	std::string getRandomElement(const std::vector<std::string>& vector) const;
