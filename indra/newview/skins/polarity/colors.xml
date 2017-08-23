@@ -932,9 +932,9 @@
    <color
     name="PlvrContributorChatColor"
     value="0.73333 0.58039 0.24314 1.0"/>
-   <color
+<!--    <color
     name="PlvrDevChatColor"
-    value="0.53081 0.75957 0.16199 1.0"/>
+    value="0.53081 0.75957 0.16199 1.0"/> -->
    <color
     name="PlvrGray1"
     value="0.20000 0.200000 0.20000 1"/>
