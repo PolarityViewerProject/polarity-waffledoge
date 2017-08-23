@@ -31,16 +31,23 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "pvcommon.h"
-#if FIXED_SMART_PTR_ERROR
+#include "pvconstants.h"
 #include "llnotificationmanager.h"
 
- void PVCommon::reportToNearbyChat(const std::string& message, const std::string &fromName /* = APP_NAME */, EChatSourceType CHAT_TYPE /* = CHAT_SOURCE_SYSTEM */)
+// static
+void PVCommon::reportToNearbyChat(const std::string& message, const std::string& fromName, EChatSourceType CHAT_TYPE)
 {
-	// LLChat chat;
-	// chat.mText = message;
-	// chat.mFromName = fromName;
-	// chat.mSourceType = CHAT_TYPE;
-	// LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
+	LLChat chat;
+	chat.mText = message;
+	if (fromName == "")
+	{
+		static const std::string app_name_str = APP_NAME;
+		chat.mFromName = app_name_str;
+	}
+	else
+	{
+		chat.mFromName = fromName;
+	}
+	chat.mSourceType = CHAT_TYPE;
+	LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
 }
-
-#endif

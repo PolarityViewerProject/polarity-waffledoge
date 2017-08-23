@@ -270,7 +270,7 @@ source_group("Third Party/Firestorm" FILES
 
 set(polarity_HEADER_FILES
     pvaligntool.h
-    # pvcommon.h
+    pvcommon.h
     # pvfloaterprogressview.h
     pvfpsmeter.h
     pvgpuinfo.h
@@ -282,7 +282,7 @@ set(polarity_HEADER_FILES
     )
 set(polarity_SOURCE_FILES
     pvaligntool.cpp
-    # pvcommon.cpp
+    pvcommon.cpp
     # pvfloaterprogressview.cpp
     pvfpsmeter.cpp
     pvgpuinfo.cpp
