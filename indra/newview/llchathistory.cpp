@@ -507,8 +507,6 @@ public:
 			case CHAT_SOURCE_OBJECT:
 				icon->setValue(LLSD("OBJECT_Icon"));
 				break;
-			case CHAT_SOURCE_MOTD:
-			/* FALLTHROUGH */
 			case CHAT_SOURCE_SYSTEM:
 				icon->setValue(LLSD("SL_Logo"));
 				break;

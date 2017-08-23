@@ -68,7 +68,7 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
-//#include "pvcommon.h"
+#include "pvcommon.h"
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
@@ -2770,7 +2770,7 @@ void LLIMMgr::addMessage(
 					}
 					else if (reportIgnoredAdHocSession)
 					{
-						//PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
+						PVCommon::reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
 					}
 					return;
 				}

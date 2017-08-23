@@ -185,10 +185,11 @@
 #include "llcleanup.h"
 
 // <polarity> Polarity Includes
+#include "pvcommon.h"
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif
-//#include "pvcommon.h"
+
 #include "pvfpsmeter.h"
 #ifdef PV_SEARCH_SEPARATOR
 #include "pvsearchseparator.h"
@@ -2355,7 +2356,7 @@ bool idle_startup()
 		gAgentAvatarp->sendHoverHeight();
 
 		//std::string appname_str = APP_NAME;
-		//PVCommon::getInstance()->reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer", CHAT_SOURCE_MOTD);
+		PVCommon::reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer");
 #ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
@@ -2363,7 +2364,7 @@ bool idle_startup()
 		PVFPSMeter::start();
 		//if(gSavedSettings.getBOOL("TextureLoadFullRes"))
 		//{
-			//PVCommon::getInstance()->reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
+			//PVCommon::reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
 		//}
 
 		return TRUE;

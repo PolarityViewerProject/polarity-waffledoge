@@ -122,8 +122,6 @@
 #include "llcallstack.h"
 #include "llrendersphere.h"
 
-//#include "pvcommon.h"
-//#include "llsidepanelappearance.h"
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
 #endif

@@ -441,8 +441,6 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 				icon->setValue(LLSD("SL_Logo"));
 			else if(mSourceType == CHAT_SOURCE_AGENT)
 				icon->setValue(mFromID);
-			else if(mSourceType == CHAT_SOURCE_MOTD)
-				icon->setValue(LLSD("SL_Logo"));
 			else if(!mFromID.isNull())
 				icon->setValue(mFromID);
 		}

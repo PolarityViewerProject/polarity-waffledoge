@@ -35,7 +35,7 @@
 #include "llnotificationmanager.h"
 
 // static
-void PVCommon::reportToNearbyChat(const std::string& message, const std::string& fromName, EChatSourceType CHAT_TYPE)
+void PVCommon::reportToNearbyChat(const std::string& message, const std::string& fromName)
 {
 	LLChat chat;
 	chat.mText = message;
@@ -48,6 +48,6 @@ void PVCommon::reportToNearbyChat(const std::string& message, const std::string&
 	{
 		chat.mFromName = fromName;
 	}
-	chat.mSourceType = CHAT_TYPE;
+	chat.mSourceType = CHAT_SOURCE_SYSTEM;
 	LLNotificationsUI::LLNotificationManager::instance().onChat(chat, LLSD());
 }

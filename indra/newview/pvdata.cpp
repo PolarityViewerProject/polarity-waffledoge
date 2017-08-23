@@ -34,10 +34,9 @@
  */
 
 #include "llviewerprecompiledheaders.h"
-#include <stdlib.h> // for setenv
 #include "pvdata.h"
-//#include "pvcommon.h"
 
+#include <stdlib.h> // for setenv
 #include "llagent.h"
 #include "llavatarnamecache.h"
 #include "lldateutil.h"

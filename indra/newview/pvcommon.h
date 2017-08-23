@@ -43,7 +43,7 @@ public:
 	 * \param fromName string
 	 * \param CHAT_TYPE EChatSourceType
 	 */
-	static void reportToNearbyChat(const std::string& message, const std::string &fromName = "", EChatSourceType CHAT_TYPE = CHAT_SOURCE_SYSTEM);
+	static void reportToNearbyChat(const std::string& message, const std::string &fromName = "");
 };
 
 #endif // PV_COMMON_H

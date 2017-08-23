@@ -358,7 +358,7 @@ bool ALChatCommand::parseCommand(std::string data)
 				// as the scroll bar is only reset when a new message is appended to the chat log.
 				// We can either update the scrollbar manually, or add a log entry to record that
 				// the char was cleared and clear again to hide it away said entry.
-				//PVCommon::getInstance()->reportToNearbyChat("Clearing chat window...");
+				PVCommon::reportToNearbyChat("Clearing chat window...");
 				nearby_chat->purgeChatHistory();
 				return true;
 				// </polarity>
@@ -372,12 +372,12 @@ bool ALChatCommand::parseCommand(std::string data)
 		}
 		else if (cmd == utf8str_tolower(sUptimeCommand)) // uptime
 		{
-			//PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");
+			PVCommon::reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");
 			return true;
 		}
 		else if (cmd == utf8str_tolower(sSysInfoCommand)) // sysinfo
 		{
-			//PVCommon::getInstance()->reportToNearbyChat(LLAppViewer::instance()->getViewerInfoString(false), "System info");
+			PVCommon::reportToNearbyChat(LLAppViewer::instance()->getViewerInfoString(false), "System info");
 			return true;
 		}
 
