@@ -277,7 +277,6 @@ set(polarity_HEADER_FILES
     pvmachinima.h
     # pvpanellogin.h
     pvperformancemaid.h
-    pvrandom.h
     # pvscriptpreproc.h
     pvtypes.h
     )
@@ -290,7 +289,6 @@ set(polarity_SOURCE_FILES
     pvmachinima.cpp
     # pvpanellogin.cpp
     pvperformancemaid.cpp
-    pvrandom.cpp
     # pvscriptpreproc.cpp
     )
 
