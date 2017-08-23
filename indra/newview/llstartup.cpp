@@ -185,6 +185,7 @@
 #include "llcleanup.h"
 
 // <polarity> Polarity Includes
+#include "pvconstants.h"
 #include "pvcommon.h"
 #ifdef PVDATA_SYSTEM
 #include "pvdata.h"
@@ -2355,8 +2356,8 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		//std::string appname_str = APP_NAME;
-		PVCommon::reportToNearbyChat(gAgent.mChatMOTD, appname_str + " Viewer");
+		static const std::string app_name_str = APP_NAME;
+		PVCommon::reportToNearbyChat(gAgent.mChatMOTD, app_name_str + " Viewer");
 #ifdef PVDATA_SYSTEM
 		gPVOldAPI->startRefreshTimer();
 #endif
