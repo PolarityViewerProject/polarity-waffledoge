@@ -142,7 +142,8 @@ LLPanelLogin::LLPanelLogin(const LLRect &rect,
 
 	auto password_edit = getChild<LLLineEditor>("password_edit");
 	password_edit->setKeystrokeCallback(onPassKey, this);
-	password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
+	// <polarity> Don't automatically log in on password edit
+	//password_edit->setCommitCallback(boost::bind(&LLPanelLogin::onClickConnect, this));
 
 	// change z sort of clickable text to be behind buttons
 	sendChildToBack(LLView::getChildView("forgot_password_text"));
