@@ -1643,15 +1643,17 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 	{
 		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
-	// NaCl - Faster Avatar Shadows
+
+	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
 	if (LLPipeline::sShadowRender)
 	{
-		static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-		if (PVRender_AttachmentShadowDetail < 3)
+		static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
+		if (1 == simple_shadows)
 		{
 			return TRUE;
 		}
 	}
+	// </polarity>
 
 	LLUUID tex_id = getLocalTextureID(type,index);
 	return (tex_id != IMG_INVISIBLE) 

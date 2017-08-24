@@ -460,15 +460,15 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
-	// NaCl - Faster Avatar Shadows
-	static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-	if (0 == PVRender_AttachmentShadowDetail)
+	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
+	static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
+	if (1 == simple_shadows)
 	{
 		return;
 	}
-	// <polarity> Yes, I know this is technically bad to omit the frametimer from a code path
-	// But shadows are slow enough that we need every cycle we can get. - Xenhat 2017.08.02
-	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
+	// </polarity>
+
 
 	if (mDrawFace.empty())
 	{
@@ -482,7 +482,7 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	}
 	LLVOAvatar *avatarp = (LLVOAvatar *)facep->getDrawable()->getVObj().get();
 
-	if (avatarp->isDead() || avatarp->mIsDummy || !avatarp->isFullyLoaded() || avatarp->isImpostor() || avatarp->mDrawable.isNull())
+	if (avatarp->isDead() || avatarp->mIsDummy || avatarp->mDrawable.isNull())
 	{
 		return;
 	}
@@ -498,16 +498,19 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 		avatarp->renderSkinned();
 	}
 
-// Nacl - Faster Avatar Shadows
-	else if (1 == PVRender_AttachmentShadowDetail)
+	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
+	else if (1 == simple_shadows)
 	{
+		// Don't render the shadow of anything that is rigged. Instead, force the shadow of the avatar shape to render instead.
+		// See LLVOAvatar::isTextureVisible() and LLVOAvatarSelf::isTextureVisible()
 		return;
 	}
-	else if (2 == PVRender_AttachmentShadowDetail)
+	else if (2 == simple_shadows)
 	{
 		// Use simplified/optimized shadow spiral
 		renderRiggedShadows(avatarp);
 	}
+	// </polarity>
 	else
 	{
 		// Render shadows all the way into oblivion.
@@ -1881,7 +1884,7 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 	}
 }
 
-// NaCl - Faster Avatar Shadows
+// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
 void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 {
 	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
@@ -2025,7 +2028,7 @@ void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
 		}
 	}
 }
-// /NaCL - Faster Avatar Shadows
+// </polarity>
 
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {

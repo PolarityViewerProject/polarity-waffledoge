@@ -1426,7 +1426,7 @@
     <key>PVRender_AttachmentShadowDetail</key>
     <map>
       <key>Comment</key>
-      <string>Simplyfy the deferred avatar shadows a lot. They are a FPS hog. 0 = No shadows. 1 = No rigged shadows. 2 = No rigged shadows, always render system avatar. 3 = Full shadows.</string>
+      <string>How to render deferred avatar shadows. 0=none, 1=simplified (no rigged mesh shadows), 2=optimized (slower but still faster than legacy when several avatars are around), 3=legacy (like the SL viewer, slow with complex rigged attachments).</string>
       <key>Persist</key>
       <integer>1</integer>
       <key>Type</key>

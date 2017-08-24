@@ -9625,12 +9625,17 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	}
 	else
 	{
-		// NaCl - Faster Avatar Shadows
-		static LLCachedControl<U32> PVRender_AttachmentShadowDetail(gSavedSettings, "PVRender_AttachmentShadowDetail");
-		if (LLPipeline::sShadowRender && PVRender_AttachmentShadowDetail < 3)
+		// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
+		if(LLPipeline::sShadowRender)
 		{
-			return TRUE;
-		}
+			static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
+			if (1 == simple_shadows)
+			{
+				return TRUE;
+	
+			}
+		} // </polarity>
+
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
 				&& (getTEImage(type)->getID() != IMG_INVISIBLE 
