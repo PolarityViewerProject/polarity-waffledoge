@@ -967,7 +967,7 @@ void LLPanelLogin::updateLoginButtons()
 	else if (!username.empty() && password.length() > 16 && LLGridManager::getInstance()->isInSecondlife())
 	{
 		// LLNotificationsUtil::add("SecondLifePasswordTooLong");
-		login_btn->setLabel(LLTrans::getString("PW too long!"));
+		login_btn->setLabel("PW too long!");
 		password.erase(password.begin() + 16, password.end());
 		sLoginButtonEnabled = true;
 	}
