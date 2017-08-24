@@ -4487,6 +4487,7 @@ Try enclosing path to the editor with double quotes.
 <string name="Login">Log In</string>
 <string name="Outdated">Outdated</string>
 <string name="EnterCredentials">Credentials&#63;</string>
+<string name="PWTooLong">PW too Long!</string>
 <string name="InternalBuild">Internal</string>
 <!-- /buttons -->
 
