@@ -57,7 +57,7 @@
 	is_password="true"
 	label="Password"
 	left_delta="0"
-	max_length_bytes="16"
+	max_length_bytes="360"
 	name="password_edit"
 	select_on_focus="true"
 	text_pad_left="8"
