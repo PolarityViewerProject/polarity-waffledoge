@@ -36,7 +36,6 @@
 	follows="left|top"
 	height="25"
 	label="Username"
-	combo_editor.font="SansSerif"
 	max_chars="128"
 	combo_editor.commit_on_focus_lost="false"
 	combo_editor.prevalidate_callback="ascii"
@@ -52,7 +51,6 @@
  </combo_box>
  <line_editor
 	follows="left|top"
-	font="SansSerif"
 	height="25"
 	is_password="true"
 	label="Password"
@@ -69,7 +67,6 @@
     image_pressed="PushButton_Selected_Press"
     label="Credentials&#63;"
     label_color="White"
-    font="SansSerif"
     name="connect_btn"
     enabled="false"
     left="1"
@@ -79,7 +76,6 @@
  <check_box
     control_name="RememberPassword"
     follows="left|top"
-    font="SansSerif"
     left_pad="5"
     top_delta="-1"
     height="25"
@@ -94,7 +90,6 @@
 	label="Start location"
 	height="26"
 	max_chars="128"
-	combo_editor.font="SansSerif"
 	left="1"
 	top_pad="10"
 	name="start_location_combo"
@@ -115,7 +110,6 @@
     image_pressed="PushButton_Press"
     image_hover="PushButton_Over"
     image_hover_unselected="PushButton_Off"
-    combo_editor.font="SansSerif"
     height="26"
     label="Grid selection"
     layout="topleft"
