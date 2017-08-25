@@ -207,7 +207,7 @@
          left="15"
          name="showlookat"
          width="270"
-         control_name="AlchemyLookAtShow"
+         control_name="PVPrivacy_LookAtShow"
          tool_tip="Enable crosshairs marking where people are looking."/>
         <text
          type="string"
@@ -223,7 +223,7 @@
             Names:
         </text>
         <combo_box
-         control_name="AlchemyLookAtNames"
+         control_name="PVPrivacy_LookAtNames"
          follows="left|top"
          height="23"
          layout="topleft"
@@ -260,7 +260,7 @@
         </combo_box>
 
         <check_box
-         control_name="AlchemyLookAtLines"
+         control_name="PVPrivacy_LookAtLines"
          height="16"
          label="Show a line from LookAt beacon to avatar"
          layout="topleft"
@@ -284,7 +284,7 @@
             My LookAt:
         </text>
 	    	<check_box
-         control_name="AlchemyLookAtHideSelf"
+         control_name="PVPrivacy_LookAtHideSelf"
          height="16"
 		     initial_value="true"
          label="Don't show me my LookAt target"
@@ -295,7 +295,7 @@
          top_pad="10"
          width="350" />
         <check_box
-         control_name="AlchemyLookAtPrivate"
+         control_name="PVPrivacy_LookAtPrivate"
          height="16"
          label="Don't send my actual camera target to others"
          layout="topleft"
