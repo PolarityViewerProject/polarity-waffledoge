@@ -458,9 +458,11 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	}
 	
 	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_num);
-	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
-	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
-
+	if (image_gl && image_gl != NULL)
+	{
+		LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
+		image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+	}
 	return gi;
 }
 
@@ -497,13 +499,15 @@ void LLFontFreetype::renderGlyph(U32 glyph_index) const
 {
 	if (mFTFace == nullptr)
 		return;
-
-	if (FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_RENDER) != 0)
+	 // <polarity> Variant on Alchemy's glyph crash fix
+	if (FT_Load_Glyph(mFTFace, glyph_index, FT_LOAD_FORCE_AUTOHINT) != 0)
 	{
-		// If glyph fails to load and/or render, render a fallback character
-		llassert_always(!FT_Load_Char(mFTFace, L'?', FT_LOAD_RENDER));
+		// if glyph fails to load and/or render, render a fallback character
+		llassert_always(!FT_Load_Char(mFTFace, L'?', FT_LOAD_FORCE_AUTOHINT));
 	}
-
+	// Attempt to autohint glyphs as well.
+	llassert_always(!FT_Render_Glyph(mFTFace->glyph, FT_RENDER_MODE_NORMAL));
+	// </polarity>
 	mRenderGlyphCount++;
 }
 

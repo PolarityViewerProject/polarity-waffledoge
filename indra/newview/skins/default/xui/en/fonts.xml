@@ -161,10 +161,10 @@
        />
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
-       size="8.6"
+       size="9.0"
        />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
-       size="8.2"
+       size="8.0"
        />
 </fonts>

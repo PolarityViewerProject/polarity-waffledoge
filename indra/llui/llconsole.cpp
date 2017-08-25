@@ -160,7 +160,7 @@ case 2:
 	return_font = LLFontGL::getFontSansSerif();
 	break;
 case 3:
-	return_font = LLFontGL::getFontSansSerifLarge();
+	return_font = LLFontGL::getFontSansSerifBig();
 	break;
 case 4:
 	return_font = LLFontGL::getFontSansSerifHuge();
