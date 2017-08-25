@@ -149,22 +149,22 @@
 
   <font_size name="Monospace"
 	     comment="Size for monospaced font (points, or 1/72 of an inch)"
-       size="9.0"
+       size="9.6"
        />
   <font_size name="Huge"
 	     comment="Size of huge font (points, or 1/72 of an inch)"
-       size="16.0"
+       size="11.6"
        />
   <font_size name="Large"
        comment="Size of large font (points, or 1/72 of an inch)"
-       size="11.6"
+       size="9.6"
        />
   <font_size name="Medium"
 	     comment="Size of medium font (points, or 1/72 of an inch)"
-       size="10.4"
+       size="8.6"
        />
   <font_size name="Small"
 	     comment="Size of small font (points, or 1/72 of an inch)"
-       size="9.4"
+       size="8.2"
        />
 </fonts>
