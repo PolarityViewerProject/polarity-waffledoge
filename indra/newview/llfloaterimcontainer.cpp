@@ -59,10 +59,6 @@
 #include "llviewermenu.h"
 #include "roles_constants.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 //
 // LLFloaterIMContainer
 //
@@ -92,8 +88,6 @@ LLFloaterIMContainer::LLFloaterIMContainer(const LLSD& seed, const Params& param
 	mCommitCallbackRegistrar.add("Avatar.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelected, this, _2));
 
 	mCommitCallbackRegistrar.add("Group.DoToSelected", boost::bind(&LLFloaterIMContainer::doToSelectedGroup, this, _2));
-	
-	//mCommitCallbackRegistrar.add("Polarity.Common.CopyData", boost::bind(&LLFloaterIMContainer::copyData, this, _2));'
 
 	// Firstly add our self to IMSession observers, so we catch session events
 	LLIMMgr::getInstance()->addSessionObserver(this);
@@ -1225,10 +1219,6 @@ void LLFloaterIMContainer::doToParticipants(const std::string& command, uuid_vec
 		{
 			LLAvatarActions::copyData(selectedIDS, LLAvatarActions::E_DATA_NAME);
 		}
-		else if ("copy_displayname" == command)
-		{
-			LLAvatarActions::copyData(selectedIDS, LLAvatarActions::E_DATA_DISPLAYNAME);
-		}
 		else if ("copy_slurl" == command)
 		{
 			LLAvatarActions::copyData(selectedIDS, LLAvatarActions::E_DATA_SLURL);
@@ -1885,12 +1875,6 @@ LLConversationViewParticipant* LLFloaterIMContainer::createConversationViewParti
 	params.rect = LLRect(0, 24, panel_rect.getWidth(), 0);
 	params.tool_tip = params.name;
 	params.participant_id = item->getUUID();
-	static LLColor4 white = LLUIColorTable::getInstance()->getColor("White");
-#ifdef PVDATA_SYSTEM
-	params.font_color = PVAgent::getColor(item->getUUID(), white);
-#else
-	params.font_color = white;
-#endif
 	params.folder_indentation = 27;
 
 	return LLUICtrlFactory::create<LLConversationViewParticipant>(params);

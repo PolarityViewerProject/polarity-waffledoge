@@ -1175,8 +1175,8 @@ void process_enable_simulator(LLMessageSystem *msg, void **user_data)
 	if (!gAgent.getRegion())
 		return;
 
-	static LLCachedControl<bool> do_not_connect_to_beighbors(gSavedSettings, "PVNetwork_DoNotConnectToNeighbors");
-	if((do_not_connect_to_beighbors) && ((gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL)
+	static LLCachedControl<bool> connectToNeighbors(gSavedSettings, "AlchemyConnectToNeighbors");
+	if((!connectToNeighbors) && ((gAgent.getTeleportState() == LLAgent::TELEPORT_LOCAL) 
 		|| (gAgent.getTeleportState() == LLAgent::TELEPORT_NONE)))
 		return;
 

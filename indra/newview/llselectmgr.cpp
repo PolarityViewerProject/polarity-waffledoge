@@ -55,7 +55,6 @@
 // viewer includes
 #include "llagent.h"
 #include "llagentcamera.h"
-#include "llappviewer.h" // <polarity/> merge fix
 #include "llattachmentsmgr.h"
 #include "llviewerwindow.h"
 #include "lldrawable.h"
@@ -78,7 +77,6 @@
 #include "llslurl.h"
 #include "llstatusbar.h"
 #include "llsurface.h"
-#include "lltexturecache.h"
 #include "lltool.h"
 #include "lltooldraganddrop.h"
 #include "lltoolmgr.h"
@@ -102,8 +100,6 @@
 #include "llviewershadermgr.h"
 #include "llpanelface.h"
 #include "llglheaders.h"
-
-class LLAppViewer;
 
 LLViewerObject* getSelectedParentObject(LLViewerObject *object) ;
 //
@@ -3824,34 +3820,6 @@ struct LLDuplicateData
 	U32			flags;
 };
 
-// Rez Under Land Group
-LLUUID LLSelectMgr::getGroupIDToRezUnder()
-{
-	//<alchemy> Rez under Land Group
-	static LLCachedControl<bool> PVTools_RezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup", false);
-	LLUUID group_id = gAgent.getGroupID();
-	if (PVTools_RezUnderLandGroup)
-	{
-		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
-		LLUUID parcel_group_id = land_parcel->getGroupID();
-		LLUUID parcel_owner_id = land_parcel->getOwnerID();
-
-		// Is the agent in the land group
-		if (gAgent.isInGroup(parcel_group_id))
-		{
-			group_id = parcel_group_id;
-		}
-		// Is the agent in the land group (the group owns the land)
-		else if(gAgent.isInGroup(parcel_owner_id))
-		{
-			group_id = parcel_owner_id;
-		}
-	}
-	return group_id;
-	// </alchemy>
-	
-}
-
 void LLSelectMgr::selectDuplicate(const LLVector3& offset, BOOL select_copy)
 {
 	if (mSelectedObjects->isAttachment())
@@ -4017,7 +3985,22 @@ void LLSelectMgr::packDuplicateOnRayHead(void *user_data)
 	msg->nextBlockFast(_PREHASH_AgentData);
 	msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID() );
 	msg->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID() );
-	msg->addUUIDFast(_PREHASH_GroupID, getGroupIDToRezUnder());
+
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
+
+	msg->addUUIDFast(_PREHASH_GroupID, group_id );
 	msg->addVector3Fast(_PREHASH_RayStart, data->mRayStartRegion );
 	msg->addVector3Fast(_PREHASH_RayEnd, data->mRayEndRegion );
 	msg->addBOOLFast(_PREHASH_BypassRaycast, data->mBypassRaycast );
@@ -4750,76 +4733,6 @@ void LLSelectMgr::saveSelectedObjectTransform(EActionType action_type)
 	mSavedSelectionBBox = getBBoxOfSelection();
 }
 
-// <polarity> PLVR-32 Refresh texture on objects and avatars
-void LLSelectMgr::refreshSelectionTextures(std::unordered_set<LLUUID>& textures_to_refresh)
-{
-	for (LLSelectNode* node : *this->getSelection().get())
-	{
-		LLViewerObject* objectp = node->getObject();
-		U8 texture_entry_count = objectp->getNumTEs();
-		for (U8 index = 0; index < texture_entry_count; ++index)
-		{
-			// LLTextureEntry* texture_entry = objectp->getTE(index);
-			LLViewerTexture* diffuse_map = objectp->getTEImage(index);
-			LLViewerTexture* normal_map = objectp->getTENormalMap(index);
-			LLViewerTexture* specular_map = objectp->getTESpecularMap(index);
-			LLViewerTexture* default_image = (LLViewerTexture*)LLViewerFetchedTexture::sDefaultImagep;
-
-			if (diffuse_map != default_image)
-			{
-				textures_to_refresh.insert(diffuse_map->getID());
-			}
-
-			if (normal_map != default_image)
-			{
-				textures_to_refresh.insert(normal_map->getID());
-			}
-
-			if (specular_map != default_image)
-			{
-				textures_to_refresh.insert(specular_map->getID());
-			}
-		}
-
-		if (objectp->isSculpted())
-		{
-			LLSculptParams* sculpt_params = (LLSculptParams*)objectp->getParameterEntry(LLNetworkData::PARAMS_SCULPT);
-			if (sculpt_params)
-			{
-				textures_to_refresh.insert(sculpt_params->getSculptTexture());
-			}
-		}
-	}
-
-	for (LLUUID texture_id : textures_to_refresh)
-	{
-		LLViewerFetchedTexture* texture = LLViewerTextureManager::getFetchedTexture(texture_id);
-		if (texture->getFTType() == FTT_LOCAL_FILE)
-		{
-			// Skip reloading local textures
-			continue;
-		}
-
-		texture->clearFetchedResults();
-		LLAppViewer::getTextureCache()->removeFromCache(texture_id);
-
-		S32 num_volumes = texture->getNumVolumes();
-		if (num_volumes > 0)
-		{
-			const LLViewerTexture::ll_volume_list_t* volumes = texture->getVolumeList();
-			for (S32 volume_index = 0; volume_index < num_volumes; ++volume_index)
-			{
-				LLVOVolume* volume = volumes->at(volume_index);
-				if (volume)
-				{
-					volume->notifyMeshLoaded();
-				}
-			}
-		}
-	}
-}
-// </polarity> PLVR-32 Refresh texture on objects and avatars
-
 struct LLSelectMgrApplyFlags : public LLSelectedObjectFunctor
 {
 	LLSelectMgrApplyFlags(U32 flags, BOOL state) : mFlags(flags), mState(state) {}
@@ -4913,7 +4826,19 @@ void LLSelectMgr::packAgentAndSessionAndGroupID(void* user_data)
 // static
 void LLSelectMgr::packDuplicateHeader(void* data)
 {
-	LLUUID group_id(getGroupIDToRezUnder());
+	//<alchemy> Rez under Land Group
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
+	LLUUID group_id = gAgent.getGroupID();
+	if (AlchemyRezUnderLandGroup)
+	{
+		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
+		// Is the agent in the land group
+		if (gAgent.isInGroup(land_parcel->getGroupID()))
+			group_id = land_parcel->getGroupID();
+		// Is the agent in the land group (the group owns the land)
+		else if(gAgent.isInGroup(land_parcel->getOwnerID()))
+			group_id = land_parcel->getOwnerID();
+	}
 	packAgentAndSessionAndGroupID(&group_id);
 
 	LLDuplicateData* dup_data = (LLDuplicateData*) data;

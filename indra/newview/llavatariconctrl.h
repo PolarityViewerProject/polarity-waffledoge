@@ -109,10 +109,6 @@ protected:
 public:
 	virtual ~LLAvatarIconCtrl();
 
-// [SL:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-	/*virtual*/ BOOL handleToolTip(S32 x, S32 y, MASK mask);
-// [/SL:KB]
-
 	void setValue(const LLSD& value) override;
 
 	// LLAvatarPropertiesProcessor observer trigger
@@ -140,7 +136,7 @@ private:
 	void onAvatarNameCache(const LLUUID& agent_id, const LLAvatarName& av_name);
 
 	boost::signals2::connection mAvatarNameCacheConnection;
-	LLCachedControl<bool> mLoadAvatarIcons;
+	LLCachedControl<bool> mUseDefaultImage;
 };
 
 #endif  // LL_LLAVATARICONCTRL_H

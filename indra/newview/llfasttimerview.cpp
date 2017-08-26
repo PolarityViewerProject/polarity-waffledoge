@@ -407,12 +407,8 @@ void LLFastTimerView::draw()
 		mTimerBarRows.push_front(TimerBarRow());
 	}
 
-	// <polarity> Allow more presets
-	// mDisplayMode = llclamp(getChild<LLComboBox>("time_scale_combo")->getCurrentIndex(), 0, 4);
-	// mDisplayType = (EDisplayType)llclamp(getChild<LLComboBox>("metric_combo")->getCurrentIndex(), 0, 2);
-	mDisplayMode = getChild<LLComboBox>("time_scale_combo")->getCurrentIndex();
-	mDisplayType = (EDisplayType)getChild<LLComboBox>("metric_combo")->getCurrentIndex();
-	// </polarity>
+	mDisplayMode = llclamp(mTimeScaleCombo->getCurrentIndex(), 0, 3);
+	mDisplayType = (EDisplayType)llclamp(mMetricCombo->getCurrentIndex(), 0, 2);
 		
 	generateUniqueColors();
 
@@ -1034,12 +1030,10 @@ void LLFastTimerView::printLineStats()
 	}
 }
 
-// <polarity> Don't add fast timer for the fast timer view, that's bound to create performance issues
 static LLTrace::BlockTimerStatHandle FTM_DRAW_LINE_GRAPH("Draw line graph");
 
 void LLFastTimerView::drawLineGraph()
 {
-	// <polarity> Don't add fast timer for the fast timer view, that's bound to create performance issues
 	LL_RECORD_BLOCK_TIME(FTM_DRAW_LINE_GRAPH);
 	//draw line graph history
 	gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
@@ -1442,13 +1436,6 @@ void LLFastTimerView::updateTotalTime()
 		// Calculate the max total ticks for the current history
 		mTotalTimeDisplay = mRecording.getPeriodMax(FTM_FRAME, 20);
 		break;
-	case 4:
-		mTotalTimeDisplay = F64Milliseconds(40);
-		break;
-	case 5:
-		mTotalTimeDisplay = F64Milliseconds(20);
-		break;
-	case 3:
 	default:
 		mTotalTimeDisplay = F64Milliseconds(100);
 		break;

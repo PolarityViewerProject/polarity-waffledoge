@@ -65,10 +65,6 @@
 
 #include <boost/algorithm/string/predicate.hpp> // <alchemy/>
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 static LLDefaultChildRegistry::Register<LLChatHistory> r("chat_history");
 
 const static std::string NEW_LINE(rawstr_to_utf8("\n"));
@@ -210,24 +206,6 @@ public:
 		{
 			LLAvatarActions::showProfile(getAvatarId());
 		}
-		// <polarity>
-		else if (level == "copy_slurl")
-		{
-			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_SLURL);
-		}
-		else if (level == "copy_displayname")
-		{
-			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_DISPLAYNAME);
-		}
-		else if (level == "copy_name")
-		{
-			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_NAME);
-		}
-		else if (level == "copy_key")
-		{
-			LLAvatarActions::copyData(getAvatarId(), LLAvatarActions::E_DATA_UUID);
-		}
-		// </polarity>
 		else if (level == "im")
 		{
 			LLAvatarActions::startIM(getAvatarId());
@@ -720,7 +698,7 @@ private:
 			!av_name.isDisplayNameDefault())
 		{
 			LLStyle::Params style_params_name;
-			LLColor4 userNameColor = LLUIColorTable::instance().getColor("EmphasisColor");
+			LLColor4 userNameColor = LLUIColorTable::instance().getColor("ChatHeaderUserNameColor"); // <alchemy/>
 			style_params_name.color(userNameColor);
 			style_params_name.font.name("SansSerifSmall");
 			style_params_name.font.style("NORMAL");
@@ -927,80 +905,41 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mMoreChatPanel->reshape(mMoreChatPanel->getRect().getWidth(), height);
 	}
 
-	// <polarity>
-	static LLColor4 default_name_color = LLUIColorTable::getInstance()->getColor("ChatHeaderDisplayNameColor");
-	//static LLColor4 system_color = LLUIColorTable::getInstance()->getColor("SystemChatColor");
-	static LLCachedControl<bool> color_pvagent_chat(gSavedSettings, "PVChat_ColorManager_ColorMessages", false);
-	LLColor4 name_color = default_name_color;
-	LLColor4 txt_color;
-	if (chat.mChatStyle != CHAT_STYLE_HISTORY)
+	LLColor4 txt_color = LLUIColorTable::instance().getColor("White");
+	LLColor4 name_color = LLUIColorTable::instance().getColor("ChatHeaderDisplayNameColor"); // <alchemy/>
+
+	static LLCachedControl<bool> use_colorizer(gSavedSettings, "AlchemyChatColorManager", false);
+	if (use_colorizer && chat.mSourceType != CHAT_SOURCE_OBJECT && chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && chat.mFromID != gAgent.getID())
 	{
-#ifdef PVDATA_SYSTEM
-		if (chat.mSourceType == CHAT_SOURCE_AGENT && chat.mFromID.notNull())
-		{
-			// <polarity> Attempt to detect beggars and such for non-muted avatars
-			if (!LLMuteList::getInstance()->isMuted(chat.mFromID))
-			{
-				gPVOldAPI->checkBeggar(chat.mFromID, chat.mText);
-			}
-			name_color = PVAgent::getColor(chat.mFromID, default_name_color);
-		}
-		else
-		{
-			LLViewerChat::getChatColor(chat, name_color);
-		}
-		if(color_pvagent_chat)
-		{
-			txt_color = name_color;
-		}
-		else
-		{
-			LLViewerChat::getChatColor(chat, txt_color);
-		}
-#else
-		// untested!
-		LLColor4 name_color(default_name_color);
-		LLViewerChat::getChatColor(chat, txt_color);
-#endif
+		name_color = ALAvatarColorMgr::instance().getColor(chat.mFromID);
 	}
-	// </polarity>
-	LLFontGL* fontp = LLViewerChat::getChatFont();
+
+	LLViewerChat::getChatColor(chat,txt_color);
+	LLFontGL* fontp = LLViewerChat::getChatFont();	
 	std::string font_name = LLFontGL::nameFromFont(fontp);
-	std::string font_size = LLFontGL::sizeFromFont(fontp);
+	std::string font_size = LLFontGL::sizeFromFont(fontp);	
 
 	LLStyle::Params body_message_params;
-	LLStyle::Params name_params(body_message_params); // <polarity/>
+	body_message_params.color(txt_color);
+	body_message_params.readonly_color(txt_color);
 	body_message_params.font.name(font_name);
 	body_message_params.font.size(font_size);
 	body_message_params.font.style(input_append_params.font.style);
-	// <polarity>
-	if (chat.mChatStyle == CHAT_STYLE_HISTORY)
-	{
-		// We graying out chat history by graying out messages that contains full date in a time string
-		static LLColor4 history_color = LLUIColorTable::getInstance()->getColor("ChatHistoryTextColor");
-		body_message_params.color(history_color);
-		body_message_params.readonly_color(history_color);
-		name_params.color(history_color);
-		name_params.readonly_color(history_color);
-	}
-	else
-	{
-		body_message_params.color(txt_color);
-		body_message_params.readonly_color(txt_color);
-		name_params.color(name_color);
-		name_params.readonly_color(name_color);
-	}
-	// </polarity>
+
+	LLStyle::Params name_params(body_message_params);
+	name_params.color(name_color);
+	name_params.readonly_color(name_color);
 
 	std::string prefix = chat.mText.substr(0, 4);
 
 	//IRC styled /me messages.
-	bool irc_me = chat.mChatStyle == CHAT_STYLE_IRC || boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <polarity> case insensitive /ME and /ME'S
+	bool irc_me = boost::iequals(prefix, "/me ") || boost::iequals(prefix, "/me'"); // <alchemy/>
+
 	// Delimiter after a name in header copy/past and in plain text mode
 	std::string delimiter = ": ";
-	static const std::string shout = LLTrans::getString("shout");  // <polarity/>
-	static const std::string whisper = LLTrans::getString("whisper");  // <polarity/>
-	if (chat.mChatType == CHAT_TYPE_SHOUT ||
+	std::string shout = LLTrans::getString("shout");
+	std::string whisper = LLTrans::getString("whisper");
+	if (chat.mChatType == CHAT_TYPE_SHOUT || 
 		chat.mChatType == CHAT_TYPE_WHISPER ||
 		chat.mText.compare(0, shout.length(), shout) == 0 ||
 		chat.mText.compare(0, whisper.length(), whisper) == 0)
@@ -1009,18 +948,30 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	}
 
 	// Don't add any delimiter after name in irc styled messages
-	if (irc_me)  // <polarity/>
+	if (irc_me || chat.mChatStyle == CHAT_STYLE_IRC)
 	{
 		delimiter = LLStringUtil::null;
 		body_message_params.font.style = "ITALIC";
 	}
-	else if (chat.mChatType == CHAT_TYPE_WHISPER)
+
+	if(chat.mChatType == CHAT_TYPE_WHISPER)
 	{
 		body_message_params.font.style = "ITALIC";
 	}
-	else if (chat.mChatType == CHAT_TYPE_SHOUT)
+	else if(chat.mChatType == CHAT_TYPE_SHOUT)
 	{
 		body_message_params.font.style = "BOLD";
+	}
+
+	bool message_from_log = chat.mChatStyle == CHAT_STYLE_HISTORY;
+	// We graying out chat history by graying out messages that contains full date in a time string
+	if (message_from_log)
+	{
+		txt_color = LLColor4::grey;
+		body_message_params.color(txt_color);
+		body_message_params.readonly_color(txt_color);
+		name_params.color(txt_color);
+		name_params.readonly_color(txt_color);
 	}
 
 	bool prependNewLineState = mEditor->getText().size() != 0;
@@ -1030,23 +981,21 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 	{
 		square_brackets = chat.mSourceType == CHAT_SOURCE_SYSTEM;
 
-		LLStyle::Params timestamp_style(body_message_params); // <polarity />
-
 		// out of the timestamp
 		if (args["show_time"].asBoolean())
 		{
-			if (chat.mChatStyle != CHAT_STYLE_HISTORY) // <polarity />
+			LLStyle::Params timestamp_style(body_message_params);
+			if (!message_from_log)
 			{
 				LLColor4 timestamp_color = LLUIColorTable::instance().getColor("ChatTimestampColor");
 				timestamp_style.color(timestamp_color);
 				timestamp_style.readonly_color(timestamp_color);
-
-				mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
-				prependNewLineState = false;
-			} // <polarity />
+			}
+			mEditor->appendText("[" + chat.mTimeStr + "] ", prependNewLineState, timestamp_style);
+			prependNewLineState = false;
 		}
 
-		// out the opening square bracket (if need)
+        // out the opening square bracket (if need)
 		if (square_brackets)
 		{
 			mEditor->appendText("[", prependNewLineState, body_message_params);
@@ -1056,9 +1005,8 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		// names showing
 		if (args["show_names_for_p2p_conv"].asBoolean() && utf8str_trim(chat.mFromName).size() != 0)
 		{
-			static LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor"); // <polarity />
 			// Don't hotlink any messages from the system (e.g. "Second Life:"), so just add those in plain text.
-			if (chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
+			if ( chat.mSourceType == CHAT_SOURCE_OBJECT && chat.mFromID.notNull())
 			{
 				// for object IMs, create a secondlife:///app/objectim SLapp
 				std::string url = LLViewerChat::getSenderSLURL(chat, args);
@@ -1066,7 +1014,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				// set the link for the object name to be the objectim SLapp
 				// (don't let object names with hyperlinks override our objectim Url)
 				LLStyle::Params link_params(body_message_params);
-				//link_params.color.control = "HTMLLinkColor"; // <polarity />
+				LLColor4 link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
 				link_params.color = link_color;
 				link_params.readonly_color = link_color;
 				link_params.is_link = true;
@@ -1075,41 +1023,31 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 				mEditor->appendText(chat.mFromName + delimiter, prependNewLineState, link_params);
 				prependNewLineState = false;
 			}
-
-			else if (chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && chat.mChatStyle != CHAT_STYLE_HISTORY)
+			else if ( chat.mFromName != SYSTEM_FROM && chat.mFromID.notNull() && !message_from_log)
 			{
 				LLStyle::Params link_params(body_message_params);
 				link_params.overwriteFrom(LLStyleMap::instance().lookupAgent(chat.mFromID));
-				// <polarity> use url color if no special color was set
-				if (name_color == default_name_color)
-				{
-					name_color = link_color;
-				}
-				// <polarity>
-				link_params.override_link_style = true;
-				link_params.color = name_color;
-				link_params.readonly_color = name_color;
 
+				if (use_colorizer && chat.mFromID != gAgent.getID())
+				{
+					link_params.override_link_style = true;
+					link_params.color = name_color;
+					link_params.readonly_color = name_color;
+				}
 				static LLCachedControl<bool> alchemyPlainChatNameBold(gSavedSettings, "AlchemyPlainChatNameBold", false);
 				if (alchemyPlainChatNameBold)
 				{
 					link_params.font.style = "BOLD";
 				}
 				// Add link to avatar's inspector and delimiter to message.
-				// <FS:Ansariel> Append delimiter with different style params or
-				//               it will be replaced with the avatar name once it's
-				//               returned from the server!
-				//appendText(std::string(link_params.link_href) + delimiter,
-				//		prependNewLineState, link_params);
-				mEditor->appendText(std::string(link_params.link_href), prependNewLineState, link_params);
-				mEditor->appendText(delimiter, prependNewLineState, body_message_params);
-				// </FS:Ansariel>
+				mEditor->appendText(std::string(link_params.link_href) + delimiter,
+					prependNewLineState, link_params);
 				prependNewLineState = false;
 			}
 			else
 			{
 				mEditor->appendText("<nolink>" + chat.mFromName + "</nolink>" + delimiter,
-					prependNewLineState, body_message_params);
+						prependNewLineState, body_message_params);
 				prependNewLineState = false;
 			}
 		}
@@ -1125,11 +1063,11 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		LLDate new_message_time = LLDate::now();
 
-		if (mLastFromName == chat.mFromName
+		if (mLastFromName == chat.mFromName 
 			&& mLastFromID == chat.mFromID
-			&& mLastMessageTime.notNull()
+			&& mLastMessageTime.notNull() 
 			&& (new_message_time.secondsSinceEpoch() - mLastMessageTime.secondsSinceEpoch()) < 60.0
-			&& mIsLastMessageFromLog == (chat.mChatStyle == CHAT_STYLE_HISTORY))  //distinguish between current and previous chat session's histories
+			&& mIsLastMessageFromLog == message_from_log)  //distinguish between current and previous chat session's histories
 		{
 			view = getSeparator();
 			p.top_pad = mTopSeparatorPad;
@@ -1143,7 +1081,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			else
 				p.top_pad = mTopHeaderPad;
 			p.bottom_pad = mBottomHeaderPad;
-
+			
 		}
 		p.view = view;
 
@@ -1163,7 +1101,7 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 		mLastFromName = chat.mFromName;
 		mLastFromID = chat.mFromID;
 		mLastMessageTime = new_message_time;
-		mIsLastMessageFromLog = (chat.mChatStyle == CHAT_STYLE_HISTORY);
+		mIsLastMessageFromLog = message_from_log;
 	}
 
 	// body of the message processing
@@ -1187,59 +1125,44 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 
 		if (create_toast)
 		{
-			LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
-			if (notification != nullptr)
-			{
-				LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
+		LLNotificationPtr notification = LLNotificationsUtil::find(chat.mNotifId);
+		if (notification != nullptr)
+		{
+			LLIMToastNotifyPanel* notify_box = new LLIMToastNotifyPanel(
 					notification, chat.mSessionID, LLRect::null, !use_plain_text_chat_history, mEditor);
 
-				//Prepare the rect for the view
-				LLRect target_rect = mEditor->getDocumentView()->getRect();
-				// squeeze down the widget by subtracting padding off left and right
-				target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
-				target_rect.mRight -= mRightWidgetPad;
-				notify_box->reshape(target_rect.getWidth(), notify_box->getRect().getHeight());
-				notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
+			//Prepare the rect for the view
+			LLRect target_rect = mEditor->getDocumentView()->getRect();
+			// squeeze down the widget by subtracting padding off left and right
+			target_rect.mLeft += mLeftWidgetPad + mEditor->getHPad();
+			target_rect.mRight -= mRightWidgetPad;
+			notify_box->reshape(target_rect.getWidth(),	notify_box->getRect().getHeight());
+			notify_box->setOrigin(target_rect.mLeft, notify_box->getRect().mBottom);
 
-				LLInlineViewSegment::Params params;
-				params.view = notify_box;
-				params.left_pad = mLeftWidgetPad;
-				params.right_pad = mRightWidgetPad;
-				mEditor->appendWidget(params, "\n", false);
-			}
+			LLInlineViewSegment::Params params;
+			params.view = notify_box;
+			params.left_pad = mLeftWidgetPad;
+			params.right_pad = mRightWidgetPad;
+			mEditor->appendWidget(params, "\n", false);
 		}
+	}
 	}
 
 	// usual messages showing
 	else
 	{
-		// <polarity>
-		//std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
-		std::string message;
-		// <polarity> Strip leading space in IRC_STYLE messsages coming from objects with empty name
-		if (irc_me && chat.mFromName.empty())
-		{
-			message = chat.mText.substr(4);
-		}
-		else if (irc_me)
-		{
-			message = chat.mText.substr(3);
-		}
-		else
-		{
-			message = chat.mText;
-		}
-		// <polarity/>
+		std::string message = irc_me ? chat.mText.substr(3) : chat.mText;
+
 
 		//MESSAGE TEXT PROCESSING
 		//*HACK getting rid of redundant sender names in system notifications sent using sender name (see EXT-5010)
 		if (use_plain_text_chat_history && !from_me && chat.mFromID.notNull())
 		{
 			std::string slurl_about = LLSLURL("agent", chat.mFromID, "about").getSLURLString();
-			if (message.length() > slurl_about.length() &&
+			if (message.length() > slurl_about.length() && 
 				message.compare(0, slurl_about.length(), slurl_about) == 0)
 			{
-				message = message.substr(slurl_about.length(), message.length() - 1);
+				message = message.substr(slurl_about.length(), message.length()-1);
 			}
 		}
 
@@ -1248,18 +1171,18 @@ void LLChatHistory::appendMessage(const LLChat& chat, const LLSD &args, const LL
 			std::string from_name = chat.mFromName;
 			LLAvatarName av_name;
 			if (!chat.mFromID.isNull() &&
-				LLAvatarNameCache::get(chat.mFromID, &av_name) &&
-				!av_name.isDisplayNameDefault())
+						LLAvatarNameCache::get(chat.mFromID, &av_name) &&
+						!av_name.isDisplayNameDefault())
 			{
 				from_name = av_name.getCompleteName();
 			}
 			message = from_name + message;
 		}
-
+		
 		if (square_brackets)
 		{
 			message += "]";
-		}
+	}
 
 		mEditor->appendText(message, prependNewLineState, body_message_params);
 		prependNewLineState = false;

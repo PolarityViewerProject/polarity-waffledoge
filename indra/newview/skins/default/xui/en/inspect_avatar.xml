@@ -77,8 +77,7 @@
      height="16"
      left="8"
      name="user_subtitle"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      text_color="White"
      top_pad="0" 
      value="11 Months, 3 days old"
@@ -86,14 +85,15 @@
      use_ellipses="true" />
      <text
      follows="left|top|right"
-     height="35"
+     height="43"
      left="8"
      name="user_details"
      right="-10"
      word_wrap="true"
      top_pad="4"
      use_ellipses="true"
-     width="220">This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
+     width="220">
+This is my second life description and I really think it is great. But for some reason my description is super extra long because I like to talk a whole lot
     </text>
     <slider
      follows="top|left"
@@ -121,35 +121,22 @@
      top_delta="4"
      name="mute_btn"
      width="16" />
-     <text
-      follows="top|left"
-      font="SansSerif"
-      font.size="Small"
-      height="16"
-      right="-8"
-      bottom="-2"
-      name="agent_role"
-      text_color="White"
-      halign="right"
-      translate="false"
-      value="Developer,Support,QA,Tester"
-      width="150" />
     <text
      follows="top|left"
-     height="16"
+     height="12"
      left="8"
-     bottom="-2"
      name="avatar_profile_link"
-     font="SansSerif"
-     font.size="Small"
+     font="SansSerifSmall"
      text_color="White"
+     top_pad="2"
      translate="false"
-     value="[[LINK] View Profile]"
+     value="[[LINK] View full profile]"
      width="175" />
     <avatar_icon
      follows="top|left"
      height="38"
      right="-10"
+     bevel_style="in"
      border_style="line"
      mouse_opaque="true"
      name="avatar_icon"

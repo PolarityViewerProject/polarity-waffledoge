@@ -69,7 +69,7 @@ LLViewerKeyboard gViewerKeyboard;
 void agent_jump( EKeystate s )
 {
 	if( KEYSTATE_UP == s  ) return;
-	static LLCachedControl<bool> sAutomaticFly(gSavedSettings, "PVMovement_AutomaticFly");
+	static LLCachedControl<bool> sAutomaticFly(gSavedSettings, "AutomaticFly");
 	F32 time = gKeyboard->getCurKeyElapsedTime();
 	S32 frame_count = ll_round(gKeyboard->getCurKeyElapsedFrameCount());
 

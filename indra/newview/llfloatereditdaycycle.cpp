@@ -47,7 +47,6 @@
 #include "llenvmanager.h"
 #include "llregioninfomodel.h"
 #include "llviewerregion.h"
-#include "llviewercontrol.h" // for gSavedSettings
 #include "llwlparammanager.h"
 
 const F32 LLFloaterEditDayCycle::sHoursPerDay = 24.0f;
@@ -62,7 +61,6 @@ LLFloaterEditDayCycle::LLFloaterEditDayCycle(const LLSD &key)
 ,	mTimeCtrl(nullptr)
 ,	mMakeDefaultCheckBox(nullptr)
 ,	mSaveButton(nullptr)
-,  mDeleteButton(nullptr)
 {
 }
 
@@ -77,7 +75,6 @@ BOOL LLFloaterEditDayCycle::postBuild()
 	mSkyPresetsCombo = getChild<LLComboBox>("WLSkyPresets");
 	mTimeCtrl = getChild<LLTimeCtrl>("time");
 	mSaveButton = getChild<LLButton>("save");
-	mDeleteButton = getChild<LLButton>("delete");
 	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
 
 	initCallbacks();
@@ -146,7 +143,6 @@ void LLFloaterEditDayCycle::initCallbacks(void)
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnSave, this));
 	mSaveButton->setRightMouseDownCallback(boost::bind(&LLFloaterEditDayCycle::dumpTrack, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onBtnCancel, this));
-	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterEditDayCycle::onDeletePreset, this));
 
 	// Connect to env manager events.
 	LLEnvManagerNew& env_mgr = LLEnvManagerNew::instance();
@@ -740,7 +736,7 @@ void LLFloaterEditDayCycle::onBtnSave()
 	if (selected_day.scope == LLEnvKey::SCOPE_REGION)
 	{
 		saveRegionDayCycle();
-		//closeFloater(); // <polarity/>
+		closeFloater();
 		return;
 	}
 
@@ -773,7 +769,6 @@ void LLFloaterEditDayCycle::onBtnSave()
 
 void LLFloaterEditDayCycle::onBtnCancel()
 {
-	LLEnvManagerNew::instance().usePrefs(); // revert changes made to current day cycle
 	closeFloater();
 }
 
@@ -806,7 +801,7 @@ void LLFloaterEditDayCycle::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseDayCycle(name);
 	}
 
-	//closeFloater(); // <polarity/>
+	closeFloater();
 }
 
 void LLFloaterEditDayCycle::onDayCycleListChange()
@@ -829,9 +824,4 @@ void LLFloaterEditDayCycle::onSkyPresetListChange()
 std::string LLFloaterEditDayCycle::getRegionName()
 {
 	return gAgent.getRegion() ? gAgent.getRegion()->getName() : LLTrans::getString("Unknown");
-}
-void LLFloaterEditDayCycle::onDeletePreset()
-{
-	LLWLParamKey selected_day = getSelectedDayCycle();
-	LLDayCycleManager::instance().deletePreset(selected_day.name);
 }

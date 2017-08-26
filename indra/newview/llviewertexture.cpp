@@ -67,13 +67,11 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // extern
-#ifdef LL_VRAM_CODE
 const S32Megabytes gMinVideoRam(32);
-#endif
 #if defined(_WIN64) || defined(__amd64__) || defined(__x86_64__)
-/*const*/S32Megabytes gMaxVideoRam;
+const S32Megabytes gMaxVideoRam(2048);
 #else
-/*const*/S32Megabytes gMaxVideoRam(512);
+const S32Megabytes gMaxVideoRam(512);
 #endif
 
 // statics
@@ -564,55 +562,30 @@ void LLViewerTexture::updateClass(const F32 velocity, const F32 angular_velocity
 	sTotalTextureMemory = LLImageGL::sGlobalTextureMemory;
 	sMaxBoundTextureMemory = gTextureList.getMaxResidentTexMem();
 	sMaxTotalTextureMem = gTextureList.getMaxTotalTextureMem();
-#ifdef LL_X86_64
-	sMaxDesiredTextureMem = S64Megabytes(sMaxTotalTextureMem); //in Bytes, by default and when total used texture memory is small.
-#else
 	sMaxDesiredTextureMem = sMaxTotalTextureMem; //in Bytes, by default and when total used texture memory is small.
-#endif
-
-	// <FS:Ansariel> Link threshold factor for lowering bias based on total texture memory to the same value
-	//               textures will be destroyed
-	static LLCachedControl<F32> fsDestroyGLTexturesThreshold(gSavedSettings, "FSDestroyGLTexturesThreshold");
 
 	if (sBoundTextureMemory >= sMaxBoundTextureMemory ||
 		sTotalTextureMemory >= sMaxTotalTextureMem)
 	{
 		//when texture memory overflows, lower down the threshold to release the textures more aggressively.
-		// This effectively shrinks by 25% every time - Xenhat
-		// <FS:Ansariel> Texture memory management
-		//sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75f, F32Bytes(gMaxVideoRam));
 		sMaxDesiredTextureMem = llmin(sMaxDesiredTextureMem * 0.75, F64Bytes(gMaxVideoRam));
-		// </FS:Ansariel>
 	
 		// If we are using more texture memory than we should,
 		// scale up the desired discard level
 		if (sEvaluationTimer.getElapsedTimeF32() > discard_delta_time)
 		{
 			sDesiredDiscardBias += discard_bias_delta;
-			LL_INFOS() << "new bias " << sDesiredDiscardBias
-					<< " sBoundTextureMemory " << sBoundTextureMemory 
-					<< " sTotalTextureMemory " << sTotalTextureMemory
-					<< " sMaxBoundTextureMemory " << sMaxBoundTextureMemory
-					<< " sMaxTotalTextureMem " << sMaxTotalTextureMem
-					<< LL_ENDL;
 			sEvaluationTimer.reset();
 		}
 	}
 	else if(sEvaluationTimer.getElapsedTimeF32() > discard_delta_time && isMemoryForTextureLow())
 	{
 		sDesiredDiscardBias += discard_bias_delta;
-		LL_DEBUGS() << "new bias " << sDesiredDiscardBias
-				<< LL_ENDL;
-
 		sEvaluationTimer.reset();
 	}
 	else if (sDesiredDiscardBias > 0.0f &&
 			 sBoundTextureMemory < sMaxBoundTextureMemory * texmem_lower_bound_scale &&
-			 // <FS:Ansariel> Link threshold factor for lowering bias based on total texture memory to the same value
-			 //               textures will be destroyed
-			 //sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
-			 sTotalTextureMemory < sMaxTotalTextureMem * fsDestroyGLTexturesThreshold())
-			 // </FS:Ansariel>
+			 sTotalTextureMemory < sMaxTotalTextureMem * texmem_lower_bound_scale)
 	{			 
 		// If we are using less texture memory than we should,
 		// scale down the desired discard level
@@ -1345,12 +1318,7 @@ void LLViewerFetchedTexture::dump()
 // ONLY called from LLViewerFetchedTextureList
 void LLViewerFetchedTexture::destroyTexture() 
 {
-	// <FS:Ansariel> 
-	//if(LLImageGL::sGlobalTextureMemory < sMaxDesiredTextureMem * 0.95f)//not ready to release unused memory.
-	static LLCachedControl<bool> fsDestroyGLTexturesImmediately(gSavedSettings, "FSDestroyGLTexturesImmediately");
-	static LLCachedControl<F32> fsDestroyGLTexturesThreshold(gSavedSettings, "FSDestroyGLTexturesThreshold");
-	if (!fsDestroyGLTexturesImmediately && LLImageGL::sGlobalTextureMemory.value() < sMaxDesiredTextureMem.value() * fsDestroyGLTexturesThreshold)//not ready to release unused memory.
-	// </FS:Ansariel>
+	if(LLImageGL::sGlobalTextureMemory < sMaxDesiredTextureMem * 0.95f)//not ready to release unused memory.
 	{
 		return ;
 	}
@@ -1469,9 +1437,7 @@ BOOL LLViewerFetchedTexture::createTexture(S32 usename/*= 0*/)
 	mNeedsCreateTexture = FALSE;
 	if (mRawImage.isNull())
 	{
-		LL_WARNS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
-		setIsMissingAsset();
-		return FALSE;
+		LL_ERRS() << "LLViewerTexture trying to create texture with no Raw Image" << LL_ENDL;
 	}
 	if (mRawImage->isBufferInvalid())
 	{
@@ -1695,15 +1661,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 	
 	if (mNeedsCreateTexture)
 	{
-		// <FS:ND> NaN has some very special comparison characterisctics.
-		// Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
-		if( llisnan(mDecodePriority ) )
-		{
-			LL_WARNS() << "Detected NaN for decode priority" << LL_ENDL;
-			mDecodePriority = 0; // What to put here? Something low? high? zero?
-		}
-		// </FS:ND>
-
 		return mDecodePriority; // no change while waiting to create
 	}
 	if(mFullyLoaded && !mForceToSaveRawImage)//already loaded for static texture
@@ -1842,15 +1799,6 @@ F32 LLViewerFetchedTexture::calcDecodePriority()
 			priority += additional;
 		}
 	}
-
-	// <FS:ND> NaN has some very special comparison characterisctics. Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
-	if( llisnan(priority) )
-	{
-		LL_WARNS() << "Detected NaN for decode priority" << LL_ENDL;
-		priority = 0; // What to put here? Something low? high? zero?
-	}
-	// </FS:ND>
-
 	return priority;
 }
 
@@ -1870,14 +1818,6 @@ F32 LLViewerFetchedTexture::maxDecodePriority()
 
 void LLViewerFetchedTexture::setDecodePriority(F32 priority)
 {
-	// <FS:ND> NaN has some very special comparison characterisctics. Those would make comparing by decode-prio wrong and destroy strict weak ordering of stl containers.
-	if( llisnan(priority) )
-	{
-		LL_WARNS() << "Detected NaN for decode priority" << LL_ENDL;
-		priority = 0; // What to put here? Something low? high? zero?
-	}
-	// </FS:ND>
-    
 	mDecodePriority = priority;
 
 	if(mDecodePriority < F_ALMOST_ZERO)
@@ -2078,9 +2018,6 @@ bool LLViewerFetchedTexture::updateFetch()
 				if(mFullWidth > MAX_IMAGE_SIZE || mFullHeight > MAX_IMAGE_SIZE)
 				{ 
 					//discard all oversized textures.
-					LL_INFOS() << "Discarding oversized texture, width= "
-						<< mFullWidth << ", height= "
-						<< mFullHeight << LL_ENDL;
 					destroyRawImage();
 					LL_WARNS() << "oversize, setting as missing" << LL_ENDL;
 					setIsMissingAsset();

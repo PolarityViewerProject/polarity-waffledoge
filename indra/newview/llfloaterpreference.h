@@ -50,8 +50,6 @@ struct skin_t;
 
 typedef std::map<std::string, std::string> notifications_map;
 
-// Unused
-#ifdef OLD_GRAPHIC_SETTINGS
 typedef enum
 	{
 		GS_LOW_GRAPHICS,
@@ -60,7 +58,6 @@ typedef enum
 		GS_ULTRA_GRAPHICS
 		
 	} EGraphicsSettings;
-#endif
 
 // Floater to control preferences (display, audio, bandwidth, general.
 class LLFloaterPreference : public LLFloater, public LLAvatarPropertiesObserver, public LLConversationLogObserver
@@ -128,10 +125,6 @@ public:
 	// This function squirrels away the current values of the controls so that
 	// cancel() can restore them.	
 	void saveSettings();
-	// <polarity> LookAt Logic
-	// TODO: Re-implement better
-	//bool confirmNosyLookAt();
-	// </polarity>
 
 	void setCacheLocation(const LLStringExplicit& location);
 

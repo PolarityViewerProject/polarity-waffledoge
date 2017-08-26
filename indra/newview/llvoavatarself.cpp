@@ -65,8 +65,6 @@
 #include "llcallstack.h"
 #include "llcorehttputil.h"
 
-#include "pvtl.h" // for vector_to_string
-
 LLPointer<LLVOAvatarSelf> gAgentAvatarp = NULL;
 
 BOOL isAgentAvatarValid()
@@ -968,7 +966,7 @@ void LLVOAvatarSelf::updateRegion(LLViewerRegion *regionp)
 //virtual
 void LLVOAvatarSelf::idleUpdateTractorBeam()
 {
-	static LLCachedControl<bool> pointAtDisable(gSavedSettings, "PVPrivacy_HideEditBeam");
+	static LLCachedControl<bool> pointAtDisable(gSavedSettings, "AlchemyPointAtDisable");
 	if (pointAtDisable)
 	{
 		return;
@@ -991,7 +989,7 @@ void LLVOAvatarSelf::idleUpdateTractorBeam()
 		mBeamTimer.reset();
 	}
 
-	static LLCachedControl<bool> AlchemyBoundingBoxBeam(gSavedSettings, "PVTools_EditBeamBoundingBox");
+	static LLCachedControl<bool> AlchemyBoundingBoxBeam(gSavedSettings, "AlchemyBoundingBoxBeam");
 	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
 	LLBBox bounding_box;
 
@@ -1644,17 +1642,6 @@ BOOL LLVOAvatarSelf::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex t
 		return LLVOAvatar::isTextureVisible(type, (U32)0);
 	}
 
-	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
-	if (LLPipeline::sShadowRender)
-	{
-		static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
-		if (1 == simple_shadows)
-		{
-			return TRUE;
-		}
-	}
-	// </polarity>
-
 	LLUUID tex_id = getLocalTextureID(type,index);
 	return (tex_id != IMG_INVISIBLE) 
 			|| (LLDrawPoolAlpha::sShowDebugAlpha);
@@ -2080,8 +2067,6 @@ bool LLVOAvatarSelf::getIsCloud() const
 		do_warn = true;
 	}
 	
-	// <polarity> Inform the user more obviously of the reason they are clouded
-#if LL_GENERIC_CLOUD_REASON
 	// do we have our body parts?
 	S32 shape_count = gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE);
 	S32 hair_count = gAgentWearables.getWearableCount(LLWearableType::WT_HAIR);
@@ -2100,40 +2085,6 @@ bool LLVOAvatarSelf::getIsCloud() const
 		}
 		return true;
 	}
-#else
-	std::vector<std::string> missing_parts;
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_SHAPE))
-	{
-		missing_parts.push_back("Shape");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_HAIR))
-	{
-		missing_parts.push_back("Hair");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_EYES))
-	{
-		missing_parts.push_back("Eyes");
-	}
-	if (!gAgentWearables.getWearableCount(LLWearableType::WT_SKIN))
-	{
-		missing_parts.push_back("Skin");
-	}
-	bool return_clouded = !missing_parts.empty();
-	if (do_warn && return_clouded)
-	{
-		std::ostringstream cloud_reason;
-		cloud_reason << "Self is clouded due to missing body part(s): ";
-		auto message = vector_to_string(cloud_reason, missing_parts.begin(), missing_parts.end()).str();
-		LL_WARNS("Cloud") << message << LL_ENDL;
-		LLSD arguments;
-		arguments["MESSAGE"] = message.c_str(); //@todo localize
-		LLNotificationsUtil::add("GenericNotify", arguments);
-	}
-	if(return_clouded)
-	{
-		return true;
-	}
-#endif
 
 	if (!isTextureDefined(TEX_HAIR, 0))
 	{

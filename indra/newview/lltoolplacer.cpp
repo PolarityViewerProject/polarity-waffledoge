@@ -258,9 +258,9 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 	gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
 
 	//<alchemy> Rez under Land Group
-	static LLCachedControl<bool> PVTools_RezUnderLandGroup(gSavedSettings, "PVTools_RezUnderLandGroup");
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
 	LLUUID group_id = gAgent.getGroupID();
-	if (PVTools_RezUnderLandGroup)
+	if (AlchemyRezUnderLandGroup)
 	{
 		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		// Is the agent in the land group
@@ -465,8 +465,7 @@ BOOL LLToolPlacer::addObject( LLPCode pcode, S32 x, S32 y, U8 use_physics )
 		gViewerWindow->getWindow()->incBusyCount();
 	}
 
-	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
-	if (PVPrivacy_HideEditBeam)
+	if (!gSavedSettings.getBOOL("AlchemyPointAtDisable"))
 	{
 		// VEFFECT: AddObject
 		LLHUDEffectSpiral *effectp = (LLHUDEffectSpiral *)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_BEAM, TRUE);

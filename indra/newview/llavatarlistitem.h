@@ -42,7 +42,6 @@ class LLIconCtrl;
 class LLAvatarListItem : public LLPanel, public LLFriendObserver
 {
 public:
-	LOG_CLASS(LLAvatarListItem);
 	struct Params : public LLInitParam::Block<Params, LLPanel::Params>
 	{
 		Optional<LLStyle::Params>	default_style,
@@ -50,8 +49,7 @@ public:
 									voice_call_joined_style,
 									voice_call_left_style,
 									online_style,
-									offline_style,
-									color_style;
+									offline_style;
 
 		Optional<S32>				name_right_pad;
 
@@ -91,12 +89,12 @@ public:
 	void setValue(const LLSD& value) override;
 	void changed(U32 mask) override; // from LLFriendObserver
 
-	void setOnline(bool online, bool show_friend_color = true);
+	void setOnline(bool online);
 	void updateAvatarName(); // re-query the name cache
 	void setAvatarName(const std::string& name);
 	void setAvatarToolTip(const std::string& tooltip);
 	void setHighlight(const std::string& highlight);
-	void setState(EItemState item_style, bool show_friend_color_b = true);
+	void setState(EItemState item_style);
 	void setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes = false, bool is_resident = true);
 	void setLastInteractionTime(U32 secs_since);
 	void setDistance(F32 distance);

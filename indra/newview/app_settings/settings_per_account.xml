@@ -1,120 +1,9 @@
 <llsd>
     <map>
-        <key>Include</key>
+    <key>Include</key>
     <array>
       <string>settings_per_account_alchemy.xml</string>
     </array>
-    <key>RLVaLoginLastLocation</key>
-        <map>
-        <key>Comment</key>
-            <string>Determines whether the next login will be forced to the last logoff location (set by the viewer)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>1</boolean>
-        </map>
-    <key>PVUI_BalanceNotificationThresholdSend</key>
-        <map>
-        <key>Comment</key>
-            <string>L$ transfers of less than this value will not trigger notifications (per-account setting)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>PVUI_BalanceNotificationThresholdReceive</key>
-        <map>
-        <key>Comment</key>
-            <string>L$ transfers of less than this value will not trigger notifications (per-account setting)</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>S32</string>
-        <key>Value</key>
-            <integer>0</integer>
-        </map>
-    <key>PVMovement_LastSatUponObjectEnabled</key>
-        <map>
-        <key>Comment</key>
-            <string>Remember the object the avatar was sitting on when it logged out.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>Boolean</string>
-        <key>Value</key>
-            <boolean>1</boolean>
-        </map>
-    <key>PVMovement_LastSatUponObject</key>
-        <map>
-        <key>Comment</key>
-            <string>The object the avatar was sitting on when it logged out.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>String</string>
-        <key>Value</key>
-            <boolean>00000000-0000-0000-0000-000000000000</boolean>
-        </map>
-    <key>PVMovement_LastSatUponObjectOffset</key>
-        <map>
-        <key>Comment</key>
-            <string>The object offset from when the avatar last attempted to sit on an object.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>Vector3</string>
-        <key>Value</key>
-            <array>
-                <real>0.0</real>
-                <real>0.0</real>
-                <real>0.0</real>
-            </array>
-        </map>
-    <key>PVMovement_LastSatUponObjectCamPosition</key>
-        <map>
-        <key>Comment</key>
-            <string>The camera position from when the avatar last attempted to sit on an object.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>Vector3D</string>
-        <key>Value</key>
-            <array>
-                <real>0.0</real>
-                <real>0.0</real>
-                <real>0.0</real>
-            </array>
-        </map>
-    <key>PVMovement_LastSatUponObjectCamFocus</key>
-        <map>
-        <key>Comment</key>
-            <string>The camera focus position from when the avatar last attempted to sit on an object.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>Vector3D</string>
-        <key>Value</key>
-            <array>
-                <real>0.0</real>
-                <real>0.0</real>
-                <real>0.0</real>
-            </array>
-        </map>
-    <key>PVMovement_LastSatUponObjectCamFocusObject</key>
-        <map>
-        <key>Comment</key>
-            <string>The uuid of whatever the avatar's camera was focused on when it last attempted to sit on an object.</string>
-        <key>Persist</key>
-        <integer>1</integer>
-        <key>Type</key>
-            <string>String</string>
-        <key>Value</key>
-            <boolean>00000000-0000-0000-0000-000000000000</boolean>
-        </map>
     <key>AvatarHoverOffsetZ</key>
     <map>
       <key>Comment</key>
@@ -461,7 +350,7 @@
         <key>Type</key>
              <string>Boolean</string>
         <key>Value</key>
-             <integer>0</integer>
+             <integer>1</integer>
         </map>
       <key>ModelUploadFolder</key>
       <map>

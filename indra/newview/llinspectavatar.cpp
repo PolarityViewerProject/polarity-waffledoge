@@ -50,11 +50,6 @@
 #include "lltooltip.h"	// positionViewNearMouse()
 #include "lltrans.h"
 
-// <polarity>
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif // for getPreferredName()
-// </polarity>
 class LLFetchAvatarData;
 
 
@@ -251,9 +246,6 @@ void LLInspectAvatar::requestUpdate()
 	getChild<LLUICtrl>("user_slid")->setValue("");
 	getChild<LLUICtrl>("user_subtitle")->setValue("");
 	getChild<LLUICtrl>("user_details")->setValue("");
-	// <polarity> Show the agent's role
-	getChild<LLUICtrl>("agent_role")->setValue(""); 
-	getChild<LLUICtrl>("agent_role")->setColor(LLColor4::white);
 	
 	// Make a new request for properties
 	delete mPropertiesRequest;
@@ -400,21 +392,7 @@ void LLInspectAvatar::onAvatarNameCache(
 			getChild<LLUICtrl>("user_name")->setVisible( true );
 
 		}
-#ifdef PVDATA_SYSTEM
-		// <polarity> Show agent's role
-		LLUICtrl* agent_role = getChild<LLUICtrl>("agent_role");
-		auto pv_agent = PVAgent::find(mAvatarID);
-		if (pv_agent)
-		{
-			std::vector<std::string> agent_role_text = pv_agent->getTitleHumanReadable(false);
-			const static std::string flags_string = LLTrans::getString("Flags") + ":";
-			agent_role->setValue(agent_role_text.at(1));
-			agent_role->setToolTip(flags_string + agent_role_text.at(0)); // raw flag as tooltip
-			agent_role_text.clear();
-			agent_role->setColor(PVAgent::getColor(mAvatarID, LLColor4::white, false));
-		}
-		// </polarity>
-#endif
+
 	}
 }
 

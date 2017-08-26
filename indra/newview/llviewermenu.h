@@ -100,11 +100,6 @@ bool enable_object_take_copy();
 bool enable_object_return();
 bool enable_object_delete();
 
-// <FS:Techwolf Lupindo> area search
-// expose this function so other classes can call it
-void handle_object_edit();
-// <FS:Techwolf Lupindo>
-
 // Buy either contents or object itself
 void handle_buy();
 void handle_take();
@@ -145,9 +140,6 @@ bool handle_go_to();
 // find avatar from object methods
 LLVOAvatar* find_avatar_from_object(LLViewerObject* object);
 LLVOAvatar* find_avatar_from_object(const LLUUID& object_id);
-
-// Export to XML or Collada
-void handle_export_selected( void * );
 
 // Convert strings to internal types
 U32 render_type_from_string(std::string render_type);

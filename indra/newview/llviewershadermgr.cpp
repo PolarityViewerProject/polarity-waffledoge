@@ -35,7 +35,6 @@
 #include "llviewershadermgr.h"
 
 #include "llfile.h"
-#include "llglsandbox.h"
 #include "llviewerwindow.h"
 #include "llwindow.h"
 #include "llviewercontrol.h"
@@ -83,7 +82,8 @@ LLGLSLShader	gDebugProgram;
 LLGLSLShader	gClipProgram;
 LLGLSLShader	gDownsampleDepthProgram;
 LLGLSLShader	gAlphaMaskProgram;
-extern LLGLSLShader gBenchmarkProgram;
+LLGLSLShader	gBenchmarkProgram;
+
 
 //object shaders
 LLGLSLShader		gObjectSimpleProgram;
@@ -219,12 +219,6 @@ LLGLSLShader			gDeferredFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightShinyProgram;
 LLGLSLShader			gDeferredSkinnedFullbrightProgram;
 LLGLSLShader			gNormalMapGenProgram;
-
-#ifdef GAUSSIAN_BLUR
-// <polarity> Gaussian blur shader
-LLGLSLShader			gGaussianBlurProgram;
-// </polarity>
-#endif
 
 // Deferred materials shaders
 LLGLSLShader			gDeferredMaterialProgram[LLMaterial::SHADER_COUNT*2];
@@ -408,9 +402,6 @@ void LLViewerShaderMgr::setShaders()
 			gSavedSettings.setBOOL("VertexShaderEnable", TRUE);
 		}
 	}
-	
-	//setup preprocessor definitions
-	//LLShaderMgr::instance()->mDefinitions["NUM_TEX_UNITS"] = llformat("%d", gGLManager.mNumTextureImageUnits);
 	
 	// Make sure the compiled shader map is cleared before we recompile shaders.
 	LLShaderMgr::instance()->mProgramObjects.clear();
@@ -776,12 +767,6 @@ void LLViewerShaderMgr::unloadShaders()
 	gDeferredSkinnedBumpProgram.unload();
 	gDeferredSkinnedAlphaProgram.unload();
 
-#ifdef GAUSSIAN_BLUR
-	// <polarity> Gaussian blur shader
-	gGaussianBlurProgram.unload();
-	// </polarity>gGaussianBlurProgram
-#endif
-
 	mVertexShaderLevel[SHADER_LIGHTING] = 0;
 	mVertexShaderLevel[SHADER_OBJECT] = 0;
 	mVertexShaderLevel[SHADER_AVATAR] = 0;
@@ -1049,11 +1034,6 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 	{
 		gGlowProgram.unload();
 		gGlowExtractProgram.unload();
-#ifdef GAUSSIAN_BLUR
-		// <polarity> Gaussian blur shader
-		gGaussianBlurProgram.unload();
-		// </polarity>gGaussianBlurProgram
-#endif
 		return TRUE;
 	}
 
@@ -1085,20 +1065,6 @@ BOOL LLViewerShaderMgr::loadShadersEffects()
 		}
 	}
 	
-#ifdef GAUSSIAN_BLUR
-	// <polarity> Gaussian blur shader
-	if (success)
-	{
-		gGaussianBlurProgram.mName = "Gaussian Blur Shader";
-		gGaussianBlurProgram.mShaderFiles.clear();
-		gGaussianBlurProgram.mShaderFiles.push_back(std::make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
-		gGaussianBlurProgram.mShaderFiles.push_back(std::make_pair("deferred/gaussianBlurF.glsl", GL_FRAGMENT_SHADER));
-		gGaussianBlurProgram.mShaderLevel = mVertexShaderLevel[SHADER_EFFECT];
-		success = gGaussianBlurProgram.createShader(NULL, NULL);
-	}
-	// </polarity>
-#endif
-
 	return success;
 
 }
@@ -1168,12 +1134,6 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 			gDeferredMaterialProgram[i].unload();
 			gDeferredMaterialWaterProgram[i].unload();
 		}
-
-#ifdef GAUSSIAN_BLUR
-		// <polarity> Gaussian blur shader
-		gGaussianBlurProgram.unload();
-		// </polarity>
-#endif
 		return TRUE;
 	}
 
@@ -1932,7 +1892,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gFXAAProgram.mShaderFiles.clear();
 		gFXAAProgram.mShaderFiles.push_back(std::make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gFXAAProgram.mShaderFiles.push_back(std::make_pair("deferred/fxaaF.glsl", GL_FRAGMENT_SHADER));
-		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("PVRender_DeferredFXAAQuality"))); // <alchemy/>
+		gFXAAProgram.addPermutation("FXAA_QUALITY_PRESET", std::to_string(gSavedSettings.getU32("RenderDeferredFXAAQuality"))); // <alchemy/>
 		gFXAAProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gFXAAProgram.createShader(nullptr, nullptr);
 	}
@@ -1963,7 +1923,7 @@ BOOL LLViewerShaderMgr::loadShadersDeferred()
 		gDeferredDoFCombineProgram.mShaderFiles.clear();
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(std::make_pair("deferred/postDeferredNoTCV.glsl", GL_VERTEX_SHADER));
 		gDeferredDoFCombineProgram.mShaderFiles.push_back(std::make_pair("deferred/dofCombineF.glsl", GL_FRAGMENT_SHADER));
-		gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("PVRender_EnableFilmGrain") ? "1" : "0");
+		gDeferredDoFCombineProgram.addPermutation("USE_FILM_GRAIN", gSavedSettings.getBOOL("RenderDeferredDoFGrain") ? "1" : "0");
 		gDeferredDoFCombineProgram.mShaderLevel = mVertexShaderLevel[SHADER_DEFERRED];
 		success = gDeferredDoFCombineProgram.createShader(nullptr, nullptr);
 	}

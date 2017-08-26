@@ -485,9 +485,7 @@ void LLCOFWearables::populateAttachmentsAndBodypartsLists(const LLInventoryModel
 		const LLAssetType::EType item_type = item->getType();
 		if (item_type == LLAssetType::AT_CLOTHING) continue;
 		LLPanelInventoryListItemBase* item_panel = nullptr;
-		// <polarity> Don't add (thus count) gestures in outfits, this causes bugs.
-		// if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_GESTURE)
-		if (item_type == LLAssetType::AT_OBJECT)
+		if (item_type == LLAssetType::AT_OBJECT || item_type == LLAssetType::AT_GESTURE)
 		{
 			item_panel = buildAttachemntListItem(item);
 			mAttachments->addItem(item_panel, item->getUUID(), ADD_BOTTOM, false);

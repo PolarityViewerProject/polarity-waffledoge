@@ -26,6 +26,7 @@
 #ifndef LL_UPDATERCHECKER_H
 #define LL_UPDATERCHECKER_H
 
+
 #include "llmd5.h"
 #include "lleventcoro.h"
 #include "llcoros.h"
@@ -41,9 +42,7 @@ public:
     class Client
     {
     public:
-	    virtual ~Client()
-	    {
-	    }
+	    virtual ~Client() = default;
 
 	    // An error occurred while checking for an update.
         virtual void error(std::string const & message) = 0;
@@ -58,15 +57,13 @@ public:
 	LLUpdateChecker(Client & client);
 	
 	// Check status of current app on the given host for the channel and version provided.
-	void checkVersion(const std::string & urlBase, 
-					  const std::string & channel,
-					  const std::string & version,
-					  const std::string & platform,
-					  const std::string & platform_version,
-					  const bool&         willing_to_test,
-					  const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-					  const std::string & auth_token
-					) const;
+	void checkVersion(std::string const & urlBase, 
+					  std::string const & channel,
+					  std::string const & version,
+					  std::string const & platform,
+					  std::string const & platform_version,
+					  unsigned char       uniqueid[MD5HEX_STR_SIZE],
+					  bool                willing_to_test);
 	
 private:
     class Implementation
@@ -77,13 +74,12 @@ private:
         Implementation(Client & client);
         ~Implementation();
         void checkVersion(std::string const & urlBase,
-            const std::string & channel,
-            const std::string & version,
-            const std::string & platform,
-            const std::string & platform_version,
-            const bool &        willing_to_test,
-			const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-            const std::string & auth_token
+            std::string const & channel,
+            std::string const & version,
+            std::string const & platform,
+            std::string const & platform_version,
+            unsigned char       uniqueid[MD5HEX_STR_SIZE],
+            bool                willing_to_test
             );
 
 
@@ -101,17 +97,14 @@ private:
         std::string   mPlatformVersion;
         unsigned char mUniqueId[MD5HEX_STR_SIZE];
         bool          mWillingToTest;
-		std::string   mAuthToken;
 
         std::string buildUrl(std::string const & urlBase,
-            const std::string & channel,
-            const std::string & version,
-            const std::string & platform,
-            const std::string & platform_version,
-            const bool &        willing_to_test,
-            const unsigned char uniqueid[MD5HEX_STR_SIZE],
-            const std::string & auth_token
-            );
+            std::string const & channel,
+            std::string const & version,
+            std::string const & platform,
+            std::string const & platform_version,
+            unsigned char       uniqueid[MD5HEX_STR_SIZE],
+            bool                willing_to_test);
 
         void checkVersionCoro(std::string url);
 

@@ -51,9 +51,6 @@ public:
 	/*virtual*/ void	onOpen(const LLSD& key) override;
 	/*virtual*/ void	onClose(bool app_quitting) override;
 	/*virtual*/ void	draw() override;
-	
-	void onDeletePreset();
-	void onDeleteDayCycleConfirmation();
 
 private:
 
@@ -132,7 +129,6 @@ private:
 	LLTimeCtrl*			mTimeCtrl;
 	LLCheckBoxCtrl*		mMakeDefaultCheckBox;
 	LLButton*			mSaveButton;
-	LLButton*		 	mDeleteButton;
 
 	// map of sliders to parameters
 	std::map<std::string, SliderKey> mSliderToKey;

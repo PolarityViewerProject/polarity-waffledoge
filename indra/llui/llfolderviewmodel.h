@@ -136,14 +136,6 @@ public:
 class LLFolderViewModelItem : public LLRefCount, public LLTrace::MemTrackable<LLFolderViewModelItem>
 {
 public:
-	virtual std::string getSearchableCreator( void ) const
-	{ return ""; }
-	virtual std::string getSearchableDescription( void ) const
-	{ return ""; }
-	virtual std::string getSearchableUUID( void ) const
-	{ return ""; }
-	virtual std::string getSearchableAll( void ) const
-	{ return ""; }
 	LLFolderViewModelItem() 
 	:	LLTrace::MemTrackable<LLFolderViewModelItem>("LLFolderViewModelItem") 
 	{}

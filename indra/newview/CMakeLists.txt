@@ -241,79 +241,79 @@ source_group("Third Party/Alchemy" FILES
     ${alchemy_SOURCE_FILES}
     )
 
-set(firestorm_HEADER_FILES
-    fsareasearch.h
-    fsareasearchmenu.h
-    fsassetblacklist.h
-    fsfloaterassetblacklist.h
-    fslslpreprocviewer.h
-    fsscriptlibrary.h
-    fsscrolllistctrl.h
-    kcwlinterface.h
-    sanitycheck.h
-    )
-set(firestorm_SOURCE_FILES
-    fsareasearch.cpp
-    fsareasearchmenu.cpp
-    fsassetblacklist.cpp
-    fsfloaterassetblacklist.cpp
-    fslslpreprocviewer.cpp
-    fsscriptlibrary.cpp
-    fsscrolllistctrl.cpp
-    kcwlinterface.cpp
-    sanitycheck.cpp
-    )
-source_group("Third Party/Firestorm" FILES
-    ${firestorm_HEADER_FILES}
-    ${firestorm_SOURCE_FILES}
-    )
-
-set(polarity_HEADER_FILES
-    pvaligntool.h
-    pvcommon.h
-    # pvfloaterprogressview.h
-    pvfpsmeter.h
-    pvgpuinfo.h
-    pvmachinima.h
-    # pvpanellogin.h
-    pvperformancemaid.h
-    # pvscriptpreproc.h
-    pvtypes.h
-    )
-set(polarity_SOURCE_FILES
-    pvaligntool.cpp
-    pvcommon.cpp
-    # pvfloaterprogressview.cpp
-    pvfpsmeter.cpp
-    pvgpuinfo.cpp
-    pvmachinima.cpp
-    # pvpanellogin.cpp
-    pvperformancemaid.cpp
-    # pvscriptpreproc.cpp
-    )
-
-set(pvdata_HEADER_FILES
-    pvdata.h
-    )
-
-set(pvdata_SOURCE_FILES
-    pvdata.cpp
-    )
-
-source_group("PVData System" FILES
-    ${pvdata_HEADER_FILES}
-    ${pvdata_SOURCE_FILES}
-    )
-
-if(PVDATA_SYSTEM)
-    list(APPEND polarity_HEADER_FILES "${pvdata_HEADER_FILES}")
-    list(APPEND polarity_SOURCE_FILES "${pvdata_SOURCE_FILES}")
-endif(PVDATA_SYSTEM)
-
-source_group("Third Party/Polarity" FILES
-    ${polarity_HEADER_FILES}
-    ${polarity_SOURCE_FILES}
-    )
+## set(firestorm_HEADER_FILES
+##     fsareasearch.h
+##     fsareasearchmenu.h
+##     fsassetblacklist.h
+##     fsfloaterassetblacklist.h
+##     fslslpreprocviewer.h
+##     fsscriptlibrary.h
+##     fsscrolllistctrl.h
+##     kcwlinterface.h
+##     sanitycheck.h
+##     )
+## set(firestorm_SOURCE_FILES
+##     fsareasearch.cpp
+##     fsareasearchmenu.cpp
+##     fsassetblacklist.cpp
+##     fsfloaterassetblacklist.cpp
+##     fslslpreprocviewer.cpp
+##     fsscriptlibrary.cpp
+##     fsscrolllistctrl.cpp
+##     kcwlinterface.cpp
+##     sanitycheck.cpp
+##     )
+## source_group("Third Party/Firestorm" FILES
+##     ${firestorm_HEADER_FILES}
+##     ${firestorm_SOURCE_FILES}
+##     )
+## 
+## set(polarity_HEADER_FILES
+##     pvaligntool.h
+##     pvcommon.h
+##     # pvfloaterprogressview.h
+##     pvfpsmeter.h
+##     pvgpuinfo.h
+##     pvmachinima.h
+##     # pvpanellogin.h
+##     pvperformancemaid.h
+##     # pvscriptpreproc.h
+##     pvtypes.h
+##     )
+## set(polarity_SOURCE_FILES
+##     pvaligntool.cpp
+##     pvcommon.cpp
+##     # pvfloaterprogressview.cpp
+##     pvfpsmeter.cpp
+##     pvgpuinfo.cpp
+##     pvmachinima.cpp
+##     # pvpanellogin.cpp
+##     pvperformancemaid.cpp
+##     # pvscriptpreproc.cpp
+##     )
+## 
+## set(pvdata_HEADER_FILES
+##     pvdata.h
+##     )
+## 
+## set(pvdata_SOURCE_FILES
+##     pvdata.cpp
+##     )
+## 
+## source_group("PVData System" FILES
+##     ${pvdata_HEADER_FILES}
+##     ${pvdata_SOURCE_FILES}
+##     )
+## 
+## if(PVDATA_SYSTEM)
+##     list(APPEND polarity_HEADER_FILES "${pvdata_HEADER_FILES}")
+##     list(APPEND polarity_SOURCE_FILES "${pvdata_SOURCE_FILES}")
+## endif(PVDATA_SYSTEM)
+## 
+## source_group("Third Party/Polarity" FILES
+##     ${polarity_HEADER_FILES}
+##     ${polarity_SOURCE_FILES}
+##     )
 
 set(viewer_SOURCE_FILES
     groupchatlistener.cpp
@@ -913,6 +913,7 @@ set(viewer_SOURCE_FILES
     llxmlrpctransaction.cpp
     noise.cpp
     pipeline.cpp
+    qtoolalign.cpp
     )
 
 set(VIEWER_BINARY_NAME "polarity-bin" CACHE STRING
@@ -1139,7 +1140,6 @@ set(viewer_HEADER_FILES
     llgesturelistener.h
     llgesturemgr.h
     llgiveinventory.h
-    llglsandbox.h # <polarity>
     llgroupactions.h
     llgroupiconctrl.h
     llgrouplist.h
@@ -1512,6 +1512,7 @@ set(viewer_HEADER_FILES
     llxmlrpctransaction.h
     noise.h
     pipeline.h
+    qtoolalign.h
     roles_constants.h
     )
 
@@ -1519,13 +1520,13 @@ set(viewer_HEADER_FILES
 # of them need to go first, i.e ViewerInstall.cmake
 list(APPEND viewer_HEADER_FILES
     ${alchemy_HEADER_FILES}
-    ${firestorm_HEADER_FILES}
-    ${polarity_HEADER_FILES}
+    # ${firestorm_HEADER_FILES}
+    # ${polarity_HEADER_FILES}
     )
 list(APPEND viewer_SOURCE_FILES
     ${alchemy_SOURCE_FILES}
-    ${firestorm_SOURCE_FILES}
-    ${polarity_SOURCE_FILES}
+    # ${firestorm_SOURCE_FILES}
+    # ${polarity_SOURCE_FILES}
     )
 
 source_group("CMake Rules" FILES ViewerInstall.cmake)
@@ -1798,14 +1799,11 @@ set(viewer_APPSETTINGS_FILES
     app_settings/keywords_lsl_default.xml
     app_settings/logcontrol.xml
     app_settings/settings.xml
-    app_settings/settings_alchemy.xml
+    app_settings/settings_extra.xml
     app_settings/settings_crash_behavior.xml
     app_settings/settings_files.xml
-    app_settings/settings_obsidian.xml
     app_settings/settings_per_account.xml
-    app_settings/settings_polarity.xml
     app_settings/settings_per_account_alchemy.xml
-    app_settings/settings_rlva.xml
     app_settings/std_bump.ini
     app_settings/toolbars.xml
     app_settings/trees.xml

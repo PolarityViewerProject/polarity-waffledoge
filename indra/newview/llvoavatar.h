@@ -104,14 +104,6 @@ public:
 	static void			initClass(); // Initialize data that's only init'd once per class.
 	static void			cleanupClass();	// Cleanup data that's only init'd once per class.
 	void 		initInstance() override; // Called after construction to initialize the class.
-	// <polarity> Moved to header file
-	enum ERenderName
-	{
-		RENDER_NAME_NEVER,
-		RENDER_NAME_ALWAYS,	
-		RENDER_NAME_FADE
-	};
-	// </polarity>
 protected:
 	virtual				~LLVOAvatar();
 
@@ -257,7 +249,7 @@ public:
 	void			idleUpdateNameTagText(BOOL new_name);
 	void			idleUpdateNameTagPosition(const LLVector3& root_pos_last);
 	void			idleUpdateNameTagAlpha(BOOL new_name, F32 alpha);
-	LLColor4		getNameTagColor(const LLUUID& av_id);
+	LLColor4		getNameTagColor(bool is_friend);
 	void			clearNameTag();
 	static void		invalidateNameTag(const LLUUID& agent_id);
 	// force all name tags to rebuild, useful when display names turned on/off
@@ -918,12 +910,6 @@ private:
 	bool			mNameCloud;
 	F32				mNameAlpha;
 	BOOL      		mRenderGroupTitles;
-	// <FS:Ansariel> Show Arc in nametag (for Jelly Dolls)
-	U32				mNameArc;
-	LLColor4		mNameArcColor;
-	// </FS:Ansariel>
-	bool			mShowComplexityString;
-	bool			mSowComplexUnderThreshold;
 
 	//--------------------------------------------------------------------
 	// Display the name (then optionally fade it out)

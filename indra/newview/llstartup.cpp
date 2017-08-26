@@ -181,22 +181,14 @@
 #include "llstartuplistener.h"
 #include "lltoolbarview.h"
 #include "llexperiencelog.h"
-	
 #include "llcleanup.h"
 
-// <polarity> Polarity Includes
-#include "pvconstants.h"
-#include "pvcommon.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
+#include "llstacktrace.h"
+
+#if LL_WINDOWS
+#include "lldxhardware.h"
 #endif
 
-#include "pvfpsmeter.h"
-#ifdef PV_SEARCH_SEPARATOR
-#include "pvsearchseparator.h"
-#endif
-#include "fsassetblacklist.h"
-#include "llprogressview.h"
 //
 // exported globals
 //
@@ -287,34 +279,6 @@ void callback_cache_name(const LLUUID& id, const std::string& full_name, bool is
 // local classes
 //
 
-
-	// <polarity> LLEventTimer subclass to send a sit message to the sim after 0.25 seconds
-	class LLRestoreSeatEventTimer : public LLEventTimer
-	{
-	public:
-		LLRestoreSeatEventTimer() : LLEventTimer(0.25) {}
-
-		BOOL tick()
-		{
-			LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
-			LLVector3 last_offset = gSavedPerAccountSettings.getVector3("PVMovement_LastSatUponObjectOffset");
-			LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
-
-			gMessageSystem->newMessageFast(_PREHASH_AgentRequestSit);
-			gMessageSystem->nextBlockFast(_PREHASH_AgentData);
-			gMessageSystem->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
-			gMessageSystem->addUUIDFast(_PREHASH_SessionID, gAgent.getSessionID());
-			gMessageSystem->nextBlockFast(_PREHASH_TargetObject);
-			gMessageSystem->addUUIDFast(_PREHASH_TargetID, last_seat->mID);
-			gMessageSystem->addVector3Fast(_PREHASH_Offset, last_offset);
-			last_seat->getRegion()->sendReliableMessage();
-
-			gAgentCamera.resetView();
-
-			return TRUE;
-		}
-	};
-	// </polarity>
 void update_texture_fetch()
 {
 	LLAppViewer::getTextureCache()->update(1); // unpauses the texture cache thread
@@ -344,6 +308,7 @@ bool idle_startup()
 
 	static std::string auth_desc;
 	static std::string auth_message;
+
 	static U32 first_sim_size_x = 256;
 	static U32 first_sim_size_y = 256;
 
@@ -366,7 +331,6 @@ bool idle_startup()
 
 	const std::string delims (" ");
 	std::string osString = LLAppViewer::instance()->getOSInfo().getOSStringSimple();
-
 	size_t begIdx = osString.find_first_not_of (delims);
 	size_t endIdx = osString.find_first_of (delims, begIdx);
 	std::string system = osString.substr (begIdx, endIdx - begIdx);
@@ -398,11 +362,6 @@ bool idle_startup()
 		std::string lastGPU = gSavedSettings.getString("LastGPUString");
 		std::string thisGPU = LLFeatureManager::getInstance()->getGPUString();
 		
-		// <polarity> PVData support
-#ifdef PVDATA_SYSTEM
-		gPVOldAPI = PVDataOldAPI::getInstance();
-#endif
-
 		if (LLFeatureManager::getInstance()->isSafe())
 		{
 			LLNotificationsUtil::add("DisplaySetToSafe");
@@ -412,14 +371,12 @@ bool idle_startup()
 		{
 			LLNotificationsUtil::add("DisplaySetToRecommendedFeatureChange");
 		}
-		else if ((!lastGPU.empty() && (lastGPU != thisGPU) && (gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") == -1)))
+		else if ( ! lastGPU.empty() && (lastGPU != thisGPU))
 		{
 			LLSD subs;
 			subs["LAST_GPU"] = lastGPU;
 			subs["THIS_GPU"] = thisGPU;
-			// <polatity> Polite graphics preferences reset
-			LLNotificationsUtil::add("AskForDisplayPreferencesReset", subs, LLSD(), callbackConfirmDisplayPreferencesReset);
-			// <polarity>
+			LLNotificationsUtil::add("DisplaySetToRecommendedGPUChange", subs);
 		}
 		else if (!gViewerWindow->getInitAlert().empty())
 		{
@@ -821,24 +778,21 @@ bool idle_startup()
 			{
 				LLViewerWindow::showSystemUIScaleFactorChanged();
 			}
-			//LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
+			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
 		}
-		//else
-		//{
-		//	LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
-		//	// skip directly to message template verification
-		//	LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
-		//}
-
-		gPVOldAPI->downloadData();
-
-		LLStartUp::setStartupState(STATE_PVDATA_WAIT); // Wait for our data
+		else
+		{
+			LL_DEBUGS("AppInit") << "show_connect_box off, skipping to STATE_LOGIN_CLEANUP" << LL_ENDL;
+			// skip directly to message template verification
+			LLStartUp::setStartupState( STATE_LOGIN_CLEANUP );
+		}
 
 		gViewerWindow->setNormalControlsVisible( FALSE );	
 		gLoginMenuBarView->setVisible( TRUE );
 		gLoginMenuBarView->setEnabled( TRUE );
 		show_debug_menus();
 
+		// Hide the splash screen
 		LLSplashScreen::hide();
 		// Push our window frontmost
 		gViewerWindow->getWindow()->show();
@@ -855,53 +809,8 @@ bool idle_startup()
 		return FALSE;
 	}
 
-	if (STATE_PVDATA_WAIT == LLStartUp::getStartupState())
-	{
-#ifdef PVDATA_SYSTEM
-		// TODO: Move this state to AFTER showing the login interface, and disable the login button until pvdata
-		// is acquired or timed out (using the code here) and set the button string to "Please Wait...",
-		// then enable the login button again. this will reduce the apparent startup time.
-		// TODO: Move to debug
-		//LL_INFOS("PVDataStartup") << "Waiting on pvdata" << LL_ENDL;
-		static LLFrameTimer pvdata_timer;
-		const F32 pvdata_time = pvdata_timer.getElapsedTimeF32();
-		const F32 MAX_PVDATA_TIME = 15.f;
-		
-		if (pvdata_time > MAX_PVDATA_TIME || gPVOldAPI->getAgentsDone() && gPVOldAPI->getDataDone())
-		{
-			LL_WARNS("PVDataOldAPI") << "Parsing data sucess or timeout, moving on..." << LL_ENDL;
-			//@todo run login button toggle
-			//LLStartUp::setStartupState(STATE_LOGIN_SHOW);
-			std::string new_title = gPVOldAPI->getRandomWindowTitle();
-			if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
-			{
-					new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
-			}
-			gViewerWindow->getWindow()->setWindowTitle(new_title);
-#endif
-			LLStartUp::setStartupState( STATE_LOGIN_WAIT );		// Wait for user input
-#ifdef PVDATA_SYSTEM
-		}
-		else
-		{
-			ms_sleep(1);
-			return FALSE;
-		}
-#endif
-	}
-	
 	if (STATE_LOGIN_WAIT == LLStartUp::getStartupState())
 	{
-		/* Minecraft-like endless title spam
-		llassert(!PVDataOldAPI::instance()->getDataDone());
-		std::string new_title = gPVOldAPI->getRandomWindowTitle();
-		if (gSavedSettings.getBOOL("PVWindow_TitleShowVersionNumber"))
-		{
-			new_title = new_title + " - " + LLVersionInfo::getChannelAndVersion();
-		}
-		gViewerWindow->getWindow()->setTitle(new_title);
-		*/
-
 		// when we get to this state, we've already been past the login UI
 		// (possiblely automatically) - flag this so we can test in the 
 		// STATE_LOGIN_SHOW state if we've gone backwards
@@ -1009,19 +918,11 @@ bool idle_startup()
 		{
 			gDirUtilp->setChatLogsDir(gSavedPerAccountSettings.getString("InstantMessageLogPath"));		
 		}
-		// FIXME: Alchemy-merge
-		//gPVCommon->getChatLogsDirOverride();
-
 		gDirUtilp->setPerAccountChatLogsDir(userid, gridlabel);
 		
 		LLFile::mkdir(gDirUtilp->getChatLogsDir());
 		LLFile::mkdir(gDirUtilp->getPerAccountChatLogsDir());
 
-		//gPVOldAPI->moveTranscriptsAndLog(userid);
-		//gPVOldAPI->setChatLogsDirOverride();
-
-		// NaCl - Store Log Level
-		LLError::setDefaultLevel(static_cast<LLError::ELevel>(gSavedSettings.getU32("_NACL_LogLevel")));
 
 		//good a place as any to create user windlight directories
 		std::string user_windlight_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight", ""));
@@ -1036,8 +937,6 @@ bool idle_startup()
 		std::string user_windlight_days_path_name(gDirUtilp->getExpandedFilename( LL_PATH_USER_SETTINGS , "windlight/days", ""));
 		LLFile::mkdir(user_windlight_days_path_name.c_str());
 
-		// <FS:WS> Initalize Account based asset_blacklist
-		FSAssetBlacklist::getInstance()->init();
 
 		if (show_connect_box)
 		{
@@ -1058,6 +957,7 @@ bool idle_startup()
 		LLViewerMedia::loadCookieFile();
 
 		LLRenderMuteList::getInstance()->loadFromFile();
+
 		//-------------------------------------------------
 		// Handle startup progress screen
 		//-------------------------------------------------
@@ -1253,10 +1153,7 @@ bool idle_startup()
 						LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
 					}
 				}
-				// <FS:Ansariel> Wait for notification confirmation
-				//transition_back_to_login_panel(emsg.str());
-				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-				// </FS:Ansariel>
+				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 			}
 		}
@@ -1277,37 +1174,14 @@ bool idle_startup()
 			else
 			{
 				LLSD args;
-#ifdef PVDATA_SYSTEM
-				if(!gPVOldAPI->getErrorMessage().empty())
-				{
-					args["ERROR_MESSAGE"] = gPVOldAPI->getErrorMessage();
-				}
-				else
-#endif
-				{
-					args["ERROR_MESSAGE"] = emsg.str();
-				}
+				args["ERROR_MESSAGE"] = emsg.str();
 				LL_INFOS("LLStartup") << "Notification: " << args << LL_ENDL;
 				LLNotificationsUtil::add("ErrorMessage", args, LLSD(), login_alert_done);
-				// <FS:Ansariel> Wait for notification confirmation
-				//transition_back_to_login_panel(emsg.str());
-				LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-				// </FS:Ansariel>
+				transition_back_to_login_panel(emsg.str());
 				show_connect_box = true;
 				return FALSE;
 			}
 		}
-		return FALSE;
-	}
-
-	// <FS:Ansariel> Wait for notification confirmation
-	if (STATE_LOGIN_CONFIRM_NOTIFICATON == LLStartUp::getStartupState())
-	{
-		display_startup();
-		gViewerWindow->getProgressView()->setVisible(FALSE);
-		show_connect_box = true;
-		display_startup();
-		ms_sleep(1);
 		return FALSE;
 	}
 
@@ -2169,35 +2043,6 @@ bool idle_startup()
 		// wait precache-delay and for agent's avatar or a lot longer.
 		if ((timeout_frac > 1.f) && isAgentAvatarValid())
 		{
-			// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
-			if (LLStartUp::getStartSLURL().getType() == LLSLURL::LAST_LOCATION && gAgentStartLocation == "last")
-			{
-				LLUUID last_seat_uuid = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObject"));
-				if (last_seat_uuid.notNull())
-				{
-					LLViewerObject *last_seat = gObjectList.findObject(last_seat_uuid);
-					if (last_seat)
-					{
-						LLVector3 seat_pos = last_seat->getPositionRegion();
-						LLVector3 agent_avatar_pos = gAgentAvatarp->getPositionRegion();
-						if (dist_vec(seat_pos, agent_avatar_pos) < 5.0) {
-							LLVector3d cam_position = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamPosition");
-							LLVector3d cam_focus = gSavedPerAccountSettings.getVector3d("PVMovement_LastSatUponObjectCamFocus");
-							LLUUID cam_focus_id = LLUUID(gSavedPerAccountSettings.getString("PVMovement_LastSatUponObjectCamFocusObject"));
-
-							gAgentCamera.setAnimationDuration(0.0);
-							gAgentCamera.unlockView();
-							gAgentCamera.setCameraPosAndFocusGlobal(cam_position, cam_focus, cam_focus_id, false);
-							gAgentCamera.updateCamera();
-
-							// The first tick of the following timer prepares and sends the sit message, then marks itself complete
-							new LLRestoreSeatEventTimer();
-						}
-					}
-				}
-			}
-			// </polarity>
-
 			LLStartUp::setStartupState( STATE_WEARABLES_WAIT );
 		}
 		else if (timeout_frac > 10.f) 
@@ -2356,18 +2201,6 @@ bool idle_startup()
 
 		gAgentAvatarp->sendHoverHeight();
 
-		static const std::string app_name_str = APP_NAME;
-		PVCommon::reportToNearbyChat(gAgent.mChatMOTD, app_name_str + " Viewer");
-#ifdef PVDATA_SYSTEM
-		gPVOldAPI->startRefreshTimer();
-#endif
-		PVFPSMeter::preComputeFloorAndCeiling();
-		PVFPSMeter::start();
-		//if(gSavedSettings.getBOOL("TextureLoadFullRes"))
-		//{
-			//PVCommon::reportToNearbyChat(LLTrans::getString("FullResEnabledReminder"));
-		//}
-
 		return TRUE;
 	}
 
@@ -2432,19 +2265,14 @@ void login_callback(S32 option, void *userdata)
 */
 void show_release_notes_if_required()
 {
-	if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
-		&& LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
-		&& gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
-		&& !gSavedSettings.getBOOL("FirstLoginThisInstall")
-		)
-	{
-		LLSD info(LLAppViewer::instance()->getViewerInfo());
-		std::string rel_notes = info["VIEWER_RELEASE_NOTES_URL"];
-		if (rel_notes != "0")
-		{
-			LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
-		}
-	}
+    if (LLVersionInfo::getChannelAndVersion() != gLastRunVersion
+        && LLVersionInfo::getViewerMaturity() != LLVersionInfo::TEST_VIEWER // don't show Release Notes for the test builds
+        && gSavedSettings.getBOOL("UpdaterShowReleaseNotes")
+        && !gSavedSettings.getBOOL("FirstLoginThisInstall"))
+    {
+        LLSD info(LLAppViewer::instance()->getViewerInfo());
+        LLWeb::loadURLInternal(info["VIEWER_RELEASE_NOTES_URL"]);
+    }
 }
 
 void show_first_run_dialog()
@@ -2573,11 +2401,6 @@ void register_viewer_callbacks(LLMessageSystem* msg)
 	msg->setHandlerFuncFast(_PREHASH_DerezContainer,			process_derez_container, nullptr);
 	msg->setHandlerFuncFast(_PREHASH_ScriptRunningReply,
 						&LLLiveLSLEditor::processScriptRunningReply);
-
-	// <FS:Techwolf Lupindo> area search
-	//msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			LLSelectMgr::processObjectProperties, NULL);
-	msg->setHandlerFuncFast(_PREHASH_ObjectProperties,			process_object_properties, NULL);
-	// </FS:Techwolf Lupindo> area search
 
 	msg->setHandlerFuncFast(_PREHASH_DeRezAck, process_derez_ack);
 
@@ -2924,10 +2747,6 @@ std::string LLStartUp::startupStateToString(EStartupState state)
 		RTNENUM( STATE_WEARABLES_WAIT );
 		RTNENUM( STATE_CLEANUP );
 		RTNENUM( STATE_STARTED );
-		// <polarity> Extra startup states
-		RTNENUM( STATE_PVDATA_WAIT );
-		RTNENUM( STATE_LOGIN_CONFIRM_NOTIFICATON );
-		// <polarity>
 	default:
 		return llformat("(state #%d)", state);
 	}
@@ -3267,10 +3086,7 @@ bool LLStartUp::startLLProxy()
 
 bool login_alert_done(const LLSD& notification, const LLSD& response)
 {
-	// <FS:Ansariel> [FS Login Panel]
-	//LLPanelLogin::giveFocus();
-	transition_back_to_login_panel(std::string());
-	// </FS:Ansariel> [FS Login Panel]
+	LLPanelLogin::giveFocus();
 	return false;
 }
 
@@ -3330,11 +3146,8 @@ LLSD transform_cert_args(LLPointer<LLCertificate> cert)
 // when we handle a cert error, give focus back to the login panel
 void general_cert_done(const LLSD& notification, const LLSD& response)
 {
-	// <FS:Ansariel> [FS Login Panel]
-	//LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
-	//LLPanelLogin::giveFocus();
-	transition_back_to_login_panel(std::string());
-	// </FS:Ansariel> [FS Login Panel]
+	LLStartUp::setStartupState( STATE_LOGIN_SHOW );			
+	LLPanelLogin::giveFocus();
 }
 
 // check to see if the user wants to trust the cert.
@@ -3354,17 +3167,11 @@ void trust_cert_done(const LLSD& notification, const LLSD& response)
 			break;
 		}
 		case OPT_CANCEL_TRUST:
-			// <FS:Ansariel> That's what transition_back_to_login_panel is for and does!
-			//reset_login();
-			//gSavedSettings.setBOOL("AutoLogin", FALSE);			
-			//LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
-			transition_back_to_login_panel(std::string());
-			// </FS:Ansariel>
+			reset_login();
+			gSavedSettings.setBOOL("AutoLogin", FALSE);			
+			LLStartUp::setStartupState( STATE_LOGIN_SHOW );				
 		default:
-			// <FS:Ansariel> [FS Login Panel]
-			//LLPanelLogin::giveFocus();
-			transition_back_to_login_panel(std::string());
-			// </FS:Ansariel> [FS Login Panel]
+			LLPanelLogin::giveFocus();
 			break;
 	}
 
@@ -3408,15 +3215,7 @@ bool process_login_success_response(U32& first_sim_size_x, U32& first_sim_size_y
 	text = response["agent_id"].asString();
 	if(!text.empty()) gAgentID.set(text);
 	gDebugInfo["AgentID"] = text;
-
-#ifdef PVDATA_SYSTEM
-	if (!PVAgent::isAllowedToLogin(gAgentID, true))
-	{
-		LLStartUp::setStartupState(STATE_LOGIN_CONFIRM_NOTIFICATON);
-		return FALSE;
-	}
-#endif
-
+	
 	// Agent id needed for parcel info request in LLUrlEntryParcel
 	// to resolve parcel name.
 	LLUrlEntryParcel::setAgentID(gAgentID);
@@ -3580,23 +3379,7 @@ bool process_login_success_response(U32& first_sim_size_x, U32& first_sim_size_y
 		gAgent.setHomePosRegion(region_handle, position);
 	}
 
-#if !PVDATA_SYSTEM
-	auto motd_response = response["message"];
-	LL_INFOS("PVDataOldAPI") << "MOTD not set, using grid MOTD '" << motd_response << "'" << LL_ENDL;
-	gAgent.mMOTD.assign(motd_response);
-#else
-	auto progress_view = gViewerWindow->getProgressView();
-	if (progress_view)
-	{
-		std::string message = gPVOldAPI->getNewProgressTip();
-		if (message.empty())
-		{
-			// use MOTD
-			message = gAgent.mMOTD;
-		}
-		progress_view->setMessage(message);
-	}
-#endif
+	gAgent.mMOTD.assign(response["message"]);
 
 	// Options...
 	// Each 'option' is an array of submaps. 
@@ -3812,22 +3595,3 @@ void transition_back_to_login_panel(const std::string& emsg)
 	gSavedSettings.setBOOL("AutoLogin", FALSE);
 }
 
-bool callbackConfirmDisplayPreferencesReset(const LLSD& notification, const LLSD& response)
-{
-	S32 option = LLNotification::getSelectedOption(notification, response);
-	switch (option)
-	{
-	case 0: // Yes
-		LLFeatureManager::getInstance()->applyRecommendedSettings();
-		break;
-	case 1: // No
-		break;
-	case -1: // Cancel/window closed
-		break;
-	default:
-		// Don't ask again
-		gSavedSettings.setS32("PVRender_KeepSettingsOnGPUChange", 1);
-		break;
-	}
-	return false;
-}

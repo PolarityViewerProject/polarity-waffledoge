@@ -95,12 +95,6 @@
 #include "llcorehttputil.h"
 #include "roles_constants.h"
 
-#include "kcwlinterface.h"
-
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 using namespace LLAvatarAppearanceDefines;
 
 extern LLMenuBarGL* gMenuBarView;
@@ -551,12 +545,11 @@ LLAgent::~LLAgent()
 //-----------------------------------------------------------------------------
 void LLAgent::onAppFocusGained()
 {
-// <polarity> Don't reset camera on focus gain, this breaks machinima things.
-//	if (CAMERA_MODE_MOUSELOOK == gAgentCamera.getCameraMode())
-//	{
-//		gAgentCamera.changeCameraToDefault();
-//		LLToolMgr::getInstance()->clearSavedTool();
-//	}
+	if (!gSavedSettings.getBOOL("AlchemyMouselookResetOnFocus") && CAMERA_MODE_MOUSELOOK == gAgentCamera.getCameraMode())
+	{
+		gAgentCamera.changeCameraToDefault();
+		LLToolMgr::getInstance()->clearSavedTool();
+	}
 }
 
 
@@ -574,7 +567,7 @@ void LLAgent::ageChat()
 //-----------------------------------------------------------------------------
 // moveAt()
 //-----------------------------------------------------------------------------
-void LLAgent::moveAt(S32 direction, const bool reset_view)
+void LLAgent::moveAt(S32 direction, bool reset)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -593,7 +586,7 @@ void LLAgent::moveAt(S32 direction, const bool reset_view)
 		setControlFlags(AGENT_CONTROL_AT_NEG | AGENT_CONTROL_FAST_AT);
 	}
 
-	if (reset_view)
+	if (reset)
 	{
 		camera_reset_on_motion();
 	}
@@ -627,7 +620,7 @@ void LLAgent::moveAtNudge(S32 direction)
 //-----------------------------------------------------------------------------
 // moveLeft()
 //-----------------------------------------------------------------------------
-void LLAgent::moveLeft(const S32 direction, const bool reset_view)
+void LLAgent::moveLeft(S32 direction)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -646,7 +639,6 @@ void LLAgent::moveLeft(const S32 direction, const bool reset_view)
 		setControlFlags(AGENT_CONTROL_LEFT_NEG | AGENT_CONTROL_FAST_LEFT);
 	}
 
-	if (reset_view)
 	camera_reset_on_motion();
 }
 
@@ -678,7 +670,7 @@ void LLAgent::moveLeftNudge(S32 direction)
 //-----------------------------------------------------------------------------
 // moveUp()
 //-----------------------------------------------------------------------------
-void LLAgent::moveUp(S32 direction, const bool reset_view) // BD
+void LLAgent::moveUp(S32 direction)
 {
 	mMoveTimer.reset();
 	LLFirstUse::notMoving(false);
@@ -698,14 +690,14 @@ void LLAgent::moveUp(S32 direction, const bool reset_view) // BD
 		setControlFlags(AGENT_CONTROL_UP_NEG | AGENT_CONTROL_FAST_UP);
 	}
 
-	if (!mCrouch && reset_view)
+	if (!mCrouch)
 		camera_reset_on_motion();
 }
 
 //-----------------------------------------------------------------------------
 // moveYaw()
 //-----------------------------------------------------------------------------
-void LLAgent::moveYaw(F32 mag, const bool reset_view)
+void LLAgent::moveYaw(F32 mag, bool reset_view)
 {
 	gAgentCamera.setYawKey(mag);
 
@@ -804,8 +796,7 @@ void LLAgent::setFlying(BOOL fly)
 			// parcel doesn't let you start fly
 			// gods can always fly
 			// and it's OK if you're already flying
-			// <polarity> No bad keystroke sound here
-			//make_ui_sound("UISndBadKeystroke");
+			make_ui_sound("UISndBadKeystroke");
 			return;
 		}
 		if( !was_flying )
@@ -1351,7 +1342,7 @@ F32 LLAgent::clampPitchToLimits(F32 angle)
 	//                                  = A dot B for unit vectors
 
 	LLVector3 skyward = getReferenceUpVector();
-	static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "PVCamera_RealisticMouseLook", false);
+	static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "AlchemyRealisticMouselook", false);
 	const bool in_mouselook = gAgentCamera.cameraMouselook();
 	const F32 look_down_limit = (in_mouselook && useRealisticMouselook ? 160.f : (isAgentAvatarValid() && gAgentAvatarp->isSitting() ? 170.f : 179.f)) * DEG_TO_RAD;
 	const F32 look_up_limit = (in_mouselook && useRealisticMouselook ? 20.f : 1.f) * DEG_TO_RAD;
@@ -1737,7 +1728,7 @@ void LLAgent::stopAutoPilot(BOOL user_cancel)
 		if (user_cancel && !mAutoPilotBehaviorName.empty())
 		{
 			if (mAutoPilotBehaviorName == "Sit")
-				LLNotificationsUtil::add("CancelledSit");
+				LL_INFOS("Agent") << "Autopilot-Sit was canceled by user action" << LL_ENDL;
 			else if (mAutoPilotBehaviorName == "Attach")
 				LLNotificationsUtil::add("CancelledAttach");
 			else
@@ -1933,11 +1924,10 @@ void LLAgent::propagate(const F32 dt)
 		LLVector3 land_vel = getVelocity();
 		land_vel.mV[VZ] = 0.f;
 
-		static LLCachedControl<bool> automatic_land(gSavedSettings, "PVMovement_AutomaticLand", true);
 		if (!in_air 
 			&& gAgentCamera.getUpKey() < 0 
-			&& (land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED)
-			&& automatic_land)
+			&& land_vel.magVecSquared() < MAX_VELOCITY_AUTO_LAND_SQUARED
+			&& gSavedSettings.getBOOL("AutomaticFly"))
 		{
 			// land automatically
 			setFlying(FALSE);
@@ -2021,8 +2011,7 @@ void LLAgent::startTyping()
 		}
 	}
 
-	static LLCachedControl<bool> play_typing_anim(gSavedSettings, "PlayTypingAnim", true);
-	if (play_typing_anim)
+	if (gSavedSettings.getBOOL("PlayTypingAnim"))
 	{
 		sendAnimationRequest(ANIM_AGENT_TYPE, ANIM_REQUEST_START);
 	}
@@ -3289,22 +3278,15 @@ BOOL LLAgent::allowOperation(PermissionBit op,
 const LLColor4 LLAgent::getEffectColor()
 {
 	LLColor4 effect_color = *mEffectColor;
-	// <polarity> Rainbow effects for selection beam. Credit: Cryo
-	static LLCachedControl<bool> beam_rainbow(gSavedSettings, "PVTools_EditBeamRainbow");
-	static LLCachedControl<bool> beam_agent(gSavedSettings, "PVTools_EditBeamAgentColor");
-    gSavedSettings.setBOOL("PVInternal_EditBeamSpecial", ( (beam_rainbow || beam_agent) ? TRUE : FALSE));
-    if (beam_rainbow)
+
+	//<alchemy> Rainbow Particle Effects
+	static LLCachedControl<bool> AlchemyRainbowEffects(gSavedSettings, "AlchemyRainbowEffects");
+	if(AlchemyRainbowEffects)
 	{
 		LLColor3 rainbow;
 		rainbow.setHSL(fmodf((F32)LLFrameTimer::getElapsedSeconds()/4.f, 1.f), 1.f, 0.5f);
 		effect_color.set(rainbow, 1.0f);
 	}
-#ifdef PVDATA_SYSTEM
-	else if(beam_agent)
-	{
-		effect_color = PVAgent::getColor(gAgent.getID(), effect_color);
-	}
-#endif
 	return effect_color;
 }
 
@@ -3983,9 +3965,8 @@ bool LLAgent::teleportCore(bool is_local)
 		gPipeline.resetVertexBuffers();
 		LLSpatialPartition::sTeleportRequested = TRUE;
 	}
-	KCWindlightInterface::instance().setTPing(true); // Hack from Kadah Coba
 	if (gSavedSettings.getBool("AlchemyPlayTeleportSound")) // <alchemy/>
-	make_ui_sound("UISndTeleportOut");
+		make_ui_sound("UISndTeleportOut");
 	
 	// MBW -- Let the voice client know a teleport has begun so it can leave the existing channel.
 	// This was breaking the case of teleporting within a single sim.  Backing it out for now.
@@ -4428,8 +4409,7 @@ void LLAgent::stopCurrentAnimations()
 		{
 			U32 permissions = SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_TRIGGER_ANIMATION].permbit | SCRIPT_PERMISSIONS[SCRIPT_PERMISSION_OVERRIDE_ANIMATIONS].permbit;
 			sendRevokePermissions(mRegionp->getRegionID(), permissions);
-			static LLCachedControl<bool> no_stand_on_reset(gSavedSettings, "PVMovement_DoNotStandUpOnAnimReset", FALSE);
-			if (gAgentAvatarp->isSitting() && !no_stand_on_reset)
+			if (gAgentAvatarp->isSitting())
 			{	// Also stand up, since auto-granted sit animation permission has been revoked
 				gAgent.standUp();
 			}

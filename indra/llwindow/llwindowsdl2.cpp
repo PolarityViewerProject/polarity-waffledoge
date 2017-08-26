@@ -102,8 +102,7 @@ LLWindowSDL2::LLWindowSDL2(LLWindowCallbacks* callbacks,
 
 	if (title.empty())
 	{
-		static std::string app_name_str = APP_NAME;
-		mWindowTitle = app_name_str + " Viewer";
+		mWindowTitle = "Polarity Viewer";
 	}
 	else
 		mWindowTitle = title;

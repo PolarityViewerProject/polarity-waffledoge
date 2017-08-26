@@ -48,7 +48,6 @@
 #include "lltracker.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
-#include "lluictrlfactory.h"
 #include "llviewerparcelmgr.h"
 #include "llviewerregion.h"
 #include "llviewerwindow.h"
@@ -1072,22 +1071,13 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 	
 	S32 number_attachments = content["attachments"].size();
 
-	bool has_attachment_point_data = false;
 	for(int i = 0; i < number_attachments; i++)
 	{
 		std::string humanReadableLocation = "";
 		if(content["attachments"][i].has("location"))
 		{
 			std::string actualLocation = content["attachments"][i]["location"];
-			// BUG-100781 The server sends "location", but pairs it with an empty string. - Xenhat Liamano
-			if(actualLocation != "")
-			{
-				if(!has_attachment_point_data)
-				{
-					has_attachment_point_data = true;
-				}
-				humanReadableLocation = LLTrans::getString(actualLocation.c_str());
-			}
+			humanReadableLocation = LLTrans::getString(actualLocation.c_str());
 		}
 		
 		S32 number_objects = content["attachments"][i]["objects"].size();
@@ -1122,49 +1112,18 @@ void LLPanelScriptLimitsAttachment::setAttachmentDetails(LLSD content)
 			element["columns"][2]["column"] = "name";
 			element["columns"][2]["value"] = name;
 			element["columns"][2]["font"] = "SANSSERIF";
-			// BUG-100781
-			if(has_attachment_point_data)
-			{
-				element["columns"][3]["column"] = "location";
-				element["columns"][3]["value"] = humanReadableLocation;
-				element["columns"][3]["font"] = "SANSSERIF";
-			}
-			// /BUG-100781
+			
+			element["columns"][3]["column"] = "location";
+			element["columns"][3]["value"] = humanReadableLocation;
+			element["columns"][3]["font"] = "SANSSERIF";
 
 			list->addElement(element);
 		}
 	}
-	// <polarity> Automatically hide the attachment point column when the data is missing
-	static LLCachedControl<bool> show_location_col(gSavedSettings, "PVUI_ShowScriptsAttachmentPoint", true);
-	if (!has_attachment_point_data || !show_location_col)
-	{
-		LLScrollListColumn* location_col = list->getColumn("location");
-		if (location_col)
-		{
-			location_col->mHeader->setVisible(FALSE);
-			location_col->setWidth(0);
-			location_col->mDynamicWidth = FALSE;
-			location_col->mMaxContentWidth = 0;
-			location_col->mRelWidth = 0;
-		}
-		LLScrollListColumn* name_col = list->getColumn("name");
-		if (name_col)
-		{
-			name_col->setWidth(-1);
-			name_col->mMaxContentWidth = -1;
-			name_col->mDynamicWidth = TRUE;
-		}
-		list->dirtyColumns();
-		list->updateColumns(true);
-	}
-	// </polarity>
+	
 	setAttachmentSummary(content);
 
-	auto loading_text = getChild<LLUICtrl>("loading_text");
-	if (loading_text)
-	{
-		loading_text->setValue(LLSD(std::string("")));
-	}
+	getChild<LLUICtrl>("loading_text")->setValue(LLSD(std::string("")));
 
 	LLButton* btn = getChild<LLButton>("refresh_list_btn");
 	if(btn)

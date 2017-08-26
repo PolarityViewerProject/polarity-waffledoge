@@ -122,11 +122,6 @@
 #include "llcallstack.h"
 #include "llrendersphere.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#include "pvmachinima.h"
-
 extern F32 SPEED_ADJUST_MAX;
 extern F32 SPEED_ADJUST_MAX_SEC;
 extern F32 ANIM_SPEED_MAX;
@@ -211,14 +206,12 @@ const F32 NAMETAG_VERT_OFFSET_WEIGHT = 0.17f;
 const U32 LLVOAvatar::VISUAL_COMPLEXITY_UNKNOWN = 0;
 const F64 HUD_OVERSIZED_TEXTURE_DATA_SIZE = 1024 * 1024;
 
-// <polarity> Moved to llvoavatar.h
-//enum ERenderName
-//{
-//	RENDER_NAME_NEVER,
-//	RENDER_NAME_ALWAYS,	
-//	RENDER_NAME_FADE
-//};
-// </polarity>
+enum ERenderName
+{
+	RENDER_NAME_NEVER,
+	RENDER_NAME_ALWAYS,	
+	RENDER_NAME_FADE
+};
 
 //-----------------------------------------------------------------------------
 // Callback data
@@ -698,13 +691,7 @@ LLVOAvatar::LLVOAvatar(const LLUUID& id,
 	mTypingLast(false),
 	mColorLast(LLColor4::white),
 	mLastUpdateRequestCOFVersion(-1),
-	mLastUpdateReceivedCOFVersion(-1),
-	// <polatity> Show ARW in nametag
-	mShowComplexityString(false),
-	mSowComplexUnderThreshold(false),
-	mNameArc(0),
-	mNameArcColor(LLColor4::white)
-	// <polarity>
+	mLastUpdateReceivedCOFVersion(-1)
 {
 	LL_DEBUGS("AvatarRender") << "LLVOAvatar Constructor (0x" << this << ") id:" << mID << LL_ENDL;
 
@@ -793,8 +780,7 @@ void LLVOAvatar::debugAvatarRezTime(std::string notification_name, std::string c
 					   << " : " << comment
 					   << LL_ENDL;
 
-	static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
-	if (debug_avatar_rez_time)
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
 		LLSD args;
 		args["EXISTENCE"] = llformat("%d",(U32)mDebugExistenceTimer.getElapsedTimeF32());
@@ -818,13 +804,8 @@ LLVOAvatar::~LLVOAvatar()
 		debugAvatarRezTime("AvatarRezLeftNotification","left sometime after declouding");
 	}
 
-	// <FS:ND> only call logPendingPhases if we're still alive. Otherwise this can lead to shutdown crashes 
-
-	// logPendingPhases();
-	if (isAgentAvatarValid())
-		logPendingPhases();
+	logPendingPhases();
 	
-	// </FS:ND>
 	LL_DEBUGS("Avatar") << "LLVOAvatar Destructor (0x" << this << ") id:" << mID << LL_ENDL;
 
 	std::for_each(mAttachmentPoints.begin(), mAttachmentPoints.end(), DeletePairedPointer());
@@ -2755,25 +2736,10 @@ void LLVOAvatar::idleUpdateLoadingEffect()
 			particle_parameters.mPartData.mStartScale.mV[VY] = 0.8f;
 			particle_parameters.mPartData.mEndScale.mV[VX]   = 0.02f;
 			particle_parameters.mPartData.mEndScale.mV[VY]   = 0.02f;
-#ifndef PVDATA_SYSTEM
 			particle_parameters.mPartData.mStartColor        = LLColor4(1, 1, 1, 0.5f);
 			particle_parameters.mPartData.mEndColor          = LLColor4(1, 1, 1, 0.0f);
-#else
-			if(!isSelf() && (isInMuteList()))
-			{
-				particle_parameters.mPartData.mStartColor = LLUIColorTable::instance().getColor("MutedCloudStart");
-				particle_parameters.mPartData.mEndColor = LLUIColorTable::instance().getColor("MutedCloudEnd");
-			}
-			else
-			{
-				// Get pvdata color, for fun.
-				LLColor4 cloud_color = PVAgent::getColor(getID(), LLColor4(1, 1, 1, 0.5f));
-				particle_parameters.mPartData.mStartColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.5f);
-				particle_parameters.mPartData.mEndColor = LLColor4(cloud_color.mV[0], cloud_color.mV[1], cloud_color.mV[2], 0.0f);
-			}
-#endif
 			particle_parameters.mPartData.mStartScale.mV[VX] = 0.8f;
-			LLViewerTexture* cloud = LLViewerTextureManager::getFetchedTextureFromFile("cloud-particle.tga");
+			LLViewerTexture* cloud = LLViewerTextureManager::getFetchedTextureFromFile("cloud-particle.j2c");
 			particle_parameters.mPartImageID                 = cloud->getID();
 			particle_parameters.mMaxAge                      = 0.f;
 			particle_parameters.mPattern                     = LLPartSysData::LL_PART_SRC_PATTERN_ANGLE_CONE;
@@ -2865,26 +2831,17 @@ void LLVOAvatar::idleUpdateNameTag(const LLVector3& root_pos_last)
 		mChats.clear();
 	}
 	
-	// TODO: Use globals instead of these
-	static LLCachedControl<F32> tag_show_time(gSavedSettings, "RenderNameShowTime");
-	static LLCachedControl<F32> tag_fade_duration(gSavedSettings, "RenderNameFadeDuration");
-	static LLCachedControl<bool> name_show_self(gSavedSettings, "RenderNameShowSelf");
-	static LLCachedControl<bool> use_bubble_chat(gSavedSettings, "UseChatBubbles");
-	static LLCachedControl<bool> typing_in_status(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
-
-	// <polarity> Making these static or const will break nametag fading in our implementation.
-	// const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	const F32 time_visible = mTimeVisible.getElapsedTimeF32();
 	static LLCachedControl<F32> NAME_SHOW_TIME(gSavedSettings, "RenderNameShowTime");	// seconds
 	static LLCachedControl<F32> FADE_DURATION(gSavedSettings, "RenderNameFadeDuration"); // seconds
 	BOOL visible_avatar = isVisible() || mNeedsAnimUpdate;
 	static LLCachedControl<U32> nearby_chat_out(gSavedSettings, "AlchemyNearbyChatOutput");
-	BOOL visible_chat = !PVMachinimaTools::isEnabled() && (nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH)
+	BOOL visible_chat = (nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH) 
 		&& (mChats.size() || mTyping);
-	BOOL render_name = !PVMachinimaTools::isEnabled() && (visible_chat ||
+	BOOL render_name =	visible_chat ||
 		(visible_avatar &&
 		 ((sRenderName == RENDER_NAME_ALWAYS) ||
-		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME))));
+		  (sRenderName == RENDER_NAME_FADE && time_visible < NAME_SHOW_TIME)));
 	// If it's your own avatar, don't draw in mouselook, and don't
 	// draw if we're specifically hiding our own name.
 	if (isSelf())
@@ -2997,7 +2954,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 	}
 	bool is_friend = LLAvatarTracker::instance().isBuddy(getID());
 	bool is_cloud = getIsCloud();
-	static LLCachedControl<bool> sShowTyping(gSavedSettings, "PVChat_NearbyTypingIndicators", true);
+	static LLCachedControl<bool> sShowTyping(gSavedSettings, "AlchemyNearbyTypingIndicators", true);
 	bool is_typing = sShowTyping && mTyping;
 
 	if (is_appearance != mNameAppearance)
@@ -3011,42 +2968,8 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			debugAvatarRezTime("AvatarRezLeftAppearanceNotification","left appearance mode");
 		}
 	}
-
-	// <polarity> Show ARW in nametag options (for Jelly Dolls)
-	// Inspired by Ansariel's implementation.
-	static LLCachedControl<bool> show_complexity_string(gSavedSettings, "PVUI_NameTagRenderWeightShowString", false);
-	// create a snapshot of the current complexity to determine if the nametag should update.
-	static LLCachedControl<bool> show_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightEnable", true);
-	static LLCachedControl<bool> show_others_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowOthers", false);
-	static LLCachedControl<bool> show_under_threshold_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowUnderThreshold", true);
-	static LLCachedControl<bool> show_own_arw_tag(gSavedSettings, "PVUI_NameTagRenderWeightShowSelf", true);
-	U32 complexity(0);
-	LLColor4 complexity_color(LLColor4::grey1); // default if we're not limiting the complexity
-
-	if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
-	{
-		// freeze complexity value we compare against
-		complexity = mVisualComplexity;
-		// Color the complexity value based on how bad it is
-		static LLCachedControl<U32> max_render_cost(gSavedSettings, "RenderAvatarMaxComplexity", 0);
-		if (max_render_cost != 0)
-		{
-			// FIXME: For some god forsaken reason, the color curve does not update when max_render_cost changes. Math isn't my thing.
-			F32 green_level = 1.f - llclamp(((F32)complexity - (F32)max_render_cost) / (F32)max_render_cost, 0.f, 1.f);
-			F32 red_level = llmin((F32)complexity / (F32)max_render_cost, 1.f);
-			complexity_color.set(red_level, green_level, 0.f, 1.f);
-		}
-	}
-	// </polarity>
-
-	// cache avatar uuid
-	LLUUID av_id = getID();
-#ifdef PVDATA_SYSTEM
-	// get avatar's color
-	auto name_tag_color = getNameTagColor(av_id);
-#else
-	auto name_tag_color = LLAvatarTracker::instance().getBuddyInfo(av_id) ? LLUIColorTable::instance().getColor("HTMLLinkColor") : LLUIColorTable::instance().getColor("NameTagMatch");
-#endif
+	static LLCachedControl<bool> use_color_mgr(gSavedSettings, "AlchemyNametagColorMgr", false);
+	const LLColor4& name_tag_color = use_color_mgr ? isSelf() ? LLColor4::white : ALAvatarColorMgr::instance().getColor(getID()) : getNameTagColor(is_friend);
 
 	// Rebuild name tag if state change detected
 	if (!mNameIsSet
@@ -3060,14 +2983,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		|| is_friend != mNameFriend
 		|| is_cloud != mNameCloud
 		|| is_typing != mTypingLast
-		|| name_tag_color != mColorLast
-		// <polarity> Show ARW in nametag
-		|| complexity != mNameArc
-		|| complexity_color != mNameArcColor
-		|| show_complexity_string != mShowComplexityString
-		|| show_under_threshold_arw_tag != mSowComplexUnderThreshold)
-		// </polarity>
-
+		|| name_tag_color != mColorLast)
 	{
 		clearNameTag();
 
@@ -3106,9 +3022,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			}
 			// trim last ", "
 			line.resize( line.length() - 2 );
-			static LLUIColor status_color = LLUIColorTable::instance().getColor("NameTagStatusText", LLColor4::magenta);
-			addNameTagLine(line, status_color,
-				LLFontGL::ITALIC, // Why is this not working?
+			addNameTagLine(line, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -3117,8 +3031,7 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		{
 			std::string title_str = title->getString();
 			LLStringFn::replace_ascii_controlchars(title_str,LL_UNKNOWN_CHAR);
-			static LLUIColor group_color = LLUIColorTable::instance().getColor("NameTagGroup", LLColor4::magenta);
-			addNameTagLine(title_str, group_color, LLFontGL::NORMAL,
+			addNameTagLine(title_str, name_tag_color, LLFontGL::NORMAL,
 				LLFontGL::getFontSansSerifSmall());
 		}
 
@@ -3157,25 +3070,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 			addNameTagLine(full_name, name_tag_color, LLFontGL::NORMAL, font);
 		}
 
-		// <FS:Ansariel> Show ARW in nametag options (for Jelly Dolls)
-		static LLCachedControl<bool> show_complexity_string_short(gSavedSettings, "PVUI_NameTagRenderWeightShowStringShort", false);
-		// WOW, nested ternary operator.
-		std::string complexity_label = show_complexity_string ? (show_complexity_string_short ? LLTrans::getString("Nametag_Complexity_Label_Short") : LLTrans::getString("Nametag_Complexity_Label")) : LLTrans::getString("Nametag_Complexity_Label_NoText");
-		
-		if (show_arw_tag && ( ((show_own_arw_tag && isSelf()) || (show_others_arw_tag && !isSelf())) && (show_under_threshold_arw_tag || isTooComplex())) )
-		{
-			std::string complexity_string;
-			LLLocale locale(LLLocale::USER_LOCALE);
-			LLResMgr::getInstance()->getIntegerString(complexity_string, complexity);
-
-			LLStringUtil::format_map_t label_args;
-			label_args["COMPLEXITY"] = complexity_string;
-			//addNameTagLine(formatString(complexity_label, label_args), complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
-			LLStringUtil::format(complexity_label, label_args);
-			addNameTagLine(complexity_label, complexity_color, LLFontGL::NORMAL, LLFontGL::getFontSansSerifSmall());
-		}
-		// </FS:Ansariel>
-
 		mNameAway = is_away;
 		mNameDoNotDisturb = is_do_not_disturb;
 		mNameMute = is_muted;
@@ -3185,12 +3079,6 @@ void LLVOAvatar::idleUpdateNameTagText(BOOL new_name)
 		mTypingLast = is_typing;
 		mColorLast = name_tag_color;
 		mTitle = title ? title->getString() : "";
-		// <polarity> ARW in nametag
-		mNameArc = complexity;
-		mNameArcColor = complexity_color;
-		mShowComplexityString = show_complexity_string;
-		mSowComplexUnderThreshold = show_under_threshold_arw_tag;
-		// </polarity>
 		LLStringFn::replace_ascii_controlchars(mTitle,LL_UNKNOWN_CHAR);
 		new_name = TRUE;
 	}
@@ -3376,32 +3264,33 @@ void LLVOAvatar::idleUpdateNameTagAlpha(BOOL new_name, F32 alpha)
 	}
 }
 
-LLColor4 LLVOAvatar::getNameTagColor(const LLUUID& av_id)
+LLColor4 LLVOAvatar::getNameTagColor(bool is_friend)
 {
-	static LLColor4 color_name;
-	if (LLAvatarName::useDisplayNames())
+	static LLUICachedControl<bool> show_friends("NameTagShowFriends", false);
+	const char* color_name;
+	if (show_friends && is_friend)
+	{
+		color_name = "NameTagFriend";
+	}
+	else if (LLAvatarName::useDisplayNames())
 	{
 		// ...color based on whether username "matches" a computed display name
 		LLAvatarName av_name;
-		if (LLAvatarNameCache::get(av_id, &av_name) && av_name.isDisplayNameDefault())
+		if (LLAvatarNameCache::get(getID(), &av_name) && av_name.isDisplayNameDefault())
 		{
-			color_name = LLUIColorTable::getInstance()->getColor("NameTagMatch");
+			color_name = "NameTagMatch";
 		}
 		else
 		{
-			color_name = LLUIColorTable::getInstance()->getColor("NameTagMismatch");
+			color_name = "NameTagMismatch";
 		}
 	}
 	else
 	{
 		// ...not using display names
-		color_name = LLUIColorTable::getInstance()->getColor("NameTagLegacy");
+		color_name = "NameTagLegacy";
 	}
-#ifdef PVDATA_SYSTEM
-	return PVAgent::getColor(av_id, color_name);
-#else
-	return color_name;
-#endif
+	return LLUIColorTable::getInstance()->getColor( color_name );
 }
 
 void LLVOAvatar::idleUpdateBelowWater()
@@ -3430,28 +3319,34 @@ void LLVOAvatar::slamPosition()
 
 bool LLVOAvatar::isVisuallyMuted()
 {
-	//bool muted = false;
+	bool muted = false;
 
 	// Priority order (highest priority first)
-	// * user preference overrides below
+	// * own avatar is never visually muted
 	// * if on the "always draw normally" list, draw them normally
 	// * if on the "always visually mute" list, mute them
 	// * check against the render cost and attachment limits
-	//if (!isSelf()) // <polarity> Self can be too complex
+	if (!isSelf())
 	{
 		if (mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 		{
-			return false;
+			muted = false;
 		}
-		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER || isInMuteList())
+		else if (mVisuallyMuteSetting == AV_DO_NOT_RENDER)
 		{	// Always want to see this AV as an impostor
-			return true;
+			muted = true;
 		}
+        else if (isInMuteList())
+        {
+            muted = true;
+        }
 		else
 		{
-			return isTooComplex();
+			muted = isTooComplex();
 		}
 	}
+
+	return muted;
 }
 
 bool LLVOAvatar::isInMuteList()
@@ -3513,11 +3408,7 @@ void LLVOAvatar::updateDebugText()
 		{
 			debug_line += llformat(" - cof: %d req: %d rcv:%d",
 								   curr_cof_version, last_request_cof_version, last_received_cof_version);
-			// <FS:CR> Use LLCachedControl
-			//if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
-			static LLCachedControl<bool> debug_force_appearance_request_failure(gSavedSettings, "DebugForceAppearanceRequestFailure");
-			if (debug_force_appearance_request_failure)
-			// </FS:CR>
+			if (gSavedSettings.getBOOL("DebugForceAppearanceRequestFailure"))
 			{
 				debug_line += " FORCING ERRS";
 			}
@@ -3553,11 +3444,8 @@ void LLVOAvatar::updateDebugText()
 
 		addDebugText(debug_line);
 	}
-	// <FS:CR> Use LLCachedControl
-	static LLCachedControl<bool> debug_avatar_composite_baked(gSavedSettings, "DebugAvatarCompositeBaked");
-	if (debug_avatar_composite_baked)
-	//if (gSavedSettings.getBOOL("DebugAvatarCompositeBaked"))
-	// </FS:CR>
+	static LLCachedControl<bool> debug_avatar_comp_baked(gSavedSettings, "DebugAvatarCompositeBaked");
+	if (debug_avatar_comp_baked)
 	{
 		if (!mBakedTextureDebugText.empty())
 			addDebugText(mBakedTextureDebugText);
@@ -3630,11 +3518,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 	// the rest should only be done occasionally for far away avatars
 	//--------------------------------------------------------------------
 
-	bool visually_muted = isVisuallyMuted();
-	// <FS:Ansariel> Fix LL impostor hacking; Adjust update period for muted avatars if using no impostors
-	//if (visible && (!isSelf() || visually_muted) && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter)
-	if (visible && (!isSelf() || visually_muted) && !mIsDummy && (sUseImpostors || isInMuteList()) && !mNeedsAnimUpdate && !sFreezeCounter)
-	// </FS:Ansariel>
+	if (visible && !isSelf() && !mIsDummy && sUseImpostors && !mNeedsAnimUpdate && !sFreezeCounter && getVisualMuteSettings() != AV_ALWAYS_RENDER)
 	{
 		const LLVector4a* ext = mDrawable->getSpatialExtents();
 		LLVector4a size;
@@ -3643,7 +3527,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 		
 		F32 impostor_area = 256.f*512.f*(8.125f - LLVOAvatar::sLODFactor*8.f);
-		if (visually_muted)
+		if (isVisuallyMuted())
 		{ // visually muted avatars update at 16 hz
 			mUpdatePeriod = 16;
 		}
@@ -3689,13 +3573,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		return FALSE;
 	}
 
-	// <FS:Zi> Optionally disable the usage of timesteps, testing if this affects performance or
-	//		 creates animation issues - FIRE-3657
-	// if (!isSelf() && !mIsDummy)
-	static LLCachedControl<bool> use_timesteps(gSavedSettings,"PVMovement_UseAnimationTimeSteps");
 	// change animation time quanta based on avatar render load
-	if (!isSelf() && !mIsDummy && use_timesteps)
-	// </FS:Zi>
+	if (!isSelf() && !mIsDummy)
 	{
 		F32 time_quantum = clamp_rescale((F32)sInstances.size(), 10.f, 35.f, 0.f, 0.25f);
 		F32 pixel_area_scale = clamp_rescale(mPixelArea, 100, 5000, 1.f, 0.f);
@@ -3709,13 +3588,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 		mMotionController.setTimeStep(time_step);
 		//		LL_INFOS() << "Setting timestep to " << time_quantum * pixel_area_scale << LL_ENDL;
 	}
-	// <FS:Zi> Optionally disable the usage of timesteps, testing if this affects performance or
-	//		 creates animation issues - FIRE-3657
-	else
-	{
-		mMotionController.setTimeStep(0.0f);
-	}
-	// </FS:Zi>
 
 	if (getParent() && !mIsSitting)
 	{
@@ -3845,9 +3717,8 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			}
 			LLVector3 velDir = getVelocity();
 			velDir.normalize();
-			static LLCachedControl<bool> turn_around_auto(gSavedSettings, "PVMovement_TurnAroundWhenWalkingBackward", true);
-			//if ( mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
-			if((!turn_around_auto) && (mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end()))
+			static LLCachedControl<bool> moon_walk(gSavedSettings, "AlchemyMoonwalk", true);
+			if (moon_walk && mSignaledAnimations.find(ANIM_AGENT_WALK) != mSignaledAnimations.end())
 			{
 				F32 vpD = velDir * primDir;
 				if (vpD < -0.5f)
@@ -3892,7 +3763,7 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 
 			static LLCachedControl<F32> s_pelvis_rot_threshold_slow(gSavedSettings, "AvatarRotateThresholdSlow", 60.0f);
 			static LLCachedControl<F32> s_pelvis_rot_threshold_fast(gSavedSettings, "AvatarRotateThresholdFast", 2.0f);
-			static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "PVCamera_RealisticMouseLook", false);
+			static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "AlchemyRealisticMouselook", false);
 
 			F32 pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, self_in_mouselook && useRealisticMouselook 
 				? s_pelvis_rot_threshold_slow * 2.f : s_pelvis_rot_threshold_slow, s_pelvis_rot_threshold_fast);
@@ -3901,14 +3772,6 @@ BOOL LLVOAvatar::updateCharacter(LLAgent &agent)
 			{
 				pelvis_rot_threshold *= MOUSELOOK_PELVIS_FOLLOW_FACTOR;
 			}
-//			//BD - Freeze World
-			static LLCachedControl<bool> freeze_world(gSavedSettings, "PVRender_FreezeWorld");
-			//BD - Stop Avatars from rotating while we are in Freeze World mode.
-			if (freeze_world)
-			{
-				pelvis_rot_threshold = clamp_rescale(speed, 0.1f, 1.0f, 360.0f, 360.0f);
-			}
-
 			pelvis_rot_threshold *= DEG_TO_RAD;
 
 			F32 angle = angle_between( pelvisDir, fwdDir );
@@ -7306,10 +7169,9 @@ bool LLVOAvatar::isTooComplex() const
 {
 	bool too_complex;
 	static LLCachedControl <bool> always_render_friends(gSavedSettings, "AlwaysRenderFriends");
-	static LLCachedControl <bool> always_render_self(gSavedSettings, "PVAutoMute_AlwaysRenderSelf");	
 	bool render_friend =  (always_render_friends && LLAvatarTracker::instance().isBuddy(getID()));
 
-	if ((isSelf() && always_render_self) || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
+	if (isSelf() || render_friend || mVisuallyMuteSetting == AV_ALWAYS_RENDER)
 	{
 		too_complex = false;
 	}
@@ -7327,7 +7189,7 @@ bool LLVOAvatar::isTooComplex() const
                            ));
 	}
 
-    return too_complex;
+	return too_complex;
 }
 
 //-----------------------------------------------------------------------------
@@ -8100,9 +7962,8 @@ void LLVOAvatar::processAvatarAppearance( LLMessageSystem* mesgsys )
 {
 	LL_DEBUGS("Avatar") << "starts" << LL_ENDL;
 	
-	// <polarity> Speed up
-	static LLCachedControl<bool> enable_verbose_dumps(gSavedSettings, "DebugAvatarAppearanceMessage");
-	std::string dump_prefix = getFullname() + "_" + (isSelf()?"s":"o") + "_";
+	bool enable_verbose_dumps = gSavedSettings.getBOOL("DebugAvatarAppearanceMessage");
+	std::string dump_prefix = getFullname() + "_" + (isSelf() ? "s" : "o") + "_";
 	if (gSavedSettings.getBOOL("BlockAvatarAppearanceMessages"))
 	{
 		LL_WARNS() << "Blocking AvatarAppearance message" << LL_ENDL;
@@ -8397,10 +8258,7 @@ void LLVOAvatar::onBakedTextureMasksLoaded( BOOL success, LLViewerFetchedTexture
 		{
 			if (!aux_src->getData())
 			{
-				// <FS:Ansariel> FIRE-16122: Don't crash if we didn't receive any data
-				//LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
-				LL_WARNS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
-				// </FS:Ansariel>
+				LL_ERRS() << "No auxiliary source (morph mask) data for image id " << id << LL_ENDL;
 				return;
 			}
 
@@ -9625,17 +9483,6 @@ BOOL LLVOAvatar::isTextureVisible(LLAvatarAppearanceDefines::ETextureIndex type,
 	}
 	else
 	{
-		// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
-		if(LLPipeline::sShadowRender)
-		{
-			static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
-			if (1 == simple_shadows)
-			{
-				return TRUE;
-	
-			}
-		} // </polarity>
-
 		// baked textures can use TE images directly
 		return ((isTextureDefined(type) || isSelf())
 				&& (getTEImage(type)->getID() != IMG_INVISIBLE 

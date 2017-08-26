@@ -101,12 +101,7 @@ public:
 	static void onClickFilter(LLUICtrl *ctrl, void* data);
 	static void onClickUICheck(LLUICtrl *ctrl, void* data);
 	static void onClickHUDCheck(LLUICtrl *ctrl, void* data);
-
 	static void onCommitFreezeFrame(LLUICtrl* ctrl, void* data);
-
-	//BD
-	static void onClickMultiplierCheck(LLUICtrl *ctrl, void* data);
-
 
 	virtual LLPanelSnapshot* getActivePanel(LLFloaterSnapshotBase* floater, bool ok_if_not_found = true) = 0;
 	virtual LLSnapshotModel::ESnapshotType getActiveSnapshotType(LLFloaterSnapshotBase* floater);

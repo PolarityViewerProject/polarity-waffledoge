@@ -28,8 +28,6 @@
 
 #include "llviewerprecompiledheaders.h"
 
-#include <unordered_set> // <polarity> PLVR-32 Refresh texture on objects and avatars
-
 #ifdef INCLUDE_VLD
 #define VLD_FORCE_ENABLE 1
 #include "vld.h"
@@ -81,7 +79,6 @@
 #include "llavataractions.h"
 #include "lllandmarkactions.h"
 #include "llgroupmgr.h"
-#include "llglsandbox.h"
 #include "lltooltip.h"
 #include "lltoolface.h"
 #include "llhudeffecttrail.h"
@@ -105,7 +102,6 @@
 #include "llstatusbar.h"
 #include "lltexturecache.h"
 #include "lltextureview.h"
-#include "lltexturecache.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "lltoolbarview.h"
 #include "lltoolcomp.h"
 #include "lltoolmgr.h"
@@ -120,10 +116,8 @@
 #include "llviewernetwork.h"
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
-#include "llviewerstats.h"
-#include "llvlcomposition.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "llvoavatarself.h"
-#include "llvovolume.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
+#include "llvovolume.h"
 #include "llvoicevivox.h"
 #include "llworldmap.h"
 #include "pipeline.h"
@@ -143,12 +137,6 @@
 
 #include <boost/unordered_map.hpp>
 
-#include "pvmachinima.h"
-#include "pvperformancemaid.h"
-#include "fsassetblacklist.h"
-
-#include "llagentui.h"
-
 using namespace LLAvatarAppearanceDefines;
 
 typedef LLPointer<LLViewerObject> LLViewerObjectPtr;
@@ -157,9 +145,6 @@ static boost::unordered_map<std::string, LLStringExplicit> sDefaultItemLabels;
 
 BOOL enable_land_build(void*);
 BOOL enable_object_build(void*);
-
-LLVOAvatar* find_avatar_from_object( LLViewerObject* object );
-LLVOAvatar* find_avatar_from_object( const LLUUID& object_id );
 
 void handle_test_load_url(void*);
 
@@ -540,8 +525,7 @@ void init_menus()
 	LLRect menuBarRect = gLoginMenuBarView->getRect();
 	menuBarRect.setLeftTopAndSize(0, menu_bar_holder->getRect().getHeight(), menuBarRect.getWidth(), menuBarRect.getHeight());
 	gLoginMenuBarView->setRect(menuBarRect);
-	// do not set colors in code, always lat the skin decide. -Zi
-	// gLoginMenuBarView->setBackgroundColor( color );
+	gLoginMenuBarView->setBackgroundColor( color );
 	menu_bar_holder->addChild(gLoginMenuBarView);
 	
 	// tooltips are on top of EVERYTHING, including menus
@@ -844,10 +828,10 @@ U32 feature_from_string(std::string feature)
 	{
 		return LLPipeline::RENDER_DEBUG_FEATURE_DYNAMIC_TEXTURES;
 	}
-	//else if ("foot shadows" == feature)
-	//{
-	//	return LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS;
-	//}
+	else if ("foot shadows" == feature)
+	{
+		return LLPipeline::RENDER_DEBUG_FEATURE_FOOT_SHADOWS;
+	}
 	else if ("fog" == feature)
 	{
 		return LLPipeline::RENDER_DEBUG_FEATURE_FOG;
@@ -1754,9 +1738,8 @@ class LLAdvancedToggleShowLookAt : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		static const std::string lookat_str = "PVPrivacy_LookAtShow";
-		bool value = !gSavedSettings.getBOOL(lookat_str);
-		gSavedSettings.setBOOL(lookat_str, value);
+		bool value = !gSavedSettings.getBOOL("AlchemyLookAtShow");
+		gSavedSettings.setBOOL("AlchemyLookAtShow", value);
 		return true;
 	}
 };
@@ -1765,8 +1748,7 @@ class LLAdvancedCheckShowLookAt : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		static const std::string lookat_str = "PVPrivacy_LookAtShow";
-		bool new_value = gSavedSettings.getBOOL(lookat_str);
+		bool new_value = gSavedSettings.getBOOL("AlchemyLookAtShow");
 		return new_value;
 	}
 };
@@ -2140,7 +2122,7 @@ class LLAdvancedShowDebugSettings : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLFloaterReg::toggleInstanceOrBringToFront("settings_debug"); // <polarity>
+		LLFloaterReg::showInstance("settings_debug",userdata);
 		return true;
 	}
 };
@@ -2363,70 +2345,6 @@ class LLAdvancedEnableToggleHackedGodmode : public view_listener_t
 };
 #endif
 
-//
-////-------------------------------------------------------------------
-//// Polarity menu
-////-------------------------------------------------------------------
-
-class PVMenuPanicButton : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		PVPerformanceMaid::TriggerPanicMode();
-		return true;
-	}
-};
-
-class PVMenuCinematicMode : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		if (gAgentCamera.getCameraMode() == CAMERA_MODE_MOUSELOOK)
-		{
-			// Do nothing
-			return false;
-		}
-
-		LLNotification::Params params("CinematicConfirmHideUI");
-		params.functor.function(boost::bind(&PVMenuCinematicMode::confirm, this, _1, _2));
-		LLSD substitutions;
-#if LL_DARWIN
-		substitutions["SHORTCUT"] = "Ctrl+Alt+Shift+C";
-#else
-		substitutions["SHORTCUT"] = "Alt+Shift+C";
-#endif
-		params.substitutions = substitutions;
-		if (!PVMachinimaTools::isEnabled())
-		{
-			// hiding, so show notification
-			LLNotifications::instance().add(params);
-		}
-		else
-		{
-			LLNotifications::instance().forceResponse(params, 0);
-		}
-		return true;
-	}
-
-	void confirm(const LLSD& notification, const LLSD& response)
-	{
-		S32 option = LLNotificationsUtil::getSelectedOption(notification, response);
-		if (option == 0) // OK
-		{
-			PVMachinimaTools::toggleCinematicMode();
-		}
-	}
-};
-
-class PVMenuMachinimaSidebar : public view_listener_t
-{
-
-	bool handleEvent(const LLSD& userdata)
-	{
-		gSavedSettings.setBOOL("PVUI_MachinimaSidebar", !gSavedSettings.getBOOL("PVUI_MachinimaSidebar"));
-		return true;
-	}
-};
 
 //
 ////-------------------------------------------------------------------
@@ -2452,14 +2370,6 @@ class LLDevelopSetLoggingLevel : public view_listener_t
 	bool handleEvent(const LLSD& userdata)
 	{
 		U32 level = userdata.asInteger();
-		// <polarity> Don't use Error level to avoid crashing every time *something* happens,
-		// skip directly to "none"
-		if (level == LLError::LEVEL_ERROR)
-		{
-			level = LLError::LEVEL_NONE;
-		}
-		// NaCl - Store Log Level
-		gSavedSettings.setU32("_NACL_LogLevel", level);
 		LLError::setDefaultLevel(static_cast<LLError::ELevel>(level));
 		return true;
 	}
@@ -2620,121 +2530,6 @@ void cleanup_menus()
 //-----------------------------------------------------------------------------
 // Object pie menu
 //-----------------------------------------------------------------------------
-// <FS:Ansariel> FIRE-6970/FIRE-6998: Optional permanent derendering of multiple objects
-void derenderObject(bool permanent)
-{
-	bool need_save = false;
-	LLViewerObject* objp;
-	LLSelectMgr* select_mgr = LLSelectMgr::getInstance();
-
-	while ((objp = select_mgr->getSelection()->getFirstRootObject(TRUE)))
-	{
-//		if ( (objp) && (gAgentID != objp->getID()) )
-		if ( (objp) && ((gAgentID != objp->getID()) || (!objp->isAttachment()) || (!objp->permYouOwner())))
-		{
-				LLUUID id = objp->getID(); // Fix crash on teleport with blacklisted objects
-				std::string entry_name = "";
-				std::string region_name;
-				LLAssetType::EType asset_type;
-
-			if (objp->isAvatar())
-			{
-				LLNameValue* firstname = objp->getNVPair("FirstName");
-				LLNameValue* lastname = objp->getNVPair("LastName");
-				entry_name = llformat("%s %s", firstname->getString(), lastname->getString());
-				asset_type = LLAssetType::AT_PERSON;
-			}
-			else
-			{
-				bool next_object = false;
-				LLViewerObject::child_list_t object_children = objp->getChildren();
-				for (LLViewerObject::child_list_t::const_iterator it = object_children.begin(); it != object_children.end(); it++)
-				{
-					LLViewerObject* child = *it;
-					if (child->isAvatar() && child->asAvatar()->isSelf())
-					{
-						{
-							gAgent.standUp();
-						}
-						break;
-					}
-				}
-
-				if (next_object)
-				{
-					continue;
-				}
-
-				LLSelectNode* nodep = select_mgr->getSelection()->getFirstRootNode();
-				if (nodep)
-				{
-					if (!nodep->mName.empty())
-					{
-						entry_name = nodep->mName;
-					}
-				}
-				LLViewerRegion* region = objp->getRegion();
-				if (region)
-				{
-					region_name = region->getName();
-				}
-				asset_type = LLAssetType::AT_OBJECT;
-			}
-			
-			FSAssetBlacklist::getInstance()->addNewItemToBlacklist(id, entry_name, region_name, asset_type, permanent, false);
-			
-			if (permanent)
-			{
-				need_save = true;
-			}
-
-			select_mgr->deselectObjectOnly(objp);
-			gObjectList.addDerenderedItem(id, permanent);
-			gObjectList.killObject(objp);
-			if (LLViewerRegion::sVOCacheCullingEnabled && objp->getRegion())
-			{
-				objp->getRegion()->killCacheEntry(objp->getLocalID());
-			}
-
-			LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
-			LLViewerObject* tool_editing_object = tool->getEditingObject();
-			if (tool_editing_object && tool_editing_object->mID == id)
-			{
-				tool->stopEditing();
-			}
-
-		}
-		else if( (objp) && (gAgentID != objp->getID()) && ((objp->isAttachment()) || (objp->permYouOwner())) )
-		{
-			select_mgr->deselectObjectOnly(objp);
-			return;
-		}
-	}
-
-	if (need_save)
-	{
-		FSAssetBlacklist::getInstance()->saveBlacklist();
-	}
-}
-
-class LLObjectDerenderPermanent : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		derenderObject(true);
-		return true;
-	}
-};
-
-class LLObjectDerender : public view_listener_t
-{
-    bool handleEvent(const LLSD& userdata)
-    {
-		derenderObject(false);
-		return true;
-    }
-};
-// </FS:Ansariel>
 
 class LLObjectReportAbuse : public view_listener_t
 {
@@ -4077,19 +3872,6 @@ void handle_object_sit_or_stand()
 		gMessageSystem->addUUIDFast(_PREHASH_TargetID, object->mID);
 		gMessageSystem->addVector3Fast(_PREHASH_Offset, pick.mObjectOffset);
 
-		// <polarity> Remember UUID of the prim we're sitting on at logout and automatically re-sit on it if in vicinity at login
-		// This section of code saves the state of the camera when we requested to sit on the object, allowing us to re-sit in the same position
-		gSavedPerAccountSettings.setVector3("PVMovement_LastSatUponObjectOffset", pick.mObjectOffset);
-		gSavedPerAccountSettings.setVector3d("PVMovement_LastSatUponObjectCamPosition", gAgentCamera.getCameraPositionGlobal());
-		gSavedPerAccountSettings.setVector3d("PVMovement_LastSatUponObjectCamFocus", gAgentCamera.getFocusTargetGlobal());
-		LLUUID focus_object_id = LLUUID::null;
-		if (gAgentCamera.getFocusObject())
-		{
-			focus_object_id = gAgentCamera.getFocusObject()->getID();
-		}
-		gSavedPerAccountSettings.setString("PVMovement_LastSatUponObjectCamFocusObject", focus_object_id.getString());
-		// </polarity>
-
 		object->getRegion()->sendReliableMessage();
 	}
 }
@@ -4608,8 +4390,7 @@ static void derez_objects(
 				LLViewerObject* object = objectsp->at(object_index++);
 				msg->nextBlockFast(_PREHASH_ObjectData);
 				msg->addU32Fast(_PREHASH_ObjectLocalID, object->getLocalID());
-				LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", FALSE);
-				if (!PVPrivacy_HideEditBeam)
+				if (!gSavedSettings.getBOOL("AlchemyPointAtDisable"))
 				{
 					// VEFFECT: DerezObject
 					LLHUDEffectSpiral* effectp = (LLHUDEffectSpiral*)LLHUDManager::getInstance()->createViewerEffect(LLHUDObject::LL_HUD_EFFECT_POINT, TRUE);
@@ -6017,20 +5798,6 @@ class LLWorldCreateLandmark : public view_listener_t
 		return true;
 	}
 };
-
-// <FS:Ansariel> Toggle teleport history panel directly
-void toggleTeleportHistory()
-{
-	if (LLFloaterReg::instanceVisible("places"))
-	{
-		LLFloaterReg::hideInstance("places");
-	}
-	else
-	{
-		LLFloaterSidePanelContainer::showPanel("places", LLSD().with("type", "open_teleport_history_tab"));
-	}
-}
-// </FS:Ansariel> Toggle teleport history panel directly
 
 class LLWorldPlaceProfile : public view_listener_t
 {
@@ -7494,37 +7261,13 @@ class LLAdvancedClickRenderProfile: public view_listener_t
 	}
 };
 
+F32 gpu_benchmark(bool force_run);
+
 class LLAdvancedClickRenderBenchmark: public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
 		gpu_benchmark(true);
-		return true;
-	}
-};
-
-//[FIX FIRE-1927 - enable DoubleClickTeleport shortcut : SJ]
-class LLAdvancedToggleDoubleClickTeleport: public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		static LLCachedControl<bool> dbl_click_teleport(gSavedSettings, "DoubleClickTeleport");
-		LLSD args;
-		if (dbl_click_teleport)
-		{
-			static LLCachedControl<bool> dbl_click_autoplt(gSavedSettings, "DoubleClickAutoPilot");
-			if(dbl_click_autoplt)
-			{
-				gSavedSettings.setBOOL("DoubleClickAutoPilot", FALSE);
-			}
-			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportDisabled");
-		}
-		else
-		{
-			args["MESSAGE"] = LLTrans::getString("DoubleClickTeleportEnabled");
-		}
-		gSavedSettings.setBOOL("DoubleClickTeleport", !dbl_click_teleport);
-		LLNotificationsUtil::add("SystemMessageTip", args);
 		return true;
 	}
 };
@@ -7714,8 +7457,7 @@ class LLViewEnableMouselook : public view_listener_t
 	{
 		// You can't go directly from customize avatar to mouselook.
 		// TODO: write code with appropriate dialogs to handle this transition.
-		static LLCachedControl<bool> freeze_time(gSavedSettings, "FreezeTime", false);
-		bool new_value = (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && !freeze_time);
+		bool new_value = (CAMERA_MODE_CUSTOMIZE_AVATAR != gAgentCamera.getCameraMode() && !gSavedSettings.getBOOL("FreezeTime"));
 		return new_value;
 	}
 };
@@ -8135,22 +7877,6 @@ void handle_show_url(const LLSD& param)
 		LLWeb::loadURLInternal(url);
 	}
 
-}
-
-void handle_report_bug(const LLSD& param)
-{
-	LLUIString url(param.asString());
-	
-	LLStringUtil::format_map_t replace;
-	replace["[ENVIRONMENT]"] = LLURI::escape(LLAppViewer::instance()->getViewerInfoString());
-	LLSLURL location_url;
-	LLAgentUI::buildSLURL(location_url);
-	replace["[LOCATION]"] = LLURI::escape(location_url.getSLURLString());
-
-	LLUIString file_bug_url = gSavedSettings.getString("ReportBugURL");
-	file_bug_url.setArgs(replace);
-
-	LLWeb::loadURLExternal(file_bug_url.getString());
 }
 
 void handle_buy_currency_test(void*)
@@ -8698,105 +8424,8 @@ class LLWorldPostProcess : public view_listener_t
 {
 	bool handleEvent(const LLSD& userdata)
 	{
-		LLSelectMgr::getInstance()->refreshSelectionTextures();
 		LLFloaterReg::showInstance("env_post_process");
 		return true;
-	}
-};
-
-class PLVRTerrainTextureRefresh : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLViewerParcelMgr::getInstance()->selectParcelAt(LLToolPie::getInstance()->getPick().mPosGlobal);
-		LLVLComposition* region_composition = LLViewerParcelMgr::getInstance()->getSelectionRegion()->getComposition();
-
-		for (S32 i = 0; i < 4; i++)
-		{
-			LLViewerFetchedTexture* texture = region_composition->getDetailTexture(i);
-
-			texture->clearFetchedResults();
-			LLAppViewer::getTextureCache()->removeFromCache(texture->getID());
-		}
-
-		return true;
-	}
-};
-
-class PLVRAvatarTextureRefresh : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
-		
-		LLVOAvatar* avatar = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		textures_to_refresh.insert(avatar->getTE(TEX_HAIR_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(TEX_HEAD_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(TEX_EYES_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(TEX_UPPER_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(TEX_LOWER_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(TEX_SKIRT_BAKED)->getID());
-		
-		std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
-		avatar->addThisAndAllChildren(objects);
-		
-		LLSelectMgr::getInstance()->setForceSelection(TRUE);
-		
-		LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-		if (objects.size() > 0)
-		{
-			for (LLViewerObject* viewer_object : objects)
-			{
-				if (viewer_object != avatar)
-				{
-					selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
-				}
-			}
-		}
-		
-		//LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->selectObjectAndFamily(avatar);
-		LLSelectMgr::getInstance()->refreshSelectionTextures(textures_to_refresh);
-		
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(avatar->getID());
-		
-		LLSelectMgr::getInstance()->setForceSelection(FALSE);
-		
-		return true;
-	}
-};
-// </polarity>
-
-// <polarity> Copy Key. From Alchemy's CopyData.
-class PLVRCopKey : public view_listener_t
-{
-	bool handleEvent(const LLSD& userdata)
-	{
-		LLVOAvatar* avatarp = find_avatar_from_object(LLSelectMgr::getInstance()->getSelection()->getPrimaryObject());
-		if (avatarp)
-		{
-			const std::string& param = userdata.asString();
-			if (param == "copy_name")
-			{
-				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_NAME);
-				return true;
-			}
-			if (param == "copy_displayname")
-			{
-				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_DISPLAYNAME);
-				return true;
-			}
-			else if (param == "copy_slurl")
-			{
-				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_SLURL);
-				return true;
-			}
-			else if (param == "copy_key")
-			{
-				LLAvatarActions::copyData(avatarp->getID(), LLAvatarActions::E_DATA_UUID);
-				return true;
-			}
-		}
-		return false;
 	}
 };
 
@@ -9140,8 +8769,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedClickRenderProfile(), "Advanced.ClickRenderProfile");
 	view_listener_t::addMenu(new LLAdvancedClickRenderBenchmark(), "Advanced.ClickRenderBenchmark");
 
-	//[FIX FIRE-1927 - enable DoubleClickTeleport shortcut : SJ]
-	view_listener_t::addMenu(new LLAdvancedToggleDoubleClickTeleport, "Advanced.ToggleDoubleClickTeleport");
 	#ifdef TOGGLE_HACKED_GODLIKE_VIEWER
 	view_listener_t::addMenu(new LLAdvancedHandleToggleHackedGodmode(), "Advanced.HandleToggleHackedGodmode");
 	view_listener_t::addMenu(new LLAdvancedCheckToggleHackedGodmode(), "Advanced.CheckToggleHackedGodmode");
@@ -9156,7 +8783,6 @@ void initialize_menus()
 	commit.add("Advanced.WebBrowserTest", boost::bind(&handle_web_browser_test,	_2));	// sigh! this one opens the MEDIA browser
 	commit.add("Advanced.WebContentTest", boost::bind(&handle_web_content_test, _2));	// this one opens the Web Content floater
 	commit.add("Advanced.ShowURL", boost::bind(&handle_show_url, _2));
-	commit.add("Advanced.ReportBug", boost::bind(&handle_report_bug, _2));
 	view_listener_t::addMenu(new LLAdvancedBuyCurrencyTest(), "Advanced.BuyCurrencyTest");
 	view_listener_t::addMenu(new LLAdvancedDumpSelectMgr(), "Advanced.DumpSelectMgr");
 	view_listener_t::addMenu(new LLAdvancedDumpInventory(), "Advanced.DumpInventory");
@@ -9228,12 +8854,6 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLAdvancedToggleAgentPilotLoop(), "Advanced.ToggleAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedCheckAgentPilotLoop(), "Advanced.CheckAgentPilotLoop");
 	view_listener_t::addMenu(new LLAdvancedViewerEventRecorder(), "Advanced.EventRecorder");
-
-	// Polarity Menu
-	// FIXME: inaccessible private member
-	view_listener_t::addMenu(new PVMenuPanicButton(), "Polarity.PanicButton");
-	view_listener_t::addMenu(new PVMenuCinematicMode(), "Polarity.CinematicMode");
-	view_listener_t::addMenu(new PVMenuMachinimaSidebar(), "Polarity.MachinimaSidebar");
 
 	// Advanced > Debugging
 	view_listener_t::addMenu(new LLAdvancedForceErrorBreakpoint(), "Advanced.ForceErrorBreakpoint");
@@ -9320,10 +8940,11 @@ void initialize_menus()
 	commit.add("Avatar.EstateKick", boost::bind(&handle_estate_kick, LLSD()));
 	commit.add("Avatar.EstateBan", boost::bind(&handle_estate_ban, LLSD()));
 
-	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
+	commit.add("Avatar.OpenMarketplace", boost::bind(&LLWeb::loadURLExternal, gSavedSettings.getString("MarketplaceURL")));
 	
 	view_listener_t::addMenu(new LLAvatarEnableAddFriend(), "Avatar.EnableAddFriend");
 	enable.add("Avatar.EnableFreezeEject", boost::bind(&enable_freeze_eject, _2));
+
 
 	// Object pie menu
 	view_listener_t::addMenu(new LLObjectBuild(), "Object.Build");
@@ -9336,8 +8957,6 @@ void initialize_menus()
 	commit.add("Object.Duplicate", boost::bind(&LLSelectMgr::duplicate, LLSelectMgr::getInstance()));
 	view_listener_t::addMenu(new LLObjectReportAbuse(), "Object.ReportAbuse");
 	view_listener_t::addMenu(new LLObjectMute(), "Object.Mute");
-	view_listener_t::addMenu(new LLObjectDerender(), "Object.Derender");
-	view_listener_t::addMenu(new LLObjectDerenderPermanent(), "Object.DerenderPermanent"); // <FS:Ansariel> Optional derender & blacklist
 
 	enable.add("Object.VisibleTake", boost::bind(&visible_take_object));
 	enable.add("Object.VisibleBuy", boost::bind(&visible_buy_object));
@@ -9423,19 +9042,5 @@ void initialize_menus()
 	view_listener_t::addMenu(new LLEditableSelectedMono(), "EditableSelectedMono");
 	view_listener_t::addMenu(new LLToggleUIHints(), "ToggleUIHints");
 
-	// <FS:Ansariel> Toggle teleport history panel directly
-	commit.add("ToggleTeleportHistory", boost::bind(&toggleTeleportHistory));
-	// </FS:Ansariel>
-
 	ALViewerMenu::initialize_menus();
-
-	// <polarity> PLVR-32 Refresh texture on objects and avatars
-	//view_listener_t::addMenu(new PLVRObjectTextureRefresh(), "Polarity.Object.TextureRefresh"); // FIXME
-	view_listener_t::addMenu(new PLVRAvatarTextureRefresh(), "Polarity.Avatar.TextureRefresh");
-	view_listener_t::addMenu(new PLVRTerrainTextureRefresh(), "Polarity.Terrain.TextureRefresh");
-	// </polarity>
-
-	// <polarity> Copy Key to clipboard
-	view_listener_t::addMenu(new PLVRCopKey(), "Polarity.Common.CopyData");
-	// </polarity>
 }

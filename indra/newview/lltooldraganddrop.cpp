@@ -1381,9 +1381,9 @@ void LLToolDragAndDrop::dropObject(LLViewerObject* raycast_target,
 	msg->addUUIDFast(_PREHASH_SessionID,  gAgent.getSessionID());
 
 	//<alchemy> Rez under Land Group
-	static LLCachedControl<bool> PVTools_RezUnderLandGroup(gSavedSettings, "PVTools_RezUnderLandGroup");
+	static LLCachedControl<bool> AlchemyRezUnderLandGroup(gSavedSettings, "AlchemyRezUnderLandGroup");
 	LLUUID group_id = gAgent.getGroupID();
-	if (PVTools_RezUnderLandGroup)
+	if (AlchemyRezUnderLandGroup)
 	{
 		LLParcel* land_parcel = LLViewerParcelMgr::getInstance()->getAgentParcel();
 		// Is the agent in the land group

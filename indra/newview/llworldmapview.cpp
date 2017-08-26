@@ -135,9 +135,9 @@ void LLWorldMapView::initClass()
 	sTrackCircleImage =		LLUI::getUIImage("map_track_16.tga");
 	sTrackArrowImage =		LLUI::getUIImage("direction_arrow.tga");
 	sClassifiedsImage =		LLUI::getUIImage("icon_top_pick.tga");
-	sForSaleImage =			LLUI::getUIImage("icon_for_sale");
+	sForSaleImage =			LLUI::getUIImage("icon_for_sale.tga");
 	// To Do: update the image resource for adult lands on sale.
-	sForSaleAdultImage =    LLUI::getUIImage("icon_for_sale_adult");
+	sForSaleAdultImage =    LLUI::getUIImage("icon_for_sale_adult.tga");
 	
 	sStringsMap["loading"] = LLTrans::getString("texture_loading");
 	sStringsMap["offline"] = LLTrans::getString("worldmap_offline");
@@ -462,7 +462,10 @@ void LLWorldMapView::draw()
 		// Draw the region name in the lower left corner
 		if (sMapScale >= DRAW_TEXT_THRESHOLD)
 		{
-			static LLCachedControl<bool> mapShowAgentCount(gSavedSettings, "PVUI_MapShowAgentCount"); // <alchemy/>
+			// <alchemy/>
+			static LLCachedControl<bool> mapShowAgentCount(gSavedSettings, "AlchemyMapShowAgentCount");
+			// </alchemy>
+
 			LLFontGL* font = LLFontGL::getFont(LLFontDescriptor("SansSerif", "Small", LLFontGL::BOLD));
 			std::string mesg;
 			if (info->isDown())
@@ -1136,7 +1139,7 @@ static void drawDot(F32 x_pixels, F32 y_pixels,
 			 F32 dot_radius,
 			 LLUIImagePtr dot_image)
 {
-	/*const*/ F32 HEIGHT_THRESHOLD = 7.f; // <polarity/>
+	const F32 HEIGHT_THRESHOLD = 7.f;
 
 	if(-HEIGHT_THRESHOLD <= relative_z && relative_z <= HEIGHT_THRESHOLD)
 	{
@@ -1187,8 +1190,6 @@ void LLWorldMapView::drawAvatar(F32 x_pixels,
 	}
 	else
 	{
-		// <polarity> Configurable height threshold
-		static LLCachedControl<F32> HEIGHT_THRESHOLD(gSavedSettings, "PVUI_MapHeightThreshold");
 		if(relative_z < -HEIGHT_THRESHOLD)
 		{
 			dot_image = sAvatarBelowImage; 

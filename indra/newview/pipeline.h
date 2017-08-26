@@ -93,7 +93,6 @@ extern LLTrace::BlockTimerStatHandle FTM_CLIENT_COPY;
 class LLPipeline
 {
 public:
-	typedef LLPipeline _LL_CLASS_TO_LOG; // <polarity/>
 	LLPipeline();
 	~LLPipeline();
 
@@ -132,10 +131,6 @@ public:
 	void resetVertexBuffers(LLDrawable* drawable);
 	void generateImpostor(LLVOAvatar* avatar);
 	void bindScreenToTexture();
-#ifdef GAUSSIAN_BLUR
-	static void BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader); // <polarity/> Gaussian Blur
-#endif
-
 	void renderBloom(BOOL for_snapshot, F32 zoom_factor = 1.f, int subfield = 0);
 
 	void init();
@@ -493,11 +488,8 @@ public:
 // 		RENDER_DEBUG_FEATURE_HW_LIGHTING		= 0x0010,
 		RENDER_DEBUG_FEATURE_FLEXIBLE			= 0x0010,
 		RENDER_DEBUG_FEATURE_FOG				= 0x0020,
-		// <Black Dragon:NiranV> Remove foot shadows
-		//RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
-		//RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
-		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080
-		// </Black Dragon:NiranV>
+		RENDER_DEBUG_FEATURE_FR_INFO			= 0x0080,
+		RENDER_DEBUG_FEATURE_FOOT_SHADOWS		= 0x0100,
 	};
 
 	enum LLRenderDebugMask
@@ -839,10 +831,6 @@ public:
 	static BOOL				sRenderBeacons;
 	static BOOL				sRenderHighlight;
 
-#ifdef GAUSSIAN_BLUR	
-	static BOOL				sRenderGaussianBlur; // <polarity> Gaussian blur shader
-#endif
-
 	// Determines which set of UVs to use in highlight display
 	//
 	static LLRender::eTexIndex sRenderHighlightTextureChannel;
@@ -927,20 +915,9 @@ public:
 	static F32 CameraMaxCoF;
 	static F32 CameraDoFResScale;
 	static F32 RenderAutoHideSurfaceAreaLimit;
-
 	static BOOL RenderDeferredAlwaysSoftenShadows;
 	static BOOL RenderAggressiveBatching;
 	static BOOL RenderDeferredFullbright;
-
-//	//BD - Special Options
-	static BOOL CameraFreeDoFFocus;
-	static BOOL RenderSnapshotAutoAdjustMultiplier;
-	static F32 RenderChromaStrength;
-	static F32 RenderSnapshotMultiplier;
-
-	// <polarity>
-	static F32 RenderShadowFarClip;
-	// </polarity>
 };
 
 void render_hud_elements();

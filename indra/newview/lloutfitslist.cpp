@@ -49,8 +49,6 @@
 #include "llvoavatar.h"
 #include "llvoavatarself.h"
 #include "llwearableitemslist.h"
-#include "llviewercontrol.h"
-#include "lleconomy.h"
 
 static bool is_tab_header_clicked(LLAccordionCtrlTab* tab, S32 y);
 
@@ -847,31 +845,7 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
     LLInventoryModel::item_array_t item_array;
 
     // Collect all sub-categories of a given category.
-	// <FS:ND> FIRE-6958/VWR-2862; Make sure to only collect folders of type FT_OUTFIT
-
-	class ndOutfitsCollector: public LLIsType
-	{
-	public:
-		ndOutfitsCollector()
-			: LLIsType( LLAssetType::AT_CATEGORY )
-		{ }
-
-		virtual bool operator()(LLInventoryCategory* cat, LLInventoryItem* item)
-		{
-			if( !LLIsType::operator()( cat, item ) )
-				return false;
-
-			if( cat && LLFolderType::FT_OUTFIT == cat->getPreferredType() )
-				return true;
-
-			return false;
-		}
-	};
-
-	//	LLIsType is_category(LLAssetType::AT_CATEGORY);
-	ndOutfitsCollector is_category;
-
-	// </FS:ND>
+    LLIsType is_category(LLAssetType::AT_CATEGORY);
     gInventory.collectDescendentsIf(
         category_id,
         cat_array,
@@ -884,18 +858,6 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
 
     // Create added and removed items vectors.
     computeDifference(cat_array, vadded, vremoved);
-    
-	// <FS:ND> FIRE-6958/VWR-2862; Handle large amounts of outfits, write a least a warning into the logs.
-	if( vadded.size() > 128 )
-		LL_WARNS() << "Large amount of outfits found: " << vadded.size() << " this may cause hangs and disconnects" << LL_ENDL;
-
-	U32 nCap = gSavedSettings.getU32( "PVUI_DisplaySavedOutfitsCap" );
-	if( nCap && nCap < vadded.size() )
-	{
-		vadded.resize( nCap );
-		LL_WARNS() << "Capped outfits to " << nCap << " due to debug setting PVUI_DisplaySavedOutfitsCap" << LL_ENDL;
-	}
-	// </FS:ND>
 
     // Handle added tabs.
     for (uuid_vec_t::const_iterator iter = vadded.begin();
@@ -905,9 +867,6 @@ void LLOutfitListBase::refreshList(const LLUUID& category_id)
         const LLUUID cat_id = (*iter);
         updateAddedCategory(cat_id);
     }
-
-    // <FS:ND> We called mAccordion->addCollapsibleCtrl with false as second paramter and did not let it arrange itself each time. Do this here after all is said and done.
-    arrange();
 
     // Handle removed tabs.
     for (uuid_vec_t::const_iterator iter = vremoved.begin(); iter != vremoved.end(); ++iter)
@@ -982,16 +941,6 @@ void LLOutfitListBase::highlightBaseOutfit()
 
 void LLOutfitListBase::removeSelected()
 {
-	// <FS:Ansariel> FIRE-15888: Include outfit name in delete outfit confirmation dialog
-	LLViewerInventoryCategory* cat = gInventory.getCategory(mSelectedOutfitUUID);
-	if (cat)
-	{
-		LLSD args;
-		args["NAME"] = cat->getName();
-		LLNotificationsUtil::add("DeleteOutfitsWithName", args, LLSD(), boost::bind(&LLOutfitsList::onOutfitsRemovalConfirmation, this, _1, _2));
-	}
-	else
-	// </FS:Ansariel>
     LLNotificationsUtil::add("DeleteOutfits", LLSD(), LLSD(), boost::bind(&LLOutfitListBase::onOutfitsRemovalConfirmation, this, _1, _2));
 }
 
@@ -1173,14 +1122,6 @@ LLOutfitListGearMenuBase::LLOutfitListGearMenuBase(LLOutfitListBase* olist)
     mMenu = LLUICtrlFactory::getInstance()->createFromFile<LLToggleableMenu>(
         "menu_outfit_gear.xml", gMenuHolder, LLViewerMenuHolderGL::child_registry_t::instance());
     llassert(mMenu);
-
-    // </FS:Ansariel> Show correct upload fee in context menu
-    LLMenuItemCallGL* upload_item = mMenu->findChild<LLMenuItemCallGL>("upload_photo");
-    if (upload_item)
-    {
-        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload()));
-    }
-    // </FS:Ansariel>
 }
 
 LLOutfitListGearMenuBase::~LLOutfitListGearMenuBase()

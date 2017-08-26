@@ -134,7 +134,6 @@
 // Expensive and currently broken
 //
 #define MATERIALS_IN_REFLECTIONS 0
-#define shadow_min_alpha 0.598f
 
 bool gShiftFrame = false;
 
@@ -219,15 +218,6 @@ BOOL LLPipeline::RenderDeferredAlwaysSoftenShadows;
 BOOL LLPipeline::RenderAggressiveBatching;
 BOOL LLPipeline::RenderDeferredFullbright;
 
-//BD - Special Options
-BOOL LLPipeline::CameraFreeDoFFocus;
-BOOL LLPipeline::RenderSnapshotAutoAdjustMultiplier;
-F32 LLPipeline::RenderSnapshotMultiplier;
-
-F32 LLPipeline::RenderShadowFarClip; // </polarity>
-
-//bool	LLPipeline::sRenderParticles; // <FS:LO> flag to hold correct, user selected, status of particles
-
 LLTrace::EventStatHandle<S64> LLPipeline::sStatBatchSize("renderbatchsize");
 
 const F32 BACKLIGHT_DAY_MAGNITUDE_OBJECT = 0.1f;
@@ -283,12 +273,6 @@ static LLTrace::BlockTimerStatHandle FTM_STATESORT_POSTSORT("Post Sort");
 
 static LLStaticHashedString sDelta("delta");
 static LLStaticHashedString sDistFactor("dist_factor");
-
-#ifdef GAUSSIAN_BLUR
-//<polarity> Gaussian Blur
-static LLStaticHashedString sGaussian("gaussian");
-// </polarity>
-#endif
 
 //----------------------------------------
 std::string gPoolNames[] = 
@@ -402,10 +386,6 @@ BOOL    LLPipeline::sMemAllocationThrottled = FALSE;
 S32		LLPipeline::sVisibleLightCount = 0;
 F32		LLPipeline::sMinRenderSize = 0.f;
 BOOL	LLPipeline::sRenderingHUDs = FALSE;
-
-#ifdef GAUSSIAN_BLUR
-BOOL	LLPipeline::sRenderGaussianBlur = FALSE; // <polarity> Gaussian blur shader
-#endif
 
 // EventHost API LLPipeline listener.
 static LLPipelineListener sPipelineListener;
@@ -650,22 +630,9 @@ void LLPipeline::init()
 	connectRefreshCachedSettingsSafe("CameraMaxCoF");
 	connectRefreshCachedSettingsSafe("CameraDoFResScale");
 	connectRefreshCachedSettingsSafe("RenderAutoHideSurfaceAreaLimit");
-
 	connectRefreshCachedSettingsSafe("RenderDeferredAlwaysSoftenShadows");
 	connectRefreshCachedSettingsSafe("RenderAggressiveBatching");
 	connectRefreshCachedSettingsSafe("RenderDeferredFullbright");
-
-//	//BD - Special Options
-	connectRefreshCachedSettingsSafe("CameraFreeDoFFocus");
-	connectRefreshCachedSettingsSafe("RenderSnapshotAutoAdjustMultiplier");
-	connectRefreshCachedSettingsSafe("RenderSnapshotMultiplier");
-
-//	//BD - Shadow Map Allocation
-	connectRefreshCachedSettingsSafe("PVRender_ProjectorShadowResolution");
-// <polarity> Sync Shadow Far Clip with Render Far Clip
-	connectRefreshCachedSettingsSafe("RenderShadowFarClip"); 	// <polarity/>
-// </polarity>
-	stop_glerror();
 }
 
 LLPipeline::~LLPipeline()
@@ -933,17 +900,6 @@ bool LLPipeline::allocateScreenBuffer(U32 resX, U32 resY, U32 samples)
 	
 	U32 res_mod = RenderResolutionDivisor;
 
-	//<FS:TS> FIRE-7066: RenderResolutionDivisor broken if higher than
-	//	smallest screen dimension
-	if (res_mod >= resX)
-	{
-		res_mod = resX - 1;
-	}
-	if (res_mod >= resY)
-	{
-		res_mod = resY - 1;
-	}
-	//</FS:TS> FIRE-7066
 	if (res_mod > 1 && res_mod < resX && res_mod < resY)
 	{
 		resX /= res_mod;
@@ -1118,11 +1074,7 @@ void LLPipeline::refreshCachedSettings()
 			&& LLGLSLShader::sNoFixedFunction
 			&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion") 
 			&& gSavedSettings.getBOOL("UseOcclusion") 
-			&& gGLManager.mHasOcclusionQuery) ? 2 : 0; // <polarity> TODO: Investigate making this a bool again
-
-// <polarity> TODO: Re-implement			
-//	//BD - Freeze World
-//			&& !gSavedSettings.getBOOL("PVRender_FreezeWorld")  ? 2 : 0;
+			&& gGLManager.mHasOcclusionQuery) ? 2 : 0;
 	
 	VertexShaderEnable = gSavedSettings.getBOOL("VertexShaderEnable");
 	RenderAvatarVP = gSavedSettings.getBOOL("RenderAvatarVP");
@@ -1199,16 +1151,11 @@ void LLPipeline::refreshCachedSettings()
 	CameraOffset = gSavedSettings.getBOOL("CameraOffset");
 	CameraMaxCoF = gSavedSettings.getF32("CameraMaxCoF");
 	CameraDoFResScale = gSavedSettings.getF32("CameraDoFResScale");
-	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");   
-  	RenderDeferredAlwaysSoftenShadows = gSavedSettings.getBOOL("RenderDeferredAlwaysSoftenShadows");
-	RenderAggressiveBatching = gSavedSettings.getBOOL("RenderAggressiveBatching");
-	RenderDeferredFullbright = gSavedSettings.getBOOL("RenderDeferredFullbright");
-//	//BD - Special Options
-	CameraFreeDoFFocus = gSavedSettings.getBOOL("CameraFreeDoFFocus");
+	RenderAutoHideSurfaceAreaLimit = gSavedSettings.getF32("RenderAutoHideSurfaceAreaLimit");
 	RenderDeferredAlwaysSoftenShadows = gSavedSettings.getBOOL("RenderDeferredAlwaysSoftenShadows");
 	RenderAggressiveBatching = gSavedSettings.getBOOL("RenderAggressiveBatching");
 	RenderDeferredFullbright = gSavedSettings.getBOOL("RenderDeferredFullbright");
-	RenderShadowFarClip = gSavedSettings.getF32("RenderShadowFarClip");
+	
 	updateRenderDeferred();
 }
 
@@ -7094,37 +7041,10 @@ void validate_framebuffer_object()
 	}
 }
 
-// <polarity/> Unused 2016.11.27
-//void LLPipeline::bindScreenToTexture() const
-//{
-//	
-//}
-
-#ifdef GAUSSIAN_BLUR	
-// <polarity> Gaussian Blur
-// This function was adapted from Exodus' PostProcess
-void LLPipeline::BindRenderTarget(LLRenderTarget* tgt, LLGLSLShader* shader)
+void LLPipeline::bindScreenToTexture() 
 {
-	S32 channel = 0;
-	channel = shader->enableTexture(LLShaderMgr::PV_RENDER_SCREEN, tgt->getUsage());
-	if (channel > -1)
-	{
-		if (gPipeline.sRenderDeferred)
-		{
-			tgt->bindTexture(0, channel);
-			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
-		}
-		else
-		{
-			gGL.getTexUnit(channel)->activate();
-			gGL.getTexUnit(channel)->bind(tgt);
-			gGL.getTexUnit(0)->activate();
-		}
-	}
-	shader->uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, tgt->getWidth(), tgt->getHeight());
+	
 }
-// <polarity>
-#endif
 
 static LLTrace::BlockTimerStatHandle FTM_RENDER_BLOOM("Bloom");
 
@@ -7135,17 +7055,6 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 	{
 		return;
 	}
-
-
-	//BD - Disable the use of Occlusion when we are in Freeze World Mode to prevent
-	//     attachments from becoming desyncronized with their attached positions.
-//	LLPipeline::sUseOcclusion =
-//		(!gUseWireframe
-//		&& LLGLSLShader::sNoFixedFunction
-//		&& LLFeatureManager::getInstance()->isFeatureAvailable("UseOcclusion")
-//		&& gSavedSettings.getBOOL("UseOcclusion")
-//		&& (gGLManager.mHasOcclusionQuery) ? 2 : 0)
-//		&& !gSavedSettings.getBOOL("PVRender_FreezeWorld");
 
 	LLVertexBuffer::unbind();
 	LLGLState::checkStates();
@@ -7177,71 +7086,7 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 
 	gGL.setColorMask(true, true);
 	glClearColor(0,0,0,0);
-#ifdef GAUSSIAN_BLUR		
-	// <polarity> Gaussian blur shader
-	static LLCachedControl<U32> blur_iterations(gSavedSettings, "PVRender_LogoutGaussianPasses");
-	if (LLPipeline::sRenderGaussianBlur && blur_iterations > 0)
-	{
-		for (int i = 0; i < blur_iterations; ++i)
-		{
-			F32 vertical_dir[] = 
-			{
-				0.f,
-				1.f
-			};
-			
-			F32 horizontal_dir[] = 
-			{
-				1.f,
-				0.f
-			};
-
-			LLGLSLShader *shader = &gGaussianBlurProgram;
-			
-			mFinalScreen.bindTarget();
-			shader->bind();
-			
-			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
-			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, vertical_dir);
-			
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-				gGL.vertex2f(-1,-1);
-				
-				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-				gGL.vertex2f(-1,3);
-				
-				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-				gGL.vertex2f(3,-1);
-			gGL.end();
-
-			shader->unbind();
-			mFinalScreen.flush();
-
-			// Second Pass
-			mFinalScreen.bindTarget();
-			shader->bind();
-			
-			LLPipeline::BindRenderTarget(&mFinalScreen, shader);
-			shader->uniform2fv(LLShaderMgr::PLVR_BLUR_DIRECTION, 1, horizontal_dir);
-			
-			gGL.begin(LLRender::TRIANGLE_STRIP);
-				gGL.texCoord2f(tc1.mV[0], tc1.mV[1]);
-				gGL.vertex2f(-1,-1);
-				
-				gGL.texCoord2f(tc1.mV[0], tc2.mV[1]);
-				gGL.vertex2f(-1,3);
-				
-				gGL.texCoord2f(tc2.mV[0], tc1.mV[1]);
-				gGL.vertex2f(3,-1);
-			gGL.end();
-
-			shader->unbind();
-			mFinalScreen.flush();
-		}
-	}
-	// </polarity>
-#endif
+		
 	{
 		{
 			LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
@@ -7329,11 +7174,11 @@ void LLPipeline::renderBloom(BOOL for_snapshot, F32 zoom_factor, int subfield)
 		LL_RECORD_BLOCK_TIME(FTM_RENDER_BLOOM_FBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}*/
-	auto world_view_rect_raw = gViewerWindow->getWorldViewRectRaw();
-	gGLViewport[0] = world_view_rect_raw.mLeft;
-	gGLViewport[1] = world_view_rect_raw.mBottom;
-	gGLViewport[2] = world_view_rect_raw.getWidth();
-	gGLViewport[3] = world_view_rect_raw.getHeight();
+
+	gGLViewport[0] = gViewerWindow->getWorldViewRectRaw().mLeft;
+	gGLViewport[1] = gViewerWindow->getWorldViewRectRaw().mBottom;
+	gGLViewport[2] = gViewerWindow->getWorldViewRectRaw().getWidth();
+	gGLViewport[3] = gViewerWindow->getWorldViewRectRaw().getHeight();
 	glViewport(gGLViewport[0], gGLViewport[1], gGLViewport[2], gGLViewport[3]);
 
 	gGL.flush();
@@ -7934,11 +7779,6 @@ void LLPipeline::bindDeferredShader(LLGLSLShader& shader, LLRenderTarget* diffus
 	//F32 shadow_offset_error = 1.f + RenderShadowOffsetError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2]);
 	F32 shadow_bias_error = RenderShadowBiasError * fabsf(LLViewerCamera::getInstance()->getOrigin().mV[2])/3000.f;
 
-#ifdef GAUSSIAN_BLUR
-	// <polarity> Gaussian Blur
-	shader.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredScreen.getWidth(), mDeferredScreen.getHeight());
-	// </polarity>
-#endif
 	shader.uniform1f(LLShaderMgr::DEFERRED_NEAR_CLIP, LLViewerCamera::getInstance()->getNear()*2.f);
 	shader.uniform1f (LLShaderMgr::DEFERRED_SHADOW_OFFSET, RenderShadowOffset); //*shadow_offset_error);
 	shader.uniform1f(LLShaderMgr::DEFERRED_SHADOW_BIAS, RenderShadowBias+shadow_bias_error);
@@ -8083,12 +7923,6 @@ void LLPipeline::renderDeferredLighting()
 					mScreen.bindTexture(0,channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
-
-#ifdef GAUSSIAN_BLUR
-				// <polarity> Gaussian Blur
-				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
-				// </polarity>
-#endif
 				
 				{
 					LLGLDisable blend(GL_BLEND);
@@ -8495,9 +8329,6 @@ void LLPipeline::renderDeferredLighting()
 			mScreen.bindTexture(0,channel);
 			gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_POINT);
 		}
-#if GAUSSIAN_BLUR
-		gDeferredPostGammaCorrectProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mScreen.getWidth(), mScreen.getHeight());
-#endif
 		
 		drawFullScreenRect();
 		
@@ -8679,9 +8510,7 @@ void LLPipeline::renderDeferredLightingToRT(LLRenderTarget* target)
 					mScreen.bindTexture(0,channel);
 					gGL.getTexUnit(channel)->setTextureFilteringOption(LLTexUnit::TFO_BILINEAR);
 				}
-#ifdef GAUSSIAN_BLUR
-				gDeferredSunProgram.uniform2f(LLShaderMgr::DEFERRED_SCREEN_RES, mDeferredLight.getWidth(), mDeferredLight.getHeight());
-#endif				
+				
 				{
 					LLGLDisable blend(GL_BLEND);
 					LLGLDepthTest depth(GL_TRUE, GL_FALSE, GL_ALWAYS);
@@ -9756,45 +9585,33 @@ void LLPipeline::renderShadow(const glm::mat4& view, const glm::mat4& proj, LLCa
 		renderGeomShadow(shadow_cam);
 	}
 
-	static LLCachedControl<bool> shadows_from_alpha(gSavedSettings, "PVRender_ShadowsFromAlphaEnabled", true);
-	
-	if (shadows_from_alpha)
 	{
 		LL_RECORD_BLOCK_TIME(FTM_SHADOW_ALPHA);
 		gDeferredShadowAlphaMaskProgram.bind();
 		gDeferredShadowAlphaMaskProgram.uniform1f(LLShaderMgr::DEFERRED_SHADOW_TARGET_WIDTH, (float)target_width);
 
-
-		U32 mask = LLVertexBuffer::MAP_VERTEX |
-			LLVertexBuffer::MAP_TEXCOORD0 |
-			LLVertexBuffer::MAP_COLOR |
-			LLVertexBuffer::MAP_TEXTURE_INDEX;
+		U32 mask =	LLVertexBuffer::MAP_VERTEX | 
+					LLVertexBuffer::MAP_TEXCOORD0 | 
+					LLVertexBuffer::MAP_COLOR | 
+					LLVertexBuffer::MAP_TEXTURE_INDEX;
 
 		renderMaskedObjects(LLRenderPass::PASS_ALPHA_MASK, mask, TRUE, TRUE);
 		renderMaskedObjects(LLRenderPass::PASS_FULLBRIGHT_ALPHA_MASK, mask, TRUE, TRUE);
-
-		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(shadow_min_alpha);
-
+		gDeferredShadowAlphaMaskProgram.setMinimumAlpha(0.598f);
 		renderObjects(LLRenderPass::PASS_ALPHA, mask, TRUE, TRUE);
 		gDeferredShadowAlphaMaskProgram.unbind();
 
-		static LLCachedControl<bool> tree_shadows_from_alpha(gSavedSettings, "PVRender_TreeShadowsFromAlphaEnabled", true);
-		if (tree_shadows_from_alpha)
-		{
+		mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
 
-			mask = mask & ~LLVertexBuffer::MAP_TEXTURE_INDEX;
-
-			gDeferredTreeShadowProgram.bind();
-			renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
-			renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
-			renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
-			renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
-
-			gDeferredTreeShadowProgram.setMinimumAlpha(shadow_min_alpha);
-
-			renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
-			gDeferredTreeShadowProgram.unbind();
-		}
+		gDeferredTreeShadowProgram.bind();
+		renderMaskedObjects(LLRenderPass::PASS_NORMSPEC_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_MATERIAL_ALPHA_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_SPECMAP_MASK, mask);
+		renderMaskedObjects(LLRenderPass::PASS_NORMMAP_MASK, mask);
+		
+		gDeferredTreeShadowProgram.setMinimumAlpha(0.598f);
+		renderObjects(LLRenderPass::PASS_GRASS, LLVertexBuffer::MAP_VERTEX | LLVertexBuffer::MAP_TEXCOORD0, TRUE);
+		gDeferredTreeShadowProgram.unbind();
 	}
 
 	//glCullFace(GL_BACK);
@@ -10874,14 +10691,9 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
     LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
                               << " is " << ( visually_muted ? "" : "not ") << "visually muted"
                               << LL_ENDL;
-	bool too_complex = avatar->isTooComplex();
-    LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID()
-                              << " is " << ( too_complex ? "" : "not ") << "too complex"
-                              << LL_ENDL;
 
 	pushRenderTypeMask();
 	
-	//if (visually_muted || too_complex)
 	if (visually_muted)
 	{
 		andRenderTypeMask(LLPipeline::RENDER_TYPE_AVATAR, END_RENDER_TYPES);
@@ -11039,7 +10851,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 	F32 old_alpha = LLDrawPoolAvatar::sMinimumAlpha;
 
-	if (visually_muted/* || too_complex*/)
+	if (visually_muted)
 	{ //disable alpha masking for muted avatars (get whole skin silhouette)
 		LLDrawPoolAvatar::sMinimumAlpha = 0.f;
 	}
@@ -11101,7 +10913,7 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 
 		LLGLDisable blend(GL_BLEND);
 
-		if (visually_muted/* || too_complex*/)
+		if (visually_muted)
 		{
 			gGL.setColorMask(true, true);
 		}
@@ -11137,8 +10949,8 @@ void LLPipeline::generateImpostor(LLVOAvatar* avatar)
 			gGL.diffuseColor4fv( muted_color.mV );
 		}
 		else
-		{ //grey muted avatar
-            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " MUTED set grey" << LL_ENDL;
+		{   // pink debug avatar
+            LL_DEBUGS_ONCE("AvatarRenderPipeline") << "Avatar " << avatar->getID() << " not muted set debug color" << LL_ENDL;
 			gGL.diffuseColor4fv(LLColor4::pink.mV );
 		}
 

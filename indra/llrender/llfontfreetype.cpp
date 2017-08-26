@@ -458,11 +458,9 @@ LLFontGlyphInfo* LLFontFreetype::addGlyphFromFont(const LLFontFreetype *fontp, l
 	}
 	
 	LLImageGL *image_gl = mFontBitmapCachep->getImageGL(bitmap_num);
-	if (image_gl && image_gl != NULL)
-	{
-		LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
-		image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
-	}
+	LLImageRaw *image_raw = mFontBitmapCachep->getImageRaw(bitmap_num);
+	image_gl->setSubImage(image_raw, 0, 0, image_gl->getWidth(), image_gl->getHeight());
+
 	return gi;
 }
 

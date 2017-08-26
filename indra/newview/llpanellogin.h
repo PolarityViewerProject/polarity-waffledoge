@@ -86,7 +86,6 @@ public:
 	/// to be called from LLStartUp::setStartSLURL
 	static void onUpdateStartSLURL(const LLSLURL& new_start_slurl);
 
-	static void doLoginButtonLockUnlock();
 private:
 	friend class LLPanelLoginListener;
 	void reshapeBrowser();
@@ -99,7 +98,6 @@ private:
 	void refreshGridList();
 
 	static void onClickConnect(void*);
-
 	static void onClickNewAccount(void*);
 	static void onClickVersion(void*);
 	static void onClickForgotPassword(void*);
@@ -112,8 +110,6 @@ private:
 	LLPointer<LLUIImage> mLogoImage;
 	boost::scoped_ptr<LLPanelLoginListener> mListener;
 
-	void updateLoginButtons();
-
 	void			(*mCallback)(S32 option, void *userdata);
 	void*			mCallbackData;
 
@@ -123,8 +119,7 @@ private:
 
 	static LLPanelLogin* sInstance;
 	static BOOL		sCapslockDidNotification;
-
-	static bool sLoginButtonEnabled;
+	
 	boost::signals2::connection mGridListChangedConnection;
 };
 

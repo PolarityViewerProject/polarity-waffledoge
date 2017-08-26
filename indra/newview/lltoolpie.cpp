@@ -74,10 +74,6 @@
 #include "llweb.h"
 #include "pipeline.h"	// setHighlightObject
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 extern BOOL gDebugClicks;
 
 static void handle_click_action_play();
@@ -355,10 +351,7 @@ BOOL LLToolPie::handleLeftClickPick()
 		}
 		object = (LLViewerObject*)object->getParent();
 	}
-		// <polarity> Do not center the camera when clicking self
-		static LLCachedControl<bool> reset_on_self_click(gSavedSettings, "PVCamera_ResetOnSelfClick", false);
-		static LLCachedControl<bool> click_to_walk(gSavedSettings, "ClickToWalk", false);
-		if (object && object == gAgentAvatarp && !click_to_walk && reset_on_self_click)
+	if (object && object == gAgentAvatarp && !gSavedSettings.getBOOL("ClickToWalk"))
 	{
 		// we left clicked on avatar, switch to focus mode
 		mMouseButtonDown = false;
@@ -366,12 +359,8 @@ BOOL LLToolPie::handleLeftClickPick()
 		gViewerWindow->hideCursor();
 		LLToolCamera::getInstance()->setMouseCapture(TRUE);
 		LLToolCamera::getInstance()->pickCallback(mPick);
-			// <polarity> Do not rotate the avatar "away from the camera" when clicking self
-			static LLCachedControl<bool> rotate_on_self_click(gSavedSettings, "PVMovement_RotateOnSelfClick", false);
-			if (rotate_on_self_click)
-			{
-				gAgentCamera.setFocusOnAvatar(TRUE, TRUE);
-			}
+		BOOL focus = gSavedSettings.getBOOL("AlchemyAvatarClickFocus");
+		gAgentCamera.setFocusOnAvatar(focus, focus);
 
 		return TRUE;
 	}
@@ -1045,39 +1034,13 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 			LLAvatarName av_name;
 			if (LLAvatarNameCache::get(hover_object->getID(), &av_name))
 			{
-				// <polarity> Show group title in avatar tooltip
-				static LLCachedControl<bool> show_group_title(gSavedSettings, "PVUI_HovertipShowGroupTitle", true);
-				if (show_group_title)
-				{
-					auto group_title_data_nv = hover_object->getNVPair("Title"); // current group title nvPair
-					if (group_title_data_nv )
-					{
-						const std::string group_title_string = group_title_data_nv->getString();
-						// Don't write to string to read it back, this wastes RAM cycles.
-						// This looks a bit backward, but this should be efficient.
-						if (!group_title_string.empty())
-						{
-							// this SHOULD evaluate false if empty, because LLNameValue's ::string is a char*.
-							// which *should* return a null character when empty.
-							 final_name += group_title_string + std::string(" ");
-						}
-					}
-					final_name += av_name.getCompleteName();
-				 }
+				final_name = av_name.getCompleteName();
 			}
 			else
 			{
 				final_name = LLTrans::getString("TooltipPerson");;
 			}
 
-#ifdef PVDATA_SYSTEM
-			// <polarity> Add PVData title to hover tip
-			auto pv_agent = PVAgent::find(hover_object->getID());
-			if(pv_agent)
-			{
-				final_name += ", " + pv_agent->getTitle(true);
-			}
-#endif
 			// *HACK: We may select this object, so pretend it was clicked
 			mPick = mHoverPick;
 			LLInspector::Params p;
@@ -1102,7 +1065,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 		//
 		//  Default prefs will suppress display unless the object is interactive
 		//
-		static LLCachedControl<bool> show_all_object_tips(gSavedSettings, "ShowAllObjectHoverTip");
+		bool show_all_object_tips = gSavedSettings.getBool("ShowAllObjectHoverTip");
 		LLSelectNode *nodep = LLSelectMgr::getInstance()->getHoverNode();
 		
 		// only show tooltip if same inspector not already open
@@ -1195,8 +1158,7 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				LLInspector::Params p;
 				p.fillFrom(LLUICtrlFactory::instance().getDefaultParams<LLInspector>());
 				p.message(tooltip_msg);
-				// <polarity/> No Inspector icon
-				//p.image.name("Inspector_I");
+				p.image.name("Inspector_I");
 				p.click_callback(boost::bind(showObjectInspector, hover_object->getID(), mHoverPick.mObjectFace));
 				p.time_based_media(is_time_based_media);
 				p.web_based_media(is_web_based_media);
@@ -1205,10 +1167,6 @@ BOOL LLToolPie::handleTooltipObject( LLViewerObject* hover_object, std::string l
 				p.click_homepage_callback(boost::bind(VisitHomePage, mHoverPick));
 				p.visible_time_near(6.f);
 				p.visible_time_far(3.f);
-				// <polarity> speedup
-				static LLCachedControl<F32> tooltip_delay(gSavedSettings, "ObjectInspectorTooltipDelay");
-				p.delay_time(tooltip_delay);
-				// </polarity>
 				p.delay_time(gSavedSettings.getF32("ObjectInspectorTooltipDelay"));
 				p.wrap(false);
 				
@@ -1458,9 +1416,7 @@ void LLToolPie::stopCameraSteering()
 
 bool LLToolPie::inCameraSteerMode()
 {
-	// <polarity> Speed up
-	static LLCachedControl<bool> click_to_walk(gSavedSettings, "ClickToWalk");
-	return mMouseButtonDown && mMouseOutsideSlop && click_to_walk;
+	return mMouseButtonDown && mMouseOutsideSlop && gSavedSettings.getBOOL("ClickToWalk");
 }
 
 // true if x,y outside small box around start_x,start_y
@@ -1528,9 +1484,7 @@ bool LLToolPie::handleMediaClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 
-	// <polarity> Speed up
-	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
-    if (mop_ui)
+    if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
@@ -1584,9 +1538,7 @@ bool LLToolPie::handleMediaDblClick(const LLPickInfo& pick)
 
     viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 
-	// <polarity> Speed up
-	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
-    if (mop_ui)
+    if (gSavedSettings.getBOOL("MediaOnAPrimUI"))
     {
         if (!LLViewerMediaFocus::getInstance()->isFocusedOnFace(pick.getObject(), pick.mObjectFace) || media_impl.isNull())
         {
@@ -1636,10 +1588,8 @@ bool LLToolPie::handleMediaHover(const LLPickInfo& pick)
 		return false;
 	
 	const LLMediaEntry* mep = tep->hasMedia() ? tep->getMediaData() : NULL;
-	// <polarity> Speed up
-	static LLCachedControl<bool> mop_ui(gSavedSettings, "MediaOnAPrimUI");
 	if (mep
-		&& mop_ui)
+		&& gSavedSettings.getBOOL("MediaOnAPrimUI"))
 	{		
 		viewer_media_t media_impl = LLViewerMedia::getMediaImplFromTextureID(mep->getMediaID());
 		
@@ -1866,8 +1816,7 @@ BOOL LLToolPie::handleRightClickPick()
 
 void LLToolPie::showVisualContextMenuEffect()
 {
-	static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
-	if (PVPrivacy_HideEditBeam)
+	if (gSavedSettings.getBOOL("AlchemyPointAtDisable"))
 	{
 		return;
 	}

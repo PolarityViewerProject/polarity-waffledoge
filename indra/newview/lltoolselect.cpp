@@ -181,9 +181,8 @@ LLObjectSelectionHandle LLToolSelect::handleObjectSelection(const LLPickInfo& pi
 			LLSelectMgr::getInstance()->setAgentHUDZoom(target_zoom, current_zoom);
 		}
 
-		static LLCachedControl<bool> rotate_toward_selection(gSavedSettings, "PVMovement_RotateTowardSelection", false);
-		static LLCachedControl<bool> PVPrivacy_HideEditBeam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
-		if (!PVPrivacy_HideEditBeam && rotate_toward_selection && !gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
+		static LLCachedControl<bool> disablePointAt(gSavedSettings, "AlchemyPointAtDisable", false);
+		if (!disablePointAt && !gAgentCamera.getFocusOnAvatar() &&										// if camera not glued to avatar
 			LLVOAvatar::findAvatarFromAttachment(object) != gAgentAvatarp &&	// and it's not one of your attachments
 			object != gAgentAvatarp)									// and it's not you
 		{

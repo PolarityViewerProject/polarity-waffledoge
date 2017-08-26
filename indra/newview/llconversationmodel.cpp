@@ -135,7 +135,6 @@ void LLConversationItem::buildParticipantMenuOptions(menuentry_vec_t& items, U32
 	else 
 	{
 		items.push_back(std::string("view_profile"));
-		items.push_back(std::string("copy_info")); // <polarity/>
 		items.push_back(std::string("im"));
 		items.push_back(std::string("offer_teleport"));
 		items.push_back(std::string("request_teleport"));

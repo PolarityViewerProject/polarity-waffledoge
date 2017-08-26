@@ -65,10 +65,6 @@ void LLChicletBar::showWellButton(const std::string& well_name, bool visible)
 	LLView * panel = findChild<LLView>(well_name + "_panel");
 	if (!panel)	return;
 
-	if(LLFloaterNotificationsTabbed::getInstance()->isWindowEmpty()) // <polarity>
-	{
-		visible = false;
-	}
 	panel->setVisible(visible);
 }
 

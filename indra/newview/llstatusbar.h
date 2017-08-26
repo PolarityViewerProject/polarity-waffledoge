@@ -89,7 +89,6 @@ public:
 
 	LLPanelNearByMedia* getNearbyMediaPanel() const { return mPanelNearByMedia; }
 
-	void showBalance(bool show); // <polarity> PLVR-7 Hide currency balance in snapshots
 private:
 	void onClickBuyCurrency() const;
 	void onVolumeChanged(const LLSD& newvalue);
@@ -103,25 +102,12 @@ private:
 	static void onClickAOBtn(void* data);
 	static void onClickVolume(void* data);
 	static void onClickMediaToggle(void* data);
-
-	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	/**
-	 * Handles clicks on the connection status indicator.
-	 */
-	void onBandwidthGraphButtonClicked();
-	// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-
 	static void onClickBalance(void* data);
 
 	void onAOStateChanged();
 
-	void updateNetstatVisibility(const LLSD& data);
 	LLTextBox	*mTextTime;
-
-	LLTextBox	*mTextFPS; // <polarity/>
-
-	U32			mRefreshRate;
-	LLView		*mBtnStats;
+	LLTextBox	*mTextFPS;
 
 	LLStatGraph *mSGBandwidth;
 	LLStatGraph *mSGPacketLoss;
@@ -135,9 +121,8 @@ private:
 	LLIconCtrl	*mAvComplexity;
 	LLUICtrl	*mPanelFlycam;
 	LLButton	*mMediaToggle;
-	LLButton	*mBandwidthButton; // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	LLView		*mScriptOut;
 	LLFrameTimer	mClockUpdateTimer;
+	LLFrameTimer	mFPSUpdateTimer;
 
 	S32				mBalance;
 	S32				mHealth;

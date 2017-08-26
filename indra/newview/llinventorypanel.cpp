@@ -65,7 +65,6 @@ bool LLInventoryPanel::sColorSetInitialized = false;
 LLUIColor LLInventoryPanel::sDefaultColor;
 LLUIColor LLInventoryPanel::sDefaultHighlightColor;
 LLUIColor LLInventoryPanel::sLibraryColor;
-LLUIColor LLInventoryPanel::sItemColor; // <polarity>
 LLUIColor LLInventoryPanel::sLinkColor;
 
 const LLColor4U DEFAULT_WHITE(255, 255, 255);
@@ -160,7 +159,6 @@ LLInventoryPanel::LLInventoryPanel(const LLInventoryPanel::Params& p) :
 		sDefaultColor = LLUIColorTable::instance().getColor("MenuItemEnabledColor", DEFAULT_WHITE);
 		sDefaultHighlightColor = LLUIColorTable::instance().getColor("MenuItemHighlightFgColor", DEFAULT_WHITE);
 		sLibraryColor = LLUIColorTable::instance().getColor("InventoryItemLibraryColor", DEFAULT_WHITE);
-		sItemColor = LLUIColorTable::instance().getColor("InventoryItemNameColor", DEFAULT_WHITE); // <polarity>
 		sLinkColor = LLUIColorTable::instance().getColor("InventoryItemLinkColor", DEFAULT_WHITE);
 		sColorSetInitialized = true;
 	}
@@ -382,18 +380,6 @@ void LLInventoryPanel::setFilterSubString(const std::string& string)
 	getFilter().setFilterSubString(string);
 }
 
-// ## Zi: Extended Inventory Search
-void LLInventoryPanel::setFilterSubStringTarget(const std::string& target)
-{
-	getFilter().setFilterSubStringTarget(target);
-}
-
-LLInventoryFilter::EFilterSubstringTarget LLInventoryPanel::getFilterSubStringTarget() const
-{
-	return getFilter().getFilterSubStringTarget();
-}
-// ## Zi: Extended Inventory Search
-
 const std::string LLInventoryPanel::getFilterSubString() 
 { 
 	return getFilter().getFilterSubString();
@@ -436,13 +422,6 @@ void LLInventoryPanel::setFilterLinks(LLInventoryFilter::EFilterLink filter_link
 {
 	getFilter().setFilterLinks(filter_links);
 }
-
-// ## Zi: Filter Links Menu
-U64 LLInventoryPanel::getFilterLinks()
-{
-	return getFilter().getFilterLinks();
-}
-// ## Zi: Filter Links Menu
 
 void LLInventoryPanel::setShowFolderState(LLInventoryFilter::EFolderShow show)
 {
@@ -504,13 +483,6 @@ void LLInventoryPanel::modelChanged(U32 mask)
 
 					view_item->refresh();
 				}
-				// <FS:Ansariel> FIRE-11103: Fix empty folders being shown in worn inventory panel
-				LLFolderViewFolder* parent = view_item->getParentFolder();
-				if(parent)
-				{
-					parent->getViewModelItem()->dirtyDescendantsFilter();
-				}
-				// </FS:Ansariel>
 			}
 		}
 
@@ -1073,12 +1045,6 @@ void LLInventoryPanel::openAllFolders()
 	mFolderRoot.get()->arrangeAll();
 }
 
-void LLInventoryPanel::closeAllFolders()
-{
-	// PLVR TODO: Add option to clear search filter
-	mFolderRoot.get()->setOpenArrangeRecursively(FALSE, LLFolderViewFolder::RECURSE_DOWN);
-	mFolderRoot.get()->arrangeAll();
-}
 void LLInventoryPanel::setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus)
 {
 	// Don't select objects in COF (e.g. to prevent refocus when items are worn).
@@ -1301,20 +1267,7 @@ BOOL LLInventoryPanel::getSinceLogoff()
 	return getFilter().isSinceLogoff();
 }
 
-// <FS:Ansariel> Optional hiding of empty system folders
-void LLInventoryPanel::updateHideEmptySystemFolders(const LLSD &data)
-{
-	LLInventoryFilter& filter = getFilter();
-	if (data.asBoolean())
-	{
-		filter.setFilterEmptySystemFolders();
-	}
-	else
-	{
-		filter.removeFilterEmptySystemFolders();
-	}
-	filter.setModified(LLInventoryFilter::FILTER_RESTART);
-}
+// DEBUG ONLY
 // static 
 void LLInventoryPanel::dumpSelectionInformation(void* user_data)
 {

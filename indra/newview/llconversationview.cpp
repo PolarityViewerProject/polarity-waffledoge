@@ -40,9 +40,6 @@
 #include "llfloaterreg.h"
 #include "llgroupiconctrl.h"
 #include "lltoolbarview.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
 
 //
 // Implementation of conversations list session widgets
@@ -181,10 +178,6 @@ BOOL LLConversationViewSession::postBuild()
 				LLAvatarIconCtrl* icon = mItemPanel->getChild<LLAvatarIconCtrl>("avatar_icon");
 				icon->setVisible(true);
 				icon->setValue(session->mOtherParticipantID);
-				static auto avatar_list_item_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-#ifdef PVDATA_SYSTEM
-				mSessionTitle->setColor(PVAgent::getColor(session->mOtherParticipantID, avatar_list_item_color));
-#endif
 				mSpeakingIndicator->setSpeakerId(gAgentID, session->mSessionID, true);
                 mHasArrow = false;
 			}

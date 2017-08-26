@@ -92,7 +92,7 @@
 #include "llvovolume.h"
 #include "llmeshrepository.h"
 
-#include "pvaligntool.h"
+#include "qtoolalign.h" // <alchemy/>
 
 // Globals
 LLFloaterTools *gFloaterTools = nullptr;

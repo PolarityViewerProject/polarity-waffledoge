@@ -56,7 +56,7 @@
 const F32 SPRING_STRENGTH = 0.7f;
 const F32 HORIZONTAL_PADDING = 16.f;
 const F32 VERTICAL_PADDING = 12.f;
-const F32 LINE_PADDING = 3.f;			// aka "leading" // <polarity/>
+const F32 LINE_PADDING = 1.f;			// aka "leading"
 const F32 BUFFER_SIZE = 2.f;
 const F32 HUD_TEXT_MAX_WIDTH = 190.f;
 const S32 NUM_OVERLAP_ITERATIONS = 10;

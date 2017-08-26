@@ -26,10 +26,10 @@
 #ifndef LL_UPDATERSERVICE_H
 #define LL_UPDATERSERVICE_H
 
-#include <boost/function.hpp>
-#include "llmd5.h"
 #include "llhasheduniqueid.h"
 #include "llexception.h"
+
+#include <functional>
 
 class LLUpdaterServiceImpl;
 
@@ -72,25 +72,24 @@ public:
 	LLUpdaterService();
 	~LLUpdaterService();
 
-	void initialize(const std::string & channel,
-				    const std::string & version,
-					const std::string &  platform,
-					const std::string &  platform_version,
-					const bool&         willing_to_test,
-					const unsigned char       uniqueid[MD5HEX_STR_SIZE],
-					const std::string & auth_token = ""
+	void initialize(const std::string& 	channel,
+				    const std::string& 	version,
+					const std::string&  platform,
+					const std::string&  platform_version,
+					const unsigned char uniqueid[MD5HEX_STR_SIZE],
+					const bool&         willing_to_test
 					);
 
-	void setCheckPeriod(unsigned int seconds) const;
-	void setBandwidthLimit(U64 bytesPerSecond) const;
+	void setCheckPeriod(unsigned int seconds);
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
-	void startChecking(bool install_if_ready = false) const;
-	void stopChecking() const;
-	bool forceCheck(const bool is_willing_to_test, const std::string auth_token_in = "") const;
-	bool isChecking() const;
-	eUpdaterState getState() const;
+	void startChecking(bool install_if_ready = false);
+	void stopChecking();
+	bool forceCheck();
+	bool isChecking();
+	eUpdaterState getState();
 
-	typedef boost::function<void (void)> app_exit_callback_t;
+	typedef std::function<void (void)> app_exit_callback_t;
 	template <typename F>
 	void setAppExitCallback(F const &callable) 
 	{ 
@@ -101,11 +100,11 @@ public:
 	// If an update is or has been downloaded, this method will return the
 	// version string for that update.  An empty string will be returned
 	// otherwise.
-	std::string updatedVersion(void) const;
+	std::string updatedVersion(void);
 
 private:
 	std::shared_ptr<LLUpdaterServiceImpl> mImpl;
-	void setImplAppExitCallback(app_exit_callback_t aecb) const;
+	void setImplAppExitCallback(app_exit_callback_t aecb);
 };
 
 // Returns the full version as a string.

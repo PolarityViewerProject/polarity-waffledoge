@@ -461,14 +461,6 @@ void LLDrawPoolAvatar::endShadowPass(S32 pass)
 void LLDrawPoolAvatar::renderShadow(S32 pass)
 {
 	LL_RECORD_BLOCK_TIME(FTM_SHADOW_AVATAR);
-	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
-	static LLCachedControl<U32> simple_shadows(gSavedSettings, "PVRender_AttachmentShadowDetail", 3);
-	if (1 == simple_shadows)
-	{
-		return;
-	}
-	// </polarity>
-
 
 	if (mDrawFace.empty())
 	{
@@ -497,23 +489,8 @@ void LLDrawPoolAvatar::renderShadow(S32 pass)
 	{
 		avatarp->renderSkinned();
 	}
-
-	// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
-	else if (1 == simple_shadows)
-	{
-		// Don't render the shadow of anything that is rigged. Instead, force the shadow of the avatar shape to render instead.
-		// See LLVOAvatar::isTextureVisible() and LLVOAvatarSelf::isTextureVisible()
-		return;
-	}
-	else if (2 == simple_shadows)
-	{
-		// Use simplified/optimized shadow spiral
-		renderRiggedShadows(avatarp);
-	}
-	// </polarity>
 	else
 	{
-		// Render shadows all the way into oblivion.
 		for (U32 i = 0; i < NUM_RIGGED_PASSES; ++i)
 		{
 			renderRigged(avatarp, i);
@@ -1291,18 +1268,11 @@ void LLDrawPoolAvatar::renderAvatars(LLVOAvatar* single_avatar, S32 pass)
 		{
 			if (LLPipeline::sRenderDeferred && !LLPipeline::sReflectionRender && avatarp->mImpostor.isComplete()) 
 			{
-				// <FS:Ansariel> FIRE-9179: Crash fix
-				//if (normal_channel > -1)
-				U32 num_tex = avatarp->mImpostor.getNumTextures();
-				if (normal_channel > -1 && num_tex >= 3)
-				// </FS:Ansariel>
+				if (normal_channel > -1)
 				{
 					avatarp->mImpostor.bindTexture(2, normal_channel);
 				}
-				// <FS:Ansariel> FIRE-9179: Crash fix
-				//if (specular_channel > -1)
-				if (specular_channel > -1 && num_tex >= 2)
-				// </FS:Ansariel>
+				if (specular_channel > -1)
 				{
 					avatarp->mImpostor.bindTexture(1, specular_channel);
 				}
@@ -1494,18 +1464,6 @@ void LLDrawPoolAvatar::getRiggedGeometry(
     LLVolume* volume,
     const LLVolumeFace& vol_face)
 {
-	static LLCachedControl<bool> skip_broken_face(gSavedSettings, "PVDebug_SkipOutOfBoundsFaces", true);
-	// <FS:ND> FIRE-14261 try to skip broken or out of bounds faces
-	if(skip_broken_face && (vol_face.mNumVertices > 0x10000 || vol_face.mNumVertices < 0 || vol_face.mNumIndices < 0 ))
-	{
-		LL_WARNS() << "Skipping face - "
-					<< " vertices " << vol_face.mNumVertices << " indices " << vol_face.mNumIndices
-					<< " face is possibly corrupted"
-					<< LL_ENDL;
-		return;
-	}
-	// </FS:ND>
-
 	face->setGeomIndex(0);
 	face->setIndicesIndex(0);
 		
@@ -1884,152 +1842,6 @@ void LLDrawPoolAvatar::renderRigged(LLVOAvatar* avatar, U32 type, bool glow)
 	}
 }
 
-// <polarity> Chalice Yao's simple avatar shadows via Marine Kelley
-void LLDrawPoolAvatar::renderRiggedShadows(LLVOAvatar* avatar)
-{
-	if (avatar->isSelf() && !gAgent.needsRenderAvatar())
-	{
-		return;
-	}
-
-	stop_glerror();
-
-	U32 rigTypes[18] = { 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,21 };
-	for (U32 j = 0; j < 18; ++j)
-	for (U32 i = 0; i < mRiggedFace[rigTypes[j]].size(); ++i)
-	{
-		LLFace* face = mRiggedFace[rigTypes[j]][i];
-		LLDrawable* drawable = face->getDrawable();
-		if (!drawable)
-		{
-			continue;
-		}
-
-		LLVOVolume* vobj = drawable->getVOVolume();
-
-		if (!vobj)
-		{
-			continue;
-		}
-
-		LLVolume* volume = vobj->getVolume();
-		S32 te = face->getTEOffset();
-
-		if (!volume || volume->getNumVolumeFaces() <= te || !volume->isMeshAssetLoaded())
-		{
-			continue;
-		}
-
-		LLUUID mesh_id = volume->getParams().getSculptID();
-		if (mesh_id.isNull())
-		{
-			continue;
-		}
-
-		const LLMeshSkinInfo* skin = gMeshRepo.getSkinInfo(mesh_id, vobj);
-		if (!skin)
-		{
-			continue;
-		}
-
-		U32 data_mask = LLFace::getRiggedDataMask(24);
-
-		LLVertexBuffer* buff = face->getVertexBuffer();
-
-		if (buff)
-		{
-			if (sShaderLevel > 0)
-			{
-				// upload matrix palette to shader
-				LLMatrix4a mat[LL_MAX_JOINTS_PER_MESH_OBJECT];
-				U32 count = LLSkinningUtil::getMeshJointCount(skin);
-				LLSkinningUtil::initSkinningMatrixPalette(mat, count, skin, avatar);
-
-				stop_glerror();
-
-				F32 mp[LL_MAX_JOINTS_PER_MESH_OBJECT * 12];
-
-				for (U32 i = 0; i < count; ++i)
-				{
-					F32* m = (F32*)mat[i].getF32ptr();
-
-					U32 idx = i * 12;
-
-					mp[idx + 0] = m[0];
-					mp[idx + 1] = m[1];
-					mp[idx + 2] = m[2];
-					mp[idx + 3] = m[12];
-
-					mp[idx + 4] = m[4];
-					mp[idx + 5] = m[5];
-					mp[idx + 6] = m[6];
-					mp[idx + 7] = m[13];
-
-					mp[idx + 8] = m[8];
-					mp[idx + 9] = m[9];
-					mp[idx + 10] = m[10];
-					mp[idx + 11] = m[14];
-				}
-
-				LLDrawPoolAvatar::sVertexProgram->uniformMatrix3x4fv(LLViewerShaderMgr::AVATAR_MATRIX,
-					count,
-					FALSE,
-					(GLfloat*)mp);
-
-				stop_glerror();
-			}
-			else
-			{
-				data_mask &= ~LLVertexBuffer::MAP_WEIGHT4;
-			}
-
-			U16 start = face->getGeomStart();
-			U16 end = start + face->getGeomCount() - 1;
-			S32 offset = face->getIndicesStart();
-			U32 count = face->getIndicesCount();
-
-			if ((rigTypes[j] < 4) || (rigTypes[j] == 5) || (rigTypes[j] == 6) || (rigTypes[j] == 9) || (rigTypes[j] == 10) || (rigTypes[j] == 13) || (rigTypes[j] == 14) || (rigTypes[j] == 21))
-			{
-				gGL.getTexUnit(sDiffuseChannel)->bind(face->getTexture());
-				sVertexProgram->setMinimumAlpha(0.f);
-
-				if ((rigTypes[j] == 2) || (rigTypes[j] == 6) || (rigTypes[j] == 10) || (rigTypes[j] == 14))
-				{
-					const LLTextureEntry* te = face->getTextureEntry();
-					LLMaterial* mat = te->getMaterialParams().get();
-
-					if (mat)
-						if (mat->getDiffuseAlphaMode() == LLMaterial::DIFFUSE_ALPHA_MODE_MASK)
-							sVertexProgram->setMinimumAlpha(mat->getAlphaMaskCutoff() / 255.f);
-				}
-
-				if (face->mTextureMatrix && vobj->mTexAnimMode)
-				{
-					gGL.matrixMode(LLRender::MM_TEXTURE);
-					gGL.loadMatrix((F32*)face->mTextureMatrix->mMatrix);
-					buff->setBuffer(data_mask);
-					buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-					gGL.loadIdentity();
-					gGL.matrixMode(LLRender::MM_MODELVIEW);
-				}
-				else
-				{
-					buff->setBuffer(data_mask);
-					buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-				}
-			}
-			else
-			{
-				buff->setBuffer(data_mask);
-				buff->drawRange(LLRender::TRIANGLES, start, end, count, offset);
-			}
-
-			gPipeline.addTrianglesDrawn(count, LLRender::TRIANGLES);
-		}
-	}
-}
-// </polarity>
-
 void LLDrawPoolAvatar::renderDeferredRiggedSimple(LLVOAvatar* avatar)
 {
 	renderRigged(avatar, RIGGED_DEFERRED_SIMPLE);
@@ -2245,11 +2057,9 @@ void LLDrawPoolAvatar::removeRiggedFace(LLFace* facep)
 			}
 			else
 			{
-				// <FS:Ansariel> Additional debugging code
-				//LL_ERRS() << "Face reference data corrupt for rigged type " << i << LL_ENDL;
-				std::string cause = (index >= mRiggedFace[i].size() ? "Index out of bounds" : "Index incorrect");
-				LL_WARNS() << "Face reference data corrupt for rigged type " << i << ": " << cause << LL_ENDL;
-				// </FS:Ansariel>
+				LL_ERRS() << "Face reference data corrupt for rigged type " << i
+					<< ((mRiggedFace[i].size() <= index) ? "; wrong index (out of bounds)" : (mRiggedFace[i][index] != facep) ? "; wrong face pointer" : "")
+					<< LL_ENDL;
 			}
 		}
 	}

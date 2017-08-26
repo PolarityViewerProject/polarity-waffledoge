@@ -58,8 +58,6 @@ LLDir_Mac gDirUtil;
 LLDir_Linux gDirUtil;
 #endif
 
-#include "pvconstants.h"
-
 LLDir *gDirUtilp = (LLDir *)&gDirUtil;
 
 /// Values for findSkinnedFilenames(subdir) parameter
@@ -375,11 +373,10 @@ std::string LLDir::buildSLOSCacheDir() const
 	}
 	else
 	{
-		static const std::string app_name_str = APP_NAME;
 #if !defined(LL_DARWIN) && (defined(_WIN64) || defined(__amd64__) || defined(__x86_64__))
-		res = add(getOSCacheDir(), app_name_str + "64");
+		res = add(getOSCacheDir(), "Polarity64");
 #else
-		res = add(getOSCacheDir(), app_name_str);
+		res = add(getOSCacheDir(), "Polarity");
 #endif
 	}
 	return res;

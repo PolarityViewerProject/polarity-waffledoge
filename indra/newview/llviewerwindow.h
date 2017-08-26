@@ -303,9 +303,6 @@ public:
 	void			setProgressMessage(const std::string& msg);
 	void			setProgressCancelButtonVisible( BOOL b, const std::string& label = LLStringUtil::null );
 	LLProgressView *getProgressView() const;
-	// <polarity> Dynamic window title
-	void setTitle(const std::string& win_title);
-	// </polarity>
 	void			revealIntroPanel();
 	void			setStartupComplete();
 

@@ -107,8 +107,6 @@
 #include "llviewernetwork.h"
 #include "llcleanup.h"
 
-#include "fsassetblacklist.h"
-
 //#define DEBUG_UPDATE_TYPE
 
 BOOL		LLViewerObject::sVelocityInterpolate = TRUE;
@@ -3026,15 +3024,6 @@ void LLViewerObject::processTaskInvFile(void** user_data, S32 error_code, LLExtS
 		if (object->loadTaskInvFile(ft->mFilename))
 		{
 
-		// <FS:ND> Crashfix, not sure why object->mInventory can be 0
-		if( !object->mInventory )
-		{
-			LL_WARNS() << "object->mInventory == 0" << LL_ENDL;
-			delete ft;
-			return;
-		}
-		// </FS:ND>
-
 			LLInventoryObject::object_list_t::iterator it = object->mInventory->begin();
 			LLInventoryObject::object_list_t::iterator end = object->mInventory->end();
 			std::list<LLUUID>& pending_lst = object->mPendingInventoryItemsIDs;
@@ -5356,14 +5345,6 @@ void LLViewerObject::setAttachedSound(const LLUUID &audio_uuid, const LLUUID& ow
 		}
 		return;
 	}
-
-	// <FS:Ansariel> Asset blacklist
-	if (FSAssetBlacklist::getInstance()->isBlacklisted(audio_uuid, LLAssetType::AT_SOUND))
-	{
-		return;
-	}
-	// </FS:Ansariel>
-
 	if (flags & LL_SOUND_FLAG_LOOP
 		&& mAudioSourcep && mAudioSourcep->isLoop() && mAudioSourcep->getCurrentData()
 		&& mAudioSourcep->getCurrentData()->getID() == audio_uuid)

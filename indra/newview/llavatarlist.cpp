@@ -259,7 +259,7 @@ void LLAvatarList::addAvalineItem(const LLUUID& item_id, const LLUUID& session_i
 {
 	LL_DEBUGS("Avaline") << "Adding avaline item into the list: " << item_name << "|" << item_id << ", session: " << session_id << LL_ENDL;
 	LLAvalineListItem* item = new LLAvalineListItem(/*hide_number=*/false);
-	item->setAvatarId(item_id, session_id, false, false); // <polarity/>
+	item->setAvatarId(item_id, session_id, true, false);
 	item->setName(item_name);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 	item->showDistance(mShowDistance);
@@ -457,7 +457,7 @@ void LLAvatarList::addNewItem(const LLUUID& id, const std::string& name, BOOL is
 	item->setShowCompleteName(mShowCompleteName);
 	// This sets the name as a side effect
 	item->setAvatarId(id, mSessionID, mIgnoreOnlineStatus);
-	item->setOnline(mIgnoreOnlineStatus ? true : is_online, mShowFriendColor);
+	item->setOnline(mIgnoreOnlineStatus ? true : is_online);
 	item->showLastInteractionTime(mShowLastInteractionTime);
 	item->showDistance(mShowDistance);
 
@@ -721,9 +721,4 @@ void LLAvalineListItem::setName(const std::string& name)
 		LLAvatarListItem::setAvatarName(formatted_phone);
 		LLAvatarListItem::setAvatarToolTip(formatted_phone);
 	}
-}
-
-void LLAvatarList::setShowFriendColor(const bool& show_friend_color)
-{
-	mShowFriendColor = show_friend_color;
 }

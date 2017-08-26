@@ -130,10 +130,6 @@
 
 #include "llnotificationmanager.h" //
 #include "llexperiencecache.h"
-#include "fsareasearch.h"
-#include "fsassetblacklist.h"
-
-#include "pvconstants.h"
 
 extern void on_new_message(const LLSD& msg);
 
@@ -989,8 +985,7 @@ bool check_offer_throttle(const std::string& from_name, bool check_only)
 	static bool throttle_logged;
 	LLChat chat;
 
-	static LLCachedControl<bool> showNewInventory(gSavedSettings, "ShowNewInventory");
-	if (!showNewInventory)
+	if (!gSavedSettings.getBOOL("ShowNewInventory"))
 		return false;
 
 	if (check_only)
@@ -1165,9 +1160,8 @@ void open_inventory_offer(const uuid_vec_t& objects, const std::string& from_nam
 
 		////////////////////////////////////////////////////////////////////////////////
 		// Highlight item
-		static LLCachedControl<bool> show_in_inventory(gSavedSettings, "ShowInInventory");
-		const BOOL auto_open = 
-			show_in_inventory && // don't open if showininventory is false
+		const BOOL auto_open =
+			gSavedSettings.getBOOL("ShowInInventory") && // don't open if showininventory is false
 			!from_name.empty(); // don't open if it's not from anyone.
 		LLInventoryPanel::openInventoryPanelAndSetSelection(auto_open, obj_id);
 	}
@@ -2488,7 +2482,7 @@ void process_improved_im(LLMessageSystem* msg, void** user_data)
 
 	case IM_TYPING_START:
 		{
-			static LLCachedControl<bool> sNotifyIncomingMessage(gSavedSettings, "PVChat_AnnounceIncomingIM", true);
+			static LLCachedControl<bool> sNotifyIncomingMessage(gSavedSettings, "AlchemyNotifyIncomingMessage");
 			if (sNotifyIncomingMessage &&
 				!gIMMgr->hasSession(session_id) &&
 				((accept_im_from_only_friend && (is_friend || is_linden)) ||
@@ -3581,22 +3575,9 @@ void process_chat_from_simulator(LLMessageSystem* msg, void** user_data)
 		LLStringUtil::trim(from_name);
 		if (from_name.empty())
 		{
-			//[FIRE-2434 Mark Unamed Objects based on setting
-			static LLCachedControl<bool> mark_objects(gSavedSettings, "PVChat_MarkObjectsWithNoName");
-			if (mark_objects)
-			{
-				chat.mFromName = LLTrans::getString("Unnamed");
-			}
-			else
-			{
-				chat.mFromName = "";
-			}
+			from_name = LLTrans::getString("Unnamed");
 		}
-		else
-		{
 		chat.mFromName = from_name;
-		}
-		// </FS:KC>
 	}
 
 	bool is_do_not_disturb = gAgent.isDoNotDisturb();
@@ -4340,17 +4321,14 @@ void process_agent_movement_complete(LLMessageSystem* msg, void**)
 		return;
 	}
 
-	// <FS:Ansariel> Bring back simulator version changed messages after TP
-	static LLCachedControl<bool> show_server_version_change(gSavedSettings, "PVUI_ShowServerVersionChangeNotice");
-	if (!gLastVersionChannel.empty() && show_server_version_change)
-	// </polarity>
+	if (!gLastVersionChannel.empty() && gSavedSettings.getBool("ShowSimulatorVersionChange"))
 	{
 		LLSD args;
-		args["OLDVERSION"] = gLastVersionChannel;
-		args["NEWVERSION"] = version_channel;
+		args["OLD_VERSION"] = gLastVersionChannel;
+		args["NEW_VERSION"] = version_channel;
 		LLNotificationsUtil::add("ServerVersionChanged", args);
 	}
-	// </FS:Ansariel>
+
 	gLastVersionChannel = version_channel;
 }
 
@@ -4360,10 +4338,10 @@ void process_crossed_region(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_AgentID, agent_id);
 	LLUUID session_id;
 	msg->getUUIDFast(_PREHASH_AgentData, _PREHASH_SessionID, session_id);
-	if((gAgent.getID() != agent_id) || (gAgent.getSessionID() != session_id))
+	if ((gAgent.getID() != agent_id) || (gAgent.getSessionID() != session_id))
 	{
 		LL_WARNS("Messaging") << "Incorrect id in process_crossed_region()"
-				<< LL_ENDL;
+			<< LL_ENDL;
 		return;
 	}
 	LL_INFOS("Messaging") << "process_crossed_region()" << LL_ENDL;
@@ -4475,13 +4453,13 @@ void send_agent_update(BOOL force_send, BOOL send_reliable)
 	// trigger a control event.
 	U32 control_flags = gAgent.getControlFlags();
 
-	// <polarity>
-	static LLCachedControl<bool> PVMovement_NimbleAnimations(gSavedSettings, "PVMovement_NimbleAnimations", false);
-	if (PVMovement_NimbleAnimations)
+	// <alchemy>
+	static LLCachedControl<bool> alchemyPrejump(gSavedSettings, "AlchemyNimble", false);
+	if (alchemyPrejump)
 	{
 		control_flags |= AGENT_CONTROL_FINISH_ANIM;
 	}
-	// </polarity>
+	// </alchemy>
 
 	MASK key_mask = gKeyboard->currentMask(TRUE);
 
@@ -4791,20 +4769,6 @@ void process_kill_object(LLMessageSystem* mesgsys, void** user_data)
 	}
 }
 
-// <FS:Techwolf Lupindo> area search
-void process_object_properties(LLMessageSystem *msg, void**user_data)
-{
-	// Send the result to the corresponding requesters.
-	LLSelectMgr::processObjectProperties(msg, user_data);
-	
-	FSAreaSearch* area_search_floater = LLFloaterReg::findTypedInstance<FSAreaSearch>("area_search");
-	if (area_search_floater)
-	{
-		area_search_floater->processObjectProperties(msg);
-	}
-}
-// </FS:Techwolf Lupindo> area search
-
 void process_time_synch(LLMessageSystem* mesgsys, void** user_data)
 {
 	LLVector3 sun_direction;
@@ -4858,17 +4822,6 @@ void process_sound_trigger(LLMessageSystem* msg, void**)
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_SoundID, sound_id);
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_OwnerID, owner_id);
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ObjectID, object_id);
-
-	// <FS:ND> Protect against corrupted sounds
-	//if( gAudiop->isCorruptSound( sound_id ) )
-	//	return;
-	// </FS:ND>
-
-	// <FS> Asset blacklist
-	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
-	{
-		return;
-	}
 	msg->getUUIDFast(_PREHASH_SoundData, _PREHASH_ParentID, parent_id);
 	msg->getU64Fast(_PREHASH_SoundData, _PREHASH_Handle, region_handle);
 	msg->getVector3Fast(_PREHASH_SoundData, _PREHASH_Position, pos_local);
@@ -4902,10 +4855,9 @@ void process_sound_trigger(LLMessageSystem* msg, void**)
 	{
 		return;
 	}
-		
+
 	// Don't play sounds from gestures if they are not enabled.
-	static LLCachedControl<bool> enable_gesture_sounds(gSavedSettings, "EnableGestureSounds");
-	if (object_id == owner_id && !enable_gesture_sounds)
+	if (object_id == owner_id && !gSavedSettings.getBOOL("EnableGestureSounds"))
 	{
 		return;
 	}
@@ -4931,19 +4883,7 @@ void process_preload_sound(LLMessageSystem* msg, void** user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_ObjectID, object_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
 
-	// <FS> Asset blacklist
-	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
-	{
-		return;
-	}
-	// </FS>
-
-	// <FS:ND> Protect against corrupted sounds
-	//if( gAudiop->isCorruptSound( sound_id ) )
-	//	return;
-	// </FS:ND>
-
-	LLViewerObject *objectp = gObjectList.findObject(object_id);
+	LLViewerObject* objectp = gObjectList.findObject(object_id);
 	if (!objectp) return;
 
 	if (LLMuteList::getInstance()->isMuted(object_id)) return;
@@ -4978,13 +4918,6 @@ void process_attached_sound(LLMessageSystem* msg, void** user_data)
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_SoundID, sound_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_ObjectID, object_id);
 	msg->getUUIDFast(_PREHASH_DataBlock, _PREHASH_OwnerID, owner_id);
-
-	// <FS> Asset blacklist
-	if (FSAssetBlacklist::getInstance()->isBlacklisted(sound_id, LLAssetType::AT_SOUND))
-	{
-		return;
-	}
-	// </FS>
 	msg->getF32Fast(_PREHASH_DataBlock, _PREHASH_Gain, gain);
 	msg->getU8Fast(_PREHASH_DataBlock, _PREHASH_Flags, flags);
 
@@ -5212,9 +5145,10 @@ void process_avatar_appearance(LLMessageSystem* mesgsys, void** user_data)
 
 void process_camera_constraint(LLMessageSystem* mesgsys, void** user_data)
 {
-	static LLCachedControl<bool> disableSimConst(gSavedSettings, "PVCamera_DisableSimCamConstraint", false);
+	static LLCachedControl<bool> disableSimConst(gSavedSettings, "AlchemyDisableSimCamConstraint");
 	if (disableSimConst)
 		return;
+
 	LLVector4 cameraCollidePlane;
 	mesgsys->getVector4Fast(_PREHASH_CameraCollidePlane, _PREHASH_Plane, cameraCollidePlane);
 
@@ -5744,10 +5678,7 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 	std::string gift_suffix = (transaction_type == TRANS_GIFT ? "_gift" : "");
 	if (you_paid_someone)
 	{
-		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
-		static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
-		static LLCachedControl<bool> notify_money_send(gSavedSettings, "NotifyMoneySpend");
-		if(!notify_money_send || amount < notification_threshold_send)
+		if (!gSavedSettings.getBOOL("NotifyMoneySpend"))
 		{
 			return;
 		}
@@ -5756,45 +5687,40 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		name_id = dest_id;
 		if (!reason.empty())
 		{
-			if (name_id.notNull())
+			if (dest_id.notNull())
 			{
 				message = success ? LLTrans::getString("you_paid_ldollars" + gift_suffix, args) :
-									LLTrans::getString("you_paid_failure_ldollars" + gift_suffix, args);
+					          LLTrans::getString("you_paid_failure_ldollars" + gift_suffix, args);
 			}
 			else
 			{
 				// transaction fee to the system, eg, to create a group
 				message = success ? LLTrans::getString("you_paid_ldollars_no_name", args) :
-									LLTrans::getString("you_paid_failure_ldollars_no_name", args);
+					          LLTrans::getString("you_paid_failure_ldollars_no_name", args);
 			}
 		}
 		else
 		{
-			if (name_id.notNull())
+			if (dest_id.notNull())
 			{
 				message = success ? LLTrans::getString("you_paid_ldollars_no_reason", args) :
-									LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
+					          LLTrans::getString("you_paid_failure_ldollars_no_reason", args);
 			}
 			else
 			{
 				// no target, no reason, you just paid money
 				message = success ? LLTrans::getString("you_paid_ldollars_no_info", args) :
-									LLTrans::getString("you_paid_failure_ldollars_no_info", args);
+					          LLTrans::getString("you_paid_failure_ldollars_no_info", args);
 			}
 		}
 		final_args["MESSAGE"] = message;
-		payload["dest_id"] = name_id;
-		// make notification loggable
-		payload["from_id"] = name_id;
+		payload["dest_id"] = dest_id;
 		notification = success ? "PaymentSent" : "PaymentFailure";
 	}
 	else
 	{
 		// ...someone paid you
-		// <polarity> PLVR-73 Implement L$ transaction notification thresholds
-		static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
-		static LLCachedControl<bool> notify_money_recv(gSavedSettings, "NotifyMoneyReceived");
-		if(!notify_money_recv || amount < notification_threshold_recv)
+		if (!gSavedSettings.getBOOL("NotifyMoneyReceived"))
 		{
 			return;
 		}
@@ -5812,8 +5738,11 @@ static void process_money_balance_reply_extended(LLMessageSystem* msg)
 		final_args["MESSAGE"] = message;
 
 		// make notification loggable
-		payload["from_id"] = name_id;
+		payload["from_id"] = source_id;
 		notification = "PaymentReceived";
+
+		LLFloaterTransactionLog* floater = LLFloaterReg::findTypedInstance<LLFloaterTransactionLog>("transaction_log");
+		if (floater) floater->addTransaction(LLDate::now(), source_id, amount);
 	}
 
 	// Despite using SLURLs, wait until the name is available before
@@ -6808,9 +6737,7 @@ void process_script_question(LLMessageSystem* msg, void** user_data)
 			payload["item_id"] = itemid;
 			payload["object_name"] = object_name;
 
-			//args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
-			static const std::string download_url_str = PROJECT_DOWNLOAD_URL;
-			args["DOWNLOADURL"] = download_url_str;
+			args["DOWNLOADURL"] = LLTrans::getString("ViewerDownloadURL");
 			LLNotificationsUtil::add("UnknownScriptQuestion", args, payload);
 		}
 

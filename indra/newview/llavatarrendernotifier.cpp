@@ -109,15 +109,8 @@ std::string LLAvatarRenderNotifier::overLimitMessage()
 
 void LLAvatarRenderNotifier::triggerNotification(bool show_over_limit)
 {
-    // That's not how this work, wow.
-    //mAgentComplexity = mLatestAgentComplexity;
-    // Fix notification showing up if the render cost didn't change. Darl wanted this.
-    if(mAgentComplexity == mLatestAgentComplexity)
-    {
-        return;
-    }
 	gStatusBar->setAvComplexity(mLatestAgentComplexity, mLatestOverLimitPct);
-
+    mAgentComplexity = mLatestAgentComplexity;
     mShowOverLimitAgents = show_over_limit;
 	static LLCachedControl<U32> expire_delay(gSavedSettings, "ShowMyComplexityChanges", 20);
 
@@ -149,9 +142,7 @@ void LLAvatarRenderNotifier::triggerNotification(bool show_over_limit)
 	}
 
     // log unconditionally
-    // Uh, why? This is pretty brutal on the system. - Xenhat 2016-10-26
-    // LL_WARNS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
-    LL_DEBUGS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
+    LL_WARNS("AvatarRenderInfo") << notification_name << " " << args << LL_ENDL;
 
     if (   expire_delay // expiration of zero means do not show the notices
         && gAgentCamera.getLastCameraMode() != CAMERA_MODE_MOUSELOOK // don't display notices in Mouselook

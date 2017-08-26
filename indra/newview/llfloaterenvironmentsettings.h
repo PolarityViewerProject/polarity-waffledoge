@@ -50,19 +50,19 @@ private:
 	void onSelectSkyPreset();
 	void onSelectDayCyclePreset();
 
+	void onBtnOK();
 	void onBtnCancel();
 
 	void refresh() override; /// update controls with user prefs
 	void apply();
-	void applyWater();
-	void applySky();
+	void cancel();
 
 	void populateWaterPresetsList();
 	void populateSkyPresetsList();
 	void populateDayCyclePresetsList();
 
-	LLButton*	 mRegionSettingsButton;
-	LLCheckBoxCtrl*	 mDayCycleSettingsCheck;
+	LLCheckBoxCtrl*	mRegionSettingsCheckBox; // <alchemy/>
+	LLRadioGroup*	mDayCycleSettingsRadioGroup;
 
 	LLComboBox*		mWaterPresetCombo;
 	LLComboBox*		mSkyPresetCombo;

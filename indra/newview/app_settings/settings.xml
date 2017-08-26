@@ -4,10 +4,7 @@
 <map>
   <key>Include</key>
   <array>
-    <string>settings_alchemy.xml</string>
-    <string>settings_obsidian.xml</string>
-    <string>settings_polarity.xml</string>
-    <string>settings_rlva.xml</string>
+    <string>settings_extra.xml</string>
   </array>
   <key>ImporterDebug</key>
   <map>
@@ -13415,7 +13412,7 @@
       <key>Value</key>
       <integer>12</integer>
     </map>
-<!--     <key>UpdaterServiceSetting</key>
+    <key>UpdaterServiceSetting</key>
     <map>
       <key>Comment</key>
       <string>Configure updater service.</string>
@@ -13425,7 +13422,7 @@
       <string>U32</string>
       <key>Value</key>
       <integer>3</integer>
-    </map> -->
+    </map>
     <key>UpdaterServiceCheckPeriod</key>
     <map>
       <key>Comment</key>

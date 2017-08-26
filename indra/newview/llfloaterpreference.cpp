@@ -74,7 +74,6 @@
 #include "llscrolllistitem.h"
 #include "llsliderctrl.h"
 #include "lltabcontainer.h"
-#include "lltexteditor.h"
 #include "lltrans.h"
 #include "llviewercontrol.h"
 #include "llviewercamera.h"
@@ -146,7 +145,7 @@ static const F32 MIN_ARC_LOG = log(MIN_ARC_LIMIT);
 static const F32 MAX_ARC_LOG = log(MAX_ARC_LIMIT);
 static const F32 ARC_LIMIT_MAP_SCALE = (MAX_ARC_LOG - MIN_ARC_LOG) / (MAX_INDIRECT_ARC_LIMIT - MIN_INDIRECT_ARC_LIMIT);
 
-const std::string DEFAULT_SKIN = "polarity";
+const std::string DEFAULT_SKIN = "alchemy";
 
 class LLVoiceSetKeyDialog : public LLModalDialog
 {
@@ -530,34 +529,10 @@ BOOL LLFloaterPreference::postBuild()
 	getChild<LLComboBox>("NearbyChatOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"NearbyChatOptions"));
 	getChild<LLComboBox>("ObjectIMOptions")->setCommitCallback(boost::bind(&LLFloaterPreference::onNotificationsChange, this,"ObjectIMOptions"));
 
-// <polarity> Auth token
-#if INTERNAL_BUILD
-bool show_token_box = true;
-#else
-bool show_token_box = false;
-#endif
-	auto auth_box = getChild<LLTextEditor>("auth_token_editor");
-	if(auth_box)
-	{
-		auth_box->setEnabled(show_token_box);
-		auth_box->setVisible(show_token_box);
-	}
-	auto auth_text = getChild<LLTextBox>("auth_token_text");
-	if(auth_text)
-	{
-		auth_text->setVisible(show_token_box);
-	}
-// </polarity>
-
 	// if floater is opened before login set default localized do not disturb message
 	if (LLStartUp::getStartupState() < STATE_STARTED)
 	{
-		// <polarity> Don't overwrite DND custom string here.
-		if (!gSavedPerAccountSettings.getBOOL("DoNotDisturbResponseChanged"))
-		{
-			gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
-		}
-		// </polarity>
+		gSavedPerAccountSettings.setString("DoNotDisturbModeResponse", LLTrans::getString("DoNotDisturbModeResponseDefault"));
 	}
 
 	// set 'enable' property for 'Clear log...' button
@@ -1009,10 +984,6 @@ void LLFloaterPreference::saveSettings()
 		if (panel)
 			panel->saveSettings();
 	}
-	// <polarity> LookAt Logic
-	// TODO: Re-implement this in a better way
-	//confirmNosyLookAt();
-	// </polarity>
 }	
 
 void LLFloaterPreference::apply()
@@ -2797,9 +2768,9 @@ void LLFloaterPreferenceGraphicsAdvanced::refreshEnabledState()
 	shadow_text->setEnabled(enabled);
 
 	// Hardware settings
-	//F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
+	F32 mem_multiplier = gSavedSettings.getF32("RenderTextureMemoryMultiple");
 	S32Megabytes min_tex_mem = LLViewerTextureList::getMinVideoRamSetting();
-	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false);
+	S32Megabytes max_tex_mem = LLViewerTextureList::getMaxVideoRamSetting(false, mem_multiplier);
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMinValue(min_tex_mem.value());
 	getChild<LLSliderCtrl>("GraphicsCardTextureMemory")->setMaxValue(max_tex_mem.value());
 

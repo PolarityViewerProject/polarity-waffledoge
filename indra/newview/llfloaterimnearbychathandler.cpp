@@ -586,12 +586,8 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 				if (!chat_msg.mFromName.empty())
 				{
 					toast_msg += chat_msg.mFromName;
-					toast_msg += chat_msg.mText.substr(3); // <polarity>
 				}
-				else
-				{
-					toast_msg += chat_msg.mText.substr(4); // <polarity>
-				}
+				toast_msg += chat_msg.mText.substr(3);
 			}
 			else
 			{
@@ -608,7 +604,7 @@ void LLFloaterIMNearbyChatHandler::processChat(const LLChat& chat_msg,
 
 			chat["text_color"] = r_color_name;
 			chat["color_alpha"] = r_color_alpha;
-			chat["font_size"] = (S32)gSavedSettings.getS32("ChatFontSize");
+			chat["font_size"] = (S32)LLViewerChat::getChatFontSize();
 			chat["message"] = toast_msg;
 			channel->addChat(chat);
 		}

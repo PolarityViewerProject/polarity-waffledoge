@@ -84,17 +84,6 @@ public:
 		SO_FOLDERS_BY_WEIGHT = 0x1 << 3,    // Force folder sort by weight, usually, amount of some elements in their descendents
 	};
 
-	// <FS:Zi> Extended Inventory Search
-	enum EFilterSubstringTarget
-	{
-		SUBST_TARGET_NAME = 0,			// Classic search for item name
-		SUBST_TARGET_CREATOR,			// Search for creator name
-		SUBST_TARGET_DESCRIPTION,		// Search for item description
-		SUBST_TARGET_UUID,				// Search for asset UUID
-		SUBST_TARGET_ALL					// Search in all fields at the same time
-	};
-	// </FS:Zi> Extended Inventory Search
-
 	struct FilterOps
 	{
 		struct DateRange : public LLInitParam::Block<DateRange>
@@ -198,7 +187,6 @@ public:
 	void				setFilterMarketplaceUnassociatedFolders();
     void                setFilterMarketplaceListingFolders(bool select_only_listing_folders);
     void                setFilterNoMarketplaceFolder();
-	void				removeFilterEmptySystemFolders(); // <FS:Ansariel> Optional hiding of empty system folders
 	void				updateFilterTypes(U64 types, U64& current_types);
 	void				setFilterWornItems();
 
@@ -206,12 +194,6 @@ public:
 	const std::string& 	getFilterSubString(BOOL trim = FALSE) const;
 	const std::string& 	getFilterSubStringOrig() const { return mFilterSubStringOrig; } 
 	bool 				hasFilterString() const;
-	// <FS:Zi> Multi-substring inventory search
-	// For use by LLFolderViewItem for highlighting
-	U32				 getFilterSubStringCount() const;
-	std::string::size_type getFilterSubStringPos(U32 index) const;
-	std::string::size_type getFilterSubStringLen(U32 index) const;
-	// </FS:Zi> Multi-substring inventory search
 
 	void 				setFilterPermissions(PermissionMask perms);
 	PermissionMask 		getFilterPermissions() const;
@@ -244,11 +226,6 @@ public:
 
 	std::string::size_type getStringMatchOffset(LLFolderViewModelItem* item) const override;
 	std::string::size_type getFilterStringSize() const override;
-	// <FS:Zi> Extended Inventory Search
-	void setFilterSubStringTarget(const std::string& targetName);
-	EFilterSubstringTarget getFilterSubStringTarget() const;
-	std::string getSearchableTarget(const LLFolderViewItem* item) const;
-	// </FS:Zi> Extended Inventory Search
 	// +-------------------------------------------------------------------+
 	// + Presentation
 	// +-------------------------------------------------------------------+
@@ -314,11 +291,6 @@ private:
 	FilterOps				mBackupFilterOps; // for backup purposes when leaving 'search link' mode
 
 	std::string				mFilterSubString;
-	// <FS:Zi> Multi-substring inventory search
-	std::vector<std::string::size_type> mSubStringMatchOffsets;
-	std::vector<std::string>			mFilterSubStrings;
-	EFilterSubstringTarget mFilterSubStringTarget;
-	// </FS:Zi> Multi-substring inventory search
 	std::string				mFilterSubStringOrig;
 	const std::string		mName;
 

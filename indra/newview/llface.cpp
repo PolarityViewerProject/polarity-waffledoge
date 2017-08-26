@@ -1294,10 +1294,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 		clearState(GLOBAL);
 	}
 
-	// <FS:ND> Protection against faces w/o te set.
-	// LLColor4U color = tep->getColor();
-	LLColor4U color = (tep ? tep->getColor() : LLColor4());
-	// </FS:ND>
+	LLColor4U color = tep->getColor();
 
 	if (rebuild_color)
 	{ //decide if shiny goes in alpha channel of color
@@ -1455,10 +1452,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 				}
 			}
 
-			// <FS:ND> FIRE-14261 Guard against null textures
-			// U8 texgen = getTextureEntry()->getTexGen();
-			U8 texgen = getTextureEntry() ? getTextureEntry()->getTexGen() : LLTextureEntry::TEX_GEN_DEFAULT;
-			// </FS:ND>	
+			U8 texgen = getTextureEntry()->getTexGen();
 			if (rebuild_tcoord && texgen != LLTextureEntry::TEX_GEN_DEFAULT)
 			{ //planar texgen needs binormals
 				mVObjp->getVolume()->genTangents(f);
@@ -1502,10 +1496,7 @@ BOOL LLFace::getGeometryVolume(const LLVolume& volume,
 			LLVector4a scalea;
 			scalea.load3(scale.mV);
 
-			// <FS:ND> Protection against faces w/o te set.
-			// LLMaterial* mat = tep->getMaterialParams().get();
-			LLMaterial* mat = tep ? tep->getMaterialParams().get() : 0;
-			// </FS:ND>
+			LLMaterial* mat = tep->getMaterialParams().get();
 
 			bool do_bump = bump_code && mVertexBuffer->hasDataType(LLVertexBuffer::TYPE_TEXCOORD1);
 

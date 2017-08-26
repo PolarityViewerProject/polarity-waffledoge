@@ -138,7 +138,7 @@ public:
 	void setDebugFetching(LLViewerFetchedTexture* tex, S32 debug_level);
 
 	static S32Megabytes getMinVideoRamSetting();
-	static S32Megabytes getMaxVideoRamSetting(const bool get_recommended);
+	static S32Megabytes getMaxVideoRamSetting(bool get_recommended, float mem_multiplier);
 	
 private:
 	void updateImagesDecodePriorities();

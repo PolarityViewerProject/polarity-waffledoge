@@ -27,18 +27,15 @@
 #ifndef LLFLOATERDEBUGSETTINGS_H
 #define LLFLOATERDEBUGSETTINGS_H
 
-#include "llcontrol.h"
 #include "llfloater.h"
 
-class LLTextEditor;
-class LLSpinCtrl;
-class LLColorSwatchCtrl;
-class LLLineEditor;
-class LLRadioGroup;
-class LLButton;
-class LLScrollListCtrl;
 class LLControlVariable;
-class LLSearchEditor;
+class LLColorSwatchCtrl;
+class LLComboBox;
+class LLSpinCtrl;
+class LLTextEditor;
+class LLUICtrl;
+
 class LLFloaterSettingsDebug 
 :	public LLFloater
 {
@@ -49,15 +46,11 @@ public:
 	BOOL postBuild() override;
 	void draw() override;
 
-	void updateControl();
+	void updateControl(LLControlVariable* control);
 
-	// updates control filter to display in the controls list on keytroke
-	void onUpdateFilter();
-	void onSettingSelect();
-	void onCommitSettings() const;
+	void onSettingSelect(LLUICtrl* ctrl);
+	void onCommitSettings();
 	void onClickDefault();
-	void onCopyToClipboard() const;
-	void onSanityCheck() const;
 
 private:
 	// key - selects which settings to show, one of:
@@ -65,28 +58,17 @@ private:
 	LLFloaterSettingsDebug(const LLSD& key);
 	virtual ~LLFloaterSettingsDebug();
 	
-	// returns a pointer to the currently selected control variable, or NULL
-	LLControlVariable* getControlVariable() const;
+	LLComboBox* mComboSettings;
+	LLSpinCtrl* mValSpinner1;
+	LLSpinCtrl* mValSpinner2;
+	LLSpinCtrl* mValSpinner3;
+	LLSpinCtrl* mValSpinner4;
+	LLColorSwatchCtrl* mValColor;
+	LLUICtrl* mValBool;
+	LLUICtrl* mValText;
+	
 protected:
-	typedef std::map<std::string,LLControlVariable*> settings_map_t;
-	settings_map_t mSettingsMap;
-	std::string mOldSearchTerm;
-	LLControlVariable* mCurrentControlVariable;
-	LLControlVariable* mOldControlVariable;
-	bool mOldVisibility;
-	LLSearchEditor* mSearchSettingsInput;
-	LLScrollListCtrl* mSettingsScrollList;
 	LLTextEditor* mComment;
-	LLSpinCtrl* mSpinner1;
-	LLSpinCtrl* mSpinner2;
-	LLSpinCtrl* mSpinner3;
-	LLSpinCtrl* mSpinner4;
-	LLColorSwatchCtrl* mColorSwatch;
-	LLLineEditor* mValText;
-	LLRadioGroup* mBooleanCombo;
-	LLButton* mCopyButton;
-	LLButton* mDefaultButton;
-	LLButton* mSanityButton;
 };
 
 #endif //LLFLOATERDEBUGSETTINGS_H

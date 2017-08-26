@@ -179,7 +179,7 @@ LLAvatarIconCtrl::LLAvatarIconCtrl(const LLAvatarIconCtrl::Params& p)
 	mSymbolSize(p.symbol_size),
 	mSymbolPos(p.symbol_pos),
 	mAvatarNameCacheConnection(),
-	mLoadAvatarIcons(gSavedSettings, "PVUI_LoadAvatarIcons", true)
+	mUseDefaultImage(gSavedSettings, "AlchemyUseDefaultAvatarIcon", false)
 {
 	mPriority = LLViewerFetchedTexture::BOOST_ICON;
 
@@ -278,7 +278,7 @@ bool LLAvatarIconCtrl::updateFromCache()
 	const LLUUID& icon_id = *icon_id_ptr;
 
 	// Update the avatar
-	if (icon_id.notNull() && mLoadAvatarIcons)
+	if (icon_id.notNull() && !mUseDefaultImage)
 	{
 		LLIconCtrl::setValue(icon_id);
 	}
@@ -330,13 +330,3 @@ void LLAvatarIconCtrl::onAvatarNameCache(const LLUUID& agent_id, const LLAvatarN
 		}
 	}
 }
-
-// [SL:KB] - Checked: 2010-11-01 (RLVa-1.2.2a) | Added: RLVa-1.2.2a
-BOOL LLAvatarIconCtrl::handleToolTip(S32 x, S32 y, MASK mask)
-{
-	// Don't show our tooltip if we were asked not to
-	if (!mDrawTooltip)
-		return FALSE;
-	return LLIconCtrl::handleToolTip(x, y, mask);
-}
-// [/SL:KB]

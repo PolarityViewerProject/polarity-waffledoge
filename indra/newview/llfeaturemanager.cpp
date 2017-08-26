@@ -53,29 +53,19 @@
 #include "stringize.h"
 #include "llcorehttputil.h"
 
-#include "llstartup.h" // for getStartupState
-#include "llglsandbox.h"
-
 #if LL_WINDOWS
 #include "lldxhardware.h"
 #endif
 
-#ifdef VERSIONED_FEATURETABLE
 #if LL_DARWIN
 const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
+const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_mac.%s.txt";
 #elif LL_LINUX
 const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
+const char FEATURE_TABLE_VER_FILENAME[] = "featuretable_linux.%s.txt";
 #else
 const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
-#endif
-#endif
-
-#if LL_DARWIN
-const char FEATURE_TABLE_FILENAME[] = "featuretable_mac.txt";
-#elif LL_LINUX
-const char FEATURE_TABLE_FILENAME[] = "featuretable_linux.txt";
-#else
-const char FEATURE_TABLE_FILENAME[] = "featuretable.txt";
+const char FEATURE_TABLE_VER_FILENAME[] = "featuretable.%s.txt";
 #endif
 
 #if 0                               // consuming code in #if 0 below
@@ -195,14 +185,13 @@ void LLFeatureList::dump()
 }
 
 static const std::vector<std::string> sGraphicsLevelNames{
-	LLStringExplicit("Low"), // 0
-	LLStringExplicit("LowMid"), // 1
-	LLStringExplicit("Mid"), // 2
-	LLStringExplicit("MidHigh"), // 3
-	LLStringExplicit("High"), // 4
- 	LLStringExplicit("HighUltra"), // 5
-	LLStringExplicit("Ultra"), // 6
-	LLStringExplicit("MoltenCore") // 7
+	LLStringExplicit("Low"),
+	LLStringExplicit("LowMid"),
+	LLStringExplicit("Mid"),
+	LLStringExplicit("MidHigh"),
+	LLStringExplicit("High"),
+	LLStringExplicit("HighUltra"),
+	LLStringExplicit("Ultra")
 };
 
 U32 LLFeatureManager::getMaxGraphicsLevel() const
@@ -279,15 +268,8 @@ bool LLFeatureManager::loadFeatureTables()
 	std::string app_path = gDirUtilp->getAppRODataDir();
 	app_path += gDirUtilp->getDirDelimiter();
 
-	std::string filename;
-	std::string http_filename;
-
-	filename = FEATURE_TABLE_FILENAME;
-#ifndef VERSIONED_FEATURETABLE
-	http_filename = FEATURE_TABLE_FILENAME;
-#else
-	http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());	
-#endif
+	std::string filename = FEATURE_TABLE_FILENAME;
+	std::string http_filename = llformat(FEATURE_TABLE_VER_FILENAME, LLVersionInfo::getVersion().c_str());
 
 	app_path += filename;
 
@@ -344,7 +326,7 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 
 	mTableVersion = version;
 
-	LLFeatureList *flp = NULL;
+	LLFeatureList *flp = nullptr;
 	bool parse_ok = true;
 	while (file >> name && parse_ok)
 	{
@@ -410,8 +392,8 @@ bool LLFeatureManager::parseFeatureTable(std::string filename)
 	return parse_ok;
 }
 
-// <polarity> Moved to a header file and included it.
-//F32 gpu_benchmark();
+F32 gpu_benchmark(bool force_run);
+
 bool LLFeatureManager::loadGPUClass()
 {
 	//get memory bandwidth from benchmark
@@ -448,16 +430,10 @@ bool LLFeatureManager::loadGPUClass()
 		{
 			mGPUClass = GPU_CLASS_3;
 		}
-		// <polarity> Investigate relevance of this
-		//else if (gGLManager.mGLVersion < 4.3f)
-		//{
+		else 
+		{
 			mGPUClass = GPU_CLASS_4;
-		//}
-		//else 
-		//{
-		//	mGPUClass = GPU_CLASS_5;
-		//}
-		// </polarity>
+		}
 #endif
 	}
 	else if (gGLManager.mGLVersion <= 2.f)
@@ -468,27 +444,27 @@ bool LLFeatureManager::loadGPUClass()
 	{
 		mGPUClass = GPU_CLASS_1;
 	}*/
-	else if (gbps <= GPU_BW_1)
+	else if (gbps <= 5.f)
 	{
 		mGPUClass = GPU_CLASS_0;
 	}
-	else if (gbps <= GPU_BW_2)
+	else if (gbps <= 8.f)
 	{
 		mGPUClass = GPU_CLASS_1;
 	}
-	else if (gbps <= GPU_BW_3)
+	else if (gbps <= 16.f)
 	{
 		mGPUClass = GPU_CLASS_2;
 	}
-	else if (gbps <= GPU_BW_4)
+	else if (gbps <= 40.f)
 	{
 		mGPUClass = GPU_CLASS_3;
 	}
-	else if (gbps <= GPU_BW_5)
+	else if (gbps <= 80.f)
 	{
 		mGPUClass = GPU_CLASS_4;
 	}
-	else
+	else 
 	{
 		mGPUClass = GPU_CLASS_5;
 	}
@@ -560,11 +536,7 @@ void LLFeatureManager::fetchFeatureTableCoro(std::string tableName)
 void LLFeatureManager::fetchHTTPTables()
 {
     LLCoros::instance().launch("LLFeatureManager::fetchFeatureTableCoro",
-#ifdef VERSIONED_FEATURE_TABLE
         boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_VER_FILENAME));
-#else
-		boost::bind(&LLFeatureManager::fetchFeatureTableCoro, this, FEATURE_TABLE_FILENAME));
-#endif
 }
 
 void LLFeatureManager::cleanupFeatureTables()
@@ -589,7 +561,8 @@ void LLFeatureManager::applyRecommendedSettings()
 {
 	loadGPUClass();
 	// apply saved settings
-	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5)); // Class_4 +1, to get preset name which is one index higher
+	// cap the level at 2 (high)
+	U32 level = llmax(GPU_CLASS_0, llmin(mGPUClass, GPU_CLASS_5));
 
 	LL_INFOS("RenderInit") << "Applying Recommended Features for level " << level << LL_ENDL;
 
@@ -740,33 +713,25 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("NVIDIA");
 	}
-	else if (gGLManager.mIsATI)
+	if (gGLManager.mIsATI)
 	{
 		maskFeatures("ATI");
-		if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
-		{
-			maskFeatures("ATIVramLT256");
-		}
-		if (gGLManager.mATIOldDriver)
-		{
-			maskFeatures("ATIOldDriver");
-		}
 	}
-	else if (gGLManager.mIsIntel)
+	if (gGLManager.mHasATIMemInfo && gGLManager.mVRAM < 256)
+	{
+		maskFeatures("ATIVramLT256");
+	}
+	if (gGLManager.mATIOldDriver)
+	{
+		maskFeatures("ATIOldDriver");
+	}
+	if (gGLManager.mIsIntel)
 	{
 		maskFeatures("Intel");
-		if (gGLManager.mGLVersion < 3.f)
-		{
-			maskFeatures("IntelOld");
-		}
-		else
-		{
-			maskFeatures("IntelRecent");
-		}
 	}
-	else
+	if (gGLManager.mGLVersion < 1.5f)
 	{
-		LL_WARNS() << "FeatureTable was unable to detect the graphic card vendor!" << LL_ENDL;
+		maskFeatures("OpenGLPre15");
 	}
 	if (gGLManager.mGLVersion < 2.0f)
 	{
@@ -792,19 +757,9 @@ void LLFeatureManager::applyBaseMasks()
 	{
 		maskFeatures("VertexUniformsLT1024");
 	}
-	llassert(gGLManager.mVRAM > 0);
-	if(gGLManager.mVRAM == 0)
-	{
-		// Most probable reason why we hit this: card does not support GL_*MEM* extensions, in which case
-		// no VRAM detection can be performed via OpenGL.
-		// We removed DirectX support, so let's give it a sane default.
-		maskFeatures("ATIVRAMFALLBACK");
-	}
-
 	if (gGLManager.mVRAM > 512)
 	{
 		maskFeatures("VRAMGT512");
-		LL_DEBUGS() << "VRAM DETECTED IS GREATER THAN 512MB" << LL_ENDL;
 	}
 
 	// now mask by gpu string
@@ -817,14 +772,16 @@ void LLFeatureManager::applyBaseMasks()
 			*iter = '_';
 		}
 	}
-	LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
+
+	//LL_INFOS() << "Masking features from gpu table match: " << gpustr << LL_ENDL;
 	maskFeatures(gpustr);
+
+	// now mask cpu type ones
 	if (gSysMemory.getPhysicalMemoryKB() <= U32Megabytes(256))
 	{
 		maskFeatures("RAM256MB");
 	}
-
-	// now mask cpu type ones	
+	
 	if (gSysCPU.getMHz() < 1100)
 	{
 		maskFeatures("CPUSlow");

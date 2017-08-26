@@ -48,24 +48,24 @@ public:
 	
 	// Cancel any in progress download; a no op if none is in progress.  The
 	// client will not receive a complete or error callback.
-	void cancel(void) const;
+	void cancel(void);
 	
 	// Start a new download.
-	void download(const LLURI& uri,
-				  const std::string& hash, 
-				  const std::string& updateChannel,
-				  const std::string& updateVersion,
-				  const std::string& info_url,
-				  bool required = false) const;
+	void download(LLURI const & uri,
+				  std::string const & hash, 
+				  std::string const & updateChannel,
+				  std::string const & updateVersion,
+				  std::string const & info_url,
+				  bool required=false);
 	
 	// Returns true if a download is in progress.
-	bool isDownloading(void) const;
+	bool isDownloading(void);
 	
 	// Resume a partial download.
-	void resume(void) const;
+	void resume(void);
 	
 	// Set a limit on the dowload rate.
-	void setBandwidthLimit(U64 bytesPerSecond) const;
+	void setBandwidthLimit(U64 bytesPerSecond);
 	
 private:
 	std::shared_ptr<Implementation> mImplementation;
@@ -77,10 +77,7 @@ private:
 //
 class LLUpdateDownloader::Client {
 public:
-	virtual ~Client()
-	{
-	}
-
+	virtual ~Client() = default;
 	// The download has completed successfully.
 	// data is a map containing the following items:
 	// url - source (remote) location

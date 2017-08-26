@@ -38,9 +38,6 @@
 #include "lltrans.h"
 #include "llxmlnode.h"
 
-#include "pvconstants.h"
-
-
 /// key used to store the grid, and the name attribute in the grid data
 const std::string  GRID_VALUE = "keyname";
 /// the value displayed in the grid selector menu, and other human-oriented text
@@ -85,10 +82,11 @@ const std::string GRID_SLURL_BASE = "slurl_base";
 /// slurl base for grid slapp links
 const std::string GRID_APP_SLURL_BASE = "app_slurl_base";
 
-static const std::string project_domain_str = PROJECT_DOMAIN;
-const std::string DEFAULT_LOGIN_PAGE = "http://app." + project_domain_str;
+const std::string DEFAULT_LOGIN_PAGE = "https://login.alchemyviewer.org/";
 
 const std::string MAIN_GRID_LOGIN_URI = "https://login.agni.lindenlab.com/cgi-bin/login.cgi";
+
+const std::string SL_UPDATE_QUERY_URL = "https://update.secondlife.com/update";
 
 const std::string MAIN_GRID_SLURL_BASE = "http://maps.secondlife.com/secondlife/";
 const std::string SYSTEM_GRID_APP_SLURL_BASE = "secondlife:///app";
@@ -99,6 +97,7 @@ const char* SYSTEM_GRID_SLURL_BASE = "secondlife://%s/secondlife/";
 const char* DEFAULT_SLURL_BASE = "x-grid-info://%s/region/";
 const char* DEFAULT_APP_SLURL_BASE = "x-grid-info://%s/app";
 
+const std::string PROJECT_UPDATE_SERVICE = "https://update.polarityviewer.org/update";
 
 //
 const std::string GRIDS_USER_FILE = "grids_user.xml";
@@ -142,7 +141,6 @@ void LLGridManager::initialize(const std::string& grid_file)
 	mGridFile = grid_file;
 	// as we don't want an attacker to override our grid list
 	// to point the default grid to an invalid grid
-	static const std::string update_url = PROJECT_UPDATE_URL;
   	addSystemGrid("Second Life",
 				  MAINGRID,
 				  MAIN_GRID_LOGIN_URI,
@@ -150,7 +148,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  DEFAULT_LOGIN_PAGE,
 				  "https://secondlife.com/my/account/request.php",
 				  "https://join.secondlife.com/?sourceid=PolarityViewer",
-				  update_url,
+				  SL_UPDATE_QUERY_URL,
 				  MAIN_GRID_WEB_PROFILE_URL,
 				  "Linden Lab",
 				  "secondlife",
@@ -162,7 +160,7 @@ void LLGridManager::initialize(const std::string& grid_file)
 				  DEFAULT_LOGIN_PAGE,
 				  "https://secondlife.com/my/account/request.php",
 				  "https://join.secondlife.com/?sourceid=PolarityViewer",
-				  update_url,
+				  SL_UPDATE_QUERY_URL,
 				  "https://my.aditi.lindenlab.com/",
 				  "Linden Lab",
 				  "secondlife",
@@ -944,10 +942,9 @@ std::string LLGridManager::getUpdateServiceURL() const
 	}
 	else
 	{
-		static const std::string update_url = PROJECT_UPDATE_URL;
-		update_url_base = update_url;
+		update_url_base = PROJECT_UPDATE_SERVICE;
 	}
-			 
+			
 	return update_url_base;
 }
 

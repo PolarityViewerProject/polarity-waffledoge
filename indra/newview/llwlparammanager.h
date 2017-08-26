@@ -300,15 +300,8 @@ public:
 	/// @return user and system preset names as a single list
 	void getPresetNames(preset_name_list_t& region, preset_name_list_t& user, preset_name_list_t& sys) const;
 
-// (Kept for Parcel Windlignt) [RLVa:KB] - Checked: 2011-09-04 (RLVa-1.4.1a) | Added: RLVa-1.4.1a
-	const std::string& findPreset(const std::string& strPresetName, LLEnvKey::EScope eScope);
-// [/RLVa:KB]
-
 	/// @return user preset names
 	void getUserPresetNames(preset_name_list_t& user) const;
-	
-	/// @return all local (user + sys) preset names
-	void getLocalPresetNames(preset_name_list_t& local) const;
 
 	/// @return keys of all known presets
 	void getPresetKeys(preset_key_list_t& keys) const;
@@ -331,9 +324,6 @@ public:
 
 	/// escape string in a way different from LLURI::escape()
 	static std::string escapeString(const std::string& str);
-
-	// <FS:Ansariel> Get list of all ParamSets
-	const std::map<LLWLParamKey, LLWLParamSet>& getParamList() const { return mParamList; };
 
 	// helper variables
 	LLWLAnimator mAnimator;

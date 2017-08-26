@@ -62,7 +62,7 @@ public:
 	void setNeedsReset(bool reset = true) { mResetFlag = reset; }
 	void setCameraNeedsUpdate(bool b)     { mCameraUpdated = b; }
 	bool getCameraNeedsUpdate() const     { return mCameraUpdated; }
-	bool getOverrideCamera() const { return mOverrideCamera; }
+	bool getOverrideCamera() { return mOverrideCamera; }
 	void setOverrideCamera(bool val);
 	bool toggleFlycam();
 	void setSNDefaults();

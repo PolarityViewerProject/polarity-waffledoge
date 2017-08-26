@@ -164,7 +164,6 @@ public:
 
 	// Call this method to set the selection.
 	void openAllFolders();
-	void closeAllFolders();
 	void setSelection(const LLUUID& obj_id, BOOL take_keyboard_focus);
 	void setSelectCallback(const std::function<void (const std::deque<LLFolderViewItem*>& items, BOOL user_action)>& cb);
 	void clearSelection();
@@ -178,16 +177,11 @@ public:
 	void setFilterWearableTypes(U64 filter);
 	void setFilterSubString(const std::string& string);
 	const std::string getFilterSubString();
-	// ## Zi: Extended Inventory Search
-	void setFilterSubStringTarget(const std::string& target);
-	LLInventoryFilter::EFilterSubstringTarget getFilterSubStringTarget() const;
-	// ## Zi: Extended Inventory Search
 	void setSinceLogoff(BOOL sl);
 	void setHoursAgo(U32 hours);
 	void setDateSearchDirection(U32 direction);
 	BOOL getSinceLogoff();
 	void setFilterLinks(LLInventoryFilter::EFilterLink filter_links);
-	U64 getFilterLinks();		// ## Zi: Filter Links Menu
 
 	void setShowFolderState(LLInventoryFilter::EFolderShow show);
 	LLInventoryFilter::EFolderShow getShowFolderState();
@@ -210,10 +204,6 @@ public:
 	void purgeSelectedItems();
 	bool attachObject(const LLSD& userdata);
 	static void idle(void* user_data);
-
-	// <FS:Ansariel> Optional hiding of empty system folders
-	void updateHideEmptySystemFolders(const LLSD &data);
-	void updateShowInboxFolder(const LLSD &data);
 
 	// DEBUG ONLY:
 	static void dumpSelectionInformation(void* user_data);
@@ -307,7 +297,6 @@ protected:
 	static LLUIColor			sDefaultColor;
 	static LLUIColor			sDefaultHighlightColor;
 	static LLUIColor			sLibraryColor;
-	static LLUIColor			sItemColor; // <polarity>
 	static LLUIColor			sLinkColor;
 	
 	LLFolderViewItem*	buildNewViews(const LLUUID& id);

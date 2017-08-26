@@ -248,7 +248,7 @@ LLHUDEffectLookAt::LLHUDEffectLookAt(const U8 type) :
 	mKillTime(0.f),
 // <alchemy>
 	mLastSendTime(0.f),
-	mDebugLookAt(gSavedSettings, "PVPrivacy_LookAtShow", false)
+	mDebugLookAt(gSavedSettings, "AlchemyLookAtShow", false)
 // </alchemy>
 {
 	clearLookAtTarget();
@@ -512,8 +512,8 @@ void LLHUDEffectLookAt::render()
 	// <alchemy>
 	if (mDebugLookAt && mSourceObject.notNull())
 	{
-		static LLCachedControl<bool> isOwnHidden(gSavedSettings, "PVPrivacy_LookAtHideSelf", false);
-		static LLCachedControl<bool> isPrivate(gSavedSettings, "PVPrivacy_LookAtDontSend", false);
+		static LLCachedControl<bool> isOwnHidden(gSavedSettings, "AlchemyLookAtHideSelf", true);
+		static LLCachedControl<bool> isPrivate(gSavedSettings, "AlchemyLookAtPrivate", false);
 
 		if ((isOwnHidden || isPrivate) && static_cast<LLVOAvatar*>(mSourceObject.get())->isSelf())
 			return;
@@ -538,8 +538,8 @@ void LLHUDEffectLookAt::render()
 			gGL.vertex3f(0.f, 0.f, -1.f);
 			gGL.vertex3f(0.f, 0.f, 1.f);
 
-			static LLCachedControl<bool> lookAtLines(gSavedSettings, "PVPrivacy_LookAtLines", false);
-			if (lookAtLines)
+			static LLCachedControl<bool> lookAtLines(gSavedSettings, "AlchemyLookAtLines", false);
+			if(lookAtLines)
 			{
 				const std::string targname = (*mAttentions)[mTargetType].mName;
 				if(targname != "None" && targname != "Idle" && targname != "AutoListen")
@@ -553,8 +553,8 @@ void LLHUDEffectLookAt::render()
 		gGL.end();
 		gGL.popMatrix();
 
-		static LLCachedControl<U32> lookAtNames(gSavedSettings, "PVPrivacy_LookAtNames", 0);
-		if (lookAtNames > 0)
+		static LLCachedControl<U32> lookAtNames(gSavedSettings, "AlchemyLookAtNames", 0);
+		if(lookAtNames > 0)
 		{
 			std::string text;
 			LLAvatarName av_name;
@@ -577,16 +577,15 @@ void LLHUDEffectLookAt::render()
 
 			const LLFontGL* fontp = LLFontGL::getFontSansSerif();
 			gGL.pushMatrix();
-			static LLCachedControl<bool> lookat_names_bold(gSavedSettings, "PVPrivacy_LookAtBoldNames", false);
 			hud_render_utf8text(
-				text,
+				text, 
 				target + LLVector3(0.f, 0.f, 0.15f),
 				*fontp,
-				lookat_names_bold ? LLFontGL::BOLD : LLFontGL::NORMAL,
+				LLFontGL::NORMAL, 
 				LLFontGL::DROP_SHADOW,
-				-0.5f * fontp->getWidthF32(text),
+				-0.5f * fontp->getWidthF32(text), 
 				0.0f,
-				(*mAttentions)[mTargetType].mColor,
+				(*mAttentions)[mTargetType].mColor, 
 				FALSE
 			);
 			gGL.popMatrix();

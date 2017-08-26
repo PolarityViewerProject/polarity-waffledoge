@@ -31,7 +31,6 @@
 #include "llframetimer.h"
 #include "llparcelselection.h"
 #include "llui.h"
-#include "llviewerregion.h"
 
 class LLUUID;
 class LLMessageSystem;

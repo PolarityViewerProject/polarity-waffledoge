@@ -243,18 +243,8 @@ void LLHUDText::renderText()
 
 void LLHUDText::setString(const std::string &text_utf8)
 {
-	if (!mTextSegments.empty())
-	{
-		mTextSegments.clear();
-	}
-	// <polarity> RLV-independant hovertext nuke.
-	static LLCachedControl<bool> force_hide_hover_text(gSavedSettings, "PVRender_HideAllHoverText", false);
-	if (force_hide_hover_text)
-	{
-		return;
-	}
+	mTextSegments.clear();
 	addLine(text_utf8, mColor);
-
 }
 
 void LLHUDText::clearString()

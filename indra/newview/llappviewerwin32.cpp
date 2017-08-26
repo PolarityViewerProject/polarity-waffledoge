@@ -68,9 +68,6 @@
 #include "lltrans.h"
 
 #include <exception>
-
-#include "pvconstants.h"
-
 namespace
 {
     void (*gOldTerminateHandler)() = nullptr;
@@ -96,7 +93,7 @@ LONG WINAPI catchallCrashHandler(EXCEPTION_POINTERS * /*ExceptionInfo*/)
 	return 0;
 }
 
-const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
+const std::string LLAppViewerWin32::sWindowClass = "Polarity";
 
 // Create app mutex creates a unique global windows object. 
 // If the object can be created it returns true, otherwise
@@ -109,8 +106,7 @@ const std::string LLAppViewerWin32::sWindowClass = APP_NAME;
 bool create_app_mutex()
 {
 	bool result = true;
-	static const std::string app_name_str = APP_NAME;
-	LPCWSTR unique_mutex_name = ll_convert_string_to_wide(app_name_str + "AppMutex",0);
+	LPCWSTR unique_mutex_name = L"SecondLifeAppMutex";
 	HANDLE hMutex;
 	hMutex = CreateMutex(nullptr, TRUE, unique_mutex_name); 
 	if(GetLastError() == ERROR_ALREADY_EXISTS) 
@@ -572,7 +568,7 @@ bool LLAppViewerWin32::initHardwareTest()
 		gGLManager.mVRAM = gDXHardware.getVRAM();
 	}
 
-	LL_INFOS("AppInit") << "(DirectX) Detected VRAM: " << gDXHardware.getVRAM() << LL_ENDL;
+	LL_INFOS("AppInit") << "Detected VRAM: " << gGLManager.mVRAM << LL_ENDL;
 
 	return true;
 }
@@ -663,9 +659,7 @@ void LLAppViewerWin32::initCrashReporting(bool reportFreeze)
 bool LLAppViewerWin32::sendURLToOtherInstance(const std::string& url)
 {
 	wchar_t window_class[256]; /* Flawfinder: ignore */   // Assume max length < 255 chars.
-	static const std::string app_name_str = APP_NAME;
-	static const char* app_name_cstr = app_name_str.c_str();
-	mbstowcs(window_class, app_name_cstr, 255);
+	mbstowcs(window_class, sWindowClass.c_str(), 255);
 	window_class[255] = 0;
 	// Use the class instead of the window name.
 	HWND other_window = FindWindow(window_class, nullptr);

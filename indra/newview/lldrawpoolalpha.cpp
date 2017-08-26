@@ -76,18 +76,18 @@ void LLDrawPoolAlpha::prerender()
 S32 LLDrawPoolAlpha::getNumPostDeferredPasses() 
 { 
 	static LLCachedControl<bool> render_dof(gSavedSettings, "RenderDepthOfField");
-	//static LLCachedControl<bool> render_dof_alphas(gSavedSettings, "PVRender_DepthOfFieldAlphas"); //BD - Include Alphas In DoF
-	//skip depth buffer filling pass when rendering impostors
-	if(LLPipeline::sImpostorRender)
-	{
+	if (LLPipeline::sImpostorRender)
+	{ //skip depth buffer filling pass when rendering impostors
 		return 1;
 	}
 	else if (render_dof)
 	{
 		return 2; 
 	}
-	// don't render alphas
-	return 1;
+	else
+	{
+		return 1;
+	}
 }
 
 void LLDrawPoolAlpha::beginPostDeferredPass(S32 pass) 

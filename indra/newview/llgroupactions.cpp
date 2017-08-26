@@ -48,10 +48,6 @@
 #include "llstatusbar.h"	// can_afford_transaction()
 #include "groupchatlistener.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 //
 // Globals
 //
@@ -236,17 +232,6 @@ void LLGroupActions::join(const LLUUID& group_id)
 		LLNotificationsUtil::add("JoinedTooManyGroups");
 		return;
 	}
-#ifdef PVDATA_SYSTEM
-	if (gPVOldAPI->isSupportGroup(group_id))
-	{
-		auto pv_agent = PVAgent::find(gAgentID);
-		if (pv_agent && pv_agent->isProviderUnsupported())
-		{
-			// PLVR TODO: Show notification or something.
-			return; // abort, do not join
-		}
-	}
-#endif
 
 	LLGroupMgrGroupData* gdatap = 
 		LLGroupMgr::getInstance()->getGroupData(group_id);

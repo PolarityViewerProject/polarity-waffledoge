@@ -607,8 +607,7 @@ void LLViewerTexLayerSetBuffer::doUpdate()
 	layer_set->getAvatar()->updateMeshTextures();
 	
 	// Print out notification that we updated this texture.
-	static LLCachedControl<bool> debug_avatar_rez_time(gSavedSettings, "DebugAvatarRezTime");
-	if (debug_avatar_rez_time)
+	if (gSavedSettings.getBOOL("DebugAvatarRezTime"))
 	{
 		const BOOL highest_lod = layer_set->isLocalTextureDataFinal();
 		const std::string lod_str = highest_lod ? "HighRes" : "LowRes";

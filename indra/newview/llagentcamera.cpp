@@ -42,7 +42,6 @@
 #include "llmoveview.h"
 #include "llselectmgr.h"
 #include "llsmoothstep.h"
-#include "llstartup.h"
 #include "lltoolmgr.h"
 #include "llviewercamera.h"
 #include "llviewercontrol.h"
@@ -1150,7 +1149,7 @@ void LLAgentCamera::updateCamera()
 	U32 camera_mode = mCameraAnimating ? mLastCameraMode : mCameraMode;
 
 	validateFocusObject();
-	static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "PVCamera_RealisticMouseLook", false);
+	static LLCachedControl<bool> useRealisticMouselook(gSavedSettings, "AlchemyRealisticMouselook", false);
 	if (isAgentAvatarValid() && 
 		gAgentAvatarp->isSitting() &&
 		camera_mode == CAMERA_MODE_MOUSELOOK)
@@ -1706,11 +1705,6 @@ LLVector3d LLAgentCamera::calcCameraPositionTargetGlobal(BOOL *hit_limit)
 		if (!isAgentAvatarValid() || gAgentAvatarp->mDrawable.isNull())
 		{
 			LL_WARNS() << "Null avatar drawable!" << LL_ENDL;
-			// <polarity> Quick and dirty escape from infinite loop at login when crashing in odd circumstances
-			if(LLStartUp::getStartupState() < STATE_STARTED)
-			{
-				LL_ERRS() << "Your camera location was broken, please close the viewer and try again." << LL_ENDL;
-			}
 			return LLVector3d::zero;
 		}
 		head_offset.clearVec();
@@ -2041,8 +2035,8 @@ void LLAgentCamera::resetCamera()
 //-----------------------------------------------------------------------------
 void LLAgentCamera::changeCameraToMouselook(BOOL animate)
 {
-	static LLCachedControl<bool> enable_mouselook(gSavedSettings, "EnableMouselook", false);
-	if (!enable_mouselook || LLViewerJoystick::getInstance()->getOverrideCamera())
+	if (!gSavedSettings.getBOOL("EnableMouselook") 
+		|| LLViewerJoystick::getInstance()->getOverrideCamera())
 	{
 		return;
 	}
@@ -2267,9 +2261,8 @@ void LLAgentCamera::changeCameraToCustomizeAvatar()
 		return;
 	}
 
-// <polarity> Allow user to ignore forced stand-up
-	static LLCachedControl<bool> ignore_force_stand(gSavedSettings, "PVMovement_IgnoreForcedStand", false);
-	if (!ignore_force_stand)
+
+	if (!gSavedSettings.getBool("AlchemyIgnoreForcedStand"))
 	{
 		gAgent.standUp(); // force stand up
 	}
@@ -2421,9 +2414,8 @@ void LLAgentCamera::setFocusGlobal(const LLPickInfo& pick)
 	}
 }
 
-// <polarity> Allow setting the camera focus without animating. Required for UUID re-sit on login
-//void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
-void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id, const bool animate)
+
+void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object_id)
 {
 	setFocusObject(gObjectList.findObject(object_id));
 	LLVector3d old_focus = mFocusTargetGlobal;
@@ -2456,12 +2448,7 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 
 			mCameraFocusOffsetTarget = gAgent.getPosGlobalFromAgent(mCameraVirtualPositionAgent) - mFocusTargetGlobal;
 
-			// <polarity> Allow setting the camera focus without animating
-			if (animate)
-			{
-				 startCameraAnimation();
-			}
-			// </polarity>
+			startCameraAnimation();
 
 			if (focus_obj)
 			{
@@ -2516,27 +2503,16 @@ void LLAgentCamera::setFocusGlobal(const LLVector3d& focus, const LLUUID &object
 //-----------------------------------------------------------------------------
 // setCameraPosAndFocusGlobal()
 //-----------------------------------------------------------------------------
-// <polarity> Allow setting the camera focus without animating
-//void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id)
-void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id, const bool animate)
+void LLAgentCamera::setCameraPosAndFocusGlobal(const LLVector3d& camera_pos, const LLVector3d& focus, const LLUUID &object_id)
 {
 	LLVector3d old_focus = mFocusTargetGlobal.isExactlyZero() ? focus : mFocusTargetGlobal;
 
-	// <polarity> Add parameter to choose whether to animate or not
 	F64 focus_delta_squared = (old_focus - focus).magVecSquared();
-	if (animate)
-	{
 	const F64 ANIM_EPSILON_SQUARED = 0.0001;
 	if (focus_delta_squared > ANIM_EPSILON_SQUARED)
 	{
 		startCameraAnimation();
 	}
-	}
-	else
-	{
-		mCameraSmoothingStop = true;
-	}
-	// </polarity>
 	
 	//LLViewerCamera::getInstance()->setOrigin( gAgent.getPosAgentFromGlobal( camera_pos ) );
 	setFocusObject(gObjectList.findObject(object_id));
@@ -2649,7 +2625,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 	else if (mFocusOnAvatar && !focus_on_avatar)
 	{
 		// keep camera focus point consistent, even though it is now unlocked
-		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID(), animate); // <polarity/> Extra paramter to disable animation
+		setFocusGlobal(gAgent.getPositionGlobal() + calcThirdPersonFocusOffset(), gAgent.getID());
 		mAllowChangeToFollow = FALSE;
 	}
 	
@@ -2659,7 +2635,7 @@ void LLAgentCamera::setFocusOnAvatar(BOOL focus_on_avatar, BOOL animate)
 
 BOOL LLAgentCamera::setLookAt(ELookAtType target_type, LLViewerObject *object, LLVector3 position)
 {
-	static LLCachedControl<bool> isPrivate(gSavedSettings, "PVPrivacy_LookAtPrivate", false);
+	static LLCachedControl<bool> isPrivate(gSavedSettings, "AlchemyLookAtPrivate", false);
 	if (isPrivate)
 	{
 		if(!mLookAt || mLookAt->isDead())
@@ -2781,9 +2757,8 @@ bool LLAgentCamera::isfollowCamLocked() const
 BOOL LLAgentCamera::setPointAt(EPointAtType target_type, LLViewerObject *object, LLVector3 position)
 {
 	// disallow pointing at attachments and avatars
-	static LLCachedControl<bool> disable_edit_beam(gSavedSettings, "PVPrivacy_HideEditBeam", false);
-	static LLCachedControl<bool> show_beam_on_everything(gSavedSettings, "PVPrivacy_ShowEditBeamOnEverything", false);
-	if (!(show_beam_on_everything) && (object && (object->isAttachment() || object->isAvatar() || disable_edit_beam)))
+	static LLCachedControl<bool> disablePointAt(gSavedSettings, "AlchemyPointAtDisable", false);
+	if (object && (object->isAttachment() || object->isAvatar() || disablePointAt))
 	{
 		return FALSE;
 	}

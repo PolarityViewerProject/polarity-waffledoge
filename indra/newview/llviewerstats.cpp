@@ -147,7 +147,6 @@ LLTrace::SampleStatHandle<>	FPS_SAMPLE("fpssample"),
 							VISIBLE_AVATARS("visibleavatars", "Visible Avatars"),
 							SHADER_OBJECTS("shaderobjects", "Object Shaders"),
 							DRAW_DISTANCE("drawdistance", "Draw Distance"),
-							SHADOW_DISTANCE("shadowdistance", "Shadow Distance"),
 							PENDING_VFS_OPERATIONS("vfspendingoperations"),
 							WINDOW_WIDTH("windowwidth", "Window width"),
 							WINDOW_HEIGHT("windowheight", "Window height");
@@ -347,13 +346,11 @@ void update_statistics()
 	static LLCachedControl<bool> render_vbo_enable(gSavedSettings, "RenderVBOEnable");
 	static LLCachedControl<F32> render_far_clip(gSavedSettings, "RenderFarClip");
 	static LLCachedControl<U32> nearby_chat_out(gSavedSettings, "AlchemyNearbyChatOutput");
-	static LLCachedControl<U32> shadow_distance(gSavedSettings, "RenderShadowFarClip");
 	bool is_bubble = nearby_chat_out == E_NEARBY_OUTPUT_BUBBLE || nearby_chat_out == E_NEARBY_OUTPUT_BOTH;
 	sample(LLStatViewer::ENABLE_VBO,      (F64)render_vbo_enable);
 	sample(LLStatViewer::LIGHTING_DETAIL, (F64)gPipeline.getLightingDetail());
 	sample(LLStatViewer::DRAW_DISTANCE,   (F64)render_far_clip);
 	sample(LLStatViewer::CHAT_BUBBLES,	  is_bubble);
-	sample(LLStatViewer::SHADOW_DISTANCE,   (F64)shadow_distance);
 
 	typedef LLTrace::StatType<LLTrace::TimeBlockAccumulator>::instance_tracker_t stat_type_t;
 

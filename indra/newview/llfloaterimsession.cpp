@@ -65,10 +65,6 @@
 #include "llautoreplace.h"
 #include "llcorehttputil.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 const F32 ME_TYPING_TIMEOUT = 4.0f;
 const F32 OTHER_TYPING_TIMEOUT = 9.0f;
 
@@ -374,11 +370,6 @@ BOOL LLFloaterIMSession::postBuild()
 	
 	//*TODO if session is not initialized yet, add some sort of a warning message like "starting session...blablabla"
 	//see LLFloaterIMPanel for how it is done (IB)
-
-#ifdef PVDATA_SYSTEM
-	BOOL is_support_group = gPVOldAPI->isSupportGroup(mSessionID);
-	getChild<LLUICtrl>("support_group_ribbon")->setVisible(is_support_group);
-#endif
 
 	initIMFloater();
 

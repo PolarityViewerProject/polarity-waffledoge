@@ -62,7 +62,7 @@ void LLDesktopNotificationsNotify::sendNotification(const std::string& title, co
 {
     if (handle && !gFocusMgr.getAppHasFocus())
     {
-	std::string icon_path = gDirUtilp->getCurPath() + "/alchemy_icon.png";
+	std::string icon_path = gDirUtilp->getCurPath() + "/polarity_icon.png";
 	void* notification = notify_notification_new(title.c_str(), body.c_str(), icon_path.c_str());
 	notify_notification_show(notification, NULL);
 	g_object_unref(G_OBJECT(notification));

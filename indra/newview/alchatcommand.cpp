@@ -52,8 +52,8 @@
 #include "llvolume.h"
 #include "llvolumemessage.h"
 #include "llappviewer.h"
-#include "pvcommon.h"
-#include "pvdata.h"
+// #include "pvcommon.h"
+// #include "pvdata.h"
 
 bool ALChatCommand::parseCommand(std::string data)
 {
@@ -82,10 +82,10 @@ bool ALChatCommand::parseCommand(std::string data)
 		static LLCachedControl<std::string> sTeleportToCam(gSavedSettings, "AlchemyChatCommandTeleportToCam", "/tp2cam");
 		static LLCachedControl<std::string> sHoverHeight(gSavedSettings, "AlchemyChatCommandHoverHeight", "/hover");
 		static LLCachedControl<std::string> sAOCommand(gSavedSettings, "AlchemyChatCommandAnimationOverride", "/ao");
-		static LLCachedControl<std::string> sPurgeChatCommand(gSavedSettings, "PVChatCommand_PurgeChat", "/purgechat");
-		static LLCachedControl<std::string> sPVDataRefreshCommand(gSavedSettings, "PVChatCommand_PVDataRefresh", "/pvdatarefresh");
-		static LLCachedControl<std::string> sUptimeCommand(gSavedSettings, "PVChatCommand_Uptime", "/uptime");
-		static LLCachedControl<std::string> sSysInfoCommand(gSavedSettings, "PVChatCommand_SysInfo", "/sysinfo");
+		//static LLCachedControl<std::string> sPurgeChatCommand(gSavedSettings, "PVChatCommand_PurgeChat", "/purgechat");
+		//static LLCachedControl<std::string> sPVDataRefreshCommand(gSavedSettings, "PVChatCommand_PVDataRefresh", "/pvdatarefresh");
+		//static LLCachedControl<std::string> sUptimeCommand(gSavedSettings, "PVChatCommand_Uptime", "/uptime");
+		//static LLCachedControl<std::string> sSysInfoCommand(gSavedSettings, "PVChatCommand_SysInfo", "/sysinfo");
 
 		if (cmd == utf8str_tolower(sDrawDistanceCommand)) // dd
 		{
@@ -346,40 +346,40 @@ bool ALChatCommand::parseCommand(std::string data)
 				}
 			}
 		}
-		// Wat?
-		//else if (cmd == utf8str_tolower(sCalcCommand)) // calc
-		else if (cmd == utf8str_tolower(sPurgeChatCommand)) // purgechat
-		{
-			LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
-			if (nearby_chat)
-			{
-				nearby_chat->purgeChatHistory();
-				// <polarity> The clear chat command does not reset scroll index
-				// as the scroll bar is only reset when a new message is appended to the chat log.
-				// We can either update the scrollbar manually, or add a log entry to record that
-				// the char was cleared and clear again to hide it away said entry.
-				PVCommon::reportToNearbyChat("Clearing chat window...");
-				nearby_chat->purgeChatHistory();
-				return true;
-				// </polarity>
-			}
-			//break;
-		}
-		else if (cmd == utf8str_tolower(sPVDataRefreshCommand)) // pvdatarefresh
-		{
-			gPVOldAPI->refreshDataFromServer(true);
-			return true;
-		}
-		else if (cmd == utf8str_tolower(sUptimeCommand)) // uptime
-		{
-			PVCommon::reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");
-			return true;
-		}
-		else if (cmd == utf8str_tolower(sSysInfoCommand)) // sysinfo
-		{
-			PVCommon::reportToNearbyChat(LLAppViewer::instance()->getViewerInfoString(false), "System info");
-			return true;
-		}
+		//// Wat?
+		////else if (cmd == utf8str_tolower(sCalcCommand)) // calc
+		//else if (cmd == utf8str_tolower(sPurgeChatCommand)) // purgechat
+		//{
+		//	LLFloaterIMNearbyChat* nearby_chat = LLFloaterReg::findTypedInstance<LLFloaterIMNearbyChat>("nearby_chat");
+		//	if (nearby_chat)
+		//	{
+		//		nearby_chat->purgeChatHistory();
+		//		// <polarity> The clear chat command does not reset scroll index
+		//		// as the scroll bar is only reset when a new message is appended to the chat log.
+		//		// We can either update the scrollbar manually, or add a log entry to record that
+		//		// the char was cleared and clear again to hide it away said entry.
+		//		PVCommon::reportToNearbyChat("Clearing chat window...");
+		//		nearby_chat->purgeChatHistory();
+		//		return true;
+		//		// </polarity>
+		//	}
+		//	//break;
+		//}
+		//else if (cmd == utf8str_tolower(sPVDataRefreshCommand)) // pvdatarefresh
+		//{
+		//	gPVOldAPI->refreshDataFromServer(true);
+		//	return true;
+		//}
+		//else if (cmd == utf8str_tolower(sUptimeCommand)) // uptime
+		//{
+		//	PVCommon::reportToNearbyChat(LLAppViewer::secondsToTimeString(gUptimeTimer.getElapsedTimeF32()), "Session Uptime");
+		//	return true;
+		//}
+		//else if (cmd == utf8str_tolower(sSysInfoCommand)) // sysinfo
+		//{
+		//	PVCommon::reportToNearbyChat(LLAppViewer::instance()->getViewerInfoString(false), "System info");
+		//	return true;
+		//}
 
 	}
 	return false;

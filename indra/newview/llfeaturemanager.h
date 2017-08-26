@@ -46,16 +46,6 @@ typedef enum EGPUClass
 	GPU_CLASS_5 = 5
 } EGPUClass; 
 
-typedef enum EGPUClassBandwidth
-{
-	GPU_BW_UNKNOWN = -1,
-	GPU_BW_0 = 2,
-	GPU_BW_1 = 5,
-	GPU_BW_2 = 16,
-	GPU_BW_3 = 40,
-	GPU_BW_4 = 80,
-	GPU_BW_5 = 150,
-} EGPUClassBandwidth;
 
 class LLFeatureInfo
 {

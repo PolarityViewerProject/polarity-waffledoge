@@ -1,12 +1,12 @@
 /** 
  * @mainpage
  *
- * This is the sources for the Polarity Viewer;
+ * This is the sources for the Second Life Viewer;
  * information on the open source project is at 
  * https://wiki.secondlife.com/wiki/Open_Source_Portal
  *
  * The Mercurial repository for the trunk version is at
- * https://bitbucket.org/polarityviewer/xenhat.polarity-development
+ * https://bitbucket.org/lindenlab/viewer-release
  *
  * @section source-license Source License
  * @verbinclude LICENSE-source.txt
@@ -63,10 +63,6 @@ class LLViewerJoystick;
 
 extern LLTrace::BlockTimerStatHandle FTM_FRAME;
 
-static LLFrameTimer gUptimeTimer;
-
-static std::string gUptimeString;
-
 class LLAppViewer : public LLApp
 {
 public:
@@ -109,7 +105,7 @@ public:
 
 	void setServerReleaseNotesURL(const std::string& url) { mServerReleaseNotesURL = url; }
 	LLSD getViewerInfo() const;
-	std::string getViewerInfoString(bool detailed = true) const;
+	std::string getViewerInfoString() const;
 
 	// Report true if under the control of a debugger. A null-op default.
 	virtual bool beingDebugged() { return false; } 
@@ -171,33 +167,12 @@ public:
 	// For thread debugging. 
 	// llstartup needs to control init.
 	// llworld, send_agent_pause() also controls pause/resume.
-
-	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-	// void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
-	void initMainloopTimeout( char const *state, F32 secs = -1.0f);
-
-	// </FS:ND>
-
+	void initMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 	void destroyMainloopTimeout();
 	void pauseMainloopTimeout();
+	void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
+	void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
 
-	// <FS:ND> Change from std::string to char const*, saving a lot of object construction/destruction per frame
-	// void resumeMainloopTimeout(const std::string& state = "", F32 secs = -1.0f);
-	// void pingMainloopTimeout(const std::string& state, F32 secs = -1.0f);
-	void resumeMainloopTimeout( char const *state = "", F32 secs = -1.0f);
-	void pingMainloopTimeout( char const *state, F32 secs = -1.0f);
-
-	
-	// dynamic window title
-	static std::string title_firstname;
-	static std::string title_lastname;
-	static std::string title_short_name;
-	static std::string title_long_name;
-	static std::string window_title_appname_string;
-	static bool name_is_long;
-	
-
-	void PVGetDynamicWindowTitle();
 	// Handle the 'login completed' event.
 	// *NOTE:Mani Fix this for login abstraction!!
 	void handleLoginComplete();
@@ -310,8 +285,7 @@ private:
 
     bool mQuitRequested;				// User wants to quit, may have modified documents open.
     bool mLogoutRequestSent;			// Disconnect message sent to simulator, no longer safe to send messages to the sim.
-	// <FS:Ansariel> MaxFPS Viewer-Chui merge error
-    //S32 mYieldTime;
+    S32 mYieldTime;
 	U32 mLastAgentControlFlags;
 	F32 mLastAgentForceUpdate;
 	struct SettingsFiles* mSettingsLocationList;
@@ -350,10 +324,6 @@ public:
 
 	void launchUpdater();
 	//---------------------------------------------
-
-	public:
-		static std::string mSessionTime;
-		static std::string secondsToTimeString(const F32& seconds_in_f32);
 };
 
 // consts from viewer.h
@@ -413,7 +383,6 @@ extern BOOL		gDisconnected;
 extern LLFrameTimer	gRestoreGLTimer;
 extern BOOL			gRestoreGL;
 extern BOOL		gUseWireframe;
-extern BOOL		gInitialDeferredModeForWireframe; // <polarity> RLVa merge
 
 // VFS globals - gVFS is for general use
 // gStaticVFS is read-only and is shipped w/ the viewer

@@ -96,8 +96,7 @@ BOOL LLFloaterIMNearbyChat::postBuild()
 	// obsolete, but may be needed for backward compatibility?
 	gSavedSettings.declareS32("nearbychat_showicons_and_names", 2, "NearByChat header settings", LLControlVariable::PERSIST_NONDFT);
 
-	static LLCachedControl<bool> log_show_history(gSavedPerAccountSettings, "LogShowHistory", true);
-	if (log_show_history)
+	if (gSavedPerAccountSettings.getBOOL("LogShowHistory"))
 	{
 		loadHistory();
 	}
@@ -369,12 +368,10 @@ std::string LLFloaterIMNearbyChat::getCurrentChat() const
 BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 {
 	BOOL handled = FALSE;
-	// <polarity> Allow user to disable keyboard shortcuts for shout and whisper
-	static LLCachedControl<bool> kb_shout(gSavedSettings, "PVChat_EnableKeyboardShout", false);
-	static LLCachedControl<bool> kb_whisper(gSavedSettings, "PVChat_EnableKeyboardWhisper", false);
+
 	if( KEY_RETURN == key && mask == MASK_CONTROL)
 	{
-		if(kb_shout)
+		if(gSavedSettings.getBool("AlchemyEnableKeyboardShout"))
 		{
 			// shout
 			sendChat(CHAT_TYPE_SHOUT);
@@ -389,7 +386,7 @@ BOOL LLFloaterIMNearbyChat::handleKeyHere( KEY key, MASK mask )
 
 	else if (KEY_RETURN == key && mask == MASK_SHIFT)
 	{
-		if(kb_whisper)
+		if(gSavedSettings.getBool("AlchemyEnableKeyboardWhisper"))
 		{
 			// whisper
 			sendChat(CHAT_TYPE_WHISPER);
@@ -473,8 +470,6 @@ void LLFloaterIMNearbyChat::onChatBoxKeystroke()
 	if (gSavedSettings.getBOOL("ChatAutocompleteGestures")
 		&& length > 1
 		&& raw_text[0] == '/'
-		// <polarity> TODO: Make sure we can paste code starting with comments
-		//&& (raw_text[1] != '/' || raw_text[1] != '*') // <polarity> Do not eat LSL snippets starting with a comment
 		&& key < KEY_SPECIAL)
 	{
 		// we're starting a gesture, attempt to autocomplete

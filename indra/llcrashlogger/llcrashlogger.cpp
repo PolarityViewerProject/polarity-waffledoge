@@ -51,8 +51,6 @@
 
 #include <curl/curl.h>
 
-#include "pvconstants.h"
-
 BOOL gBreak = false;
 BOOL gSent = false;
 
@@ -569,14 +567,13 @@ bool LLCrashLogger::init()
     
     LLCore::LLHttp::initialize();
 
-    static std::string app_name_str = APP_NAME;
 	// We assume that all the logs we're looking for reside on the current drive
-	gDirUtilp->initAppDirs(app_name_str);
+	gDirUtilp->initAppDirs("Polarity");
 
 	LLError::initForApplication(gDirUtilp->getExpandedFilename(LL_PATH_APP_SETTINGS, ""));
 
 	// Default to the product name "Second Life" (this is overridden by the -name argument)
-	mProductName = app_name_str;
+	mProductName = "Polarity";
 
 	// Rename current log file to ".old"
 	std::string old_log_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "crashreport.log.old");

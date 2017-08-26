@@ -33,8 +33,6 @@
 #include "lldndbutton.h"
 
 #include "llfolderview.h"
-#include "llcombobox.h" // Zi: Filter dropdown
-#include "llinventoryfilter.h" // Zi: Filter dropdown
 
 class LLFolderViewItem;
 class LLInventoryPanel;
@@ -46,8 +44,6 @@ class LLMenuButton;
 class LLMenuGL;
 class LLToggleableMenu;
 class LLFloater;
-class LLComboBox;  // ## Zi: Filter dropdown
-class LLInventoryFilter; // ## Zi: Filter dropdown
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // Class LLPanelMainInventory
@@ -60,8 +56,6 @@ class LLPanelMainInventory : public LLPanel, LLInventoryObserver
 {
 public:
 	friend class LLFloaterInventoryFinder;
-
-	LOG_CLASS(LLPanelMainInventory);
 
 	LLPanelMainInventory(const LLPanel::Params& p = getDefaultParams());
 	~LLPanelMainInventory();
@@ -94,14 +88,6 @@ public:
 
 	static void newWindow();
 
-	// ## Zi: Filter dropdown
-	void onFilterTypeSelected(const std::string& filter_type_name);
-	void updateFilterDropdown(const LLInventoryFilter* filter);
-#ifdef PV_SEARCH_SEPARATOR
-	// ## Zi: Filter dropdown
-	void onSeparatorSelected(const std::string& separator_selected);
-#endif
-
 protected:
 	//
 	// Misc functions
@@ -117,8 +103,6 @@ protected:
 	static void onFoldersByName(void *user_data);
 	static BOOL checkFoldersByName(void *user_data);
 	
-	void updateSeparatorDropdown(const LLInventoryFilter * filter);
-
 	static BOOL incrementalFind(LLFolderViewItem* first_item, const char *find_text, BOOL backward);
 	void onFilterSelected();
 
@@ -132,15 +116,10 @@ protected:
 	void doCreate(const LLSD& userdata);
 	void resetFilters();
 	void setSortBy(const LLSD& userdata);
-	BOOL isSortByChecked(const LLSD& userdata); // ## Zi: Sort By menu handlers
 	void saveTexture(const LLSD& userdata);
 	bool isSaveTextureEnabled(const LLSD& userdata);
 	void updateItemcountText();
 
-	// ## Zi: Inventory Collapse and Expand Buttons
-//	void onCollapseButtonClicked();
-//	void onExpandButtonClicked();
-	// ## Zi: Inventory Collapse and Expand Buttons
 	void onFocusReceived() override;
 
 private:
@@ -157,16 +136,7 @@ private:
 	std::string					mFilterSubString;
 	S32							mItemCount;
 	std::string 				mItemCountString;
-	LLTextBox*				mItemcountText;
 
-	// ## Zi: Filter dropdown
-	LLComboBox*				 mFilterComboBox;
-	std::map<std::string,U64>  mFilterMap;		 // contains name-to-number mapping for dropdown filter types
-	U64						 mFilterMask;		// contains the cumulated bit filter for all dropdown filter types
-	// ## Zi: Filter dropdown
-
-	LLComboBox*				mSeparatorComboBox;
-	U64						 mSeparatorMask;
 
 	//////////////////////////////////////////////////////////////////////////////////
 	// List Commands                                                                //
@@ -180,18 +150,6 @@ protected:
 	BOOL isActionEnabled(const LLSD& command_name);
 	BOOL isActionChecked(const LLSD& userdata);
 	void onCustomAction(const LLSD& command_name);
-
-	// ## Zi: Filter Links Menu
-	BOOL isFilterLinksChecked(const LLSD& userdata);
-	void onFilterLinksChecked(const LLSD& userdata);
-	// ## Zi: Filter Links Menu
-
-	// ## Zi: Extended Inventory Search
-	BOOL isSearchTargetChecked(const LLSD& userdata);
-	void onSearchTargetChecked(const LLSD& userdata);
-	LLInventoryFilter::EFilterSubstringTarget getSearchTarget() const;
-	// ## Zi: Extended Inventory Search
-
 	bool handleDragAndDropToTrash(BOOL drop, EDragAndDropType cargo_type, EAcceptance* accept);
 	/**
 	 * Set upload cost in "Upload" sub menu.
@@ -199,14 +157,8 @@ protected:
 	void setUploadCostIfNeeded();
 private:
 	LLDragAndDropButton*		mTrashButton;
-	LLToggleableMenu*			mMenuGearDefault;
 	LLMenuButton*				mGearMenuButton;
 	LLHandle<LLView>			mMenuAddHandle;
-
-	// ## Zi: Inventory Collapse and Expand Buttons
-//	LLButton*				 mCollapseBtn;
-//	LLButton*				 mExpandBtn;
-	// ## Zi: Inventory Collapse and Expand Buttons
 
 	bool						mNeedUploadCost;
 	// List Commands                                                              //

@@ -28,13 +28,13 @@
 #pragma once
  
 #include "stdtypes.h"
-#define LL_BOOST_ATOMICS 1
+#define AL_BOOST_ATOMICS 1
 
-#if LL_BOOST_ATOMICS
+#if AL_BOOST_ATOMICS
 #include <boost/atomic.hpp>
 template<typename Type>
 using LLAtomic32 = boost::atomic<Type>;
-#elif LL_STD_ATOMICS
+#elif AL_STD_ATOMICS
 #include <atomic>
 template<typename Type>
 using LLAtomic32 = std::atomic<Type>;

@@ -49,7 +49,6 @@
 #include "llworld.h"
 #include "llstring.h"
 #include "llhudicon.h"
-#include "llhudtext.h"
 #include "llhudnametag.h"
 #include "lldrawable.h"
 #include "llflexibleobject.h"
@@ -85,12 +84,6 @@
 
 #include <algorithm>
 #include <iterator>
-
-#include "llfloaterreg.h"
-#include "fsareasearch.h" // <FS:Cron> Added to provide the ability to update the impact costs in area search. </FS:Cron>
-#include "fsassetblacklist.h"
-
-#include "llglsandbox.h"
 
 extern F32 gMinObjectDistance;
 extern BOOL gAnimateTextures;
@@ -327,13 +320,6 @@ LLViewerObject* LLViewerObjectList::processObjectUpdateFromCache(LLVOCacheEntry*
 	cached_dpp->unpackUUID(fullid, "ID");
 	cached_dpp->unpackU32(local_id, "LocalID");
 	cached_dpp->unpackU8(pcode, "PCode");
-
-	// <FS:Ansariel> Don't process derendered objects
-	if (mDerendered.end() != mDerendered.find(fullid))
-	{
-		return NULL;
-	}
-	// </FS:Ansariel>
 
 	objectp = findObject(fullid);
 
@@ -621,12 +607,6 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			}
 #endif
 
-			if (FSAssetBlacklist::getInstance()->isBlacklisted(fullid, LLAssetType::AT_OBJECT))
-			{
-				LL_INFOS() << "Blacklisted object blocked." << LL_ENDL;
-				continue;
-			}
-
 			objectp = createObject(pcode, regionp, fullid, local_id, gMessageSystem->getSender());
 			if (!objectp)
 			{
@@ -639,14 +619,10 @@ void LLViewerObjectList::processObjectUpdate(LLMessageSystem *mesgsys,
 			mNumNewObjects++;
 		}
 
-		// Gah, why bother spamming the log with messages we can't do
-		//  anything about?! -- TS
-#if 0
 		if (objectp->isDead())
 		{
 			LL_WARNS() << "Dead object " << objectp->mID << " in UUID map 1!" << LL_ENDL;
 		}
-#endif
 
 		//bool bCached = false;
 		if (compressed)
@@ -1896,10 +1872,7 @@ void LLViewerObjectList::generatePickList(LLCamera &camera)
 			{
 				LLVOAvatar::attachment_map_t::iterator curiter = iter++;
 				LLViewerJointAttachment* attachment = curiter->second;
-				// <FS:Ansariel> Possible crash fix
-				//if (attachment->getIsHUDAttachment())
-				if (attachment && attachment->getIsHUDAttachment())
-				// </FS:Ansariel>
+				if (attachment->getIsHUDAttachment())
 				{
 					for (LLViewerJointAttachment::attachedobjs_vec_t::iterator attachment_iter = attachment->mAttachedObjects.begin();
 						 attachment_iter != attachment->mAttachedObjects.end();
@@ -2032,12 +2005,6 @@ LLViewerObject *LLViewerObjectList::createObjectFromCache(const LLPCode pcode, L
 LLViewerObject *LLViewerObjectList::createObject(const LLPCode pcode, LLViewerRegion *regionp,
 												 const LLUUID &uuid, const U32 local_id, const LLHost &sender)
 {
-	// <FS:Ansariel> Don't create derendered objects
-	if (mDerendered.end() != mDerendered.find(uuid))
-	{
-		return NULL;
-	}
-	// </FS:Ansariel>
 	
 	LLUUID fullid;
 	if (uuid == LLUUID::null)
@@ -2296,155 +2263,5 @@ LLDebugBeacon::~LLDebugBeacon()
 	if (mHUDObject.notNull())
 	{
 		mHUDObject->markDead();
-	}
-}
-
-// <FS:ND> Helper function to purge the internal list of derendered objects on teleport.
-// <polarity> TODO: Does not work right now. Not hooked?
-void LLViewerObjectList::resetDerenderList(bool force /*= false*/)
-{
-	static LLCachedControl<bool> PVDerender_ClearTempOnTeleport(gSavedSettings, "PVDerender_ClearTempOnTeleport");
-	if (!PVDerender_ClearTempOnTeleport && !force)
-	{
-		return;
-	}
-
-	std::map< LLUUID, bool > oDerendered;
-	uuid_vec_t removed_ids;
-
-	for (std::map< LLUUID, bool >::iterator itr = mDerendered.begin(); itr != mDerendered.end(); ++itr)
-	{
-		if (itr->second)
-		{
-			oDerendered[itr->first] = itr->second;
-		}
-		else
-		{
-			removed_ids.push_back(itr->first);
-		}
-	}
-
-	mDerendered.swap( oDerendered );
-	FSAssetBlacklist::instance().removeItemsFromBlacklist(removed_ids);
-}
-
-// <FS:ND> Helper function to add items from global blacklist after teleport.
-void LLViewerObjectList::addDerenderedItem( LLUUID const &aId, bool aPermanent )
-{
-	mDerendered[ aId ] = aPermanent;
-}
-void LLViewerObjectList::removeDerenderedItem( LLUUID const &aId )
-{
-	mDerendered.erase( aId );
-}
-
-// </FS:ND>
-
-void LLViewerObjectList::renderObjectBeacons()
-{
-	if (mDebugBeacons.empty())
-	{
-		return;
-	}
-
-	LLGLSUIDefault gls_ui;
-
-	if (LLGLSLShader::sNoFixedFunction)
-	{
-		gUIProgram.bind();
-	}
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-
-		S32 last_line_width = -1;
-		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
-		
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			const LLDebugBeacon &debug_beacon = *iter;
-			LLColor4 color = debug_beacon.mColor;
-			color.mV[3] *= 0.25f;
-			S32 line_width = debug_beacon.mLineWidth;
-			if (line_width != last_line_width)
-			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
-				last_line_width = line_width;
-			}
-
-			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-		
-			gGL.begin(LLRender::LINES);
-			gGL.color4fv(color.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 50.f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 50.f);
-			gGL.vertex3f(thisline.mV[VX] - 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 2.f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 2.f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 2.f,thisline.mV[VZ]);
-
-			draw_line_cube(0.10f, thisline);
-			
-			gGL.end();
-		}
-	}
-
-	{
-		gGL.getTexUnit(0)->unbind(LLTexUnit::TT_TEXTURE);
-		LLGLDepthTest gls_depth(GL_TRUE);
-		
-		S32 last_line_width = -1;
-		// gGL.begin(LLRender::LINES); // Always happens in (line_width != last_line_width)
-		
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			const LLDebugBeacon &debug_beacon = *iter;
-
-			S32 line_width = debug_beacon.mLineWidth;
-			if (line_width != last_line_width)
-			{
-				gGL.flush();
-				glLineWidth( (F32)line_width );
-				last_line_width = line_width;
-			}
-
-			const LLVector3 &thisline = debug_beacon.mPositionAgent;
-			gGL.begin(LLRender::LINES);
-			gGL.color4fv(debug_beacon.mColor.mV);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] - 0.5f);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY],thisline.mV[VZ] + 0.5f);
-			gGL.vertex3f(thisline.mV[VX] - 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX] + 0.5f,thisline.mV[VY],thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] - 0.5f,thisline.mV[VZ]);
-			gGL.vertex3f(thisline.mV[VX],thisline.mV[VY] + 0.5f,thisline.mV[VZ]);
-
-			draw_line_cube(0.10f, thisline);
-
-			gGL.end();
-		}
-		
-		gGL.flush();
-		glLineWidth(1.f);
-
-		for (std::vector<LLDebugBeacon>::iterator iter = mDebugBeacons.begin(); iter != mDebugBeacons.end(); ++iter)
-		{
-			LLDebugBeacon &debug_beacon = *iter;
-			if (debug_beacon.mString.empty())
-			{
-				continue;
-			}
-			LLHUDText *hud_textp = (LLHUDText *)LLHUDObject::addHUDObject(LLHUDObject::LL_HUD_TEXT);
-
-			hud_textp->setZCompare(FALSE);
-			LLColor4 color;
-			color = debug_beacon.mTextColor;
-			color.mV[3] *= 1.f;
-
-			hud_textp->setString(debug_beacon.mString);
-			hud_textp->setColor(color);
-			hud_textp->setPositionAgent(debug_beacon.mPositionAgent);
-			debug_beacon.mHUDObject = hud_textp;
-		}
 	}
 }

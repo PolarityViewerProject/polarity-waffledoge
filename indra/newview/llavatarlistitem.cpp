@@ -43,10 +43,6 @@
 #include "lltooldraganddrop.h"
 #include "llviewercontrol.h" // <alchemy/>
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 bool LLAvatarListItem::sStaticInitialized = false;
 S32 LLAvatarListItem::sLeftPadding = 0;
 S32 LLAvatarListItem::sNameRightPadding = 0;
@@ -61,7 +57,6 @@ LLAvatarListItem::Params::Params()
 	voice_call_left_style("voice_call_left_style"),
 	online_style("online_style"),
 	offline_style("offline_style"),
-	color_style("color_style"),
 	name_right_pad("name_right_pad", 0)
 {};
 
@@ -232,18 +227,17 @@ void LLAvatarListItem::changed(U32 mask)
 	}
 }
 
-void LLAvatarListItem::setOnline(bool online, bool show_friend_color)
+void LLAvatarListItem::setOnline(bool online)
 {
 	// *FIX: setName() overrides font style set by setOnline(). Not an issue ATM.
 
-	if (mOnlineStatus != E_UNKNOWN /*&& (bool) mOnlineStatus == online*/) // <polarity> Friend list color bugs
+	if (mOnlineStatus != E_UNKNOWN && (bool) mOnlineStatus == online)
 		return;
 
 	mOnlineStatus = (EOnlineStatus) online;
 
 	// Change avatar name font style depending on the new online status.
-	setState(online ? IS_ONLINE : IS_OFFLINE, show_friend_color);
-
+	setState(online ? IS_ONLINE : IS_OFFLINE);
 }
 
 void LLAvatarListItem::setAvatarName(const std::string& name)
@@ -261,14 +255,16 @@ void LLAvatarListItem::setHighlight(const std::string& highlight)
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring = highlight);
 }
 
-void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
+void LLAvatarListItem::setState(EItemState item_style)
 {
 	const LLAvatarListItem::Params& params = LLUICtrlFactory::getDefaultParams<LLAvatarListItem>();
 
-	auto static online_color = LLUIColorTable::getInstance()->getColor("AvatarListItemIconDefaultColor");
-
 	switch(item_style)
 	{
+	default:
+	case IS_DEFAULT:
+		mAvatarNameStyle = params.default_style();
+		break;
 	case IS_VOICE_INVITED:
 		mAvatarNameStyle = params.voice_call_invited_style();
 		break;
@@ -279,18 +275,8 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 		mAvatarNameStyle = params.voice_call_left_style();
 		break;
 	case IS_ONLINE:
-#ifdef PVDATA_SYSTEM
-		// <polarity> override online color if agent has a color
-		mAvatarNameStyle = params.color_style();
-		mAvatarNameStyle.color = PVAgent::getColor(mAvatarId, online_color, show_friend_color_b);
-		mAvatarNameStyle.override_link_style = true;
-#else
 		mAvatarNameStyle = params.online_style();
-#endif
 		break;
-	default:
-		//mAvatarNameStyle = params.default_style();
-		llassert(true == false); // Force assert so that I can figure what went wrong.
 	case IS_OFFLINE:
 		mAvatarNameStyle = params.offline_style();
 		break;
@@ -301,8 +287,8 @@ void LLAvatarListItem::setState(EItemState item_style, bool show_friend_color_b)
 	// hyperlinks, as their styles will be wrong.
 	setNameInternal(mAvatarName->getText(), mHighlihtSubstring);
 
-	//icon_color_map_t& item_icon_color_map = getItemIconColorMap();
-	//mAvatarIcon->setColor(item_icon_color_map[item_style]);
+	icon_color_map_t& item_icon_color_map = getItemIconColorMap();
+	mAvatarIcon->setColor(item_icon_color_map[item_style]);
 }
 
 void LLAvatarListItem::setAvatarId(const LLUUID& id, const LLUUID& session_id, bool ignore_status_changes/* = false*/, bool is_resident/* = true*/)

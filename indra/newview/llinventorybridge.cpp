@@ -87,10 +87,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-
 void copy_slurl_to_clipboard_callback_inv(const std::string& slurl);
 
 typedef std::pair<LLUUID, LLUUID> two_uuids_t;
@@ -760,8 +756,7 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 			
 			if (show_asset_id)
 			{
-				static const std::string copy_asset_uuid_str = std::string("Copy Asset UUID");
-				items.push_back(copy_asset_uuid_str);
+				items.push_back(std::string("Copy Asset UUID"));
 
 				bool is_asset_knowable = false;
 
@@ -770,22 +765,11 @@ void LLInvFVBridge::getClipboardEntries(bool show_asset_id,
 				{
 					is_asset_knowable = LLAssetType::lookupIsAssetIDKnowable(inv_item->getType());
 				}
-				//<polarity> Remove comparison against const BOOL FALSE
-				if ((!gAgent.isGodlike() && !is_asset_knowable) // disable menu item for Inventory items with unknown asset. EXT-5308
-					|| (flags & FIRST_SELECTED_ITEM) == 0)
+				if ( !is_asset_knowable // disable menu item for Inventory items with unknown asset. EXT-5308
+					 || (! ( isItemPermissive() || gAgent.isGodlike() ) )
+					 || (flags & FIRST_SELECTED_ITEM) == 0)
 				{
-					disabled_items.push_back(copy_asset_uuid_str);
-				}
-			}
-			if (obj->getActualType() != LLAssetType::AT_CATEGORY &&
-				obj->getActualType() != LLAssetType::AT_LINK_FOLDER &&
-				obj->getActualType() != LLAssetType::AT_LINK)
-			{
-				items.push_back(std::string("Move To Default"));
-				LLUUID type_cat_id = gInventory.findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(obj->getActualType()));
-				if (type_cat_id == obj->getParentUUID() || !isItemMovable() || (flags & FIRST_SELECTED_ITEM) == 0)
-				{
-					disabled_items.push_back(std::string("Move To Default"));
+					disabled_items.push_back(std::string("Copy Asset UUID"));
 				}
 			}
 			items.push_back(std::string("Copy Separator"));
@@ -1678,17 +1662,6 @@ void LLItemBridge::performAction(LLInventoryModel* model, std::string action)
         std::string url = LLMarketplaceData::instance().getListingURL(mUUID);
         LLUrlAction::openURL(url);
 	}
-	else if ("move_to_default_folder" == action)
-	{
-		if (LLViewerInventoryItem* vitemp = static_cast<LLViewerInventoryItem*>(model->getItem(mUUID)))
-		{
-			LLUUID parent_id = model->findCategoryUUIDForType(LLFolderType::assetTypeToFolderType(vitemp->getActualType()));
-			if (parent_id.notNull())
-			{
-				changeItemParent(model, vitemp, parent_id, FALSE);
-			}
-		}
-	}
 }
 
 void LLItemBridge::doActionOnCurSelectedLandmark(LLLandmarkList::loaded_callback_t cb)
@@ -1894,7 +1867,6 @@ std::string LLItemBridge::getLabelSuffix() const
 		BOOL link = item->getIsLinkType();
 		if (link) return LINK;
 
-#if LL_CALLING_CARD_APPEARANCE
 		// ...but it's a bit confusing to put nocopy/nomod/etc suffixes on calling cards.
 		if(LLAssetType::AT_CALLINGCARD != item->getType()
 		   && item->getPermissions().getOwner() == gAgent.getID())
@@ -1917,33 +1889,6 @@ std::string LLItemBridge::getLabelSuffix() const
 			}
 		}
 	}
-#else
-		// <polarity> Calling cards are certainly no modify, but can be copied and transferred. Keep "NO_MOD" as a friendly reminder
-		// that they cannot be tampered with.
-		if(item->getPermissions().getOwner() == gAgent.getID())
-		{
-			if(LLAssetType::AT_CALLINGCARD == item->getType())
-			{
-				suffix += NO_MOD;
-			}
-			else
-			{
-				if (!item->getPermissions().allowCopyBy(gAgent.getID()))
-				{
-					suffix += NO_COPY;
-				}
-				if (!item->getPermissions().allowModifyBy(gAgent.getID()))
-				{
-					suffix += NO_MOD;
-				}
-				if (!item->getPermissions().allowOperationBy(PERM_TRANSFER, gAgent.getID()))
-				{
-					suffix += NO_XFER;
-				}
-			}
-		}
-	}
-#endif
 	return suffix;
 }
 
@@ -3294,19 +3239,12 @@ void LLFolderBridge::performAction(LLInventoryModel* model, std::string action)
         }
 		return;
 	}
-//#ifndef LL_RELEASE_FOR_DOWNLOAD // <polarity> Selectively enable this for some people
+#ifndef LL_RELEASE_FOR_DOWNLOAD
 	else if ("delete_system_folder" == action)
 	{
-#ifdef PVDATA_SYSTEM
-		auto pv_agent = PVAgent::find(gAgent.getID());
-		if (pv_agent && pv_agent->isPolarized()) // <polarity> TODO: Add a flag for this
-		{
-			removeSystemFolder();
-		}
-#endif
+		removeSystemFolder();
 	}
-//#endif
-
+#endif
 	else if (("move_to_marketplace_listings" == action) || ("copy_to_marketplace_listings" == action) || ("copy_or_move_to_marketplace_listings" == action))
 	{
 		LLInventoryCategory * cat = gInventory.getCategory(mUUID);
@@ -4149,18 +4087,12 @@ void LLFolderBridge::buildContextMenuFolderOptions(U32 flags,   menuentry_vec_t&
 		}
 	}
 
-//#ifndef LL_RELEASE_FOR_DOWNLOAD // <polarity>
-	if (is_agent_inventory && LLFolderType::lookupIsProtectedType(type))
+#ifndef LL_RELEASE_FOR_DOWNLOAD
+	if (LLFolderType::lookupIsProtectedType(type) && is_agent_inventory)
 	{
-#ifdef PVDATA_SYSTEM
-		auto pv_agent = PVAgent::find(gAgent.getID());
-		if (pv_agent && pv_agent->isPolarized())
-		{
-			items.push_back(std::string("Delete System Folder"));
-		}
-#endif
-//#endif // </polarity>
+		items.push_back(std::string("Delete System Folder"));
 	}
+#endif
 
 	// wearables related functionality for folders.
 	//is_wearable
@@ -7109,10 +7041,7 @@ public:
 		if (item)
 		{
 			LLPreviewGesture* preview = LLPreviewGesture::show(mUUID, LLUUID::null);
-			if (preview) // crash fix for edge cases i.e mouselook
-			{
-				preview->setFocus(TRUE);
-			}
+			preview->setFocus(TRUE);
 		}
 		LLInvFVBridgeAction::doIt();		
 	}
@@ -7367,52 +7296,4 @@ LLInvFVBridge* LLWornInventoryBridgeBuilder::createBridge(LLAssetType::EType ass
 	}
 	return new_listener;
 }
-// <FS:ND> Reintegrate search by uuid/creator/descripting from Zi Ree after CHUI Merge
-std::string LLInvFVBridge::getSearchableCreator( void ) const
-{
-	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
-	std::string strCreator;
-	if(pItem)
-	{
-		if( gCacheName->getFullName( pItem->getCreatorUUID(), strCreator ) )
-			LLStringUtil::toUpper( strCreator );
-	}
-	return strCreator;
-}
-std::string LLInvFVBridge::getSearchableDescription( void ) const
-{
-	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
-	std::string strDescr;
-	if(pItem)
-	{
-		if(!pItem->getDescription().empty() )
-		{
-			strDescr = pItem->getDescription();
-			LLStringUtil::toUpper( strDescr );
-		}
-	}
-	return strDescr;
-}
-std::string LLInvFVBridge::getSearchableUUID( void ) const
-{
-	LLInventoryItem *pItem( dynamic_cast< LLInventoryItem* >( getInventoryObject() ) );
-	std::string strUUID;
-	if(pItem)
-	{
-		if(!pItem->getAssetUUID().isNull())
-		{
-			strUUID = pItem->getAssetUUID().asString();
-			LLStringUtil::toUpper( strUUID );
-		}
-	}
-	return strUUID;
-}
-std::string LLInvFVBridge::getSearchableAll( void ) const
-{
-	return getSearchableName() + "+" +
-		getSearchableCreator() + "+" +
-		getSearchableDescription() + "+" +
-		getSearchableUUID();
-}
-// </FS:ND>
 // EOF

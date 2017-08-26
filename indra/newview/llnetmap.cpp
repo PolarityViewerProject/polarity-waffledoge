@@ -64,12 +64,6 @@
 #include "llworld.h"
 #include "llworldmapview.h"		// shared draw code
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#include "llviewerjoystick.h"
-#include "llfloatercamera.h"
-
 static LLDefaultChildRegistry::Register<LLNetMap> r1("net_map");
 
 const F32 LLNetMap::MAP_SCALE_MIN = 32.f;
@@ -167,18 +161,19 @@ void LLNetMap::draw()
 	if (!curregionp)
 		return;
 
- 	static LLFrameTimer map_timer;
-	static LLUIColor map_avatar_color = LLUIColorTable::instance().getColor("MapAvatarColor", LLColor4::white);
+	static LLFrameTimer map_timer;
 	static LLUIColor map_track_color = LLUIColorTable::instance().getColor("MapTrackColor", LLColor4::white);
 	//static LLUIColor map_track_disabled_color = LLUIColorTable::instance().getColor("MapTrackDisabledColor", LLColor4::white);
 	static LLUIColor map_frustum_color = LLUIColorTable::instance().getColor("MapFrustumColor", LLColor4::white);
 	static LLUIColor map_frustum_rotating_color = LLUIColorTable::instance().getColor("MapFrustumRotatingColor", LLColor4::white);
-
+	// <alchemy>
 	static LLUIColor map_line_color = LLUIColorTable::instance().getColor("MapLineColor", LLColor4::red);
-	static LLCachedControl<bool> use_world_map_image(gSavedSettings, "PVUI_MinimapTile", true);
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
-	static LLCachedControl<bool> enable_object_render(gSavedSettings, "PVUI_MinimapRenderObjects", true);
-	static LLCachedControl<bool> render_guide_line(gSavedSettings, "PVUI_MinimapGuideLine", false);
+	static LLCachedControl<bool> use_world_map_image(gSavedSettings, "AlchemyMinimapTile", true);
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
+	static LLCachedControl<bool> enable_object_render(gSavedSettings, "AlchemyMinimapRenderObjects", true);
+	static LLCachedControl<bool> render_guide_line(gSavedSettings, "AlchemyMinimapGuideLine", false);
+	// </alchemy>
+
 	const LLVector3d& globalpos = center_to_region ? curregionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
 	const LLVector3& agentpos = center_to_region ? curregionp->getCenterAgent() : gAgentCamera.getCameraPositionAgent();
 
@@ -402,8 +397,8 @@ void LLNetMap::draw()
 		bool unknown_relative_z;
 		LLColor4 color;
 
-		auto self_global_pos = gAgent.getPositionGlobal();
 		LLWorld::getInstance()->getAvatars(&positions, gAgentCamera.getCameraPositionGlobal());
+
 		// Draw avatars
 		for (const auto& pos_pair : positions)
 		{
@@ -414,37 +409,17 @@ void LLNetMap::draw()
 			const auto& position = pos_pair.second;
 			pos_map = globalPosToView(position);
 
-			// <polarity> Tentative to make the map Z-offset less dumb
-#ifdef PVDATA_SYSTEM
-				// <polarity> Colored names for special users.
-				// Note: RLVa handled in getColor, do not put here.
-				color = PVAgent::getColor(uuid, map_avatar_color);
-				// </polarity>
-#else
-				// but put rlva here
-				static LLUIColor map_avatar_friend_color = LLUIColorTable::instance().getColor("MapAvatarFriendColor", LLColor4::white);
-				bool show_as_friend = (LLAvatarTracker::instance().getBuddyInfo(uuid) != NULL) && (RlvActions::canShowName(RlvActions::SNC_DEFAULT, uuid));
-				color = show_as_friend ? map_avatar_friend_color : map_avatar_color;
-#endif
+			color = ALAvatarColorMgr::instance().getColor(uuid);
 
-				unknown_relative_z = position.mdV[VZ] == COARSEUPDATE_MAX_Z &&
+			unknown_relative_z = position.mdV[VZ] == COARSEUPDATE_MAX_Z &&
 					camera_position.mV[VZ] >= COARSEUPDATE_MAX_Z;
-				F32 fixed_z;
-				if (!LLViewerJoystick::getInstance()->getOverrideCamera() && !LLFloaterCamera::inFreeCameraMode() && gAgentCamera.getFocusOnAvatar())
-				{
-					// use global pos to rule out camera values.
-					fixed_z = position.mdV[VZ] - self_global_pos.mdV[VZ];
-				}
-				else
-				{
-					fixed_z = pos_map.mV[VZ];
-				}
-				LLWorldMapView::drawAvatar(
-					pos_map.mV[VX], pos_map.mV[VY],
-					color,
-					fixed_z, mDotRadius,
-					unknown_relative_z);
-			// </polarity>
+
+			LLWorldMapView::drawAvatar(
+				pos_map.mV[VX], pos_map.mV[VY], 
+				color, 
+				pos_map.mV[VZ], mDotRadius,
+				unknown_relative_z);
+
 			if(uuid.notNull())
 			{
 				bool selected = false;
@@ -504,7 +479,7 @@ void LLNetMap::draw()
 		}
 
 		// Draw dot for self avatar position
-		pos_map = globalPosToView(self_global_pos);
+		pos_map = globalPosToView(gAgent.getPositionGlobal());
 		S32 dot_width = ll_round(mDotRadius * 2.f);
 		LLUIImagePtr you = LLWorldMapView::sAvatarYouLargeImage;
 		if (you)
@@ -600,7 +575,7 @@ void LLNetMap::reshape(S32 width, S32 height, BOOL called_from_parent)
 LLVector3 LLNetMap::globalPosToView(const LLVector3d& global_pos)
 {
 	// <alchemy>
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
 	LLViewerRegion* regionp = gAgent.getRegion();
 	LLVector3d camera_position = (center_to_region && regionp) ? regionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
 	// </alchemy>
@@ -675,9 +650,12 @@ LLVector3d LLNetMap::viewPosToGlobal( S32 x, S32 y )
 	
 	LLVector3d pos_global;
 	pos_global.setVec( pos_local );
-	static LLCachedControl<bool> center_to_region(gSavedSettings, "PVUI_MinimapCenterRegion", false);
+
+	// <alchemy>
+	static LLCachedControl<bool> center_to_region(gSavedSettings, "AlchemyMinimapCenterRegion", false);
 	LLViewerRegion* regionp = gAgent.getRegion();
 	pos_global += center_to_region && regionp ? regionp->getCenterGlobal() : gAgentCamera.getCameraPositionGlobal();
+	// </alchemy>
 
 	return pos_global;
 }

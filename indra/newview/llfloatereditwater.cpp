@@ -43,7 +43,6 @@
 // newview
 #include "llagent.h"
 #include "llregioninfomodel.h"
-#include "llviewercontrol.h"
 #include "llviewerregion.h"
 #include "llwaterparammanager.h"
 
@@ -55,7 +54,6 @@ LLFloaterEditWater::LLFloaterEditWater(const LLSD &key)
 ,	mWaterPresetCombo(nullptr)
 ,	mMakeDefaultCheckBox(nullptr)
 ,	mSaveButton(nullptr)
-,	mDeleteButton(nullptr)
 {
 }
 
@@ -64,9 +62,8 @@ BOOL LLFloaterEditWater::postBuild()
 {
 	mWaterPresetNameEditor = getChild<LLLineEditor>("water_preset_name");
 	mWaterPresetCombo = getChild<LLComboBox>("water_preset_combo");
-	mMakeDefaultCheckBox = getChild<LLButton>("make_default_cb");
+	mMakeDefaultCheckBox = getChild<LLCheckBoxCtrl>("make_default_cb");
 	mSaveButton = getChild<LLButton>("save");
-	mDeleteButton = getChild<LLButton>("delete");
 
 	initCallbacks();
 	refreshWaterPresetsList();
@@ -80,20 +77,8 @@ void LLFloaterEditWater::onOpen(const LLSD& key)
 {
 	bool new_preset = isNewPreset();
 	std::string param = key.asString();
-	std::string floater_title;
-	if(!param.empty())
-	{
-//	// <Black Dragon:NiranV> Guard against a rare crash that might happen for some people
-		floater_title = getString(std::string("title_") + param);
-	}
-	else
-	{
-//	// <Black Dragon:NiranV> We are most likely beeing send here via button so lets pick a
-		//	 neutral title for both editing/creating a new one.
-		floater_title = getString(std::string("title_neutral"));
-	}
+	std::string floater_title = getString(std::string("title_") + param);
 	std::string hint = getString(std::string("hint_" + param));
-
 
 	// Update floater title.
 	setTitle(floater_title);
@@ -135,7 +120,6 @@ void LLFloaterEditWater::initCallbacks(void)
 
 	mSaveButton->setCommitCallback(boost::bind(&LLFloaterEditWater::onBtnSave, this));
 	getChild<LLButton>("cancel")->setCommitCallback(boost::bind(&LLFloaterEditWater::onBtnCancel, this));
-	mDeleteButton->setCommitCallback(boost::bind(&LLFloaterEditWater::onDeletePreset, this));
 
 	LLEnvManagerNew::instance().setRegionSettingsChangeCallback(boost::bind(&LLFloaterEditWater::onRegionSettingsChange, this));
 	LLWaterParamManager::instance().setPresetListChangeCallback(boost::bind(&LLFloaterEditWater::onWaterPresetListChange, this));
@@ -687,7 +671,7 @@ void LLFloaterEditWater::onSaveConfirmed()
 		LLEnvManagerNew::instance().setUseWaterPreset(name);
 	}
 
-	//closeFloater();
+	closeFloater();
 }
 
 void LLFloaterEditWater::onBtnSave()
@@ -732,7 +716,6 @@ void LLFloaterEditWater::onBtnSave()
 
 void LLFloaterEditWater::onBtnCancel()
 {
-	LLEnvManagerNew::instance().usePrefs(); // revert changes made to current environment
 	closeFloater();
 }
 
@@ -745,7 +728,7 @@ void LLFloaterEditWater::onWaterPresetListChange()
 	if (scope == LLEnvKey::SCOPE_LOCAL && !LLWaterParamManager::instance().hasParamSet(name))
 	{
 		// Preset we've been editing doesn't exist anymore. Close the floater.
-		//closeFloater(false);
+		closeFloater(false);
 	}
 	else
 	{
@@ -788,20 +771,4 @@ void LLFloaterEditWater::onRegionInfoUpdate()
 	}
 
 	enableEditing(can_edit);
-}
-void LLFloaterEditWater::onDeletePreset()
-{
-	LLEnvKey::EScope scope;
-	std::string name;
-	getSelectedPreset(name, scope);
-	// Don't allow deleting system presets.
-	if (LLWaterParamManager::instance().isSystemPreset(name))
-	{
-		LLNotificationsUtil::add("WLNoEditDefault");
-		return;
-	}
-	else
-	{
-		LLWaterParamManager::instance().removeParamSet(name, true);
-	}
 }

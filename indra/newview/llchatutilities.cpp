@@ -187,7 +187,7 @@ LLWString LLChatUtilities::stripChannelNumber(const LLWString &mesg, S32* channe
 
 void LLChatUtilities::applyMUPose(std::string& text)
 {
-	static LLCachedControl<bool> useMUPose(gSavedSettings, "PVChat_AllowMUpose", false);
+	static LLCachedControl<bool> useMUPose(gSavedSettings, "AlchemyChatMUPose", false);
 	if (!useMUPose)
 		return;
 

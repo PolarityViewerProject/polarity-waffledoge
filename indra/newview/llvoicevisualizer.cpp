@@ -43,8 +43,6 @@
 #include "llvoiceclient.h"
 #include "llrender.h"
 
-#include "pvmachinima.h"
-
 //brent's wave image
 //29de489d-0491-fb00-7dab-f9e686d31e83
 
@@ -340,23 +338,10 @@ void LLVoiceVisualizer::lipSyncOohAah( F32& ooh, F32& aah )
 //---------------------------------------------------
 void LLVoiceVisualizer::render()
 {
-	if ( ! mVoiceEnabled || PVMachinimaTools::isEnabled() )
+	if ( ! mVoiceEnabled )
 	{
 		return;
 	}
-	
-	// <polarity> PLVR-3: Quantum voice dot
-	// 0 = completely disable indicator
-	// 1 = waves only when avatar talks.
-	// 2 = show dot while voice chat is available, no waves while talking
-	// 3 = LL behavior (show dot visible while voice chat is available, waves while talking)
-	static LLCachedControl<U32> voice_indicator_behavior(gSavedSettings, "PVUI_VoiceIndicatorBehavior", 0);
-	if ( voice_indicator_behavior < 0  || voice_indicator_behavior > 3)
-	{
-		gSavedSettings.setU32( "PVUI_VoiceIndicatorBehavior", 1);
-		return;
-	}
-	// </polarity>
 	
 	if ( mSoundSymbol.mActive ) 
 	{				
@@ -374,12 +359,10 @@ void LLVoiceVisualizer::render()
 		LLGLSPipelineAlpha alpha_blend;
 		LLGLDepthTest depth(GL_TRUE, GL_FALSE);
 		
-		LLViewerCamera* camera = LLViewerCamera::getInstance();
-		if ( voice_indicator_behavior  > 1 ) // <polarity>
-		{
 		//-------------------------------------------------------------
 		// create coordinates of the geometry for the dot
 		//-------------------------------------------------------------
+		LLViewerCamera* camera = LLViewerCamera::getInstance();
 		LLVector3 l	= camera->getLeftAxis() * DOT_SIZE;
 		LLVector3 u	= camera->getUpAxis()   * DOT_SIZE;
 
@@ -409,7 +392,6 @@ void LLVoiceVisualizer::render()
 			gGL.texCoord2i( 1,	1	); gGL.vertex3fv( topRight.mV );
 			gGL.texCoord2i( 0,	1	); gGL.vertex3fv( topLeft.mV );
 		gGL.end();
-		}
 		
 		
 		
@@ -439,8 +421,6 @@ void LLVoiceVisualizer::render()
 			
 		} // if currently speaking
 								
-		if ( voice_indicator_behavior == 1 || voice_indicator_behavior == 3 ) // <polarity>
-		{
 		//---------------------------------------------------
 		// determine color
 		//---------------------------------------------------
@@ -540,7 +520,6 @@ void LLVoiceVisualizer::render()
 			} //if ( mSoundSymbol.mWaveActive[i] ) 
 			
 		}// for loop
-		}
 											
 	}//if ( mSoundSymbol.mActive ) 
 

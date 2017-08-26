@@ -102,7 +102,6 @@ public:
 	void restoreFloater();
 	void saveCollapsedState();
 
-	void purgeChatHistory(); // <polarity> Allow to clear chat history
 	LLView* getChatHistory();
 
 protected:

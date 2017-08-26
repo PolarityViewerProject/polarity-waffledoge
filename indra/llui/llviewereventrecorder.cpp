@@ -30,23 +30,20 @@
 #include "llui.h"
 #include "llleap.h"
 
-#include "pvconstants.h"
-
 LLViewerEventRecorder::LLViewerEventRecorder() 
 {
 
 	clear(UNDEFINED);
 	mLogEvents = false; // </alchemy>
 	// Remove any previous event log file
-	static std::string app_name_str = APP_NAME;
-	std::string old_log_ui_events_to_llsd_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, app_name_str + "_Events_log.old");
+	std::string old_log_ui_events_to_llsd_file = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "Polarity_Events_log.old");
 	if (gDirUtilp->fileExists(old_log_ui_events_to_llsd_file))
 	{
 		LLFile::remove(old_log_ui_events_to_llsd_file);
 	}
 
 
-	mLogFilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, app_name_str + "_Events_log.llsd");
+	mLogFilename = gDirUtilp->getExpandedFilename(LL_PATH_LOGS, "Polarity_Events_log.llsd");
 	if (gDirUtilp->fileExists(mLogFilename))
 	{
 		LLFile::rename(mLogFilename, old_log_ui_events_to_llsd_file);

@@ -52,8 +52,6 @@ public:
 	/*virtual*/ void	onOpen(const LLSD& key) override;
 	/*virtual*/ void	onClose(bool app_quitting) override;
 	/*virtual*/ void	draw() override;
-	/// when user hits the delete preset button
-	void onDeletePreset();
 
 private:
 	void initCallbacks(void);
@@ -110,9 +108,8 @@ private:
 
 	LLLineEditor*	mWaterPresetNameEditor;
 	LLComboBox*		mWaterPresetCombo;
-	LLButton*	 	mMakeDefaultCheckBox;
+	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
 	LLButton*		mSaveButton;
-	LLButton*	 	mDeleteButton;
 };
 
 #endif // LL_LLFLOATEREDITWATER_H

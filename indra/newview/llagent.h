@@ -128,7 +128,6 @@ public:
 	BOOL 			isInitialized() const 	{ return mInitialized; }
 public:
 	std::string		mMOTD; 					// Message of the day
-	std::string		mChatMOTD;				// <polarity> MOTD in Chat
 private:
 	BOOL			mInitialized;
 	BOOL			mFirstLogin;
@@ -533,12 +532,12 @@ private:
 	// All turn off autopilot and make sure the camera is behind the avatar.
 	// Direction is either positive, zero, or negative
 public:
-	void			moveAt(S32 direction, const bool reset_view = false);
+	void			moveAt(S32 direction, bool reset_view = true);
 	void			moveAtNudge(S32 direction);
-	void			moveLeft(S32 direction, const bool reset_view = false);
+	void			moveLeft(S32 direction);
 	void			moveLeftNudge(S32 direction);
-	void			moveUp(S32 direction, const bool reset_view = false);
-	void			moveYaw(F32 mag, const bool reset_view = false);
+	void			moveUp(S32 direction);
+	void			moveYaw(F32 mag, bool reset_view = true);
 	void			movePitch(F32 mag);
 
 	BOOL			isMovementLocked() const				{ return mMovementKeysLocked; }

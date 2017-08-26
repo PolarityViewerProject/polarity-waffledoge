@@ -70,12 +70,6 @@
 #include "llstring.h"
 #include "message.h"
 
-// polarity
-#include "llwindowwin32.h" // for refresh rate and such
-#include "llfloaterreg.h"
-#include "pvfpsmeter.h"
-
-#include "llweb.h" // Marketplace "Shop" button.
 
 //
 // Globals
@@ -95,11 +89,9 @@ const F32 ICON_TIMER_EXPIRY		= 3.f; // How long the balance and health icons sho
 LLStatusBar::LLStatusBar(const LLRect& rect)
 :	LLPanel(),
 	mTextTime(nullptr),
-	mTextFPS(nullptr), // <polarity> FPS Counter in the status bar
+	mTextFPS(nullptr),
 	mSGBandwidth(nullptr),
 	mSGPacketLoss(nullptr),
-	mBandwidthButton(NULL), // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	mBtnStats(nullptr),
 	mPanelPopupHolder(nullptr),
 	mBtnQuickSettings(nullptr),
 	mBtnAO(nullptr),
@@ -123,12 +115,10 @@ LLStatusBar::LLStatusBar(const LLRect& rect)
 
 	mBalanceTimer = new LLFrameTimer();
 	mHealthTimer = new LLFrameTimer();
-	
+
 	mImgAvComplex = LLUI::getUIImage("50_Ton_Weight");
 	mImgAvComplexWarn = LLUI::getUIImage("50_Ton_Weight_Warn");
 	mImgAvComplexHeavy = LLUI::getUIImage("50_Ton_Weight_Heavy");
-	
-	gSavedSettings.getControl("ShowNetStats")->getSignal()->connect(boost::bind(&LLStatusBar::updateNetstatVisibility, this, _2));
 
 	buildFromFile("panel_status_bar.xml");
 }
@@ -169,19 +159,16 @@ BOOL LLStatusBar::postBuild()
 
 	mTextTime = getChild<LLTextBox>("TimeText" );
 	
-	// <polarity> FPS Meter in status bar. Inspired by NiranV Dean's initial implementation in Black Dragon
 	mTextFPS = getChild<LLTextBox>("FPSText");
 
 	mBtnBuyL = getChild<LLButton>("buyL");
 	mBtnBuyL->setCommitCallback(boost::bind(&LLStatusBar::onClickBuyCurrency, this));
-	// <polarity> [VS Alchemy] Keep the shop button in the taskbar for now as we don't have any other reference to the Marketplace in the UI
-	getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
+
+    //getChild<LLUICtrl>("goShop")->setCommitCallback(boost::bind(&LLWeb::loadURL, gSavedSettings.getString("MarketplaceURL"), LLStringUtil::null, LLStringUtil::null));
 
 	mBoxBalance = getChild<LLTextBox>("balance");
 	mBoxBalance->setClickedCallback( &LLStatusBar::onClickBalance, this );
 	
-	mBtnStats = getChildView("stat_btn");
-
 	mBtnQuickSettings = getChild<LLButton>("quick_settings_btn");
 	mBtnQuickSettings->setMouseEnterCallback(boost::bind(&LLStatusBar::onMouseEnterQuickSettings, this));
 
@@ -210,22 +197,6 @@ BOOL LLStatusBar::postBuild()
 	S32 x = getRect().getWidth() - 2;
 	S32 y = 0;
 	LLRect r;
-	
-	// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	r.set( x-((SIM_STAT_WIDTH*2)+2), y+MENU_BAR_HEIGHT-1, x, y+1);
-	LLButton::Params BandwidthButton;
-	BandwidthButton.name(std::string("BandwidthGraphButton"));
-	BandwidthButton.label("");
-	BandwidthButton.rect(r);
-	BandwidthButton.follows.flags(FOLLOWS_BOTTOM | FOLLOWS_RIGHT);
-	BandwidthButton.click_callback.function(boost::bind(&LLStatusBar::onBandwidthGraphButtonClicked, this));
-	mBandwidthButton = LLUICtrlFactory::create<LLButton>(BandwidthButton);
-	addChild(mBandwidthButton);
-	LLColor4 BandwidthButtonOpacity;
-	BandwidthButtonOpacity.setAlpha(0);
-	mBandwidthButton->setColor(BandwidthButtonOpacity);
-	// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-	
 	r.set( x-SIM_STAT_WIDTH, y+MENU_BAR_HEIGHT-1, x, y+1);
 	LLStatGraph::Params sgp;
 	sgp.name("BandwidthGraph");
@@ -254,7 +225,7 @@ BOOL LLStatusBar::postBuild()
 	pgp.precision(1);
 	pgp.per_sec(false);
 	LLStatGraph::Thresholds thresholds;
-	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1f).color(LLColor4::green))
+	thresholds.threshold.add(LLStatGraph::ThresholdParams().value(0.1).color(LLColor4::green))
 						.add(LLStatGraph::ThresholdParams().value(0.25f).color(LLColor4::yellow))
 						.add(LLStatGraph::ThresholdParams().value(0.6f).color(LLColor4::red));
 
@@ -295,7 +266,7 @@ BOOL LLStatusBar::postBuild()
 void LLStatusBar::refresh()
 {
 	static LLCachedControl<bool> show_net_stats(gSavedSettings, "ShowNetStats", false);
-	static LLCachedControl<bool> show_fps(gSavedSettings, "PVUI_StatusBarShowFPSCounter", true);
+	static LLCachedControl<bool> show_fps(gSavedSettings, "ShowStatusBarFPS", true);
 
 	if (show_net_stats)
 	{
@@ -307,45 +278,28 @@ void LLStatusBar::refresh()
 		//mSGBandwidth->setThreshold(1, bwtotal);
 		//mSGBandwidth->setThreshold(2, bwtotal);
 	}
-
-	if (show_fps && mTextFPS && PVFPSMeter::canUpdate())
+	
+	if (show_fps && mFPSUpdateTimer.getElapsedTimeF32() > 0.25f)
 	{
-		mTextFPS->setValue(PVFPSMeter::getValue());
-		mTextFPS->setColor(PVFPSMeter::getColor());
+		mFPSUpdateTimer.reset();
+		F32 fps = (F32)LLTrace::get_frame_recording().getLastRecording().getPerSec(LLStatViewer::FPS);
+		mTextFPS->setValue(llformat("%.1f", fps));
 	}
 
 	// update clock every second
-	if (mClockUpdateTimer.getElapsedTimeF32() >= 0.25f)
+	if(mClockUpdateTimer.getElapsedTimeF32() > 1.f) // <alchemy/>
 	{
 		mClockUpdateTimer.reset();
-		// Get current UTC time, adjusted for the user's clock being off.
-		time_t utc_time = time_corrected();
-		std::string timeStr;
-		// <polarity> PLVR-4 24-hour clock mode
-		static LLCachedControl<bool> show_seconds(gSavedSettings, "PVUI_ClockShowSeconds", true);
-		static LLCachedControl<bool> use_24h_clock(gSavedSettings, "PVUI_ClockUse24hFormat", false);
 
-		if (use_24h_clock && show_seconds)
-		{
-			const static auto time24Precise = getString("time24Precise");
-			timeStr = time24Precise;
-		}
-		else if (use_24h_clock && !show_seconds)
-		{
-			const static auto time24 = getString("time24");
-			timeStr = time24;
-		}
-		else if (!use_24h_clock && show_seconds)
-		{
-			const static auto timePrecise = getString("timePrecise");
-			timeStr = timePrecise;
-		}
-		else
-		{
-			const static auto time = getString("time");
-			timeStr = time;
-		}
-		// </polarity>
+		time_t utc_time = time_corrected();
+
+		// <alchemy> Allow user to control whether the clock shows seconds or not.
+		static LLCachedControl<bool> want_precise_clock(gSavedSettings, "AlchemyPreciseClock", true);
+
+		// Show seconds if so desired
+		
+		std::string timeStr = getString(want_precise_clock() ? "timePrecise" : "time");
+		// </alchemy>
 		LLSD substitution;
 		substitution["datetime"] = static_cast<S32>(utc_time);
 		LLStringUtil::format (timeStr, substitution);
@@ -391,8 +345,6 @@ void LLStatusBar::refresh()
 void LLStatusBar::setVisibleForMouselook(bool visible)
 {
 	mTextTime->setVisible(visible);
-	static LLCachedControl<bool> show_balance(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
-	getChild<LLUICtrl>("balance_bg")->setVisible(visible && show_balance);
 	mBoxBalance->setVisible(visible);
 	mBtnBuyL->setVisible(visible);
 	mBtnQuickSettings->setVisible(visible);
@@ -400,7 +352,7 @@ void LLStatusBar::setVisibleForMouselook(bool visible)
 	mBtnVolume->setVisible(visible);
 	mMediaToggle->setVisible(visible);
 	mAvComplexity->setVisible(visible);
-	// TODO: fps meter if desired
+	mTextFPS->setVisible(visible);
 	mSGBandwidth->setVisible(visible);
 	mSGPacketLoss->setVisible(visible);
 	setBackgroundVisible(visible);
@@ -430,30 +382,10 @@ void LLStatusBar::setBalance(S32 balance)
 	std::string label_str = getString("buycurrencylabel", string_args);
 	mBoxBalance->setValue(label_str);
 
-	// <polarity> Money button changes
-	// Resize the L$ balance background to be wide enough for your balance plus the buy button
+	if (mBalance && (fabs((F32)(mBalance - balance)) > gSavedSettings.getF32("UISndMoneyChangeThreshold")))
 	{
-		const S32 HPAD = 24;
-		LLRect balance_rect = mBoxBalance->getTextBoundingRect();
-		LLRect buy_rect = getChildView("buyL")->getRect();
-		LLRect shop_rect = getChildView("goShop")->getRect();
-		LLView* balance_bg_view = getChildView("balance_bg");
-		LLRect balance_bg_rect = balance_bg_view->getRect();
-		balance_bg_rect.mLeft = balance_bg_rect.mRight - (buy_rect.getWidth() + shop_rect.getWidth() + balance_rect.getWidth() + HPAD);
-		balance_bg_view->setShape(balance_bg_rect);
+		make_ui_sound(mBalance > balance ? "UISndMoneyChangeDown" : "UISndMoneyChangeUp");
 	}
-	static LLCachedControl<S32> notification_threshold_send(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdSend");
-	static LLCachedControl<S32> notification_threshold_recv(gSavedPerAccountSettings, "PVUI_BalanceNotificationThresholdReceive");
-	if (mBalance)
-	{
-		auto difference = fabs((F32)(mBalance - balance));
-		// This assumes that the platform doesn't allow you to send negative currency amounts
-		if (mBalance > balance && difference >= notification_threshold_send)
-			make_ui_sound("UISndMoneyChangeDown");
-		else if (mBalance < balance && difference >= notification_threshold_recv)
-			make_ui_sound("UISndMoneyChangeUp");
-	}
-	// </polarity>
 
 	if( balance != mBalance )
 	{
@@ -515,13 +447,6 @@ void LLStatusBar::setAvComplexity(S32 complexity, F32 muted_pct)
 		mAvComplexity->setImage(mImgAvComplex);
 	mPanelAvatarComplexityPulldown->setAvComplexity(complexity, muted_pct);
 }
-
-// <polarity> PLVR-7 Hide currency balance in snapshots
-void LLStatusBar::showBalance(bool show)
-{
-	mBoxBalance->setVisible(show);
-}
-// </polarity>
 
 S32 LLStatusBar::getBalance() const
 {
@@ -725,23 +650,6 @@ void LLStatusBar::onAOStateChanged()
 	mBtnAO->setToggleState(gSavedPerAccountSettings.getBOOL("UseAO"));
 }
 
-void LLStatusBar::updateNetstatVisibility(const LLSD& data)
-{
-	const S32 NETSTAT_WIDTH = (SIM_STAT_WIDTH + 2) * 2;
-	BOOL showNetStat = data.asBoolean();
-	//S32 translateFactor = (showNetStat ? -1 : 1);
-
-	mSGBandwidth->setVisible(showNetStat);
-	mSGPacketLoss->setVisible(showNetStat);
-	mBandwidthButton->setVisible(showNetStat); // <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-
-	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
-
-	//rect = mBalancePanel->getRect();
-	//rect.translate(NETSTAT_WIDTH * translateFactor, 0);
-	//mBalancePanel->setRect(rect);
-}
-
 BOOL can_afford_transaction(S32 cost)
 {
 	return((cost <= 0)||((gStatusBar) && (gStatusBar->getBalance() >=cost)));
@@ -751,20 +659,6 @@ void LLStatusBar::onVolumeChanged(const LLSD& newvalue)
 {
 	refresh();
 }
-
-// <FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
-void LLStatusBar::onBandwidthGraphButtonClicked()
-{
-//	if (gSavedSettings.getBOOL("PVUI_UseStatsInsteadOfLagMeter"))
-//	{
-		LLFloaterReg::toggleInstance("stats");
-//	}
-//	else
-//	{
-//		LLFloaterReg::toggleInstance("lagmeter");
-//	}
-}
-// </FS:PP> FIRE-6287: Clicking on traffic indicator toggles Lag Meter window
 
 // Implements secondlife:///app/balance/request to request a L$ balance
 // update via UDP message system. JC

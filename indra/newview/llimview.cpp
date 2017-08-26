@@ -68,7 +68,6 @@
 #include "message.h"
 #include "llviewerregion.h"
 #include "llcorehttputil.h"
-#include "pvcommon.h"
 
 const static std::string ADHOC_NAME_SUFFIX(" Conference");
 
@@ -2693,11 +2692,6 @@ void LLIMMgr::addMessage(
 	}
 
 	bool new_session = !hasSession(new_session_id);
-	BOOL is_group_chat = FALSE;
-	if (!new_session && dialog != IM_NOTHING_SPECIAL)
-	{
-		is_group_chat = gAgent.isInGroup(new_session_id);
-	}
 	if (new_session)
 	{
 		LLAvatarName av_name;
@@ -2709,84 +2703,58 @@ void LLIMMgr::addMessage(
 		LLIMModel::getInstance()->newSession(new_session_id, fixed_session_name, dialog, other_participant_id, false, is_offline_msg);
 
 		LLIMModel::LLIMSession* session = LLIMModel::instance().findIMSession(new_session_id);
-		if (session)
+		if (!session)
 		{
-
-			skip_message &= !session->isGroupSessionType(); // Do not skip group chats...
-			if (skip_message)
-			{
-				gIMMgr->leaveSession(new_session_id);
-			}
-			// When we get a new IM, and if you are a god, display a bit
-			// of information about the source. This is to help liaisons
-			// when answering questions.
-			if (gAgent.isGodlike())
-			{
-				// *TODO:translate (low priority, god ability)
-				std::ostringstream bonus_info;
-				bonus_info << LLTrans::getString("***") + " " + LLTrans::getString("IMParentEstate") + ":" + " "
-					<< parent_estate_id
-					<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
-					<< ((parent_estate_id == 5) ? "," + LLTrans::getString("IMTeen") : "");
-
-				// once we have web-services (or something) which returns
-				// information about a region id, we can print this out
-				// and even have it link to map-teleport or something.
-				//<< "*** region_id: " << region_id << std::endl
-				//<< "*** position: " << position << std::endl;
-
-				LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
-			}
-
-			// Logically it would make more sense to reject the session sooner, in another area of the
-			// code, but the session has to be established inside the server before it can be left.
-			if ((LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
-				|| LLMuteList::getInstance()->isGroupMuted(new_session_id))
-			{
-				LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
-				if (!gIMMgr->leaveSession(new_session_id))
-				{
-					LL_INFOS() << "Session " << new_session_id << " does not exist." << LL_ENDL;
-				}
-				return;
-			}
-
-			// <FS:PP> Option to automatically ignore and leave all conference (ad-hoc) chats
-			if (dialog != IM_NOTHING_SPECIAL)
-			{
-				is_group_chat = gAgent.isInGroup(new_session_id);
-			}
-			static LLCachedControl<bool> ignoreAdHocSessions(gSavedSettings, "PVChat_IgnoreAdHocEnabled");
-			if (dialog != IM_NOTHING_SPECIAL && !is_group_chat && ignoreAdHocSessions && !from_linden)
-			{
-				static LLCachedControl<bool> dontIgnoreAdHocFromFriends(gSavedSettings, "PVChat_IgnoreAdHocAllowFromFriends");
-				if (!dontIgnoreAdHocFromFriends || (dontIgnoreAdHocFromFriends && LLAvatarTracker::instance().getBuddyInfo(other_participant_id) == NULL))
-				{
-					static LLCachedControl<bool> reportIgnoredAdHocSession(gSavedSettings, "PVChat_IgnoreAdHocReport");
-					LL_INFOS() << "Ignoring conference (ad-hoc) chat from " << new_session_id.asString() << LL_ENDL;
-					if (!gIMMgr->leaveSession(new_session_id))
-					{
-						LL_WARNS() << "Ad-hoc session " << new_session_id.asString() << " does not exist." << LL_ENDL;
-					}
-					else if (reportIgnoredAdHocSession)
-					{
-						PVCommon::reportToNearbyChat(LLTrans::getString("IgnoredAdHocSession"));
-					}
-					return;
-				}
-			}
-			// </FS:PP>
-
-			//Play sound for new conversations
-			if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
-			{
-				make_ui_sound("UISndNewIncomingIMSession");
-			}
+			skip_message &= true;
+			LL_WARNS() << "Unable to find session for id: " << new_session_id << " or session is null, skipping message." << LL_ENDL;
 		}
 		else
 		{
-			// Failed to create a session, most likely due to empty name (name cache failed?)
-			LL_WARNS() << "Failed to create IM session " << fixed_session_name << LL_ENDL;
+			skip_message &= !session->isGroupSessionType(); // Do not skip group chats...
+		}
+
+		if (skip_message)
+		{
+			gIMMgr->leaveSession(new_session_id);
+		}
+		// When we get a new IM, and if you are a god, display a bit
+		// of information about the source. This is to help liaisons
+		// when answering questions.
+		if (gAgent.isGodlike())
+		{
+			// *TODO:translate (low priority, god ability)
+			std::ostringstream bonus_info;
+			bonus_info << LLTrans::getString("***") + " " + LLTrans::getString("IMParentEstate") + ":" + " "
+				<< parent_estate_id
+				<< ((parent_estate_id == 1) ? "," + LLTrans::getString("IMMainland") : "")
+				<< ((parent_estate_id == 5) ? "," + LLTrans::getString("IMTeen") : "");
+
+			// once we have web-services (or something) which returns
+			// information about a region id, we can print this out
+			// and even have it link to map-teleport or something.
+			//<< "*** region_id: " << region_id << std::endl
+			//<< "*** position: " << position << std::endl;
+
+			LLIMModel::instance().addMessage(new_session_id, from, other_participant_id, bonus_info.str());
+		}
+
+		// Logically it would make more sense to reject the session sooner, in another area of the
+		// code, but the session has to be established inside the server before it can be left.
+		if ((LLMuteList::getInstance()->isMuted(other_participant_id, LLMute::flagTextChat) && !from_linden)
+			|| LLMuteList::getInstance()->isGroupMuted(new_session_id))
+		{
+			LL_WARNS() << "Leaving IM session from initiating muted resident " << from << LL_ENDL;
+			if (!gIMMgr->leaveSession(new_session_id))
+			{
+				LL_INFOS() << "Session " << new_session_id << " does not exist." << LL_ENDL;
+			}
+			return;
+		}
+
+		//Play sound for new conversations
+		if (!gAgent.isDoNotDisturb() && (gSavedSettings.getBOOL("PlaySoundNewConversation") == TRUE))
+		{
+			make_ui_sound("UISndNewIncomingIMSession");
 		}
 	}
 

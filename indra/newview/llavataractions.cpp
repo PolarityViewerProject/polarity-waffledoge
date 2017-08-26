@@ -68,8 +68,6 @@
 #include "llviewerobjectlist.h"
 #include "llviewerparcelmgr.h"
 #include "llviewermenu.h"		// for handle_zoom_to_object
-
-#include "llvoavatar.h" // <polarity> PLVR-32 Refresh texture on objects and avatars
 #include "llviewermessage.h"	// for handle_lure
 #include "llviewerregion.h"
 #include "llslurl.h"			// IDEVO
@@ -83,11 +81,6 @@
 #include "llworld.h"
 #include "llfloaterlegacyprofile.h"
 // </alchemy>
-
-// <polarity>
-#include <unordered_set>
-#include "llselectmgr.h"
-// </polarity>
 
 // Flags for kick message
 const U32 KICK_FLAGS_DEFAULT	= 0x0;
@@ -446,7 +439,6 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 	{
 		LLMessageSystem* msg = gMessageSystem;
 
-		const LLUUID idRecipient = notification["substitutions"]["uuid"]; // <polarity/>
 		msg->newMessageFast(_PREHASH_ImprovedInstantMessage);
 		msg->nextBlockFast(_PREHASH_AgentData);
 		msg->addUUIDFast(_PREHASH_AgentID, gAgent.getID());
@@ -454,7 +446,7 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 
 		msg->nextBlockFast(_PREHASH_MessageBlock);
 		msg->addBOOLFast(_PREHASH_FromGroup, FALSE);
-		msg->addUUIDFast(_PREHASH_ToAgentID, idRecipient); // </polarity/>
+		msg->addUUIDFast(_PREHASH_ToAgentID, notification["substitutions"]["uuid"] );
 		msg->addU8Fast(_PREHASH_Offline, IM_ONLINE);
 		msg->addU8Fast(_PREHASH_Dialog, IM_TELEPORT_REQUEST);
 		msg->addUUIDFast(_PREHASH_ID, LLUUID::null);
@@ -464,8 +456,7 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 		LLAgentUI::buildFullname(name);
 
 		msg->addStringFast(_PREHASH_FromAgentName, name);
-		std::string strMessage = response["message"];
-		msg->addStringFast(_PREHASH_Message, strMessage);
+		msg->addStringFast(_PREHASH_Message, response["message"]);
 		msg->addU32Fast(_PREHASH_ParentEstateID, 0);
 		msg->addUUIDFast(_PREHASH_RegionID, LLUUID::null);
 		msg->addVector3Fast(_PREHASH_Position, gAgent.getPositionAgent());
@@ -476,18 +467,6 @@ void LLAvatarActions::teleport_request_callback(const LLSD& notification, const 
 				EMPTY_BINARY_BUCKET_SIZE);
 
 		gAgent.sendReliableMessage();
-
-		// <polarity> Confirmation for Teleport Request
-		LLSD args, payload;
-		args["MESSAGE"] = strMessage;
-		LLAvatarName avatar_name;
-		LLAvatarNameCache::get(idRecipient, &avatar_name);
-		args["TO_NAME"] = LLSLURL("agent", idRecipient, "displayname").getSLURLString();
-
-		payload["from_id"] = idRecipient;
-		payload["SUPPRESS_TOAST"] = true;
-		LLNotificationsUtil::add("TeleportRequestSent", args, payload);
-		// </polarity>
 	}
 }
 
@@ -1116,99 +1095,6 @@ void LLAvatarActions::viewChatHistory(const LLUUID& id)
 	}
 }
 
-// <polarity> PLVR-32 Refresh texture on objects and avatars
-// static
-void LLAvatarActions::refreshAppearance(const LLUUID& id)
-{
-	std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
-
-	LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
-	if(!avatar)
-	{
-		return;
-	}
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_UPPER_BAKED)->getID());
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_LOWER_BAKED)->getID());
-	textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_SKIRT_BAKED)->getID());
-
-	std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
-	avatar->addThisAndAllChildren(objects);
-
-	LLSelectMgr::getInstance()->setForceSelection(TRUE);
-
-	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	if (objects.size() > 0)
-	{
-		for (LLViewerObject* viewer_object : objects)
-		{
-			if (viewer_object != avatar)
-			{
-				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
-			}
-		}
-	}
-
-	LLSelectMgr::getInstance()->refreshSelectionTextures(textures_to_refresh);
-
-	LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(avatar->getID());
-
-	LLSelectMgr::getInstance()->setForceSelection(FALSE);
-}
-
-// static
-void LLAvatarActions::refreshAppearances(const uuid_vec_t& ids)
-{
-	std::unordered_set<LLUUID> textures_to_refresh = std::unordered_set<LLUUID>();
-	std::vector<LLViewerObject*> objects = std::vector<LLViewerObject*>();
-
-	// Collect LL avatar mesh textures and LLViewerObjects for all avatars and their attachments.
-	for (LLUUID id : ids)
-	{
-		LLVOAvatar* avatar = (LLVOAvatar*)gObjectList.findObject(id);
-		if (!avatar)
-		{
-			continue;
-		}
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HAIR_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_HEAD_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_EYES_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_UPPER_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_LOWER_BAKED)->getID());
-		textures_to_refresh.insert(avatar->getTE(LLAvatarAppearanceDefines::TEX_SKIRT_BAKED)->getID());
-
-		avatar->addThisAndAllChildren(objects);
-	}
-
-	// For all collected LLViewerObjects that aren't avatars, select them and refresh the selection's
-	// textures (and also the LL avatar textures we collected).
-	LLSelectMgr::getInstance()->setForceSelection(TRUE);
-	LLObjectSelectionHandle selection = LLSelectMgr::getInstance()->getSelection();
-	if (objects.size() > 0)
-	{
-		for (LLViewerObject* viewer_object : objects)
-		{
-			if (!viewer_object->isAvatar())
-			{
-				selection = LLSelectMgr::getInstance()->selectObjectOnly(viewer_object);
-			}
-		}
-	}
-
-	LLSelectMgr::getInstance()->refreshSelectionTextures(textures_to_refresh);
-
-	// Loop through the avatar ids and request their textures.
-	for (LLUUID id : ids)
-	{
-		LLAvatarPropertiesProcessor::getInstance()->sendAvatarTexturesRequest(id);
-	}
-
-	LLSelectMgr::getInstance()->setForceSelection(FALSE);
-}
-// </polarity> PLVR-32 Refresh texture on objects and avatars
-
 //== private methods ========================================================================================
 
 // static
@@ -1409,17 +1295,8 @@ void LLAvatarActions::copyData(const uuid_vec_t& ids, ECopyDataType type)
 				data_string.append(av_name.getUserName());
 				break;
 			}
-			 // <polarity>
-			case E_DATA_DISPLAYNAME:
-			{
-				LLAvatarName av_name;
-				LLAvatarNameCache::get(id, &av_name);
-				data_string.append(av_name.getDisplayName());
-				break;
-			}
-			// <polarity>
 			case E_DATA_SLURL:
-				data_string.append(LLSLURL("agent", id, "inspect").getSLURLString()); // <polarity/>
+				data_string.append(LLSLURL("agent", id, "about").getSLURLString());
 				break;
 			case E_DATA_UUID:
 				data_string.append(id.asString());

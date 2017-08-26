@@ -178,14 +178,6 @@
 #include <tchar.h> // For Unicode conversion methods
 #endif
 
-#include "lltabcontainer.h"
-
-//#include "pvcommon.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#include "pvgpuinfo.h"
-
 //
 // Globals
 //
@@ -1664,10 +1656,6 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		p.ignore_pixel_depth,
 		gSavedSettings.getBOOL("RenderDeferred") ? 0 : gSavedSettings.getU32("RenderFSAASamples")); //don't use window level anti-aliasing if FBOs are enabled
 
-	// <polarity> Make sure the VRAM values are right and set up.
-	gGLManager.mVRAM = PVGPUInfo::computeOnboardVRAM().valueInUnits<LLUnits::Megabytes>();
-	LL_INFOS() << "Computed VRAM: " << PVGPUInfo::vRAMGetTotalOnboard() << LL_ENDL;
-	
 	if (!LLViewerShaderMgr::sInitialized)
 	{ //immediately initialize shaders
 		LLViewerShaderMgr::sInitialized = TRUE;
@@ -1765,10 +1753,7 @@ LLViewerWindow::LLViewerWindow(const Params& p)
 		|| (gSavedSettings.getString("LastGPUString") != LLFeatureManager::getInstance()->getGPUString())
 		|| (gSavedSettings.getBOOL("ProbeHardwareOnStartup")))
 	{
-		if (/*gSavedSettings.getString("LastGPUString") == "" || */gSavedSettings.getS32("PVRender_KeepSettingsOnGPUChange") < 1)
-		{
-			LLFeatureManager::getInstance()->applyRecommendedSettings();
-		}
+		LLFeatureManager::getInstance()->applyRecommendedSettings();
 		gSavedSettings.setBOOL("ProbeHardwareOnStartup", FALSE);
 	}
 
@@ -2573,13 +2558,6 @@ void LLViewerWindow::draw()
 //#endif
 }
 
-// <polarity> Dynamic window title
-void LLViewerWindow::setTitle(const std::string& win_title)
-{
-	mWindow->setWindowTitle(win_title);
-}
-// </polarity>
-
 // Takes a single keyup event, usually when UI is visible
 BOOL LLViewerWindow::handleKeyUp(KEY key, MASK mask)
 {
@@ -2721,8 +2699,7 @@ BOOL LLViewerWindow::handleKey(KEY key, MASK mask)
 	{
 		if ((focusedFloaterName == "nearby_chat") || (focusedFloaterName == "im_container") || (focusedFloaterName == "impanel"))
 		{
-			static LLCachedControl<bool> arrow_keys_always_move(gSavedSettings, "ArrowKeysAlwaysMove");
-			if (arrow_keys_always_move)
+			if (gSavedSettings.getBOOL("ArrowKeysAlwaysMove"))
 			{
 				// let Control-Up and Control-Down through for chat line history,
 				if (!(key == KEY_UP && mask == MASK_CONTROL)
@@ -4502,25 +4479,13 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 window_width  = snapshot_width;
 	S32 window_height = snapshot_height;
 	
-	static LLCachedControl<bool> show_currency_setting(gSavedSettings, "PVUI_ShowCurrencyBalanceInSnapshots");
-	static LLCachedControl<bool> show_currency_topbar(gSavedSettings, "PVUI_ShowCurrencyBalanceInStatusBar");
 	// Note: Scaling of the UI is currently *not* supported so we limit the output size if UI is requested
 	if (show_ui)
 	{
 		// If the user wants the UI, limit the output size to the available screen size
 		image_width  = llmin(image_width, window_width);
 		image_height = llmin(image_height, window_height);
-		// <polarity> PLVR-7 Hide currency balance in snapshots
-		gStatusBar->showBalance((bool)show_currency_setting);
 	}
-
-	// <polarity> set rigged shadow detail to maximum when taking screenshots
-	U32 previous_rigged_shadow_detail = gSavedSettings.getU32("PVRender_AttachmentShadowDetail");
-	if (previous_rigged_shadow_detail > 0)
-	{
-		gSavedSettings.setU32("PVRender_AttachmentShadowDetail", 3);
-	}
-	// </polarity>
 
 	S32 original_width = 0;
 	S32 original_height = 0;
@@ -4581,10 +4546,7 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	S32 image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
 	S32 image_buffer_y = llfloor(snapshot_height * scale_factor) ;
 
-	//S32 max_size = gGLManager.mGLMaxTextureSize;
-
-	// TODO: Figure out if we can have non-square buffers with one side bigger than max_size
-	if(((image_buffer_x > max_size) || (image_buffer_y > max_size) /*|| !PVGPUInfo::hasEnoughVRAMForSnapshot(snapshot_width, snapshot_height)*/))
+	if ((image_buffer_x > max_size) || (image_buffer_y > max_size)) // boundary check to avoid memory overflow
 	{
 		scale_factor *= llmin((F32)max_size / image_buffer_x, (F32)max_size / image_buffer_y) ;
 		image_buffer_x = llfloor(snapshot_width  * scale_factor) ;
@@ -4596,12 +4558,10 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 	}
 	else
 	{
-		gStatusBar->showBalance(show_currency_topbar);	// <polarity> PLVR-7 Hide currency balance in snapshots
-		return FALSE;
+		return FALSE ;
 	}
 	if (raw->isBufferInvalid())
 	{
-		gStatusBar->showBalance(show_currency_topbar);	// <polarity> PLVR-7 Hide currency balance in snapshots
 		return FALSE ;
 	}
 
@@ -4777,13 +4737,6 @@ BOOL LLViewerWindow::rawSnapshot(LLImageRaw *raw, S32 image_width, S32 image_hei
 		send_agent_resume();
 	}
 	
-	gStatusBar->showBalance(true);	// <polarity> PLVR-7 Hide currency balance in snapshots
-	// <polarity> set rigged shadow detail to maximum when taking screenshots
-	if (previous_rigged_shadow_detail > 0)
-	{
-		gSavedSettings.setU32("PVRender_AttachmentShadowDetail", previous_rigged_shadow_detail); 
-	}
-	// </polarity>
 	return ret;
 }
 

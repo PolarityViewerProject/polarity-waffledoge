@@ -49,7 +49,6 @@ public:
 	/*virtual*/ void	onOpen(const LLSD& key) override;
 	/*virtual*/ void	onClose(bool app_quitting) override;
 	/*virtual*/ void	draw() override;
-	void onDeletePreset();
 
 private:
 	void initCallbacks(void);
@@ -100,9 +99,6 @@ private:
 
 	void onBtnSave();
 	void onBtnCancel();
-	// <polarity> Change windlight editor cancel behavior
-	void onBtnReset();
-	// </polarity>
 
 	void onSkyPresetListChange();
 	void onRegionSettingsChange();
@@ -110,9 +106,8 @@ private:
 
 	LLLineEditor*	mSkyPresetNameEditor;
 	LLComboBox*		mSkyPresetCombo;
-	LLButton*	 	mMakeDefaultCheckBox;
+	LLCheckBoxCtrl*	mMakeDefaultCheckBox;
 	LLButton*		mSaveButton;
-	LLButton*	 	mDeleteButton;
 };
 
 #endif // LL_LLFLOATEREDITSKY_H

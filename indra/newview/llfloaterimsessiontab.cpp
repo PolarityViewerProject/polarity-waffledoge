@@ -45,9 +45,7 @@
 #include "lllayoutstack.h"
 #include "lltoolbarview.h"
 #include "llfloaterimnearbychat.h"
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
+
 const F32 REFRESH_INTERVAL = 1.0f;
 
 LLFloaterIMSessionTab::LLFloaterIMSessionTab(const LLSD& session_id)
@@ -440,10 +438,9 @@ std::string LLFloaterIMSessionTab::appendTime()
 	std::string timeStr ="["+ LLTrans::getString("TimeHour")+"]:["
 		+LLTrans::getString("TimeMin")+"]";
 
-	// <polarity> Show seconds in chat headers
-	static LLCachedControl<bool> im_show_seconds(gSavedSettings, "PVChat_ShowSeconds", true);
-	if (im_show_seconds)
+	if (gSavedSettings.getBool("AlchemyChatSeconds"))
 		timeStr.append(":["+LLTrans::getString("TimeSec")+"]");
+
 	LLSD substitution;
 
 	substitution["datetime"] = (S32) utc_time;
@@ -473,14 +470,11 @@ void LLFloaterIMSessionTab::appendMessage(const LLChat& chat, const LLSD &args)
 		tmp_chat.mFromName = chat.mFromName;
 		LLSD chat_args;
 		if (args) chat_args = args;
-		static LLCachedControl<bool> use_plain_text_chat_history(gSavedSettings, "PlainTextChatHistory");
-		static LLCachedControl<bool> im_show_time(gSavedSettings, "IMShowTime");
-		static LLCachedControl<bool> im_show_names(gSavedSettings, "IMShowNamesForP2PConv");
 		chat_args["use_plain_text_chat_history"] =
-			use_plain_text_chat_history;
-		chat_args["show_time"] = im_show_time;
+				gSavedSettings.getBOOL("PlainTextChatHistory");
+		chat_args["show_time"] = gSavedSettings.getBOOL("IMShowTime");
 		chat_args["show_names_for_p2p_conv"] =
-				!mIsP2PChat || im_show_names;
+				!mIsP2PChat || gSavedSettings.getBOOL("IMShowNamesForP2PConv");
 
 		if (mChatHistory)
 		{
@@ -677,7 +671,7 @@ void LLFloaterIMSessionTab::onIMSessionMenuItemClicked(const LLSD& userdata)
 bool LLFloaterIMSessionTab::onIMCompactExpandedMenuItemCheck(const LLSD& userdata)
 {
 	std::string item = userdata.asString();
-	static LLCachedControl<bool> is_plain_text_mode(gSavedSettings, "PlainTextChatHistory");
+	bool is_plain_text_mode = gSavedSettings.getBOOL("PlainTextChatHistory");
 
 	return is_plain_text_mode? item == "compact_view" : item == "expanded_view";
 }
@@ -804,9 +798,6 @@ void LLFloaterIMSessionTab::showTranslationCheckbox(BOOL show)
 // static
 void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* = false*/)
 {
-#ifdef PVDATA_SYSTEM
-	gPVOldAPI->setBeggarCheck(false);
-#endif
 	LLFloaterReg::const_instance_list_t& inst_list = LLFloaterReg::getFloaterList("impanel");
 	for (LLFloaterReg::const_instance_list_t::const_iterator iter = inst_list.begin();
 			iter != inst_list.end(); ++iter)
@@ -823,9 +814,6 @@ void LLFloaterIMSessionTab::processChatHistoryStyleUpdate(bool clean_messages/* 
 	{
              nearby_chat->reloadMessages(clean_messages);
 	}
-#ifdef PVDATA_SYSTEM
-	gPVOldAPI->setBeggarCheck(true);
-#endif
 }
 
 // static
@@ -1138,7 +1126,7 @@ LLView* LLFloaterIMSessionTab::getChatHistory()
 // virtual
 void LLFloaterIMSessionTab::applyMUPose(std::string& text)
 {
-	static LLCachedControl<bool> useMUPose(gSavedSettings, "PVChat_AllowMUpose", false);
+	static LLCachedControl<bool> useMUPose(gSavedSettings, "AlchemyChatMUPose", false);
 	if (!useMUPose)
 		return;
 
@@ -1184,15 +1172,3 @@ BOOL LLFloaterIMSessionTab::handleKeyHere(KEY key, MASK mask )
 	}
 	return handled;
 }
-
-// <polarity> Allow to purge chat history
-// This is in fact Alchemy Viewer's initial implementation of the clear chat
-// function. Some residents preferred this one so let's re-add it.
-void LLFloaterIMSessionTab::purgeChatHistory()
-{
-	if (mChatHistory)
-	{
-		mChatHistory->clear();
-	}
-}
-// </polarity>

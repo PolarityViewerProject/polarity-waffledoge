@@ -803,10 +803,7 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     registrar.add("Outfit.TakeOff",
                   boost::bind(&LLAppearanceMgr::takeOffOutfit, &LLAppearanceMgr::instance(), selected_id));
     registrar.add("Outfit.Edit", boost::bind(editOutfit));
-	// <polarity> Fix rename not updating the list
-	registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
-    //registrar.add("Outfit.Rename", boost::bind(&LLOutfitGalleryContextMenu::renameOutfit, this, selected_id));
-	// <polarity>
+    registrar.add("Outfit.Rename", boost::bind(renameOutfit, selected_id));
     registrar.add("Outfit.Delete", boost::bind(&LLOutfitGalleryContextMenu::onRemoveOutfit, this, selected_id));
     registrar.add("Outfit.Create", boost::bind(&LLOutfitGalleryContextMenu::onCreate, this, _2));
     registrar.add("Outfit.UploadPhoto", boost::bind(&LLOutfitGalleryContextMenu::onUploadPhoto, this, selected_id));
@@ -816,29 +813,8 @@ LLContextMenu* LLOutfitGalleryContextMenu::createMenu()
     enable_registrar.add("Outfit.OnEnable", boost::bind(&LLOutfitGalleryContextMenu::onEnable, this, _2));
     enable_registrar.add("Outfit.OnVisible", boost::bind(&LLOutfitGalleryContextMenu::onVisible, this, _2));
     
-    // </FS:Ansariel> Show correct upload fee in context menu
-    //return createFromFile("menu_gallery_outfit_tab.xml");
-    LLContextMenu* menu = createFromFile("menu_gallery_outfit_tab.xml");
-    LLMenuItemCallGL* upload_item = menu->findChild<LLMenuItemCallGL>("upload_photo");
-    if (upload_item)
-    {
-        upload_item->setLabelArg("[UPLOAD_COST]", llformat("%d", LLGlobalEconomy::getInstance()->getPriceUpload()));
-    }
-    return menu;
-    // </FS:Ansariel>
+    return createFromFile("menu_gallery_outfit_tab.xml");
 }
-
-// <polarity> Fix rename not updating the list
-//void LLOutfitGalleryContextMenu::renameOutfit(const LLUUID& outfit_cat_id)
-//{
-//    LLOutfitContextMenu::renameOutfit(outfit_cat_id);
-//    LLOutfitGallery* gallery = dynamic_cast<LLOutfitGallery*>(mOutfitList);
-//    if (gallery)
-//    {
-//        gallery->refreshOutfit(outfit_cat_id);
-//        gallery->reArrangeRows();
-//    }
-//}
 
 void LLOutfitGalleryContextMenu::onUploadPhoto(const LLUUID& outfit_cat_id)
 {

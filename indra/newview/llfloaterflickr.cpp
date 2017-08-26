@@ -55,15 +55,10 @@
 #include "llviewernetwork.h"
 #include "llviewerregion.h"
 #include <boost/regex.hpp>
-#include "pvconstants.h"
 
 static LLPanelInjector<LLFlickrPhotoPanel> t_panel_photo("llflickrphotopanel");
 static LLPanelInjector<LLFlickrAccountPanel> t_panel_account("llflickraccountpanel");
 
-// Remove Google Analytics
-//const std::string DEFAULT_PHOTO_QUERY_PARAMETERS = "?sourceid=slshare_photo&utm_source=flickr&utm_medium=photo&utm_campaign=slshare";
-static const std::string project_str = PROJECT_STRING;
-const std::string DEFAULT_TAG_TEXT = project_str + " "; // The trailing space is important
 const char* FLICKR_MACHINE_TAGS_NAMESPACE = "secondlife";
 
 ///////////////////////////
@@ -115,7 +110,7 @@ BOOL LLFlickrPhotoPanel::postBuild()
 	mDescriptionTextBox = getChild<LLUICtrl>("photo_description");
 	mLocationCheckbox = getChild<LLUICtrl>("add_location_cb");
 	mTagsTextBox = getChild<LLUICtrl>("photo_tags");
-	mTagsTextBox->setValue(DEFAULT_TAG_TEXT + LLGridManager::getInstance()->getGridLabel());
+	mTagsTextBox->setValue(LLGridManager::getInstance()->getGridLabel());
 	mRatingComboBox = getChild<LLUICtrl>("rating_combobox");
 	mPostButton = getChild<LLUICtrl>("post_photo_btn");
 	mCancelButton = getChild<LLUICtrl>("cancel_photo_btn");
@@ -345,9 +340,6 @@ void LLFlickrPhotoPanel::sendPhoto()
 		LLSLURL slurl;
 		LLAgentUI::buildSLURL(slurl);
 		std::string slurl_string = slurl.getSLURLString();
-
-		// Add query parameters so Google Analytics can track incoming clicks!
-		//slurl_string += DEFAULT_PHOTO_QUERY_PARAMETERS;
 
 		std::string photo_link_text = "Visit this location";// at [] in Second Life";
 		std::string parcel_name = LLViewerParcelMgr::getInstance()->getAgentParcelName();

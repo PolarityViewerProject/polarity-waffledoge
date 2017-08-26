@@ -81,15 +81,12 @@
 #include "llwlparammanager.h"
 #include "llwaterparammanager.h"
 #include "llscenemonitor.h"
-#include "llfloaterreg.h"
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_inverse.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
-#include "pvmachinima.h"
 
 extern LLPointer<LLViewerTexture> gStartTexture;
 extern bool gShiftFrame;
@@ -455,7 +452,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// of TeleportRequest to the source simulator
 			gTeleportDisplayTimer.reset();
 			pProgFloater->setVisible(TRUE);
-			// <polarity> Add missing call to put new message in TP screen
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 0.f));
 			gAgent.setTeleportState( LLAgent::TELEPORT_REQUESTED );
 			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["requesting"]);
@@ -465,14 +461,12 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 		case LLAgent::TELEPORT_REQUESTED:
 			// Waiting for source simulator to respond
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 37.5f));
-			// <polarity> Add missing call to put new message in TP screen
 			pProgFloater->setProgressText(message);
 			break;
 
 		case LLAgent::TELEPORT_MOVING:
 			// Viewer has received destination location from source simulator
 			pProgFloater->setProgressPercent(llmin(teleport_percent, 75.f));
-			// <polarity> Add missing call to put new message in TP screen
 			pProgFloater->setProgressText(message);
 			break;
 
@@ -482,7 +476,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			pProgFloater->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 			pProgFloater->setProgressPercent(75.f);
 			gAgent.setTeleportState( LLAgent::TELEPORT_ARRIVING );
-			// <polarity> Add missing call to put new message in TP screen
 			gAgent.setTeleportMessage(LLAgent::sTeleportProgressMessages["arriving"]);
 			gTextureList.mForceResetTextureStats = TRUE;
 			gAgentCamera.resetView(TRUE, TRUE);
@@ -501,7 +494,6 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 				}
 				pProgFloater->setProgressCancelButtonVisible(FALSE, LLTrans::getString("Cancel"));
 				pProgFloater->setProgressPercent(arrival_fraction * 25.f + 75.f);
-				// <polarity> Add missing call to put new message in TP screen
 				pProgFloater->setProgressText(message);
 			}
 			break;
@@ -510,9 +502,7 @@ void display(BOOL rebuild, F32 zoom_factor, int subfield, BOOL for_snapshot)
 			// Short delay when teleporting in the same sim (progress screen active but not shown - did not
 			// fall-through from TELEPORT_START)
 			{
-				// <FS:CR> FIRE-8721 - Remove local teleport delay
-				//if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
-				// </FS:CR>
+				if( gTeleportDisplayTimer.getElapsedTimeF32() > teleport_local_delay() )
 				{
 					//LLFirstUse::useTeleport();
 					gAgent.setTeleportState( LLAgent::TELEPORT_NONE );
@@ -1104,7 +1094,7 @@ void render_hud_attachments()
 	// smoothly interpolate current zoom level
 	gAgentCamera.mHUDCurZoom = lerp(gAgentCamera.mHUDCurZoom, gAgentCamera.mHUDTargetZoom, LLSmoothInterpolation::getInterpolant(0.03f));
 
-	if (!PVMachinimaTools::isEnabled() && (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices()))
+	if (LLPipeline::sShowHUDAttachments && !gDisconnected && setup_hud_matrices())
 	{
 		LLPipeline::sRenderingHUDs = TRUE;
 		LLCamera hud_cam = *LLViewerCamera::getInstance();
@@ -1362,7 +1352,6 @@ void swap()
 	{
 		gViewerWindow->getWindow()->swapBuffers();
 	}
-	// Crashed here opening RDP out to another machine??!?!?!?!
 	gDisplaySwapBuffers = TRUE;
 }
 

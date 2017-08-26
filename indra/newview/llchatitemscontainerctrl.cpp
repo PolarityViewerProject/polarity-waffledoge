@@ -29,7 +29,6 @@
 #include "llviewerprecompiledheaders.h"
 
 #include "llchatitemscontainerctrl.h"
-#include "llconsole.h"
 #include "lltextbox.h"
 
 #include "llavatariconctrl.h"
@@ -43,10 +42,6 @@
 #include "llagentdata.h"
 
 #include "llslurl.h"
-
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
 
 static const S32 msg_left_offset = 10;
 static const S32 msg_right_offset = 10;
@@ -159,19 +154,16 @@ void LLFloaterIMNearbyChatToastPanel::addMessage(LLSD& notification)
 	LLColor4 textColor = LLUIColorTable::instance().getColor(color_name);
 	textColor.mV[VALPHA] =notification["color_alpha"].asReal();
 	
-	// <polarity> Centralize font size selection
-	//S32 font_size = notification["font_size"].asInteger();
-	//
-	//LLFontGL*       messageFont;
-	//switch(font_size)
-	//{
-	//	case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
-	//	default:
-	//	case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
-	//	case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
-	//}
-	LLFontGL*       messageFont = LLConsole::getFontSize(notification["font_size"].asInteger());
-	// </polarity>
+	S32 font_size = notification["font_size"].asInteger();
+
+	LLFontGL*       messageFont;
+	switch(font_size)
+	{
+		case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
+		default:
+		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
+		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+	}
 
 	//append text
 	{
@@ -220,17 +212,14 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 	
 	S32 font_size = notification["font_size"].asInteger();
 
-	// <polarity/> Centralize font size selection
-	//LLFontGL*       messageFont;
-	//switch(font_size)
-	//{
-	//	case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
-	//	default:
-	//	case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
-	//	case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
-	//}
-	LLFontGL*       messageFont = LLConsole::getFontSize(font_size);
-	// <polarity>
+	LLFontGL*       messageFont;
+	switch(font_size)
+	{
+		case 0:	messageFont = LLFontGL::getFontSansSerifSmall(); break;
+		default:
+		case 1: messageFont = LLFontGL::getFontSansSerif();	    break;
+		case 2:	messageFont = LLFontGL::getFontSansSerifBig();	break;
+	}
 	
 	mMsgText = getChild<LLChatMsgBox>("msg_text", false);
 	mMsgText->setContentTrusted(false);
@@ -250,21 +239,8 @@ void LLFloaterIMNearbyChatToastPanel::init(LLSD& notification)
 		{
 			LLStyle::Params style_params_name;
 
-			static LLColor4 html_link_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
-			LLColor4 name_color;
-#ifdef PVDATA_SYSTEM
-			// <polarity> Colored names for special users
-			if (mSourceType != CHAT_SOURCE_OBJECT && (mFromID.notNull()))
-			{
-				name_color = PVAgent::getColor(mFromID, html_link_color);
-			}
-			else
-#endif // PVDATA_SYSTEM
-			{
-				name_color = html_link_color;
-			}
-			// </polarity>
-			style_params_name.color(name_color);
+			LLColor4 user_name_color = LLUIColorTable::instance().getColor("HTMLLinkColor");
+			style_params_name.color(user_name_color);
 
 			std::string font_name = LLFontGL::nameFromFont(messageFont);
 			std::string font_style_size = LLFontGL::sizeFromFont(messageFont);
@@ -447,4 +423,5 @@ void LLFloaterIMNearbyChatToastPanel::draw()
 		mIsDirty = false;
 	}
 }
+
 

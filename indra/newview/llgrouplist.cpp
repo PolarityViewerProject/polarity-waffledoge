@@ -45,8 +45,6 @@
 #include "llviewercontrol.h"	// for gSavedSettings
 #include "llviewermenu.h"		// for gMenuHolder
 #include "llvoiceclient.h"
-#include "llslurl.h"
-#include "llurlaction.h"
 
 static LLDefaultChildRegistry::Register<LLGroupList> r("group_list");
 S32 LLGroupListItem::sIconWidth = 0;
@@ -277,11 +275,6 @@ bool LLGroupList::onContextMenuItemClick(const LLSD& userdata)
 	{
 		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_NAME);
 	}
-	// Lol, groups don't have display names
-	//else if (action == "copy_displayname")
-	//{
-	//	LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_DISPLAYNAME);
-	//}
 	else if (action == "copy_slurl")
 	{
 		LLGroupActions::copyData(selected_group, LLGroupActions::E_DATA_SLURL);

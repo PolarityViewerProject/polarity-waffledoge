@@ -75,20 +75,6 @@ public:
 	BOOL killObject(LLViewerObject *objectp);
 	void killObjects(LLViewerRegion *regionp); // Kill all objects owned by a particular region.
 	void killAllObjects();
-
-//	//BD - Fullbright Toggle
-	void killAllFullbrights();
-
-//	//BD - Alpha Toggle
-	void killAllAlphas();
-
-//	//BD - De/ReAlpha
-	void killAlpha(LLViewerObject *objectp);
-	void restoreAlpha(LLViewerObject *objectp);
-
-//	//BD - DeBright
-	void killFullbright(LLViewerObject *objectp);
-
 	void removeDrawable(LLDrawable* drawablep);
 
 	void cleanDeadObjects(const BOOL use_timer = TRUE);	// Clean up the dead object list.
@@ -248,15 +234,6 @@ private:
 
     static void reportPhysicsFlagFailure(LLSD &obejectList);
     void fetchPhisicsFlagsCoro(std::string url);
-
-// <FS:ND> Remember objects we did derender. We might get object updates for them that create new instances. In those cases we kill them again.
-private:
-	std::map< LLUUID, bool > mDerendered;
-public:
-	void resetDerenderList(bool force = false);
-	void addDerenderedItem( LLUUID const &, bool );
-	void removeDerenderedItem( LLUUID const & );
-// </FS:ND>
 
 };
 

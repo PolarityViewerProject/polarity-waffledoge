@@ -67,11 +67,6 @@
 #include "llvoavatar.h"
 #include "lltrans.h"
 
-#ifdef PVDATA_SYSTEM
-#include "pvdata.h"
-#endif
-#include "pvconstants.h"
-
 namespace 
 {
 	// This method is used to return an object to mute given an object id.
@@ -251,31 +246,13 @@ BOOL LLMuteList::add(const LLMute& mute, U32 flags)
 	}
 	
 	// Can't mute self.
-	// <polarity>
-	//if (mute.mType == LLMute::AGENT
-	//	&& mute.mID == gAgent.getID())
-	if (mute.mType == LLMute::AGENT)
+	if (mute.mType == LLMute::AGENT
+		&& mute.mID == gAgent.getID())
 	{
-		if (mute.mID == gAgent.getID())
-		{
-        	LL_WARNS() << "Trying to self; ignored" << LL_ENDL;
-			return FALSE;
-		}
-
-#ifdef PVDATA_SYSTEM
-		else
-		{
-			// Can't mute our developers
-			auto pv_agent = PVAgent::find(mute.mID);
-			if (pv_agent && pv_agent->isProviderDeveloper())
-			{
-				LLNotifications::instance().add("MuteDeveloper", LLSD(), LLSD());
-				return FALSE;
-			}
-		}
-#endif
+        LL_WARNS() << "Trying to self; ignored" << LL_ENDL;
+		return FALSE;
 	}
-
+	
 	S32 mute_list_limit = gSavedSettings.getS32("MuteListLimit");
 	if (getMutes().size() >= mute_list_limit)
 	{

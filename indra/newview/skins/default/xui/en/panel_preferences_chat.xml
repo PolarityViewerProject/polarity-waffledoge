@@ -62,7 +62,7 @@
      top_pad="6"
      name="announce_im_toggle"
      width="275"
-     control_name="PVChat_AnnounceIncomingIM"/>
+     control_name="AlchemyNotifyIncomingMessage"/>
     <check_box
      follows="left|top"
      height="16"
@@ -142,6 +142,15 @@
      left_delta="0"
      top_pad="6"
      width="350"/>
+    <check_box
+     control_name="AlchemyChatColorManager"
+     height="16"
+     label="Color chat names based on name tags"
+     layout="topleft"
+     name="username_tag_color"
+     left_delta="0"
+     top_pad="6"
+     width="350"/>
 
     <panel
      follows="all"
@@ -171,23 +180,19 @@
         <combo_box.item
          label="Monospace"
          name="Monospace Font"
-         value="0" />
+         value="3" />
         <combo_box.item
          label="Small"
          name="Small Font"
-         value="1" />
+         value="0" />
         <combo_box.item
          label="Medium"
          name="Medium Font"
-         value="2" />
+         value="1" />
         <combo_box.item
          label="Large"
          name="Large Font"
-         value="3" />
-        <combo_box.item
-         label="Huge"
-         name="Huge Font"
-         value="4" />
+         value="2" />
     </combo_box>
     <text
         left="0"

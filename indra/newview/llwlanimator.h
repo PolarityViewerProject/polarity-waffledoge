@@ -47,7 +47,6 @@ public:
 	
 	// track to play
 	std::map<F32, LLWLParamKey> mTimeTrack;
-	std::map<F32, LLWLParamKey>::iterator mFirstIt, mSecondIt;
 
 	// simple constructor
 	LLWLAnimator();
@@ -55,7 +54,6 @@ public:
 	~LLWLAnimator()
 	{
 		delete mInterpBeginWL;
-		delete mInterpEndWL;
 		delete mInterpBeginWater;
 		delete mInterpEndWater;
 	}
@@ -88,7 +86,6 @@ public:
 	}
 
 	void startInterpolation(const LLSD& targetWater);
-	void startInterpolationSky(const LLSD& targetSky);
 
 	bool getIsRunning()
 	{
@@ -126,18 +123,10 @@ public:
 	/// get local time between 0 and 1
 	static F64 getLocalTime();
 
-	// <FS:Ansariel> Quickprefs integration
-	void stopInterpolation()
-	{
-		mIsInterpolating = false;
-		mIsInterpolatingSky = false;
-	}
-	// </FS:Ansariel>
-
 private:
 	ETime mTimeType;
-	bool mIsRunning, mIsInterpolating, mIsInterpolatingSky;
-	LLWLParamSet *mInterpBeginWL, *mInterpEndWL;
+	bool mIsRunning, mIsInterpolating;
+	LLWLParamSet *mInterpBeginWL;
 	LLWaterParamSet *mInterpBeginWater, *mInterpEndWater;
 	clock_t mInterpStartTime, mInterpEndTime;
 
