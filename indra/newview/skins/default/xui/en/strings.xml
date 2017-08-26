@@ -116,10 +116,10 @@ Voice Server Version: [VOICE_VERSION]
 	<string name="Quit">Quit</string>
 	<string name="create_account_url">http://join.secondlife.com/?sourceid=[sourceid]</string>
 
-	<string name="ViewerDownloadURL">https://www.alchemyviewer.org/</string>
+	<string name="ViewerDownloadURL">https://www.polarityviewer.org/</string>
 	<string name="LoginFailedViewerNotPermitted">
 	The viewer you are using can no longer access [CURRENT_GRID]. Please visit the following page to download a new viewer:
-	https://www.alchemyviewer.org
+	https://www.polarityviewer.org
   </string>
 	<string name="LoginIntermediateOptionalUpdateAvailable">Optional viewer update available: [VERSION]</string>
 	<string name="LoginFailedRequiredUpdate">Required viewer update: [VERSION]</string>
@@ -313,7 +313,7 @@ Please try logging in again in a minute.</string>
 
 	<string name="ReleaseNotes">Release Notes</string>
 	<!-- Always mark translate="false" for strings that are nothing but URLs, as they don't need translation. -->
-	<string name="RELEASE_NOTES_BASE_URL" translate="false">https://alchemy.atlassian.net/wiki/display/ALCH/</string>
+	<string name="RELEASE_NOTES_BASE_URL" translate="false">https://polarityviewer.atlassian.net/wiki/display/PLVR/</string>
 
 	<!-- Indicates something is being loaded. Maybe should be merged with RetrievingData -->
 	<string name="LoadingData">Loading...</string>
@@ -3032,7 +3032,7 @@ Do you wish to continue?
 	<string name="MBWarning">Warning</string>
 	<string name="MBNoAutoUpdate">
 	Automatic updating is not yet implemented for Linux.
-	Please download the latest version from https://www.alchemyviewer.org.
+	Please download the latest version from https://www.polarityviewer.org.
   </string>
 	<string name="MBRegClassFailed">RegisterClass failed</string>
 	<string name="MBError">Error</string>
@@ -3675,7 +3675,7 @@ If you continue to receive this message, contact the [SUPPORT_SITE].
 	  Failed to download update
 	</string>
 	<string name="UpdaterFailUpdateDescriptive">
-	An error occurred while updating [APP_NAME]. Please download the latest version from https://www.alchemyviewer.org.
+	An error occurred while updating [APP_NAME]. Please download the latest version from https://www.polarityviewer.org.
   </string>
 	<string name="UpdaterFailInstallTitle">
 	  Failed to install update
